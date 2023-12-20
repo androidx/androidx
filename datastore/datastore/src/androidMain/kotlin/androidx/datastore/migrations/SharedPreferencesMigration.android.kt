@@ -62,6 +62,8 @@ private constructor(
      * the key will not be migrated again. If the key is not present in the SharedPreferences it
      * will not be migrated. If keysToMigrate is not set, all keys will be migrated from
      * the existing SharedPreferences.
+     * @param shouldRunMigration A lambda which accepts current data of type `T` and returns whether
+     * migration should run.
      * @param migrate maps SharedPreferences into T. Implementations should be idempotent
      * since this may be called multiple times. See [DataMigration.migrate] for more
      * information. The lambda accepts a SharedPreferencesView which is the view of the
@@ -108,6 +110,8 @@ private constructor(
      * the key will not be migrated again. If the key is not present in the SharedPreferences it
      * will not be migrated. If keysToMigrate is not set, all keys will be migrated from
      * the existing SharedPreferences.
+     * @param shouldRunMigration A lambda which accepts current data of type `T` and returns whether
+     * migration should run.
      * @param migrate maps SharedPreferences into T. Implementations should be idempotent
      * since this may be called multiple times. See [DataMigration.migrate] for more
      * information. The lambda accepts a SharedPreferencesView which is the view of the
