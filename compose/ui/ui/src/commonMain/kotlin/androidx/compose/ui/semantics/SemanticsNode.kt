@@ -247,13 +247,14 @@ class SemanticsNode internal constructor(
         get() = mergingEnabled && unmergedConfig.isMergingSemanticsOfDescendants
 
     internal fun unmergedChildren(
-        includeFakeNodes: Boolean = false
+        includeFakeNodes: Boolean = false,
+        includeDeactivatedNodes: Boolean = false
     ): List<SemanticsNode> {
         // TODO(lmr): we should be able to do this more efficiently using visitSubtree
         if (this.isFake) return listOf()
         val unmergedChildren: MutableList<SemanticsNode> = mutableListOf()
 
-        this.layoutNode.fillOneLayerOfSemanticsWrappers(unmergedChildren)
+        this.layoutNode.fillOneLayerOfSemanticsWrappers(unmergedChildren, includeDeactivatedNodes)
 
         if (includeFakeNodes) {
             emitFakeNodes(unmergedChildren)
@@ -263,7 +264,8 @@ class SemanticsNode internal constructor(
     }
 
     private fun LayoutNode.fillOneLayerOfSemanticsWrappers(
-        list: MutableList<SemanticsNode>
+        list: MutableList<SemanticsNode>,
+        includeDeactivatedNodes: Boolean
     ) {
         // TODO(lmr): visitChildren would be great for this but we would lose the zSorted bit...
         //  i wonder if we can optimize this for the common case of no z-sortedness going on.
@@ -271,11 +273,11 @@ class SemanticsNode internal constructor(
             // TODO(b/290936195): In some conditions it appears that children here can be
             //  unattached. We just guard against that here as a "quick fix" but we need to
             //  understand why this is happening and followup with a proper fix.
-            if (child.isAttached) {
+            if (child.isAttached && (includeDeactivatedNodes || !child.isDeactivated)) {
                 if (child.nodes.has(Nodes.Semantics)) {
                     list.add(SemanticsNode(child, mergingEnabled))
                 } else {
-                    child.fillOneLayerOfSemanticsWrappers(list)
+                    child.fillOneLayerOfSemanticsWrappers(list, includeDeactivatedNodes)
                 }
             }
         }
@@ -290,10 +292,7 @@ class SemanticsNode internal constructor(
     // TODO(b/184376083): This is too expensive for a val (full subtree recreation every call);
     //               optimize this when the merging algorithm is improved.
     val children: List<SemanticsNode>
-        get() = getChildren(
-            includeReplacedSemantics = !mergingEnabled,
-            includeFakeNodes = false
-        )
+        get() = getChildren()
 
     /**
      * Contains the children in inverse hit test order (i.e. paint order).
@@ -316,10 +315,14 @@ class SemanticsNode internal constructor(
      * set to true, but for testing purposes we don't want to expose the fake nodes and therefore
      * set to false. When Talkback can properly handle unmerged tree, fake nodes will be removed
      * and so will be this parameter.
+     * @param includeDeactivatedNodes set to true if you want to collect the nodes which are
+     * deactivated. For example, the children of [androidx.compose.ui.layout.SubcomposeLayout]
+     * which are retained to be reused in future are considered deactivated.
      */
-    private fun getChildren(
-        includeReplacedSemantics: Boolean,
-        includeFakeNodes: Boolean
+    internal fun getChildren(
+        includeReplacedSemantics: Boolean = !mergingEnabled,
+        includeFakeNodes: Boolean = false,
+        includeDeactivatedNodes: Boolean = false
     ): List<SemanticsNode> {
         if (!includeReplacedSemantics && unmergedConfig.isClearingSemantics) {
             return listOf()
@@ -332,7 +335,7 @@ class SemanticsNode internal constructor(
             return findOneLayerOfMergingSemanticsNodes()
         }
 
-        return unmergedChildren(includeFakeNodes)
+        return unmergedChildren(includeFakeNodes, includeDeactivatedNodes)
     }
 
     /**
