@@ -182,7 +182,8 @@ class DialogState(
         Dialog(
             onDismissRequest = onDismissRequest,
             properties = DialogProperties(
-                dismissOnClickOutside = dismissOnClickOutside
+                dismissOnClickOutside = dismissOnClickOutside,
+                usePlatformInsets = false
             )
         ) {
             with(LocalDensity.current) {
