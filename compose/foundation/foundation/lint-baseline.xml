@@ -478,6 +478,34 @@
             file="src/commonMain/kotlin/androidx/compose/foundation/pager/PagerMeasure.kt"/>
     </issue>
 
+    <!-- TODO(soboleva) temporary change, remove when stable link annotations merged -->
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="@OptIn(ExperimentalTextApi::class)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/BasicText.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="@OptIn(ExperimentalTextApi::class)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/modifiers/TextAnnotatedStringNode.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="@OptIn(ExperimentalTextApi::class)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/TextLinkScope.kt"/>
+    </issue>
+
     <issue
         id="PrimitiveInCollection"
         message="method createPagesAfterList has parameter pinnedPages with type List&lt;Integer>: replace with IntList"
