@@ -139,18 +139,25 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 }
             }
 
+            jbMain {
+                dependsOn(commonMain)
+            }
+
             jsMain {
                 dependencies {
                     implementation(libs.kotlinStdlibJs)
                 }
             }
 
-            jsNativeMain.dependsOn(commonMain)
+            jsNativeMain.dependsOn(jbMain)
             jsWasmMain {
                 dependsOn(jsNativeMain)
             }
             jsMain {
                 dependsOn(jsWasmMain)
+            }
+            desktopMain {
+                dependsOn(jbMain)
             }
 
             if (project.kotlinWasmEnabled.toBoolean()) {
