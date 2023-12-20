@@ -20,6 +20,5 @@ import androidx.compose.ui.text.font.Font
 actual sealed class PlatformFont : Font {
     abstract actual val identity: String
     internal actual val cacheKey: String
-        get() = "${this::class.qualifiedName}|$identity"
+        get() = "${this::class.qualifiedName}|$identity|weight=${weight.weight}|style=$style"
 }
-
