@@ -29,8 +29,12 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.WorkerThread
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.room.Room.LOG_TAG
+import androidx.room.driver.SupportSQLiteConnection
 import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
+import androidx.room.util.findMigrationPath as findMigrationPathExt
+import androidx.sqlite.SQLiteConnection
+import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
@@ -61,14 +65,17 @@ import java.util.concurrent.locks.ReentrantReadWriteLock
  *
  * @see Database
  */
-abstract class RoomDatabase {
+actual abstract class RoomDatabase {
     /**
      * Set by the generated open helper.
      *
      */
     @Volatile
-    @Deprecated("Will be hidden in the next release.")
     @JvmField
+    @Deprecated(
+        message = "This property is always null and will be removed in a future version.",
+        level = DeprecationLevel.ERROR
+    )
     protected var mDatabase: SupportSQLiteDatabase? = null
 
     /**
@@ -91,9 +98,12 @@ abstract class RoomDatabase {
      * The SQLite open helper used by this database.
      */
     open val openHelper: SupportSQLiteOpenHelper
-        get() = internalOpenHelper
+        get() = connectionManager.supportOpenHelper ?: error(
+            "Cannot return a SupportSQLiteOpenHelper since no " +
+                "SupportSQLiteOpenHelper.Factory was configured with Room."
+        )
 
-    private lateinit var internalOpenHelper: SupportSQLiteOpenHelper
+    private lateinit var connectionManager: RoomAndroidConnectionManager
 
     /**
      * The invalidation tracker for this database.
@@ -109,9 +119,12 @@ abstract class RoomDatabase {
 
     /**
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    @Deprecated("Will be hidden in a future release.")
     @JvmField
+    @Deprecated(
+        message = "This property is always null and will be removed in a future version.",
+        level = DeprecationLevel.ERROR
+    )
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     protected var mCallbacks: List<Callback>? = null
 
     /**
@@ -177,9 +190,9 @@ abstract class RoomDatabase {
      * @param configuration The database configuration.
      */
     @CallSuper
-    @Suppress("DEPRECATION")
     open fun init(configuration: DatabaseConfiguration) {
-        internalOpenHelper = createOpenHelper(configuration)
+        connectionManager = createConnectionManager(configuration) as RoomAndroidConnectionManager
+
         val requiredAutoMigrationSpecs = getRequiredAutoMigrationSpecs()
         val usedSpecs = BitSet()
         for (spec in requiredAutoMigrationSpecs) {
@@ -217,24 +230,24 @@ abstract class RoomDatabase {
             }
         }
 
-        // Configure SqliteCopyOpenHelper if it is available:
+        // Configure SQLiteCopyOpenHelper if it is available
         unwrapOpenHelper(
                 clazz = SQLiteCopyOpenHelper::class.java,
-                openHelper = openHelper
+                openHelper = connectionManager.supportOpenHelper
             )?.setDatabaseConfiguration(configuration)
 
+        // Configure AutoClosingRoomOpenHelper if it is available
         unwrapOpenHelper(
             clazz = AutoClosingRoomOpenHelper::class.java,
-            openHelper = openHelper
+            openHelper = connectionManager.supportOpenHelper
         )?.let {
             autoCloser = it.autoCloser
             invalidationTracker.setAutoCloser(it.autoCloser)
         }
 
         val wal = configuration.journalMode == JournalMode.WRITE_AHEAD_LOGGING
-        openHelper.setWriteAheadLoggingEnabled(wal)
+        connectionManager.supportOpenHelper?.setWriteAheadLoggingEnabled(wal)
 
-        mCallbacks = configuration.callbacks
         internalQueryExecutor = configuration.queryExecutor
         internalTransactionExecutor = TransactionExecutor(configuration.transactionExecutor)
         allowMainThreadQueries = configuration.allowMainThreadQueries
@@ -285,6 +298,33 @@ abstract class RoomDatabase {
     }
 
     /**
+     * Creates a connection manager to manage database connection. Note that this method
+     * is called when the [RoomDatabase] is initialized.
+     *
+     * @return A new connection manager.
+     */
+    internal actual fun createConnectionManager(
+        configuration: DatabaseConfiguration
+    ): RoomConnectionManager {
+        return try {
+            RoomAndroidConnectionManager(
+                config = configuration,
+                openDelegate = createOpenDelegate() as RoomOpenDelegate
+            )
+        } catch (ex: NotImplementedError) {
+            // If createOpenDelegate() is not implemented then the database implementation was
+            // generated with an older compiler, we are force to create a connection manager
+            // using the SupportSQLiteOpenHelper return from createOpenHelper() with the
+            // deprecated RoomOpenHelper installed.
+            @Suppress("DEPRECATION")
+            RoomAndroidConnectionManager(
+                config = configuration,
+                supportOpenHelper = createOpenHelper(configuration)
+            )
+        }
+    }
+
+    /**
      * Returns a list of [Migration] of a database that have been automatically generated.
      *
      * @return A list of migration instances each of which is a generated autoMigration
@@ -308,7 +348,7 @@ abstract class RoomDatabase {
      * @return the instance of clazz, otherwise null
      */
     @Suppress("UNCHECKED_CAST")
-    private fun <T> unwrapOpenHelper(clazz: Class<T>, openHelper: SupportSQLiteOpenHelper): T? {
+    private fun <T> unwrapOpenHelper(clazz: Class<T>, openHelper: SupportSQLiteOpenHelper?): T? {
         if (clazz.isInstance(openHelper)) {
             return openHelper as T
         }
@@ -327,8 +367,24 @@ abstract class RoomDatabase {
      *
      * @param config The configuration of the Room database.
      * @return A new SupportSQLiteOpenHelper to be used while connecting to the database.
+     * @throws NotImplementedError by default
      */
-    protected abstract fun createOpenHelper(config: DatabaseConfiguration): SupportSQLiteOpenHelper
+    @Deprecated("No longer implemented by generated")
+    protected open fun createOpenHelper(config: DatabaseConfiguration): SupportSQLiteOpenHelper {
+        throw NotImplementedError()
+    }
+
+    /**
+     * Creates a delegate to configure and initialize the database when it is being opened.
+     * An implementation of this function is generated by the Room processor. Note that this method
+     * is called when the [RoomDatabase] is initialized.
+     *
+     * @return A new delegate to be used while opening the database
+     * @throws NotImplementedError by default
+     */
+    protected actual open fun createOpenDelegate(): RoomOpenDelegateMarker {
+        throw NotImplementedError()
+    }
 
     /**
      * Called when the RoomDatabase is created.
@@ -389,17 +445,15 @@ abstract class RoomDatabase {
      *
      * @return true if the database connection is open, false otherwise.
      */
-    @Suppress("Deprecation") // Due to usage of `mDatabase`
     open val isOpen: Boolean
-        get() = (autoCloser?.isActive ?: mDatabase?.isOpen) == true
+        get() = autoCloser?.isActive ?: connectionManager.isSupportDatabaseOpen()
 
     /**
      * True if the actual database connection is open, regardless of auto-close.
      */
-    @Suppress("Deprecation") // Due to usage of `mDatabase`
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val isOpenInternal: Boolean
-        get() = mDatabase?.isOpen == true
+        get() = connectionManager.isSupportDatabaseOpen()
 
     /**
      * Closes the database if it is already open.
@@ -410,7 +464,7 @@ abstract class RoomDatabase {
             closeLock.lock()
             try {
                 invalidationTracker.stopMultiInstanceInvalidation()
-                openHelper.close()
+                connectionManager.close()
             } finally {
                 closeLock.unlock()
             }
@@ -615,6 +669,21 @@ abstract class RoomDatabase {
     }
 
     /**
+     * Called by the generated code when database is open.
+     *
+     * You should never call this method manually.
+     *
+     * @param connection The database connection.
+     */
+    protected open fun internalInitInvalidationTracker(connection: SQLiteConnection) {
+        if (connection is SupportSQLiteConnection) {
+            internalInitInvalidationTracker(connection.db)
+        } else {
+            TODO("Not yet migrated to use SQLiteDriver")
+        }
+    }
+
+    /**
      * Returns true if current thread is in a transaction.
      *
      * @return True if there is an active transaction in current thread, false otherwise.
@@ -666,12 +735,12 @@ abstract class RoomDatabase {
     }
 
     /**
-     * Builder for RoomDatabase.
+     * Builder for [RoomDatabase].
      *
      * @param T The type of the abstract database class.
      */
     @Suppress("GetterOnBuilder") // To keep ABI compatibility from Java
-    open class Builder<T : RoomDatabase> internal constructor(
+    actual open class Builder<T : RoomDatabase> internal constructor(
         private val context: Context,
         private val klass: Class<T>,
         private val name: String?
@@ -711,6 +780,8 @@ abstract class RoomDatabase {
         private var copyFromAssetPath: String? = null
         private var copyFromFile: File? = null
         private var copyFromInputStream: Callable<InputStream>? = null
+
+        private var driver: SQLiteDriver? = null
 
         /**
          * Configures Room to create and open the database using a pre-packaged database located in
@@ -1321,14 +1392,28 @@ abstract class RoomDatabase {
         }
 
         /**
+         * Sets the [SQLiteDriver] implementation to be used by Room to open database connections.
+         * For example, an instance of [androidx.sqlite.driver.AndroidSQLiteDriver] or
+         * [androidx.sqlite.driver.bundled.BundledSQLiteDriver].
+         *
+         * @param driver The driver
+         * @return This builder instance.
+         */
+        @Suppress("MissingGetterMatchingBuilder")
+        actual fun setDriver(driver: SQLiteDriver) = apply {
+            this.driver = driver
+        }
+
+        /**
          * Creates the databases and initializes it.
          *
          * By default, all RoomDatabases use in memory storage for TEMP tables and enables recursive
          * triggers.
          *
          * @return A new database instance.
+         * @throws IllegalArgumentException if the builder was misconfigured.
          */
-        open fun build(): T {
+        actual open fun build(): T {
             if (queryExecutor == null && transactionExecutor == null) {
                 transactionExecutor = ArchTaskExecutor.getIOThreadExecutor()
                 queryExecutor = transactionExecutor
@@ -1349,11 +1434,24 @@ abstract class RoomDatabase {
                 }
             }
 
-            val factory: SupportSQLiteOpenHelper.Factory = if (factory == null) {
-                FrameworkSQLiteOpenHelperFactory()
-            } else {
-                factory
-            }?.let {
+            val initialFactory: SupportSQLiteOpenHelper.Factory? =
+                if (driver == null && factory == null) {
+                    // No driver and no factory, compatibility mode, create the default factory
+                    FrameworkSQLiteOpenHelperFactory()
+                } else if (driver == null) {
+                    // No driver but a factory was provided, use it in compatibility mode
+                    factory
+                } else if (factory == null) {
+                    // A driver was provided, no need to create the default factory
+                    null
+                } else {
+                    // Both driver and factory provided, invalid configuration.
+                    throw IllegalArgumentException(
+                        "A RoomDatabase cannot be configured with both a SQLiteDriver and a " +
+                            "SupportOpenHelper.Factory."
+                    )
+                }
+            val factory = initialFactory?.let {
                 if (autoCloseTimeout > 0) {
                     requireNotNull(name) {
                         "Cannot create auto-closing database for an in-memory database."
@@ -1398,8 +1496,7 @@ abstract class RoomDatabase {
                 } else {
                     it
                 }
-            }.let {
-                requireNotNull(it)
+            }?.let {
                 if (queryCallback != null) {
                     QueryInterceptorOpenHelperFactory(
                         it,
@@ -1430,7 +1527,8 @@ abstract class RoomDatabase {
                 prepackagedDatabaseCallback,
                 typeConverters,
                 autoMigrationSpecs,
-                allowDestructiveMigrationForAllTables
+                allowDestructiveMigrationForAllTables,
+                driver,
             )
             val db = Room.getGeneratedImplementation<T, T>(klass, "_Impl")
             db.init(configuration)
@@ -1442,7 +1540,7 @@ abstract class RoomDatabase {
      * A container to hold migrations. It also allows querying its contents to find migrations
      * between two versions.
      */
-    open class MigrationContainer {
+    actual open class MigrationContainer {
         private val migrations = mutableMapOf<Int, TreeMap<Int, Migration>>()
 
         /**
@@ -1482,7 +1580,7 @@ abstract class RoomDatabase {
          *
          * @return Map of migrations keyed by the start version
          */
-        open fun getMigrations(): Map<Int, Map<Int, Migration>> {
+        actual open fun getMigrations(): Map<Int, Map<Int, Migration>> {
             return migrations
         }
 
@@ -1496,50 +1594,7 @@ abstract class RoomDatabase {
          * between the given versions. If a migration path cannot be found, returns `null`.
          */
         open fun findMigrationPath(start: Int, end: Int): List<Migration>? {
-            if (start == end) {
-                return emptyList()
-            }
-            val migrateUp = end > start
-            val result = mutableListOf<Migration>()
-            return findUpMigrationPath(result, migrateUp, start, end)
-        }
-
-        private fun findUpMigrationPath(
-            result: MutableList<Migration>,
-            upgrade: Boolean,
-            start: Int,
-            end: Int
-        ): List<Migration>? {
-            var migrationStart = start
-            while (if (upgrade) migrationStart < end else migrationStart > end) {
-                val targetNodes = migrations[migrationStart] ?: return null
-                // keys are ordered so we can start searching from one end of them.
-                val keySet = if (upgrade) {
-                    targetNodes.descendingKeySet()
-                } else {
-                    targetNodes.keys
-                }
-                var found = false
-                for (targetVersion in keySet) {
-                    val shouldAddToPath = if (upgrade) {
-                        targetVersion in (migrationStart + 1)..end
-                    } else {
-                        targetVersion in end until migrationStart
-                    }
-                    if (shouldAddToPath) {
-                        // We are iterating over the key set of targetNodes, so we can assume it
-                        // won't return a null value.
-                        result.add(targetNodes[targetVersion]!!)
-                        migrationStart = targetVersion
-                        found = true
-                        break
-                    }
-                }
-                if (!found) {
-                    return null
-                }
-            }
-            return result
+            return this.findMigrationPathExt(start, end)
         }
 
         /**
@@ -1557,6 +1612,20 @@ abstract class RoomDatabase {
                 return startVersionMatches.containsKey(endVersion)
             }
             return false
+        }
+
+        internal actual fun getSortedNodes(
+            migrationStart: Int
+        ): Pair<Map<Int, Migration>, Iterable<Int>>? {
+            val targetNodes = migrations[migrationStart] ?: return null
+            return targetNodes to targetNodes.keys
+        }
+
+        internal actual fun getSortedDescendingNodes(
+            migrationStart: Int
+        ): Pair<Map<Int, Migration>, Iterable<Int>>? {
+            val targetNodes = migrations[migrationStart] ?: return null
+            return targetNodes to targetNodes.descendingKeySet()
         }
     }
 

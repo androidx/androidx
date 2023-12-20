@@ -16,6 +16,8 @@
 package androidx.room.util
 
 import androidx.annotation.RestrictTo
+import androidx.room.driver.SupportSQLiteConnection
+import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 /**
@@ -76,6 +78,15 @@ class ViewInfo(
                 } else {
                     ViewInfo(viewName, null)
                 }
+            }
+        }
+
+        @JvmStatic
+        fun read(connection: SQLiteConnection, viewName: String): ViewInfo {
+            if (connection is SupportSQLiteConnection) {
+                return read(connection.db, viewName)
+            } else {
+                TODO("Not yet migrated to use SQLiteDriver")
             }
         }
     }

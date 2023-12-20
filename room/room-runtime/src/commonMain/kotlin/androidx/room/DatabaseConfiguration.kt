@@ -15,5 +15,19 @@
  */
 
 package androidx.room
-// empty file to trigger klib creation
-// see: https://youtrack.jetbrains.com/issue/KT-52344
+
+import androidx.sqlite.SQLiteDriver
+
+/**
+ * Configuration class for a [RoomDatabase].
+ */
+expect class DatabaseConfiguration {
+    /**
+     * Collection of available migrations.
+     */
+    val migrationContainer: RoomDatabase.MigrationContainer
+    val requireMigration: Boolean
+    val allowDestructiveMigrationOnDowngrade: Boolean
+    internal val migrationNotRequiredFrom: Set<Int>?
+    val sqliteDriver: SQLiteDriver?
+}

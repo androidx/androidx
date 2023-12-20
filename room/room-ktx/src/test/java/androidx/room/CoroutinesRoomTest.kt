@@ -17,7 +17,6 @@
 package androidx.room
 
 import androidx.kruth.assertThat
-import androidx.sqlite.db.SupportSQLiteOpenHelper
 import kotlin.coroutines.ContinuationInterceptor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
@@ -70,10 +69,6 @@ class CoroutinesRoomTest {
     }
 
     private class TestDatabase : RoomDatabase() {
-        override fun createOpenHelper(config: DatabaseConfiguration): SupportSQLiteOpenHelper {
-            throw UnsupportedOperationException("Shouldn't be called!")
-        }
-
         override fun createInvalidationTracker(): InvalidationTracker {
             return TestInvalidationTracker(this)
         }

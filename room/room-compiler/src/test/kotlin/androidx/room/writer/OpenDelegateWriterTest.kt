@@ -30,7 +30,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class SQLiteOpenHelperWriterTest {
+class OpenDelegateWriterTest {
     companion object {
         private const val DATABASE_PREFIX = """
             package foo.bar;
@@ -55,7 +55,7 @@ class SQLiteOpenHelperWriterTest {
                 int age;
             """.trimIndent()
         ) { database, _ ->
-            val query = SQLiteOpenHelperWriter(database)
+            val query = OpenDelegateWriter(database)
                 .createTableQuery(database.entities.first())
             assertThat(
                 query,
@@ -80,7 +80,7 @@ class SQLiteOpenHelperWriterTest {
             """.trimIndent(),
             attributes = mapOf("primaryKeys" to "{\"uuid\", \"name\"}")
         ) { database, _ ->
-            val query = SQLiteOpenHelperWriter(database)
+            val query = OpenDelegateWriter(database)
                 .createTableQuery(database.entities.first())
             assertThat(
                 query,
@@ -104,7 +104,7 @@ class SQLiteOpenHelperWriterTest {
                 int age;
                 """.trimIndent()
             ) { database, _ ->
-                val query = SQLiteOpenHelperWriter(database)
+                val query = OpenDelegateWriter(database)
                     .createTableQuery(database.entities.first())
                 assertThat(
                     query,
@@ -129,7 +129,7 @@ class SQLiteOpenHelperWriterTest {
                 int age;
                 """.trimIndent()
             ) { database, _ ->
-                val query = SQLiteOpenHelperWriter(database)
+                val query = OpenDelegateWriter(database)
                     .createTableQuery(database.entities.first())
                 assertThat(
                     query,
@@ -146,7 +146,7 @@ class SQLiteOpenHelperWriterTest {
     @Test
     fun createSimpleView() {
         singleView("SELECT uuid, name FROM MyEntity") { database, _ ->
-            val query = SQLiteOpenHelperWriter(database).createViewQuery(database.views.first())
+            val query = OpenDelegateWriter(database).createViewQuery(database.views.first())
             assertThat(query, `is`("CREATE VIEW `MyView` AS SELECT uuid, name FROM MyEntity"))
         }
     }

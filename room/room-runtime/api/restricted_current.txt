@@ -4,7 +4,8 @@ package androidx.room {
   public class DatabaseConfiguration {
     ctor @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public DatabaseConfiguration(android.content.Context context, String? name, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory sqliteOpenHelperFactory, androidx.room.RoomDatabase.MigrationContainer migrationContainer, java.util.List<? extends androidx.room.RoomDatabase.Callback>? callbacks, boolean allowMainThreadQueries, androidx.room.RoomDatabase.JournalMode journalMode, java.util.concurrent.Executor queryExecutor, boolean requireMigration, java.util.Set<java.lang.Integer>? migrationNotRequiredFrom);
     ctor @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public DatabaseConfiguration(android.content.Context context, String? name, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory sqliteOpenHelperFactory, androidx.room.RoomDatabase.MigrationContainer migrationContainer, java.util.List<? extends androidx.room.RoomDatabase.Callback>? callbacks, boolean allowMainThreadQueries, androidx.room.RoomDatabase.JournalMode journalMode, java.util.concurrent.Executor queryExecutor, java.util.concurrent.Executor transactionExecutor, android.content.Intent? multiInstanceInvalidationServiceIntent, boolean requireMigration, boolean allowDestructiveMigrationOnDowngrade, java.util.Set<java.lang.Integer>? migrationNotRequiredFrom, String? copyFromAssetPath, java.io.File? copyFromFile, java.util.concurrent.Callable<java.io.InputStream>? copyFromInputStream, androidx.room.RoomDatabase.PrepackagedDatabaseCallback? prepackagedDatabaseCallback, java.util.List<?> typeConverters, java.util.List<? extends androidx.room.migration.AutoMigrationSpec> autoMigrationSpecs);
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public DatabaseConfiguration(android.content.Context context, String? name, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory sqliteOpenHelperFactory, androidx.room.RoomDatabase.MigrationContainer migrationContainer, java.util.List<? extends androidx.room.RoomDatabase.Callback>? callbacks, boolean allowMainThreadQueries, androidx.room.RoomDatabase.JournalMode journalMode, java.util.concurrent.Executor queryExecutor, java.util.concurrent.Executor transactionExecutor, android.content.Intent? multiInstanceInvalidationServiceIntent, boolean requireMigration, boolean allowDestructiveMigrationOnDowngrade, java.util.Set<java.lang.Integer>? migrationNotRequiredFrom, String? copyFromAssetPath, java.io.File? copyFromFile, java.util.concurrent.Callable<java.io.InputStream>? copyFromInputStream, androidx.room.RoomDatabase.PrepackagedDatabaseCallback? prepackagedDatabaseCallback, java.util.List<?> typeConverters, java.util.List<? extends androidx.room.migration.AutoMigrationSpec> autoMigrationSpecs, boolean allowDestructiveMigrationForAllTables);
+    ctor @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public DatabaseConfiguration(android.content.Context context, String? name, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory sqliteOpenHelperFactory, androidx.room.RoomDatabase.MigrationContainer migrationContainer, java.util.List<? extends androidx.room.RoomDatabase.Callback>? callbacks, boolean allowMainThreadQueries, androidx.room.RoomDatabase.JournalMode journalMode, java.util.concurrent.Executor queryExecutor, java.util.concurrent.Executor transactionExecutor, android.content.Intent? multiInstanceInvalidationServiceIntent, boolean requireMigration, boolean allowDestructiveMigrationOnDowngrade, java.util.Set<java.lang.Integer>? migrationNotRequiredFrom, String? copyFromAssetPath, java.io.File? copyFromFile, java.util.concurrent.Callable<java.io.InputStream>? copyFromInputStream, androidx.room.RoomDatabase.PrepackagedDatabaseCallback? prepackagedDatabaseCallback, java.util.List<?> typeConverters, java.util.List<? extends androidx.room.migration.AutoMigrationSpec> autoMigrationSpecs, boolean allowDestructiveMigrationForAllTables);
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public DatabaseConfiguration(android.content.Context context, String? name, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory? sqliteOpenHelperFactory, androidx.room.RoomDatabase.MigrationContainer migrationContainer, java.util.List<? extends androidx.room.RoomDatabase.Callback>? callbacks, boolean allowMainThreadQueries, androidx.room.RoomDatabase.JournalMode journalMode, java.util.concurrent.Executor queryExecutor, java.util.concurrent.Executor transactionExecutor, android.content.Intent? multiInstanceInvalidationServiceIntent, boolean requireMigration, boolean allowDestructiveMigrationOnDowngrade, java.util.Set<java.lang.Integer>? migrationNotRequiredFrom, String? copyFromAssetPath, java.io.File? copyFromFile, java.util.concurrent.Callable<java.io.InputStream>? copyFromInputStream, androidx.room.RoomDatabase.PrepackagedDatabaseCallback? prepackagedDatabaseCallback, java.util.List<?> typeConverters, java.util.List<? extends androidx.room.migration.AutoMigrationSpec> autoMigrationSpecs, boolean allowDestructiveMigrationForAllTables, androidx.sqlite.SQLiteDriver? sqliteDriver);
     ctor @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public DatabaseConfiguration(android.content.Context context, String? name, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory sqliteOpenHelperFactory, androidx.room.RoomDatabase.MigrationContainer migrationContainer, java.util.List<? extends androidx.room.RoomDatabase.Callback>? callbacks, boolean allowMainThreadQueries, androidx.room.RoomDatabase.JournalMode journalMode, java.util.concurrent.Executor queryExecutor, java.util.concurrent.Executor transactionExecutor, boolean multiInstanceInvalidation, boolean requireMigration, boolean allowDestructiveMigrationOnDowngrade, java.util.Set<java.lang.Integer>? migrationNotRequiredFrom);
     ctor @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public DatabaseConfiguration(android.content.Context context, String? name, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory sqliteOpenHelperFactory, androidx.room.RoomDatabase.MigrationContainer migrationContainer, java.util.List<? extends androidx.room.RoomDatabase.Callback>? callbacks, boolean allowMainThreadQueries, androidx.room.RoomDatabase.JournalMode journalMode, java.util.concurrent.Executor queryExecutor, java.util.concurrent.Executor transactionExecutor, boolean multiInstanceInvalidation, boolean requireMigration, boolean allowDestructiveMigrationOnDowngrade, java.util.Set<java.lang.Integer>? migrationNotRequiredFrom, String? copyFromAssetPath, java.io.File? copyFromFile);
     ctor @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public DatabaseConfiguration(android.content.Context context, String? name, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory sqliteOpenHelperFactory, androidx.room.RoomDatabase.MigrationContainer migrationContainer, java.util.List<? extends androidx.room.RoomDatabase.Callback>? callbacks, boolean allowMainThreadQueries, androidx.room.RoomDatabase.JournalMode journalMode, java.util.concurrent.Executor queryExecutor, java.util.concurrent.Executor transactionExecutor, boolean multiInstanceInvalidation, boolean requireMigration, boolean allowDestructiveMigrationOnDowngrade, java.util.Set<java.lang.Integer>? migrationNotRequiredFrom, String? copyFromAssetPath, java.io.File? copyFromFile, java.util.concurrent.Callable<java.io.InputStream>? copyFromInputStream);
@@ -30,7 +31,8 @@ package androidx.room {
     field public final androidx.room.RoomDatabase.PrepackagedDatabaseCallback? prepackagedDatabaseCallback;
     field public final java.util.concurrent.Executor queryExecutor;
     field public final boolean requireMigration;
-    field public final androidx.sqlite.db.SupportSQLiteOpenHelper.Factory sqliteOpenHelperFactory;
+    field public final androidx.sqlite.SQLiteDriver? sqliteDriver;
+    field public final androidx.sqlite.db.SupportSQLiteOpenHelper.Factory? sqliteOpenHelperFactory;
     field public final java.util.concurrent.Executor transactionExecutor;
     field public final java.util.List<java.lang.Object> typeConverters;
   }
@@ -117,7 +119,8 @@ package androidx.room {
     method public void close();
     method public androidx.sqlite.db.SupportSQLiteStatement compileStatement(String sql);
     method protected abstract androidx.room.InvalidationTracker createInvalidationTracker();
-    method protected abstract androidx.sqlite.db.SupportSQLiteOpenHelper createOpenHelper(androidx.room.DatabaseConfiguration config);
+    method protected androidx.room.RoomOpenDelegateMarker createOpenDelegate();
+    method @Deprecated protected androidx.sqlite.db.SupportSQLiteOpenHelper createOpenHelper(androidx.room.DatabaseConfiguration config);
     method @Deprecated public void endTransaction();
     method public androidx.room.InvalidationTracker getInvalidationTracker();
     method public androidx.sqlite.db.SupportSQLiteOpenHelper getOpenHelper();
@@ -127,6 +130,7 @@ package androidx.room {
     method public boolean inTransaction();
     method @CallSuper public void init(androidx.room.DatabaseConfiguration configuration);
     method protected void internalInitInvalidationTracker(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method protected void internalInitInvalidationTracker(androidx.sqlite.SQLiteConnection connection);
     method public boolean isOpen();
     method public android.database.Cursor query(androidx.sqlite.db.SupportSQLiteQuery query);
     method public android.database.Cursor query(androidx.sqlite.db.SupportSQLiteQuery query, optional android.os.CancellationSignal? signal);
@@ -167,6 +171,7 @@ package androidx.room {
     method public final androidx.room.RoomDatabase.Builder<T> fallbackToDestructiveMigrationOnDowngrade(boolean dropAllTables);
     method public androidx.room.RoomDatabase.Builder<T> openHelperFactory(androidx.sqlite.db.SupportSQLiteOpenHelper.Factory? factory);
     method @SuppressCompatibility @androidx.room.ExperimentalRoomApi public androidx.room.RoomDatabase.Builder<T> setAutoCloseTimeout(@IntRange(from=0L) long autoCloseTimeout, java.util.concurrent.TimeUnit autoCloseTimeUnit);
+    method public final androidx.room.RoomDatabase.Builder<T> setDriver(androidx.sqlite.SQLiteDriver driver);
     method public androidx.room.RoomDatabase.Builder<T> setJournalMode(androidx.room.RoomDatabase.JournalMode journalMode);
     method @SuppressCompatibility @androidx.room.ExperimentalRoomApi public androidx.room.RoomDatabase.Builder<T> setMultiInstanceInvalidationServiceIntent(android.content.Intent invalidationServiceIntent);
     method public androidx.room.RoomDatabase.Builder<T> setQueryCallback(androidx.room.RoomDatabase.QueryCallback queryCallback, java.util.concurrent.Executor executor);
@@ -210,34 +215,37 @@ package androidx.room {
     method public void onQuery(String sqlQuery, java.util.List<?> bindArgs);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class RoomOpenHelper extends androidx.sqlite.db.SupportSQLiteOpenHelper.Callback {
-    ctor public RoomOpenHelper(androidx.room.DatabaseConfiguration configuration, androidx.room.RoomOpenHelper.Delegate delegate, String legacyHash);
-    ctor public RoomOpenHelper(androidx.room.DatabaseConfiguration configuration, androidx.room.RoomOpenHelper.Delegate delegate, String identityHash, String legacyHash);
-    method public void onCreate(androidx.sqlite.db.SupportSQLiteDatabase db);
-    method public void onUpgrade(androidx.sqlite.db.SupportSQLiteDatabase db, int oldVersion, int newVersion);
-    field public static final androidx.room.RoomOpenHelper.Companion Companion;
+  public interface RoomOpenDelegateMarker {
   }
 
-  public static final class RoomOpenHelper.Companion {
+  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class RoomOpenHelper extends androidx.sqlite.db.SupportSQLiteOpenHelper.Callback {
+    ctor @Deprecated public RoomOpenHelper(androidx.room.DatabaseConfiguration configuration, androidx.room.RoomOpenHelper.Delegate delegate, String legacyHash);
+    ctor @Deprecated public RoomOpenHelper(androidx.room.DatabaseConfiguration configuration, androidx.room.RoomOpenHelper.Delegate delegate, String identityHash, String legacyHash);
+    method @Deprecated public void onCreate(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method @Deprecated public void onUpgrade(androidx.sqlite.db.SupportSQLiteDatabase db, int oldVersion, int newVersion);
+    field @Deprecated public static final androidx.room.RoomOpenHelper.Companion Companion;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract static class RoomOpenHelper.Delegate {
-    ctor public RoomOpenHelper.Delegate(int version);
-    method public abstract void createAllTables(androidx.sqlite.db.SupportSQLiteDatabase db);
-    method public abstract void dropAllTables(androidx.sqlite.db.SupportSQLiteDatabase db);
-    method public abstract void onCreate(androidx.sqlite.db.SupportSQLiteDatabase db);
-    method public abstract void onOpen(androidx.sqlite.db.SupportSQLiteDatabase db);
-    method public void onPostMigrate(androidx.sqlite.db.SupportSQLiteDatabase db);
-    method public void onPreMigrate(androidx.sqlite.db.SupportSQLiteDatabase db);
-    method public androidx.room.RoomOpenHelper.ValidationResult onValidateSchema(androidx.sqlite.db.SupportSQLiteDatabase db);
+  @Deprecated public static final class RoomOpenHelper.Companion {
+  }
+
+  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract static class RoomOpenHelper.Delegate {
+    ctor @Deprecated public RoomOpenHelper.Delegate(int version);
+    method @Deprecated public abstract void createAllTables(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method @Deprecated public abstract void dropAllTables(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method @Deprecated public abstract void onCreate(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method @Deprecated public abstract void onOpen(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method @Deprecated public void onPostMigrate(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method @Deprecated public void onPreMigrate(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method @Deprecated public androidx.room.RoomOpenHelper.ValidationResult onValidateSchema(androidx.sqlite.db.SupportSQLiteDatabase db);
     method @Deprecated protected void validateMigration(androidx.sqlite.db.SupportSQLiteDatabase db);
-    field public final int version;
+    field @Deprecated public final int version;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static class RoomOpenHelper.ValidationResult {
-    ctor public RoomOpenHelper.ValidationResult(boolean isValid, String? expectedFoundMsg);
-    field public final String? expectedFoundMsg;
-    field public final boolean isValid;
+  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static class RoomOpenHelper.ValidationResult {
+    ctor @Deprecated public RoomOpenHelper.ValidationResult(boolean isValid, String? expectedFoundMsg);
+    field @Deprecated public final String? expectedFoundMsg;
+    field @Deprecated public final boolean isValid;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class RoomSQLiteQuery implements androidx.sqlite.db.SupportSQLiteProgram androidx.sqlite.db.SupportSQLiteQuery {
@@ -294,6 +302,7 @@ package androidx.room.migration {
   public abstract class Migration {
     ctor public Migration(int startVersion, int endVersion);
     method public abstract void migrate(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method public void migrate(androidx.sqlite.SQLiteConnection connection);
     field public final int endVersion;
     field public final int startVersion;
   }
@@ -325,13 +334,14 @@ package androidx.room.util {
     method public static android.database.Cursor wrapMappedColumns(android.database.Cursor cursor, String![] columnNames, int[] mapping);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final class DBUtil {
-    method @Deprecated public static android.os.CancellationSignal createCancellationSignal();
-    method public static void dropFtsSyncTriggers(androidx.sqlite.db.SupportSQLiteDatabase db);
-    method public static void foreignKeyCheck(androidx.sqlite.db.SupportSQLiteDatabase db, String tableName);
-    method @Deprecated public static android.database.Cursor query(androidx.room.RoomDatabase db, androidx.sqlite.db.SupportSQLiteQuery sqLiteQuery, boolean maybeCopy);
-    method public static android.database.Cursor query(androidx.room.RoomDatabase db, androidx.sqlite.db.SupportSQLiteQuery sqLiteQuery, boolean maybeCopy, android.os.CancellationSignal? signal);
-    method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public static int readVersion(java.io.File databaseFile) throws java.io.IOException;
+  public final class DBUtil {
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.os.CancellationSignal createCancellationSignal();
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void dropFtsSyncTriggers(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void dropFtsSyncTriggers(androidx.sqlite.SQLiteConnection connection);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void foreignKeyCheck(androidx.sqlite.db.SupportSQLiteDatabase db, String tableName);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.database.Cursor query(androidx.room.RoomDatabase db, androidx.sqlite.db.SupportSQLiteQuery sqLiteQuery, boolean maybeCopy);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.database.Cursor query(androidx.room.RoomDatabase db, androidx.sqlite.db.SupportSQLiteQuery sqLiteQuery, boolean maybeCopy, android.os.CancellationSignal? signal);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @kotlin.jvm.Throws(exceptionClasses=IOException::class) public static int readVersion(java.io.File databaseFile) throws java.io.IOException;
   }
 
   @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final class FileUtil {
@@ -343,6 +353,7 @@ package androidx.room.util {
     ctor public FtsTableInfo(String name, java.util.Set<java.lang.String> columns, java.util.Set<java.lang.String> options);
     method @VisibleForTesting public static java.util.Set<java.lang.String> parseOptions(String createStatement);
     method public static androidx.room.util.FtsTableInfo read(androidx.sqlite.db.SupportSQLiteDatabase database, String tableName);
+    method public static androidx.room.util.FtsTableInfo read(androidx.sqlite.SQLiteConnection connection, String tableName);
     field public static final androidx.room.util.FtsTableInfo.Companion Companion;
     field public final java.util.Set<java.lang.String> columns;
     field public final String name;
@@ -352,6 +363,7 @@ package androidx.room.util {
   public static final class FtsTableInfo.Companion {
     method @VisibleForTesting public java.util.Set<java.lang.String> parseOptions(String createStatement);
     method public androidx.room.util.FtsTableInfo read(androidx.sqlite.db.SupportSQLiteDatabase database, String tableName);
+    method public androidx.room.util.FtsTableInfo read(androidx.sqlite.SQLiteConnection connection, String tableName);
   }
 
   @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final class RelationUtil {
@@ -372,6 +384,7 @@ package androidx.room.util {
     ctor public TableInfo(String name, java.util.Map<java.lang.String,androidx.room.util.TableInfo.Column> columns, java.util.Set<androidx.room.util.TableInfo.ForeignKey> foreignKeys);
     ctor public TableInfo(String name, java.util.Map<java.lang.String,androidx.room.util.TableInfo.Column> columns, java.util.Set<androidx.room.util.TableInfo.ForeignKey> foreignKeys, optional java.util.Set<androidx.room.util.TableInfo.Index>? indices);
     method public static androidx.room.util.TableInfo read(androidx.sqlite.db.SupportSQLiteDatabase database, String tableName);
+    method public static androidx.room.util.TableInfo read(androidx.sqlite.SQLiteConnection connection, String tableName);
     field public static final int CREATED_FROM_DATABASE = 2; // 0x2
     field public static final int CREATED_FROM_ENTITY = 1; // 0x1
     field public static final int CREATED_FROM_UNKNOWN = 0; // 0x0
@@ -404,6 +417,7 @@ package androidx.room.util {
 
   public static final class TableInfo.Companion {
     method public androidx.room.util.TableInfo read(androidx.sqlite.db.SupportSQLiteDatabase database, String tableName);
+    method public androidx.room.util.TableInfo read(androidx.sqlite.SQLiteConnection connection, String tableName);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final class TableInfo.ForeignKey {
@@ -437,6 +451,7 @@ package androidx.room.util {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class ViewInfo {
     ctor public ViewInfo(String name, String? sql);
     method public static androidx.room.util.ViewInfo read(androidx.sqlite.db.SupportSQLiteDatabase database, String viewName);
+    method public static androidx.room.util.ViewInfo read(androidx.sqlite.SQLiteConnection connection, String viewName);
     field public static final androidx.room.util.ViewInfo.Companion Companion;
     field public final String name;
     field public final String? sql;
@@ -444,6 +459,7 @@ package androidx.room.util {
 
   public static final class ViewInfo.Companion {
     method public androidx.room.util.ViewInfo read(androidx.sqlite.db.SupportSQLiteDatabase database, String viewName);
+    method public androidx.room.util.ViewInfo read(androidx.sqlite.SQLiteConnection connection, String viewName);
   }
 
 }

@@ -19,10 +19,13 @@ package androidx.room
 import android.database.sqlite.SQLiteException
 import android.os.CancellationSignal
 import androidx.kruth.assertThat
-import androidx.sqlite.db.SupportSQLiteOpenHelper
+import androidx.sqlite.SQLiteConnection
+import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.filters.SmallTest
+import androidx.test.platform.app.InstrumentationRegistry
 import java.util.concurrent.Callable
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -39,12 +42,36 @@ import org.junit.Test
 @SmallTest
 class CoroutineRoomCancellationTest {
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     private val testDispatcher = StandardTestDispatcher()
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val testScope = TestScope(testDispatcher)
+    private val testScope = TestScope(testDispatcher)
 
-    private val database = TestDatabase()
+    private val database = TestDatabase().apply {
+        init(
+            DatabaseConfiguration(
+                context = InstrumentationRegistry.getInstrumentation().targetContext,
+                name = "test",
+                sqliteOpenHelperFactory = FrameworkSQLiteOpenHelperFactory(),
+                migrationContainer = RoomDatabase.MigrationContainer(),
+                callbacks = null,
+                allowMainThreadQueries = true,
+                journalMode = RoomDatabase.JournalMode.TRUNCATE,
+                queryExecutor = Executors.newSingleThreadExecutor(),
+                transactionExecutor = Executors.newSingleThreadExecutor(),
+                multiInstanceInvalidationServiceIntent = null,
+                requireMigration = true,
+                allowDestructiveMigrationOnDowngrade = false,
+                migrationNotRequiredFrom = emptySet(),
+                copyFromAssetPath = null,
+                copyFromFile = null,
+                copyFromInputStream = null,
+                prepackagedDatabaseCallback = null,
+                typeConverters = emptyList(),
+                autoMigrationSpecs = emptyList(),
+                allowDestructiveMigrationForAllTables = false,
+                sqliteDriver = null
+            )
+        )
+    }
 
     @OptIn(DelicateCoroutinesApi::class)
     @Test
@@ -163,8 +190,18 @@ class CoroutineRoomCancellationTest {
 
     private class TestDatabase : RoomDatabase() {
 
-        override fun createOpenHelper(config: DatabaseConfiguration): SupportSQLiteOpenHelper {
-            throw UnsupportedOperationException("Shouldn't be called!")
+        override fun createOpenDelegate(): RoomOpenDelegate {
+            return object : RoomOpenDelegate(1, "") {
+                override fun onCreate(connection: SQLiteConnection) {}
+                override fun onPreMigrate(connection: SQLiteConnection) {}
+                override fun onValidateSchema(connection: SQLiteConnection): ValidationResult {
+                    return ValidationResult(true, null)
+                }
+                override fun onPostMigrate(connection: SQLiteConnection) {}
+                override fun onOpen(connection: SQLiteConnection) {}
+                override fun createAllTables(connection: SQLiteConnection) {}
+                override fun dropAllTables(connection: SQLiteConnection) {}
+            }
         }
 
         override fun createInvalidationTracker(): InvalidationTracker {

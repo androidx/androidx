@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+@file:Suppress("DEPRECATION") // Due to wide usage of RoomOpenHelper
+
 package androidx.room.testing
 
 import android.annotation.SuppressLint
@@ -215,7 +218,8 @@ open class MigrationTestHelper : TestWatcher {
             prepackagedDatabaseCallback = null,
             typeConverters = emptyList(),
             autoMigrationSpecs = emptyList(),
-            allowDestructiveMigrationForAllTables = false
+            allowDestructiveMigrationForAllTables = false,
+            sqliteDriver = null
         )
         val roomOpenHelper = RoomOpenHelper(
             configuration = configuration,
@@ -295,7 +299,8 @@ open class MigrationTestHelper : TestWatcher {
             prepackagedDatabaseCallback = null,
             typeConverters = emptyList(),
             autoMigrationSpecs = emptyList(),
-            allowDestructiveMigrationForAllTables = false
+            allowDestructiveMigrationForAllTables = false,
+            sqliteDriver = null
         )
         val roomOpenHelper = RoomOpenHelper(
             configuration = databaseConfiguration,

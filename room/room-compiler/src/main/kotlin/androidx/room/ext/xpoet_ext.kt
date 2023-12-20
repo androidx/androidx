@@ -42,6 +42,13 @@ object SupportDbTypeNames {
     val QUERY = XClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteQuery")
 }
 
+object SQLiteDriverTypeNames {
+    val SQLITE_KT = XClassName.get(SQLITE_PACKAGE, "SQLiteKt")
+    val DRIVER = XClassName.get(SQLITE_PACKAGE, "SQLiteDriver")
+    val CONNECTION = XClassName.get(SQLITE_PACKAGE, "SQLiteConnection")
+    val STATEMENT = XClassName.get(SQLITE_PACKAGE, "SQLiteStatement")
+}
+
 object RoomTypeNames {
     val STRING_UTIL = XClassName.get("$ROOM_PACKAGE.util", "StringUtil")
     val ROOM_DB = XClassName.get(ROOM_PACKAGE, "RoomDatabase")
@@ -54,10 +61,6 @@ object RoomTypeNames {
     val SHARED_SQLITE_STMT = XClassName.get(ROOM_PACKAGE, "SharedSQLiteStatement")
     val INVALIDATION_TRACKER = XClassName.get(ROOM_PACKAGE, "InvalidationTracker")
     val ROOM_SQL_QUERY = XClassName.get(ROOM_PACKAGE, "RoomSQLiteQuery")
-    val OPEN_HELPER = XClassName.get(ROOM_PACKAGE, "RoomOpenHelper")
-    val OPEN_HELPER_DELEGATE = XClassName.get(ROOM_PACKAGE, "RoomOpenHelper", "Delegate")
-    val OPEN_HELPER_VALIDATION_RESULT =
-        XClassName.get(ROOM_PACKAGE, "RoomOpenHelper", "ValidationResult")
     val TABLE_INFO = XClassName.get("$ROOM_PACKAGE.util", "TableInfo")
     val TABLE_INFO_COLUMN = XClassName.get("$ROOM_PACKAGE.util", "TableInfo", "Column")
     val TABLE_INFO_FOREIGN_KEY = XClassName.get("$ROOM_PACKAGE.util", "TableInfo", "ForeignKey")
@@ -73,6 +76,9 @@ object RoomTypeNames {
     val UUID_UTIL = XClassName.get("$ROOM_PACKAGE.util", "UUIDUtil")
     val AMBIGUOUS_COLUMN_RESOLVER = XClassName.get(ROOM_PACKAGE, "AmbiguousColumnResolver")
     val RELATION_UTIL = XClassName.get("androidx.room.util", "RelationUtil")
+    val ROOM_OPEN_DELEGATE = XClassName.get(ROOM_PACKAGE, "RoomOpenDelegate")
+    val ROOM_OPEN_DELEGATE_VALIDATION_RESULT =
+        XClassName.get(ROOM_PACKAGE, "RoomOpenDelegate", "ValidationResult")
 }
 
 object RoomAnnotationTypeNames {
@@ -292,6 +298,10 @@ object RoomMemberNames {
         RoomTypeNames.FTS_TABLE_INFO.companionMember("read", isJvmStatic = true)
     val VIEW_INFO_READ =
         RoomTypeNames.VIEW_INFO.companionMember("read", isJvmStatic = true)
+}
+
+object SQLiteDriverMemberNames {
+    val CONNECTION_EXEC_SQL = SQLiteDriverTypeNames.SQLITE_KT.packageMember("execSQL")
 }
 
 val DEFERRED_TYPES = listOf(

@@ -20,6 +20,8 @@ import android.content.Context
 import android.content.Intent
 import androidx.annotation.RestrictTo
 import androidx.room.migration.AutoMigrationSpec
+import androidx.room.util.isMigrationRequired as isMigrationRequiredExt
+import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import java.io.File
 import java.io.InputStream
@@ -30,7 +32,7 @@ import java.util.concurrent.Executor
  * Configuration class for a [RoomDatabase].
  */
 @Suppress("UNUSED_PARAMETER")
-open class DatabaseConfiguration
+actual open class DatabaseConfiguration
 @SuppressLint("LambdaLast")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 constructor(
@@ -50,13 +52,13 @@ constructor(
      * The factory to use to access the database.
      */
     @JvmField
-    val sqliteOpenHelperFactory: SupportSQLiteOpenHelper.Factory,
+    val sqliteOpenHelperFactory: SupportSQLiteOpenHelper.Factory?,
 
     /**
      * Collection of available migrations.
      */
     @JvmField
-    val migrationContainer: RoomDatabase.MigrationContainer,
+    actual val migrationContainer: RoomDatabase.MigrationContainer,
 
     @JvmField
     val callbacks: List<RoomDatabase.Callback>?,
@@ -95,12 +97,12 @@ constructor(
     val multiInstanceInvalidationServiceIntent: Intent?,
 
     @JvmField
-    val requireMigration: Boolean,
+    actual val requireMigration: Boolean,
 
     @JvmField
-    val allowDestructiveMigrationOnDowngrade: Boolean,
+    actual val allowDestructiveMigrationOnDowngrade: Boolean,
 
-    private val migrationNotRequiredFrom: Set<Int>?,
+    internal actual val migrationNotRequiredFrom: Set<Int>?,
 
     @JvmField
     val copyFromAssetPath: String?,
@@ -122,6 +124,9 @@ constructor(
 
     @JvmField
     val allowDestructiveMigrationForAllTables: Boolean,
+
+    @JvmField
+    actual val sqliteDriver: SQLiteDriver?
 ) {
     /**
      * If true, table invalidation in an instance of [RoomDatabase] is broadcast and
@@ -182,6 +187,7 @@ constructor(
         typeConverters = emptyList(),
         autoMigrationSpecs = emptyList(),
         allowDestructiveMigrationForAllTables = false,
+        sqliteDriver = null,
     )
 
     /**
@@ -244,6 +250,7 @@ constructor(
         typeConverters = emptyList(),
         autoMigrationSpecs = emptyList(),
         allowDestructiveMigrationForAllTables = false,
+        sqliteDriver = null,
     )
 
     /**
@@ -310,6 +317,7 @@ constructor(
         typeConverters = emptyList(),
         autoMigrationSpecs = emptyList(),
         allowDestructiveMigrationForAllTables = false,
+        sqliteDriver = null,
     )
 
     /**
@@ -379,6 +387,7 @@ constructor(
         typeConverters = emptyList(),
         autoMigrationSpecs = emptyList(),
         allowDestructiveMigrationForAllTables = false,
+        sqliteDriver = null,
     )
 
     /**
@@ -451,6 +460,7 @@ constructor(
         typeConverters = emptyList(),
         autoMigrationSpecs = emptyList(),
         allowDestructiveMigrationForAllTables = false,
+        sqliteDriver = null,
     )
 
     /**
@@ -525,6 +535,7 @@ constructor(
         typeConverters = typeConverters,
         autoMigrationSpecs = emptyList(),
         allowDestructiveMigrationForAllTables = false,
+        sqliteDriver = null,
     )
 
     /**
@@ -601,6 +612,7 @@ constructor(
         typeConverters = typeConverters,
         autoMigrationSpecs = autoMigrationSpecs,
         allowDestructiveMigrationForAllTables = false,
+        sqliteDriver = null,
     )
 
     /**
@@ -675,6 +687,54 @@ constructor(
         typeConverters = typeConverters,
         autoMigrationSpecs = autoMigrationSpecs,
         allowDestructiveMigrationForAllTables = false,
+        sqliteDriver = null,
+    )
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @Deprecated("This constructor is deprecated.")
+    constructor(
+        context: Context,
+        name: String?,
+        sqliteOpenHelperFactory: SupportSQLiteOpenHelper.Factory,
+        migrationContainer: RoomDatabase.MigrationContainer,
+        callbacks: List<RoomDatabase.Callback>?,
+        allowMainThreadQueries: Boolean,
+        journalMode: RoomDatabase.JournalMode,
+        queryExecutor: Executor,
+        transactionExecutor: Executor,
+        multiInstanceInvalidationServiceIntent: Intent?,
+        requireMigration: Boolean,
+        allowDestructiveMigrationOnDowngrade: Boolean,
+        migrationNotRequiredFrom: Set<Int>?,
+        copyFromAssetPath: String?,
+        copyFromFile: File?,
+        copyFromInputStream: Callable<InputStream>?,
+        prepackagedDatabaseCallback: RoomDatabase.PrepackagedDatabaseCallback?,
+        typeConverters: List<Any>,
+        autoMigrationSpecs: List<AutoMigrationSpec>,
+        allowDestructiveMigrationForAllTables: Boolean,
+    ) : this(
+        context = context,
+        name = name,
+        sqliteOpenHelperFactory = sqliteOpenHelperFactory,
+        migrationContainer = migrationContainer,
+        callbacks = callbacks,
+        allowMainThreadQueries = allowMainThreadQueries,
+        journalMode = journalMode,
+        queryExecutor = queryExecutor,
+        transactionExecutor = transactionExecutor,
+        multiInstanceInvalidationServiceIntent = multiInstanceInvalidationServiceIntent,
+        allowDestructiveMigrationOnDowngrade = allowDestructiveMigrationOnDowngrade,
+        requireMigration = requireMigration,
+        migrationNotRequiredFrom = migrationNotRequiredFrom,
+        copyFromAssetPath = copyFromAssetPath,
+        copyFromFile = copyFromFile,
+        prepackagedDatabaseCallback = null,
+        copyFromInputStream = copyFromInputStream,
+        typeConverters = typeConverters,
+        autoMigrationSpecs = autoMigrationSpecs,
+        allowDestructiveMigrationForAllTables = allowDestructiveMigrationForAllTables,
+        sqliteDriver = null,
     )
 
     /**
@@ -701,17 +761,6 @@ constructor(
      * @return True if a valid migration is required, false otherwise.
      */
     open fun isMigrationRequired(fromVersion: Int, toVersion: Int): Boolean {
-        // Migrations are not required if its a downgrade AND destructive migration during downgrade
-        // has been allowed.
-        val isDowngrade = fromVersion > toVersion
-        if (isDowngrade && allowDestructiveMigrationOnDowngrade) {
-            return false
-        } else {
-            // Migrations are required between the two versions if we generally require migrations
-            // AND EITHER there are no exceptions OR the supplied fromVersion is not one of the
-            // exceptions.
-            return requireMigration && (migrationNotRequiredFrom == null ||
-                !migrationNotRequiredFrom.contains(fromVersion))
-        }
+        return isMigrationRequiredExt(fromVersion, toVersion)
     }
 }

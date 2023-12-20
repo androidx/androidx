@@ -1589,6 +1589,24 @@ class DatabaseProcessorTest {
         }
     }
 
+    @Test
+    fun invalidVersion() {
+        singleDb(
+            """
+            @Database(entities = {User.class}, version = 0)
+            public abstract class MyDb extends RoomDatabase {
+                abstract UserDao userDao();
+            }
+            """,
+            USER, USER_DAO
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorCount(1)
+                hasErrorContaining(ProcessorErrors.INVALID_DATABASE_VERSION)
+            }
+        }
+    }
+
     private fun resolveDatabaseViews(
         views: Map<String, Set<String>>,
         body: (List<DatabaseView>, XTestInvocation) -> Unit
