@@ -20,15 +20,11 @@ import android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBU
 import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
-import android.os.ext.SdkExtensions
 import android.util.Log
 import android.view.InputEvent
-import androidx.annotation.DoNotInline
-import androidx.annotation.RequiresExtension
 import androidx.annotation.RequiresPermission
-import androidx.core.os.asOutcomeReceiver
+import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
 import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo
-import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
  * This class provides APIs to manage ads attribution using Privacy Sandbox.
@@ -82,6 +78,16 @@ abstract class MeasurementManager {
     abstract suspend fun registerWebTrigger(request: WebTriggerRegistrationRequest)
 
     /**
+     * Register an attribution source(click or view) context. This API will not process any
+     * redirects, all registration URLs should be supplied with the request.
+     *
+     * @param request source registration request
+     */
+    @RequiresPermission(ACCESS_ADSERVICES_ATTRIBUTION)
+    @ExperimentalFeatures.RegisterSourceOptIn
+    abstract suspend fun registerSource(request: SourceRegistrationRequest)
+
+    /**
      * Get Measurement API status.
      *
      * The call returns an integer value (see [MEASUREMENT_API_STATE_DISABLED] and
@@ -89,147 +95,6 @@ abstract class MeasurementManager {
      */
     @RequiresPermission(ACCESS_ADSERVICES_ATTRIBUTION)
     abstract suspend fun getMeasurementApiStatus(): Int
-
-    @SuppressLint("NewApi", "ClassVerificationFailure")
-    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
-    private class Api33Ext5Impl(
-        private val mMeasurementManager: android.adservices.measurement.MeasurementManager
-    ) : MeasurementManager() {
-        constructor(context: Context) : this(
-            context.getSystemService<android.adservices.measurement.MeasurementManager>(
-                android.adservices.measurement.MeasurementManager::class.java
-            )
-        )
-
-        @DoNotInline
-        override suspend fun deleteRegistrations(deletionRequest: DeletionRequest) {
-            suspendCancellableCoroutine<Any> { continuation ->
-                mMeasurementManager.deleteRegistrations(
-                    convertDeletionRequest(deletionRequest),
-                    Runnable::run,
-                    continuation.asOutcomeReceiver()
-                )
-            }
-        }
-
-        private fun convertDeletionRequest(
-            request: DeletionRequest
-        ): android.adservices.measurement.DeletionRequest {
-            return android.adservices.measurement.DeletionRequest.Builder()
-                .setDeletionMode(request.deletionMode)
-                .setMatchBehavior(request.matchBehavior)
-                .setStart(request.start)
-                .setEnd(request.end)
-                .setDomainUris(request.domainUris)
-                .setOriginUris(request.originUris)
-                .build()
-        }
-
-        @DoNotInline
-        @RequiresPermission(ACCESS_ADSERVICES_ATTRIBUTION)
-        override suspend fun registerSource(attributionSource: Uri, inputEvent: InputEvent?) {
-            suspendCancellableCoroutine<Any> { continuation ->
-                mMeasurementManager.registerSource(
-                    attributionSource,
-                    inputEvent,
-                    Runnable::run,
-                    continuation.asOutcomeReceiver()
-                )
-            }
-        }
-
-        @DoNotInline
-        @RequiresPermission(ACCESS_ADSERVICES_ATTRIBUTION)
-        override suspend fun registerTrigger(trigger: Uri) {
-            suspendCancellableCoroutine<Any> { continuation ->
-                mMeasurementManager.registerTrigger(
-                    trigger,
-                    Runnable::run,
-                    continuation.asOutcomeReceiver())
-            }
-        }
-
-        @DoNotInline
-        @RequiresPermission(ACCESS_ADSERVICES_ATTRIBUTION)
-        override suspend fun registerWebSource(request: WebSourceRegistrationRequest) {
-            suspendCancellableCoroutine<Any> { continuation ->
-                mMeasurementManager.registerWebSource(
-                    convertWebSourceRequest(request),
-                    Runnable::run,
-                    continuation.asOutcomeReceiver())
-            }
-        }
-
-        private fun convertWebSourceRequest(
-            request: WebSourceRegistrationRequest
-        ): android.adservices.measurement.WebSourceRegistrationRequest {
-            return android.adservices.measurement.WebSourceRegistrationRequest
-                .Builder(
-                    convertWebSourceParams(request.webSourceParams),
-                    request.topOriginUri)
-                .setWebDestination(request.webDestination)
-                .setAppDestination(request.appDestination)
-                .setInputEvent(request.inputEvent)
-                .setVerifiedDestination(request.verifiedDestination)
-                .build()
-        }
-
-        private fun convertWebSourceParams(
-            request: List<WebSourceParams>
-        ): List<android.adservices.measurement.WebSourceParams> {
-            var result = mutableListOf<android.adservices.measurement.WebSourceParams>()
-            for (param in request) {
-                result.add(android.adservices.measurement.WebSourceParams
-                    .Builder(param.registrationUri)
-                    .setDebugKeyAllowed(param.debugKeyAllowed)
-                    .build())
-            }
-            return result
-        }
-
-        @DoNotInline
-        @RequiresPermission(ACCESS_ADSERVICES_ATTRIBUTION)
-        override suspend fun registerWebTrigger(request: WebTriggerRegistrationRequest) {
-            suspendCancellableCoroutine<Any> { continuation ->
-                mMeasurementManager.registerWebTrigger(
-                    convertWebTriggerRequest(request),
-                    Runnable::run,
-                    continuation.asOutcomeReceiver())
-            }
-        }
-
-        private fun convertWebTriggerRequest(
-            request: WebTriggerRegistrationRequest
-        ): android.adservices.measurement.WebTriggerRegistrationRequest {
-            return android.adservices.measurement.WebTriggerRegistrationRequest
-                .Builder(
-                    convertWebTriggerParams(request.webTriggerParams),
-                    request.destination)
-                .build()
-        }
-
-        private fun convertWebTriggerParams(
-            request: List<WebTriggerParams>
-        ): List<android.adservices.measurement.WebTriggerParams> {
-            var result = mutableListOf<android.adservices.measurement.WebTriggerParams>()
-            for (param in request) {
-                result.add(android.adservices.measurement.WebTriggerParams
-                    .Builder(param.registrationUri)
-                    .setDebugKeyAllowed(param.debugKeyAllowed)
-                    .build())
-            }
-            return result
-        }
-
-        @DoNotInline
-        @RequiresPermission(ACCESS_ADSERVICES_ATTRIBUTION)
-        override suspend fun getMeasurementApiStatus(): Int = suspendCancellableCoroutine {
-                continuation ->
-            mMeasurementManager.getMeasurementApiStatus(
-                Runnable::run,
-                continuation.asOutcomeReceiver())
-        }
-    }
 
     companion object {
         /**
@@ -251,9 +116,12 @@ abstract class MeasurementManager {
         @JvmStatic
         @SuppressLint("NewApi", "ClassVerificationFailure")
         fun obtain(context: Context): MeasurementManager? {
-            Log.d("MeasurementManager", "AdServicesInfo.version=${AdServicesInfo.version()}")
-            return if (AdServicesInfo.version() >= 5) {
-                Api33Ext5Impl(context)
+            Log.d("MeasurementManager",
+                "AdServicesInfo.version=${AdServicesInfo.adServicesVersion()}")
+            return if (AdServicesInfo.adServicesVersion() >= 5) {
+                MeasurementManagerApi33Ext5Impl(context)
+            } else if (AdServicesInfo.extServicesVersion() >= 9) {
+                MeasurementManagerApi31Ext9Impl(context)
             } else {
                 null
             }

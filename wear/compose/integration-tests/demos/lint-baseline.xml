@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
+
+    <issue
+        id="WearStandaloneAppFlag"
+        message="Missing `&lt;meta-data android:name=&quot;com.google.android.wearable.standalone&quot; ../>` element"
+        errorLine1="    &lt;application"
+        errorLine2="     ~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field map with type Map&lt;Integer, FocusableElementsTimePicker>: replace with IntObjectMap"
+        errorLine1="        private val map = FocusableElementsTimePicker.values().associateBy { it.index }"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/integration/demos/PickerDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field map with type Map&lt;Integer, FocusableElement12Hour>: replace with IntObjectMap"
+        errorLine1="        private val map = FocusableElement12Hour.values().associateBy { it.index }"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/integration/demos/PickerDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field map with type Map&lt;Integer, FocusableElementDatePicker>: replace with IntObjectMap"
+        errorLine1="        private val map = FocusableElementDatePicker.values().associateBy { it.index }"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/integration/demos/PickerDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable alignmentValues with type List&lt;? extends PositionIndicatorAlignment>: replace with IntList"
+        errorLine1="    val alignmentValues = listOf("
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/wear/compose/integration/demos/PositionIndicatorDemos.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable colors with type List&lt;? extends Color>: replace with LongList"
+        errorLine1="    val colors = listOf(Color.Blue, Color.Red, Color.Green, Color.Cyan, Color.Magenta)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/integration/demos/SwipeToDismissDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable items with type SnapshotStateList&lt;Integer>: replace with IntList"
+        errorLine1="    val items = remember { mutableStateListOf(1, 2) }"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/integration/demos/SwipeToDismissDemo.kt"/>
+    </issue>
+
+</issues>

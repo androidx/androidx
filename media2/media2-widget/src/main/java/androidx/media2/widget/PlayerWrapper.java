@@ -21,16 +21,6 @@ import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.ObjectsCompat;
-import androidx.media2.common.BaseResult;
-import androidx.media2.common.MediaItem;
-import androidx.media2.common.MediaMetadata;
-import androidx.media2.common.SessionPlayer;
-import androidx.media2.common.SessionPlayer.TrackInfo;
-import androidx.media2.common.SubtitleData;
-import androidx.media2.common.VideoSize;
-import androidx.media2.session.MediaController;
-import androidx.media2.session.SessionCommand;
-import androidx.media2.session.SessionCommandGroup;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -38,12 +28,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-/**
- * Wrapper for MediaController and SessionPlayer
- */
+/** Wrapper for androidx.media2.session.MediaController and androidx.media2.common.SessionPlayer */
+@SuppressWarnings("deprecation")
 class PlayerWrapper {
-    final MediaController mController;
-    final SessionPlayer mPlayer;
+    final androidx.media2.session.MediaController mController;
+    final androidx.media2.common.SessionPlayer mPlayer;
 
     private final Executor mCallbackExecutor;
 
@@ -56,15 +45,19 @@ class PlayerWrapper {
 
     // cached states
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    int mSavedPlayerState = SessionPlayer.PLAYER_STATE_IDLE;
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    SessionCommandGroup mAllowedCommands;
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    MediaMetadata mMediaMetadata;
+    int mSavedPlayerState = androidx.media2.common.SessionPlayer.PLAYER_STATE_IDLE;
 
-    private final SessionCommandGroup mAllCommands;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    androidx.media2.session.SessionCommandGroup mAllowedCommands;
 
-    PlayerWrapper(@NonNull MediaController controller, @NonNull Executor executor,
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    androidx.media2.common.MediaMetadata mMediaMetadata;
+
+    private final androidx.media2.session.SessionCommandGroup mAllCommands;
+
+    PlayerWrapper(
+            @NonNull androidx.media2.session.MediaController controller,
+            @NonNull Executor executor,
             @NonNull PlayerCallback callback) {
         if (controller == null) throw new NullPointerException("controller must not be null");
         if (executor == null) throw new NullPointerException("executor must not be null");
@@ -80,7 +73,9 @@ class PlayerWrapper {
         mAllCommands = null;
     }
 
-    PlayerWrapper(@NonNull SessionPlayer player, @NonNull Executor executor,
+    PlayerWrapper(
+            @NonNull androidx.media2.common.SessionPlayer player,
+            @NonNull Executor executor,
             @NonNull PlayerCallback callback) {
         if (player == null) throw new NullPointerException("player must not be null");
         if (executor == null) throw new NullPointerException("executor must not be null");
@@ -93,9 +88,11 @@ class PlayerWrapper {
         mController = null;
         mControllerCallback = null;
 
-        mAllCommands = new SessionCommandGroup.Builder()
-                .addAllPredefinedCommands(SessionCommand.COMMAND_VERSION_1)
-                .build();
+        mAllCommands =
+                new androidx.media2.session.SessionCommandGroup.Builder()
+                        .addAllPredefinedCommands(
+                                androidx.media2.session.SessionCommand.COMMAND_VERSION_1)
+                        .build();
     }
 
     boolean hasDisconnectedController() {
@@ -124,11 +121,11 @@ class PlayerWrapper {
     }
 
     boolean isPlaying() {
-        return mSavedPlayerState == SessionPlayer.PLAYER_STATE_PLAYING;
+        return mSavedPlayerState == androidx.media2.common.SessionPlayer.PLAYER_STATE_PLAYING;
     }
 
     long getCurrentPosition() {
-        if (mSavedPlayerState == SessionPlayer.PLAYER_STATE_IDLE) {
+        if (mSavedPlayerState == androidx.media2.common.SessionPlayer.PLAYER_STATE_IDLE) {
             return 0;
         }
         long position = 0;
@@ -141,7 +138,7 @@ class PlayerWrapper {
     }
 
     long getBufferPercentage() {
-        if (mSavedPlayerState == SessionPlayer.PLAYER_STATE_IDLE) {
+        if (mSavedPlayerState == androidx.media2.common.SessionPlayer.PLAYER_STATE_IDLE) {
             return 0;
         }
         long duration = getDurationMs();
@@ -161,43 +158,53 @@ class PlayerWrapper {
         } else if (mPlayer != null) {
             return mPlayer.getPlayerState();
         }
-        return SessionPlayer.PLAYER_STATE_IDLE;
+        return androidx.media2.common.SessionPlayer.PLAYER_STATE_IDLE;
     }
 
     boolean canPause() {
-        return mAllowedCommands != null && mAllowedCommands.hasCommand(
-                SessionCommand.COMMAND_CODE_PLAYER_PAUSE);
+        return mAllowedCommands != null
+                && mAllowedCommands.hasCommand(
+                        androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_PAUSE);
     }
 
     boolean canSeekBackward() {
-        return mAllowedCommands != null && mAllowedCommands.hasCommand(
-                SessionCommand.COMMAND_CODE_SESSION_REWIND);
+        return mAllowedCommands != null
+                && mAllowedCommands.hasCommand(
+                        androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_REWIND);
     }
 
     boolean canSeekForward() {
-        return mAllowedCommands != null && mAllowedCommands.hasCommand(
-                SessionCommand.COMMAND_CODE_SESSION_FAST_FORWARD);
+        return mAllowedCommands != null
+                && mAllowedCommands.hasCommand(
+                        androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_FAST_FORWARD);
     }
 
     boolean canSkipToNext() {
-        return mAllowedCommands != null && mAllowedCommands.hasCommand(
-                SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO_NEXT_PLAYLIST_ITEM);
+        return mAllowedCommands != null
+                && mAllowedCommands.hasCommand(
+                        androidx.media2.session.SessionCommand
+                                .COMMAND_CODE_PLAYER_SKIP_TO_NEXT_PLAYLIST_ITEM);
     }
 
     boolean canSkipToPrevious() {
-        return mAllowedCommands != null && mAllowedCommands.hasCommand(
-                SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO_PREVIOUS_PLAYLIST_ITEM);
+        return mAllowedCommands != null
+                && mAllowedCommands.hasCommand(
+                        androidx.media2.session.SessionCommand
+                                .COMMAND_CODE_PLAYER_SKIP_TO_PREVIOUS_PLAYLIST_ITEM);
     }
 
     boolean canSeekTo() {
-        return mAllowedCommands != null && mAllowedCommands.hasCommand(
-                SessionCommand.COMMAND_CODE_PLAYER_SEEK_TO);
+        return mAllowedCommands != null
+                && mAllowedCommands.hasCommand(
+                        androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SEEK_TO);
     }
 
     boolean canSelectDeselectTrack() {
         return mAllowedCommands != null
-                && mAllowedCommands.hasCommand(SessionCommand.COMMAND_CODE_PLAYER_SELECT_TRACK)
-                && mAllowedCommands.hasCommand(SessionCommand.COMMAND_CODE_PLAYER_DESELECT_TRACK);
+                && mAllowedCommands.hasCommand(
+                        androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SELECT_TRACK)
+                && mAllowedCommands.hasCommand(
+                        androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_DESELECT_TRACK);
     }
 
     @SuppressWarnings("FutureReturnValueIgnored")
@@ -264,7 +271,7 @@ class PlayerWrapper {
     }
 
     @SuppressWarnings("FutureReturnValueIgnored")
-    void selectTrack(TrackInfo trackInfo) {
+    void selectTrack(androidx.media2.common.SessionPlayer.TrackInfo trackInfo) {
         if (mController != null) {
             mController.selectTrack(trackInfo);
         } else if (mPlayer != null) {
@@ -273,7 +280,7 @@ class PlayerWrapper {
     }
 
     @SuppressWarnings("FutureReturnValueIgnored")
-    void deselectTrack(TrackInfo trackInfo) {
+    void deselectTrack(androidx.media2.common.SessionPlayer.TrackInfo trackInfo) {
         if (mController != null) {
             mController.deselectTrack(trackInfo);
         } else if (mPlayer != null) {
@@ -282,7 +289,7 @@ class PlayerWrapper {
     }
 
     long getDurationMs() {
-        if (mSavedPlayerState == SessionPlayer.PLAYER_STATE_IDLE) {
+        if (mSavedPlayerState == androidx.media2.common.SessionPlayer.PLAYER_STATE_IDLE) {
             return 0;
         }
         long duration = 0;
@@ -296,8 +303,10 @@ class PlayerWrapper {
 
     CharSequence getTitle() {
         if (mMediaMetadata != null) {
-            if (mMediaMetadata.containsKey(MediaMetadata.METADATA_KEY_TITLE)) {
-                return mMediaMetadata.getText(MediaMetadata.METADATA_KEY_TITLE);
+            if (mMediaMetadata.containsKey(
+                    androidx.media2.common.MediaMetadata.METADATA_KEY_TITLE)) {
+                return mMediaMetadata.getText(
+                        androidx.media2.common.MediaMetadata.METADATA_KEY_TITLE);
             }
         }
         return null;
@@ -305,15 +314,17 @@ class PlayerWrapper {
 
     CharSequence getArtistText() {
         if (mMediaMetadata != null) {
-            if (mMediaMetadata.containsKey(MediaMetadata.METADATA_KEY_ARTIST)) {
-                return mMediaMetadata.getText(MediaMetadata.METADATA_KEY_ARTIST);
+            if (mMediaMetadata.containsKey(
+                    androidx.media2.common.MediaMetadata.METADATA_KEY_ARTIST)) {
+                return mMediaMetadata.getText(
+                        androidx.media2.common.MediaMetadata.METADATA_KEY_ARTIST);
             }
         }
         return null;
     }
 
     @Nullable
-    MediaItem getCurrentMediaItem() {
+    androidx.media2.common.MediaItem getCurrentMediaItem() {
         if (mController != null) {
             return mController.getCurrentMediaItem();
         } else if (mPlayer != null) {
@@ -323,7 +334,7 @@ class PlayerWrapper {
     }
 
     @Nullable
-    private SessionCommandGroup getAllowedCommands() {
+    private androidx.media2.session.SessionCommandGroup getAllowedCommands() {
         if (mController != null) {
             return mController.getAllowedCommands();
         } else if (mPlayer != null) {
@@ -343,13 +354,13 @@ class PlayerWrapper {
         }
 
         boolean allowedCommandsChanged = false;
-        SessionCommandGroup allowedCommands = getAllowedCommands();
+        androidx.media2.session.SessionCommandGroup allowedCommands = getAllowedCommands();
         if (!ObjectsCompat.equals(mAllowedCommands, allowedCommands)) {
             mAllowedCommands = allowedCommands;
             allowedCommandsChanged = true;
         }
 
-        MediaItem item = getCurrentMediaItem();
+        androidx.media2.common.MediaItem item = getCurrentMediaItem();
         mMediaMetadata = item == null ? null : item.getMetadata();
 
         if (playerStateChanged) {
@@ -363,17 +374,17 @@ class PlayerWrapper {
     }
 
     @NonNull
-    VideoSize getVideoSize() {
+    androidx.media2.common.VideoSize getVideoSize() {
         if (mController != null) {
             return mController.getVideoSize();
         } else if (mPlayer != null) {
             return mPlayer.getVideoSize();
         }
-        return new VideoSize(0, 0);
+        return new androidx.media2.common.VideoSize(0, 0);
     }
 
     @NonNull
-    List<TrackInfo> getTracks() {
+    List<androidx.media2.common.SessionPlayer.TrackInfo> getTracks() {
         if (mController != null) {
             return mController.getTracks();
         } else if (mPlayer != null) {
@@ -383,7 +394,7 @@ class PlayerWrapper {
     }
 
     @Nullable
-    TrackInfo getSelectedTrack(int trackType) {
+    androidx.media2.common.SessionPlayer.TrackInfo getSelectedTrack(int trackType) {
         if (mController != null) {
             return mController.getSelectedTrack(trackType);
         } else if (mPlayer != null) {
@@ -392,7 +403,7 @@ class PlayerWrapper {
         return null;
     }
 
-    ListenableFuture<? extends BaseResult> setSurface(Surface surface) {
+    ListenableFuture<? extends androidx.media2.common.BaseResult> setSurface(Surface surface) {
         if (mController != null) {
             return mController.setSurface(surface);
         } else if (mPlayer != null) {
@@ -407,7 +418,7 @@ class PlayerWrapper {
         } else if (mPlayer != null) {
             return mPlayer.getCurrentMediaItemIndex();
         }
-        return SessionPlayer.INVALID_ITEM_INDEX;
+        return androidx.media2.common.SessionPlayer.INVALID_ITEM_INDEX;
     }
 
     int getPreviousMediaItemIndex() {
@@ -416,7 +427,7 @@ class PlayerWrapper {
         } else if (mPlayer != null) {
             return mPlayer.getPreviousMediaItemIndex();
         }
-        return SessionPlayer.INVALID_ITEM_INDEX;
+        return androidx.media2.common.SessionPlayer.INVALID_ITEM_INDEX;
     }
 
     int getNextMediaItemIndex() {
@@ -425,90 +436,107 @@ class PlayerWrapper {
         } else if (mPlayer != null) {
             return mPlayer.getNextMediaItemIndex();
         }
-        return SessionPlayer.INVALID_ITEM_INDEX;
+        return androidx.media2.common.SessionPlayer.INVALID_ITEM_INDEX;
     }
 
-    private class MediaControllerCallback extends MediaController.ControllerCallback {
+    private class MediaControllerCallback
+            extends androidx.media2.session.MediaController.ControllerCallback {
         MediaControllerCallback() {
         }
 
         @Override
-        public void onConnected(@NonNull MediaController controller,
-                @NonNull SessionCommandGroup allowedCommands) {
+        public void onConnected(
+                @NonNull androidx.media2.session.MediaController controller,
+                @NonNull androidx.media2.session.SessionCommandGroup allowedCommands) {
             mWrapperCallback.onConnected(PlayerWrapper.this);
             updateAndNotifyCachedStates();
         }
 
         @Override
-        public void onAllowedCommandsChanged(@NonNull MediaController controller,
-                @NonNull SessionCommandGroup commands) {
+        public void onAllowedCommandsChanged(
+                @NonNull androidx.media2.session.MediaController controller,
+                @NonNull androidx.media2.session.SessionCommandGroup commands) {
             if (ObjectsCompat.equals(mAllowedCommands, commands)) return;
             mAllowedCommands = commands;
             mWrapperCallback.onAllowedCommandsChanged(PlayerWrapper.this, commands);
         }
 
         @Override
-        public void onPlayerStateChanged(@NonNull MediaController controller, int state) {
+        public void onPlayerStateChanged(
+                @NonNull androidx.media2.session.MediaController controller, int state) {
             if (mSavedPlayerState == state) return;
             mSavedPlayerState = state;
             mWrapperCallback.onPlayerStateChanged(PlayerWrapper.this, state);
         }
 
         @Override
-        public void onPlaybackSpeedChanged(@NonNull MediaController controller, float speed) {
+        public void onPlaybackSpeedChanged(
+                @NonNull androidx.media2.session.MediaController controller, float speed) {
             mWrapperCallback.onPlaybackSpeedChanged(PlayerWrapper.this, speed);
         }
 
         @Override
-        public void onSeekCompleted(@NonNull MediaController controller, long position) {
+        public void onSeekCompleted(
+                @NonNull androidx.media2.session.MediaController controller, long position) {
             mWrapperCallback.onSeekCompleted(PlayerWrapper.this, position);
         }
 
         @Override
-        public void onCurrentMediaItemChanged(@NonNull MediaController controller,
-                @Nullable MediaItem item) {
+        public void onCurrentMediaItemChanged(
+                @NonNull androidx.media2.session.MediaController controller,
+                @Nullable androidx.media2.common.MediaItem item) {
             mMediaMetadata = item == null ? null : item.getMetadata();
             mWrapperCallback.onCurrentMediaItemChanged(PlayerWrapper.this, item);
         }
 
         @Override
-        public void onPlaylistChanged(@NonNull MediaController controller,
-                @Nullable List<MediaItem> list, @Nullable MediaMetadata metadata) {
+        public void onPlaylistChanged(
+                @NonNull androidx.media2.session.MediaController controller,
+                @Nullable List<androidx.media2.common.MediaItem> list,
+                @Nullable androidx.media2.common.MediaMetadata metadata) {
             mWrapperCallback.onPlaylistChanged(PlayerWrapper.this, list, metadata);
         }
 
         @Override
-        public void onPlaybackCompleted(@NonNull MediaController controller) {
+        public void onPlaybackCompleted(
+                @NonNull androidx.media2.session.MediaController controller) {
             mWrapperCallback.onPlaybackCompleted(PlayerWrapper.this);
         }
 
         @Override
-        public void onVideoSizeChanged(@NonNull MediaController controller,
-                @NonNull VideoSize videoSize) {
+        public void onVideoSizeChanged(
+                @NonNull androidx.media2.session.MediaController controller,
+                @NonNull androidx.media2.common.VideoSize videoSize) {
             mWrapperCallback.onVideoSizeChanged(PlayerWrapper.this, videoSize);
         }
 
         @Override
-        public void onSubtitleData(@NonNull MediaController controller, @NonNull MediaItem item,
-                @NonNull TrackInfo track, @NonNull SubtitleData data) {
+        public void onSubtitleData(
+                @NonNull androidx.media2.session.MediaController controller,
+                @NonNull androidx.media2.common.MediaItem item,
+                @NonNull androidx.media2.common.SessionPlayer.TrackInfo track,
+                @NonNull androidx.media2.common.SubtitleData data) {
             mWrapperCallback.onSubtitleData(PlayerWrapper.this, item, track, data);
         }
 
         @Override
-        public void onTracksChanged(@NonNull MediaController controller,
-                @NonNull List<TrackInfo> tracks) {
+        public void onTracksChanged(
+                @NonNull androidx.media2.session.MediaController controller,
+                @NonNull List<androidx.media2.common.SessionPlayer.TrackInfo> tracks) {
             mWrapperCallback.onTracksChanged(PlayerWrapper.this, tracks);
         }
 
         @Override
-        public void onTrackSelected(@NonNull MediaController controller,
-                @NonNull TrackInfo trackInfo) {
+        public void onTrackSelected(
+                @NonNull androidx.media2.session.MediaController controller,
+                @NonNull androidx.media2.common.SessionPlayer.TrackInfo trackInfo) {
             mWrapperCallback.onTrackSelected(PlayerWrapper.this, trackInfo);
         }
 
         @Override
-        public void onTrackDeselected(@NonNull MediaController controller,
-                @NonNull TrackInfo trackInfo) {
+        public void onTrackDeselected(
+                @NonNull androidx.media2.session.MediaController controller,
+                @NonNull androidx.media2.common.SessionPlayer.TrackInfo trackInfo) {
             mWrapperCallback.onTrackDeselected(PlayerWrapper.this, trackInfo);
         }
     }
@@ -516,79 +544,96 @@ class PlayerWrapper {
     private void notifyNonCachedStates() {
         mWrapperCallback.onPlaybackSpeedChanged(this, getPlaybackSpeed());
 
-        List<TrackInfo> trackInfos = getTracks();
+        List<androidx.media2.common.SessionPlayer.TrackInfo> trackInfos = getTracks();
         if (trackInfos != null) {
             mWrapperCallback.onTracksChanged(PlayerWrapper.this, trackInfos);
         }
-        MediaItem item = getCurrentMediaItem();
+        androidx.media2.common.MediaItem item = getCurrentMediaItem();
         if (item != null) {
             mWrapperCallback.onVideoSizeChanged(PlayerWrapper.this, getVideoSize());
         }
     }
 
-    private class SessionPlayerCallback extends SessionPlayer.PlayerCallback {
+    private class SessionPlayerCallback
+            extends androidx.media2.common.SessionPlayer.PlayerCallback {
         SessionPlayerCallback() {
         }
 
         @Override
-        public void onPlayerStateChanged(@NonNull SessionPlayer player, int playerState) {
+        public void onPlayerStateChanged(
+                @NonNull androidx.media2.common.SessionPlayer player, int playerState) {
             if (mSavedPlayerState == playerState) return;
             mSavedPlayerState = playerState;
             mWrapperCallback.onPlayerStateChanged(PlayerWrapper.this, playerState);
         }
 
         @Override
-        public void onPlaybackSpeedChanged(@NonNull SessionPlayer player, float playbackSpeed) {
+        public void onPlaybackSpeedChanged(
+                @NonNull androidx.media2.common.SessionPlayer player, float playbackSpeed) {
             mWrapperCallback.onPlaybackSpeedChanged(PlayerWrapper.this, playbackSpeed);
         }
 
         @Override
-        public void onSeekCompleted(@NonNull SessionPlayer player, long position) {
+        public void onSeekCompleted(
+                @NonNull androidx.media2.common.SessionPlayer player, long position) {
             mWrapperCallback.onSeekCompleted(PlayerWrapper.this, position);
         }
 
         @Override
-        public void onCurrentMediaItemChanged(@NonNull SessionPlayer player,
-                @NonNull MediaItem item) {
+        public void onCurrentMediaItemChanged(
+                @NonNull androidx.media2.common.SessionPlayer player,
+                @NonNull androidx.media2.common.MediaItem item) {
             mMediaMetadata = item == null ? null : item.getMetadata();
             mWrapperCallback.onCurrentMediaItemChanged(PlayerWrapper.this, item);
         }
 
         @Override
-        public void onPlaylistChanged(@NonNull SessionPlayer player, @Nullable List<MediaItem> list,
-                @Nullable MediaMetadata metadata) {
+        public void onPlaylistChanged(
+                @NonNull androidx.media2.common.SessionPlayer player,
+                @Nullable List<androidx.media2.common.MediaItem> list,
+                @Nullable androidx.media2.common.MediaMetadata metadata) {
             mWrapperCallback.onPlaylistChanged(PlayerWrapper.this, list, metadata);
         }
 
         @Override
-        public void onPlaybackCompleted(@NonNull SessionPlayer player) {
+        public void onPlaybackCompleted(@NonNull androidx.media2.common.SessionPlayer player) {
             mWrapperCallback.onPlaybackCompleted(PlayerWrapper.this);
         }
 
         @Override
-        public void onVideoSizeChanged(@NonNull SessionPlayer player, @NonNull VideoSize size) {
+        public void onVideoSizeChanged(
+                @NonNull androidx.media2.common.SessionPlayer player,
+                @NonNull androidx.media2.common.VideoSize size) {
             mWrapperCallback.onVideoSizeChanged(PlayerWrapper.this, size);
         }
 
         @Override
-        public void onSubtitleData(@NonNull SessionPlayer player, @NonNull MediaItem item,
-                @NonNull TrackInfo track, @NonNull SubtitleData data) {
+        public void onSubtitleData(
+                @NonNull androidx.media2.common.SessionPlayer player,
+                @NonNull androidx.media2.common.MediaItem item,
+                @NonNull androidx.media2.common.SessionPlayer.TrackInfo track,
+                @NonNull androidx.media2.common.SubtitleData data) {
             mWrapperCallback.onSubtitleData(PlayerWrapper.this, item, track, data);
         }
 
         @Override
-        public void onTracksChanged(@NonNull SessionPlayer player,
-                @NonNull List<TrackInfo> tracks) {
+        public void onTracksChanged(
+                @NonNull androidx.media2.common.SessionPlayer player,
+                @NonNull List<androidx.media2.common.SessionPlayer.TrackInfo> tracks) {
             mWrapperCallback.onTracksChanged(PlayerWrapper.this, tracks);
         }
 
         @Override
-        public void onTrackSelected(@NonNull SessionPlayer player, @NonNull TrackInfo trackInfo) {
+        public void onTrackSelected(
+                @NonNull androidx.media2.common.SessionPlayer player,
+                @NonNull androidx.media2.common.SessionPlayer.TrackInfo trackInfo) {
             mWrapperCallback.onTrackSelected(PlayerWrapper.this, trackInfo);
         }
 
         @Override
-        public void onTrackDeselected(@NonNull SessionPlayer player, @NonNull TrackInfo trackInfo) {
+        public void onTrackDeselected(
+                @NonNull androidx.media2.common.SessionPlayer player,
+                @NonNull androidx.media2.common.SessionPlayer.TrackInfo trackInfo) {
             mWrapperCallback.onTrackDeselected(PlayerWrapper.this, trackInfo);
         }
     }
@@ -596,14 +641,19 @@ class PlayerWrapper {
     abstract static class PlayerCallback {
         void onConnected(@NonNull PlayerWrapper player) {
         }
-        void onAllowedCommandsChanged(@NonNull PlayerWrapper player,
-                @NonNull SessionCommandGroup commands) {
-        }
-        void onCurrentMediaItemChanged(@NonNull PlayerWrapper player, @Nullable MediaItem item) {
-        }
-        void onPlaylistChanged(@NonNull PlayerWrapper player, @Nullable List<MediaItem> list,
-                @Nullable MediaMetadata metadata) {
-        }
+
+        void onAllowedCommandsChanged(
+                @NonNull PlayerWrapper player,
+                @NonNull androidx.media2.session.SessionCommandGroup commands) {}
+
+        void onCurrentMediaItemChanged(
+                @NonNull PlayerWrapper player, @Nullable androidx.media2.common.MediaItem item) {}
+
+        void onPlaylistChanged(
+                @NonNull PlayerWrapper player,
+                @Nullable List<androidx.media2.common.MediaItem> list,
+                @Nullable androidx.media2.common.MediaMetadata metadata) {}
+
         void onPlayerStateChanged(@NonNull PlayerWrapper player, int state) {
         }
         void onPlaybackSpeedChanged(@NonNull PlayerWrapper player, float speed) {
@@ -612,16 +662,27 @@ class PlayerWrapper {
         }
         void onPlaybackCompleted(@NonNull PlayerWrapper player) {
         }
-        void onVideoSizeChanged(@NonNull PlayerWrapper player, @NonNull VideoSize videoSize) {
-        }
-        void onTracksChanged(@NonNull PlayerWrapper player, @NonNull List<TrackInfo> tracks) {
-        }
-        void onTrackSelected(@NonNull PlayerWrapper player, @NonNull TrackInfo trackInfo) {
-        }
-        void onTrackDeselected(@NonNull PlayerWrapper player, @NonNull TrackInfo trackInfo) {
-        }
-        void onSubtitleData(@NonNull PlayerWrapper player, @NonNull MediaItem item,
-                @NonNull TrackInfo track, @NonNull SubtitleData data) {
-        }
+
+        void onVideoSizeChanged(
+                @NonNull PlayerWrapper player,
+                @NonNull androidx.media2.common.VideoSize videoSize) {}
+
+        void onTracksChanged(
+                @NonNull PlayerWrapper player,
+                @NonNull List<androidx.media2.common.SessionPlayer.TrackInfo> tracks) {}
+
+        void onTrackSelected(
+                @NonNull PlayerWrapper player,
+                @NonNull androidx.media2.common.SessionPlayer.TrackInfo trackInfo) {}
+
+        void onTrackDeselected(
+                @NonNull PlayerWrapper player,
+                @NonNull androidx.media2.common.SessionPlayer.TrackInfo trackInfo) {}
+
+        void onSubtitleData(
+                @NonNull PlayerWrapper player,
+                @NonNull androidx.media2.common.MediaItem item,
+                @NonNull androidx.media2.common.SessionPlayer.TrackInfo track,
+                @NonNull androidx.media2.common.SubtitleData data) {}
     }
 }

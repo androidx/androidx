@@ -33,4 +33,5 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Androidx implementation of Guava's ListenableFuture"
+    metalavaK2UastEnabled = true
 }

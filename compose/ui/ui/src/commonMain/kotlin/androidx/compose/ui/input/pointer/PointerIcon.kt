@@ -16,22 +16,20 @@
 
 package androidx.compose.ui.input.pointer
 
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.input.pointer.PointerEventPass.Main
-import androidx.compose.ui.modifier.ModifierLocalConsumer
-import androidx.compose.ui.modifier.ModifierLocalProvider
-import androidx.compose.ui.modifier.ModifierLocalReadScope
-import androidx.compose.ui.modifier.ProvidableModifierLocal
-import androidx.compose.ui.modifier.modifierLocalOf
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.PointerInputModifierNode
+import androidx.compose.ui.node.TraversableNode
+import androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAction
+import androidx.compose.ui.node.currentValueOf
+import androidx.compose.ui.node.traverseAncestors
+import androidx.compose.ui.node.traverseDescendants
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalPointerIconService
-import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.unit.IntSize
 
 /**
  * Represents a pointer icon to use in [Modifier.pointerHoverIcon]
@@ -71,172 +69,252 @@ internal interface PointerIconService {
 
 /**
  * Modifier that lets a developer define a pointer icon to display when the cursor is hovered over
- * the element. When [overrideDescendants] is set to true, children cannot override the pointer icon
- * using this modifier.
+ * the element. When [overrideDescendants] is set to true, descendants cannot override the
+ * pointer icon using this modifier.
  *
  * @sample androidx.compose.ui.samples.PointerIconSample
  *
  * @param icon The icon to set
  * @param overrideDescendants when false (by default) descendants are able to set their own pointer
- * icon. If true, all children under this parent will receive the requested pointer [icon] and are
- * no longer allowed to override their own pointer icon.
+ * icon. If true, no descendants under this parent are eligible to change the icon (it will be set
+ * to the this [the parent's] icon).
  */
 @Stable
 fun Modifier.pointerHoverIcon(icon: PointerIcon, overrideDescendants: Boolean = false) =
-    composed(inspectorInfo = debugInspectorInfo {
+    this then PointerHoverIconModifierElement(
+        icon = icon,
+        overrideDescendants = overrideDescendants
+    )
+
+internal data class PointerHoverIconModifierElement(
+    val icon: PointerIcon,
+    val overrideDescendants: Boolean = false
+) : ModifierNodeElement<PointerHoverIconModifierNode>() {
+    override fun create() = PointerHoverIconModifierNode(icon, overrideDescendants)
+
+    override fun update(node: PointerHoverIconModifierNode) {
+        node.icon = icon
+        node.overrideDescendants = overrideDescendants
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
         name = "pointerHoverIcon"
         properties["icon"] = icon
         properties["overrideDescendants"] = overrideDescendants
-    }) {
-        val pointerIconService = LocalPointerIconService.current
-        if (pointerIconService == null) {
-            Modifier
-        } else {
-            val onSetIcon = { pointerIcon: PointerIcon? ->
-                pointerIconService.setIcon(pointerIcon)
-            }
-            val pointerIconModifierLocal = remember {
-                PointerIconModifierLocal(icon, overrideDescendants, onSetIcon)
-            }
-            SideEffect {
-                pointerIconModifierLocal.updateValues(
-                    icon = icon,
-                    overrideDescendants = overrideDescendants,
-                    onSetIcon = onSetIcon
-                )
-            }
-            val pointerInputModifier = if (pointerIconModifierLocal.shouldUpdatePointerIcon()) {
-                pointerInput(pointerIconModifierLocal) {
-                    awaitPointerEventScope {
-                        while (true) {
-                            val event = awaitPointerEvent(Main)
-
-                            if (event.type == PointerEventType.Enter) {
-                                pointerIconModifierLocal.enter()
-                            } else if (event.type == PointerEventType.Exit) {
-                                pointerIconModifierLocal.exit()
-                            }
-                        }
-                    }
-                }
-            } else {
-                Modifier
-            }
-
-            pointerIconModifierLocal.then(pointerInputModifier)
-        }
-    }
-
-/**
- * Handles storing all pointer icon information that needs to be passed between Modifiers to
- * determine which icon needs to be set in the hierarchy.
- *
- * @property icon the stored current icon we are keeping track of.
- * @property overrideDescendants value indicating whether the stored icon should always be
- * respected by its children. If true, the stored icon will be considered the source of truth for
- * all children. If false, the stored icon can be overwritten by a child.
- * @property onSetIcon is a lambda that will handle the process of physically setting the user
- * facing pointer icon. This allows the [PointerIconModifierLocal] to be solely responsible for
- * determining what the state of the icon should be, but removes the responsibility of needing to
- * actually set the icon for the user.
- */
-private class PointerIconModifierLocal(
-    private var icon: PointerIcon,
-    private var overrideDescendants: Boolean,
-    private var onSetIcon: (PointerIcon?) -> Unit,
-) : PointerIcon, ModifierLocalProvider<PointerIconModifierLocal?>, ModifierLocalConsumer {
-    // TODO: (b/266976920) Remove making this a mutable state once we fully support a dynamic
-    //  overrideDescendants param.
-    private var parentInfo: PointerIconModifierLocal? by mutableStateOf(null)
-
-    // TODO: (b/267170292) Properly reset isPaused upon PointerIconModifierLocal disposal.
-    var isPaused: Boolean = false
-
-    /* True if the cursor is within the surface area of this element's bounds. Otherwise, false. */
-    var isHovered: Boolean = false
-
-    override val key: ProvidableModifierLocal<PointerIconModifierLocal?> = ModifierLocalPointerIcon
-    override val value: PointerIconModifierLocal = this
-
-    override fun onModifierLocalsUpdated(scope: ModifierLocalReadScope) = with(scope) {
-        val oldParentInfo = parentInfo
-        parentInfo = ModifierLocalPointerIcon.current
-        if (oldParentInfo != null && parentInfo == null) {
-            // When the old parentInfo for this element is reassigned to null, we assume this
-            // element is being alienated for disposal. Exit out of our pointer icon logic for this
-            // element and then update onSetIcon to null so it will not change the icon any further.
-            exit(oldParentInfo)
-            onSetIcon = {}
-        }
-    }
-
-    fun shouldUpdatePointerIcon(): Boolean {
-        val parentPointerInfo = parentInfo
-        return parentPointerInfo == null || !parentPointerInfo.hasOverride()
-    }
-
-    private fun hasOverride(): Boolean {
-        return overrideDescendants || parentInfo?.hasOverride() == true
-    }
-
-    fun enter() {
-        isHovered = true
-        if (!isPaused) {
-            parentInfo?.pause()
-            onSetIcon(icon)
-        }
-    }
-
-    fun exit() {
-        exit(parentInfo)
-    }
-
-    private fun exit(parent: PointerIconModifierLocal?) {
-        if (isHovered) {
-            if (parent == null) {
-                // Notify that oldest ancestor in hierarchy exited by passing null to onSetIcon().
-                onSetIcon(null)
-            } else {
-                parent.reassignIcon()
-            }
-        }
-        isHovered = false
-    }
-
-    private fun reassignIcon() {
-        isPaused = false
-        if (isHovered) {
-            onSetIcon(icon)
-        } else if (parentInfo == null) {
-            // Reassign the icon back to the default arrow by passing in a null PointerIcon
-            onSetIcon(null)
-        } else {
-            parentInfo?.reassignIcon()
-        }
-    }
-
-    private fun pause() {
-        isPaused = true
-        parentInfo?.pause()
-    }
-
-    fun updateValues(
-        icon: PointerIcon,
-        overrideDescendants: Boolean,
-        onSetIcon: (PointerIcon?) -> Unit
-    ) {
-        if (this.icon != icon && isHovered && !isPaused) {
-            // Hovered element's icon has dynamically changed so we need to set the user facing icon
-            onSetIcon(icon)
-        }
-        this.icon = icon
-        this.overrideDescendants = overrideDescendants
-        this.onSetIcon = onSetIcon
     }
 }
 
-/**
- * The unique identifier used as the key for the custom [ModifierLocalProvider] created to tell us
- * the current [PointerIcon].
+/*
+ * Changes the pointer hover icon if the node is in bounds and if the node is not overridden
+ * by a parent pointer hover icon node. This node implements [PointerInputModifierNode] so it can
+ * listen to pointer input events and determine if the pointer has entered or exited the bounds of
+ * the modifier itself.
+ *
+ * If the icon or overrideDescendants values are changed, this node will determine if it needs to
+ * walk down and/or up the modifier chain to update those pointer hover icon modifier nodes as well.
  */
-private val ModifierLocalPointerIcon = modifierLocalOf<PointerIconModifierLocal?> { null }
+internal class PointerHoverIconModifierNode(
+    icon: PointerIcon,
+    overrideDescendants: Boolean = false
+) : Modifier.Node(),
+    TraversableNode,
+    PointerInputModifierNode,
+    CompositionLocalConsumerModifierNode {
+    /* Traversal key used with the [TraversableNode] interface to enable all the traversing
+     * functions (ancestor, child, subtree, and subtreeIf).
+     */
+    override val traverseKey = "androidx.compose.ui.input.pointer.PointerHoverIcon"
+
+    var icon = icon
+        set(value) {
+            if (field != value) {
+                field = value
+                if (cursorInBoundsOfNode) {
+                    displayIconIfDescendantsDoNotHavePriority()
+                }
+            }
+        }
+
+    var overrideDescendants = overrideDescendants
+        set(value) {
+            if (field != value) {
+                field = value
+
+                if (overrideDescendants) { // overrideDescendants changed from false -> true
+                    // If this node or any descendants have the cursor in bounds, change the icon.
+                    if (cursorInBoundsOfNode) {
+                        displayIcon()
+                    }
+                } else { // overrideDescendants changed from true -> false
+                    if (cursorInBoundsOfNode) {
+                        displayIconFromCurrentNodeOrDescendantsWithCursorInBounds()
+                    }
+                }
+            }
+        }
+
+    // Service used to actually update the icon with the system when needed.
+    private val pointerIconService: PointerIconService?
+        get() = currentValueOf(LocalPointerIconService)
+
+    private var cursorInBoundsOfNode = false
+
+    // Pointer Input callback for determining if a Pointer has Entered or Exited this node.
+    override fun onPointerEvent(
+        pointerEvent: PointerEvent,
+        pass: PointerEventPass,
+        bounds: IntSize
+    ) {
+        if (pass == Main) {
+            // Cursor within the surface area of this node's bounds
+            if (pointerEvent.type == PointerEventType.Enter) {
+                cursorInBoundsOfNode = true
+                displayIconIfDescendantsDoNotHavePriority()
+            } else if (pointerEvent.type == PointerEventType.Exit) {
+                cursorInBoundsOfNode = false
+                displayIconFromAncestorNodeWithCursorInBoundsOrDefaultIcon()
+            }
+        }
+    }
+
+    override fun onCancelPointerInput() {
+        // We aren't processing the event (only listening for enter/exit), so we don't need to
+        // do anything.
+    }
+
+    override fun onDetach() {
+        cursorInBoundsOfNode = false
+        displayIconFromAncestorNodeWithCursorInBoundsOrDefaultIcon()
+
+        super.onDetach()
+    }
+
+    private fun displayIcon() {
+        // If there are any ancestor that override this node, we must use that icon. Otherwise, we
+        // use the current node's icon
+        val iconToUse = findOverridingAncestorNode()?.icon ?: icon
+        pointerIconService?.setIcon(iconToUse)
+    }
+
+    private fun displayDefaultIcon() {
+        pointerIconService?.setIcon(null)
+    }
+
+    private fun displayIconIfDescendantsDoNotHavePriority() {
+        var hasIconRightsOverDescendants = true
+
+        if (!overrideDescendants) {
+            traverseDescendants {
+                // Descendant in bounds has rights to the icon (and has already set it),
+                // so we ignore.
+                val continueTraversal = if (it.cursorInBoundsOfNode) {
+                    hasIconRightsOverDescendants = false
+                    TraverseDescendantsAction.CancelTraversal
+                } else {
+                    TraverseDescendantsAction.ContinueTraversal
+                }
+                continueTraversal
+            }
+        }
+
+        if (hasIconRightsOverDescendants) {
+            displayIcon()
+        }
+    }
+
+    /*
+     * Finds and returns the lowest descendant node with the cursor within its bounds (true node
+     * that gets to decide the icon).
+     *
+     * Note: Multiple descendant nodes may have `cursorInBoundsOfNode` set to true (for when the
+     * cursor enters their bounds). The lowest one is the one that is the correct node for the
+     * mouse (see example for explanation).
+     *
+     * Example: Parent node contains a child node within its visual border (both are pointer icon
+     * nodes).
+     * - Mouse moves over the PARENT node triggers the pointer input handler ENTER event which sets
+     * `cursorInBoundsOfNode` = `true`.
+     * - Mouse moves over CHILD node triggers the pointer input handler ENTER event which sets
+     * `cursorInBoundsOfNode` = `true`.
+     *
+     * They are both true now because the pointer input event's exit is not triggered (which would
+     * set cursorInBoundsOfNode` = `false`) unless the mouse moves outside the parent node. Because
+     * the child node is contained visually within the parent node, it is not triggered. That is why
+     * we need to get the lowest node with `cursorInBoundsOfNode` set to true.
+     */
+    private fun findDescendantNodeWithCursorInBounds(): PointerHoverIconModifierNode? {
+        var descendantNodeWithCursorInBounds: PointerHoverIconModifierNode? = null
+
+        traverseDescendants {
+            var actionForSubtreeOfCurrentNode = TraverseDescendantsAction.ContinueTraversal
+
+            if (it.cursorInBoundsOfNode) {
+                descendantNodeWithCursorInBounds = it
+
+                // No descendant nodes below this one are eligible to set the icon.
+                if (it.overrideDescendants) {
+                    actionForSubtreeOfCurrentNode =
+                        TraverseDescendantsAction.SkipSubtreeAndContinueTraversal
+                }
+            }
+            actionForSubtreeOfCurrentNode
+        }
+
+        return descendantNodeWithCursorInBounds
+    }
+
+    private fun displayIconFromCurrentNodeOrDescendantsWithCursorInBounds() {
+        if (!cursorInBoundsOfNode) return
+
+        var pointerHoverIconModifierNode: PointerHoverIconModifierNode = this
+
+        if (!overrideDescendants) {
+            findDescendantNodeWithCursorInBounds()?.let {
+                pointerHoverIconModifierNode = it
+            }
+        }
+
+        pointerHoverIconModifierNode.displayIcon()
+    }
+
+    private fun findOverridingAncestorNode(): PointerHoverIconModifierNode? {
+        var pointerHoverIconModifierNode: PointerHoverIconModifierNode? = null
+
+        traverseAncestors {
+            if (it.overrideDescendants &&
+                it.cursorInBoundsOfNode) {
+                pointerHoverIconModifierNode = it
+            }
+            // continue traversal
+            true
+        }
+
+        return pointerHoverIconModifierNode
+    }
+
+    /*
+     * Sets the icon to either the ancestor where the mouse is in its bounds (or to its
+     * ancestors if one overrides it) or to a default icon.
+     */
+    private fun displayIconFromAncestorNodeWithCursorInBoundsOrDefaultIcon() {
+        var pointerHoverIconModifierNode: PointerHoverIconModifierNode? = null
+
+        traverseAncestors {
+            if (pointerHoverIconModifierNode == null && it.cursorInBoundsOfNode) {
+                pointerHoverIconModifierNode = it
+
+            // We should only assign a node that override its descendants if there was a node
+            // below it where the mouse was in bounds meaning the pointerHoverIconModifierNode
+            // will not be null.
+            } else if (pointerHoverIconModifierNode != null &&
+                it.overrideDescendants &&
+                it.cursorInBoundsOfNode) {
+                pointerHoverIconModifierNode = it
+            }
+
+            // continue traversal
+            true
+        }
+        pointerHoverIconModifierNode?.displayIcon() ?: displayDefaultIcon()
+    }
+}

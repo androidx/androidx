@@ -23,7 +23,8 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.DeviceInfo.deviceSummaryString
 import androidx.benchmark.Shell
-import androidx.benchmark.userspaceTrace
+import androidx.benchmark.inMemoryTrace
+import androidx.benchmark.perfetto.PerfettoHelper.Companion.MIN_SDK_VERSION
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.tracing.trace
 import java.io.File
@@ -34,17 +35,16 @@ import org.jetbrains.annotations.TestOnly
  * PerfettoHelper is used to start and stop the perfetto tracing and move the
  * output perfetto trace file to destination folder.
  *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@RequiresApi(23)
+@RequiresApi(MIN_SDK_VERSION)
 public class PerfettoHelper(
-    private val unbundled: Boolean = Build.VERSION.SDK_INT < LOWEST_BUNDLED_VERSION_SUPPORTED
+    private val unbundled: Boolean = Build.VERSION.SDK_INT < MIN_BUNDLED_SDK_VERSION
 ) {
     init {
-        require(unbundled || Build.VERSION.SDK_INT >= LOWEST_BUNDLED_VERSION_SUPPORTED) {
+        require(unbundled || Build.VERSION.SDK_INT >= MIN_BUNDLED_SDK_VERSION) {
             "Perfetto capture using the os version of perfetto requires API " +
-                "$LOWEST_BUNDLED_VERSION_SUPPORTED or greater."
+                "$MIN_BUNDLED_SDK_VERSION or greater."
         }
     }
 
@@ -165,7 +165,7 @@ public class PerfettoHelper(
      * This is a good indicator that tracing is actually enabled (including the app atrace tag), and
      * that content will be captured in the trace buffer
      */
-    private fun checkTracingOn(): Unit = userspaceTrace("poll tracing_on") {
+    private fun checkTracingOn(): Unit = inMemoryTrace("poll tracing_on") {
         val path: String = when {
             Shell.pathExists(TRACING_ON_PATH) -> {
                 TRACING_ON_PATH
@@ -187,7 +187,7 @@ public class PerfettoHelper(
         repeat(pollTracingOnMaxCount) {
             when (val output = Shell.executeScriptCaptureStdout("cat $path").trim()) {
                 "0" -> {
-                    userspaceTrace("wait for trace to start (tracing_on == 1)") {
+                    inMemoryTrace("wait for trace to start (tracing_on == 1)") {
                         SystemClock.sleep(pollTracingOnMs)
                     }
                 }
@@ -232,12 +232,12 @@ public class PerfettoHelper(
         // Stop the perfetto and copy the output file.
         Log.i(LOG_TAG, "Stopping perfetto.")
 
-        userspaceTrace("stop perfetto process") {
+        inMemoryTrace("stop perfetto process") {
             stopPerfetto()
         }
 
         Log.i(LOG_TAG, "Writing to $destinationFile.")
-        userspaceTrace("copy trace to output dir") {
+        inMemoryTrace("copy trace to output dir") {
             copyFileOutput(destinationFile)
         }
     }
@@ -367,7 +367,8 @@ public class PerfettoHelper(
     companion object {
         internal const val LOG_TAG = "PerfettoCapture"
 
-        const val LOWEST_BUNDLED_VERSION_SUPPORTED = 29
+        const val MIN_SDK_VERSION = 23
+        const val MIN_BUNDLED_SDK_VERSION = 29
 
         // Command to start the perfetto tracing in the background.
         // perfetto --background -c /data/misc/perfetto-traces/trace_config.pb -o
@@ -409,7 +410,7 @@ public class PerfettoHelper(
         }
 
         fun createExecutable(tool: String): String {
-            userspaceTrace("create executable: $tool") {
+            inMemoryTrace("create executable: $tool") {
                 if (!isAbiSupported()) {
                     throw IllegalStateException(
                         "Unsupported ABI (${Build.SUPPORTED_ABIS.joinToString()})"
@@ -420,8 +421,6 @@ public class PerfettoHelper(
                     // supported by a device. That is why we need to search from most specific to
                     // least specific. For e.g. emulators claim to support aarch64, when in reality
                     // they can only support x86 or x86_64.
-                    // Note: Cuttlefish is x86 but claims support for x86_64
-                    Build.MODEL.contains("Cuttlefish") -> "x86" // TODO(204892353): handle properly
                     Build.SUPPORTED_64_BIT_ABIS.any { it.startsWith("x86_64") } -> "x86_64"
                     Build.SUPPORTED_32_BIT_ABIS.any { it.startsWith("x86") } -> "x86"
                     Build.SUPPORTED_64_BIT_ABIS.any { it.startsWith("arm64") } -> "aarch64"
@@ -452,7 +451,7 @@ public class PerfettoHelper(
             // this there as well. Can't use bundled /system/bin/traced_probes, as that requires
             // root, and unbundled tracebox otherwise not used/installed on higher APIs, outside
             // of tests.
-            if (Build.VERSION.SDK_INT < LOWEST_BUNDLED_VERSION_SUPPORTED) {
+            if (Build.VERSION.SDK_INT < MIN_BUNDLED_SDK_VERSION) {
                 val output = Shell.executeScriptCaptureStdoutStderr(
                     "$unbundledPerfettoShellPath traced_probes --cleanup-after-crash"
                 )

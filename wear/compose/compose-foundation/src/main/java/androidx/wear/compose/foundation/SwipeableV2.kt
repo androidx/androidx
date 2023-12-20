@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.foundation
 
+import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.compose.animation.core.AnimationSpec
@@ -38,6 +39,9 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
@@ -46,10 +50,15 @@ import androidx.compose.ui.layout.OnRemeasuredModifier
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.InspectorValueInfo
 import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.semantics.ScrollAxisRange
+import androidx.compose.ui.semantics.horizontalScrollAxisRange
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.verticalScrollAxisRange
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import kotlin.math.abs
 import kotlinx.coroutines.CancellationException
@@ -86,15 +95,54 @@ public fun <T> Modifier.swipeableV2(
     enabled: Boolean = true,
     reverseDirection: Boolean = false,
     interactionSource: MutableInteractionSource? = null
-) = draggable(
-    state = state.swipeDraggableState,
-    orientation = orientation,
-    enabled = enabled,
-    interactionSource = interactionSource,
-    reverseDirection = reverseDirection,
-    startDragImmediately = state.isAnimationRunning,
-    onDragStopped = { velocity -> launch { state.settle(velocity) } }
-)
+): Modifier {
+    // Swipeables publish scroll range semantics so they look like they can scroll between values
+    // of 0 and 1, inclusive, so that AndroidComposeView can report a value from its canScroll
+    // methods that correctly tells the system's ScrollDismissLayout whether it should intercept
+    // touch values (see b/199908428). This logic is *not* duplicated in the non-Wear swipeable
+    // because it's a bit of a hack to fix navigation in WearOS. Once swipeable implements proper
+    // nested scrolling, and the two swipeable implementations are merged, this fake scrolling stuff
+    // should be gone anyway. Also note that the regular Android swipe-to-go-back gesture works very
+    // differently than the wear gesture so we don't need this workaround to support it.
+    // TODO(b/201009199): Modifier.swipeableV2 should coordinate with the nested scrolling system.
+    val semantics = if (!enabled) Modifier else Modifier.semantics {
+        // Set a fake scroll range axis so that the AndroidComposeView can correctly report whether
+        // scrolling is supported via canScroll{Horizontally,Vertically}.
+        val range = ScrollAxisRange(
+            value = {
+                // Avoid dividing by 0.
+                if (state.minOffset == state.maxOffset) {
+                    0f
+                } else {
+                    val clampedOffset = (state.offset ?: 0f)
+                        .coerceIn(state.minOffset, state.maxOffset)
+                    // [0f, 1f] representing the fraction between the swipe bounds.
+                    // Return the remaining fraction available to swipe.
+                    (state.maxOffset - clampedOffset) / (state.maxOffset - state.minOffset)
+                }
+            },
+            maxValue = { 1f },
+            reverseScrolling = reverseDirection
+        )
+        when (orientation) {
+            Orientation.Horizontal -> horizontalScrollAxisRange = range
+            Orientation.Vertical -> verticalScrollAxisRange = range
+        }
+    }
+
+    // Update the orientation in the swipeable state
+    state.orientation = orientation
+
+    return this.then(semantics).draggable(
+        state = state.swipeDraggableState,
+        orientation = orientation,
+        enabled = enabled,
+        interactionSource = interactionSource,
+        reverseDirection = reverseDirection,
+        startDragImmediately = state.isAnimationRunning,
+        onDragStopped = { velocity -> launch { state.settle(velocity) } }
+    )
+}
 
 /**
  * Define anchor points for a given [SwipeableV2State] based on this node's layout size and update
@@ -177,6 +225,7 @@ public class SwipeableV2State<T>(
     internal val positionalThreshold: Density.(totalDistance: Float) -> Float =
         SwipeableV2Defaults.PositionalThreshold,
     internal val velocityThreshold: Dp = SwipeableV2Defaults.VelocityThreshold,
+    private val nestedScrollDispatcher: NestedScrollDispatcher? = null
 ) {
 
     private val swipeMutex = InternalMutatorMutex()
@@ -199,6 +248,11 @@ public class SwipeableV2State<T>(
             this@SwipeableV2State.dispatchRawDelta(delta)
         }
     }
+
+    /**
+     * The orientation in which the swipeable can be swiped.
+     */
+    internal var orientation = Orientation.Horizontal
 
     /**
      * The current value of the [SwipeableV2State].
@@ -256,7 +310,7 @@ public class SwipeableV2State<T>(
      * The fraction of the progress going from [currentValue] to [targetValue], within [0f..1f]
      * bounds.
      */
-    /*@FloatRange(from = 0f, to = 1f)*/
+    @get:FloatRange(from = 0.0, to = 1.0)
     val progress: Float by derivedStateOf {
         val a = anchors[currentValue] ?: 0f
         val b = anchors[targetValue] ?: 0f
@@ -386,17 +440,29 @@ public class SwipeableV2State<T>(
      * Find the closest anchor taking into account the velocity and settle at it with an animation.
      */
     suspend fun settle(velocity: Float) {
+        var availableVelocity = velocity
+        // Dispatch the velocity to parent nodes for consuming
+        nestedScrollDispatcher?.let {
+            val consumedVelocity = nestedScrollDispatcher.dispatchPreFling(
+                if (orientation == Orientation.Horizontal) {
+                    Velocity(x = velocity, y = 0f)
+                } else {
+                    Velocity(x = 0f, y = velocity)
+                }
+            )
+            availableVelocity -= (consumedVelocity.x + consumedVelocity.y)
+        }
         val previousValue = this.currentValue
         val targetValue = computeTarget(
             offset = requireOffset(),
             currentValue = previousValue,
-            velocity = velocity
+            velocity = availableVelocity
         )
         if (confirmValueChange(targetValue)) {
-            animateTo(targetValue, velocity)
+            animateTo(targetValue, availableVelocity)
         } else {
             // If the user vetoed the state change, rollback to the previous state.
-            animateTo(previousValue, velocity)
+            animateTo(previousValue, availableVelocity)
         }
     }
 
@@ -406,14 +472,41 @@ public class SwipeableV2State<T>(
      * @return The delta the consumed by the [SwipeableV2State]
      */
     fun dispatchRawDelta(delta: Float): Float {
+        var remainingDelta = delta
+
+        // Dispatch the delta as a scroll event to parent node for consuming it
+        nestedScrollDispatcher?.let {
+            val consumedByParent = nestedScrollDispatcher.dispatchPreScroll(
+                available = offsetWithOrientation(remainingDelta),
+                source = NestedScrollSource.Drag
+            )
+            remainingDelta -= (consumedByParent.x + consumedByParent.y)
+        }
         val currentDragPosition = offset ?: 0f
-        val potentiallyConsumed = currentDragPosition + delta
+        val potentiallyConsumed = currentDragPosition + remainingDelta
         val clamped = potentiallyConsumed.coerceIn(minOffset, maxOffset)
         val deltaToConsume = clamped - currentDragPosition
         if (abs(deltaToConsume) >= 0) {
             offset = ((offset ?: 0f) + deltaToConsume).coerceIn(minOffset, maxOffset)
         }
-        return deltaToConsume
+
+        nestedScrollDispatcher?.let {
+            val consumedDelta = nestedScrollDispatcher.dispatchPostScroll(
+                consumed = offsetWithOrientation(deltaToConsume),
+                available = offsetWithOrientation(delta - deltaToConsume),
+                source = NestedScrollSource.Drag
+            )
+            remainingDelta -= (deltaToConsume + consumedDelta.x + consumedDelta.y)
+        }
+        return remainingDelta
+    }
+
+    private fun offsetWithOrientation(delta: Float): Offset {
+        return if (orientation == Orientation.Horizontal) {
+            Offset(x = delta, y = 0f)
+        } else {
+            Offset(x = 0f, y = delta)
+        }
     }
 
     private fun computeTarget(
@@ -436,7 +529,11 @@ public class SwipeableV2State<T>(
                 val distance = abs(currentAnchors.getValue(upper) - currentAnchor)
                 val relativeThreshold = abs(positionalThreshold(currentDensity, distance))
                 val absoluteThreshold = abs(currentAnchor + relativeThreshold)
-                if (offset < absoluteThreshold) currentValue else upper
+                if (offset < 0) {
+                    if (abs(offset) > absoluteThreshold) currentValue else upper
+                } else {
+                    if (offset < absoluteThreshold) currentValue else upper
+                }
             }
         } else {
             // Swiping from upper to lower (negative).

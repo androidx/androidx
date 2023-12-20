@@ -29,8 +29,6 @@ import androidx.wear.watchface.Renderer;
 import androidx.wear.watchface.WatchState;
 import androidx.wear.watchface.style.CurrentUserStyleRepository;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.time.ZonedDateTime;
 import java.util.concurrent.TimeUnit;
 
@@ -49,9 +47,9 @@ public class WatchFaceRenderer extends Renderer.CanvasRenderer {
     private final char[] mTimeText = new char[5];
 
     public WatchFaceRenderer(
-            @NotNull SurfaceHolder surfaceHolder,
-            @NotNull CurrentUserStyleRepository currentUserStyleRepository,
-            @NotNull WatchState watchState) {
+            @NonNull SurfaceHolder surfaceHolder,
+            @NonNull CurrentUserStyleRepository currentUserStyleRepository,
+            @NonNull WatchState watchState) {
         super(
                 surfaceHolder,
                 currentUserStyleRepository,
@@ -66,7 +64,7 @@ public class WatchFaceRenderer extends Renderer.CanvasRenderer {
 
     @Override
     public void render(
-            @NotNull Canvas canvas, @NotNull Rect rect, @NotNull ZonedDateTime zonedDateTime) {
+            @NonNull Canvas canvas, @NonNull Rect rect, @NonNull ZonedDateTime zonedDateTime) {
         mPaint.setColor(Color.BLACK);
         canvas.drawRect(rect, mPaint);
         mPaint.setColor(Color.WHITE);

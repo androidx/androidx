@@ -140,7 +140,7 @@
     <string name="send_notification_title" msgid="4731688444696028193">"ಅಧಿಸೂಚನೆಯನ್ನು ಕಳುಹಿಸಿ"</string>
     <string name="start_notifications_title" msgid="8699668027543530460">"ಅಧಿಸೂಚನೆಗಳನ್ನು ಪ್ರಾರಂಭಿಸಿ"</string>
     <string name="stop_notifications_title" msgid="3703892710275206239">"ಅಧಿಸೂಚನೆಗಳನ್ನು ನಿಲ್ಲಿಸಿ"</string>
-    <string name="notification_title" msgid="5507590705935298176">"ಅಧಿಸೂಚನೆ"</string>
+    <string name="notification_title" msgid="5507590705935298176">"ನೋಟಿಫಿಕೇಶನ್"</string>
     <string name="importance_title" msgid="9034862997821839831">"ಪ್ರಾಮುಖ್ಯತೆ"</string>
     <string name="category_title" msgid="4783851267093259949">"ವರ್ಗ"</string>
     <string name="ongoing_title" msgid="4957996003270280496">"ಚಾಲ್ತಿಯಲ್ಲಿದೆ"</string>
@@ -148,7 +148,7 @@
     <string name="high_importance" msgid="5009120714837304882">"ಅಧಿಕ"</string>
     <string name="low_importance" msgid="4721161314404294033">"ಕಡಿಮೆ"</string>
     <string name="unknown_importance" msgid="909001735933359216">"ಅಪರಿಚಿತ"</string>
-    <string name="notification_demo" msgid="1819496937832036387">"ಅಧಿಸೂಚನೆ ಡೆಮೋ"</string>
+    <string name="notification_demo" msgid="1819496937832036387">"ನೋಟಿಫಿಕೇಶನ್ ಡೆಮೋ"</string>
     <string name="misc_demo_title" msgid="7399959062407349380">"ಇತರ ಡೆಮೋಗಳು"</string>
     <string name="navigating_demo_title" msgid="7454579665387386476">"ನ್ಯಾವಿಗೇಶನ್ ಪ್ರಕ್ರಿಯೆಯ ಡೆಮೋ"</string>
     <string name="arrived_demo_title" msgid="6708013121387053838">"ತಲುಪಲಾದ ಸ್ಥಿತಿಯನ್ನು ತೋರಿಸುವ ಡೆಮೋ"</string>
@@ -158,11 +158,11 @@
     <string name="map_template_list_demo_title" msgid="1473810899303903185">"ಲಿಸ್ಟ್ ಡೆಮೋ ಜೊತೆಗೆ ನಕ್ಷೆ ಟೆಂಪ್ಲೇಟ್"</string>
     <string name="start_notification_title" msgid="2208831088632818681">"ಅಧಿಸೂಚನೆಯನ್ನು ಪ್ರಾರಂಭಿಸಿ"</string>
     <string name="stop_notification_title" msgid="3709643750540881176">"ಅಧಿಸೂಚನೆಯನ್ನು ನಿಲ್ಲಿಸಿ"</string>
-    <string name="nav_notification_demo_title" msgid="4448683262984308442">"ನ್ಯಾವಿಗೇಶನ್ ಅಧಿಸೂಚನೆ ಡೆಮೋ"</string>
+    <string name="nav_notification_demo_title" msgid="4448683262984308442">"ನ್ಯಾವಿಗೇಶನ್ ನೋಟಿಫಿಕೇಶನ್ ಡೆಮೋ"</string>
     <string name="go_straight" msgid="2301747728609198718">"ನೇರವಾಗಿ ಹೋಗಿ"</string>
     <string name="turn_right" msgid="4710562732720109969">"ಬಲಕ್ಕೆ ತಿರುಗಿ"</string>
     <string name="take_520" msgid="3804796387195842741">"520 ಗೆ ಹೋಗಿ"</string>
-    <string name="gas_station" msgid="1203313937444666161">"ಗ್ಯಾಸ್ ಸ್ಟೇಶನ್"</string>
+    <string name="gas_station" msgid="1203313937444666161">"ಪೆಟ್ರೋಲ್ ಬಂಕ್"</string>
     <string name="short_route" msgid="4831864276538141265">"ಕಡಿಮೆ ದೂರದ ಮಾರ್ಗ"</string>
     <string name="less_busy" msgid="310625272281710983">"ಕಡಿಮೆ ಟ್ರಾಫಿಕ್"</string>
     <string name="hov_friendly" msgid="6956152104754594971">"HOV ಸ್ನೇಹಿ"</string>
@@ -172,7 +172,7 @@
     <string name="routes_title" msgid="7799772149932075357">"ಮಾರ್ಗಗಳು"</string>
     <string name="place_list_nav_template_demo_title" msgid="8019588508812955290">"ಸ್ಥಳ ಪಟ್ಟಿಯ ನ್ಯಾವಿಗೇಶನ್ ಟೆಂಪ್ಲೇಟ್ ಡೆಮೋ"</string>
     <string name="route_preview_template_demo_title" msgid="7878704357953167555">"ಮಾರ್ಗ ಪೂರ್ವವೀಕ್ಷಣೆಯ ಟೆಂಪ್ಲೇಟ್ ಡೆಮೋ"</string>
-    <string name="notification_template_demo_title" msgid="5076051497316030274">"ಅಧಿಸೂಚನೆ ಟೆಂಪ್ಲೇಟ್ ಡೆಮೋ"</string>
+    <string name="notification_template_demo_title" msgid="5076051497316030274">"ನೋಟಿಫಿಕೇಶನ್ ಟೆಂಪ್ಲೇಟ್ ಡೆಮೋ"</string>
     <string name="nav_map_template_demo_title" msgid="344985380763975398">"ನಕ್ಷೆ-ಮಾತ್ರ ನ್ಯಾವಿಗೇಶನ್ ಟೆಂಪ್ಲೇಟ್ ಡೆಮೋ"</string>
     <string name="nav_demos_title" msgid="72781206086461004">"ನ್ಯಾವಿಗೇಶನ್ ಡೆಮೋಗಳು"</string>
     <string name="navigation_alert_title" msgid="8306554249264200848">"ಈಗಲೂ ಸ್ಪೀಡ್ ಟ್ರ್ಯಾಪ್ ಅಗತ್ಯವಿದೆಯೇ?"</string>
@@ -264,11 +264,12 @@
     <string name="tab_title_list" msgid="5104962518489668123">"ಪಟ್ಟಿ ಟ್ಯಾಬ್"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"ಲಾಂಗ್ ಟ್ಯಾಬ್ ಶೀರ್ಷಿಕೆಯೊಂದಿಗೆ ಗ್ರಿಡ್ ಟ್ಯಾಬ್"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"ಹುಡುಕಾಟ ಟ್ಯಾಬ್"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"ಟ್ಯಾಬ್ ಅನ್ನು ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"ಟ್ಯಾಬ್ ಟೆಂಪ್ಲೇಟ್‌‌ ಲೋಡ್ ಆಗುತ್ತಿರುವ ಡೆಮೋ"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"ಟ್ಯಾಬ್ ಟೆಂಪ್ಲೇಟ್‌‌ ಯಾವುದೇ ಟ್ಯಾಬ್‌ಗಳ ಡೆಮೋ ಇಲ್ಲ"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"ಅಪರಿಚಿತ ಹೋಸ್ಟ್‌ಗಾಗಿ ಚಿತ್ರಗಳನ್ನು ಪ್ರದರ್ಶಿಸಲಾಗುವುದಿಲ್ಲ"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"ಐಕಾನ್"</string>
-    <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"ವಿಷಯ ಪೂರೈಕೆದಾರರ ಐಕಾನ್‌ಗಳ ಡೆಮೋ"</string>
+    <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"ಕಂಟೆಂಟ್ ಪೂರೈಕೆದಾರರ ಐಕಾನ್‌ಗಳ ಡೆಮೋ"</string>
     <string name="icons_demo_title" msgid="4082976685262307357">"ಐಕಾನ್‌ಗಳ ಡೆಮೋ"</string>
     <string name="app_icon_title" msgid="7534936683349723423">"ಆ್ಯಪ್ ಐಕಾನ್"</string>
     <string name="vector_no_tint_title" msgid="874591632279039146">"ಟಿಂಟ್ ಇಲ್ಲದೆ ಚಿತ್ರಿಸಬಹುದಾದ ಒಂದು ವೆಕ್ಟರ್"</string>

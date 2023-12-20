@@ -20,6 +20,7 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.common.api.internal.ApiKey
 import com.google.android.gms.nearby.uwb.RangingCapabilities
+import com.google.android.gms.nearby.uwb.RangingControleeParameters
 import com.google.android.gms.nearby.uwb.RangingMeasurement
 import com.google.android.gms.nearby.uwb.RangingParameters
 import com.google.android.gms.nearby.uwb.RangingPosition
@@ -73,6 +74,18 @@ public class TestUwbClient(
     }
 
     override fun removeControlee(p0: UwbAddress): Task<Void> {
+        TODO("Not yet implemented")
+    }
+
+    override fun reconfigureRangingInterval(p0: Int): Task<Void> {
+        TODO("Not yet implemented")
+    }
+
+    override fun reconfigureRangeDataNtf(p0: Int, p1: Int, p2: Int): Task<Void> {
+        TODO("Not yet implemented")
+    }
+
+    override fun addControleeWithSessionParams(p0: RangingControleeParameters): Task<Void> {
         TODO("Not yet implemented")
     }
 

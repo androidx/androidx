@@ -30,11 +30,14 @@ import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.config.Camera2ControllerScope
 import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.core.Threading.runBlockingWithTimeout
+import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.core.TimeSource
 import androidx.camera.camera2.pipe.graph.GraphListener
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 /**
@@ -52,6 +55,7 @@ internal class Camera2CameraController
 @Inject
 constructor(
     private val scope: CoroutineScope,
+    private val threads: Threads,
     private val config: CameraGraph.Config,
     private val graphListener: GraphListener,
     private val captureSessionFactory: CaptureSessionFactory,
@@ -97,9 +101,13 @@ constructor(
         lastCameraError = null
         val camera = virtualCameraManager.open(
             config.camera,
-            config.flags.allowMultipleActiveCameras,
+            config.sharedCameraIds,
             graphListener,
         ) { _ -> isForeground }
+        if (camera == null) {
+            Log.error { "Failed to start Camera2CameraController: Open request submission failed" }
+            return
+        }
 
         check(currentCamera == null)
         check(currentSession == null)
@@ -146,10 +154,7 @@ constructor(
 
         controllerState = ControllerState.STOPPING
         Log.debug { "Stopping Camera2CameraController" }
-        scope.launch {
-            session?.disconnect()
-            camera?.disconnect()
-        }
+        disconnectSessionAndCamera(session, camera)
     }
 
     override fun tryRestart(cameraStatus: CameraStatus): Unit = synchronized(lock) {
@@ -196,9 +201,10 @@ constructor(
         currentCameraStateJob?.cancel()
         currentCameraStateJob = null
 
-        scope.launch {
-            session?.disconnect()
-            camera?.disconnect()
+        disconnectSessionAndCamera(session, camera)
+        if (config.flags.quirkCloseCameraDeviceOnClose) {
+            Log.debug { "Quirk: Closing all camera devices" }
+            virtualCameraManager.closeAll()
         }
     }
 
@@ -271,5 +277,27 @@ constructor(
         } else {
             controllerState = ControllerState.STOPPED
         }
+    }
+
+    private fun disconnectSessionAndCamera(session: CaptureSessionState?, camera: VirtualCamera?) {
+        val deferred = scope.async {
+            session?.disconnect()
+            camera?.disconnect()
+        }
+        if (config.flags.quirkCloseCaptureSessionOnDisconnect) {
+            // It seems that on certain devices, CameraCaptureSession.close() can block for an
+            // extended period of time [1]. Wrap the await call with a timeout to prevent us from
+            // getting blocked for too long.
+            //
+            // [1] b/307594946 - [ANR] at
+            //                   androidx.camera.camera2.pipe.compat.Camera2CameraController.disconnectSessionAndCamera
+            runBlockingWithTimeout(threads.backgroundDispatcher, CLOSE_CAPTURE_SESSION_TIMEOUT_MS) {
+                deferred.await()
+            }
+        }
+    }
+
+    companion object {
+        private const val CLOSE_CAPTURE_SESSION_TIMEOUT_MS = 2_000L // 2s
     }
 }

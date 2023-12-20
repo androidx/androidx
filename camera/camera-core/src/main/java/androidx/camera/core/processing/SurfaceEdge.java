@@ -30,6 +30,7 @@ import static androidx.core.util.Preconditions.checkState;
 
 import android.graphics.Matrix;
 import android.graphics.Rect;
+import android.graphics.SurfaceTexture;
 import android.os.Build;
 import android.util.Size;
 import android.view.Surface;
@@ -42,6 +43,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraEffect;
+import androidx.camera.core.Preview;
 import androidx.camera.core.SurfaceOutput;
 import androidx.camera.core.SurfaceProcessor;
 import androidx.camera.core.SurfaceRequest;
@@ -49,9 +51,11 @@ import androidx.camera.core.SurfaceRequest.TransformationInfo;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.DeferrableSurface;
+import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.camera.core.streamsharing.StreamSharing;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -104,6 +108,11 @@ public class SurfaceEdge {
     @CameraEffect.Targets
     private final int mTargets;
     private final StreamSpec mStreamSpec;
+
+    // Guarded by main thread.
+    @ImageOutputConfig.OptionalRotationValue
+    private int mTargetRotation;
+
     // Guarded by main thread.
     private int mRotationDegrees;
 
@@ -141,6 +150,7 @@ public class SurfaceEdge {
             boolean hasCameraTransform,
             @NonNull Rect cropRect,
             int rotationDegrees,
+            @ImageOutputConfig.OptionalRotationValue int targetRotation,
             boolean mirroring) {
         mTargets = targets;
         mFormat = format;
@@ -149,6 +159,7 @@ public class SurfaceEdge {
         mHasCameraTransform = hasCameraTransform;
         mCropRect = cropRect;
         mRotationDegrees = rotationDegrees;
+        mTargetRotation = targetRotation;
         mMirroring = mirroring;
         mSettableSurface = new SettableSurface(streamSpec.getResolution(), mFormat);
     }
@@ -220,7 +231,7 @@ public class SurfaceEdge {
             throws DeferrableSurface.SurfaceClosedException {
         checkMainThread();
         checkNotClosed();
-        mSettableSurface.setProvider(provider);
+        mSettableSurface.setProvider(provider, this::disconnectWithoutCheckingClosed);
     }
 
     /**
@@ -252,7 +263,10 @@ public class SurfaceEdge {
                 }));
         try {
             DeferrableSurface deferrableSurface = surfaceRequest.getDeferrableSurface();
-            if (mSettableSurface.setProvider(deferrableSurface)) {
+            if (mSettableSurface.setProvider(deferrableSurface,
+                    this::disconnectWithoutCheckingClosed)) {
+                // TODO(b/286817690): consider close the deferrableSurface directly when the
+                //  SettableSurface is closed. The delay might cause issues on legacy devices.
                 mSettableSurface.getTerminationFuture().addListener(deferrableSurface::close,
                         directExecutor());
             }
@@ -311,7 +325,7 @@ public class SurfaceEdge {
                     }
                     SurfaceOutputImpl surfaceOutputImpl = new SurfaceOutputImpl(surface,
                             getTargets(), format, mStreamSpec.getResolution(), inputSize, cropRect,
-                            rotationDegrees, mirroring, cameraInternal);
+                            rotationDegrees, mirroring, cameraInternal, mSensorToBufferTransform);
                     surfaceOutputImpl.getCloseFuture().addListener(
                             settableSurface::decrementUseCount,
                             directExecutor());
@@ -386,6 +400,7 @@ public class SurfaceEdge {
     }
 
     private void disconnectWithoutCheckingClosed() {
+        checkMainThread();
         mSettableSurface.close();
         if (mConsumerToNotify != null) {
             mConsumerToNotify.requestClose();
@@ -461,21 +476,44 @@ public class SurfaceEdge {
     }
 
     /**
-     * Sets the rotation degrees.
+     * @see #updateTransformation(int, int)
+     */
+    public void updateTransformation(int rotationDegrees) {
+        updateTransformation(rotationDegrees, ROTATION_NOT_SPECIFIED);
+    }
+
+    /**
+     * Updates the transformation info.
      *
      * <p>If the surface provider is created via {@link #createSurfaceRequest(CameraInternal)}, the
      * returned SurfaceRequest will receive the rotation update by
      * {@link SurfaceRequest.TransformationInfoListener}.
+     *
+     * @param rotationDegrees the suggested clockwise rotation degrees of the buffer.
+     * @param targetRotation  the UseCase target rotation configured by the app. This value is
+     *                        needed if the SurfaceProvider is a TextureView without GL processing.
+     *                        TextureView will combine this value and the value in
+     *                        {@link SurfaceTexture#getTransformMatrix} to correct the output.
+     * @ TODO(b/284336967): allow setting the crop rect and propagate it to the SurfaceProcessor.
      */
-    public void setRotationDegrees(int rotationDegrees) {
+    public void updateTransformation(
+            int rotationDegrees,
+            @ImageOutputConfig.OptionalRotationValue int targetRotation) {
         // This method is not limited to the main thread because UseCase#setTargetRotation calls
         // this method and can be called from a background thread.
         runOnMain(() -> {
-            if (mRotationDegrees == rotationDegrees) {
-                return;
+            boolean isDirty = false;
+            if (mRotationDegrees != rotationDegrees) {
+                isDirty = true;
+                mRotationDegrees = rotationDegrees;
             }
-            mRotationDegrees = rotationDegrees;
-            notifyTransformationInfoUpdate();
+            if (mTargetRotation != targetRotation) {
+                isDirty = true;
+                mTargetRotation = targetRotation;
+            }
+            if (isDirty) {
+                notifyTransformationInfoUpdate();
+            }
         });
     }
 
@@ -483,9 +521,9 @@ public class SurfaceEdge {
     private void notifyTransformationInfoUpdate() {
         checkMainThread();
         if (mProviderSurfaceRequest != null) {
-            mProviderSurfaceRequest.updateTransformationInfo(
-                    TransformationInfo.of(mCropRect, mRotationDegrees, ROTATION_NOT_SPECIFIED,
-                            hasCameraTransform()));
+            mProviderSurfaceRequest.updateTransformationInfo(TransformationInfo.of(
+                    mCropRect, mRotationDegrees, mTargetRotation, hasCameraTransform(),
+                    mSensorToBufferTransform, mMirroring));
         }
     }
 
@@ -540,6 +578,11 @@ public class SurfaceEdge {
      *
      * <p>This class provides mechanisms to link an {@link DeferrableSurface}, and propagates
      * Surface releasing/closure to the {@link DeferrableSurface}.
+     *
+     * <p>Closing the parent {@link SettableSurface} does not close the linked
+     * {@link DeferrableSurface}. This is by design. The lifecycle of the child
+     * {@link DeferrableSurface} will be managed by the owner of the child. For example, the
+     * parent could be {@link StreamSharing} and the child could be a {@link Preview}.
      */
     static class SettableSurface extends DeferrableSurface {
 
@@ -579,6 +622,9 @@ public class SurfaceEdge {
          *
          * <p>This method is idempotent. Calling it with the same provider no-ops.
          *
+         * @param provider         the provider to link.
+         * @param onProviderClosed a callback to be invoked when the provider is closed. The
+         *                         callback will be invoked on the main thread.
          * @return true if the provider is set; false if the same provider has already been set.
          * @throws IllegalStateException    if the provider has already been set.
          * @throws IllegalArgumentException if the provider's size is different than the size of
@@ -587,7 +633,8 @@ public class SurfaceEdge {
          * @see SurfaceEdge#setProvider(DeferrableSurface)
          */
         @MainThread
-        public boolean setProvider(@NonNull DeferrableSurface provider)
+        public boolean setProvider(@NonNull DeferrableSurface provider,
+                @NonNull Runnable onProviderClosed)
                 throws SurfaceClosedException {
             checkMainThread();
             checkNotNull(provider);
@@ -599,15 +646,19 @@ public class SurfaceEdge {
                     + "provider, call SurfaceEdge#invalidate before calling "
                     + "SurfaceEdge#setProvider");
             checkArgument(getPrescribedSize().equals(provider.getPrescribedSize()),
-                    "The provider's size must match the parent");
+                    String.format("The provider's size(%s) must match the parent(%s)",
+                            getPrescribedSize(), provider.getPrescribedSize()));
             checkArgument(getPrescribedStreamFormat() == provider.getPrescribedStreamFormat(),
-                    "The provider's format must match the parent");
+                    String.format("The provider's format(%s) must match the parent(%s)",
+                            getPrescribedStreamFormat(), provider.getPrescribedStreamFormat()));
             checkState(!isClosed(), "The parent is closed. Call SurfaceEdge#invalidate() before "
                     + "setting a new provider.");
             mProvider = provider;
             Futures.propagate(provider.getSurface(), mCompleter);
             provider.incrementUseCount();
             getTerminationFuture().addListener(provider::decrementUseCount, directExecutor());
+            // When the child is closed, close the parent too to stop rendering.
+            provider.getCloseFuture().addListener(onProviderClosed, mainThreadExecutor());
             return true;
         }
     }

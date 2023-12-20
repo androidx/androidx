@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.shape
 
+import androidx.annotation.IntRange
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
@@ -183,13 +184,13 @@ fun RoundedCornerShape(
  * with a range of 0 - 100.
  */
 fun RoundedCornerShape(
-    /*@IntRange(from = 0, to = 100)*/
+    @IntRange(from = 0, to = 100)
     topStartPercent: Int = 0,
-    /*@IntRange(from = 0, to = 100)*/
+    @IntRange(from = 0, to = 100)
     topEndPercent: Int = 0,
-    /*@IntRange(from = 0, to = 100)*/
+    @IntRange(from = 0, to = 100)
     bottomEndPercent: Int = 0,
-    /*@IntRange(from = 0, to = 100)*/
+    @IntRange(from = 0, to = 100)
     bottomStartPercent: Int = 0
 ) = RoundedCornerShape(
     topStart = CornerSize(topStartPercent),

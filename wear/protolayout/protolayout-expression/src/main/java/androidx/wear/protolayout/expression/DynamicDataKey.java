@@ -33,6 +33,7 @@ public abstract class DynamicDataKey<T extends DynamicBuilders.DynamicType> {
 
     /**
      * Create a {@link DynamicDataKey} with the specified key in the given namespace.
+     *
      * @param namespace The namespace of the key for the dynamic data source.
      * @param key The key that references the dynamic data source.
      */
@@ -41,17 +42,15 @@ public abstract class DynamicDataKey<T extends DynamicBuilders.DynamicType> {
         mNamespace = namespace;
     }
 
-    /**
-     * Gets the key that references the dynamic data source
-     */
-    @NonNull public String getKey() {
+    /** Gets the key that references the dynamic data source */
+    @NonNull
+    public String getKey() {
         return mKey;
     }
 
-    /**
-     * Gets the namespace of the key for the dynamic data source.
-     */
-    @NonNull public String getNamespace() {
+    /** Gets the namespace of the key for the dynamic data source. */
+    @NonNull
+    public String getNamespace() {
         return mNamespace;
     }
 
@@ -72,12 +71,12 @@ public abstract class DynamicDataKey<T extends DynamicBuilders.DynamicType> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(mKey,mNamespace);
+        return Objects.hash(mKey, mNamespace);
     }
 
     @NonNull
     @Override
     public String toString() {
-        return String.format("namespace = %s, key = %s", mNamespace, mKey);
+        return String.format("DynamicDataKey{namespace=%s, key=%s}", mNamespace, mKey);
     }
 }

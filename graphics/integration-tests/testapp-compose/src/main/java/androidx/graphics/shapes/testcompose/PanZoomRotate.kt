@@ -19,10 +19,11 @@ package androidx.graphics.shapes.testcompose
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.material.Button
-import androidx.compose.material.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -35,9 +36,9 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 data class PanZoomRotateModel(
-    var zoom: MutableState<Float> = mutableStateOf(1f),
+    var zoom: MutableState<Float> = mutableFloatStateOf(1f),
     var offset: MutableState<Offset> = mutableStateOf(Offset.Zero),
-    var angle: MutableState<Float> = mutableStateOf(0f)
+    var angle: MutableState<Float> = mutableFloatStateOf(0f)
 ) {
     fun reset() {
         zoom.value = 1f

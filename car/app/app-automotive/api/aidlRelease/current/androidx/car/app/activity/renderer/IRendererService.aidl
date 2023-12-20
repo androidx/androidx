@@ -32,7 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package androidx.car.app.activity.renderer;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IRendererService {
   boolean initialize(androidx.car.app.activity.renderer.ICarAppActivity carActivity, in android.content.ComponentName serviceName, int displayId) = 1;
   boolean onNewIntent(in android.content.Intent intent, in android.content.ComponentName serviceName, int displayId) = 2;

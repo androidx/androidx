@@ -26,6 +26,7 @@ import javax.inject.Inject
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
@@ -47,26 +48,22 @@ abstract class FtlRunner : DefaultTask() {
         description = "Runs devices tests in Firebase Test Lab filtered by --className"
     }
 
-    @get:Inject
-    abstract val execOperations: ExecOperations
+    @get:Inject abstract val execOperations: ExecOperations
 
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val testFolder: DirectoryProperty
 
-    @get:Internal
-    abstract val testLoader: Property<BuiltArtifactsLoader>
+    @get:Internal abstract val testLoader: Property<BuiltArtifactsLoader>
 
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
     @get:Optional
     abstract val appFolder: DirectoryProperty
 
-    @get:Internal
-    abstract val appLoader: Property<BuiltArtifactsLoader>
+    @get:Internal abstract val appLoader: Property<BuiltArtifactsLoader>
 
-    @get:Input
-    abstract val apkPackageName: Property<String>
+    @get:Input abstract val apkPackageName: Property<String>
 
     @get:Optional
     @get:Input
@@ -91,36 +88,44 @@ abstract class FtlRunner : DefaultTask() {
     )
     abstract val instrumentationArgs: Property<String>
 
-    @get:Input
-    abstract val device: Property<String>
+    @get:Input abstract val device: ListProperty<String>
 
     @TaskAction
     fun execThings() {
-        val testApk = testLoader.get().load(testFolder.get())
-            ?: throw RuntimeException("Cannot load required APK for task: $name")
-        val testApkPath = testApk.elements.single().outputFile
-        val appApkPath = if (appLoader.isPresent) {
-            val appApk = appLoader.get().load(appFolder.get())
-                ?: throw RuntimeException("Cannot load required APK for task: $name")
-            appApk.elements.single().outputFile
-        } else {
-            "gs://androidx-ftl-test-results/github-ci-action/placeholderApp/" +
-                "aadb5e0219ce132e73236ef1e06bb50dd60217e20e803ea00d57a1cf1cea902c.apk"
+        if (!System.getenv().containsKey("GOOGLE_APPLICATION_CREDENTIALS")) {
+            throw Exception(
+                "Running tests in FTL requires credentials, you have not set up " +
+                    "GOOGLE_APPLICATION_CREDENTIALS, follow go/androidx-dev#remote-build-cache"
+            )
         }
-        try {
-            execOperations.exec {
-                    it.commandLine("gcloud", "--version")
+        val testApk =
+            testLoader.get().load(testFolder.get())
+                ?: throw RuntimeException("Cannot load required APK for task: $name")
+        val testApkPath = testApk.elements.single().outputFile
+        val appApkPath =
+            if (appLoader.isPresent) {
+                val appApk =
+                    appLoader.get().load(appFolder.get())
+                        ?: throw RuntimeException("Cannot load required APK for task: $name")
+                appApk.elements.single().outputFile
+            } else {
+                "gs://androidx-ftl-test-results/github-ci-action/placeholderApp/" +
+                    "37728671722adb4f49b23ed2f0edb0b4def51c841b0735fdd1648942ff1e9090.apk"
             }
+        try {
+            execOperations.exec { it.commandLine("gcloud", "--version") }
         } catch (exception: Exception) {
             throw Exception(
                 "Missing gcloud, please follow go/androidx-dev#remote-build-cache to set it up"
             )
         }
         val hasFilters = className.isPresent || packageName.isPresent
-        val filters = listOfNotNull(
-            if (className.isPresent) "class ${className.get()}" else null,
-            if (packageName.isPresent) "package ${packageName.get()}" else null,
-        ).joinToString(separator = ",")
+        val filters =
+            listOfNotNull(
+                    if (className.isPresent) "class ${className.get()}" else null,
+                    if (packageName.isPresent) "package ${packageName.get()}" else null,
+                )
+                .joinToString(separator = ",")
 
         val shouldPull = pullScreenshots.isPresent && pullScreenshots.get() == "true"
 
@@ -138,8 +143,6 @@ abstract class FtlRunner : DefaultTask() {
                     "instrumentation",
                     "--no-performance-metrics",
                     "--no-auto-google-login",
-                    "--device",
-                    "model=${device.get()},locale=en_US,orientation=portrait",
                     "--app",
                     appApkPath,
                     "--test",
@@ -152,19 +155,41 @@ abstract class FtlRunner : DefaultTask() {
                     } else null,
                     if (instrumentationArgs.isPresent) "--environment-variables" else null,
                     if (instrumentationArgs.isPresent) instrumentationArgs.get() else null,
-                )
+                ) +
+                    getDeviceArguments(device.get())
             )
         }
     }
+
+    private fun getDeviceArguments(devices: List<String>): List<String> {
+        val deviceArguments = mutableListOf<String>()
+        devices.forEach { device ->
+            deviceArguments.addAll(
+                listOf(
+                    "--device",
+                    "model=$device,locale=en_US,orientation=portrait"
+                )
+            )
+        }
+        return deviceArguments
+    }
 }
 
-private val devicesToRunOn = listOf(
-    "ftlpixel2api33" to "Pixel2.arm,version=33",
-    "ftlpixel2api30" to "Pixel2.arm,version=30",
-    "ftlpixel2api28" to "Pixel2.arm,version=28",
-    "ftlpixel2api26" to "Pixel2.arm,version=26",
-    "ftlnexus4api21" to "Nexus4,version=21",
-)
+private const val NEXUS_6P = "Nexus6P,version=27"
+private const val A10 = "a10,version=29"
+private const val PETTYL = "pettyl,version=27"
+private const val HWCOR = "HWCOR,version=27"
+private const val Q2Q = "q2q,version=31"
+
+private val devicesToRunOn =
+    listOf(
+        "ftlpixel2api33" to listOf("Pixel2.arm,version=33"),
+        "ftlpixel2api30" to listOf("Pixel2.arm,version=30"),
+        "ftlpixel2api28" to listOf("Pixel2.arm,version=28"),
+        "ftlpixel2api26" to listOf("Pixel2.arm,version=26"),
+        "ftlnexus4api21" to listOf("Nexus4,version=21"),
+        "ftlCoreTelecomDeviceSet" to listOf(NEXUS_6P, A10, PETTYL, HWCOR, Q2Q),
+    )
 
 fun Project.configureFtlRunner() {
     extensions.getByType(AndroidComponentsExtension::class.java).apply {
@@ -178,7 +203,6 @@ fun Project.configureFtlRunner() {
                     artifacts = variant.androidTest?.artifacts
                     apkPackageName = variant.androidTest?.namespace
                 }
-
                 project.plugins.hasPlugin("com.android.test") -> {
                     name = variant.name
                     artifacts = variant.artifacts

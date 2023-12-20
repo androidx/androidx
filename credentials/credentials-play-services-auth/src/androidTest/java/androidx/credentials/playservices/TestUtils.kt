@@ -38,7 +38,6 @@ class TestUtils {
         }
 
         /**
-         * // TODO remove this or modify so it has forced checks.
          * Given a superset and a subset json, this figures out if the subset can be found
          * within the superset by recursively checking for values that exist in the subset
          * also existing in the superset in the same format. Note this means that the superset
@@ -76,13 +75,16 @@ class TestUtils {
                 val superValues = superset.get(key)
 
                 if ((values::class.java != superValues::class.java || values::class.java !=
-                    requiredValues::class.java) && requiredValues !is Boolean
+                        requiredValues::class.java) && requiredValues !is Boolean
                 ) {
                     return false
                 }
                 if (requiredValues is JSONObject) {
-                    if (!isSubsetJson(superValues as JSONObject, values as JSONObject,
-                            requiredValues)) {
+                    if (!isSubsetJson(
+                            superValues as JSONObject, values as JSONObject,
+                            requiredValues
+                        )
+                    ) {
                         return false
                     }
                 } else if (values is JSONArray) {
@@ -91,8 +93,6 @@ class TestUtils {
                     if (!superSet.containsAll(subSet)) {
                         return false
                     }
-                    // TODO("For specific sequences, place into a treeset (sorted by specific
-                    // TODO("required identifiers) and compare subset to superset"))
                 } else {
                     if (!values.equals(superValues)) {
                         return false
@@ -150,6 +150,7 @@ class TestUtils {
             ConnectionResult.SERVICE_INVALID, ConnectionResult.SERVICE_MISSING,
             ConnectionResult.SERVICE_MISSING_PERMISSION, ConnectionResult.SERVICE_UPDATING,
             ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED, ConnectionResult.SIGN_IN_FAILED,
-            ConnectionResult.SIGN_IN_REQUIRED, ConnectionResult.TIMEOUT)
+            ConnectionResult.SIGN_IN_REQUIRED, ConnectionResult.TIMEOUT
+        )
     }
 }

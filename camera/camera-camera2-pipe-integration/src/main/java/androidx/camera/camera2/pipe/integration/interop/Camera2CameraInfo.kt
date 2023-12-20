@@ -73,9 +73,6 @@ class Camera2CameraInfo private constructor(
 
     fun getCameraId(): String = cameraProperties.cameraId.value
 
-    /**
-     * @hide
-     */
     companion object {
 
         /**
@@ -99,8 +96,6 @@ class Camera2CameraInfo private constructor(
 
         /**
          * This is the workaround to prevent constructor from being added to public API.
-         *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic

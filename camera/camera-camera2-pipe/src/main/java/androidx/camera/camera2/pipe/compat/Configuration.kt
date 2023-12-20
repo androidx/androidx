@@ -47,7 +47,7 @@ import kotlin.reflect.KClass
  */
 internal data class SessionConfigData(
     val sessionType: Int,
-    val inputConfiguration: InputConfigData?,
+    val inputConfiguration: List<InputConfigData>?,
     val outputConfigurations: List<OutputConfigurationWrapper>,
     val executor: Executor,
     val stateCallback: CameraCaptureSessionWrapper.StateCallback,
@@ -188,8 +188,7 @@ internal class AndroidOutputConfiguration(
                     when (outputType) {
                         OutputType.SURFACE_TEXTURE -> SurfaceTexture::class.java
                         OutputType.SURFACE_VIEW -> SurfaceHolder::class.java
-                        OutputType.SURFACE ->
-                            throw IllegalStateException("Unsupported OutputType: $outputType")
+                        else -> throw IllegalStateException("Unsupported OutputType: $outputType")
                     }
                 configuration = Api26Compat.newOutputConfiguration(size, outputKlass)
             }

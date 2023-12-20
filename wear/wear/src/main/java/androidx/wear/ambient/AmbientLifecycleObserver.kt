@@ -39,9 +39,10 @@ import java.util.concurrent.Executor
  *         // ...
  *     }
  *
- *     private val ambientObserver = AmbientLifecycleObserver(this, callbacks)
+ *     private val ambientObserver = AmbientLifecycleObserver(this, mainExecutor, callbacks)
  *
  *     override fun onCreate(savedInstanceState: Bundle) {
+ *         super.onCreate(savedInstanceState)
  *         lifecycle.addObserver(ambientObserver)
  *     }
  * }
@@ -83,9 +84,10 @@ fun AmbientLifecycleObserver(
  *         // ...
  *     }
  *
- *     private val ambientObserver = DefaultAmbientLifecycleObserver(this, callbacks)
+ *     private val ambientObserver = AmbientLifecycleObserver(this, callbacks)
  *
  *     override fun onCreate(savedInstanceState: Bundle) {
+ *         super.onCreate(savedInstanceState)
  *         lifecycle.addObserver(ambientObserver)
  *     }
  * }

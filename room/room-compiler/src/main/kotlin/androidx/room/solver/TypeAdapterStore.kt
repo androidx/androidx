@@ -38,7 +38,6 @@ import androidx.room.ext.isNotVoidObject
 import androidx.room.ext.isUUID
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.SQLTypeAffinity
-import androidx.room.preconditions.checkTypeOrNull
 import androidx.room.processor.Context
 import androidx.room.processor.EntityProcessor
 import androidx.room.processor.FieldProcessor
@@ -76,8 +75,11 @@ import androidx.room.solver.query.result.ImmutableListQueryResultAdapter
 import androidx.room.solver.query.result.ImmutableMapQueryResultAdapter
 import androidx.room.solver.query.result.ListQueryResultAdapter
 import androidx.room.solver.query.result.MapQueryResultAdapter
+import androidx.room.solver.query.result.MapValueResultAdapter
 import androidx.room.solver.query.result.MultimapQueryResultAdapter
-import androidx.room.solver.query.result.MultimapQueryResultAdapter.Companion.validateMapTypeArgs
+import androidx.room.solver.query.result.MultimapQueryResultAdapter.Companion.getMapColumnName
+import androidx.room.solver.query.result.MultimapQueryResultAdapter.Companion.validateMapKeyTypeArg
+import androidx.room.solver.query.result.MultimapQueryResultAdapter.Companion.validateMapValueTypeArg
 import androidx.room.solver.query.result.MultimapQueryResultAdapter.MapType.Companion.isSparseArray
 import androidx.room.solver.query.result.OptionalQueryResultAdapter
 import androidx.room.solver.query.result.PojoRowAdapter
@@ -380,7 +382,9 @@ class TypeAdapterStore private constructor(
             // Extract the type value of the Value class element
             val underlyingProperty = typeElement.getValueClassUnderlyingProperty()
             val underlyingTypeColumnAdapter = findColumnTypeAdapter(
-                out = underlyingProperty.asMemberOf(type),
+                // Find an adapter for the non-null underlying type, nullability will be handled
+                // by the value class adapter.
+                out = underlyingProperty.asMemberOf(type).makeNonNullable(),
                 affinity = affinity,
                 skipDefaultConverter = false
             ) ?: return null
@@ -621,33 +625,48 @@ class TypeAdapterStore private constructor(
 
             // Get @MapInfo info if any (this might be null)
             val mapInfo = extras.getData(MapInfo::class)
+            val mapKeyColumn = getMapColumnName(context, query, keyTypeArg)
+            val mapValueColumn = getMapColumnName(context, query, valueTypeArg)
+            if (mapInfo != null && (mapKeyColumn != null || mapValueColumn != null)) {
+                context.logger.e(
+                    ProcessorErrors.CANNOT_USE_MAP_COLUMN_AND_MAP_INFO_SIMULTANEOUSLY
+                )
+            }
+
+            val mappedKeyColumnName = mapKeyColumn ?: mapInfo?.keyColumnName
+            val mappedValueColumnName = mapValueColumn ?: mapInfo?.valueColumnName
+
             val keyRowAdapter = findRowAdapter(
                 typeMirror = keyTypeArg,
                 query = query,
-                columnName = mapInfo?.keyColumnName
+                columnName = mappedKeyColumnName
             ) ?: return null
 
             val valueRowAdapter = findRowAdapter(
                 typeMirror = valueTypeArg,
                 query = query,
-                columnName = mapInfo?.valueColumnName
+                columnName = mappedValueColumnName
             ) ?: return null
 
-            validateMapTypeArgs(
+            validateMapKeyTypeArg(
                 context = context,
                 keyTypeArg = keyTypeArg,
-                valueTypeArg = valueTypeArg,
                 keyReader = findCursorValueReader(keyTypeArg, null),
+                keyColumnName = mappedKeyColumnName
+            )
+            validateMapValueTypeArg(
+                context = context,
+                valueTypeArg = valueTypeArg,
                 valueReader = findCursorValueReader(valueTypeArg, null),
-                mapInfo = mapInfo
+                valueColumnName = mappedValueColumnName
             )
             return GuavaImmutableMultimapQueryResultAdapter(
                 context = context,
                 parsedQuery = query,
                 keyTypeArg = keyTypeArg,
                 valueTypeArg = valueTypeArg,
-                keyRowAdapter = checkTypeOrNull(keyRowAdapter) ?: return null,
-                valueRowAdapter = checkTypeOrNull(valueRowAdapter) ?: return null,
+                keyRowAdapter = keyRowAdapter,
+                valueRowAdapter = valueRowAdapter,
                 immutableClassName = immutableClassName
             )
         } else if (typeMirror.isTypeOf(java.util.Map::class) ||
@@ -684,94 +703,45 @@ class TypeAdapterStore private constructor(
                 )
                 return null
             }
-            // TODO: Handle nested collection values in the map
 
             // Get @MapInfo info if any (this might be null)
             val mapInfo = extras.getData(MapInfo::class)
-            val collectionTypeRaw = context.COMMON_TYPES.READONLY_COLLECTION.rawType
-            if (collectionTypeRaw.isAssignableFrom(mapValueTypeArg.rawType)) {
-                // The Map's value type argument is assignable to a Collection, we need to make
-                // sure it is either a list or a set.
-                val listTypeRaw = context.COMMON_TYPES.LIST.rawType
-                val setTypeRaw = context.COMMON_TYPES.SET.rawType
-                val collectionValueType = when {
-                    mapValueTypeArg.rawType.isAssignableFrom(listTypeRaw) ->
-                        MultimapQueryResultAdapter.CollectionValueType.LIST
-                    mapValueTypeArg.rawType.isAssignableFrom(setTypeRaw) ->
-                        MultimapQueryResultAdapter.CollectionValueType.SET
-                    else -> {
-                        context.logger.e(
-                            ProcessorErrors.valueCollectionMustBeListOrSet(
-                                mapValueTypeArg.asTypeName().toString(context.codeLanguage)
-                            )
-                        )
-                        return null
-                    }
-                }
-
-                val valueTypeArg = mapValueTypeArg.typeArguments.single().extendsBoundOrSelf()
-
-                val keyRowAdapter = findRowAdapter(
-                    typeMirror = keyTypeArg,
-                    query = query,
-                    columnName = mapInfo?.keyColumnName
-                ) ?: return null
-
-                val valueRowAdapter = findRowAdapter(
-                    typeMirror = valueTypeArg,
-                    query = query,
-                    columnName = mapInfo?.valueColumnName
-                ) ?: return null
-
-                validateMapTypeArgs(
-                    context = context,
-                    keyTypeArg = keyTypeArg,
-                    valueTypeArg = valueTypeArg,
-                    keyReader = findCursorValueReader(keyTypeArg, null),
-                    valueReader = findCursorValueReader(valueTypeArg, null),
-                    mapInfo = mapInfo
-                )
-                return MapQueryResultAdapter(
-                    context = context,
-                    parsedQuery = query,
-                    keyTypeArg = keyTypeArg,
-                    valueTypeArg = valueTypeArg,
-                    keyRowAdapter = checkTypeOrNull(keyRowAdapter) ?: return null,
-                    valueRowAdapter = checkTypeOrNull(valueRowAdapter) ?: return null,
-                    valueCollectionType = collectionValueType,
-                    mapType = mapType
-                )
-            } else {
-                val keyRowAdapter = findRowAdapter(
-                    typeMirror = keyTypeArg,
-                    query = query,
-                    columnName = mapInfo?.keyColumnName
-                ) ?: return null
-                val valueRowAdapter = findRowAdapter(
-                    typeMirror = mapValueTypeArg,
-                    query = query,
-                    columnName = mapInfo?.valueColumnName
-                ) ?: return null
-
-                validateMapTypeArgs(
-                    context = context,
-                    keyTypeArg = keyTypeArg,
-                    valueTypeArg = mapValueTypeArg,
-                    keyReader = findCursorValueReader(keyTypeArg, null),
-                    valueReader = findCursorValueReader(mapValueTypeArg, null),
-                    mapInfo = mapInfo
-                )
-                return MapQueryResultAdapter(
-                    context = context,
-                    parsedQuery = query,
-                    keyTypeArg = keyTypeArg,
-                    valueTypeArg = mapValueTypeArg,
-                    keyRowAdapter = checkTypeOrNull(keyRowAdapter) ?: return null,
-                    valueRowAdapter = checkTypeOrNull(valueRowAdapter) ?: return null,
-                    valueCollectionType = null,
-                    mapType = mapType
+            val mapColumn = getMapColumnName(context, query, keyTypeArg)
+            if (mapInfo != null && mapColumn != null) {
+                context.logger.e(
+                    ProcessorErrors.CANNOT_USE_MAP_COLUMN_AND_MAP_INFO_SIMULTANEOUSLY
                 )
             }
+
+            val mappedKeyColumnName = mapColumn ?: mapInfo?.keyColumnName
+            val keyRowAdapter = findRowAdapter(
+                typeMirror = keyTypeArg,
+                query = query,
+                columnName = mappedKeyColumnName
+            ) ?: return null
+
+            validateMapKeyTypeArg(
+                context = context,
+                keyTypeArg = keyTypeArg,
+                keyReader = findCursorValueReader(keyTypeArg, null),
+                keyColumnName = mappedKeyColumnName
+            )
+
+            val mapValueResultAdapter = findMapValueResultAdapter(
+                query = query,
+                mapInfo = mapInfo,
+                mapValueTypeArg = mapValueTypeArg
+            ) ?: return null
+            return MapQueryResultAdapter(
+                context = context,
+                parsedQuery = query,
+                mapValueResultAdapter = MapValueResultAdapter.NestedMapValueResultAdapter(
+                    keyRowAdapter = keyRowAdapter,
+                    keyTypeArg = keyTypeArg,
+                    mapType = mapType,
+                    mapValueResultAdapter = mapValueResultAdapter
+                )
+            )
         }
         return null
     }
@@ -820,6 +790,104 @@ class TypeAdapterStore private constructor(
                     )
                 )
             }
+        }
+    }
+
+    private fun findMapValueResultAdapter(
+        query: ParsedQuery,
+        mapInfo: MapInfo?,
+        mapValueTypeArg: XType
+    ): MapValueResultAdapter? {
+        val collectionTypeRaw = context.COMMON_TYPES.READONLY_COLLECTION.rawType
+        if (collectionTypeRaw.isAssignableFrom(mapValueTypeArg.rawType)) {
+            // The Map's value type argument is assignable to a Collection, we need to make
+            // sure it is either a list or a set.
+            val listTypeRaw = context.COMMON_TYPES.LIST.rawType
+            val setTypeRaw = context.COMMON_TYPES.SET.rawType
+            val collectionValueType = when {
+                mapValueTypeArg.rawType.isAssignableFrom(listTypeRaw) ->
+                    MultimapQueryResultAdapter.CollectionValueType.LIST
+                mapValueTypeArg.rawType.isAssignableFrom(setTypeRaw) ->
+                    MultimapQueryResultAdapter.CollectionValueType.SET
+                else -> {
+                    context.logger.e(
+                        ProcessorErrors.valueCollectionMustBeListOrSetOrMap(
+                            mapValueTypeArg.asTypeName().toString(context.codeLanguage)
+                        )
+                    )
+                    return null
+                }
+            }
+
+            val valueTypeArg = mapValueTypeArg.typeArguments.single().extendsBoundOrSelf()
+            val mapColumnName = getMapColumnName(context, query, valueTypeArg)
+            if (mapColumnName != null && mapInfo != null) {
+                context.logger.e(
+                    ProcessorErrors.CANNOT_USE_MAP_COLUMN_AND_MAP_INFO_SIMULTANEOUSLY
+                )
+            }
+
+            val mappedValueColumnName = mapColumnName ?: mapInfo?.valueColumnName
+            val valueRowAdapter = findRowAdapter(
+                typeMirror = valueTypeArg,
+                query = query,
+                columnName = mappedValueColumnName
+            ) ?: return null
+
+            validateMapValueTypeArg(
+                context = context,
+                valueTypeArg = valueTypeArg,
+                valueReader = findCursorValueReader(valueTypeArg, null),
+                valueColumnName = mappedValueColumnName
+            )
+
+            return MapValueResultAdapter.EndMapValueResultAdapter(
+                valueRowAdapter = valueRowAdapter,
+                valueTypeArg = valueTypeArg,
+                valueCollectionType = collectionValueType
+            )
+        } else if (mapValueTypeArg.isTypeOf(java.util.Map::class)) {
+            val keyTypeArg = mapValueTypeArg.typeArguments[0].extendsBoundOrSelf()
+            val valueTypeArg = mapValueTypeArg.typeArguments[1].extendsBoundOrSelf()
+
+            val keyRowAdapter = findRowAdapter(
+                typeMirror = keyTypeArg,
+                query = query,
+                // No need to account for @MapInfo since nested maps did not support
+                // this now deprecated annotation anyway.
+                columnName = getMapColumnName(context, query, keyTypeArg)
+            ) ?: return null
+            val valueMapAdapter = findMapValueResultAdapter(
+                query = query,
+                mapInfo = mapInfo,
+                mapValueTypeArg = valueTypeArg
+            ) ?: return null
+            return MapValueResultAdapter.NestedMapValueResultAdapter(
+                keyRowAdapter = keyRowAdapter,
+                keyTypeArg = keyTypeArg,
+                mapType = MultimapQueryResultAdapter.MapType.DEFAULT,
+                mapValueResultAdapter = valueMapAdapter
+            )
+        } else {
+            val mappedValueColumnName = getMapColumnName(context, query, mapValueTypeArg)
+                ?: mapInfo?.valueColumnName
+            val valueRowAdapter = findRowAdapter(
+                typeMirror = mapValueTypeArg,
+                query = query,
+                columnName = mappedValueColumnName
+            ) ?: return null
+
+            validateMapValueTypeArg(
+                context = context,
+                valueTypeArg = mapValueTypeArg,
+                valueReader = findCursorValueReader(mapValueTypeArg, null),
+                valueColumnName = mappedValueColumnName
+            )
+            return MapValueResultAdapter.EndMapValueResultAdapter(
+                valueRowAdapter = valueRowAdapter,
+                valueTypeArg = mapValueTypeArg,
+                valueCollectionType = null
+            )
         }
     }
 

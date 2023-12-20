@@ -15,6 +15,7 @@
  */
 package androidx.wear.compose.foundation.lazy
 
+import androidx.annotation.FloatRange
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -42,7 +43,7 @@ public sealed interface ScalingLazyListItemScope {
      * measured with [Constraints.Infinity] as the constraints for the main axis.
      */
     fun Modifier.fillParentMaxSize(
-        /*@FloatRange(from = 0.0, to = 1.0)*/
+        @FloatRange(from = 0.0, to = 1.0)
         fraction: Float = 1f
     ): Modifier
 
@@ -57,7 +58,7 @@ public sealed interface ScalingLazyListItemScope {
      * items are measured with [Constraints.Infinity] as the constraints for the main axis.
      */
     fun Modifier.fillParentMaxWidth(
-        /*@FloatRange(from = 0.0, to = 1.0)*/
+        @FloatRange(from = 0.0, to = 1.0)
         fraction: Float = 1f
     ): Modifier
 
@@ -72,7 +73,7 @@ public sealed interface ScalingLazyListItemScope {
      * items are measured with [Constraints.Infinity] as the constraints for the main axis.
      */
     fun Modifier.fillParentMaxHeight(
-        /*@FloatRange(from = 0.0, to = 1.0)*/
+        @FloatRange(from = 0.0, to = 1.0)
         fraction: Float = 1f
     ): Modifier
 }

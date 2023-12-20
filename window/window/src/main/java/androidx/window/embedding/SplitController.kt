@@ -18,92 +18,29 @@ package androidx.window.embedding
 
 import android.app.Activity
 import android.content.Context
-import androidx.annotation.GuardedBy
 import androidx.core.util.Consumer
+import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowProperties
+import androidx.window.WindowSdkExtensions
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.layout.WindowMetrics
-import java.util.concurrent.Executor
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.launch
 
 /**
-* The controller class that gets information about the currently active activity
-* splits and provides interaction points to customize the splits and form new
-* splits.
-*
-* A split is a pair of containers that host activities in the same or different
-* processes, combined under the same parent window of the hosting task.
-*
-* A pair of activities can be put into a split by providing a static or runtime
-* split rule and then launching the activities in the same task using
-* [Activity.startActivity()][android.app.Activity.startActivity].
-*/
+ * The controller class that gets information about the currently active activity
+ * splits and provides interaction points to customize the splits and form new
+ * splits.
+ *
+ * A split is a pair of containers that host activities in the same or different
+ * processes, combined under the same parent window of the hosting task.
+ *
+ * A pair of activities can be put into a split by providing a static or runtime
+ * split rule and then launching the activities in the same task using
+ * [Activity.startActivity()][android.app.Activity.startActivity].
+ */
 class SplitController internal constructor(private val embeddingBackend: EmbeddingBackend) {
-
-    /** A [ReentrantLock] to protect against concurrent access to [consumerToJobMap]. */
-    private val lock = ReentrantLock()
-    @GuardedBy("lock")
-    private val consumerToJobMap = mutableMapOf<Consumer<List<SplitInfo>>, Job>()
-
-    /**
-     * @deprecated Use [splitInfoList] for kotlin usages or delegate to
-     * [androidx.window.java.embedding.SplitControllerCallbackAdapter.addSplitListener] for Java
-     * usages.
-     */
-    @Deprecated(
-        message = "Replace to provide Flow API to get SplitInfo list",
-        replaceWith = ReplaceWith(
-            expression = "splitInfoList",
-            imports = ["androidx.window.embedding.SplitController"]
-        )
-    )
-    @ExperimentalWindowApi
-    fun addSplitListener(
-        activity: Activity,
-        executor: Executor,
-        consumer: Consumer<List<SplitInfo>>
-    ) {
-        lock.withLock {
-            if (consumerToJobMap[consumer] != null) {
-                return
-            }
-            val scope = CoroutineScope(executor.asCoroutineDispatcher())
-            consumerToJobMap[consumer] = scope.launch {
-                splitInfoList(activity).collect { splitInfoList ->
-                    consumer.accept(splitInfoList) }
-            }
-        }
-    }
-
-    /**
-     * @deprecated Use [splitInfoList] for kotlin usages or delegate to
-     * [androidx.window.java.embedding.SplitControllerCallbackAdapter.removeSplitListener] for
-     * Java usages.
-     */
-    @Deprecated(
-        message = "Replace to provide Flow API to get SplitInfo list",
-        replaceWith = ReplaceWith(
-            expression = "splitInfoList",
-            imports = ["androidx.window.embedding.SplitController"]
-        )
-    )
-    @ExperimentalWindowApi
-    fun removeSplitListener(
-        consumer: Consumer<List<SplitInfo>>
-    ) {
-        lock.withLock {
-            consumerToJobMap[consumer]?.cancel()
-            consumerToJobMap.remove(consumer)
-        }
-    }
 
     /**
      * A [Flow] of [SplitInfo] list that contains the current split states that this [activity] is
@@ -135,29 +72,8 @@ class SplitController internal constructor(private val embeddingBackend: Embeddi
      * example, a foldable device with multiple screens can choose to collapse
      * splits when apps run on the device's small display, but enable splits
      * when apps run on the device's large display. In cases like this,
-     * `isSplitSupported` always returns `true`, and if the split is collapsed,
-     * activities are launched on top, following the non-activity embedding
-     * model.
-     *
-     * Also the [androidx.window.WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED]
-     * must be enabled in AndroidManifest within <application> in order to get the correct
-     * state or `false` will be returned by default.
-     */
-    @ExperimentalWindowApi
-    @Deprecated("Use splitSupportStatus instead",
-        replaceWith = ReplaceWith("splitSupportStatus")
-    )
-    fun isSplitSupported(): Boolean = splitSupportStatus == SplitSupportStatus.SPLIT_AVAILABLE
-
-    /**
-     * Indicates whether split functionality is supported on the device. Note
-     * that devices might not enable splits in all states or conditions. For
-     * example, a foldable device with multiple screens can choose to collapse
-     * splits when apps run on the device's small display, but enable splits
-     * when apps run on the device's large display. In cases like this,
-     * [splitSupportStatus] always returns [SplitSupportStatus.SPLIT_AVAILABLE], and if the
-     * split is collapsed, activities are launched on top, following the non-activity
-     * embedding model.
+     * [splitSupportStatus] always returns [SplitSupportStatus.SPLIT_AVAILABLE], and if the split is
+     * collapsed, activities are launched on top, following the non-activity embedding model.
      *
      * Also the [androidx.window.WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED]
      * must be enabled in AndroidManifest within <application> in order to get the correct
@@ -172,8 +88,8 @@ class SplitController internal constructor(private val embeddingBackend: Embeddi
     /**
      * Sets or replaces the previously registered [SplitAttributes] calculator.
      *
-     * **Note** that it's callers' responsibility to check if this API is supported by calling
-     * [isSplitAttributesCalculatorSupported] before using the this API. It is suggested to always
+     * **Note** that it's callers' responsibility to check if this API is supported by checking
+     * [WindowSdkExtensions.extensionVersion] before using the this API. It is suggested to always
      * set meaningful [SplitRule.defaultSplitAttributes] in case this API is not supported on some
      * devices.
      *
@@ -210,10 +126,10 @@ class SplitController internal constructor(private val embeddingBackend: Embeddi
      * @sample androidx.window.samples.embedding.splitAttributesCalculatorSample
      * @param calculator the function to calculate [SplitAttributes] based on the
      * [SplitAttributesCalculatorParams]. It will replace the previously set if it exists.
-     * @throws UnsupportedOperationException if [isSplitAttributesCalculatorSupported] reports
-     * `false`
+     * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion]
+     *                                       is less than 2.
      */
-    @ExperimentalWindowApi
+    @RequiresWindowSdkExtension(2)
     fun setSplitAttributesCalculator(
         calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
     ) {
@@ -222,24 +138,70 @@ class SplitController internal constructor(private val embeddingBackend: Embeddi
 
     /**
      * Clears the callback previously set by [setSplitAttributesCalculator].
-     * The caller **must** make sure [isSplitAttributesCalculatorSupported] before invoking.
+     * The caller **must** make sure if [WindowSdkExtensions.extensionVersion] is greater than
+     * or equal to 2.
      *
-     * @throws UnsupportedOperationException if [isSplitAttributesCalculatorSupported] reports
-     * `false`
+     * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion]
+     *                                       is less than 2.
      */
-    @ExperimentalWindowApi
+    @RequiresWindowSdkExtension(2)
     fun clearSplitAttributesCalculator() {
         embeddingBackend.clearSplitAttributesCalculator()
     }
 
-    /** Returns whether [setSplitAttributesCalculator] is supported or not. */
+    /**
+     * Triggers a [SplitAttributes] update callback for the current topmost and visible split layout
+     * if there is one. This method can be used when a change to the split presentation originates
+     * from an application state change. Changes that are driven by parent window changes or new
+     * activity starts invoke the callback provided in [setSplitAttributesCalculator] automatically
+     * without the need to call this function.
+     *
+     * The top [SplitInfo] is usually the last element of [SplitInfo] list which was received from
+     * the callback registered in [splitInfoList].
+     *
+     * The call will be ignored if there is no visible split.
+     *
+     * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion]
+     *                                       is less than 3.
+     */
     @ExperimentalWindowApi
-    fun isSplitAttributesCalculatorSupported(): Boolean =
-        embeddingBackend.isSplitAttributesCalculatorSupported()
+    @RequiresWindowSdkExtension(3)
+    fun invalidateTopVisibleSplitAttributes() {
+        embeddingBackend.invalidateTopVisibleSplitAttributes()
+    }
+
+    /**
+     * Updates the [SplitAttributes] of a split pair. This is an alternative to using
+     * a split attributes calculator callback set in [setSplitAttributesCalculator], useful when
+     * apps only need to update the splits in a few cases proactively but rely on the default split
+     * attributes most of the time otherwise.
+     *
+     * The provided split attributes will be used instead of the associated
+     * [SplitRule.defaultSplitAttributes].
+     *
+     * **Note** that the split attributes may be updated if split attributes calculator callback is
+     * registered and invoked. If [setSplitAttributesCalculator] is used, the callback will still be
+     * applied to each [SplitInfo] when there's either:
+     * - A new Activity being launched.
+     * - A window or device state updates (e,g. due to screen rotation or folding state update).
+     *
+     * In most cases it is suggested to use [invalidateTopVisibleSplitAttributes] if
+     * [SplitAttributes] calculator callback is used.
+     *
+     * @param splitInfo the split pair to update
+     * @param splitAttributes the [SplitAttributes] to be applied
+     * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion]
+     *                                       is less than 3.
+     */
+    @ExperimentalWindowApi
+    @RequiresWindowSdkExtension(3)
+    fun updateSplitAttributes(splitInfo: SplitInfo, splitAttributes: SplitAttributes) {
+        embeddingBackend.updateSplitAttributes(splitInfo, splitAttributes)
+    }
 
     /**
      * A class to determine if activity splits with Activity Embedding are currently available.
-     * "Depending on the split property declaration, device software version or user preferences
+     * Depending on the split property declaration, device software version or user preferences
      * the feature might not be available.
      */
     class SplitSupportStatus private constructor(private val rawValue: Int) {

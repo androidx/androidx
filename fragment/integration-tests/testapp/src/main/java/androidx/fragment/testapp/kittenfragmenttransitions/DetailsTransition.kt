@@ -21,7 +21,6 @@ import android.util.AttributeSet
 import androidx.annotation.RequiresApi
 import androidx.transition.ChangeBounds
 import androidx.transition.ChangeImageTransform
-import androidx.transition.ChangeTransform
 import androidx.transition.TransitionSet
 
 /**
@@ -43,9 +42,8 @@ class DetailsTransition : TransitionSet {
 
     private fun init() {
         ordering = ORDERING_TOGETHER
-        duration = 2000
+        duration = 500
         addTransition(ChangeBounds())
-            .addTransition(ChangeTransform())
             .addTransition(ChangeImageTransform())
     }
 }

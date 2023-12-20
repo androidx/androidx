@@ -220,7 +220,8 @@ data class ProjectProps(
     val debugKeystore: String,
     var navigationRuntime: String,
     val kotlinStblib: String,
-    val kotlinVersion: String,
+    val kgpVersion: String,
+    val kgpDependency: String,
     val kspVersion: String,
     val rootProjectPath: String,
     val tipOfTreeMavenRepoPath: String,
@@ -262,7 +263,9 @@ data class ProjectProps(
                 minSdkVersion = properties.getProperty("minSdkVersion"),
                 navigationRuntime = properties.getProperty("navigationRuntime"),
                 kotlinStblib = properties.getProperty("kotlinStdlib"),
-                kotlinVersion = properties.getProperty("kotlinVersion"),
+                kgpVersion = properties.getProperty("kgpVersion"),
+                kgpDependency = "org.jetbrains.kotlin:kotlin-gradle-plugin:" +
+                    properties.getProperty("kgpVersion"),
                 kspVersion = properties.getProperty("kspVersion"),
                 agpDependency = properties.getProperty("agpDependency"),
                 buildSrcOutPath = properties.getCanonicalPath("buildSrcOutRelativePath")

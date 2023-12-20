@@ -27,7 +27,7 @@ dependencies {
     api("androidx.annotation:annotation-experimental:1.3.0")
     implementation("androidx.core:core:1.3.2")
     api("androidx.fragment:fragment:1.1.0")
-    api(project(":recyclerview:recyclerview")) // TODO(191302495): pin to RV 1.3.1 once in prebuilts
+    api("androidx.recyclerview:recyclerview:1.3.1-rc01")
     implementation("androidx.collection:collection:1.1.0")
 
     androidTestImplementation(libs.multidex)
@@ -56,6 +56,7 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "AndroidX Widget ViewPager2"
+    metalavaK2UastEnabled = true
 }
 
 android {

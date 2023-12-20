@@ -18,6 +18,9 @@
 package androidx.window.testing.embedding
 
 import android.app.Activity
+import android.os.Binder
+import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.window.embedding.ActivityStack
 
 /**
@@ -38,3 +41,8 @@ fun TestActivityStack(
     activitiesInProcess: List<Activity> = emptyList(),
     isEmpty: Boolean = false,
 ): ActivityStack = ActivityStack(activitiesInProcess, isEmpty)
+
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+@VisibleForTesting
+@JvmField
+val TEST_ACTIVITY_STACK_TOKEN = Binder()

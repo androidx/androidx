@@ -16,7 +16,6 @@
 
 
 import androidx.build.Publish
-import androidx.build.RunApiTasks
 
 plugins {
     id("AndroidXPlugin")
@@ -25,14 +24,13 @@ plugins {
     id("kotlin-kapt")
 }
 
-apply from: "dependencies.gradle"
-
 dependencies {
-    // NOTE: API and IMPLEMENTATION dependencies are defined in dependencies.gradle to export for
-    // other modules depending on the jarjar variant of CameraPipe. All dependencies should be
-    // added there rather than directly here.
-    api(CAMERA_PIPE_DEPS.API)
-    implementation(CAMERA_PIPE_DEPS.IMPLEMENTATION)
+    api("androidx.annotation:annotation:1.2.0")
+    api(libs.kotlinStdlib)
+    api(libs.kotlinCoroutinesAndroid)
+
+    implementation(libs.atomicFu)
+    implementation(libs.dagger)
 
     kapt(libs.daggerCompiler)
 
@@ -74,8 +72,8 @@ androidx {
     name = "Camera2 Pipe"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.CAMERA_PIPE
-    runApiTasks = new RunApiTasks.No("CameraPipe is an implementation detail of other libraries.")
     inceptionYear = "2020"
     description = "A set of opinionated camera interfaces and implementations on top of Camera2 " +
             "that will form a flexible shim layer to power Frameserver and CameraX."
+    metalavaK2UastEnabled = true
 }

@@ -29,10 +29,10 @@ import androidx.camera.core.imagecapture.Utils.TEMP_FILE
 import androidx.camera.core.imagecapture.Utils.WIDTH
 import androidx.camera.core.impl.utils.Exif
 import androidx.camera.core.processing.Packet
-import androidx.camera.testing.ExifUtil
-import androidx.camera.testing.TestImageUtil.createBitmap
-import androidx.camera.testing.TestImageUtil.createJpegBytes
-import androidx.camera.testing.TestImageUtil.getAverageDiff
+import androidx.camera.testing.impl.ExifUtil
+import androidx.camera.testing.impl.TestImageUtil.createBitmap
+import androidx.camera.testing.impl.TestImageUtil.createJpegBytes
+import androidx.camera.testing.impl.TestImageUtil.getAverageDiff
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -99,7 +99,8 @@ class JpegBytes2DiskDeviceTest {
     }
 
     private fun saveFileAndGetPath(metadata: ImageCapture.Metadata): String {
-        return saveFileAndGetPath(ExifUtil.createExif(createJpegBytes(WIDTH, HEIGHT)),
+        return saveFileAndGetPath(
+            ExifUtil.createExif(createJpegBytes(WIDTH, HEIGHT)),
             metadata, 0)
     }
 

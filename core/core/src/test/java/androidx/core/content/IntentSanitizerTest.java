@@ -640,7 +640,6 @@ public class IntentSanitizerTest {
     }
 
     @Test
-    @Config(minSdk = 16)
     public void intentWithTextOnlyClipData_builderAllowsNoClipData_filterOut() {
         Intent intent = basicIntent();
         ClipDescription description = new ClipDescription("test",
@@ -655,7 +654,6 @@ public class IntentSanitizerTest {
     }
 
     @Test
-    @Config(minSdk = 16)
     public void intentWithTextOnlyClipData_builderAllowsClipDataText_filterIn() {
         Intent intent = basicIntent();
         ClipDescription description = new ClipDescription("test",
@@ -671,7 +669,6 @@ public class IntentSanitizerTest {
     }
 
     @Test
-    @Config(minSdk = 16)
     public void intentWithClipDataWithTextAndUri_builderAllowsClipDataText_filterInTextButOutUri() {
         Intent intent = basicIntent();
         ClipDescription description = new ClipDescription("test",
@@ -690,7 +687,6 @@ public class IntentSanitizerTest {
     }
 
     @Test
-    @Config(minSdk = 16)
     public void intentWithClipDataWithTextAndUri_builderAllowsClipDataUri_filterInUriButOutText() {
         Intent intent = basicIntent();
         ClipDescription description = new ClipDescription("test",
@@ -710,7 +706,6 @@ public class IntentSanitizerTest {
     }
 
     @Test
-    @Config(minSdk = 16)
     public void intentWithClipDataWithTextAndUri_builderAllowsClipDataTextAndUri_filterIn() {
         Intent intent = basicIntent();
         ClipDescription description = new ClipDescription("test",
@@ -730,7 +725,6 @@ public class IntentSanitizerTest {
     }
 
     @Test
-    @Config(minSdk = 16)
     public void intentWithClipDataMultiItems_builderAllowsTextAndUri_filterInItemPassUriFilter() {
         Intent intent = basicIntent();
         ClipDescription description = new ClipDescription("test",
@@ -751,7 +745,6 @@ public class IntentSanitizerTest {
     }
 
     @Test
-    @Config(minSdk = 16)
     public void intentWithClipDataWithPlainMimeType_builderAllowsHtmlMimeTypePredicate_filterOut() {
         Intent intent = basicIntent();
         ClipDescription description = new ClipDescription("test",
@@ -878,7 +871,6 @@ public class IntentSanitizerTest {
     }
 
     @Test
-    @Config(minSdk = Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1)
     public void intentWithSelector_builderAllowsNoSelector_filterOut() {
         Intent intent = basicIntent();
         Intent selector = new Intent(Intent.ACTION_VIEW);
@@ -891,7 +883,6 @@ public class IntentSanitizerTest {
     }
 
     @Test
-    @Config(minSdk = Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1)
     public void intentWithSelector_builderAllowsSelector_filterIn() {
         Intent intent = basicIntent();
         Intent selector = new Intent(Intent.ACTION_VIEW);

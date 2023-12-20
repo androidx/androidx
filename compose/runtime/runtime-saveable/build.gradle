@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-
-import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 
@@ -25,11 +23,9 @@ plugins {
     id("com.android.library")
 }
 
-def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
-
 androidXMultiplatform {
     android()
-    if (desktopEnabled) desktop()
+    desktop()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -48,6 +44,7 @@ androidXMultiplatform {
         }
 
         jvmMain {
+            dependsOn(commonMain)
             dependencies {
             }
         }
@@ -61,10 +58,8 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            desktopMain {
-                dependsOn(jvmMain)
-            }
+        desktopMain {
+            dependsOn(jvmMain)
         }
 
         jvmTest {
@@ -72,14 +67,14 @@ androidXMultiplatform {
             }
         }
 
-        androidAndroidTest {
+        androidInstrumentedTest {
             dependsOn(jvmTest)
             dependencies {
                 implementation project(':compose:ui:ui')
                 implementation project(":compose:ui:ui-test-junit4")
                 implementation project(":compose:test-utils")
                 implementation "androidx.fragment:fragment:1.3.0"
-                implementation "androidx.activity:activity-compose:1.3.1"
+                implementation "androidx.activity:activity-compose:1.7.0"
                 implementation(libs.testUiautomator)
                 implementation(libs.testCore)
                 implementation(libs.testRules)
@@ -92,11 +87,7 @@ androidXMultiplatform {
             }
         }
 
-        // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
-        //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
-        //  level dependencies block instead:
-        //  `dependencies { testImplementation(libs.robolectric) }`
-        androidTest {
+        androidUnitTest {
             dependsOn(jvmTest)
             dependencies {
                 implementation(libs.testRules)
@@ -106,10 +97,8 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            desktopTest {
-                dependsOn(jvmTest)
-            }
+        desktopTest {
+            dependsOn(jvmTest)
         }
     }
 }

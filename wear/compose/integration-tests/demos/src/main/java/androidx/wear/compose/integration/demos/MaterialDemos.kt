@@ -27,6 +27,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.integration.demos.common.Centralize
+import androidx.wear.compose.integration.demos.common.ComposableDemo
+import androidx.wear.compose.integration.demos.common.DemoCategory
 import androidx.wear.compose.material.samples.AlertDialogSample
 import androidx.wear.compose.material.samples.AlertWithButtons
 import androidx.wear.compose.material.samples.AlertWithChips
@@ -86,42 +89,6 @@ import androidx.wear.compose.material.samples.ToggleChipWithRadioButton
 import androidx.wear.compose.material.samples.ToggleChipWithSwitch
 import java.time.LocalDate
 import java.time.LocalTime
-
-// Declare the swipe to dismiss demos so that we can use this variable as the background composable
-// for the SwipeToDismissDemo itself.
-internal val SwipeToDismissDemos =
-    DemoCategory(
-        "Swipe to Dismiss",
-        listOf(
-            DemoCategory(
-                "Samples",
-                listOf(
-                    ComposableDemo("Simple") { params ->
-                        SimpleSwipeToDismissBox(params.navigateBack)
-                    },
-                    ComposableDemo("Stateful") { StatefulSwipeToDismissBox() },
-                    ComposableDemo("Edge swipe") { params ->
-                        EdgeSwipeForSwipeToDismiss(params.navigateBack)
-                    },
-                )
-            ),
-            DemoCategory(
-                "Demos",
-                listOf(
-                    ComposableDemo("Demo") { params ->
-                        val state = remember { mutableStateOf(SwipeDismissDemoState.List) }
-                        SwipeToDismissDemo(navigateBack = params.navigateBack, demoState = state)
-                    },
-                    ComposableDemo("Stateful Demo") { params ->
-                        SwipeToDismissBoxWithState(params.navigateBack)
-                    },
-                    ComposableDemo("EdgeSwipeToDismiss modifier") { params ->
-                        EdgeSwipeDemo(params.swipeToDismissBoxState)
-                    },
-                )
-            )
-        )
-    )
 
 @SuppressLint("ClassVerificationFailure")
 val WearMaterialDemos = DemoCategory(
@@ -592,7 +559,14 @@ val WearMaterialDemos = DemoCategory(
                 )
             )
         ),
-        SwipeToDismissDemos,
+        DemoCategory(
+            title = "Swipe To Dismiss",
+            listOf(
+                ComposableDemo("Simple") { SimpleSwipeToDismissBox(it.navigateBack) },
+                ComposableDemo("Stateful") { StatefulSwipeToDismissBox() },
+                ComposableDemo("Edge swipe") { EdgeSwipeForSwipeToDismiss(it.navigateBack) },
+            )
+        ),
         DemoCategory(
             "List (Scaling Lazy Column)",
             listOf(

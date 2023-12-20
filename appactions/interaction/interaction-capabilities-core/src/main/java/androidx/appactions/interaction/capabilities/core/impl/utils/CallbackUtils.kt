@@ -23,6 +23,8 @@ import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructC
 import androidx.appactions.interaction.capabilities.core.impl.task.exceptions.DisambigStateException
 import androidx.appactions.interaction.capabilities.core.impl.task.exceptions.InvalidResolverException
 import kotlin.reflect.KClass
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withTimeout
 
 private const val LOG_TAG = "CallbackUtils"
@@ -37,16 +39,17 @@ internal fun <T> invokeExternalBlock(description: String, block: () -> T): T {
     }
 }
 
+/** Maximum allowed time for a single external async operation. e.g. invoking a slot listener. */
+internal const val EXTERNAL_TIMEOUT_MILLIS = 10000L
+
 /** invoke an externally implemented suspend method, wrapping any exceptions with
  * ExternalException.
  */
-
-private const val TIMEOUT_MILLIS = 3000L
 internal suspend fun <T> invokeExternalSuspendBlock(
     description: String,
     block: suspend () -> T
 ): T {
-    return withTimeout(TIMEOUT_MILLIS) {
+    return withTimeout(EXTERNAL_TIMEOUT_MILLIS) {
         try {
             block()
         } catch (t: Throwable) {
@@ -71,24 +74,23 @@ private fun Throwable.toErrorStatusInternal(): ErrorStatusInternal {
         this.isCausedBy(
             ExternalException::class
         ) -> ErrorStatusInternal.EXTERNAL_EXCEPTION
-        this.isCausedBy(
-            StructConversionException::class
-        ) -> ErrorStatusInternal.STRUCT_CONVERSION_FAILURE
-        this.isCausedBy(
-            InvalidResolverException::class
-        ) -> ErrorStatusInternal.INVALID_RESOLVER
-        this.isCausedBy(
-            DisambigStateException::class
-        ) -> ErrorStatusInternal.UNCHANGED_DISAMBIG_STATE
+        // Handle StructConversion first, because it's a subtype of InvalidRequestException below.
+        this.isCausedBy(StructConversionException::class) ||
+            this.isCausedBy(InvalidResolverException::class) ||
+            this.isCausedBy(DisambigStateException::class)
+        -> ErrorStatusInternal.INTERNAL
+
         this.isCausedBy(
             InvalidRequestException::class
         ) -> ErrorStatusInternal.INVALID_REQUEST
-        else -> ErrorStatusInternal.CANCELLED
+
+        this is TimeoutCancellationException -> ErrorStatusInternal.TIMEOUT
+        else -> ErrorStatusInternal.UNKNOWN_ERROR_STATUS
     }
 }
 
 /**
- * Handles an exception encountered during request proessing (one-shot or multi-turn).
+ * Handles an exception encountered during request processing (one-shot or multi-turn).
  * Includes reporting an ErrorStatusInternal to some callback based on the exception.
  */
 internal fun handleExceptionFromRequestProcessing(
@@ -102,13 +104,21 @@ internal fun handleExceptionFromRequestProcessing(
         t
     )
     errorCallback.invoke(t.toErrorStatusInternal())
-    if (!t.isCausedBy(InvalidRequestException::class)) {
-        LoggerInternal.log(
-            CapabilityLogger.LogLevel.ERROR,
-            LOG_TAG,
-            "Rethrowing exception because it is not caused by InvalidRequestException.",
-            t
-        )
-        throw t
+    when {
+        t.isCausedBy(
+            InvalidRequestException::class
+        ) || t.isCausedBy(
+            CancellationException::class
+        ) -> Unit
+        else -> {
+            LoggerInternal.log(
+                CapabilityLogger.LogLevel.ERROR,
+                LOG_TAG,
+                """Rethrowing exception because it was likely thrown from an app-implemented
+                callback.""",
+                t
+            )
+            throw t
+        }
     }
 }

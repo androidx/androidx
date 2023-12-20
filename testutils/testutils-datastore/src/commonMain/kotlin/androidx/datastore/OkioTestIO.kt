@@ -19,73 +19,29 @@ package androidx.datastore
 import androidx.datastore.core.InterProcessCoordinator
 import androidx.datastore.core.Storage
 import androidx.datastore.core.okio.OkioStorage
-import kotlin.random.Random
 import kotlin.reflect.KClass
 import okio.FileSystem
 import okio.IOException
 import okio.Path
-import okio.Path.Companion.toPath
 
-open class OkioTestIO(dirName: String = "test-dir") : TestIO<OkioPath, IOException>(dirName) {
+open class OkioTestIO(
     private val fileSystem: FileSystem = FileSystem.SYSTEM
+) : TestIO<OkioPath, IOException>(
+    getTmpDir = {
+        OkioPath(fileSystem = fileSystem, path = FileSystem.SYSTEM_TEMPORARY_DIRECTORY)
+    }
+) {
     override fun getStorage(
         serializerConfig: TestingSerializerConfig,
         coordinatorProducer: () -> InterProcessCoordinator,
-        futureFile: () -> TestFile
+        futureFile: () -> OkioPath
     ): Storage<Byte> {
         return OkioStorage(
             fileSystem = fileSystem,
             serializer = TestingOkioSerializer(serializerConfig),
             coordinatorProducer = { _, _ -> coordinatorProducer() }
         ) {
-            futureFile().getAbsolutePath().toPath()
-        }
-    }
-
-    override fun tempDir(
-        directoryPath: String?,
-        makeDirs: Boolean,
-        parentDir: OkioPath?
-    ): OkioPath {
-        return if (parentDir != null) {
-            if (directoryPath != null) {
-                val newPath = if (directoryPath.startsWith("/"))
-                    directoryPath.substring(1) else directoryPath
-                val dir = parentDir.path / newPath
-                if (makeDirs) {
-                    fileSystem.createDirectories(dir)
-                }
-                OkioPath(fileSystem, dir)
-            } else {
-                OkioPath(fileSystem, parentDir.path / randomFileName(dirName))
-            }
-        } else {
-            if (directoryPath != null) {
-                val newPath = if (directoryPath.startsWith("/"))
-                    directoryPath.substring(1) else directoryPath
-                val dir = FileSystem.SYSTEM_TEMPORARY_DIRECTORY / randomFileName(dirName) / newPath
-                if (makeDirs) {
-                    fileSystem.createDirectories(dir)
-                }
-                OkioPath(fileSystem, dir)
-            } else {
-                OkioPath(
-                    fileSystem, FileSystem.SYSTEM_TEMPORARY_DIRECTORY /
-                        randomFileName(dirName)
-                )
-            }
-        }
-    }
-
-    override fun newTempFile(tempFolder: OkioPath): OkioPath {
-        return OkioPath(fileSystem, tempFolder.path / randomFileName(dirName))
-    }
-
-    private fun randomFileName( // LAME :)
-        prefix: String = "test-file"
-    ): String {
-        return prefix + (0 until 15).joinToString(separator = "") {
-            ('a' + Random.nextInt(from = 0, until = 26)).toString()
+            futureFile().path
         }
     }
 
@@ -95,16 +51,14 @@ open class OkioTestIO(dirName: String = "test-dir") : TestIO<OkioPath, IOExcepti
 
     override fun ioExceptionClass(): KClass<IOException> =
         IOException::class
-
-    override fun isDirectory(file: OkioPath): Boolean {
-        return fileSystem.metadata(file.path).isDirectory
-    }
 }
 
-class OkioPath(private val fileSystem: FileSystem, val path: Path) : TestFile() {
+class OkioPath(private val fileSystem: FileSystem, val path: Path) : TestFile<OkioPath>() {
+    override val name: String
+        get() = path.name
 
-    override fun getAbsolutePath(): String {
-        return path.toString()
+    override fun path(): String {
+        return path.normalized().toString()
     }
 
     override fun delete(): Boolean {
@@ -120,10 +74,49 @@ class OkioPath(private val fileSystem: FileSystem, val path: Path) : TestFile() 
         return fileSystem.exists(path)
     }
 
-    override fun createIfNotExists(): Boolean {
-        if (exists()) return false
-        path.parent?.let { fileSystem.createDirectories(it) }
-        fileSystem.write(path, mustCreate = true) { "" }
-        return true
+    override fun mkdirs(mustCreate: Boolean) {
+        if (exists()) {
+            check(fileSystem.metadataOrNull(path)?.isDirectory == true) {
+                "$path already exists but it is not a directory"
+            }
+            check(!mustCreate) {
+                "Directory $path already exists"
+            }
+        }
+        fileSystem.createDirectories(
+            path,
+            mustCreate = mustCreate
+        )
+    }
+
+    override fun isRegularFile(): Boolean {
+        return fileSystem.metadataOrNull(path)?.isRegularFile == true
+    }
+
+    override fun isDirectory(): Boolean {
+        return fileSystem.metadataOrNull(path)?.isDirectory == true
+    }
+
+    override fun protectedResolve(relative: String): OkioPath {
+        return OkioPath(fileSystem, path / relative)
+    }
+
+    override fun parentFile(): OkioPath? {
+        return path.parent?.let {
+            OkioPath(fileSystem = fileSystem, path = it)
+        }
+    }
+
+    override fun protectedWrite(body: ByteArray) {
+        fileSystem.write(path) {
+            write(body)
+            flush()
+        }
+    }
+
+    override fun protectedReadBytes(): ByteArray {
+        return fileSystem.read(path) {
+            readByteArray()
+        }
     }
 }

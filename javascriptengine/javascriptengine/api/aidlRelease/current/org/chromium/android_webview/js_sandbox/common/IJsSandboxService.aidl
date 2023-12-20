@@ -32,14 +32,17 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package org.chromium.android_webview.js_sandbox.common;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IJsSandboxService {
   org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolate createIsolate() = 0;
   List<String> getSupportedFeatures() = 1;
   org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolate createIsolateWithMaxHeapSizeBytes(long maxHeapSize) = 2;
+  org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolate createIsolate2(long maxHeapSize, org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolateClient isolateClient) = 3;
   const String ISOLATE_TERMINATION = "ISOLATE_TERMINATION";
   const String ISOLATE_MAX_HEAP_SIZE_LIMIT = "ISOLATE_MAX_HEAP_SIZE_LIMIT";
   const String WASM_FROM_ARRAY_BUFFER = "WASM_FROM_ARRAY_BUFFER";
   const String EVALUATE_WITHOUT_TRANSACTION_LIMIT = "EVALUATE_WITHOUT_TRANSACTION_LIMIT";
   const String CONSOLE_MESSAGING = "CONSOLE_MESSAGING";
+  const String ISOLATE_CLIENT = "ISOLATE_CLIENT";
+  const String EVALUATE_FROM_FD = "EVALUATE_FROM_FD";
 }

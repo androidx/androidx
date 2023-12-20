@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Guia em lista"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Guia em grade com título longo"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Guia de pesquisa"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Carregando a guia"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Demonstração de carregamento do modelo de guia"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Demonstração do modelo de guia sem guias"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Não é possível exibir imagens para um host desconhecido"</string>
@@ -342,7 +343,7 @@
     <string name="perm_group" msgid="3834918337351876270">"Grupo de permissões"</string>
     <string name="perm_group_description" msgid="7348847631139139024">"Grupo de permissões do app Showcase"</string>
     <string name="perm_fine_location" msgid="5438874642600304118">"Acesso à localização precisa"</string>
-    <string name="perm_fine_location_desc" msgid="3549183883787912516">"Permissão para acessar a localização precisa"</string>
+    <string name="perm_fine_location_desc" msgid="3549183883787912516">"Permissão para acessar o local exato"</string>
     <string name="perm_coarse_location" msgid="6140337431619481015">"Acesso à localização aproximada"</string>
     <string name="perm_coarse_location_desc" msgid="6074759942301565943">"Permissão para acessar a localização aproximada"</string>
     <string name="perm_record_audio" msgid="2758340693260523493">"Acesso à gravação de áudio"</string>
@@ -358,7 +359,7 @@
     <string name="loading_toggle_enabled" msgid="8828072732804454994">"Carregamento ativado"</string>
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"Carregamento desativado"</string>
     <string name="loading_screen" msgid="4771507490730308794">"Tela de carregamento"</string>
-    <string name="vector_toggle_details" msgid="1301305340033556819">"Alternar para adicionar/remover cor"</string>
+    <string name="vector_toggle_details" msgid="1301305340033556819">"Mudar para adicionar/remover cor"</string>
     <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"Modelo de mapa com botões"</string>
     <string name="avoid_tolls_row_title" msgid="5194057244144831024">"Evitar pedágios"</string>
     <string name="route_options_demo_title" msgid="4599699012716426514">"Opções de trajeto"</string>

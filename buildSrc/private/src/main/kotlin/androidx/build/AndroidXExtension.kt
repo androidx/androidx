@@ -16,8 +16,8 @@
 
 package androidx.build
 
-import androidx.build.buildInfo.CreateLibraryBuildInfoFileTask.Companion.getFrameworksSupportCommitShaAtHead
 import androidx.build.checkapi.shouldConfigureApiTasks
+import androidx.build.gitclient.getHeadShaProvider
 import androidx.build.transform.configureAarAsJarForConfiguration
 import groovy.lang.Closure
 import java.io.File
@@ -27,17 +27,14 @@ import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.ExtensionContainer
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
-/**
- * Extension for [AndroidXImplPlugin] that's responsible for holding configuration options.
- */
-abstract class AndroidXExtension(val project: Project) : ExtensionAware {
+/** Extension for [AndroidXImplPlugin] that's responsible for holding configuration options. */
+abstract class AndroidXExtension(val project: Project) : ExtensionAware, AndroidXConfiguration {
 
-    @JvmField
-    val LibraryVersions: Map<String, Version>
+    @JvmField val LibraryVersions: Map<String, Version>
 
-    @JvmField
-    val AllLibraryGroups: List<LibraryGroup>
+    @JvmField val AllLibraryGroups: List<LibraryGroup>
 
     val libraryGroupsByGroupId: Map<String, LibraryGroup>
     val overrideLibraryGroupsByProjectPath: Map<String, LibraryGroup>
@@ -58,41 +55,46 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware {
         // These parameters are only expected to be compatible with :compose:compiler:compiler .
         // To use them may require specifying specific projects and disabling some checks
         // like this:
-        // `./gradlew :compose:compiler:compiler:publishToMavenLocal -Pandroidx.versionExtraCheckEnabled=false`
+        // `./gradlew :compose:compiler:compiler:publishToMavenLocal
+        // -Pandroidx.versionExtraCheckEnabled=false`
         val composeCustomVersion = project.providers.environmentVariable("COMPOSE_CUSTOM_VERSION")
         val composeCustomGroup = project.providers.environmentVariable("COMPOSE_CUSTOM_GROUP")
         // service that can compute group/version for a project
-        versionService = project.gradle.sharedServices.registerIfAbsent(
-            "libraryVersionsService",
-            LibraryVersionsService::class.java
-        ) { spec ->
-            spec.parameters.tomlFileName = tomlFileName
-            spec.parameters.tomlFileContents = toml
-            spec.parameters.composeCustomVersion = composeCustomVersion
-            spec.parameters.composeCustomGroup = composeCustomGroup
-            spec.parameters.useMultiplatformGroupVersions = project.provider {
-                Multiplatform.isKotlinNativeEnabled(project)
-            }
-        }.get()
+        versionService =
+            project.gradle.sharedServices
+                .registerIfAbsent("libraryVersionsService", LibraryVersionsService::class.java) {
+                    spec ->
+                    spec.parameters.tomlFileName = tomlFileName
+                    spec.parameters.tomlFileContents = toml
+                    spec.parameters.composeCustomVersion = composeCustomVersion
+                    spec.parameters.composeCustomGroup = composeCustomGroup
+                }
+                .get()
         AllLibraryGroups = versionService.libraryGroups.values.toList()
         LibraryVersions = versionService.libraryVersions
         libraryGroupsByGroupId = versionService.libraryGroupsByGroupId
         overrideLibraryGroupsByProjectPath = versionService.overrideLibraryGroupsByProjectPath
 
+        // Always set a known default based on project path. see: b/302183954
+        setDefaultGroupFromProjectPath()
         mavenGroup = chooseLibraryGroup()
         chooseProjectVersion()
 
         // service that can compute full list of projects in settings.gradle
         val settings = lazyReadFile("settings.gradle")
-        listProjectsService = project.gradle.sharedServices.registerIfAbsent(
-            "listProjectsService",
-            ListProjectsService::class.java
-        ) { spec ->
-            spec.parameters.settingsFile = settings
-        }
+        listProjectsService =
+            project.gradle.sharedServices.registerIfAbsent(
+                "listProjectsService",
+                ListProjectsService::class.java
+            ) { spec ->
+                spec.parameters.settingsFile = settings
+            }
+
+        kotlinTarget.set(KotlinTarget.DEFAULT)
     }
 
     var name: Property<String?> = project.objects.property(String::class.java)
+
     fun setName(newName: String) {
         name.set(newName)
     }
@@ -101,28 +103,8 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware {
      * Maven version of the library.
      *
      * Note that, setting this is an error if the library group sets an atomic version.
-     * If the build is a multiplatform build, this value will be overridden by
-     * the [mavenMultiplatformVersion] property when it is provided.
-     *
-     * @see mavenMultiplatformVersion
      */
     var mavenVersion: Version? = null
-        set(value) {
-            field = value
-            chooseProjectVersion()
-        }
-        get() = if (versionService.useMultiplatformGroupVersions) {
-            mavenMultiplatformVersion ?: field
-        } else {
-            field
-        }
-
-    /**
-     * If set, this will override the [mavenVersion] property in multiplatform builds.
-     *
-     * @see mavenVersion
-     */
-    var mavenMultiplatformVersion: Version? = null
         set(value) {
             field = value
             chooseProjectVersion()
@@ -133,21 +115,19 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware {
     fun getOtherProjectsInSameGroup(): List<SettingsParser.IncludedProject> {
         val allProjects = listProjectsService.get().allPossibleProjects
         val ourGroup = chooseLibraryGroup()
-        if (ourGroup == null)
-            return listOf()
-        val otherProjectsInSameGroup = allProjects.filter { otherProject ->
-            if (otherProject.gradlePath == project.path) {
-                false
-            } else {
-                getLibraryGroupFromProjectPath(otherProject.gradlePath) == ourGroup
+        if (ourGroup == null) return listOf()
+        val otherProjectsInSameGroup =
+            allProjects.filter { otherProject ->
+                if (otherProject.gradlePath == project.path) {
+                    false
+                } else {
+                    getLibraryGroupFromProjectPath(otherProject.gradlePath) == ourGroup
+                }
             }
-        }
         return otherProjectsInSameGroup
     }
 
-    /**
-     * Returns a string explaining the value of mavenGroup
-     */
+    /** Returns a string explaining the value of mavenGroup */
     fun explainMavenGroup(): List<String> {
         val explanationBuilder = mutableListOf<String>()
         chooseLibraryGroup(explanationBuilder)
@@ -155,9 +135,8 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware {
     }
 
     private fun lazyReadFile(fileName: String): Provider<String> {
-        val fileProperty = project.objects.fileProperty().fileValue(
-            File(project.getSupportRootFolder(), fileName)
-        )
+        val fileProperty =
+            project.objects.fileProperty().fileValue(File(project.getSupportRootFolder(), fileName))
         return project.providers.fileContents(fileProperty).asText
     }
 
@@ -176,18 +155,14 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware {
         explanationBuilder: MutableList<String>? = null
     ): LibraryGroup? {
         val overridden = overrideLibraryGroupsByProjectPath.get(projectPath)
-        if (explanationBuilder != null) {
-            explanationBuilder.add(
-                "Library group (in libraryversions.toml) having" +
+        explanationBuilder?.add(
+            "Library group (in libraryversions.toml) having" +
                 " overrideInclude=[\"$projectPath\"] is $overridden"
-            )
-        }
-        if (overridden != null)
-            return overridden
+        )
+        if (overridden != null) return overridden
 
         val result = getStandardLibraryGroupFromProjectPath(projectPath, explanationBuilder)
-        if (result != null)
-            return result
+        if (result != null) return result
 
         // samples are allowed to be nested deeper
         if (projectPath.contains("samples")) {
@@ -206,25 +181,38 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware {
         val parentPath = substringBeforeLastColon(projectPath)
 
         if (parentPath == "") {
-            if (explanationBuilder != null)
-                explanationBuilder.add("Parent path for $projectPath is empty")
+            explanationBuilder?.add("Parent path for $projectPath is empty")
             return null
         }
         // convert parent project path to groupId
-        val groupIdText = if (projectPath.startsWith(":external")) {
-            projectPath.replace(":external:", "")
-        } else {
-            "androidx.${parentPath.substring(1).replace(':', '.')}"
-        }
+        val groupIdText =
+            if (projectPath.startsWith(":external")) {
+                projectPath.replace(":external:", "")
+            } else {
+                "androidx.${parentPath.substring(1).replace(':', '.')}"
+            }
 
         // get the library group having that text
-        val result = libraryGroupsByGroupId.get(groupIdText)
-        if (explanationBuilder != null) {
-            explanationBuilder.add(
-                "Library group (in libraryversions.toml) having group=\"$groupIdText\" is $result"
-            )
-        }
+        val result = libraryGroupsByGroupId[groupIdText]
+        explanationBuilder?.add(
+            "Library group (in libraryversions.toml) having group=\"$groupIdText\" is $result"
+        )
         return result
+    }
+
+    /**
+     * Sets a group for the project based on its path.
+     * This ensures we always use a known value for the project group instead of what Gradle assigns
+     * by default. Furthermore, it also helps make them consistent between the main build and
+     * the playground builds.
+     */
+    private fun setDefaultGroupFromProjectPath() {
+        project.group = project.path
+            .split(":")
+            .filter {
+                it.isNotEmpty()
+            }.dropLast(1)
+            .joinToString(separator = ".", prefix = "androidx.")
     }
 
     private fun chooseProjectVersion() {
@@ -236,9 +224,12 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware {
             projectDirectlySpecifiesMavenVersion = true
             if (groupVersion != null && !isGroupVersionOverrideAllowed()) {
                 throw GradleException(
-                    "Cannot set mavenVersion (" + mavenVersion +
-                        ") for a project (" + project +
-                        ") whose mavenGroup already specifies forcedVersion (" + groupVersion +
+                    "Cannot set mavenVersion (" +
+                        mavenVersion +
+                        ") for a project (" +
+                        project +
+                        ") whose mavenGroup already specifies forcedVersion (" +
+                        groupVersion +
                         ")"
                 )
             } else {
@@ -269,9 +260,7 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware {
                 if (ALLOWED_EXTRA_PREFIXES.any { extra.startsWith(it) }) {
                     for (potentialPrefix in ALLOWED_EXTRA_PREFIXES) {
                         if (extra.startsWith(potentialPrefix)) {
-                            val secondExtraPart = extra.removePrefix(
-                                potentialPrefix
-                            )
+                            val secondExtraPart = extra.removePrefix(potentialPrefix)
                             if (secondExtraPart.toIntOrNull() == null) {
                                 throw IllegalArgumentException(
                                     "Version $version is not" +
@@ -296,11 +285,15 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware {
         // Grant an exception to the same-version-group policy for artifacts that haven't shipped a
         // stable API surface, e.g. 1.0.0-alphaXX, to allow for rapid early-stage development.
         val version = mavenVersion
-        return version != null && version.major == 1 && version.minor == 0 && version.patch == 0 &&
+        return version != null &&
+            version.major == 1 &&
+            version.minor == 0 &&
+            version.patch == 0 &&
             version.isAlpha()
     }
 
     private var versionIsSet = false
+
     fun isVersionSet(): Boolean {
         return versionIsSet
     }
@@ -309,25 +302,27 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware {
     var inceptionYear: String? = null
 
     /**
-     * targetsJavaConsumers = true, if project is intended to be accessed from Java-language
-     * source code.
+     * targetsJavaConsumers = true, if project is intended to be accessed from Java-language source
+     * code.
      */
     var targetsJavaConsumers = true
         get() {
             when (project.path) {
-                // add per-project overrides here
-                // for example
-                // the following project is intended to be accessed from Java
-                // ":compose:lint:internal-lint-checks" -> return true
-                // the following project is not intended to be accessed from Java
-                // ":annotation:annotation" -> return false
+            // add per-project overrides here
+            // for example
+            // the following project is intended to be accessed from Java
+            // ":compose:lint:internal-lint-checks" -> return true
+            // the following project is not intended to be accessed from Java
+            // ":annotation:annotation" -> return false
             }
             // TODO: rework this to use LibraryType. Fork Library and KolinOnlyLibrary?
             if (project.path.contains("-ktx")) return false
             if (project.path.contains("compose")) return false
             if (project.path.startsWith(":ui")) return false
+            if (project.path.startsWith(":text:text")) return false
             return field
         }
+
     private var licenses: MutableCollection<License> = ArrayList()
 
     // Should only be used to override LibraryType.publish, if a library isn't ready to publish yet
@@ -359,10 +354,13 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware {
         }
     }
 
-    internal fun isPublishConfigured(): Boolean = (
-        publish != Publish.UNSET ||
-            type.publish != Publish.UNSET
-        )
+    internal fun isPublishConfigured(): Boolean =
+        (publish != Publish.UNSET || type.publish != Publish.UNSET)
+
+    fun shouldPublishSbom(): Boolean {
+        // IDE plugins are used by and ship inside Studio
+        return shouldPublish() || type == LibraryType.IDE_PLUGIN
+    }
 
     /**
      * Whether to run API tasks such as tracking and linting. The default value is
@@ -372,6 +370,7 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware {
     // @Deprecated("Replaced with AndroidXExtension.type: LibraryType.runApiTasks")
     var runApiTasks: RunApiTasks = RunApiTasks.Auto
         get() = if (field == RunApiTasks.Auto && type != LibraryType.UNSET) type.checkApi else field
+
     var type: LibraryType = LibraryType.UNSET
     var failOnDeprecationWarnings = true
 
@@ -385,6 +384,8 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware {
 
     val additionalDeviceTestTags: MutableList<String> by lazy {
         when {
+            project.path.startsWith(":privacysandbox:ads:") ->
+                mutableListOf("privacysandbox", "privacysandbox_ads")
             project.path.startsWith(":privacysandbox:") -> mutableListOf("privacysandbox")
             project.path.startsWith(":wear:") -> mutableListOf("wear")
             else -> mutableListOf()
@@ -392,8 +393,7 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware {
     }
 
     fun shouldEnforceKotlinStrictApiMode(): Boolean {
-        return !legacyDisableKotlinStrictApiMode &&
-            shouldConfigureApiTasks()
+        return !legacyDisableKotlinStrictApiMode && shouldConfigureApiTasks()
     }
 
     fun license(closure: Closure<Any>): License {
@@ -410,11 +410,28 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware {
         configureAarAsJarForConfiguration(project, name)
     }
 
-    fun getReferenceSha(): Provider<String> {
-        return project.providers.provider {
-            project.getFrameworksSupportCommitShaAtHead()
-        }
-    }
+    fun getReferenceSha(): Provider<String> = getHeadShaProvider(project)
+
+    /**
+     * Specify the version for Kotlin API compatibility mode used during Kotlin compilation.
+     *
+     * Changing this value will force clients to update their Kotlin compiler version, which may be
+     * disruptive. Library developers should only change this value if there is a strong reason to
+     * upgrade their Kotlin API version ahead of the rest of Jetpack.
+     */
+    abstract val kotlinTarget: Property<KotlinTarget>
+
+    override val kotlinApiVersion: Provider<KotlinVersion>
+        get() = kotlinTarget.map { it.apiVersion }
+
+    override val kotlinBomVersion: Provider<String>
+        get() = kotlinTarget.map { project.getVersionByName(it.catalogVersion) }
+
+    /**
+     * Whether to validate the androidx configuration block using validateProjectParser. This should
+     * always be set to true unless we are temporarily working around a bug.
+     */
+    var runProjectParser: Boolean = true
 
     companion object {
         const val DEFAULT_UNSPECIFIED_VERSION = "unspecified"
@@ -430,6 +447,7 @@ abstract class DeviceTests {
 
     companion object {
         private const val EXTENSION_NAME = "deviceTests"
+
         internal fun register(extensions: ExtensionContainer): DeviceTests {
             return extensions.findByType(DeviceTests::class.java)
                 ?: extensions.create(EXTENSION_NAME, DeviceTests::class.java)

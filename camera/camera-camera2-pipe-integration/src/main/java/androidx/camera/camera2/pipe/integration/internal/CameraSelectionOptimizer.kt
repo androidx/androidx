@@ -21,12 +21,12 @@ import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.DoNotDisturbException
 import androidx.camera.camera2.pipe.core.Log
-import androidx.camera.camera2.pipe.integration.adapter.CameraFactoryAdapter
 import androidx.camera.camera2.pipe.integration.config.CameraAppComponent
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.InitializationException
+import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraInfoInternal
 
 /**
@@ -34,12 +34,12 @@ import androidx.camera.core.impl.CameraInfoInternal
  * passed CameraSelector
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-class CameraSelectionOptimizer {
+internal class CameraSelectionOptimizer {
     companion object {
 
         @Throws(InitializationException::class)
         fun getSelectedAvailableCameraIds(
-            cameraFactory: CameraFactoryAdapter,
+            cameraFactory: CameraFactory,
             availableCamerasSelector: CameraSelector?
         ): List<String> {
             try {

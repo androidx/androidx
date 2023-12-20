@@ -18,7 +18,7 @@ package androidx.car.app.hardware;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.hardware.ICarHardwareResult;
 
-/** @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface ICarHardwareHost {
   /**
    * Indicates to the host that the app is interested in a car hardware result with a single value.

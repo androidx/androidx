@@ -28,10 +28,10 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.job
+import kotlinx.coroutines.rx2.asCompletable
 import kotlinx.coroutines.rx2.asFlowable
 import kotlinx.coroutines.rx2.asSingle
 import kotlinx.coroutines.rx2.await
-import kotlinx.coroutines.rx2.rxCompletable
 
 /**
  * A DataStore that supports RxJava operations on DataStore.
@@ -48,14 +48,14 @@ public class RxDataStore<T : Any> private constructor(
     private val scope: CoroutineScope
 ) : Disposable {
 
-    /**
-     * @hide for datastore-preferences-rxjava2 artifact only
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     companion object {
+        /**
+         * Visible for datastore-preferences-rxjava2 artifact only
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun <T : Any> create(delegateDs: DataStore<T>, scope: CoroutineScope):
             RxDataStore<T> {
-                return RxDataStore<T>(delegateDs, scope)
+                return RxDataStore(delegateDs, scope)
             }
     }
 
@@ -68,16 +68,16 @@ public class RxDataStore<T : Any> private constructor(
     /**
      * Returns whether this DataStore is closed
      */
-    override fun isDisposed(): Boolean = scope.coroutineContext.job.isActive
+    override fun isDisposed(): Boolean = !scope.coroutineContext.job.isActive
 
     /**
      * Returns a completable that completes when the DataStore is completed. It is not safe to
      * create a new DataStore with the same file name until this has completed.
      */
     public fun shutdownComplete(): Completable =
-        rxCompletable(scope.coroutineContext.minusKey(Job)) {
-            scope.coroutineContext.job.join()
-        }
+        scope.coroutineContext.job.asCompletable(
+            scope.coroutineContext.minusKey(Job)
+        )
 
     /**
      * Gets a reactivex.Flowable of the data from DataStore. See [DataStore.data] for more information.

@@ -16,26 +16,27 @@
 
 package androidx.appactions.interaction.capabilities.productivity
 
-import androidx.appactions.builtintypes.experimental.types.GenericErrorStatus
-import androidx.appactions.builtintypes.experimental.types.SuccessStatus
+import androidx.appactions.builtintypes.types.GenericErrorStatus
+import androidx.appactions.builtintypes.types.SuccessStatus
+import androidx.appactions.builtintypes.types.Timer
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
-import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
-import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
+import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
+import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
+import androidx.appactions.interaction.capabilities.core.impl.converters.UnionTypeSpec
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
+import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecRegistry
 import androidx.appactions.interaction.capabilities.core.properties.Property
-import androidx.appactions.interaction.proto.ParamValue
-import androidx.appactions.interaction.protobuf.Struct
-import androidx.appactions.interaction.protobuf.Value
-
-private const val CAPABILITY_NAME = "actions.intent.RESET_TIMER"
+import androidx.appactions.interaction.capabilities.serializers.types.GENERIC_ERROR_STATUS_TYPE_SPEC
+import androidx.appactions.interaction.capabilities.serializers.types.SUCCESS_STATUS_TYPE_SPEC
+import androidx.appactions.interaction.capabilities.serializers.types.TIMER_TYPE_SPEC
 
 /** A capability corresponding to actions.intent.RESET_TIMER */
-@CapabilityFactory(name = CAPABILITY_NAME)
+@CapabilityFactory(name = ResetTimer.CAPABILITY_NAME)
 class ResetTimer private constructor() {
-    internal enum class PropertyMapStrings(val key: String) {
-        TIMER_LIST("timer.timerList")
+    internal enum class SlotMetadata(val path: String) {
+        TIMER("timer")
     }
 
     class CapabilityBuilder :
@@ -46,18 +47,14 @@ class ResetTimer private constructor() {
             Confirmation,
             ExecutionSession
             >(ACTION_SPEC) {
-        private var properties = mutableMapOf<String, Property<*>>()
-
-        fun setTimerList(timerList: Property<TimerValue>): CapabilityBuilder =
-            apply { properties[PropertyMapStrings.TIMER_LIST.key] = timerList }
-
-        override fun build(): Capability {
-            super.setProperty(properties)
-            return super.build()
-        }
+        fun setTimerProperty(timer: Property<Timer>): CapabilityBuilder = setProperty(
+            SlotMetadata.TIMER.path,
+            timer,
+            EntityConverter.of(TIMER_TYPE_SPEC)
+        )
     }
 
-    class Arguments internal constructor(val timerList: List<TimerValue>?) {
+    class Arguments internal constructor(val timerList: List<TimerReference>) {
         override fun toString(): String {
             return "Arguments(timerList=$timerList)"
         }
@@ -77,14 +74,14 @@ class ResetTimer private constructor() {
             return timerList.hashCode()
         }
 
-        class Builder : BuilderOf<Arguments> {
-            private var timerList: List<TimerValue>? = null
+        class Builder {
+            private var timerList: List<TimerReference> = emptyList()
 
             fun setTimerList(
-                timerList: List<TimerValue>
+                timerList: List<TimerReference>
             ): Builder = apply { this.timerList = timerList }
 
-            override fun build(): Arguments = Arguments(timerList)
+            fun build(): Arguments = Arguments(timerList)
         }
     }
 
@@ -111,6 +108,14 @@ class ResetTimer private constructor() {
         class Builder {
             private var executionStatus: ExecutionStatus? = null
 
+            fun setExecutionStatus(successStatus: SuccessStatus) = setExecutionStatus(
+                ExecutionStatus(successStatus)
+            )
+
+            fun setExecutionStatus(genericErrorStatus: GenericErrorStatus) = setExecutionStatus(
+                ExecutionStatus(genericErrorStatus)
+            )
+
             fun setExecutionStatus(executionStatus: ExecutionStatus): Builder = apply {
                 this.executionStatus = executionStatus
             }
@@ -131,20 +136,18 @@ class ResetTimer private constructor() {
             this.genericErrorStatus = genericErrorStatus
         }
 
-        internal fun toParamValue(): ParamValue {
-            var status: String = ""
-            if (successStatus != null) {
-                status = successStatus.toString()
-            }
-            if (genericErrorStatus != null) {
-                status = genericErrorStatus.toString()
-            }
-            val value: Value = Value.newBuilder().setStringValue(status).build()
-            return ParamValue.newBuilder()
-                .setStructValue(
-                    Struct.newBuilder().putFields(TypeConverters.FIELD_NAME_TYPE, value).build()
-                )
-                .build()
+        companion object {
+            private val TYPE_SPEC = UnionTypeSpec.Builder<ExecutionStatus>()
+                .bindMemberType(
+                    memberGetter = ExecutionStatus::successStatus,
+                    ctor = { ExecutionStatus(it) },
+                    typeSpec = SUCCESS_STATUS_TYPE_SPEC
+                ).bindMemberType(
+                    memberGetter = ExecutionStatus::genericErrorStatus,
+                    ctor = { ExecutionStatus(it) },
+                    typeSpec = GENERIC_ERROR_STATUS_TYPE_SPEC
+                ).build()
+            internal val PARAM_VALUE_CONVERTER = ParamValueConverter.of(TYPE_SPEC)
         }
     }
 
@@ -153,25 +156,26 @@ class ResetTimer private constructor() {
     sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
 
     companion object {
-        @Suppress("UNCHECKED_CAST")
+        /** Canonical name for [ResetTimer] capability */
+        const val CAPABILITY_NAME = "actions.intent.RESET_TIMER"
         private val ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-                .setArguments(Arguments::class.java, Arguments::Builder)
+                .setArguments(Arguments::class.java, Arguments::Builder, Arguments.Builder::build)
                 .setOutput(Output::class.java)
                 .bindRepeatedParameter(
-                    "timer",
-                    { properties ->
-                        properties[PropertyMapStrings.TIMER_LIST.key] as? Property<TimerValue>
-                    },
+                    SlotMetadata.TIMER.path,
+                    Arguments::timerList,
                     Arguments.Builder::setTimerList,
-                    TimerValue.PARAM_VALUE_CONVERTER,
-                    TimerValue.ENTITY_CONVERTER
+                    TimerReference.PARAM_VALUE_CONVERTER
                 )
                 .bindOutput(
                     "executionStatus",
                     Output::executionStatus,
-                    ExecutionStatus::toParamValue
+                    ExecutionStatus.PARAM_VALUE_CONVERTER
                 )
                 .build()
+        init {
+            ActionSpecRegistry.registerActionSpec(Arguments::class, Output::class, ACTION_SPEC)
+        }
     }
 }

@@ -38,6 +38,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.layout.IntrinsicMeasurable
@@ -105,15 +106,19 @@ class ScrollState(initial: Int) : ScrollableState {
         get() = _maxValueState.intValue
         internal set(newMax) {
             _maxValueState.intValue = newMax
-            if (value > newMax) {
-                value = newMax
+            Snapshot.withoutReadObservation {
+                if (value > newMax) {
+                    value = newMax
+                }
             }
         }
 
     /**
-     * Size of the viewport on the scrollable axis, or 0 if still unknown.
+     * Size of the viewport on the scrollable axis, or 0 if still unknown. Note that this value
+     * is only populated after the first measure pass.
      */
-    internal var viewportSize: Int by mutableIntStateOf(0)
+    var viewportSize: Int by mutableIntStateOf(0)
+        internal set
 
     /**
      * [InteractionSource] that will be used to dispatch drag events when this
@@ -327,7 +332,7 @@ private fun Modifier.scroll(
     }
 )
 
-private class ScrollingLayoutElement(
+internal class ScrollingLayoutElement(
     val scrollState: ScrollState,
     val isReversed: Boolean,
     val isVertical: Boolean
@@ -368,7 +373,7 @@ private class ScrollingLayoutElement(
     }
 }
 
-private class ScrollingLayoutNode(
+internal class ScrollingLayoutNode(
     var scrollerState: ScrollState,
     var isReversed: Boolean,
     var isVertical: Boolean

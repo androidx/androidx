@@ -46,8 +46,9 @@ public final class RequestBuilders {
         }
 
         /**
-         * Gets the {@link DeviceParameters} describing the device requesting the tile update. If it
-         * was not set, a default empty instance is returned.
+         * Gets the {@link androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters}
+         * object describing the device requesting the tile update. If not set, a default empty
+         * instance is used.
          *
          * @since 1.0
          */
@@ -62,7 +63,8 @@ public final class RequestBuilders {
         }
 
         /**
-         * Gets the {@link State} that should be used when building the tile.
+         * Gets the {@link androidx.wear.protolayout.StateBuilders.State} that should be used when
+         * building the tile.
          *
          * @since 1.0
          */
@@ -77,8 +79,8 @@ public final class RequestBuilders {
 
         /**
          * Gets the instance ID of the tile being requested, allocated when the tile instance is
-         * added to the carousel. This ID will remain the same for this tile instance as long it
-         * is not removed from the carousel.
+         * added to the carousel. This ID will remain the same for this tile instance as long it is
+         * not removed from the carousel.
          *
          * @since 1.0
          */
@@ -137,6 +139,19 @@ public final class RequestBuilders {
             return mImpl;
         }
 
+        @Override
+        @NonNull
+        public String toString() {
+            return "TileRequest{"
+                    + "deviceConfiguration="
+                    + getDeviceConfiguration()
+                    + ", currentState="
+                    + getCurrentState()
+                    + ", tileId="
+                    + getTileId()
+                    + "}";
+        }
+
         /** Builder for {@link TileRequest} */
         public static final class Builder {
             private final RequestProto.TileRequest.Builder mImpl =
@@ -145,8 +160,9 @@ public final class RequestBuilders {
             public Builder() {}
 
             /**
-             * Sets a {@link DeviceParameters} object describing the device requesting the tile
-             * update. If not set, a default empty instance is used.
+             * Sets the {@link androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters}
+             * object describing the device requesting the tile update. If not set, a default empty
+             * instance is used.
              *
              * @since 1.0
              */
@@ -157,7 +173,8 @@ public final class RequestBuilders {
             }
 
             /**
-             * Sets the {@link State} that should be used when building the tile.
+             * Sets the {@link androidx.wear.protolayout.StateBuilders.State} that should be used
+             * when building the tile.
              *
              * @since 1.0
              */
@@ -179,7 +196,7 @@ public final class RequestBuilders {
             }
 
             /**
-             * Sets a {@link androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters} object
+             * Sets the {@link androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters}
              * describing the device requesting the tile update.
              *
              * @since 1.0
@@ -258,8 +275,8 @@ public final class RequestBuilders {
         }
 
         /**
-         * Gets the {@link DeviceParameters} object describing the device requesting the resources.
-         * If it was not set, a default empty instance is returned.
+         * Gets the {@link androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters}
+         * object describing the device requesting the resources.
          *
          * @since 1.0
          */
@@ -317,6 +334,21 @@ public final class RequestBuilders {
             return mImpl;
         }
 
+        @Override
+        @NonNull
+        public String toString() {
+            return "ResourcesRequest{"
+                    + "version="
+                    + getVersion()
+                    + ", resourceIds="
+                    + getResourceIds()
+                    + ", deviceConfiguration="
+                    + getDeviceConfiguration()
+                    + ", tileId="
+                    + getTileId()
+                    + "}";
+        }
+
         /** Builder for {@link ResourcesRequest} */
         public static final class Builder {
             private final RequestProto.ResourcesRequest.Builder mImpl =
@@ -355,8 +387,8 @@ public final class RequestBuilders {
             }
 
             /**
-             * Sets a {@link DeviceParameters} object describing the device requesting the
-             * resources. If not set, a default empty instance is used.
+             * Sets the {@link androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters}
+             * object describing the device requesting the resources.
              *
              * @since 1.0
              */
@@ -378,7 +410,7 @@ public final class RequestBuilders {
             }
 
             /**
-             * Sets a {@link androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters} object
+             * Sets the {@link androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters}
              * describing the device requesting the resources.
              *
              * @since 1.0

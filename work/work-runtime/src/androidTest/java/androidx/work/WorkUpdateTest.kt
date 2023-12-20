@@ -19,26 +19,26 @@ package androidx.work
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.filters.SmallTest
 import androidx.work.WorkInfo.State
 import androidx.work.WorkManager.UpdateResult.APPLIED_FOR_NEXT_RUN
 import androidx.work.WorkManager.UpdateResult.APPLIED_IMMEDIATELY
 import androidx.work.WorkManager.UpdateResult.NOT_APPLIED
-import androidx.work.impl.Processor
-import androidx.work.impl.WorkDatabase
-import androidx.work.impl.WorkLauncherImpl
 import androidx.work.impl.WorkManagerImpl
-import androidx.work.impl.background.greedy.GreedyScheduler
+import androidx.work.impl.constraints.ConstraintsState.ConstraintsMet
 import androidx.work.impl.constraints.trackers.Trackers
 import androidx.work.impl.testutils.TestConstraintTracker
+import androidx.work.impl.testutils.TestOverrideClock
 import androidx.work.impl.testutils.TrackingWorkerFactory
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
-import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor
 import androidx.work.impl.workers.ARGUMENT_CLASS_NAME
 import androidx.work.impl.workers.ConstraintTrackingWorker
+import androidx.work.testutils.GreedyScheduler
+import androidx.work.testutils.TestEnv
+import androidx.work.testutils.WorkManager
 import androidx.work.worker.LatchWorker
 import androidx.work.worker.RetryWorker
 import androidx.work.worker.TestWorker
@@ -48,31 +48,29 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeUnit.DAYS
+import java.util.concurrent.TimeUnit.HOURS
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class WorkUpdateTest {
-    val context = ApplicationProvider.getApplicationContext<Context>()
     val workerFactory = TrackingWorkerFactory()
-    val configuration = Configuration.Builder().setWorkerFactory(workerFactory).build()
-    val executor = Executors.newSingleThreadExecutor()
-    val taskExecutor = WorkManagerTaskExecutor(executor)
-    val fakeChargingTracker = TestConstraintTracker(false, context, taskExecutor)
+    val testClock = TestOverrideClock()
+    val configuration =
+        Configuration.Builder().setClock(testClock).setWorkerFactory(workerFactory)
+            .setTaskExecutor(Executors.newSingleThreadExecutor()).build()
+    val env = TestEnv(configuration)
+    val taskExecutor = env.taskExecutor
+    val fakeChargingTracker = TestConstraintTracker(false, env.context, env.taskExecutor)
     val trackers = Trackers(
-        context = context,
-        taskExecutor = taskExecutor,
+        context = env.context,
+        taskExecutor = env.taskExecutor,
         batteryChargingTracker = fakeChargingTracker
     )
-    val db = WorkDatabase.create(context, executor, configuration.clock, true)
-
-    val processor = Processor(context, configuration, taskExecutor, db)
-    val launcher = WorkLauncherImpl(processor, taskExecutor)
-    val greedyScheduler = GreedyScheduler(context, configuration, trackers, processor, launcher)
-    val workManager = WorkManagerImpl(
-        context, configuration, taskExecutor, db, listOf(greedyScheduler), processor, trackers
-    )
+    val greedyScheduler = GreedyScheduler(env, trackers)
+    val workManager = WorkManager(env, listOf(greedyScheduler), trackers)
 
     init {
         WorkManagerImpl.setDelegate(workManager)
@@ -146,13 +144,13 @@ class WorkUpdateTest {
     @MediumTest
     fun updateTags() {
         val oneTimeWorkRequest = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setInitialDelay(10, TimeUnit.DAYS)
+            .setInitialDelay(10, DAYS)
             .addTag("previous")
             .build()
         workManager.enqueue(oneTimeWorkRequest).result.get()
 
         val updatedWorkRequest = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setInitialDelay(10, TimeUnit.DAYS)
+            .setInitialDelay(10, DAYS)
             .setId(oneTimeWorkRequest.id)
             .addTag("test")
             .build()
@@ -176,7 +174,7 @@ class WorkUpdateTest {
             serialExecutorBlocker.await()
         }
         // will add startWork task to the serialTaskExecutor queue
-        greedyScheduler.onAllConstraintsMet(listOf(request.workSpec))
+        greedyScheduler.onConstraintsStateChanged(request.workSpec, ConstraintsMet)
         val updatedRequest = OneTimeWorkRequest.Builder(TestWorker::class.java)
             .setConstraints(Constraints(requiresCharging = true))
             .setId(request.id)
@@ -220,7 +218,7 @@ class WorkUpdateTest {
             .setConstraints(Constraints(requiresCharging = true))
             .build()
         workManager.enqueue(request).result.get()
-        fakeChargingTracker.state = true
+        fakeChargingTracker.constraintState = true
         val runningLatch = CountDownLatch(1)
         lateinit var runningObserver: Observer<WorkInfo>
         val liveData = workManager.getWorkInfoByIdLiveData(request.id)
@@ -334,7 +332,7 @@ class WorkUpdateTest {
             .setConstraints(Constraints(requiresCharging = true)).build()
         workManager.enqueue(request).result.get()
         val updatedRequest =
-            PeriodicWorkRequest.Builder(TestWorker::class.java, 1, TimeUnit.DAYS)
+            PeriodicWorkRequest.Builder(TestWorker::class.java, 1, DAYS)
                 .build()
         try {
             workManager.updateWork(updatedRequest).get()
@@ -348,7 +346,7 @@ class WorkUpdateTest {
     @MediumTest
     fun periodicWorkToOneTime() {
         // requiresCharging constraint is faked, so it will never be satisfied
-        val request = PeriodicWorkRequest.Builder(TestWorker::class.java, 1, TimeUnit.DAYS)
+        val request = PeriodicWorkRequest.Builder(TestWorker::class.java, 1, DAYS)
             .setConstraints(Constraints(requiresCharging = true))
             .build()
         workManager.enqueue(request).result.get()
@@ -364,11 +362,11 @@ class WorkUpdateTest {
     @Test
     @MediumTest
     fun updateRunningPeriodicWorkRequest() {
-        val request = PeriodicWorkRequest.Builder(LatchWorker::class.java, 1, TimeUnit.DAYS)
+        val request = PeriodicWorkRequest.Builder(LatchWorker::class.java, 1, DAYS)
             .addTag("original").build()
         workManager.enqueue(request).result.get()
         val updatedRequest =
-            PeriodicWorkRequest.Builder(LatchWorker::class.java, 1, TimeUnit.DAYS)
+            PeriodicWorkRequest.Builder(LatchWorker::class.java, 1, DAYS)
                 .setId(request.id).addTag("updated").build()
         val worker = workerFactory.awaitWorker(request.id) as LatchWorker
         assertThat(workManager.updateWork(updatedRequest).get()).isEqualTo(APPLIED_FOR_NEXT_RUN)
@@ -398,10 +396,10 @@ class WorkUpdateTest {
     @MediumTest
     @Test
     fun updatePeriodicWorkAfterFirstPeriod() {
-        val request = PeriodicWorkRequest.Builder(TestWorker::class.java, 1, TimeUnit.DAYS)
+        val request = PeriodicWorkRequest.Builder(TestWorker::class.java, 1, DAYS)
             .addTag("original").build()
         val onExecutedLatch = CountDownLatch(1)
-        processor.addExecutionListener { id, _ ->
+        env.processor.addExecutionListener { id, _ ->
             if (id.workSpecId == request.stringId) onExecutedLatch.countDown()
         }
         workManager.enqueue(request).result.get()
@@ -409,7 +407,7 @@ class WorkUpdateTest {
         workManager.awaitReenqueued(request.id)
 
         val updatedRequest =
-            PeriodicWorkRequest.Builder(TestWorker::class.java, 1, TimeUnit.DAYS)
+            PeriodicWorkRequest.Builder(TestWorker::class.java, 1, DAYS)
                 // requiresCharging constraint is faked, so it will never be satisfied
                 .setConstraints(Constraints(requiresCharging = true))
                 .setId(request.id).addTag("updated").build()
@@ -419,7 +417,7 @@ class WorkUpdateTest {
         val newTags = workManager.getWorkInfoById(request.id).get().tags
         assertThat(newTags).contains("updated")
         assertThat(newTags).doesNotContain("original")
-        val workSpec = db.workSpecDao().getWorkSpec(request.stringId)!!
+        val workSpec = env.db.workSpecDao().getWorkSpec(request.stringId)!!
         assertThat(workSpec.periodCount).isEqualTo(1)
     }
 
@@ -427,7 +425,7 @@ class WorkUpdateTest {
     @Test
     fun updateRetryingOneTimeWork() {
         val request = OneTimeWorkRequest.Builder(RetryWorker::class.java)
-            .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.DAYS)
+            .setBackoffCriteria(BackoffPolicy.LINEAR, 10, DAYS)
             .build()
         workManager.enqueue(request)
         // await worker to be created
@@ -443,7 +441,7 @@ class WorkUpdateTest {
             spec.lastEnqueueTime - delta
         )
         val updated = OneTimeWorkRequest.Builder(TestWorker::class.java).setId(request.id)
-            .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.DAYS)
+            .setBackoffCriteria(BackoffPolicy.LINEAR, 10, DAYS)
             .build()
         workManager.updateWork(updated).get()
         workManager.awaitSuccess(request.id)
@@ -480,14 +478,14 @@ class WorkUpdateTest {
     @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 25)
     fun testUpdatePeriodicWorker_preservesConstraintTrackingWorker() {
         val originRequest = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setInitialDelay(10, TimeUnit.HOURS).build()
+            .setInitialDelay(10, HOURS).build()
         workManager.enqueue(originRequest).result.get()
         val updateRequest = OneTimeWorkRequest.Builder(RetryWorker::class.java)
-            .setId(originRequest.id).setInitialDelay(10, TimeUnit.HOURS)
+            .setId(originRequest.id).setInitialDelay(10, HOURS)
             .setConstraints(Constraints(requiresBatteryNotLow = true))
             .build()
         workManager.updateWork(updateRequest).get()
-        val workSpec = db.workSpecDao().getWorkSpec(originRequest.stringId)!!
+        val workSpec = env.db.workSpecDao().getWorkSpec(originRequest.stringId)!!
         assertThat(workSpec.workerClassName).isEqualTo(ConstraintTrackingWorker::class.java.name)
         assertThat(workSpec.input.getString(ARGUMENT_CLASS_NAME))
             .isEqualTo(RetryWorker::class.java.name)
@@ -497,7 +495,7 @@ class WorkUpdateTest {
     @MediumTest
     fun updateWorkerGeneration() {
         val oneTimeWorkRequest = OneTimeWorkRequest.Builder(WorkerWithParam::class.java)
-            .setInitialDelay(10, TimeUnit.DAYS)
+            .setInitialDelay(10, DAYS)
             .build()
         workManager.enqueue(oneTimeWorkRequest).result.get()
 
@@ -510,6 +508,152 @@ class WorkUpdateTest {
         assertThat(worker.generation).isEqualTo(1)
         val workInfo = workManager.getWorkInfoById(oneTimeWorkRequest.id).get()
         assertThat(workInfo.generation).isEqualTo(1)
+    }
+
+    @Test
+    @SmallTest
+    fun updateNextScheduleTimeOverride() {
+        testClock.currentTimeMillis = HOURS.toMillis(5)
+        val nextRunTimeMillis = HOURS.toMillis(10)
+
+        val request = PeriodicWorkRequest.Builder(
+            TestWorker::class.java, 1, DAYS
+        ).setInitialDelay(2, DAYS).build()
+        workManager.enqueue(request).result.get()
+
+        workManager.updateWork(
+            PeriodicWorkRequest.Builder(
+                TestWorker::class.java, 1, DAYS
+            ).setId(request.id)
+                .setNextScheduleTimeOverride(nextRunTimeMillis)
+                .build()
+        ).get()
+
+        val workInfo = workManager.getWorkInfoById(request.id).get()
+        assertThat(workInfo.nextScheduleTimeMillis).isEqualTo(nextRunTimeMillis)
+    }
+
+    @Test
+    @SmallTest
+    fun updateNextScheduleTimeOverride_multipleGenerations() {
+        testClock.currentTimeMillis = HOURS.toMillis(5)
+        val overrideScheduleTimeMillis = HOURS.toMillis(10)
+        val overrideScheduleTimeMillis2 = HOURS.toMillis(12)
+
+        val request = PeriodicWorkRequest.Builder(
+            TestWorker::class.java, 1, DAYS
+        ).setInitialDelay(2, DAYS).build()
+        workManager.enqueue(request).result.get()
+
+        workManager.updateWork(
+            PeriodicWorkRequest.Builder(
+                TestWorker::class.java, 1, DAYS
+            ).setId(request.id)
+                .setNextScheduleTimeOverride(overrideScheduleTimeMillis)
+                .build()
+        ).get()
+        val workInfo = workManager.getWorkInfoById(request.id).get()
+        assertThat(workInfo.nextScheduleTimeMillis).isEqualTo(overrideScheduleTimeMillis)
+
+        workManager.updateWork(
+            PeriodicWorkRequest.Builder(
+                TestWorker::class.java, 1, DAYS
+            ).setId(request.id)
+                .setNextScheduleTimeOverride(overrideScheduleTimeMillis2)
+                .build()
+        ).get()
+
+        val workInfo2 = workManager.getWorkInfoById(request.id).get()
+        assertThat(workInfo2.nextScheduleTimeMillis).isEqualTo(overrideScheduleTimeMillis2)
+    }
+
+    @Test
+    @SmallTest
+    fun updateNextScheduleTimeOverride_overridesBackoff() {
+        testClock.currentTimeMillis = HOURS.toMillis(5)
+        val overrideScheduleTimeMillis = HOURS.toMillis(10)
+
+        val request = PeriodicWorkRequest.Builder(
+            TestWorker::class.java, 1, DAYS
+        ).setBackoffCriteria(BackoffPolicy.LINEAR, HOURS.toMillis(1), HOURS)
+            .setInitialDelay(2, DAYS)
+            .build()
+        request.workSpec.runAttemptCount = 1
+        workManager.enqueue(request).result.get()
+
+        workManager.updateWork(
+            PeriodicWorkRequest.Builder(
+                TestWorker::class.java, 1, DAYS
+            ).setId(request.id)
+                .setNextScheduleTimeOverride(overrideScheduleTimeMillis)
+                .build()
+        ).get()
+
+        val workInfo = workManager.getWorkInfoById(request.id).get()
+        assertThat(workInfo.nextScheduleTimeMillis).isEqualTo(overrideScheduleTimeMillis)
+        val workSpec = env.db.workSpecDao().getWorkSpec(request.stringId)!!
+        // attemptCount is still kept, just not used in the schedule time calculation.
+        assertThat(workSpec.runAttemptCount).isEqualTo(1)
+    }
+
+    @Test
+    @SmallTest
+    fun clearNextScheduleTimeOverride_incrementGeneration() {
+        testClock.currentTimeMillis = HOURS.toMillis(5)
+        val overrideScheduleTimeMillis = HOURS.toMillis(10)
+
+        val request = PeriodicWorkRequest.Builder(
+            TestWorker::class.java, 1, DAYS
+        ).setInitialDelay(2, DAYS)
+            .setNextScheduleTimeOverride(overrideScheduleTimeMillis)
+            .build()
+        workManager.enqueue(request).result.get()
+
+        workManager.updateWork(
+            PeriodicWorkRequest.Builder(
+                TestWorker::class.java, 1, DAYS
+            ).setId(request.id)
+                .clearNextScheduleTimeOverride()
+                .setInitialDelay(2, DAYS)
+                .build()
+        ).get()
+
+        val workInfo = workManager.getWorkInfoById(request.id).get()
+        assertThat(workInfo.nextScheduleTimeMillis).isEqualTo(
+            testClock.currentTimeMillis + DAYS.toMillis(2)
+        )
+
+        val workSpec = env.db.workSpecDao().getWorkSpec(request.stringId)!!
+        assertThat(workSpec.nextScheduleTimeOverride).isEqualTo(Long.MAX_VALUE)
+        // Still needs to increment the generation to propagate the new cleared value.
+        assertThat(workSpec.nextScheduleTimeOverrideGeneration).isEqualTo(2)
+    }
+
+    @Test
+    @SmallTest
+    fun clearNextScheduleTimeOverride_noExistingOverride_incrementGenerationAnyway() {
+        testClock.currentTimeMillis = HOURS.toMillis(5)
+
+        val request = PeriodicWorkRequest.Builder(
+            TestWorker::class.java, 1, DAYS
+        ).setInitialDelay(2, DAYS).build()
+        workManager.enqueue(request).result.get()
+
+        workManager.updateWork(
+            PeriodicWorkRequest.Builder(
+                TestWorker::class.java, 1, DAYS
+            ).setId(request.id)
+                .clearNextScheduleTimeOverride()
+                .build()
+        ).get()
+
+        val workSpec = env.db.workSpecDao().getWorkSpec(request.stringId)!!
+        assertThat(workSpec.nextScheduleTimeOverride).isEqualTo(Long.MAX_VALUE)
+
+        // Technically I believe any 'clear' call could leave the generation the same, since it's
+        // only being checked to see if WorkerWrapper should _clear_ it after running. But this is
+        // a simpler implementation, so verify it anyway.
+        assertThat(workSpec.nextScheduleTimeOverrideGeneration).isEqualTo(1)
     }
 
     @After

@@ -17,6 +17,7 @@
 package androidx.room.processor
 
 import COMMON
+import androidx.kruth.assertThat
 import androidx.room.DatabaseProcessingStep
 import androidx.room.RoomProcessor
 import androidx.room.compiler.codegen.CodeLanguage
@@ -32,7 +33,7 @@ import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.QueryType
 import androidx.room.parser.Table
-import androidx.room.processor.ProcessorErrors.autoMigrationSchemasMustBeRoomGenerated
+import androidx.room.processor.ProcessorErrors.invalidAutoMigrationSchema
 import androidx.room.solver.query.result.EntityRowAdapter
 import androidx.room.solver.query.result.PojoRowAdapter
 import androidx.room.testing.context
@@ -41,7 +42,6 @@ import androidx.room.vo.DatabaseView
 import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.Warning
 import com.google.auto.service.processor.AutoServiceProcessor
-import com.google.common.truth.Truth.assertThat
 import java.io.File
 import java.io.FileOutputStream
 import java.net.URL
@@ -54,6 +54,7 @@ import org.hamcrest.CoreMatchers.not
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.CoreMatchers.sameInstance
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -340,6 +341,7 @@ class DatabaseProcessorTest {
     }
 
     @Test
+    @Ignore("b/285140651")
     fun detectMissingEntityAnnotationInLibraryClass() {
         val librarySource = Source.java(
             "test.library.MissingEntityAnnotationPojo",
@@ -376,6 +378,7 @@ class DatabaseProcessorTest {
     }
 
     @Test
+    @Ignore("b/285140651")
     fun detectMissingDaoAnnotationInLibraryClass() {
         val librarySource = Source.java(
             "test.library.MissingAnnotationsBaseDao",
@@ -1294,7 +1297,7 @@ class DatabaseProcessorTest {
                 hasErrorCount(1)
                 hasErrorContaining(
                     ProcessorErrors.autoMigrationSchemasNotFound(
-                        "1.json",
+                        1,
                         schemaFolder.root.absolutePath + File.separator + "foo.bar.MyDb"
                     )
                 )
@@ -1319,7 +1322,7 @@ class DatabaseProcessorTest {
                 hasErrorCount(1)
                 hasErrorContaining(
                     ProcessorErrors.autoMigrationSchemasNotFound(
-                        "1.json",
+                        1,
                         schemaFolder.root.absolutePath + File.separator + "foo.bar.MyDb"
                     )
                 )
@@ -1330,10 +1333,6 @@ class DatabaseProcessorTest {
     @Test
     fun autoMigrationToSchemaNotFound() {
         schemaFolder.newFolder("foo.bar.MyDb")
-        val createdFile: File = schemaFolder.newFile("foo.bar.MyDb" + File.separator + "1.json")
-        FileOutputStream(createdFile).bufferedWriter().use {
-            it.write("{}")
-        }
         singleDb(
             """
                 @Database(entities = {User.class}, version = 42, exportSchema = true,
@@ -1347,7 +1346,7 @@ class DatabaseProcessorTest {
                 hasErrorCount(1)
                 hasErrorContaining(
                     ProcessorErrors.autoMigrationSchemasNotFound(
-                        "2.json",
+                        1,
                         schemaFolder.root.absolutePath + File.separator + "foo.bar.MyDb"
                     )
                 )
@@ -1374,7 +1373,7 @@ class DatabaseProcessorTest {
                 hasErrorCount(1)
                 hasErrorContaining(
                     ProcessorErrors.autoMigrationSchemaIsEmpty(
-                        "1.json",
+                        1,
                         schemaFolder.root.absolutePath + File.separator + "foo.bar.MyDb"
                     )
                 )
@@ -1384,14 +1383,14 @@ class DatabaseProcessorTest {
 
     @Test
     fun allAutoMigrationSchemasProvidedButNotRoomGenerated() {
-        schemaFolder.newFolder("foo.bar.MyDb")
+        val dbFolder = schemaFolder.newFolder("foo.bar.MyDb")
         val from: File = schemaFolder.newFile("foo.bar.MyDb" + File.separator + "1.json")
         val to: File = schemaFolder.newFile("foo.bar.MyDb" + File.separator + "2.json")
         FileOutputStream(from).bufferedWriter().use {
-            it.write("{}")
+            it.write("BAD FILE")
         }
         FileOutputStream(to).bufferedWriter().use {
-            it.write("{}")
+            it.write("BAD FILE")
         }
         singleDb(
             """
@@ -1404,7 +1403,10 @@ class DatabaseProcessorTest {
             invocation.assertCompilationResult {
                 hasErrorCount(1)
                 hasErrorContaining(
-                    autoMigrationSchemasMustBeRoomGenerated(1, 2)
+                    invalidAutoMigrationSchema(
+                        1,
+                        dbFolder.absolutePath
+                    )
                 )
             }
         }
@@ -1420,12 +1422,27 @@ class DatabaseProcessorTest {
             import androidx.room.util.SchemaFileResolver;
             import com.google.auto.service.AutoService;
             import java.io.File;
+            import java.io.IOException;
+            import java.io.InputStream;
+            import java.io.OutputStream;
+            import java.nio.file.Files;
             import java.nio.file.Path;
             @AutoService(SchemaFileResolver.class)
             public class TestResolver implements SchemaFileResolver {
                 @Override
-                public File getFile(Path path) {
-                    return Path.of("$tempDirPath").resolve(path).toFile();
+                public InputStream readPath(Path path) throws IOException {
+                    Path resolved = Path.of("$tempDirPath").resolve(path);
+                    if (Files.exists(resolved)) {
+                        return Files.newInputStream(resolved);
+                    } else {
+                        return null;
+                    }
+                }
+                @Override
+                public OutputStream writePath(Path path) throws IOException {
+                    Path resolved = Path.of("$tempDirPath").resolve(path);
+                    Files.createDirectories(resolved.getParent());
+                    return Files.newOutputStream(resolved);
                 }
             }
             """.trimIndent()

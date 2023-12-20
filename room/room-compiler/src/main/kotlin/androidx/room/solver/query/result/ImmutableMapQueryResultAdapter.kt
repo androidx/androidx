@@ -26,8 +26,8 @@ import androidx.room.solver.CodeGenScope
 class ImmutableMapQueryResultAdapter(
     context: Context,
     parsedQuery: ParsedQuery,
-    override val keyTypeArg: XType,
-    override val valueTypeArg: XType,
+    private val keyTypeArg: XType,
+    private val valueTypeArg: XType,
     private val resultAdapter: QueryResultAdapter
 ) : MultimapQueryResultAdapter(context, parsedQuery, resultAdapter.rowAdapters) {
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {

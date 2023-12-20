@@ -106,6 +106,27 @@ public class ViewStructureCompat {
     }
 
     /**
+     * Explicitly set default global style information for text that was previously set with
+     * {@link #setText}.
+     *
+     * @param size The size, in pixels, of the text.
+     * @param fgColor The foreground color, packed as 0xAARRGGBB.
+     * @param bgColor The background color, packed as 0xAARRGGBB.
+     * @param style Style flags, as defined by {@link android.app.assist.AssistStructure.ViewNode}.
+     *
+     * Compatibility behavior:
+     * <ul>
+     * <li>SDK 23 and above, this method matches platform behavior.
+     * <li>SDK 22 and below, this method does nothing.
+     * </ul>
+     */
+    public void setTextStyle(float size, int fgColor, int bgColor, int style) {
+        if (SDK_INT >= 23) {
+            Api23Impl.setTextStyle((ViewStructure) mWrappedObj, size, fgColor, bgColor, style);
+        }
+    }
+
+    /**
      * Set the content description of the view, as per
      * {@link android.view.View#getContentDescription View.getContentDescription()}.
      *
@@ -171,6 +192,12 @@ public class ViewStructureCompat {
         @DoNotInline
         static void setContentDescription(ViewStructure viewStructure, CharSequence charSequence) {
             viewStructure.setContentDescription(charSequence);
+        }
+
+        @DoNotInline
+        static void setTextStyle(
+                ViewStructure viewStructure, float size, int fgColor, int bgColor, int style) {
+            viewStructure.setTextStyle(size, fgColor, bgColor, style);
         }
     }
 }

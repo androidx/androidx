@@ -19,13 +19,9 @@ package androidx.appactions.interaction.capabilities.core.testing.spec
 import androidx.appactions.builtintypes.experimental.types.ListItem
 import androidx.appactions.interaction.capabilities.core.AppEntityListener
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
-import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
-import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.properties.Property
-import androidx.appactions.interaction.capabilities.core.properties.StringValue
 
 private const val CAPABILITY_NAME = "actions.intent.TEST"
 
@@ -34,11 +30,11 @@ class CapabilityStructFill {
 
     class Arguments internal constructor(
         val listItem: ListItem?,
-        val anyString: String?
+        val string: String?
     ) {
         override fun toString(): String {
             return "Arguments(listItem=$listItem, " +
-                "anyString=$anyString)"
+                "string=$string)"
         }
 
         override fun equals(other: Any?): Boolean {
@@ -48,27 +44,27 @@ class CapabilityStructFill {
             other as Arguments
 
             if (listItem != other.listItem) return false
-            if (anyString != other.anyString) return false
+            if (string != other.string) return false
             return true
         }
 
         override fun hashCode(): Int {
             var result = listItem.hashCode()
-            result += 31 * anyString.hashCode()
+            result += 31 * string.hashCode()
             return result
         }
 
-        class Builder : BuilderOf<Arguments> {
+        class Builder {
             private var listItem: ListItem? = null
-            private var anyString: String? = null
+            private var string: String? = null
 
             fun setListItem(listItem: ListItem): Builder =
                 apply { this.listItem = listItem }
 
             fun setAnyString(stringSlotB: String): Builder =
-                apply { this.anyString = stringSlotB }
+                apply { this.string = stringSlotB }
 
-            override fun build(): Arguments = Arguments(listItem, anyString)
+            fun build(): Arguments = Arguments(listItem, string)
         }
     }
 
@@ -81,27 +77,20 @@ class CapabilityStructFill {
     }
 
     companion object {
-        @Suppress("UNCHECKED_CAST")
         val ACTION_SPEC = ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-            .setArguments(Arguments::class.java, Arguments::Builder)
+            .setArguments(Arguments::class.java, Arguments::Builder, Arguments.Builder::build)
             .setOutput(Output::class.java)
             .bindParameter(
                 "listItem",
-                { properties ->
-                    properties["listItem"] as? Property<ListItem>
-                },
+                Arguments::listItem,
                 Arguments.Builder::setListItem,
-                ParamValueConverter.of(TypeConverters.LIST_ITEM_TYPE_SPEC),
-                EntityConverter.of(TypeConverters.LIST_ITEM_TYPE_SPEC)::convert
+                ParamValueConverter.of(TypeConverters.LIST_ITEM_TYPE_SPEC)
             )
             .bindParameter(
                 "string",
-                { properties ->
-                    properties["anyString"] as? Property<StringValue>
-                },
+                Arguments::string,
                 Arguments.Builder::setAnyString,
-                TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                TypeConverters.STRING_PARAM_VALUE_CONVERTER
             )
             .build()
     }

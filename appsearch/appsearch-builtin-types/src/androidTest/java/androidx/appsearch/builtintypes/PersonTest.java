@@ -560,6 +560,11 @@ public class PersonTest {
         assertThat(contactPointDocs.length).isEqualTo(contactPoints.size());
         assertThat(contactPointDocs[0].getId()).isEqualTo("id1");
         assertThat(contactPointDocs[1].getId()).isEqualTo("id2");
+
+        // Test that toDocumentClass doesn't lose information.
+        GenericDocument newGenericDocument = GenericDocument.fromDocumentClass(
+                doc.toDocumentClass(Person.class));
+        assertThat(newGenericDocument).isEqualTo(doc);
     }
 
     @Test

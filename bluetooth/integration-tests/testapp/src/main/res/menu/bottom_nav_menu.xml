@@ -17,18 +17,23 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/navigation_home"
-        android:icon="@drawable/ic_bluetooth_24"
-        android:title="@string/title_home" />
-
-    <item
         android:id="@+id/navigation_scanner"
         android:icon="@drawable/baseline_bluetooth_searching_24"
         android:title="@string/title_scanner" />
 
     <item
+        android:id="@+id/navigation_connections"
+        android:icon="@drawable/baseline_multiple_stop_24"
+        android:title="@string/title_connections" />
+
+    <item
         android:id="@+id/navigation_advertiser"
         android:icon="@drawable/baseline_wb_iridescent_24"
         android:title="@string/title_advertiser" />
+
+    <item
+        android:id="@+id/navigation_gatt_server"
+        android:icon="@drawable/baseline_design_services_24"
+        android:title="@string/title_gatt_server" />
 
 </menu>

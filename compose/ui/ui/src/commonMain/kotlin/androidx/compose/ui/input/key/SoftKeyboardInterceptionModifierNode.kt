@@ -22,7 +22,9 @@ import androidx.compose.ui.node.DelegatableNode
 
 /**
  * Implement this interface to create a [Modifier.Node] that can intercept hardware Key events
- * before they are sent to the software keyboard.
+ * before they are sent to the software keyboard. This can be used to intercept key input from a
+ * DPad, or physical keyboard connected to the device and is not applicable to input that is sent
+ * to the soft keyboard via spell check or autocomplete.
  *
  * The event is routed to the focused item. Before reaching the focused item,
  * [onPreInterceptKeyBeforeSoftKeyboard] is called for parents of the focused item.

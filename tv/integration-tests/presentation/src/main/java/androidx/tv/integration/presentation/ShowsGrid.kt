@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -38,9 +37,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.tv.foundation.lazy.grid.TvGridCells
 import androidx.tv.foundation.lazy.grid.TvLazyHorizontalGrid
+import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Text
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun ShowsGrid(modifier: Modifier = Modifier) {
     var keyword by remember { mutableStateOf("") }
@@ -88,28 +88,27 @@ fun ShowsGrid(modifier: Modifier = Modifier) {
             }
         }
 
-        FocusGroup {
-            TvLazyHorizontalGrid(
-                rows = TvGridCells.Fixed(3),
-                contentPadding = PaddingValues(horizontal = 58.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .bringIntoViewIfChildrenAreFocused(),
-            ) {
-                items(movies.size) {
-                    val movie = movies[it]
-                    val isFirstItem = it == 0
-                    val itemModifier = Modifier.restorableFocus()
-                    val firstItemModifier = Modifier.initiallyFocused()
+        val focusRestorerModifiers = createCustomInitialFocusRestorerModifiers()
 
-                    Box(modifier = Modifier.padding(end = 30.dp)) {
-                        ImageCard(
-                            movie,
-                            customCardWidth = 150.dp,
-                            modifier = if (isFirstItem) firstItemModifier else itemModifier
-                        )
-                    }
+        TvLazyHorizontalGrid(
+            rows = TvGridCells.Fixed(3),
+            contentPadding = PaddingValues(horizontal = 58.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .bringIntoViewIfChildrenAreFocused()
+                .then(focusRestorerModifiers.parentModifier),
+        ) {
+            items(movies.size) {
+                val movie = movies[it]
+
+                Box(modifier = Modifier.padding(end = 30.dp)) {
+                    ImageCard(
+                        movie,
+                        customCardWidth = 150.dp,
+                        modifier = Modifier
+                            .ifElse(it == 0, focusRestorerModifiers.childModifier),
+                    )
                 }
             }
         }

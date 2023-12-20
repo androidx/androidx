@@ -16,25 +16,18 @@
 
 package androidx.credentials.exceptions.domerrors
 
-import androidx.annotation.VisibleForTesting
-import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialDomException
-
 /**
  * During the create public key credential flow, this is thrown when an authenticator response
  * exception contains a not_allowed_err code from the fido spec, indicating a request is not allowed
  * by the user agent or the platform in the current context - possibly because the user denied
  * permission. The fido spec can be found
  * [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names).
- *
- * @see CreatePublicKeyCredentialDomException
  */
-@Suppress("ExtendsError")
+@Suppress("ExtendsError") // This is not a real java `Error`
 class NotAllowedError :
     DomError(TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NOT_ALLOWED_ERROR) {
-    /** @hide */
-    companion object {
-        @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
-        const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NOT_ALLOWED_ERROR: String =
-            "androidx.credentials.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NOT_ALLOWED_ERROR"
+    internal companion object {
+        internal const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NOT_ALLOWED_ERROR: String =
+            "androidx.credentials.TYPE_NOT_ALLOWED_ERROR"
     }
 }

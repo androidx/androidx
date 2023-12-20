@@ -16,10 +16,10 @@
 
 package androidx.credentials.playservices
 
-import android.app.Activity
 import android.content.Context
 import android.os.CancellationSignal
 import android.util.Log
+import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CreateCredentialRequest
@@ -37,38 +37,46 @@ import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.playservices.controllers.BeginSignIn.CredentialProviderBeginSignInController
 import androidx.credentials.playservices.controllers.CreatePassword.CredentialProviderCreatePasswordController
 import androidx.credentials.playservices.controllers.CreatePublicKeyCredential.CredentialProviderCreatePublicKeyCredentialController
+import androidx.credentials.playservices.controllers.GetSignInIntent.CredentialProviderGetSignInIntentController
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import java.util.concurrent.Executor
 
 /**
  * Entry point of all credential manager requests to the play-services-auth
  * module.
- *
- * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @Suppress("deprecation")
 class CredentialProviderPlayServicesImpl(private val context: Context) : CredentialProvider {
 
     @VisibleForTesting
     var googleApiAvailability = GoogleApiAvailability.getInstance()
     override fun onGetCredential(
+        context: Context,
         request: GetCredentialRequest,
-        activity: Activity,
         cancellationSignal: CancellationSignal?,
         executor: Executor,
         callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>
     ) {
         if (cancellationReviewer(cancellationSignal)) { return }
-        CredentialProviderBeginSignInController(activity).invokePlayServices(
-            request, callback, executor, cancellationSignal)
+        if (isGetSignInIntentRequest(request)) {
+            CredentialProviderGetSignInIntentController(context).invokePlayServices(
+                request, callback, executor, cancellationSignal
+            )
+        } else {
+            CredentialProviderBeginSignInController(context).invokePlayServices(
+                request, callback, executor, cancellationSignal
+            )
+        }
     }
 
     @SuppressWarnings("deprecated")
     override fun onCreateCredential(
+        context: Context,
         request: CreateCredentialRequest,
-        activity: Activity,
         cancellationSignal: CancellationSignal?,
         executor: Executor,
         callback: CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>
@@ -77,7 +85,7 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
         when (request) {
             is CreatePasswordRequest -> {
                 CredentialProviderCreatePasswordController.getInstance(
-                    activity).invokePlayServices(
+                    context).invokePlayServices(
                     request,
                     callback,
                     executor,
@@ -85,7 +93,7 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
             }
             is CreatePublicKeyCredentialRequest -> {
                 CredentialProviderCreatePublicKeyCredentialController.getInstance(
-                    activity).invokePlayServices(
+                    context).invokePlayServices(
                     request,
                     callback,
                     executor,
@@ -100,12 +108,19 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
     }
     override fun isAvailableOnDevice(): Boolean {
         val resultCode = isGooglePlayServicesAvailable(context)
-        return resultCode == ConnectionResult.SUCCESS
+        val isSuccessful = resultCode == ConnectionResult.SUCCESS
+        if (!isSuccessful) {
+            val connectionResult = ConnectionResult(resultCode)
+            Log.w(TAG, "Connection with Google Play Services was not " +
+                "successful. Connection result is: " + connectionResult.toString())
+        }
+        return isSuccessful
     }
 
     // https://developers.google.com/android/reference/com/google/android/gms/common/ConnectionResult
-    // TODO(b/262924507): Most codes indicate failure, but two indicate retry-ability -
-    //  look into handling.
+    // There is one error code that supports retry API_DISABLED_FOR_CONNECTION but it would not
+    // be useful to retry that one because our connection to GMSCore is a static variable
+    // (see GoogleApiAvailability.getInstance()) so we cannot recreate the connection to retry.
     private fun isGooglePlayServicesAvailable(context: Context): Int {
         return googleApiAvailability.isGooglePlayServicesAvailable(context)
     }
@@ -116,39 +131,38 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
         executor: Executor,
         callback: CredentialManagerCallback<Void?, ClearCredentialException>
     ) {
-        if (cancellationReviewer(cancellationSignal)) {
-            return
-        }
+        if (cancellationReviewer(cancellationSignal)) { return }
         Identity.getSignInClient(context)
             .signOut()
             .addOnSuccessListener {
-                var isCanceled = false
-                cancellationSignal?.let {
-                    isCanceled = cancellationSignal.isCanceled
-                }
-                if (!isCanceled) {
+                cancellationReviewerWithCallback(cancellationSignal, {
                     Log.i(TAG, "During clear credential, signed out successfully!")
                     executor.execute { callback.onResult(null) }
-                }
+                })
             }
             .addOnFailureListener { e ->
                 run {
-                    var isCanceled = false
-                    cancellationSignal?.let {
-                        isCanceled = cancellationSignal.isCanceled
-                    }
-                    if (!isCanceled) {
+                    cancellationReviewerWithCallback(cancellationSignal, {
                         Log.w(TAG, "During clear credential sign out failed with $e")
                         executor.execute {
                             callback.onError(ClearCredentialUnknownException(e.message))
                         }
-                    }
+                    })
                 }
             }
     }
 
     companion object {
-        private val TAG = CredentialProviderPlayServicesImpl::class.java.name
+        private const val TAG = "PlayServicesImpl"
+
+        internal fun cancellationReviewerWithCallback(
+            cancellationSignal: CancellationSignal?,
+            callback: () -> Unit,
+        ) {
+            if (!cancellationReviewer(cancellationSignal)) {
+                callback()
+            }
+        }
 
         internal fun cancellationReviewer(
             cancellationSignal: CancellationSignal?
@@ -156,12 +170,19 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
             if (cancellationSignal != null) {
                 if (cancellationSignal.isCanceled) {
                     Log.i(TAG, "the flow has been canceled")
-                    // TODO(b/262924507): See if there's a better way to message pass to avoid
-                    //  if statements and to use a single listener instead
                     return true
                 }
             } else {
                 Log.i(TAG, "No cancellationSignal found")
+            }
+            return false
+        }
+
+        internal fun isGetSignInIntentRequest(request: GetCredentialRequest): Boolean {
+            for (option in request.credentialOptions) {
+                if (option is GetSignInWithGoogleOption) {
+                    return true
+                }
             }
             return false
         }

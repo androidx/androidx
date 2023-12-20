@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 
@@ -24,11 +23,9 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
-def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
-
 androidXMultiplatform {
     android()
-    if (desktopEnabled) desktop()
+    desktop()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -36,10 +33,12 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlibCommon)
+                api(libs.androidx.annotation)
 
                 api(project(":compose:ui:ui-unit"))
                 implementation(project(":compose:runtime:runtime"))
                 implementation(project(":compose:ui:ui-util"))
+                implementation(project(":collection:collection"))
             }
         }
 
@@ -49,13 +48,11 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            skikoMain {
-                dependsOn(commonMain)
-                dependencies {
-                    api(libs.skikoCommon)
-                    implementation(project(":compose:runtime:runtime"))
-                }
+        skikoMain {
+            dependsOn(commonMain)
+            dependencies {
+                api(libs.skikoCommon)
+                implementation(project(":compose:runtime:runtime"))
             }
         }
 
@@ -65,22 +62,19 @@ androidXMultiplatform {
             }
         }
 
-
         androidMain {
             dependsOn(jvmMain)
             dependencies {
-                api("androidx.annotation:annotation:1.2.0")
+                api(libs.androidx.annotation)
             }
         }
 
-        if (desktopEnabled) {
-            desktopMain {
-                dependsOn(jvmMain)
-                dependsOn(skikoMain)
-                dependencies {
-                    implementation(libs.kotlinStdlib)
-                    implementation(libs.kotlinStdlibJdk8)
-                }
+        desktopMain {
+            dependsOn(jvmMain)
+            dependsOn(skikoMain)
+            dependencies {
+                implementation(libs.kotlinStdlib)
+                implementation(libs.kotlinStdlibJdk8)
             }
         }
 
@@ -89,7 +83,7 @@ androidXMultiplatform {
             }
         }
 
-        androidAndroidTest {
+        androidInstrumentedTest {
             dependsOn(jvmTest)
             dependencies {
                 implementation(project(":compose:ui:ui-graphics:ui-graphics-samples"))
@@ -99,14 +93,11 @@ androidXMultiplatform {
                 implementation(libs.testRunner)
                 implementation(libs.espressoCore)
                 implementation(libs.junit)
+                implementation(libs.truth)
             }
         }
 
-        // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
-        //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
-        //  level dependencies block instead:
-        //  `dependencies { testImplementation(libs.robolectric) }`
-        androidTest {
+        androidUnitTest {
             dependsOn(jvmTest)
             dependencies {
                 implementation(libs.testRules)
@@ -116,16 +107,14 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            desktopTest {
-                resources.srcDirs += "src/desktopTest/res"
-                dependsOn(jvmTest)
-                dependencies {
-                    implementation(project(":compose:ui:ui-test-junit4"))
-                    implementation(libs.junit)
-                    implementation(libs.truth)
-                    implementation(libs.skikoCurrentOs)
-                }
+        desktopTest {
+            resources.srcDirs += "src/desktopTest/res"
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(project(":compose:ui:ui-test-junit4"))
+                implementation(libs.junit)
+                implementation(libs.truth)
+                implementation(libs.skikoCurrentOs)
             }
         }
     }
@@ -151,8 +140,6 @@ android {
     namespace "androidx.compose.ui.graphics"
 }
 
-if (desktopEnabled) {
-    tasks.findByName("desktopTest").configure {
-        systemProperties["GOLDEN_PATH"] = project.rootDir.absolutePath + "/../../golden"
-    }
+tasks.findByName("desktopTest").configure {
+    systemProperties["GOLDEN_PATH"] = project.rootDir.absolutePath + "/../../golden"
 }

@@ -474,8 +474,9 @@ public class DetailsSupportFragment extends BaseSupportFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+    @Nullable
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         mRootView = (BrowseFrameLayout) inflater.inflate(
                 R.layout.lb_details_fragment, container, false);
         mBackgroundView = mRootView.findViewById(R.id.details_background_view);

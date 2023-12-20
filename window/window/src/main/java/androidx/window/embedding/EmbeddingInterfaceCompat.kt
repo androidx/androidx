@@ -17,7 +17,9 @@
 package androidx.window.embedding
 
 import android.app.Activity
-import androidx.window.core.ExperimentalWindowApi
+import android.app.ActivityOptions
+import android.os.IBinder
+import androidx.window.RequiresWindowSdkExtension
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
 
 /**
@@ -36,12 +38,20 @@ internal interface EmbeddingInterfaceCompat {
 
     fun isActivityEmbedded(activity: Activity): Boolean
 
-    @ExperimentalWindowApi
+    @RequiresWindowSdkExtension(2)
     fun setSplitAttributesCalculator(
         calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
     )
 
+    @RequiresWindowSdkExtension(2)
     fun clearSplitAttributesCalculator()
 
-    fun isSplitAttributesCalculatorSupported(): Boolean
+    @RequiresWindowSdkExtension(3)
+    fun setLaunchingActivityStack(options: ActivityOptions, token: IBinder): ActivityOptions
+
+    @RequiresWindowSdkExtension(3)
+    fun invalidateTopVisibleSplitAttributes()
+
+    @RequiresWindowSdkExtension(3)
+    fun updateSplitAttributes(splitInfo: SplitInfo, splitAttributes: SplitAttributes)
 }

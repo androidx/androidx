@@ -17,6 +17,7 @@
 package androidx.room.processor
 
 import COMMON
+import androidx.kruth.assertThat
 import androidx.room.Embedded
 import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.processing.XFieldElement
@@ -41,7 +42,6 @@ import androidx.room.vo.FieldGetter
 import androidx.room.vo.FieldSetter
 import androidx.room.vo.Pojo
 import androidx.room.vo.RelationCollector
-import com.google.common.truth.Truth
 import java.io.File
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.CoreMatchers.`is`
@@ -212,7 +212,7 @@ class PojoProcessorTest {
             assertThat(parent.field.name, `is`("myPoint"))
             assertThat(
                 parent.pojo.typeName,
-                `is`(XClassName.get("foo.bar.MyPojo", "Point"))
+                `is`(XClassName.get("foo.bar", "MyPojo", "Point"))
             )
         }
     }
@@ -2092,7 +2092,7 @@ class PojoProcessorTest {
                 it.name
             }
             val stringType = invocation.context.COMMON_TYPES.STRING
-            Truth.assertThat(
+            assertThat(
                 fields["isbn"]?.getter
             ).isEqualTo(
                 FieldGetter(
@@ -2102,7 +2102,7 @@ class PojoProcessorTest {
                     callType = CallType.SYNTHETIC_METHOD
                 )
             )
-            Truth.assertThat(
+            assertThat(
                 fields["isbn"]?.setter
             ).isEqualTo(
                 FieldSetter(
@@ -2113,7 +2113,7 @@ class PojoProcessorTest {
                 )
             )
 
-            Truth.assertThat(
+            assertThat(
                 fields["isbn2"]?.getter
             ).isEqualTo(
                 FieldGetter(
@@ -2123,7 +2123,7 @@ class PojoProcessorTest {
                     callType = CallType.SYNTHETIC_METHOD
                 )
             )
-            Truth.assertThat(
+            assertThat(
                 fields["isbn2"]?.setter
             ).isEqualTo(
                 FieldSetter(

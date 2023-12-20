@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"탭 목록"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"긴 탭 제목이 있는 그리드 탭"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"검색 탭"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"탭 로드 중"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"탭 템플릿 로딩 데모"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"탭 없음 탭 템플릿 데모"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"알려지지 않은 호스트의 이미지를 표시할 수 없음"</string>

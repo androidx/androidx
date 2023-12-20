@@ -24,24 +24,13 @@ development/update-verification-metadata.sh
 
 [Configuration file for Gradle dependency verification](https://docs.gradle.org/current/userguide/dependency_verification.html#sub:verification-metadata) used by androidx to make sure dependencies are [signed with trusted signatures](https://docs.gradle.org/current/userguide/dependency_verification.html#sec:signature-verificationn) and that unsigned artifacts have [expected checksums](https://docs.gradle.org/current/userguide/dependency_verification.html#sec:checksum-verification).
 
-When adding a new artifact
-- if it is signed, then run:
+When adding a new artifact, first run:
 ```
 development/update-verification-metadata.sh
 ```
-to trust the signature of the new artifact.
+to trust the signature (or checksum) of the new artifact.
 
-- if it is not signed, then run the following to add generated checksums to `verification-metadata.xml`:
-
-```
-./gradlew -M sha256 buildOnServer --dry-run
-```
-
-Then you will want to diff `gradle/verification-metadata.dryrun.xml` and
-`gradle/verification-metadata.xml` using your favorite tool (e.g. meld) can copy over the entries
-that are relevant to your new artifacts.
-
-Each new checksum that you copy over in this way must be associated with a bug that is tracking
+Then, if any checksums were added, make sure they're associated with a bug that is tracking
 an effort to build or acquire a signed version of this dependency.  To associate with a bug,
 please add an `androidx:reason` attribute to a string that contains a URL for a bug filed
 either in buganizer or github:
@@ -56,8 +45,6 @@ either in buganizer or github:
   </artifact>
 </component>
 ```
-
-After doing this, you can then delete all the `verification-*-dryrun.*` files.
 
 ### If that doesn't work.
 

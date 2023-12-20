@@ -20,20 +20,29 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory.create
 import androidx.datastore.core.InterProcessCoordinator
 import androidx.datastore.core.Storage
+import kotlin.random.Random
 import kotlin.reflect.KClass
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 
-@OptIn(ExperimentalCoroutinesApi::class)
-abstract class TestIO<F : TestFile, IOE : Throwable>(
-    protected val dirName: String = "datastore-test-dir"
+abstract class TestIO<F : TestFile<F>, IOE : Throwable>(
+    getTmpDir: () -> F
 ) {
+    private val testRoot: F = getTmpDir().let {
+        createNewRandomChild(
+            parent = it,
+            namePrefix = "datastore-testio-"
+        )
+    }
+
+    init {
+        testRoot.mkdirs(mustCreate = true)
+    }
 
     fun getStore(
         serializerConfig: TestingSerializerConfig,
         scope: CoroutineScope,
         coordinatorProducer: () -> InterProcessCoordinator,
-        futureFile: () -> TestFile
+        futureFile: () -> F
     ): DataStore<Byte> {
         return create(getStorage(serializerConfig, coordinatorProducer, futureFile), scope = scope)
     }
@@ -41,25 +50,61 @@ abstract class TestIO<F : TestFile, IOE : Throwable>(
     abstract fun getStorage(
         serializerConfig: TestingSerializerConfig,
         coordinatorProducer: () -> InterProcessCoordinator,
-        futureFile: () -> TestFile = { newTempFile() }
+        futureFile: () -> F = { newTempFile() }
     ): Storage<Byte>
 
-    abstract fun tempDir(
-        directoryPath: String? = null,
-        makeDirs: Boolean = true,
-        parentDir: F? = null
-    ): F
+    private fun randomName(
+        prefix: String
+    ): String {
+        return prefix + (0 until 15).joinToString(separator = "") {
+            ('a' + Random.nextInt(from = 0, until = 26)).toString()
+        }
+    }
 
-    abstract fun newTempFile(tempFolder: F = tempDir()): F
+    protected fun createNewRandomChild(
+        parent: F,
+        namePrefix: String = "test-file-",
+    ): F {
+        while (true) {
+            val child = parent.resolve(randomName(namePrefix))
+            if (!child.exists()) {
+                return child
+            }
+        }
+    }
+
+    /**
+     * Returns a new file instance without creating it or its parents.
+     */
+    fun newTempFile(
+        parentFile: F? = null,
+        relativePath: String? = null
+    ): F {
+        val parent = parentFile ?: testRoot
+        return if (relativePath == null) {
+            createNewRandomChild(
+                parent = parent
+            )
+        } else {
+            parent.resolve(relativePath)
+        }
+    }
 
     abstract fun ioException(message: String): IOE
 
     abstract fun ioExceptionClass(): KClass<IOE>
-    abstract fun isDirectory(file: F): Boolean
 }
 
-abstract class TestFile {
-    abstract fun getAbsolutePath(): String
+abstract class TestFile<T : TestFile<T>> {
+    /**
+     * The name of the file, including the extension
+     */
+    abstract val name: String
+
+    /**
+     * Get the canonical path for the file.
+     */
+    abstract fun path(): String
 
     /**
      * Deletes the file if it exists.
@@ -73,14 +118,91 @@ abstract class TestFile {
     abstract fun exists(): Boolean
 
     /**
-     * Creates the file if it doesn't exist.
-     * @return `true` if file didn't exist and gets created and false otherwise.
+     * Creates a directory from the file.
+     *
+     * If it is a regular file, will throw.
+     * If [mustCreate] is `true` and directory already exists, will throw.
      */
-    abstract fun createIfNotExists(): Boolean
+    abstract fun mkdirs(mustCreate: Boolean = false)
 
-    fun deleteIfExists() {
-        if (exists()) {
-            delete()
+    /**
+     * Returns `true` if this exists and a regular file on the filesystem.
+     */
+    abstract fun isRegularFile(): Boolean
+
+    /**
+     * Returns `true` if this exists and is a directory on the filesystem.
+     */
+    abstract fun isDirectory(): Boolean
+
+    /**
+     * Resolves the given [relative] relative to `this`.
+     * (similar to File.resolve in kotlin stdlib).
+     *
+     * Note that this path is sanitized to ensure it is not a root path
+     * (e.g. does not start with `/`)
+     */
+    fun resolve(relative: String): T {
+        return if (relative.startsWith("/")) {
+            protectedResolve(relative.substring(startIndex = 1))
+        } else {
+            protectedResolve(relative)
         }
     }
+
+    /**
+     * Implemented by the subclasses to resolve child from sanitized name.
+     */
+    abstract fun protectedResolve(relative: String): T
+
+    /**
+     * Returns the parent file or null if this has no parent.
+     */
+    abstract fun parentFile(): T?
+
+    /**
+     * Writes the given [body] test into the file using the default encoding
+     * (kotlin stdlib's String.encodeToByteArray)
+     */
+    fun write(body: String) {
+        write(body.encodeToByteArray())
+    }
+    /**
+     * Overrides the file with the given contents.
+     * If parent directories do not exist, they'll be created.
+     */
+    fun write(body: ByteArray) {
+        if (isDirectory()) {
+            error("Cannot write to a directory")
+        }
+        parentFile()?.mkdirs(mustCreate = false)
+        parentFile()?.mkdirs()
+        protectedWrite(body)
+    }
+
+    /**
+     * Reads the byte contents of the file.
+     */
+    fun readBytes(): ByteArray {
+        check(exists()) {
+            "File does not exist"
+        }
+        return protectedReadBytes()
+    }
+
+    fun readText() = readBytes().decodeToString()
+
+    /**
+     * Writes the given [body] into the file. This is called after
+     * necessary checks are done so implementers should only focus on
+     * writing the contents.
+     */
+    abstract fun protectedWrite(body: ByteArray)
+
+    /**
+     * Reads the byte contents of the file. This is called after necessary
+     * checks are done so implementers should only focus on reading the
+     * bytes.
+     */
+    abstract fun protectedReadBytes(): ByteArray
 }

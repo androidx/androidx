@@ -32,9 +32,9 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskProvider
 
 /**
- * Compares the playground Gradle configuration with the main androidx Gradle configuration
- * to ensure playgrounds do not define any property in their own build that conflicts with the
- * main build.
+ * Compares the playground Gradle configuration with the main androidx Gradle configuration to
+ * ensure playgrounds do not define any property in their own build that conflicts with the main
+ * build.
  */
 @CacheableTask
 abstract class VerifyPlaygroundGradleConfigurationTask : DefaultTask() {
@@ -54,8 +54,7 @@ abstract class VerifyPlaygroundGradleConfigurationTask : DefaultTask() {
     @get:PathSensitive(PathSensitivity.NONE)
     abstract val playgroundGradleWrapper: RegularFileProperty
 
-    @get:OutputFile
-    abstract val outputFile: RegularFileProperty
+    @get:OutputFile abstract val outputFile: RegularFileProperty
 
     @TaskAction
     fun checkPlaygroundGradleConfiguration() {
@@ -74,25 +73,22 @@ abstract class VerifyPlaygroundGradleConfigurationTask : DefaultTask() {
     }
 
     private fun compareGradleWrapperVersion() {
-        val androidxGradleVersion = readGradleVersionFromWrapperProperties(
-            androidxGradleWrapper.get().asFile
-        )
-        val playgroundGradleVersion = readGradleVersionFromWrapperProperties(
-            playgroundGradleWrapper.get().asFile
-        )
+        val androidxGradleVersion =
+            readGradleVersionFromWrapperProperties(androidxGradleWrapper.get().asFile)
+        val playgroundGradleVersion =
+            readGradleVersionFromWrapperProperties(playgroundGradleWrapper.get().asFile)
         if (androidxGradleVersion != playgroundGradleVersion) {
             throw GradleException(
                 """
                 Playground gradle version ($playgroundGradleVersion) must match the AndroidX main
                 build gradle version ($androidxGradleVersion).
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
         }
     }
 
-    private fun readGradleVersionFromWrapperProperties(
-        file: File
-    ): String {
+    private fun readGradleVersionFromWrapperProperties(file: File): String {
         val distributionUrl = loadPropertiesFile(file).getProperty("distributionUrl")
         checkNotNull(distributionUrl) {
             "cannot read distribution url from gradle wrapper file: ${file.canonicalPath}"
@@ -103,10 +99,7 @@ abstract class VerifyPlaygroundGradleConfigurationTask : DefaultTask() {
         }
     }
 
-    private fun validateProperties(
-        rootProperties: Properties,
-        playgroundProperties: Properties
-    ) {
+    private fun validateProperties(rootProperties: Properties, playgroundProperties: Properties) {
         // ensure we don't define properties that do not match the root file
         // this includes properties that are not defined in the root androidx build as they might
         // be properties which can alter the build output. We might consider allow listing certain
@@ -116,9 +109,10 @@ abstract class VerifyPlaygroundGradleConfigurationTask : DefaultTask() {
             val rootValue = rootProperties[key]
             val playgroundValue = playgroundProperties[key]
 
-            if (rootValue != playgroundValue &&
-                !ignoredProperties.contains(key) &&
-                exceptedProperties[key] != playgroundValue
+            if (
+                rootValue != playgroundValue &&
+                    !ignoredProperties.contains(key) &&
+                    exceptedProperties[key] != playgroundValue
             ) {
                 throw GradleException(
                     """
@@ -131,17 +125,15 @@ abstract class VerifyPlaygroundGradleConfigurationTask : DefaultTask() {
                     Note: Having inconsistent properties in playground projects might trigger wrong
                     compilation output in the main AndroidX build, so if a property is defined in
                     playground properties, its value **MUST** match that of regular AndroidX build.
-                    """.trimIndent()
+                    """
+                        .trimIndent()
                 )
             }
         }
     }
 
-    private fun loadPropertiesFile(file: File) = file.inputStream().use { inputStream ->
-        Properties().apply {
-            load(inputStream)
-        }
-    }
+    private fun loadPropertiesFile(file: File) =
+        file.inputStream().use { inputStream -> Properties().apply { load(inputStream) } }
 
     companion object {
         private const val TASK_NAME = "verifyPlaygroundGradleConfiguration"
@@ -150,27 +142,27 @@ abstract class VerifyPlaygroundGradleConfigurationTask : DefaultTask() {
         // androidx-main. Generally, should only be used for conflicting properties which have
         // different values in different built targets on AOSP, but still should be declared in
         // playground.
-        private val exceptedProperties = mapOf(
-            "androidx.writeVersionedApiFiles" to "true",
-        )
+        private val exceptedProperties =
+            mapOf(
+                "androidx.writeVersionedApiFiles" to "true",
+            )
 
-        private val ignoredProperties = setOf(
-            "org.gradle.jvmargs",
-            "org.gradle.daemon",
-            "android.builder.sdkDownload",
-            "android.suppressUnsupportedCompileSdk",
-        )
+        private val ignoredProperties =
+            setOf(
+                "org.gradle.jvmargs",
+                "org.gradle.daemon",
+                "android.builder.sdkDownload",
+                "android.suppressUnsupportedCompileSdk",
+            )
 
         /**
-         * Regular expression to extract the gradle version from a distributionUrl property.
-         * Sample input looks like: <some-path>/gradle-7.3-rc-2-all.zip
+         * Regular expression to extract the gradle version from a distributionUrl property. Sample
+         * input looks like: <some-path>/gradle-7.3-rc-2-all.zip
          */
         private val GRADLE_VERSION_REGEX = """/gradle-(.+)-(all|bin)\.zip$""".toRegex()
 
         @VisibleForTesting // make it accessible for buildSrc-tests
-        fun extractGradleVersion(
-            distributionUrl: String
-        ): String? {
+        fun extractGradleVersion(distributionUrl: String): String? {
             return GRADLE_VERSION_REGEX.find(distributionUrl)?.groupValues?.getOrNull(1)
         }
 

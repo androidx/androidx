@@ -68,7 +68,16 @@ class InstantNodes {
 
         @Override
         @UiThread
-        public void preInit() {}
+        public void preInit() {
+            if (mEpochTimePlatformDataSource != null) {
+                mEpochTimePlatformDataSource.preRegister();
+            } else {
+                // If we have epoch time, it will call onPreUpdate when needed. Otherwise, because
+                // the init() will invalidate the date in downstream, we should call onPreUpdate
+                // here.
+                mDownstream.onPreUpdate();
+            }
+        }
 
         @Override
         @UiThread

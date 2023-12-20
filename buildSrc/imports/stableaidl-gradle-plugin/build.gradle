@@ -1,0 +1,19 @@
+apply from: "../../shared.gradle"
+apply plugin: "java-gradle-plugin"
+
+sourceSets {
+    main.java.srcDirs += "${supportRootFolder}/stableaidl/stableaidl-gradle-plugin/src/main/java"
+}
+
+gradlePlugin {
+    plugins {
+        stableaidl {
+            id = "androidx.stableaidl"
+            implementationClass = "androidx.stableaidl.StableAidlPlugin"
+        }
+    }
+}
+
+validatePlugins {
+    enableStricterValidation = true
+}

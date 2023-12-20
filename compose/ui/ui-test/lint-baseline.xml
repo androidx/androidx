@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
         id="BanThreadSleep"
@@ -8,6 +8,240 @@
         errorLine2="               ~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/compose/ui/test/android/WindowCapture.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field MouseAsTouchEvents with type List&lt;Integer>: replace with IntList"
+        errorLine1="private val MouseAsTouchEvents = listOf(ACTION_DOWN, ACTION_MOVE, ACTION_UP)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/test/AndroidInputDispatcher.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable absoluteHistoricalTimes with type List&lt;? extends Long>: replace with LongList"
+        errorLine1="        val absoluteHistoricalTimes = relativeHistoricalTimes.map { currentTime + it }"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/test/AndroidInputDispatcher.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method enqueueTouchEvent has parameter pointerIds with type List&lt;Integer>: replace with IntList"
+        errorLine1="        pointerIds: List&lt;Int>,"
+        errorLine2="                    ~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/test/AndroidInputDispatcher.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method enqueueTouchEvent has parameter eventTimes with type List&lt;Long>: replace with LongList"
+        errorLine1="        eventTimes: List&lt;Long>,"
+        errorLine2="                    ~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/test/AndroidInputDispatcher.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method enqueueTouchMoves has parameter relativeHistoricalTimes with type List&lt;Long>: replace with LongList"
+        errorLine1="        relativeHistoricalTimes: List&lt;Long>,"
+        errorLine2="                                 ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/InputDispatcher.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method enqueueMoves has parameter relativeHistoricalTimes with type List&lt;Long>: replace with LongList"
+        errorLine1="        relativeHistoricalTimes: List&lt;Long>,"
+        errorLine2="                                 ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/InputDispatcher.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field lastPositions with type Map&lt;Integer, Offset>: replace with IntLongMap"
+        errorLine1="    val lastPositions = mutableMapOf(Pair(pointerId, startPosition))"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/InputDispatcher.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type Map&lt;Integer, Offset> of getLastPositions: replace with IntLongMap"
+        errorLine1="    val lastPositions = mutableMapOf(Pair(pointerId, startPosition))"
+        errorLine2="        ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/InputDispatcher.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field pressedButtons with type Set&lt;Integer>: replace with IntSet"
+        errorLine1="    val pressedButtons: MutableSet&lt;Int> = mutableSetOf()"
+        errorLine2="                        ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/InputDispatcher.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type Set&lt;Integer> of getPressedButtons: replace with IntSet"
+        errorLine1="    val pressedButtons: MutableSet&lt;Int> = mutableSetOf()"
+        errorLine2="                        ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/InputDispatcher.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field downKeys with type HashSet&lt;Key>: replace with LongSet"
+        errorLine1="    private val downKeys: HashSet&lt;Key> = hashSetOf()"
+        errorLine2="                          ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/InputDispatcher.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method withKeysDown has parameter keys with type List&lt;Key>: replace with LongList"
+        errorLine1="fun KeyInjectionScope.withKeysDown(keys: List&lt;Key>, block: KeyInjectionScope.() -> Unit) {"
+        errorLine2="                                         ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/KeyInjectionScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method withKeysToggled has parameter keys with type List&lt;Key>: replace with LongList"
+        errorLine1="fun KeyInjectionScope.withKeysToggled(keys: List&lt;Key>, block: KeyInjectionScope.() -> Unit) {"
+        errorLine2="                                            ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/KeyInjectionScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method pressKeys has parameter keys with type List&lt;Key>: replace with LongList"
+        errorLine1="private fun KeyInjectionScope.pressKeys(keys: List&lt;Key>) ="
+        errorLine2="                                              ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/KeyInjectionScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field nodeIds with type List&lt;Integer>: replace with IntList"
+        errorLine1="    private var nodeIds: List&lt;Int>? = null"
+        errorLine2="                         ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/SemanticsNodeInteraction.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field states with type Map&lt;Integer, InputDispatcherState>: replace with IntObjectMap"
+        errorLine1="    /**"
+        errorLine2="    ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/TestOwner.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type Map&lt;Integer, InputDispatcherState> of getStates$lint_module: replace with IntObjectMap"
+        errorLine1="    internal val states = mutableMapOf&lt;Int, InputDispatcherState>()"
+        errorLine2="                 ~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/TestOwner.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method moveWithHistoryMultiPointer has parameter relativeHistoricalTimes with type List&lt;Long>: replace with LongList"
+        errorLine1="        relativeHistoricalTimes: List&lt;Long>,"
+        errorLine2="                                 ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/TouchInjectionScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method moveWithHistory has parameter relativeHistoricalTimes with type List&lt;Long>: replace with LongList"
+        errorLine1="        relativeHistoricalTimes: List&lt;Long>,"
+        errorLine2="                                 ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/TouchInjectionScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method moveWithHistory has parameter historicalCoordinates with type List&lt;Offset>: replace with LongList"
+        errorLine1="        historicalCoordinates: List&lt;Offset>,"
+        errorLine2="                               ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/TouchInjectionScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method swipe has parameter keyTimes with type List&lt;Long>: replace with LongList"
+        errorLine1="    keyTimes: List&lt;Long> = emptyList()"
+        errorLine2="              ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/TouchInjectionScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method multiTouchSwipe has parameter keyTimes with type List&lt;Long>: replace with LongList"
+        errorLine1="    keyTimes: List&lt;Long> = emptyList()"
+        errorLine2="              ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/TouchInjectionScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method isMonotonicBetween has parameter $this$isMonotonicBetween with type List&lt;Float>: replace with FloatList"
+        errorLine1="fun List&lt;Float>.isMonotonicBetween(a: Float, b: Float, tolerance: Float = 1e-3f) {"
+        errorLine2="    ~~~~~~~~~~~">
+        <location
+            file="src/androidCommonTest/kotlin/androidx/compose/ui/test/util/Verifications.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method isMonotonicBetween has parameter $this$isMonotonicBetween with type List&lt;Float>: replace with FloatList"
+        errorLine1="fun List&lt;Float>.isMonotonicBetween(a: Float, b: Float, tolerance: Float = 1e-3f) {"
+        errorLine2="    ~~~~~~~~~~~">
+        <location
+            file="src/androidCommonTest/kotlin/androidx/compose/ui/test/util/Verifications.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method assertSame has parameter $this$assertSame with type List&lt;Float>: replace with FloatList"
+        errorLine1="fun List&lt;Float>.assertSame(tolerance: Float = 0f) {"
+        errorLine2="    ~~~~~~~~~~~">
+        <location
+            file="src/androidCommonTest/kotlin/androidx/compose/ui/test/util/Verifications.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method assertSame has parameter $this$assertSame with type List&lt;Float>: replace with FloatList"
+        errorLine1="fun List&lt;Float>.assertSame(tolerance: Float = 0f) {"
+        errorLine2="    ~~~~~~~~~~~">
+        <location
+            file="src/androidCommonTest/kotlin/androidx/compose/ui/test/util/Verifications.kt"/>
     </issue>
 
 </issues>

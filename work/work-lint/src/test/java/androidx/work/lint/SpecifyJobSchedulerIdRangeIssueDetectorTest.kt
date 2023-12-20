@@ -22,12 +22,10 @@ import androidx.work.lint.Stubs.JOB_SERVICE
 import androidx.work.lint.Stubs.WORK_MANAGER_CONFIGURATION_PROVIDER
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.kotlin
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
-import org.junit.Ignore
 import org.junit.Test
 
 class SpecifyJobSchedulerIdRangeIssueDetectorTest {
 
-    @Ignore("b/187541663")
     @Test
     fun failWhenUsingCustomJobServiceAndIdsAreNotSpecified() {
         val service = kotlin(
@@ -37,9 +35,7 @@ class SpecifyJobSchedulerIdRangeIssueDetectorTest {
 
             import android.app.job.JobService
 
-            class TestJobService: JobService() {
-
-            }
+            class TestJobService: JobService()
             """
         ).indented().within("src")
 
@@ -52,8 +48,8 @@ class SpecifyJobSchedulerIdRangeIssueDetectorTest {
             .expect(
                 """
                 src/com/example/TestJobService.kt:5: Warning: Specify a valid range of job id's for WorkManager to use. [SpecifyJobSchedulerIdRange]
-                class TestJobService: JobService() {
-                ^
+                class TestJobService: JobService()
+                      ~~~~~~~~~~~~~~
                 0 errors, 1 warnings
                 """.trimIndent()
             )
@@ -69,9 +65,7 @@ class SpecifyJobSchedulerIdRangeIssueDetectorTest {
 
             import android.app.job.JobService
 
-            class TestJobService: JobService() {
-
-            }
+            class TestJobService: JobService()
             """
         ).indented().within("src")
 

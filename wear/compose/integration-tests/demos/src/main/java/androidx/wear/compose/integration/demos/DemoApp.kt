@@ -23,6 +23,7 @@ import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -32,7 +33,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.focus.FocusRequester
@@ -42,6 +42,10 @@ import androidx.compose.ui.input.rotary.onRotaryScrollEvent
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
+import androidx.wear.compose.foundation.SwipeToDismissBoxState
+import androidx.wear.compose.foundation.SwipeToDismissKeys
+import androidx.wear.compose.foundation.SwipeToDismissValue
 import androidx.wear.compose.foundation.lazy.AutoCenteringParams
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumnDefaults
@@ -49,17 +53,20 @@ import androidx.wear.compose.foundation.lazy.ScalingLazyListScope
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
 import androidx.wear.compose.foundation.lazy.ScalingParams
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
+import androidx.wear.compose.foundation.rememberActiveFocusRequester
+import androidx.wear.compose.foundation.rememberSwipeToDismissBoxState
+import androidx.wear.compose.integration.demos.common.ActivityDemo
+import androidx.wear.compose.integration.demos.common.ComposableDemo
+import androidx.wear.compose.integration.demos.common.Demo
+import androidx.wear.compose.integration.demos.common.DemoCategory
+import androidx.wear.compose.integration.demos.common.DemoParameters
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.LocalTextStyle
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.SwipeToDismissBox
-import androidx.wear.compose.material.SwipeToDismissBoxState
-import androidx.wear.compose.material.SwipeToDismissKeys
-import androidx.wear.compose.material.SwipeToDismissValue
 import androidx.wear.compose.material.Text
-import androidx.wear.compose.material.rememberSwipeToDismissBoxState
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -72,9 +79,11 @@ fun DemoApp(
     parentDemo: Demo?,
     onNavigateTo: (Demo) -> Unit,
     onNavigateBack: () -> Unit,
+    scrollStates: MutableList<ScalingLazyListState>,
 ) {
     val swipeToDismissState = swipeDismissStateWithNavigation(onNavigateBack)
-    DisplayDemo(swipeToDismissState, currentDemo, parentDemo, onNavigateTo, onNavigateBack)
+    DisplayDemo(
+        swipeToDismissState, currentDemo, parentDemo, onNavigateTo, onNavigateBack, scrollStates)
 }
 
 @Composable
@@ -83,7 +92,8 @@ private fun DisplayDemo(
     currentDemo: Demo,
     parentDemo: Demo?,
     onNavigateTo: (Demo) -> Unit,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    scrollStates: MutableList<ScalingLazyListState>,
 ) {
     SwipeToDismissBox(
         state = state,
@@ -91,7 +101,14 @@ private fun DisplayDemo(
         backgroundKey = parentDemo?.title ?: SwipeToDismissKeys.Background,
         contentKey = currentDemo.title,
     ) { isBackground ->
-        BoxDemo(state, if (isBackground) parentDemo else currentDemo, onNavigateTo, onNavigateBack)
+        BoxDemo(
+            state,
+            if (isBackground) parentDemo else currentDemo,
+            onNavigateTo,
+            onNavigateBack,
+            scrollStates.lastIndex - (if (isBackground) 1 else 0),
+            scrollStates,
+        )
     }
 }
 
@@ -100,7 +117,9 @@ private fun BoxScope.BoxDemo(
     state: SwipeToDismissBoxState,
     demo: Demo?,
     onNavigateTo: (Demo) -> Unit,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    scrollStateIndex: Int,
+    scrollStates: MutableList<ScalingLazyListState>,
 ) {
     when (demo) {
         is ActivityDemo<*> -> {
@@ -112,7 +131,7 @@ private fun BoxScope.BoxDemo(
         }
 
         is DemoCategory -> {
-            DisplayDemoList(demo, onNavigateTo)
+            DisplayDemoList(demo, onNavigateTo, scrollStateIndex, scrollStates)
         }
 
         else -> {
@@ -124,10 +143,19 @@ private fun BoxScope.BoxDemo(
 internal fun BoxScope.DisplayDemoList(
     category: DemoCategory,
     onNavigateTo: (Demo) -> Unit,
+    scrollStateIndex: Int,
+    scrollStates: MutableList<ScalingLazyListState>,
 ) {
+    val state = rememberScalingLazyListState()
+
     ScalingLazyColumnWithRSB(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxWidth().testTag(DemoListTag),
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag(DemoListTag),
+        state = scrollStates[scrollStateIndex],
+        snap = false,
+        autoCentering = AutoCenteringParams(itemIndex = if (category.demos.size >= 2) 2 else 1),
     ) {
         item {
             ListHeader {
@@ -137,31 +165,38 @@ internal fun BoxScope.DisplayDemoList(
                     color = Color.White,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
+
                 )
             }
         }
         category.demos.forEach { demo ->
             item {
                 Chip(
-                    onClick = { onNavigateTo(demo) },
+                    onClick = {
+                        scrollStates.add(state)
+                        onNavigateTo(demo)
+                    },
                     colors = ChipDefaults.secondaryChipColors(),
                     label = {
                         Text(
                             text = demo.title,
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            maxLines = 2
                         )
                     },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
-            if (demo.description != null) {
+            demo.description?.let { description ->
                 item {
                     CompositionLocalProvider(
                         LocalTextStyle provides MaterialTheme.typography.caption3
                     ) {
                         Text(
-                            text = demo.description,
-                            modifier = Modifier.fillMaxWidth().align(Alignment.Center),
+                            text = description,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .align(Alignment.Center),
                             textAlign = TextAlign.Center
                         )
                     }
@@ -187,7 +222,6 @@ internal fun swipeDismissStateWithNavigation(
 
 internal data class TimestampedDelta(val time: Long, val delta: Float)
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Suppress("ComposableModifierFactory")
 @Composable
 fun Modifier.rsbScroll(
@@ -252,17 +286,20 @@ fun Modifier.rsbScroll(
             true
         }.let {
             if (focusRequester != null) {
-                it.focusRequester(focusRequester)
+                it
+                    .focusRequester(focusRequester)
                     .focusable()
             } else it
         }
     }
 }
 
+@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 fun ScalingLazyColumnWithRSB(
     modifier: Modifier = Modifier,
     state: ScalingLazyListState = rememberScalingLazyListState(),
+    contentPadding: PaddingValues = PaddingValues(horizontal = 10.dp),
     scalingParams: ScalingParams = ScalingLazyColumnDefaults.scalingParams(),
     reverseLayout: Boolean = false,
     snap: Boolean = true,
@@ -271,13 +308,13 @@ fun ScalingLazyColumnWithRSB(
         space = 4.dp,
         alignment = if (!reverseLayout) Alignment.Top else Alignment.Bottom
     ),
-    autoCentering: AutoCenteringParams = AutoCenteringParams(),
+    autoCentering: AutoCenteringParams? = AutoCenteringParams(),
     content: ScalingLazyListScope.() -> Unit
 ) {
     val flingBehavior = if (snap) ScalingLazyColumnDefaults.snapFlingBehavior(
         state = state
     ) else ScrollableDefaults.flingBehavior()
-    val focusRequester = remember { FocusRequester() }
+    val focusRequester = rememberActiveFocusRequester()
     ScalingLazyColumn(
         modifier = modifier.rsbScroll(
             scrollableState = state,
@@ -285,6 +322,7 @@ fun ScalingLazyColumnWithRSB(
             focusRequester = focusRequester
         ),
         state = state,
+        contentPadding = contentPadding,
         reverseLayout = reverseLayout,
         scalingParams = scalingParams,
         flingBehavior = flingBehavior,
@@ -293,7 +331,4 @@ fun ScalingLazyColumnWithRSB(
         autoCentering = autoCentering,
         content = content
     )
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-    }
 }

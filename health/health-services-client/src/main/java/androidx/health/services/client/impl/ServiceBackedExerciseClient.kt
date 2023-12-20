@@ -149,7 +149,7 @@ internal class ServiceBackedExerciseClient(
                 executor,
                 requestedDataTypesProvider = {
                     synchronized(requestedDataTypesLock) {
-                        requestedDataTypes
+                        requestedDataTypes.toSet()
                     }
                 }
             )

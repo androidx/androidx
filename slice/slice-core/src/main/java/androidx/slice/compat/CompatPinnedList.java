@@ -38,10 +38,10 @@ import java.util.Set;
 /**
  * Tracks the current packages requesting pinning of any given slice. It will clear the
  * list after a reboot since the packages are no longer requesting pinning.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
+@Deprecated
 public class CompatPinnedList {
 
     private static final String LAST_BOOT = "last_boot";

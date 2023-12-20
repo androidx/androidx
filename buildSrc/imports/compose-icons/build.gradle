@@ -1,0 +1,6 @@
+apply from: "../../shared.gradle"
+
+sourceSets {
+    main.java.srcDirs += "${supportRootFolder}/compose/material/material/icons/generator/src/main" +
+            "/kotlin"
+}

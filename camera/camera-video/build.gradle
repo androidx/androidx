@@ -15,9 +15,9 @@
  */
 
 
+
 import androidx.build.Publish
 import androidx.build.RunApiTasks
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -60,7 +60,10 @@ dependencies {
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation(libs.autoValueAnnotations)
     androidTestImplementation(project(":camera:camera-lifecycle"))
-    androidTestImplementation(project(":camera:camera-testing"))
+    androidTestImplementation(project(":camera:camera-testing")) {
+        // Ensure camera-testing does not pull in androidx.test dependencies
+        exclude(group:"androidx.test")
+    }
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
     androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
@@ -94,4 +97,5 @@ androidx {
     description = "Video components for the Jetpack Camera Library, a library providing a " +
             "consistent and reliable camera foundation that enables great camera driven " +
             "experiences across all of Android."
+    metalavaK2UastEnabled = true
 }

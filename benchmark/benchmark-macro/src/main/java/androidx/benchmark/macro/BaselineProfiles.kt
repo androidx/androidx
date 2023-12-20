@@ -27,86 +27,16 @@ import androidx.benchmark.DeviceInfo
 import androidx.benchmark.InstrumentationResults
 import androidx.benchmark.Outputs
 import androidx.benchmark.Shell
-import androidx.benchmark.userspaceTrace
-import androidx.core.os.BuildCompat
+import androidx.benchmark.inMemoryTrace
 import java.io.File
-
-/**
- * Collects baseline profiles using a given [profileBlock].
- *
- * @suppress
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@RequiresApi(28)
-fun collectBaselineProfile(
-    uniqueName: String,
-    packageName: String,
-    iterations: Int = 3,
-    includeInStartupProfile: Boolean,
-    filterPredicate: ((String) -> Boolean),
-    profileBlock: MacrobenchmarkScope.() -> Unit,
-) {
-    val scope = buildMacrobenchmarkScope(packageName)
-    val startTime = System.nanoTime()
-    val killProcessBlock = scope.killProcessBlock()
-    val finalIterations = if (Arguments.dryRunMode) 1 else iterations
-
-    // always kill the process at beginning of a collection.
-    killProcessBlock.invoke()
-    try {
-        userspaceTrace("generate profile for $packageName") {
-            var iteration = 0
-            // Disable because we're *creating* a baseline profile, not using it yet
-            CompilationMode.Partial(
-                baselineProfileMode = BaselineProfileMode.Disable,
-                warmupIterations = finalIterations
-            ).resetAndCompile(
-                packageName = packageName,
-                allowCompilationSkipping = false,
-                killProcessBlock = killProcessBlock
-            ) {
-                scope.iteration = iteration++
-                profileBlock(scope)
-            }
-        }
-
-        val unfilteredProfile = if (Build.VERSION.SDK_INT >= 33) {
-            extractProfile(packageName)
-        } else {
-            extractProfileRooted(packageName)
-        }
-
-        check(unfilteredProfile.isNotBlank()) {
-            """
-                Generated Profile is empty, before filtering.
-                Ensure your profileBlock invokes the target app, and
-                runs a non-trivial amount of code.
-            """.trimIndent()
-        }
-        val profile = filterProfileRulesToTargetP(
-            profile = unfilteredProfile,
-            sortRules = true,
-            filterPredicate = filterPredicate
-        )
-        reportResults(
-            profile = profile,
-            uniqueFilePrefix = uniqueName,
-            startTime = startTime,
-            includeInStartupProfile = includeInStartupProfile
-        )
-    } finally {
-        killProcessBlock.invoke()
-    }
-}
 
 /**
  * Collects baseline profiles using a given [profileBlock], while additionally
  * waiting until they are stable.
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(28)
-fun collectStableBaselineProfile(
+fun collect(
     uniqueName: String,
     packageName: String,
     stableIterations: Int,
@@ -118,6 +48,8 @@ fun collectStableBaselineProfile(
 ) {
     val scope = buildMacrobenchmarkScope(packageName)
     val startTime = System.nanoTime()
+    // Ensure the device is awake
+    scope.device.wakeUp()
     val killProcessBlock = scope.killProcessBlock()
     // always kill the process at beginning of a collection.
     killProcessBlock.invoke()
@@ -129,7 +61,7 @@ fun collectStableBaselineProfile(
         val finalMaxIterations = if (Arguments.dryRunMode) 1 else maxIterations
 
         while (iteration <= finalMaxIterations) {
-            userspaceTrace("generate profile for $packageName ($iteration)") {
+            inMemoryTrace("generate profile for $packageName ($iteration)") {
                 val mode = CompilationMode.Partial(
                     baselineProfileMode = BaselineProfileMode.Disable,
                     warmupIterations = 1
@@ -227,7 +159,10 @@ private fun buildMacrobenchmarkScope(packageName: String): MacrobenchmarkScope {
             " device running API 28 or higher and rooted adb session (via `adb root`)."
     }
     getInstalledPackageInfo(packageName) // throws clearly if not installed
-    return MacrobenchmarkScope(packageName, launchWithClearTask = true)
+    return MacrobenchmarkScope(
+        packageName,
+        launchWithClearTask = true
+    )
 }
 
 /**
@@ -257,23 +192,21 @@ private fun reportResults(
     // Write a file with a timestamp to be able to disambiguate between runs with the same
     // unique name.
 
-    val (fileName, reportKey, tsFileName) =
+    val (fileName, tsFileName) =
         if (includeInStartupProfile && Arguments.enableStartupProfiles) {
             arrayOf(
                 "$uniqueFilePrefix-startup-prof.txt",
-                "startup-profile",
                 "$uniqueFilePrefix-startup-prof-${Outputs.dateToFileName()}.txt"
             )
         } else {
             arrayOf(
                 "$uniqueFilePrefix-baseline-prof.txt",
-                "baseline-profile",
                 "$uniqueFilePrefix-baseline-prof-${Outputs.dateToFileName()}.txt"
             )
         }
 
-    val absolutePath = Outputs.writeFile(fileName, reportKey) { it.writeText(profile) }
-    val tsAbsolutePath = Outputs.writeFile(tsFileName, "baseline-profile-ts") {
+    val absolutePath = Outputs.writeFile(fileName) { it.writeText(profile) }
+    val tsAbsolutePath = Outputs.writeFile(tsFileName) {
         Log.d(TAG, "Pull Baseline Profile with: `adb pull \"${it.absolutePath}\" .`")
         it.writeText(profile)
     }
@@ -285,8 +218,12 @@ private fun reportResults(
         profileTsPath = tsAbsolutePath
     )
     InstrumentationResults.instrumentationReport {
-        val summary = summaryRecord(results)
-        ideSummaryRecord(summaryV1 = summary, summaryV2 = summary)
+        // Ideally would link trace as a profiler result for consistency with other codepaths,
+        // but we don't to change BP's custom link appearance to the default simple one
+        reportSummaryToIde(
+            testName = uniqueFilePrefix,
+            message = summaryRecord(results),
+        )
         Log.d(TAG, "Total Run Time Ns: $totalRunTime")
     }
 }
@@ -298,7 +235,6 @@ private fun reportResults(
  * Does not require root.
  */
 @RequiresApi(33)
-@androidx.annotation.OptIn(BuildCompat.PrereleaseSdkCheck::class)
 private fun extractProfile(packageName: String): String {
 
     val dumpCommand = "pm dump-profiles --dump-classes-and-methods $packageName"

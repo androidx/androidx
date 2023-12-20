@@ -71,6 +71,7 @@ class RippleAppWidget : GlanceAppWidget() {
 
     @Composable
     private fun RippleDemoContent() {
+        @Suppress("AutoboxingStateCreation")
         var count by remember { mutableStateOf(0) }
         var type by remember { mutableStateOf(ContentScale.Fit) }
         var columnBgColors by remember { mutableStateOf(columnBgColorsA) }

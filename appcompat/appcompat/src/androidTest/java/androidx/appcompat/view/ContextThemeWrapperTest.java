@@ -30,7 +30,6 @@ import android.content.res.TypedArray;
 import androidx.appcompat.test.R;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -127,7 +126,6 @@ public class ContextThemeWrapperTest {
         }).test());
     }
 
-    @SdkSuppress(minSdkVersion = 17)
     @Test
     public void testApplyOverrideDensityConfiguration() {
         // Configuration.densityDpi is only available on API 17 and above

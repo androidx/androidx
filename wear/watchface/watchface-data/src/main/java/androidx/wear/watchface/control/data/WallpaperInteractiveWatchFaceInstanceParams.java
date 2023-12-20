@@ -16,9 +16,12 @@
 
 package androidx.wear.watchface.control.data;
 
+import static java.util.Collections.emptyMap;
+
 import android.annotation.SuppressLint;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -44,6 +47,8 @@ import java.util.List;
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
 public class WallpaperInteractiveWatchFaceInstanceParams
         implements VersionedParcelable, Parcelable {
+
+    private static final String TAG = "WallpaperInteractiveWatchFaceInstanceParams";
 
     /** The id for the new instance, must be unique. */
     @ParcelField(1)
@@ -117,6 +122,12 @@ public class WallpaperInteractiveWatchFaceInstanceParams
 
     @NonNull
     public UserStyleWireFormat getUserStyle() {
+        // TODO (b/284971375): This check really shouldn't be necessary.
+        if (mUserStyle == null) {
+            Log.e(TAG, "WallpaperInteractiveWatchFaceInstanceParams with null mUserStyle",
+                    new Throwable());
+            mUserStyle = new UserStyleWireFormat(emptyMap());
+        }
         return mUserStyle;
     }
 
@@ -132,6 +143,16 @@ public class WallpaperInteractiveWatchFaceInstanceParams
     public void setIdAndComplicationDataWireFormats(
             @Nullable List<IdAndComplicationDataWireFormat> idAndComplicationDataWireFormats) {
         mIdAndComplicationDataWireFormats = idAndComplicationDataWireFormats;
+    }
+
+    @Nullable
+    public String getAuxiliaryComponentClassName() {
+        return mAuxiliaryComponentClassName;
+    }
+
+    @Nullable
+    public String getAuxiliaryComponentPackageName() {
+        return mAuxiliaryComponentPackageName;
     }
 
     /**

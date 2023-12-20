@@ -24,6 +24,7 @@ import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.ActionBuilders.Action;
@@ -35,7 +36,6 @@ import androidx.wear.protolayout.expression.AnimationParameterBuilders.Animation
 import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.expression.ProtoLayoutExperimental;
 import androidx.wear.protolayout.proto.ModifiersProto;
-import androidx.wear.protolayout.proto.TypesProto;
 import androidx.wear.protolayout.protobuf.ByteString;
 
 import java.lang.annotation.Retention;
@@ -361,6 +361,42 @@ public final class ModifiersBuilders {
             }
         }
 
+        /**
+         * Gets the minimum width of the clickable area.
+         *
+         * <p>The default value is 48dp, following the Material design accessibility guideline. Note
+         * that this value does not affect the layout, so the minimum clickable width is not
+         * guaranteed unless there is enough space around the element within its parent bounds.
+         *
+         * @since 1.3
+         */
+        @NonNull
+        public DpProp getMinimumClickableWidth() {
+            if (mImpl.hasMinimumClickableWidth()) {
+                return DpProp.fromProto(mImpl.getMinimumClickableWidth());
+            } else {
+                return new DpProp.Builder(48f).build();
+            }
+        }
+
+        /**
+         * Gets the minimum height of the clickable area.
+         *
+         * <p>The default value is 48dp, following the Material design accessibility guideline. Note
+         * that this value does not affect the layout, so the minimum clickable height is not
+         * guaranteed unless there is enough space around the element within its parent bounds.
+         *
+         * @since 1.3
+         */
+        @NonNull
+        public DpProp getMinimumClickableHeight() {
+            if (mImpl.hasMinimumClickableHeight()) {
+                return DpProp.fromProto(mImpl.getMinimumClickableHeight());
+            } else {
+                return new DpProp.Builder(48f).build();
+            }
+        }
+
         /** Get the fingerprint for this object, or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -388,12 +424,19 @@ public final class ModifiersBuilders {
             return mImpl;
         }
 
+        @Override
+        @NonNull
+        public String toString() {
+            return "Clickable{" + "id=" + getId() + ", onClick=" + getOnClick() + "}";
+        }
+
         /** Builder for {@link Clickable} */
         public static final class Builder {
             private final ModifiersProto.Clickable.Builder mImpl =
                     ModifiersProto.Clickable.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(812136104);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -418,6 +461,59 @@ public final class ModifiersBuilders {
                 mImpl.setOnClick(onClick.toActionProto());
                 mFingerprint.recordPropertyUpdate(
                         2, checkNotNull(onClick.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the minimum width of the clickable area.
+             *
+             * <p>The default value is 48dp, following the Material design accessibility guideline.
+             * Note that this value does not affect the layout, so the minimum clickable width is
+             * not guaranteed unless there is enough space around the element within its parent
+             * bounds.
+             *
+             * <p>Note that this field only supports static values.
+             *
+             * @since 1.3
+             */
+            @NonNull
+            public Builder setMinimumClickableWidth(@NonNull DpProp minimumClickableWidth) {
+                if (minimumClickableWidth.getDynamicValue() != null) {
+                    throw new IllegalArgumentException(
+                            "Clickable.Builder.setMinimumClickableWidth doesn't support dynamic"
+                                + " values.");
+                }
+                mImpl.setMinimumClickableWidth(minimumClickableWidth.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        3,
+                        checkNotNull(minimumClickableWidth.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the minimum height of the clickable area.
+             *
+             * <p>The default value is 48dp, following the Material design accessibility guideline.
+             * Note that this value does not affect the layout, so the minimum clickable height is
+             * not guaranteed unless there is enough space around the element within its parent
+             * bounds.
+             *
+             * <p>Note that this field only supports static values.
+             *
+             * @since 1.3
+             */
+            @NonNull
+            public Builder setMinimumClickableHeight(@NonNull DpProp minimumClickableHeight) {
+                if (minimumClickableHeight.getDynamicValue() != null) {
+                    throw new IllegalArgumentException(
+                            "Clickable.Builder.setMinimumClickableHeight doesn't support dynamic"
+                                + " values.");
+                }
+                mImpl.setMinimumClickableHeight(minimumClickableHeight.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        4,
+                        checkNotNull(minimumClickableHeight.getFingerprint())
+                                .aggregateValueAsInt());
                 return this;
             }
 
@@ -448,6 +544,9 @@ public final class ModifiersBuilders {
         /**
          * Gets the content description associated with this element. This will be dictated when the
          * element is focused by the screen reader.
+         *
+         * <p>While this field is statically accessible from 1.0, it's only bindable since version
+         * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
          *
          * @since 1.0
          */
@@ -515,12 +614,26 @@ public final class ModifiersBuilders {
             return mImpl;
         }
 
+        @Override
+        @NonNull
+        public String toString() {
+            return "Semantics{"
+                    + "contentDescription="
+                    + getContentDescription()
+                    + ", role="
+                    + getRole()
+                    + ", stateDescription="
+                    + getStateDescription()
+                    + "}";
+        }
+
         /** Builder for {@link Semantics} */
         public static final class Builder {
             private final ModifiersProto.Semantics.Builder mImpl =
                     ModifiersProto.Semantics.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-1679805809);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -562,11 +675,7 @@ public final class ModifiersBuilders {
             @SuppressWarnings(
                     "deprecation") // Updating a deprecated field for backward compatibility
             public Builder setContentDescription(@NonNull String contentDescription) {
-                mImpl.setObsoleteContentDescription(contentDescription);
-                mImpl.mergeContentDescription(
-                        TypesProto.StringProp.newBuilder().setValue(contentDescription).build());
-                mFingerprint.recordPropertyUpdate(4, contentDescription.hashCode());
-                return this;
+                return setContentDescription(new StringProp.Builder(contentDescription).build());
             }
 
             /**
@@ -713,22 +822,46 @@ public final class ModifiersBuilders {
             return mImpl;
         }
 
+        @Override
+        @NonNull
+        public String toString() {
+            return "Padding{"
+                    + "end="
+                    + getEnd()
+                    + ", start="
+                    + getStart()
+                    + ", top="
+                    + getTop()
+                    + ", bottom="
+                    + getBottom()
+                    + ", rtlAware="
+                    + getRtlAware()
+                    + "}";
+        }
+
         /** Builder for {@link Padding} */
         public static final class Builder {
             private final ModifiersProto.Padding.Builder mImpl =
                     ModifiersProto.Padding.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(375605427);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
              * Sets the padding on the end of the content, depending on the layout direction, in DP
              * and the value of "rtl_aware".
              *
+             * <p>Note that this field only supports static values.
+             *
              * @since 1.0
              */
             @NonNull
             public Builder setEnd(@NonNull DpProp end) {
+                if (end.getDynamicValue() != null) {
+                    throw new IllegalArgumentException(
+                            "Padding.Builder.setEnd doesn't support dynamic values.");
+                }
                 mImpl.setEnd(end.toProto());
                 mFingerprint.recordPropertyUpdate(
                         1, checkNotNull(end.getFingerprint()).aggregateValueAsInt());
@@ -739,10 +872,16 @@ public final class ModifiersBuilders {
              * Sets the padding on the start of the content, depending on the layout direction, in
              * DP and the value of "rtl_aware".
              *
+             * <p>Note that this field only supports static values.
+             *
              * @since 1.0
              */
             @NonNull
             public Builder setStart(@NonNull DpProp start) {
+                if (start.getDynamicValue() != null) {
+                    throw new IllegalArgumentException(
+                            "Padding.Builder.setStart doesn't support dynamic values.");
+                }
                 mImpl.setStart(start.toProto());
                 mFingerprint.recordPropertyUpdate(
                         2, checkNotNull(start.getFingerprint()).aggregateValueAsInt());
@@ -752,10 +891,16 @@ public final class ModifiersBuilders {
             /**
              * Sets the padding at the top, in DP.
              *
+             * <p>Note that this field only supports static values.
+             *
              * @since 1.0
              */
             @NonNull
             public Builder setTop(@NonNull DpProp top) {
+                if (top.getDynamicValue() != null) {
+                    throw new IllegalArgumentException(
+                            "Padding.Builder.setTop doesn't support dynamic values.");
+                }
                 mImpl.setTop(top.toProto());
                 mFingerprint.recordPropertyUpdate(
                         3, checkNotNull(top.getFingerprint()).aggregateValueAsInt());
@@ -765,10 +910,16 @@ public final class ModifiersBuilders {
             /**
              * Sets the padding at the bottom, in DP.
              *
+             * <p>Note that this field only supports static values.
+             *
              * @since 1.0
              */
             @NonNull
             public Builder setBottom(@NonNull DpProp bottom) {
+                if (bottom.getDynamicValue() != null) {
+                    throw new IllegalArgumentException(
+                            "Padding.Builder.setBottom doesn't support dynamic values.");
+                }
                 mImpl.setBottom(bottom.toProto());
                 mFingerprint.recordPropertyUpdate(
                         4, checkNotNull(bottom.getFingerprint()).aggregateValueAsInt());
@@ -796,13 +947,13 @@ public final class ModifiersBuilders {
              * start/end will follow the layout direction (i.e. start will refer to the right hand
              * side of the container if the device is using an RTL locale). If false, start/end will
              * always map to left/right, accordingly.
+             *
+             * @since 1.0
              */
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setRtlAware(boolean rtlAware) {
-                mImpl.setRtlAware(TypesProto.BoolProp.newBuilder().setValue(rtlAware));
-                mFingerprint.recordPropertyUpdate(5, Boolean.hashCode(rtlAware));
-                return this;
+                return setRtlAware(new BoolProp.Builder().setValue(rtlAware).build());
             }
 
             /**
@@ -855,6 +1006,9 @@ public final class ModifiersBuilders {
         /**
          * Gets the color of the border.
          *
+         * <p>While this field is statically accessible from 1.0, it's only bindable since version
+         * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
+         *
          * @since 1.0
          */
         @Nullable
@@ -893,20 +1047,33 @@ public final class ModifiersBuilders {
             return mImpl;
         }
 
+        @Override
+        @NonNull
+        public String toString() {
+            return "Border{" + "width=" + getWidth() + ", color=" + getColor() + "}";
+        }
+
         /** Builder for {@link Border} */
         public static final class Builder {
             private final ModifiersProto.Border.Builder mImpl = ModifiersProto.Border.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(157094687);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
              * Sets the width of the border, in DP.
              *
+             * <p>Note that this field only supports static values.
+             *
              * @since 1.0
              */
             @NonNull
             public Builder setWidth(@NonNull DpProp width) {
+                if (width.getDynamicValue() != null) {
+                    throw new IllegalArgumentException(
+                            "Border.Builder.setWidth doesn't support dynamic values.");
+                }
                 mImpl.setWidth(width.toProto());
                 mFingerprint.recordPropertyUpdate(
                         1, checkNotNull(width.getFingerprint()).aggregateValueAsInt());
@@ -992,20 +1159,33 @@ public final class ModifiersBuilders {
             return mImpl;
         }
 
+        @Override
+        @NonNull
+        public String toString() {
+            return "Corner{" + "radius=" + getRadius() + "}";
+        }
+
         /** Builder for {@link Corner} */
         public static final class Builder {
             private final ModifiersProto.Corner.Builder mImpl = ModifiersProto.Corner.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-532589910);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
              * Sets the radius of the corner in DP.
              *
+             * <p>Note that this field only supports static values.
+             *
              * @since 1.0
              */
             @NonNull
             public Builder setRadius(@NonNull DpProp radius) {
+                if (radius.getDynamicValue() != null) {
+                    throw new IllegalArgumentException(
+                            "Corner.Builder.setRadius doesn't support dynamic values.");
+                }
                 mImpl.setRadius(radius.toProto());
                 mFingerprint.recordPropertyUpdate(
                         1, checkNotNull(radius.getFingerprint()).aggregateValueAsInt());
@@ -1037,6 +1217,9 @@ public final class ModifiersBuilders {
         /**
          * Gets the background color for this element. If not defined, defaults to being
          * transparent.
+         *
+         * <p>While this field is statically accessible from 1.0, it's only bindable since version
+         * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
          *
          * @since 1.0
          */
@@ -1092,12 +1275,19 @@ public final class ModifiersBuilders {
             return mImpl;
         }
 
+        @Override
+        @NonNull
+        public String toString() {
+            return "Background{" + "color=" + getColor() + ", corner=" + getCorner() + "}";
+        }
+
         /** Builder for {@link Background} */
         public static final class Builder {
             private final ModifiersProto.Background.Builder mImpl =
                     ModifiersProto.Background.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-1234051555);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -1193,12 +1383,19 @@ public final class ModifiersBuilders {
             return mImpl;
         }
 
+        @Override
+        @NonNull
+        public String toString() {
+            return "ElementMetadata{" + "tagData=" + Arrays.toString(getTagData()) + "}";
+        }
+
         /** Builder for {@link ElementMetadata} */
         public static final class Builder {
             private final ModifiersProto.ElementMetadata.Builder mImpl =
                     ModifiersProto.ElementMetadata.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-1401175352);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -1374,12 +1571,35 @@ public final class ModifiersBuilders {
             return mImpl;
         }
 
+        @Override
+        @OptIn(markerClass = ProtoLayoutExperimental.class)
+        @NonNull
+        public String toString() {
+            return "Modifiers{"
+                    + "clickable="
+                    + getClickable()
+                    + ", semantics="
+                    + getSemantics()
+                    + ", padding="
+                    + getPadding()
+                    + ", border="
+                    + getBorder()
+                    + ", background="
+                    + getBackground()
+                    + ", metadata="
+                    + getMetadata()
+                    + ", contentUpdateAnimation="
+                    + getContentUpdateAnimation()
+                    + "}";
+        }
+
         /** Builder for {@link Modifiers} */
         public static final class Builder {
             private final ModifiersProto.Modifiers.Builder mImpl =
                     ModifiersProto.Modifiers.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-1165106749);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -1580,6 +1800,7 @@ public final class ModifiersBuilders {
                     ModifiersProto.AnimatedVisibility.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(1372451979);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -1701,6 +1922,7 @@ public final class ModifiersBuilders {
                     ModifiersProto.EnterTransition.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-1732205279);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -1824,6 +2046,7 @@ public final class ModifiersBuilders {
                     ModifiersProto.FadeInTransition.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(1430024488);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -1966,6 +2189,7 @@ public final class ModifiersBuilders {
                     ModifiersProto.SlideInTransition.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-991346238);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -2108,6 +2332,7 @@ public final class ModifiersBuilders {
                     ModifiersProto.ExitTransition.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-99296494);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -2233,6 +2458,7 @@ public final class ModifiersBuilders {
                     ModifiersProto.FadeOutTransition.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-545572295);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -2375,6 +2601,7 @@ public final class ModifiersBuilders {
                     ModifiersProto.SlideOutTransition.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(3732844);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -2546,6 +2773,7 @@ public final class ModifiersBuilders {
                     ModifiersProto.SlideParentBound.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-516388675);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -2561,6 +2789,7 @@ public final class ModifiersBuilders {
                 return this;
             }
 
+            /** Builds an instance from accumulated values. */
             @Override
             @NonNull
             public SlideParentBound build() {
@@ -2641,12 +2870,24 @@ public final class ModifiersBuilders {
             return mImpl;
         }
 
+        @Override
+        @NonNull
+        public String toString() {
+            return "ArcModifiers{"
+                    + "clickable="
+                    + getClickable()
+                    + ", semantics="
+                    + getSemantics()
+                    + "}";
+        }
+
         /** Builder for {@link ArcModifiers} */
         public static final class Builder {
             private final ModifiersProto.ArcModifiers.Builder mImpl =
                     ModifiersProto.ArcModifiers.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(1342182166);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -2743,12 +2984,19 @@ public final class ModifiersBuilders {
             return mImpl;
         }
 
+        @Override
+        @NonNull
+        public String toString() {
+            return "SpanModifiers{" + "clickable=" + getClickable() + "}";
+        }
+
         /** Builder for {@link SpanModifiers} */
         public static final class Builder {
             private final ModifiersProto.SpanModifiers.Builder mImpl =
                     ModifiersProto.SpanModifiers.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-815102194);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -2769,6 +3017,137 @@ public final class ModifiersBuilders {
             @NonNull
             public SpanModifiers build() {
                 return new SpanModifiers(mImpl.build(), mFingerprint);
+            }
+        }
+    }
+
+    /**
+     * The shadow definition. The shadow is drawn as a blur region around the element.
+     *
+     * @since 1.3
+     */
+    public static final class Shadow {
+        private final ModifiersProto.Shadow mImpl;
+        @Nullable private final Fingerprint mFingerprint;
+
+        Shadow(ModifiersProto.Shadow impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        /**
+         * Gets the blur radius of the shadow. It controls the size of the blur that is drawn. When
+         * set to zero, the shadow is not drawn. Defaults to zero.
+         *
+         * @since 1.3
+         */
+        @NonNull
+        public DpProp getBlurRadius() {
+            if (mImpl.hasBlurRadius()) {
+                return DpProp.fromProto(mImpl.getBlurRadius());
+            } else {
+                return new DpProp.Builder(0).build();
+            }
+        }
+
+        /**
+         * Gets the color used in the shadow. Defaults to Black.
+         *
+         * @since 1.3
+         */
+        @NonNull
+        public ColorProp getColor() {
+            if (mImpl.hasColor()) {
+                return ColorProp.fromProto(mImpl.getColor());
+            } else {
+                return new ColorProp.Builder(0xFF000000).build();
+            }
+        }
+
+        /** Get the fingerprint for this object, or null if unknown. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static Shadow fromProto(
+                @NonNull ModifiersProto.Shadow proto, @Nullable Fingerprint fingerprint) {
+            return new Shadow(proto, fingerprint);
+        }
+
+        @NonNull
+        static Shadow fromProto(@NonNull ModifiersProto.Shadow proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public ModifiersProto.Shadow toProto() {
+            return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "Shadow{" + "blurRadius=" + getBlurRadius() + ", color=" + getColor() + "}";
+        }
+
+        /** Builder for {@link Shadow} */
+        public static final class Builder {
+            private final ModifiersProto.Shadow.Builder mImpl = ModifiersProto.Shadow.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(-1267428773);
+
+            /** Creates an instance of {@link Builder}. */
+            public Builder() {}
+
+            /**
+             * Sets the blur radius of the shadow. It controls the size of the blur that is drawn.
+             * When set to zero, the shadow is not drawn. Defaults to zero.
+             *
+             * <p>Note that this field only supports static values.
+             *
+             * @since 1.3
+             */
+            @NonNull
+            public Builder setBlurRadius(@NonNull DpProp blurRadius) {
+                if (blurRadius.getDynamicValue() != null) {
+                    throw new IllegalArgumentException(
+                            "Shadow.Builder.setBlurRadius doesn't support dynamic values.");
+                }
+                mImpl.setBlurRadius(blurRadius.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        1, checkNotNull(blurRadius.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the color used in the shadow. Defaults to Black.
+             *
+             * <p>Note that this field only supports static values.
+             *
+             * @since 1.3
+             */
+            @NonNull
+            public Builder setColor(@NonNull ColorProp color) {
+                if (color.getDynamicValue() != null) {
+                    throw new IllegalArgumentException(
+                            "Shadow.Builder.setColor doesn't support dynamic values.");
+                }
+                mImpl.setColor(color.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        2, checkNotNull(color.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /** Builds an instance from accumulated values. */
+            @NonNull
+            public Shadow build() {
+                return new Shadow(mImpl.build(), mFingerprint);
             }
         }
     }

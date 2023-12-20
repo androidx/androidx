@@ -113,7 +113,6 @@ public final class TemplateWrapper {
      * Sets the {@link TemplateInfo} of each of the last known templates for each of the screens in
      * the stack managed by the screen manager.
      *
-     * @hide
      * @see #getTemplateInfosForScreenStack
      */
     @RestrictTo(LIBRARY)

@@ -164,13 +164,7 @@ internal class LayoutModifierNodeCoordinator(
         // our position in order ot know how to offset the value we provided).
         if (isShallowPlacing) return
         onPlaced()
-        PlacementScope.executeWithRtlMirroringValues(
-            measuredSize.width,
-            layoutDirection,
-            this
-        ) {
-            measureResult.placeChildren()
-        }
+        measureResult.placeChildren()
     }
 
     override fun calculateAlignmentLine(alignmentLine: AlignmentLine): Int {

@@ -134,6 +134,11 @@ class Name internal constructor(
     val kmClassName: ClassName
         get() = pkg.segments.joinToString("/", postfix = "/") +
             nameSegments.joinToString(".")
+
+    /**
+     * The [PackageName] of this element.
+     */
+    val packageName: PackageName get() = pkg
 }
 
 /**

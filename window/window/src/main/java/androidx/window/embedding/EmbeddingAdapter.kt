@@ -20,11 +20,11 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.os.Binder
 import android.util.LayoutDirection
 import android.util.Pair as AndroidPair
 import android.view.WindowMetrics
-import androidx.window.core.ExperimentalWindowApi
-import androidx.window.core.ExtensionsUtil
+import androidx.window.WindowSdkExtensions
 import androidx.window.core.PredicateAdapter
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.BOTTOM_TO_TOP
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LEFT_TO_RIGHT
@@ -36,7 +36,6 @@ import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_
 import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_EXPAND
 import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_HINGE
 import androidx.window.embedding.SplitAttributes.SplitType.Companion.ratio
-import androidx.window.extensions.WindowExtensions
 import androidx.window.extensions.core.util.function.Function
 import androidx.window.extensions.core.util.function.Predicate
 import androidx.window.extensions.embedding.ActivityRule as OEMActivityRule
@@ -56,7 +55,6 @@ import androidx.window.extensions.embedding.SplitPlaceholderRule as OEMSplitPlac
 import androidx.window.extensions.embedding.SplitPlaceholderRule.Builder as SplitPlaceholderRuleBuilder
 import androidx.window.layout.WindowMetricsCalculator
 import androidx.window.layout.adapter.extensions.ExtensionsWindowLayoutInfoAdapter
-import kotlin.Pair
 
 /**
  * Adapter class that translates data classes between Extension and Jetpack interfaces.
@@ -64,7 +62,8 @@ import kotlin.Pair
 internal class EmbeddingAdapter(
     private val predicateAdapter: PredicateAdapter
 ) {
-    private val vendorApiLevel = ExtensionsUtil.safeVendorApiLevel
+    private val vendorApiLevel
+        get() = WindowSdkExtensions.getInstance().extensionVersion
     private val api1Impl = VendorApiLevel1Impl(predicateAdapter)
     private val api2Impl = VendorApiLevel2Impl()
 
@@ -74,21 +73,22 @@ internal class EmbeddingAdapter(
 
     private fun translate(splitInfo: OEMSplitInfo): SplitInfo {
         return when (vendorApiLevel) {
-            WindowExtensions.VENDOR_API_LEVEL_1 -> api1Impl.translateCompat(splitInfo)
-            WindowExtensions.VENDOR_API_LEVEL_2 -> api2Impl.translateCompat(splitInfo)
+            1 -> api1Impl.translateCompat(splitInfo)
+            2 -> api2Impl.translateCompat(splitInfo)
             else -> {
                 val primaryActivityStack = splitInfo.primaryActivityStack
                 val secondaryActivityStack = splitInfo.secondaryActivityStack
                 SplitInfo(
                     ActivityStack(
                         primaryActivityStack.activities,
-                        primaryActivityStack.isEmpty
+                        primaryActivityStack.isEmpty,
                     ),
                     ActivityStack(
                         secondaryActivityStack.activities,
-                        secondaryActivityStack.isEmpty
+                        secondaryActivityStack.isEmpty,
                     ),
-                    translate(splitInfo.splitAttributes)
+                    translate(splitInfo.splitAttributes),
+                    splitInfo.token,
                 )
             }
         }
@@ -117,14 +117,12 @@ internal class EmbeddingAdapter(
             )
             .build()
 
-    @OptIn(ExperimentalWindowApi::class)
     fun translateSplitAttributesCalculator(
         calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
     ): Function<OEMSplitAttributesCalculatorParams, OEMSplitAttributes> = Function { oemParams ->
             translateSplitAttributes(calculator.invoke(translate(oemParams)))
         }
 
-    @OptIn(ExperimentalWindowApi::class)
     @SuppressLint("NewApi")
     fun translate(
         params: OEMSplitAttributesCalculatorParams
@@ -152,7 +150,7 @@ internal class EmbeddingAdapter(
         rule: SplitPairRule,
         predicateClass: Class<*>
     ): OEMSplitPairRule {
-        if (vendorApiLevel < WindowExtensions.VENDOR_API_LEVEL_2) {
+        if (vendorApiLevel < 2) {
             return api1Impl.translateSplitPairRuleCompat(context, rule, predicateClass)
         } else {
             val activitiesPairPredicate =
@@ -194,7 +192,7 @@ internal class EmbeddingAdapter(
     }
 
     fun translateSplitAttributes(splitAttributes: SplitAttributes): OEMSplitAttributes {
-        require(vendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_2)
+        require(vendorApiLevel >= 2)
         // To workaround the "unused" error in ktlint. It is necessary to translate SplitAttributes
         // from WM Jetpack version to WM extension version.
         return androidx.window.extensions.embedding.SplitAttributes.Builder()
@@ -215,7 +213,7 @@ internal class EmbeddingAdapter(
     }
 
     private fun translateSplitType(splitType: SplitType): OEMSplitType {
-        require(vendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_2)
+        require(vendorApiLevel >= 2)
         return when (splitType) {
             SPLIT_TYPE_HINGE -> OEMSplitType.HingeSplitType(
                 translateSplitType(SPLIT_TYPE_EQUAL)
@@ -238,7 +236,7 @@ internal class EmbeddingAdapter(
         rule: SplitPlaceholderRule,
         predicateClass: Class<*>
     ): OEMSplitPlaceholderRule {
-        if (vendorApiLevel < WindowExtensions.VENDOR_API_LEVEL_2) {
+        if (vendorApiLevel < 2) {
             return api1Impl.translateSplitPlaceholderRuleCompat(
                 context,
                 rule,
@@ -285,7 +283,7 @@ internal class EmbeddingAdapter(
         rule: ActivityRule,
         predicateClass: Class<*>
     ): OEMActivityRule {
-        if (vendorApiLevel < WindowExtensions.VENDOR_API_LEVEL_2) {
+        if (vendorApiLevel < 2) {
             return api1Impl.translateActivityRuleCompat(rule, predicateClass)
         } else {
             val activityPredicate = Predicate<Activity> { activity ->
@@ -317,37 +315,37 @@ internal class EmbeddingAdapter(
         }.toSet()
     }
 
+    /** Provides backward compatibility for Window extensions with API level 2 */
     private inner class VendorApiLevel2Impl {
         fun translateCompat(splitInfo: OEMSplitInfo): SplitInfo {
             val primaryActivityStack = splitInfo.primaryActivityStack
             val primaryFragment = ActivityStack(
                 primaryActivityStack.activities,
-                primaryActivityStack.isEmpty
+                primaryActivityStack.isEmpty,
             )
 
             val secondaryActivityStack = splitInfo.secondaryActivityStack
             val secondaryFragment = ActivityStack(
                 secondaryActivityStack.activities,
-                secondaryActivityStack.isEmpty
+                secondaryActivityStack.isEmpty,
             )
             return SplitInfo(
                 primaryFragment,
                 secondaryFragment,
-                translate(splitInfo.splitAttributes)
+                translate(splitInfo.splitAttributes),
+                INVALID_SPLIT_INFO_TOKEN,
             )
         }
     }
 
     /**
-     * Provides backward compatibility for Window extensions with
-     * [WindowExtensions.VENDOR_API_LEVEL_1]
-     * @see WindowExtensions.getVendorApiLevel
+     * Provides backward compatibility for [WindowSdkExtensions] version 1
      */
     // Suppress deprecation because this object is to provide backward compatibility.
     @Suppress("DEPRECATION")
     private inner class VendorApiLevel1Impl(val predicateAdapter: PredicateAdapter) {
         /**
-         * Obtains [SplitAttributes] from [OEMSplitInfo] with [WindowExtensions.VENDOR_API_LEVEL_1]
+         * Obtains [SplitAttributes] from [OEMSplitInfo] with [WindowSdkExtensions] version 1
          */
         fun getSplitAttributesCompat(splitInfo: OEMSplitInfo): SplitAttributes =
             SplitAttributes.Builder()
@@ -469,9 +467,8 @@ internal class EmbeddingAdapter(
             }
 
         /**
-         * Returns `true` if `attrs` is compatible with [WindowExtensions.VENDOR_API_LEVEL_1] and
-         * doesn't use the new features introduced in [WindowExtensions.VENDOR_API_LEVEL_2] or
-         * higher.
+         * Returns `true` if `attrs` is compatible with vendor API level 1 and
+         * doesn't use the new features introduced in vendor API level 2 or higher.
          */
         private fun isSplitAttributesSupported(attrs: SplitAttributes) =
             attrs.splitType.value in 0.0..1.0 && attrs.splitType.value != 1.0f &&
@@ -507,6 +504,20 @@ internal class EmbeddingAdapter(
                     splitInfo.secondaryActivityStack.isEmpty,
                 ),
                 getSplitAttributesCompat(splitInfo),
+                INVALID_SPLIT_INFO_TOKEN,
             )
+    }
+
+    internal companion object {
+        /**
+         * The default token of [SplitInfo], which provides compatibility for device prior to
+         * vendor API level 3
+         */
+        val INVALID_SPLIT_INFO_TOKEN = Binder()
+        /**
+         * The default token of [ActivityStack], which provides compatibility for device prior to
+         * vendor API level 3
+         */
+        val INVALID_ACTIVITY_STACK_TOKEN = Binder()
     }
 }

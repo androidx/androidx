@@ -155,7 +155,7 @@ interface XCodeBlock : TargetLanguage {
                     CodeLanguage.JAVA -> "new "
                     CodeLanguage.KOTLIN -> ""
                 }
-                add("$newKeyword%T($argsFormat)", typeName, *args)
+                add("$newKeyword%T($argsFormat)", typeName.copy(nullable = false), *args)
             }.build()
         }
 

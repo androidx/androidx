@@ -23,9 +23,9 @@ import java.util.List;
 /**
  * The slice items we can render on the available space.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@Deprecated
 class DisplayedListItems {
     private final List<SliceContent> mDisplayedItems;
     private final int mHiddenItemCount;

@@ -17,6 +17,7 @@
 package androidx.room.processor
 
 import COMMON
+import androidx.kruth.assertThat
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.compiler.codegen.CodeLanguage
@@ -40,11 +41,11 @@ import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
 import androidx.room.parser.QueryType
 import androidx.room.parser.Table
+import androidx.room.processor.ProcessorErrors.CANNOT_USE_MAP_COLUMN_AND_MAP_INFO_SIMULTANEOUSLY
 import androidx.room.processor.ProcessorErrors.DO_NOT_USE_GENERIC_IMMUTABLE_MULTIMAP
 import androidx.room.processor.ProcessorErrors.MAP_INFO_MUST_HAVE_AT_LEAST_ONE_COLUMN_PROVIDED
 import androidx.room.processor.ProcessorErrors.cannotFindQueryResultAdapter
-import androidx.room.processor.ProcessorErrors.keyMayNeedMapInfo
-import androidx.room.processor.ProcessorErrors.valueMayNeedMapInfo
+import androidx.room.processor.ProcessorErrors.mayNeedMapColumn
 import androidx.room.solver.query.result.DataSourceFactoryQueryResultBinder
 import androidx.room.solver.query.result.ListQueryResultAdapter
 import androidx.room.solver.query.result.LiveDataQueryResultBinder
@@ -57,7 +58,6 @@ import androidx.room.vo.QueryMethod
 import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.Warning
 import androidx.room.vo.WriteQueryMethod
-import com.google.common.truth.Truth.assertThat
 import createVerifierFromEntitiesAndViews
 import mockElementAndType
 import org.hamcrest.CoreMatchers.hasItem
@@ -335,7 +335,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 """
         ) { parsedQuery, invocation ->
             val expected = MUTABLE_LIST.parametrizedBy(
-                XClassName.get("", "T")
+                XTypeName.getTypeVariableName("T", listOf(XTypeName.ANY_OBJECT))
             )
             assertThat(parsedQuery.returnType.asTypeName(), `is`(expected))
             invocation.assertCompilationResult {
@@ -1305,7 +1305,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX
         )
         val commonSources = listOf(
-            COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA, COMMON.USER, COMMON.BOOK,
+            COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA, COMMON.USER, COMMON.BOOK, COMMON.PAGE,
             COMMON.NOT_AN_ENTITY, COMMON.ARTIST, COMMON.SONG, COMMON.IMAGE, COMMON.IMAGE_FORMAT,
             COMMON.CONVERTER
         )
@@ -1406,7 +1406,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorCount(2)
-                hasErrorContaining("Multimap 'value' collection type must be a List or Set.")
+                hasErrorContaining("Multimap 'value' collection type must be a List, Set or Map.")
                 hasErrorContaining("Not sure how to convert a Cursor to this method's return type")
             }
         }
@@ -1511,6 +1511,131 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
     }
 
     @Test
+    fun testUseMapColumnWithColumnName() {
+        if (!enableVerification) {
+            return
+        }
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @SuppressWarnings(
+                    {RoomWarnings.CURSOR_MISMATCH, RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT}
+                )
+                @Query("SELECT * FROM User u JOIN Book b ON u.uid == b.uid")
+                abstract Map<@MapColumn(columnName = "uid") Integer, Book> getMultimap();
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasNoWarnings()
+            }
+        }
+    }
+
+    @Test
+    fun testUseMapColumnWithColumnNameWrongTableName() {
+        if (!enableVerification) {
+            return
+        }
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @SuppressWarnings(
+                    {RoomWarnings.CURSOR_MISMATCH, RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT}
+                )
+                @Query("SELECT * FROM User u JOIN Book b ON u.uid == b.uid")
+                abstract Map<@MapColumn(columnName = "uid", tableName = "NoName") Integer, Book> getMultimap();
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    "Column specified in the provided @MapColumn " +
+                    "annotation must be present in the query."
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testUseNestedMapColumnWithColumnName() {
+        if (!enableVerification) {
+            return
+        }
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @SuppressWarnings(
+                    {RoomWarnings.CURSOR_MISMATCH, RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT}
+                )
+                @Query("SELECT * FROM User u JOIN Book b ON u.uid == b.uid JOIN Page on b.uid == pBid")
+                abstract Map<@MapColumn(columnName = "uid") Integer, Map<Book, @MapColumn(columnName = "pBid") Integer>> getMultimap();
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasNoWarnings()
+            }
+        }
+    }
+
+    @Test
+    fun testUseNestedMapColumnWithNestedKeyColumnName() {
+        if (!enableVerification) {
+            return
+        }
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @SuppressWarnings(
+                    {RoomWarnings.CURSOR_MISMATCH, RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT}
+                )
+                @Query("SELECT * FROM User u JOIN Book b ON u.uid == b.uid JOIN Page on b.uid == pBid")
+                abstract Map<@MapColumn(columnName = "uid") Integer, Map<@MapColumn(columnName = "bookId") Integer, @MapColumn(columnName = "pBid") Integer>> getMultimap();
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasNoWarnings()
+            }
+        }
+    }
+
+    @Test
+    fun testUseMapColumnWithColumnAlias() {
+        if (!enableVerification) {
+            return
+        }
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+                @Query("SELECT name, (SELECT count(*) FROM User u JOIN Book b ON u.uid == b.uid) "
+                    + "AS bookCount FROM User")
+                abstract Map<@MapColumn(columnName = "name") String, @MapColumn(columnName = "bookCount") Integer> getMultimap();
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasNoWarnings()
+            }
+        }
+    }
+
+    @Test
+    fun testCannotHaveMapInfoAndMapColumn() {
+        if (!enableVerification) {
+            return
+        }
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                @SuppressWarnings(
+                    {RoomWarnings.CURSOR_MISMATCH, RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT}
+                )
+                @MapInfo(keyColumn = "uid", keyTable = "u")
+                @Query("SELECT * FROM User u JOIN Book b ON u.uid == b.uid")
+                abstract Map<@MapColumn(columnName = "uid") Integer, Book> getMultimap();
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    CANNOT_USE_MAP_COLUMN_AND_MAP_INFO_SIMULTANEOUSLY
+                )
+            }
+        }
+    }
+
+    @Test
     fun testDoesNotImplementEqualsAndHashcodeQuery() {
         singleQueryMethod<ReadQueryMethod>(
             """
@@ -1539,7 +1664,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    valueMayNeedMapInfo(CommonTypeNames.STRING.canonicalName)
+                    mayNeedMapColumn(STRING.canonicalName)
                 )
             }
         }
@@ -1556,7 +1681,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    valueMayNeedMapInfo(CommonTypeNames.STRING.canonicalName)
+                    mayNeedMapColumn(STRING.canonicalName)
                 )
             }
         }
@@ -1572,7 +1697,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    valueMayNeedMapInfo(CommonTypeNames.STRING.canonicalName)
+                    mayNeedMapColumn(STRING.canonicalName)
                 )
             }
         }
@@ -1588,7 +1713,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    valueMayNeedMapInfo(CommonTypeNames.STRING.canonicalName)
+                    mayNeedMapColumn(STRING.canonicalName)
                 )
             }
         }
@@ -1604,7 +1729,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    valueMayNeedMapInfo(XTypeName.BOXED_LONG.canonicalName)
+                    mayNeedMapColumn(XTypeName.BOXED_LONG.canonicalName)
                 )
             }
         }
@@ -1620,7 +1745,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    valueMayNeedMapInfo(XTypeName.BOXED_LONG.canonicalName)
+                    mayNeedMapColumn(XTypeName.BOXED_LONG.canonicalName)
                 )
             }
         }
@@ -1636,7 +1761,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    valueMayNeedMapInfo(XTypeName.BOXED_LONG.canonicalName)
+                    mayNeedMapColumn(XTypeName.BOXED_LONG.canonicalName)
                 )
             }
         }
@@ -1653,7 +1778,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    keyMayNeedMapInfo("java.util.Date")
+                    mayNeedMapColumn("java.util.Date")
                 )
             }
         }
@@ -1670,7 +1795,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    valueMayNeedMapInfo("java.util.Date")
+                    mayNeedMapColumn("java.util.Date")
                 )
             }
         }

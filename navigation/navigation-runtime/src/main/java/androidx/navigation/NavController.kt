@@ -66,7 +66,6 @@ import kotlinx.coroutines.flow.asStateFlow
  * from a remote server.)
  */
 public open class NavController(
-    /** @suppress */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val context: Context
 ) {
@@ -127,8 +126,9 @@ public open class NavController(
      * whenever they change. If there is no visible [NavBackStackEntry], this will be set to an
      * empty list.
      *
-     * - `CREATED` entries are listed first and include all entries that have been popped from
-     * the back stack and are in the process of completing their exit transition
+     * - `CREATED` entries are listed first and include all entries that are in the process of
+     * completing their exit transition. Note that this can include entries that have been
+     * popped off the Navigation back stack.
      * - `STARTED` entries on the back stack are next and include all entries that are running
      * their enter transition and entries whose destination is partially covered by a
      * `FloatingWindow` destination
@@ -1021,18 +1021,22 @@ public open class NavController(
             return
         }
         // First determine what the current resumed destination is and, if and only if
-        // the current resumed destination is a FloatingWindow, what destination is
+        // the current resumed destination is a FloatingWindow, what destinations are
         // underneath it that must remain started.
         var nextResumed: NavDestination? = backStack.last().destination
-        var nextStarted: NavDestination? = null
+        val nextStarted: MutableList<NavDestination> = mutableListOf()
         if (nextResumed is FloatingWindow) {
-            // Find the next destination in the back stack as that destination
+            // Find all visible destinations in the back stack as they
             // should still be STARTED when the FloatingWindow destination is above it.
             val iterator = backStack.reversed().iterator()
             while (iterator.hasNext()) {
                 val destination = iterator.next().destination
-                if (destination !is NavGraph && destination !is FloatingWindow) {
-                    nextStarted = destination
+                // Add all visible destinations (e.g., FloatingWindow destinations, their
+                // NavGraphs, and the screen directly below all FloatingWindow destinations)
+                // to nextStarted
+                nextStarted.add(destination)
+                // break if we find first visible screen
+                if (destination !is FloatingWindow && destination !is NavGraph) {
                     break
                 }
             }
@@ -1061,8 +1065,10 @@ public open class NavController(
                         upwardStateTransitions[entry] = Lifecycle.State.STARTED
                     }
                 }
+                if (nextStarted.firstOrNull()?.id == destination.id) nextStarted.removeFirst()
                 nextResumed = nextResumed.parent
-            } else if (nextStarted != null && destination.id == nextStarted.id) {
+            } else if (nextStarted.isNotEmpty() && destination.id == nextStarted.first().id) {
+                val started = nextStarted.removeFirst()
                 if (currentMaxLifecycle == Lifecycle.State.RESUMED) {
                     // Downward transitions should be done immediately so children are
                     // paused before their parent navigation graphs
@@ -1072,7 +1078,9 @@ public open class NavController(
                     // the parent navigation graph is started before their children
                     upwardStateTransitions[entry] = Lifecycle.State.STARTED
                 }
-                nextStarted = nextStarted.parent
+                started.parent?.let {
+                    if (!nextStarted.contains(it)) { nextStarted.add(it) }
+                }
             } else {
                 entry.maxLifecycle = Lifecycle.State.CREATED
             }
@@ -1422,6 +1430,7 @@ public open class NavController(
                     }, null
                 )
             }
+            deepLinkHandled = true
             return true
         }
         // Assume we're on another apps' task and only start the final destination
@@ -1508,7 +1517,6 @@ public open class NavController(
             return currentBackStackEntry?.destination
         }
 
-    /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun findDestination(@IdRes destinationId: Int): NavDestination? {
         if (_graph == null) {
@@ -1529,7 +1537,6 @@ public open class NavController(
         return currentGraph.findNode(destinationId)
     }
 
-    /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun findDestination(route: String): NavDestination? {
         if (_graph == null) {
@@ -1648,8 +1655,19 @@ public open class NavController(
             }
             combinedArgs.putAll(args)
         }
-        if (destId == 0 && finalNavOptions != null && finalNavOptions.popUpToId != -1) {
-            popBackStack(finalNavOptions.popUpToId, finalNavOptions.isPopUpToInclusive())
+        if (destId == 0 && finalNavOptions != null && (finalNavOptions.popUpToId != -1 ||
+                finalNavOptions.popUpToRoute != null)
+        ) {
+            when {
+                finalNavOptions.popUpToRoute != null ->
+                    popBackStack(
+                        finalNavOptions.popUpToRoute!!, finalNavOptions.isPopUpToInclusive()
+                    )
+                finalNavOptions.popUpToId != -1 ->
+                    popBackStack(
+                        finalNavOptions.popUpToId, finalNavOptions.isPopUpToInclusive()
+                    )
+            }
             return
         }
         require(destId != 0) {
@@ -1812,12 +1830,19 @@ public open class NavController(
         var launchSingleTop = false
         var navigated = false
         if (navOptions != null) {
-            if (navOptions.popUpToId != -1) {
-                popped = popBackStackInternal(
-                    navOptions.popUpToId,
-                    navOptions.isPopUpToInclusive(),
-                    navOptions.shouldPopUpToSaveState()
-                )
+            when {
+                navOptions.popUpToRoute != null ->
+                    popped = popBackStackInternal(
+                        navOptions.popUpToRoute!!,
+                        navOptions.isPopUpToInclusive(),
+                        navOptions.shouldPopUpToSaveState()
+                    )
+                navOptions.popUpToId != -1 ->
+                    popped = popBackStackInternal(
+                        navOptions.popUpToId,
+                        navOptions.isPopUpToInclusive(),
+                        navOptions.shouldPopUpToSaveState()
+                    )
             }
         }
         val finalArgs = node.addInDefaultArgs(args)
@@ -2322,7 +2347,6 @@ public open class NavController(
         deepLinkHandled = navState.getBoolean(KEY_DEEP_LINK_HANDLED)
     }
 
-    /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public open fun setLifecycleOwner(owner: LifecycleOwner) {
         if (owner == lifecycleOwner) {
@@ -2333,7 +2357,6 @@ public open class NavController(
         owner.lifecycle.addObserver(lifecycleObserver)
     }
 
-    /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public open fun setOnBackPressedDispatcher(dispatcher: OnBackPressedDispatcher) {
         if (dispatcher == onBackPressedDispatcher) {
@@ -2356,7 +2379,6 @@ public open class NavController(
         }
     }
 
-    /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public open fun enableOnBackPressed(enabled: Boolean) {
         enableOnBackPressedCallback = enabled
@@ -2369,7 +2391,6 @@ public open class NavController(
             )
     }
 
-    /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public open fun setViewModelStore(viewModelStore: ViewModelStore) {
         if (viewModel == NavControllerViewModel.getInstance(viewModelStore)) {
@@ -2496,19 +2517,15 @@ public open class NavController(
             "android-support-nav:controller:backStackStates"
         private const val KEY_BACK_STACK_STATES_PREFIX =
             "android-support-nav:controller:backStackStates:"
-        /** @suppress */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @field:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public const val KEY_DEEP_LINK_IDS: String = "android-support-nav:controller:deepLinkIds"
-        /** @suppress */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @field:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public const val KEY_DEEP_LINK_ARGS: String = "android-support-nav:controller:deepLinkArgs"
-        /** @suppress */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @field:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Suppress("IntentName")
         public const val KEY_DEEP_LINK_EXTRAS: String =
             "android-support-nav:controller:deepLinkExtras"
-        /** @suppress */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @field:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public const val KEY_DEEP_LINK_HANDLED: String =
             "android-support-nav:controller:deepLinkHandled"
 

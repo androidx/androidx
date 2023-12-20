@@ -16,6 +16,8 @@
 
 package androidx.core.content;
 
+import static androidx.core.util.ObjectsCompat.requireNonNull;
+
 import static org.xmlpull.v1.XmlPullParser.END_DOCUMENT;
 import static org.xmlpull.v1.XmlPullParser.START_TAG;
 
@@ -42,6 +44,7 @@ import android.provider.OpenableColumns;
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -376,11 +379,21 @@ public class FileProvider extends ContentProvider {
     @GuardedBy("sCache")
     private static final HashMap<String, PathStrategy> sCache = new HashMap<>();
 
-    private PathStrategy mStrategy;
-    private int mResourceId;
+    @NonNull
+    private final Object mLock = new Object();
+
+    @GuardedBy("mLock")
+    private String mAuthority;
+
+    // Do NOT access directly! Use getLocalPathStrategy() instead.
+    @GuardedBy("mLock")
+    @Nullable
+    private PathStrategy mLocalPathStrategy;
+
+    private final int mResourceId;
 
     public FileProvider() {
-        mResourceId = ResourcesCompat.ID_NULL;
+        this(ResourcesCompat.ID_NULL);
     }
 
     protected FileProvider(@XmlRes int resourceId) {
@@ -404,24 +417,28 @@ public class FileProvider extends ContentProvider {
      * @param info A {@link ProviderInfo} for the new provider.
      */
     @SuppressWarnings("StringSplitter")
+    @CallSuper
     @Override
     public void attachInfo(@NonNull Context context, @NonNull ProviderInfo info) {
         super.attachInfo(context, info);
 
-        // Check our security attributes
+        // Check our security attributes.
         if (info.exported) {
+            // Our intent here is to help application developers to avoid *accidentally* opening up
+            // this provider to the "world" which may lead to vulnerabilities in their applications.
             throw new SecurityException("Provider must not be exported");
         }
         if (!info.grantUriPermissions) {
             throw new SecurityException("Provider must grant uri permissions");
         }
 
-        String authority = info.authority.split(";")[0];
+        final String authority = info.authority.split(";")[0];
+        synchronized (mLock) {
+            mAuthority = authority;
+        }
         synchronized (sCache) {
             sCache.remove(authority);
         }
-
-        mStrategy = getPathStrategy(context, authority, mResourceId);
     }
 
     /**
@@ -514,7 +531,7 @@ public class FileProvider extends ContentProvider {
             @Nullable String[] selectionArgs,
             @Nullable String sortOrder) {
         // ContentProvider has already checked granted permissions
-        final File file = mStrategy.getFileForUri(uri);
+        final File file = getLocalPathStrategy().getFileForUri(uri);
         String displayName = uri.getQueryParameter(DISPLAYNAME_FIELD);
 
         if (projection == null) {
@@ -555,7 +572,7 @@ public class FileProvider extends ContentProvider {
     @Override
     public String getType(@NonNull Uri uri) {
         // ContentProvider has already checked granted permissions
-        final File file = mStrategy.getFileForUri(uri);
+        final File file = getLocalPathStrategy().getFileForUri(uri);
 
         final int lastDot = file.getName().lastIndexOf('.');
         if (lastDot >= 0) {
@@ -614,7 +631,7 @@ public class FileProvider extends ContentProvider {
     public int delete(@NonNull Uri uri, @Nullable String selection,
             @Nullable String[] selectionArgs) {
         // ContentProvider has already checked granted permissions
-        final File file = mStrategy.getFileForUri(uri);
+        final File file = getLocalPathStrategy().getFileForUri(uri);
         return file.delete() ? 1 : 0;
     }
 
@@ -638,9 +655,23 @@ public class FileProvider extends ContentProvider {
     public ParcelFileDescriptor openFile(@NonNull Uri uri, @NonNull String mode)
             throws FileNotFoundException {
         // ContentProvider has already checked granted permissions
-        final File file = mStrategy.getFileForUri(uri);
+        final File file = getLocalPathStrategy().getFileForUri(uri);
         final int fileMode = modeToMode(mode);
         return ParcelFileDescriptor.open(file, fileMode);
+    }
+
+    /** Return the local {@link PathStrategy}, creating it if necessary. */
+    @NonNull
+    private PathStrategy getLocalPathStrategy() {
+        synchronized (mLock) {
+            requireNonNull(mAuthority, "mAuthority is null. Did you override attachInfo and "
+                    + "did not call super.attachInfo()?");
+
+            if (mLocalPathStrategy == null) {
+                mLocalPathStrategy = getPathStrategy(getContext(), mAuthority, mResourceId);
+            }
+            return mLocalPathStrategy;
+        }
     }
 
     /**
@@ -826,7 +857,7 @@ public class FileProvider extends ContentProvider {
             Map.Entry<String, File> mostSpecific = null;
             for (Map.Entry<String, File> root : mRoots.entrySet()) {
                 final String rootPath = root.getValue().getPath();
-                if (path.startsWith(rootPath) && (mostSpecific == null
+                if (belongsToRoot(path, rootPath) && (mostSpecific == null
                         || rootPath.length() > mostSpecific.getValue().getPath().length())) {
                     mostSpecific = root;
                 }
@@ -871,11 +902,29 @@ public class FileProvider extends ContentProvider {
                 throw new IllegalArgumentException("Failed to resolve canonical path for " + file);
             }
 
-            if (!file.getPath().startsWith(root.getPath())) {
+            if (!belongsToRoot(file.getPath(), root.getPath())) {
                 throw new SecurityException("Resolved path jumped beyond configured root");
             }
 
             return file;
+        }
+
+        /**
+         * Check if the given file is located "under" the given root.
+         */
+        private boolean belongsToRoot(@NonNull String filePath, @NonNull String rootPath) {
+            // If we naively did the
+            //    filePath.startsWith(rootPath)
+            // check, we would miss cases such as the following:
+            //    rootPath="files/data"
+            //    filePath="files/data2"
+            // Thus we'll have to do more here.
+
+            // Remove trailing '/'s (if any) first.
+            filePath = removeTrailingSlash(filePath);
+            rootPath = removeTrailingSlash(rootPath);
+
+            return filePath.equals(rootPath) || filePath.startsWith(rootPath + '/');
         }
     }
 
@@ -927,6 +976,15 @@ public class FileProvider extends ContentProvider {
         final Object[] result = new Object[newLength];
         System.arraycopy(original, 0, result, 0, newLength);
         return result;
+    }
+
+    @NonNull
+    private static String removeTrailingSlash(@NonNull String path) {
+        if (path.length() > 0 && path.charAt(path.length() - 1) == '/') {
+            return path.substring(0, path.length() - 1);
+        } else {
+            return path;
+        }
     }
 
     @RequiresApi(21)

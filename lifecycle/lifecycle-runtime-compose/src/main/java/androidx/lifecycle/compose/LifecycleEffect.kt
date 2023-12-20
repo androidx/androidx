@@ -21,6 +21,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
@@ -41,6 +42,8 @@ import androidx.lifecycle.LifecycleOwner
  * events by way of storing callback data as a [Lifecycle.State] in a [MutableState].
  * Instead, see [currentStateAsState] to obtain a [State<Lifecycle.State>][State]
  * that may be used to launch jobs in response to state changes.
+ *
+ * @sample androidx.lifecycle.compose.samples.lifecycleEventEffectSample
  *
  * @param event The [Lifecycle.Event] to listen for
  * @param lifecycleOwner The lifecycle owner to attach an observer
@@ -79,50 +82,269 @@ fun LifecycleEventEffect(
 
 /**
  * Schedule a pair of effects to run when the [Lifecycle] receives either a
- * [Lifecycle.Event.ON_START] or [Lifecycle.Event.ON_STOP]. The ON_START effect will
- * be the body of the [effects] block and the ON_STOP effect will be within the
- * (onStop clause)[LifecycleStartStopEffectScope.onStop]:
+ * [Lifecycle.Event.ON_START] or [Lifecycle.Event.ON_STOP] (or any new unique
+ * value of [key1]). The ON_START effect will be the body of the [effects]
+ * block and the ON_STOP effect will be within the
+ * (onStopOrDispose clause)[LifecycleStartStopEffectScope.onStopOrDispose]:
  *
+ * ```
  * LifecycleStartEffect(lifecycleOwner) {
- *     // add ON_START effect work here
+ *     // add ON_START effect here
  *
- *     onStop {
- *         // add ON_STOP effect work here
+ *     onStopOrDispose {
+ *         // add clean up for work kicked off in the ON_START effect here
  *     }
  * }
+ * ```
  *
- * A [LifecycleStartEffect] **must** include an [onStop][LifecycleStartStopEffectScope.onStop]
- * clause as the final statement in its [effects] block. If your operation does not require
- * an effect for both ON_START and ON_STOP, a [LifecycleEventEffect] should be used instead.
+ * @sample androidx.lifecycle.compose.samples.lifecycleStartEffectSample
+ *
+ * A [LifecycleStartEffect] **must** include an
+ * [onStopOrDispose][LifecycleStartStopEffectScope.onStopOrDispose] clause as the final
+ * statement in its [effects] block. If your operation does not require an effect for
+ * _both_ [Lifecycle.Event.ON_START] and [Lifecycle.Event.ON_STOP], a [LifecycleEventEffect]
+ * should be used instead.
+ *
+ * A [LifecycleStartEffect]'s _key_ is a value that defines the identity of the effect.
+ * If the key changes, the [LifecycleStartEffect] must
+ * [dispose][LifecycleStartStopEffectScope.onStopOrDispose] its current [effects] and
+ * reset by calling [effects] again. Examples of keys include:
+ *
+ * * Observable objects that the effect subscribes to
+ * * Unique request parameters to an operation that must cancel and retry if those parameters change
  *
  * This function uses a [LifecycleEventObserver] to listen for when [LifecycleStartEffect]
  * enters the composition and the effects will be launched when receiving a
- * [Lifecycle.Event.ON_START] or [Lifecycle.Event.ON_STOP] event, respectively.
+ * [Lifecycle.Event.ON_START] or [Lifecycle.Event.ON_STOP] event, respectively. If the
+ * [LifecycleStartEffect] leaves the composition prior to receiving an [Lifecycle.Event.ON_STOP]
+ * event, [onStopOrDispose][LifecycleStartStopEffectScope.onStopOrDispose] will be called to
+ * clean up the work that was kicked off in the ON_START effect.
  *
  * This function should **not** be used to launch tasks in response to callback
  * events by way of storing callback data as a [Lifecycle.State] in a [MutableState].
  * Instead, see [currentStateAsState] to obtain a [State<Lifecycle.State>][State]
  * that may be used to launch jobs in response to state changes.
  *
+ * @param key1 The unique value to trigger recomposition upon change
  * @param lifecycleOwner The lifecycle owner to attach an observer
  * @param effects The effects to be launched when we receive the respective event callbacks
  */
 @Composable
 fun LifecycleStartEffect(
+    key1: Any?,
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
-    effects: LifecycleStartStopEffectScope.() -> LifecycleStopEffectResult
+    effects: LifecycleStartStopEffectScope.() -> LifecycleStopOrDisposeEffectResult
 ) {
-    val lifecycleStartStopEffectScope = LifecycleStartStopEffectScope()
-    // Safely update the current `onStart` lambda when a new one is provided
-    val currentEffects by rememberUpdatedState(effects)
-    DisposableEffect(lifecycleOwner) {
+    val lifecycleStartStopEffectScope = remember(key1, lifecycleOwner) {
+        LifecycleStartStopEffectScope(lifecycleOwner.lifecycle)
+    }
+    LifecycleStartEffectImpl(lifecycleOwner, lifecycleStartStopEffectScope, effects)
+}
+
+/**
+ * Schedule a pair of effects to run when the [Lifecycle] receives either a
+ * [Lifecycle.Event.ON_START] or [Lifecycle.Event.ON_STOP] (or any new unique
+ * value of [key1] or [key2]). The ON_START effect will be the body of the
+ * [effects] block and the ON_STOP effect will be within the
+ * (onStopOrDispose clause)[LifecycleStartStopEffectScope.onStopOrDispose]:
+ *
+ * ```
+ * LifecycleStartEffect(lifecycleOwner) {
+ *     // add ON_START effect here
+ *
+ *     onStopOrDispose {
+ *         // add clean up for work kicked off in the ON_START effect here
+ *     }
+ * }
+ * ```
+ *
+ * @sample androidx.lifecycle.compose.samples.lifecycleStartEffectSample
+ *
+ * A [LifecycleStartEffect] **must** include an
+ * [onStopOrDispose][LifecycleStartStopEffectScope.onStopOrDispose] clause as the final
+ * statement in its [effects] block. If your operation does not require an effect for
+ * _both_ [Lifecycle.Event.ON_START] and [Lifecycle.Event.ON_STOP], a [LifecycleEventEffect]
+ * should be used instead.
+ *
+ * A [LifecycleStartEffect]'s _key_ is a value that defines the identity of the effect.
+ * If a key changes, the [LifecycleStartEffect] must
+ * [dispose][LifecycleStartStopEffectScope.onStopOrDispose] its current [effects] and
+ * reset by calling [effects] again. Examples of keys include:
+ *
+ * * Observable objects that the effect subscribes to
+ * * Unique request parameters to an operation that must cancel and retry if those parameters change
+ *
+ * This function uses a [LifecycleEventObserver] to listen for when [LifecycleStartEffect]
+ * enters the composition and the effects will be launched when receiving a
+ * [Lifecycle.Event.ON_START] or [Lifecycle.Event.ON_STOP] event, respectively. If the
+ * [LifecycleStartEffect] leaves the composition prior to receiving an [Lifecycle.Event.ON_STOP]
+ * event, [onStopOrDispose][LifecycleStartStopEffectScope.onStopOrDispose] will be called to
+ * clean up the work that was kicked off in the ON_START effect.
+ *
+ * This function should **not** be used to launch tasks in response to callback
+ * events by way of storing callback data as a [Lifecycle.State] in a [MutableState].
+ * Instead, see [currentStateAsState] to obtain a [State<Lifecycle.State>][State]
+ * that may be used to launch jobs in response to state changes.
+ *
+ * @param key1 A unique value to trigger recomposition upon change
+ * @param key2 A unique value to trigger recomposition upon change
+ * @param lifecycleOwner The lifecycle owner to attach an observer
+ * @param effects The effects to be launched when we receive the respective event callbacks
+ */
+@Composable
+fun LifecycleStartEffect(
+    key1: Any?,
+    key2: Any?,
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
+    effects: LifecycleStartStopEffectScope.() -> LifecycleStopOrDisposeEffectResult
+) {
+    val lifecycleStartStopEffectScope = remember(key1, key2, lifecycleOwner) {
+        LifecycleStartStopEffectScope(lifecycleOwner.lifecycle)
+    }
+    LifecycleStartEffectImpl(lifecycleOwner, lifecycleStartStopEffectScope, effects)
+}
+
+/**
+ * Schedule a pair of effects to run when the [Lifecycle] receives either a
+ * [Lifecycle.Event.ON_START] or [Lifecycle.Event.ON_STOP] (or any new unique
+ * value of [key1] or [key2] or [key3]). The ON_START effect will be the body
+ * of the [effects] block and the ON_STOP effect will be within the
+ * (onStopOrDispose clause)[LifecycleStartStopEffectScope.onStopOrDispose]:
+ *
+ * ```
+ * LifecycleStartEffect(lifecycleOwner) {
+ *     // add ON_START effect here
+ *
+ *     onStopOrDispose {
+ *         // add clean up for work kicked off in the ON_START effect here
+ *     }
+ * }
+ * ```
+ *
+ * @sample androidx.lifecycle.compose.samples.lifecycleStartEffectSample
+ *
+ * A [LifecycleStartEffect] **must** include an
+ * [onStopOrDispose][LifecycleStartStopEffectScope.onStopOrDispose] clause as the final
+ * statement in its [effects] block. If your operation does not require an effect for
+ * _both_ [Lifecycle.Event.ON_START] and [Lifecycle.Event.ON_STOP], a [LifecycleEventEffect]
+ * should be used instead.
+ *
+ * A [LifecycleStartEffect]'s _key_ is a value that defines the identity of the effect.
+ * If a key changes, the [LifecycleStartEffect] must
+ * [dispose][LifecycleStartStopEffectScope.onStopOrDispose] its current [effects] and
+ * reset by calling [effects] again. Examples of keys include:
+ *
+ * * Observable objects that the effect subscribes to
+ * * Unique request parameters to an operation that must cancel and retry if those parameters change
+ *
+ * This function uses a [LifecycleEventObserver] to listen for when [LifecycleStartEffect]
+ * enters the composition and the effects will be launched when receiving a
+ * [Lifecycle.Event.ON_START] or [Lifecycle.Event.ON_STOP] event, respectively. If the
+ * [LifecycleStartEffect] leaves the composition prior to receiving an [Lifecycle.Event.ON_STOP]
+ * event, [onStopOrDispose][LifecycleStartStopEffectScope.onStopOrDispose] will be called to
+ * clean up the work that was kicked off in the ON_START effect.
+ *
+ * This function should **not** be used to launch tasks in response to callback
+ * events by way of storing callback data as a [Lifecycle.State] in a [MutableState].
+ * Instead, see [currentStateAsState] to obtain a [State<Lifecycle.State>][State]
+ * that may be used to launch jobs in response to state changes.
+ *
+ * @param key1 The unique value to trigger recomposition upon change
+ * @param key2 The unique value to trigger recomposition upon change
+ * @param key3 The unique value to trigger recomposition upon change
+ * @param lifecycleOwner The lifecycle owner to attach an observer
+ * @param effects The effects to be launched when we receive the respective event callbacks
+ */
+@Composable
+fun LifecycleStartEffect(
+    key1: Any?,
+    key2: Any?,
+    key3: Any?,
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
+    effects: LifecycleStartStopEffectScope.() -> LifecycleStopOrDisposeEffectResult
+) {
+    val lifecycleStartStopEffectScope = remember(key1, key2, key3, lifecycleOwner) {
+        LifecycleStartStopEffectScope(lifecycleOwner.lifecycle)
+    }
+    LifecycleStartEffectImpl(lifecycleOwner, lifecycleStartStopEffectScope, effects)
+}
+
+/**
+ * Schedule a pair of effects to run when the [Lifecycle] receives either a
+ * [Lifecycle.Event.ON_START] or [Lifecycle.Event.ON_STOP] (or any new unique
+ * value of [keys]). The ON_START effect will be the body of the [effects]
+ * block and the ON_STOP effect will be within the
+ * (onStopOrDispose clause)[LifecycleStartStopEffectScope.onStopOrDispose]:
+ *
+ * ```
+ * LifecycleStartEffect(lifecycleOwner) {
+ *     // add ON_START effect here
+ *
+ *     onStopOrDispose {
+ *         // add clean up for work kicked off in the ON_START effect here
+ *     }
+ * }
+ * ```
+ *
+ * @sample androidx.lifecycle.compose.samples.lifecycleStartEffectSample
+ *
+ * A [LifecycleStartEffect] **must** include an
+ * [onStopOrDispose][LifecycleStartStopEffectScope.onStopOrDispose] clause as the final
+ * statement in its [effects] block. If your operation does not require an effect for
+ * _both_ [Lifecycle.Event.ON_START] and [Lifecycle.Event.ON_STOP], a [LifecycleEventEffect]
+ * should be used instead.
+ *
+ * A [LifecycleStartEffect]'s _key_ is a value that defines the identity of the effect.
+ * If a key changes, the [LifecycleStartEffect] must
+ * [dispose][LifecycleStartStopEffectScope.onStopOrDispose] its current [effects] and
+ * reset by calling [effects] again. Examples of keys include:
+ *
+ * * Observable objects that the effect subscribes to
+ * * Unique request parameters to an operation that must cancel and retry if those parameters change
+ *
+ * This function uses a [LifecycleEventObserver] to listen for when [LifecycleStartEffect]
+ * enters the composition and the effects will be launched when receiving a
+ * [Lifecycle.Event.ON_START] or [Lifecycle.Event.ON_STOP] event, respectively. If the
+ * [LifecycleStartEffect] leaves the composition prior to receiving an [Lifecycle.Event.ON_STOP]
+ * event, [onStopOrDispose][LifecycleStartStopEffectScope.onStopOrDispose] will be called to
+ * clean up the work that was kicked off in the ON_START effect.
+ *
+ * This function should **not** be used to launch tasks in response to callback
+ * events by way of storing callback data as a [Lifecycle.State] in a [MutableState].
+ * Instead, see [currentStateAsState] to obtain a [State<Lifecycle.State>][State]
+ * that may be used to launch jobs in response to state changes.
+ *
+ * @param keys The unique values to trigger recomposition upon changes
+ * @param lifecycleOwner The lifecycle owner to attach an observer
+ * @param effects The effects to be launched when we receive the respective event callbacks
+ */
+@Composable
+fun LifecycleStartEffect(
+    vararg keys: Any?,
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
+    effects: LifecycleStartStopEffectScope.() -> LifecycleStopOrDisposeEffectResult
+) {
+    val lifecycleStartStopEffectScope = remember(*keys, lifecycleOwner) {
+        LifecycleStartStopEffectScope(lifecycleOwner.lifecycle)
+    }
+    LifecycleStartEffectImpl(lifecycleOwner, lifecycleStartStopEffectScope, effects)
+}
+
+@Composable
+private fun LifecycleStartEffectImpl(
+    lifecycleOwner: LifecycleOwner,
+    scope: LifecycleStartStopEffectScope,
+    effects: LifecycleStartStopEffectScope.() -> LifecycleStopOrDisposeEffectResult
+) {
+    DisposableEffect(lifecycleOwner, scope) {
+        var effectResult: LifecycleStopOrDisposeEffectResult? = null
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
-                Lifecycle.Event.ON_START ->
-                    lifecycleStartStopEffectScope.currentEffects()
+                Lifecycle.Event.ON_START -> with(scope) {
+                    effectResult = effects()
+                }
 
-                Lifecycle.Event.ON_STOP ->
-                    lifecycleStartStopEffectScope.currentEffects().runStopEffect()
+                Lifecycle.Event.ON_STOP -> effectResult?.runStopOrDisposeEffect()
 
                 else -> {}
             }
@@ -132,83 +354,309 @@ fun LifecycleStartEffect(
 
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
+            effectResult?.runStopOrDisposeEffect()
         }
     }
 }
 
 /**
- * Interface used for [LifecycleStartEffect] to run the effect within the onStop
- * clause when an (ON_STOP)[Lifecycle.Event.ON_STOP] event is received.
+ * Interface used for [LifecycleStartEffect] to run the effect within the onStopOrDispose
+ * clause when an (ON_STOP)[Lifecycle.Event.ON_STOP] event is received or when cleanup is
+ * needed for the work that was kicked off in the ON_START effect.
  */
-interface LifecycleStopEffectResult {
-    fun runStopEffect()
+interface LifecycleStopOrDisposeEffectResult {
+    fun runStopOrDisposeEffect()
 }
 
 /**
- * Receiver scope for [LifecycleStartEffect] that offers the [onStop] clause to
+ * Receiver scope for [LifecycleStartEffect] that offers the [onStopOrDispose] clause to
  * couple the ON_START effect. This should be the last statement in any call to
  * [LifecycleStartEffect].
+ *
+ * This scope is also a [LifecycleOwner] to allow access to the
+ * (lifecycle)[LifecycleStartStopEffectScope.lifecycle] within the [onStopOrDispose] clause.
+ *
+ * @param lifecycle The lifecycle being observed by this receiver scope
  */
-class LifecycleStartStopEffectScope {
+class LifecycleStartStopEffectScope(override val lifecycle: Lifecycle) : LifecycleOwner {
     /**
-     * Provide the [onStopEffect] to the [LifecycleStartEffect] to run when the observer
-     * receives an (ON_STOP)[Lifecycle.Event.ON_STOP] event.
+     * Provide the [onStopOrDisposeEffect] to the [LifecycleStartEffect] to run when the
+     * observer receives an (ON_STOP)[Lifecycle.Event.ON_STOP] event or must undergo cleanup.
      */
-    inline fun onStop(
-        crossinline onStopEffect: () -> Unit
-    ): LifecycleStopEffectResult = object : LifecycleStopEffectResult {
-        override fun runStopEffect() {
-            onStopEffect()
+    inline fun onStopOrDispose(
+        crossinline onStopOrDisposeEffect: LifecycleOwner.() -> Unit
+    ): LifecycleStopOrDisposeEffectResult = object : LifecycleStopOrDisposeEffectResult {
+        override fun runStopOrDisposeEffect() {
+            onStopOrDisposeEffect()
         }
     }
 }
 
 /**
  * Schedule a pair of effects to run when the [Lifecycle] receives either a
- * [Lifecycle.Event.ON_RESUME] or [Lifecycle.Event.ON_PAUSE]. The ON_RESUME effect
- * will be the body of the [effects] block and the ON_PAUSE effect will be within the
- * (onPause clause)[LifecycleResumePauseEffectScope.onPause]:
+ * [Lifecycle.Event.ON_RESUME] or [Lifecycle.Event.ON_PAUSE] (or any new unique
+ * value of [key1]). The ON_RESUME effect will be the body of the [effects]
+ * block and the ON_PAUSE effect will be within the
+ * (onPauseOrDispose clause)[LifecycleResumePauseEffectScope.onPauseOrDispose]:
  *
+ * ```
  * LifecycleResumeEffect(lifecycleOwner) {
- *     // add ON_RESUME effect work here
+ *     // add ON_RESUME effect here
  *
- *     onPause {
- *         // add ON_PAUSE effect work here
+ *     onPauseOrDispose {
+ *         // add clean up for work kicked off in the ON_RESUME effect here
  *     }
  * }
+ * ```
  *
- * A [LifecycleResumeEffect] **must** include an [onPause][LifecycleResumePauseEffectScope.onPause]
- * clause as the final statement in its [effects] block. If your operation does not require
- * an effect for both ON_RESUME and ON_PAUSE, a [LifecycleEventEffect] should be used instead.
+ * @sample androidx.lifecycle.compose.samples.lifecycleResumeEffectSample
+ *
+ * A [LifecycleResumeEffect] **must** include an
+ * [onPauseOrDispose][LifecycleResumePauseEffectScope.onPauseOrDispose] clause as
+ * the final statement in its [effects] block. If your operation does not require
+ * an effect for _both_ [Lifecycle.Event.ON_RESUME] and [Lifecycle.Event.ON_PAUSE],
+ * a [LifecycleEventEffect] should be used instead.
+ *
+ * A [LifecycleResumeEffect]'s _key_ is a value that defines the identity of the effect.
+ * If a key changes, the [LifecycleResumeEffect] must
+ * [dispose][LifecycleResumePauseEffectScope.onPauseOrDispose] its current [effects] and
+ * reset by calling [effects] again. Examples of keys include:
+ *
+ * * Observable objects that the effect subscribes to
+ * * Unique request parameters to an operation that must cancel and retry if those parameters change
  *
  * This function uses a [LifecycleEventObserver] to listen for when [LifecycleResumeEffect]
  * enters the composition and the effects will be launched when receiving a
- * [Lifecycle.Event.ON_RESUME] or [Lifecycle.Event.ON_PAUSE] event, respectively.
+ * [Lifecycle.Event.ON_RESUME] or [Lifecycle.Event.ON_PAUSE] event, respectively. If the
+ * [LifecycleResumeEffect] leaves the composition prior to receiving an [Lifecycle.Event.ON_PAUSE]
+ * event, [onPauseOrDispose][LifecycleResumePauseEffectScope.onPauseOrDispose] will be called
+ * to clean up the work that was kicked off in the ON_RESUME effect.
  *
  * This function should **not** be used to launch tasks in response to callback
  * events by way of storing callback data as a [Lifecycle.State] in a [MutableState].
  * Instead, see [currentStateAsState] to obtain a [State<Lifecycle.State>][State]
  * that may be used to launch jobs in response to state changes.
  *
+ * @param key1 The unique value to trigger recomposition upon change
  * @param lifecycleOwner The lifecycle owner to attach an observer
  * @param effects The effects to be launched when we receive the respective event callbacks
  */
 @Composable
 fun LifecycleResumeEffect(
+    key1: Any?,
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
-    effects: LifecycleResumePauseEffectScope.() -> LifecyclePauseEffectResult
+    effects: LifecycleResumePauseEffectScope.() -> LifecyclePauseOrDisposeEffectResult
 ) {
-    val lifecycleResumePauseEffectScope = LifecycleResumePauseEffectScope()
-    // Safely update the current `onResume` lambda when a new one is provided
-    val currentEffects by rememberUpdatedState(effects)
-    DisposableEffect(lifecycleOwner) {
+    val lifecycleResumePauseEffectScope = remember(key1, lifecycleOwner) {
+        LifecycleResumePauseEffectScope(lifecycleOwner.lifecycle)
+    }
+    LifecycleResumeEffectImpl(lifecycleOwner, lifecycleResumePauseEffectScope, effects)
+}
+
+/**
+ * Schedule a pair of effects to run when the [Lifecycle] receives either a
+ * [Lifecycle.Event.ON_RESUME] or [Lifecycle.Event.ON_PAUSE] (or any new unique
+ * value of [key1] or [key2]). The ON_RESUME effect will be the body of the
+ * [effects] block and the ON_PAUSE effect will be within the
+ * (onPauseOrDispose clause)[LifecycleResumePauseEffectScope.onPauseOrDispose]:
+ *
+ * ```
+ * LifecycleResumeEffect(lifecycleOwner) {
+ *     // add ON_RESUME effect here
+ *
+ *     onPauseOrDispose {
+ *         // add clean up for work kicked off in the ON_RESUME effect here
+ *     }
+ * }
+ * ```
+ *
+ * @sample androidx.lifecycle.compose.samples.lifecycleResumeEffectSample
+ *
+ * A [LifecycleResumeEffect] **must** include an
+ * [onPauseOrDispose][LifecycleResumePauseEffectScope.onPauseOrDispose] clause as
+ * the final statement in its [effects] block. If your operation does not require
+ * an effect for _both_ [Lifecycle.Event.ON_RESUME] and [Lifecycle.Event.ON_PAUSE],
+ * a [LifecycleEventEffect] should be used instead.
+ *
+ * A [LifecycleResumeEffect]'s _key_ is a value that defines the identity of the effect.
+ * If a key changes, the [LifecycleResumeEffect] must
+ * [dispose][LifecycleResumePauseEffectScope.onPauseOrDispose] its current [effects] and
+ * reset by calling [effects] again. Examples of keys include:
+ *
+ * * Observable objects that the effect subscribes to
+ * * Unique request parameters to an operation that must cancel and retry if those parameters change
+ *
+ * This function uses a [LifecycleEventObserver] to listen for when [LifecycleResumeEffect]
+ * enters the composition and the effects will be launched when receiving a
+ * [Lifecycle.Event.ON_RESUME] or [Lifecycle.Event.ON_PAUSE] event, respectively. If the
+ * [LifecycleResumeEffect] leaves the composition prior to receiving an [Lifecycle.Event.ON_PAUSE]
+ * event, [onPauseOrDispose][LifecycleResumePauseEffectScope.onPauseOrDispose] will be called
+ * to clean up the work that was kicked off in the ON_RESUME effect.
+ *
+ * This function should **not** be used to launch tasks in response to callback
+ * events by way of storing callback data as a [Lifecycle.State] in a [MutableState].
+ * Instead, see [currentStateAsState] to obtain a [State<Lifecycle.State>][State]
+ * that may be used to launch jobs in response to state changes.
+ *
+ * @param key1 A unique value to trigger recomposition upon change
+ * @param key2 A unique value to trigger recomposition upon change
+ * @param lifecycleOwner The lifecycle owner to attach an observer
+ * @param effects The effects to be launched when we receive the respective event callbacks
+ */
+@Composable
+fun LifecycleResumeEffect(
+    key1: Any?,
+    key2: Any?,
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
+    effects: LifecycleResumePauseEffectScope.() -> LifecyclePauseOrDisposeEffectResult
+) {
+    val lifecycleResumePauseEffectScope = remember(key1, key2, lifecycleOwner) {
+        LifecycleResumePauseEffectScope(lifecycleOwner.lifecycle)
+    }
+    LifecycleResumeEffectImpl(lifecycleOwner, lifecycleResumePauseEffectScope, effects)
+}
+
+/**
+ * Schedule a pair of effects to run when the [Lifecycle] receives either a
+ * [Lifecycle.Event.ON_RESUME] or [Lifecycle.Event.ON_PAUSE] (or any new unique
+ * value of [key1] or [key2] or [key3]). The ON_RESUME effect will be the body
+ * of the [effects] block and the ON_PAUSE effect will be within the
+ * (onPauseOrDispose clause)[LifecycleResumePauseEffectScope.onPauseOrDispose]:
+ *
+ * ```
+ * LifecycleResumeEffect(lifecycleOwner) {
+ *     // add ON_RESUME effect here
+ *
+ *     onPauseOrDispose {
+ *         // add clean up for work kicked off in the ON_RESUME effect here
+ *     }
+ * }
+ * ```
+ *
+ * @sample androidx.lifecycle.compose.samples.lifecycleResumeEffectSample
+ *
+ * A [LifecycleResumeEffect] **must** include an
+ * [onPauseOrDispose][LifecycleResumePauseEffectScope.onPauseOrDispose] clause as
+ * the final statement in its [effects] block. If your operation does not require
+ * an effect for _both_ [Lifecycle.Event.ON_RESUME] and [Lifecycle.Event.ON_PAUSE],
+ * a [LifecycleEventEffect] should be used instead.
+ *
+ * A [LifecycleResumeEffect]'s _key_ is a value that defines the identity of the effect.
+ * If a key changes, the [LifecycleResumeEffect] must
+ * [dispose][LifecycleResumePauseEffectScope.onPauseOrDispose] its current [effects] and
+ * reset by calling [effects] again. Examples of keys include:
+ *
+ * * Observable objects that the effect subscribes to
+ * * Unique request parameters to an operation that must cancel and retry if those parameters change
+ *
+ * This function uses a [LifecycleEventObserver] to listen for when [LifecycleResumeEffect]
+ * enters the composition and the effects will be launched when receiving a
+ * [Lifecycle.Event.ON_RESUME] or [Lifecycle.Event.ON_PAUSE] event, respectively. If the
+ * [LifecycleResumeEffect] leaves the composition prior to receiving an [Lifecycle.Event.ON_PAUSE]
+ * event, [onPauseOrDispose][LifecycleResumePauseEffectScope.onPauseOrDispose] will be called
+ * to clean up the work that was kicked off in the ON_RESUME effect.
+ *
+ * This function should **not** be used to launch tasks in response to callback
+ * events by way of storing callback data as a [Lifecycle.State] in a [MutableState].
+ * Instead, see [currentStateAsState] to obtain a [State<Lifecycle.State>][State]
+ * that may be used to launch jobs in response to state changes.
+ *
+ * @param key1 A unique value to trigger recomposition upon change
+ * @param key2 A unique value to trigger recomposition upon change
+ * @param key3 A unique value to trigger recomposition upon change
+ * @param lifecycleOwner The lifecycle owner to attach an observer
+ * @param effects The effects to be launched when we receive the respective event callbacks
+ */
+@Composable
+fun LifecycleResumeEffect(
+    key1: Any?,
+    key2: Any?,
+    key3: Any?,
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
+    effects: LifecycleResumePauseEffectScope.() -> LifecyclePauseOrDisposeEffectResult
+) {
+    val lifecycleResumePauseEffectScope = remember(key1, key2, key3, lifecycleOwner) {
+        LifecycleResumePauseEffectScope(lifecycleOwner.lifecycle)
+    }
+    LifecycleResumeEffectImpl(lifecycleOwner, lifecycleResumePauseEffectScope, effects)
+}
+
+/**
+ * Schedule a pair of effects to run when the [Lifecycle] receives either a
+ * [Lifecycle.Event.ON_RESUME] or [Lifecycle.Event.ON_PAUSE] (or any new unique
+ * value of [keys]). The ON_RESUME effect will be the body of the [effects]
+ * block and the ON_PAUSE effect will be within the
+ * (onPauseOrDispose clause)[LifecycleResumePauseEffectScope.onPauseOrDispose]:
+ *
+ * ```
+ * LifecycleResumeEffect(lifecycleOwner) {
+ *     // add ON_RESUME effect here
+ *
+ *     onPauseOrDispose {
+ *         // add clean up for work kicked off in the ON_RESUME effect here
+ *     }
+ * }
+ * ```
+ *
+ * @sample androidx.lifecycle.compose.samples.lifecycleResumeEffectSample
+ *
+ * A [LifecycleResumeEffect] **must** include an
+ * [onPauseOrDispose][LifecycleResumePauseEffectScope.onPauseOrDispose] clause as
+ * the final statement in its [effects] block. If your operation does not require
+ * an effect for _both_ [Lifecycle.Event.ON_RESUME] and [Lifecycle.Event.ON_PAUSE],
+ * a [LifecycleEventEffect] should be used instead.
+ *
+ * A [LifecycleResumeEffect]'s _key_ is a value that defines the identity of the effect.
+ * If a key changes, the [LifecycleResumeEffect] must
+ * [dispose][LifecycleResumePauseEffectScope.onPauseOrDispose] its current [effects] and
+ * reset by calling [effects] again. Examples of keys include:
+ *
+ * * Observable objects that the effect subscribes to
+ * * Unique request parameters to an operation that must cancel and retry if those parameters change
+ *
+ * This function uses a [LifecycleEventObserver] to listen for when [LifecycleResumeEffect]
+ * enters the composition and the effects will be launched when receiving a
+ * [Lifecycle.Event.ON_RESUME] or [Lifecycle.Event.ON_PAUSE] event, respectively. If the
+ * [LifecycleResumeEffect] leaves the composition prior to receiving an [Lifecycle.Event.ON_PAUSE]
+ * event, [onPauseOrDispose][LifecycleResumePauseEffectScope.onPauseOrDispose] will be called
+ * to clean up the work that was kicked off in the ON_RESUME effect.
+ *
+ * This function should **not** be used to launch tasks in response to callback
+ * events by way of storing callback data as a [Lifecycle.State] in a [MutableState].
+ * Instead, see [currentStateAsState] to obtain a [State<Lifecycle.State>][State]
+ * that may be used to launch jobs in response to state changes.
+ *
+ * @param keys The unique values to trigger recomposition upon changes
+ * @param lifecycleOwner The lifecycle owner to attach an observer
+ * @param effects The effects to be launched when we receive the respective event callbacks
+ */
+@Composable
+fun LifecycleResumeEffect(
+    vararg keys: Any?,
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
+    effects: LifecycleResumePauseEffectScope.() -> LifecyclePauseOrDisposeEffectResult
+) {
+    val lifecycleResumePauseEffectScope = remember(*keys, lifecycleOwner) {
+        LifecycleResumePauseEffectScope(lifecycleOwner.lifecycle)
+    }
+    LifecycleResumeEffectImpl(lifecycleOwner, lifecycleResumePauseEffectScope, effects)
+}
+
+@Composable
+private fun LifecycleResumeEffectImpl(
+    lifecycleOwner: LifecycleOwner,
+    scope: LifecycleResumePauseEffectScope,
+    effects: LifecycleResumePauseEffectScope.() -> LifecyclePauseOrDisposeEffectResult
+) {
+    DisposableEffect(lifecycleOwner, scope) {
+        var effectResult: LifecyclePauseOrDisposeEffectResult? = null
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
-                Lifecycle.Event.ON_RESUME ->
-                    lifecycleResumePauseEffectScope.currentEffects()
+                Lifecycle.Event.ON_RESUME -> with(scope) {
+                    effectResult = effects()
+                }
 
-                Lifecycle.Event.ON_PAUSE ->
-                    lifecycleResumePauseEffectScope.currentEffects().runPauseEffect()
+                Lifecycle.Event.ON_PAUSE -> effectResult?.runPauseOrOnDisposeEffect()
 
                 else -> {}
             }
@@ -218,33 +666,40 @@ fun LifecycleResumeEffect(
 
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
+            effectResult?.runPauseOrOnDisposeEffect()
         }
     }
 }
 
 /**
- * Interface used for [LifecycleResumeEffect] to run the effect within the onPause
- * clause when an (ON_PAUSE)[Lifecycle.Event.ON_PAUSE] event is received.
+ * Interface used for [LifecycleResumeEffect] to run the effect within the onPauseOrDispose
+ * clause when an (ON_PAUSE)[Lifecycle.Event.ON_PAUSE] event is received or when cleanup is
+ *  * needed for the work that was kicked off in the ON_RESUME effect.
  */
-interface LifecyclePauseEffectResult {
-    fun runPauseEffect()
+interface LifecyclePauseOrDisposeEffectResult {
+    fun runPauseOrOnDisposeEffect()
 }
 
 /**
- * Receiver scope for [LifecycleResumeEffect] that offers the [onPause] clause to
+ * Receiver scope for [LifecycleResumeEffect] that offers the [onPauseOrDispose] clause to
  * couple the ON_RESUME effect. This should be the last statement in any call to
  * [LifecycleResumeEffect].
+ *
+ * This scope is also a [LifecycleOwner] to allow access to the
+ * (lifecycle)[LifecycleResumePauseEffectScope.lifecycle] within the [onPauseOrDispose] clause.
+ *
+ * @param lifecycle The lifecycle being observed by this receiver scope
  */
-class LifecycleResumePauseEffectScope {
+class LifecycleResumePauseEffectScope(override val lifecycle: Lifecycle) : LifecycleOwner {
     /**
-     * Provide the [onPauseEffect] to the [LifecycleResumeEffect] to run when the observer
-     * receives an (ON_PAUSE)[Lifecycle.Event.ON_PAUSE] event.
+     * Provide the [onPauseOrDisposeEffect] to the [LifecycleResumeEffect] to run when the observer
+     * receives an (ON_PAUSE)[Lifecycle.Event.ON_PAUSE] event or must undergo cleanup.
      */
-    inline fun onPause(
-        crossinline onPauseEffect: () -> Unit
-    ): LifecyclePauseEffectResult = object : LifecyclePauseEffectResult {
-        override fun runPauseEffect() {
-            onPauseEffect()
+    inline fun onPauseOrDispose(
+        crossinline onPauseOrDisposeEffect: LifecycleOwner.() -> Unit
+    ): LifecyclePauseOrDisposeEffectResult = object : LifecyclePauseOrDisposeEffectResult {
+        override fun runPauseOrOnDisposeEffect() {
+            onPauseOrDisposeEffect()
         }
     }
 }

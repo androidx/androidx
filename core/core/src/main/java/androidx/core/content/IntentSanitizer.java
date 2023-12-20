@@ -510,7 +510,9 @@ public class IntentSanitizer {
         }
 
         /**
-         * Add a package to the allowed packages.
+         * Add a package to the allowed packages. This does not imply the intent can contain
+         * a component from the allowed package; instead, this value will be compared against
+         * the result returned from the Intent's {@link Intent#getPackage()} method.
          * This method can be called multiple times and the result is additive. They will not
          * overwrite each other.
          *
@@ -524,7 +526,9 @@ public class IntentSanitizer {
         }
 
         /**
-         * Add a filter for allowed packages.
+         * Add a filter for allowed packages. This does not imply the intent can contain
+         * a component from the allowed package; instead, this value will be compared against
+         * the result returned from the Intent's {@link Intent#getPackage()} method.
          * This method can be called multiple times and the result is additive. They will not
          * overwrite each other.
          *
@@ -572,7 +576,8 @@ public class IntentSanitizer {
         }
 
         /**
-         * Add a package to the allowed package list. Any component under this package is allowed.
+         * Allow any component under the specified package. Note this does not allow the
+         * package itself. If the intent contains a package, call allowPackage method.
          * This method can be called multiple times and the result is additive. They will not
          * overwrite each other.
          *
@@ -845,7 +850,6 @@ public class IntentSanitizer {
          *
          * @return the IntentSanitizer
          */
-        @SuppressLint("SyntheticAccessor")
         @NonNull
         public IntentSanitizer build() {
             if ((mAllowAnyComponent && mAllowSomeComponents)

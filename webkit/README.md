@@ -24,15 +24,28 @@ to the library, you can do so like so:
 ```sh
 cd frameworks/support/
 # Build the library/compile changes
-./gradlew :webkit:assembleDebug
+./gradlew :webkit:webkit:assembleDebug
+
 # Run integration tests with the WebView installed on the device
-./gradlew :webkit:connectedAndroidTest
+# using this convenience script:
+webkit/run_instrumentation_tests.sh
+# or run the tests directly: 
+./gradlew webkit:integration-tests:instrumentation:connectedAndroidTest \
+  -Pandroid.testInstrumentationRunnerArguments.webview-version=factory
+
 # Update API files (only necessary if you changed public APIs)
-./gradlew :webkit:updateApi
+./gradlew :webkit:webkit:updateApi
 ```
 
 For more a detailed developer guide, Googlers should read
 http://go/wvsl-contribute.
+
+## Instrumentation tests
+The instrumentation tests for `androidx.webkit` are located in the
+`:webkit:integration-tests:instrumentation` project. The tests have been split out into a separate
+project to facilitate testing against different targetSdk versions.
+
+Any new tests should be added to that project. To run the test, use the command above.
 
 ## API demo code
 

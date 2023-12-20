@@ -19,6 +19,7 @@ package androidx.window.testing.layout
 
 import android.app.Activity
 import android.graphics.Rect
+import androidx.annotation.IntRange
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.FoldingFeature.OcclusionType.Companion.FULL
 import androidx.window.layout.FoldingFeature.OcclusionType.Companion.NONE
@@ -28,6 +29,19 @@ import androidx.window.layout.FoldingFeature.Orientation.Companion.VERTICAL
 import androidx.window.layout.FoldingFeature.State
 import androidx.window.layout.FoldingFeature.State.Companion.HALF_OPENED
 import androidx.window.layout.WindowMetricsCalculator
+import androidx.window.testing.layout.FoldingFeatureTestingConstants.FOLDING_FEATURE_CENTER_DEFAULT
+
+/**
+ * A class to contain all the constants related to testing
+ * [androidx.window.layout.DisplayFeature]s.
+ */
+object FoldingFeatureTestingConstants {
+    /**
+     * A constant that denotes the center of a [androidx.window.layout.FoldingFeature] should be
+     * calculated the aligned with either the vertical or horizontal center of the given window.
+     */
+    const val FOLDING_FEATURE_CENTER_DEFAULT = -1
+}
 
 /**
  * A convenience method to get a test fold with default values provided. With the default values
@@ -41,9 +55,13 @@ import androidx.window.layout.WindowMetricsCalculator
  * ([size] / 2) and the bottom-left y-coordinate is center - ([size] / 2). The folding features
  * always cover the window in one dimension and that determines the other coordinates.
  *
+ * Use [FOLDING_FEATURE_CENTER_DEFAULT] to default to the center of [Activity] window bounds.
+ * Otherwise, use values greater than or equal to 0 to specify the center.
+ *
  * @param activity that will house the [FoldingFeature].
  * @param center the center of the fold complementary to the orientation in px. For a
- * [HORIZONTAL] fold, this is the y-axis and for a [VERTICAL] fold this is the x-axis.
+ * [HORIZONTAL] fold, this is the y-axis and for a [VERTICAL] fold this is the x-axis. The default
+ * value will be calculated to be in the middle of the window.
  * @param size the smaller dimension of the fold in px. The larger dimension always covers the
  * entire window.
  * @param state [State] of the fold. The default value is [HALF_OPENED]
@@ -55,7 +73,8 @@ import androidx.window.layout.WindowMetricsCalculator
 @JvmName("createFoldingFeature")
 fun FoldingFeature(
     activity: Activity,
-    center: Int = -1,
+    @IntRange(from = -1)
+    center: Int = FOLDING_FEATURE_CENTER_DEFAULT,
     size: Int = 0,
     state: State = HALF_OPENED,
     orientation: Orientation = HORIZONTAL
@@ -83,9 +102,13 @@ fun FoldingFeature(
  * ([size] / 2) and the bottom-left y-coordinate is center - ([size] / 2). The folding features
  * always cover the window in one dimension and that determines the other coordinates.
  *
+ * Use [FOLDING_FEATURE_CENTER_DEFAULT] to default to the center of [Activity] window bounds.
+ * Otherwise, use values greater than or equal to 0 to specify the center.
+ *
  * @param windowBounds that will contain the [FoldingFeature].
  * @param center the center of the fold complementary to the orientation in px. For a
- * [HORIZONTAL] fold, this is the y-axis and for a [VERTICAL] fold this is the x-axis.
+ * [HORIZONTAL] fold, this is the y-axis and for a [VERTICAL] fold this is the x-axis. The default
+ * value will be calculated to be in the middle of the window.
  * @param size the smaller dimension of the fold in px. The larger dimension always covers the
  * entire window.
  * @param state [State] of the fold. The default value is [HALF_OPENED]
@@ -97,7 +120,8 @@ fun FoldingFeature(
 @JvmName("createFoldingFeature")
 fun FoldingFeature(
     windowBounds: Rect,
-    center: Int = -1,
+    @IntRange(from = -1)
+    center: Int = FOLDING_FEATURE_CENTER_DEFAULT,
     size: Int = 0,
     state: State = HALF_OPENED,
     orientation: Orientation = HORIZONTAL

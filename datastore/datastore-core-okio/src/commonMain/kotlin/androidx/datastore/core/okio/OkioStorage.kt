@@ -23,9 +23,6 @@ import androidx.datastore.core.StorageConnection
 import androidx.datastore.core.WriteScope
 import androidx.datastore.core.createSingleProcessCoordinator
 import androidx.datastore.core.use
-import kotlinx.atomicfu.atomic
-import kotlinx.atomicfu.locks.SynchronizedObject
-import kotlinx.atomicfu.locks.synchronized
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import okio.FileNotFoundException
@@ -48,8 +45,8 @@ import okio.use
 public class OkioStorage<T>(
     private val fileSystem: FileSystem,
     private val serializer: OkioSerializer<T>,
-    private val coordinatorProducer: (Path, FileSystem) -> InterProcessCoordinator = { _, _ ->
-        createSingleProcessCoordinator()
+    private val coordinatorProducer: (Path, FileSystem) -> InterProcessCoordinator = { path, _ ->
+        createSingleProcessCoordinator(path)
     },
     private val producePath: () -> Path
 ) : Storage<T> {
@@ -59,12 +56,12 @@ public class OkioStorage<T>(
             "OkioStorage requires absolute paths, but did not get an absolute path from " +
                 "producePath = $producePath, instead got $path"
         }
-        path
+        path.normalized()
     }
 
     override fun createConnection(): StorageConnection<T> {
         canonicalPath.toString().let { path ->
-            synchronized(activeFilesLock) {
+            activeFilesLock.withLock {
                 check(!activeFiles.contains(path)) {
                     "There are multiple DataStores active for the same file: $path. You should " +
                         "either maintain your DataStore as a singleton or confirm that there is " +
@@ -80,7 +77,7 @@ public class OkioStorage<T>(
             serializer,
             coordinatorProducer(canonicalPath, fileSystem)
         ) {
-            synchronized(activeFilesLock) {
+            activeFilesLock.withLock {
                 activeFiles.remove(canonicalPath.toString())
             }
         }
@@ -88,10 +85,7 @@ public class OkioStorage<T>(
 
     internal companion object {
         internal val activeFiles = mutableSetOf<String>()
-
-        class Sync : SynchronizedObject()
-
-        internal val activeFilesLock = Sync()
+        val activeFilesLock = Synchronizer()
     }
 }
 
@@ -174,7 +168,7 @@ internal open class OkioReadScope<T>(
     protected val serializer: OkioSerializer<T>
 ) : ReadScope<T> {
 
-    private var closed by atomic(false)
+    private val closed = AtomicBoolean(false)
 
     override suspend fun readData(): T {
         checkClose()
@@ -194,11 +188,11 @@ internal open class OkioReadScope<T>(
     }
 
     override fun close() {
-        closed = true
+        closed.set(true)
     }
 
     protected fun checkClose() {
-        check(!closed) { "This scope has already been closed." }
+        check(!closed.get()) { "This scope has already been closed." }
     }
 }
 
@@ -220,3 +214,11 @@ internal class OkioWriteScope<T>(
         }
     }
 }
+
+/**
+ * Create a coordinator for single process use cases.
+ *
+ * @param path The canonical path of the file managed by [SingleProcessCoordinator]
+ */
+public fun createSingleProcessCoordinator(path: Path): InterProcessCoordinator =
+    createSingleProcessCoordinator(path.normalized().toString())

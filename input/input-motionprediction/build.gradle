@@ -19,16 +19,25 @@ import androidx.build.LibraryType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     api("androidx.annotation:annotation:1.2.0")
 
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.espressoCore, excludes.espresso)
+    implementation("androidx.core:core:1.10.1")
+
+    testImplementation(libs.robolectric)
+    testImplementation(libs.testCore)
+    testImplementation(libs.testExtJunit)
+    testImplementation(libs.testRules)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.truth)
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.kotlinTest)
+    testImplementation(libs.kotlinReflect)
+
 }
 
 android {
@@ -44,4 +53,5 @@ androidx {
     mavenVersion = LibraryVersions.INPUT_MOTIONPREDICTION
     inceptionYear = "2022"
     description = "reduce the latency of input interactions by predicting future MotionEvents"
+    metalavaK2UastEnabled = true
 }

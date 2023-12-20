@@ -59,7 +59,10 @@ dependencies {
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation("androidx.appcompat:appcompat:1.1.0")
-    androidTestImplementation(project(":camera:camera-testing"))
+    androidTestImplementation(project(":camera:camera-testing")) {
+        // Ensure camera-testing does not pull in androidx.test dependencies
+        exclude(group:"androidx.test")
+    }
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
     androidTestImplementation("androidx.annotation:annotation-experimental:1.1.0")
@@ -87,6 +90,10 @@ android {
     namespace "androidx.camera.camera2"
 }
 
+tasks.withType(Test).configureEach { test ->
+    test.maxParallelForks(2)
+}
+
 androidx {
     name = "Camera2"
     publish = Publish.SNAPSHOT_AND_RELEASE
@@ -94,4 +101,5 @@ androidx {
     description = "Camera2 implementation and extensions for the Jetpack Camera Library, a " +
             "library providing a consistent and reliable camera foundation that enables great " +
             "camera driven experiences across all of Android."
+    metalavaK2UastEnabled = true
 }

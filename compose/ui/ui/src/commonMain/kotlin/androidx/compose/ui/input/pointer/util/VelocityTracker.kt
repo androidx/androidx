@@ -16,10 +16,14 @@
 
 package androidx.compose.ui.input.pointer.util
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
+import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.abs
@@ -49,6 +53,7 @@ class VelocityTracker {
     private val yVelocityTracker = VelocityTracker1D() // non-differential, Lsq2 1D velocity tracker
 
     internal var currentPointerPositionAccumulator = Offset.Zero
+    internal var lastMoveEventTimeStamp = 0L
 
     /**
      * Adds a position at the given time to the tracker.
@@ -68,10 +73,34 @@ class VelocityTracker {
     /**
      * Computes the estimated velocity of the pointer at the time of the last provided data point.
      *
+     * The velocity calculated will not be limited. Unlike [calculateVelocity(maximumVelocity)]
+     * the resulting velocity won't be limited.
+     *
      * This can be expensive. Only call this when you need the velocity.
      */
-    fun calculateVelocity(): Velocity {
-        return Velocity(xVelocityTracker.calculateVelocity(), yVelocityTracker.calculateVelocity())
+    fun calculateVelocity(): Velocity =
+        calculateVelocity(Velocity(Float.MAX_VALUE, Float.MAX_VALUE))
+
+    /**
+     * Computes the estimated velocity of the pointer at the time of the last provided data point.
+     *
+     * The method allows specifying the maximum absolute value for the calculated
+     * velocity. If the absolute value of the calculated velocity exceeds the specified
+     * maximum, the return value will be clamped down to the maximum. For example, if
+     * the absolute maximum velocity is specified as "20", a calculated velocity of "25"
+     * will be returned as "20", and a velocity of "-30" will be returned as "-20".
+     *
+     * @param maximumVelocity the absolute values of the X and Y maximum velocities to
+     * be returned in units/second. `units` is the units of the positions provided to this
+     * VelocityTracker.
+     */
+    fun calculateVelocity(maximumVelocity: Velocity): Velocity {
+        check(maximumVelocity.x > 0f && maximumVelocity.y > 0) {
+            "maximumVelocity should be a positive value. You specified=$maximumVelocity"
+        }
+        val velocityX = xVelocityTracker.calculateVelocity(maximumVelocity.x)
+        val velocityY = yVelocityTracker.calculateVelocity(maximumVelocity.y)
+        return Velocity(velocityX, velocityY)
     }
 
     /**
@@ -80,6 +109,7 @@ class VelocityTracker {
     fun resetTracking() {
         xVelocityTracker.resetTracking()
         yVelocityTracker.resetTracking()
+        lastMoveEventTimeStamp = 0L
     }
 }
 
@@ -152,6 +182,7 @@ class VelocityTracker1D internal constructor(
          */
         Impulse,
     }
+
     // Circular buffer; current sample at index.
     private val samples: Array<DataPointAtTime?> = arrayOfNulls(HistorySize)
     private var index: Int = 0
@@ -180,9 +211,10 @@ class VelocityTracker1D internal constructor(
     }
 
     /**
-     * Computes the estimated velocity at the time of the last provided data point. The units of
-     * velocity will be `units/second`, where `units` is the units of the data points provided via
-     * [addDataPoint].
+     * Computes the estimated velocity at the time of the last provided data point.
+     *
+     * The units of velocity will be `units/second`, where `units` is the units of the data
+     * points provided via [addDataPoint].
      *
      * This can be expensive. Only call this when you need the velocity.
      */
@@ -223,6 +255,7 @@ class VelocityTracker1D internal constructor(
                 Strategy.Impulse -> {
                     calculateImpulseVelocity(dataPoints, time, sampleCount, isDataDifferential)
                 }
+
                 Strategy.Lsq2 -> {
                     calculateLeastSquaresVelocity(dataPoints, time, sampleCount)
                 }
@@ -232,6 +265,33 @@ class VelocityTracker1D internal constructor(
         // We're unable to make a velocity estimate but we did have at least one
         // valid pointer position.
         return 0f
+    }
+
+    /**
+     * Computes the estimated velocity at the time of the last provided data point.
+     *
+     * The method allows specifying the maximum absolute value for the calculated
+     * velocity. If the absolute value of the calculated velocity exceeds the specified
+     * maximum, the return value will be clamped down to the maximum. For example, if
+     * the absolute maximum velocity is specified as "20", a calculated velocity of "25"
+     * will be returned as "20", and a velocity of "-30" will be returned as "-20".
+     *
+     * @param maximumVelocity the absolute value of the maximum velocity to be returned in
+     * units/second, where `units` is the units of the positions provided to this VelocityTracker.
+     */
+    fun calculateVelocity(maximumVelocity: Float): Float {
+        check(maximumVelocity > 0f) {
+            "maximumVelocity should be a positive value. You specified=$maximumVelocity"
+        }
+        val velocity = calculateVelocity()
+
+        return if (velocity == 0.0f) {
+            0.0f
+        } else if (velocity > 0) {
+            velocity.coerceAtMost(maximumVelocity)
+        } else {
+            velocity.coerceAtLeast(-maximumVelocity)
+        }
     }
 
     /**
@@ -300,7 +360,17 @@ private fun Array<DataPointAtTime?>.set(index: Int, time: Long, dataPoint: Float
  *
  * @param event Pointer change to track.
  */
+@OptIn(ExperimentalComposeUiApi::class)
 fun VelocityTracker.addPointerInputChange(event: PointerInputChange) {
+    if (VelocityTrackerAddPointsFix) {
+        addPointerInputChangeWithFix(event)
+    } else {
+        addPointerInputChangeLegacy(event)
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+private fun VelocityTracker.addPointerInputChangeLegacy(event: PointerInputChange) {
 
     // Register down event as the starting point for the accumulator
     if (event.changedToDownIgnoreConsumed()) {
@@ -333,6 +403,33 @@ fun VelocityTracker.addPointerInputChange(event: PointerInputChange) {
     val delta = event.position - previousPointerPosition
     currentPointerPositionAccumulator += delta
     addPosition(event.uptimeMillis, currentPointerPositionAccumulator)
+}
+
+private fun VelocityTracker.addPointerInputChangeWithFix(event: PointerInputChange) {
+    // If this is ACTION_DOWN: Reset the tracking.
+    if (event.changedToDownIgnoreConsumed()) {
+        resetTracking()
+    }
+
+    // If this is not ACTION_UP event: Add events to the tracker as per the platform implementation.
+    // In the platform implementation the historical events array is used, they store the current
+    // event data in the position HistoricalArray.Size. Our historical array doesn't have access
+    // to the final position, but we can get that information from the original event data X and Y
+    // coordinates.
+    @OptIn(ExperimentalComposeUiApi::class)
+    if (!event.changedToUpIgnoreConsumed()) {
+        event.historical.fastForEach {
+            addPosition(it.uptimeMillis, it.originalEventPosition)
+        }
+        addPosition(event.uptimeMillis, event.originalEventPosition)
+    }
+
+    // If this is ACTION_UP. Fix for b/238654963. If there's been enough time after the last MOVE
+    // event, reset the tracker.
+    if (event.changedToUpIgnoreConsumed() && (event.uptimeMillis - lastMoveEventTimeStamp) > 40L) {
+        resetTracking()
+    }
+    lastMoveEventTimeStamp = event.uptimeMillis
 }
 
 internal data class DataPointAtTime(var time: Long, var dataPoint: Float)
@@ -555,8 +652,8 @@ private fun calculateImpulseVelocity(
             return 0f
         }
         val dataPointsDelta =
-            // For differential data ponits, each measurement reflects the amount of change in the
-            // subject's position. However, the first sample is discarded in computation because we
+        // For differential data ponits, each measurement reflects the amount of change in the
+        // subject's position. However, the first sample is discarded in computation because we
             // don't know the time duration over which this change has occurred.
             if (isDataDifferential) dataPoints[0]
             else dataPoints[0] - dataPoints[1]
@@ -615,3 +712,16 @@ private inline operator fun Matrix.get(row: Int, col: Int): Float = this[row][co
 private inline operator fun Matrix.set(row: Int, col: Int, value: Float) {
     this[row][col] = value
 }
+
+/**
+ * A flag to indicate that we'll use the fix of how we add points to the velocity tracker.
+ *
+ * This flag will be removed by 1.6 beta01. If you find any issues with the new fix, flip this
+ * flag to false to confirm they are newly introduced then file a bug.
+ */
+@Suppress("GetterSetterNames", "OPT_IN_MARKER_ON_WRONG_TARGET")
+@get:Suppress("GetterSetterNames")
+@get:ExperimentalComposeUiApi
+@set:ExperimentalComposeUiApi
+@ExperimentalComposeUiApi
+var VelocityTrackerAddPointsFix: Boolean by mutableStateOf(false)

@@ -3,7 +3,6 @@ import androidx.build.Publish
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("com.github.johnrengelman.shadow")
 }
 
 dependencies {
@@ -38,4 +37,5 @@ androidx {
     inceptionYear = "2017"
     description = "Support for using emoji2 directly with Android Views, for use in apps without " +
             "appcompat"
+    metalavaK2UastEnabled = true
 }

@@ -21,6 +21,7 @@ import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.IndentingPrintWriter
 import androidx.wear.watchface.editor.data.EditorStateWireFormat
+import androidx.wear.watchface.utility.aidlMethod
 
 /** Implementation of [IEditorService], intended for use by EditorSession only. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -38,57 +39,58 @@ public class EditorService : IEditorService.Stub() {
         internal const val TAG = "EditorService"
     }
 
-    public override fun getApiVersion(): Int = API_VERSION
+    public override fun getApiVersion(): Int = aidlMethod(TAG, "fun") { API_VERSION }
 
-    override fun registerObserver(observer: IEditorObserver): Int {
-        synchronized(lock) {
-            val id = nextId++
-            observers[id] = observer
-            val deathObserver =
-                IBinder.DeathRecipient {
-                    Log.w(TAG, "observer died, closing editor")
-                    // If SysUI dies we should close the editor too, otherwise the watchface could
-                    // get
-                    // left in an inconsistent state where it has local edits that were not
-                    // persisted by
-                    // the system.
-                    closeEditor()
-                    unregisterObserver(id)
-                }
-            observer.asBinder().linkToDeath(deathObserver, 0)
-            deathObservers[id] = deathObserver
-            return id
-        }
-    }
-
-    override fun unregisterObserver(observerId: Int) {
-        synchronized(lock) {
-            deathObservers[observerId]?.let {
-                try {
-                    observers[observerId]?.asBinder()?.unlinkToDeath(it, 0)
-                } catch (e: NoSuchElementException) {
-                    // This really shouldn't happen.
-                    Log.w(TAG, "unregisterObserver encountered", e)
-                }
+    override fun registerObserver(observer: IEditorObserver): Int =
+        aidlMethod(TAG, "registerObserver") {
+            synchronized(lock) {
+                val id = nextId++
+                observers[id] = observer
+                val deathObserver =
+                    IBinder.DeathRecipient {
+                        Log.w(TAG, "observer died, closing editor")
+                        // If SysUI dies we should close the editor too, otherwise the watchface
+                        // could get left in an inconsistent state where it has local edits that
+                        // were not persisted by the system.
+                        closeEditor()
+                        unregisterObserver(id)
+                    }
+                observer.asBinder().linkToDeath(deathObserver, 0)
+                deathObservers[id] = deathObserver
+                return@aidlMethod id
             }
-            observers.remove(observerId)
-            deathObservers.remove(observerId)
         }
-    }
+
+    override fun unregisterObserver(observerId: Int): Unit =
+        aidlMethod(TAG, "unregisterObserver") {
+            synchronized(lock) {
+                deathObservers[observerId]?.let {
+                    try {
+                        observers[observerId]?.asBinder()?.unlinkToDeath(it, 0)
+                    } catch (e: NoSuchElementException) {
+                        // This really shouldn't happen.
+                        Log.w(TAG, "unregisterObserver encountered", e)
+                    }
+                }
+                observers.remove(observerId)
+                deathObservers.remove(observerId)
+            }
+        }
 
     public abstract class CloseCallback {
         /** Called when [closeEditor] is called. */
         public abstract fun onClose()
     }
 
-    override fun closeEditor() {
-        val callbackCopy = synchronized(lock) { HashSet<CloseCallback>(closeEditorCallbacks) }
-        // We iterate on a copy of closeEditorCallbacks to avoid calls to removeCloseCallback
-        // mutating a set we're iterating.
-        for (observer in callbackCopy) {
-            observer.onClose()
+    override fun closeEditor() =
+        aidlMethod(TAG, "closeEditor") {
+            val callbackCopy = synchronized(lock) { HashSet<CloseCallback>(closeEditorCallbacks) }
+            // We iterate on a copy of closeEditorCallbacks to avoid calls to removeCloseCallback
+            // mutating a set we're iterating.
+            for (observer in callbackCopy) {
+                observer.onClose()
+            }
         }
-    }
 
     /**
      * Adds [closeCallback] to the set of observers to be called if the client calls [closeEditor].

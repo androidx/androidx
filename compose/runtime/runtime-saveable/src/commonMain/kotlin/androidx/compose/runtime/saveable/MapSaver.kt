@@ -41,7 +41,7 @@ fun <T> mapSaver(
     },
     restore = { list ->
         val map = mutableMapOf<String, Any?>()
-        check(list.size.rem(2) == 0)
+        check(list.size.rem(2) == 0) { "non-zero remainder" }
         var index = 0
         while (index < list.size) {
             val key = list[index] as String

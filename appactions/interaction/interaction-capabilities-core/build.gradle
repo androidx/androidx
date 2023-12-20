@@ -24,6 +24,7 @@ plugins {
 
 dependencies {
     api(project(path: ":appactions:interaction:interaction-proto", configuration: "shadowJar"))
+    api(project(":appactions:builtintypes:builtintypes"))
 
     api(libs.autoValueAnnotations)
     implementation(libs.guavaListenableFuture)
@@ -38,6 +39,7 @@ dependencies {
     testImplementation(libs.testCore)
     testImplementation(libs.mockitoCore)
     testImplementation(libs.mockitoKotlin4)
+    testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.androidLint)
     testImplementation(libs.androidLintTests)
@@ -50,7 +52,6 @@ android {
         resValues = true
     }
     defaultConfig {
-        // TODO(b/266649259): lower minSdk version to 19.
         minSdkVersion 26
         resValue "string", "appactions_interaction_library_version", androidx.LibraryVersions.APPACTIONS_INTERACTION.toString()
     }
@@ -63,9 +64,9 @@ android {
 }
 
 androidx {
-    name = "androidx.appactions.interaction:interaction-capabilities-core"
+    name = "App Actions Interaction Capabiliities Core"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2023"
     description = "App Interaction library core capabilities API and implementation."
-    failOnDeprecationWarnings = false
+    metalavaK2UastEnabled = true
 }

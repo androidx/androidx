@@ -17,6 +17,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission
         android:name="com.google.android.wearable.permission.USE_IMMEDIATE_COMPLICATION_UPDATE" />
+    <uses-permission
+        android:name="android.permission.ACTIVITY_RECOGNITION" />
+    <uses-permission
+        android:name="android.permission.BODY_SENSORS" />
     <application
         android:label="@string/app_name"
         android:icon="@drawable/circle"
@@ -215,6 +219,123 @@
             </intent-filter>
         </service>
 
+        <service android:name=".dynamic.TimeDataSourceService"
+            android:label="@string/dynamic_time_data_source_name"
+            android:exported="true"
+            android:icon="@drawable/circle"
+            android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
+            <meta-data
+                android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+                android:value="RANGED_VALUE"/>
+            <meta-data
+                android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
+                android:value="0"/>
+            <intent-filter>
+                <action android:name=
+                    "android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"/>
+            </intent-filter>
+        </service>
+
+        <service android:name=".dynamic.HealthDataSourceServices$Calories"
+            android:label="@string/dynamic_calories_data_source_name"
+            android:exported="true"
+            android:icon="@drawable/circle"
+            android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
+            <meta-data
+                android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+                android:value="RANGED_VALUE"/>
+            <meta-data
+                android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
+                android:value="0"/>
+            <meta-data
+                android:name="android.support.wearable.complications.PROVIDER_CONFIG_ACTION"
+                android:value="androidx.wear.watchface.complications.datasource.samples.dynamic.REQUEST_ACTIVITY_RECOGNITION_PERMISSION"/>
+            <intent-filter>
+                <action android:name=
+                    "android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"/>
+            </intent-filter>
+        </service>
+
+        <service android:name=".dynamic.HealthDataSourceServices$Distance"
+            android:label="@string/dynamic_distance_data_source_name"
+            android:exported="true"
+            android:icon="@drawable/circle"
+            android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
+            <meta-data
+                android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+                android:value="RANGED_VALUE"/>
+            <meta-data
+                android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
+                android:value="0"/>
+            <meta-data
+                android:name="android.support.wearable.complications.PROVIDER_CONFIG_ACTION"
+                android:value="androidx.wear.watchface.complications.datasource.samples.dynamic.REQUEST_ACTIVITY_RECOGNITION_PERMISSION"/>
+            <intent-filter>
+                <action android:name=
+                    "android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"/>
+            </intent-filter>
+        </service>
+
+        <service android:name=".dynamic.HealthDataSourceServices$Floors"
+            android:label="@string/dynamic_floors_data_source_name"
+            android:exported="true"
+            android:icon="@drawable/circle"
+            android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
+            <meta-data
+                android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+                android:value="RANGED_VALUE"/>
+            <meta-data
+                android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
+                android:value="0"/>
+            <meta-data
+                android:name="android.support.wearable.complications.PROVIDER_CONFIG_ACTION"
+                android:value="androidx.wear.watchface.complications.datasource.samples.dynamic.REQUEST_ACTIVITY_RECOGNITION_PERMISSION"/>
+            <intent-filter>
+                <action android:name=
+                    "android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"/>
+            </intent-filter>
+        </service>
+
+        <service android:name=".dynamic.HealthDataSourceServices$HeartRate"
+            android:label="@string/dynamic_heart_rate_data_source_name"
+            android:exported="true"
+            android:icon="@drawable/circle"
+            android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
+            <meta-data
+                android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+                android:value="RANGED_VALUE"/>
+            <meta-data
+                android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
+                android:value="0"/>
+            <meta-data
+                android:name="android.support.wearable.complications.PROVIDER_CONFIG_ACTION"
+                android:value="androidx.wear.watchface.complications.datasource.samples.dynamic.REQUEST_BODY_SENSORS_PERMISSION"/>
+            <intent-filter>
+                <action android:name=
+                    "android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"/>
+            </intent-filter>
+        </service>
+
+        <service android:name=".dynamic.HealthDataSourceServices$Steps"
+            android:label="@string/dynamic_steps_data_source_name"
+            android:exported="true"
+            android:icon="@drawable/circle"
+            android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
+            <meta-data
+                android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+                android:value="RANGED_VALUE"/>
+            <meta-data
+                android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
+                android:value="0"/>
+            <meta-data
+                android:name="android.support.wearable.complications.PROVIDER_CONFIG_ACTION"
+                android:value="androidx.wear.watchface.complications.datasource.samples.dynamic.REQUEST_ACTIVITY_RECOGNITION_PERMISSION"/>
+            <intent-filter>
+                <action android:name=
+                    "android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"/>
+            </intent-filter>
+        </service>
+
         <activity
             android:name=".ConfigActivity"
             android:exported="true"
@@ -224,6 +345,20 @@
                     "androidx.wear.watchface.complications.datasource.samples.CONFIGURE" />
                 <category android:name=
                     "android.support.wearable.complications.category.PROVIDER_CONFIG"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".dynamic.RequestPermissionActivity"
+            android:exported="true"
+            android:label="@string/config_title" >
+            <intent-filter>
+                <action android:name=
+                    "androidx.wear.watchface.complications.datasource.samples.dynamic.REQUEST_ACTIVITY_RECOGNITION_PERMISSION" />
+                <action android:name=
+                    "androidx.wear.watchface.complications.datasource.samples.dynamic.REQUEST_BODY_SENSORS_PERMISSION" />
+                <category android:name=
+                    "android.support.wearable.complications.category.PROVIDER_CONFIG" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

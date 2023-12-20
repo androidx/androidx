@@ -32,7 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package androidx.work.multiprocess;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IWorkManagerImpl {
   oneway void enqueueWorkRequests(in byte[] request, androidx.work.multiprocess.IWorkManagerImplCallback callback);
   oneway void updateUniquePeriodicWorkRequest(String name, in byte[] request, androidx.work.multiprocess.IWorkManagerImplCallback callback);

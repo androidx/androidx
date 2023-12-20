@@ -16,17 +16,20 @@
 
 package androidx.compose.ui.input.pointer
 
+import androidx.collection.LongSparseArray
+import androidx.compose.ui.node.InternalCoreApi
 import java.awt.event.MouseEvent
 
+@OptIn(InternalCoreApi::class)
 internal actual class InternalPointerEvent constructor(
     val type: PointerEventType,
-    actual val changes: Map<PointerId, PointerInputChange>,
+    actual val changes: LongSparseArray<PointerInputChange>,
     val buttons: PointerButtons,
     val keyboardModifiers: PointerKeyboardModifiers,
     val mouseEvent: MouseEvent?
 ) {
     actual constructor(
-        changes: Map<PointerId, PointerInputChange>,
+        changes: LongSparseArray<PointerInputChange>,
         pointerInputEvent: PointerInputEvent
     ) : this(
         pointerInputEvent.eventType,

@@ -33,6 +33,7 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiTreeChangeAdapter
 import org.jetbrains.kotlin.com.intellij.psi.PsiTreeChangeListener
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.jetbrains.kotlin.config.CompilerConfiguration
+import org.jetbrains.kotlin.config.languageVersionSettings
 import org.jetbrains.kotlin.resolve.extensions.AnalysisHandlerExtension
 
 /**
@@ -52,11 +53,10 @@ internal class TestKspRegistrar(
         configuration: CompilerConfiguration
     ) {
         baseOptions.apply {
-            projectBaseDir = project.basePath?.let {
-                File(it)
-            } ?: kspWorkingDir
+            projectBaseDir = project.basePath?.let { File(it) } ?: kspWorkingDir
             incremental = false
             incrementalLog = false
+            languageVersionSettings = configuration.languageVersionSettings
             // NOT supported yet, hence we set a default
             classOutputDir = classOutputDir ?: kspWorkingDir.resolve(
                 KspCliOption

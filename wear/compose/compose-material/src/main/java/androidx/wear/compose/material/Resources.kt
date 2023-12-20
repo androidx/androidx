@@ -22,7 +22,6 @@ import android.view.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 
@@ -43,14 +42,6 @@ internal fun imageResource(image: ImageResources): Painter =
             ImageResources.RectangularVignetteTop -> R.drawable.rectangular_vignette_top
         }
     )
-
-@Composable
-internal fun isRoundDevice(): Boolean {
-    val configuration = LocalConfiguration.current
-    return remember(configuration) {
-        configuration.isScreenRound
-    }
-}
 
 @Composable
 internal fun is24HourFormat(): Boolean = DateFormat.is24HourFormat(LocalContext.current)

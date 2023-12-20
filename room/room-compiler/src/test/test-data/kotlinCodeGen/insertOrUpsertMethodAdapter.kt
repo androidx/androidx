@@ -9,7 +9,6 @@ import kotlin.Array
 import kotlin.Long
 import kotlin.String
 import kotlin.Suppress
-import kotlin.Unit
 import kotlin.collections.List
 import kotlin.jvm.JvmStatic
 
@@ -26,28 +25,28 @@ public class MyDao_Impl(
     init {
         this.__db = __db
         this.__insertionAdapterOfMyEntity = object : EntityInsertionAdapter<MyEntity>(__db) {
-            public override fun createQuery(): String =
+            protected override fun createQuery(): String =
                 "INSERT OR ABORT INTO `MyEntity` (`pk`,`data`) VALUES (?,?)"
 
-            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity): Unit {
+            protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
                 statement.bindLong(1, entity.pk)
                 statement.bindString(2, entity.data)
             }
         }
         this.__upsertionAdapterOfMyEntity = EntityUpsertionAdapter<MyEntity>(object :
             EntityInsertionAdapter<MyEntity>(__db) {
-            public override fun createQuery(): String =
+            protected override fun createQuery(): String =
                 "INSERT INTO `MyEntity` (`pk`,`data`) VALUES (?,?)"
 
-            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity): Unit {
+            protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
                 statement.bindLong(1, entity.pk)
                 statement.bindString(2, entity.data)
             }
         }, object : EntityDeletionOrUpdateAdapter<MyEntity>(__db) {
-            public override fun createQuery(): String =
+            protected override fun createQuery(): String =
                 "UPDATE `MyEntity` SET `pk` = ?,`data` = ? WHERE `pk` = ?"
 
-            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity): Unit {
+            protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
                 statement.bindLong(1, entity.pk)
                 statement.bindString(2, entity.data)
                 statement.bindLong(3, entity.pk)
@@ -55,7 +54,7 @@ public class MyDao_Impl(
         })
     }
 
-    public override fun insertEntity(item: MyEntity): Unit {
+    public override fun insertEntity(item: MyEntity) {
         __db.assertNotSuspendingTransaction()
         __db.beginTransaction()
         try {
@@ -90,7 +89,7 @@ public class MyDao_Impl(
         }
     }
 
-    public override fun upsertEntity(item: MyEntity): Unit {
+    public override fun upsertEntity(item: MyEntity) {
         __db.assertNotSuspendingTransaction()
         __db.beginTransaction()
         try {

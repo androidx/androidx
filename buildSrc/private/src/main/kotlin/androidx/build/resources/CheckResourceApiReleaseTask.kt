@@ -20,28 +20,25 @@ import androidx.build.checkapi.ApiLocation
 import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.CacheableTask
-import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 
-/**
- * Task for verifying changes in the public Android resource surface, e.g. `public.xml`.
- */
+/** Task for verifying changes in the public Android resource surface, e.g. `public.xml`. */
 @CacheableTask
 abstract class CheckResourceApiReleaseTask : DefaultTask() {
     /** Reference resource API file (in source control). */
-    @get:InputFile
+    @get:InputFiles // InputFiles allows non-existent files, whereas InputFile does not.
     @get:PathSensitive(PathSensitivity.RELATIVE)
-    abstract val referenceApiFile: Property<File>
+    abstract val referenceApiFile: RegularFileProperty
 
     /** Generated resource API file (in build output). */
-    @get:Internal
-    abstract val apiLocation: Property<ApiLocation>
+    @get:Internal abstract val apiLocation: Property<ApiLocation>
 
     @InputFiles
     @PathSensitive(PathSensitivity.RELATIVE)
@@ -51,18 +48,24 @@ abstract class CheckResourceApiReleaseTask : DefaultTask() {
 
     @TaskAction
     fun checkResourceApiRelease() {
-        val referenceApiFile = referenceApiFile.get()
+        val referenceApiFile = referenceApiFile.get().asFile
         val apiFile = apiLocation.get().resourceFile
 
         // Read the current API surface, if any, into memory.
-        val newApiSet = if (apiFile.exists()) {
-            apiFile.readLines().toSet()
-        } else {
-            emptySet()
-        }
+        val newApiSet =
+            if (apiFile.exists()) {
+                apiFile.readLines().toSet()
+            } else {
+                emptySet()
+            }
 
         // Read the reference API surface into memory.
-        val referenceApiSet = referenceApiFile.readLines().toSet()
+        val referenceApiSet =
+            if (referenceApiFile.exists()) {
+                referenceApiFile.readLines().toSet()
+            } else {
+                emptySet()
+            }
 
         // POLICY: Ensure that no resources are removed from the last released version.
         val removedApiSet = referenceApiSet - newApiSet
@@ -72,7 +75,8 @@ abstract class CheckResourceApiReleaseTask : DefaultTask() {
                 removed += "$e\n"
             }
 
-            val errorMessage = """Public resources have been removed since the previous revision
+            val errorMessage =
+                """Public resources have been removed since the previous revision
 
 Previous definition is ${referenceApiFile.canonicalPath}
 Current  definition is ${apiFile.canonicalPath}

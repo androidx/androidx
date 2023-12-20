@@ -32,7 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package android.support.customtabs;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IEngagementSignalsCallback {
   oneway void onVerticalScrollEvent(boolean isDirectionUp, in android.os.Bundle extras) = 1;
   oneway void onGreatestScrollPercentageIncreased(int scrollPercentage, in android.os.Bundle extras) = 2;

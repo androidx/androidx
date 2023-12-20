@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing
 
+import androidx.kruth.assertThat
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.util.CONTINUATION_JCLASS_NAME
@@ -26,7 +27,6 @@ import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.runProcessorTest
-import com.google.common.truth.Truth.assertThat
 import com.squareup.kotlinpoet.LONG
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.javapoet.JParameterizedTypeName

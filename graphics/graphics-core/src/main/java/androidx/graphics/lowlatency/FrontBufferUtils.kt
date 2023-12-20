@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.hardware.HardwareBuffer
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.graphics.surface.SurfaceControlCompat
 
 internal class FrontBufferUtils private constructor() {
 
@@ -41,6 +42,7 @@ internal class FrontBufferUtils private constructor() {
         /**
          * Flags that are expected to be supported on all [HardwareBuffer] instances
          */
+        @SuppressLint("WrongConstant")
         internal const val BaseFlags =
             HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE or
                 HardwareBuffer.USAGE_GPU_COLOR_OUTPUT or
@@ -55,6 +57,27 @@ internal class FrontBufferUtils private constructor() {
             }
 
         internal const val UseCompatSurfaceControl = false
+
+        fun configureFrontBufferLayerFrameRate(
+            frontBufferSurfaceControl: SurfaceControlCompat,
+            frameRate: Float = 1000f,
+            transaction: SurfaceControlCompat.Transaction? = null
+        ): SurfaceControlCompat.Transaction? {
+            var targetTransaction: SurfaceControlCompat.Transaction? = transaction
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (targetTransaction == null) {
+                    targetTransaction = SurfaceControlCompat.Transaction()
+                }
+                targetTransaction
+                    .setFrameRate(
+                        frontBufferSurfaceControl,
+                        frameRate,
+                        SurfaceControlCompat.FRAME_RATE_COMPATIBILITY_DEFAULT,
+                        SurfaceControlCompat.CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS
+                    )
+            }
+            return targetTransaction
+        }
     }
 }
 
@@ -93,11 +116,7 @@ internal class UsageFlagsVerificationHelper private constructor() {
         fun obtainUsageFlagsV33(): Long {
             // First verify if the front buffer usage flag is supported along with the
             // "usage composer overlay" flag that was introduced in API level 33
-            // SF Seems to log errors when configuring HardwareBuffer instances with the
-            // front buffer usage flag on Cuttlefish, so only include it for actual devices.
-            // See b/280866371
-            return if (isSupported(HardwareBuffer.USAGE_FRONT_BUFFER) &&
-                !Build.MODEL.contains("Cuttlefish")) {
+            return if (isSupported(HardwareBuffer.USAGE_FRONT_BUFFER)) {
                 FrontBufferUtils.BaseFlags or HardwareBuffer.USAGE_FRONT_BUFFER
             } else {
                 FrontBufferUtils.BaseFlags

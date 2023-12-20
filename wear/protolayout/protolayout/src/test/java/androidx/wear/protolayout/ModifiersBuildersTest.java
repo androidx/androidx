@@ -16,13 +16,17 @@
 
 package androidx.wear.protolayout;
 
+import static androidx.wear.protolayout.ColorBuilders.argb;
+import static androidx.wear.protolayout.DimensionBuilders.dp;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
+
 import android.graphics.Color;
 
-import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.AppDataKey;
+import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.proto.ModifiersProto;
 
 import org.junit.Test;
@@ -34,9 +38,7 @@ public class ModifiersBuildersTest {
     private static final String STATE_KEY = "state-key";
     private static final ColorBuilders.ColorProp COLOR =
             new ColorBuilders.ColorProp.Builder(Color.RED)
-                    .setDynamicValue(
-                            DynamicBuilders.DynamicColor.from(
-                                    new AppDataKey<>(STATE_KEY)))
+                    .setDynamicValue(DynamicBuilders.DynamicColor.from(new AppDataKey<>(STATE_KEY)))
                     .build();
 
     @Test
@@ -59,5 +61,44 @@ public class ModifiersBuildersTest {
         assertThat(background1Proto.getColor().getArgb()).isEqualTo(COLOR.getArgb());
         assertThat(background1Proto.getColor().getDynamicValue().getStateSource().getSourceKey())
                 .isEqualTo(STATE_KEY);
+    }
+
+    @Test
+    public void buildShadow() {
+        float blurRadius = 5f;
+        int color = Color.BLUE;
+        ModifiersBuilders.Shadow shadow =
+                new ModifiersBuilders.Shadow.Builder()
+                        .setBlurRadius(dp(blurRadius))
+                        .setColor(argb(color))
+                        .build();
+
+        ModifiersProto.Shadow shadowProto = shadow.toProto();
+        assertThat(shadowProto.getBlurRadius().getValue()).isEqualTo(blurRadius);
+        assertThat(shadowProto.getColor().getArgb()).isEqualTo(color);
+    }
+
+    @Test
+    public void buildShadow_noSupportForDynamicValues() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () ->
+                        new ModifiersBuilders.Shadow.Builder()
+                                .setBlurRadius(
+                                        new DimensionBuilders.DpProp.Builder(5f)
+                                                .setDynamicValue(
+                                                        DynamicBuilders.DynamicFloat.constant(7f))
+                                                .build()));
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () ->
+                        new ModifiersBuilders.Shadow.Builder()
+                                .setColor(
+                                        new ColorBuilders.ColorProp.Builder(Color.BLACK)
+                                                .setDynamicValue(
+                                                        DynamicBuilders.DynamicColor.constant(
+                                                                Color.GRAY))
+                                                .build()));
     }
 }

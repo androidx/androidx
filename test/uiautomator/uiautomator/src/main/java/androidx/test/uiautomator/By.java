@@ -18,6 +18,7 @@ package androidx.test.uiautomator;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import java.util.regex.Pattern;
 
@@ -103,8 +104,8 @@ public class By {
      *
      * @see BySelector#descStartsWith(String)
      */
-    public static @NonNull BySelector descStartsWith(@NonNull String substring) {
-        return new BySelector().descStartsWith(substring);
+    public static @NonNull BySelector descStartsWith(@NonNull String prefix) {
+        return new BySelector().descStartsWith(prefix);
     }
 
     /**
@@ -112,8 +113,8 @@ public class By {
      *
      * @see BySelector#descEndsWith(String)
      */
-    public static @NonNull BySelector descEndsWith(@NonNull String substring) {
-        return new BySelector().descEndsWith(substring);
+    public static @NonNull BySelector descEndsWith(@NonNull String suffix) {
+        return new BySelector().descEndsWith(suffix);
     }
 
     /**
@@ -194,8 +195,8 @@ public class By {
      *
      * @see BySelector#textStartsWith(String)
      */
-    public static @NonNull BySelector textStartsWith(@NonNull String substring) {
-        return new BySelector().textStartsWith(substring);
+    public static @NonNull BySelector textStartsWith(@NonNull String prefix) {
+        return new BySelector().textStartsWith(prefix);
     }
 
     /**
@@ -203,8 +204,8 @@ public class By {
      *
      * @see BySelector#textEndsWith(String)
      */
-    public static @NonNull BySelector textEndsWith(@NonNull String substring) {
-        return new BySelector().textEndsWith(substring);
+    public static @NonNull BySelector textEndsWith(@NonNull String suffix) {
+        return new BySelector().textEndsWith(suffix);
     }
 
     /**
@@ -214,6 +215,56 @@ public class By {
      */
     public static @NonNull BySelector text(@NonNull Pattern regex) {
         return new BySelector().text(regex);
+    }
+
+    /**
+     * Constructs a new {@link BySelector} and sets the hint value criteria.
+     *
+     * @see BySelector#hint(String)
+     */
+    @RequiresApi(26)
+    public static @NonNull BySelector hint(@NonNull String hint) {
+        return new BySelector().hint(hint);
+    }
+
+    /**
+     * Constructs a new {@link BySelector} and sets the hint value criteria.
+     *
+     * @see BySelector#hintContains(String)
+     */
+    @RequiresApi(26)
+    public static @NonNull BySelector hintContains(@NonNull String substring) {
+        return new BySelector().hintContains(substring);
+    }
+
+    /**
+     * Constructs a new {@link BySelector} and sets the hint value criteria.
+     *
+     * @see BySelector#hintStartsWith(String)
+     */
+    @RequiresApi(26)
+    public static @NonNull BySelector hintStartsWith(@NonNull String prefix) {
+        return new BySelector().hintStartsWith(prefix);
+    }
+
+    /**
+     * Constructs a new {@link BySelector} and sets the hint value criteria.
+     *
+     * @see BySelector#hintEndsWith(String)
+     */
+    @RequiresApi(26)
+    public static @NonNull BySelector hintEndsWith(@NonNull String suffix) {
+        return new BySelector().hintEndsWith(suffix);
+    }
+
+    /**
+     * Constructs a new {@link BySelector} and sets the hint value criteria.
+     *
+     * @see BySelector#hint(Pattern)
+     */
+    @RequiresApi(26)
+    public static @NonNull BySelector hint(@NonNull Pattern regex) {
+        return new BySelector().hint(regex);
     }
 
     /**
@@ -302,6 +353,16 @@ public class By {
      */
     public static @NonNull BySelector depth(int depth) {
         return new BySelector().depth(depth);
+    }
+
+    /**
+     * Constructs a new {@link BySelector} and sets the display ID criteria.
+     *
+     * @see BySelector#displayId(int)
+     */
+    @RequiresApi(30)
+    public static @NonNull BySelector displayId(int displayId) {
+        return new BySelector().displayId(displayId);
     }
 
     /**

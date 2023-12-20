@@ -238,7 +238,7 @@ public final class DynamicFloatTest {
     }
 
     @Test
-    public void validProto() {
+    public void fromByteArray_validProto() {
         DynamicFloat from = DynamicFloat.constant(CONSTANT_VALUE);
         DynamicFloat to = DynamicFloat.fromByteArray(from.toDynamicFloatByteArray());
 
@@ -246,8 +246,56 @@ public final class DynamicFloatTest {
     }
 
     @Test
-    public void invalidProto() {
+    public void fromByteArray_invalidProto() {
         assertThrows(
                 IllegalArgumentException.class, () -> DynamicFloat.fromByteArray(new byte[] {1}));
+    }
+
+    @Test
+    public void fromByteArray_existingByteArray() {
+        DynamicFloat from = DynamicFloat.constant(CONSTANT_VALUE);
+        byte[] buffer = new byte[100];
+        int written = from.toDynamicFloatByteArray(buffer, 10, 50);
+
+        DynamicFloat to = DynamicFloat.fromByteArray(buffer, 10, written);
+
+        assertThat(to.toDynamicFloatProto().getFixed().getValue()).isEqualTo(CONSTANT_VALUE);
+    }
+
+    @Test
+    public void fromByteArray_existingByteArrayTooSmall() {
+        DynamicFloat from = DynamicFloat.constant(CONSTANT_VALUE);
+        byte[] buffer = new byte[100];
+        int written = from.toDynamicFloatByteArray(buffer);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> DynamicFloat.fromByteArray(buffer, 0, written - 1));
+    }
+
+    @Test
+    public void fromByteArray_existingByteArrayTooLarge() {
+        DynamicFloat from = DynamicFloat.constant(CONSTANT_VALUE);
+        byte[] buffer = new byte[100];
+        int written = from.toDynamicFloatByteArray(buffer);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> DynamicFloat.fromByteArray(buffer, 0, written + 1));
+    }
+
+    @Test
+    public void toByteArray_existingByteArrayTooSmall() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> DynamicFloat.constant(CONSTANT_VALUE).toDynamicFloatByteArray(new byte[1]));
+    }
+
+    @Test
+    public void toByteArray_existingByteArraySameSize() {
+        DynamicFloat from = DynamicFloat.constant(CONSTANT_VALUE);
+
+        assertThat(from.toDynamicFloatByteArray(new byte[100]))
+                .isEqualTo(from.toDynamicFloatByteArray().length);
     }
 }

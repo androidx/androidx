@@ -143,8 +143,8 @@ public class ExtraSupportedSurfaceCombinationsContainerTest {
             // Checks the combination is supported by the list retrieved from the
             // ExtraSupportedSurfaceCombinationsContainer.
             for (SurfaceCombination extraSurfaceCombination : extraSurfaceCombinations) {
-                if (extraSurfaceCombination.isSupported(
-                        expectedSupportedSurfaceCombination.getSurfaceConfigList())) {
+                if (extraSurfaceCombination.getOrderedSupportedSurfaceConfigList(
+                        expectedSupportedSurfaceCombination.getSurfaceConfigList()) != null) {
                     isSupported = true;
                     break;
                 }

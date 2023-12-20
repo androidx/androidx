@@ -157,6 +157,7 @@ internal class MotionEventAdapter {
                     motionEventToComposePointerIdMap.put(pointerId, nextId++)
                 }
             }
+
             ACTION_DOWN,
             ACTION_POINTER_DOWN -> {
                 val actionIndex = motionEvent.actionIndex
@@ -261,6 +262,7 @@ internal class MotionEventAdapter {
         val pressure = motionEvent.getPressure(index)
 
         var position = Offset(motionEvent.getX(index), motionEvent.getY(index))
+        val originalPositionEventPosition = position.copy()
         val rawPosition: Offset
         if (index == 0) {
             rawPosition = Offset(motionEvent.rawX, motionEvent.rawY)
@@ -286,9 +288,11 @@ internal class MotionEventAdapter {
                 val x = getHistoricalX(index, pos)
                 val y = getHistoricalY(index, pos)
                 if (x.isFinite() && y.isFinite()) {
+                    val originalEventPosition = Offset(x, y) // hit path will convert to local
                     val historicalChange = HistoricalChange(
                         getHistoricalEventTime(pos),
-                        Offset(x, y)
+                        originalEventPosition,
+                        originalEventPosition
                     )
                     historical.add(historicalChange)
                 }
@@ -329,7 +333,8 @@ internal class MotionEventAdapter {
             toolType,
             issuesEnterExit,
             historical,
-            scrollDelta
+            scrollDelta,
+            originalPositionEventPosition,
         )
     }
 }

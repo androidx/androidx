@@ -56,7 +56,9 @@ import androidx.wear.compose.foundation.padding
 import androidx.wear.compose.material.TimeTextDefaults.CurvedTextSeparator
 import androidx.wear.compose.material.TimeTextDefaults.TextSeparator
 import androidx.wear.compose.material.TimeTextDefaults.timeFormat
+import androidx.wear.compose.materialcore.isRoundDevice
 import java.util.Calendar
+import java.util.Locale
 
 /**
  * Layout to show the current time and a label at the top of the screen.
@@ -186,7 +188,11 @@ public object TimeTextDefaults {
      * 12h or 24h format
      */
     @Composable
-    public fun timeFormat(): String = if (is24HourFormat()) TimeFormat24Hours else TimeFormat12Hours
+    public fun timeFormat(): String {
+        val format = if (is24HourFormat()) TimeFormat24Hours else TimeFormat12Hours
+        return DateFormat.getBestDateTimePattern(Locale.getDefault(), format)
+            .replace("a", "").trim()
+    }
 
     /**
      * Creates a [TextStyle] with default parameters used for showing time

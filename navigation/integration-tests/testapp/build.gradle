@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-buildscript {
-    // TODO: Remove this when this test app no longer depends on 1.0.0 of vectordrawable-animated.
-    // vectordrawable and vectordrawable-animated were accidentally using the same package name
-    // which is no longer valid in namespaced resource world.
-    project.ext["android.uniquePackageNames"] = false
-}
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
@@ -30,15 +23,21 @@ plugins {
 dependencies {
     implementation(libs.kotlinStdlib)
     implementation("androidx.appcompat:appcompat:1.1.0")
+    api(projectOrArtifact(":fragment:fragment-ktx"))
+    api(projectOrArtifact(":transition:transition-ktx"))
     implementation(project(":navigation:navigation-fragment-ktx"))
     implementation(project(":navigation:navigation-ui-ktx"))
     implementation(project(":internal-testutils-navigation"), {
         exclude group: "androidx.navigation", module: "navigation-common"
     })
+    implementation(libs.multidex)
 }
 
 android {
     namespace "androidx.navigation.testapp"
+    defaultConfig {
+        multiDexEnabled true
+    }
 }
 
 tasks["check"].dependsOn(tasks["connectedCheck"])

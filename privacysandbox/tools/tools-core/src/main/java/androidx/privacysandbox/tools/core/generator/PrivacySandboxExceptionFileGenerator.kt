@@ -36,11 +36,11 @@ class PrivacySandboxExceptionFileGenerator(private val basePackageName: String) 
                     PropertySpec.builder(
                         "message",
                         String::class.asTypeName().copy(nullable = true),
-                    ).addModifiers(KModifier.OVERRIDE).build(),
+                    ).addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE).build(),
                     PropertySpec.builder(
                         "cause",
                         Throwable::class.asTypeName().copy(nullable = true),
-                    ).addModifiers(KModifier.OVERRIDE).build()
+                    ).addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE).build()
                 )
             )
         }

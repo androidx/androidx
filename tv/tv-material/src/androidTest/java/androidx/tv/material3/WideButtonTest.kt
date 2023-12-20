@@ -25,7 +25,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.testTag
@@ -44,8 +43,8 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performKeyInput
-import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -55,7 +54,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @OptIn(
-    ExperimentalComposeUiApi::class,
     ExperimentalTestApi::class,
     ExperimentalTvMaterial3Api::class
 )
@@ -85,6 +83,32 @@ class WideButtonTest {
 
         rule.onNodeWithTag(WideButtonTag)
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            .assertHasClickAction()
+            .assertIsEnabled()
+    }
+
+    @Test
+    fun wideButton_longClickSemantics() {
+        rule.setContent {
+            Box {
+                WideButton(
+                    onClick = { },
+                    onLongClick = {},
+                    modifier = Modifier
+                        .testTag(WideButtonTag),
+                    title = { Text(text = "Settings") },
+                    icon = {
+                        Icon(imageVector = Icons.Default.Settings, contentDescription = "")
+                    },
+                    subtitle = { Text(text = "Update device preferences") }
+                )
+            }
+        }
+
+        rule.onNodeWithTag(WideButtonTag)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            .assertHasClickAction()
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.OnLongClick))
             .assertIsEnabled()
     }
 
@@ -131,8 +155,37 @@ class WideButtonTest {
             }
         }
         rule.onNodeWithTag(WideButtonTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
+        rule.runOnIdle {
+            Truth.assertThat(counter).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun wideButton_findByTagAndLongClick() {
+        var counter = 0
+        val onLongClick: () -> Unit = { ++counter }
+
+        rule.setContent {
+            Box {
+                WideButton(
+                    onClick = {},
+                    onLongClick = onLongClick,
+                    modifier = Modifier
+                        .testTag(WideButtonTag),
+                    title = { Text(text = "Settings") },
+                    icon = {
+                        Icon(imageVector = Icons.Default.Settings, contentDescription = "")
+                    },
+                    subtitle = { Text(text = "Update device preferences") }
+                )
+            }
+        }
+
+        rule.onNodeWithTag(WideButtonTag)
+            .requestFocus()
+            .performLongKeyPress(rule, Key.DirectionCenter)
         rule.runOnIdle {
             Truth.assertThat(counter).isEqualTo(1)
         }
@@ -160,7 +213,7 @@ class WideButtonTest {
             // Confirm the button starts off enabled, with a click action
             .assertHasClickAction()
             .assertIsEnabled()
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
             // Then confirm it's disabled with click action after clicking it
             .assertHasClickAction()
@@ -195,7 +248,7 @@ class WideButtonTest {
         }
 
         rule.onNodeWithTag(watchButtonTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
 
         rule.runOnIdle {
@@ -204,7 +257,7 @@ class WideButtonTest {
         }
 
         rule.onNodeWithTag(playButtonTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
 
         rule.runOnIdle {

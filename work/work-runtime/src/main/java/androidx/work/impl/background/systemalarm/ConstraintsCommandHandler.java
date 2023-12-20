@@ -26,7 +26,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
 import androidx.work.Clock;
 import androidx.work.Logger;
-import androidx.work.impl.constraints.WorkConstraintsTrackerImpl;
+import androidx.work.impl.constraints.WorkConstraintsTracker;
 import androidx.work.impl.constraints.trackers.Trackers;
 import androidx.work.impl.model.WorkSpec;
 
@@ -46,7 +46,7 @@ class ConstraintsCommandHandler {
     private final Clock mClock;
     private final int mStartId;
     private final SystemAlarmDispatcher mDispatcher;
-    private final WorkConstraintsTrackerImpl mWorkConstraintsTracker;
+    private final WorkConstraintsTracker mWorkConstraintsTracker;
 
     ConstraintsCommandHandler(
             @NonNull Context context,
@@ -58,7 +58,7 @@ class ConstraintsCommandHandler {
         mStartId = startId;
         mDispatcher = dispatcher;
         Trackers trackers = mDispatcher.getWorkManager().getTrackers();
-        mWorkConstraintsTracker = new WorkConstraintsTrackerImpl(trackers, null);
+        mWorkConstraintsTracker = new WorkConstraintsTracker(trackers);
     }
 
     @WorkerThread
@@ -71,17 +71,13 @@ class ConstraintsCommandHandler {
         // completed WorkSpecs.
         ConstraintProxy.updateAll(mContext, candidates);
 
-        // This needs to be done to populate matching WorkSpec ids in every constraint controller.
-        mWorkConstraintsTracker.replace(candidates);
-
         List<WorkSpec> eligibleWorkSpecs = new ArrayList<>(candidates.size());
         // Filter candidates should have already been scheduled.
         long now = mClock.currentTimeMillis();
         for (WorkSpec workSpec : candidates) {
-            String workSpecId = workSpec.id;
             long triggerAt = workSpec.calculateNextRunTime();
             if (now >= triggerAt && (!workSpec.hasConstraints()
-                    || mWorkConstraintsTracker.areAllConstraintsMet(workSpecId))) {
+                    || mWorkConstraintsTracker.areAllConstraintsMet(workSpec))) {
                 eligibleWorkSpecs.add(workSpec);
             }
         }
@@ -94,7 +90,5 @@ class ConstraintsCommandHandler {
             mDispatcher.getTaskExecutor().getMainThreadExecutor().execute(
                     new SystemAlarmDispatcher.AddRunnable(mDispatcher, intent, mStartId));
         }
-
-        mWorkConstraintsTracker.reset();
     }
 }

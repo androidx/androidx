@@ -16,14 +16,15 @@
 
 package androidx.camera.video.internal.audio
 
+import android.annotation.SuppressLint
 import android.media.AudioFormat
 import android.media.MediaRecorder
 import android.os.Build
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.ioExecutor
 import androidx.camera.core.impl.utils.futures.Futures.immediateFailedFuture
 import androidx.camera.core.impl.utils.futures.Futures.immediateFuture
-import androidx.camera.testing.mocks.helpers.CallTimes
-import androidx.camera.testing.mocks.helpers.CallTimesAtLeast
+import androidx.camera.testing.impl.mocks.helpers.CallTimes
+import androidx.camera.testing.impl.mocks.helpers.CallTimesAtLeast
 import androidx.camera.video.internal.BufferProvider
 import androidx.camera.video.internal.FakeBufferProvider
 import androidx.camera.video.internal.encoder.FakeInputBuffer
@@ -65,7 +66,8 @@ class AudioSourceTest {
     @Test
     fun canStartAndStopAudioSource() {
         // Arrange.
-        val audioStream = createAudioStream()
+        val audioDataProvider = createAudioDataProvider(audioRecordingDelayMillis = 1)
+        val audioStream = createAudioStream(audioDataProvider = audioDataProvider)
         val bufferProvider = createBufferProvider()
         val audioSource = createAudioSource(
             audioStreamFactory = { _, _ -> audioStream },
@@ -77,8 +79,14 @@ class AudioSourceTest {
 
         // Assert: Audio stream is started.
         audioStream.verifyStartCall(CallTimes(1), COMMON_TIMEOUT_MS)
-        // Assert: Buffers are continuously written.
+
+        // Since the AudioSource's read call might not be synchronized to the AudioStream
+        // immediately, waiting for the AudioStream to produce more data than required to ensure
+        // that the AudioSource has data to be read.
         val verifyCount = 3
+        audioStream.verifyReadCall(CallTimesAtLeast(verifyCount + 1), COMMON_TIMEOUT_MS)
+
+        // Assert: Buffers are continuously written.
         bufferProvider.verifySubmittedBufferCall(
             CallTimesAtLeast(verifyCount),
             COMMON_TIMEOUT_MS
@@ -368,9 +376,18 @@ class AudioSourceTest {
         exceptionOnStartMaxTimes = exceptionOnStartMaxTimes
     )
 
-    private fun createAudioDataProvider(): (Int) -> FakeAudioStream.AudioData = { index ->
+    @SuppressLint("BanThreadSleep") // Needed to simulate the audio recording delays.
+    private fun createAudioDataProvider(
+        audioRecordingDelayMillis: Long = 0
+    ): (Int) -> FakeAudioStream.AudioData = { index ->
         val byteBuffer = ByteBuffer.allocate(BYTE_BUFFER_CAPACITY).put(0, index.toByte())
         val timestampNs = index.toLong()
+
+        // Simulate the audio recording delays.
+        if (audioRecordingDelayMillis > 0) {
+            Thread.sleep(audioRecordingDelayMillis)
+        }
+
         FakeAudioStream.AudioData(byteBuffer, timestampNs)
     }
 

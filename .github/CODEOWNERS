@@ -1,0 +1,22 @@
+# Global owners:
+# Unless a later match takes precedence, global owners will be # requested for
+# review when someone opens a pull request.
+*          @dlam @yigit
+
+# Owners for each library group:
+/activity*          @sanura-njaka @jbw0033 @ianhanniballake
+/appcompat/*        @alanv
+/biometric/*        @jbolinger
+/collection/*       @dlam
+/compose/compiler/* @jimgoog @lelandrichardson
+/compose/runtime/*  @jimgoog @lelandrichardson
+/core/*             @alanv
+/datastore/*        @rohitsat13 @yigit
+/fragment/*         @sanura-njaka @jbw0033 @ianhanniballake
+/lifecycle/*        @jbw0033 @ianhanniballake
+/navigation/*       @jbw0033 @ianhanniballake @claraf3
+/paging/*           @claraf3 @ianhanniballake
+/room/*             @droid-wan-kenobi @danysantiago @svasilinets
+/work/*             @svasilinets @tikurahul
+
+

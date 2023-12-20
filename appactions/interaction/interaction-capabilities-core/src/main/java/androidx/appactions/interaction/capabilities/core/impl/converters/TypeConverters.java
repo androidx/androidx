@@ -25,7 +25,6 @@ import androidx.appactions.builtintypes.experimental.properties.Participant;
 import androidx.appactions.builtintypes.experimental.properties.Recipient;
 import androidx.appactions.builtintypes.experimental.properties.StartDate;
 import androidx.appactions.builtintypes.experimental.properties.Text;
-import androidx.appactions.builtintypes.experimental.types.Alarm;
 import androidx.appactions.builtintypes.experimental.types.CalendarEvent;
 import androidx.appactions.builtintypes.experimental.types.Call;
 import androidx.appactions.builtintypes.experimental.types.ItemList;
@@ -33,7 +32,6 @@ import androidx.appactions.builtintypes.experimental.types.ListItem;
 import androidx.appactions.builtintypes.experimental.types.Message;
 import androidx.appactions.builtintypes.experimental.types.Person;
 import androidx.appactions.builtintypes.experimental.types.SafetyCheck;
-import androidx.appactions.builtintypes.experimental.types.Timer;
 import androidx.appactions.interaction.capabilities.core.SearchAction;
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException;
 import androidx.appactions.interaction.capabilities.core.properties.StringValue;
@@ -45,8 +43,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.Optional;
 
 /** Converters for capability argument values. Convert from internal proto types to public types. */
@@ -90,12 +87,6 @@ public final class TypeConverters {
                                             .orElse(null),
                             Person.Builder::setName)
                     .build();
-    public static final TypeSpec<Alarm> ALARM_TYPE_SPEC =
-            TypeSpecBuilder.newBuilderForThing(
-                    "Alarm", Alarm::Builder, Alarm.Builder::build).build();
-    public static final TypeSpec<Timer> TIMER_TYPE_SPEC =
-            TypeSpecBuilder.newBuilderForThing(
-                    "Timer", Timer::Builder, Timer.Builder::build).build();
     public static final TypeSpec<Attendee> ATTENDEE_TYPE_SPEC =
             new UnionTypeSpec.Builder<Attendee>()
                     .bindMemberType(
@@ -108,22 +99,24 @@ public final class TypeConverters {
                             "CalendarEvent",
                             CalendarEvent::Builder,
                             CalendarEvent.Builder::build)
-                    .bindZonedDateTimeField(
+                    .bindSpecField(
                             "startDate",
                             calendarEvent ->
                                     Optional.ofNullable(calendarEvent)
                                             .map(CalendarEvent::getStartDate)
                                             .map(StartDate::asZonedDateTime)
                                             .orElse(null),
-                            CalendarEvent.Builder::setStartDate)
-                    .bindZonedDateTimeField(
+                            CalendarEvent.Builder::setStartDate,
+                            TypeSpec.ZONED_DATE_TIME_TYPE_SPEC)
+                    .bindSpecField(
                             "endDate",
                             calendarEvent ->
                                     Optional.ofNullable(calendarEvent)
                                             .map(CalendarEvent::getEndDate)
                                             .map(EndDate::asZonedDateTime)
                                             .orElse(null),
-                            CalendarEvent.Builder::setEndDate)
+                            CalendarEvent.Builder::setEndDate,
+                            TypeSpec.ZONED_DATE_TIME_TYPE_SPEC)
                     .bindRepeatedSpecField(
                             "attendee",
                             CalendarEvent::getAttendeeList,
@@ -135,14 +128,16 @@ public final class TypeConverters {
                             "SafetyCheck",
                             SafetyCheck::Builder,
                             SafetyCheck.Builder::build)
-                    .bindDurationField(
+                    .bindSpecField(
                             "duration",
                             SafetyCheck::getDuration,
-                            SafetyCheck.Builder::setDuration)
-                    .bindZonedDateTimeField(
+                            SafetyCheck.Builder::setDuration,
+                            TypeSpec.DURATION_TYPE_SPEC)
+                    .bindSpecField(
                             "checkInTime",
                             SafetyCheck::getCheckInTime,
-                            SafetyCheck.Builder::setCheckInTime)
+                            SafetyCheck.Builder::setCheckInTime,
+                            TypeSpec.ZONED_DATE_TIME_TYPE_SPEC)
                     .build();
     public static final TypeSpec<Recipient> RECIPIENT_TYPE_SPEC =
             new UnionTypeSpec.Builder<Recipient>()
@@ -198,128 +193,20 @@ public final class TypeConverters {
             ParamValueConverter.of(TypeSpec.STRING_TYPE_SPEC);
 
     public static final ParamValueConverter<LocalDate> LOCAL_DATE_PARAM_VALUE_CONVERTER =
-            new ParamValueConverter<LocalDate>() {
-                @NonNull
-                @Override
-                public ParamValue toParamValue(LocalDate value) {
-                    return ParamValue.newBuilder()
-                            .setStringValue(value.format(DateTimeFormatter.ISO_LOCAL_DATE))
-                            .build();
-                }
+            ParamValueConverter.of(TypeSpec.LOCAL_DATE_TYPE_SPEC);
 
-                @Override
-                public LocalDate fromParamValue(@NonNull ParamValue paramValue)
-                        throws StructConversionException {
-                    if (paramValue.hasStringValue()) {
-                        try {
-                            return LocalDate.parse(paramValue.getStringValue());
-                        } catch (DateTimeParseException e) {
-                            throw new StructConversionException(
-                                    "Failed to parse ISO 8601 string to LocalDate", e);
-                        }
-                    }
-                    throw new StructConversionException(
-                            "Cannot parse date because string_value is missing from ParamValue.");
-                }
-            };
     public static final ParamValueConverter<LocalTime> LOCAL_TIME_PARAM_VALUE_CONVERTER =
-            new ParamValueConverter<LocalTime>() {
-                @NonNull
-                @Override
-                public ParamValue toParamValue(LocalTime value) {
-                    return ParamValue.newBuilder()
-                            .setStringValue(value.format(DateTimeFormatter.ISO_LOCAL_TIME))
-                            .build();
-                }
+            ParamValueConverter.of(TypeSpec.LOCAL_TIME_TYPE_SPEC);
 
-                @Override
-                public LocalTime fromParamValue(@NonNull ParamValue paramValue)
-                        throws StructConversionException {
-                    if (paramValue.hasStringValue()) {
-                        try {
-                            return LocalTime.parse(paramValue.getStringValue());
-                        } catch (DateTimeParseException e) {
-                            throw new StructConversionException(
-                                    "Failed to parse ISO 8601 string to LocalTime", e);
-                        }
-                    }
-                    throw new StructConversionException(
-                            "Cannot parse time because string_value is missing from ParamValue.");
-                }
-            };
     public static final ParamValueConverter<ZoneId> ZONE_ID_PARAM_VALUE_CONVERTER =
-            new ParamValueConverter<ZoneId>() {
-                @NonNull
-                @Override
-                public ParamValue toParamValue(ZoneId value) {
-                    return ParamValue.newBuilder().setStringValue(value.getId()).build();
-                }
+            ParamValueConverter.of(TypeSpec.ZONE_ID_TYPE_SPEC);
 
-                @Override
-                public ZoneId fromParamValue(@NonNull ParamValue paramValue)
-                        throws StructConversionException {
-                    if (paramValue.hasStringValue()) {
-                        try {
-                            return ZoneId.of(paramValue.getStringValue());
-                        } catch (DateTimeParseException e) {
-                            throw new StructConversionException(
-                                    "Failed to parse ISO 8601 string to ZoneId", e);
-                        }
-                    }
-                    throw new StructConversionException(
-                            "Cannot parse ZoneId because string_value is missing from ParamValue.");
-                }
-            };
-    public static final ParamValueConverter<ZonedDateTime> ZONED_DATETIME_PARAM_VALUE_CONVERTER =
-            new ParamValueConverter<ZonedDateTime>() {
-                @NonNull
-                @Override
-                public ParamValue toParamValue(ZonedDateTime value) {
-                    return ParamValue.newBuilder()
-                            .setStringValue(value.format(DateTimeFormatter.ISO_ZONED_DATE_TIME))
-                            .build();
-                }
+    public static final ParamValueConverter<ZonedDateTime> ZONED_DATE_TIME_PARAM_VALUE_CONVERTER =
+            ParamValueConverter.of(TypeSpec.ZONED_DATE_TIME_TYPE_SPEC);
 
-                @Override
-                public ZonedDateTime fromParamValue(@NonNull ParamValue paramValue)
-                        throws StructConversionException {
-                    if (paramValue.hasStringValue()) {
-                        try {
-                            return ZonedDateTime.parse(paramValue.getStringValue());
-                        } catch (DateTimeParseException e) {
-                            throw new StructConversionException(
-                                    "Failed to parse ISO 8601 string to ZonedDateTime", e);
-                        }
-                    }
-                    throw new StructConversionException(
-                            "Cannot parse datetime because string_value"
-                                    + " is missing from ParamValue.");
-                }
-            };
     public static final ParamValueConverter<Duration> DURATION_PARAM_VALUE_CONVERTER =
-            new ParamValueConverter<Duration>() {
-                @NonNull
-                @Override
-                public ParamValue toParamValue(Duration value) {
-                    return ParamValue.newBuilder().setStringValue(value.toString()).build();
-                }
+            ParamValueConverter.of(TypeSpec.DURATION_TYPE_SPEC);
 
-                @Override
-                public Duration fromParamValue(@NonNull ParamValue paramValue)
-                        throws StructConversionException {
-                    if (!paramValue.hasStringValue()) {
-                        throw new StructConversionException(
-                                "Cannot parse duration because string_value"
-                                        + " is missing from ParamValue.");
-                    }
-                    try {
-                        return Duration.parse(paramValue.getStringValue());
-                    } catch (DateTimeParseException e) {
-                        throw new StructConversionException(
-                                "Failed to parse ISO 8601 string to Duration", e);
-                    }
-                }
-            };
     public static final ParamValueConverter<Call.CanonicalValue.CallFormat>
             CALL_FORMAT_PARAM_VALUE_CONVERTER =
             new ParamValueConverter<Call.CanonicalValue.CallFormat>() {
@@ -353,15 +240,12 @@ public final class TypeConverters {
                             .setName(stringValue.getName())
                             .addAllAlternateNames(stringValue.getAlternateNames())
                             .build();
-    public static final EntityConverter<ZonedDateTime> ZONED_DATETIME_ENTITY_CONVERTER =
-            (zonedDateTime) ->
-                    Entity.newBuilder()
-                            .setStringValue(zonedDateTime.toOffsetDateTime().toString())
-                            .build();
+    public static final EntityConverter<ZonedDateTime> ZONED_DATE_TIME_ENTITY_CONVERTER =
+            EntityConverter.of(TypeSpec.ZONED_DATE_TIME_TYPE_SPEC);
     public static final EntityConverter<LocalTime> LOCAL_TIME_ENTITY_CONVERTER =
-            (localTime) -> Entity.newBuilder().setStringValue(localTime.toString()).build();
+            EntityConverter.of(TypeSpec.LOCAL_TIME_TYPE_SPEC);
     public static final EntityConverter<Duration> DURATION_ENTITY_CONVERTER =
-            (duration) -> Entity.newBuilder().setStringValue(duration.toString()).build();
+            EntityConverter.of(TypeSpec.DURATION_TYPE_SPEC);
     public static final EntityConverter<Call.CanonicalValue.CallFormat>
             CALL_FORMAT_ENTITY_CONVERTER =
                     (callFormat) ->
@@ -373,15 +257,15 @@ public final class TypeConverters {
         return TypeSpecBuilder.newBuilder(
                         "SearchAction",
                         SearchAction.Builder<T>::new,
-                        SearchAction.Builder<T>::build)
+                        SearchAction.Builder::build)
                 .bindStringField(
                         "query",
                         SearchAction::getQuery,
-                        SearchAction.Builder<T>::setQuery)
+                        SearchAction.Builder::setQuery)
                 .bindSpecField(
                         "filter",
                         SearchAction::getFilter,
-                        SearchAction.Builder<T>::setFilter,
+                        SearchAction.Builder::setFilter,
                         nestedTypeSpec)
                 .build();
     }
@@ -392,6 +276,57 @@ public final class TypeConverters {
             @NonNull TypeSpec<T> nestedTypeSpec) {
         final TypeSpec<SearchAction<T>> typeSpec = createSearchActionTypeSpec(nestedTypeSpec);
         return ParamValueConverter.Companion.of(typeSpec)::fromParamValue;
+    }
+
+    /** Given a list of supported Enum Types, creates a ParamValueConverter instance. */
+    @NonNull
+    public static <T> ParamValueConverter<T> createEnumParamValueConverter(
+            @NonNull List<T> supportedValues) {
+        return new ParamValueConverter<T>() {
+            @Override
+            public T fromParamValue(@NonNull ParamValue paramValue) throws
+                    StructConversionException {
+                for (T supportedValue : supportedValues) {
+                    if (supportedValue.toString().equals(paramValue.getIdentifier())) {
+                        return supportedValue;
+                    }
+                }
+                throw new StructConversionException("cannot convert paramValue to protobuf "
+                        + "Value because identifier " + paramValue.getIdentifier() + " is not "
+                        + "one of the supported values");
+            }
+
+            @NonNull
+            @Override
+            public ParamValue toParamValue(@NonNull T obj) {
+                for (T supportedValue : supportedValues) {
+                    if (supportedValue.equals(obj)) {
+                        return ParamValue.newBuilder().setIdentifier(obj.toString()).build();
+                    }
+                }
+                throw new IllegalStateException("cannot convert " + obj + " to ParamValue "
+                        + "because it did not match one of the supported values");
+            }
+        };
+    }
+
+    /** Given a list of supported Enum Types, creates a EntityConverter instance. */
+    @NonNull
+    public static <T> EntityConverter<T> createEnumEntityConverter(
+            @NonNull List<T> supportedValues) {
+        return new EntityConverter<T>() {
+            @NonNull
+            @Override
+            public Entity convert(T obj) throws IllegalStateException {
+                for (T supportedValue : supportedValues) {
+                    if (supportedValue.toString().equals(obj.toString())) {
+                        return Entity.newBuilder().setIdentifier(obj.toString()).build();
+                    }
+                }
+                throw new IllegalStateException("cannot convert " + obj + " to entity "
+                        + "because it did not match one of the supported values");
+            }
+        };
     }
 
     private TypeConverters() {

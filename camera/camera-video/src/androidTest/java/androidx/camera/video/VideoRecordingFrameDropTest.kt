@@ -35,11 +35,12 @@ import androidx.camera.core.Preview
 import androidx.camera.core.UseCaseGroup
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.CameraPipeConfigTestRule
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.LabTestRule
-import androidx.camera.testing.SurfaceTextureProvider
-import androidx.camera.testing.fakes.FakeLifecycleOwner
+import androidx.camera.testing.impl.CameraPipeConfigTestRule
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.LabTestRule
+import androidx.camera.testing.impl.SurfaceTextureProvider
+import androidx.camera.testing.impl.WakelockEmptyActivityRule
+import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.concurrent.futures.await
 import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
@@ -104,6 +105,9 @@ class VideoRecordingFrameDropTest(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.RECORD_AUDIO
         )
+
+    @get:Rule
+    val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
 
     data class PerSelectorTestData(
         var hasResult: Boolean = false,
@@ -179,7 +183,7 @@ class VideoRecordingFrameDropTest(
     fun tearDown() = runBlocking {
         if (needsShutdown) {
             needsShutdown = false
-            cameraProvider.shutdown().await()
+            cameraProvider.shutdownAsync().await()
         }
     }
 

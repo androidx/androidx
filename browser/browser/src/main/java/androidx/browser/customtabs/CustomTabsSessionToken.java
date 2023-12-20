@@ -28,7 +28,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.core.app.BundleCompat;
 
 /**
  * Wrapper class that can be used as a unique identifier for a session. Also contains an accessor
@@ -77,6 +76,14 @@ public class CustomTabsSessionToken {
         public void onActivityResized(int height, int width, Bundle extras) {}
 
         @Override
+        public void onWarmupCompleted(Bundle extras) {}
+
+        @Override
+        public void onActivityLayout(int left, int top, int right, int bottom,
+                @CustomTabsCallback.ActivityLayoutState int state,
+                @NonNull Bundle extras) {}
+
+        @Override
         public IBinder asBinder() {
             return this;
         }
@@ -94,7 +101,7 @@ public class CustomTabsSessionToken {
             @NonNull Intent intent) {
         Bundle b = intent.getExtras();
         if (b == null) return null;
-        IBinder binder = BundleCompat.getBinder(b, CustomTabsIntent.EXTRA_SESSION);
+        IBinder binder = b.getBinder(CustomTabsIntent.EXTRA_SESSION);
         PendingIntent sessionId = intent.getParcelableExtra(CustomTabsIntent.EXTRA_SESSION_ID);
         if (binder == null && sessionId == null) return null;
         ICustomTabsCallback callback = binder == null ? null :
@@ -194,6 +201,27 @@ public class CustomTabsSessionToken {
             public void onActivityResized(int height, int width, @NonNull Bundle extras) {
                 try {
                     mCallbackBinder.onActivityResized(height, width, extras);
+                } catch (RemoteException e) {
+                    Log.e(TAG, "RemoteException during ICustomTabsCallback transaction");
+                }
+            }
+
+            @SuppressWarnings("NullAway")  // TODO: b/142938599
+            @Override
+            public void onWarmupCompleted(@NonNull Bundle extras) {
+                try {
+                    mCallbackBinder.onWarmupCompleted(extras);
+                } catch (RemoteException e) {
+                    Log.e(TAG, "RemoteException during ICustomTabsCallback transaction");
+                }
+            }
+
+            @SuppressWarnings("NullAway")  // TODO: b/142938599
+            @Override
+            public void onActivityLayout(int left, int top, int right, int bottom,
+                    @ActivityLayoutState int state, @NonNull Bundle extras) {
+                try {
+                    mCallbackBinder.onActivityLayout(left, top, right, bottom, state, extras);
                 } catch (RemoteException e) {
                     Log.e(TAG, "RemoteException during ICustomTabsCallback transaction");
                 }

@@ -76,8 +76,7 @@ import org.jetbrains.kotlin.resolve.multiplatform.findCompatibleActualsForExpect
  * only for functions marked with @Composable annotation or
  * for functions with @Composable lambdas in parameters.
  *
- * TODO(karpovich): When adding support for FIR we'll need to use different API.
- * Likely: fun FirBasedSymbol<*>.getSingleCompatibleExpectForActualOrNull(): FirBasedSymbol<*>?
+ * This lowering is K1 specific and should not be run in K2.
  */
 @OptIn(ObsoleteDescriptorBasedAPI::class)
 class CopyDefaultValuesFromExpectLowering(
@@ -126,13 +125,19 @@ class CopyDefaultValuesFromExpectLowering(
         symbolTable.referenceFunction(descriptor.findActualForExpect()).owner as T
 
     private fun IrProperty.findActualForExpected(): IrProperty =
-        symbolTable.referenceProperty(descriptor.findActualForExpect()).owner
+        symbolTable.descriptorExtension.referenceProperty(
+            descriptor.findActualForExpect()
+        ).owner
 
     private fun IrClass.findActualForExpected(): IrClass =
-        symbolTable.referenceClass(descriptor.findActualForExpect()).owner
+        symbolTable.descriptorExtension.referenceClass(
+            descriptor.findActualForExpect()
+        ).owner
 
     private fun IrEnumEntry.findActualForExpected(): IrEnumEntry =
-        symbolTable.referenceEnumEntry(descriptor.findActualForExpect()).owner
+        symbolTable.descriptorExtension.referenceEnumEntry(
+            descriptor.findActualForExpect()
+        ).owner
 
     private inline fun <reified T : MemberDescriptor> T.findActualForExpect(): T {
         if (!this.isExpect) error(this)

@@ -22,6 +22,7 @@ public class CLParsingException extends Exception {
     private final String mElementClass;
 
     public CLParsingException(String reason, CLElement element) {
+        super(reason);
         mReason = reason;
         if (element != null) {
             mElementClass = element.getStrClass();

@@ -20,6 +20,7 @@ import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -37,6 +38,7 @@ public class BySelector {
     Pattern mPkg;
     Pattern mRes;
     Pattern mText;
+    Pattern mHint;
 
     // Boolean criteria
     Boolean mChecked;
@@ -52,6 +54,9 @@ public class BySelector {
     // Depth restrictions
     Integer mMinDepth;
     Integer mMaxDepth;
+
+    // Display ID
+    Integer mDisplayId;
 
     // Ancestor selector
     BySelector mAncestorSelector;
@@ -75,6 +80,7 @@ public class BySelector {
         mPkg   = original.mPkg;
         mRes   = original.mRes;
         mText  = original.mText;
+        mHint  = original.mHint;
 
         mChecked       = original.mChecked;
         mCheckable     = original.mCheckable;
@@ -88,6 +94,8 @@ public class BySelector {
 
         mMinDepth = original.mMinDepth;
         mMaxDepth = original.mMaxDepth;
+
+        mDisplayId = original.mDisplayId;
 
         mAncestorSelector = original.mAncestorSelector == null ? null :
                 new BySelector(original.mAncestorSelector);
@@ -190,28 +198,28 @@ public class BySelector {
 
     /**
      * Sets the content description criteria for matching. A UI element will be considered a match
-     * if its content description starts with the {@code substring} parameter and all other criteria
+     * if its content description starts with the {@code prefix} parameter and all other criteria
      * for this selector are met.
      *
-     * @param substring The substring to match (case-sensitive).
+     * @param prefix The prefix to match (case-sensitive).
      * @return A reference to this {@link BySelector}.
      */
-    public @NonNull BySelector descStartsWith(@NonNull String substring) {
-        requireNonNull(substring, "substring cannot be null");
-        return desc(RegexHelper.getPatternStartsWith(substring));
+    public @NonNull BySelector descStartsWith(@NonNull String prefix) {
+        requireNonNull(prefix, "prefix cannot be null");
+        return desc(RegexHelper.getPatternStartsWith(prefix));
     }
 
     /**
      * Sets the content description criteria for matching. A UI element will be considered a match
-     * if its content description ends with the {@code substring} parameter and all other criteria
+     * if its content description ends with the {@code suffix} parameter and all other criteria
      * for this selector are met.
      *
-     * @param substring The substring to match (case-sensitive).
+     * @param suffix The suffix to match (case-sensitive).
      * @return A reference to this {@link BySelector}.
      */
-    public @NonNull BySelector descEndsWith(@NonNull String substring) {
-        requireNonNull(substring, "substring cannot be null");
-        return desc(RegexHelper.getPatternEndsWith(substring));
+    public @NonNull BySelector descEndsWith(@NonNull String suffix) {
+        requireNonNull(suffix, "suffix cannot be null");
+        return desc(RegexHelper.getPatternEndsWith(suffix));
     }
 
     /**
@@ -335,28 +343,28 @@ public class BySelector {
 
     /**
      * Sets the text value criteria for matching. A UI element will be considered a match if its
-     * text value starts with the {@code substring} parameter and all other criteria for this
+     * text value starts with the {@code prefix} parameter and all other criteria for this
      * selector are met.
      *
-     * @param substring The substring to match (case-sensitive).
+     * @param prefix The prefix to match (case-sensitive).
      * @return A reference to this {@link BySelector}.
      */
-    public @NonNull BySelector textStartsWith(@NonNull String substring) {
-        requireNonNull(substring, "substring cannot be null");
-        return text(RegexHelper.getPatternStartsWith(substring));
+    public @NonNull BySelector textStartsWith(@NonNull String prefix) {
+        requireNonNull(prefix, "prefix cannot be null");
+        return text(RegexHelper.getPatternStartsWith(prefix));
     }
 
     /**
      * Sets the text value criteria for matching. A UI element will be considered a match if its
-     * text value ends with the {@code substring} parameter and all other criteria for this selector
+     * text value ends with the {@code suffix} parameter and all other criteria for this selector
      * are met.
      *
-     * @param substring The substring to match (case-sensitive).
+     * @param suffix The suffix to match (case-sensitive).
      * @return A reference to this {@link BySelector}.
      */
-    public @NonNull BySelector textEndsWith(@NonNull String substring) {
-        requireNonNull(substring, "substring cannot be null");
-        return text(RegexHelper.getPatternEndsWith(substring));
+    public @NonNull BySelector textEndsWith(@NonNull String suffix) {
+        requireNonNull(suffix, "suffix cannot be null");
+        return text(RegexHelper.getPatternEndsWith(suffix));
     }
 
     /** Sets the text value criteria for matching. A UI element will be considered a match if its
@@ -372,6 +380,85 @@ public class BySelector {
             throw new IllegalStateException("Text selector is already defined");
         }
         mText = textValue;
+        return this;
+    }
+
+    /**
+     * Sets the hint value criteria for matching. A UI element will be considered a match if its
+     * hint value exactly matches the {@code hintValue} parameter and all other criteria for this
+     * selector are met.
+     * <p>Hint text is displayed when there's no user input text.
+     *
+     * @param hintValue The exact value to match (case-sensitive).
+     * @return A reference to this {@link BySelector}.
+     */
+    @RequiresApi(26)
+    public @NonNull BySelector hint(@NonNull String hintValue) {
+        requireNonNull(hintValue, "hintValue cannot be null");
+        return hint(Pattern.compile(Pattern.quote(hintValue)));
+    }
+
+    /**
+     * Sets the hint value criteria for matching. A UI element will be considered a match if its
+     * hint value contains the {@code substring} parameter and all other criteria for this selector
+     * are met.
+     * <p>Hint text is displayed when there's no user input text.
+     *
+     * @param substring The substring to match (case-sensitive).
+     * @return A reference to this {@link BySelector}.
+     */
+    @RequiresApi(26)
+    public @NonNull BySelector hintContains(@NonNull String substring) {
+        requireNonNull(substring, "substring cannot be null");
+        return hint(RegexHelper.getPatternContains(substring));
+    }
+
+    /**
+     * Sets the hint value criteria for matching. A UI element will be considered a match if its
+     * hint value starts with the {@code prefix} parameter and all other criteria for this
+     * selector are met.
+     * <p>Hint text is displayed when there's no user input text.
+     *
+     * @param prefix The prefix to match (case-sensitive).
+     * @return A reference to this {@link BySelector}.
+     */
+    @RequiresApi(26)
+    public @NonNull BySelector hintStartsWith(@NonNull String prefix) {
+        requireNonNull(prefix, "prefix cannot be null");
+        return hint(RegexHelper.getPatternStartsWith(prefix));
+    }
+
+    /**
+     * Sets the hint value criteria for matching. A UI element will be considered a match if its
+     * hint value ends with the {@code suffix} parameter and all other criteria for this selector
+     * are met.
+     * <p>Hint text is displayed when there's no user input text.
+     *
+     * @param suffix The suffix to match (case-sensitive).
+     * @return A reference to this {@link BySelector}.
+     */
+    @RequiresApi(26)
+    public @NonNull BySelector hintEndsWith(@NonNull String suffix) {
+        requireNonNull(suffix, "suffix cannot be null");
+        return hint(RegexHelper.getPatternEndsWith(suffix));
+    }
+
+    /**
+     * Sets the hint value criteria for matching. A UI element will be considered a match if its
+     * hint value matches the {@code hintValue} {@link Pattern} and all other criteria for this
+     * selector are met.
+     * <p>Hint text is displayed when there's no user input text.
+     *
+     * @param hintValue The {@link Pattern} to be used for matching.
+     * @return A reference to this {@link BySelector}.
+     */
+    @RequiresApi(26)
+    public @NonNull BySelector hint(@NonNull Pattern hintValue) {
+        requireNonNull(hintValue, "hintValue cannot be null");
+        if (mHint != null) {
+            throw new IllegalStateException("Hint selector is already defined");
+        }
+        mHint = hintValue;
         return this;
     }
 
@@ -556,6 +643,23 @@ public class BySelector {
     }
 
     /**
+     * Adds a display ID selector criteria for matching. A UI element will be considered a match
+     * if it is within the display with the ID of {@code displayId} and all other criteria for
+     * this selector are met.
+     *
+     * @param displayId The display ID to match. Use {@link Display#getDisplayId()} to get the ID.
+     * @return A reference to this {@link BySelector}.
+     */
+    @RequiresApi(30)
+    public @NonNull BySelector displayId(int displayId) {
+        if (mDisplayId != null) {
+            throw new IllegalStateException("Display ID selector is already defined");
+        }
+        mDisplayId = displayId;
+        return this;
+    }
+
+    /**
      * Adds a parent selector criteria for matching. A UI element will be considered a match if it
      * has a parent element (direct ancestor) which matches the {@code parentSelector} and all
      * other criteria for this selector are met.
@@ -679,6 +783,9 @@ public class BySelector {
         if (mText != null) {
             builder.append("TEXT='").append(mText).append("', ");
         }
+        if (mHint != null) {
+            builder.append("HINT='").append(mHint).append("', ");
+        }
         if (mChecked != null) {
             builder.append("CHECKED='").append(mChecked).append("', ");
         }
@@ -705,6 +812,9 @@ public class BySelector {
         }
         if (mSelected != null) {
             builder.append("SELECTED='").append(mSelected).append("', ");
+        }
+        if (mDisplayId != null) {
+            builder.append("DISPLAY_ID='").append(mDisplayId).append("', ");
         }
         if (mAncestorSelector != null) {
             builder.append("ANCESTOR='")

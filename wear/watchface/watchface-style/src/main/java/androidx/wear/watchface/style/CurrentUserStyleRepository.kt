@@ -420,7 +420,7 @@ public class UserStyleData(public val userStyleMap: Map<String, ByteArray>) {
  *
  * @param userStyleSettings The user configurable style categories associated with this watch face.
  *   Empty if the watch face doesn't support user styling. Note we allow at most one
- *   [UserStyleSetting.CustomValueUserStyleSetting] in the list. Prior to android T ot most one
+ *   [UserStyleSetting.CustomValueUserStyleSetting] in the list. Prior to android T at most one
  *   [UserStyleSetting.ComplicationSlotsUserStyleSetting] is allowed, however from android T it's
  *   possible with hierarchical styles for there to be more than one, but at most one can be active
  *   at any given time.
@@ -432,9 +432,8 @@ public class UserStyleSchema constructor(userStyleSettings: List<UserStyleSettin
     /** For use with hierarchical schemas, lists all the settings with no parent [Option]. */
     public val rootUserStyleSettings by lazy { userStyleSettings.filter { !it.hasParent } }
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     companion object {
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Throws(IOException::class, XmlPullParserException::class)
         fun inflate(
             resources: Resources,
@@ -721,6 +720,15 @@ public class CurrentUserStyleRepository(public val schema: UserStyleSchema) {
     public fun updateUserStyle(newUserStyle: UserStyle) {
         validateUserStyle(newUserStyle)
         mutableUserStyle.value = newUserStyle
+    }
+
+    /** Sets the user style, and returns a restoration function. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun updateUserStyleForScreenshot(newUserStyle: UserStyle): AutoCloseable {
+        val originalStyle = userStyle.value
+        updateUserStyle(newUserStyle)
+        // Avoid overwriting a change made by someone else.
+        return AutoCloseable { mutableUserStyle.compareAndSet(newUserStyle, originalStyle) }
     }
 
     @Suppress("Deprecation") // userStyleSettings

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 package androidx.appactions.interaction.capabilities.core.impl;
 

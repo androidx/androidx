@@ -123,7 +123,6 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
                 mIsConcurrentModeOn = true;
             }
             mLayoutButton.setEnabled(mCameraProvider != null && mIsConcurrentModeOn);
-            mToggleButton.setEnabled(mCameraProvider != null && mIsConcurrentModeOn);
         });
         mLayoutButton.setOnClickListener(view -> {
             if (mIsLayoutPiP) {
@@ -256,6 +255,17 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
                 } else if (cameraInfo.getLensFacing() == CameraSelector.LENS_FACING_BACK) {
                     cameraSelectorSecondary = cameraInfo.getCameraSelector();
                 }
+            }
+
+            if (cameraSelectorPrimary == null || cameraSelectorSecondary == null) {
+                // If either a primary or secondary selector wasn't found, reset both
+                // to move on to the next list of CameraInfos.
+                cameraSelectorPrimary = null;
+                cameraSelectorSecondary = null;
+            } else {
+                // If both primary and secondary camera selectors were found, we can
+                // conclude the search.
+                break;
             }
         }
         if (cameraSelectorPrimary == null || cameraSelectorSecondary == null) {

@@ -16,9 +16,9 @@
 
 package androidx.room.compiler.processing.javac.kotlin
 
+import androidx.kruth.assertThat
 import com.google.auto.common.MoreElements
 import com.google.common.truth.Truth
-import com.google.common.truth.Truth.assertThat
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourcesSubjectFactory
 import com.squareup.javapoet.ArrayTypeName
@@ -425,9 +425,9 @@ class JvmDescriptorUtilsTest {
                         roundEnv.getElementsAnnotatedWith(annotations.first()).map { element ->
                             when (element.kind) {
                                 FIELD ->
-                                    MoreElements.asVariable(element).descriptor()
+                                    MoreElements.asVariable(element).descriptor(processingEnv)
                                 METHOD, CONSTRUCTOR ->
-                                    MoreElements.asExecutable(element).descriptor()
+                                    MoreElements.asExecutable(element).descriptor(processingEnv)
                                 else -> error("Unsupported element to describe.")
                             }
                         }.toSet().let(handler)

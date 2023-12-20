@@ -21,7 +21,6 @@ package androidx.compose.runtime.lint
 import androidx.compose.lint.Name
 import androidx.compose.lint.Names
 import androidx.compose.lint.isInPackageName
-import androidx.compose.lint.resolveCall
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
@@ -34,12 +33,13 @@ import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiMethod
 import java.util.EnumSet
-import org.jetbrains.kotlin.js.descriptorUtils.getJetTypeFqName
+import org.jetbrains.kotlin.analysis.api.analyze
+import org.jetbrains.kotlin.analysis.api.calls.singleFunctionCallOrNull
+import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtTypeArgumentList
 import org.jetbrains.kotlin.psi.KtValueArgumentList
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import org.jetbrains.uast.UCallExpression
-import org.jetbrains.uast.kotlin.KotlinUFunctionCallExpression
 import org.jetbrains.uast.skipParenthesizedExprDown
 
 /**
@@ -66,8 +66,7 @@ class AutoboxingStateCreationDetector : Detector(), SourceCodeScanner {
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         if (!method.isInPackageName(Names.Runtime.PackageName)) return
 
-        val replacement = getSuggestedReplacementName(node as KotlinUFunctionCallExpression)
-            ?: return
+        val replacement = getSuggestedReplacementName(node) ?: return
 
         context.report(
             issue = AutoboxingStateCreation,
@@ -129,26 +128,33 @@ class AutoboxingStateCreationDetector : Detector(), SourceCodeScanner {
     }
 
     private fun getSuggestedReplacementName(
-        invocation: KotlinUFunctionCallExpression
+        invocation: UCallExpression
     ): Name? {
         if (!usesStructuralEqualityPolicy(invocation)) return null
 
-        val resolvedCall = invocation.resolveCall() ?: return null
-        val stateType = resolvedCall.typeArguments.asIterable().single().value
-        return when {
-            stateType.isMarkedNullable -> null
-            else -> replacements[stateType.getJetTypeFqName(true)]
+        val sourcePsi = invocation.sourcePsi as? KtElement ?: return null
+        analyze(sourcePsi) {
+            val resolvedCall = sourcePsi.resolveCall()?.singleFunctionCallOrNull() ?: return null
+            val stateType = resolvedCall.typeArgumentsMapping.asIterable().single().value
+            return when {
+                stateType.isMarkedNullable -> null
+                else -> {
+                    // NB: use expanded class symbol for type alias
+                    val fqName = stateType.expandedClassSymbol?.classIdIfNonLocal?.asFqNameString()
+                    replacements[fqName]
+                }
+            }
         }
     }
 
     private fun usesStructuralEqualityPolicy(
-        invocation: KotlinUFunctionCallExpression
+        invocation: UCallExpression
     ): Boolean {
         val policyExpr = invocation.valueArguments.getOrNull(MUTATION_POLICY_PARAM_IDX)
             ?.skipParenthesizedExprDown()
             ?: return true // No argument passed; we're using the default policy
 
-        val policyMethod = (policyExpr as? KotlinUFunctionCallExpression)?.resolve()
+        val policyMethod = (policyExpr as? UCallExpression)?.resolve()
             ?: return false // Argument isn't a direct function call. Assume it's a more complex
                             // policy, or isn't always the structural equality policy.
 
@@ -171,7 +177,9 @@ class AutoboxingStateCreationDetector : Detector(), SourceCodeScanner {
                 "values when reading the value of the state. Instead, prefer to use a " +
                 "specialized primitive state implementation for `Int`, `Long`, `Float`, and " +
                 "`Double` when the state does not need to track null values and does not " +
-                "override the default `SnapshotMutationPolicy`.",
+                "override the default `SnapshotMutationPolicy`. See `mutableIntStateOf()`, " +
+                "`mutableLongStateOf()`, `mutableFloatStateOf()`, and `mutableDoubleStateOf()` " +
+                "for more information.",
             category = Category.PERFORMANCE, priority = 3, severity = Severity.INFORMATIONAL,
             implementation = Implementation(
                 AutoboxingStateCreationDetector::class.java,

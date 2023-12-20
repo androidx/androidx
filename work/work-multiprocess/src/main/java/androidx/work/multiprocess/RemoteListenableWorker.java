@@ -16,11 +16,13 @@
 
 package androidx.work.multiprocess;
 
+import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
 import android.os.RemoteException;
 import android.text.TextUtils;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.arch.core.util.Function;
@@ -32,9 +34,9 @@ import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.utils.futures.SettableFuture;
 import androidx.work.multiprocess.parcelable.ParcelConverters;
+import androidx.work.multiprocess.parcelable.ParcelableInterruptRequest;
 import androidx.work.multiprocess.parcelable.ParcelableRemoteWorkRequest;
 import androidx.work.multiprocess.parcelable.ParcelableResult;
-import androidx.work.multiprocess.parcelable.ParcelableWorkerParameters;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -180,24 +182,22 @@ public abstract class RemoteListenableWorker extends ListenableWorker {
     /**
      * {@inheritDoc}
      */
+    @SuppressLint("NewApi")
     @Override
+    @CallSuper
     @SuppressWarnings("FutureReturnValueIgnored")
     public void onStopped() {
         super.onStopped();
+        int stopReason = getStopReason();
         // Delegate interruptions to the remote process.
         if (mComponentName != null) {
             mClient.execute(mComponentName,
-                    new RemoteDispatcher<IListenableWorkerImpl>() {
-                        @Override
-                        public void execute(
-                                @NonNull IListenableWorkerImpl listenableWorkerImpl,
-                                @NonNull IWorkManagerImplCallback callback)
-                                throws RemoteException {
-                            ParcelableWorkerParameters parcelableWorkerParameters =
-                                    new ParcelableWorkerParameters(mWorkerParameters);
-                            byte[] request = ParcelConverters.marshall(parcelableWorkerParameters);
-                            listenableWorkerImpl.interrupt(request, callback);
-                        }
+                    (listenableWorkerImpl, callback) -> {
+                        ParcelableInterruptRequest interruptRequest =
+                                new ParcelableInterruptRequest(
+                                        mWorkerParameters.getId().toString(), stopReason);
+                        byte[] request = ParcelConverters.marshall(interruptRequest);
+                        listenableWorkerImpl.interrupt(request, callback);
                     });
         }
     }

@@ -335,14 +335,14 @@ androidx {
 ### Choosing a `minSdkVersion` {#module-minsdkversion}
 
 The recommended minimum SDK version for new Jetpack libraries is currently
-**19** (Android 4.4, KitKat). This SDK was chosen to represent 99% of active
+**21** (Android 5.0, Lollipop). This SDK was chosen to represent 99% of active
 devices based on Play Store check-ins (see Android Studio
 [distribution metadata](https://dl.google.com/android/studio/metadata/distributions.json)
 for current statistics). This maximizes potential users for external developers
 while minimizing the amount of overhead necessary to support legacy versions.
 
 However, if no explicit minimum SDK version is specified for a library, the
-default is **14** (Android 4.0, Ice Cream Sandwich).
+default is **19** (Android 4.4, KitKat).
 
 Note that a library **must not** depend on another library with a higher
 `minSdkVersion` that its own, so it may be necessary for a new library to match
@@ -359,7 +359,25 @@ Note that this pattern is *not recommended* because it leads to confusion for
 external developers and should be considered a last-resort when backporting
 behavior is not feasible.
 
-### Extension libraries (`-ktx`, `-guava`, etc.) {#module-ktx}
+### Platform extension (sidecar JAR) libraries {#module-extension}
+
+Platform extension or "sidecar JAR" libraries ship as part of the Android system
+image and are made available to developers through the `<uses-library>` manifest
+tag.
+
+Interfaces for platform extension libraries *may* be defined in Jetpack, like
+`androidx.window.extensions`, but must be implemented in the Android platform
+via AOSP or by device manufacturers. See
+[WindowManager Extensions](https://source.android.com/docs/core/display/windowmanager-extensions)
+for more details on the platform-side implementation of extension libraries,
+including motivations for their use.
+
+See
+[Platform extension (sidecar JAR) dependencies](/company/teams/androidx/api_guidelines#dependencies-sidecar)
+for guidelines on depending on extension libraries defined externally or within
+Jetpack.
+
+### Framework- and language-specific libraries (`-ktx`, `-guava`, etc.) {#module-ktx}
 
 New libraries should prefer Kotlin sources with built-in Java compatibility via
 `@JvmName` and other affordances of the Kotlin language. They may optionally

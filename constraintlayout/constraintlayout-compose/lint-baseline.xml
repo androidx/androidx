@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
+<issues format="6" by="lint 8.2.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-beta01)" variant="all" version="8.2.0-beta01">
 
     <issue
         id="BanInlineOptIn"
@@ -17,33 +17,6 @@
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/constraintlayout/compose/MotionCarousel.kt"/>
-    </issue>
-
-    <issue
-        id="IllegalExperimentalApiUsage"
-        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
-        errorLine1="@OptIn(ExperimentalComposeUiApi::class)"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/constraintlayout/compose/Motion.kt"/>
-    </issue>
-
-    <issue
-        id="IllegalExperimentalApiUsage"
-        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
-        errorLine1="@OptIn(ExperimentalComposeUiApi::class)"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/constraintlayout/compose/Motion.kt"/>
-    </issue>
-
-    <issue
-        id="IllegalExperimentalApiUsage"
-        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
-        errorLine1="@OptIn(ExperimentalComposeApi::class)"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/constraintlayout/compose/TransitionHandler.kt"/>
     </issue>
 
     <issue
@@ -71,6 +44,150 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/constraintlayout/compose/ConstraintLayout.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method setAnchors$lint_module has parameter &lt;set-?> with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
+        errorLine1="    internal var anchors by mutableStateOf(emptyMap&lt;Float, T>())"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/carousel/CarouselSwipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type Map&lt;Float, T> of getAnchors$lint_module: replace with FloatObjectMap"
+        errorLine1="    internal var anchors by mutableStateOf(emptyMap&lt;Float, T>())"
+        errorLine2="                 ~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/carousel/CarouselSwipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method ensureInit$lint_module has parameter newAnchors with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
+        errorLine1="    internal fun ensureInit(newAnchors: Map&lt;Float, T>) {"
+        errorLine2="                                        ~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/carousel/CarouselSwipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method processNewAnchors$lint_module has parameter oldAnchors with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
+        errorLine1="        oldAnchors: Map&lt;Float, T>,"
+        errorLine2="                    ~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/carousel/CarouselSwipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method processNewAnchors$lint_module has parameter newAnchors with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
+        errorLine1="        newAnchors: Map&lt;Float, T>"
+        errorLine2="                    ~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/carousel/CarouselSwipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable bounds with type List&lt;? extends Float>: replace with FloatList"
+        errorLine1="            val bounds = findBounds(offset.floatValue, anchors.keys)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/carousel/CarouselSwipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method carouselSwipeable has parameter anchors with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
+        errorLine1="    anchors: Map&lt;Float, T>,"
+        errorLine2="             ~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/carousel/CarouselSwipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable oldAnchors with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
+        errorLine1="        val oldAnchors = state.anchors"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/carousel/CarouselSwipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method findBounds has parameter anchors with type Set&lt;Float>: replace with FloatSet"
+        errorLine1="    anchors: Set&lt;Float>"
+        errorLine2="             ~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/carousel/CarouselSwipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;Float> of findBounds: replace with FloatList"
+        errorLine1="): List&lt;Float> {"
+        errorLine2="   ~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/carousel/CarouselSwipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method computeTarget has parameter anchors with type Set&lt;Float>: replace with FloatSet"
+        errorLine1="    anchors: Set&lt;Float>,"
+        errorLine2="             ~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/carousel/CarouselSwipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable bounds with type List&lt;? extends Float>: replace with FloatList"
+        errorLine1="    val bounds = findBounds(offset, anchors)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/carousel/CarouselSwipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method getOffset has parameter $this$getOffset with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
+        errorLine1="private fun &lt;T> Map&lt;Float, T>.getOffset(state: T): Float? {"
+        errorLine2="                ~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/carousel/CarouselSwipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method resistanceConfig has parameter anchors with type Set&lt;Float>: replace with FloatSet"
+        errorLine1="        anchors: Set&lt;Float>,"
+        errorLine2="                 ~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/carousel/CarouselSwipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field overridedVariables with type HashMap&lt;String, Float>: replace with ObjectFloatMap"
+        errorLine1="    private val overridedVariables = HashMap&lt;String, Float>()"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/JSONConstraintSet.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable anchors with type Map&lt;Float, ? extends String>: replace with FloatObjectMap"
+        errorLine1="    val anchors = if (currentIndex == 0) {"
+        errorLine2="    ^">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/MotionCarousel.kt"/>
     </issue>
 
 </issues>

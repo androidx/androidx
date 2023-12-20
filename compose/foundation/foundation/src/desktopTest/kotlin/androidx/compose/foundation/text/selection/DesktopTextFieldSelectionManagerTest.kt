@@ -116,7 +116,11 @@ class DesktopTextFieldSelectionManagerTest {
 
         whenever(layoutResultProxy.value).thenReturn(layoutResult)
 
-        state = TextFieldState(mock(), mock())
+        state = TextFieldState(
+            textDelegate = mock(),
+            recomposeScope = mock(),
+            keyboardController = null
+        )
         state.layoutResult = layoutResultProxy
         state.processor.reset(value, null)
         manager.state = state

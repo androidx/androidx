@@ -22,10 +22,10 @@ import androidx.camera.core.imagecapture.Utils.TIMESTAMP
 import androidx.camera.core.imagecapture.Utils.WIDTH
 import androidx.camera.core.processing.InternalImageProcessor
 import androidx.camera.core.processing.Packet
-import androidx.camera.testing.ExifUtil
-import androidx.camera.testing.TestImageUtil
-import androidx.camera.testing.TestImageUtil.getAverageDiff
-import androidx.camera.testing.fakes.GrayscaleImageEffect
+import androidx.camera.testing.impl.ExifUtil
+import androidx.camera.testing.impl.TestImageUtil
+import androidx.camera.testing.impl.TestImageUtil.getAverageDiff
+import androidx.camera.testing.impl.fakes.GrayscaleImageEffect
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest

@@ -12,7 +12,6 @@ import kotlin.Int
 import kotlin.Long
 import kotlin.String
 import kotlin.Suppress
-import kotlin.Unit
 import kotlin.collections.List
 import kotlin.jvm.JvmStatic
 
@@ -27,10 +26,10 @@ public class MyDao_Impl(
     init {
         this.__db = __db
         this.__insertionAdapterOfMyEntity = object : EntityInsertionAdapter<MyEntity>(__db) {
-            public override fun createQuery(): String =
+            protected override fun createQuery(): String =
                 "INSERT OR ABORT INTO `MyEntity` (`mValue`,`mNullableValue`) VALUES (?,?)"
 
-            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity): Unit {
+            protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
                 statement.bindLong(1, entity.getValue())
                 val _tmpMNullableValue: String? = entity.getNullableValue()
                 if (_tmpMNullableValue == null) {
@@ -42,7 +41,7 @@ public class MyDao_Impl(
         }
     }
 
-    public override fun addEntity(item: MyEntity): Unit {
+    public override fun addEntity(item: MyEntity) {
         __db.assertNotSuspendingTransaction()
         __db.beginTransaction()
         try {
@@ -75,7 +74,7 @@ public class MyDao_Impl(
                 }
                 _result.setNullableValue(_tmpMNullableValue)
             } else {
-                error("Cursor was empty, but expected a single item.")
+                error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
             }
             return _result
         } finally {

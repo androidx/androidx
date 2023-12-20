@@ -22,8 +22,6 @@ import static androidx.camera.extensions.ExtensionMode.FACE_RETOUCH;
 import static androidx.camera.extensions.ExtensionMode.HDR;
 import static androidx.camera.extensions.ExtensionMode.NIGHT;
 
-import static junit.framework.TestCase.assertNotNull;
-
 import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
 
@@ -31,20 +29,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.extensions.ExtensionMode;
-import androidx.camera.extensions.impl.AutoImageCaptureExtenderImpl;
-import androidx.camera.extensions.impl.AutoPreviewExtenderImpl;
-import androidx.camera.extensions.impl.BeautyImageCaptureExtenderImpl;
-import androidx.camera.extensions.impl.BeautyPreviewExtenderImpl;
-import androidx.camera.extensions.impl.BokehImageCaptureExtenderImpl;
-import androidx.camera.extensions.impl.BokehPreviewExtenderImpl;
-import androidx.camera.extensions.impl.HdrImageCaptureExtenderImpl;
-import androidx.camera.extensions.impl.HdrPreviewExtenderImpl;
-import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
-import androidx.camera.extensions.impl.NightImageCaptureExtenderImpl;
-import androidx.camera.extensions.impl.NightPreviewExtenderImpl;
-import androidx.camera.extensions.impl.PreviewExtenderImpl;
+import androidx.camera.extensions.internal.AdvancedVendorExtender;
+import androidx.camera.extensions.internal.BasicVendorExtender;
+import androidx.camera.extensions.internal.ExtensionVersion;
+import androidx.camera.extensions.internal.VendorExtender;
+import androidx.camera.extensions.internal.Version;
 import androidx.camera.extensions.internal.compat.workaround.ExtensionDisabledValidator;
-import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.impl.CameraUtil;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -71,90 +62,26 @@ public class ExtensionsTestUtil {
     }
 
     /**
-     * Creates an {@link ImageCaptureExtenderImpl} object for specific {@link ExtensionMode} and
-     * camera id.
-     *
-     * @param extensionMode The extension mode for the created object.
-     * @param cameraId The target camera id.
-     * @param cameraCharacteristics The camera characteristics of the target camera.
-     * @return An {@link ImageCaptureExtenderImpl} object.
-     */
-    @NonNull
-    public static ImageCaptureExtenderImpl createImageCaptureExtenderImpl(
-            @ExtensionMode.Mode int extensionMode, @NonNull String cameraId,
-            @NonNull CameraCharacteristics cameraCharacteristics) {
-        ImageCaptureExtenderImpl impl = null;
-
-        switch (extensionMode) {
-            case HDR:
-                impl = new HdrImageCaptureExtenderImpl();
-                break;
-            case BOKEH:
-                impl = new BokehImageCaptureExtenderImpl();
-                break;
-            case FACE_RETOUCH:
-                impl = new BeautyImageCaptureExtenderImpl();
-                break;
-            case NIGHT:
-                impl = new NightImageCaptureExtenderImpl();
-                break;
-            case AUTO:
-                impl = new AutoImageCaptureExtenderImpl();
-                break;
-        }
-        assertNotNull(impl);
-
-        impl.init(cameraId, cameraCharacteristics);
-
-        return impl;
-    }
-
-    /**
-     * Creates a {@link PreviewExtenderImpl} object for specific {@link ExtensionMode} and
-     * camera id.
-     *
-     * @param extensionMode The extension mode for the created object.
-     * @param cameraId The target camera id.
-     * @param cameraCharacteristics The camera characteristics of the target camera.
-     * @return A {@link PreviewExtenderImpl} object.
-     */
-    @NonNull
-    public static PreviewExtenderImpl createPreviewExtenderImpl(
-            @ExtensionMode.Mode int extensionMode, @NonNull String cameraId,
-            @NonNull CameraCharacteristics cameraCharacteristics) {
-        PreviewExtenderImpl impl = null;
-
-        switch (extensionMode) {
-            case HDR:
-                impl = new HdrPreviewExtenderImpl();
-                break;
-            case BOKEH:
-                impl = new BokehPreviewExtenderImpl();
-                break;
-            case FACE_RETOUCH:
-                impl = new BeautyPreviewExtenderImpl();
-                break;
-            case NIGHT:
-                impl = new NightPreviewExtenderImpl();
-                break;
-            case AUTO:
-                impl = new AutoPreviewExtenderImpl();
-                break;
-        }
-        assertNotNull(impl);
-
-        impl.init(cameraId, cameraCharacteristics);
-
-        return impl;
-    }
-
-    /**
      * Returns whether the target camera device can support the test for a specific extension mode.
      */
     public static boolean isTargetDeviceAvailableForExtensions(
             @CameraSelector.LensFacing int lensFacing, @ExtensionMode.Mode int mode) {
         return CameraUtil.hasCameraWithLensFacing(lensFacing) && isLimitedAboveDevice(lensFacing)
                 && !isSpecificSkippedDevice() && !isSpecificSkippedDeviceWithExtensionMode(mode);
+    }
+
+    private static boolean isAdvancedExtenderSupported() {
+        if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_2) < 0) {
+            return false;
+        }
+        return ExtensionVersion.isAdvancedExtenderSupported();
+    }
+
+    public static VendorExtender createVendorExtender(@ExtensionMode.Mode int mode) {
+        if (isAdvancedExtenderSupported()) {
+            return new AdvancedVendorExtender(mode);
+        }
+        return new BasicVendorExtender(mode);
     }
 
     /**

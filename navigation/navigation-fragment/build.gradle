@@ -23,12 +23,12 @@ plugins {
 }
 
 dependencies {
-    api(projectOrArtifact(":fragment:fragment-ktx"))
+    api("androidx.fragment:fragment-ktx:1.6.2")
     api(project(":navigation:navigation-runtime"))
     api("androidx.slidingpanelayout:slidingpanelayout:1.2.0")
     api(libs.kotlinStdlib)
     androidTestImplementation(project(":navigation:navigation-testing"))
-    androidTestImplementation(projectOrArtifact(":fragment:fragment-testing"))
+    androidTestImplementation("androidx.fragment:fragment-testing:1.6.2")
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -47,6 +47,7 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Android Navigation-Fragment"
+    metalavaK2UastEnabled = true
 }
 
 android {

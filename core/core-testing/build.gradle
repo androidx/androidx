@@ -28,7 +28,7 @@ dependencies {
         implementation(project(":core:core"))
     }
     api(libs.kotlinStdlib)
-    implementation("androidx.annotation:annotation-jvm:1.6.0")
+    implementation("androidx.annotation:annotation:1.6.0")
     api(project(":core:core"))
 
     testImplementation(libs.testCore)
@@ -46,4 +46,5 @@ androidx {
     mavenVersion = LibraryVersions.CORE
     inceptionYear = "2023"
     description = "Provides extensions for tests using Core APIs."
+    metalavaK2UastEnabled = true
 }

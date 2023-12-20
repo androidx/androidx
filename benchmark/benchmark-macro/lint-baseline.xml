@@ -1,5 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta01)" variant="all" version="8.1.0-beta01">
+<issues format="6" by="lint 8.2.0-alpha14" type="baseline" client="cli" dependencies="false" name="AGP (8.2.0-alpha14)" variant="all" version="8.2.0-alpha14">
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 24 (current min is 23): `Partial`"
+        errorLine1="            is CompilationMode.Partial -> compilationMode.warmupIterations"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/benchmark/macro/Macrobenchmark.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 29 (current min is 23): `Power`"
+        errorLine1="            return if (type is PowerMetric.Type.Power) powerUw else energyUws"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/benchmark/macro/perfetto/PowerQuery.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 29 (current min is 23): `Power`"
+        errorLine1="            return if (type is PowerMetric.Type.Power) powerUw else energyUws"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/benchmark/macro/perfetto/PowerQuery.kt"/>
+    </issue>
 
     <issue
         id="BanThreadSleep"
@@ -40,82 +67,10 @@
     <issue
         id="BanThreadSleep"
         message="Uses Thread.sleep()"
-        errorLine1="            Thread.sleep(2000)"
-        errorLine2="                   ~~~~~">
-        <location
-            file="src/main/java/androidx/benchmark/macro/MacrobenchmarkScope.kt"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="                Thread.sleep(100)"
-        errorLine2="                       ~~~~~">
-        <location
-            file="src/main/java/androidx/benchmark/macro/MacrobenchmarkScope.kt"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="        Thread.sleep(delayDurationMs)"
-        errorLine2="               ~~~~~">
-        <location
-            file="src/main/java/androidx/benchmark/macro/MacrobenchmarkScope.kt"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="        Thread.sleep(delayDurationMs)"
-        errorLine2="               ~~~~~">
-        <location
-            file="src/main/java/androidx/benchmark/macro/MacrobenchmarkScope.kt"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="            Thread.sleep(50)"
-        errorLine2="                   ~~~~~">
-        <location
-            file="src/main/java/androidx/benchmark/macro/MacrobenchmarkScope.kt"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="        Thread.sleep(5000) // sleep to await flushing cache to disk"
-        errorLine2="               ~~~~~">
-        <location
-            file="src/androidTest/java/androidx/benchmark/macro/MacrobenchmarkScopeTest.kt"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="                trace(label) { Thread.sleep(50) }"
-        errorLine2="                                      ~~~~~">
-        <location
-            file="src/androidTest/java/androidx/benchmark/macro/perfetto/PerfettoCaptureSweepTest.kt"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
         errorLine1="                Thread.sleep(500)"
         errorLine2="                       ~~~~~">
         <location
             file="src/main/java/androidx/benchmark/macro/ProfileInstallBroadcast.kt"/>
-    </issue>
-
-    <issue
-        id="PrereleaseSdkCoreDependency"
-        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
-        errorLine1="                    if (BuildCompat.isAtLeastU() || Shell.isSessionRooted()) {"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/benchmark/macro/CompilationMode.kt"/>
     </issue>
 
 </issues>

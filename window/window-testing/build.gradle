@@ -59,4 +59,5 @@ androidx {
     type = LibraryType.PUBLISHED_TEST_LIBRARY
     inceptionYear = "2021"
     description = "WindowManager Test Library"
+    metalavaK2UastEnabled = true
 }

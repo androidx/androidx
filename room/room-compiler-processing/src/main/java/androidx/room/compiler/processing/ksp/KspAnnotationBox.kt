@@ -71,7 +71,6 @@ internal class KspAnnotationBox<T : Annotation>(
         )
     }
 
-    @Suppress("SyntheticAccessor")
     private fun <R : Any> getFieldValue(
         methodName: String,
         returnType: Class<R>

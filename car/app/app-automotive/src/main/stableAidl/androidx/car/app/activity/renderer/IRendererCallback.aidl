@@ -22,9 +22,8 @@ import androidx.car.app.activity.renderer.IProxyInputConnection;
 
 /**
  * Interface to events relevant to remote rendering.
- *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IRendererCallback {
   /** Notifies that the button was pressed. */
   void onBackPressed() = 1;

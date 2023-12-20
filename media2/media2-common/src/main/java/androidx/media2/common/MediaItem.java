@@ -39,27 +39,31 @@ import java.util.concurrent.Executor;
 /**
  * A class with information on a single media item with the metadata information. Here are use
  * cases.
+ *
  * <ul>
- * <li>Specify media items to {@link SessionPlayer} for playback.
- * <li>Share media items across the processes.
+ *   <li>Specify media items to {@link SessionPlayer} for playback.
+ *   <li>Share media items across the processes.
  * </ul>
- * <p>
- * Subclasses of the session player may only accept certain subclasses of the media items. Check
+ *
+ * <p>Subclasses of the session player may only accept certain subclasses of the media items. Check
  * the player documentation that you're interested in.
- * <p>
- * When it's shared across the processes, we cannot guarantee that they contain the right values
+ *
+ * <p>When it's shared across the processes, we cannot guarantee that they contain the right values
  * because media items are application dependent especially for the metadata.
- * <p>
- * When an object of the {@link MediaItem}'s subclass is sent across the process between
- * {@link androidx.media2.session.MediaSession}/{@link androidx.media2.session.MediaController} or
- * {@link androidx.media2.session.MediaLibraryService.MediaLibrarySession}/
- * {@link androidx.media2.session.MediaBrowser}, the
- * object will sent as if it's {@link MediaItem}. The recipient cannot get the object with the
- * subclasses' type. This will sanitize process specific information (e.g.
- * {@link java.io.FileDescriptor}, {@link android.content.Context}, etc).
- * <p>
- * This object is thread safe.
+ *
+ * <p>When an object of the {@link MediaItem}'s subclass is sent across the process between {@link
+ * androidx.media2.session.MediaSession}/{@link androidx.media2.session.MediaController} or {@link
+ * androidx.media2.session.MediaLibraryService.MediaLibrarySession}/ {@link
+ * androidx.media2.session.MediaBrowser}, the object will sent as if it's {@link MediaItem}. The
+ * recipient cannot get the object with the subclasses' type. This will sanitize process specific
+ * information (e.g. {@link java.io.FileDescriptor}, {@link android.content.Context}, etc).
+ *
+ * <p>This object is thread safe.
+ *
+ * @deprecated androidx.media2 is deprecated. Please migrate to <a
+ *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
  */
+@Deprecated
 @VersionedParcelize(isCustom = true)
 public class MediaItem extends CustomVersionedParcelable {
     private static final String TAG = "MediaItem";
@@ -253,7 +257,11 @@ public class MediaItem extends CustomVersionedParcelable {
 
     /**
      * Builder for {@link MediaItem}.
+     *
+     * @deprecated androidx.media2 is deprecated. Please migrate to <a
+     *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
      */
+    @Deprecated
     public static class Builder {
         @SuppressWarnings("WeakerAccess") /* synthetic access */
                 MediaMetadata mMetadata;

@@ -19,12 +19,15 @@ package androidx.emoji2.emojipicker.utils
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Log;
+import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.core.content.ContextCompat
 import androidx.emoji2.emojipicker.BundledEmojiListLoader
 import androidx.emoji2.emojipicker.EmojiViewItem
 import java.io.File
+import java.io.IOException
 
 /**
  * A class that manages cache files for the emoji picker. All cache files are stored in DE
@@ -33,19 +36,21 @@ import java.io.File
  *
  * Currently this class is only used by [BundledEmojiListLoader]. All renderable emojis will be
  * cached by categories under
- * /app.package.name/cache/emoji_picker/<osVersion|appVersion>
+ * /app.package.name/cache/emoji_picker/<osVersion.appVersion>
  * /emoji.<emojiPickerVersion>.<emojiCompatMetadataHashCode>.<categoryIndex>.<ifEmoji12Supported>
  */
 internal class FileCache(context: Context) {
 
     @VisibleForTesting
+    @GuardedBy("lock")
     internal val emojiPickerCacheDir: File
     private val currentProperty: String
+    private val lock = Any()
 
     init {
         val osVersion = "${Build.VERSION.SDK_INT}_${Build.TIME}"
         val appVersion = getVersionCode(context)
-        currentProperty = "$osVersion|$appVersion"
+        currentProperty = "$osVersion.$appVersion"
         emojiPickerCacheDir =
             File(getDeviceProtectedStorageContext(context).cacheDir, EMOJI_PICKER_FOLDER)
         if (!emojiPickerCacheDir.exists())
@@ -57,15 +62,17 @@ internal class FileCache(context: Context) {
         key: String,
         defaultValue: () -> List<EmojiViewItem>
     ): List<EmojiViewItem> {
-        val targetDir = File(emojiPickerCacheDir, currentProperty)
-        // No matching cache folder for current property, clear stale cache directory if any
-        if (!targetDir.exists()) {
-            emojiPickerCacheDir.listFiles()?.forEach { it.deleteRecursively() }
-            targetDir.mkdirs()
-        }
+        synchronized(lock) {
+            val targetDir = File(emojiPickerCacheDir, currentProperty)
+            // No matching cache folder for current property, clear stale cache directory if any
+            if (!targetDir.exists()) {
+                emojiPickerCacheDir.listFiles()?.forEach { it.deleteRecursively() }
+                targetDir.mkdirs()
+            }
 
-        val targetFile = File(targetDir, key)
-        return readFrom(targetFile) ?: writeTo(targetFile, defaultValue)
+            val targetFile = File(targetDir, key)
+            return readFrom(targetFile) ?: writeTo(targetFile, defaultValue)
+        }
     }
 
     private fun readFrom(targetFile: File): List<EmojiViewItem>? {
@@ -82,6 +89,14 @@ internal class FileCache(context: Context) {
         defaultValue: () -> List<EmojiViewItem>
     ): List<EmojiViewItem> {
         val data = defaultValue.invoke()
+        if (targetFile.exists()) {
+            if (!targetFile.delete()) {
+                Log.wtf(TAG, "Can't delete file: $targetFile");
+            }
+        }
+        if (!targetFile.createNewFile()) {
+            throw IOException("Can't create file: $targetFile")
+        }
         targetFile.bufferedWriter()
             .use { out ->
                 for (emoji in data) {
@@ -122,6 +137,7 @@ internal class FileCache(context: Context) {
             }
 
         private const val EMOJI_PICKER_FOLDER = "emoji_picker"
+        private const val TAG = "emojipicker.FileCache";
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)

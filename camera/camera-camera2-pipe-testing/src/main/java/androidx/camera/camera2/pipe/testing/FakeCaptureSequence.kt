@@ -26,7 +26,7 @@ import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
 
-/** A CaptureSequence used for testing interactions with a [FakeCaptureSequenceProcessor] **/
+/** A CaptureSequence used for testing interactions with a [FakeCaptureSequenceProcessor] */
 data class FakeCaptureSequence(
     override val repeating: Boolean,
     override val cameraId: CameraId,

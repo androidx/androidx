@@ -21,22 +21,13 @@ plugins {
 }
 
 android {
-    sourceSets {
-        main {
-            res.srcDirs = ["src/main/res",
-                           "src/main/res/layouts/doubleTransitionBug",
-                           "src/main/res/layouts/kittenFragmentTransitions",
-                           "src/main/res/layouts/basicAnimators",
-            ]
-        }
-    }
     namespace "androidx.fragment.testapp"
 }
 
 dependencies {
     implementation(libs.kotlinStdlib)
     implementation(project(":fragment:fragment-ktx"))
-    implementation("androidx.transition:transition:1.3.0")
+    implementation(projectOrArtifact(":transition:transition"))
     implementation("androidx.recyclerview:recyclerview:1.1.0")
     debugImplementation(project(":fragment:fragment-testing-manifest"))
 

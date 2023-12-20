@@ -118,6 +118,8 @@ public final class CameraSelector {
      * @return The remaining list of camera infos.
      * @throws UnsupportedOperationException If the {@link CameraFilter}s assigned to the selector
      *                                       try to modify the input camera infos list.
+     * @throws IllegalArgumentException If the device cannot return the necessary information for
+     *                                  filtering, it will throw this exception.
      */
     @NonNull
     public List<CameraInfo> filter(@NonNull List<CameraInfo> cameraInfos) {

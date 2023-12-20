@@ -76,14 +76,16 @@ internal class MeasuredPage(
         placeables.fastForEachIndexed { index, placeable ->
             val indexInArray = index * 2
             if (isVertical) {
-                placeableOffsets[indexInArray] = requireNotNull(horizontalAlignment)
-                    .align(placeable.width, layoutWidth, layoutDirection)
+                placeableOffsets[indexInArray] =
+                    requireNotNull(horizontalAlignment) { "null horizontalAlignment" }
+                        .align(placeable.width, layoutWidth, layoutDirection)
                 placeableOffsets[indexInArray + 1] = mainAxisOffset
                 mainAxisOffset += placeable.height
             } else {
                 placeableOffsets[indexInArray] = mainAxisOffset
-                placeableOffsets[indexInArray + 1] = requireNotNull(verticalAlignment)
-                    .align(placeable.height, layoutHeight)
+                placeableOffsets[indexInArray + 1] =
+                    requireNotNull(verticalAlignment) { "null verticalAlignment" }
+                        .align(placeable.height, layoutHeight)
                 mainAxisOffset += placeable.width
             }
         }
@@ -108,8 +110,20 @@ internal class MeasuredPage(
         }
     }
 
+    fun applyScrollDelta(delta: Int) {
+        offset += delta
+        repeat(placeableOffsets.size) { index ->
+            // placeableOffsets consist of x and y pairs for each placeable.
+            // if isVertical is true then the main axis offsets are located at indexes 1, 3, 5 etc.
+            if ((isVertical && index % 2 == 1) || (!isVertical && index % 2 == 0)) {
+                placeableOffsets[index] += delta
+            }
+        }
+    }
+
     private fun getOffset(index: Int) =
         IntOffset(placeableOffsets[index * 2], placeableOffsets[index * 2 + 1])
+
     private val Placeable.mainAxisSize get() = if (isVertical) height else width
     private inline fun IntOffset.copy(mainAxisMap: (Int) -> Int): IntOffset =
         IntOffset(if (isVertical) x else mainAxisMap(x), if (isVertical) mainAxisMap(y) else y)

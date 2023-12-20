@@ -17,7 +17,6 @@ import kotlin.Int
 import kotlin.Long
 import kotlin.String
 import kotlin.Suppress
-import kotlin.Unit
 import kotlin.collections.List
 import kotlin.jvm.JvmStatic
 
@@ -60,11 +59,11 @@ public class MyDao_Impl(
                 _tmpKey_1 = _cursor.getLong(_cursorIndexOfArtistKey)
                 _tmpArtist = _collectionArtist.get(_tmpKey_1)
                 if (_tmpArtist == null) {
-                    error("Missing relationship item.")
+                    error("Relationship item 'artist' was expected to be NON-NULL but is NULL in @Relation involving a parent column named 'artistKey' and entityColumn named 'artistId'.")
                 }
                 _result = SongWithArtist(_tmpSong,_tmpArtist)
             } else {
-                error("Cursor was empty, but expected a single item.")
+                error("The query result was empty, but expected a single row to return a NON-NULL object of type <SongWithArtist>.")
             }
             return _result
         } finally {
@@ -102,7 +101,7 @@ public class MyDao_Impl(
                 _tmpSongsCollection = checkNotNull(_collectionSongs.get(_tmpKey_1))
                 _result = ArtistAndSongs(_tmpArtist,_tmpSongsCollection)
             } else {
-                error("Cursor was empty, but expected a single item.")
+                error("The query result was empty, but expected a single row to return a NON-NULL object of type <ArtistAndSongs>.")
             }
             return _result
         } finally {
@@ -140,7 +139,7 @@ public class MyDao_Impl(
                 _tmpSongsCollection = checkNotNull(_collectionSongs.get(_tmpKey_1))
                 _result = PlaylistAndSongs(_tmpPlaylist,_tmpSongsCollection)
             } else {
-                error("Cursor was empty, but expected a single item.")
+                error("The query result was empty, but expected a single row to return a NON-NULL object of type <PlaylistAndSongs>.")
             }
             return _result
         } finally {
@@ -149,7 +148,7 @@ public class MyDao_Impl(
         }
     }
 
-    private fun __fetchRelationshipArtistAsArtist(_map: LongSparseArray<Artist?>): Unit {
+    private fun __fetchRelationshipArtistAsArtist(_map: LongSparseArray<Artist?>) {
         if (_map.isEmpty()) {
             return
         }
@@ -196,7 +195,7 @@ public class MyDao_Impl(
         }
     }
 
-    private fun __fetchRelationshipSongAsSong(_map: LongSparseArray<ArrayList<Song>>): Unit {
+    private fun __fetchRelationshipSongAsSong(_map: LongSparseArray<ArrayList<Song>>) {
         if (_map.isEmpty()) {
             return
         }
@@ -247,7 +246,7 @@ public class MyDao_Impl(
         }
     }
 
-    private fun __fetchRelationshipSongAsSong_1(_map: LongSparseArray<ArrayList<Song>>): Unit {
+    private fun __fetchRelationshipSongAsSong_1(_map: LongSparseArray<ArrayList<Song>>) {
         if (_map.isEmpty()) {
             return
         }

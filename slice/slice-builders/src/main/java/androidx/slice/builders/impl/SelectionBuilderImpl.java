@@ -25,10 +25,10 @@ import androidx.slice.Slice;
 import androidx.slice.builders.SelectionBuilder;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY)
 @RequiresApi(19)
+@Deprecated
 public abstract class SelectionBuilderImpl extends TemplateBuilderImpl {
     private final SelectionBuilder mSelectionBuilder;
 

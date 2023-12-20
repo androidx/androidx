@@ -16,6 +16,8 @@
 
 package androidx.work.multiprocess
 
+import android.annotation.SuppressLint
+import android.app.job.JobParameters.STOP_REASON_CONSTRAINT_CONNECTIVITY
 import android.content.Context
 import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -36,13 +38,19 @@ import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.WorkerWrapper
 import androidx.work.impl.foreground.ForegroundProcessor
 import androidx.work.impl.utils.SerialExecutorImpl
+import androidx.work.impl.utils.futures.SettableFuture
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import androidx.work.multiprocess.RemoteListenableWorker.ARGUMENT_CLASS_NAME
 import androidx.work.multiprocess.RemoteListenableWorker.ARGUMENT_PACKAGE_NAME
+import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.Executor
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
@@ -57,6 +65,7 @@ public class RemoteListenableWorkerTest {
     private lateinit var mForegroundProcessor: ForegroundProcessor
     private lateinit var mWorkManager: WorkManagerImpl
     private lateinit var mExecutor: Executor
+    private val workerFactory = TrackingRemoteWorkerFactory()
 
     // Necessary for the reified function
     public lateinit var mContext: Context
@@ -76,6 +85,7 @@ public class RemoteListenableWorkerTest {
         mConfiguration = Configuration.Builder()
             .setExecutor(mExecutor)
             .setTaskExecutor(mExecutor)
+            .setWorkerFactory(workerFactory)
             .build()
         mTaskExecutor = mock(TaskExecutor::class.java)
         `when`(mTaskExecutor.serialTaskExecutor).thenReturn(SerialExecutorImpl(mExecutor))
@@ -145,6 +155,26 @@ public class RemoteListenableWorkerTest {
         wrapper.future.get()
         val workSpec = mDatabase.workSpecDao().getWorkSpec(request.stringId)!!
         assertEquals(workSpec.state, WorkInfo.State.ENQUEUED)
+    }
+
+    @Test
+    @MediumTest
+    @Ignore("b/294851567")
+    public fun testRemoteStopWorker() = runBlocking {
+        if (Build.VERSION.SDK_INT <= 27) {
+            // Exclude <= API 27, from tests because it causes a SIGSEGV.
+            return@runBlocking
+        }
+
+        val request = buildRequest<RemoteStopWorker>()
+        val wrapper = buildWrapper(request)
+        wrapper.run()
+        val remote = workerFactory.awaitRemote(request.id) as RemoteStopWorker
+        remote.startRemoteDeferred.await()
+        wrapper.interrupt(STOP_REASON_CONSTRAINT_CONNECTIVITY)
+        val reason = withTimeoutOrNull(2000) { remote.stopDeferred.await() }
+            ?: throw AssertionError("Stop wasn't called")
+        assertEquals(STOP_REASON_CONSTRAINT_CONNECTIVITY, reason)
     }
 
     @Test
@@ -221,5 +251,26 @@ public class RemoteListenableWorkerTest {
             ) as RemoteSuccessWorker
         worker.startWork().get()
         assertNull(worker.mClient.connection)
+    }
+}
+
+public class RemoteStopWorker(
+    context: Context,
+    parameters: WorkerParameters
+) : RemoteListenableWorker(context, parameters) {
+
+    val startRemoteDeferred = CompletableDeferred<Unit>()
+    val stopDeferred = CompletableDeferred<Int>()
+
+    override fun startRemoteWork(): ListenableFuture<Result> {
+        startRemoteDeferred.complete(Unit)
+        return SettableFuture.create()
+    }
+
+    // in this context stop reason doesn't make difference
+    @SuppressLint("NewApi")
+    override fun onStopped() {
+        super.onStopped()
+        stopDeferred.complete(stopReason)
     }
 }

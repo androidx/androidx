@@ -24,6 +24,7 @@
     <string name="mr_cast_button_connected" msgid="6073720094880410356">"إرسال متصل"</string>
     <string name="mr_chooser_title" msgid="1419936397646839840">"البث إلى"</string>
     <string name="mr_chooser_searching" msgid="6114250663023140921">"جارٍ البحث عن أجهزة"</string>
+    <string name="mr_chooser_looking_for_devices" msgid="4257319068277776035">"جارٍ البحث عن أجهزة…"</string>
     <string name="mr_controller_disconnect" msgid="7812275474138309497">"قطع اتصال"</string>
     <string name="mr_controller_stop_casting" msgid="804210341192624074">"إيقاف البث"</string>
     <string name="mr_controller_close_description" msgid="5684434439232634509">"إغلاق"</string>
@@ -41,12 +42,13 @@
     <string name="mr_dialog_groupable_header" msgid="4307018456678388936">"إضافة جهاز"</string>
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"تشغيل على مجموعة من الأجهزة"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"لا تتوفر أي معلومات"</string>
-    <!-- no translation found for mr_chooser_zero_routes_found_title (5213435473397442608) -->
-    <skip />
-    <!-- no translation found for mr_chooser_zero_routes_description (5123320430013505927) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description (337903053432238985) -->
-    <skip />
-    <!-- no translation found for mr_chooser_done_button_label (7897288652928484627) -->
-    <skip />
+    <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"لا تتوفّر أي أجهزة"</string>
+    <string name="mr_chooser_wifi_warning_description_phone" msgid="2555886884770958244">"‏تأكَّد من أنّ الجهاز الآخر وهذا الهاتف متّصلان بشبكة Wi-Fi نفسها."</string>
+    <string name="mr_chooser_wifi_warning_description_tablet" msgid="6038748488793588164">"‏تأكَّد من أنّ الجهاز الآخر وهذا الجهاز اللوحي متّصلان بشبكة Wi-Fi نفسها."</string>
+    <string name="mr_chooser_wifi_warning_description_tv" msgid="5845921667085074878">"‏تأكَّد من أنّ الجهاز الآخر وهذا التلفزيون متّصلان بشبكة Wi-Fi نفسها."</string>
+    <string name="mr_chooser_wifi_warning_description_watch" msgid="5255021372884233706">"‏تأكَّد من أنّ الجهاز الآخر وهذه الساعة متّصلان بشبكة Wi-Fi نفسها."</string>
+    <string name="mr_chooser_wifi_warning_description_car" msgid="2998902945608081567">"‏تأكَّد من أنّ الجهاز الآخر وهذه السيارة متّصلان بشبكة Wi-Fi نفسها."</string>
+    <string name="mr_chooser_wifi_warning_description_unknown" msgid="3459891599800041449">"‏تأكَّد من أنّ الجهاز الآخر وهذا الجهاز متّصلان بشبكة Wi-Fi نفسها."</string>
+    <string name="mr_chooser_wifi_learn_more" msgid="3799500840179081429"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">"مزيد من المعلومات"</a></string>
+    <string name="ic_media_route_learn_more_accessibility" msgid="9119039724000326934">"التعرُّف على كيفية البثّ"</string>
 </resources>

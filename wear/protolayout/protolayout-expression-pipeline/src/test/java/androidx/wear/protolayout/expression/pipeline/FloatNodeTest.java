@@ -16,8 +16,12 @@
 
 package androidx.wear.protolayout.expression.pipeline;
 
+import static androidx.wear.protolayout.expression.PlatformHealthSources.Keys.HEART_RATE_BPM;
+
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.robolectric.Shadows.shadowOf;
 
 import static java.lang.Integer.MAX_VALUE;
@@ -25,8 +29,10 @@ import static java.lang.Integer.MAX_VALUE;
 import android.os.Looper;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
 import androidx.wear.protolayout.expression.AppDataKey;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
+import androidx.wear.protolayout.expression.DynamicDataBuilders;
+import androidx.wear.protolayout.expression.PlatformDataValues;
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.AnimatableFixedFloatNode;
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.ArithmeticFloatNode;
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.DynamicAnimatedFloatNode;
@@ -35,6 +41,7 @@ import androidx.wear.protolayout.expression.pipeline.FloatNodes.Int32ToFloatNode
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.StateFloatSourceNode;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.StateInt32SourceNode;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.AnimationSpec;
+import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableFixedFloat;
 import androidx.wear.protolayout.expression.proto.DynamicProto.ArithmeticFloatOp;
 import androidx.wear.protolayout.expression.proto.DynamicProto.ArithmeticOpType;
@@ -42,22 +49,28 @@ import androidx.wear.protolayout.expression.proto.DynamicProto.StateFloatSource;
 import androidx.wear.protolayout.expression.proto.DynamicProto.StateInt32Source;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedFloat;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedInt32;
-import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 public class FloatNodeTest {
-
     private static final AppDataKey<DynamicFloat> KEY_FOO = new AppDataKey<>("foo");
-
+    @Rule
+    public MockitoRule mMockitoRule = MockitoJUnit.rule();
+    @Mock private PlatformDataProvider mMockDataProvider;
     @Test
     public void fixedFloatNodesTest() {
         List<Float> results = new ArrayList<>();
@@ -124,6 +137,47 @@ public class FloatNodeTest {
                                 .build()));
 
         assertThat(results).containsExactly(oldValue, newValue).inOrder();
+    }
+
+    @Test
+    public void stateFloatSource_canSubscribeToHeartRateUpdates() {
+        PlatformDataStore platformDataStore = new PlatformDataStore(
+                Collections.singletonMap(
+                        HEART_RATE_BPM,
+                        mMockDataProvider));
+        StateFloatSource dailyStepsSource =
+                StateFloatSource.newBuilder()
+                        .setSourceKey(HEART_RATE_BPM.getKey())
+                        .setSourceNamespace(
+                                HEART_RATE_BPM.getNamespace())
+                        .build();
+        List<Float> results = new ArrayList<>();
+        StateFloatSourceNode dailyStepsSourceNode =
+                new StateFloatSourceNode(
+                        platformDataStore,
+                        dailyStepsSource,
+                        new AddToListCallback<>(results));
+
+        dailyStepsSourceNode.preInit();
+        dailyStepsSourceNode.init();
+        ArgumentCaptor<PlatformDataReceiver> receiverCaptor =
+                ArgumentCaptor.forClass(PlatformDataReceiver.class);
+        verify(mMockDataProvider).setReceiver(any(), receiverCaptor.capture());
+
+        PlatformDataReceiver receiver = receiverCaptor.getValue();
+        receiver.onData(
+                PlatformDataValues.of(
+                        HEART_RATE_BPM, DynamicDataBuilders.DynamicDataValue.fromFloat(70.0f)));
+
+        assertThat(results).hasSize(1);
+        assertThat(results).containsExactly(70.0f);
+
+        receiver.onData(
+                PlatformDataValues.of(
+                        HEART_RATE_BPM, DynamicDataBuilders.DynamicDataValue.fromFloat(80.0f)));
+
+        assertThat(results).hasSize(2);
+        assertThat(results).containsExactly(70.0f, 80.0f);
     }
 
     @Test

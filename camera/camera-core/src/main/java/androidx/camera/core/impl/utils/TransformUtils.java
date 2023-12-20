@@ -141,6 +141,22 @@ public class TransformUtils {
     }
 
     /**
+     * Rotates {@link SizeF} according to the rotation degrees.
+     *
+     * <p> A 640, 480 rect rotated 90 degrees clockwise will become a 480, 640 rect.
+     */
+    @NonNull
+    public static RectF rotateRect(@NonNull RectF rect, int rotationDegrees) {
+        Preconditions.checkArgument(rotationDegrees % 90 == 0,
+                "Invalid rotation degrees: " + rotationDegrees);
+        if (is90or270(within360(rotationDegrees))) {
+            return new RectF(0, 0, /*right=*/rect.height(),  /*bottom=*/rect.width());
+        } else {
+            return rect;
+        }
+    }
+
+    /**
      * Gets the size after cropping and rotating.
      *
      * @return rotated size

@@ -335,6 +335,7 @@
   <string name="tab_title_list">List Tab</string>
   <string name="tab_title_grid">Grid Tab with Long Tab Title</string>
   <string name="tab_title_search">Search Tab</string>
+  <string name="tab_title_loading">Loading Tab</string>
   <string name="tab_template_loading_demo_title">Tab Template Loading Demo</string>
   <string name="tab_template_no_tabs_demo_title">Tab Template No Tabs Demo</string>
 

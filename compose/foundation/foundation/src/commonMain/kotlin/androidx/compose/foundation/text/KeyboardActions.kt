@@ -94,7 +94,7 @@ class KeyboardActions(
 
     companion object {
         /**
-         * Use this default value if you don't want to specify any action but want to use use the
+         * Use this default value if you don't want to specify any action but want to use the
          * default action implementations.
          */
         @Stable

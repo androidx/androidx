@@ -29,7 +29,6 @@ import androidx.core.graphics.PaintCompat;
 /**
  * Utility class that checks if the system can render a given glyph.
  *
- * @hide
  */
 @AnyThread
 @RestrictTo(LIBRARY)

@@ -47,6 +47,11 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
+import androidx.compose.ui.test.swipeWithVelocity
+import androidx.wear.compose.foundation.SwipeToDismissBoxState
+import androidx.wear.compose.foundation.SwipeToDismissValue
+import androidx.wear.compose.foundation.edgeSwipeToDismiss
+import androidx.wear.compose.foundation.rememberSwipeToDismissBoxState
 import com.google.common.truth.Truth.assertThat
 import java.lang.Math.sin
 import org.junit.Assert.assertEquals
@@ -86,7 +91,11 @@ class SwipeToDismissBoxTest {
     // Execute a partial swipe over a longer-than-default duration so that there
         // is insufficient velocity to perform a 'fling'.
         verifySwipe(
-            gesture = { swipeRight(startX = 0f, endX = width / 4f, durationMillis = LONG_SWIPE) },
+            gesture = { swipeWithVelocity(
+                start = Offset(0f, centerY),
+                end = Offset(centerX / 2f, centerY),
+                endVelocity = 1.0f
+            ) },
             expectedToDismiss = false
         )
 
@@ -574,7 +583,6 @@ class SwipeToDismissBoxTest {
 
 private const val BACKGROUND_MESSAGE = "The Background"
 private const val CONTENT_MESSAGE = "The Content"
-private const val LONG_SWIPE = 1000L
 private const val TOGGLE_SCREEN = "Toggle"
 private const val COUNTER_SCREEN = "Counter"
 private const val TOGGLE_ON = "On"

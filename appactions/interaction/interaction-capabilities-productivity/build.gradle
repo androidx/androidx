@@ -26,12 +26,16 @@ dependencies {
     api(libs.kotlinStdlib)
     implementation("androidx.annotation:annotation:1.1.0")
     implementation(project(":appactions:interaction:interaction-capabilities-core"))
+
+    testImplementation(project(":appactions:interaction:interaction-capabilities-testing"))
+    testImplementation(libs.kotlinCoroutinesCore)
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
 }
 
 android {
     namespace "androidx.appactions.interaction.capabilities.productivity"
     defaultConfig {
-        // TODO(b/266649259): lower minSdk version once Optional is removed.
         minSdkVersion 26
     }
 }
@@ -41,4 +45,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2023"
     description = "Capabiility APIs for Productivy vertical."
+    metalavaK2UastEnabled = true
 }

@@ -20,7 +20,7 @@ import androidx.glance.appwidget.layoutgenerator.GeneratedFiles
 import androidx.glance.appwidget.layoutgenerator.LayoutGenerator
 import androidx.glance.appwidget.layoutgenerator.cleanResources
 import androidx.glance.appwidget.layoutgenerator.generateRegistry
-import com.android.build.gradle.LibraryExtension
+import com.android.build.api.variant.AndroidComponentsExtension
 import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
@@ -57,6 +57,10 @@ abstract class LayoutGeneratorTask : DefaultTask() {
 
     @TaskAction
     fun execute() {
+
+        outputSourceDir.asFile.get().mkdirs()
+        outputResourcesDir.asFile.get().mkdirs()
+
         val generatedLayouts = LayoutGenerator().generateAllFiles(
             checkNotNull(containerLayoutDirectory.get().asFile.listFiles()).asList(),
             checkNotNull(childLayoutDirectory.get().asFile.listFiles()).asList(),
@@ -70,54 +74,51 @@ abstract class LayoutGeneratorTask : DefaultTask() {
             outputSourceDir = outputSourceDir.get().asFile
         )
         cleanResources(
-            outputResourcesDir.get().asFile,
-            generatedLayouts.extractGeneratedFiles()
+            outputResourcesDir.get().asFile, generatedLayouts.extractGeneratedFiles()
         )
     }
 
     private fun GeneratedFiles.extractGeneratedFiles(): Set<File> =
         generatedContainers.values.flatMap { container ->
             container.map { it.generatedFile }
-        }.toSet() +
-        generatedBoxChildren.values.flatMap { child ->
+        }.toSet() + generatedBoxChildren.values.flatMap { child ->
             child.map { it.generatedFile }
-        }.toSet() +
-        generatedRowColumnChildren.values.flatMap { child ->
+        }.toSet() + generatedRowColumnChildren.values.flatMap { child ->
             child.map { it.generatedFile }
-        }.toSet() +
-        extraFiles
+        }.toSet() + extraFiles
 
     companion object {
         /**
-         * Registers [LayoutGeneratorTask] in [project] for all variants in [libraryExtension].
+         * Registers [LayoutGeneratorTask] in [project] for all variants.
          */
         @JvmStatic
         fun registerLayoutGenerator(
             project: Project,
-            libraryExtension: LibraryExtension,
             containerLayoutDirectory: File,
             childLayoutDirectory: File,
         ) {
-            libraryExtension.libraryVariants.all { variant ->
-                val variantName = variant.name
-                val outputDirectory = project.buildDir.resolve("generatedLayouts/$variantName")
-                val outputResourcesDir = outputDirectory.resolve("res/layouts")
-                val outputSourceDir = outputDirectory.resolve("kotlin")
-                val taskName =
-                    "generateLayouts" + variantName.replaceFirstChar { it.uppercaseChar() }
-                outputResourcesDir.mkdirs()
-                outputSourceDir.mkdirs()
-                val task = project.tasks.register(taskName, LayoutGeneratorTask::class.java) {
-                    it.containerLayoutDirectory.set(containerLayoutDirectory)
-                    it.childLayoutDirectory.set(childLayoutDirectory)
-                    it.outputResourcesDir.set(outputResourcesDir)
-                    it.outputSourceDir.set(outputSourceDir)
-                }
-                variant.registerGeneratedResFolders(
-                    project.files(outputResourcesDir).builtBy(task)
-                )
-                variant.registerJavaGeneratingTask(task, outputSourceDir)
+
+            val outputDirectory = "generatedLayouts"
+            val buildDirectory = project.layout.buildDirectory
+
+            val taskName = "generateLayouts"
+
+            val task = project.tasks.register(taskName, LayoutGeneratorTask::class.java) {
+                it.containerLayoutDirectory.set(containerLayoutDirectory)
+                it.childLayoutDirectory.set(childLayoutDirectory)
+                it.outputSourceDir.set(buildDirectory.dir("$outputDirectory/kotlin"))
+                it.outputResourcesDir.set(buildDirectory.dir("$outputDirectory/res/layouts"))
             }
+
+            project.extensions.getByType(AndroidComponentsExtension::class.java)
+                .onVariants { variant ->
+                    variant.sources.java?.addGeneratedSourceDirectory(
+                        task, LayoutGeneratorTask::outputSourceDir
+                    )
+                    variant.sources.res?.addGeneratedSourceDirectory(
+                        task, LayoutGeneratorTask::outputResourcesDir
+                    )
+                }
         }
     }
 }

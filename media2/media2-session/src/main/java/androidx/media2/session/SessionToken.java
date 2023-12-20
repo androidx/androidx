@@ -48,13 +48,16 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
 /**
- * Represents an ongoing {@link MediaSession} or a {@link MediaSessionService}.
- * If it's representing a session service, it may not be ongoing.
- * <p>
- * This may be passed to apps by the session owner to allow them to create a
- * {@link MediaController} to communicate with the session.
- * <p>
- * It can be also obtained by {@link MediaSessionManager}.
+ * Represents an ongoing {@link MediaSession} or a {@link MediaSessionService}. If it's representing
+ * a session service, it may not be ongoing.
+ *
+ * <p>This may be passed to apps by the session owner to allow them to create a {@link
+ * MediaController} to communicate with the session.
+ *
+ * <p>It can be also obtained by {@link MediaSessionManager}.
+ *
+ * @deprecated androidx.media2 is deprecated. Please migrate to <a
+ *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
  */
 // New version of MediaSession.Token for following reasons
 //   - Stop implementing Parcelable for updatable support
@@ -63,6 +66,7 @@ import java.util.List;
 //     This helps controller apps to keep target of dispatching media key events in uniform way.
 //     For details about the reason, see following. (Android O+)
 //         android.media.session.MediaSessionManager.Callback#onAddressedPlayerChanged
+@Deprecated
 @VersionedParcelize
 public final class SessionToken implements VersionedParcelable {
     private static final String TAG = "SessionToken";

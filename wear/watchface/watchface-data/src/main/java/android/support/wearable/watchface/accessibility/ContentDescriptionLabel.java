@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.wearable.complications.ComplicationData;
+import android.support.wearable.complications.ComplicationDataKt;
 import android.support.wearable.complications.ComplicationText;
 import android.support.wearable.complications.ComplicationTextTemplate;
 import android.support.wearable.complications.TimeDependentText;
@@ -34,10 +35,7 @@ import androidx.annotation.RestrictTo;
 
 import java.util.Objects;
 
-/**
- * Holds labels for screen regions which should respond to accessibility events.
- *
- */
+/** Holds labels for screen regions which should respond to accessibility events. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressWarnings("BanParcelableUsage")
 public final class ContentDescriptionLabel implements Parcelable {
@@ -63,41 +61,29 @@ public final class ContentDescriptionLabel implements Parcelable {
     private PendingIntent mTapAction;
 
     /**
-     * Creates a new ContentDescriptionLabel.
+     * Creates a new ContentDescriptionLabel without a tap action.
      *
      * @param bounds absolute coordinates of where this label should appear on the screen
-     * @param text time-dependent ComplicationTextTemplate describing this label
+     * @param text time-dependent text describing this label
      */
-    public ContentDescriptionLabel(@NonNull Rect bounds, @NonNull ComplicationTextTemplate text) {
-        this(bounds, (TimeDependentText) text);
-    }
-
-    /**
-     * Creates a new ContentDescriptionLabel.
-     *
-     * @param bounds absolute coordinates of where this label should appear on the screen
-     * @param text time-dependent ComplicationText describing this label
-     */
-    public ContentDescriptionLabel(@NonNull Rect bounds, @NonNull ComplicationText text) {
-        this(bounds, (TimeDependentText) text);
-    }
-
-    /**
-     * Creates a new ContentDescriptionLabel.
-     *
-     * @param context Context to generate the ContentDescription. A reference will not be stored.
-     * @param bounds absolute coordinates of where this label should appear on the screen
-     * @param data ComplicationData representing this label
-     */
-    public ContentDescriptionLabel(
-            @NonNull Context context, @NonNull Rect bounds, @NonNull ComplicationData data) {
-        this(bounds, AccessibilityUtils.generateContentDescription(context, data));
-        mTapAction = data.getTapAction();
-    }
-
-    private ContentDescriptionLabel(@NonNull Rect bounds, @NonNull TimeDependentText text) {
+    public ContentDescriptionLabel(@NonNull Rect bounds, @NonNull TimeDependentText text) {
         this.mBounds = bounds;
         this.mText = text;
+    }
+
+    /**
+     * Creates a new ContentDescriptionLabel with optional tap action.
+     *
+     * @param bounds absolute coordinates of where this label should appear on the screen
+     * @param text time-dependent text describing this label
+     * @param tapAction the tap action
+     */
+    public ContentDescriptionLabel(
+            @NonNull Rect bounds,
+            @NonNull TimeDependentText text,
+            @Nullable PendingIntent tapAction) {
+        this(bounds, text);
+        this.mTapAction = tapAction;
     }
 
     @SuppressWarnings("deprecation")

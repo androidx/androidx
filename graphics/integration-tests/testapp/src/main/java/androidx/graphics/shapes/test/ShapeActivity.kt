@@ -26,14 +26,21 @@ import android.view.ViewGroup.LayoutParams
 import android.widget.LinearLayout
 import androidx.graphics.shapes.CornerRounding
 import androidx.graphics.shapes.CornerRounding.Companion.Unrounded
+import androidx.graphics.shapes.Morph
 import androidx.graphics.shapes.RoundedPolygon
 import androidx.graphics.shapes.circle
 import androidx.graphics.shapes.rectangle
 import androidx.graphics.shapes.star
+import androidx.graphics.shapes.transformed
 
 class ShapeActivity : Activity() {
 
     val shapes = mutableListOf<RoundedPolygon>()
+
+    lateinit var morphView: MorphView
+
+    lateinit var prevShape: RoundedPolygon
+    lateinit var currShape: RoundedPolygon
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,6 +54,18 @@ class ShapeActivity : Activity() {
         setupShapes()
 
         addShapeViews(container)
+
+        setupMorphView()
+        container.addView(morphView)
+    }
+
+    private fun setupMorphView() {
+        val morph = Morph(prevShape, currShape)
+        if (this::morphView.isInitialized) {
+            morphView.morph = morph
+        } else {
+            morphView = MorphView(this, morph)
+        }
     }
 
     private fun getShapeView(shape: RoundedPolygon, width: Int, height: Int): View {
@@ -62,10 +81,8 @@ class ShapeActivity : Activity() {
         // Note: all RoundedPolygon(4) shapes are placeholders for shapes not yet handled
         val matrix1 = Matrix().apply { setRotate(-45f) }
         val matrix2 = Matrix().apply { setRotate(45f) }
-        val blobR1 = MaterialShapes.blobR(.19f, .86f)
-        blobR1.transform(matrix1)
-        val blobR2 = MaterialShapes.blobR(.19f, .86f)
-        blobR2.transform(matrix2)
+        val blobR1 = MaterialShapes.blobR(.19f, .86f).transformed(matrix1)
+        val blobR2 = MaterialShapes.blobR(.19f, .86f).transformed(matrix2)
 
         //        "Circle" to DefaultShapes.star(4, 1f, 1f),
         shapes.add(RoundedPolygon.circle())
@@ -127,6 +144,9 @@ class ShapeActivity : Activity() {
             MaterialShapes.clover(rounding = .352f, innerRadius = .1f,
             innerRounding = Unrounded))
         shapes.add(RoundedPolygon(3))
+
+        prevShape = shapes[0]
+        currShape = shapes[0]
     }
 
     private fun addShapeViews(container: ViewGroup) {
@@ -144,7 +164,14 @@ class ShapeActivity : Activity() {
                 row.orientation = LinearLayout.HORIZONTAL
                 container.addView(row)
             }
-            row!!.addView(getShapeView(shapes[shapeIndex], WIDTH, HEIGHT))
+            val shape = shapes[shapeIndex]
+            val shapeView = getShapeView(shape, WIDTH, HEIGHT)
+            row!!.addView(shapeView)
+            shapeView.setOnClickListener {
+                prevShape = currShape
+                currShape = shape
+                setupMorphView()
+            }
             ++shapeIndex
         }
     }

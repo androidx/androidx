@@ -31,6 +31,7 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class CreatePublicKeyCredentialResponseJavaTest {
+    private static final String TEST_RESPONSE_JSON = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}";
 
     @Test
     public void constructor_emptyJson_throwsIllegalArgumentException() {
@@ -50,7 +51,7 @@ public class CreatePublicKeyCredentialResponseJavaTest {
 
     @Test
     public void constructor_success()  {
-        new CreatePublicKeyCredentialResponse("{\"hi\":1}");
+        new CreatePublicKeyCredentialResponse(TEST_RESPONSE_JSON);
     }
 
     @Test
@@ -80,15 +81,23 @@ public class CreatePublicKeyCredentialResponseJavaTest {
     @Test
     public void frameworkConversion_success() {
         CreatePublicKeyCredentialResponse response =
-                new CreatePublicKeyCredentialResponse("responseJson");
+                new CreatePublicKeyCredentialResponse(TEST_RESPONSE_JSON);
+        // Add additional data to the request data and candidate query data to make sure
+        // they persist after the conversion
+        Bundle data = response.getData();
+        String customDataKey = "customRequestDataKey";
+        CharSequence customDataValue = "customRequestDataValue";
+        data.putCharSequence(customDataKey, customDataValue);
 
         CreateCredentialResponse convertedResponse =
-                CreateCredentialResponse.createFrom(response.getType(), response.getData());
+                CreateCredentialResponse.createFrom(response.getType(), data);
 
         assertThat(convertedResponse).isInstanceOf(CreatePublicKeyCredentialResponse.class);
         CreatePublicKeyCredentialResponse convertedSubclassResponse =
                 (CreatePublicKeyCredentialResponse) convertedResponse;
         assertThat(convertedSubclassResponse.getRegistrationResponseJson())
                 .isEqualTo(response.getRegistrationResponseJson());
+        assertThat(convertedResponse.getData().getCharSequence(customDataKey))
+                .isEqualTo(customDataValue);
     }
 }

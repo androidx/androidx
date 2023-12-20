@@ -19,6 +19,7 @@ package androidx.test.uiautomator;
 import android.view.accessibility.AccessibilityEvent;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -539,11 +540,10 @@ public class Until {
                 return Boolean.TRUE.equals(mResult);
             }
 
+            @Nullable
             @Override
             public Boolean getResult() {
-                // If we didn't recieve any scroll events (mResult == null), assume we're already at
-                // the end and return true.
-                return mResult == null || mResult;
+                return mResult;
             }
 
             @NonNull

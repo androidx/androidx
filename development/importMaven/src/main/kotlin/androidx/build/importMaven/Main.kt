@@ -27,11 +27,11 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.int
+import kotlin.system.exitProcess
 import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
 import org.apache.logging.log4j.kotlin.logger
-import kotlin.system.exitProcess
 
 /**
  * Base class for all commands which only reads the support repo folder.
@@ -253,6 +253,7 @@ internal abstract class BaseImportMavenCommand(
                 --------------------------------------------------------------------------------
             """.trimIndent()
         }
+        updatePlaygroundMetalavaBuildIfNecessary(downloadedFiles)
         if (downloadedFiles.isEmpty()) {
             logger.warn(
                 """
@@ -267,13 +268,49 @@ internal abstract class BaseImportMavenCommand(
         } else {
             if (!result.dependenciesPassedVerification) {
                 logger.warn(
-                   """
+                    """
                    [33mOur Gradle build won't trust any artifacts that are unsigned or are signed with new keys. To trust these artifacts, run `development/update-verification-metadata.sh
                    """.trimIndent()
                 )
             }
         }
         flushLogs()
+    }
+
+    /**
+     * GitHub Playground's metalava build id needs to match the build id used by androidx.
+     *
+     * This method takes care of updating playground.properties if the metalava build id
+     * is specified in the import maven script, and we've downloaded metalava.
+     */
+    private fun updatePlaygroundMetalavaBuildIfNecessary(downloadedFiles: Set<Path>) {
+        val metalavaBuild = metalavaBuildId ?: return
+        val downloadedMetalava = downloadedFiles.any {
+            it.name.contains("metalava")
+        }
+        if (!downloadedMetalava) {
+            return
+        }
+        val playgroundPropertiesFile = null.orFromSupportRepoFolder(
+            "playground-common/playground.properties"
+        ).toFile()
+        check(playgroundPropertiesFile.exists()) {
+            """
+                Cannot find playground properties file. This is needed to update metalava in
+                playground to match AndroidX.
+            """.trimIndent()
+        }
+        val updatedProperties = playgroundPropertiesFile.readLines(
+            Charsets.UTF_8
+        ).joinToString("\n") {
+            if (it.trim().startsWith("androidx.playground.metalavaBuildId=")) {
+                "androidx.playground.metalavaBuildId=$metalavaBuild"
+            } else {
+                it
+            }
+        }
+        playgroundPropertiesFile.writeText(updatedProperties)
+        logger.info { "updated playground properties" }
     }
 }
 
@@ -379,10 +416,7 @@ internal class ImportToml : BaseImportMavenCommand(
         val file = tomlFile.orFromSupportRepoFolder(
             "gradle/libs.versions.toml"
         )
-        return ImportVersionCatalog.load(
-            fileSystem = FileSystem.SYSTEM,
-            file = file
-        )
+        return ImportVersionCatalog.load(file)
     }
 }
 

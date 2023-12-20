@@ -16,14 +16,6 @@
 
 package androidx.wear.tiles.material;
 
-import static androidx.wear.tiles.material.Helper.checkNotNull;
-import static androidx.wear.tiles.material.Helper.checkTag;
-import static androidx.wear.tiles.material.Helper.getMetadataTagName;
-import static androidx.wear.tiles.material.Helper.getTagBytes;
-import static androidx.wear.tiles.material.Typography.TYPOGRAPHY_DISPLAY1;
-import static androidx.wear.tiles.material.Typography.getFontStyleBuilder;
-import static androidx.wear.tiles.material.Typography.getLineHeightForTypography;
-
 import android.content.Context;
 
 import androidx.annotation.IntRange;
@@ -31,9 +23,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.proto.LayoutElementProto;
 import androidx.wear.protolayout.proto.ModifiersProto;
-import androidx.wear.tiles.material.Typography.TypographyName;
 
 /**
  * Tiles component {@link Text} that represents text object holding any information.
@@ -88,7 +80,7 @@ public class Text implements androidx.wear.tiles.LayoutElementBuilders.LayoutEle
         private androidx.wear.tiles.ColorBuilders.ColorProp mColor =
                 androidx.wear.tiles.ColorBuilders.argb(Colors.DEFAULT.getOnPrimary());
 
-        private @TypographyName int mTypographyName = TYPOGRAPHY_DISPLAY1;
+        private @Typography.TypographyName int mTypographyName = Typography.TYPOGRAPHY_DISPLAY1;
         private boolean mItalic = false;
         private int mMaxLines = 1;
         private boolean mUnderline = false;
@@ -126,7 +118,7 @@ public class Text implements androidx.wear.tiles.LayoutElementBuilders.LayoutEle
         // There is getFontStyle matching getter for this setter as the serialized format of the
         // Tiles do not allow for a direct reconstruction of the all arguments, but it has
         // androidx.wear.tiles.LayoutElementBuilders.FontStyle object of that text.
-        public Builder setTypography(@TypographyName int typography) {
+        public Builder setTypography(@Typography.TypographyName int typography) {
             this.mTypographyName = typography;
             return this;
         }
@@ -219,7 +211,7 @@ public class Text implements androidx.wear.tiles.LayoutElementBuilders.LayoutEle
         @Override
         public Text build() {
             androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder fontStyleBuilder =
-                    getFontStyleBuilder(mTypographyName, mContext, mIsScalable)
+                    Typography.getFontStyleBuilder(mTypographyName, mContext, mIsScalable)
                             .setColor(mColor)
                             .setItalic(mItalic)
                             .setUnderline(mUnderline);
@@ -231,7 +223,7 @@ public class Text implements androidx.wear.tiles.LayoutElementBuilders.LayoutEle
                     new androidx.wear.tiles.LayoutElementBuilders.Text.Builder()
                             .setText(mTextContent)
                             .setFontStyle(fontStyleBuilder.build())
-                            .setLineHeight(getLineHeightForTypography(mTypographyName))
+                            .setLineHeight(Typography.getLineHeightForTypography(mTypographyName))
                             .setMaxLines(mMaxLines)
                             .setMultilineAlignment(mMultilineAlignment)
                             .setModifiers(addTagToModifiers(mModifiers))
@@ -247,79 +239,97 @@ public class Text implements androidx.wear.tiles.LayoutElementBuilders.LayoutEle
                             .setMetadata(
                                     new androidx.wear.tiles.ModifiersBuilders.ElementMetadata
                                                     .Builder()
-                                            .setTagData(getTagBytes(METADATA_TAG))
+                                            .setTagData(
+                                                    androidx.wear.tiles.material.Helper.getTagBytes(
+                                                            METADATA_TAG))
                                             .build()
                                             .toProto())
-                            .build());
+                            .build(),
+                    modifiers.getFingerprint());
         }
     }
 
     /** Returns the text of this Text element. */
     @NonNull
     public String getText() {
-        return checkNotNull(checkNotNull(mText.getText()).getValue());
+        return androidx.wear.tiles.material.Helper.checkNotNull(
+                androidx.wear.tiles.material.Helper.checkNotNull(mText.getText()).getValue());
     }
 
     /** Returns the color of this Text element. */
     @NonNull
     public androidx.wear.tiles.ColorBuilders.ColorProp getColor() {
-        return checkNotNull(checkNotNull(mText.getFontStyle()).getColor());
+        return androidx.wear.tiles.material.Helper.checkNotNull(
+                androidx.wear.tiles.material.Helper.checkNotNull(mText.getFontStyle()).getColor());
     }
 
     /** Returns the font style of this Text element. */
     @NonNull
     public androidx.wear.tiles.LayoutElementBuilders.FontStyle getFontStyle() {
-        return checkNotNull(mText.getFontStyle());
+        return androidx.wear.tiles.material.Helper.checkNotNull(mText.getFontStyle());
     }
 
     /** Returns the line height of this Text element. */
     public float getLineHeight() {
-        return checkNotNull(mText.getLineHeight()).getValue();
+        return androidx.wear.tiles.material.Helper.checkNotNull(mText.getLineHeight()).getValue();
     }
 
     /** Returns the max lines of text of this Text element. */
     public int getMaxLines() {
-        return checkNotNull(mText.getMaxLines()).getValue();
+        return androidx.wear.tiles.material.Helper.checkNotNull(mText.getMaxLines()).getValue();
     }
 
     /** Returns the multiline alignment of this Text element. */
     @androidx.wear.tiles.LayoutElementBuilders.TextAlignment
     public int getMultilineAlignment() {
-        return checkNotNull(mText.getMultilineAlignment()).getValue();
+        return androidx.wear.tiles.material.Helper.checkNotNull(mText.getMultilineAlignment())
+                .getValue();
     }
 
     /** Returns the modifiers of this Text element. */
     @NonNull
     public androidx.wear.tiles.ModifiersBuilders.Modifiers getModifiers() {
-        return checkNotNull(mText.getModifiers());
+        return androidx.wear.tiles.material.Helper.checkNotNull(mText.getModifiers());
     }
 
     /** Returns the overflow of this Text element. */
     @androidx.wear.tiles.LayoutElementBuilders.TextOverflow
     public int getOverflow() {
-        return checkNotNull(mText.getOverflow()).getValue();
+        return androidx.wear.tiles.material.Helper.checkNotNull(mText.getOverflow()).getValue();
     }
 
     /** Returns the overflow of this Text element. */
     @androidx.wear.tiles.LayoutElementBuilders.FontWeight
     public int getWeight() {
-        return checkNotNull(checkNotNull(mText.getFontStyle()).getWeight()).getValue();
+        return androidx.wear.tiles.material.Helper.checkNotNull(
+                        androidx.wear.tiles.material.Helper.checkNotNull(mText.getFontStyle())
+                                .getWeight())
+                .getValue();
     }
 
     /** Returns whether the Text is in italic. */
     public boolean isItalic() {
-        return checkNotNull(checkNotNull(mText.getFontStyle()).getItalic()).getValue();
+        return androidx.wear.tiles.material.Helper.checkNotNull(
+                        androidx.wear.tiles.material.Helper.checkNotNull(mText.getFontStyle())
+                                .getItalic())
+                .getValue();
     }
 
     /** Returns whether the Text is underlined. */
     public boolean isUnderline() {
-        return checkNotNull(checkNotNull(mText.getFontStyle()).getUnderline()).getValue();
+        return androidx.wear.tiles.material.Helper.checkNotNull(
+                        androidx.wear.tiles.material.Helper.checkNotNull(mText.getFontStyle())
+                                .getUnderline())
+                .getValue();
     }
 
     /** Returns metadata tag set to this Text, which should be {@link #METADATA_TAG}. */
     @NonNull
     String getMetadataTag() {
-        return getMetadataTagName(checkNotNull(checkNotNull(getModifiers()).getMetadata()));
+        return androidx.wear.tiles.material.Helper.getMetadataTagName(
+                androidx.wear.tiles.material.Helper.checkNotNull(
+                        androidx.wear.tiles.material.Helper.checkNotNull(getModifiers())
+                                .getMetadata()));
     }
 
     /**
@@ -339,7 +349,8 @@ public class Text implements androidx.wear.tiles.LayoutElementBuilders.LayoutEle
         }
         androidx.wear.tiles.LayoutElementBuilders.Text textElement =
                 (androidx.wear.tiles.LayoutElementBuilders.Text) element;
-        if (!checkTag(textElement.getModifiers(), METADATA_TAG)) {
+        if (!androidx.wear.tiles.material.Helper.checkTag(
+                textElement.getModifiers(), METADATA_TAG)) {
             return null;
         }
         // Now we are sure that this element is a Material Text.
@@ -351,5 +362,12 @@ public class Text implements androidx.wear.tiles.LayoutElementBuilders.LayoutEle
     @RestrictTo(Scope.LIBRARY_GROUP)
     public LayoutElementProto.LayoutElement toLayoutElementProto() {
         return mText.toLayoutElementProto();
+    }
+
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    @Override
+    public Fingerprint getFingerprint() {
+        return mText.getFingerprint();
     }
 }

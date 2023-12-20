@@ -23,11 +23,9 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
-def desktopEnabled = false // b/276387374 TODO: KmpPlatformsKt.enableDesktop(project)
-
 androidXMultiplatform {
     android()
-    if (desktopEnabled) desktop()
+    desktop()
 
     sourceSets {
         commonMain {
@@ -40,7 +38,9 @@ androidXMultiplatform {
             }
         }
         androidMain.dependencies {
-            api("androidx.activity:activity:1.2.0")
+            api("androidx.activity:activity:1.7.1")
+            // workaround for https://github.com/gradle/gradle/issues/8489
+            implementation("androidx.lifecycle:lifecycle-common:2.6.1")
             implementation "androidx.activity:activity-compose:1.3.1"
             api(projectOrArtifact(":compose:ui:ui-test-junit4"))
             api(project(":test:screenshot:screenshot"))
@@ -69,11 +69,9 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            desktopMain {
-                dependsOn(jvmMain)
-                dependencies {
-                }
+        desktopMain {
+            dependsOn(jvmMain)
+            dependencies {
             }
         }
 
@@ -83,7 +81,7 @@ androidXMultiplatform {
             }
         }
 
-        androidAndroidTest {
+        androidInstrumentedTest {
             dependsOn(jvmTest)
             dependencies {
                 implementation(libs.truth)
@@ -91,23 +89,16 @@ androidXMultiplatform {
             }
         }
 
-        // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
-        //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
-        //  level dependencies block instead:
-        //  `dependencies { testImplementation(libs.robolectric) }`
-        androidTest {
+        androidUnitTest {
             dependsOn(jvmTest)
             dependencies {
                 implementation(libs.truth)
             }
         }
 
-        if (desktopEnabled) {
-            desktopTest {
-                dependsOn(jvmTest)
-                dependsOn(desktopMain)
-                dependencies {
-                }
+        desktopTest {
+            dependsOn(jvmTest)
+            dependencies {
             }
         }
     }

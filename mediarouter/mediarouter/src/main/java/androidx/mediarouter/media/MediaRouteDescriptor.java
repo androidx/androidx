@@ -17,8 +17,10 @@ package androidx.mediarouter.media;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import android.annotation.SuppressLint;
 import android.content.IntentFilter;
 import android.content.IntentSender;
+import android.media.RouteDiscoveryPreference;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -31,7 +33,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Describes the properties of a route.
@@ -49,6 +53,7 @@ public final class MediaRouteDescriptor {
     static final String KEY_DESCRIPTION = "status";
     static final String KEY_ICON_URI = "iconUri";
     static final String KEY_ENABLED = "enabled";
+    static final String KEY_IS_SYSTEM_ROUTE = "isSystemRoute";
     static final String IS_DYNAMIC_GROUP_ROUTE = "isDynamicGroupRoute";
     static final String KEY_CONNECTING = "connecting";
     static final String KEY_CONNECTION_STATE = "connectionState";
@@ -65,10 +70,11 @@ public final class MediaRouteDescriptor {
     static final String KEY_SETTINGS_INTENT = "settingsIntent";
     static final String KEY_MIN_CLIENT_VERSION = "minClientVersion";
     static final String KEY_MAX_CLIENT_VERSION = "maxClientVersion";
+    static final String KEY_DEDUPLICATION_IDS = "deduplicationIds";
+    static final String KEY_IS_VISIBILITY_PUBLIC = "isVisibilityPublic";
+    static final String KEY_ALLOWED_PACKAGES = "allowedPackages";
 
     final Bundle mBundle;
-    List<String> mGroupMemberIds;
-    List<IntentFilter> mControlFilters;
 
     MediaRouteDescriptor(Bundle bundle) {
         mBundle = bundle;
@@ -97,17 +103,10 @@ public final class MediaRouteDescriptor {
     @RestrictTo(LIBRARY)
     @NonNull
     public List<String> getGroupMemberIds() {
-        ensureGroupMemberIds();
-        return mGroupMemberIds;
-    }
-
-    void ensureGroupMemberIds() {
-        if (mGroupMemberIds == null) {
-            mGroupMemberIds = mBundle.getStringArrayList(KEY_GROUP_MEMBER_IDS);
-            if (mGroupMemberIds == null) {
-                mGroupMemberIds = Collections.emptyList();
-            }
+        if (!mBundle.containsKey(KEY_GROUP_MEMBER_IDS)) {
+            return new ArrayList<>();
         }
+        return new ArrayList<>(mBundle.getStringArrayList(KEY_GROUP_MEMBER_IDS));
     }
 
     /**
@@ -151,6 +150,20 @@ public final class MediaRouteDescriptor {
      */
     public boolean isEnabled() {
         return mBundle.getBoolean(KEY_ENABLED, true);
+    }
+
+    /**
+     * Returns {@code true} if this route is a system route.
+     *
+     * <p>System routes are routes controlled by the system, like the device's built-in speakers,
+     * wired headsets, and bluetooth devices.
+     *
+     * <p>To use system routes, your application should write media sample data to a media framework
+     * API, typically via <a
+     * href="https://developer.android.com/reference/androidx/media3/exoplayer/ExoPlayer">Exoplayer</a>.
+     */
+    public boolean isSystemRoute() {
+        return mBundle.getBoolean(KEY_IS_SYSTEM_ROUTE, false);
     }
 
     /**
@@ -229,17 +242,10 @@ public final class MediaRouteDescriptor {
      */
     @NonNull
     public List<IntentFilter> getControlFilters() {
-        ensureControlFilters();
-        return mControlFilters;
-    }
-
-    void ensureControlFilters() {
-        if (mControlFilters == null) {
-            mControlFilters = mBundle.getParcelableArrayList(KEY_CONTROL_FILTERS);
-            if (mControlFilters == null) {
-                mControlFilters = Collections.emptyList();
-            }
+        if (!mBundle.containsKey(KEY_CONTROL_FILTERS)) {
+            return new ArrayList<>();
         }
+        return new ArrayList<>(mBundle.getParcelableArrayList(KEY_CONTROL_FILTERS));
     }
 
     /**
@@ -263,10 +269,9 @@ public final class MediaRouteDescriptor {
     /**
      * Gets the type of the receiver device associated with this route.
      *
-     * @return The type of the receiver device associated with this route:
-     * {@link MediaRouter.RouteInfo#DEVICE_TYPE_TV} or
-     * {@link MediaRouter.RouteInfo#DEVICE_TYPE_SPEAKER}.
+     * @return The type of the receiver device associated with this route.
      */
+    @MediaRouter.RouteInfo.DeviceType
     public int getDeviceType() {
         return mBundle.getInt(KEY_DEVICE_TYPE);
     }
@@ -295,6 +300,20 @@ public final class MediaRouteDescriptor {
     public int getVolumeHandling() {
         return mBundle.getInt(KEY_VOLUME_HANDLING,
                 MediaRouter.RouteInfo.PLAYBACK_VOLUME_FIXED);
+    }
+
+    /**
+     * Gets the route's deduplication ids.
+     *
+     * <p>Two routes are considered to come from the same receiver device if any of their respective
+     * deduplication ids match.
+     */
+    @NonNull
+    public Set<String> getDeduplicationIds() {
+        ArrayList<String> deduplicationIds = mBundle.getStringArrayList(KEY_DEDUPLICATION_IDS);
+        return deduplicationIds != null
+                ? Collections.unmodifiableSet(new HashSet<>(deduplicationIds))
+                : Collections.emptySet();
     }
 
     /**
@@ -333,13 +352,32 @@ public final class MediaRouteDescriptor {
     }
 
     /**
+     * Gets whether the route visibility is public or not.
+     */
+    public boolean isVisibilityPublic() {
+        return mBundle.getBoolean(KEY_IS_VISIBILITY_PUBLIC, /* defaultValue= */ true);
+    }
+
+    /**
+     * Gets the set of allowed packages which are able to see the route or an empty set if only
+     * the route provider's package is allowed to see this route. This applies only when
+     * {@link #isVisibilityPublic} returns {@code false}.
+     */
+    @NonNull
+    public Set<String> getAllowedPackages() {
+        if (!mBundle.containsKey(KEY_ALLOWED_PACKAGES)) {
+            return new HashSet<>();
+        }
+        return new HashSet<>(mBundle.getStringArrayList(KEY_ALLOWED_PACKAGES));
+    }
+
+    /**
      * Returns true if the route descriptor has all of the required fields.
      */
     public boolean isValid() {
-        ensureControlFilters();
         if (TextUtils.isEmpty(getId())
                 || TextUtils.isEmpty(getName())
-                || mControlFilters.contains(null)) {
+                || getControlFilters().contains(null)) {
             return false;
         }
         return true;
@@ -355,6 +393,7 @@ public final class MediaRouteDescriptor {
                 + ", description=" + getDescription()
                 + ", iconUri=" + getIconUri()
                 + ", isEnabled=" + isEnabled()
+                + ", isSystemRoute=" + isSystemRoute()
                 + ", connectionState=" + getConnectionState()
                 + ", controlFilters=" + Arrays.toString(getControlFilters().toArray())
                 + ", playbackType=" + getPlaybackType()
@@ -368,6 +407,8 @@ public final class MediaRouteDescriptor {
                 + ", isValid=" + isValid()
                 + ", minClientVersion=" + getMinClientVersion()
                 + ", maxClientVersion=" + getMaxClientVersion()
+                + ", isVisibilityPublic=" + isVisibilityPublic()
+                + ", allowedPackages=" + Arrays.toString(getAllowedPackages().toArray())
                 + " }";
     }
 
@@ -397,8 +438,10 @@ public final class MediaRouteDescriptor {
      */
     public static final class Builder {
         private final Bundle mBundle;
-        private ArrayList<String> mGroupMemberIds;
-        private ArrayList<IntentFilter> mControlFilters;
+
+        private List<String> mGroupMemberIds = new ArrayList<>();
+        private List<IntentFilter> mControlFilters = new ArrayList<>();
+        private Set<String> mAllowedPackages = new HashSet<>();
 
         /**
          * Creates a media route descriptor builder.
@@ -423,13 +466,9 @@ public final class MediaRouteDescriptor {
 
             mBundle = new Bundle(descriptor.mBundle);
 
-            if (!descriptor.getGroupMemberIds().isEmpty()) {
-                mGroupMemberIds = new ArrayList<String>(descriptor.getGroupMemberIds());
-            }
-
-            if (!descriptor.getControlFilters().isEmpty()) {
-                mControlFilters = new ArrayList<IntentFilter>(descriptor.mControlFilters);
-            }
+            mGroupMemberIds = descriptor.getGroupMemberIds();
+            mControlFilters = descriptor.getControlFilters();
+            mAllowedPackages = descriptor.getAllowedPackages();
         }
 
         /**
@@ -455,9 +494,7 @@ public final class MediaRouteDescriptor {
         @RestrictTo(LIBRARY)
         @NonNull
         public Builder clearGroupMemberIds() {
-            if (mGroupMemberIds != null) {
-                mGroupMemberIds.clear();
-            }
+            mGroupMemberIds.clear();
             return this;
         }
 
@@ -475,9 +512,6 @@ public final class MediaRouteDescriptor {
                 throw new IllegalArgumentException("groupMemberId must not be empty");
             }
 
-            if (mGroupMemberIds == null) {
-                mGroupMemberIds = new ArrayList<>();
-            }
             if (!mGroupMemberIds.contains(groupMemberId)) {
                 mGroupMemberIds.add(groupMemberId);
             }
@@ -519,10 +553,7 @@ public final class MediaRouteDescriptor {
             if (TextUtils.isEmpty(memberRouteId)) {
                 throw new IllegalArgumentException("memberRouteId must not be empty");
             }
-
-            if (mGroupMemberIds != null) {
-                mGroupMemberIds.remove(memberRouteId);
-            }
+            mGroupMemberIds.remove(memberRouteId);
             return this;
         }
 
@@ -592,6 +623,18 @@ public final class MediaRouteDescriptor {
         }
 
         /**
+         * Sets whether the route is a system route.
+         *
+         * @see MediaRouteDescriptor#isSystemRoute()
+         */
+        @RestrictTo(LIBRARY)
+        @NonNull
+        public Builder setIsSystemRoute(boolean isSystemRoute) {
+            mBundle.putBoolean(KEY_IS_SYSTEM_ROUTE, isSystemRoute);
+            return this;
+        }
+
+        /**
          * Sets whether the route is a dynamic group route.
          * @see #isDynamicGroupRoute()
          */
@@ -600,6 +643,7 @@ public final class MediaRouteDescriptor {
             mBundle.putBoolean(IS_DYNAMIC_GROUP_ROUTE, isDynamicGroupRoute);
             return this;
         }
+
         /**
          * Sets whether the route is in the process of connecting and is not yet
          * ready for use.
@@ -650,9 +694,7 @@ public final class MediaRouteDescriptor {
          */
         @NonNull
         public Builder clearControlFilters() {
-            if (mControlFilters != null) {
-                mControlFilters.clear();
-            }
+            mControlFilters.clear();
             return this;
         }
 
@@ -665,9 +707,6 @@ public final class MediaRouteDescriptor {
                 throw new IllegalArgumentException("filter must not be null");
             }
 
-            if (mControlFilters == null) {
-                mControlFilters = new ArrayList<IntentFilter>();
-            }
             if (!mControlFilters.contains(filter)) {
                 mControlFilters.add(filter);
             }
@@ -718,12 +757,10 @@ public final class MediaRouteDescriptor {
         /**
          * Sets the route's receiver device type.
          *
-         * @param deviceType The receive device type of the route:
-         * {@link MediaRouter.RouteInfo#DEVICE_TYPE_TV} or
-         * {@link MediaRouter.RouteInfo#DEVICE_TYPE_SPEAKER}.
+         * @param deviceType The type of the receiver device.
          */
         @NonNull
-        public Builder setDeviceType(int deviceType) {
+        public Builder setDeviceType(@MediaRouter.RouteInfo.DeviceType int deviceType) {
             mBundle.putInt(KEY_DEVICE_TYPE, deviceType);
             return this;
         }
@@ -756,6 +793,21 @@ public final class MediaRouteDescriptor {
         @NonNull
         public Builder setVolumeHandling(int volumeHandling) {
             mBundle.putInt(KEY_VOLUME_HANDLING, volumeHandling);
+            return this;
+        }
+
+        /**
+         * Sets the route's deduplication ids.
+         *
+         * <p>Two routes are considered to come from the same receiver device if any of their
+         * respective deduplication ids match.
+         *
+         * @param deduplicationIds A set of strings that uniquely identify the receiver device that
+         *     backs this route.
+         */
+        @NonNull
+        public Builder setDeduplicationIds(@NonNull Set<String> deduplicationIds) {
+            mBundle.putStringArrayList(KEY_DEDUPLICATION_IDS, new ArrayList<>(deduplicationIds));
             return this;
         }
 
@@ -806,16 +858,54 @@ public final class MediaRouteDescriptor {
         }
 
         /**
+         * Sets the visibility of this route to public.
+         *
+         * <p>By default, unless you call {@link #setVisibilityRestricted}, the new route will be
+         * public.
+         *
+         * <p>Public routes are visible to any application with a matching {@link
+         * RouteDiscoveryPreference#getPreferredFeatures feature}.
+         *
+         * <p>Calls to this method override previous calls to {@link #setVisibilityPublic} and
+         * {@link #setVisibilityRestricted}.
+         */
+        @NonNull
+        @SuppressLint({"MissingGetterMatchingBuilder"})
+        public Builder setVisibilityPublic() {
+            mBundle.putBoolean(KEY_IS_VISIBILITY_PUBLIC, true);
+            mAllowedPackages.clear();
+            return this;
+        }
+
+        /**
+         * Sets the visibility of this route to restricted.
+         *
+         * <p>Routes with restricted visibility are only visible to its publisher application and
+         * applications whose package name is included in the provided {@code allowedPackages} set
+         * with a matching {@link RouteDiscoveryPreference#getPreferredFeatures feature}.
+         *
+         * <p>Calls to this method override previous calls to {@link #setVisibilityPublic} and
+         * {@link #setVisibilityRestricted}.
+         *
+         * @see #setVisibilityPublic
+         * @param allowedPackages set of package names which are allowed to see this route.
+         */
+        @NonNull
+        @SuppressLint({"MissingGetterMatchingBuilder"})
+        public Builder setVisibilityRestricted(@NonNull Set<String> allowedPackages) {
+            mBundle.putBoolean(KEY_IS_VISIBILITY_PUBLIC, false);
+            mAllowedPackages = new HashSet<>(allowedPackages);
+            return this;
+        }
+
+        /**
          * Builds the {@link MediaRouteDescriptor media route descriptor}.
          */
         @NonNull
         public MediaRouteDescriptor build() {
-            if (mControlFilters != null) {
-                mBundle.putParcelableArrayList(KEY_CONTROL_FILTERS, mControlFilters);
-            }
-            if (mGroupMemberIds != null) {
-                mBundle.putStringArrayList(KEY_GROUP_MEMBER_IDS, mGroupMemberIds);
-            }
+            mBundle.putParcelableArrayList(KEY_CONTROL_FILTERS, new ArrayList<>(mControlFilters));
+            mBundle.putStringArrayList(KEY_GROUP_MEMBER_IDS, new ArrayList<>(mGroupMemberIds));
+            mBundle.putStringArrayList(KEY_ALLOWED_PACKAGES, new ArrayList<>(mAllowedPackages));
             return new MediaRouteDescriptor(mBundle);
         }
     }

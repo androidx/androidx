@@ -18,6 +18,7 @@ package androidx.build.importMaven
 
 import androidx.build.importMaven.ArtifactResolver.resolveArtifacts
 import androidx.build.importMaven.KmpConfig.SUPPORTED_KONAN_TARGETS
+import java.net.URI
 import org.apache.logging.log4j.kotlin.logger
 import org.gradle.api.Named
 import org.gradle.api.Project
@@ -41,7 +42,6 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinUsages
 import org.jetbrains.kotlin.konan.target.KonanTarget
-import java.net.URI
 
 /**
  * Provides functionality to resolve and download artifacts.
@@ -170,14 +170,18 @@ ${
                     }
                     pendingComponentIds.addAll(newComponentIds)
                 } while (explicitlyFetchInheritedDependencies && pendingComponentIds.isNotEmpty())
-                ArtifactsResolutionResult(allResolvedArtifacts.toList(), dependenciesPassedVerification)
+                ArtifactsResolutionResult(
+                    allResolvedArtifacts.toList(),
+                    dependenciesPassedVerification
+                )
             }.also { result ->
                 val artifacts = result.artifacts
                 logger.trace {
                     "Resolved files: ${artifacts.size}"
                 }
                 check(artifacts.isNotEmpty()) {
-                    "Didn't resolve any artifacts from $artifacts . Try --verbose for more information"
+                    "Didn't resolve any artifacts from $artifacts. Try --verbose for more " +
+                      "information"
                 }
                 artifacts.forEach { artifact ->
                     logger.trace {
@@ -201,13 +205,13 @@ ${
                     addAll(createKmpConfigurations(dep))
                 }
             }
-            val resolution = configurations.map { configuration ->
+            val resolutionList = configurations.map { configuration ->
                 resolveArtifacts(configuration, disableVerificationOnFailure = true)
             }
-            val artifacts = resolution.flatMap { resolution ->
+            val artifacts = resolutionList.flatMap { resolution ->
                 resolution.artifacts
             }
-            val dependenciesPassedVerification = resolution.map { resolution ->
+            val dependenciesPassedVerification = resolutionList.map { resolution ->
                 resolution.dependenciesPassedVerification
             }.all { it == true }
             return ArtifactsResolutionResult(artifacts, dependenciesPassedVerification)
@@ -229,7 +233,7 @@ ${
                     // We need to be lenient because we are requesting files that might not exist.
                     // For example source.jar or .asc.
                     it.lenient(true)
-                }.artifacts.artifacts?.toList() ?: emptyList()
+                }.artifacts.artifacts.toList()
                 ArtifactsResolutionResult(artifacts.toList(), dependenciesPassedVerification = true)
             } catch (verificationException: DependencyVerificationException) {
                 if (disableVerificationOnFailure) {
@@ -243,7 +247,10 @@ ${verificationException.message?.prependIndent("    ")}
                         """
                     }
                     val artifacts = resolveArtifacts(copy, disableVerificationOnFailure = false)
-                    return ArtifactsResolutionResult(artifacts.artifacts, dependenciesPassedVerification = false)
+                    return ArtifactsResolutionResult(
+                        artifacts.artifacts,
+                        dependenciesPassedVerification = false
+                    )
                 } else {
                     throw verificationException
                 }

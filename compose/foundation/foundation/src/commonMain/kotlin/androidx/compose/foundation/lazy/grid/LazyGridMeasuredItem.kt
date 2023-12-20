@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.lazy.grid
 
-import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateItemModifierNode
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -47,7 +46,8 @@ internal class LazyGridMeasuredItem(
      * value passed into the place() call.
      */
     private val visualOffset: IntOffset,
-    override val contentType: Any?
+    override val contentType: Any?,
+    private val animator: LazyGridItemPlacementAnimator
 ) : LazyGridItemInfo {
     /**
      * Main axis size of the item - the max main axis size of the placeables.
@@ -90,6 +90,12 @@ internal class LazyGridMeasuredItem(
         private set
 
     /**
+     * True when this item is not supposed to react on scroll delta. for example items being
+     * animated away out of the bounds are non scrollable.
+     */
+    var nonScrollableItem: Boolean = false
+
+    /**
      * Calculates positions for the inner placeables at [mainAxisOffset], [crossAxisOffset].
      * [layoutWidth] and [layoutHeight] should be provided to not place placeables which are ended
      * up outside of the viewport (for example one item consist of 2 placeables, and the first one
@@ -123,6 +129,19 @@ internal class LazyGridMeasuredItem(
         maxMainAxisOffset = mainAxisLayoutSize + afterContentPadding
     }
 
+    fun applyScrollDelta(delta: Int) {
+        if (nonScrollableItem) {
+            return
+        }
+        offset = offset.copy { it + delta }
+        repeat(placeablesCount) { index ->
+            val animation = animator.getAnimation(key, index)
+            if (animation != null) {
+                animation.rawOffset = animation.rawOffset.copy { mainAxis -> mainAxis + delta }
+            }
+        }
+    }
+
     fun place(
         scope: Placeable.PlacementScope,
     ) = with(scope) {
@@ -133,14 +152,14 @@ internal class LazyGridMeasuredItem(
             val maxOffset = maxMainAxisOffset
 
             var offset = offset
-            val animateNode = getParentData(index) as? LazyLayoutAnimateItemModifierNode
-            if (animateNode != null) {
-                val animatedOffset = offset + animateNode.placementDelta
+            val animation = animator.getAnimation(key, index)
+            if (animation != null) {
+                val animatedOffset = offset + animation.placementDelta
                 // cancel the animation if current and target offsets are both out of the bounds.
                 if ((offset.mainAxis <= minOffset && animatedOffset.mainAxis <= minOffset) ||
                     (offset.mainAxis >= maxOffset && animatedOffset.mainAxis >= maxOffset)
                 ) {
-                    animateNode.cancelAnimation()
+                    animation.cancelPlacementAnimation()
                 }
                 offset = animatedOffset
             }

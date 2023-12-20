@@ -676,7 +676,7 @@ fun SwipeToReveal() {
     val state = rememberRevealState()
     SwipeToReveal(
         state = state,
-        action = {
+        primaryAction = {
             Box(
                 modifier = Modifier
                     .fillMaxSize()

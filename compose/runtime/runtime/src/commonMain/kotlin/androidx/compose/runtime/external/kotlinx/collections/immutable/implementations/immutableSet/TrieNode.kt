@@ -46,7 +46,7 @@ private fun Array<Any?>.removeCellAtIndex(cellIndex: Int): Array<Any?> {
  * on the fly using [predicate]. By default filters out [TrieNode.EMPTY] instances
  *
  * return number of elements written to [newArray]
- **/
+ */
 private inline fun Array<Any?>.filterTo(
         newArray: Array<Any?>,
         newArrayOffset: Int = 0,

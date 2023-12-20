@@ -32,7 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package android.support.customtabs.trusted;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface ITrustedWebActivityService {
   android.os.Bundle areNotificationsEnabled(in android.os.Bundle args) = 5;
   android.os.Bundle notifyNotificationWithChannel(in android.os.Bundle args) = 1;

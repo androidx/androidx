@@ -40,6 +40,7 @@ import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.utils.AspectRatioUtil;
 import androidx.camera.core.impl.utils.CameraOrientationUtil;
 import androidx.camera.core.impl.utils.CompareSizesByArea;
+import androidx.camera.core.internal.utils.SizeUtil;
 import androidx.camera.core.resolutionselector.AspectRatioStrategy;
 import androidx.camera.core.resolutionselector.ResolutionFilter;
 import androidx.camera.core.resolutionselector.ResolutionSelector;
@@ -216,6 +217,13 @@ class SupportedOutputSizesSorter {
                 applyAspectRatioStrategy(resolutionCandidateList,
                         resolutionSelector.getAspectRatioStrategy());
 
+
+        // Applies the max resolution setting
+        Size maxResolution = ((ImageOutputConfig) useCaseConfig).getMaxResolution(null);
+        if (maxResolution != null) {
+            applyMaxResolutionRestriction(aspectRatioSizeListMap, maxResolution);
+        }
+
         // Applies the resolution strategy onto the resolution candidate list.
         applyResolutionStrategy(aspectRatioSizeListMap, resolutionSelector.getResolutionStrategy());
 
@@ -290,7 +298,7 @@ class SupportedOutputSizesSorter {
             @NonNull ResolutionSelector resolutionSelector, int imageFormat) {
         // Appends high resolution output sizes if high resolution is enabled by ResolutionSelector
         if (resolutionSelector.getAllowedResolutionMode()
-                == ResolutionSelector.ALLOWED_RESOLUTIONS_SLOW) {
+                == ResolutionSelector.PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE) {
             List<Size> allSizesList = new ArrayList<>();
             allSizesList.addAll(resolutionCandidateList);
             allSizesList.addAll(mCameraInfoInternal.getSupportedHighResolutions(imageFormat));
@@ -432,6 +440,32 @@ class SupportedOutputSizesSorter {
                 break;
             default:
                 break;
+        }
+    }
+
+    /**
+     * Applies the max resolution restriction.
+     *
+     * <p>Filters out the output sizes that exceed the max resolution in area size.
+     *
+     * @param sortedAspectRatioSizeListMap the aspect ratio to size list linked hash map. The
+     *                                     entries order should not be changed.
+     * @param maxResolution                the max resolution size.
+     */
+    private static void applyMaxResolutionRestriction(
+            @NonNull LinkedHashMap<Rational, List<Size>> sortedAspectRatioSizeListMap,
+            @NonNull Size maxResolution) {
+        int maxResolutionAreaSize = SizeUtil.getArea(maxResolution);
+        for (Rational key : sortedAspectRatioSizeListMap.keySet()) {
+            List<Size> supportedSizesList = sortedAspectRatioSizeListMap.get(key);
+            List<Size> filteredResultList = new ArrayList<>();
+            for (Size size : supportedSizesList) {
+                if (SizeUtil.getArea(size) <= maxResolutionAreaSize) {
+                    filteredResultList.add(size);
+                }
+            }
+            supportedSizesList.clear();
+            supportedSizesList.addAll(filteredResultList);
         }
     }
 

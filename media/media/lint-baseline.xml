@@ -1,94 +1,121 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IMediaControllerCallback {"
-        errorLine2="^">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is never &lt; 19"
+        errorLine1="            if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.KITKAT"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/aidl/android/support/v4/media/session/IMediaControllerCallback.aidl"/>
+            file="src/main/java/androidx/media/AudioFocusRequestCompat.java"/>
     </issue>
 
     <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="interface IMediaSession {"
-        errorLine2="^">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 16) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/aidl/android/support/v4/media/session/IMediaSession.aidl"/>
+            file="src/main/java/androidx/media/session/MediaButtonReceiver.java"/>
     </issue>
 
     <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="@JavaOnlyStableParcelable parcelable MediaDescriptionCompat;"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="            if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/aidl/android/support/v4/media/MediaDescriptionCompat.aidl"/>
+            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
     </issue>
 
     <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="@JavaOnlyStableParcelable parcelable MediaMetadataCompat;"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="            if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/aidl/android/support/v4/media/MediaMetadataCompat.aidl"/>
+            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
     </issue>
 
     <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="@JavaOnlyStableParcelable parcelable MediaSessionCompat.Token;"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        } else if (android.os.Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/aidl/android/support/v4/media/session/MediaSessionCompat.aidl"/>
+            file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"/>
     </issue>
 
     <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="@JavaOnlyStableParcelable parcelable MediaSessionCompat.QueueItem;"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        } else if (android.os.Build.VERSION.SDK_INT >= 18) {"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/aidl/android/support/v4/media/session/MediaSessionCompat.aidl"/>
+            file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"/>
     </issue>
 
     <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="@JavaOnlyStableParcelable parcelable MediaSessionCompat.ResultReceiverWrapper;"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 18"
+        errorLine1="    @RequiresApi(18)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/aidl/android/support/v4/media/session/MediaSessionCompat.aidl"/>
+            file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"/>
     </issue>
 
     <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="@JavaOnlyStableParcelable parcelable ParcelableVolumeInfo;"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/aidl/android/support/v4/media/session/ParcelableVolumeInfo.aidl"/>
+            file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"/>
     </issue>
 
     <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="@JavaOnlyStableParcelable parcelable PlaybackStateCompat;"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="            if (Build.VERSION.SDK_INT >= 15) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/aidl/android/support/v4/media/session/PlaybackStateCompat.aidl"/>
+            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
     </issue>
 
     <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="@JavaOnlyStableParcelable parcelable RatingCompat;"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 15"
+        errorLine1="    @RequiresApi(15)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/aidl/android/support/v4/media/RatingCompat.aidl"/>
+            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (ratingObj != null &amp;&amp; Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/RatingCompat.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (mRatingObj == null &amp;&amp; Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/RatingCompat.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/RatingCompat.java"/>
     </issue>
 
     <issue

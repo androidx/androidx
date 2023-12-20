@@ -1,5 +1,707 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-alpha05)" variant="all" version="8.0.0-alpha05">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CameraXExecutors.mainThreadExecutor can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                mainThreadExecutor(), mRotationListener);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/CameraControllerFragment.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.e can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            Logger.e(TAG, &quot;The device cannot detect rotation with motion sensor.&quot;);"
+        errorLine2="                   ~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/CameraControllerFragment.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.e can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            Logger.e(TAG, &quot;The device cannot detect rotation with motion sensor.&quot;);"
+        errorLine2="                     ~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/CameraControllerFragment.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.e can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            Logger.e(TAG, &quot;The device cannot detect rotation with motion sensor.&quot;);"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/CameraControllerFragment.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Futures.addCallback can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Futures.addCallback(voidFuture, new FutureCallback&lt;Void>() {"
+        errorLine2="                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/CameraControllerFragment.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Futures.addCallback can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Futures.addCallback(voidFuture, new FutureCallback&lt;Void>() {"
+        errorLine2="                            ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/CameraControllerFragment.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Futures.addCallback can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Futures.addCallback(voidFuture, new FutureCallback&lt;Void>() {"
+        errorLine2="                                        ^">
+        <location
+            file="src/main/java/androidx/camera/integration/view/CameraControllerFragment.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FutureCallback.onSuccess can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            public void onSuccess(@Nullable Void result) {"
+        errorLine2="                        ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/CameraControllerFragment.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FutureCallback.onFailure can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            public void onFailure(@NonNull Throwable t) {"
+        errorLine2="                        ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/CameraControllerFragment.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CameraXExecutors.mainThreadExecutor can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        }, mainThreadExecutor());"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/CameraControllerFragment.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Futures.addCallback can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        }, mainThreadExecutor());"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/CameraControllerFragment.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CameraSelector.getLensFacing can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        final Integer lensFacing = mCameraController.getCameraSelector().getLensFacing();"
+        errorLine2="                                                                         ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/CameraControllerFragment.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CameraXExecutors.mainThreadExecutor can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        mainThreadExecutor().execute(() -> {"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/CameraControllerFragment.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="TransformUtils.getRectToRect can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Matrix croppingTransform = getRectToRect(new RectF(cropRect),"
+        errorLine2="                                   ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/CameraControllerFragment.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="TransformUtils.getRectToRect can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Matrix croppingTransform = getRectToRect(new RectF(cropRect),"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/CameraControllerFragment.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="TransformUtils.getRectToRect can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                new RectF(0, 0, cropRect.width(), cropRect.height()), 0);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/CameraControllerFragment.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CameraXExecutors.mainThreadExecutor can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        CameraXExecutors.mainThreadExecutor().execute {"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/ComposeUiFragment.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CameraSelector.getLensFacing can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            if (cameraController.cameraSelector.lensFacing == LENS_FACING_BACK) {"
+        errorLine2="                                                ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/EffectsFragment.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CameraSelector.getLensFacing can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            if (cameraController.cameraSelector.lensFacing == LENS_FACING_BACK) {"
+        errorLine2="                                                ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/EffectsFragment.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CameraXExecutors.directExecutor can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            directExecutor(),"
+        errorLine2="            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/EffectsFragment.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CameraXExecutors.directExecutor can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            directExecutor()"
+        errorLine2="            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/EffectsFragment.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CameraXExecutors.mainThreadExecutor can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        cameraController.setImageAnalysisAnalyzer(mainThreadExecutor(),"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/MlKitFragment.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CameraXExecutors.mainThreadExecutor can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                mainThreadExecutor()"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/MlKitFragment.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.e can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            Logger.e(TAG, &quot;Failed to bind use cases.&quot;, exception)"
+        errorLine2="                   ~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/StreamSharingActivity.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.e can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            Logger.e(TAG, &quot;Failed to bind use cases.&quot;, exception)"
+        errorLine2="                     ~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/StreamSharingActivity.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.e can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            Logger.e(TAG, &quot;Failed to bind use cases.&quot;, exception)"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/StreamSharingActivity.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.e can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            Logger.e(TAG, &quot;Failed to bind use cases.&quot;, exception)"
+        errorLine2="                                                       ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/StreamSharingActivity.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Camera.isUseCasesCombinationSupportedByFramework can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            camera != null &amp;&amp; camera!!.isUseCasesCombinationSupportedByFramework(*useCases)"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/StreamSharingActivity.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CameraXExecutors.directExecutor can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                CameraXExecutors.directExecutor(),"
+        errorLine2="                                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/StreamSharingActivity.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.canDeviceWriteToMediaStore can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        return if (canDeviceWriteToMediaStore()) {"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/StreamSharingActivity.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.generateVideoMediaStoreOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                generateVideoMediaStoreOptions(context.contentResolver, fileName)"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/StreamSharingActivity.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.generateVideoMediaStoreOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                generateVideoMediaStoreOptions(context.contentResolver, fileName)"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/StreamSharingActivity.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.generateVideoMediaStoreOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                generateVideoMediaStoreOptions(context.contentResolver, fileName)"
+        errorLine2="                                                                        ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/StreamSharingActivity.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.generateVideoFileOutputOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            recorder.prepareRecording(context, generateVideoFileOutputOptions(fileName))"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/StreamSharingActivity.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.generateVideoFileOutputOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            recorder.prepareRecording(context, generateVideoFileOutputOptions(fileName))"
+        errorLine2="                                                                              ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/StreamSharingActivity.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.writeTextToExternalFile can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        writeTextToExternalFile(information, fileName)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/StreamSharingActivity.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.writeTextToExternalFile can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        writeTextToExternalFile(information, fileName)"
+        errorLine2="                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/StreamSharingActivity.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.writeTextToExternalFile can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        writeTextToExternalFile(information, fileName)"
+        errorLine2="                                             ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/StreamSharingActivity.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                    VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE -> Logger.d("
+        errorLine2="                                                                              ~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/StreamSharingActivity.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                        TAG,"
+        errorLine2="                        ~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/StreamSharingActivity.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                        &quot;Video saved to: $uri&quot;"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/StreamSharingActivity.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.e can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                    else -> Logger.e("
+        errorLine2="                                   ~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/StreamSharingActivity.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.e can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                        TAG,"
+        errorLine2="                        ~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/StreamSharingActivity.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.e can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                        &quot;Failed to save video: uri $uri with code (${event.error})&quot;"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/StreamSharingActivity.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CameraXExecutors.mainThreadExecutor can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="    IMAGE_CAPTURE, mainThreadExecutor(), ToneMappingImageProcessor(), {}"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/ToneMappingImageEffect.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CameraEffect.getImageProcessor can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        return (imageProcessor as ToneMappingImageProcessor).processoed"
+        errorLine2="                ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/ToneMappingImageEffect.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CameraEffect.getImageProcessor can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        return (imageProcessor as ToneMappingImageProcessor).processoed"
+        errorLine2="                ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/ToneMappingImageEffect.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RgbaImageProxy can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            val inputImage = request.inputImage as RgbaImageProxy"
+        errorLine2="                                                   ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/ToneMappingImageEffect.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RgbaImageProxy.createBitmap can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            val bitmap = inputImage.createBitmap()"
+        errorLine2="                                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/ToneMappingImageEffect.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RgbaImageProxy.close can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            inputImage.close()"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/ToneMappingImageEffect.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RgbaImageProxy can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            return RgbaImageProxy("
+        errorLine2="                   ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/ToneMappingImageEffect.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RgbaImageProxy can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                newBitmap,"
+        errorLine2="                ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/ToneMappingImageEffect.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RgbaImageProxy can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                imageIn.cropRect,"
+        errorLine2="                ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/ToneMappingImageEffect.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RgbaImageProxy can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                imageIn.imageInfo.sensorToBufferTransformMatrix,"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/ToneMappingImageEffect.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ShaderProvider can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        private val TONE_MAPPING_SHADER_PROVIDER = object : ShaderProvider {"
+        errorLine2="                                                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/ToneMappingSurfaceProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ShaderProvider.createFragmentShader can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            override fun createFragmentShader(sampler: String, fragCoords: String): String {"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/ToneMappingSurfaceProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="OpenGlRenderer can only be called from within the same library (androidx.camera:camera-core)"
+        errorLine1="    private val glRenderer: OpenGlRenderer = OpenGlRenderer()"
+        errorLine2="                                             ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/ToneMappingSurfaceProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CameraXExecutors.newHandlerExecutor can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        glExecutor = newHandlerExecutor(glHandler)"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/ToneMappingSurfaceProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CameraXExecutors.newHandlerExecutor can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        glExecutor = newHandlerExecutor(glHandler)"
+        errorLine2="                                        ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/ToneMappingSurfaceProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="OpenGlRenderer.init can only be called from within the same library (androidx.camera:camera-core)"
+        errorLine1="            glRenderer.init(DynamicRange.SDR, TONE_MAPPING_SHADER_PROVIDER)"
+        errorLine2="                       ~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/ToneMappingSurfaceProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="OpenGlRenderer.init can only be called from within the same library (androidx.camera:camera-core)"
+        errorLine1="            glRenderer.init(DynamicRange.SDR, TONE_MAPPING_SHADER_PROVIDER)"
+        errorLine2="                            ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/ToneMappingSurfaceProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="OpenGlRenderer.init can only be called from within the same library (androidx.camera:camera-core)"
+        errorLine1="            glRenderer.init(DynamicRange.SDR, TONE_MAPPING_SHADER_PROVIDER)"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/ToneMappingSurfaceProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="OpenGlRenderer.getTextureName can only be called from within the same library (androidx.camera:camera-core)"
+        errorLine1="        val surfaceTexture = SurfaceTexture(glRenderer.textureName)"
+        errorLine2="                                                       ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/ToneMappingSurfaceProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="OpenGlRenderer.getTextureName can only be called from within the same library (androidx.camera:camera-core)"
+        errorLine1="        val surfaceTexture = SurfaceTexture(glRenderer.textureName)"
+        errorLine2="                                                       ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/ToneMappingSurfaceProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="OpenGlRenderer.unregisterOutputSurface can only be called from within the same library (androidx.camera:camera-core)"
+        errorLine1="                glRenderer.unregisterOutputSurface(removedSurface)"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/ToneMappingSurfaceProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="OpenGlRenderer.unregisterOutputSurface can only be called from within the same library (androidx.camera:camera-core)"
+        errorLine1="                glRenderer.unregisterOutputSurface(removedSurface)"
+        errorLine2="                                                   ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/ToneMappingSurfaceProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="OpenGlRenderer.registerOutputSurface can only be called from within the same library (androidx.camera:camera-core)"
+        errorLine1="        glRenderer.registerOutputSurface(surface)"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/ToneMappingSurfaceProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="OpenGlRenderer.registerOutputSurface can only be called from within the same library (androidx.camera:camera-core)"
+        errorLine1="        glRenderer.registerOutputSurface(surface)"
+        errorLine2="                                         ~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/ToneMappingSurfaceProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="OpenGlRenderer.release can only be called from within the same library (androidx.camera:camera-core)"
+        errorLine1="            glRenderer.release()"
+        errorLine2="                       ~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/ToneMappingSurfaceProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="OpenGlRenderer.render can only be called from within the same library (androidx.camera:camera-core)"
+        errorLine1="            glRenderer.render(surfaceTexture.timestamp, surfaceTransform, surface)"
+        errorLine2="                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/ToneMappingSurfaceProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="OpenGlRenderer.render can only be called from within the same library (androidx.camera:camera-core)"
+        errorLine1="            glRenderer.render(surfaceTexture.timestamp, surfaceTransform, surface)"
+        errorLine2="                                                        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/ToneMappingSurfaceProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="OpenGlRenderer.render can only be called from within the same library (androidx.camera:camera-core)"
+        errorLine1="            glRenderer.render(surfaceTexture.timestamp, surfaceTransform, surface)"
+        errorLine2="                                                                          ~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/ToneMappingSurfaceProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                            Logger.d(TAG, &quot;ImageAnalysis result not ready.&quot;);"
+        errorLine2="                                   ~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/TransformFragment.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                            Logger.d(TAG, &quot;ImageAnalysis result not ready.&quot;);"
+        errorLine2="                                     ~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/TransformFragment.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                            Logger.d(TAG, &quot;ImageAnalysis result not ready.&quot;);"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/TransformFragment.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                            Logger.d(TAG, &quot;ImageAnalysis result not ready.&quot;);"
+        errorLine2="                                   ~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/TransformFragment.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                            Logger.d(TAG, &quot;ImageAnalysis result not ready.&quot;);"
+        errorLine2="                                     ~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/TransformFragment.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                            Logger.d(TAG, &quot;ImageAnalysis result not ready.&quot;);"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/TransformFragment.java"/>
+    </issue>
 
     <issue
         id="PermissionImpliesUnsupportedChromeOsHardware"

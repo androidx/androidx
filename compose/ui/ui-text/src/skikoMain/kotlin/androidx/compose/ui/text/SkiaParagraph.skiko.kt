@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.text
 
+import androidx.annotation.IntRange
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.BlendMode
@@ -277,6 +278,14 @@ internal class SkiaParagraph(
     override fun getBoundingBox(offset: Int): Rect {
         val box = getBoxForwardByOffset(offset) ?: getBoxBackwardByOffset(offset, text.length)!!
         return box.rect.toComposeRect()
+    }
+
+    override fun fillBoundingBoxes(
+        range: TextRange,
+        array: FloatArray,
+        @IntRange(from = 0) arrayStart: Int
+    ) {
+        // TODO(siyamed) needs fillBoundingBoxes
     }
 
     override fun getWordBoundary(offset: Int): TextRange {

@@ -314,7 +314,7 @@ message FulfillmentRequest {
       INTENT_CONFIRMED = 3;
     }
 
-    // The current progress of handling the dialog.
+    // The Type of this Fulfillment. Not applicable for one-shot Fulfillment.
     optional Type type = 5;
 
     // The status of the SYNC request. Only set when fulfillment type == SYNC.
@@ -420,4 +420,40 @@ message Restriction {
     // start dictation.
     bool text_input = 1;
   }
+}
+
+// Represents the result of sending an execution request to a capability.
+// NEXT_ID: 2
+message AppInteractionMetadata {
+
+  // The error status of capability execution.
+  // NEXT_ID: 10
+  enum ErrorStatus {
+    // Unexpected error occurred.
+    UNKNOWN_ERROR_STATUS = 0;
+    // The current capability session was cancelled, likely because a new request was sent to the
+    // capability before the first had time to complete.
+    CANCELED = 1;
+    // Developer provided callback has timed out. Note, there might be a transport level timeout in
+    // addition to the capability specific one, which may be less than the capability timeout. In
+    // such cases, the capability should receive a fulfillment request with CANCEL status.
+    TIMEOUT = 2;
+    // Invalid data was sent to the capability. This could be a nonsensical request Type or
+    // malformed arguments (e.g. wrong data format for a BII argument).
+    INVALID_REQUEST = 3;
+    // An exception was thrown from a developer-provided callback.
+    EXTERNAL_EXCEPTION = 7;
+    // Tried to send request to a particular capability session, but that session has not been
+    // started or has already ended.
+    SESSION_NOT_FOUND = 8;
+    // Tried to start up a session for a particular capability ID but the capability was not found.
+    CAPABILITY_NOT_FOUND = 9;
+    // UI was requested but there is no UI currently set.
+    NO_UI_ELEMENTS = 10;
+    // Internal error occurred.
+    INTERNAL = 11;
+  }
+
+  // ErrorStatus of capability execution. Can be logged to a dashboard to
+  ErrorStatus error_status = 1;
 }

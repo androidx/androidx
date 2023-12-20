@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.2.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-beta01)" variant="all" version="8.2.0-beta01">
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable values with type List&lt;? extends Float>: replace with FloatList"
+        errorLine1="            val values = FloatArray(10) { Random.nextInt(100).toFloat() + 10f }.asList()"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/compose/integration/macrobenchmark/target/graphs/DynamicGraphs.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method DynamicGraph has parameter values with type List&lt;Float>: replace with FloatList"
+        errorLine1="    values: List&lt;Float> = listOf&lt;Float>(12f, 32f, 21f, 32f, 2f),"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/compose/integration/macrobenchmark/target/graphs/DynamicGraphs.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable scale with type List&lt;? extends Float>: replace with FloatList"
+        errorLine1="        val scale = values.map { (it * 0.8f) / max }"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/compose/integration/macrobenchmark/target/graphs/DynamicGraphs.kt"/>
+    </issue>
+
+</issues>

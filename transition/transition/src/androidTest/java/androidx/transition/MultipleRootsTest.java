@@ -19,7 +19,7 @@ package androidx.transition;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
@@ -98,9 +98,9 @@ public class MultipleRootsTest {
         final ActivityScenario<TransitionActivity> scenario = prepareScenario(views);
 
         final Transition.TransitionListener innerListener =
-                mock(Transition.TransitionListener.class);
+                spy(new TransitionListenerAdapter());
         final Transition.TransitionListener outerListener =
-                mock(Transition.TransitionListener.class);
+                spy(new TransitionListenerAdapter());
 
         final Fade innerTransition = new Fade();
         innerTransition.setDuration(300);
@@ -143,9 +143,9 @@ public class MultipleRootsTest {
         final ActivityScenario<TransitionActivity> scenario = prepareScenario(views);
 
         final Transition.TransitionListener innerListener =
-                mock(Transition.TransitionListener.class);
+                spy(new TransitionListenerAdapter());
         final Transition.TransitionListener outerListener =
-                mock(Transition.TransitionListener.class);
+                spy(new TransitionListenerAdapter());
 
         final Fade outerTransition = new Fade();
         outerTransition.setDuration(300);
@@ -188,9 +188,9 @@ public class MultipleRootsTest {
         final ActivityScenario<TransitionActivity> scenario = prepareScenario(views);
 
         final Transition.TransitionListener row1Listener =
-                mock(Transition.TransitionListener.class);
+                spy(new TransitionListenerAdapter());
         final Transition.TransitionListener row2Listener =
-                mock(Transition.TransitionListener.class);
+                spy(new TransitionListenerAdapter());
 
         final Fade row1Transition = new Fade();
         row1Transition.setDuration(300);
@@ -234,7 +234,7 @@ public class MultipleRootsTest {
 
         // For Row 1, we run a subsequent transition at the end of the first transition.
         final Transition.TransitionListener row1SecondListener =
-                mock(Transition.TransitionListener.class);
+                spy(new TransitionListenerAdapter());
         final Fade row1SecondTransition = new Fade();
         row1SecondTransition.setDuration(250);
         row1SecondTransition.addListener(row1SecondListener);
@@ -253,7 +253,7 @@ public class MultipleRootsTest {
 
         // Only one transition for row 2.
         final Transition.TransitionListener row2Listener =
-                mock(Transition.TransitionListener.class);
+                spy(new TransitionListenerAdapter());
         final Slide row2Transition = new Slide();
         row2Transition.setDuration(300);
         row2Transition.addListener(row2Listener);

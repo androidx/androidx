@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Thẻ dạng danh sách"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Thẻ dạng lưới có tiêu đề thẻ dài"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Thẻ tìm kiếm"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Đang tải thẻ"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Bản demo mẫu thẻ đang tải"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Bản demo mẫu thẻ không có thẻ"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Không thể hiển thị hình ảnh cho một máy chủ không xác định"</string>

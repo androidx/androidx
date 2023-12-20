@@ -119,7 +119,7 @@ import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
-import org.mockito.MockitoAnnotations
+import org.mockito.junit.MockitoJUnit
 
 private const val CONNECT_TIMEOUT_MILLIS = 500L
 private const val DESTROY_TIMEOUT_MILLIS = 500L
@@ -133,9 +133,13 @@ abstract class WatchFaceControlClientTestBase {
             context,
             Intent(context, WatchFaceControlTestService::class.java).apply {
                 action = WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE
-            }
+            },
+            resourceOnlyWatchFacePackageName = null
         )
     }
+
+    @get:Rule
+    val mocks = MockitoJUnit.rule()
 
     @Mock protected lateinit var surfaceHolder: SurfaceHolder
 
@@ -163,7 +167,6 @@ abstract class WatchFaceControlClientTestBase {
 
     @Before
     fun setUp() {
-        MockitoAnnotations.initMocks(this)
         WatchFaceControlTestService.apiVersionOverride = null
         Mockito.`when`(surfaceHolder.surfaceFrame).thenReturn(Rect(0, 0, 400, 400))
         Mockito.`when`(surfaceHolder.surface).thenReturn(surface)
@@ -503,6 +506,51 @@ class WatchFaceControlClientTest : WatchFaceControlClientTestBase() {
     }
 
     @Test
+    @Suppress("deprecation") // getOrCreateInteractiveWatchFaceClient
+    fun resourceOnlyWatchFacePackageName() {
+        val watchFaceService = TestWatchFaceRuntimeService(context, surfaceHolder)
+        val service = runBlocking {
+            WatchFaceControlClient.createWatchFaceControlClientImpl(
+                context,
+                Intent(context, WatchFaceControlTestService::class.java).apply {
+                    action = WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE
+                },
+                resourceOnlyWatchFacePackageName = "com.example.watchface"
+            )
+        }
+
+        val deferredInteractiveInstance = handlerCoroutineScope.async {
+            service.getOrCreateInteractiveWatchFaceClient(
+                "testId",
+                deviceConfig,
+                systemState,
+                userStyle = null,
+                complications
+            )
+        }
+
+        // Create the engine which triggers construction of the interactive instance.
+        handler.post {
+            engine = watchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
+        }
+
+        // Wait for the instance to be created.
+        val interactiveInstance = awaitWithTimeout(deferredInteractiveInstance)
+
+        // Make sure watch face init has completed.
+        assertTrue(
+            watchFaceService.lastResourceOnlyWatchFacePackageNameLatch
+                .await(UPDATE_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
+        )
+
+        assertThat(watchFaceService.lastResourceOnlyWatchFacePackageName)
+            .isEqualTo("com.example.watchface")
+
+        interactiveInstance.close()
+    }
+
+    @Test
+    @Suppress("Deprecation")
     fun getInteractiveWatchFaceInstance() {
         val testId = "testId"
         // Create and wait for an interactive instance without capturing a reference to it
@@ -906,6 +954,33 @@ class WatchFaceControlClientTest : WatchFaceControlClientTestBase() {
     }
 
     @Test
+    fun addWatchFaceReadyListener_alreadyReady_newInstance() {
+        val wallpaperService = TestExampleCanvasAnalogWatchFaceService(context, surfaceHolder)
+        val interactiveInstance = getOrCreateTestSubject(wallpaperService, instanceId = "abc")
+        var sysUiInterface: InteractiveWatchFaceClient? = null
+
+        try {
+            // Perform an action that will block until watch face init has completed.
+            assertThat(interactiveInstance.complicationSlotsState).isNotEmpty()
+
+            // Get the instance created above
+            sysUiInterface = service.getInteractiveWatchFaceClientInstance("abc")!!
+
+            val wfReady = CompletableDeferred<Unit>()
+            sysUiInterface.addOnWatchFaceReadyListener(
+                { runnable -> runnable.run() },
+                { wfReady.complete(Unit) }
+            )
+
+            // This should happen quickly, but it can sometimes be slow.
+            awaitWithTimeout(wfReady, 1000)
+        } finally {
+            interactiveInstance.close()
+            sysUiInterface?.close()
+        }
+    }
+
+    @Test
     fun isConnectionAlive_false_after_close() {
         val interactiveInstance = getOrCreateTestSubject()
 
@@ -927,6 +1002,7 @@ class WatchFaceControlClientTest : WatchFaceControlClientTestBase() {
     }
 
     @Test
+    @Suppress("Deprecation")
     public fun isComplicationDisplayPolicySupported() {
         val wallpaperService =
             TestWatchfaceOverlayStyleWatchFaceService(
@@ -959,6 +1035,7 @@ class WatchFaceControlClientTest : WatchFaceControlClientTestBase() {
     }
 
     @Test
+    @Suppress("Deprecation")
     fun watchfaceOverlayStyle() {
         val wallpaperService =
             TestWatchfaceOverlayStyleWatchFaceService(
@@ -978,6 +1055,7 @@ class WatchFaceControlClientTest : WatchFaceControlClientTestBase() {
     }
 
     @Test
+    @Suppress("Deprecation")
     fun watchfaceOverlayStyle_after_close() {
         val wallpaperService =
             TestWatchfaceOverlayStyleWatchFaceService(

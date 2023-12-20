@@ -24,6 +24,7 @@ import static org.mockito.Mockito.mock;
 
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
+import android.hardware.camera2.params.SessionConfiguration;
 import android.util.Range;
 import android.view.Surface;
 
@@ -31,8 +32,8 @@ import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Preview;
 import androidx.camera.core.impl.Config.Option;
-import androidx.camera.testing.DeferrableSurfacesUtil;
-import androidx.camera.testing.fakes.FakeMultiValueSet;
+import androidx.camera.testing.impl.DeferrableSurfacesUtil;
+import androidx.camera.testing.impl.fakes.FakeMultiValueSet;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
@@ -199,6 +200,21 @@ public class SessionConfigTest {
 
         assertThat(config.containsOption(OPTION)).isTrue();
         assertThat(config.retrieveOption(OPTION)).isEqualTo(1);
+    }
+
+    @Test
+    public void builderDefaultSessionTypeIsRegular() {
+        SessionConfig.Builder builder = new SessionConfig.Builder();
+        SessionConfig sessionConfig = builder.build();
+        assertThat(sessionConfig.getSessionType() == SessionConfiguration.SESSION_REGULAR);
+    }
+
+    @Test
+    public void builderSetSessionType() {
+        SessionConfig.Builder builder = new SessionConfig.Builder()
+                .setSessionType(2);
+        SessionConfig sessionConfig = builder.build();
+        assertThat(sessionConfig.getSessionType() == 2);
     }
 
     @Test
@@ -371,6 +387,65 @@ public class SessionConfigTest {
         validatingBuilder.addImplementationOption(Camera2ImplConfig.STREAM_USE_CASE_OPTION, 1L);
         assertThat(validatingBuilder.build().getImplementationOptions().retrieveOption(
                 Camera2ImplConfig.STREAM_USE_CASE_OPTION) == 1L);
+    }
+
+    @Test
+    public void addDifferentNonDefaultSessionType() {
+        // 1. Arrange.
+        SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
+        SessionConfig sessionConfig1 = new SessionConfig.Builder()
+                .setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
+                .setSessionType(1).build();
+        SessionConfig sessionConfig2 = new SessionConfig.Builder()
+                .setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
+                .setSessionType(2).build();
+
+        // 2. Act.
+        validatingBuilder.add(sessionConfig1);
+        validatingBuilder.add(sessionConfig2);
+
+        // 3. Assert.
+        assertThat(validatingBuilder.isValid()).isFalse();
+    }
+
+    @Test
+    public void addDefaultAndThenNonDefaultSessionType() {
+        // 1. Arrange.
+        final int sessionTypeToVerify = 2;
+        SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
+        SessionConfig sessionConfig1 = new SessionConfig.Builder()
+                .setTemplateType(CameraDevice.TEMPLATE_PREVIEW).build();
+        SessionConfig sessionConfig2 = new SessionConfig.Builder()
+                .setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
+                .setSessionType(sessionTypeToVerify).build();
+
+        // 2. Act.
+        validatingBuilder.add(sessionConfig1);
+        validatingBuilder.add(sessionConfig2);
+
+        // 3. Assert.
+        assertThat(validatingBuilder.build().getSessionType()).isEqualTo(sessionTypeToVerify);
+        assertThat(validatingBuilder.isValid()).isTrue();
+    }
+
+    @Test
+    public void addNonDefaultAndThenDefaultSessionType() {
+        // 1. Arrange.
+        final int sessionTypeToVerify = 2;
+        SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
+        SessionConfig sessionConfig1 = new SessionConfig.Builder()
+                .setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
+                .setSessionType(sessionTypeToVerify).build();
+        SessionConfig sessionConfig2 = new SessionConfig.Builder()
+                .setTemplateType(CameraDevice.TEMPLATE_PREVIEW).build();
+
+        // 2. Act.
+        validatingBuilder.add(sessionConfig1);
+        validatingBuilder.add(sessionConfig2);
+
+        // 3. Assert.
+        assertThat(validatingBuilder.build().getSessionType()).isEqualTo(sessionTypeToVerify);
+        assertThat(validatingBuilder.isValid()).isTrue();
     }
 
     @Test

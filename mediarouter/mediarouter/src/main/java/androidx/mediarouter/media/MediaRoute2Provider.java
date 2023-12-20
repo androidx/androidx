@@ -44,6 +44,7 @@ import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -72,7 +73,7 @@ class MediaRoute2Provider extends MediaRouteProvider {
     final Callback mCallback;
     final Map<MediaRouter2.RoutingController, GroupRouteController> mControllerMap =
             new ArrayMap<>();
-    private final MediaRouter2.RouteCallback mRouteCallback = new RouteCallback();
+    private final MediaRouter2.RouteCallback mRouteCallback;
     private final MediaRouter2.TransferCallback mTransferCallback = new TransferCallback();
     private final MediaRouter2.ControllerCallback mControllerCallback = new ControllerCallback();
     private final Handler mHandler;
@@ -80,7 +81,7 @@ class MediaRoute2Provider extends MediaRouteProvider {
 
     private List<MediaRoute2Info> mRoutes = new ArrayList<>();
     private Map<String, String> mRouteIdToOriginalRouteIdMap = new ArrayMap<>();
-
+    @SuppressWarnings({"SyntheticAccessor"})
     MediaRoute2Provider(@NonNull Context context, @NonNull Callback callback) {
         super(context);
         mMediaRouter2 = MediaRouter2.getInstance(context);
@@ -88,6 +89,12 @@ class MediaRoute2Provider extends MediaRouteProvider {
 
         mHandler = new Handler(Looper.getMainLooper());
         mHandlerExecutor = mHandler::post;
+
+        if (Build.VERSION.SDK_INT >= 34) {
+            mRouteCallback = new RouteCallbackUpsideDownCake();
+        } else {
+            mRouteCallback = new RouteCallback();
+        }
     }
 
     @Override
@@ -353,6 +360,16 @@ class MediaRoute2Provider extends MediaRouteProvider {
         return new MediaRouteDiscoveryRequest(selector, request.isActiveScan());
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    /* package */ void setRouteListingPreference(
+            @Nullable RouteListingPreference routeListingPreference) {
+        Api34Impl.setPlatformRouteListingPreference(
+                mMediaRouter2,
+                routeListingPreference != null
+                        ? routeListingPreference.toPlatformRouteListingPreference()
+                        : null);
+    }
+
     abstract static class Callback {
         public abstract void onSelectRoute(@NonNull String routeDescriptorId,
                 @MediaRouter.UnselectReason int reason);
@@ -376,6 +393,14 @@ class MediaRoute2Provider extends MediaRouteProvider {
 
         @Override
         public void onRoutesChanged(@NonNull List<MediaRoute2Info> routes) {
+            refreshRoutes();
+        }
+    }
+
+    private class RouteCallbackUpsideDownCake extends MediaRouter2.RouteCallback {
+
+        @Override
+        public void onRoutesUpdated(@NonNull List<MediaRoute2Info> routes) {
             refreshRoutes();
         }
     }
@@ -693,6 +718,20 @@ class MediaRoute2Provider extends MediaRouteProvider {
                         break;
                 }
             }
+        }
+    }
+
+    @RequiresApi(34)
+    private static class Api34Impl {
+        private Api34Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void setPlatformRouteListingPreference(
+                @NonNull MediaRouter2 mediaRouter2,
+                @Nullable android.media.RouteListingPreference routeListingPreference) {
+            mediaRouter2.setRouteListingPreference(routeListingPreference);
         }
     }
 }

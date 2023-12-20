@@ -26,7 +26,8 @@ dependencies {
     api(libs.kotlinStdlib)
     api("androidx.annotation:annotation:1.6.0")
 
-    implementation("androidx.core:core:1.8.0")
+    implementation("androidx.core:core:1.12.0-alpha05")
+    implementation("androidx.activity:activity:1.8.0-alpha06")
 
     // TODO(b/249982004): cleanup dependencies
     androidTestImplementation(libs.testCore)
@@ -47,11 +48,13 @@ android {
     }
 
     namespace "androidx.privacysandbox.sdkruntime.core"
+    compileSdkVersion = "android-34-ext8"
 }
 
 androidx {
-    name = "androidx.privacysandbox.sdkruntime:sdkruntime-core"
+    name = "SdkRuntime Core"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
-    description = "Provides components for SdkRuntime aware SDKs"
+    description = "Provides shared components for SdkRuntime libraries"
+    metalavaK2UastEnabled = true
 }

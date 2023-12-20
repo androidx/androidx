@@ -49,7 +49,7 @@ dependencies {
     kspAndroidTest(
             project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
     )
-    androidTestImplementation(libs.truth)
+    androidTestImplementation(project(":kruth:kruth"))
     androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
     androidTestImplementation(project(":internal-testutils-common"))
     androidTestImplementation(projectOrArtifact(":paging:paging-testing"))
@@ -61,4 +61,5 @@ androidx {
     inceptionYear = "2021"
     description = "Room Paging integration"
     publish = Publish.SNAPSHOT_AND_RELEASE
+    metalavaK2UastEnabled = true
 }

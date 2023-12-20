@@ -18,19 +18,10 @@ package androidx.build.dackka
 
 import com.google.gson.annotations.SerializedName
 
-/**
- * Helper data class to store the metadata information for each library/path.
- */
+/** Helper data class to store the metadata information for each library/path. */
 data class MetadataEntry(
-    @SerializedName("groupId")
-    val groupId: String,
-
-    @SerializedName("artifactId")
-    val artifactId: String,
-
-    @SerializedName("releaseNotesUrl")
-    val releaseNotesUrl: String,
-
-    @SerializedName("jarContents")
-    val jarContents: List<String>,
+    @SerializedName("groupId") val groupId: String,
+    @SerializedName("artifactId") val artifactId: String,
+    @SerializedName("releaseNotesUrl") val releaseNotesUrl: String,
+    @SerializedName("jarContents") val jarContents: List<String>,
 )

@@ -32,9 +32,11 @@ import androidx.compose.testutils.benchmark.benchmarkFirstCompose
 import androidx.compose.testutils.benchmark.benchmarkFirstDraw
 import androidx.compose.testutils.benchmark.benchmarkFirstLayout
 import androidx.compose.testutils.benchmark.benchmarkFirstMeasure
+import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
 import androidx.compose.ui.Modifier
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,24 +50,33 @@ class ChipBenchmark {
 
     private val chipTestCaseFactory = { ChipTestCase() }
 
+    @Ignore
     @Test
     fun first_compose() {
         benchmarkRule.benchmarkFirstCompose(chipTestCaseFactory)
     }
 
+    @Ignore
     @Test
     fun chip_measure() {
         benchmarkRule.benchmarkFirstMeasure(chipTestCaseFactory)
     }
 
+    @Ignore
     @Test
     fun chip_layout() {
         benchmarkRule.benchmarkFirstLayout(chipTestCaseFactory)
     }
 
+    @Ignore
     @Test
     fun chip_draw() {
         benchmarkRule.benchmarkFirstDraw(chipTestCaseFactory)
+    }
+
+    @Test
+    fun firstPixel() {
+        benchmarkRule.benchmarkToFirstPixel(chipTestCaseFactory)
     }
 }
 

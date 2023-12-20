@@ -16,6 +16,8 @@
 
 package androidx.build.testConfiguration
 
+import java.io.StringReader
+import javax.xml.parsers.SAXParserFactory
 import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert
 import org.junit.Before
@@ -24,8 +26,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.xml.sax.InputSource
 import org.xml.sax.helpers.DefaultHandler
-import java.io.StringReader
-import javax.xml.parsers.SAXParserFactory
 
 /**
  * Simple check that the test config templates are able to be parsed as valid xml.
@@ -39,7 +39,7 @@ class AndroidTestConfigBuilderTest {
     fun init() {
         builder = ConfigBuilder()
         builder.configName("placeHolderAndroidTest.xml")
-            .isBenchmark(false)
+            .isMicrobenchmark(false)
             .applicationId("com.androidx.placeholder.Placeholder")
             .isPostsubmit(true)
             .minSdk("15")
@@ -54,6 +54,24 @@ class AndroidTestConfigBuilderTest {
         MatcherAssert.assertThat(
             builder.buildXml(),
             CoreMatchers.`is`(goldenDefaultConfig)
+        )
+    }
+
+    @Test
+    fun testXmlAgainstGoldenMicrobenchmark() {
+        builder.isMicrobenchmark(true)
+        MatcherAssert.assertThat(
+            builder.buildXml(),
+            CoreMatchers.`is`(goldenDefaultConfigBenchmark)
+        )
+    }
+
+    @Test
+    fun testXmlAgainstGoldenMacroBenchmark() {
+        builder.isMacrobenchmark(true)
+        MatcherAssert.assertThat(
+            builder.buildXml(),
+            CoreMatchers.`is`(goldenDefaultConfigMacroBenchmark)
         )
     }
 
@@ -114,7 +132,7 @@ class AndroidTestConfigBuilderTest {
 
     @Test
     fun testJsonAgainstGoldenPresubmitBenchmark() {
-        builder.isBenchmark(true)
+        builder.isMicrobenchmark(true)
             .isPostsubmit(false)
         MatcherAssert.assertThat(
             builder.buildJson(),
@@ -232,7 +250,7 @@ class AndroidTestConfigBuilderTest {
 
     @Test
     fun testValidTestConfigXml_benchmarkTrue() {
-        builder.isBenchmark(true)
+        builder.isMicrobenchmark(true)
         validate(builder.buildXml())
     }
 
@@ -251,7 +269,6 @@ class AndroidTestConfigBuilderTest {
 
     @Test
     fun testValidTestConfigXml_runAllTests() {
-        builder.runAllTests(false)
         validate(builder.buildXml())
     }
 
@@ -271,7 +288,7 @@ class AndroidTestConfigBuilderTest {
     @Test
     fun testValidTestConfigXml_presubmitBenchmark() {
         builder.isPostsubmit(false)
-            .isBenchmark(true)
+            .isMicrobenchmark(true)
         validate(builder.buildXml())
     }
 
@@ -308,6 +325,80 @@ private val goldenDefaultConfig = """
     <option name="config-descriptor:metadata" key="applicationId" value="com.androidx.placeholder.Placeholder" />
     <option name="wifi:disable" value="true" />
     <option name="instrumentation-arg" key="notAnnotation" value="androidx.test.filters.FlakyTest" />
+    <include name="google/unbundled/common/setup" />
+    <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+    <option name="cleanup-apks" value="true" />
+    <option name="install-arg" value="-t" />
+    <option name="test-file-name" value="placeholder.apk" />
+    </target_preparer>
+    <test class="com.android.tradefed.testtype.AndroidJUnitTest">
+    <option name="runner" value="com.example.Runner"/>
+    <option name="package" value="com.androidx.placeholder.Placeholder" />
+    </test>
+    </configuration>
+""".trimIndent()
+
+private val goldenDefaultConfigBenchmark = """
+    <?xml version="1.0" encoding="utf-8"?>
+    <!-- Copyright (C) 2020 The Android Open Source Project
+    Licensed under the Apache License, Version 2.0 (the "License")
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions
+    and limitations under the License.-->
+    <configuration description="Runs tests for the module">
+    <object type="module_controller" class="com.android.tradefed.testtype.suite.module.MinApiLevelModuleController">
+    <option name="min-api-level" value="15" />
+    </object>
+    <option name="test-suite-tag" value="placeholder_tag" />
+    <option name="config-descriptor:metadata" key="applicationId" value="com.androidx.placeholder.Placeholder" />
+    <option name="wifi:disable" value="true" />
+    <option name="instrumentation-arg" key="notAnnotation" value="androidx.test.filters.FlakyTest" />
+    <option name="instrumentation-arg" key="listener" value="androidx.benchmark.junit4.InstrumentationResultsRunListener" />
+    <option name="instrumentation-arg" key="listener" value="androidx.benchmark.junit4.SideEffectRunListener" />
+    <include name="google/unbundled/common/setup" />
+    <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+    <option name="cleanup-apks" value="true" />
+    <option name="install-arg" value="-t" />
+    <option name="test-file-name" value="placeholder.apk" />
+    </target_preparer>
+    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
+    <option name="run-command" value="cmd package compile -f -m speed com.androidx.placeholder.Placeholder" />
+    <option name="run-command-timeout" value="240000" />
+    </target_preparer>
+    <test class="com.android.tradefed.testtype.AndroidJUnitTest">
+    <option name="runner" value="com.example.Runner"/>
+    <option name="package" value="com.androidx.placeholder.Placeholder" />
+    </test>
+    </configuration>
+""".trimIndent()
+
+private val goldenDefaultConfigMacroBenchmark = """
+    <?xml version="1.0" encoding="utf-8"?>
+    <!-- Copyright (C) 2020 The Android Open Source Project
+    Licensed under the Apache License, Version 2.0 (the "License")
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions
+    and limitations under the License.-->
+    <configuration description="Runs tests for the module">
+    <object type="module_controller" class="com.android.tradefed.testtype.suite.module.MinApiLevelModuleController">
+    <option name="min-api-level" value="15" />
+    </object>
+    <option name="test-suite-tag" value="placeholder_tag" />
+    <option name="config-descriptor:metadata" key="applicationId" value="com.androidx.placeholder.Placeholder" />
+    <option name="wifi:disable" value="true" />
+    <option name="instrumentation-arg" key="notAnnotation" value="androidx.test.filters.FlakyTest" />
+    <option name="instrumentation-arg" key="listener" value="androidx.benchmark.junit4.InstrumentationResultsRunListener" />
+    <option name="instrumentation-arg" key="listener" value="androidx.benchmark.macro.junit4.SideEffectRunListener" />
     <include name="google/unbundled/common/setup" />
     <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
     <option name="cleanup-apks" value="true" />

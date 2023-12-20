@@ -73,41 +73,4 @@ class UiResponseTest {
                 .build()
         }
     }
-
-    @Test
-    @Suppress("deprecation") // For backwards compatibility.
-    fun uiResponse_tileLayoutBuilder_success() {
-        val layout =
-            androidx.wear.tiles.LayoutElementBuilders.Layout.Builder()
-                .setRoot(
-                    androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
-                        .addContent(
-                            androidx.wear.tiles.LayoutElementBuilders.Column.Builder()
-                                .addContent(
-                                    androidx.wear.tiles.LayoutElementBuilders.Text.Builder()
-                                        .setText("LA8JE92")
-                                        .build()
-                                )
-                                .build()
-                        )
-                        .build()
-                )
-                .build()
-        val resources = androidx.wear.tiles.ResourceBuilders.Resources.Builder()
-            .setVersion("1234")
-            .build()
-        val uiResponse: UiResponse =
-            UiResponse.TileLayoutBuilder().setTileLayout(layout, resources).build()
-
-        assertThat(uiResponse.remoteViewsInternal).isNull()
-        assertThat(uiResponse.tileLayoutInternal?.layout).isNotNull()
-        assertThat(uiResponse.tileLayoutInternal?.resources).isNotNull()
-        assertThat(uiResponse.tileLayoutInternal?.toProto()?.layout).isNotEmpty()
-        assertThat(uiResponse.tileLayoutInternal?.toProto()?.resources).isNotEmpty()
-    }
-
-    @Test
-    fun uiResponse_tileLayoutBuilder_failure() {
-        assertThrows(NullPointerException::class.java) { UiResponse.TileLayoutBuilder().build() }
-    }
 }

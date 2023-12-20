@@ -374,7 +374,7 @@ public class PatternsCompatTest {
     @Test
     public void testAutoLinkWebUrl_doesNotMatchUrlsWithoutProtocolAndWithUnknownTld()
             throws Exception {
-        String url = "thank.you";
+        String url = "thank.unknowntld";
         assertFalse("Should not match URL that does not start with a protocol and " +
                         "does not contain a known TLD",
                 PatternsCompat.AUTOLINK_WEB_URL.matcher(url).matches());
@@ -397,7 +397,7 @@ public class PatternsCompatTest {
     @Test
     public void testAutoLinkWebUrl_doesNotMatchUrlsWithEmojiWithoutProtocolAndWithoutKnownTld()
             throws Exception {
-        String url = "Thank\u263A.you";
+        String url = "Thank\u263A.unknowntld";
         assertFalse("Should not match URLs containing emoji and with unknown TLD",
                 PatternsCompat.AUTOLINK_WEB_URL.matcher(url).matches());
     }

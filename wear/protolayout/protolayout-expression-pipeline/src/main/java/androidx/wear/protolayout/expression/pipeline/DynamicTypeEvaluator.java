@@ -20,13 +20,12 @@ import static java.util.Collections.emptyMap;
 
 import android.annotation.SuppressLint;
 import android.icu.util.ULocale;
-import android.os.Handler;
-import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.annotation.VisibleForTesting;
 import androidx.collection.ArrayMap;
 import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.PlatformDataKey;
@@ -56,6 +55,7 @@ import androidx.wear.protolayout.expression.pipeline.Int32Nodes.DynamicAnimatedI
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.FixedInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.FloatToInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.GetDurationPartOpNode;
+import androidx.wear.protolayout.expression.pipeline.Int32Nodes.GetZonedDateTimePartOpNode;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.LegacyPlatformInt32SourceNode;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.StateInt32SourceNode;
 import androidx.wear.protolayout.expression.pipeline.StringNodes.FixedStringNode;
@@ -63,7 +63,8 @@ import androidx.wear.protolayout.expression.pipeline.StringNodes.FloatFormatNode
 import androidx.wear.protolayout.expression.pipeline.StringNodes.Int32FormatNode;
 import androidx.wear.protolayout.expression.pipeline.StringNodes.StateStringNode;
 import androidx.wear.protolayout.expression.pipeline.StringNodes.StringConcatOpNode;
-import androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway;
+import androidx.wear.protolayout.expression.pipeline.ZonedDateTimeNodes.InstantToZonedDateTimeOpNode;
+import androidx.wear.protolayout.expression.proto.DynamicProto;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableDynamicColor;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableDynamicFloat;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableDynamicInt32;
@@ -80,14 +81,17 @@ import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicFloat;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicInstant;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicInt32;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicString;
+import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicZonedDateTime;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.function.Supplier;
 
 /**
  * Evaluates protolayout dynamic types.
@@ -108,7 +112,7 @@ import java.util.concurrent.Executor;
 public class DynamicTypeEvaluator {
     private static final String TAG = "DynamicTypeEvaluator";
     private static final QuotaManager NO_OP_QUOTA_MANAGER =
-            new FixedQuotaManagerImpl(Integer.MAX_VALUE);
+            new FixedQuotaManagerImpl(Integer.MAX_VALUE, "dynamic nodes noop");
 
     @NonNull
     private static final QuotaManager DISABLED_ANIMATIONS_QUOTA_MANAGER =
@@ -135,6 +139,7 @@ public class DynamicTypeEvaluator {
     @NonNull private static final StateStore EMPTY_STATE_STORE = new StateStore(emptyMap());
 
     @NonNull private final StateStore mStateStore;
+    @NonNull private final PlatformDataStore mPlatformDataStore;
     @NonNull private final QuotaManager mAnimationQuotaManager;
     @NonNull private final QuotaManager mDynamicTypesQuotaManager;
     @NonNull private final EpochTimePlatformDataSource mTimeDataSource;
@@ -143,33 +148,42 @@ public class DynamicTypeEvaluator {
     public static final class Config {
         @Nullable private final StateStore mStateStore;
         @Nullable private final QuotaManager mAnimationQuotaManager;
-        @Nullable private final TimeGateway mTimeGateway;
         @Nullable private final QuotaManager mDynamicTypesQuotaManager;
-        @NonNull private final Map<PlatformDataKey<?>, PlatformDataProvider>
-                mSourceKeyToDataProviders = new ArrayMap<>();
+
+        @NonNull
+        private final Map<PlatformDataKey<?>, PlatformDataProvider> mSourceKeyToDataProviders =
+                new ArrayMap<>();
+
+        @Nullable private final PlatformTimeUpdateNotifier mPlatformTimeUpdateNotifier;
+        @Nullable private final Supplier<Instant> mClock;
 
         Config(
                 @Nullable StateStore stateStore,
                 @Nullable QuotaManager animationQuotaManager,
                 @Nullable QuotaManager dynamicTypesQuotaManager,
-                @Nullable TimeGateway timeGateway,
-                @NonNull Map<PlatformDataKey<?>, PlatformDataProvider>
-                        sourceKeyToDataProviders) {
+                @NonNull Map<PlatformDataKey<?>, PlatformDataProvider> sourceKeyToDataProviders,
+                @Nullable PlatformTimeUpdateNotifier platformTimeUpdateNotifier,
+                @Nullable Supplier<Instant> clock) {
             this.mStateStore = stateStore;
             this.mAnimationQuotaManager = animationQuotaManager;
-            this.mTimeGateway = timeGateway;
             this.mDynamicTypesQuotaManager = dynamicTypesQuotaManager;
             this.mSourceKeyToDataProviders.putAll(sourceKeyToDataProviders);
+            this.mPlatformTimeUpdateNotifier = platformTimeUpdateNotifier;
+            this.mClock = clock;
         }
 
         /** Builds a {@link DynamicTypeEvaluator.Config}. */
         public static final class Builder {
             @Nullable private StateStore mStateStore = null;
             @Nullable private QuotaManager mAnimationQuotaManager = null;
-            @Nullable private QuotaManager mDynamicTypesQuotaManager;
-            @Nullable private TimeGateway mTimeGateway = null;
-            @NonNull private final Map<PlatformDataKey<?>, PlatformDataProvider>
-                    mSourceKeyToDataProviders = new ArrayMap<>();
+            @Nullable private QuotaManager mDynamicTypesQuotaManager = null;
+
+            @NonNull
+            private final Map<PlatformDataKey<?>, PlatformDataProvider> mSourceKeyToDataProviders =
+                    new ArrayMap<>();
+
+            @Nullable private PlatformTimeUpdateNotifier mPlatformTimeUpdateNotifier = null;
+            @Nullable private Supplier<Instant> mClock = null;
 
             /**
              * Sets the state store that will be used for dereferencing the state keys in the
@@ -181,18 +195,6 @@ public class DynamicTypeEvaluator {
             @NonNull
             public Builder setStateStore(@NonNull StateStore value) {
                 mStateStore = value;
-                return this;
-            }
-
-            /**
-             * Sets the quota manager used for limiting the total size of dynamic types in the
-             * pipeline.
-             *
-             * <p>If not set, number of dynamic types will not be restricted.
-             */
-            @NonNull
-            public Builder setDynamicTypesQuotaManager(@NonNull QuotaManager value) {
-                mDynamicTypesQuotaManager = value;
                 return this;
             }
 
@@ -210,33 +212,32 @@ public class DynamicTypeEvaluator {
             }
 
             /**
-             * Sets the gateway used for time data.
+             * Sets the quota manager used for limiting the total size of dynamic types in the
+             * pipeline.
              *
-             * <p>If not set, a default 1hz {@link TimeGateway} implementation that utilizes a
-             * main-thread {@code Handler} to trigger is used.
+             * <p>If not set, number of dynamic types will not be restricted.
              */
             @NonNull
-            public Builder setTimeGateway(@NonNull TimeGateway value) {
-                mTimeGateway = value;
+            public Builder setDynamicTypesQuotaManager(@NonNull QuotaManager value) {
+                mDynamicTypesQuotaManager = value;
                 return this;
             }
 
             /**
              * Add a platform data provider and specify the keys it can provide dynamic data for.
              *
-             * <p> The provider must support at least one key. If the provider supports multiple
+             * <p>The provider must support at least one key. If the provider supports multiple
              * keys, they should not be independent, as their values should always update together.
              * One data key must not have multiple providers, or an exception will be thrown.
              *
-             * @throws IllegalArgumentException If a PlatformDataProvider supports an empty key
-             * set or if a key has multiple data providers.
+             * @throws IllegalArgumentException If a PlatformDataProvider supports an empty key set
+             *     or if a key has multiple data providers.
              */
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder addPlatformDataProvider(
                     @NonNull PlatformDataProvider platformDataProvider,
-                    @NonNull Set<PlatformDataKey<?>> supportedDataKeys
-            ) {
+                    @NonNull Set<PlatformDataKey<?>> supportedDataKeys) {
                 if (supportedDataKeys.isEmpty()) {
                     throw new IllegalArgumentException(
                             "The PlatformDataProvider must support at least one key");
@@ -244,12 +245,37 @@ public class DynamicTypeEvaluator {
                 for (PlatformDataKey<?> dataKey : supportedDataKeys) {
                     // Throws exception when one data key has multiple providers.
                     if (mSourceKeyToDataProviders.containsKey(dataKey)) {
-                        throw new IllegalArgumentException(String.format(
-                                "Multiple data providers for PlatformDataKey (%s)", dataKey));
+                        throw new IllegalArgumentException(
+                                String.format(
+                                        "Multiple data providers for PlatformDataKey (%s)",
+                                        dataKey));
                     }
                     mSourceKeyToDataProviders.put(dataKey, platformDataProvider);
                 }
 
+                return this;
+            }
+
+            /**
+             * Sets the notifier used for updating the platform time data. If not set, by default
+             * platform time will be updated at 1Hz using a {@code Handler} on the main thread.
+             */
+            @NonNull
+            public Builder setPlatformTimeUpdateNotifier(
+                    @NonNull PlatformTimeUpdateNotifier notifier) {
+                this.mPlatformTimeUpdateNotifier = notifier;
+                return this;
+            }
+
+            /**
+             * Sets the clock ({@link Instant} supplier) used for providing time data to bindings.
+             * If not set, on every reevaluation, platform time for dynamic values will be set to
+             * {@link Instant#now()}.
+             */
+            @VisibleForTesting
+            @NonNull
+            public Builder setClock(@NonNull Supplier<Instant> clock) {
+                this.mClock = clock;
                 return this;
             }
 
@@ -259,8 +285,9 @@ public class DynamicTypeEvaluator {
                         mStateStore,
                         mAnimationQuotaManager,
                         mDynamicTypesQuotaManager,
-                        mTimeGateway,
-                        mSourceKeyToDataProviders);
+                        mSourceKeyToDataProviders,
+                        mPlatformTimeUpdateNotifier,
+                        mClock);
             }
         }
 
@@ -275,16 +302,6 @@ public class DynamicTypeEvaluator {
         }
 
         /**
-         * Gets the quota manager used for limiting the total number of dynamic types in the
-         * pipeline, or {@code null} if there are no restriction on the number of dynamic types. If
-         * present, the quota manager is used to prevent unreasonably expensive expressions.
-         */
-        @Nullable
-        public QuotaManager getDynamicTypesQuotaManager() {
-            return mDynamicTypesQuotaManager;
-        }
-
-        /**
          * Gets the quota manager used for limiting the number of concurrently running animations,
          * or {@code null} if animations are disabled, causing non-infinite animations to have to
          * the end value immediately.
@@ -295,21 +312,37 @@ public class DynamicTypeEvaluator {
         }
 
         /**
-         * Gets the gateway used for time data, or {@code null} if a default 1hz {@link TimeGateway}
-         * that utilizes a main-thread {@code Handler} to trigger is used.
+         * Gets the quota manager used for limiting the total number of dynamic types in the
+         * pipeline, or {@code null} if there are no restriction on the number of dynamic types. If
+         * present, the quota manager is used to prevent unreasonably expensive expressions.
          */
         @Nullable
-        public TimeGateway getTimeGateway() {
-            return mTimeGateway;
+        public QuotaManager getDynamicTypesQuotaManager() {
+            return mDynamicTypesQuotaManager;
         }
 
-        /**
-         * Returns any available mapping between source key and its data provider.
-         */
+        /** Returns any available mapping between source key and its data provider. */
         @NonNull
         public Map<PlatformDataKey<?>, PlatformDataProvider> getPlatformDataProviders() {
             return new ArrayMap<>(
                     (ArrayMap<PlatformDataKey<?>, PlatformDataProvider>) mSourceKeyToDataProviders);
+        }
+
+        /**
+         * Returns the clock ({@link Instant} supplier) used for providing time data to bindings, or
+         * {@code null} which means on every reevaluation, platform time for dynamic values will be
+         * set to {@link Instant#now()}.
+         */
+        @VisibleForTesting
+        @Nullable
+        public Supplier<Instant> getClock() {
+            return mClock;
+        }
+
+        /** Gets the notifier used for updating the platform time data. */
+        @Nullable
+        public PlatformTimeUpdateNotifier getPlatformTimeUpdateNotifier() {
+            return mPlatformTimeUpdateNotifier;
         }
     }
 
@@ -325,16 +358,14 @@ public class DynamicTypeEvaluator {
                 config.getDynamicTypesQuotaManager() != null
                         ? config.getDynamicTypesQuotaManager()
                         : NO_OP_QUOTA_MANAGER;
-        Handler uiHandler = new Handler(Looper.getMainLooper());
-        MainThreadExecutor uiExecutor = new MainThreadExecutor(uiHandler);
-        TimeGateway timeGateway = config.getTimeGateway();
-        if (timeGateway == null) {
-            timeGateway = new TimeGatewayImpl(uiHandler);
-            ((TimeGatewayImpl) timeGateway).enableUpdates();
+        this.mPlatformDataStore = new PlatformDataStore(config.getPlatformDataProviders());
+        PlatformTimeUpdateNotifier notifier = config.getPlatformTimeUpdateNotifier();
+        if (notifier == null) {
+            notifier = new PlatformTimeUpdateNotifierImpl();
+            ((PlatformTimeUpdateNotifierImpl) notifier).setUpdatesEnabled(true);
         }
-        this.mTimeDataSource = new EpochTimePlatformDataSource(uiExecutor, timeGateway);
-
-        this.mStateStore.putAllPlatformProviders(config.getPlatformDataProviders());
+        Supplier<Instant> clock = config.getClock() != null ? config.getClock() : Instant::now;
+        this.mTimeDataSource = new EpochTimePlatformDataSource(clock, notifier);
     }
 
     /**
@@ -490,6 +521,17 @@ public class DynamicTypeEvaluator {
     }
 
     @NonNull
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    BoundDynamicTypeImpl bindInternal(
+            @NonNull DynamicZonedDateTime zdtSource,
+            @NonNull DynamicTypeValueReceiver<ZonedDateTime> consumer) {
+        List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
+        bindRecursively(
+                zdtSource, new DynamicTypeValueReceiverOnExecutor<>(consumer), resultBuilder);
+        return new BoundDynamicTypeImpl(resultBuilder, mDynamicTypesQuotaManager);
+    }
+
+    @NonNull
     BoundDynamicTypeImpl bindInternal(
             @NonNull DynamicBuilders.DynamicBool boolSource,
             @NonNull Executor executor,
@@ -550,8 +592,15 @@ public class DynamicTypeEvaluator {
                 }
             case STATE_SOURCE:
                 {
-                   node = new StateStringNode(mStateStore, stringSource.getStateSource(), consumer);
-                   break;
+                    DynamicProto.StateStringSource stateSource = stringSource.getStateSource();
+                    node =
+                            new StateStringNode(
+                                    stateSource.getSourceNamespace().isEmpty()
+                                            ? mStateStore
+                                            : mPlatformDataStore,
+                                    stateSource,
+                                    consumer);
+                    break;
                 }
             case CONDITIONAL_OP:
                 {
@@ -615,13 +664,13 @@ public class DynamicTypeEvaluator {
             case FIXED:
                 node = new FixedInt32Node(int32Source.getFixed(), consumer);
                 break;
-            case PLATFORM_SOURCE: {
-                node = new LegacyPlatformInt32SourceNode(
-                        mStateStore,
-                        int32Source.getPlatformSource(),
-                        consumer);
-                break;
-            }
+            case PLATFORM_SOURCE:
+                {
+                    node =
+                            new LegacyPlatformInt32SourceNode(
+                                    mPlatformDataStore, int32Source.getPlatformSource(), consumer);
+                    break;
+                }
             case ARITHMETIC_OPERATION:
                 {
                     ArithmeticInt32Node arithmeticNode =
@@ -641,8 +690,14 @@ public class DynamicTypeEvaluator {
                 }
             case STATE_SOURCE:
                 {
-                    node = new StateInt32SourceNode(
-                            mStateStore, int32Source.getStateSource(), consumer);
+                    DynamicProto.StateInt32Source stateSource = int32Source.getStateSource();
+                    node =
+                            new StateInt32SourceNode(
+                                    stateSource.getSourceNamespace().isEmpty()
+                                            ? mStateStore
+                                            : mPlatformDataStore,
+                                    stateSource,
+                                    consumer);
                     break;
                 }
             case CONDITIONAL_OP:
@@ -687,6 +742,19 @@ public class DynamicTypeEvaluator {
                     bindRecursively(
                             int32Source.getDurationPart().getInput(),
                             durationPartOpNode.getIncomingCallback(),
+                            resultBuilder);
+                    break;
+                }
+            case ZONED_DATE_TIME_PART:
+                {
+                    GetZonedDateTimePartOpNode zdtPartOpNode =
+                            new GetZonedDateTimePartOpNode(
+                                    int32Source.getZonedDateTimePart(), consumer);
+                    node = zdtPartOpNode;
+
+                    bindRecursively(
+                            int32Source.getZonedDateTimePart().getInput(),
+                            zdtPartOpNode.getIncomingCallback(),
                             resultBuilder);
                     break;
                 }
@@ -782,6 +850,39 @@ public class DynamicTypeEvaluator {
      * DynamicDataNode} produced by evaluating given dynamic type are added to the given list.
      */
     private void bindRecursively(
+            @NonNull DynamicZonedDateTime zdtSource,
+            @NonNull DynamicTypeValueReceiverWithPreUpdate<ZonedDateTime> consumer,
+            @NonNull List<DynamicDataNode<?>> resultBuilder) {
+        DynamicDataNode<?> node;
+
+        switch (zdtSource.getInnerCase()) {
+            case INSTANT_TO_ZONED_DATE_TIME:
+                {
+                    InstantToZonedDateTimeOpNode conversionNode =
+                            new InstantToZonedDateTimeOpNode(
+                                    zdtSource.getInstantToZonedDateTime(), consumer);
+                    node = conversionNode;
+
+                    bindRecursively(
+                            zdtSource.getInstantToZonedDateTime().getInstant(),
+                            conversionNode.getIncomingCallback(),
+                            resultBuilder);
+                    break;
+                }
+            case INNER_NOT_SET:
+                throw new IllegalArgumentException("DynamicZonedDateTime has no inner source set");
+            default:
+                throw new IllegalArgumentException("Unknown DynamicZonedDateTime source type");
+        }
+
+        resultBuilder.add(node);
+    }
+
+    /**
+     * Same as {@link #bind}, but instead of returning one {@link BoundDynamicType}, all {@link
+     * DynamicDataNode} produced by evaluating given dynamic type are added to the given list.
+     */
+    private void bindRecursively(
             @NonNull DynamicInstant instantSource,
             @NonNull DynamicTypeValueReceiverWithPreUpdate<Instant> consumer,
             @NonNull List<DynamicDataNode<?>> resultBuilder) {
@@ -838,9 +939,17 @@ public class DynamicTypeEvaluator {
                 node = new FixedFloatNode(floatSource.getFixed(), consumer);
                 break;
             case STATE_SOURCE:
-                node = new StateFloatSourceNode(
-                        mStateStore, floatSource.getStateSource(), consumer);
-                break;
+                {
+                    DynamicProto.StateFloatSource stateSource = floatSource.getStateSource();
+                    node =
+                            new StateFloatSourceNode(
+                                    stateSource.getSourceNamespace().isEmpty()
+                                            ? mStateStore
+                                            : mPlatformDataStore,
+                                    stateSource,
+                                    consumer);
+                    break;
+                }
             case ARITHMETIC_OPERATION:
                 {
                     ArithmeticFloatNode arithmeticNode =
@@ -938,8 +1047,14 @@ public class DynamicTypeEvaluator {
                 node = new FixedColorNode(colorSource.getFixed(), consumer);
                 break;
             case STATE_SOURCE:
-                node = new StateColorSourceNode(
-                        mStateStore, colorSource.getStateSource(), consumer);
+                DynamicProto.StateColorSource stateSource = colorSource.getStateSource();
+                node =
+                        new StateColorSourceNode(
+                                stateSource.getSourceNamespace().isEmpty()
+                                        ? mStateStore
+                                        : mPlatformDataStore,
+                                stateSource,
+                                consumer);
                 break;
             case ANIMATABLE_FIXED:
                 // We don't have to check if enableAnimations is true, because if it's false and
@@ -1007,8 +1122,17 @@ public class DynamicTypeEvaluator {
                 node = new FixedBoolNode(boolSource.getFixed(), consumer);
                 break;
             case STATE_SOURCE:
-                node = new StateBoolNode(mStateStore, boolSource.getStateSource(), consumer);
-                break;
+                {
+                    DynamicProto.StateBoolSource stateSource = boolSource.getStateSource();
+                    node =
+                            new StateBoolNode(
+                                    stateSource.getSourceNamespace().isEmpty()
+                                            ? mStateStore
+                                            : mPlatformDataStore,
+                                    stateSource,
+                                    consumer);
+                    break;
+                }
             case INT32_COMPARISON:
                 {
                     ComparisonInt32Node compNode =

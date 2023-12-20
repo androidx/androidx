@@ -37,8 +37,10 @@ import androidx.compose.ui.graphics.vector.PathNode
 import androidx.compose.ui.graphics.vector.VectorConfig
 import androidx.compose.ui.graphics.vector.VectorProperty
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMaxBy
 import androidx.compose.ui.util.fastSumBy
+import androidx.compose.ui.util.fastZip
 import androidx.compose.ui.util.lerp
 
 internal const val RepeatCountInfinite = -1
@@ -50,7 +52,7 @@ internal sealed class Animator {
     fun createVectorConfig(
         transition: Transition<Boolean>,
         overallDuration: Int
-    ): VectorConfig {
+    ): StateVectorConfig {
         return remember { StateVectorConfig() }.also { config ->
             Configure(transition, config, overallDuration)
         }
@@ -146,7 +148,7 @@ internal sealed class PropertyValues<T> {
     ): @Composable Transition.Segment<Boolean>.() -> FiniteAnimationSpec<T> {
         return {
             @Suppress("UNCHECKED_CAST")
-            val spec = combined(timestamps.map { timestamp ->
+            val spec = combined(timestamps.fastMap { timestamp ->
                 timestamp.timeMillis to timestamp.asAnimationSpec()
             })
             if (targetState) spec else spec.reversed(overallDuration)
@@ -381,8 +383,8 @@ internal class PropertyValuesHolderFloat(
     fun asKeyframeSpec(duration: Int): KeyframesSpec<Float> {
         return keyframes {
             durationMillis = duration
-            for (keyframe in animatorKeyframes) {
-                keyframe.value at (duration * keyframe.fraction).toInt() with keyframe.interpolator
+            animatorKeyframes.fastForEach { keyframe ->
+                keyframe.value at (duration * keyframe.fraction).toInt() using keyframe.interpolator
             }
         }
     }
@@ -401,8 +403,8 @@ internal class PropertyValuesHolderColor(
     fun asKeyframeSpec(duration: Int): KeyframesSpec<Color> {
         return keyframes {
             durationMillis = duration
-            for (keyframe in animatorKeyframes) {
-                keyframe.value at (duration * keyframe.fraction).toInt() with keyframe.interpolator
+            animatorKeyframes.fastForEach { keyframe ->
+                keyframe.value at (duration * keyframe.fraction).toInt() using keyframe.interpolator
             }
         }
     }
@@ -485,11 +487,32 @@ internal class StateVectorConfig : VectorConfig {
             is VectorProperty.TrimPathOffset -> trimPathOffsetState?.value ?: defaultValue
         } as T
     }
+
+    fun merge(config: StateVectorConfig) {
+        if (config.rotationState != null) rotationState = config.rotationState
+        if (config.pivotXState != null) pivotXState = config.pivotXState
+        if (config.pivotYState != null) pivotYState = config.pivotYState
+        if (config.scaleXState != null) scaleXState = config.scaleXState
+        if (config.scaleYState != null) scaleYState = config.scaleYState
+        if (config.translateXState != null) translateXState = config.translateXState
+        if (config.translateYState != null) translateYState = config.translateYState
+        if (config.pathDataState != null) pathDataState = config.pathDataState
+        if (config.fillColorState != null) fillColorState = config.fillColorState
+        if (config.strokeColorState != null) strokeColorState = config.strokeColorState
+        if (config.strokeWidthState != null) strokeWidthState = config.strokeWidthState
+        if (config.strokeAlphaState != null) strokeAlphaState = config.strokeAlphaState
+        if (config.fillAlphaState != null) fillAlphaState = config.fillAlphaState
+        if (config.trimPathStartState != null) trimPathStartState = config.trimPathStartState
+        if (config.trimPathEndState != null) trimPathEndState = config.trimPathEndState
+        if (config.trimPathOffsetState != null) trimPathOffsetState = config.trimPathOffsetState
+    }
 }
 
 private fun lerp(start: List<PathNode>, stop: List<PathNode>, fraction: Float): List<PathNode> {
-    return start.zip(stop) { a, b -> lerp(a, b, fraction) }
+    return start.fastZip(stop) { a, b -> lerp(a, b, fraction) }
 }
+
+private const val DifferentStartAndStopPathNodes = "start and stop path nodes have different types"
 
 /**
  * Linearly interpolate between [start] and [stop] with [fraction] fraction between them.
@@ -497,59 +520,59 @@ private fun lerp(start: List<PathNode>, stop: List<PathNode>, fraction: Float): 
 private fun lerp(start: PathNode, stop: PathNode, fraction: Float): PathNode {
     return when (start) {
         is PathNode.RelativeMoveTo -> {
-            require(stop is PathNode.RelativeMoveTo)
+            require(stop is PathNode.RelativeMoveTo) { DifferentStartAndStopPathNodes }
             PathNode.RelativeMoveTo(
                 lerp(start.dx, stop.dx, fraction),
                 lerp(start.dy, stop.dy, fraction)
             )
         }
         is PathNode.MoveTo -> {
-            require(stop is PathNode.MoveTo)
+            require(stop is PathNode.MoveTo) { DifferentStartAndStopPathNodes }
             PathNode.MoveTo(
                 lerp(start.x, stop.x, fraction),
                 lerp(start.y, stop.y, fraction)
             )
         }
         is PathNode.RelativeLineTo -> {
-            require(stop is PathNode.RelativeLineTo)
+            require(stop is PathNode.RelativeLineTo) { DifferentStartAndStopPathNodes }
             PathNode.RelativeLineTo(
                 lerp(start.dx, stop.dx, fraction),
                 lerp(start.dy, stop.dy, fraction)
             )
         }
         is PathNode.LineTo -> {
-            require(stop is PathNode.LineTo)
+            require(stop is PathNode.LineTo) { DifferentStartAndStopPathNodes }
             PathNode.LineTo(
                 lerp(start.x, stop.x, fraction),
                 lerp(start.y, stop.y, fraction)
             )
         }
         is PathNode.RelativeHorizontalTo -> {
-            require(stop is PathNode.RelativeHorizontalTo)
+            require(stop is PathNode.RelativeHorizontalTo) { DifferentStartAndStopPathNodes }
             PathNode.RelativeHorizontalTo(
                 lerp(start.dx, stop.dx, fraction)
             )
         }
         is PathNode.HorizontalTo -> {
-            require(stop is PathNode.HorizontalTo)
+            require(stop is PathNode.HorizontalTo) { DifferentStartAndStopPathNodes }
             PathNode.HorizontalTo(
                 lerp(start.x, stop.x, fraction)
             )
         }
         is PathNode.RelativeVerticalTo -> {
-            require(stop is PathNode.RelativeVerticalTo)
+            require(stop is PathNode.RelativeVerticalTo) { DifferentStartAndStopPathNodes }
             PathNode.RelativeVerticalTo(
                 lerp(start.dy, stop.dy, fraction)
             )
         }
         is PathNode.VerticalTo -> {
-            require(stop is PathNode.VerticalTo)
+            require(stop is PathNode.VerticalTo) { DifferentStartAndStopPathNodes }
             PathNode.VerticalTo(
                 lerp(start.y, stop.y, fraction)
             )
         }
         is PathNode.RelativeCurveTo -> {
-            require(stop is PathNode.RelativeCurveTo)
+            require(stop is PathNode.RelativeCurveTo) { DifferentStartAndStopPathNodes }
             PathNode.RelativeCurveTo(
                 lerp(start.dx1, stop.dx1, fraction),
                 lerp(start.dy1, stop.dy1, fraction),
@@ -560,7 +583,7 @@ private fun lerp(start: PathNode, stop: PathNode, fraction: Float): PathNode {
             )
         }
         is PathNode.CurveTo -> {
-            require(stop is PathNode.CurveTo)
+            require(stop is PathNode.CurveTo) { DifferentStartAndStopPathNodes }
             PathNode.CurveTo(
                 lerp(start.x1, stop.x1, fraction),
                 lerp(start.y1, stop.y1, fraction),
@@ -571,7 +594,7 @@ private fun lerp(start: PathNode, stop: PathNode, fraction: Float): PathNode {
             )
         }
         is PathNode.RelativeReflectiveCurveTo -> {
-            require(stop is PathNode.RelativeReflectiveCurveTo)
+            require(stop is PathNode.RelativeReflectiveCurveTo) { DifferentStartAndStopPathNodes }
             PathNode.RelativeReflectiveCurveTo(
                 lerp(start.dx1, stop.dx1, fraction),
                 lerp(start.dy1, stop.dy1, fraction),
@@ -580,7 +603,7 @@ private fun lerp(start: PathNode, stop: PathNode, fraction: Float): PathNode {
             )
         }
         is PathNode.ReflectiveCurveTo -> {
-            require(stop is PathNode.ReflectiveCurveTo)
+            require(stop is PathNode.ReflectiveCurveTo) { DifferentStartAndStopPathNodes }
             PathNode.ReflectiveCurveTo(
                 lerp(start.x1, stop.x1, fraction),
                 lerp(start.y1, stop.y1, fraction),
@@ -589,7 +612,7 @@ private fun lerp(start: PathNode, stop: PathNode, fraction: Float): PathNode {
             )
         }
         is PathNode.RelativeQuadTo -> {
-            require(stop is PathNode.RelativeQuadTo)
+            require(stop is PathNode.RelativeQuadTo) { DifferentStartAndStopPathNodes }
             PathNode.RelativeQuadTo(
                 lerp(start.dx1, stop.dx1, fraction),
                 lerp(start.dy1, stop.dy1, fraction),
@@ -598,7 +621,7 @@ private fun lerp(start: PathNode, stop: PathNode, fraction: Float): PathNode {
             )
         }
         is PathNode.QuadTo -> {
-            require(stop is PathNode.QuadTo)
+            require(stop is PathNode.QuadTo) { DifferentStartAndStopPathNodes }
             PathNode.QuadTo(
                 lerp(start.x1, stop.x1, fraction),
                 lerp(start.y1, stop.y1, fraction),
@@ -607,21 +630,21 @@ private fun lerp(start: PathNode, stop: PathNode, fraction: Float): PathNode {
             )
         }
         is PathNode.RelativeReflectiveQuadTo -> {
-            require(stop is PathNode.RelativeReflectiveQuadTo)
+            require(stop is PathNode.RelativeReflectiveQuadTo) { DifferentStartAndStopPathNodes }
             PathNode.RelativeReflectiveQuadTo(
                 lerp(start.dx, stop.dx, fraction),
                 lerp(start.dy, stop.dy, fraction)
             )
         }
         is PathNode.ReflectiveQuadTo -> {
-            require(stop is PathNode.ReflectiveQuadTo)
+            require(stop is PathNode.ReflectiveQuadTo) { DifferentStartAndStopPathNodes }
             PathNode.ReflectiveQuadTo(
                 lerp(start.x, stop.x, fraction),
                 lerp(start.y, stop.y, fraction)
             )
         }
         is PathNode.RelativeArcTo -> {
-            require(stop is PathNode.RelativeArcTo)
+            require(stop is PathNode.RelativeArcTo) { DifferentStartAndStopPathNodes }
             PathNode.RelativeArcTo(
                 lerp(start.horizontalEllipseRadius, stop.horizontalEllipseRadius, fraction),
                 lerp(start.verticalEllipseRadius, stop.verticalEllipseRadius, fraction),
@@ -633,7 +656,7 @@ private fun lerp(start: PathNode, stop: PathNode, fraction: Float): PathNode {
             )
         }
         is PathNode.ArcTo -> {
-            require(stop is PathNode.ArcTo)
+            require(stop is PathNode.ArcTo) { DifferentStartAndStopPathNodes }
             PathNode.ArcTo(
                 lerp(start.horizontalEllipseRadius, stop.horizontalEllipseRadius, fraction),
                 lerp(start.verticalEllipseRadius, stop.verticalEllipseRadius, fraction),

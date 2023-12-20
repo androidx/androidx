@@ -15,29 +15,115 @@
  */
 
 import androidx.build.LibraryType
+import androidx.build.KmpPlatformsKt
+import androidx.build.PlatformIdentifier
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import androidx.build.Publish
+import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
-dependencies {
-    api(libs.kotlinStdlib)
-    implementation(project(":paging:paging-common"))
+def macEnabled = KmpPlatformsKt.enableMac(project)
+def linuxEnabled = KmpPlatformsKt.enableLinux(project)
 
-    testImplementation(libs.junit)
-    testImplementation(libs.kotlinCoroutinesTest)
-    testImplementation((libs.kotlinCoroutinesAndroid))
-    testImplementation(project(":internal-testutils-paging"))
-    testImplementation(libs.kotlinTest)
-    testImplementation(libs.truth)
+androidXMultiplatform {
+    jvm()
+    mac()
+    linux()
+    ios()
+    android()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+                implementation(project(":paging:paging-common"))
+            }
+        }
+
+        commonJvmMain {
+            dependsOn(commonMain)
+        }
+
+        jvmMain {
+            dependsOn(commonJvmMain)
+        }
+
+        androidMain {
+            dependsOn(commonJvmMain)
+        }
+
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTest)
+                implementation(libs.kotlinCoroutinesTest)
+                implementation(project(":internal-testutils-paging"))
+                implementation(project(":kruth:kruth"))
+            }
+        }
+
+        commonJvmTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.junit)
+            }
+        }
+
+        jvmTest {
+            dependsOn(commonJvmTest)
+        }
+
+        androidInstrumentedTest {
+            dependsOn(commonJvmTest)
+            dependencies {
+                implementation(libs.testRunner)
+            }
+        }
+
+        if (macEnabled || linuxEnabled) {
+            nativeMain {
+                dependsOn(commonMain)
+                dependencies {
+                    implementation(libs.atomicFu)
+                }
+            }
+        }
+        if (macEnabled) {
+            darwinMain {
+                dependsOn(nativeMain)
+            }
+        }
+        if (linuxEnabled) {
+            linuxMain {
+                dependsOn(nativeMain)
+            }
+        }
+
+        targets.all { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet {
+                    def konanTargetFamily = target.konanTarget.family
+                    if (konanTargetFamily == Family.OSX || konanTargetFamily == Family.IOS) {
+                        dependsOn(darwinMain)
+                    } else if (konanTargetFamily == Family.LINUX) {
+                        dependsOn(linuxMain)
+                    } else {
+                        throw new GradleException("unknown native target ${target}")
+                    }
+                }
+            }
+        }
+    }
 }
 
 androidx {
     name = "Paging Testing Extensions"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_TEST_LIBRARY
     inceptionYear = "2022"
     description = "Test artifact for Paging implementation"
     publish = Publish.SNAPSHOT_AND_RELEASE

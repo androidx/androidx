@@ -245,8 +245,8 @@
     <string name="email_hint" msgid="7205549445477319606">"Sähköposti"</string>
     <string name="sign_in_title" msgid="4551967308262681703">"Kirjaudu sisään"</string>
     <string name="sign_in_instructions" msgid="9044850228284294762">"Lisää kirjautumistiedot"</string>
-    <string name="invalid_email_error_msg" msgid="5261362663718987167">"Käyttäjänimen täytyy olla toimiva sähköpostiosoite"</string>
-    <string name="invalid_length_error_msg" msgid="8238905276326976425">"Käyttäjänimen täytyy olla vähintään %s merkkiä pitkä"</string>
+    <string name="invalid_email_error_msg" msgid="5261362663718987167">"Käyttäjätunnuksen täytyy olla toimiva sähköpostiosoite"</string>
+    <string name="invalid_length_error_msg" msgid="8238905276326976425">"Käyttäjätunnuksen täytyy olla vähintään %s merkkiä pitkä"</string>
     <string name="invalid_password_error_msg" msgid="1090359893902674610">"Virheellinen salasana"</string>
     <string name="password_hint" msgid="2869107073860012864">"salasana"</string>
     <string name="password_sign_in_instruction_prefix" msgid="9105788349198243508">"Käyttäjätunnus"</string>
@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Luettelovälilehti"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Ruudukkovälilehti ja pitkä välilehden nimi"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Hakuvälilehti"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Ladataan välilehteä"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Välilehtimallin lataamisen esittely"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Välilehtimallin (ei välilehtiä) esittely"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Kuvia ei voida näyttää tuntemattomalle isännälle"</string>

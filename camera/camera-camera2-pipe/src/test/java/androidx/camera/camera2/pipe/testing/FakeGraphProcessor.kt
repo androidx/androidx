@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.testing
 
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.GraphState
 import androidx.camera.camera2.pipe.GraphState.GraphStateError
 import androidx.camera.camera2.pipe.GraphState.GraphStateStarted
@@ -33,6 +34,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 
 /** Fake implementation of a [GraphProcessor] for tests. */
+@RequiresApi(21)
 internal class FakeGraphProcessor(
     val graphState3A: GraphState3A = GraphState3A(),
     val defaultParameters: Map<*, Any?> = emptyMap<Any, Any?>(),
@@ -63,6 +65,8 @@ internal class FakeGraphProcessor(
         repeatingRequest = null
     }
 
+    override fun hasRepeatingRequest() = repeatingRequest != null
+
     override fun submit(request: Request) {
         submit(listOf(request))
     }
@@ -75,6 +79,8 @@ internal class FakeGraphProcessor(
         if (closed) {
             return false
         }
+        if (repeatingRequest == null) return false
+
         val currProcessor = processor
         val currRepeatingRequest = repeatingRequest
         val requiredParameters = mutableMapOf<Any, Any?>()

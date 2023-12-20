@@ -21,7 +21,7 @@ import android.graphics.Rect;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.IOnDoneCallback;
 
-/** @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface ISurfaceCallback {
   /**
    * Notifies the app that the surface has changed.

@@ -18,6 +18,7 @@ package androidx.constraintlayout.compose
 
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
+import androidx.compose.foundation.layout.LayoutScopeMarker
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.core.parser.CLArray
@@ -60,6 +61,7 @@ fun Transition(
  * @see keyPositions
  * @see keyCycles
  */
+@LayoutScopeMarker
 class TransitionScope internal constructor(
     private val from: String,
     private val to: String
@@ -145,27 +147,54 @@ class TransitionScope internal constructor(
     var onSwipe: OnSwipe? = null
 
     /**
-     * Defines the maximum delay (in progress percent) between a group of staggered widgets.
+     * Defines the maximum delay (in progress value) between a group of staggered widgets.
      *
      * &nbsp;
      *
-     * The amount of delay for each widget is on proportion to their final position on the layout,
-     * weighted against each other.
-     *
-     * Where the weight is calculated as the Manhattan Distance from the top-left corner of the
-     * layout.
-     *
-     * So the widget with the lowest weight will receive the most delay. A negative [staggered]
-     * value inverts this logic, in which case, the widget with the lowest weight will receive no
-     * delay.
+     * The amount of delay for each widget is decided based on its weight. Where the widget with the
+     * lowest weight will receive the full delay. A negative [maxStaggerDelay] value inverts this logic, so
+     * that the widget with the highest weight will receive the full delay.
      *
      * &nbsp;
      *
-     * You may set [MotionSceneScope.staggeredWeight] on a per-widget basis to get a custom
-     * staggered order.
+     * By default, the weight of each widget is calculated as the Manhattan Distance from the
+     * top-left corner of the layout. You may set custom weights using
+     * [MotionSceneScope.staggeredWeight] on a per-widget basis, this essentially allows you to set
+     * a custom staggering order. Note that when you set custom weights, widgets without a custom
+     * weight will be ignored for this calculation and will animate without delay.
+     *
+     * &nbsp;
+     *
+     * The remaining widgets will receive a portion of this delay, based on their weight calculated
+     * against each other.
+     *
+     * This is the formula to calculate the progress delay for a widget **i**, where
+     * **Max/MinWeight** is defined by the maximum and minimum calculated (or custom) weight:
+     *
+     * ```
+     * progressDelay[i] = maxStaggerDelay * (1 - ((weight[i] - MinWeight) / (MaxWeight - MinWeight)))
+     * ```
+     *
+     * To simplify, this is the formula normalized against **MinWeight**:
+     *
+     * ```
+     * progressDelay[i] = maxStaggerDelay * (1 - weight[i] / MaxWeight)
+     * ```
+     *
+     * Example:
+     *
+     * Given three widgets with custom weights `[1, 2, 3]` and [maxStaggerDelay] = 0.7f.
+     *
+     * - Widget0 will start animating at `progress == 0.7f` for having the lowest weight.
+     *
+     * - Widget1 will start animating at `progress == 0.35f`
+     *
+     * - Widget2 will start animating at `progress == 0.0f`
+     *
+     * This is because the weights are distributed linearly among the widgets.
      */
     @FloatRange(-1.0, 1.0, fromInclusive = false, toInclusive = false)
-    var staggered: Float = 0.0f
+    var maxStaggerDelay: Float = 0.0f
 
     /**
      * Define KeyAttribute KeyFrames for the given [targets].
@@ -226,13 +255,16 @@ class TransitionScope internal constructor(
         //  `progress` value. Eg: `animateFloat(tween(duration, LinearEasing))`
 //        containerObject.putString("interpolator", easing.name)
 //        containerObject.putNumber("duration", durationMs.toFloat())
-        containerObject.putNumber("staggered", staggered)
+        containerObject.putNumber("staggered", maxStaggerDelay)
         onSwipe?.let {
             containerObject.put("onSwipe", onSwipeObject)
             onSwipeObject.putString("direction", it.direction.name)
-            onSwipeObject.putNumber("dragScale", it.dragScale)
+            onSwipeObject.putNumber("scale", it.dragScale)
             it.dragAround?.id?.let { id ->
                 onSwipeObject.putString("around", id.toString())
+            }
+            it.limitBoundsTo?.id?.let { id ->
+                onSwipeObject.putString("limitBounds", id.toString())
             }
             onSwipeObject.putNumber("threshold", it.dragThreshold)
             onSwipeObject.putString("anchor", it.anchor.id.toString())
@@ -312,6 +344,7 @@ private class FakeKeyFramesScope : BaseKeyFramesScope()
  *
  * @see frame
  */
+@LayoutScopeMarker
 class KeyAttributesScope internal constructor(vararg targets: ConstrainedLayoutReference) :
     BaseKeyFramesScope(*targets) {
 
@@ -335,6 +368,7 @@ class KeyAttributesScope internal constructor(vararg targets: ConstrainedLayoutR
  *
  * @see frame
  */
+@LayoutScopeMarker
 class KeyPositionsScope internal constructor(vararg targets: ConstrainedLayoutReference) :
     BaseKeyFramesScope(*targets) {
     /**
@@ -364,6 +398,7 @@ class KeyPositionsScope internal constructor(vararg targets: ConstrainedLayoutRe
  *
  * @see frame
  */
+@LayoutScopeMarker
 class KeyCyclesScope internal constructor(vararg targets: ConstrainedLayoutReference) :
     BaseKeyFramesScope(*targets) {
 
@@ -503,6 +538,7 @@ private class FakeKeyFrameScope : BaseKeyFrameScope()
  *
  * @see [MotionSceneScope.customFloat]
  */
+@LayoutScopeMarker
 class KeyAttributeScope internal constructor() : BaseKeyFrameScope() {
     var alpha by addOnPropertyChange(1f, "alpha")
     var scaleX by addOnPropertyChange(1f, "scaleX")
@@ -521,6 +557,7 @@ class KeyAttributeScope internal constructor() : BaseKeyFrameScope() {
  * These are modifications on the widget's position and size relative to its final state on the
  * current transition.
  */
+@LayoutScopeMarker
 class KeyPositionScope internal constructor() : BaseKeyFrameScope() {
     /**
      * The position as a percentage of the X axis of the current coordinate space.
@@ -568,6 +605,7 @@ class KeyPositionScope internal constructor() : BaseKeyFrameScope() {
  * [KeyCycleScope] allows you to apply wave-based transforms, defined by [period], [offset] and
  * [phase]. A sinusoidal wave is used by default.
  */
+@LayoutScopeMarker
 class KeyCycleScope internal constructor() : BaseKeyFrameScope() {
     var alpha by addOnPropertyChange(1f)
     var scaleX by addOnPropertyChange(1f)

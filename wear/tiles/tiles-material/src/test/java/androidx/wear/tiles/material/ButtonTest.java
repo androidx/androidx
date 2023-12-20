@@ -16,11 +16,6 @@
 
 package androidx.wear.tiles.material;
 
-import static androidx.wear.tiles.material.ButtonDefaults.DEFAULT_SIZE;
-import static androidx.wear.tiles.material.ButtonDefaults.EXTRA_LARGE_SIZE;
-import static androidx.wear.tiles.material.ButtonDefaults.LARGE_SIZE;
-import static androidx.wear.tiles.material.ButtonDefaults.PRIMARY_COLORS;
-
 import static com.google.common.truth.Truth.assertThat;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -61,7 +56,7 @@ public class ButtonTest {
 
         assertButton(
                 button,
-                DEFAULT_SIZE,
+                ButtonDefaults.DEFAULT_SIZE,
                 new ButtonColors(Colors.PRIMARY, 0),
                 null,
                 Button.METADATA_TAG_CUSTOM_CONTENT,
@@ -73,7 +68,7 @@ public class ButtonTest {
 
     @Test
     public void testButtonCustom() {
-        androidx.wear.tiles.DimensionBuilders.DpProp mSize = LARGE_SIZE;
+        androidx.wear.tiles.DimensionBuilders.DpProp mSize = ButtonDefaults.LARGE_SIZE;
         ButtonColors mButtonColors = new ButtonColors(0x11223344, 0);
 
         Button button =
@@ -107,8 +102,8 @@ public class ButtonTest {
 
         assertButton(
                 button,
-                DEFAULT_SIZE,
-                PRIMARY_COLORS,
+                ButtonDefaults.DEFAULT_SIZE,
+                ButtonDefaults.PRIMARY_COLORS,
                 CONTENT_DESCRIPTION,
                 Button.METADATA_TAG_ICON,
                 null,
@@ -122,14 +117,14 @@ public class ButtonTest {
         Button button =
                 new Button.Builder(CONTEXT, CLICKABLE)
                         .setIconContent(RESOURCE_ID)
-                        .setSize(LARGE_SIZE)
+                        .setSize(ButtonDefaults.LARGE_SIZE)
                         .setContentDescription(CONTENT_DESCRIPTION)
                         .build();
 
         assertButton(
                 button,
-                LARGE_SIZE,
-                PRIMARY_COLORS,
+                ButtonDefaults.LARGE_SIZE,
+                ButtonDefaults.PRIMARY_COLORS,
                 CONTENT_DESCRIPTION,
                 Button.METADATA_TAG_ICON,
                 null,
@@ -151,8 +146,8 @@ public class ButtonTest {
 
         assertButton(
                 button,
-                DEFAULT_SIZE,
-                PRIMARY_COLORS,
+                ButtonDefaults.DEFAULT_SIZE,
+                ButtonDefaults.PRIMARY_COLORS,
                 CONTENT_DESCRIPTION,
                 Button.METADATA_TAG_ICON,
                 null,
@@ -171,8 +166,8 @@ public class ButtonTest {
 
         assertButton(
                 button,
-                DEFAULT_SIZE,
-                PRIMARY_COLORS,
+                ButtonDefaults.DEFAULT_SIZE,
+                ButtonDefaults.PRIMARY_COLORS,
                 CONTENT_DESCRIPTION,
                 Button.METADATA_TAG_TEXT,
                 TEXT,
@@ -187,13 +182,13 @@ public class ButtonTest {
                 new Button.Builder(CONTEXT, CLICKABLE)
                         .setTextContent(TEXT)
                         .setContentDescription(CONTENT_DESCRIPTION)
-                        .setSize(EXTRA_LARGE_SIZE)
+                        .setSize(ButtonDefaults.EXTRA_LARGE_SIZE)
                         .build();
 
         assertButton(
                 button,
-                EXTRA_LARGE_SIZE,
-                PRIMARY_COLORS,
+                ButtonDefaults.EXTRA_LARGE_SIZE,
+                ButtonDefaults.PRIMARY_COLORS,
                 CONTENT_DESCRIPTION,
                 Button.METADATA_TAG_TEXT,
                 TEXT,

@@ -17,7 +17,6 @@
 package androidx.window.testing.embedding
 
 import android.app.Activity
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.ActivityStack
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -26,7 +25,6 @@ import org.junit.Test
 import org.mockito.kotlin.mock
 
 /** Test class to verify [TestActivityStack] */
-@OptIn(ExperimentalWindowApi::class)
 class ActivityStackTestingTest {
 
     /** Verifies the default value of [TestActivityStack] */
@@ -34,7 +32,10 @@ class ActivityStackTestingTest {
     fun testActivityStackDefaultValue() {
         val activityStack = TestActivityStack()
 
-        assertEquals(ActivityStack(emptyList(), isEmpty = false), activityStack)
+        assertEquals(
+            ActivityStack(emptyList(), isEmpty = false),
+            activityStack
+        )
     }
 
     /** Verifies [TestActivityStack] */

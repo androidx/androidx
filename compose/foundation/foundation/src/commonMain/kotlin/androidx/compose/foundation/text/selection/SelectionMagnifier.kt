@@ -32,13 +32,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isSpecified
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 private val UnspecifiedAnimationVector2D = AnimationVector2D(Float.NaN, Float.NaN)
 
 /** Like `Offset.VectorConverter` but propagates [Offset.Unspecified] values. */
-private val UnspecifiedSafeOffsetVectorConverter = TwoWayConverter<Offset, AnimationVector2D>(
+internal val UnspecifiedSafeOffsetVectorConverter = TwoWayConverter<Offset, AnimationVector2D>(
     convertToVector = {
         if (it.isSpecified) {
             AnimationVector2D(it.x, it.y)
@@ -49,12 +48,12 @@ private val UnspecifiedSafeOffsetVectorConverter = TwoWayConverter<Offset, Anima
     convertFromVector = { Offset(it.v1, it.v2) }
 )
 
-private val OffsetDisplacementThreshold = Offset(
+internal val OffsetDisplacementThreshold = Offset(
     Spring.DefaultDisplacementThreshold,
     Spring.DefaultDisplacementThreshold
 )
 
-private val MagnifierSpringSpec = SpringSpec(visibilityThreshold = OffsetDisplacementThreshold)
+internal val MagnifierSpringSpec = SpringSpec(visibilityThreshold = OffsetDisplacementThreshold)
 
 /**
  * The text magnifier follows horizontal dragging exactly, but is vertically clamped to the current

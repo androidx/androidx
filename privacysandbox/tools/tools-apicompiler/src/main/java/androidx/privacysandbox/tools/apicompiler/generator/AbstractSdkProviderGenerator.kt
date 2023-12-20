@@ -61,7 +61,7 @@ internal abstract class AbstractSdkProviderGenerator(protected val api: ParsedAp
 
     private fun generateGetViewFunction(): FunSpec {
         return FunSpec.builder("getView").build {
-            addModifiers(KModifier.OVERRIDE)
+            addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
             addParameter("windowContext", contextClass)
             addParameter("params", bundleClass)
             addParameter("width", Int::class)

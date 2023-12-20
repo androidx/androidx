@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
 
     <issue
         id="BanThreadSleep"
@@ -123,6 +123,24 @@
         message="This call references a method added in API level 26; however, the containing class androidx.camera.integration.antelope.cameracontrollers.CameraXControllerKt is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        released = texture.isReleased"
         errorLine2="                           ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/antelope/cameracontrollers/CameraXController.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CameraXExecutors.directExecutor can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                    surface, CameraXExecutors.directExecutor(),"
+        errorLine2="                                              ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/antelope/cameracontrollers/CameraXController.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CameraXExecutors.mainThreadExecutor can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                CameraXExecutors.mainThreadExecutor(),"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/antelope/cameracontrollers/CameraXController.kt"/>
     </issue>

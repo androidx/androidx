@@ -16,8 +16,10 @@
 
 package androidx.compose.ui.input.pointer
 
+import androidx.collection.LongSparseArray
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.node.HitTestResult
 import androidx.compose.ui.node.InternalCoreApi
 import androidx.compose.ui.node.LayoutNode
@@ -26,6 +28,12 @@ import androidx.compose.ui.util.fastForEach
 internal interface PositionCalculator {
     fun screenToLocal(positionOnScreen: Offset): Offset
     fun localToScreen(localPosition: Offset): Offset
+
+    /**
+     * Takes a matrix which transforms some coordinate system to local coordinates, and updates the
+     * matrix to transform to screen coordinates instead.
+     */
+    fun localToScreen(localTransform: Matrix)
 }
 
 /**
@@ -54,6 +62,7 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
      * @see PointerInputEvent
      */
     fun process(
+        @OptIn(InternalCoreApi::class)
         pointerEvent: PointerInputEvent,
         positionCalculator: PositionCalculator,
         isInBounds: Boolean = true
@@ -69,14 +78,22 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
             isProcessing = true
 
             // Gets a new PointerInputChangeEvent with the PointerInputEvent.
+            @OptIn(InternalCoreApi::class)
             val internalPointerEvent =
                 pointerInputChangeEventProducer.produce(pointerEvent, positionCalculator)
 
-            val isHover =
-                !internalPointerEvent.changes.values.any { it.pressed || it.previousPressed }
+            var isHover = true
+            for (i in 0 until internalPointerEvent.changes.size()) {
+                val pointerInputChange = internalPointerEvent.changes.valueAt(i)
+                if (pointerInputChange.pressed || pointerInputChange.previousPressed) {
+                    isHover = false
+                    break
+                }
+            }
 
             // Add new hit paths to the tracker due to down events.
-            internalPointerEvent.changes.values.forEach { pointerInputChange ->
+            for (i in 0 until internalPointerEvent.changes.size()) {
+                val pointerInputChange = internalPointerEvent.changes.valueAt(i)
                 if (isHover || pointerInputChange.changedToDownIgnoreConsumed()) {
                     val isTouchEvent = pointerInputChange.type == PointerType.Touch
                     root.hitTest(pointerInputChange.position, hitResult, isTouchEvent)
@@ -98,8 +115,15 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
             val anyMovementConsumed = if (internalPointerEvent.suppressMovementConsumption) {
                 false
             } else {
-                internalPointerEvent.changes.values
-                    .any { it.positionChangedIgnoreConsumed() && it.isConsumed }
+                var result = false
+                for (i in 0 until internalPointerEvent.changes.size()) {
+                    val event = internalPointerEvent.changes.valueAt(i)
+                    if (event.positionChangedIgnoreConsumed() && event.isConsumed) {
+                        result = true
+                        break
+                    }
+                }
+                result
             }
 
             return ProcessResult(dispatchedToSomething, anyMovementConsumed)
@@ -130,7 +154,7 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
  */
 @OptIn(InternalCoreApi::class, ExperimentalComposeUiApi::class)
 private class PointerInputChangeEventProducer {
-    private val previousPointerInputData: MutableMap<PointerId, PointerInputData> = mutableMapOf()
+    private val previousPointerInputData: LongSparseArray<PointerInputData> = LongSparseArray()
 
     /**
      * Produces [InternalPointerEvent]s by tracking changes between [PointerInputEvent]s
@@ -140,14 +164,14 @@ private class PointerInputChangeEventProducer {
         positionCalculator: PositionCalculator
     ): InternalPointerEvent {
         // Set initial capacity to avoid resizing - we know the size the map will be.
-        val changes: MutableMap<PointerId, PointerInputChange> =
-            LinkedHashMap(pointerInputEvent.pointers.size)
+        val changes: LongSparseArray<PointerInputChange> =
+            LongSparseArray(pointerInputEvent.pointers.size)
         pointerInputEvent.pointers.fastForEach {
             val previousTime: Long
             val previousPosition: Offset
             val previousDown: Boolean
 
-            val previousData = previousPointerInputData[it.id]
+            val previousData = previousPointerInputData[it.id.value]
             if (previousData == null) {
                 previousTime = it.uptime
                 previousPosition = it.position
@@ -159,7 +183,7 @@ private class PointerInputChangeEventProducer {
                     positionCalculator.screenToLocal(previousData.positionOnScreen)
             }
 
-            changes[it.id] =
+            changes.put(it.id.value,
                 PointerInputChange(
                     it.id,
                     it.uptime,
@@ -172,17 +196,19 @@ private class PointerInputChangeEventProducer {
                     false,
                     it.type,
                     it.historical,
-                    it.scrollDelta
+                    it.scrollDelta,
+                    it.originalEventPosition
                 )
+            )
             if (it.down) {
-                previousPointerInputData[it.id] = PointerInputData(
+                previousPointerInputData.put(it.id.value, PointerInputData(
                     it.uptime,
                     it.positionOnScreen,
                     it.down,
                     it.type
-                )
+                ))
             } else {
-                previousPointerInputData.remove(it.id)
+                previousPointerInputData.remove(it.id.value)
             }
         }
 

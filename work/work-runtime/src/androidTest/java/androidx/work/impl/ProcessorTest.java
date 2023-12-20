@@ -20,9 +20,6 @@ import static androidx.work.impl.model.WorkSpecKt.generationalId;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 
 import android.content.Context;
 
@@ -43,14 +40,12 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class ProcessorTest extends DatabaseTest {
 
-    private Scheduler mMockScheduler;
     private Processor mProcessor;
 
     @Before
     public void setUp() {
         Context appContext = ApplicationProvider.getApplicationContext().getApplicationContext();
         Configuration configuration = new Configuration.Builder().build();
-        mMockScheduler = mock(Scheduler.class);
         mProcessor = new Processor(
                 appContext,
                 configuration,
@@ -63,7 +58,7 @@ public class ProcessorTest extends DatabaseTest {
     @SmallTest
     public void testStopWork_invalidWorkId() {
         WorkGenerationalId id = new WorkGenerationalId("INVALID_WORK_ID", 0);
-        assertThat(mProcessor.stopWork(new StartStopToken(id)), is(false));
+        assertThat(mProcessor.stopWork(new StartStopToken(id), 0), is(false));
     }
 
     @Test
@@ -85,12 +80,5 @@ public class ProcessorTest extends DatabaseTest {
         assertThat(mProcessor.hasWork(), is(false));
         mProcessor.startWork(new StartStopToken(generationalId(work.getWorkSpec())));
         assertThat(mProcessor.hasWork(), is(true));
-    }
-
-    @Test
-    @SmallTest
-    public void testDontCancelWhenNeedsReschedule() {
-        mProcessor.onExecuted(new WorkGenerationalId("foo", 0), true);
-        verify(mMockScheduler, never()).cancel("foo");
     }
 }

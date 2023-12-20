@@ -36,14 +36,18 @@ import androidx.slice.core.SliceActionImpl;
 /**
  * Class representing an action, supports tappable icons, custom toggle icons, and default
  * toggles, as well as date and time pickers.
+ *
+ * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+ * forward. If you are looking for a framework that handles communication across apps,
+ * consider using {@link android.app.appsearch.AppSearchManager}.
  */
 @RequiresApi(19)
+@Deprecated
 public class SliceAction implements androidx.slice.core.SliceAction {
 
     private final SliceActionImpl mSliceAction;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @RequiresApi(23)
@@ -53,7 +57,6 @@ public class SliceAction implements androidx.slice.core.SliceAction {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @RequiresApi(23)
@@ -63,7 +66,6 @@ public class SliceAction implements androidx.slice.core.SliceAction {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @RequiresApi(23)
@@ -79,7 +81,6 @@ public class SliceAction implements androidx.slice.core.SliceAction {
      * @param actionIcon the icon to display for this action.
      * @param actionTitle the title for this action, also used for content description if one hasn't
      *                    been set via {@link #setContentDescription(CharSequence)}.
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public SliceAction(@NonNull PendingIntent action, @NonNull IconCompat actionIcon,
@@ -103,7 +104,6 @@ public class SliceAction implements androidx.slice.core.SliceAction {
      * @see ListBuilder#ICON_IMAGE
      * @see ListBuilder#SMALL_IMAGE
      * @see ListBuilder#LARGE_IMAGE
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     public SliceAction(@NonNull PendingIntent action, @NonNull IconCompat actionIcon,
@@ -120,7 +120,6 @@ public class SliceAction implements androidx.slice.core.SliceAction {
      * @param actionTitle the title for this toggle, also used for content description if one hasn't
      *                    been set via {@link #setContentDescription(CharSequence)}.
      * @param isChecked the state of the toggle.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     public SliceAction(@NonNull PendingIntent action, @NonNull IconCompat actionIcon,
@@ -135,7 +134,6 @@ public class SliceAction implements androidx.slice.core.SliceAction {
      * @param actionTitle the title for this toggle, also used for content description if one hasn't
      *                    been set via {@link #setContentDescription(CharSequence)}.
      * @param isChecked the state of the toggle.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     public SliceAction(@NonNull PendingIntent action, @NonNull CharSequence actionTitle,
@@ -150,7 +148,6 @@ public class SliceAction implements androidx.slice.core.SliceAction {
      * @param actionTitle    the timestamp for this date or time picker.
      * @param dateTimeMillis the default state of the date or time picker.
      * @param isDatePicker   if it is a date picker, as opposed to a time picker.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     public SliceAction(@NonNull PendingIntent action, @NonNull CharSequence actionTitle,
@@ -203,8 +200,8 @@ public class SliceAction implements androidx.slice.core.SliceAction {
      * @param action         the pending intent to invoke for this picker.
      * @param actionTitle    the timestamp title for this picker.
      * @param dateTimeMillis the default state of the date picker.
-     * @hide
      */
+    @RestrictTo(LIBRARY)
     @NonNull
     public static SliceAction createDatePicker(@NonNull PendingIntent action,
             @NonNull CharSequence actionTitle, long dateTimeMillis) {
@@ -218,8 +215,8 @@ public class SliceAction implements androidx.slice.core.SliceAction {
      * @param action         the pending intent to invoke for this picker.
      * @param actionTitle    the timestamp title for this picker.
      * @param dateTimeMillis the default state of the time picker.
-     * @hide
      */
+    @RestrictTo(LIBRARY)
     @NonNull
     public static SliceAction createTimePicker(@NonNull PendingIntent action,
             @NonNull CharSequence actionTitle, long dateTimeMillis) {
@@ -465,7 +462,6 @@ public class SliceAction implements androidx.slice.core.SliceAction {
      * @param builder this should be a new builder that has any additional hints the action might
      *                need.
      * @return the slice representation of this action.
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @NonNull
@@ -474,7 +470,6 @@ public class SliceAction implements androidx.slice.core.SliceAction {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @NonNull
@@ -484,7 +479,6 @@ public class SliceAction implements androidx.slice.core.SliceAction {
 
     /**
      * @param builder the parent slice builder that contains the primary action.
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public void setPrimaryAction(@NonNull Slice.Builder builder) {

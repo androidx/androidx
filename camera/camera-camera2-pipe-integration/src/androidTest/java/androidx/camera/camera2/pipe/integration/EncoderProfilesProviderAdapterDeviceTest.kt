@@ -25,7 +25,7 @@ import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.pipe.integration.compat.quirk.InvalidVideoProfilesQuirk
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy.BIT_DEPTH_8
-import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.impl.CameraUtil
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat

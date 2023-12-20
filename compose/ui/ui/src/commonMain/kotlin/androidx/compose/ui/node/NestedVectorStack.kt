@@ -17,41 +17,44 @@
 package androidx.compose.ui.node
 
 import androidx.compose.runtime.collection.MutableVector
-import androidx.compose.runtime.collection.mutableVectorOf
 
 internal class NestedVectorStack<T> {
-    private var current: Int = -1
-    private var lastIndex = 0
-    private var indexes = IntArray(16)
-    private val vectors = mutableVectorOf<MutableVector<T>>()
-    private fun pushIndex(value: Int) {
-        if (lastIndex >= indexes.size) {
-            indexes = indexes.copyOf(indexes.size * 2)
-        }
-        indexes[lastIndex++] = value
-    }
+    // number of vectors in the stack
+    private var size = 0
+    // holds the current "top" index for each vector
+    private var currentIndexes = IntArray(16)
+    private var vectors = arrayOfNulls<MutableVector<T>>(16)
 
     fun isNotEmpty(): Boolean {
-        return current >= 0 && indexes[current] >= 0
+        return size > 0 && currentIndexes[size - 1] >= 0
     }
 
     fun pop(): T {
-        val i = current
-        val index = indexes[i]
-        val vector = vectors[i]
-        if (index > 0) indexes[i]--
-        else if (index == 0) {
-            vectors.removeAt(i)
-            current--
+        check(size > 0) {
+            "Cannot call pop() on an empty stack. Guard with a call to isNotEmpty()"
         }
-        return vector[index]
+        val indexOfVector = size - 1
+        val indexOfItem = currentIndexes[indexOfVector]
+        val vector = vectors[indexOfVector]!!
+        if (indexOfItem > 0) currentIndexes[indexOfVector]--
+        else if (indexOfItem == 0) {
+            vectors[indexOfVector] = null
+            size--
+        }
+        return vector[indexOfItem]
     }
 
     fun push(vector: MutableVector<T>) {
-        if (vector.isNotEmpty()) {
-            vectors.add(vector)
-            pushIndex(vector.size - 1)
-            current++
+        // if the vector is empty there is no reason for us to add it
+        if (vector.isEmpty()) return
+        val nextIndex = size
+        // check to see that we have capacity to add another vector
+        if (nextIndex >= currentIndexes.size) {
+            currentIndexes = currentIndexes.copyOf(currentIndexes.size * 2)
+            vectors = vectors.copyOf(vectors.size * 2)
         }
+        currentIndexes[nextIndex] = vector.size - 1
+        vectors[nextIndex] = vector
+        size++
     }
 }

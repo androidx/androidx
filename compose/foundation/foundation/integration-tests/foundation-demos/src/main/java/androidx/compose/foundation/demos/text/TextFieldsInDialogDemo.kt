@@ -127,7 +127,7 @@ fun TextFieldsInDialogDemo() {
             textAlign = TextAlign.Center
         )
         Layout(
-            content = { currentDemo.content(onNavigateUp = { setDemoIndex(-1) }) }
+            content = { currentDemo.content { setDemoIndex(-1) } }
         ) { measurables, _ ->
             check(measurables.isEmpty()) { "Dialog demo must only emit a Dialog composable." }
             layout(0, 0) {}

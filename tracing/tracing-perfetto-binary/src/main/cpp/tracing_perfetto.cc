@@ -25,7 +25,7 @@
 // Concept of version useful e.g. for human-readable error messages, and stable once released.
 // Does not replace the need for a binary verification mechanism (e.g. checksum check).
 // TODO: populate using CMake
-#define VERSION "1.0.0-alpha15"
+#define VERSION "1.0.0-beta03"
 
 namespace tracing_perfetto {
     void RegisterWithPerfetto() {

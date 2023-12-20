@@ -32,7 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package androidx.car.app.model;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IInputCallback {
   oneway void onInputTextChanged(String text, androidx.car.app.IOnDoneCallback callback) = 1;
   oneway void onInputSubmitted(String text, androidx.car.app.IOnDoneCallback callback) = 2;

@@ -1,0 +1,13 @@
+// Baseline format: 1.0
+AddedMethod: androidx.compose.ui.text.input.PlatformImeOptions#PlatformImeOptions(String):
+    Added constructor androidx.compose.ui.text.input.PlatformImeOptions(String)
+AddedMethod: androidx.compose.ui.text.input.PlatformImeOptions#getPrivateImeOptions():
+    Added method androidx.compose.ui.text.input.PlatformImeOptions.getPrivateImeOptions()
+
+
+ChangedClass: androidx.compose.ui.text.input.PlatformImeOptions:
+    Class androidx.compose.ui.text.input.PlatformImeOptions changed class/interface declaration
+
+
+RemovedClass: androidx.compose.ui.text.input.AndroidImeOptions:
+    Removed class androidx.compose.ui.text.input.AndroidImeOptions

@@ -27,7 +27,7 @@
 
   <uses-sdk
       android:minSdkVersion="29"
-      android:targetSdkVersion="31" />
+      android:targetSdkVersion="33" />
 
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
@@ -40,7 +40,11 @@
   <uses-permission android:name="androidx.car.app.NAVIGATION_TEMPLATES"/>
   <uses-permission android:name="androidx.car.app.ACCESS_SURFACE"/>
 
+  <!-- For the Microphone Recording demos. -->
   <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+
+  <!-- SDK 33 onwards, apps require this permission to send any notifications to the system -->
+  <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
   <!-- For Access to Car Hardware. -->
   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
@@ -113,6 +117,7 @@
 
     <activity
         android:name="androidx.car.app.activity.CarAppActivity"
+        android:configChanges="uiMode"
         android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
         android:exported="true"
         android:launchMode="singleTask"

@@ -24,11 +24,13 @@ import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureRequest
 import android.view.Surface
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 
 /**
  * A [RequestNumber] is an artificial identifier that is created for each request that is submitted
  * to the Camera.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 value class RequestNumber(val value: Long)
 
@@ -49,6 +51,7 @@ value class RequestNumber(val value: Long)
  *
  * @param streams The list of streams to submit. Each request *must* have 1 or more valid streams.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 data class Request(
     val streams: List<StreamId>,
     val parameters: Map<CaptureRequest.Key<*>, Any> = emptyMap(),
@@ -146,13 +149,13 @@ data class Request(
          *
          * @param requestMetadata the data about the camera2 request that was sent to the camera.
          * @param frameNumber the android frame number for this exposure
-         * @param captureFailure the android [CaptureFailure] data
+         * @param requestFailure the android [RequestFailure] data wrapper
          * @see android.hardware.camera2.CameraCaptureSession.CaptureCallback.onCaptureFailed
          */
         fun onFailed(
             requestMetadata: RequestMetadata,
             frameNumber: FrameNumber,
-            captureFailure: CaptureFailure
+            requestFailure: RequestFailure
         ) {
         }
 
@@ -236,9 +239,29 @@ data class Request(
 }
 
 /**
+ * Interface wrapper for [CaptureFailure].
+ *
+ * This interface should be used instead of [CaptureFailure] because its package-private
+ * constructor prevents directly creating an instance of it.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+interface RequestFailure {
+    val requestMetadata: RequestMetadata
+
+    val frameNumber: FrameNumber
+
+    val reason: Int
+
+    val wasImageCaptured: Boolean
+
+    val captureFailure: CaptureFailure?
+}
+
+/**
  * A [RequestTemplate] indicates which preset set list of parameters will be applied to a request by
  * default. These values are defined by camera2.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 value class RequestTemplate(val value: Int) {
     val name: String
@@ -263,6 +286,7 @@ value class RequestTemplate(val value: Int) {
  * [CameraGraph]. This class will report the actual keys / values that were sent to camera2 (if
  * different) from the request that was used to create the Camera2 [CaptureRequest].
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface RequestMetadata : Metadata, UnsafeWrapper {
     operator fun <T> get(key: CaptureRequest.Key<T>): T?
     fun <T> getOrDefault(key: CaptureRequest.Key<T>, default: T): T
@@ -298,17 +322,22 @@ interface RequestMetadata : Metadata, UnsafeWrapper {
  * operate based on a real-time clock, while audio/visual systems commonly operate based on a
  * monotonic clock.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 value class CameraTimestamp(val value: Long)
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun <T> Request.getOrDefault(key: Metadata.Key<T>, default: T): T = this[key] ?: default
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun <T> Request.getOrDefault(key: CaptureRequest.Key<T>, default: T): T =
     this[key] ?: default
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun Request.formatForLogs(): String = "Request($streams)@${Integer.toHexString(hashCode())}"
 
 /** Utility function to help deal with the unsafe nature of the typed Key/Value pairs. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun CaptureRequest.Builder.writeParameters(parameters: Map<*, Any?>) {
     for ((key, value) in parameters) {
         writeParameter(key, value)
@@ -316,6 +345,7 @@ fun CaptureRequest.Builder.writeParameters(parameters: Map<*, Any?>) {
 }
 
 /** Utility function to help deal with the unsafe nature of the typed Key/Value pairs. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun CaptureRequest.Builder.writeParameter(key: Any?, value: Any?) {
     if (key != null && key is CaptureRequest.Key<*>) {
         @Suppress("UNCHECKED_CAST") this.set(key as CaptureRequest.Key<Any>, value)
@@ -326,6 +356,7 @@ fun CaptureRequest.Builder.writeParameter(key: Any?, value: Any?) {
  * Utility function to put all metadata in the current map through an unchecked cast. The unchecked
  * cast is necessary since CameraGraph.Config uses Map<*, Any?> as the standard type for parameters.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun MutableMap<Any, Any?>.putAllMetadata(metadata: Map<*, Any?>) {
     @Suppress("UNCHECKED_CAST") this.putAll(metadata as Map<Any, Any?>)
 }

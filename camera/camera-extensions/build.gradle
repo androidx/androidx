@@ -42,6 +42,7 @@ dependencies {
     testImplementation(project(":camera:camera-extensions-stub"))
     testImplementation(libs.testCore)
     // To use the extensions-stub for testing directly.
+    testImplementation(libs.testRunner)
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
@@ -54,7 +55,10 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.multidex)
     androidTestImplementation(project(":camera:camera-lifecycle"))
-    androidTestImplementation(project(":camera:camera-testing"))
+    androidTestImplementation(project(":camera:camera-testing")) {
+        // Ensure camera-testing does not pull in androidx.test dependencies
+        exclude(group:"androidx.test")
+    }
     androidTestImplementation(project(":camera:camera-video"))
     androidTestImplementation(project(":internal-testutils-truth"))
     androidTestImplementation(project(":camera:camera-testlib-extensions"))
@@ -87,4 +91,5 @@ androidx {
     inceptionYear = "2019"
     description = "OEM Extensions for the Jetpack Camera Library, a library providing interfaces" +
             " to integrate with OEM specific camera features."
+    metalavaK2UastEnabled = true
 }

@@ -153,6 +153,7 @@
         <item name="guidanceDescriptionStyle">@style/Widget.Leanback.GuidanceDescriptionStyle</item>
 
         <item name="guidedActionsElevation">@dimen/lb_guidedactions_elevation</item>
+        <item name="guidedActionsShadowWidth">@dimen/lb_guidedactions_section_shadow_width</item>
         <item name="guidedActionsBackground">@color/lb_guidedactions_background</item>
         <item name="guidedActionsBackgroundDark">@color/lb_guidedactions_background_dark</item>
         <item name="guidedActionsListStyle">@style/Widget.Leanback.GuidedActionsListStyle</item>

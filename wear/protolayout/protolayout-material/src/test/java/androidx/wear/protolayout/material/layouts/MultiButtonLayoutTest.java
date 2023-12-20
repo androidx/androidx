@@ -106,7 +106,7 @@ public class MultiButtonLayoutTest {
     public void test_too_many_button() {
         Button button = new Button.Builder(CONTEXT, CLICKABLE).setTextContent("1").build();
         MultiButtonLayout.Builder layoutBuilder = new MultiButtonLayout.Builder();
-        for (int i = 0; i < LayoutDefaults.MULTI_BUTTON_MAX_NUMBER + 1; i++) {
+        for (int i = 0; i < LayoutDefaults.MultiButtonLayoutDefaults.MAX_BUTTONS + 1; i++) {
             layoutBuilder.addButtonContent(button);
         }
 
@@ -131,14 +131,14 @@ public class MultiButtonLayoutTest {
     public void testWrongTag() {
         Box box =
                 new Box.Builder()
-                    .setModifiers(
-                        new Modifiers.Builder()
-                            .setMetadata(
-                                new ElementMetadata.Builder()
-                                    .setTagData("test".getBytes(UTF_8))
-                                    .build())
-                            .build())
-                    .build();
+                        .setModifiers(
+                                new Modifiers.Builder()
+                                        .setMetadata(
+                                                new ElementMetadata.Builder()
+                                                        .setTagData("test".getBytes(UTF_8))
+                                                        .build())
+                                        .build())
+                        .build();
 
         assertThat(MultiButtonLayout.fromLayoutElement(box)).isNull();
     }

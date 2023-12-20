@@ -27,11 +27,12 @@
 #include <android/api-level.h>
 #include <android/native_window_jni.h>
 #include <android/hardware_buffer_jni.h>
+#include <android/data_space.h>
 #include <android/log.h>
 #include <android/sync.h>
+#include <sys/system_properties.h>
 #include "egl_utils.h"
 #include "sync_fence.h"
-#include "buffer_transform_hint_resolver.h"
 
 #define ALOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
@@ -181,7 +182,8 @@ public:
     void callback(ASurfaceTransactionStats *stats) override {
         JNIEnv *env = getEnv();
         env->CallVoidMethod(mCallbackObject,
-                            gTransactionCompletedListenerClassInfo.onComplete);
+                            gTransactionCompletedListenerClassInfo.onComplete,
+                            reinterpret_cast<jlong>(stats));
     }
 };
 
@@ -215,7 +217,7 @@ void setupTransactionCompletedListenerClassInfo(JNIEnv *env) {
                 static_cast<jclass>(env->NewGlobalRef(transactionCompletedListenerClazz));
         gTransactionCompletedListenerClassInfo.onComplete =
                 env->GetMethodID(transactionCompletedListenerClazz, "onTransactionCompleted",
-                                 "()V");
+                                 "(J)V");
 
         gTransactionCompletedListenerClassInfo.CLASS_INFO_INITIALIZED = true;
     }
@@ -291,7 +293,7 @@ void JniBindings_nSetBuffer(JNIEnv *env, jclass, jlong surfaceTransaction,
     if (android_get_device_api_level() >= 29) {
         auto transaction = reinterpret_cast<ASurfaceTransaction *>(surfaceTransaction);
         auto sc = reinterpret_cast<ASurfaceControl *>(surfaceControl);
-        AHardwareBuffer* hardwareBuffer;
+        AHardwareBuffer* hardwareBuffer = nullptr;
         auto fence_fd = -1;
         if (hBuffer) {
             hardwareBuffer = AHardwareBuffer_fromHardwareBuffer(env, hBuffer);
@@ -426,6 +428,16 @@ void JniBindings_nSetBufferTransform(JNIEnv *env,
     ASurfaceTransaction_setBufferTransform(st, sc, transformation);
 }
 
+void JniBindings_nSetDataSpace(JNIEnv *env,
+                                jclass,
+                                jlong surfaceTransaction,
+                                jlong surfaceControl,
+                                jint dataspace) {
+    auto st = reinterpret_cast<ASurfaceTransaction *>(surfaceTransaction);
+    auto sc = reinterpret_cast<ASurfaceControl *>(surfaceControl);
+
+    ASurfaceTransaction_setBufferDataSpace(st, sc, static_cast<ADataSpace>(dataspace));
+}
 
 void JniBindings_nSetGeometry(JNIEnv *env, jclass,
                                                                        jlong surfaceTransaction,
@@ -440,6 +452,60 @@ void JniBindings_nSetGeometry(JNIEnv *env, jclass,
     auto src = ARect{0, 0, bufferWidth, bufferHeight};
     auto dest = ARect{0, 0, dstWidth, dstHeight};
     ASurfaceTransaction_setGeometry(st, sc, src, dest, transformation);
+}
+
+jstring JniBindings_nGetDisplayOrientation(JNIEnv *env, jclass) {
+    char name[PROP_VALUE_MAX];
+    __system_property_get("ro.surface_flinger.primary_display_orientation", name);
+    return (*env).NewStringUTF(name);
+}
+
+jint JniBindings_nGetPreviousReleaseFenceFd(JNIEnv *env, jclass,
+                                            jlong surfaceControl,
+                                            jlong transactionStats) {
+    auto sc = reinterpret_cast<ASurfaceControl *>(surfaceControl);
+    auto stats = reinterpret_cast<ASurfaceTransactionStats *>(transactionStats);
+    int fd = -1;
+    if (stats) {
+        // Sometimes even though a SurfaceControl is part of a transaction it will not show up in
+        // the list of transaction provided by ASurfaceTransactionStats.
+        // So query the SurfaceControls that are within ASurfaceTransactionStats and only query
+        // getPreviousReleaseFenceFd is the target SurfaceControl is included.
+        // If we do not do this search in advance, getPreviousReleaseFenceFd will crash.
+        size_t numSurfaceControls;
+        ASurfaceControl** surfaceControls;
+        ASurfaceTransactionStats_getASurfaceControls(stats, &surfaceControls, &numSurfaceControls);
+        for (int i = 0; i < numSurfaceControls; i++) {
+            if (surfaceControls[i] == sc) {
+                fd = ASurfaceTransactionStats_getPreviousReleaseFenceFd(stats, sc);
+                break;
+            }
+        }
+        ASurfaceTransactionStats_releaseASurfaceControls(surfaceControls);
+    }
+    return static_cast<jint>(fd);
+}
+
+void JniBindings_nSetFrameRate(JNIEnv *env, jclass,
+                               jlong surfaceTransaction,
+                               jlong surfaceControl,
+                               jfloat framerate,
+                               jint compatibility,
+                               jint changeFrameRateStrategy) {
+    auto st = reinterpret_cast<ASurfaceTransaction *>(surfaceTransaction);
+    auto sc = reinterpret_cast<ASurfaceControl *>(surfaceControl);
+
+    if (android_get_device_api_level() >= 31) {
+        ASurfaceTransaction_setFrameRateWithChangeStrategy(
+                st,
+                sc,
+                framerate,
+                compatibility,
+                changeFrameRateStrategy
+        );
+    } else if (android_get_device_api_level() >= 30) {
+        ASurfaceTransaction_setFrameRate(st, sc, framerate, compatibility);
+    }
 }
 
 void loadRectInfo(JNIEnv *env) {
@@ -559,9 +625,29 @@ static const JNINativeMethod JNI_METHOD_TABLE[] = {
                 (void *) JniBindings_nSetBufferTransform
         },
         {
+                "nSetDataSpace",
+                "(JJI)V",
+                (void *) JniBindings_nSetDataSpace
+        },
+        {
                 "nSetGeometry",
                 "(JJIIIII)V",
                 (void *) JniBindings_nSetGeometry
+        },
+        {
+            "nGetDisplayOrientation",
+                "()Ljava/lang/String;",
+                (void *)JniBindings_nGetDisplayOrientation
+        },
+        {
+            "nGetPreviousReleaseFenceFd",
+                "(JJ)I",
+                (void *)JniBindings_nGetPreviousReleaseFenceFd
+        },
+        {
+            "nSetFrameRate",
+                "(JJFII)V",
+                (void *) JniBindings_nSetFrameRate
         }
 };
 
@@ -590,10 +676,6 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *) {
     }
 
     if (loadSyncFenceMethods(env) != JNI_OK) {
-        return JNI_ERR;
-    }
-
-    if (loadBufferTransformHintResolverMethods(env) != JNI_OK) {
         return JNI_ERR;
     }
 

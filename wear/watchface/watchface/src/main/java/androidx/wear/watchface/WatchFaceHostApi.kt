@@ -149,4 +149,7 @@ public interface WatchFaceHostApi {
 
     /** Requests the system to capture an updated preview image. */
     public fun sendPreviewImageNeedsUpdateRequest() {}
+
+    /** Returns ComponentName of the watch face. */
+    public fun getComponentName(): ComponentName
 }

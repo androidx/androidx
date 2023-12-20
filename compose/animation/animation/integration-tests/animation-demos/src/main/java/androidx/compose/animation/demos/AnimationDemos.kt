@@ -16,6 +16,8 @@
 
 package androidx.compose.animation.demos
 
+import androidx.compose.animation.core.samples.PathEasingSample
+import androidx.compose.animation.core.samples.SeekingAnimationSample
 import androidx.compose.animation.demos.fancy.AnimatedClockDemo
 import androidx.compose.animation.demos.fancy.AnimatedDotsDemo
 import androidx.compose.animation.demos.fancy.ChatScreen
@@ -39,10 +41,12 @@ import androidx.compose.animation.demos.lookahead.AnimateBoundsModifierDemo
 import androidx.compose.animation.demos.lookahead.CraneDemo
 import androidx.compose.animation.demos.lookahead.LookaheadLayoutWithAlignmentLinesDemo
 import androidx.compose.animation.demos.lookahead.LookaheadSamplesDemo
+import androidx.compose.animation.demos.lookahead.LookaheadWithAnimatedContentSize
 import androidx.compose.animation.demos.lookahead.LookaheadWithBoxWithConstraints
 import androidx.compose.animation.demos.lookahead.LookaheadWithDisappearingMovableContentDemo
 import androidx.compose.animation.demos.lookahead.LookaheadWithFlowRowDemo
 import androidx.compose.animation.demos.lookahead.LookaheadWithIntrinsicsDemo
+import androidx.compose.animation.demos.lookahead.LookaheadWithLazyColumn
 import androidx.compose.animation.demos.lookahead.LookaheadWithMovableContentDemo
 import androidx.compose.animation.demos.lookahead.LookaheadWithScaffold
 import androidx.compose.animation.demos.lookahead.LookaheadWithSubcompose
@@ -57,6 +61,8 @@ import androidx.compose.animation.demos.statetransition.LoadingAnimationDemo
 import androidx.compose.animation.demos.statetransition.MultiDimensionalAnimationDemo
 import androidx.compose.animation.demos.statetransition.RepeatedRotationDemo
 import androidx.compose.animation.demos.suspendfun.InfiniteAnimationDemo
+import androidx.compose.animation.demos.suspendfun.OffsetKeyframeSplinePlaygroundDemo
+import androidx.compose.animation.demos.suspendfun.OffsetKeyframeWithSplineDemo
 import androidx.compose.animation.demos.suspendfun.SuspendAnimationDemo
 import androidx.compose.animation.demos.suspendfun.SuspendDoubleTapToLikeDemo
 import androidx.compose.animation.demos.vectorgraphics.AnimatedVectorGraphicsDemo
@@ -78,6 +84,7 @@ val AnimationDemos = DemoCategory(
             listOf(
                 ComposableDemo("Double tap to like") { DoubleTapToLikeDemo() },
                 ComposableDemo("Gesture based animation") { GestureBasedAnimationDemo() },
+                ComposableDemo("Seeking animation") { SeekingAnimationSample() },
                 ComposableDemo("Infinite transition") { InfiniteTransitionDemo() },
                 ComposableDemo("Multi-dimensional prop") { MultiDimensionalAnimationDemo() },
                 ComposableDemo("Repeating rotation") { RepeatedRotationDemo() },
@@ -112,6 +119,9 @@ val AnimationDemos = DemoCategory(
                 },
                 ComposableDemo("Crane Nested Shared Element") { CraneDemo() },
                 ComposableDemo("Screen Size Change Demo") { ScreenSizeChangeDemo() },
+                ComposableDemo("LookaheadWithAnimatedContentSize") {
+                    LookaheadWithAnimatedContentSize()
+                },
                 ComposableDemo("Lookahead Samples Demo") {
                     LookaheadSamplesDemo()
                 },
@@ -122,6 +132,7 @@ val AnimationDemos = DemoCategory(
                     LookaheadWithBoxWithConstraints()
                 },
                 ComposableDemo("Lookahead With Subcompose") { LookaheadWithSubcompose() },
+                ComposableDemo("Lookahead With LazyColumn") { LookaheadWithLazyColumn() },
                 ComposableDemo("Lookahead With Flow Row") { LookaheadWithFlowRowDemo() },
                 ComposableDemo("Lookahead With Intrinsics") {
                     LookaheadWithIntrinsicsDemo()
@@ -151,6 +162,10 @@ val AnimationDemos = DemoCategory(
                 ComposableDemo("Loading Animation Demo") { LoadingAnimationDemo() },
                 ComposableDemo("Spring back scrolling") { SpringBackScrollingDemo() },
                 ComposableDemo("Swipe to dismiss") { SwipeToDismissDemo() },
+                ComposableDemo("Offset w/ Spline keyFrame") { OffsetKeyframeWithSplineDemo() },
+                ComposableDemo("Spline Keyframes Playground") {
+                    OffsetKeyframeSplinePlaygroundDemo()
+                },
             )
         ),
         DemoCategory(
@@ -182,6 +197,7 @@ val AnimationDemos = DemoCategory(
                 ComposableDemo("Column Arrangements Demo") { ColumnConfigurationDemo() },
                 ComposableDemo("Row Arrangements Demo (Landscape)") { RowConfigurationDemo() },
                 ComposableDemo("Easing Functions Demo") { EasingInfoDemo() },
+                ComposableDemo("Path Easing Function Demo") { PathEasingSample() },
             )
         ),
 

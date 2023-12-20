@@ -22,15 +22,14 @@ import android.media.CamcorderProfile.QUALITY_HIGH
 import android.media.CamcorderProfile.QUALITY_LOW
 import android.os.Build
 import androidx.camera.core.DynamicRange
-import androidx.camera.core.DynamicRange.BIT_DEPTH_10_BIT
-import androidx.camera.core.DynamicRange.FORMAT_HLG
+import androidx.camera.core.DynamicRange.HLG_10_BIT
 import androidx.camera.core.DynamicRange.SDR
-import androidx.camera.testing.EncoderProfilesUtil.PROFILES_2160P
-import androidx.camera.testing.EncoderProfilesUtil.PROFILES_720P
-import androidx.camera.testing.EncoderProfilesUtil.RESOLUTION_2160P
-import androidx.camera.testing.EncoderProfilesUtil.RESOLUTION_720P
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
-import androidx.camera.testing.fakes.FakeEncoderProfilesProvider
+import androidx.camera.testing.impl.EncoderProfilesUtil.PROFILES_2160P
+import androidx.camera.testing.impl.EncoderProfilesUtil.PROFILES_720P
+import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_2160P
+import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_720P
+import androidx.camera.testing.impl.fakes.FakeEncoderProfilesProvider
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -40,10 +39,10 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
 private const val CAMERA_ID_0 = "0"
-private val HLG10 = DynamicRange(FORMAT_HLG, BIT_DEPTH_10_BIT)
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
+@Suppress("DEPRECATION")
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class QualitySelectorTest {
 
@@ -58,7 +57,7 @@ class QualitySelectorTest {
     private val videoCapabilities = createFakeVideoCapabilities(
         mapOf(
             SDR to listOf(Quality.UHD, Quality.HD),
-            HLG10 to listOf(Quality.FHD, Quality.SD)
+            HLG_10_BIT to listOf(Quality.FHD, Quality.SD)
         )
     )
 
@@ -345,7 +344,7 @@ class QualitySelectorTest {
         )
 
         // Act.
-        val supportedQualities = videoCapabilities.getSupportedQualities(HLG10)
+        val supportedQualities = videoCapabilities.getSupportedQualities(HLG_10_BIT)
         val selectedQualities = qualitySelector.getPrioritizedQualities(supportedQualities)
 
         // Assert.
@@ -362,7 +361,7 @@ class QualitySelectorTest {
         )
 
         // Act.
-        val supportedQualities = videoCapabilities.getSupportedQualities(HLG10)
+        val supportedQualities = videoCapabilities.getSupportedQualities(HLG_10_BIT)
         val selectedQualities = qualitySelector.getPrioritizedQualities(supportedQualities)
 
         // Assert.
@@ -379,7 +378,7 @@ class QualitySelectorTest {
         )
 
         // Act.
-        val supportedQualities = videoCapabilities.getSupportedQualities(HLG10)
+        val supportedQualities = videoCapabilities.getSupportedQualities(HLG_10_BIT)
         val selectedQualities = qualitySelector.getPrioritizedQualities(supportedQualities)
 
         // Assert.
@@ -396,7 +395,7 @@ class QualitySelectorTest {
         )
 
         // Act.
-        val supportedQualities = videoCapabilities.getSupportedQualities(HLG10)
+        val supportedQualities = videoCapabilities.getSupportedQualities(HLG_10_BIT)
         val selectedQualities = qualitySelector.getPrioritizedQualities(supportedQualities)
 
         // Assert.
@@ -413,7 +412,7 @@ class QualitySelectorTest {
         )
 
         // Act.
-        val supportedQualities = videoCapabilities.getSupportedQualities(HLG10)
+        val supportedQualities = videoCapabilities.getSupportedQualities(HLG_10_BIT)
         val selectedQualities = qualitySelector.getPrioritizedQualities(supportedQualities)
 
         // Assert.
@@ -438,6 +437,10 @@ class QualitySelectorTest {
 
             override fun isQualitySupported(quality: Quality, dynamicRange: DynamicRange): Boolean {
                 throw UnsupportedOperationException("Not supported.")
+            }
+
+            override fun isStabilizationSupported(): Boolean {
+                return false
             }
         }
     }

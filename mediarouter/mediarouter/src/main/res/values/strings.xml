@@ -43,6 +43,9 @@
     <!-- Placeholder text to show when no devices have been found. [CHAR LIMIT=50] -->
     <string name="mr_chooser_searching">Finding devices</string>
 
+    <!-- Placeholder text to show when looking for devices. [CHAR LIMIT=50] -->
+    <string name="mr_chooser_looking_for_devices">Looking for devices...</string>
+
     <!-- Button to disconnect from a media route.  [CHAR LIMIT=30] -->
     <string name="mr_controller_disconnect">Disconnect</string>
 
@@ -98,12 +101,15 @@
     <!-- Title of the media route chooser dialog when zero routes have been found after searching. [CHAR_LIMIT=NONE] -->
     <string name="mr_chooser_zero_routes_found_title">No devices available</string>
 
-    <!-- Text displayed when no routes have been found after searching. [CHAR_LIMIT=NONE] -->
-    <string name="mr_chooser_zero_routes_description">Unable to find devices, make sure your device and the Cast device are on the same Wi-Fi network and try again.</string>
-
     <!-- Text displayed to hint making sure device and cast device are connected to the same Wi-Fi. [CHAR_LIMIT=NONE] -->
-    <string name="mr_chooser_wifi_warning_description">Make sure your device and the Cast device are on the same Wi-Fi network.</string>
+    <string name="mr_chooser_wifi_warning_description_phone">Make sure the other device is on the same Wi-Fi network as this phone</string>
+    <string name="mr_chooser_wifi_warning_description_tablet">Make sure the other device is on the same Wi-Fi network as this tablet</string>
+    <string name="mr_chooser_wifi_warning_description_tv">Make sure the other device is on the same Wi-Fi network as this tv</string>
+    <string name="mr_chooser_wifi_warning_description_watch">Make sure the other device is on the same Wi-Fi network as this watch</string>
+    <string name="mr_chooser_wifi_warning_description_car">Make sure the other device is on the same Wi-Fi network as this car</string>
+    <string name="mr_chooser_wifi_warning_description_unknown">Make sure the other device is on the same Wi-Fi network as this device</string>
 
-    <!-- The label of the Done button that closes the Cast media route chooser dialog when tapped. [CHAR_LIMIT=30] -->
-    <string name="mr_chooser_done_button_label">Done</string>
+    <!-- Text displayed to link the user to the support article. [CHAR_LIMIT=NONE] -->
+    <string name="mr_chooser_wifi_learn_more"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">Learn more</a></string>
+    <string name="ic_media_route_learn_more_accessibility">Learn how to cast</string>
 </resources>

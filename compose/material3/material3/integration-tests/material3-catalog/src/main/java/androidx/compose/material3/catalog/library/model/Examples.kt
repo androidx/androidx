@@ -21,12 +21,15 @@ package androidx.compose.material3.catalog.library.model
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.material3.adaptive.navigation.suite.samples.NavigationSuiteScaffoldCustomConfigSample
+import androidx.compose.material3.adaptive.navigation.suite.samples.NavigationSuiteScaffoldSample
+import androidx.compose.material3.catalog.library.util.AdaptiveNavigationSuiteSampleSourceUrl
 import androidx.compose.material3.catalog.library.util.SampleSourceUrl
 import androidx.compose.material3.samples.AlertDialogSample
-import androidx.compose.material3.samples.AlertDialogWithCustomContentSample
 import androidx.compose.material3.samples.AlertDialogWithIconSample
 import androidx.compose.material3.samples.AnimatedExtendedFloatingActionButtonSample
 import androidx.compose.material3.samples.AssistChipSample
+import androidx.compose.material3.samples.BasicAlertDialogSample
 import androidx.compose.material3.samples.BottomAppBarWithFAB
 import androidx.compose.material3.samples.BottomSheetScaffoldNestedScrollSample
 import androidx.compose.material3.samples.ButtonSample
@@ -54,6 +57,7 @@ import androidx.compose.material3.samples.ElevatedCardSample
 import androidx.compose.material3.samples.ElevatedFilterChipSample
 import androidx.compose.material3.samples.ElevatedSuggestionChipSample
 import androidx.compose.material3.samples.EnterAlwaysTopAppBar
+import androidx.compose.material3.samples.ExitAlwaysBottomAppBar
 import androidx.compose.material3.samples.ExitUntilCollapsedLargeTopAppBar
 import androidx.compose.material3.samples.ExitUntilCollapsedMediumTopAppBar
 import androidx.compose.material3.samples.ExposedDropdownMenuSample
@@ -71,7 +75,6 @@ import androidx.compose.material3.samples.FilterChipSample
 import androidx.compose.material3.samples.FilterChipWithLeadingIconSample
 import androidx.compose.material3.samples.FloatingActionButtonSample
 import androidx.compose.material3.samples.IconButtonSample
-import androidx.compose.material3.samples.IconTabs
 import androidx.compose.material3.samples.IconToggleButtonSample
 import androidx.compose.material3.samples.IndeterminateCircularProgressIndicatorSample
 import androidx.compose.material3.samples.IndeterminateLinearProgressIndicatorSample
@@ -101,7 +104,10 @@ import androidx.compose.material3.samples.PermanentNavigationDrawerSample
 import androidx.compose.material3.samples.PinnedTopAppBar
 import androidx.compose.material3.samples.PlainTooltipSample
 import androidx.compose.material3.samples.PlainTooltipWithManualInvocationSample
-import androidx.compose.material3.samples.PrimaryTabs
+import androidx.compose.material3.samples.PrimaryIconTabs
+import androidx.compose.material3.samples.PrimaryTextTabs
+import androidx.compose.material3.samples.PullToRefreshSample
+import androidx.compose.material3.samples.PullToRefreshSampleCustomState
 import androidx.compose.material3.samples.RadioButtonSample
 import androidx.compose.material3.samples.RadioGroupSample
 import androidx.compose.material3.samples.RangeSliderSample
@@ -114,11 +120,13 @@ import androidx.compose.material3.samples.ScaffoldWithIndefiniteSnackbar
 import androidx.compose.material3.samples.ScaffoldWithMultilineSnackbar
 import androidx.compose.material3.samples.ScaffoldWithSimpleSnackbar
 import androidx.compose.material3.samples.ScrollingFancyIndicatorContainerTabs
-import androidx.compose.material3.samples.ScrollingPrimaryTabs
-import androidx.compose.material3.samples.ScrollingSecondaryTabs
-import androidx.compose.material3.samples.ScrollingTextTabs
+import androidx.compose.material3.samples.ScrollingPrimaryTextTabs
+import androidx.compose.material3.samples.ScrollingSecondaryTextTabs
 import androidx.compose.material3.samples.SearchBarSample
-import androidx.compose.material3.samples.SecondaryTabs
+import androidx.compose.material3.samples.SecondaryIconTabs
+import androidx.compose.material3.samples.SecondaryTextTabs
+import androidx.compose.material3.samples.SegmentedButtonMultiSelectSample
+import androidx.compose.material3.samples.SegmentedButtonSingleSelectSample
 import androidx.compose.material3.samples.SimpleBottomAppBar
 import androidx.compose.material3.samples.SimpleBottomSheetScaffoldSample
 import androidx.compose.material3.samples.SimpleCenterAlignedTopAppBar
@@ -144,8 +152,8 @@ import androidx.compose.material3.samples.TextFieldWithIcons
 import androidx.compose.material3.samples.TextFieldWithPlaceholder
 import androidx.compose.material3.samples.TextFieldWithPrefixAndSuffix
 import androidx.compose.material3.samples.TextFieldWithSupportingText
-import androidx.compose.material3.samples.TextTabs
-import androidx.compose.material3.samples.ThreeLineListItem
+import androidx.compose.material3.samples.ThreeLineListItemWithExtendedSupporting
+import androidx.compose.material3.samples.ThreeLineListItemWithOverlineAndSupporting
 import androidx.compose.material3.samples.TimeInputSample
 import androidx.compose.material3.samples.TimePickerSample
 import androidx.compose.material3.samples.TimePickerSwitchableSample
@@ -440,10 +448,10 @@ val DialogExamples =
             sourceUrl = DialogExampleSourceUrl,
         ) { AlertDialogWithIconSample() },
         Example(
-            name = ::AlertDialogWithCustomContentSample.name,
+            name = ::BasicAlertDialogSample.name,
             description = DialogExampleDescription,
             sourceUrl = DialogExampleSourceUrl,
-        ) { AlertDialogWithCustomContentSample() },
+        ) { BasicAlertDialogSample() },
     )
 
 private const val BottomAppBarsExampleDescription = "Bottom app bar examples"
@@ -458,7 +466,12 @@ val BottomAppBarsExamples = listOf(
         name = ::BottomAppBarWithFAB.name,
         description = BottomAppBarsExampleDescription,
         sourceUrl = BottomAppBarsExampleSourceUrl,
-    ) { BottomAppBarWithFAB() }
+    ) { BottomAppBarWithFAB() },
+    Example(
+        name = ::ExitAlwaysBottomAppBar.name,
+        description = BottomAppBarsExampleDescription,
+        sourceUrl = BottomAppBarsExampleSourceUrl,
+    ) { ExitAlwaysBottomAppBar() }
 )
 
 private const val TopAppBarExampleDescription = "Top app bar examples"
@@ -558,11 +571,18 @@ val ListsExamples = listOf(
         TwoLineListItem()
     },
     Example(
-        name = ::ThreeLineListItem.name,
+        name = ::ThreeLineListItemWithOverlineAndSupporting.name,
         description = ListsExampleDescription,
         sourceUrl = ListsExampleSourceUrl
     ) {
-        ThreeLineListItem()
+        ThreeLineListItemWithOverlineAndSupporting()
+    },
+    Example(
+        name = ::ThreeLineListItemWithExtendedSupporting.name,
+        description = ListsExampleDescription,
+        sourceUrl = ListsExampleSourceUrl
+    ) {
+        ThreeLineListItemWithExtendedSupporting()
     },
 )
 
@@ -708,6 +728,23 @@ val NavigationDrawerExamples = listOf(
     }
 )
 
+private const val NavigationSuiteScaffoldExampleDescription = "Navigation suite scaffold examples"
+private const val NavigationSuiteScaffoldExampleSourceUrl =
+    "$AdaptiveNavigationSuiteSampleSourceUrl/NavigationSuiteScaffoldSamples.kt"
+val NavigationSuiteScaffoldExamples =
+    listOf(
+        Example(
+            name = ::NavigationSuiteScaffoldSample.name,
+            description = NavigationSuiteScaffoldExampleDescription,
+            sourceUrl = NavigationSuiteScaffoldExampleSourceUrl,
+        ) { NavigationSuiteScaffoldSample() },
+        Example(
+            name = ::NavigationSuiteScaffoldCustomConfigSample.name,
+            description = NavigationSuiteScaffoldExampleDescription,
+            sourceUrl = NavigationSuiteScaffoldExampleSourceUrl,
+        ) { NavigationSuiteScaffoldCustomConfigSample() },
+    )
+
 private const val ProgressIndicatorsExampleDescription = "Progress indicators examples"
 private const val ProgressIndicatorsExampleSourceUrl = "$SampleSourceUrl/" +
     "ProgressIndicatorSamples.kt"
@@ -739,6 +776,25 @@ val ProgressIndicatorsExamples = listOf(
         sourceUrl = ProgressIndicatorsExampleSourceUrl
     ) {
         IndeterminateCircularProgressIndicatorSample()
+    }
+)
+
+private const val PullToRefreshExampleDescription = "Pull-to-refresh examples"
+private const val PullToRefreshExampleSourceUrl = "$SampleSourceUrl/PullToRefreshSamples.kt"
+val PullToRefreshExamples = listOf(
+    Example(
+        name = ::PullToRefreshSample.name,
+        description = PullToRefreshExampleDescription,
+        sourceUrl = PullToRefreshExampleSourceUrl
+    ) {
+        PullToRefreshSample()
+    },
+    Example(
+        name = ::PullToRefreshSampleCustomState.name,
+        description = PullToRefreshExampleDescription,
+        sourceUrl = PullToRefreshExampleSourceUrl
+    ) {
+        PullToRefreshSampleCustomState()
     }
 )
 
@@ -777,6 +833,25 @@ val SearchBarExamples = listOf(
         sourceUrl = SearchBarExampleSourceUrl
     ) {
         DockedSearchBarSample()
+    }
+)
+
+private const val SegmentedButtonExampleDescription = "Segmented Button examples"
+private const val SegmentedButtonSourceUrl = "$SampleSourceUrl/SegmentedButtonSamples.kt"
+val SegmentedButtonExamples = listOf(
+    Example(
+        name = ::SegmentedButtonSingleSelectSample.name,
+        description = SegmentedButtonExampleDescription,
+        sourceUrl = SegmentedButtonSourceUrl
+    ) {
+        SegmentedButtonSingleSelectSample()
+    },
+    Example(
+        name = ::SegmentedButtonMultiSelectSample.name,
+        description = SegmentedButtonExampleDescription,
+        sourceUrl = SegmentedButtonSourceUrl
+    ) {
+        SegmentedButtonMultiSelectSample()
     },
 )
 
@@ -898,32 +973,32 @@ private const val TabsExampleDescription = "Tabs examples"
 private const val TabsExampleSourceUrl = "$SampleSourceUrl/TabSamples.kt"
 val TabsExamples = listOf(
     Example(
-        name = ::PrimaryTabs.name,
+        name = ::PrimaryTextTabs.name,
         description = TabsExampleDescription,
         sourceUrl = TabsExampleSourceUrl
     ) {
-        PrimaryTabs()
+        PrimaryTextTabs()
     },
     Example(
-        name = ::SecondaryTabs.name,
+        name = ::PrimaryIconTabs.name,
         description = TabsExampleDescription,
         sourceUrl = TabsExampleSourceUrl
     ) {
-        SecondaryTabs()
+        PrimaryIconTabs()
     },
     Example(
-        name = ::TextTabs.name,
+        name = ::SecondaryTextTabs.name,
         description = TabsExampleDescription,
         sourceUrl = TabsExampleSourceUrl
     ) {
-        TextTabs()
+        SecondaryTextTabs()
     },
     Example(
-        name = ::IconTabs.name,
+        name = ::SecondaryIconTabs.name,
         description = TabsExampleDescription,
         sourceUrl = TabsExampleSourceUrl
     ) {
-        IconTabs()
+        SecondaryIconTabs()
     },
     Example(
         name = ::TextAndIconTabs.name,
@@ -940,25 +1015,18 @@ val TabsExamples = listOf(
         LeadingIconTabs()
     },
     Example(
-        name = ::ScrollingPrimaryTabs.name,
+        name = ::ScrollingPrimaryTextTabs.name,
         description = TabsExampleDescription,
         sourceUrl = TabsExampleSourceUrl
     ) {
-        ScrollingPrimaryTabs()
+        ScrollingPrimaryTextTabs()
     },
     Example(
-        name = ::ScrollingSecondaryTabs.name,
+        name = ::ScrollingSecondaryTextTabs.name,
         description = TabsExampleDescription,
         sourceUrl = TabsExampleSourceUrl
     ) {
-        ScrollingSecondaryTabs()
-    },
-    Example(
-        name = ::ScrollingTextTabs.name,
-        description = TabsExampleDescription,
-        sourceUrl = TabsExampleSourceUrl
-    ) {
-        ScrollingTextTabs()
+        ScrollingSecondaryTextTabs()
     },
     Example(
         name = ::FancyTabs.name,

@@ -31,8 +31,6 @@ import androidx.compose.material3.tokens.DatePickerModalTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -106,7 +104,8 @@ fun DateRangePicker(
     showModeToggle: Boolean = true,
     colors: DatePickerColors = DatePickerDefaults.colors()
 ) {
-    val calendarModel = remember { CalendarModel() }
+    val defaultLocale = defaultLocale()
+    val calendarModel = remember(defaultLocale) { createCalendarModel(defaultLocale) }
     DateEntryContainer(
         modifier = modifier,
         title = title,
@@ -233,6 +232,8 @@ interface DateRangePickerState {
 /**
  * Creates a [DateRangePickerState] for a [DateRangePicker] that is remembered across compositions.
  *
+ * To create a date range picker state outside composition, see the `DateRangePickerState` function.
+ *
  * @param initialSelectedStartDateMillis timestamp in _UTC_ milliseconds from the epoch that
  * represents an initial selection of a start date. Provide a `null` to indicate no selection.
  * @param initialSelectedEndDateMillis timestamp in _UTC_ milliseconds from the epoch that
@@ -257,19 +258,70 @@ fun rememberDateRangePickerState(
         initialSelectedStartDateMillis,
     yearRange: IntRange = DatePickerDefaults.YearRange,
     initialDisplayMode: DisplayMode = DisplayMode.Picker,
-    selectableDates: SelectableDates = object : SelectableDates {}
-): DateRangePickerState = rememberSaveable(
-    saver = DateRangePickerStateImpl.Saver(selectableDates)
-) {
-    DateRangePickerStateImpl(
-        initialSelectedStartDateMillis = initialSelectedStartDateMillis,
-        initialSelectedEndDateMillis = initialSelectedEndDateMillis,
-        initialDisplayedMonthMillis = initialDisplayedMonthMillis,
-        yearRange = yearRange,
-        initialDisplayMode = initialDisplayMode,
-        selectableDates = selectableDates
-    )
+    selectableDates: SelectableDates = DatePickerDefaults.AllDates
+): DateRangePickerState {
+    val locale = defaultLocale()
+    return rememberSaveable(
+        saver = DateRangePickerStateImpl.Saver(selectableDates, locale)
+    ) {
+        DateRangePickerStateImpl(
+            initialSelectedStartDateMillis = initialSelectedStartDateMillis,
+            initialSelectedEndDateMillis = initialSelectedEndDateMillis,
+            initialDisplayedMonthMillis = initialDisplayedMonthMillis,
+            yearRange = yearRange,
+            initialDisplayMode = initialDisplayMode,
+            selectableDates = selectableDates,
+            locale = locale
+        )
+    }
 }
+
+/**
+ * Creates a [DateRangePickerState].
+ *
+ * Note that in most cases, you are advised to use the [rememberDateRangePickerState] when in a
+ * composition.
+ *
+ * @param locale a [CalendarLocale] to be used when formatting dates, determining the input format,
+ * and more
+ * @param initialSelectedStartDateMillis timestamp in _UTC_ milliseconds from the epoch that
+ * represents an initial selection of a start date. Provide a `null` to indicate no selection.
+ * @param initialSelectedEndDateMillis timestamp in _UTC_ milliseconds from the epoch that
+ * represents an initial selection of an end date. Provide a `null` to indicate no selection.
+ * @param initialDisplayedMonthMillis timestamp in _UTC_ milliseconds from the epoch that
+ * represents an initial selection of a month to be displayed to the user. By default, in case
+ * an `initialSelectedStartDateMillis` is provided, the initial displayed month would be the
+ * month of the selected date. Otherwise, in case `null` is provided, the displayed month would
+ * be the current one.
+ * @param yearRange an [IntRange] that holds the year range that the date picker will be limited
+ * to
+ * @param initialDisplayMode an initial [DisplayMode] that this state will hold
+ * @param selectableDates a [SelectableDates] that is consulted to check if a date is allowed.
+ * In case a date is not allowed to be selected, it will appear disabled in the UI
+ * @see rememberDateRangePickerState
+ * @throws IllegalArgumentException if the initial timestamps do not fall within the year range
+ * this state is created with, or the end date precedes the start date, or when an end date is
+ * provided without a start date (e.g. the start date was null, while the end date was not).
+ */
+@ExperimentalMaterial3Api
+fun DateRangePickerState(
+    locale: CalendarLocale,
+    @Suppress("AutoBoxing") initialSelectedStartDateMillis: Long? = null,
+    @Suppress("AutoBoxing") initialSelectedEndDateMillis: Long? = null,
+    @Suppress("AutoBoxing") initialDisplayedMonthMillis: Long? =
+        initialSelectedStartDateMillis,
+    yearRange: IntRange = DatePickerDefaults.YearRange,
+    initialDisplayMode: DisplayMode = DisplayMode.Picker,
+    selectableDates: SelectableDates = DatePickerDefaults.AllDates
+): DateRangePickerState = DateRangePickerStateImpl(
+    initialSelectedStartDateMillis = initialSelectedStartDateMillis,
+    initialSelectedEndDateMillis = initialSelectedEndDateMillis,
+    initialDisplayedMonthMillis = initialDisplayedMonthMillis,
+    yearRange = yearRange,
+    initialDisplayMode = initialDisplayMode,
+    selectableDates = selectableDates,
+    locale = locale
+)
 
 /**
  * Contains default values used by the [DateRangePicker].
@@ -448,8 +500,10 @@ object DateRangePickerDefaults {
  * to
  * @param initialDisplayMode an initial [DisplayMode] that this state will hold
  * @param selectableDates a [SelectableDates] that is consulted to check if a date is allowed.
- * In case a date is not allowed to be selected, it will appear disabled in the UI.
- * @see rememberDatePickerState
+ * In case a date is not allowed to be selected, it will appear disabled in the UI
+ * @param locale a [CalendarLocale] to be used when formatting dates, determining the input format,
+ * and more
+ * @see rememberDateRangePickerState
  * @throws IllegalArgumentException if the initial timestamps do not fall within the year range
  * this state is created with, or the end date precedes the start date, or when an end date is
  * provided without a start date (e.g. the start date was null, while the end date was not).
@@ -462,11 +516,13 @@ private class DateRangePickerStateImpl(
     @Suppress("AutoBoxing") initialDisplayedMonthMillis: Long?,
     yearRange: IntRange,
     initialDisplayMode: DisplayMode,
-    selectableDates: SelectableDates
+    selectableDates: SelectableDates,
+    locale: CalendarLocale
 ) : BaseDatePickerStateImpl(
     initialDisplayedMonthMillis,
     yearRange,
-    selectableDates
+    selectableDates,
+    locale
 ), DateRangePickerState {
 
     /**
@@ -574,7 +630,10 @@ private class DateRangePickerStateImpl(
          * @param selectableDates a [SelectableDates] instance that is consulted to check if a date
          * is allowed
          */
-        fun Saver(selectableDates: SelectableDates): Saver<DateRangePickerStateImpl, Any> =
+        fun Saver(
+            selectableDates: SelectableDates,
+            locale: CalendarLocale
+        ): Saver<DateRangePickerStateImpl, Any> =
             listSaver(
                 save = {
                     listOf(
@@ -593,7 +652,8 @@ private class DateRangePickerStateImpl(
                         initialDisplayedMonthMillis = value[2] as Long?,
                         yearRange = IntRange(value[3] as Int, value[4] as Int),
                         initialDisplayMode = DisplayMode(value[5] as Int),
-                        selectableDates = selectableDates
+                        selectableDates = selectableDates,
+                        locale = locale
                     )
                 }
             )
@@ -716,13 +776,31 @@ private fun VerticalMonthsList(
         )
     }
     ProvideTextStyle(
-        MaterialTheme.typography.fromToken(
-            DatePickerModalTokens.RangeSelectionMonthSubheadFont
-        )
+        MaterialTheme.typography.fromToken(DatePickerModalTokens.DateLabelTextFont)
     ) {
         val coroutineScope = rememberCoroutineScope()
         val scrollToPreviousMonthLabel = getString(Strings.DateRangePickerScrollToShowPreviousMonth)
         val scrollToNextMonthLabel = getString(Strings.DateRangePickerScrollToShowNextMonth)
+
+        // The updateDateSelection will invoke the onDatesSelectionChange with the proper
+        // selection according to the current state.
+        val onDateSelectionChange = { dateInMillis: Long ->
+            updateDateSelection(
+                dateInMillis = dateInMillis,
+                currentStartDateMillis = selectedStartDateMillis,
+                currentEndDateMillis = selectedEndDateMillis,
+                onDatesSelectionChange = onDatesSelectionChange
+            )
+        }
+
+        val customAccessibilityAction =
+            customScrollActions(
+                state = lazyListState,
+                coroutineScope = coroutineScope,
+                scrollUpLabel = scrollToPreviousMonthLabel,
+                scrollDownLabel = scrollToNextMonthLabel
+            )
+
         LazyColumn(
             // Apply this to have the screen reader traverse outside the visible list of months
             // and not scroll them by default.
@@ -740,59 +818,50 @@ private fun VerticalMonthsList(
                 Column(
                     modifier = Modifier.fillParentMaxWidth()
                 ) {
-                    Text(
-                        text = dateFormatter.formatMonthYear(
-                            month.startUtcTimeMillis,
-                            defaultLocale()
-                        ) ?: "-",
-                        modifier = Modifier
-                            .padding(paddingValues = CalendarMonthSubheadPadding)
-                            .clickable { /* no-op (needed for customActions to operate */ }
-                            .semantics {
-                                customActions = customScrollActions(
-                                    state = lazyListState,
-                                    coroutineScope = coroutineScope,
-                                    scrollUpLabel = scrollToPreviousMonthLabel,
-                                    scrollDownLabel = scrollToNextMonthLabel
-                                )
-                            },
-                        color = colors.subheadContentColor
-                    )
-                    val rangeSelectionInfo: State<SelectedRangeInfo?> =
-                        remember(selectedStartDateMillis, selectedEndDateMillis) {
-                            derivedStateOf {
-                                SelectedRangeInfo.calculateRangeInfo(
-                                    month = month,
-                                    startDate = selectedStartDateMillis?.let { date ->
-                                        calendarModel.getCanonicalDate(
-                                            date
-                                        )
-                                    },
-                                    endDate = selectedEndDateMillis?.let { date ->
-                                        calendarModel.getCanonicalDate(
-                                            date
-                                        )
-                                    }
-                                )
-                            }
-                        }
-                    // The updateDateSelection will invoke the onDatesSelectionChange with the proper
-                    // selection according to the current state.
-                    val onDateSelectionChange = { dateInMillis: Long ->
-                        updateDateSelection(
-                            dateInMillis = dateInMillis,
-                            currentStartDateMillis = selectedStartDateMillis,
-                            currentEndDateMillis = selectedEndDateMillis,
-                            onDatesSelectionChange = onDatesSelectionChange
+                    ProvideTextStyle(
+                        MaterialTheme.typography.fromToken(
+                            DatePickerModalTokens.RangeSelectionMonthSubheadFont
+                        )
+                    ) {
+                        Text(
+                            text = dateFormatter.formatMonthYear(
+                                month.startUtcTimeMillis,
+                                defaultLocale()
+                            ) ?: "-",
+                            modifier = Modifier
+                                .padding(paddingValues = CalendarMonthSubheadPadding)
+                                .clickable { /* no-op (needed for customActions to operate */ }
+                                .semantics {
+                                    customActions = customAccessibilityAction
+                                },
+                            color = colors.subheadContentColor
                         )
                     }
+                    val rangeSelectionInfo: SelectedRangeInfo? =
+                        if (selectedStartDateMillis != null &&
+                            selectedEndDateMillis != null
+                        ) {
+                            remember(selectedStartDateMillis, selectedEndDateMillis) {
+                                SelectedRangeInfo.calculateRangeInfo(
+                                    month = month,
+                                    startDate = calendarModel.getCanonicalDate(
+                                        selectedStartDateMillis
+                                    ),
+                                    endDate = calendarModel.getCanonicalDate(
+                                        selectedEndDateMillis
+                                    )
+                                )
+                            }
+                        } else {
+                            null
+                        }
                     Month(
                         month = month,
                         onDateSelectionChange = onDateSelectionChange,
                         todayMillis = today.utcTimeMillis,
                         startDateMillis = selectedStartDateMillis,
                         endDateMillis = selectedEndDateMillis,
-                        rangeSelectionInfo = rangeSelectionInfo.value,
+                        rangeSelectionInfo = rangeSelectionInfo,
                         dateFormatter = dateFormatter,
                         selectableDates = selectableDates,
                         colors = colors
@@ -811,7 +880,6 @@ private fun VerticalMonthsList(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 private fun updateDateSelection(
     dateInMillis: Long,
     currentStartDateMillis: Long?,
@@ -846,7 +914,8 @@ internal val CalendarMonthSubheadPadding = PaddingValues(
  * A SelectedRangeInfo is created when a [Month] is composed with an `rangeSelectionEnabled` flag.
  */
 internal class SelectedRangeInfo(
-    val gridCoordinates: Pair<IntOffset, IntOffset>,
+    val gridStartCoordinates: IntOffset,
+    val gridEndCoordinates: IntOffset,
     val firstIsSelectionStart: Boolean,
     val lastIsSelectionEnd: Boolean
 ) {
@@ -860,44 +929,42 @@ internal class SelectedRangeInfo(
         @OptIn(ExperimentalMaterial3Api::class)
         fun calculateRangeInfo(
             month: CalendarMonth,
-            startDate: CalendarDate?,
-            endDate: CalendarDate?
+            startDate: CalendarDate,
+            endDate: CalendarDate
         ): SelectedRangeInfo? {
-            if (startDate != null && endDate != null) {
-                if (startDate.utcTimeMillis > month.endUtcTimeMillis ||
-                    endDate.utcTimeMillis < month.startUtcTimeMillis
-                ) {
-                    return null
-                }
-                val firstIsSelectionStart = startDate.utcTimeMillis >= month.startUtcTimeMillis
-                val lastIsSelectionEnd = endDate.utcTimeMillis <= month.endUtcTimeMillis
-                val startGridItemOffset = if (firstIsSelectionStart) {
-                    month.daysFromStartOfWeekToFirstOfMonth + startDate.dayOfMonth - 1
-                } else {
-                    month.daysFromStartOfWeekToFirstOfMonth
-                }
-                val endGridItemOffset = if (lastIsSelectionEnd) {
-                    month.daysFromStartOfWeekToFirstOfMonth + endDate.dayOfMonth - 1
-                } else {
-                    month.daysFromStartOfWeekToFirstOfMonth + month.numberOfDays - 1
-                }
-
-                // Calculate the selected coordinates within the cells grid.
-                val startCoordinates = IntOffset(
-                    x = startGridItemOffset % DaysInWeek,
-                    y = startGridItemOffset / DaysInWeek
-                )
-                val endCoordinates = IntOffset(
-                    x = endGridItemOffset % DaysInWeek,
-                    y = endGridItemOffset / DaysInWeek
-                )
-                return SelectedRangeInfo(
-                    Pair(startCoordinates, endCoordinates),
-                    firstIsSelectionStart,
-                    lastIsSelectionEnd
-                )
+            if (startDate.utcTimeMillis > month.endUtcTimeMillis ||
+                endDate.utcTimeMillis < month.startUtcTimeMillis
+            ) {
+                return null
             }
-            return null
+            val firstIsSelectionStart = startDate.utcTimeMillis >= month.startUtcTimeMillis
+            val lastIsSelectionEnd = endDate.utcTimeMillis <= month.endUtcTimeMillis
+            val startGridItemOffset = if (firstIsSelectionStart) {
+                month.daysFromStartOfWeekToFirstOfMonth + startDate.dayOfMonth - 1
+            } else {
+                month.daysFromStartOfWeekToFirstOfMonth
+            }
+            val endGridItemOffset = if (lastIsSelectionEnd) {
+                month.daysFromStartOfWeekToFirstOfMonth + endDate.dayOfMonth - 1
+            } else {
+                month.daysFromStartOfWeekToFirstOfMonth + month.numberOfDays - 1
+            }
+
+            // Calculate the selected coordinates within the cells grid.
+            val gridStartCoordinates = IntOffset(
+                x = startGridItemOffset % DaysInWeek,
+                y = startGridItemOffset / DaysInWeek
+            )
+            val gridEndCoordinates = IntOffset(
+                x = endGridItemOffset % DaysInWeek,
+                y = endGridItemOffset / DaysInWeek
+            )
+            return SelectedRangeInfo(
+                gridStartCoordinates,
+                gridEndCoordinates,
+                firstIsSelectionStart,
+                lastIsSelectionEnd
+            )
         }
     }
 }
@@ -924,8 +991,8 @@ internal fun ContentDrawScope.drawRangeBackground(
     val horizontalSpaceBetweenItems =
         (this.size.width - DaysInWeek * itemContainerWidth) / DaysInWeek
 
-    val (x1, y1) = selectedRangeInfo.gridCoordinates.first
-    val (x2, y2) = selectedRangeInfo.gridCoordinates.second
+    val (x1, y1) = selectedRangeInfo.gridStartCoordinates
+    val (x2, y2) = selectedRangeInfo.gridEndCoordinates
     // The endX and startX are offset to include only half the item's width when dealing with first
     // and last items in the selection in order to keep the selection edges rounded.
     var startX = x1 * (itemContainerWidth + horizontalSpaceBetweenItems) +

@@ -18,6 +18,8 @@ package androidx.wear.compose.foundation
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMaxOfOrNull
 
 /**
  * A layout composable that places its children on top of each other and on an arc. This is
@@ -67,14 +69,14 @@ internal class CurvedBoxChild(
 ) : ContainerChild(curvedLayoutDirection, reverseLayout = false, contentBuilder) {
 
     override fun doEstimateThickness(maxRadius: Float) =
-        children.maxOfOrNull { it.estimateThickness(maxRadius) } ?: 0f
+        children.fastMaxOfOrNull { it.estimateThickness(maxRadius) } ?: 0f
 
     override fun doRadialPosition(
         parentOuterRadius: Float,
         parentThickness: Float,
     ): PartialLayoutInfo {
         // position children, take max sweep.
-        val maxSweep = children.maxOfOrNull { child ->
+        val maxSweep = children.fastMaxOfOrNull { child ->
             var childRadialPosition = parentOuterRadius
             var childThickness = parentThickness
             if (radialAlignment != null) {
@@ -102,7 +104,7 @@ internal class CurvedBoxChild(
         parentSweepRadians: Float,
         centerOffset: Offset
     ): Float {
-        children.forEach { child ->
+        children.fastForEach { child ->
             var childAngularPosition = parentStartAngleRadians
             var childSweep = parentSweepRadians
             if (angularAlignment != null) {

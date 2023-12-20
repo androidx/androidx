@@ -22,7 +22,6 @@ import androidx.annotation.RestrictTo;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @IntDef(value = {
         CarAppApiLevels.UNKNOWN,

@@ -36,9 +36,10 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ZoomState
 import androidx.camera.integration.core.util.CameraPipeUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.CameraPipeConfigTestRule
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.fakes.FakeLifecycleOwner
+import androidx.camera.testing.impl.CameraPipeConfigTestRule
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.WakelockEmptyActivityRule
+import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.concurrent.futures.await
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
@@ -89,6 +90,9 @@ class ZoomControlDeviceTest(
         CameraUtil.PreTestCameraIdList(cameraConfig)
     )
 
+    @get:Rule
+    val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
+
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private lateinit var camera: Camera
     private lateinit var cameraProvider: ProcessCameraProvider
@@ -130,7 +134,7 @@ class ZoomControlDeviceTest(
     fun tearDown(): Unit = runBlocking {
         if (::cameraProvider.isInitialized) {
             withContext(Dispatchers.Main) {
-                cameraProvider.shutdown()[10, TimeUnit.SECONDS]
+                cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
             }
         }
     }

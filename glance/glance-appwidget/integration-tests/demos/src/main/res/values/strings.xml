@@ -16,6 +16,7 @@
 
 <resources>
     <string name="demos_label">Glance AppWidget Demos</string>
+    <string name="demo_widget_viewer">Demo Widget Viewer</string>
 
     <!-- Name of the app widgets -->
     <string name="responsive_widget_name">Responsive Widget</string>
@@ -28,6 +29,7 @@
     <string name="compound_button_widget_name">Compound buttons Widget</string>
     <string name="error_widget_name">Error UI Widget</string>
     <string name="font_widget_name">Font Demo Widget</string>
+    <string name="typography_widget_name">Typography Demo Widget</string>
     <string name="scrollable_widget_name">Scrollable Widget</string>
     <string name="image_widget_name">Image Widget</string>
     <string name="ripple_widget_name">Ripple Widget</string>
@@ -36,5 +38,7 @@
     <string name="default_state_widget_name">Default State Widget</string>
     <string name="progress_indicator_widget_name">ProgressBar Widget</string>
     <string name="default_color_widget_name">Theme and Color Widget</string>
-
+    <string name="buttons_widget_name">Buttons Demo Widget</string>
+    <string name="tint_widget">Tint widget</string>
+    <string name="title_bar_widget">Title Bar Widget</string>
 </resources>

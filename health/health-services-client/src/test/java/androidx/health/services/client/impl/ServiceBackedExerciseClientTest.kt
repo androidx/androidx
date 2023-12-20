@@ -24,14 +24,19 @@ import androidx.health.services.client.ExerciseUpdateCallback
 import androidx.health.services.client.data.Availability
 import androidx.health.services.client.data.BatchingMode
 import androidx.health.services.client.data.DataType
+import androidx.health.services.client.data.DataType.Companion.GOLF_SHOT_COUNT
 import androidx.health.services.client.data.DataType.Companion.HEART_RATE_BPM
 import androidx.health.services.client.data.DataType.Companion.HEART_RATE_BPM_STATS
 import androidx.health.services.client.data.DataTypeAvailability.Companion.ACQUIRING
 import androidx.health.services.client.data.ExerciseConfig
+import androidx.health.services.client.data.ExerciseEvent
+import androidx.health.services.client.data.ExerciseEventType
 import androidx.health.services.client.data.ExerciseLapSummary
 import androidx.health.services.client.data.ExerciseType
 import androidx.health.services.client.data.ExerciseUpdate
 import androidx.health.services.client.data.GolfExerciseTypeConfig
+import androidx.health.services.client.data.GolfShotEvent
+import androidx.health.services.client.data.GolfShotEvent.GolfShotSwingType
 import androidx.health.services.client.data.WarmUpConfig
 import androidx.health.services.client.impl.event.ExerciseUpdateListenerEvent
 import androidx.health.services.client.impl.internal.IExerciseInfoCallback
@@ -47,8 +52,10 @@ import androidx.health.services.client.impl.request.StartExerciseRequest
 import androidx.health.services.client.impl.request.UpdateExerciseTypeConfigRequest
 import androidx.health.services.client.impl.response.AvailabilityResponse
 import androidx.health.services.client.impl.response.ExerciseCapabilitiesResponse
+import androidx.health.services.client.impl.response.ExerciseEventResponse
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import java.time.Duration
 import kotlin.test.assertFailsWith
 import org.junit.After
 import org.junit.Before
@@ -205,6 +212,37 @@ class ServiceBackedExerciseClientTest {
     }
 
     @Test
+    fun withExerciseEventConfig_startExercise_receiveCorrectExerciseEventCallback() {
+        val exerciseConfig = ExerciseConfig(
+            ExerciseType.GOLF,
+            setOf(GOLF_SHOT_COUNT),
+            isAutoPauseAndResumeEnabled = false,
+            isGpsEnabled = false,
+            exerciseTypeConfig = GolfExerciseTypeConfig(
+                GolfExerciseTypeConfig
+                    .GolfShotTrackingPlaceInfo.GOLF_SHOT_TRACKING_PLACE_INFO_PUTTING_GREEN
+            ),
+            exerciseEventTypes = setOf(ExerciseEventType.GOLF_SHOT_EVENT),
+        )
+        val golfShotEvent = ExerciseUpdateListenerEvent.createExerciseEventUpdateEvent(
+            ExerciseEventResponse(
+                GolfShotEvent(
+                    Duration.ofMinutes(1), GolfShotSwingType.PUTT
+                )
+            )
+        )
+
+        client.setUpdateCallback(callback)
+        client.startExerciseAsync(exerciseConfig)
+        shadowOf(getMainLooper()).idle()
+        fakeService.listener!!.onExerciseUpdateListenerEvent(golfShotEvent)
+        shadowOf(getMainLooper()).idle()
+
+        assertThat(callback.exerciseEvents)
+            .contains(GolfShotEvent(Duration.ofMinutes(1), GolfShotSwingType.PUTT))
+    }
+
+    @Test
     fun dataTypeInAvailabilityCallbackShouldMatchRequested_justSampleType_prepare() {
         val warmUpConfig = WarmUpConfig(
             ExerciseType.WALKING,
@@ -260,6 +298,7 @@ class ServiceBackedExerciseClientTest {
         val registrationFailureThrowables = mutableListOf<Throwable>()
         var onRegisteredCalls = 0
         var onRegistrationFailedCalls = 0
+        var exerciseEvents = mutableSetOf<ExerciseEvent>()
 
         override fun onRegistered() {
             onRegisteredCalls++
@@ -276,6 +315,14 @@ class ServiceBackedExerciseClientTest {
 
         override fun onAvailabilityChanged(dataType: DataType<*, *>, availability: Availability) {
             availabilities[dataType] = availability
+        }
+
+        override fun onExerciseEventReceived(event: ExerciseEvent) {
+            when (event) {
+                is GolfShotEvent -> {
+                    exerciseEvents.add(event)
+                }
+            }
         }
     }
 

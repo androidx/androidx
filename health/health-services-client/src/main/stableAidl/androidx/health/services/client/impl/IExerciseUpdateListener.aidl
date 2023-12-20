@@ -24,8 +24,8 @@ import androidx.health.services.client.impl.response.ExerciseUpdateResponse;
 /**
  * Interface to get exercise updates.
  *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface IExerciseUpdateListener {
     /** Called when there is an exercise update event. */
     void onExerciseUpdateListenerEvent(in ExerciseUpdateListenerEvent event) = 0;

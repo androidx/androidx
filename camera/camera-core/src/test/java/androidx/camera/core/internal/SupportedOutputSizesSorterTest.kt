@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21)
+
 package androidx.camera.core.internal
 
 import android.graphics.ImageFormat
 import android.os.Build
 import android.util.Pair
 import android.util.Size
+import androidx.annotation.RequiresApi
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType
@@ -27,14 +30,14 @@ import androidx.camera.core.impl.utils.AspectRatioUtil
 import androidx.camera.core.resolutionselector.AspectRatioStrategy
 import androidx.camera.core.resolutionselector.ResolutionFilter
 import androidx.camera.core.resolutionselector.ResolutionSelector
-import androidx.camera.core.resolutionselector.ResolutionSelector.ALLOWED_RESOLUTIONS_SLOW
+import androidx.camera.core.resolutionselector.ResolutionSelector.PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE
 import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.core.resolutionselector.ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER
 import androidx.camera.core.resolutionselector.ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER
 import androidx.camera.core.resolutionselector.ResolutionStrategy.FALLBACK_RULE_CLOSEST_LOWER
 import androidx.camera.core.resolutionselector.ResolutionStrategy.FALLBACK_RULE_CLOSEST_LOWER_THEN_HIGHER
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
-import androidx.camera.testing.fakes.FakeUseCaseConfig
+import androidx.camera.testing.impl.fakes.FakeUseCaseConfig
 import com.google.common.truth.Truth.assertThat
 import java.util.Collections
 import java.util.Collections.unmodifiableList
@@ -399,7 +402,7 @@ class SupportedOutputSizesSorterTest {
     fun getSupportedOutputSizes_whenHighResolutionIsEnabled_aspectRatio16x9() {
         verifySupportedOutputSizesWithResolutionSelectorSettings(
             preferredAspectRatio = AspectRatio.RATIO_16_9,
-            allowedResolutionMode = ALLOWED_RESOLUTIONS_SLOW,
+            allowedResolutionMode = PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE,
             expectedList = listOf(
                 // Matched preferred AspectRatio items, sorted by area size.
                 Size(8000, 4500), // 16:9 high resolution size
@@ -427,7 +430,7 @@ class SupportedOutputSizesSorterTest {
     fun highResolutionCanNotBeSelected_whenHighResolutionForceDisabled() {
         verifySupportedOutputSizesWithResolutionSelectorSettings(
             preferredAspectRatio = AspectRatio.RATIO_16_9,
-            allowedResolutionMode = ALLOWED_RESOLUTIONS_SLOW,
+            allowedResolutionMode = PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE,
             highResolutionForceDisabled = true,
             expectedList = listOf(
                 // Matched preferred AspectRatio items, sorted by area size.
@@ -537,6 +540,28 @@ class SupportedOutputSizesSorterTest {
         supportedOutputSizesSorter.getSortedSupportedOutputSizes(useCaseConfig)
     }
 
+    @Test
+    fun canKeepFhdResolution_whenMaxResolutionHasShorterEdgeButLargerArea() {
+        verifySupportedOutputSizesWithResolutionSelectorSettings(
+            maxResolution = Size(2244, 1008),
+            expectedList = listOf(
+                // Matched default preferred AspectRatio items, sorted by area size.
+                Size(1280, 960),
+                Size(640, 480),
+                Size(320, 240),
+                // Mismatched default preferred AspectRatio items, sorted by FOV and area size.
+                Size(960, 960), // 1:1
+                Size(1920, 1080), // 16:9, this can be kept even the max resolution
+                                               // setting has a shorter edge of 1008
+                Size(1280, 720),
+                Size(960, 544),
+                Size(800, 450),
+                Size(320, 180),
+                Size(256, 144),
+            )
+        )
+    }
+
     private fun verifySupportedOutputSizesWithResolutionSelectorSettings(
         outputSizesSorter: SupportedOutputSizesSorter = supportedOutputSizesSorter,
         captureType: CaptureType = CaptureType.IMAGE_CAPTURE,
@@ -546,8 +571,9 @@ class SupportedOutputSizesSorterTest {
         boundSize: Size? = null,
         resolutionFallbackRule: Int = FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER,
         resolutionFilter: ResolutionFilter? = null,
-        allowedResolutionMode: Int = ResolutionSelector.ALLOWED_RESOLUTIONS_NORMAL,
+        allowedResolutionMode: Int = ResolutionSelector.PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION,
         highResolutionForceDisabled: Boolean = false,
+        maxResolution: Size? = null,
         expectedList: List<Size> = Collections.emptyList(),
     ) {
         val useCaseConfig = createUseCaseConfig(
@@ -559,7 +585,8 @@ class SupportedOutputSizesSorterTest {
             resolutionFallbackRule,
             resolutionFilter,
             allowedResolutionMode,
-            highResolutionForceDisabled
+            highResolutionForceDisabled,
+            maxResolution,
         )
         val resultList = outputSizesSorter.getSortedSupportedOutputSizes(useCaseConfig)
         assertThat(resultList).containsExactlyElementsIn(expectedList).inOrder()
@@ -573,8 +600,9 @@ class SupportedOutputSizesSorterTest {
         boundSize: Size? = null,
         resolutionFallbackRule: Int = FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER,
         resolutionFilter: ResolutionFilter? = null,
-        allowedResolutionMode: Int = ResolutionSelector.ALLOWED_RESOLUTIONS_NORMAL,
+        allowedResolutionMode: Int = ResolutionSelector.PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION,
         highResolutionForceDisabled: Boolean = false,
+        maxResolution: Size? = null,
     ): UseCaseConfig<*> {
         val useCaseConfigBuilder = FakeUseCaseConfig.Builder(captureType, ImageFormat.JPEG)
         val resolutionSelectorBuilder = ResolutionSelector.Builder()
@@ -612,6 +640,9 @@ class SupportedOutputSizesSorterTest {
 
         // Sets the high resolution force disabled setting
         useCaseConfigBuilder.setHighResolutionDisabled(highResolutionForceDisabled)
+
+        // Sets the max resolution setting
+        maxResolution?.let { useCaseConfigBuilder.setMaxResolution(it) }
 
         return useCaseConfigBuilder.useCaseConfig
     }

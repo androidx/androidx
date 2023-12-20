@@ -85,7 +85,7 @@ class BaselineProfile {
 
     @Test
     fun profile() {
-        baselineRule.collectBaselineProfile(
+        baselineRule.collect(
             packageName = PACKAGE_NAME,
             profileBlock = {
                 val intent = Intent()

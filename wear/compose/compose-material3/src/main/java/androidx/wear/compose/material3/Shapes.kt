@@ -15,13 +15,16 @@
  */
 package androidx.wear.compose.material3
 
+import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.unit.dp
+import androidx.wear.compose.material3.tokens.ShapeKeyTokens
+import androidx.wear.compose.material3.tokens.ShapeTokens
 
 /**
  * Material surfaces can be displayed in different shapes. Shapes direct attention, identify
@@ -31,22 +34,20 @@ import androidx.compose.ui.unit.dp
  * curved shapes (mostly polygonal). The default [Shapes] theme for Material3 is rounded rectangles,
  * with various degrees of corner roundness:
  *
- * - None
  * - Extra Small
  * - Small
  * - Medium
  * - Large
- * - Full
+ * - Extra Large
  *
  * You can customize the shape system for all components in the [MaterialTheme] or you can do it
  * on a per component basis by overriding the shape parameter for that
- * component. For example, by default, buttons use the shape style “full.” If your product requires
+ * component. For example, by default, buttons use the shape style "large". If your product requires
  * a smaller amount of roundness, you can override the shape parameter with a different shape
  * value like [Shapes.small].
  *
  * TODO(b/273226734) Review documentation with references to components that use the shape themes.
  *
- * @param none By default, provides [ShapeDefaults.None], which is [RectangleShape]
  * @param extraSmall By default, provides [ShapeDefaults.ExtraSmall], a [RoundedCornerShape]
  * with 4dp [CornerSize] (used by bundled Cards).
  * @param small By default, provides [ShapeDefaults.Small], a [RoundedCornerShape]
@@ -57,71 +58,57 @@ import androidx.compose.ui.unit.dp
  * with 24dp [CornerSize] (used by Cards).
  * @param extraLarge By default, provides [ShapeDefaults.ExtraLarge], a
  * [RoundedCornerShape] with 32dp [CornerSize].
- * @param full By default, provides [ShapeDefaults.Full], a Stadium shape with
- * 50% rounded [CornerSize] (used by Button).
  */
 @Immutable
 class Shapes(
-    val none: Shape = ShapeDefaults.None,
-    val extraSmall: Shape = ShapeDefaults.ExtraSmall,
-    val small: Shape = ShapeDefaults.Small,
-    val medium: Shape = ShapeDefaults.Medium,
-    val large: Shape = ShapeDefaults.Large,
-    val extraLarge: Shape = ShapeDefaults.ExtraLarge,
-    val full: Shape = ShapeDefaults.Full,
+    val extraSmall: CornerBasedShape = ShapeDefaults.ExtraSmall,
+    val small: CornerBasedShape = ShapeDefaults.Small,
+    val medium: CornerBasedShape = ShapeDefaults.Medium,
+    val large: CornerBasedShape = ShapeDefaults.Large,
+    val extraLarge: CornerBasedShape = ShapeDefaults.ExtraLarge,
 ) {
     /** Returns a copy of this Shapes, optionally overriding some of the values. */
     fun copy(
-        none: Shape = this.none,
-        extraSmall: Shape = this.extraSmall,
-        small: Shape = this.small,
-        medium: Shape = this.medium,
-        large: Shape = this.large,
-        extraLarge: Shape = this.extraLarge,
-        full: Shape = this.full
+        extraSmall: CornerBasedShape = this.extraSmall,
+        small: CornerBasedShape = this.small,
+        medium: CornerBasedShape = this.medium,
+        large: CornerBasedShape = this.large,
+        extraLarge: CornerBasedShape = this.extraLarge,
     ): Shapes = Shapes(
-        none = none,
         extraSmall = extraSmall,
         small = small,
         medium = medium,
         large = large,
         extraLarge = extraLarge,
-        full = full,
     )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Shapes) return false
-        if (none != other.none) return false
         if (extraSmall != other.extraSmall) return false
         if (small != other.small) return false
         if (medium != other.medium) return false
         if (large != other.large) return false
         if (extraLarge != other.extraLarge) return false
-        if (full != other.full) return false
         return true
     }
 
     override fun hashCode(): Int {
-        var result = none.hashCode()
-        result = 31 * result + extraSmall.hashCode()
+        var result = extraSmall.hashCode()
         result = 31 * result + small.hashCode()
         result = 31 * result + medium.hashCode()
         result = 31 * result + large.hashCode()
         result = 31 * result + extraLarge.hashCode()
-        result = 31 * result + full.hashCode()
         return result
     }
 
     override fun toString(): String {
         return "Shapes(" +
-            "none=$none, " +
             "extraSmall=$extraSmall, " +
             "small=$small, " +
             "medium=$medium, " +
             "large=$large, " +
-            "extraLarge=$extraLarge, " +
-            "full=$full)"
+            "extraLarge=$extraLarge)"
     }
 }
 
@@ -129,27 +116,48 @@ class Shapes(
  * Contains the default values used by [Shapes]
  */
 object ShapeDefaults {
-    /** None provides a RectangleShape */
-    val None = RectangleShape
 
     /** Extra small sized corner shape */
-    val ExtraSmall = RoundedCornerShape(corner = CornerSize(4.dp))
+    val ExtraSmall = ShapeTokens.CornerExtraSmall
 
     /** Small sized corner shape */
-    val Small = RoundedCornerShape(corner = CornerSize(8.dp))
+    val Small = ShapeTokens.CornerSmall
 
     /** Medium sized corner shape */
-    val Medium = RoundedCornerShape(corner = CornerSize(16.dp))
+    val Medium = ShapeTokens.CornerMedium
 
     /** Large sized corner shape */
-    val Large = RoundedCornerShape(corner = CornerSize(24.dp))
+    val Large = ShapeTokens.CornerLarge
 
     /** Extra large sized corner shape */
-    val ExtraLarge = RoundedCornerShape(corner = CornerSize(32.dp))
-
-    /** Full provides a stadium-shape with 50% rounded corners */
-    val Full = RoundedCornerShape(corner = CornerSize(50))
+    val ExtraLarge = ShapeTokens.CornerExtraLarge
 }
+
+/**
+ * Helper function for component shape tokens. Here is an example on how to use component color
+ * tokens:
+ * ``MaterialTheme.shapes.fromToken(FabPrimarySmallTokens.ContainerShape)``
+ */
+internal fun Shapes.fromToken(value: ShapeKeyTokens): Shape {
+    return when (value) {
+        ShapeKeyTokens.CornerExtraSmall -> extraSmall
+        ShapeKeyTokens.CornerSmall -> small
+        ShapeKeyTokens.CornerMedium -> medium
+        ShapeKeyTokens.CornerLarge -> large
+        ShapeKeyTokens.CornerExtraLarge -> extraLarge
+        ShapeKeyTokens.CornerFull -> ShapeTokens.CornerFull
+        ShapeKeyTokens.CornerNone -> ShapeTokens.CornerNone
+    }
+}
+
+/**
+ * Converts a shape token key to the local shape provided by the theme
+ * The shape references the [LocalShapes].
+ */
+internal val ShapeKeyTokens.value: Shape
+    @Composable
+    @ReadOnlyComposable
+    get() = MaterialTheme.shapes.fromToken(this)
 
 /** CompositionLocal used to specify the default shapes for the surfaces. */
 internal val LocalShapes = staticCompositionLocalOf { Shapes() }

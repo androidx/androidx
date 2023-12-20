@@ -40,7 +40,7 @@ internal class Api33SdkProviderGenerator(parsedApi: ParsedApi) :
         ClassName("android.app.sdksandbox", "SandboxedSdkProvider")
 
     override fun generateOnLoadSdkFunction() = FunSpec.builder("onLoadSdk").build {
-        addModifiers(KModifier.OVERRIDE)
+        addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
         addParameter("params", bundleClass)
         returns(sandboxedSdkClass)
 

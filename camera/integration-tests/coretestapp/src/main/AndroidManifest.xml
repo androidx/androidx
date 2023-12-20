@@ -65,6 +65,40 @@ limitations under the License.
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".VideoCameraSwitchingActivity"
+            android:exported="true"
+            android:label="Video Camera Switching Test App"
+            android:taskAffinity="androidx.camera.integration.core.VideoCameraSwitchingActivity"
+            android:theme="@style/NoTitleTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".ServiceSettingActivity"
+            android:exported="true"
+            android:label="Service Test App"
+            android:taskAffinity="androidx.camera.integration.core.ServiceSettingActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <service
+            android:name=".CameraXService"
+            android:exported="true"
+            android:foregroundServiceType="camera|microphone"
+            android:label="CameraX Service">
+            <intent-filter>
+                <action android:name="androidx.camera.integration.core.intent.action.BIND_USE_CASES" />
+                <action android:name="androidx.camera.integration.core.intent.action.TAKE_PICTURE" />
+                <action android:name="androidx.camera.integration.core.intent.action.START_RECORDING" />
+                <action android:name="androidx.camera.integration.core.intent.action.STOP_RECORDING" />
+                <action android:name="androidx.camera.integration.core.intent.action.STOP_SERVICE" />
+            </intent-filter>
+        </service>
     </application>
 
     <uses-feature android:glEsVersion="0x00020000" />
@@ -74,4 +108,8 @@ limitations under the License.
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 </manifest>

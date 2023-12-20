@@ -43,7 +43,7 @@ internal class LazyLayoutItemContentFactory(
     /**
      * Returns the content type for the item with the given key. It is used to improve the item
      * compositions reusing efficiency.
-     **/
+     */
     fun getContentType(key: Any?): Any? {
         if (key == null) return null
 

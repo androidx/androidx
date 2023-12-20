@@ -20,8 +20,6 @@ import androidx.annotation.RestrictTo
 
 /**
  * Represents an error in configuration of a benchmark.
- *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 data class ConfigurationError(
@@ -79,7 +77,6 @@ data class ConfigurationError(
     )
 }
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun conditionalError(
     hasError: Boolean,
@@ -103,8 +100,6 @@ internal fun List<ConfigurationError>.prettyPrint(prefix: String): String {
 /**
  * Throw an AssertionError if the list contains an unsuppressed error, and return either a
  * SuppressionState if errors are suppressed, or null otherwise.
- *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun List<ConfigurationError>.checkAndGetSuppressionState(

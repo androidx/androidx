@@ -18,8 +18,6 @@ package androidx.car.app.model;
 
 import static java.util.Objects.requireNonNull;
 
-import android.annotation.SuppressLint;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
@@ -30,7 +28,8 @@ import androidx.car.app.model.constraints.TabContentsConstraints;
 import java.util.Objects;
 
 /**
- * Represents the contents to display for a selected tab in a {@link TabTemplate}.
+ * Represents the contents to display for a selected tab in a {@link TabTemplate}. Only certain
+ * templates may be used as content. See {@link Builder#Builder(Template)} for more details.
  */
 @CarProtocol
 @RequiresCarApi(6)
@@ -114,18 +113,29 @@ public class TabContents implements Content {
          * Creates a {@link TabContents.Builder} instance using the given {@link Template} to
          * display as contents.
          *
-         * <h4>Requirements</h4>
+         * <p>There should be no title, Header {@link Action} or {@link ActionStrip} set on the
+         * template. The host will ignore these.
          *
-         * There should be no title, Header{@link Action} or {@link ActionStrip} set on the
-         * template.
-         * The host will ignore these.
+         * <p>From Car API 6 onward, the following template types are supported as content:
+         * <ul>
+         *     <li>{@code ListTemplate}
+         *     <li>{@code PaneTemplate}
+         *     <li>{@code GridTemplate}
+         *     <li>{@code MessageTemplate}
+         *     <li>{@code SearchTemplate}
+         * </ul>
+         *
+         * <p>From Car API 7 onward, the following templates types are supported as content in
+         * addition to all previously supported template types:
+         * <ul>
+         *     <li>{@code NavigationTemplate}
+         * </ul>
          *
          * @throws NullPointerException     if {@code template} is null
          * @throws IllegalArgumentException if {@code template} does not meet the requirements
          */
-        @SuppressLint("ExecutorRegistration")
         public Builder(@NonNull Template template) {
-            TabContentsConstraints.DEFAULT.validateOrThrow(requireNonNull(template));
+            TabContentsConstraints.API_7.validateOrThrow(requireNonNull(template));
             mTemplate = template;
         }
     }

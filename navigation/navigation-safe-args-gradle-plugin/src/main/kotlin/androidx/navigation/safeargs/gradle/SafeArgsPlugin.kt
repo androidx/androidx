@@ -106,7 +106,7 @@ abstract class SafeArgsPlugin protected constructor(
         }
 
         forEachVariant(extension) { variant ->
-            val task = project.tasks.create(
+            val task = project.tasks.register(
                 "generateSafeArgs${variant.name.replaceFirstChar {
                     if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString()
                 }}",
@@ -122,8 +122,12 @@ abstract class SafeArgsPlugin protected constructor(
                 // the class
                 task.rFilePackage.set(namespaces[variant.name] ?: task.applicationId)
                 task.navigationFiles.setFrom(navigationFiles(variant, project))
-                task.outputDir.set(File(project.buildDir, "$GENERATED_PATH/${variant.dirName}"))
-                task.incrementalFolder.set(File(project.buildDir, "$INCREMENTAL_PATH/${task.name}"))
+                task.outputDir.set(
+                    project.layout.buildDirectory.dir("$GENERATED_PATH/${variant.dirName}")
+                )
+                task.incrementalFolder.set(
+                    project.layout.buildDirectory.dir("$INCREMENTAL_PATH/${task.name}")
+                )
                 task.useAndroidX.set(
                     (project.findProperty("android.useAndroidX") == "true").also {
                         if (!it) {
@@ -137,7 +141,7 @@ abstract class SafeArgsPlugin protected constructor(
                 task.generateKotlin.set(generateKotlin)
             }
             @Suppress("DEPRECATION") // For BaseVariant should be replaced in later studio versions
-            variant.registerJavaGeneratingTask(task, task.outputDir.asFile.get())
+            variant.registerJavaGeneratingTask(task, task.get().outputDir.asFile.get())
         }
     }
 

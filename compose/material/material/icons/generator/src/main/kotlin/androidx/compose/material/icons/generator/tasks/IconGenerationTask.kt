@@ -24,11 +24,9 @@ import java.util.Locale
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.CacheableTask
-import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
@@ -54,32 +52,31 @@ abstract class IconGenerationTask : DefaultTask() {
         project.rootProject.project(GeneratorProject).projectDir.resolve("raw-icons")
 
     /**
-     * Specific theme to generate icons for, or null to generate all
-     */
-    @Optional
-    @Input
-    var themeName: String? = null
-
-    /**
      * Specific icon directories to use in this task
      */
     @Internal
     fun getIconDirectories(): List<File> {
-        val themeName = themeName
-        if (themeName != null) {
-            return listOf(allIconsDirectory.resolve(themeName))
-        } else {
-            return allIconsDirectory.listFiles()!!.filter { it.isDirectory }
-        }
+        return allIconsDirectory.listFiles()!!.filter { it.isDirectory }
     }
 
     /**
-     * Checked-in API file for the generator module, where we will track all the generated icons
+     * Checked-in API file for the generator module, where we will track all the generated icons.
      */
     @PathSensitive(PathSensitivity.NONE)
     @InputFile
     val expectedApiFile =
         project.rootProject.project(GeneratorProject).projectDir.resolve("api/icons.txt")
+
+    /**
+     * Checked-in API file for the generator module, where we will track all the generated
+     * auto-mirrored icons.
+     */
+    @PathSensitive(PathSensitivity.NONE)
+    @InputFile
+    val expectedAutoMirroredApiFile =
+        project.rootProject.project(GeneratorProject).projectDir.resolve(
+            "api/automirrored_icons.txt"
+        )
 
     /**
      * Root build directory for this task, where outputs will be placed into.
@@ -96,18 +93,27 @@ abstract class IconGenerationTask : DefaultTask() {
         get() = buildDirectory.resolve("api/icons.txt")
 
     /**
+     * Generated API file that will be placed in the build directory. This can be copied manually
+     * to [expectedAutoMirroredApiFile] to confirm that auto-mirrored icons API changes were
+     * intended.
+     */
+    @get:OutputFile
+    val generatedAutoMirroredApiFile: File
+        get() = buildDirectory.resolve("api/automirrored_icons.txt")
+
+    /**
      * @return a list of all processed [Icon]s from [getIconDirectories].
      */
     fun loadIcons(): List<Icon> {
         // material-icons-core loads and verifies all of the icons from all of the themes:
         // both that all icons are present in all themes, and also that no icons have been removed.
         // So, when we're loading just one theme, we don't need to verify it
-        val verifyApi = themeName == null
         return IconProcessor(
             getIconDirectories(),
             expectedApiFile,
             generatedApiFile,
-            verifyApi
+            expectedAutoMirroredApiFile,
+            generatedAutoMirroredApiFile,
         ).process()
     }
 
@@ -160,7 +166,9 @@ abstract class IconGenerationTask : DefaultTask() {
             libraryExtension: LibraryExtension
         ) {
             libraryExtension.libraryVariants.all { variant ->
-                ExtendedIconGenerationTask.register(project, variant)
+                if (variant.name == "release") {
+                    ExtendedIconGenerationTask.register(project, variant)
+                }
             }
 
             // b/175401659 - disable lint as it takes a long time, and most errors should
@@ -213,16 +221,9 @@ fun <T : IconGenerationTask> Project.registerGenerationTask(
 ): Pair<TaskProvider<T>, File> {
     val variantName = variant?.name ?: "allVariants"
 
-    val themeName = if (project.name.contains("material-icons-extended-")) {
-        project.name.replace("material-icons-extended-", "")
-    } else {
-        null
-    }
-
     val buildDirectory = project.buildDir.resolve("generatedIcons/$variantName")
 
     return tasks.register("$taskName${variantName.capitalize(Locale.getDefault())}", taskClass) {
-        it.themeName = themeName
         it.buildDirectory = buildDirectory
     } to buildDirectory
 }

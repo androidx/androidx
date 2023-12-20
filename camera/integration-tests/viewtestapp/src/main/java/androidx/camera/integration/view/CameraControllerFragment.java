@@ -20,8 +20,6 @@ import static androidx.camera.core.impl.utils.TransformUtils.getRectToRect;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE;
 
-import static java.util.Arrays.asList;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
@@ -56,7 +54,6 @@ import android.widget.ToggleButton;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RequiresPermission;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraSelector;
@@ -76,9 +73,9 @@ import androidx.camera.view.LifecycleCameraController;
 import androidx.camera.view.PreviewView;
 import androidx.camera.view.RotationProvider;
 import androidx.camera.view.video.AudioConfig;
-import androidx.camera.view.video.ExperimentalVideo;
 import androidx.core.util.Consumer;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LiveData;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -87,7 +84,6 @@ import java.io.File;
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
@@ -110,7 +106,6 @@ public class CameraControllerFragment extends Fragment {
     private FrameLayout mContainer;
     private Button mFlashMode;
     private ToggleButton mCameraToggle;
-    private ToggleButton mEffectToggle;
     private ExecutorService mExecutorService;
     private ToggleButton mCaptureEnabledToggle;
     private ToggleButton mAnalysisEnabledToggle;
@@ -148,10 +143,6 @@ public class CameraControllerFragment extends Fragment {
     @Nullable
     private ImageAnalysis.Analyzer mWrappedAnalyzer;
 
-    @VisibleForTesting
-    ToneMappingSurfaceEffect mToneMappingSurfaceEffect;
-    ToneMappingImageEffect mToneMappingImageEffect;
-
     private final ImageAnalysis.Analyzer mAnalyzer = image -> {
         byte[] bytes = new byte[image.getPlanes()[0].getBuffer().remaining()];
         image.getPlanes()[0].getBuffer().get(bytes);
@@ -187,7 +178,6 @@ public class CameraControllerFragment extends Fragment {
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     @NonNull
     @Override
-    @OptIn(markerClass = ExperimentalVideo.class)
     public View onCreateView(
             @NonNull LayoutInflater inflater,
             @Nullable ViewGroup container,
@@ -209,6 +199,7 @@ public class CameraControllerFragment extends Fragment {
         // Use compatible mode so StreamState is accurate.
         mPreviewView.setImplementationMode(PreviewView.ImplementationMode.COMPATIBLE);
         mPreviewView.setController(mCameraController);
+        mPreviewView.setScreenFlashWindow(requireActivity().getWindow());
 
         // Set up the button to add and remove the PreviewView
         mContainer = view.findViewById(R.id.container);
@@ -219,13 +210,6 @@ public class CameraControllerFragment extends Fragment {
                 mContainer.removeView(mPreviewView);
             }
         });
-
-        // Set up post-processing effects.
-        mToneMappingSurfaceEffect = new ToneMappingSurfaceEffect();
-        mToneMappingImageEffect = new ToneMappingImageEffect();
-        mEffectToggle = view.findViewById(R.id.effect_toggle);
-        mEffectToggle.setOnCheckedChangeListener((compoundButton, isChecked) -> onEffectsToggled());
-        onEffectsToggled();
 
         // Set up the button to change the PreviewView's size.
         view.findViewById(R.id.shrink).setOnClickListener(v -> {
@@ -238,9 +222,17 @@ public class CameraControllerFragment extends Fragment {
         mCameraToggle = view.findViewById(R.id.camera_toggle);
         mCameraToggle.setOnCheckedChangeListener(
                 (compoundButton, value) ->
-                        runSafely(() -> mCameraController.setCameraSelector(value
-                                ? CameraSelector.DEFAULT_BACK_CAMERA
-                                : CameraSelector.DEFAULT_FRONT_CAMERA)));
+                        runSafely(() -> {
+                            if (value) {
+                                mCameraController.setImageCaptureFlashMode(
+                                        ImageCapture.FLASH_MODE_OFF);
+                                updateUiText();
+                            }
+
+                            mCameraController.setCameraSelector(value
+                                    ? CameraSelector.DEFAULT_BACK_CAMERA
+                                    : CameraSelector.DEFAULT_FRONT_CAMERA);
+                        }));
 
         // Image Capture enable switch.
         mCaptureEnabledToggle = view.findViewById(R.id.capture_enabled);
@@ -255,6 +247,13 @@ public class CameraControllerFragment extends Fragment {
                     mCameraController.setImageCaptureFlashMode(ImageCapture.FLASH_MODE_ON);
                     break;
                 case ImageCapture.FLASH_MODE_ON:
+                    if (!mCameraToggle.isChecked()) {
+                        mCameraController.setImageCaptureFlashMode(ImageCapture.FLASH_MODE_SCREEN);
+                    } else {
+                        mCameraController.setImageCaptureFlashMode(ImageCapture.FLASH_MODE_OFF);
+                    }
+                    break;
+                case ImageCapture.FLASH_MODE_SCREEN:
                     mCameraController.setImageCaptureFlashMode(ImageCapture.FLASH_MODE_OFF);
                     break;
                 case ImageCapture.FLASH_MODE_OFF:
@@ -369,16 +368,6 @@ public class CameraControllerFragment extends Fragment {
             mExecutorService.shutdown();
         }
         mRotationProvider.removeListener(mRotationListener);
-        mToneMappingSurfaceEffect.release();
-    }
-
-    private void onEffectsToggled() {
-        if (mEffectToggle.isChecked()) {
-            mCameraController.setEffects(
-                    new HashSet<>(asList(mToneMappingSurfaceEffect, mToneMappingImageEffect)));
-        } else {
-            mCameraController.clearEffects();
-        }
     }
 
     void checkFailedFuture(ListenableFuture<Void> voidFuture) {
@@ -391,7 +380,7 @@ public class CameraControllerFragment extends Fragment {
 
             @Override
             public void onFailure(@NonNull Throwable t) {
-                toast(t.getMessage());
+                toast(t.toString());
             }
         }, mainThreadExecutor());
     }
@@ -399,8 +388,15 @@ public class CameraControllerFragment extends Fragment {
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
     void toast(String message) {
-        requireActivity().runOnUiThread(
-                () -> Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show());
+        FragmentActivity activity = getActivity();
+        if (activity != null) {
+            activity.runOnUiThread(() -> {
+                if (isAdded()) {
+                    Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+        Log.d(TAG, message);
     }
 
     private void updateZoomStateText(@Nullable ZoomState zoomState) {
@@ -446,7 +442,6 @@ public class CameraControllerFragment extends Fragment {
     /**
      * Updates UI text based on the state of {@link #mCameraController}.
      */
-    @OptIn(markerClass = ExperimentalVideo.class)
     private void updateUiText() {
         mFlashMode.setText(getFlashModeTextResId());
         final Integer lensFacing = mCameraController.getCameraSelector().getLensFacing();
@@ -473,6 +468,8 @@ public class CameraControllerFragment extends Fragment {
                 return R.string.flash_mode_auto;
             case ImageCapture.FLASH_MODE_ON:
                 return R.string.flash_mode_on;
+            case ImageCapture.FLASH_MODE_SCREEN:
+                return R.string.flash_mode_screen;
             case ImageCapture.FLASH_MODE_OFF:
                 return R.string.flash_mode_off;
             default:
@@ -503,7 +500,6 @@ public class CameraControllerFragment extends Fragment {
         }
     }
 
-    @OptIn(markerClass = ExperimentalVideo.class)
     private void onUseCaseToggled(CompoundButton compoundButton, boolean value) {
         if (mCaptureEnabledToggle == null || mAnalysisEnabledToggle == null
                 || mVideoEnabledToggle == null) {
@@ -609,21 +605,29 @@ public class CameraControllerFragment extends Fragment {
     // For testing
     // -----------------
 
+    /**
+     */
     @VisibleForTesting
     LifecycleCameraController getCameraController() {
         return mCameraController;
     }
 
+    /**
+     */
     @VisibleForTesting
     void setWrappedAnalyzer(@Nullable ImageAnalysis.Analyzer analyzer) {
         mWrappedAnalyzer = analyzer;
     }
 
+    /**
+     */
     @VisibleForTesting
     PreviewView getPreviewView() {
         return mPreviewView;
     }
 
+    /**
+     */
     @VisibleForTesting
     int getSensorRotation() {
         return mRotation;
@@ -645,7 +649,6 @@ public class CameraControllerFragment extends Fragment {
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     @VisibleForTesting
     @MainThread
-    @OptIn(markerClass = ExperimentalVideo.class)
     void startRecording(Consumer<VideoRecordEvent> listener) {
         MediaStoreOutputOptions outputOptions = getNewVideoOutputMediaStoreOptions();
         AudioConfig audioConfig = AudioConfig.create(true);
@@ -655,7 +658,6 @@ public class CameraControllerFragment extends Fragment {
 
     @VisibleForTesting
     @MainThread
-    @OptIn(markerClass = ExperimentalVideo.class)
     void stopRecording() {
         if (mActiveRecording != null) {
             mActiveRecording.stop();

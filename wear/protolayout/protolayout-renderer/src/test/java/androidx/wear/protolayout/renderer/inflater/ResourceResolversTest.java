@@ -76,8 +76,8 @@ public class ResourceResolversTest {
     @Mock private AndroidImageResourceByContentUriResolver mContentUriResolver;
 
     private final Drawable mTestDrawable = new VectorDrawable();
-    private final ListenableFuture<Drawable> mFutureDrawable = Futures.immediateFuture(
-            mTestDrawable);
+    private final ListenableFuture<Drawable> mFutureDrawable =
+            Futures.immediateFuture(mTestDrawable);
 
     private static final InlineImageResource INLINE_IMAGE =
             InlineImageResource.newBuilder().setHeightPx(123).setWidthPx(456).build();

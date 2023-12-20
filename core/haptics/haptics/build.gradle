@@ -1,0 +1,50 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.LibraryType
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("org.jetbrains.kotlin.android")
+    id("kotlin-android")
+}
+
+dependencies {
+    api(libs.kotlinStdlib)
+
+    implementation(projectOrArtifact(":annotation:annotation"))
+    implementation(projectOrArtifact(":core:core"))
+    implementation(projectOrArtifact(":media:media"))
+    samples(project(":core:haptics:haptics-samples"))
+
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    implementation(libs.truth)
+}
+
+android {
+    namespace "androidx.core.haptics"
+}
+
+androidx {
+    name = "AndroidX Core Haptics"
+    type = LibraryType.PUBLISHED_LIBRARY
+    inceptionYear = "2023"
+    description = "Core Haptics Libraries to help navigate different device and Android SDK " +
+            "functionalities and create reliable haptic effects across all of Android."
+    metalavaK2UastEnabled = true
+}

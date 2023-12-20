@@ -247,7 +247,7 @@ public class ContentCaptureSessionCompat {
         static void notifyViewsAppeared(
                 ContentCaptureSession contentCaptureSession, List<ViewStructure> appearedNodes) {
             // new API in U
-            // contentCaptureSession.notifyViewsAppeared(appearedNodes);
+            contentCaptureSession.notifyViewsAppeared(appearedNodes);
         }
     }
     @RequiresApi(29)

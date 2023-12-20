@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.graphics.colorspace
 
+import androidx.annotation.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.util.unpackFloat1
 import androidx.compose.ui.util.unpackFloat2
@@ -130,7 +131,7 @@ internal constructor(
      *
      * @see transform
      */
-    /*@Size(3)*/
+    @Size(3)
     fun transform(r: Float, g: Float, b: Float): FloatArray {
         return transform(floatArrayOf(r, g, b))
     }
@@ -146,8 +147,8 @@ internal constructor(
      *
      * @see transform
      */
-    /*@Size(min = 3)*/
-    open fun transform(/*@Size(min = 3)*/ v: FloatArray): FloatArray {
+    @Size(min = 3)
+    open fun transform(@Size(min = 3) v: FloatArray): FloatArray {
         val xyz = transformSource.toXyz(v)
         if (transform != null) {
             xyz[0] *= transform[0]

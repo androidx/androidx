@@ -20,6 +20,7 @@ import androidx.annotation.Sampled
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material.Icon
 import androidx.compose.material.NavigationRail
+import androidx.compose.material.NavigationRailDefaults
 import androidx.compose.material.NavigationRailItem
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -39,7 +40,7 @@ fun NavigationRailSample() {
     var selectedItem by remember { mutableStateOf(0) }
     val items = listOf("Home", "Search", "Settings")
     val icons = listOf(Icons.Filled.Home, Icons.Filled.Search, Icons.Filled.Settings)
-    NavigationRail {
+    NavigationRail(windowInsets = NavigationRailDefaults.windowInsets) {
         items.forEachIndexed { index, item ->
             NavigationRailItem(
                 icon = { Icon(icons[index], contentDescription = item) },

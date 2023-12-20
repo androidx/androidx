@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrain
+import kotlin.math.min
 
 /**
  * Performs text layout using [Paragraph].
@@ -164,9 +165,10 @@ internal class ParagraphLayoutCache(
             if (finalConstraints != prevConstraints) {
                 // ensure size and overflow is still accurate
                 val localParagraph = paragraph!!
+                val layoutWidth = min(localParagraph.maxIntrinsicWidth, localParagraph.width)
                 val localSize = finalConstraints.constrain(
                     IntSize(
-                        localParagraph.width.ceilToIntPx(),
+                        layoutWidth.ceilToIntPx(),
                         localParagraph.height.ceilToIntPx()
                     )
                 )
@@ -174,6 +176,7 @@ internal class ParagraphLayoutCache(
                 didOverflow = overflow != TextOverflow.Visible &&
                     (localSize.width < localParagraph.width ||
                         localSize.height < localParagraph.height)
+                prevConstraints = finalConstraints
             }
             return false
         }
@@ -335,7 +338,7 @@ internal class ParagraphLayoutCache(
      *
      * Exposed for semantics GetTextLayoutResult
      */
-    fun slowCreateTextLayoutResultOrNull(): TextLayoutResult? {
+    fun slowCreateTextLayoutResultOrNull(style: TextStyle): TextLayoutResult? {
         // make sure we're in a valid place
         val localLayoutDirection = intrinsicsLayoutDirection ?: return null
         val localDensity = density ?: return null

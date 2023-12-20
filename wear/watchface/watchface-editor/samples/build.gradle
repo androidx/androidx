@@ -24,18 +24,10 @@ plugins {
 }
 
 dependencies {
-    compileOnly(project(":annotation:annotation-sampled"))
     api("androidx.fragment:fragment:1.3.0")
     implementation("androidx.wear:wear:1.1.0-rc01")
     api(project(":wear:watchface:watchface-editor"))
     api(libs.kotlinStdlib)
-}
-
-androidx {
-    name = "Wear Editor Samples"
-    type = LibraryType.SAMPLES
-    inceptionYear = "2020"
-    description = "Contains sample code for the Androidx Wear Editor library"
 }
 
 android {
@@ -43,4 +35,11 @@ android {
         minSdkVersion 26
     }
     namespace "androidx.wear.watchface.editor.samples"
+}
+
+androidx {
+    name = "Wear Editor Samples"
+    type = LibraryType.SAMPLES
+    inceptionYear = "2020"
+    description = "Contains sample code for the Androidx Wear Editor library"
 }

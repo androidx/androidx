@@ -183,24 +183,32 @@ final class FragmentManagerViewModel extends ViewModel {
         return viewModelStore;
     }
 
-    void clearNonConfigState(@NonNull Fragment f) {
+    void clearNonConfigState(@NonNull Fragment f, boolean destroyChildNonConfig) {
         if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
             Log.d(TAG, "Clearing non-config state for " + f);
         }
-        clearNonConfigStateInternal(f.mWho);
+        clearNonConfigStateInternal(f.mWho, destroyChildNonConfig);
     }
 
-    void clearNonConfigState(@NonNull String who) {
+    void clearNonConfigState(@NonNull String who, boolean destroyChildNonConfig) {
         if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
             Log.d(TAG, "Clearing non-config state for saved state of Fragment " + who);
         }
-        clearNonConfigStateInternal(who);
+        clearNonConfigStateInternal(who, destroyChildNonConfig);
     }
 
-    private void clearNonConfigStateInternal(@NonNull String who) {
+    private void clearNonConfigStateInternal(@NonNull String who, boolean destroyChildNonConfig) {
         // Clear and remove the Fragment's child non config state
         FragmentManagerViewModel childNonConfig = mChildNonConfigs.get(who);
         if (childNonConfig != null) {
+            // destroy child nonConfig immediately if it hasn't gone through init
+            if (destroyChildNonConfig) {
+                ArrayList<String> clearList = new ArrayList<>();
+                clearList.addAll(childNonConfig.mChildNonConfigs.keySet());
+                for (String childWho : clearList) {
+                    childNonConfig.clearNonConfigState(childWho, true);
+                }
+            }
             childNonConfig.onCleared();
             mChildNonConfigs.remove(who);
         }
