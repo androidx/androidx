@@ -446,6 +446,25 @@ class SuspendingQueryTest : TestDatabaseTest() {
     }
 
     @Test
+    fun withTransaction_nested_daoTransaction() {
+        runBlocking {
+            database.withTransaction {
+                booksDao.insertPublisherSuspend(
+                    TestUtil.PUBLISHER.publisherId,
+                    TestUtil.PUBLISHER.name
+                )
+                database.withTransaction {
+                    booksDao.insertBookSuspend(TestUtil.BOOK_1.copy(salesCnt = 0))
+                    booksDao.insertBookSuspend(TestUtil.BOOK_2)
+                }
+                booksDao.deleteBooksWithZeroSales()
+            }
+            assertThat(booksDao.getBooksSuspend())
+                .isEqualTo(listOf(TestUtil.BOOK_2))
+        }
+    }
+
+    @Test
     fun withTransaction_nested_exception() {
         runBlocking {
             database.withTransaction {
