@@ -176,6 +176,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             if (extension.shouldPublish()) {
                 project.validatePublishedMultiplatformHasDefault()
             }
+            project.registerValidateMultiplatformSourceSetNamingTask()
         }
         project.disallowAccidentalAndroidDependenciesInKmpProject(kmpExtension)
         TaskUpToDateValidator.setup(project, registry)
