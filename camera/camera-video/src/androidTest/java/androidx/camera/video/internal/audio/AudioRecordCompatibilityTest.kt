@@ -25,7 +25,7 @@ import android.media.MediaRecorder
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.camera.core.Logger
-import androidx.camera.testing.impl.RequiresDevice
+import androidx.camera.testing.impl.LabTestRule
 import androidx.camera.video.internal.audio.AudioUtils.computeInterpolatedTimeNs
 import androidx.camera.video.internal.audio.AudioUtils.getBytesPerFrame
 import androidx.camera.video.internal.audio.AudioUtils.sizeToFrameCount
@@ -75,6 +75,9 @@ class AudioRecordCompatibilityTest {
     }
 
     @get:Rule
+    val labTest: LabTestRule = LabTestRule()
+
+    @get:Rule
     var audioPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
         Manifest.permission.RECORD_AUDIO
     )
@@ -100,7 +103,7 @@ class AudioRecordCompatibilityTest {
     }
 
     // See b/301067226 for more information.
-    @RequiresDevice
+    @LabTestRule.LabTestOnly
     @SdkSuppress(minSdkVersion = 24)
     @Test
     fun read_withNoNegativeFramePositionIssue_whenRecordingMultipleTimes() {
@@ -127,7 +130,7 @@ class AudioRecordCompatibilityTest {
     }
 
     // See b/301067226 for more information.
-    @RequiresDevice
+    @LabTestRule.LabTestOnly
     @SdkSuppress(minSdkVersion = 24)
     @Test
     fun read_withNoNegativeFramePositionIssue_whenRecordingAfterRecreatingMultipleTimes() {
@@ -155,7 +158,7 @@ class AudioRecordCompatibilityTest {
     }
 
     // See b/301067226 for more information.
-    @RequiresDevice
+    @LabTestRule.LabTestOnly
     @SdkSuppress(minSdkVersion = 24)
     @Test
     fun read_withTimestampDiffToSystemInLimit_whenRecordingMultipleTimes() {
