@@ -181,7 +181,19 @@ class PagingDataPresenterTest {
         val job1 = launch {
             presenter.collectFrom(PagingData(flow, dummyUiReceiver, hintReceiver1))
         }
-        assertThat(hintReceiver1.hints).hasSize(1) // initial hint
+
+        // access any loaded item to make sure hint is sent
+        presenter[3]
+        assertThat(hintReceiver1.hints).containsExactly(
+            ViewportHint.Access(
+                pageOffset = 0,
+                indexInPage = 3,
+                presentedItemsBefore = 3,
+                presentedItemsAfter = 1,
+                originalPageOffsetFirst = 0,
+                originalPageOffsetLast = 0,
+            )
+        )
 
         // trigger second generation
         presenter.refresh()
@@ -223,16 +235,18 @@ class PagingDataPresenterTest {
         )
         assertThat(presenter.snapshot().items).containsExactlyElementsIn(20 until 25)
 
+        // access any loaded item to make sure hint is sent to proper receiver
+        presenter[3]
         // second receiver was registered and received the initial viewport hint
         assertThat(hintReceiver1.hints).isEmpty()
-        assertThat(hintReceiver2.hints).isEqualTo(
-            listOf(
-                ViewportHint.Initial(
-                    presentedItemsBefore = 2,
-                    presentedItemsAfter = 2,
-                    originalPageOffsetFirst = 0,
-                    originalPageOffsetLast = 0,
-                )
+        assertThat(hintReceiver2.hints).containsExactly(
+            ViewportHint.Access(
+                pageOffset = 0,
+                indexInPage = -17,
+                presentedItemsBefore = -17,
+                presentedItemsAfter = 21,
+                originalPageOffsetFirst = 0,
+                originalPageOffsetLast = 0,
             )
         )
 
@@ -273,15 +287,16 @@ class PagingDataPresenterTest {
 
         assertThat(presenter.snapshot()).containsExactlyElementsIn(8 until 17)
 
-        // gen 3 receiver should be recipient of the initial hint
-        assertThat(hintReceivers[2].hints).containsExactlyElementsIn(
-            listOf(
-                ViewportHint.Initial(
-                    presentedItemsBefore = 4,
-                    presentedItemsAfter = 4,
-                    originalPageOffsetFirst = 0,
-                    originalPageOffsetLast = 0,
-                )
+        // access any item to make sure gen 3 receiver is recipient of the hint
+        presenter[0]
+        assertThat(hintReceivers[2].hints).containsExactly(
+            ViewportHint.Access(
+                pageOffset = 0,
+                indexInPage = 0,
+                presentedItemsBefore = 0,
+                presentedItemsAfter = 8,
+                originalPageOffsetFirst = 0,
+                originalPageOffsetLast = 0,
             )
         )
     }
@@ -327,15 +342,16 @@ class PagingDataPresenterTest {
         // will retry with the correct cached hint
         assertThat(presenter.snapshot()).containsExactlyElementsIn(8 until 17)
 
-        // gen 2 receiver was recipient of the initial hint
-        assertThat(hintReceivers[1].hints).containsExactlyElementsIn(
-            listOf(
-                ViewportHint.Initial(
-                    presentedItemsBefore = 4,
-                    presentedItemsAfter = 4,
-                    originalPageOffsetFirst = 0,
-                    originalPageOffsetLast = 0,
-                )
+        // access any item to ensure gen 2 receiver was recipient of the initial hint
+        presenter[0]
+        assertThat(hintReceivers[1].hints).containsExactly(
+            ViewportHint.Access(
+                pageOffset = 0,
+                indexInPage = 0,
+                presentedItemsBefore = 0,
+                presentedItemsAfter = 8,
+                originalPageOffsetFirst = 0,
+                originalPageOffsetLast = 0,
             )
         )
     }
@@ -400,14 +416,16 @@ class PagingDataPresenterTest {
         val job1 = launch {
             presenter.collectFrom(PagingData(flow, uiReceiver1, hintReceiver1))
         }
-        assertThat(hintReceiver1.hints).isEqualTo(
-            listOf(
-                ViewportHint.Initial(
-                    presentedItemsBefore = 2,
-                    presentedItemsAfter = 2,
-                    originalPageOffsetFirst = 0,
-                    originalPageOffsetLast = 0,
-                ),
+        // access any item make sure hint is sent
+        presenter[3]
+        assertThat(hintReceiver1.hints).containsExactly(
+            ViewportHint.Access(
+                pageOffset = 0,
+                indexInPage = 3,
+                presentedItemsBefore = 3,
+                presentedItemsAfter = 1,
+                originalPageOffsetFirst = 0,
+                originalPageOffsetLast = 0,
             )
         )
 
@@ -463,15 +481,16 @@ class PagingDataPresenterTest {
                 placeholdersAfter = 75
             ),
         )
-
-        assertThat(hintReceiver2.hints).isEqualTo(
-            listOf(
-                ViewportHint.Initial(
-                    presentedItemsBefore = 2,
-                    presentedItemsAfter = 2,
-                    originalPageOffsetFirst = 0,
-                    originalPageOffsetLast = 0,
-                )
+        // access any item make sure hint is sent
+        presenter[3]
+        assertThat(hintReceiver2.hints).containsExactly(
+            ViewportHint.Access(
+                pageOffset = 0,
+                indexInPage = -17,
+                presentedItemsBefore = -17,
+                presentedItemsAfter = 21,
+                originalPageOffsetFirst = 0,
+                originalPageOffsetLast = 0,
             )
         )
 
@@ -481,7 +500,6 @@ class PagingDataPresenterTest {
         presenter[50]
         assertThat(hintReceiver2.hints).isEqualTo(
             listOf(
-
                 ViewportHint.Access(
                     pageOffset = 0,
                     indexInPage = 30,
@@ -536,12 +554,6 @@ class PagingDataPresenterTest {
         assertNull(presenter[0])
         assertThat(hintReceiver.hints).isEqualTo(
             listOf(
-                ViewportHint.Initial(
-                    presentedItemsBefore = 0,
-                    presentedItemsAfter = 0,
-                    originalPageOffsetFirst = 0,
-                    originalPageOffsetLast = 0,
-                ),
                 ViewportHint.Access(
                     pageOffset = -1,
                     indexInPage = -2,
@@ -588,16 +600,14 @@ class PagingDataPresenterTest {
 
         // This index points to a valid placeholder that ends up removed by filter().
         assertNull(presenter[5])
-        assertThat(hintReceiver.hints).isEqualTo(
-            listOf(
-                ViewportHint.Access(
-                    pageOffset = 1,
-                    indexInPage = 2,
-                    presentedItemsBefore = 5,
-                    presentedItemsAfter = -2,
-                    originalPageOffsetFirst = -3,
-                    originalPageOffsetLast = 1
-                )
+        assertThat(hintReceiver.hints).containsExactly(
+            ViewportHint.Access(
+                pageOffset = 1,
+                indexInPage = 2,
+                presentedItemsBefore = 5,
+                presentedItemsAfter = -2,
+                originalPageOffsetFirst = -3,
+                originalPageOffsetLast = 1
             )
         )
 
@@ -674,22 +684,14 @@ class PagingDataPresenterTest {
         // Initial state:
         // [null, null, [-1], [1], [3], null, null]
         assertNull(presenter[0])
-        assertThat(hintReceiver.hints).isEqualTo(
-            listOf(
-                ViewportHint.Initial(
-                    presentedItemsBefore = 0,
-                    presentedItemsAfter = 0,
-                    originalPageOffsetFirst = 0,
-                    originalPageOffsetLast = 0,
-                ),
-                ViewportHint.Access(
-                    pageOffset = -1,
-                    indexInPage = -2,
-                    presentedItemsBefore = -2,
-                    presentedItemsAfter = 4,
-                    originalPageOffsetFirst = -1,
-                    originalPageOffsetLast = 1
-                ),
+        assertThat(hintReceiver.hints).containsExactly(
+            ViewportHint.Access(
+                pageOffset = -1,
+                indexInPage = -2,
+                presentedItemsBefore = -2,
+                presentedItemsAfter = 4,
+                originalPageOffsetFirst = -1,
+                originalPageOffsetLast = 1
             )
         )
 
@@ -778,42 +780,7 @@ class PagingDataPresenterTest {
         assertNull(presenter.peek(0))
 
         // Check that peek does not trigger page fetch.
-        assertThat(hintReceiver.hints).isEqualTo(
-            listOf<ViewportHint>(
-                ViewportHint.Initial(
-                    presentedItemsBefore = 1,
-                    presentedItemsAfter = 1,
-                    originalPageOffsetFirst = 0,
-                    originalPageOffsetLast = 0,
-                )
-            )
-        )
-
-        job.cancel()
-    }
-
-    @Test
-    fun initialHint_emptyRefresh() = testScope.runTest {
-        val presenter = SimplePresenter(dummyDifferCallback)
-        val pageEventCh = Channel<PageEvent<Int>>(Channel.UNLIMITED)
-        val hintReceiver = HintReceiverFake()
-        val job = launch {
-            presenter.collectFrom(
-                PagingData(
-                    pageEventCh.consumeAsFlow(),
-                    dummyUiReceiver,
-                    hintReceiver
-                )
-            )
-        }
-
-        pageEventCh.trySend(
-            localRefresh(pages = listOf(TransformablePage(emptyList())))
-        )
-
-        assertThat(hintReceiver.hints).isEqualTo(
-            listOf(ViewportHint.Initial(0, 0, 0, 0))
-        )
+        assertThat(hintReceiver.hints).isEmpty()
 
         job.cancel()
     }
@@ -2136,6 +2103,8 @@ class PagingDataPresenterTest {
             hintReceiver = hintReceiver
         )
         val presenter = SimplePresenter(dummyDifferCallback, cachedPagingData)
+
+        // access item
         presenter[5]
         assertThat(hintReceiver.hints).hasSize(0)
 
@@ -2147,6 +2116,9 @@ class PagingDataPresenterTest {
         val job1 = launch {
             presenter.collectFrom(PagingData(flow, dummyUiReceiver, hintReceiver2))
         }
+
+        // access item, hint should be sent to the first uncached PagingData
+        presenter[3]
         assertThat(hintReceiver.hints).hasSize(0)
         assertThat(hintReceiver2.hints).hasSize(1)
         job1.cancel()
@@ -2400,9 +2372,8 @@ private class SimplePresenter(
         newList: NullPaddedList<Int>,
         lastAccessedIndex: Int,
         onListPresentable: () -> Unit
-    ): Int? {
+    ) {
         onListPresentable()
-        return null
     }
 
     private val _localLoadStates = mutableListOf<CombinedLoadStates>()

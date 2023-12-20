@@ -130,7 +130,7 @@ public abstract class PagingDataPresenter<T : Any>(
         newList: NullPaddedList<T>,
         lastAccessedIndex: Int,
         onListPresentable: () -> Unit,
-    ): Int?
+    )
 
     /**
      * Handler for [PagingDataEvent] emitted by a [PagingData] that was submitted to
@@ -484,7 +484,7 @@ public abstract class PagingDataPresenter<T : Any>(
             placeholdersAfter = placeholdersAfter,
         )
         var onListPresentableCalled = false
-        val transformedLastAccessedIndex = presentNewList(
+        presentNewList(
             previousList = pageStore,
             newList = newPresenter,
             lastAccessedIndex = lastAccessedIndex,
@@ -521,25 +521,12 @@ public abstract class PagingDataPresenter<T : Any>(
             dispatchLoadStates(sourceLoadStates!!, mediatorLoadStates)
         }
 
-        if (transformedLastAccessedIndex == null) {
-            // Send an initialize hint in case the new list is empty, which would
-            // prevent a ViewportHint.Access from ever getting sent since there are
-            // no items to bind from initial load.
+        if (newPresenter.size == 0) {
+            // Send an initialize hint in case the new list is empty (no items or placeholders),
+            // which would prevent a ViewportHint.Access from ever getting sent since there are
+            // no items to bind from initial load. Without this hint, paging would stall on
+            // an empty list because prepend/append would be not triggered.
             hintReceiver?.accessHint(newPresenter.initializeHint())
-        } else {
-            // Transform the last loadAround index from the old list to the new list
-            // by passing it through the DiffResult, and pass it forward as a
-            // ViewportHint within the new list to the next generation of Pager.
-            // This ensures prefetch distance for the last ViewportHint from the old
-            // list is respected in the new list, even if invalidation interrupts
-            // the prepend / append load that would have fulfilled it in the old
-            // list.
-            lastAccessedIndex = transformedLastAccessedIndex
-            hintReceiver?.accessHint(
-                newPresenter.accessHintForPresenterIndex(
-                    transformedLastAccessedIndex
-                )
-            )
         }
     }
 }

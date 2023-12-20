@@ -168,30 +168,26 @@ constructor(
             newList: NullPaddedList<T>,
             lastAccessedIndex: Int,
             onListPresentable: () -> Unit,
-        ) = when {
-            // fast path for no items -> some items
-            previousList.size == 0 -> {
-                onListPresentable()
-                differCallback.onInserted(0, newList.size)
-                null
-            }
-            // fast path for some items -> no items
-            newList.size == 0 -> {
-                onListPresentable()
-                differCallback.onRemoved(0, previousList.size)
-                null
-            }
-            else -> {
-                val diffResult = withContext(workerDispatcher) {
-                    previousList.computeDiff(newList, diffCallback)
+        ) {
+            when {
+                // fast path for no items -> some items
+                previousList.size == 0 -> {
+                    onListPresentable()
+                    differCallback.onInserted(0, newList.size)
                 }
-                onListPresentable()
-                previousList.dispatchDiff(updateCallback, newList, diffResult)
-                previousList.transformAnchorIndex(
-                    diffResult = diffResult,
-                    newList = newList,
-                    oldPosition = lastAccessedIndex
-                )
+                // fast path for some items -> no items
+                newList.size == 0 -> {
+                    onListPresentable()
+                    differCallback.onRemoved(0, previousList.size)
+                }
+
+                else -> {
+                    val diffResult = withContext(workerDispatcher) {
+                        previousList.computeDiff(newList, diffCallback)
+                    }
+                    onListPresentable()
+                    previousList.dispatchDiff(updateCallback, newList, diffResult)
+                }
             }
         }
 

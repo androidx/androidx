@@ -100,10 +100,9 @@ public class LazyPagingItems<T : Any> internal constructor(
             newList: NullPaddedList<T>,
             lastAccessedIndex: Int,
             onListPresentable: () -> Unit
-        ): Int? {
+        ) {
             onListPresentable()
             updateItemSnapshotList()
-            return null
         }
 
         override suspend fun presentPagingDataEvent(
