@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.ChildButton
@@ -149,7 +150,7 @@ fun CompactButtonSample() {
             )
         }
     ) {
-        Text("Compact Button", maxLines = 1)
+        Text("Compact Button", maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
 
@@ -167,7 +168,7 @@ fun FilledTonalCompactButtonSample() {
         },
         colors = ButtonDefaults.filledTonalButtonColors()
     ) {
-        Text("Filled Tonal Compact Button", maxLines = 1)
+        Text("Filled Tonal Compact Button", maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
 
@@ -186,6 +187,6 @@ fun OutlinedCompactButtonSample() {
         colors = ButtonDefaults.outlinedButtonColors(),
         border = ButtonDefaults.outlinedButtonBorder(enabled = true)
     ) {
-        Text("Show More", maxLines = 1)
+        Text("Show More", maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }

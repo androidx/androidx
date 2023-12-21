@@ -86,7 +86,7 @@ fun SplitToggleButtonDemo() {
                 enabled = true,
                 initiallyChecked = true,
                 primary = "8:15AM",
-                secondary = "Mon, Tue, Wed"
+                secondary = "Monday"
             )
         }
         item {
@@ -117,6 +117,7 @@ private fun DemoSplitToggleCheckbox(
     var checked by remember { mutableStateOf(initiallyChecked) }
     val context = LocalContext.current
     SplitToggleButton(
+        modifier = Modifier.fillMaxWidth(),
         label = {
             Text(
                 primary,
@@ -130,7 +131,8 @@ private fun DemoSplitToggleCheckbox(
         toggleControl = { Checkbox() },
         onCheckedChange = { checked = it },
         onClick = {
-            Toast.makeText(context, "Clicked", Toast.LENGTH_SHORT).show()
+            val toastText = if (checked) "Checked" else "Not Checked"
+            Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show()
         },
         enabled = enabled,
         secondaryLabel = {
@@ -165,7 +167,8 @@ private fun DemoSplitToggleSwitch(enabled: Boolean, initiallyChecked: Boolean) {
         toggleControl = { Switch() },
         onCheckedChange = { checked = it },
         onClick = {
-            Toast.makeText(context, "Clicked", Toast.LENGTH_SHORT).show()
+            val toastText = if (checked) "Checked" else "Not Checked"
+            Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show()
         },
         enabled = enabled,
     )
