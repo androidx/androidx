@@ -24,6 +24,7 @@ import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.safeparcel.GenericDocumentParcel;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
 
@@ -124,11 +125,14 @@ public final class SearchResult {
      *
      * @return Document object which matched the query.
      */
+    // TODO(b/275629842) This suppress should be removed once SearchResult becomes a SafeParcelable.
+    @SuppressWarnings("deprecation") // bundle.getParcelable(string) is deprecated.
     @NonNull
     public GenericDocument getGenericDocument() {
         if (mDocument == null) {
             mDocument = new GenericDocument(
-                    Preconditions.checkNotNull(mBundle.getBundle(DOCUMENT_FIELD)));
+                    (GenericDocumentParcel) Preconditions.checkNotNull(
+                            mBundle.getParcelable(DOCUMENT_FIELD)));
         }
         return mDocument;
     }
@@ -329,7 +333,7 @@ public final class SearchResult {
             Bundle bundle = new Bundle();
             bundle.putString(PACKAGE_NAME_FIELD, mPackageName);
             bundle.putString(DATABASE_NAME_FIELD, mDatabaseName);
-            bundle.putBundle(DOCUMENT_FIELD, mGenericDocument.getBundle());
+            bundle.putParcelable(DOCUMENT_FIELD, mGenericDocument.getDocumentParcel());
             bundle.putDouble(RANKING_SIGNAL_FIELD, mRankingSignal);
             bundle.putParcelableArrayList(MATCH_INFOS_FIELD, mMatchInfoBundles);
             bundle.putParcelableArrayList(JOINED_RESULTS, mJoinedResults);
