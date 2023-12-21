@@ -159,10 +159,10 @@ fun DropdownMenu(
  * @param enabled Controls the enabled state of the menu item - when `false`, the menu item
  * will not be clickable and [onClick] will not be invoked
  * @param contentPadding the padding applied to the content of this menu item
- * @param interactionSource the [MutableInteractionSource] representing the stream of
- * [Interaction]s for this DropdownMenuItem. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this DropdownMenuItem in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this menu item. You can use this to change the menu item's appearance
+ * or preview the menu item in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  */
 @Composable
 fun DropdownMenuItem(
@@ -170,7 +170,7 @@ fun DropdownMenuItem(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     contentPadding: PaddingValues = MenuDefaults.DropdownMenuItemContentPadding,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable RowScope.() -> Unit
 ) {
     DropdownMenuItemContent(
