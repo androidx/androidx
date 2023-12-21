@@ -29,9 +29,8 @@ class TestPagingDataPresenter<T : Any>(mainContext: CoroutineContext = Dispatche
         newList: NullPaddedList<T>,
         lastAccessedIndex: Int,
         onListPresentable: () -> Unit,
-    ): Int? {
+    ) {
         onListPresentable()
-        return null
     }
 
     companion object {

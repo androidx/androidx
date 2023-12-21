@@ -24,15 +24,16 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.PagingDataPresenter
 import androidx.paging.PagingSource
-import androidx.paging.testing.LoaderCallback.CallbackType.ON_INSERTED
 import androidx.paging.testing.internal.AtomicInt
 import androidx.paging.testing.internal.AtomicRef
 import kotlin.jvm.JvmSuppressWildcards
 import kotlin.math.abs
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 
 /**
  * Contains the public APIs for load operations in tests.
@@ -240,9 +241,10 @@ public class SnapshotLoader<Value : Any> internal constructor(
         val startIndex = generations.value.lastAccessedIndex.get()
         val loadType = if (startIndex > index) LoadType.PREPEND else LoadType.APPEND
 
-        when (loadType) {
-            LoadType.PREPEND -> prependFlingTo(startIndex, index)
-            LoadType.APPEND -> appendFlingTo(startIndex, index)
+        if (loadType == LoadType.PREPEND) {
+            prependFlingTo(startIndex, index)
+        } else {
+            appendFlingTo(startIndex, index)
         }
     }
 
@@ -362,6 +364,7 @@ public class SnapshotLoader<Value : Any> internal constructor(
                 }
                 currIndex + 1
             }
+            LoadType.REFRESH -> currIndex
         }
     }
 
@@ -403,7 +406,7 @@ public class SnapshotLoader<Value : Any> internal constructor(
      * - inserted count > 0
      */
     private fun LoaderCallback.computeIndexOffset(): Int {
-        return if (type == ON_INSERTED && position == 0) count else 0
+        return if (loadType == LoadType.PREPEND && position == 0) count else 0
     }
 
     private fun setLastAccessedIndex(index: Int) {
@@ -411,24 +414,36 @@ public class SnapshotLoader<Value : Any> internal constructor(
     }
 
     /**
-     * The callback to be invoked by DifferCallback on a single generation.
-     * Increase the callbackCount to notify SnapshotLoader that the dataset has updated
+     * The callback to be invoked when presenter emits a new PagingDataEvent.
      */
-    internal fun onDataSetChanged(gen: Generation, callback: LoaderCallback) {
+    internal fun onDataSetChanged(
+        gen: Generation,
+        callback: LoaderCallback,
+        scope: CoroutineScope? = null
+    ) {
         val currGen = generations.value
         // we make sure the generation with the dataset change is still valid because we
         // want to disregard callbacks on stale generations
         if (gen.id == currGen.id) {
-            generations.value = gen.copy(
-                callbackCount = currGen.callbackCount + 1,
-                callbackState = currGen.callbackState.apply { set(callback) }
-            )
+            callback.apply {
+                if (loadType == LoadType.REFRESH) {
+                    generations.value.lastAccessedIndex.set(position)
+                    // If there are presented items, we should imitate the UI by accessing a
+                    // real item.
+                    if (count > 0) {
+                        scope?.launch {
+                            awaitLoad(nextIndexOrNull(LoadType.REFRESH)!!)
+                            presenter.awaitNotLoading(errorHandler)
+                        }
+                    }
+                }
+                if (loadType == LoadType.PREPEND) {
+                    generations.value = gen.copy(
+                        callbackState = currGen.callbackState.apply { set(callback) }
+                    )
+                }
+            }
         }
-    }
-
-    private enum class LoadType {
-        PREPEND,
-        APPEND
     }
 }
 
@@ -440,15 +455,6 @@ internal data class Generation(
     val id: Int = -1,
 
     /**
-     * A count of the number of times Paging invokes a [DifferCallback] callback within a single
-     * generation. Incremented on each [DifferCallback] callback invoked, i.e. on item inserted.
-     *
-     * The callbackCount enables [SnapshotLoader] to await for a requested item and continue
-     * loading next item only after a callback is invoked.
-     */
-    val callbackCount: Int = 0,
-
-    /**
      * Temporarily stores the latest [DifferCallback] to track prepends to the beginning of list.
      * Value is reset to null once read.
      */
@@ -456,18 +462,18 @@ internal data class Generation(
 
     /**
      * Tracks the last accessed(peeked) index on the presenter for this generation
-      */
+     */
     var lastAccessedIndex: AtomicInt = AtomicInt(0)
 )
 
 internal data class LoaderCallback(
-    val type: CallbackType,
+    val loadType: LoadType,
     val position: Int,
     val count: Int,
-) {
-    internal enum class CallbackType {
-        ON_CHANGED,
-        ON_INSERTED,
-        ON_REMOVED,
-    }
+)
+
+internal enum class LoadType {
+    REFRESH,
+    PREPEND,
+    APPEND,
 }
