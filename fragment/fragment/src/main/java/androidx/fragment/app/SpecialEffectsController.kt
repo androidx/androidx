@@ -525,20 +525,6 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                             )
                         }
                         val parent = view.parent as? ViewGroup
-                        // For transitions it is possible that we complete the operation while
-                        // the view is still parented by the ViewOverlay so we need to make sure
-                        // the container is the proper view.
-                        if (parent != null && parent != container) {
-                            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
-                                Log.v(
-                                    FragmentManager.TAG, "SpecialEffectsController: " +
-                                        "Swapping view $view from parent $parent to Container " +
-                                        "$container"
-                                )
-                            }
-                            parent.removeView(view)
-                            container.addView(view)
-                        }
                         if (parent == null) {
                             if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                                 Log.v(
