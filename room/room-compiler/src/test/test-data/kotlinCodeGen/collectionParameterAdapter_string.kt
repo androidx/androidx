@@ -6,7 +6,6 @@ import androidx.room.util.appendPlaceholders
 import androidx.room.util.getColumnIndexOrThrow
 import androidx.room.util.newStringBuilder
 import androidx.room.util.query
-import java.lang.Class
 import java.lang.StringBuilder
 import javax.`annotation`.processing.Generated
 import kotlin.Int
@@ -15,6 +14,7 @@ import kotlin.Suppress
 import kotlin.collections.List
 import kotlin.collections.Set
 import kotlin.jvm.JvmStatic
+import kotlin.reflect.KClass
 
 @Generated(value = ["androidx.room.RoomProcessor"])
 @Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION"])
@@ -168,6 +168,6 @@ public class MyDao_Impl(
 
   public companion object {
     @JvmStatic
-    public fun getRequiredConverters(): List<Class<*>> = emptyList()
+    public fun getRequiredConverters(): List<KClass<*>> = emptyList()
   }
 }

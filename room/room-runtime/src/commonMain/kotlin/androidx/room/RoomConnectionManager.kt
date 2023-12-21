@@ -42,6 +42,7 @@ internal abstract class RoomConnectionManager {
     // TODO(b/316944352): Retry mechanism
     protected fun openConnection(): SQLiteConnection {
         val connection = sqliteDriver.open()
+        configureJournalMode(connection)
         val version = connection.prepare("PRAGMA user_version").use { statement ->
             statement.step()
             statement.getLong(0).toInt()
@@ -61,6 +62,15 @@ internal abstract class RoomConnectionManager {
         }
         onOpen(connection)
         return connection
+    }
+
+    private fun configureJournalMode(connection: SQLiteConnection) {
+        val wal = configuration.journalMode == RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING
+        if (wal) {
+            connection.execSQL("PRAGMA journal_mode = WAL")
+        } else {
+            connection.execSQL("PRAGMA journal_mode = TRUNCATE")
+        }
     }
 
     protected fun onCreate(connection: SQLiteConnection) {

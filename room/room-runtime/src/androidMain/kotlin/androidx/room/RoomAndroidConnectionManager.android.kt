@@ -58,12 +58,12 @@ internal class RoomAndroidConnectionManager : RoomConnectionManager {
             this.sqliteDriver = SupportSQLiteDriver(
                 config.sqliteOpenHelperFactory.create(openHelperConfig)
             )
-            this.supportOpenHelper
         } else {
             this.sqliteDriver = config.sqliteDriver
         }
         this.openDelegate = openDelegate
         this.callbacks = config.callbacks ?: emptyList()
+        init()
     }
 
     constructor(
@@ -76,6 +76,12 @@ internal class RoomAndroidConnectionManager : RoomConnectionManager {
         // the provided SupportSQLiteOpenHelper.
         this.sqliteDriver = SupportSQLiteDriver(supportOpenHelper)
         this.callbacks = config.callbacks ?: emptyList()
+        init()
+    }
+
+    private fun init() {
+        val wal = configuration.journalMode == RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING
+        supportOpenHelper?.setWriteAheadLoggingEnabled(wal)
     }
 
     override fun getConnection(): SQLiteConnection {

@@ -27,9 +27,11 @@ actual class DatabaseConfiguration(
      * Collection of available migrations.
      */
     actual val migrationContainer: RoomDatabase.MigrationContainer,
+    actual val journalMode: RoomDatabase.JournalMode,
     actual val requireMigration: Boolean,
     actual val allowDestructiveMigrationOnDowngrade: Boolean,
     internal actual val migrationNotRequiredFrom: Set<Int>?,
+    actual val typeConverters: List<Any>,
     actual val autoMigrationSpecs: List<AutoMigrationSpec>,
     actual val sqliteDriver: SQLiteDriver?
 )

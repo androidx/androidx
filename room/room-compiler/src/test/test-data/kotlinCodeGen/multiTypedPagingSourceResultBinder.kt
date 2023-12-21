@@ -6,7 +6,6 @@ import androidx.room.RoomSQLiteQuery
 import androidx.room.RoomSQLiteQuery.Companion.acquire
 import androidx.room.paging.LimitOffsetPagingSource
 import androidx.room.paging.guava.LimitOffsetListenableFuturePagingSource
-import java.lang.Class
 import java.util.ArrayList
 import javax.`annotation`.processing.Generated
 import kotlin.Int
@@ -15,6 +14,7 @@ import kotlin.Suppress
 import kotlin.collections.List
 import kotlin.collections.MutableList
 import kotlin.jvm.JvmStatic
+import kotlin.reflect.KClass
 import androidx.paging.rxjava2.RxPagingSource as Rxjava2RxPagingSource
 import androidx.paging.rxjava3.RxPagingSource as Rxjava3RxPagingSource
 import androidx.room.paging.rxjava2.LimitOffsetRxPagingSource as Rxjava2LimitOffsetRxPagingSource
@@ -109,6 +109,6 @@ public class MyDao_Impl(
 
   public companion object {
     @JvmStatic
-    public fun getRequiredConverters(): List<Class<*>> = emptyList()
+    public fun getRequiredConverters(): List<KClass<*>> = emptyList()
   }
 }

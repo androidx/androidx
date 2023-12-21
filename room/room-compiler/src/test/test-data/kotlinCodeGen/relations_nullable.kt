@@ -8,7 +8,6 @@ import androidx.room.util.getColumnIndexOrThrow
 import androidx.room.util.newStringBuilder
 import androidx.room.util.query
 import androidx.room.util.recursiveFetchHashMap
-import java.lang.Class
 import java.lang.StringBuilder
 import java.util.ArrayList
 import java.util.HashMap
@@ -20,6 +19,7 @@ import kotlin.Suppress
 import kotlin.collections.List
 import kotlin.collections.Set
 import kotlin.jvm.JvmStatic
+import kotlin.reflect.KClass
 
 @Generated(value = ["androidx.room.RoomProcessor"])
 @Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION"])
@@ -330,6 +330,6 @@ public class MyDao_Impl(
 
   public companion object {
     @JvmStatic
-    public fun getRequiredConverters(): List<Class<*>> = emptyList()
+    public fun getRequiredConverters(): List<KClass<*>> = emptyList()
   }
 }

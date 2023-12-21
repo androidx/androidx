@@ -6,7 +6,6 @@ import androidx.room.RoomSQLiteQuery.Companion.acquire
 import androidx.room.util.getColumnIndex
 import androidx.room.util.query
 import androidx.room.util.wrapMappedColumns
-import java.lang.Class
 import java.util.ArrayList
 import java.util.LinkedHashMap
 import javax.`annotation`.processing.Generated
@@ -20,6 +19,7 @@ import kotlin.collections.Map
 import kotlin.collections.MutableList
 import kotlin.collections.MutableMap
 import kotlin.jvm.JvmStatic
+import kotlin.reflect.KClass
 
 @Generated(value = ["androidx.room.RoomProcessor"])
 @Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION"])
@@ -211,6 +211,6 @@ public class MyDao_Impl(
 
   public companion object {
     @JvmStatic
-    public fun getRequiredConverters(): List<Class<*>> = emptyList()
+    public fun getRequiredConverters(): List<KClass<*>> = emptyList()
   }
 }

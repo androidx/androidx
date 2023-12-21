@@ -73,7 +73,7 @@ constructor(
      * The journal mode for this database.
      */
     @JvmField
-    val journalMode: RoomDatabase.JournalMode,
+    actual val journalMode: RoomDatabase.JournalMode,
 
     /**
      * The Executor used to execute asynchronous queries.
@@ -117,7 +117,7 @@ constructor(
     val prepackagedDatabaseCallback: RoomDatabase.PrepackagedDatabaseCallback?,
 
     @JvmField
-    val typeConverters: List<Any>,
+    actual val typeConverters: List<Any>,
 
     @JvmField
     actual val autoMigrationSpecs: List<AutoMigrationSpec>,

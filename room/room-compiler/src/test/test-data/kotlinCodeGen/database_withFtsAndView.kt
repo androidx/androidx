@@ -9,7 +9,6 @@ import androidx.room.util.dropFtsSyncTriggers
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.execSQL
-import java.lang.Class
 import java.util.HashMap
 import java.util.HashSet
 import javax.`annotation`.processing.Generated
@@ -21,9 +20,11 @@ import kotlin.Suppress
 import kotlin.collections.List
 import kotlin.collections.Map
 import kotlin.collections.MutableList
+import kotlin.collections.MutableMap
 import kotlin.collections.MutableSet
 import kotlin.collections.Set
 import kotlin.collections.mutableListOf
+import kotlin.collections.mutableMapOf
 import kotlin.collections.mutableSetOf
 import kotlin.reflect.KClass
 import androidx.room.util.FtsTableInfo.Companion.read as ftsTableInfoRead
@@ -190,10 +191,10 @@ public class MyDatabase_Impl : MyDatabase() {
     }
   }
 
-  protected override fun getRequiredTypeConverters(): Map<Class<out Any>, List<Class<out Any>>> {
-    val _typeConvertersMap: HashMap<Class<out Any>, List<Class<out Any>>> =
-        HashMap<Class<out Any>, List<Class<out Any>>>()
-    _typeConvertersMap.put(MyDao::class.java, MyDao_Impl.getRequiredConverters())
+  protected override fun getRequiredTypeConverterClasses():
+      Map<KClass<out Any>, List<KClass<out Any>>> {
+    val _typeConvertersMap: MutableMap<KClass<out Any>, List<KClass<out Any>>> = mutableMapOf()
+    _typeConvertersMap.put(MyDao::class, MyDao_Impl.getRequiredConverters())
     return _typeConvertersMap
   }
 

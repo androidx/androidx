@@ -70,25 +70,35 @@ class DatabaseWriter(
 
     private fun createCreateTypeConvertersMap(): XFunSpec {
         val scope = CodeGenScope(this)
-        val classOfAnyTypeName = CommonTypeNames.JAVA_CLASS.parametrizedBy(
-            XTypeName.getProducerExtendsName(KotlinTypeNames.ANY)
-        )
-        val typeConvertersTypeName = CommonTypeNames.HASH_MAP.parametrizedBy(
+        val classOfAnyTypeName =
+            when (codeLanguage) {
+                CodeLanguage.JAVA -> CommonTypeNames.JAVA_CLASS
+                CodeLanguage.KOTLIN -> CommonTypeNames.KOTLIN_CLASS
+            }.parametrizedBy(
+                XTypeName.getProducerExtendsName(KotlinTypeNames.ANY)
+            )
+        val typeConvertersTypeName = CommonTypeNames.MUTABLE_MAP.parametrizedBy(
             classOfAnyTypeName,
             CommonTypeNames.LIST.parametrizedBy(classOfAnyTypeName)
         )
         val body = XCodeBlock.builder(codeLanguage).apply {
             val typeConvertersVar = scope.getTmpVar("_typeConvertersMap")
-            addLocalVariable(
-                name = typeConvertersVar,
-                typeName = typeConvertersTypeName,
-                assignExpr = XCodeBlock.ofNewInstance(codeLanguage, typeConvertersTypeName)
+            addLocalVal(
+                typeConvertersVar,
+                typeConvertersTypeName,
+                "%M()",
+                KotlinCollectionMemberNames.MUTABLE_MAP_OF
             )
             database.daoMethods.forEach {
                 addStatement(
                     "%L.put(%L, %T.%L())",
                     typeConvertersVar,
-                    XCodeBlock.ofJavaClassLiteral(codeLanguage, it.dao.typeName),
+                    when (language) {
+                        CodeLanguage.JAVA ->
+                            XCodeBlock.ofJavaClassLiteral(language, it.dao.typeName)
+                        CodeLanguage.KOTLIN ->
+                            XCodeBlock.ofKotlinClassLiteral(language, it.dao.typeName)
+                    },
                     it.dao.implTypeName,
                     DaoWriter.GET_LIST_OF_TYPE_CONVERTERS_METHOD
                 )
@@ -97,7 +107,10 @@ class DatabaseWriter(
         }.build()
         return XFunSpec.builder(
             language = codeLanguage,
-            name = "getRequiredTypeConverters",
+            name = when (codeLanguage) {
+                CodeLanguage.JAVA -> "getRequiredTypeConverters"
+                CodeLanguage.KOTLIN -> "getRequiredTypeConverterClasses"
+            },
             visibility = VisibilityModifier.PROTECTED,
             isOverride = true
         ).apply {
