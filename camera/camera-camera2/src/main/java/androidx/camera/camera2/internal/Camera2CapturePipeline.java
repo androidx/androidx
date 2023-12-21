@@ -146,8 +146,8 @@ class Camera2CapturePipeline {
             @FlashMode int flashMode, @FlashType int flashType) {
 
         OverrideAeModeForStillCapture aeQuirk = new OverrideAeModeForStillCapture(mCameraQuirk);
-        Pipeline pipeline = new Pipeline(mTemplate, mExecutor, mCameraControl, mIsLegacyDevice,
-                aeQuirk);
+        Pipeline pipeline = new Pipeline(mTemplate, mExecutor, mScheduler, mCameraControl,
+                mIsLegacyDevice, aeQuirk);
 
         if (captureMode == CAPTURE_MODE_MAXIMIZE_QUALITY) {
             pipeline.addTask(new AfTask(mCameraControl));
@@ -159,7 +159,8 @@ class Camera2CapturePipeline {
         } else {
             if (mHasFlashUnit) {
                 if (isTorchAsFlash(flashType)) {
-                    pipeline.addTask(new TorchTask(mCameraControl, flashMode, mExecutor));
+                    pipeline.addTask(
+                            new TorchTask(mCameraControl, flashMode, mExecutor, mScheduler));
                 } else {
                     pipeline.addTask(new AePreCaptureTask(mCameraControl, flashMode, aeQuirk));
                 }
@@ -182,6 +183,7 @@ class Camera2CapturePipeline {
 
         private final int mTemplate;
         private final Executor mExecutor;
+        private final ScheduledExecutorService mScheduler;
         private final Camera2CameraControlImpl mCameraControl;
         private final OverrideAeModeForStillCapture mOverrideAeModeForStillCapture;
         private final boolean mIsLegacyDevice;
@@ -222,10 +224,12 @@ class Camera2CapturePipeline {
         };
 
         Pipeline(int template, @NonNull Executor executor,
+                @NonNull ScheduledExecutorService scheduler,
                 @NonNull Camera2CameraControlImpl cameraControl, boolean isLegacyDevice,
                 @NonNull OverrideAeModeForStillCapture overrideAeModeForStillCapture) {
             mTemplate = template;
             mExecutor = executor;
+            mScheduler = scheduler;
             mCameraControl = cameraControl;
             mIsLegacyDevice = isLegacyDevice;
             mOverrideAeModeForStillCapture = overrideAeModeForStillCapture;
@@ -258,9 +262,8 @@ class Camera2CapturePipeline {
             ListenableFuture<TotalCaptureResult> preCapture = Futures.immediateFuture(null);
             if (!mTasks.isEmpty()) {
                 ListenableFuture<TotalCaptureResult> getResult =
-                        mPipelineSubTask.isCaptureResultNeeded() ? waitForResult(
-                                ResultListener.NO_TIMEOUT, mCameraControl, null) :
-                                Futures.immediateFuture(null);
+                        mPipelineSubTask.isCaptureResultNeeded() ? waitForResult(mCameraControl,
+                                null) : Futures.immediateFuture(null);
 
                 preCapture = FutureChain.from(getResult).transformAsync(captureResult -> {
                     if (isFlashRequired(flashMode, captureResult)) {
@@ -269,7 +272,7 @@ class Camera2CapturePipeline {
                     return mPipelineSubTask.preCapture(captureResult);
                 }, mExecutor).transformAsync(is3aConvergeRequired -> {
                     if (Boolean.TRUE.equals(is3aConvergeRequired)) {
-                        return waitForResult(mTimeout3A, mCameraControl,
+                        return waitForResult(mTimeout3A, mScheduler, mCameraControl,
                                 (result) -> is3AConverged(result, false));
                     }
                     return Futures.immediateFuture(null);
@@ -384,14 +387,53 @@ class Camera2CapturePipeline {
         }
     }
 
+    /**
+     * Waits, with a timeout, for a camera capture result satisfying some criteria defined with the
+     * {@code checker} parameter.
+     *
+     * @param timeoutNanos             The timeout for waiting in nanoseconds.
+     * @param scheduledExecutorService The executor service to enforce the timeout.
+     * @param cameraControl            The {@link Camera2CameraControlImpl} instance used to
+     *                                 listen for capture results.
+     * @param checker                  Defines the criteria of camera capture result for which
+     *                                 the returned future will be waiting.
+     * @return A {@link ListenableFuture} providing the first capture result that satisfies the
+     * {@code checker} parameter.
+     */
     @ExecutedBy("mExecutor")
     @NonNull
-    static ListenableFuture<TotalCaptureResult> waitForResult(long waitTimeout,
+    static ListenableFuture<TotalCaptureResult> waitForResult(long timeoutNanos,
+            @NonNull ScheduledExecutorService scheduledExecutorService,
             @NonNull Camera2CameraControlImpl cameraControl,
             @Nullable ResultListener.Checker checker) {
-        ResultListener resultListener = new ResultListener(waitTimeout, checker);
+        return Futures.makeTimeoutFuture(TimeUnit.NANOSECONDS.toMillis(timeoutNanos),
+                scheduledExecutorService, null, true, waitForResult(cameraControl, checker));
+    }
+
+    /**
+     * Waits indefinitely for a camera capture result satisfying some criteria defined with the
+     * {@code checker} parameter.
+     *
+     * @param cameraControl The {@link Camera2CameraControlImpl} instance used to listen for
+     *                      capture results.
+     * @param checker       Defines the criteria of camera capture result for which the returned
+     *                      future will be waiting.
+     * @return A {@link ListenableFuture} providing the first capture result that satisfies the
+     * {@code checker} parameter.
+     */
+    @ExecutedBy("mExecutor")
+    @NonNull
+    static ListenableFuture<TotalCaptureResult> waitForResult(
+            @NonNull Camera2CameraControlImpl cameraControl,
+            @Nullable ResultListener.Checker checker) {
+        ResultListener resultListener = new ResultListener(checker);
         cameraControl.addCaptureResultListener(resultListener);
-        return resultListener.getFuture();
+
+        ListenableFuture<TotalCaptureResult> future = resultListener.getFuture();
+        future.addListener(() -> cameraControl.removeCaptureResultListener(resultListener),
+                cameraControl.mExecutor);
+
+        return  future;
     }
 
     static boolean is3AConverged(@Nullable TotalCaptureResult totalCaptureResult,
@@ -502,12 +544,14 @@ class Camera2CapturePipeline {
         private boolean mIsExecuted = false;
         @CameraExecutor
         private final Executor mExecutor;
+        private final ScheduledExecutorService mScheduler;
 
         TorchTask(@NonNull Camera2CameraControlImpl cameraControl, @FlashMode int flashMode,
-                @NonNull Executor executor) {
+                @NonNull Executor executor, ScheduledExecutorService scheduler) {
             mCameraControl = cameraControl;
             mFlashMode = flashMode;
             mExecutor = executor;
+            mScheduler = scheduler;
         }
 
         @ExecutedBy("mExecutor")
@@ -526,7 +570,7 @@ class Camera2CapturePipeline {
                         return "TorchOn";
                     });
                     return FutureChain.from(future).transformAsync(
-                            input -> waitForResult(CHECK_3A_WITH_TORCH_TIMEOUT_IN_NS,
+                            input -> waitForResult(CHECK_3A_WITH_TORCH_TIMEOUT_IN_NS, mScheduler,
                                     mCameraControl, (result) -> is3AConverged(result, true)),
                             mExecutor).transform(input -> false, CameraXExecutors.directExecutor());
                 }
@@ -688,14 +732,14 @@ class Camera2CapturePipeline {
                             // users a bit more grace time before CameraX stops waiting.
                             TimeUnit.SECONDS.toMillis(
                                     ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS),
-                            mScheduler, null, uiAppliedFuture),
+                            mScheduler, null, true, uiAppliedFuture),
                     mExecutor
             ).transformAsync(
                     input -> mCameraControl.getFocusMeteringControl().triggerAePrecapture(),
                     mExecutor
             ).transformAsync(
-                    input -> waitForResult(CHECK_3A_WITH_SCREEN_FLASH_TIMEOUT_IN_NS, mCameraControl,
-                            (result) -> is3AConverged(result, false)), mExecutor
+                    input -> waitForResult(CHECK_3A_WITH_SCREEN_FLASH_TIMEOUT_IN_NS, mScheduler,
+                            mCameraControl, (result) -> is3AConverged(result, false)), mExecutor
             ).transform(input -> false, CameraXExecutors.directExecutor());
         }
 
@@ -749,25 +793,19 @@ class Camera2CapturePipeline {
             boolean check(@NonNull TotalCaptureResult totalCaptureResult);
         }
 
-        static final long NO_TIMEOUT = 0L;
-
         private CallbackToFutureAdapter.Completer<TotalCaptureResult> mCompleter;
         private final ListenableFuture<TotalCaptureResult> mFuture =
                 CallbackToFutureAdapter.getFuture(completer -> {
                     mCompleter = completer;
                     return "waitFor3AResult";
                 });
-        private final long mTimeLimitNs;
         private final Checker mChecker;
-        private volatile Long mTimestampOfFirstUpdateNs = null;
 
         /**
-         * @param timeLimitNs timeout threshold in Nanos
          * @param checker     the checker to define the condition to complete the mFuture, set null
          *                    will complete the mFuture once it receives any totalCaptureResults.
          */
-        ResultListener(long timeLimitNs, @Nullable Checker checker) {
-            mTimeLimitNs = timeLimitNs;
+        ResultListener(@Nullable Checker checker) {
             mChecker = checker;
         }
 
@@ -778,21 +816,6 @@ class Camera2CapturePipeline {
 
         @Override
         public boolean onCaptureResult(@NonNull TotalCaptureResult captureResult) {
-            Long currentTimestampNs = captureResult.get(CaptureResult.SENSOR_TIMESTAMP);
-            if (currentTimestampNs != null && mTimestampOfFirstUpdateNs == null) {
-                mTimestampOfFirstUpdateNs = currentTimestampNs;
-            }
-
-            Long timestampOfFirstUpdateNs = mTimestampOfFirstUpdateNs;
-            if (NO_TIMEOUT != mTimeLimitNs && timestampOfFirstUpdateNs != null
-                    && currentTimestampNs != null
-                    && currentTimestampNs - timestampOfFirstUpdateNs > mTimeLimitNs) {
-                mCompleter.set(null);
-                Logger.d(TAG, "Wait for capture result timeout, current:" + currentTimestampNs
-                        + " first: " + timestampOfFirstUpdateNs);
-                return true;
-            }
-
             if (mChecker != null && !mChecker.check(captureResult)) {
                 return false;
             }
