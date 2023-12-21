@@ -1,6 +1,10 @@
 // Baseline format: 1.0
 AddedAbstractMethod: androidx.compose.foundation.pager.PageInfo#getKey():
     Added method androidx.compose.foundation.pager.PageInfo.getKey()
+AddedAbstractMethod: androidx.compose.foundation.pager.PagerLayoutInfo#getOutOfBoundsPageCount():
+    Added method androidx.compose.foundation.pager.PagerLayoutInfo.getOutOfBoundsPageCount()
+AddedAbstractMethod: androidx.compose.foundation.pager.PagerLayoutInfo#getSnapPosition():
+    Added method androidx.compose.foundation.pager.PagerLayoutInfo.getSnapPosition()
 
 
 ChangedType: androidx.compose.foundation.gestures.snapping.SnapFlingBehaviorKt#rememberSnapFlingBehavior(androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider):

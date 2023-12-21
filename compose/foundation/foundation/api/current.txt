@@ -1261,8 +1261,7 @@ package androidx.compose.foundation.pager {
     property public final float pageSize;
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final class PagerDefaults {
-    method @Deprecated @androidx.compose.runtime.Composable public androidx.compose.foundation.gestures.TargetedFlingBehavior flingBehavior(androidx.compose.foundation.pager.PagerState state, optional androidx.compose.foundation.pager.PagerSnapDistance pagerSnapDistance, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> lowVelocityAnimationSpec, optional androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> highVelocityAnimationSpec, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec, optional float snapPositionalThreshold);
+  public final class PagerDefaults {
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.gestures.TargetedFlingBehavior flingBehavior(androidx.compose.foundation.pager.PagerState state, optional androidx.compose.foundation.pager.PagerSnapDistance pagerSnapDistance, optional androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> decayAnimationSpec, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec, optional @FloatRange(from=0.0, to=1.0) float snapPositionalThreshold);
     method public androidx.compose.ui.input.nestedscroll.NestedScrollConnection pageNestedScrollConnection(androidx.compose.foundation.pager.PagerState state, androidx.compose.foundation.gestures.Orientation orientation);
     field public static final androidx.compose.foundation.pager.PagerDefaults INSTANCE;
@@ -1270,11 +1269,11 @@ package androidx.compose.foundation.pager {
   }
 
   public final class PagerKt {
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Composable public static void HorizontalPager(androidx.compose.foundation.pager.PagerState state, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.pager.PageSize pageSize, optional int outOfBoundsPageCount, optional float pageSpacing, optional androidx.compose.ui.Alignment.Vertical verticalAlignment, optional androidx.compose.foundation.gestures.TargetedFlingBehavior flingBehavior, optional boolean userScrollEnabled, optional boolean reverseLayout, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,?>? key, optional androidx.compose.ui.input.nestedscroll.NestedScrollConnection pageNestedScrollConnection, optional androidx.compose.foundation.gestures.snapping.SnapPosition snapPosition, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.pager.PagerScope,? super java.lang.Integer,kotlin.Unit> pageContent);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Composable public static void VerticalPager(androidx.compose.foundation.pager.PagerState state, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.pager.PageSize pageSize, optional int outOfBoundsPageCount, optional float pageSpacing, optional androidx.compose.ui.Alignment.Horizontal horizontalAlignment, optional androidx.compose.foundation.gestures.TargetedFlingBehavior flingBehavior, optional boolean userScrollEnabled, optional boolean reverseLayout, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,?>? key, optional androidx.compose.ui.input.nestedscroll.NestedScrollConnection pageNestedScrollConnection, optional androidx.compose.foundation.gestures.snapping.SnapPosition snapPosition, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.pager.PagerScope,? super java.lang.Integer,kotlin.Unit> pageContent);
+    method @androidx.compose.runtime.Composable public static void HorizontalPager(androidx.compose.foundation.pager.PagerState state, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.pager.PageSize pageSize, optional int outOfBoundsPageCount, optional float pageSpacing, optional androidx.compose.ui.Alignment.Vertical verticalAlignment, optional androidx.compose.foundation.gestures.TargetedFlingBehavior flingBehavior, optional boolean userScrollEnabled, optional boolean reverseLayout, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,?>? key, optional androidx.compose.ui.input.nestedscroll.NestedScrollConnection pageNestedScrollConnection, optional androidx.compose.foundation.gestures.snapping.SnapPosition snapPosition, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.pager.PagerScope,? super java.lang.Integer,kotlin.Unit> pageContent);
+    method @androidx.compose.runtime.Composable public static void VerticalPager(androidx.compose.foundation.pager.PagerState state, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.pager.PageSize pageSize, optional int outOfBoundsPageCount, optional float pageSpacing, optional androidx.compose.ui.Alignment.Horizontal horizontalAlignment, optional androidx.compose.foundation.gestures.TargetedFlingBehavior flingBehavior, optional boolean userScrollEnabled, optional boolean reverseLayout, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,?>? key, optional androidx.compose.ui.input.nestedscroll.NestedScrollConnection pageNestedScrollConnection, optional androidx.compose.foundation.gestures.snapping.SnapPosition snapPosition, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.pager.PagerScope,? super java.lang.Integer,kotlin.Unit> pageContent);
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public sealed interface PagerLayoutInfo {
+  public sealed interface PagerLayoutInfo {
     method public int getAfterContentPadding();
     method public int getBeforeContentPadding();
     method public androidx.compose.foundation.gestures.Orientation getOrientation();
@@ -1313,7 +1312,7 @@ package androidx.compose.foundation.pager {
     method public androidx.compose.foundation.pager.PagerSnapDistance atMost(int pages);
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public abstract class PagerState implements androidx.compose.foundation.gestures.ScrollableState {
+  @androidx.compose.runtime.Stable public abstract class PagerState implements androidx.compose.foundation.gestures.ScrollableState {
     ctor public PagerState(optional int currentPage, optional @FloatRange(from=-0.5, to=0.5) float currentPageOffsetFraction);
     method public final suspend Object? animateScrollToPage(int page, optional @FloatRange(from=-0.5, to=0.5) float pageOffsetFraction, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public float dispatchRawDelta(float delta);
@@ -1330,8 +1329,8 @@ package androidx.compose.foundation.pager {
     method public boolean isScrollInProgress();
     method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public final suspend Object? scrollToPage(int page, optional @FloatRange(from=-0.5, to=0.5) float pageOffsetFraction, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public final void updateCurrentPage(androidx.compose.foundation.gestures.ScrollScope, int page, optional @FloatRange(from=-0.5, to=0.5) float pageOffsetFraction);
-    method public final void updateTargetPage(androidx.compose.foundation.gestures.ScrollScope, int targetPage);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final void updateCurrentPage(androidx.compose.foundation.gestures.ScrollScope, int page, optional @FloatRange(from=-0.5, to=0.5) float pageOffsetFraction);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final void updateTargetPage(androidx.compose.foundation.gestures.ScrollScope, int targetPage);
     property public final boolean canScrollBackward;
     property public final boolean canScrollForward;
     property public final int currentPage;
@@ -1345,8 +1344,8 @@ package androidx.compose.foundation.pager {
   }
 
   public final class PagerStateKt {
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.pager.PagerState PagerState(optional int currentPage, optional @FloatRange(from=-0.5, to=0.5) float currentPageOffsetFraction, kotlin.jvm.functions.Function0<java.lang.Integer> pageCount);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Composable public static androidx.compose.foundation.pager.PagerState rememberPagerState(optional int initialPage, optional @FloatRange(from=-0.5, to=0.5) float initialPageOffsetFraction, kotlin.jvm.functions.Function0<java.lang.Integer> pageCount);
+    method public static androidx.compose.foundation.pager.PagerState PagerState(optional int currentPage, optional @FloatRange(from=-0.5, to=0.5) float currentPageOffsetFraction, kotlin.jvm.functions.Function0<java.lang.Integer> pageCount);
+    method @androidx.compose.runtime.Composable public static androidx.compose.foundation.pager.PagerState rememberPagerState(optional int initialPage, optional @FloatRange(from=-0.5, to=0.5) float initialPageOffsetFraction, kotlin.jvm.functions.Function0<java.lang.Integer> pageCount);
   }
 
 }
