@@ -249,6 +249,7 @@ private fun TextFieldSelectionManager.updateSelection(
         textLayoutResult = state?.layoutResult?.value,
         rawStartOffset = transformedStartOffset,
         rawEndOffset = transformedEndOffset,
+        previousHandleOffset = previousRawDragOffset,
         previousSelection = if (transformedSelection.collapsed) null else transformedSelection,
         isStartHandle = isStartHandle,
         adjustment = adjustment

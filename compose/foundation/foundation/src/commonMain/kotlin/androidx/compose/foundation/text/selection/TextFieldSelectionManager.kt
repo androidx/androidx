@@ -161,7 +161,7 @@ internal class TextFieldSelectionManager(
     /**
      * The previous offset of the drag, before selection adjustments.
      */
-    private var previousRawDragOffset: Int = -1
+    internal var previousRawDragOffset: Int = -1
 
     /**
      * The old [TextFieldValue] before entering the selection mode on long press. Used to exit
