@@ -59,7 +59,7 @@ internal class PageStore<T : Any>(
     }
 
     override fun toString(): String {
-        val items = List(dataCount) { getFromStorage(it) }.joinToString()
+        val items = List(dataCount) { getItem(it) }.joinToString()
         return "[($placeholdersBefore placeholders), $items, ($placeholdersAfter placeholders)]"
     }
 
@@ -70,7 +70,7 @@ internal class PageStore<T : Any>(
         if (localIndex < 0 || localIndex >= dataCount) {
             return null
         }
-        return getFromStorage(localIndex)
+        return getItem(localIndex)
     }
 
     fun snapshot(): ItemSnapshotList<T> {
@@ -81,9 +81,9 @@ internal class PageStore<T : Any>(
         )
     }
 
-    override fun getFromStorage(localIndex: Int): T {
+    override fun getItem(index: Int): T {
         var pageIndex = 0
-        var indexInPage = localIndex
+        var indexInPage = index
 
         // Since we don't know if page sizes are regular, we walk to correct page.
         val localPageCount = pages.size

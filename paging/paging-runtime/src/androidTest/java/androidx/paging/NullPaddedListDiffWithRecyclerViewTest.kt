@@ -419,7 +419,7 @@ class NullPaddedListDiffWithRecyclerViewTest {
             val pre = randomNullPaddedStorage(0)
             val post = randomNullPaddedStorage(
                 startId = if (pre.dataCount > 0) {
-                    pre.getFromStorage(rand.nextInt(pre.dataCount)).id
+                    pre.getItem(rand.nextInt(pre.dataCount)).id
                 } else {
                     0
                 }
@@ -621,7 +621,7 @@ class NullPaddedListDiffWithRecyclerViewTest {
             """.trimIndent()
         }
 
-        override fun getFromStorage(localIndex: Int): NullPaddedListItem = data[localIndex]
+        override fun getItem(index: Int): NullPaddedListItem = data[index]
 
         override val size: Int
             get() = placeholdersBefore + data.size + placeholdersAfter
@@ -822,7 +822,7 @@ private fun <T> NullPaddedList<T>.get(index: Int): T? {
     if (index < placeholdersBefore) return null
     val storageIndex = index - placeholdersBefore
     if (storageIndex >= dataCount) return null
-    return getFromStorage(storageIndex)
+    return getItem(storageIndex)
 }
 
 /**

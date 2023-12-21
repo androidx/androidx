@@ -166,8 +166,8 @@ internal class PagedStorage<T : Any> :
     /**
      * Walk through the list of pages to find the data at local index
      */
-    override fun getFromStorage(localIndex: Int): T =
-        traversePages(localIndex) { page, pageInternalIndex ->
+    override fun getItem(index: Int): T =
+        traversePages(index) { page, pageInternalIndex ->
             page.data[pageInternalIndex]
         }
 
@@ -199,7 +199,7 @@ internal class PagedStorage<T : Any> :
             index < 0 || index >= size ->
                 throw IndexOutOfBoundsException("Index: $index, Size: $size")
             localIndex < 0 || localIndex >= dataCount -> null
-            else -> getFromStorage(localIndex)
+            else -> getItem(localIndex)
         }
     }
 
