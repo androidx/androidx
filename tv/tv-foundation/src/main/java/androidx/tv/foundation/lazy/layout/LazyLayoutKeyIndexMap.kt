@@ -110,7 +110,7 @@ private class NearestRangeKeyIndexMap(
             list: IntervalList<LazyLayoutIntervalContent.Interval>
         ): Map<Any, Int> {
             val first = range.first
-            check(first >= 0)
+            check(first >= 0) { "Invalid start of range" }
             val last = minOf(range.last, list.size - 1)
             return if (last < first) {
                 emptyMap()

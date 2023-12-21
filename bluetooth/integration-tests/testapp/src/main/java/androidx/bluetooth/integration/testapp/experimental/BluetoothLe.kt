@@ -124,9 +124,9 @@ class BluetoothLe(private val context: Context) {
     suspend fun <R> connectGatt(
         context: Context,
         device: BluetoothDevice,
-        block: GattClientScope.() -> R
-    ) {
-        GattClientImpl().connect(context, device, block)
+        block: suspend GattClientScope.() -> R
+    ): R? {
+        return GattClientImpl().connect(context, device, block)
     }
 
     @SuppressLint("MissingPermission")

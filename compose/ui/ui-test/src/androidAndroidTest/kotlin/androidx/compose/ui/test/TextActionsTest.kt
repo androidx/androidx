@@ -27,7 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.insertTextAtCursor
-import androidx.compose.ui.semantics.performImeAction
+import androidx.compose.ui.semantics.onImeAction
 import androidx.compose.ui.semantics.requestFocus
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.setText
@@ -195,7 +195,7 @@ class TextActionsTest {
     }
 
     @Test
-    fun sendText_whenReadOnly_isNotAllowed() {
+    fun sendText_whenReadOnly_isAllowed() {
         var lastSeenText = ""
         rule.setContent {
             TextFieldUi(readOnly = true) {
@@ -205,7 +205,7 @@ class TextActionsTest {
 
         rule.onNodeWithTag(fieldTag).performTextInput("hi")
         rule.runOnIdle {
-            assertThat(lastSeenText).isEqualTo("")
+            assertThat(lastSeenText).isEqualTo("hi")
         }
     }
 
@@ -280,7 +280,7 @@ class TextActionsTest {
                 setText { true }
                 requestFocus { true }
                 insertTextAtCursor { true }
-                performImeAction { false }
+                onImeAction(ImeAction.Done) { false }
             })
         }
 
@@ -314,7 +314,7 @@ class TextActionsTest {
         rule.setContent {
             BoundaryNode(testTag = "node", Modifier.semantics {
                 setText { true }
-                performImeAction { true }
+                onImeAction(ImeAction.Done) { true }
             })
         }
 

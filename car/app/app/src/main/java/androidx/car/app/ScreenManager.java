@@ -296,7 +296,6 @@ public class ScreenManager implements Manager {
         mScreenStack.clear();
     }
 
-    /** @hide */
     @NonNull
     @RestrictTo(LIBRARY_GROUP) // Restrict to testing library
     protected Deque<Screen> getScreenStackInternal() {
@@ -428,7 +427,6 @@ public class ScreenManager implements Manager {
         }
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP) // Restrict to testing library
     protected ScreenManager(@NonNull CarContext carContext, @NonNull Lifecycle lifecycle) {
         mCarContext = carContext;

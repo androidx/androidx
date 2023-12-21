@@ -19,6 +19,7 @@ package androidx.appsearch.app;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.collection.ArraySet;
 
 import java.util.Set;
@@ -26,13 +27,13 @@ import java.util.Set;
 /**
  * The nested document that holds all required permissions for a caller need to hold to access the
  * schema which the outer {@link VisibilityDocument} represents.
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class VisibilityPermissionDocument extends GenericDocument {
 
     /**
-     * The Schema type for documents that hold AppSearch's metadata, e.g. visibility settings.
+     * The Schema type for documents that hold AppSearch's metadata, such as visibility settings.
      */
     public static final String SCHEMA_TYPE = "VisibilityPermissionType";
 
@@ -76,6 +77,7 @@ public class VisibilityPermissionDocument extends GenericDocument {
         }
 
         /** Sets whether this schema has opted out of platform surfacing. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setVisibleToAllRequiredPermissions(
                 @NonNull Set<Integer> allRequiredPermissions) {

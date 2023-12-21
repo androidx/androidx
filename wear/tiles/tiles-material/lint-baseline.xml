@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
+<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
 
     <issue
         id="BanThreadSleep"
@@ -31,8 +31,8 @@
     <issue
         id="UnsafeOptInUsageError"
         message="This declaration is opt-in and its usage should be marked with `@androidx.wear.tiles.TilesExperimental` or `@OptIn(markerClass = androidx.wear.tiles.TilesExperimental.class)`"
-        errorLine1="                40, FONT_WEIGHT_MEDIUM, FONT_VARIANT_TITLE, 0.01f, isScalable, context);"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
+        errorLine1="                androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_MEDIUM,"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/material/Typography.java"/>
     </issue>
@@ -40,8 +40,8 @@
     <issue
         id="UnsafeOptInUsageError"
         message="This declaration is opt-in and its usage should be marked with `@androidx.wear.tiles.TilesExperimental` or `@OptIn(markerClass = androidx.wear.tiles.TilesExperimental.class)`"
-        errorLine1="                34, FONT_WEIGHT_MEDIUM, FONT_VARIANT_TITLE, 0.03f, isScalable, context);"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
+        errorLine1="                androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_MEDIUM,"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/material/Typography.java"/>
     </issue>
@@ -49,8 +49,8 @@
     <issue
         id="UnsafeOptInUsageError"
         message="This declaration is opt-in and its usage should be marked with `@androidx.wear.tiles.TilesExperimental` or `@OptIn(markerClass = androidx.wear.tiles.TilesExperimental.class)`"
-        errorLine1="                30, FONT_WEIGHT_MEDIUM, FONT_VARIANT_TITLE, 0.03f, isScalable, context);"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
+        errorLine1="                androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_MEDIUM,"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/material/Typography.java"/>
     </issue>
@@ -58,8 +58,8 @@
     <issue
         id="UnsafeOptInUsageError"
         message="This declaration is opt-in and its usage should be marked with `@androidx.wear.tiles.TilesExperimental` or `@OptIn(markerClass = androidx.wear.tiles.TilesExperimental.class)`"
-        errorLine1="                24, FONT_WEIGHT_MEDIUM, FONT_VARIANT_TITLE, 0.008f, isScalable, context);"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
+        errorLine1="                androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_MEDIUM,"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/material/Typography.java"/>
     </issue>
@@ -67,8 +67,8 @@
     <issue
         id="UnsafeOptInUsageError"
         message="This declaration is opt-in and its usage should be marked with `@androidx.wear.tiles.TilesExperimental` or `@OptIn(markerClass = androidx.wear.tiles.TilesExperimental.class)`"
-        errorLine1="                20, FONT_WEIGHT_MEDIUM, FONT_VARIANT_TITLE, 0.01f, isScalable, context);"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
+        errorLine1="                androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_MEDIUM,"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/material/Typography.java"/>
     </issue>
@@ -76,8 +76,8 @@
     <issue
         id="UnsafeOptInUsageError"
         message="This declaration is opt-in and its usage should be marked with `@androidx.wear.tiles.TilesExperimental` or `@OptIn(markerClass = androidx.wear.tiles.TilesExperimental.class)`"
-        errorLine1="                16, FONT_WEIGHT_MEDIUM, FONT_VARIANT_TITLE, 0.01f, isScalable, context);"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
+        errorLine1="                androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_MEDIUM,"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/material/Typography.java"/>
     </issue>
@@ -85,8 +85,8 @@
     <issue
         id="UnsafeOptInUsageError"
         message="This declaration is opt-in and its usage should be marked with `@androidx.wear.tiles.TilesExperimental` or `@OptIn(markerClass = androidx.wear.tiles.TilesExperimental.class)`"
-        errorLine1="                14, FONT_WEIGHT_MEDIUM, FONT_VARIANT_BODY, 0.01f, isScalable, context);"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
+        errorLine1="                androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_MEDIUM,"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/material/Typography.java"/>
     </issue>
@@ -94,8 +94,8 @@
     <issue
         id="UnsafeOptInUsageError"
         message="This declaration is opt-in and its usage should be marked with `@androidx.wear.tiles.TilesExperimental` or `@OptIn(markerClass = androidx.wear.tiles.TilesExperimental.class)`"
-        errorLine1="                12, FONT_WEIGHT_MEDIUM, FONT_VARIANT_BODY, 0.01f, isScalable, context);"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
+        errorLine1="                androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_MEDIUM,"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/material/Typography.java"/>
     </issue>
@@ -103,8 +103,8 @@
     <issue
         id="UnsafeOptInUsageError"
         message="This declaration is opt-in and its usage should be marked with `@androidx.wear.tiles.TilesExperimental` or `@OptIn(markerClass = androidx.wear.tiles.TilesExperimental.class)`"
-        errorLine1="                10, FONT_WEIGHT_MEDIUM, FONT_VARIANT_BODY, 0.01f, isScalable, context);"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
+        errorLine1="                androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_MEDIUM,"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/material/Typography.java"/>
     </issue>

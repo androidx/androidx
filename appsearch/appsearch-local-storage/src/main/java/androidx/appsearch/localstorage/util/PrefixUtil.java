@@ -32,7 +32,7 @@ import com.google.android.icing.proto.SchemaTypeConfigProto;
 /**
  * Provides utility functions for working with package + database prefixes.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PrefixUtil {

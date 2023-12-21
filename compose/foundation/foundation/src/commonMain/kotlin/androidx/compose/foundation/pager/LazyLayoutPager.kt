@@ -16,8 +16,11 @@
 
 package androidx.compose.foundation.pager
 
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clipScrollableContainer
+import androidx.compose.foundation.gestures.BringIntoViewScroller
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -52,6 +55,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastAll
+import kotlin.math.absoluteValue
 import kotlinx.coroutines.coroutineScope
 
 @ExperimentalFoundationApi
@@ -162,7 +166,8 @@ internal fun Pager(
                 flingBehavior = pagerFlingBehavior,
                 state = state,
                 overscrollEffect = overscrollEffect,
-                enabled = userScrollEnabled
+                enabled = userScrollEnabled,
+                bringIntoViewScroller = PagerBringIntoViewScroller
             )
             .dragDirectionDetector(state)
             .nestedScroll(pageNestedScrollConnection),
@@ -279,3 +284,28 @@ private fun Modifier.dragDirectionDetector(state: PagerState) =
             }
         }
     }
+
+@OptIn(ExperimentalFoundationApi::class)
+private val PagerBringIntoViewScroller = object : BringIntoViewScroller {
+
+    override val scrollAnimationSpec: AnimationSpec<Float> = spring()
+
+    override fun calculateScrollDistance(offset: Float, size: Float, containerSize: Float): Float {
+        val trailingEdge = offset + size
+        val leadingEdge = offset
+
+        val sizeOfItemRequestingFocus = (trailingEdge - leadingEdge).absoluteValue
+        val childSmallerThanParent = sizeOfItemRequestingFocus <= containerSize
+        val initialTargetForLeadingEdge = 0.0f
+        val spaceAvailableToShowItem = containerSize - initialTargetForLeadingEdge
+
+        val targetForLeadingEdge =
+            if (childSmallerThanParent && spaceAvailableToShowItem < sizeOfItemRequestingFocus) {
+                containerSize - sizeOfItemRequestingFocus
+            } else {
+                initialTargetForLeadingEdge
+            }
+
+        return leadingEdge - targetForLeadingEdge
+    }
+}

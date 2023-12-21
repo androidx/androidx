@@ -16,7 +16,6 @@
 
 package androidx.room.compiler.processing.ksp
 
-import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.tryBox
 import com.google.devtools.ksp.symbol.KSType
 import com.squareup.kotlinpoet.javapoet.JTypeName
@@ -25,8 +24,9 @@ import com.squareup.kotlinpoet.javapoet.KTypeName
 internal class DefaultKspType(
     env: KspProcessingEnv,
     ksType: KSType,
-    scope: KSTypeVarianceResolverScope?
-) : KspType(env, ksType, scope) {
+    scope: KSTypeVarianceResolverScope? = null,
+    typeAlias: KSType? = null,
+) : KspType(env, ksType, scope, typeAlias) {
 
     override fun resolveJTypeName(): JTypeName {
         // always box these. For primitives, typeName might return the primitive type but if we
@@ -42,19 +42,10 @@ internal class DefaultKspType(
         return this
     }
 
-    override fun copyWithNullability(nullability: XNullability): KspType {
-        return DefaultKspType(
-            env = env,
-            ksType = ksType.withNullability(nullability),
-            scope = scope
-        )
-    }
-
-    override fun copyWithScope(scope: KSTypeVarianceResolverScope): KspType {
-        return DefaultKspType(
-            env = env,
-            ksType = ksType,
-            scope = scope
-        )
-    }
+    override fun copy(
+        env: KspProcessingEnv,
+        ksType: KSType,
+        scope: KSTypeVarianceResolverScope?,
+        typeAlias: KSType?
+    ) = DefaultKspType(env, ksType, scope, typeAlias)
 }

@@ -28,6 +28,7 @@ import android.hardware.camera2.CameraManager
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.compat.Camera2CameraMetadata
@@ -45,6 +46,7 @@ import org.robolectric.shadows.ShadowCameraCharacteristics
 import org.robolectric.shadows.ShadowCameraManager
 
 /** Utility class for creating, configuring, and interacting with Robolectric's [CameraManager]. */
+@RequiresApi(21)
 public object RobolectricCameras {
     private val cameraIds = atomic(0)
 

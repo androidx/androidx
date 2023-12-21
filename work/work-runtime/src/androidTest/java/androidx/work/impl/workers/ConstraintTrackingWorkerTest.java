@@ -163,7 +163,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
     @Test
     @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 25)
     public void testConstraintTrackingWorker_onConstraintsMet() {
-        when(mBatteryNotLowTracker.getInitialState()).thenReturn(true);
+        when(mBatteryNotLowTracker.readSystemState()).thenReturn(true);
         setupDelegateForExecution(EchoingWorker.class.getName(), new SynchronousExecutor());
 
         WorkerWrapper.Builder builder = createWorkerWrapperBuilder();
@@ -181,7 +181,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
     @Test
     @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 25)
     public void testConstraintTrackingWorker_onConstraintsNotMet() {
-        when(mBatteryNotLowTracker.getInitialState()).thenReturn(false);
+        when(mBatteryNotLowTracker.readSystemState()).thenReturn(false);
         setupDelegateForExecution(TestWorker.class.getName(), new SynchronousExecutor());
         WorkerWrapper.Builder builder = createWorkerWrapperBuilder();
         builder.withWorker(mWorker);
@@ -198,7 +198,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
     @SdkSuppress(minSdkVersion = 24, maxSdkVersion = 25)
     public void testConstraintTrackingWorker_onConstraintsChanged() throws InterruptedException {
         // This test is flaky on API 23 for some reason.
-        when(mBatteryNotLowTracker.getInitialState()).thenReturn(true);
+        when(mBatteryNotLowTracker.readSystemState()).thenReturn(true);
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         setupDelegateForExecution(SleepTestWorker.class.getName(), executorService);
         WorkerWrapper.Builder builder = createWorkerWrapperBuilder();
@@ -224,7 +224,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
     @FlakyTest(bugId = 180654418, detail = "Passes locally all the time.")
     public void testConstraintTrackingWorker_onConstraintsChangedTwice()
             throws InterruptedException {
-        when(mBatteryNotLowTracker.getInitialState()).thenReturn(true);
+        when(mBatteryNotLowTracker.readSystemState()).thenReturn(true);
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         setupDelegateForExecution(SleepTestWorker.class.getName(), executorService);
 
@@ -268,7 +268,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
 
         Thread.sleep(TEST_TIMEOUT_IN_MS);
         executorService.shutdown();
-        mWorkerWrapper.interrupt();
+        mWorkerWrapper.interrupt(0);
         assertThat(mWorker.isStopped(), is(true));
         assertThat(mWorker.getDelegate(), is(notNullValue()));
         assertThat(mWorker.getDelegate().isStopped(), is(true));
@@ -289,8 +289,8 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
 
         Thread.sleep(TEST_TIMEOUT_IN_MS);
         executorService.shutdown();
-        mWorkerWrapper.interrupt();
-        mWorkerWrapper.interrupt();
+        mWorkerWrapper.interrupt(0);
+        mWorkerWrapper.interrupt(0);
         verify(mWorker.getDelegate(), times(1)).onStopped();
     }
 
@@ -307,7 +307,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
         executorService.execute(mWorkerWrapper);
         Thread.sleep(TEST_TIMEOUT_IN_MS);
 
-        mWorkerWrapper.interrupt();
+        mWorkerWrapper.interrupt(0);
         executorService.shutdown();
         verify(mForegroundProcessor).isEnqueuedInForeground(mWork.getStringId());
         assertThat(mWorker.isStopped(), is(true));

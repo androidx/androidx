@@ -474,15 +474,11 @@ internal class LayoutNode(
             // is a virtual lookahead root
             lookaheadRoot = _foldedParent?.lookaheadRoot ?: lookaheadRoot
         }
-        if (!deactivated) {
-            nodes.markAsAttached()
-        }
+        nodes.markAsAttached()
         _foldedChildren.forEach { child ->
             child.attach(owner)
         }
-        if (!deactivated) {
-            nodes.runAttachLifecycle()
-        }
+        nodes.runAttachLifecycle()
 
         invalidateMeasurements()
         parent?.invalidateMeasurements()
@@ -491,9 +487,7 @@ internal class LayoutNode(
         onAttach?.invoke(owner)
 
         layoutDelegate.updateParentData()
-        if (!deactivated) {
-            invalidateFocusOnAttach()
-        }
+        invalidateFocusOnAttach()
     }
 
     /**
@@ -812,7 +806,7 @@ internal class LayoutNode(
             }
             val layerCoordinator = _innerLayerCoordinator
             if (layerCoordinator != null) {
-                requireNotNull(layerCoordinator.layer)
+                checkNotNull(layerCoordinator.layer) { "layer was not set" }
             }
             return layerCoordinator
         }
@@ -1323,7 +1317,6 @@ internal class LayoutNode(
     private var deactivated = false
 
     override fun onReuse() {
-        require(isAttached) { "onReuse is only expected on attached node" }
         interopViewFactoryHolder?.onReuse()
         if (deactivated) {
             deactivated = false

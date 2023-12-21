@@ -22,7 +22,7 @@ import static androidx.camera.camera2.internal.Camera2CameraImplTest.TestUseCase
 import static androidx.camera.core.CameraSelector.DEFAULT_BACK_CAMERA;
 import static androidx.camera.core.concurrent.CameraCoordinator.CAMERA_OPERATING_MODE_CONCURRENT;
 import static androidx.camera.core.concurrent.CameraCoordinator.CAMERA_OPERATING_MODE_SINGLE;
-import static androidx.camera.core.resolutionselector.ResolutionSelector.ALLOWED_RESOLUTIONS_SLOW;
+import static androidx.camera.core.resolutionselector.ResolutionSelector.PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -1077,7 +1077,7 @@ public final class Camera2CameraImplTest {
         // Creates a test use case with high resolution enabled.
         ResolutionSelector highResolutionSelector =
                 new ResolutionSelector.Builder().setAllowedResolutionMode(
-                        ALLOWED_RESOLUTIONS_SLOW).build();
+                        PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE).build();
         FakeUseCaseConfig.Builder configBuilder =
                 new FakeUseCaseConfig.Builder().setSessionOptionUnpacker(
                         new Camera2SessionOptionUnpacker()).setTargetName(

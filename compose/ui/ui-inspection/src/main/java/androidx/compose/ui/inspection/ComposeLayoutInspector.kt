@@ -104,7 +104,9 @@ class ComposeLayoutInspector(
     private var cachedHasAllParameters = false
     private val cachedNodes: MutableMap<Long, CacheData>
         get() {
-            check(Thread.currentThread() == inspectorThread)
+            check(Thread.currentThread() == inspectorThread) {
+                "cachedNodes should be accessed by the inspector thread"
+            }
             return _cachedNodes
         }
 

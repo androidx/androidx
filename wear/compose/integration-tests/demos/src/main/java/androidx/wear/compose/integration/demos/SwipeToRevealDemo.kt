@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -86,6 +87,8 @@ fun SwipeToRevealChips() {
                     SwipeToRevealChipExpandable(
                         expandableState = currentState
                     )
+                } else {
+                    Spacer(modifier = Modifier.width(200.dp))
                 }
             }
         }
@@ -123,12 +126,8 @@ fun SwipeToRevealCards() {
                         from = currentFrom,
                         email = currentEmail
                     )
-                }
-
-                LaunchedEffect(currentState.expanded) {
-                    if (!currentState.expanded) {
-                        emailMap.remove(currentFrom)
-                    }
+                } else {
+                    Spacer(modifier = Modifier.width(200.dp))
                 }
             }
         }
@@ -155,12 +154,11 @@ private fun SwipeToRevealChipExpandable(
         if (state.currentValue == RevealValue.Revealed) {
             delay(2000)
             expandableState.expanded = false
-            state.snapTo(RevealValue.Covered)
         }
     }
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.size(width = 200.dp, height = 50.dp)
+        modifier = Modifier.size(width = 200.dp, height = 52.dp)
     ) {
         SwipeToRevealWithDefaultButtons(
             shape = CircleShape,
@@ -191,11 +189,10 @@ private fun SwipeToRevealCardExpandable(
         if (state.currentValue == RevealValue.Revealed) {
             delay(2000)
             expandableState.expanded = false
-            state.snapTo(RevealValue.Covered)
         }
     }
     SwipeToRevealWithDefaultButtons(
-        shape = RoundedCornerShape(10.dp),
+        shape = RoundedCornerShape(30.dp),
         state = state
     ) {
         AppCard(
@@ -313,6 +310,8 @@ private fun SwipeToRevealSingleAction(
                             )
                         }
                     }
+                } else {
+                    Spacer(modifier = Modifier.width(200.dp))
                 }
                 LaunchedEffect(state.currentValue) {
                     if (state.currentValue == RevealValue.Revealed) {

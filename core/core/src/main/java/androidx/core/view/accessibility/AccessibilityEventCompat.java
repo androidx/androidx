@@ -169,6 +169,11 @@ public final class AccessibilityEventCompat {
     public static final int TYPE_ASSIST_READING_CONTEXT = 0x01000000;
 
     /**
+     * Represents the event of a scroll having completed and brought the target node on screen.
+     */
+    public static final int TYPE_VIEW_TARGETED_BY_SCROLL = 0x04000000;
+
+    /**
      * Change type for {@link #TYPE_WINDOW_CONTENT_CHANGED} event:
      * The type of change is not defined.
      */
@@ -270,6 +275,7 @@ public final class AccessibilityEventCompat {
      * @see AccessibilityEvent#TYPE_WINDOW_CONTENT_CHANGED
      * @see AccessibilityEvent#TYPE_VIEW_SCROLLED
      * @see AccessibilityEvent#TYPE_VIEW_TEXT_SELECTION_CHANGED
+     * @see AccessibilityEvent#TYPE_VIEW_TARGETED_BY_SCROLL
      * @see #TYPE_ANNOUNCEMENT
      * @see #TYPE_VIEW_TEXT_TRAVERSED_AT_MOVEMENT_GRANULARITY
      * @see #TYPE_GESTURE_DETECTION_START

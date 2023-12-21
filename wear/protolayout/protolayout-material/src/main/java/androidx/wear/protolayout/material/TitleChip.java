@@ -18,7 +18,10 @@ package androidx.wear.protolayout.material;
 
 import static androidx.annotation.Dimension.DP;
 import static androidx.wear.protolayout.DimensionBuilders.dp;
-import static androidx.wear.protolayout.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER;
+import static androidx.wear.protolayout.LayoutElementBuilders.HORIZONTAL_ALIGN_UNDEFINED;
+import static androidx.wear.protolayout.material.Chip.METADATA_TAG_ICON;
+import static androidx.wear.protolayout.material.Chip.METADATA_TAG_TEXT;
+import static androidx.wear.protolayout.material.ChipDefaults.ICON_SIZE;
 import static androidx.wear.protolayout.material.ChipDefaults.TITLE_HEIGHT;
 import static androidx.wear.protolayout.material.ChipDefaults.TITLE_HORIZONTAL_PADDING;
 import static androidx.wear.protolayout.material.ChipDefaults.TITLE_PRIMARY_COLORS;
@@ -30,6 +33,7 @@ import android.content.Context;
 import androidx.annotation.Dimension;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters;
@@ -39,6 +43,7 @@ import androidx.wear.protolayout.LayoutElementBuilders.HorizontalAlignment;
 import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
 import androidx.wear.protolayout.ModifiersBuilders.Clickable;
 import androidx.wear.protolayout.expression.Fingerprint;
+import androidx.wear.protolayout.expression.ProtoLayoutExperimental;
 import androidx.wear.protolayout.proto.LayoutElementProto;
 
 /**
@@ -74,9 +79,6 @@ import androidx.wear.protolayout.proto.LayoutElementProto;
  * TitleChip is used inside of {@link androidx.wear.protolayout.material.layouts.PrimaryLayout}.
  */
 public class TitleChip implements LayoutElement {
-    /** Tool tag for Metadata in Modifiers, so we know that Box is actually a TitleChip. */
-    static final String METADATA_TAG = "TTLCHP";
-
     @NonNull private final Chip mElement;
 
     TitleChip(@NonNull Chip element) {
@@ -90,11 +92,13 @@ public class TitleChip implements LayoutElement {
         @NonNull private final Clickable mClickable;
         @NonNull private final DeviceParameters mDeviceParameters;
         @NonNull private ChipColors mChipColors = TITLE_PRIMARY_COLORS;
-        @HorizontalAlignment private int mHorizontalAlign = HORIZONTAL_ALIGN_CENTER;
+        @HorizontalAlignment private int mHorizontalAlign = HORIZONTAL_ALIGN_UNDEFINED;
 
         // Indicates that the width isn't set, so it will be automatically set by Chip.Builder
         // constructor.
         @Nullable private ContainerDimension mWidth = null;
+        private boolean mIsFontPaddingExcluded = false;
+        @Nullable private String mIconResourceId = null;
 
         /**
          * Creates a builder for the {@link TitleChip} with associated action and the given text
@@ -156,25 +160,60 @@ public class TitleChip implements LayoutElement {
             return this;
         }
 
+        /**
+         * Sets whether the font padding is excluded or not. If not set, default to false, meaning
+         * that text will have font padding included.
+         *
+         * <p>Setting this to {@code true} will perfectly align the text label.
+         */
+        @NonNull
+        @ProtoLayoutExperimental
+        @SuppressWarnings("MissingGetterMatchingBuilder")
+        public Builder setExcludeFontPadding(boolean excluded) {
+            this.mIsFontPaddingExcluded = excluded;
+            return this;
+        }
+
+        /**
+         * Sets the icon for the {@link TitleChip}. Provided icon will be tinted to the given
+         * content color from {@link ChipColors}. This icon should be image with chosen alpha
+         * channel that can be tinted.
+         *
+         * <p>It is highly recommended to use it with {@link #setExcludeFontPadding} set to true.
+         */
+        @NonNull
+        public Builder setIconContent(@NonNull String imageResourceId) {
+            this.mIconResourceId = imageResourceId;
+            return this;
+        }
+
         /** Constructs and returns {@link TitleChip} with the provided content and look. */
         @NonNull
         @Override
+        @OptIn(markerClass = ProtoLayoutExperimental.class)
         public TitleChip build() {
             Chip.Builder chipBuilder =
                     new Chip.Builder(mContext, mClickable, mDeviceParameters)
-                            .setMetadataTag(METADATA_TAG)
                             .setChipColors(mChipColors)
                             .setContentDescription(mText)
-                            .setHorizontalAlignment(mHorizontalAlign)
                             .setHeight(TITLE_HEIGHT)
                             .setMaxLines(1)
                             .setHorizontalPadding(TITLE_HORIZONTAL_PADDING)
                             .setPrimaryLabelContent(mText)
                             .setPrimaryLabelTypography(Typography.TYPOGRAPHY_TITLE2)
+                            .setPrimaryLabelExcludeFontPadding(mIsFontPaddingExcluded)
                             .setIsPrimaryLabelScalable(false);
 
             if (mWidth != null) {
                 chipBuilder.setWidth(mWidth);
+            }
+
+            if (mIconResourceId != null) {
+                chipBuilder.setIconContent(mIconResourceId).setIconSize(ICON_SIZE);
+            }
+
+            if (mHorizontalAlign != HORIZONTAL_ALIGN_UNDEFINED) {
+                chipBuilder.setHorizontalAlignment(mHorizontalAlign);
             }
 
             return new TitleChip(chipBuilder.build());
@@ -211,7 +250,13 @@ public class TitleChip implements LayoutElement {
         return mElement.getHorizontalAlignment();
     }
 
-    /** Returns metadata tag set to this TitleChip, which should be {@link #METADATA_TAG}. */
+    /** Returns icon id from this TitleChip if it has been added. Otherwise, it returns null. */
+    @Nullable
+    public String getIconContent() {
+        return mElement.getIconContent();
+    }
+
+    /** Returns metadata tag set to this TitleChip. */
     @NonNull
     String getMetadataTag() {
         return mElement.getMetadataTag();
@@ -231,11 +276,20 @@ public class TitleChip implements LayoutElement {
             return null;
         }
         Box boxElement = (Box) element;
-        if (!checkTag(boxElement.getModifiers(), METADATA_TAG)) {
+        if (!checkTag(boxElement.getModifiers(), METADATA_TAG_TEXT)
+                && !checkTag(boxElement.getModifiers(), METADATA_TAG_ICON)) {
             return null;
         }
         // Now we are sure that this element is a TitleChip.
         return new TitleChip(new Chip(boxElement));
+    }
+
+    /**
+     *  Returns whether the font padding for the primary label is excluded.
+     */
+    @ProtoLayoutExperimental
+    public boolean hasExcludeFontPadding() {
+        return mElement.hasPrimaryLabelExcludeFontPadding();
     }
 
     @RestrictTo(Scope.LIBRARY_GROUP)

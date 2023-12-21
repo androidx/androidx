@@ -32,6 +32,5 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package androidx.health.services.client.impl.response;
-/* @hide */
-@JavaOnlyStableParcelable
+@JavaOnlyStableParcelable @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 parcelable MeasureCapabilitiesResponse;

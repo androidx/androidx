@@ -17,6 +17,7 @@
 package androidx.camera.core.processing
 
 import android.os.Build
+import androidx.camera.core.DynamicRange
 import androidx.camera.core.SurfaceOutput
 import androidx.camera.core.SurfaceRequest
 import com.google.common.truth.Truth.assertThat
@@ -49,6 +50,7 @@ class DefaultSurfaceProcessorTest {
         }
         DefaultSurfaceProcessor.Factory.setSupplier { noOpProcessor }
         // Assert: new instance returns the no-op processor.
-        assertThat(DefaultSurfaceProcessor.Factory.newInstance()).isSameInstanceAs(noOpProcessor)
+        assertThat(DefaultSurfaceProcessor.Factory.newInstance(DynamicRange.SDR))
+            .isSameInstanceAs(noOpProcessor)
     }
 }

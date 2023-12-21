@@ -40,7 +40,8 @@ import java.util.PriorityQueue;
  * The {@link GestureController} provides methods for performing high-level {@link PointerGesture}s.
  */
 class GestureController {
-    private static final String TAG = "GestureController";
+
+    private static final String TAG = GestureController.class.getSimpleName();
 
     private static final long MOTION_EVENT_INJECTION_DELAY_MILLIS = 8; // 120Hz touch report rate
 
@@ -98,7 +99,6 @@ class GestureController {
      */
     public <U> U performGestureAndWait(EventCondition<U> condition, long timeout,
             PointerGesture ... gestures) {
-
         return getDevice().performActionAndWait(new GestureRunnable(gestures), condition, timeout);
     }
 

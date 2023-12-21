@@ -16,34 +16,14 @@
 
 package androidx.wear.compose.material
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.indication
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.unit.dp
-import androidx.wear.compose.material.RangeDefaults.calculateCurrentStepValue
-import androidx.wear.compose.material.RangeDefaults.snapValueToStep
 import kotlin.math.roundToInt
 
 /**
@@ -98,54 +78,35 @@ fun Stepper(
     enableRangeSemantics: Boolean = true,
     content: @Composable BoxScope.() -> Unit
 ) {
-    require(steps >= 0) { "steps should be >= 0" }
-    val currentStep =
-        remember(value, valueRange, steps) { snapValueToStep(value, valueRange, steps) }
-
-    val updateValue: (Int) -> Unit = { stepDiff ->
-        val newValue = calculateCurrentStepValue(currentStep + stepDiff, steps, valueRange)
-        if (newValue != value) onValueChange(newValue)
-    }
-
-    Column(
-        modifier = modifier.fillMaxSize().background(backgroundColor).then(
-                if (enableRangeSemantics) {
-                    Modifier.rangeSemantics(
-                        currentStep, true, onValueChange, valueRange, steps
-                    )
-                } else {
-                    Modifier
-                }
-            ), verticalArrangement = Arrangement.spacedBy(8.dp)
+    androidx.wear.compose.materialcore.Stepper(
+        value = value,
+        onValueChange = onValueChange,
+        steps = steps,
+        decreaseIcon = decreaseIcon,
+        increaseIcon = increaseIcon,
+        valueRange = valueRange,
+        modifier = if (enableRangeSemantics) {
+            modifier.rangeSemantics(
+                value, true, onValueChange, valueRange, steps
+            )
+        } else {
+            modifier
+        },
+        backgroundColor = backgroundColor,
+        enabledButtonProviderValues = arrayOf(
+            LocalContentColor provides iconColor,
+            LocalContentAlpha provides iconColor.alpha
+        ),
+        disabledButtonProviderValues = arrayOf(
+            LocalContentColor provides iconColor.copy(alpha = ContentAlpha.disabled),
+            LocalContentAlpha provides iconColor.copy(alpha = ContentAlpha.disabled).alpha
+        ),
     ) {
-        // Increase button.
-        FullScreenButton(
-            onClick = { updateValue(1) },
-            contentAlignment = Alignment.TopCenter,
-            paddingValues = PaddingValues(top = StepperDefaults.BorderPadding),
-            iconColor = iconColor,
-            enabled = currentStep < steps + 1,
-            content = increaseIcon
-        )
-        Box(
-            modifier = Modifier.fillMaxWidth().weight(StepperDefaults.ContentWeight),
-            contentAlignment = Alignment.Center,
+        CompositionLocalProvider(
+            LocalContentColor provides contentColor
         ) {
-            CompositionLocalProvider(
-                LocalContentColor provides contentColor,
-            ) {
-                content()
-            }
+            content()
         }
-        // Decrease button.
-        FullScreenButton(
-            onClick = { updateValue(-1) },
-            contentAlignment = Alignment.BottomCenter,
-            paddingValues = PaddingValues(bottom = StepperDefaults.BorderPadding),
-            iconColor = iconColor,
-            enabled = currentStep > 0,
-            content = decreaseIcon
-        )
     }
 }
 
@@ -351,51 +312,13 @@ fun Stepper(
  * Defaults used by stepper
  */
 public object StepperDefaults {
-    internal const val ButtonWeight = 0.35f
-    internal const val ContentWeight = 0.3f
-    internal val BorderPadding = 22.dp
-
     /**
      * Decrease [ImageVector]
      */
-    public val Decrease = RangeIcons.Minus
+    public val Decrease = androidx.wear.compose.materialcore.RangeIcons.Minus
 
     /**
      * Increase [ImageVector]
      */
     public val Increase = Icons.Filled.Add
-}
-
-@Composable
-private fun ColumnScope.FullScreenButton(
-    onClick: () -> Unit,
-    contentAlignment: Alignment,
-    paddingValues: PaddingValues,
-    iconColor: Color,
-    enabled: Boolean,
-    content: @Composable () -> Unit
-) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val contentColor = if (enabled) iconColor else iconColor.copy(alpha = ContentAlpha.disabled)
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .weight(StepperDefaults.ButtonWeight)
-            .clickable(
-                interactionSource,
-                null,
-                onClick = onClick,
-                enabled = enabled,
-                role = Role.Button
-            )
-            .wrapContentWidth()
-            .indication(interactionSource, rememberRipple(bounded = false))
-            .padding(paddingValues),
-        contentAlignment = contentAlignment,
-    ) {
-        CompositionLocalProvider(
-            LocalContentColor provides contentColor,
-            LocalContentAlpha provides contentColor.alpha,
-            content = content)
-    }
 }

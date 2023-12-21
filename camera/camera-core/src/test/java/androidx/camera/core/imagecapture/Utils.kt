@@ -22,6 +22,7 @@ import android.graphics.Rect
 import android.os.Build
 import android.util.Pair
 import android.util.Size
+import androidx.annotation.RequiresApi
 import androidx.camera.core.CaptureBundles
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageInfo
@@ -42,6 +43,7 @@ import org.robolectric.util.ReflectionHelpers.setStaticField
 /**
  * Utility methods for testing image capture.
  */
+@RequiresApi(21)
 object Utils {
 
     internal const val WIDTH = 640

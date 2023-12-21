@@ -37,6 +37,11 @@ interface XExecutableParameterElement : XVariableElement {
     fun isKotlinPropertyParam(): Boolean
 
     /**
+     * Returns `true` if this parameter is a vararg.
+     */
+    fun isVarArgs(): Boolean
+
+    /**
      * The enclosing [XExecutableElement] this parameter belongs to.
      */
     override val enclosingElement: XExecutableElement

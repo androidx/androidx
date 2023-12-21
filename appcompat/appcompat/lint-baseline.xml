@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta01)" variant="all" version="8.1.0-beta01">
+<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
 
     <issue
         id="NewApi"
@@ -431,24 +431,6 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/appcompat/widget/AppCompatProgressBarHelperTest.kt"/>
-    </issue>
-
-    <issue
-        id="PrereleaseSdkCoreDependency"
-        message="Prelease SDK check isAtLeastT cannot be called as this project has a versioned dependency on androidx.core:core"
-        errorLine1="        if (BuildCompat.isAtLeastT()) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/DropDownListView.java"/>
-    </issue>
-
-    <issue
-        id="PrereleaseSdkCoreDependency"
-        message="Prelease SDK check isAtLeastT cannot be called as this project has a versioned dependency on androidx.core:core"
-        errorLine1="        if (BuildCompat.isAtLeastT()) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/DropDownListView.java"/>
     </issue>
 
     <issue
@@ -3443,6 +3425,15 @@
         errorLine2="                                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatRadioButton.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected synchronized void onDraw(Canvas canvas) {"
+        errorLine2="                                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/AppCompatSeekBar.java"/>
     </issue>
 
     <issue
@@ -7111,6 +7102,15 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onDraw(Canvas canvas) {"
+        errorLine2="                          ~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static TintTypedArray obtainStyledAttributes(Context context, AttributeSet set,"
         errorLine2="                  ~~~~~~~~~~~~~~">
         <location
@@ -7959,6 +7959,15 @@
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public LayoutInflater getLayoutInflater() {"
         errorLine2="           ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ViewStubCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void dispatchDraw(Canvas canvas) {"
+        errorLine2="                                ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ViewStubCompat.java"/>
     </issue>

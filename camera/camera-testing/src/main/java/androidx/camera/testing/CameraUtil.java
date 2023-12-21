@@ -31,6 +31,7 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.params.OutputConfiguration;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.CamcorderProfile;
 import android.media.MediaCodec;
@@ -363,7 +364,30 @@ public final class CameraUtil {
                 mCameraCaptureSessionHolder.close();
                 mCameraCaptureSessionHolder = null;
             }
-            mCameraCaptureSessionHolder = new CameraCaptureSessionHolder(this, surfaces, null);
+            mCameraCaptureSessionHolder = CameraCaptureSessionHolder.create(this, surfaces, null);
+            return mCameraCaptureSessionHolder;
+        }
+
+        /**
+         * Create a {@link CameraCaptureSession} by the hold CameraDevice
+         *
+         * @param outputConfigurations the outputConfigurations used to create CameraCaptureSession
+         * @return the CameraCaptureSession holder
+         */
+        @RequiresApi(24)
+        @NonNull
+        public CameraCaptureSessionHolder createCaptureSessionByOutputConfigurations(
+                @NonNull List<OutputConfiguration> outputConfigurations)
+                throws ExecutionException, InterruptedException, TimeoutException {
+            synchronized (mLock) {
+                Preconditions.checkState(mCameraDevice != null, "Camera is closed.");
+            }
+            if (mCameraCaptureSessionHolder != null) {
+                mCameraCaptureSessionHolder.close();
+                mCameraCaptureSessionHolder = null;
+            }
+            mCameraCaptureSessionHolder = CameraCaptureSessionHolder.createByOutputConfigurations(
+                    this, outputConfigurations, null);
             return mCameraCaptureSessionHolder;
         }
     }
@@ -386,37 +410,75 @@ public final class CameraUtil {
         private CameraCaptureSession mCameraCaptureSession;
         private ListenableFuture<Void> mCloseFuture;
 
-        CameraCaptureSessionHolder(@NonNull CameraDeviceHolder cameraDeviceHolder,
+        @NonNull
+        static CameraCaptureSessionHolder create(@NonNull CameraDeviceHolder cameraDeviceHolder,
                 @NonNull List<Surface> surfaces,
+                @Nullable CameraCaptureSession.StateCallback stateCallback
+        ) throws ExecutionException, InterruptedException, TimeoutException {
+            return new CameraCaptureSessionHolder(cameraDeviceHolder, surfaces, stateCallback);
+        }
+
+        @RequiresApi(24)
+        @NonNull
+        static CameraCaptureSessionHolder createByOutputConfigurations(
+                @NonNull CameraDeviceHolder cameraDeviceHolder,
+                @NonNull List<OutputConfiguration> outputConfigurations,
+                @Nullable CameraCaptureSession.StateCallback stateCallback
+        ) throws ExecutionException, InterruptedException, TimeoutException {
+            return new CameraCaptureSessionHolder(cameraDeviceHolder, outputConfigurations,
+                    stateCallback);
+        }
+
+        private CameraCaptureSessionHolder(@NonNull CameraDeviceHolder cameraDeviceHolder,
+                @NonNull Object paramToCreateSession,
                 @Nullable CameraCaptureSession.StateCallback stateCallback
         ) throws ExecutionException, InterruptedException, TimeoutException {
             mCameraDeviceHolder = cameraDeviceHolder;
             CameraDevice cameraDevice = Preconditions.checkNotNull(cameraDeviceHolder.get());
             ListenableFuture<CameraCaptureSession> openFuture = openCaptureSession(cameraDevice,
-                    surfaces, stateCallback, cameraDeviceHolder.mHandler);
+                    paramToCreateSession, stateCallback, cameraDeviceHolder.mHandler);
 
             mCameraCaptureSession = openFuture.get(5, TimeUnit.SECONDS);
         }
 
-        @SuppressWarnings("deprecation")
+        @SuppressLint("ClassVerificationFailure")
+        @SuppressWarnings({"deprecation", "newApi", "unchecked"})
         @NonNull
         private ListenableFuture<CameraCaptureSession> openCaptureSession(
                 @NonNull CameraDevice cameraDevice,
-                @NonNull List<Surface> surfaces,
+                @NonNull Object paramToCreateSession,
                 @Nullable CameraCaptureSession.StateCallback stateCallback,
                 @NonNull Handler handler) {
             return CallbackToFutureAdapter.getFuture(
                     openCompleter -> {
                         mCloseFuture = CallbackToFutureAdapter.getFuture(
                                 closeCompleter -> {
-                                    cameraDevice.createCaptureSession(surfaces,
-                                            new SessionStateCallbackImpl(
-                                                    openCompleter, closeCompleter, stateCallback),
-                                            handler);
+                                    if (isOutputConfigurationList(paramToCreateSession)) {
+                                        cameraDevice.createCaptureSessionByOutputConfigurations(
+                                                (List<OutputConfiguration>) paramToCreateSession,
+                                                new SessionStateCallbackImpl(
+                                                        openCompleter, closeCompleter,
+                                                        stateCallback),
+                                                handler);
+                                    } else {
+                                        cameraDevice.createCaptureSession(
+                                                (List<Surface>) paramToCreateSession,
+                                                new SessionStateCallbackImpl(
+                                                        openCompleter, closeCompleter,
+                                                        stateCallback),
+                                                handler);
+                                    }
                                     return "Close CameraCaptureSession";
                                 });
                         return "Open CameraCaptureSession";
                     });
+        }
+
+        private static boolean isOutputConfigurationList(@NonNull Object param) {
+            List<?> list;
+            return Build.VERSION.SDK_INT >= 24 && param instanceof List
+                    && !(list = (List<?>) param).isEmpty()
+                    && OutputConfiguration.class.isInstance(list.get(0));
         }
 
         void close() throws ExecutionException, InterruptedException, TimeoutException {

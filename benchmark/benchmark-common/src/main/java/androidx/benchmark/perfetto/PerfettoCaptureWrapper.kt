@@ -95,10 +95,11 @@ class PerfettoCaptureWrapper {
         config: PerfettoConfig,
         userspaceTracingPackage: String?,
         traceCallback: ((String) -> Unit)? = null,
+        enableTracing: Boolean = true,
         block: () -> Unit
     ): String? {
-        // skip if Perfetto not supported, or on Cuttlefish (where tracing doesn't work)
-        if (Build.VERSION.SDK_INT < 23 || !isAbiSupported()) {
+        // skip if Perfetto not supported, or if caller opts out
+        if (Build.VERSION.SDK_INT < 23 || !isAbiSupported() || !enableTracing) {
             block()
             return null
         }

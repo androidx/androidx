@@ -197,6 +197,7 @@ class GlanceTileServiceTest {
     }
 
     @Test
+    @Suppress("deprecation") // For backwards compatibility.
     fun tileProviderReturnsResources() = fakeCoroutineScope.runTest {
         val tileRequest = RequestBuilders.TileRequest.Builder().build()
         val tileFuture = tileServiceClient.requestTile(tileRequest)
@@ -217,6 +218,7 @@ class GlanceTileServiceTest {
     }
 
     @Test
+    @Suppress("deprecation") // For backwards compatibility.
     fun tileProviderReturnsTimelineResources() = fakeCoroutineScope.runTest {
         val tileRequest = RequestBuilders.TileRequest.Builder().build()
         val tileFuture = tileServiceClientWithTimeline.requestTile(tileRequest)

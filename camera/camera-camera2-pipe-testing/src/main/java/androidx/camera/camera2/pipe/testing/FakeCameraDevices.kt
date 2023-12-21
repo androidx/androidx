@@ -44,6 +44,16 @@ class FakeCameraDevices(
         return cameraMetadataMap[backendId]?.map { it.camera }
     }
 
+    override suspend fun getConcurrentCameraIds(
+        cameraBackendId: CameraBackendId?
+    ): Set<Set<CameraId>> {
+        return emptySet()
+    }
+
+    override fun awaitConcurrentCameraIds(cameraBackendId: CameraBackendId?): Set<Set<CameraId>> {
+        return emptySet()
+    }
+
     override suspend fun getCameraMetadata(
         cameraId: CameraId,
         cameraBackendId: CameraBackendId?

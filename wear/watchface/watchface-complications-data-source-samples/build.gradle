@@ -25,11 +25,14 @@ dependencies {
     api(project(":wear:watchface:watchface-complications-data-source"))
     api(libs.guavaAndroid)
     api(libs.kotlinStdlib)
+    // TODO(b/267170061): Use released protolayout-expression, remove protolayout-proto.
+    implementation(project(":wear:protolayout:protolayout-expression"))
+    implementation(project(":wear:protolayout:protolayout-proto"))
 }
 
 android {
     defaultConfig {
-        minSdkVersion 26
+        minSdkVersion 29
     }
     namespace "androidx.wear.watchface.complications.datasource.samples"
 }

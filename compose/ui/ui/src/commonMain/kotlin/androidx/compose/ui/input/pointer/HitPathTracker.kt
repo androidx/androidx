@@ -16,10 +16,12 @@
 
 package androidx.compose.ui.input.pointer
 
+import androidx.collection.LongSparseArray
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.util.PointerIdArray
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.node.InternalCoreApi
 import androidx.compose.ui.node.Nodes
@@ -64,7 +66,7 @@ internal class HitPathTracker(private val rootCoordinates: LayoutCoordinates) {
                 }
                 if (node != null) {
                     node.markIsIn()
-                    if (pointerId !in node.pointerIds) node.pointerIds.add(pointerId)
+                    node.pointerIds.add(pointerId)
                     parent = node
                     continue@eachPin
                 } else {
@@ -145,7 +147,7 @@ internal open class NodeParent {
     val children: MutableVector<Node> = mutableVectorOf()
 
     open fun buildCache(
-        changes: Map<PointerId, PointerInputChange>,
+        changes: LongSparseArray<PointerInputChange>,
         parentCoordinates: LayoutCoordinates,
         internalPointerEvent: InternalPointerEvent,
         isInBounds: Boolean
@@ -175,7 +177,7 @@ internal open class NodeParent {
      * @param internalPointerEvent the [InternalPointerEvent] needed to construct [PointerEvent]s
      */
     open fun dispatchMainEventPass(
-        changes: Map<PointerId, PointerInputChange>,
+        changes: LongSparseArray<PointerInputChange>,
         parentCoordinates: LayoutCoordinates,
         internalPointerEvent: InternalPointerEvent,
         isInBounds: Boolean
@@ -263,13 +265,10 @@ internal open class NodeParent {
 @OptIn(InternalCoreApi::class, ExperimentalComposeUiApi::class)
 internal class Node(val modifierNode: Modifier.Node) : NodeParent() {
 
-    // Note: this is essentially a set, and writes should be guarded accordingly. We use a
-    // MutableVector here instead since a set ends up being quite heavy, and calls to
-    // set.contains() show up noticeably (~1%) in traces. Since the maximum size of this vector
-    // is small (due to the limited amount of concurrent PointerIds there _could_ be), iterating
-    // through the small vector in most cases should have a lower performance impact than using a
-    // set.
-    val pointerIds: MutableVector<PointerId> = mutableVectorOf()
+    // Note: pointerIds are stored in a structure specific to their value type (PointerId).
+    // This structure uses a LongArray internally, which avoids auto-boxing caused by
+    // a more generic collection such as HashMap or MutableVector.
+    val pointerIds = PointerIdArray()
 
     private var isIn = true
     private var hasEntered = false
@@ -282,12 +281,13 @@ internal class Node(val modifierNode: Modifier.Node) : NodeParent() {
      * @see buildCache
      * @see clearCache
      */
-    private val relevantChanges: MutableMap<PointerId, PointerInputChange> = mutableMapOf()
+    private val relevantChanges: LongSparseArray<PointerInputChange> = LongSparseArray(2)
     private var coordinates: LayoutCoordinates? = null
     private var pointerEvent: PointerEvent? = null
 
+    val vec = mutableVectorOf<Long>()
     override fun dispatchMainEventPass(
-        changes: Map<PointerId, PointerInputChange>,
+        changes: LongSparseArray<PointerInputChange>,
         parentCoordinates: LayoutCoordinates,
         internalPointerEvent: InternalPointerEvent,
         isInBounds: Boolean
@@ -363,7 +363,7 @@ internal class Node(val modifierNode: Modifier.Node) : NodeParent() {
      * @see clearCache
      */
     override fun buildCache(
-        changes: Map<PointerId, PointerInputChange>,
+        changes: LongSparseArray<PointerInputChange>,
         parentCoordinates: LayoutCoordinates,
         internalPointerEvent: InternalPointerEvent,
         isInBounds: Boolean
@@ -384,19 +384,11 @@ internal class Node(val modifierNode: Modifier.Node) : NodeParent() {
         }
 
         @OptIn(ExperimentalComposeUiApi::class)
-        for ((key, change) in changes) {
-            val keyValue = key.value
+        for (j in 0 until changes.size()) {
+            val keyValue = changes.keyAt(j)
+            val change = changes.valueAt(j)
 
-            // Using for (key in pointerIds) causes key to be boxed and create allocations
-            var keyInPointerIds = false
-            for (i in 0..pointerIds.lastIndex) {
-                if (pointerIds[i].value == keyValue) {
-                    keyInPointerIds = true
-                    break
-                }
-            }
-
-            if (keyInPointerIds) {
+            if (pointerIds.contains(keyValue)) {
                 // And translate their position relative to the parent coordinates, to give us a
                 // change local to the PointerInputFilter's coordinates
                 val historical = ArrayList<HistoricalChange>(change.historical.size)
@@ -409,7 +401,7 @@ internal class Node(val modifierNode: Modifier.Node) : NodeParent() {
                     )
                 }
 
-                relevantChanges[key] = change.copy(
+                relevantChanges.put(keyValue, change.copy(
                     previousPosition = coordinates!!.localPositionOf(
                         parentCoordinates,
                         change.previousPosition
@@ -419,7 +411,7 @@ internal class Node(val modifierNode: Modifier.Node) : NodeParent() {
                         change.position
                     ),
                     historical = historical
-                )
+                ))
             }
         }
 
@@ -432,12 +424,16 @@ internal class Node(val modifierNode: Modifier.Node) : NodeParent() {
         // Clean up any pointerIds that weren't dispatched
         for (i in pointerIds.lastIndex downTo 0) {
             val pointerId = pointerIds[i]
-            if (!changes.containsKey(pointerId)) {
+            if (!changes.containsKey(pointerId.value)) {
                 pointerIds.removeAt(i)
             }
         }
 
-        val event = PointerEvent(relevantChanges.values.toList(), internalPointerEvent)
+        val changesList = ArrayList<PointerInputChange>(relevantChanges.size())
+        for (i in 0 until relevantChanges.size()) {
+            changesList.add(relevantChanges.valueAt(i))
+        }
+        val event = PointerEvent(changesList, internalPointerEvent)
         val enterExitChange = event.changes.fastFirstOrNull {
             internalPointerEvent.issuesEnterExitEvent(it.id)
         }

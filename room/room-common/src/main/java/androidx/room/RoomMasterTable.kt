@@ -22,7 +22,6 @@ import androidx.annotation.RestrictTo
 /**
  * Schema information about Room's master table.
  *
- * @hide
  */
 @SuppressWarnings("WeakerAccess")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)

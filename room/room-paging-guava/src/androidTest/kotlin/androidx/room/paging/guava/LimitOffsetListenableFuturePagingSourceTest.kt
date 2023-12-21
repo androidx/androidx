@@ -18,6 +18,8 @@ package androidx.room.paging.guava
 
 import android.database.Cursor
 import androidx.arch.core.executor.testing.CountingTaskExecutorRule
+import androidx.kruth.assertThat
+import androidx.kruth.assertWithMessage
 import androidx.paging.LoadType
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
@@ -37,8 +39,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.testutils.TestExecutor
-import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
 import com.google.common.util.concurrent.FutureCallback
 import com.google.common.util.concurrent.Futures.addCallback
 import com.google.common.util.concurrent.ListenableFuture
@@ -183,7 +183,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
             queryExecutor.executeAll() // run transformAsync and async function
 
             val result = listenableFuture.await()
-            assertThat(result).isInstanceOf(LoadResult.Invalid::class.java)
+            assertThat(result).isInstanceOf<LoadResult.Invalid<*, *>>()
             assertTrue(listenableFuture.isDone)
         }
 
@@ -201,7 +201,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
             queryExecutor.executeAll() // run transformAsync and async function
 
             val result = listenableFuture.await()
-            assertThat(result).isInstanceOf(LoadResult.Invalid::class.java)
+            assertThat(result).isInstanceOf<LoadResult.Invalid<*, *>>()
             assertTrue(listenableFuture.isDone)
         }
 
@@ -552,7 +552,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
             val callbackExecutor = TestExecutor()
             var onFailureReceived = false
             listenableFuture.onFailure(callbackExecutor) { throwable ->
-                assertThat(throwable).isInstanceOf(CancellationException::class.java)
+                assertThat(throwable).isInstanceOf<CancellationException>()
                 onFailureReceived = true
             }
 
@@ -580,7 +580,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
             val callbackExecutor = TestExecutor()
             var onFailureReceived = false
             listenableFuture.onFailure(callbackExecutor) { throwable ->
-                assertThat(throwable).isInstanceOf(CancellationException::class.java)
+                assertThat(throwable).isInstanceOf<CancellationException>()
                 onFailureReceived = true
             }
 
@@ -612,7 +612,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
             val callbackExecutor = TestExecutor()
             var onFailureReceived = false
             listenableFuture.onFailure(callbackExecutor) { throwable ->
-                assertThat(throwable).isInstanceOf(CancellationException::class.java)
+                assertThat(throwable).isInstanceOf<CancellationException>()
                 onFailureReceived = true
             }
 
@@ -732,7 +732,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
             queryExecutor.executeNext()
 
             val result = listenableFuture.await()
-            assertThat(result).isInstanceOf(LoadResult.Invalid::class.java)
+            assertThat(result).isInstanceOf<LoadResult.Invalid<*, *>>()
             assertThat(pagingSource.invalid)
         }
 
@@ -766,7 +766,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
             queryExecutor.executeNext()
 
             val result = listenableFuture.await()
-            assertThat(result).isInstanceOf(LoadResult.Invalid::class.java)
+            assertThat(result).isInstanceOf<LoadResult.Invalid<*, *>>()
             assertThat(pagingSource.invalid)
         }
 

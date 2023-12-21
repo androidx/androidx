@@ -13,6 +13,8 @@ InternalField: androidx.swiperefreshlayout.widget.SwipeRefreshLayout#mOriginalOf
     Internal field mOriginalOffsetTop must not be exposed
 
 
+MissingNullability: androidx.swiperefreshlayout.widget.CircularProgressDrawable#draw(android.graphics.Canvas) parameter #0:
+    Missing nullability on parameter `canvas` in method `draw`
 MissingNullability: androidx.swiperefreshlayout.widget.CircularProgressDrawable#setColorFilter(android.graphics.ColorFilter) parameter #0:
     Missing nullability on parameter `colorFilter` in method `setColorFilter`
 MissingNullability: androidx.swiperefreshlayout.widget.SwipeRefreshLayout#onInterceptTouchEvent(android.view.MotionEvent) parameter #0:

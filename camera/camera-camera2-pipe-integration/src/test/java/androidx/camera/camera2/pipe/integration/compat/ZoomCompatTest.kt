@@ -74,7 +74,10 @@ class ZoomCompatTest {
 
         override fun <T> get(key: CameraCharacteristics.Key<T>): T? {
             println("throwingCameraMetadata get: key = $key")
-            if (key == CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE) {
+            if (
+                Build.VERSION.SDK_INT >= 30 &&
+                key == CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE
+            ) {
                 throw AssertionError()
             }
             TODO("Not yet implemented")

@@ -34,6 +34,7 @@ import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.DeferrableSurface.SurfaceClosedException
 import androidx.camera.core.impl.DeferrableSurface.SurfaceUnavailableException
 import androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
+import androidx.camera.core.impl.ImageOutputConfig.ROTATION_NOT_SPECIFIED
 import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.utils.TransformUtils.sizeToRect
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
@@ -66,6 +67,7 @@ class SurfaceEdgeTest {
         private val FRAME_RATE = Range.create(30, 30)
         private val FRAME_SPEC =
             StreamSpec.builder(INPUT_SIZE).setExpectedFrameRateRange(FRAME_RATE).build()
+        private val SENSOR_TO_BUFFER = Matrix().apply { setScale(-1f, 1f) }
     }
 
     private lateinit var surfaceEdge: SurfaceEdge
@@ -77,7 +79,8 @@ class SurfaceEdgeTest {
     fun setUp() {
         surfaceEdge = SurfaceEdge(
             PREVIEW, INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
-            StreamSpec.builder(INPUT_SIZE).build(), Matrix(), true, Rect(), 0, false
+            StreamSpec.builder(INPUT_SIZE).build(), SENSOR_TO_BUFFER, true, Rect(), 0,
+            ROTATION_NOT_SPECIFIED, false
         )
         fakeSurfaceTexture = SurfaceTexture(0)
         fakeSurface = Surface(fakeSurfaceTexture)
@@ -145,6 +148,7 @@ class SurfaceEdgeTest {
             true,
             Rect(),
             0,
+            ROTATION_NOT_SPECIFIED,
             false
         )
         assertThat(edge.streamSpec).isEqualTo(FRAME_SPEC)
@@ -172,6 +176,20 @@ class SurfaceEdgeTest {
     fun createSurfaceRequest_throwsException() {
         surfaceEdge.close()
         surfaceEdge.createSurfaceRequest(FakeCamera())
+    }
+
+    @Test
+    fun createSurfaceRequest_transformationInfoContainsSensorToBufferTransform() {
+        // Act.
+        val surfaceRequest = surfaceEdge.createSurfaceRequest(FakeCamera())
+        var transformationInfo: TransformationInfo? = null
+        surfaceRequest.setTransformationInfoListener(mainThreadExecutor()) {
+            transformationInfo = it
+        }
+        shadowOf(getMainLooper()).idle()
+
+        // Assert.
+        assertThat(transformationInfo!!.sensorToBufferTransform).isEqualTo(SENSOR_TO_BUFFER)
     }
 
     @Test
@@ -275,25 +293,26 @@ class SurfaceEdgeTest {
 
     @Test
     fun createSurfaceOutputWithDisconnectedEdge_surfaceOutputNotCreated() {
-        // Arrange: create a SurfaceOutput future from a closed LinkableSurface
+        // Arrange: create a SurfaceOutput future from a closed Edge
+        surfaceEdge.setProvider(provider)
+        provider.setSurface(fakeSurface)
         surfaceEdge.disconnect()
-        val surfaceOutput = createSurfaceOutputFuture(surfaceEdge)
-
         // Act: wait for the SurfaceOutput to return.
-        var successful: Boolean? = null
-        Futures.addCallback(surfaceOutput, object : FutureCallback<SurfaceOutput> {
-            override fun onSuccess(result: SurfaceOutput?) {
-                successful = true
-            }
-
-            override fun onFailure(t: Throwable) {
-                successful = false
-            }
-        }, mainThreadExecutor())
-        shadowOf(getMainLooper()).idle()
+        val surfaceOutput = getSurfaceOutputFromFuture(createSurfaceOutputFuture(surfaceEdge))
 
         // Assert: the SurfaceOutput is not created.
-        assertThat(successful!!).isEqualTo(false)
+        assertThat(surfaceOutput).isNull()
+    }
+
+    @Test
+    fun createSurfaceOutput_inheritSurfaceEdgeTransformation() {
+        // Arrange: set the provider and create a SurfaceOutput future.
+        surfaceEdge.setProvider(provider)
+        provider.setSurface(fakeSurface)
+        // Act: create a SurfaceOutput from the SurfaceEdge
+        val surfaceOutput = getSurfaceOutputFromFuture(createSurfaceOutputFuture(surfaceEdge))
+        // Assert: the SurfaceOutput inherits the transformation from the SurfaceEdge.
+        assertThat(surfaceOutput!!.sensorToBufferTransform).isEqualTo(SENSOR_TO_BUFFER)
     }
 
     @Test
@@ -342,6 +361,7 @@ class SurfaceEdgeTest {
             hasCameraTransform,
             Rect(),
             0,
+            ROTATION_NOT_SPECIFIED,
             false
         )
         var transformationInfo: TransformationInfo? = null
@@ -515,12 +535,28 @@ class SurfaceEdgeTest {
         }
 
         // Act.
-        surfaceEdge.rotationDegrees = 90
+        surfaceEdge.updateTransformation(90)
         shadowOf(getMainLooper()).idle()
 
         // Assert.
         assertThat(transformationInfo).isNotNull()
         assertThat(transformationInfo!!.rotationDegrees).isEqualTo(90)
+    }
+
+    private fun getSurfaceOutputFromFuture(
+        future: ListenableFuture<SurfaceOutput>
+    ): SurfaceOutput? {
+        var surfaceOutput: SurfaceOutput? = null
+        Futures.addCallback(future, object : FutureCallback<SurfaceOutput> {
+            override fun onSuccess(result: SurfaceOutput?) {
+                surfaceOutput = result
+            }
+
+            override fun onFailure(t: Throwable) {
+            }
+        }, mainThreadExecutor())
+        shadowOf(getMainLooper()).idle()
+        return surfaceOutput
     }
 
     private fun createSurfaceOutputFuture(surfaceEdge: SurfaceEdge) =

@@ -18,9 +18,8 @@ package androidx.room;
 
 /**
  * RPC Callbacks for {@link IMultiInstanceInvalidationService}.
- *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IMultiInstanceInvalidationCallback {
 
     /**

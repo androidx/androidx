@@ -34,6 +34,7 @@ import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.UseCaseConfigFactory
+import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.internal.TargetConfig.OPTION_TARGET_CLASS
@@ -372,5 +373,14 @@ class StreamSharingTest {
                 null
             )
         ).startsWith("androidx.camera.core.streamsharing.StreamSharing-")
+    }
+
+    @Test
+    fun getDefaultConfig_getCaptureTypes() {
+        val config: StreamSharingConfig =
+            (streamSharing.getDefaultConfig(true, useCaseConfigFactory) as StreamSharingConfig?)!!
+        assertThat(config.captureTypes.size).isEqualTo(2)
+        assertThat(config.captureTypes[0]).isEqualTo(CaptureType.PREVIEW)
+        assertThat(config.captureTypes[1]).isEqualTo(CaptureType.PREVIEW)
     }
 }

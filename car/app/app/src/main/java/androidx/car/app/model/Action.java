@@ -67,7 +67,6 @@ public final class Action {
     /**
      * The type of action represented by the {@link Action} instance.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef(
@@ -84,7 +83,6 @@ public final class Action {
     /**
      * The flag of action represented by the {@link Action} instance.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef(

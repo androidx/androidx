@@ -21,8 +21,6 @@ import java.lang.reflect.InvocationTargetException
 
 /**
  * Internal class to handle lifecycle conversion etc.
- *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public object Lifecycling {

@@ -67,9 +67,11 @@ class XTypeTest {
             package foo.bar;
             import java.io.InputStream;
             import java.util.Set;
+            import java.util.List;
             class Parent<InputStreamType extends InputStream> {
                 public void wildcardParam(Set<?> param1) {}
-                public void rawTypeParam(Set param1) {}
+                public void rawParamType(Set param1) {}
+                public void rawParamTypeArgument(List<Set> param1) {}
             }
             """.trimIndent()
         )
@@ -145,9 +147,42 @@ class XTypeTest {
                         )
                 }
             }
-            type.typeElement!!.getMethodByJvmName("rawTypeParam").let { method ->
-                val rawTypeParam = method.parameters.first()
-                assertThat(rawTypeParam.type.typeArguments).isEmpty()
+            type.typeElement!!.getMethodByJvmName("rawParamType").let { method ->
+                val rawParamType = method.parameters.first()
+                assertThat(rawParamType.type.typeArguments).isEmpty()
+                assertThat(rawParamType.type.asTypeName().java).isEqualTo(
+                    JClassName.get("java.util", "Set")
+                )
+                if (it.isKsp) {
+                    assertThat(rawParamType.type.asTypeName().kotlin).isEqualTo(
+                        KClassName("kotlin.collections", "MutableSet")
+                    )
+                }
+            }
+            type.typeElement!!.getMethodByJvmName("rawParamTypeArgument").let { method ->
+                val rawParamTypeArgument = method.parameters.first()
+                assertThat(rawParamTypeArgument.type.asTypeName().java).isEqualTo(
+                    JParameterizedTypeName.get(
+                        JClassName.get("java.util", "List"),
+                        JClassName.get("java.util", "Set"),
+                    )
+                )
+                if (it.isKsp) {
+                    assertThat(rawParamTypeArgument.type.asTypeName().kotlin).isEqualTo(
+                        KClassName("kotlin.collections", "MutableList").parameterizedBy(
+                            KClassName("kotlin.collections", "MutableSet")
+                        )
+                    )
+                }
+                val rawTypeArgument = rawParamTypeArgument.type.typeArguments.single()
+                assertThat(rawTypeArgument.asTypeName().java).isEqualTo(
+                    JClassName.get("java.util", "Set")
+                )
+                if (it.isKsp) {
+                    assertThat(rawTypeArgument.asTypeName().kotlin).isEqualTo(
+                        KClassName("kotlin.collections", "MutableSet")
+                    )
+                }
             }
         }
     }
@@ -1524,6 +1559,68 @@ class XTypeTest {
                 }
             }
             it.assertCompilationResult { hasErrorContaining("Unresolved reference: MissingType") }
+        }
+    }
+
+    @Test
+    fun rawTypeNames() {
+        val src = Source.java(
+            "test.Subject",
+            """
+            package test;
+            import java.util.Set;
+            @SuppressWarnings("rawtypes")
+            class Subject {
+                Foo foo;
+                Foo<Foo> fooFoo;
+                Foo<Foo<Foo>> fooFooFoo;
+                Bar<Foo, Foo> barFooFoo;
+            }
+            class Foo<T> {}
+            class Bar<T1, T2> {}
+            """.trimIndent()
+        )
+        runProcessorTest(sources = listOf(src)) { invocation ->
+            fun assertHasTypeName(type: XType, expectedTypeName: String) {
+                assertThat(type.asTypeName().java.toString()).isEqualTo(expectedTypeName)
+                if (invocation.isKsp) {
+                    assertThat(type.asTypeName().kotlin.toString()).isEqualTo(expectedTypeName)
+                }
+            }
+
+            val subject = invocation.processingEnv.requireTypeElement("test.Subject")
+            assertHasTypeName(subject.getDeclaredField("foo").type, "test.Foo")
+            assertHasTypeName(subject.getDeclaredField("fooFoo").type, "test.Foo<test.Foo>")
+            assertHasTypeName(
+                subject.getDeclaredField("fooFooFoo").type, "test.Foo<test.Foo<test.Foo>>")
+            assertHasTypeName(
+                subject.getDeclaredField("barFooFoo").type, "test.Bar<test.Foo, test.Foo>")
+
+            // Test manually wrapping raw type using XProcessingEnv#getDeclaredType()
+            subject.getDeclaredField("foo").type.let { foo ->
+                val fooTypeElement = invocation.processingEnv.requireTypeElement("test.Foo")
+                val fooFoo: XType = invocation.processingEnv.getDeclaredType(fooTypeElement, foo)
+                assertHasTypeName(fooFoo, "test.Foo<test.Foo>")
+
+                val fooFooFoo: XType =
+                    invocation.processingEnv.getDeclaredType(fooTypeElement, fooFoo)
+                assertHasTypeName(fooFooFoo, "test.Foo<test.Foo<test.Foo>>")
+
+                val barTypeElement = invocation.processingEnv.requireTypeElement("test.Bar")
+                val barFooFoo: XType =
+                    invocation.processingEnv.getDeclaredType(barTypeElement, foo, foo)
+                assertHasTypeName(barFooFoo, "test.Bar<test.Foo, test.Foo>")
+            }
+
+            // Test manually unwrapping a type with a raw type argument:
+            subject.getDeclaredField("fooFoo").type.let { fooFoo ->
+                assertHasTypeName(fooFoo.typeArguments.single(), "test.Foo")
+            }
+            subject.getDeclaredField("barFooFoo").type.let { barFooFoo ->
+                assertThat(barFooFoo.typeArguments).hasSize(2)
+                assertHasTypeName(barFooFoo.typeArguments[0], "test.Foo")
+                assertHasTypeName(barFooFoo.typeArguments[1], "test.Foo")
+            }
         }
     }
 

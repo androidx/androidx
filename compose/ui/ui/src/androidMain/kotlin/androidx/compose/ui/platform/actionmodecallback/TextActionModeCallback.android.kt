@@ -31,8 +31,8 @@ internal class TextActionModeCallback(
     var onSelectAllRequested: (() -> Unit)? = null
 ) {
     fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
-        requireNotNull(menu)
-        requireNotNull(mode)
+        requireNotNull(menu) { "onCreateActionMode requires a non-null menu" }
+        requireNotNull(mode) { "onCreateActionMode requires a non-null mode" }
 
         onCopyRequested?.let {
             addMenuItem(menu, MenuItemOption.Copy)

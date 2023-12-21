@@ -17,6 +17,7 @@ package androidx.camera.view
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Matrix
 import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
@@ -193,6 +194,7 @@ class PreviewViewDeviceTest(
         Truth.assertThat(countDownLatch.await(TIMEOUT_SECONDS.toLong(), TimeUnit.SECONDS)).isTrue()
         instrumentation.runOnMainSync {
             Truth.assertThat(previewView.get().outputTransform).isNotNull()
+            Truth.assertThat(previewView.get().sensorToViewTransform).isNotNull()
         }
     }
 
@@ -211,6 +213,7 @@ class PreviewViewDeviceTest(
         Truth.assertThat(countDownLatch.await(TIMEOUT_SECONDS.toLong(), TimeUnit.SECONDS)).isTrue()
         instrumentation.runOnMainSync {
             Truth.assertThat(previewView.get().outputTransform).isNull()
+            Truth.assertThat(previewView.get().sensorToViewTransform).isNull()
         }
     }
 
@@ -1061,7 +1064,8 @@ class PreviewViewDeviceTest(
         for (surfaceRequest in surfaceRequestList) {
             surfaceRequest.updateTransformationInfo(
                 SurfaceRequest.TransformationInfo.of(cropRect, 0, Surface.ROTATION_0,
-                    /*hasCameraTransform=*/true)
+                    /*hasCameraTransform=*/true, /*sensorToBufferTransform=*/Matrix()
+                )
             )
         }
         instrumentation.waitForIdleSync()

@@ -23,6 +23,7 @@ import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo;
 import androidx.privacysandbox.ads.adservices.java.appsetid.AppSetIdManagerFutures;
 import androidx.privacysandbox.ads.adservices.java.endtoend.TestUtil;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
@@ -33,6 +34,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
+@SdkSuppress(minSdkVersion = 28) // API 28 required for device_config used by this test
 // TODO: Consider refactoring so that we're not duplicating code.
 public class AppSetIdManagerTest {
     private static final String TAG = "AppSetIdManagerTest";

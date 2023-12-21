@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION") // Swipeable is deprecated
+
 package androidx.compose.material
 
 import androidx.compose.foundation.ScrollState

@@ -36,7 +36,6 @@ import androidx.annotation.RestrictTo;
  *
  * <p>The service is only used to expose metadata defined in the library's manifest.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class CarAppMetadataHolderService extends Service {

@@ -17,10 +17,10 @@
 package androidx.camera.video;
 
 import static androidx.camera.core.DynamicRange.BIT_DEPTH_UNSPECIFIED;
-import static androidx.camera.core.DynamicRange.FORMAT_HDR_UNSPECIFIED;
-import static androidx.camera.core.DynamicRange.FORMAT_HLG;
-import static androidx.camera.core.DynamicRange.FORMAT_SDR;
-import static androidx.camera.core.DynamicRange.FORMAT_UNSPECIFIED;
+import static androidx.camera.core.DynamicRange.ENCODING_HDR_UNSPECIFIED;
+import static androidx.camera.core.DynamicRange.ENCODING_HLG;
+import static androidx.camera.core.DynamicRange.ENCODING_SDR;
+import static androidx.camera.core.DynamicRange.ENCODING_UNSPECIFIED;
 import static androidx.camera.video.internal.BackupHdrProfileEncoderProfilesProvider.DEFAULT_VALIDATOR;
 
 import android.util.Size;
@@ -79,8 +79,8 @@ public final class RecorderVideoCapabilities implements VideoCapabilities {
     // Mappings of DynamicRange to recording capability information. The mappings are divided
     // into two collections based on the key's (DynamicRange) category, one for specified
     // DynamicRange and one for others. Specified DynamicRange means that its bit depth and
-    // format are specified values, not some wildcards, such as: FORMAT_UNSPECIFIED,
-    // FORMAT_HDR_UNSPECIFIED or BIT_DEPTH_UNSPECIFIED.
+    // format are specified values, not some wildcards, such as: ENCODING_UNSPECIFIED,
+    // ENCODING_HDR_UNSPECIFIED or BIT_DEPTH_UNSPECIFIED.
     private final Map<DynamicRange, CapabilitiesByQuality>
             mCapabilitiesMapForFullySpecifiedDynamicRange = new HashMap<>();
     private final Map<DynamicRange, CapabilitiesByQuality>
@@ -213,9 +213,9 @@ public final class RecorderVideoCapabilities implements VideoCapabilities {
             @NonNull CameraInfoInternal cameraInfoInternal) {
         Set<DynamicRange> dynamicRanges = cameraInfoInternal.getSupportedDynamicRanges();
         for (DynamicRange dynamicRange : dynamicRanges) {
-            Integer format = dynamicRange.getFormat();
+            Integer encoding = dynamicRange.getEncoding();
             int bitDepth = dynamicRange.getBitDepth();
-            if (format.equals(FORMAT_HLG) && bitDepth == DynamicRange.BIT_DEPTH_10_BIT) {
+            if (encoding.equals(ENCODING_HLG) && bitDepth == DynamicRange.BIT_DEPTH_10_BIT) {
                 return true;
             }
         }
@@ -252,7 +252,7 @@ public final class RecorderVideoCapabilities implements VideoCapabilities {
         } else {
             for (DynamicRange fullySpecifiedDynamicRange : fullySpecifiedDynamicRanges) {
                 if (canMatchBitDepth(dynamicRangeToTest, fullySpecifiedDynamicRange)
-                        && canMatchFormat(dynamicRangeToTest, fullySpecifiedDynamicRange)) {
+                        && canMatchEncoding(dynamicRangeToTest, fullySpecifiedDynamicRange)) {
                     return true;
                 }
             }
@@ -272,26 +272,26 @@ public final class RecorderVideoCapabilities implements VideoCapabilities {
         return dynamicRangeToTest.getBitDepth() == fullySpecifiedDynamicRange.getBitDepth();
     }
 
-    private static boolean canMatchFormat(@NonNull DynamicRange dynamicRangeToTest,
+    private static boolean canMatchEncoding(@NonNull DynamicRange dynamicRangeToTest,
             @NonNull DynamicRange fullySpecifiedDynamicRange) {
         Preconditions.checkState(isFullySpecified(fullySpecifiedDynamicRange), "Fully specified "
                 + "range is not actually fully specified.");
-        int formatToTest = dynamicRangeToTest.getFormat();
-        if (formatToTest == FORMAT_UNSPECIFIED) {
+        int encodingToTest = dynamicRangeToTest.getEncoding();
+        if (encodingToTest == ENCODING_UNSPECIFIED) {
             return true;
         }
 
-        int fullySpecifiedFormat = fullySpecifiedDynamicRange.getFormat();
-        if (formatToTest == FORMAT_HDR_UNSPECIFIED && fullySpecifiedFormat != FORMAT_SDR) {
+        int fullySpecifiedEncoding = fullySpecifiedDynamicRange.getEncoding();
+        if (encodingToTest == ENCODING_HDR_UNSPECIFIED && fullySpecifiedEncoding != ENCODING_SDR) {
             return true;
         }
 
-        return formatToTest == fullySpecifiedFormat;
+        return encodingToTest == fullySpecifiedEncoding;
     }
 
     private static boolean isFullySpecified(@NonNull DynamicRange dynamicRange) {
-        return dynamicRange.getFormat() != FORMAT_UNSPECIFIED
-                && dynamicRange.getFormat() != FORMAT_HDR_UNSPECIFIED
+        return dynamicRange.getEncoding() != ENCODING_UNSPECIFIED
+                && dynamicRange.getEncoding() != ENCODING_HDR_UNSPECIFIED
                 && dynamicRange.getBitDepth() != BIT_DEPTH_UNSPECIFIED;
     }
 

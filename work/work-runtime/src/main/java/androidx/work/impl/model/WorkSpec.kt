@@ -146,6 +146,40 @@ data class WorkSpec(
 
     @ColumnInfo(defaultValue = "0")
     val generation: Int = 0,
+
+    /**
+     * If not Long.MAX_VALUE, this will be the next schedule time, regardless of configured delay.
+     * Only valid for periodic workers
+     */
+    @ColumnInfo(
+        name = "next_schedule_time_override",
+        defaultValue = Long.MAX_VALUE.toString()
+    )
+    var nextScheduleTimeOverride: Long = Long.MAX_VALUE,
+
+    /**
+     * Generation counter that tracks only the nextScheduleTimeOverride version, which allows the
+     * overall generation to be incremented without clearing the nextScheduleTimeOverride. Eg.
+     * while an override is set, a WorkSpec's constraints are changed using UPDATE,
+     * but the override time is neither set nor cleared.
+     *
+     * We could implicitly cancel the nextScheduleTimeOverride since it was not specified in the
+     * update. However, this would require every caller to know that there is an override,
+     * and what the value of that time was, in order to make unrelated changes.
+     *
+     * Instead, we keep track of a separate override schedule generation, so only updates that
+     * change or cancel the nextScheduleTimeOverride will affect the override generation.
+     *
+     * This allows WorkSpec changes to be made mid-worker run, and WorkerWrapper can still
+     * correctly clear a previous nextScheduleTimeOverride upon conclusion by consulting the
+     * overrideGeneration instead of the overall generation.
+     */
+    @ColumnInfo(
+        name = "next_schedule_time_override_generation",
+        defaultValue = "0"
+    )
+    // If reset every min interval, would last 500 years.
+    var nextScheduleTimeOverrideGeneration: Int = 0
 ) {
     constructor(
         id: String,
@@ -172,6 +206,8 @@ data class WorkSpec(
         expedited = other.expedited,
         outOfQuotaPolicy = other.outOfQuotaPolicy,
         periodCount = other.periodCount,
+        nextScheduleTimeOverride = other.nextScheduleTimeOverride,
+        nextScheduleTimeOverrideGeneration = other.nextScheduleTimeOverrideGeneration,
     )
 
     /**
@@ -282,7 +318,8 @@ data class WorkSpec(
             isPeriodic = isPeriodic,
             initialDelay = initialDelay,
             flexDuration = flexDuration,
-            intervalDuration = intervalDuration
+            intervalDuration = intervalDuration,
+            nextScheduleTimeOverride = nextScheduleTimeOverride
         )
     }
 
@@ -352,6 +389,9 @@ data class WorkSpec(
         @ColumnInfo(name = "generation")
         val generation: Int,
 
+        @ColumnInfo(name = "next_schedule_time_override")
+        val nextScheduleTimeOverride: Long,
+
         @Relation(
             parentColumn = "id",
             entityColumn = "work_spec_id",
@@ -415,7 +455,8 @@ data class WorkSpec(
                     isPeriodic = isPeriodic,
                     initialDelay = initialDelay,
                     flexDuration = flexDuration,
-                    intervalDuration = intervalDuration
+                    intervalDuration = intervalDuration,
+                    nextScheduleTimeOverride = nextScheduleTimeOverride
                 )
             else Long.MAX_VALUE
         }
@@ -440,9 +481,15 @@ data class WorkSpec(
             isPeriodic: Boolean,
             initialDelay: Long,
             flexDuration: Long,
-            intervalDuration: Long
+            intervalDuration: Long,
+            nextScheduleTimeOverride: Long,
         ): Long {
-            return if (isBackedOff) {
+            // Override takes priority over backoff, but only applies to periodic work.
+            return if (nextScheduleTimeOverride != Long.MAX_VALUE && isPeriodic) {
+                return if (periodCount == 0) nextScheduleTimeOverride else
+                    nextScheduleTimeOverride.coerceAtLeast(
+                        lastEnqueueTime + MIN_PERIODIC_INTERVAL_MILLIS)
+            } else if (isBackedOff) {
                 val isLinearBackoff = backoffPolicy == BackoffPolicy.LINEAR
                 val delay =
                     if (isLinearBackoff) backoffDelayDuration * runAttemptCount else Math.scalb(

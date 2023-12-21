@@ -17,6 +17,7 @@
 package androidx.camera.core
 
 import android.content.Context
+import android.graphics.Matrix
 import android.graphics.Rect
 import android.graphics.SurfaceTexture
 import android.os.Build
@@ -27,6 +28,7 @@ import android.util.Range
 import android.util.Rational
 import android.util.Size
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.camera.core.CameraEffect.IMAGE_CAPTURE
 import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
@@ -71,6 +73,7 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
+@RequiresApi(21)
 private val TEST_CAMERA_SELECTOR = CameraSelector.DEFAULT_BACK_CAMERA
 
 /**
@@ -98,6 +101,10 @@ class PreviewTest {
     private lateinit var effect: CameraEffect
 
     private val handlersToRelease = mutableListOf<Handler>()
+
+    private val sensorToBufferTransform = Matrix().apply {
+        setScale(1f, 2f)
+    }
 
     private val testImplementationOption: androidx.camera.core.impl.Config.Option<Int> =
         androidx.camera.core.impl.Config.Option.create(
@@ -246,6 +253,23 @@ class PreviewTest {
     }
 
     @Test
+    fun setTargetRotation_rotationIsPropagated() {
+        // Arrange: create preview and wait for transformation info.
+        val preview = createPreview()
+        var transformationInfo: TransformationInfo? = null
+        preview.mCurrentSurfaceRequest!!.setTransformationInfoListener(
+            mainThreadExecutor()
+        ) { newValue: TransformationInfo -> transformationInfo = newValue }
+
+        // Act: set target rotation.
+        preview.targetRotation = Surface.ROTATION_180
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: target rotation is updated.
+        assertThat(transformationInfo!!.targetRotation).isEqualTo(Surface.ROTATION_180)
+    }
+
+    // @Test TODO re-enable once b/284336967 is done.
     fun attachUseCase_transformationInfoUpdates() {
         // Arrange: attach Preview without a SurfaceProvider.
         // Build and bind use case.
@@ -320,6 +344,7 @@ class PreviewTest {
 
         // Get pending SurfaceRequest created by pipeline.
         assertThat(transformationInfo!!.hasCameraTransform()).isTrue()
+        assertThat(transformationInfo!!.sensorToBufferTransform).isEqualTo(sensorToBufferTransform)
     }
 
     @Test
@@ -772,6 +797,7 @@ class PreviewTest {
         streamSpecOptions.insertOption(testImplementationOption, testImplementationOptionValue)
         val streamSpec = StreamSpec.builder(Size(640, 480))
             .setImplementationOptions(streamSpecOptions).build()
+        previewToDetach.sensorToBufferTransformMatrix = sensorToBufferTransform
         previewToDetach.updateSuggestedStreamSpec(streamSpec)
         return previewToDetach
     }

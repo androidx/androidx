@@ -16,6 +16,7 @@
 
 package androidx.paging
 
+import androidx.kruth.assertThat
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.APPEND
@@ -23,17 +24,13 @@ import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
-import com.google.common.truth.Truth.assertThat
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@RunWith(JUnit4::class)
 class PageFetcherSnapshotStateTest {
     val testScope = TestScope()
 

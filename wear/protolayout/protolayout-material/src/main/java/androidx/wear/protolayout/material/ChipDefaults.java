@@ -44,12 +44,18 @@ public class ChipDefaults {
     public static final DpProp COMPACT_HEIGHT = dp(32);
 
     /**
-     * The default height of tappable area for standard {@link CompactChip}
-     *
+     * The minimum width of tappable target area.
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    public static final DpProp COMPACT_HEIGHT_TAPPABLE = dp(48);
+    public static final DpProp MIN_TAPPABLE_WIDTH = dp(48);
+
+    /**
+     * The minimum height of tappable target area.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public static final DpProp MIN_TAPPABLE_HEIGHT = dp(48);
 
     /**
      * The default height for standard {@link TitleChip}
@@ -94,17 +100,16 @@ public class ChipDefaults {
      * The recommended vertical space between icon and text in standard {@link Chip}
      *
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    public static final DpProp ICON_SPACER_WIDTH = dp(6);
+    static final DpProp ICON_SPACER_WIDTH = dp(6);
 
-    /**
-     * The icon size used in standard {@link Chip}
-     *
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
+    /** The icon size used in standard {@link Chip} */
     @NonNull
-    public static final DpProp ICON_SIZE = dp(24);
+    static final DpProp ICON_SIZE = dp(24);
+
+    /** The icon size used in standard {@link CompactChip} */
+    @NonNull
+    static final DpProp COMPACT_ICON_SIZE = dp(20);
 
     /** The recommended colors for a primary {@link Chip}. */
     @NonNull

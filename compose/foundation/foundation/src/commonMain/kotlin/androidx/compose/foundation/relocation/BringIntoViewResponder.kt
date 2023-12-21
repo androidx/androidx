@@ -132,7 +132,7 @@ private class BringIntoViewResponderElement(
  * for recursively propagating requests up the responder chain.
  */
 @OptIn(ExperimentalFoundationApi::class)
-private class BringIntoViewResponderNode(
+internal class BringIntoViewResponderNode(
     var responder: BringIntoViewResponder
 ) : BringIntoViewChildNode(), BringIntoViewParent {
 

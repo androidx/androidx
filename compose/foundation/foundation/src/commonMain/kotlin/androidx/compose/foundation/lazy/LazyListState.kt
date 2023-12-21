@@ -16,6 +16,13 @@
 
 package androidx.compose.foundation.lazy
 
+import androidx.compose.animation.core.AnimationState
+import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.core.animateTo
+import androidx.compose.animation.core.copy
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.gestures.Orientation
@@ -42,7 +49,10 @@ import androidx.compose.ui.layout.RemeasurementModifier
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import kotlin.math.abs
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 /**
  * Creates a [LazyListState] that is remembered across compositions.
@@ -82,6 +92,12 @@ class LazyListState constructor(
     firstVisibleItemIndex: Int = 0,
     firstVisibleItemScrollOffset: Int = 0
 ) : ScrollableState {
+
+    internal var hasLookaheadPassOccurred: Boolean = false
+        private set
+    internal var postLookaheadLayoutInfo: LazyListLayoutInfo? = null
+        private set
+
     /**
      * The holder class for the current scroll position.
      */
@@ -385,18 +401,69 @@ class LazyListState constructor(
     /**
      *  Updates the state with the new calculated scroll position and consumed scroll.
      */
-    internal fun applyMeasureResult(result: LazyListMeasureResult) {
-        scrollPosition.updateFromMeasureResult(result)
-        scrollToBeConsumed -= result.consumedScroll
-        layoutInfoState.value = result
+    internal fun applyMeasureResult(result: LazyListMeasureResult, isLookingAhead: Boolean) {
+        if (!isLookingAhead && hasLookaheadPassOccurred) {
+            // If there was already a lookahead pass, record this result as postLookahead result
+            postLookaheadLayoutInfo = result
+        } else {
+            if (isLookingAhead) {
+                hasLookaheadPassOccurred = true
+            }
+            scrollPosition.updateFromMeasureResult(result)
+            scrollToBeConsumed -= result.consumedScroll
+            layoutInfoState.value = result
 
-        canScrollForward = result.canScrollForward
-        canScrollBackward = (result.firstVisibleItem?.index ?: 0) != 0 ||
-            result.firstVisibleItemScrollOffset != 0
+            canScrollForward = result.canScrollForward
+            canScrollBackward = (result.firstVisibleItem?.index ?: 0) != 0 ||
+                result.firstVisibleItemScrollOffset != 0
 
-        numMeasurePasses++
+            if (isLookingAhead) updateScrollDeltaForPostLookahead(result.scrollBackAmount)
+            numMeasurePasses++
 
-        cancelPrefetchIfVisibleItemsChanged(result)
+            cancelPrefetchIfVisibleItemsChanged(result)
+        }
+    }
+
+    internal var coroutineScope: CoroutineScope? = null
+
+    internal val scrollDeltaBetweenPasses: Float
+        get() = _scrollDeltaBetweenPasses.value
+
+    private var _scrollDeltaBetweenPasses: AnimationState<Float, AnimationVector1D> =
+        AnimationState(Float.VectorConverter, 0f, 0f)
+
+    // Updates the scroll delta between lookahead & post-lookahead pass
+    private fun updateScrollDeltaForPostLookahead(delta: Float) {
+        if (delta <= with(density) { DeltaThresholdForScrollAnimation.toPx() }) {
+            // If the delta is within the threshold, scroll by the delta amount instead of animating
+            return
+        }
+
+        // Scroll delta is updated during lookahead, we don't need to trigger lookahead when
+        // the delta changes.
+        Snapshot.withoutReadObservation {
+            val currentDelta = _scrollDeltaBetweenPasses.value
+
+            if (_scrollDeltaBetweenPasses.isRunning) {
+                _scrollDeltaBetweenPasses = _scrollDeltaBetweenPasses.copy(currentDelta - delta)
+                coroutineScope?.launch {
+                    _scrollDeltaBetweenPasses.animateTo(
+                        0f,
+                        spring(stiffness = Spring.StiffnessMediumLow, visibilityThreshold = 0.5f),
+                        true
+                    )
+                }
+            } else {
+                _scrollDeltaBetweenPasses = AnimationState(Float.VectorConverter, -delta)
+                coroutineScope?.launch {
+                    _scrollDeltaBetweenPasses.animateTo(
+                        0f,
+                        spring(stiffness = Spring.StiffnessMediumLow, visibilityThreshold = 0.5f),
+                        true
+                    )
+                }
+            }
+        }
     }
 
     /**
@@ -424,6 +491,8 @@ class LazyListState constructor(
         )
     }
 }
+
+private val DeltaThresholdForScrollAnimation = 1.dp
 
 private object EmptyLazyListLayoutInfo : LazyListLayoutInfo {
     override val visibleItemsInfo = emptyList<LazyListItemInfo>()

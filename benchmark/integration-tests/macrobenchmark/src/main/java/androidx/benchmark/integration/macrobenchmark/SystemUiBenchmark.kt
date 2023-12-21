@@ -32,7 +32,7 @@ class SystemUiBenchmark {
     @Test
     @Ignore
     fun baselineProfiles() {
-        baselineRule.collectBaselineProfile(
+        baselineRule.collect(
             packageName = PACKAGE_NAME,
             profileBlock = {
                 pressHome()

@@ -54,6 +54,9 @@ import androidx.compose.ui.unit.dp
  *
  * TODO(b/261838497) Add Material3 samples and UX guidance links
  *
+ * Example of a [TextButton]:
+ * @sample androidx.wear.compose.material3.samples.TextButtonSample
+ *
  * @param onClick Will be called when the user clicks the button.
  * @param modifier Modifier to be applied to the button.
  * @param enabled Controls the enabled state of the button. When `false`, this button will not
@@ -113,6 +116,9 @@ object TextButtonDefaults {
      * If the text button is disabled then the colors will default to [ColorScheme.onSurface] with
      * suitable alpha values applied.
      *
+     * Example of [TextButton] with [filledTextButtonColors]:
+     * @sample androidx.wear.compose.material3.samples.FilledTextButtonSample
+     *
      * @param containerColor The background color of this text button when enabled
      * @param contentColor The content color of this text button when enabled
      */
@@ -133,6 +139,9 @@ object TextButtonDefaults {
      * If the text button is disabled then the colors will default to [ColorScheme.onSurface] with
      * suitable alpha values applied.
      *
+     * Example of [TextButton] with [filledTonalTextButtonColors]:
+     * @sample androidx.wear.compose.material3.samples.FilledTonalTextButtonSample
+     *
      * @param containerColor The background color of this text button when enabled
      * @param contentColor The content color of this text button when enabled
      */
@@ -151,6 +160,10 @@ object TextButtonDefaults {
      * Creates a [TextButtonColors] with the colors for an outlined [TextButton]- by default,
      * a transparent background with contrasting content color. If the button is disabled,
      * then the colors will default to [ColorScheme.onSurface] with suitable alpha values applied.
+     *
+     * Example of [TextButton] with [outlinedTextButtonColors] and
+     * [ButtonDefaults.outlinedButtonBorder]:
+     * @sample androidx.wear.compose.material3.samples.OutlinedTextButtonSample
      *
      * @param contentColor The content color of this text button when enabled
      */

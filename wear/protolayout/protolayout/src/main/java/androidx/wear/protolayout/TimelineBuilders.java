@@ -62,24 +62,30 @@ public final class TimelineBuilders {
     public long getEndMillis() {
       return mImpl.getEndMillis();
     }
-    /**
-     * Creates a new wrapper instance from the proto.
-     *
-     */
+
+    /** Creates a new wrapper instance from the proto. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static TimeInterval fromProto(@NonNull TimelineProto.TimeInterval proto) {
       return new TimeInterval(proto);
     }
 
-    /**
-     * Returns the internal proto instance.
-     *
-     */
+    /** Returns the internal proto instance. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public TimelineProto.TimeInterval toProto() {
       return mImpl;
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "TimeInterval{"
+          + "startMillis="
+          + getStartMillis()
+          + ", endMillis="
+          + getEndMillis()
+          + "}";
     }
 
     /** Builder for {@link TimeInterval} */
@@ -159,31 +165,35 @@ public final class TimelineBuilders {
       }
     }
 
-    /** Returns the {@link TimelineEntry} object containing the given layout element. */
+    /**
+     * Returns the {@link TimelineEntry} object containing the given layout element.
+     *
+     * @since 1.0
+     */
     @NonNull
     public static TimelineEntry fromLayoutElement(
         @NonNull LayoutElementBuilders.LayoutElement layoutElement) {
       return new Builder().setLayout(Layout.fromLayoutElement(layoutElement)).build();
     }
 
-    /**
-     * Creates a new wrapper instance from the proto.
-     *
-     */
+    /** Creates a new wrapper instance from the proto. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static TimelineEntry fromProto(@NonNull TimelineProto.TimelineEntry proto) {
       return new TimelineEntry(proto);
     }
 
-    /**
-     * Returns the internal proto instance.
-     *
-     */
+    /** Returns the internal proto instance. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public TimelineProto.TimelineEntry toProto() {
       return mImpl;
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "TimelineEntry{" + "validity=" + getValidity() + ", layout=" + getLayout() + "}";
     }
 
     /** Builder for {@link TimelineEntry} */
@@ -259,27 +269,25 @@ public final class TimelineBuilders {
       return Collections.unmodifiableList(list);
     }
 
-    /** Returns the {@link Timeline} object containing the given layout element. */
+    /**
+     * Returns the {@link Timeline} object containing the given layout element.
+     *
+     * @since 1.0
+     */
     @NonNull
     public static Timeline fromLayoutElement(
         @NonNull LayoutElementBuilders.LayoutElement layoutElement) {
       return new Builder().addTimelineEntry(TimelineEntry.fromLayoutElement(layoutElement)).build();
     }
 
-    /**
-     * Creates a new wrapper instance from the proto.
-     *
-     */
+    /** Creates a new wrapper instance from the proto. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static Timeline fromProto(@NonNull TimelineProto.Timeline proto) {
       return new Timeline(proto);
     }
 
-    /**
-     * Returns the internal proto instance.
-     *
-     */
+    /** Returns the internal proto instance. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public TimelineProto.Timeline toProto() {

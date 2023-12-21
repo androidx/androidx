@@ -30,7 +30,6 @@ import androidx.compose.ui.semantics.CollectionItemInfo
 import androidx.compose.ui.semantics.collectionItemInfo
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import androidx.tv.foundation.ExperimentalTvFoundationApi
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.ImmersiveList
@@ -44,7 +43,7 @@ fun ImmersiveListContent() {
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalTvFoundationApi::class)
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun SampleImmersiveList() {
     val immersiveListHeight = 300.dp
@@ -56,40 +55,37 @@ private fun SampleImmersiveList() {
         Color.Magenta,
     )
 
-    FocusGroup {
-        ImmersiveList(
-            modifier = Modifier
-                .height(immersiveListHeight + cardHeight / 2)
-                .fillMaxWidth(),
-            background = { index, _ ->
-                Box(
-                    modifier = Modifier
-                        .background(backgrounds[index].copy(alpha = 0.3f))
-                        .height(immersiveListHeight)
-                        .fillMaxWidth()
-                )
-            }
-        ) {
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(cardSpacing),
-                modifier = Modifier.lazyListSemantics(1, backgrounds.count())
-            ) {
-                itemsIndexed(backgrounds) { index, backgroundColor ->
-                    val cardModifier =
-                        if (index == 0)
-                            Modifier.initiallyFocused()
-                        else
-                            Modifier.restorableFocus()
+    ImmersiveList(
+        modifier = Modifier
+            .height(immersiveListHeight + cardHeight / 2)
+            .fillMaxWidth(),
+        background = { index, _ ->
+            Box(
+                modifier = Modifier
+                    .background(backgrounds[index].copy(alpha = 0.3f))
+                    .height(immersiveListHeight)
+                    .fillMaxWidth()
+            )
+        }
+    ) {
+        val focusRestorerModifiers = createCustomInitialFocusRestorerModifiers()
 
-                    Card(
-                        modifier = cardModifier
-                            .semantics {
-                                collectionItemInfo = CollectionItemInfo(0, 1, index, 1)
-                            }
-                            .immersiveListItem(index),
-                        backgroundColor = backgroundColor
-                    )
-                }
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(cardSpacing),
+            modifier = Modifier
+                .lazyListSemantics(1, backgrounds.count())
+                .then(focusRestorerModifiers.parentModifier)
+        ) {
+            itemsIndexed(backgrounds) { index, backgroundColor ->
+                Card(
+                    modifier = Modifier
+                        .semantics {
+                            collectionItemInfo = CollectionItemInfo(0, 1, index, 1)
+                        }
+                        .immersiveListItem(index)
+                        .ifElse(index == 0, focusRestorerModifiers.childModifier),
+                    backgroundColor = backgroundColor
+                )
             }
         }
     }

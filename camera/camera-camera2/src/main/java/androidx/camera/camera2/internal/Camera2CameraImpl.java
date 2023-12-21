@@ -652,9 +652,16 @@ final class Camera2CameraImpl implements CameraInternal {
     @Override
     public void onUseCaseReset(@NonNull UseCase useCase) {
         Preconditions.checkNotNull(useCase);
-        String useCaseId = getUseCaseId(useCase);
         SessionConfig sessionConfig = useCase.getSessionConfig();
         UseCaseConfig<?> useCaseConfig = useCase.getCurrentConfig();
+        resetUseCase(getUseCaseId(useCase), sessionConfig, useCaseConfig);
+    }
+
+    private void resetUseCase(
+            @NonNull String useCaseId,
+            @NonNull SessionConfig sessionConfig,
+            @NonNull UseCaseConfig<?> useCaseConfig
+    ) {
         mExecutor.execute(() -> {
             debugLog("Use case " + useCaseId + " RESET");
             mUseCaseAttachState.updateUseCase(useCaseId, sessionConfig, useCaseConfig);
@@ -976,7 +983,20 @@ final class Camera2CameraImpl implements CameraInternal {
                 if (mMeteringRepeatingSession == null) {
                     mMeteringRepeatingSession = new MeteringRepeatingSession(
                             mCameraInfoInternal.getCameraCharacteristicsCompat(),
-                            mDisplayInfoManager);
+                            mDisplayInfoManager,
+                            () -> {
+                                if (!isMeteringRepeatingAttached()) {
+                                    return;
+                                }
+
+                                SessionConfig sessionConfigMeteringRepeating =
+                                        mMeteringRepeatingSession.getSessionConfig();
+                                UseCaseConfig<?> useCaseConfig =
+                                        mMeteringRepeatingSession.getUseCaseConfig();
+
+                                resetUseCase(getMeteringRepeatingId(mMeteringRepeatingSession),
+                                        sessionConfigMeteringRepeating, useCaseConfig);
+                            });
                 }
                 addMeteringRepeating();
             } else {
@@ -1192,7 +1212,8 @@ final class Camera2CameraImpl implements CameraInternal {
         Map<DeferrableSurface, Long> streamUseCaseMap = new HashMap<>();
         StreamUseCaseUtil.populateSurfaceToStreamUseCaseMapping(
                 mUseCaseAttachState.getAttachedSessionConfigs(),
-                streamUseCaseMap, mCameraCharacteristicsCompat, true);
+                mUseCaseAttachState.getAttachedUseCaseConfigs(),
+                streamUseCaseMap);
 
         mCaptureSession.setStreamUseCaseMap(streamUseCaseMap);
 

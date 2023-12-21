@@ -442,13 +442,16 @@ internal class GraphProcessorTest {
                 arrayListOf(globalListener)
             )
 
+        // Submit a repeating request first to make sure we have one in progress.
+        graphProcessor.startRepeating(request1)
+        advanceUntilIdle()
+
         val result = async {
             graphProcessor.trySubmit(mapOf<CaptureRequest.Key<*>, Any>(CONTROL_AE_LOCK to false))
         }
         advanceUntilIdle()
 
         graphProcessor.onGraphStarted(graphRequestProcessor1)
-        graphProcessor.startRepeating(request1)
         advanceUntilIdle()
 
         assertThat(result.await()).isTrue()
@@ -465,6 +468,10 @@ internal class GraphProcessorTest {
                 arrayListOf(globalListener)
             )
 
+        // Submit a repeating request first to make sure we have one in progress.
+        graphProcessor.startRepeating(request1)
+        advanceUntilIdle()
+
         val result1 = async {
             graphProcessor.trySubmit(mapOf<CaptureRequest.Key<*>, Any>(CONTROL_AE_LOCK to false))
         }
@@ -477,9 +484,6 @@ internal class GraphProcessorTest {
         graphProcessor.onGraphStarted(graphRequestProcessor1)
         advanceUntilIdle()
 
-        graphProcessor.startRepeating(request1)
-        advanceUntilIdle()
-
         val event1 = fakeProcessor1.nextEvent()
         assertThat(event1.requestSequence?.repeating).isTrue()
         val event2 = fakeProcessor1.nextEvent()
@@ -490,6 +494,25 @@ internal class GraphProcessorTest {
 
         assertThat(result1.await()).isFalse()
         assertThat(result2.await()).isTrue()
+    }
+
+    @Test
+    fun trySubmitShouldReturnFalseWhenNoRepeatingRequestIsQueued() = runTest {
+        val graphProcessor =
+            GraphProcessorImpl(
+                FakeThreads.fromTestScope(this),
+                FakeGraphConfigs.graphConfig,
+                graphState3A,
+                this,
+                arrayListOf(globalListener)
+            )
+
+        graphProcessor.onGraphStarted(graphRequestProcessor1)
+        advanceUntilIdle()
+
+        val result =
+            graphProcessor.trySubmit(mapOf<CaptureRequest.Key<*>, Any>(CONTROL_AE_LOCK to true))
+        assertThat(result).isFalse()
     }
 
     @Test

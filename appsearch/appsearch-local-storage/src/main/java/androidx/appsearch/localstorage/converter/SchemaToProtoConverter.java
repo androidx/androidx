@@ -36,7 +36,7 @@ import java.util.List;
 
 /**
  * Translates an {@link AppSearchSchema} into a {@link SchemaTypeConfigProto}.
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class SchemaToProtoConverter {
@@ -99,6 +99,7 @@ public final class SchemaToProtoConverter {
                         .setValueType(
                                 convertJoinableValueTypeToProto(
                                         stringProperty.getJoinableValueType()))
+                        .setPropagateDelete(stringProperty.getDeletionPropagation())
                         .build();
                 builder.setJoinableConfig(joinableConfig);
             }
@@ -188,6 +189,7 @@ public final class SchemaToProtoConverter {
                         .setJoinableValueType(
                                 convertJoinableValueTypeFromProto(
                                         proto.getJoinableConfig().getValueType()))
+                        .setDeletionPropagation(proto.getJoinableConfig().getPropagateDelete())
                         .setTokenizerType(
                                 proto.getStringIndexingConfig().getTokenizerType().getNumber());
 

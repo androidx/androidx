@@ -89,9 +89,6 @@ public class NavBackStackEntry private constructor(
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public companion object {
-        /**
-         * @hide
-         */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun create(
             context: Context?,

@@ -20,12 +20,14 @@ import android.app.Activity
 import android.content.Context
 import android.inputmethodservice.InputMethodService
 import android.os.Build
+import android.util.DisplayMetrics
 import android.view.Display
 import android.view.WindowMetrics as AndroidWindowMetrics
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiContext
 import androidx.core.view.WindowInsetsCompat
+import androidx.window.core.Bounds
 
 /**
  * An interface to calculate the [WindowMetrics] for an [Activity] or a [UiContext].
@@ -153,6 +155,13 @@ interface WindowMetricsCalculator {
                 windowMetrics.bounds,
                 WindowInsetsCompat.toWindowInsetsCompat(windowMetrics.windowInsets)
             )
+
+        internal fun fromDisplayMetrics(displayMetrics: DisplayMetrics): WindowMetrics {
+            return WindowMetrics(
+                    Bounds(0, 0, displayMetrics.widthPixels, displayMetrics.heightPixels),
+                    WindowInsetsCompat.Builder().build()
+                )
+        }
     }
 }
 

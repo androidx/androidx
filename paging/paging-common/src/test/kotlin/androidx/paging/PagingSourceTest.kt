@@ -16,20 +16,19 @@
 
 package androidx.paging
 
+import androidx.kruth.assertThat
 import androidx.paging.PagingSource.LoadParams
 import androidx.paging.PagingSource.LoadResult
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
-import com.google.common.truth.Truth.assertThat
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
-import kotlinx.coroutines.runBlocking
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 
-@RunWith(JUnit4::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class PagingSourceTest {
 
     // ----- STANDARD -----
@@ -50,30 +49,28 @@ class PagingSourceTest {
     }
 
     @Test
-    fun loadInitial() {
-        runBlocking {
-            val pagingSource = ItemDataSource()
-            val key = ITEMS_BY_NAME_ID[49].key()
-            val result = loadInitial(pagingSource, key, 10, true) as LoadResult.Page
+    fun loadInitial() = runTest {
+        val pagingSource = ItemDataSource()
+        val key = ITEMS_BY_NAME_ID[49].key()
+        val result = loadInitial(pagingSource, key, 10, true) as LoadResult.Page
 
-            assertEquals(45, result.itemsBefore)
-            assertEquals(ITEMS_BY_NAME_ID.subList(45, 55), result.data)
-            assertEquals(45, result.itemsAfter)
+        assertEquals(45, result.itemsBefore)
+        assertEquals(ITEMS_BY_NAME_ID.subList(45, 55), result.data)
+        assertEquals(45, result.itemsAfter)
 
-            val errorParams = LoadParams.Refresh(key, 10, false)
-            // Verify error is propagated correctly.
-            pagingSource.enqueueError()
-            assertFailsWith<CustomException> {
-                pagingSource.load(errorParams)
-            }
-            // Verify LoadResult.Invalid is returned
-            pagingSource.invalidateLoad()
-            assertTrue(pagingSource.load(errorParams) is LoadResult.Invalid)
+        val errorParams = LoadParams.Refresh(key, 10, false)
+        // Verify error is propagated correctly.
+        pagingSource.enqueueError()
+        assertFailsWith<CustomException> {
+            pagingSource.load(errorParams)
         }
+        // Verify LoadResult.Invalid is returned
+        pagingSource.invalidateLoad()
+        assertTrue(pagingSource.load(errorParams) is LoadResult.Invalid)
     }
 
     @Test
-    fun loadInitial_keyMatchesSingleItem() = runBlocking {
+    fun loadInitial_keyMatchesSingleItem() = runTest {
         val pagingSource = ItemDataSource(items = ITEMS_BY_NAME_ID.subList(0, 1))
 
         // this is tricky, since load after and load before with the passed key will fail
@@ -86,7 +83,7 @@ class PagingSourceTest {
     }
 
     @Test
-    fun loadInitial_keyMatchesLastItem() = runBlocking {
+    fun loadInitial_keyMatchesLastItem() = runTest {
         val pagingSource = ItemDataSource()
 
         // tricky, because load after key is empty, so another load before and load after required
@@ -99,7 +96,7 @@ class PagingSourceTest {
     }
 
     @Test
-    fun loadInitial_nullKey() = runBlocking {
+    fun loadInitial_nullKey() = runTest {
         val dataSource = ItemDataSource()
 
         val result = loadInitial(dataSource, null, 10, true) as LoadResult.Page
@@ -110,7 +107,7 @@ class PagingSourceTest {
     }
 
     @Test
-    fun loadInitial_keyPastEndOfList() = runBlocking {
+    fun loadInitial_keyPastEndOfList() = runTest {
         val dataSource = ItemDataSource()
 
         // if key is past entire data set, should return last items in data set
@@ -128,7 +125,7 @@ class PagingSourceTest {
     // ----- UNCOUNTED -----
 
     @Test
-    fun loadInitial_disablePlaceholders() = runBlocking {
+    fun loadInitial_disablePlaceholders() = runTest {
         val dataSource = ItemDataSource()
 
         // dispatchLoadInitial(key, count) == null padding, loadAfter(key, count), null padding
@@ -141,7 +138,7 @@ class PagingSourceTest {
     }
 
     @Test
-    fun loadInitial_uncounted() = runBlocking {
+    fun loadInitial_uncounted() = runTest {
         val dataSource = ItemDataSource(counted = false)
 
         // dispatchLoadInitial(key, count) == null padding, loadAfter(key, count), null padding
@@ -154,7 +151,7 @@ class PagingSourceTest {
     }
 
     @Test
-    fun loadInitial_nullKey_uncounted() = runBlocking {
+    fun loadInitial_nullKey_uncounted() = runTest {
         val dataSource = ItemDataSource(counted = false)
 
         val result = loadInitial(dataSource, null, 10, true) as LoadResult.Page
@@ -167,7 +164,7 @@ class PagingSourceTest {
     // ----- EMPTY -----
 
     @Test
-    fun loadInitial_empty() = runBlocking {
+    fun loadInitial_empty() = runTest {
         val dataSource = ItemDataSource(items = ArrayList())
 
         // dispatchLoadInitial(key, count) == null padding, loadAfter(key, count), null padding
@@ -180,7 +177,7 @@ class PagingSourceTest {
     }
 
     @Test
-    fun loadInitial_nullKey_empty() = runBlocking {
+    fun loadInitial_nullKey_empty() = runTest {
         val dataSource = ItemDataSource(items = ArrayList())
         val result = loadInitial(dataSource, null, 10, true) as LoadResult.Page
 
@@ -192,49 +189,45 @@ class PagingSourceTest {
     // ----- Other behavior -----
 
     @Test
-    fun loadBefore() {
+    fun loadBefore() = runTest {
         val dataSource = ItemDataSource()
 
-        runBlocking {
-            val key = ITEMS_BY_NAME_ID[5].key()
-            val params = LoadParams.Prepend(key, 5, false)
-            val observed = (dataSource.load(params) as LoadResult.Page).data
+        val key = ITEMS_BY_NAME_ID[5].key()
+        val params = LoadParams.Prepend(key, 5, false)
+        val observed = (dataSource.load(params) as LoadResult.Page).data
 
-            assertEquals(ITEMS_BY_NAME_ID.subList(0, 5), observed)
+        assertEquals(ITEMS_BY_NAME_ID.subList(0, 5), observed)
 
-            val errorParams = LoadParams.Prepend(key, 5, false)
-            // Verify error is propagated correctly.
-            dataSource.enqueueError()
-            assertFailsWith<CustomException> {
-                dataSource.load(errorParams)
-            }
-            // Verify LoadResult.Invalid is returned
-            dataSource.invalidateLoad()
-            assertTrue(dataSource.load(errorParams) is LoadResult.Invalid)
+        val errorParams = LoadParams.Prepend(key, 5, false)
+        // Verify error is propagated correctly.
+        dataSource.enqueueError()
+        assertFailsWith<CustomException> {
+            dataSource.load(errorParams)
         }
+        // Verify LoadResult.Invalid is returned
+        dataSource.invalidateLoad()
+        assertTrue(dataSource.load(errorParams) is LoadResult.Invalid)
     }
 
     @Test
-    fun loadAfter() {
+    fun loadAfter() = runTest {
         val dataSource = ItemDataSource()
 
-        runBlocking {
-            val key = ITEMS_BY_NAME_ID[5].key()
-            val params = LoadParams.Append(key, 5, false)
-            val observed = (dataSource.load(params) as LoadResult.Page).data
+        val key = ITEMS_BY_NAME_ID[5].key()
+        val params = LoadParams.Append(key, 5, false)
+        val observed = (dataSource.load(params) as LoadResult.Page).data
 
-            assertEquals(ITEMS_BY_NAME_ID.subList(6, 11), observed)
+        assertEquals(ITEMS_BY_NAME_ID.subList(6, 11), observed)
 
-            val errorParams = LoadParams.Append(key, 5, false)
-            // Verify error is propagated correctly.
-            dataSource.enqueueError()
-            assertFailsWith<CustomException> {
-                dataSource.load(errorParams)
-            }
-            // Verify LoadResult.Invalid is returned
-            dataSource.invalidateLoad()
-            assertTrue(dataSource.load(errorParams) is LoadResult.Invalid)
+        val errorParams = LoadParams.Append(key, 5, false)
+        // Verify error is propagated correctly.
+        dataSource.enqueueError()
+        assertFailsWith<CustomException> {
+            dataSource.load(errorParams)
         }
+        // Verify LoadResult.Invalid is returned
+        dataSource.invalidateLoad()
+        assertTrue(dataSource.load(errorParams) is LoadResult.Invalid)
     }
 
     @Test
@@ -263,39 +256,37 @@ class PagingSourceTest {
     }
 
     @Test
-    fun page_iterator() {
+    fun page_iterator() = runTest {
         val dataSource = ItemDataSource()
 
-        runBlocking {
-            val pages = mutableListOf<LoadResult.Page<Key, Item>>()
+        val pages = mutableListOf<LoadResult.Page<Key, Item>>()
 
-            // first page
-            val key = ITEMS_BY_NAME_ID[5].key()
-            val params = LoadParams.Append(key, 5, false)
-            val page = dataSource.load(params) as LoadResult.Page
-            pages.add(page)
+        // first page
+        val key = ITEMS_BY_NAME_ID[5].key()
+        val params = LoadParams.Append(key, 5, false)
+        val page = dataSource.load(params) as LoadResult.Page
+        pages.add(page)
 
-            val iterator = page.iterator()
-            var startIndex = 6
-            val endIndex = 11
-            // iterate normally
-            while (iterator.hasNext() && startIndex < endIndex) {
-                val item = iterator.next()
-                assertThat(item).isEqualTo(ITEMS_BY_NAME_ID[startIndex++])
-            }
-
-            // second page
-            val params2 = LoadParams.Append(
-                ITEMS_BY_NAME_ID[10].key(), 5, false
-            )
-            val page2 = dataSource.load(params2) as LoadResult.Page
-            pages.add(page2)
-
-            // iterate through list of pages
-            assertThat(pages.flatten()).containsExactlyElementsIn(
-                ITEMS_BY_NAME_ID.subList(6, 16)
-            ).inOrder()
+        val iterator = page.iterator()
+        var startIndex = 6
+        val endIndex = 11
+        // iterate normally
+        while (iterator.hasNext() && startIndex < endIndex) {
+            val item = iterator.next()
+            assertThat(item).isEqualTo(ITEMS_BY_NAME_ID[startIndex++])
         }
+
+        // second page
+        val params2 = LoadParams.Append(
+            ITEMS_BY_NAME_ID[10].key(), 5, false
+        )
+        val page2 = dataSource.load(params2) as LoadResult.Page
+        pages.add(page2)
+
+        // iterate through list of pages
+        assertThat(pages.flatten()).containsExactlyElementsIn(
+            ITEMS_BY_NAME_ID.subList(6, 16)
+        ).inOrder()
     }
 
     data class Key(val name: String, val id: Int)

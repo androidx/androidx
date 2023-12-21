@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.input.pointer
 
+import androidx.collection.LongSparseArray
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.node.InternalCoreApi
@@ -61,10 +62,10 @@ internal data class PointerInputEventData(
  */
 @OptIn(InternalCoreApi::class)
 internal expect class InternalPointerEvent(
-    changes: Map<PointerId, PointerInputChange>,
+    changes: LongSparseArray<PointerInputChange>,
     pointerInputEvent: PointerInputEvent
 ) {
-    val changes: Map<PointerId, PointerInputChange>
+    val changes: LongSparseArray<PointerInputChange>
 
     /**
      * Embedded Android Views may consume an event and [ProcessResult] should not

@@ -53,6 +53,10 @@ HSPLandroidx/compose/runtime/SlotTable;->**(**)**
 HSPLandroidx/compose/runtime/SlotTableKt;->**(**)**
 HSPLandroidx/compose/runtime/SlotWriter;->**(**)**
 HSPLandroidx/compose/runtime/SnapshotMutableStateImpl**->**(**)**
+HSPLandroidx/compose/runtime/SnapshotDoubleStateKt**->**(**)**
+HSPLandroidx/compose/runtime/SnapshotFloatStateKt**->**(**)**
+HSPLandroidx/compose/runtime/SnapshotIntStateKt**->**(**)**
+HSPLandroidx/compose/runtime/SnapshotLongStateKt**->**(**)**
 HSPLandroidx/compose/runtime/SnapshotStateKt**->**(**)**
 HSPLandroidx/compose/runtime/SnapshotThreadLocal;->**(**)**
 HSPLandroidx/compose/runtime/StaticProvidableCompositionLocal;->**(**)**

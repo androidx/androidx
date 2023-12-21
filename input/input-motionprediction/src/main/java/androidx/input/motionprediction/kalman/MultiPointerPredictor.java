@@ -123,9 +123,6 @@ public class MultiPointerPredictor implements KalmanPredictor {
             pointerIds[i] = mPredictorMap.keyAt(i);
             SinglePointerPredictor predictor = mPredictorMap.valueAt(i);
             singlePointerEvents[i] = predictor.predict(predictionTargetMs);
-            // If predictor consumer expect more sample, generate sample where position and
-            // pressure are constant
-            singlePointerEvents[i] = predictor.appendPredictedEvent(singlePointerEvents[i]);
         }
 
         // Compute minimal history size for every predicted single pointer MotionEvent

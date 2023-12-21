@@ -61,14 +61,15 @@ fun SnapLayoutInfoProvider(
         }
     }
 
-    private val singleAxisItems: List<LazyGridItemInfo>
-        get() = lazyGridState.layoutInfo.visibleItemsInfo.fastFilter {
+    private fun singleAxisItems(): List<LazyGridItemInfo> {
+        return lazyGridState.layoutInfo.visibleItemsInfo.fastFilter {
             if (lazyGridState.layoutInfo.orientation == Orientation.Horizontal) {
                 it.row == 0
             } else {
                 it.column == 0
             }
         }
+    }
 
     override fun Density.calculateSnappingOffset(
         currentVelocity: Float
@@ -107,13 +108,14 @@ fun SnapLayoutInfoProvider(
     }
 
     override fun Density.calculateSnapStepSize(): Float {
-        return if (singleAxisItems.isNotEmpty()) {
+        val items = singleAxisItems()
+        return if (items.isNotEmpty()) {
             val size = if (layoutInfo.orientation == Orientation.Vertical) {
-                singleAxisItems.fastSumBy { it.size.height }
+                items.fastSumBy { it.size.height }
             } else {
-                singleAxisItems.fastSumBy { it.size.width }
+                items.fastSumBy { it.size.width }
             }
-            size / singleAxisItems.size.toFloat()
+            size / items.size.toFloat()
         } else {
             0f
         }

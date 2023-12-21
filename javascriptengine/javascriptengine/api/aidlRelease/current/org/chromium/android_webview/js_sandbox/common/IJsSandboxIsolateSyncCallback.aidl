@@ -32,7 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package org.chromium.android_webview.js_sandbox.common;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IJsSandboxIsolateSyncCallback {
   void reportResultWithFd(in android.content.res.AssetFileDescriptor afd) = 2;
   void reportErrorWithFd(int errorType, in android.content.res.AssetFileDescriptor afd) = 3;

@@ -42,6 +42,8 @@ class TestUwbClientSessionScope(
     val defaultRangingParameters = RangingParameters(
         RangingParameters.CONFIG_UNICAST_DS_TWR,
         0,
+        0,
+        null,
         null,
         null,
         ImmutableList.of(uwbDevice),

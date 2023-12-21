@@ -26,6 +26,7 @@ import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.squareup.kotlinpoet.INT
 import com.squareup.kotlinpoet.UNIT
 import com.squareup.kotlinpoet.javapoet.JTypeName
@@ -91,6 +92,13 @@ class XRoundEnvTest {
                 var myProperty2: Int = 0
                 @field:OtherAnnotation(value="xx")
                 var myProperty3: Int = 0
+                companion object {
+                    @get:OtherAnnotation(value="xx")
+                    @JvmStatic
+                    val myProperty4: String = ""
+                    @get:OtherAnnotation(value="xx")
+                    const val myProperty5: String = ""
+                }
             }
             """.trimIndent()
         )
@@ -100,16 +108,21 @@ class XRoundEnvTest {
                 OtherAnnotation::class
             )
 
-            val targetElement = testInvocation.processingEnv.requireTypeElement("Baz")
+            val baz = testInvocation.processingEnv.requireTypeElement("Baz")
 
             assertThat(
-                annotatedElements
-            ).apply {
-                hasSize(3)
-
-                contains(targetElement.getDeclaredMethodByJvmName("getMyProperty1"))
-                contains(targetElement.getDeclaredMethodByJvmName("setMyProperty2"))
-                contains(targetElement.getField("myProperty3"))
+                annotatedElements.map { it.name }
+            ).containsExactly(
+                "getMyProperty4",
+                "myProperty3",
+                "getMyProperty1",
+                "setMyProperty2",
+                "getMyProperty4"
+            )
+            baz.getDeclaredMethods().forEach { method ->
+              assertWithMessage("Enclosing element of method ${method.jvmName}")
+                .that(method.enclosingElement.name)
+                .isEqualTo("Baz")
             }
         }
     }

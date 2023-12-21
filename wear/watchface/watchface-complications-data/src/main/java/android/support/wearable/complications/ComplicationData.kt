@@ -60,12 +60,10 @@ import java.util.Objects
  * [isActiveAt] to determine whether the data is valid at that time. See the documentation for each
  * of the complication types below for details of which fields are expected to be displayed.
  *
- * @hide
  */
 @SuppressLint("BanParcelableUsage")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class ComplicationData : Parcelable, Serializable {
-    /** @hide */
     @IntDef(
         TYPE_EMPTY,
         TYPE_NOT_CONFIGURED,
@@ -86,7 +84,6 @@ class ComplicationData : Parcelable, Serializable {
     @Retention(AnnotationRetention.SOURCE)
     annotation class ComplicationType
 
-    /** @hide */
     @IntDef(IMAGE_STYLE_PHOTO, IMAGE_STYLE_ICON)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Retention(AnnotationRetention.SOURCE)
@@ -172,8 +169,8 @@ class ComplicationData : Parcelable, Serializable {
             if (isFieldValidForType(FIELD_VALUE, type)) {
                 oos.writeFloat(complicationData.rangedValue)
             }
-            if (isFieldValidForType(FIELD_VALUE_EXPRESSION, type)) {
-                oos.writeNullable(complicationData.rangedValueExpression) {
+            if (isFieldValidForType(FIELD_DYNAMIC_VALUE, type)) {
+                oos.writeNullable(complicationData.rangedDynamicValue) {
                     oos.writeByteArray(it.toDynamicFloatByteArray())
                 }
             }
@@ -315,9 +312,9 @@ class ComplicationData : Parcelable, Serializable {
             if (isFieldValidForType(FIELD_VALUE, type)) {
                 fields.putFloat(FIELD_VALUE, ois.readFloat())
             }
-            if (isFieldValidForType(FIELD_VALUE_EXPRESSION, type)) {
+            if (isFieldValidForType(FIELD_DYNAMIC_VALUE, type)) {
                 ois.readNullable { ois.readByteArray() }
-                    ?.let { fields.putByteArray(FIELD_VALUE_EXPRESSION, it) }
+                    ?.let { fields.putByteArray(FIELD_DYNAMIC_VALUE, it) }
             }
             if (isFieldValidForType(FIELD_VALUE_TYPE, type)) {
                 fields.putInt(FIELD_VALUE_TYPE, ois.readInt())
@@ -589,25 +586,22 @@ class ComplicationData : Parcelable, Serializable {
         }
 
     /**
-     * Returns true if the ComplicationData contains a ranged value expression. I.e. if
-     * [rangedValueExpression] can succeed.
+     * Returns true if the ComplicationData contains a ranged dynamic value. I.e. if
+     * [rangedDynamicValue] can succeed.
      */
-    fun hasRangedValueExpression(): Boolean =
-        isFieldValidForType(FIELD_VALUE_EXPRESSION, type) &&
-            fields.containsKey(FIELD_VALUE_EXPRESSION)
+    fun hasRangedDynamicValue(): Boolean =
+        isFieldValidForType(FIELD_DYNAMIC_VALUE, type) && fields.containsKey(FIELD_DYNAMIC_VALUE)
 
     /**
-     * Returns the *valueExpression* field for this complication.
+     * Returns the *dynamicValue* field for this complication.
      *
      * Valid only if the type of this complication data is [TYPE_RANGED_VALUE] and
      * [TYPE_GOAL_PROGRESS].
      */
-    val rangedValueExpression: DynamicFloat?
+    val rangedDynamicValue: DynamicFloat?
         get() {
-            checkFieldValidForTypeWithoutThrowingException(FIELD_VALUE_EXPRESSION, type)
-            return fields.getByteArray(FIELD_VALUE_EXPRESSION)?.let {
-                DynamicFloat.fromByteArray(it)
-            }
+            checkFieldValidForTypeWithoutThrowingException(FIELD_DYNAMIC_VALUE, type)
+            return fields.getByteArray(FIELD_DYNAMIC_VALUE)?.let { DynamicFloat.fromByteArray(it) }
         }
 
     /**
@@ -1116,17 +1110,17 @@ class ComplicationData : Parcelable, Serializable {
     val endDateTimeMillis: Long
         get() = fields.getLong(FIELD_END_TIME, Long.MAX_VALUE)
 
-    /** Returns `true` if the complication contains an expression that needs to be evaluated. */
-    fun hasExpression(): Boolean =
-        (hasRangedValueExpression() && rangedValueExpression != null) ||
-            (hasLongText() && longText?.expression != null) ||
-            (hasLongTitle() && longTitle?.expression != null) ||
-            (hasShortText() && shortText?.expression != null) ||
-            (hasShortTitle() && shortTitle?.expression != null) ||
-            (hasContentDescription() && contentDescription?.expression != null) ||
-            (placeholder?.hasExpression() ?: false) ||
-            (timelineEntries?.any { it.hasExpression() } ?: false) ||
-            (listEntries?.any { it.hasExpression() } ?: false)
+    /** Returns `true` if the complication contains a dynamic value that needs to be evaluated. */
+    fun hasDynamicValues(): Boolean =
+        (hasRangedDynamicValue() && rangedDynamicValue != null) ||
+            (hasLongText() && longText?.dynamicValue != null) ||
+            (hasLongTitle() && longTitle?.dynamicValue != null) ||
+            (hasShortText() && shortText?.dynamicValue != null) ||
+            (hasShortTitle() && shortTitle?.dynamicValue != null) ||
+            (hasContentDescription() && contentDescription?.dynamicValue != null) ||
+            (placeholder?.hasDynamicValues() ?: false) ||
+            (timelineEntries?.any { it.hasDynamicValues() } ?: false) ||
+            (listEntries?.any { it.hasDynamicValues() } ?: false)
 
     /**
      * Returns true if the complication data contains at least one text field with a value that may
@@ -1173,17 +1167,16 @@ class ComplicationData : Parcelable, Serializable {
             toStringNoRedaction()
         }
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     fun toStringNoRedaction() = "ComplicationData{mType=$type, mFields=$fields}"
 
     override fun equals(other: Any?): Boolean =
         other is ComplicationData &&
-            equalsWithoutExpressions(other) &&
+            equalsWithoutDynamicValues(other) &&
             (!isFieldValidForType(FIELD_VALUE, type) || rangedValue == other.rangedValue) &&
-            (!isFieldValidForType(FIELD_VALUE_EXPRESSION, type) ||
-                rangedValueExpression?.toDynamicFloatByteArray() contentEquals
-                    other.rangedValueExpression?.toDynamicFloatByteArray()) &&
+            (!isFieldValidForType(FIELD_DYNAMIC_VALUE, type) ||
+                rangedDynamicValue?.toDynamicFloatByteArray() contentEquals
+                    other.rangedDynamicValue?.toDynamicFloatByteArray()) &&
             (!isFieldValidForType(FIELD_SHORT_TITLE, type) || shortTitle == other.shortTitle) &&
             (!isFieldValidForType(FIELD_SHORT_TEXT, type) || shortText == other.shortText) &&
             (!isFieldValidForType(FIELD_LONG_TITLE, type) || longTitle == other.longTitle) &&
@@ -1196,16 +1189,14 @@ class ComplicationData : Parcelable, Serializable {
                 timelineEntries == other.timelineEntries) &&
             (!isFieldValidForType(EXP_FIELD_LIST_ENTRIES, type) || listEntries == other.listEntries)
 
-    /** Similar to [equals], but avoids comparing evaluated fields (if expressions exist). */
+    /** Similar to [equals], but avoids comparing evaluated fields (if dynamic values exist). */
     infix fun equalsUnevaluated(other: ComplicationData): Boolean =
-        equalsWithoutExpressions(other) &&
-            if (
-                !isFieldValidForType(FIELD_VALUE_EXPRESSION, type) || rangedValueExpression == null
-            ) {
+        equalsWithoutDynamicValues(other) &&
+            if (!isFieldValidForType(FIELD_DYNAMIC_VALUE, type) || rangedDynamicValue == null) {
                 !isFieldValidForType(FIELD_VALUE, type) || rangedValue == other.rangedValue
             } else {
-                rangedValueExpression?.toDynamicFloatByteArray() contentEquals
-                    other.rangedValueExpression?.toDynamicFloatByteArray()
+                rangedDynamicValue?.toDynamicFloatByteArray() contentEquals
+                    other.rangedDynamicValue?.toDynamicFloatByteArray()
             } &&
             (!isFieldValidForType(FIELD_SHORT_TITLE, type) ||
                 shortTitle equalsUnevaluated other.shortTitle) &&
@@ -1243,12 +1234,12 @@ class ComplicationData : Parcelable, Serializable {
         if (this == null && other == null) return true
         if (this == null || other == null) return false
         // Both are non-null.
-        if (this.expression == null) return equals(other)
-        return this.expression?.toDynamicStringByteArray() contentEquals
-            other.expression?.toDynamicStringByteArray()
+        if (this.dynamicValue == null) return equals(other)
+        return this.dynamicValue?.toDynamicStringByteArray() contentEquals
+            other.dynamicValue?.toDynamicStringByteArray()
     }
 
-    private fun equalsWithoutExpressions(other: ComplicationData): Boolean =
+    private fun equalsWithoutDynamicValues(other: ComplicationData): Boolean =
         this === other ||
             (type == other.type &&
                 (!isFieldValidForType(FIELD_TAP_ACTION_LOST, type) ||
@@ -1324,8 +1315,8 @@ class ComplicationData : Parcelable, Serializable {
             if (isFieldValidForType(EXP_FIELD_LIST_ENTRIES, type)) listEntries else null,
             if (isFieldValidForType(FIELD_DATA_SOURCE, type)) dataSource else null,
             if (isFieldValidForType(FIELD_VALUE, type)) rangedValue else null,
-            if (isFieldValidForType(FIELD_VALUE_EXPRESSION, type)) {
-                Arrays.hashCode(rangedValueExpression?.toDynamicFloatByteArray())
+            if (isFieldValidForType(FIELD_DYNAMIC_VALUE, type)) {
+                Arrays.hashCode(rangedDynamicValue?.toDynamicFloatByteArray())
             } else {
                 null
             },
@@ -1485,15 +1476,15 @@ class ComplicationData : Parcelable, Serializable {
         fun setRangedValue(value: Float?) = apply { putOrRemoveField(FIELD_VALUE, value) }
 
         /**
-         * Sets the *valueExpression* field. It is evaluated to a value with the same limitations as
+         * Sets the *dynamicValue* field. It is evaluated to a value with the same limitations as
          * [setRangedValue].
          *
          * Returns this Builder to allow chaining.
          *
          * @throws IllegalStateException if this field is not valid for the complication type
          */
-        fun setRangedValueExpression(value: DynamicFloat?) = apply {
-            putOrRemoveField(FIELD_VALUE_EXPRESSION, value?.toDynamicFloatByteArray())
+        fun setRangedDynamicValue(value: DynamicFloat?) = apply {
+            putOrRemoveField(FIELD_DYNAMIC_VALUE, value?.toDynamicFloatByteArray())
         }
 
         /**
@@ -2162,7 +2153,7 @@ class ComplicationData : Parcelable, Serializable {
         private const val FIELD_TIMELINE_ENTRIES = "TIMELINE"
         private const val FIELD_TIMELINE_ENTRY_TYPE = "TIMELINE_ENTRY_TYPE"
         private const val FIELD_VALUE = "VALUE"
-        private const val FIELD_VALUE_EXPRESSION = "VALUE_EXPRESSION"
+        private const val FIELD_DYNAMIC_VALUE = "DYNAMIC_VALUE"
         private const val FIELD_VALUE_TYPE = "VALUE_TYPE"
 
         // Experimental fields, these are subject to change without notice.
@@ -2235,7 +2226,7 @@ class ComplicationData : Parcelable, Serializable {
                 TYPE_EMPTY to setOf(),
                 TYPE_SHORT_TEXT to setOf(),
                 TYPE_LONG_TEXT to setOf(),
-                TYPE_RANGED_VALUE to setOf(setOf(FIELD_VALUE, FIELD_VALUE_EXPRESSION)),
+                TYPE_RANGED_VALUE to setOf(setOf(FIELD_VALUE, FIELD_DYNAMIC_VALUE)),
                 TYPE_ICON to setOf(),
                 TYPE_SMALL_IMAGE to setOf(),
                 TYPE_LARGE_IMAGE to setOf(),
@@ -2243,7 +2234,7 @@ class ComplicationData : Parcelable, Serializable {
                 TYPE_NO_DATA to setOf(),
                 EXP_TYPE_PROTO_LAYOUT to setOf(),
                 EXP_TYPE_LIST to setOf(),
-                TYPE_GOAL_PROGRESS to setOf(setOf(FIELD_VALUE, FIELD_VALUE_EXPRESSION)),
+                TYPE_GOAL_PROGRESS to setOf(setOf(FIELD_VALUE, FIELD_DYNAMIC_VALUE)),
                 TYPE_WEIGHTED_ELEMENTS to setOf(),
             )
 
@@ -2353,7 +2344,7 @@ class ComplicationData : Parcelable, Serializable {
                         FIELD_TAP_ACTION_LOST,
                         FIELD_TARGET_VALUE,
                         FIELD_VALUE,
-                        FIELD_VALUE_EXPRESSION,
+                        FIELD_DYNAMIC_VALUE,
                         FIELD_VALUE_TYPE,
                         EXP_FIELD_LIST_ENTRIES,
                         EXP_FIELD_LIST_ENTRY_TYPE,

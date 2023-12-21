@@ -47,4 +47,38 @@
         app:layout_constraintTop_toTopOf="parent"
         app:navGraph="@navigation/nav_graph" />
 
+    <LinearLayout
+        android:id="@+id/layout_bluetooth_disabled"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/red_500"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/bluetooth_is_disabled"
+            android:textColor="@color/white"
+            android:textSize="19sp" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/button_enable"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/enable" />
+
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

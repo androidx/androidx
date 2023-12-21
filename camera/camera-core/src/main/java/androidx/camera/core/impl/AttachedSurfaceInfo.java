@@ -55,6 +55,23 @@ public abstract class AttachedSurfaceInfo {
                 dynamicRange, captureTypes, implementationOptions, targetFrameRate);
     }
 
+    /**
+     * Obtains the StreamSpec from the given AttachedSurfaceInfo with the given
+     * implementationOptions.
+     */
+    @NonNull
+    public StreamSpec toStreamSpec(
+            @NonNull Config implementationOptions) {
+        StreamSpec.Builder streamSpecBuilder =
+                StreamSpec.builder(getSize())
+                        .setDynamicRange(getDynamicRange())
+                        .setImplementationOptions(implementationOptions);
+        if (getTargetFrameRate() != null) {
+            streamSpecBuilder.setExpectedFrameRateRange(getTargetFrameRate());
+        }
+        return streamSpecBuilder.build();
+    }
+
     /** Returns the SurfaceConfig. */
     @NonNull
     public abstract SurfaceConfig getSurfaceConfig();

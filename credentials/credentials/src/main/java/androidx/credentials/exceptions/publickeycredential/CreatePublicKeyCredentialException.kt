@@ -29,7 +29,6 @@ import androidx.credentials.exceptions.CreateCredentialException
  * @throws IllegalArgumentException if [type] is empty
  */
 open class CreatePublicKeyCredentialException @JvmOverloads internal constructor(
-    /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override val type: String,
     errorMessage: CharSequence? = null

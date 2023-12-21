@@ -56,6 +56,7 @@ import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.toApiFormat
 import androidx.wear.watchface.utility.TraceEvent
+import androidx.wear.watchface.utility.aidlMethod
 import java.time.Instant
 import java.util.concurrent.Executor
 
@@ -422,34 +423,39 @@ internal constructor(
 
     private val iWatchFaceListener =
         object : IWatchfaceListener.Stub() {
-            override fun getApiVersion() = IWatchfaceListener.API_VERSION
+            override fun getApiVersion() =
+                aidlMethod(TAG, "getApiVersion") { IWatchfaceListener.API_VERSION }
 
-            override fun onWatchfaceReady() {
-                this@InteractiveWatchFaceClientImpl.onWatchFaceReady()
-            }
-
-            override fun onWatchfaceColorsChanged(watchFaceColors: WatchFaceColorsWireFormat?) {
-                var listenerCopy: HashMap<Consumer<WatchFaceColors?>, Executor>
-
-                synchronized(lock) {
-                    listenerCopy = HashMap(watchFaceColorsChangeListeners)
-                    lastWatchFaceColors = watchFaceColors?.toApiFormat()
+            override fun onWatchfaceReady() =
+                aidlMethod(TAG, "onWatchfaceReady") {
+                    this@InteractiveWatchFaceClientImpl.onWatchFaceReady()
                 }
 
-                for ((listener, executor) in listenerCopy) {
-                    executor.execute { listener.accept(lastWatchFaceColors) }
-                }
-            }
+            override fun onWatchfaceColorsChanged(watchFaceColors: WatchFaceColorsWireFormat?) =
+                aidlMethod(TAG, "onWatchfaceColorsChanged") {
+                    var listenerCopy: HashMap<Consumer<WatchFaceColors?>, Executor>
 
-            override fun onPreviewImageUpdateRequested(watchFaceId: String) {
-                previewImageUpdateRequestedExecutor?.execute {
-                    previewImageUpdateRequestedListener!!.accept(watchFaceId)
-                }
-            }
+                    synchronized(lock) {
+                        listenerCopy = HashMap(watchFaceColorsChangeListeners)
+                        lastWatchFaceColors = watchFaceColors?.toApiFormat()
+                    }
 
-            override fun onEngineDetached() {
-                sendDisconnectNotification(DisconnectReasons.ENGINE_DETACHED)
-            }
+                    for ((listener, executor) in listenerCopy) {
+                        executor.execute { listener.accept(lastWatchFaceColors) }
+                    }
+                }
+
+            override fun onPreviewImageUpdateRequested(watchFaceId: String): Unit =
+                aidlMethod(TAG, "onPreviewImageUpdateRequested") {
+                    previewImageUpdateRequestedExecutor?.execute {
+                        previewImageUpdateRequestedListener!!.accept(watchFaceId)
+                    }
+                }
+
+            override fun onEngineDetached() =
+                aidlMethod(TAG, "onEngineDetached") {
+                    sendDisconnectNotification(DisconnectReasons.ENGINE_DETACHED)
+                }
         }
 
     init {
@@ -658,11 +664,13 @@ internal constructor(
             iInteractiveWatchFace.apiVersion >= 2 -> {
                 iInteractiveWatchFace.addWatchfaceReadyListener(
                     object : IWatchfaceReadyListener.Stub() {
-                        override fun getApiVersion(): Int = IWatchfaceReadyListener.API_VERSION
+                        override fun getApiVersion(): Int =
+                            aidlMethod(TAG, "getApiVersion") { IWatchfaceReadyListener.API_VERSION }
 
-                        override fun onWatchfaceReady() {
-                            this@InteractiveWatchFaceClientImpl.onWatchFaceReady()
-                        }
+                        override fun onWatchfaceReady() =
+                            aidlMethod(TAG, "onWatchfaceReady") {
+                                this@InteractiveWatchFaceClientImpl.onWatchFaceReady()
+                            }
                     }
                 )
             }
@@ -771,4 +779,8 @@ internal constructor(
         }
 
     override fun isComplicationDisplayPolicySupported() = iInteractiveWatchFace.apiVersion >= 8
+
+    companion object {
+        private const val TAG = "InteractiveWatchFaceClientImpl"
+    }
 }

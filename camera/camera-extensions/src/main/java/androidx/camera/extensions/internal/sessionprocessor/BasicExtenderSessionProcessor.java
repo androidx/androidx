@@ -49,6 +49,9 @@ import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.camera.extensions.impl.PreviewImageProcessorImpl;
 import androidx.camera.extensions.impl.RequestUpdateProcessorImpl;
+import androidx.camera.extensions.internal.ClientVersion;
+import androidx.camera.extensions.internal.ExtensionVersion;
+import androidx.camera.extensions.internal.Version;
 import androidx.camera.extensions.internal.compat.workaround.OnEnableDisableSessionDurationCheck;
 import androidx.core.util.Preconditions;
 
@@ -91,16 +94,19 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
     static AtomicInteger sLastOutputConfigId = new AtomicInteger(0);
     @GuardedBy("mLock")
     private final Map<CaptureRequest.Key<?>, Object> mParameters = new LinkedHashMap<>();
+    private final List<CaptureResult.Key> mSupportedResultKeys;
     private OnEnableDisableSessionDurationCheck mOnEnableDisableSessionDurationCheck =
             new OnEnableDisableSessionDurationCheck();
 
     public BasicExtenderSessionProcessor(@NonNull PreviewExtenderImpl previewExtenderImpl,
             @NonNull ImageCaptureExtenderImpl imageCaptureExtenderImpl,
-            @NonNull List<CaptureRequest.Key> supportedKeys,
+            @NonNull List<CaptureRequest.Key> supportedRequestKeys,
+            @NonNull List<CaptureResult.Key> supportedResultKeys,
             @NonNull Context context) {
-        super(supportedKeys);
+        super(supportedRequestKeys);
         mPreviewExtenderImpl = previewExtenderImpl;
         mImageCaptureExtenderImpl = imageCaptureExtenderImpl;
+        mSupportedResultKeys = supportedResultKeys;
         mContext = context;
     }
 
@@ -275,7 +281,6 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
                             }
                         }
                     });
-            mPreviewProcessor.start();
         }
     }
 
@@ -349,6 +354,27 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
         mIsCapturing = false;
     }
 
+    Map<CaptureResult.Key, Object> getCaptureResultKeyMapFromList(
+            List<Pair<CaptureResult.Key, Object>> list) {
+        Map<CaptureResult.Key, Object> map = new HashMap<>();
+        for (Pair<CaptureResult.Key, Object> pair : list) {
+            map.put(pair.first, pair.second);
+        }
+        return map;
+    }
+
+
+    Map<CaptureResult.Key, Object> getCaptureResultKeyMaps(TotalCaptureResult captureResult) {
+        Map<CaptureResult.Key, Object> map = new HashMap<>();
+        for (CaptureResult.Key<?> key : captureResult.getKeys()) {
+            if (mSupportedResultKeys.contains(key)) {
+                map.put(key, captureResult.get(key));
+            }
+        }
+        return map;
+    }
+
+
     @Override
     public int startRepeating(@NonNull CaptureCallback captureCallback) {
         int repeatingCaptureSequenceId = mNextCaptureSequenceId.getAndIncrement();
@@ -356,6 +382,12 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
             captureCallback.onCaptureFailed(repeatingCaptureSequenceId);
             captureCallback.onCaptureSequenceAborted(repeatingCaptureSequenceId);
         } else {
+            if (mPreviewProcessor != null) {
+                mPreviewProcessor.start((shutterTimestamp, result) -> {
+                    captureCallback.onCaptureCompleted(shutterTimestamp,
+                            repeatingCaptureSequenceId, getCaptureResultKeyMapFromList(result));
+                });
+            }
             updateRepeating(repeatingCaptureSequenceId, captureCallback);
         }
 
@@ -389,6 +421,17 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
 
                 if (mPreviewProcessor != null) {
                     mPreviewProcessor.notifyCaptureResult(totalCaptureResult);
+                } else {
+                    if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_3)
+                            && ExtensionVersion
+                            .isMinimumCompatibleVersion(Version.VERSION_1_3)) {
+                        Long timestamp = totalCaptureResult.get(CaptureResult.SENSOR_TIMESTAMP);
+                        if (timestamp != null) {
+                            captureCallback.onCaptureCompleted(timestamp,
+                                    repeatingCaptureSequenceId,
+                                    getCaptureResultKeyMaps(totalCaptureResult));
+                        }
+                    }
                 }
 
                 if (mRequestUpdateProcessor != null) {
@@ -528,6 +571,13 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
                         public void onError(@NonNull Exception e) {
                             captureCallback.onCaptureFailed(captureSequenceId);
                             mIsCapturing = false;
+                        }
+
+                        @Override
+                        public void onCaptureResult(long shutterTimestamp,
+                                @NonNull List<Pair<CaptureResult.Key, Object>> result) {
+                            captureCallback.onCaptureCompleted(shutterTimestamp,
+                                    captureSequenceId, getCaptureResultKeyMapFromList(result));
                         }
                     });
         }

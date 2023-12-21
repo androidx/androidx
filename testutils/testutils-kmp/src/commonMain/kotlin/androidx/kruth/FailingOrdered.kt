@@ -16,16 +16,15 @@
 
 package androidx.kruth
 
-import kotlin.test.fail
-
 /**
  * Always fails with the provided error message.
  */
 internal class FailingOrdered(
+    private val asserter: KruthAsserter,
     private val message: () -> String,
 ) : Ordered {
 
     override fun inOrder() {
-        fail(message())
+        asserter.fail(message())
     }
 }

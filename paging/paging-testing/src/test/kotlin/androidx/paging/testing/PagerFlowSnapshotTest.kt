@@ -26,7 +26,6 @@ import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -37,8 +36,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -68,17 +65,12 @@ class PagerFlowSnapshotTest(
         loadDelay
     )
 
-    @Before
-    fun init() {
-        Dispatchers.setMain(UnconfinedTestDispatcher())
-    }
-
     @Test
     fun initialRefresh() {
         val dataFlow = flowOf(List(30) { it })
         val pager = createPager(dataFlow)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this)
+            val snapshot = pager.asSnapshot()
             // first page + prefetched page
             assertThat(snapshot).containsExactlyElementsIn(
                 listOf(0, 1, 2, 3, 4, 5, 6, 7)
@@ -91,7 +83,7 @@ class PagerFlowSnapshotTest(
         val data = List(30) { it }
         val pager = createPager(data)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this)
+            val snapshot = pager.asSnapshot()
             // first page + prefetched page
             assertThat(snapshot).containsExactlyElementsIn(
                 listOf(0, 1, 2, 3, 4, 5, 6, 7)
@@ -104,7 +96,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(30) { it })
         val pager = createPager(dataFlow)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {}
+            val snapshot = pager.asSnapshot {}
             // first page + prefetched page
             assertThat(snapshot).containsExactlyElementsIn(
                 listOf(0, 1, 2, 3, 4, 5, 6, 7)
@@ -121,7 +113,7 @@ class PagerFlowSnapshotTest(
             }
         }
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this)
+            val snapshot = pager.asSnapshot()
             // loads 8[initial 5 + prefetch 3] items total, including separators
             assertThat(snapshot).containsExactlyElementsIn(
                 listOf(0, "sep", 1, "sep", 2, "sep", 3, "sep", 4)
@@ -134,7 +126,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(30) { it })
         val pager = createPagerNoPrefetch(dataFlow)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this)
+            val snapshot = pager.asSnapshot()
 
             assertThat(snapshot).containsExactlyElementsIn(
                 listOf(0, 1, 2, 3, 4)
@@ -147,7 +139,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(30) { it })
         val pager = createPager(dataFlow, 10)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this)
+            val snapshot = pager.asSnapshot()
 
             assertThat(snapshot).containsExactlyElementsIn(
                 listOf(7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17)
@@ -160,7 +152,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(30) { it })
         val pager = createPagerNoPrefetch(dataFlow, 10)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this)
+            val snapshot = pager.asSnapshot()
 
             assertThat(snapshot).containsExactlyElementsIn(
                 listOf(10, 11, 12, 13, 14)
@@ -173,7 +165,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = emptyFlow<List<Int>>()
         val pager = createPager(dataFlow)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this)
+            val snapshot = pager.asSnapshot()
 
             assertThat(snapshot).containsExactlyElementsIn(
                 emptyList<Int>()
@@ -186,7 +178,7 @@ class PagerFlowSnapshotTest(
         val data = emptyList<Int>()
         val pager = createPager(data)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this)
+            val snapshot = pager.asSnapshot()
 
             assertThat(snapshot).containsExactlyElementsIn(
                 emptyList<Int>()
@@ -199,7 +191,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = emptyFlow<List<Int>>()
         val pager = createPager(dataFlow)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this)
+            val snapshot = pager.asSnapshot()
 
             assertThat(snapshot).containsExactlyElementsIn(
                 emptyList<Int>()
@@ -212,7 +204,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(30) { it })
         val pager = createPagerNoPrefetch(dataFlow).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 refresh()
             }
             assertThat(snapshot).containsExactlyElementsIn(
@@ -226,7 +218,7 @@ class PagerFlowSnapshotTest(
         val data = List(30) { it }
         val pager = createPager(data)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 refresh()
             }
             assertThat(snapshot).containsExactlyElementsIn(
@@ -245,7 +237,7 @@ class PagerFlowSnapshotTest(
             pagingSourceFactory = { factory().also { sources.add(it) } },
         ).flow
         testScope.runTest {
-            pager.asSnapshot(this) {
+            pager.asSnapshot {
                 refresh()
             }
             assertThat(sources.first().invalid).isTrue()
@@ -257,7 +249,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = emptyFlow<List<Int>>()
         val pager = createPagerNoPrefetch(dataFlow)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 refresh()
             }
             assertThat(snapshot).containsExactlyElementsIn(
@@ -271,7 +263,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(30) { it })
         val pager = createPager(dataFlow)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 appendScrollWhile { item: Int ->
                     item < 14
                 }
@@ -291,7 +283,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(30) { it })
         val pager = createPagerWithDrops(dataFlow)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 appendScrollWhile { item ->
                     item < 14
                 }
@@ -312,7 +304,7 @@ class PagerFlowSnapshotTest(
             }
         }
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 appendScrollWhile { item ->
                     item !is Int || item < 14
                 }
@@ -335,7 +327,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(50) { it })
         val pager = createPagerNoPrefetch(dataFlow)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 appendScrollWhile { item: Int ->
                     item < 14
                 }
@@ -353,7 +345,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(50) { it })
         val pager = createPagerNoPlaceholders(dataFlow)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 appendScrollWhile { item: Int ->
                     item != 14
                 }
@@ -373,7 +365,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(30) { it })
         val pager = createPager(dataFlow, 20)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 prependScrollWhile { item: Int ->
                     item > 14
                 }
@@ -393,7 +385,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(30) { it })
         val pager = createPagerWithDrops(dataFlow, 20)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 prependScrollWhile { item: Int ->
                     item > 14
                 }
@@ -414,7 +406,7 @@ class PagerFlowSnapshotTest(
             }
         }
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 prependScrollWhile { item ->
                     item !is Int || item > 14
                 }
@@ -437,7 +429,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(30) { it })
         val pager = createPagerNoPrefetch(dataFlow, 20)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 prependScrollWhile { item: Int ->
                     item > 14
                 }
@@ -455,7 +447,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(50) { it })
         val pager = createPagerNoPlaceholders(dataFlow, 30)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 prependScrollWhile { item: Int ->
                     item != 22
                 }
@@ -477,7 +469,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(30) { it })
         val pager = createPager(dataFlow, 10)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 appendScrollWhile { item: Int ->
                     item < 18
                 }
@@ -497,7 +489,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(30) { it })
         val pager = createPagerNoPlaceholders(dataFlow, 10)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 appendScrollWhile { item: Int ->
                     item != 19
                 }
@@ -517,7 +509,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(30) { it })
         val pager = createPagerNoPrefetch(dataFlow, 10)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 appendScrollWhile { item: Int ->
                     item < 18
                 }
@@ -535,7 +527,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(30) { it })
         val pager = createPager(dataFlow)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 prependScrollWhile { item: Int ->
                     item > -3
                 }
@@ -553,13 +545,13 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(30) { it })
         val pager = createPager(dataFlow).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot1 = pager.asSnapshot(this) {
+            val snapshot1 = pager.asSnapshot {
                 appendScrollWhile { item: Int ->
                     item < 7
                 }
             }
 
-            val snapshot2 = pager.asSnapshot(this) {
+            val snapshot2 = pager.asSnapshot {
                 appendScrollWhile { item: Int ->
                     item < 22
                 }
@@ -582,7 +574,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(30) { it })
         val pager = createPagerNoPrefetch(dataFlow, 20).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot1 = pager.asSnapshot(this) {
+            val snapshot1 = pager.asSnapshot {
                 prependScrollWhile { item: Int ->
                     item > 17
                 }
@@ -590,7 +582,7 @@ class PagerFlowSnapshotTest(
             assertThat(snapshot1).containsExactlyElementsIn(
                 listOf(17, 18, 19, 20, 21, 22, 23, 24)
             )
-            val snapshot2 = pager.asSnapshot(this) {
+            val snapshot2 = pager.asSnapshot {
                 prependScrollWhile { item: Int ->
                     item > 11
                 }
@@ -606,7 +598,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(10) { it })
         val pager = createPager(dataFlow)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 appendScrollWhile { item: Int ->
                     // condition scrolls till end of data since we only have 10 items
                     item < 18
@@ -625,7 +617,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(20) { it })
         val pager = createPager(dataFlow, 10)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 prependScrollWhile { item: Int ->
                     // condition scrolls till index = 0
                     item > -3
@@ -646,7 +638,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(30) { it })
         val pager = createPager(dataFlow).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 refresh() // triggers second gen
                 appendScrollWhile { item: Int ->
                     item < 10
@@ -663,7 +655,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(30) { it })
         val pager = createPager(dataFlow, 20).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 // this prependScrollWhile does not cause paging to load more items
                 // but it helps this test register a non-null anchorPosition so the upcoming
                 // refresh doesn't start at index 0
@@ -690,7 +682,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(30) { it })
         val pager = createPager(dataFlow).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 appendScrollWhile { item: Int ->
                     item < 10
                 }
@@ -710,7 +702,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(30) { it })
         val pager = createPager(dataFlow, 15).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 prependScrollWhile { item: Int ->
                     item > 8
                 }
@@ -740,21 +732,21 @@ class PagerFlowSnapshotTest(
         }
         val pager = createPagerNoPrefetch(dataFlow).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot1 = pager.asSnapshot(this)
+            val snapshot1 = pager.asSnapshot()
             assertThat(snapshot1).containsExactlyElementsIn(
                 emptyList<Int>()
             )
 
             delay(500)
 
-            val snapshot2 = pager.asSnapshot(this)
+            val snapshot2 = pager.asSnapshot()
             assertThat(snapshot2).containsExactlyElementsIn(
                 listOf(0, 1, 2, 3, 4)
             )
 
             delay(500)
 
-            val snapshot3 = pager.asSnapshot(this)
+            val snapshot3 = pager.asSnapshot()
             assertThat(snapshot3).containsExactlyElementsIn(
                 listOf(30, 31, 32, 33, 34)
             )
@@ -766,19 +758,19 @@ class PagerFlowSnapshotTest(
         val dataFlow = MutableSharedFlow<List<Int>>()
         val pager = createPagerNoPrefetch(dataFlow).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot1 = pager.asSnapshot(this)
+            val snapshot1 = pager.asSnapshot()
             assertThat(snapshot1).containsExactlyElementsIn(
                 emptyList<Int>()
             )
 
-            val snapshot2 = pager.asSnapshot(this) {
+            val snapshot2 = pager.asSnapshot {
                 dataFlow.emit(List(30) { it })
             }
             assertThat(snapshot2).containsExactlyElementsIn(
                 listOf(0, 1, 2, 3, 4)
             )
 
-            val snapshot3 = pager.asSnapshot(this) {
+            val snapshot3 = pager.asSnapshot {
                 dataFlow.emit(List(30) { it + 30 })
             }
             assertThat(snapshot3).containsExactlyElementsIn(
@@ -793,19 +785,19 @@ class PagerFlowSnapshotTest(
         val pager = createPagerNoPrefetch(dataFlow).cachedIn(testScope.backgroundScope)
         testScope.runTest {
             dataFlow.emit(emptyList())
-            val snapshot1 = pager.asSnapshot(this)
+            val snapshot1 = pager.asSnapshot()
             assertThat(snapshot1).containsExactlyElementsIn(
                 emptyList<Int>()
             )
 
             dataFlow.emit(List(30) { it })
-            val snapshot2 = pager.asSnapshot(this)
+            val snapshot2 = pager.asSnapshot()
             assertThat(snapshot2).containsExactlyElementsIn(
                 listOf(0, 1, 2, 3, 4)
             )
 
             dataFlow.emit(List(30) { it + 30 })
-            val snapshot3 = pager.asSnapshot(this)
+            val snapshot3 = pager.asSnapshot()
             assertThat(snapshot3).containsExactlyElementsIn(
                 listOf(30, 31, 32, 33, 34)
             )
@@ -825,7 +817,7 @@ class PagerFlowSnapshotTest(
         }
         val pager = createPagerNoPrefetch(dataFlow).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot1 = pager.asSnapshot(this) {
+            val snapshot1 = pager.asSnapshot {
                 // we scroll to register a non-null anchorPos
                 appendScrollWhile { item: Int ->
                     item < 5
@@ -836,7 +828,7 @@ class PagerFlowSnapshotTest(
             )
 
             delay(1000)
-            val snapshot2 = pager.asSnapshot(this)
+            val snapshot2 = pager.asSnapshot()
             // anchorPos = 5, refreshKey = 3
             assertThat(snapshot2).containsExactlyElementsIn(
                 listOf(3, 4, 5, 6, 7)
@@ -857,13 +849,13 @@ class PagerFlowSnapshotTest(
         }
         val pager = createPagerNoPrefetch(dataFlow, 10).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot1 = pager.asSnapshot(this)
+            val snapshot1 = pager.asSnapshot()
             assertThat(snapshot1).containsExactlyElementsIn(
                 listOf(10, 11, 12, 13, 14)
             )
 
             delay(500)
-            val snapshot2 = pager.asSnapshot(this)
+            val snapshot2 = pager.asSnapshot()
             assertThat(snapshot2).containsExactlyElementsIn(
                 listOf(0, 1, 2, 3, 4)
             )
@@ -883,7 +875,7 @@ class PagerFlowSnapshotTest(
         }
         val pager = createPagerNoPrefetch(dataFlow, 10).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot1 = pager.asSnapshot(this) {
+            val snapshot1 = pager.asSnapshot {
                 // we scroll to register a non-null anchorPos
                 appendScrollWhile { item: Int ->
                     item < 15
@@ -894,7 +886,7 @@ class PagerFlowSnapshotTest(
             )
 
             delay(1000)
-            val snapshot2 = pager.asSnapshot(this)
+            val snapshot2 = pager.asSnapshot()
             // anchorPos = 15, refreshKey = 13
             assertThat(snapshot2).containsExactlyElementsIn(
                 listOf(13, 14, 15, 16, 17)
@@ -907,7 +899,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPager(dataFlow, 50)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 scrollTo(42)
             }
             // initial load [50-54]
@@ -927,7 +919,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPagerWithDrops(dataFlow, 50)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 scrollTo(42)
             }
             // dropped [47-57]
@@ -946,7 +938,7 @@ class PagerFlowSnapshotTest(
             }
         }
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 scrollTo(42)
             }
             // initial load [50-54]
@@ -967,7 +959,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPager(dataFlow, 50)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 scrollTo(42)
                 scrollTo(38)
             }
@@ -989,7 +981,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPager(dataFlow, 50)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 scrollTo(42)
             }
             // initial load [50-54]
@@ -1002,7 +994,7 @@ class PagerFlowSnapshotTest(
                 )
             )
 
-            val snapshot2 = pager.asSnapshot(this) {
+            val snapshot2 = pager.asSnapshot {
                 scrollTo(38)
             }
             // prefetched [35-37]
@@ -1020,7 +1012,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPager(dataFlow, 5).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 scrollTo(-5)
             }
             // ensure index is capped when no more data to load
@@ -1038,7 +1030,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPager(dataFlow, 50).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 scrollTo(47)
             }
             // ensure that SnapshotLoader waited for last prefetch before returning
@@ -1056,7 +1048,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPagerNoPrefetch(dataFlow, 50)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 scrollTo(42)
             }
             // initial load [50-54]
@@ -1072,7 +1064,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPagerNoPlaceholders(dataFlow, 50).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 // Without placeholders, first loaded page always starts at index[0]
                 scrollTo(0)
             }
@@ -1090,7 +1082,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPagerNoPlaceholders(dataFlow, 50).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 scrollTo(-5)
             }
             // ensure it honors negative indices starting with index[0] = item[47]
@@ -1111,7 +1103,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPagerNoPlaceholders(dataFlow, 5).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 scrollTo(-5)
             }
             // ensure index is capped when no more data to load
@@ -1129,7 +1121,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPagerNoPlaceholders(dataFlow, 50).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 // Without placeholders, first loaded page always starts at index[0]
                 scrollTo(-1)
                 // Without placeholders, first loaded page always starts at index[0]
@@ -1155,7 +1147,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPagerNoPlaceholders(dataFlow, 50).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 // Without placeholders, first loaded page always starts at index[0]
                 scrollTo(-1)
             }
@@ -1167,7 +1159,7 @@ class PagerFlowSnapshotTest(
                 listOf(41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57)
             )
 
-            val snapshot2 = pager.asSnapshot(this) {
+            val snapshot2 = pager.asSnapshot {
                 // Without placeholders, first loaded page always starts at index[0]
                 scrollTo(-5)
             }
@@ -1197,7 +1189,7 @@ class PagerFlowSnapshotTest(
             pagingSourceFactory = createFactory(dataFlow),
         ).flow.cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 // Without placeholders, first loaded page always starts at index[0]
                 scrollTo(0)
             }
@@ -1215,7 +1207,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPager(dataFlow)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 scrollTo(12)
             }
             // initial load [0-4]
@@ -1233,7 +1225,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPagerWithDrops(dataFlow)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 scrollTo(12)
             }
             // dropped [0-7]
@@ -1252,7 +1244,7 @@ class PagerFlowSnapshotTest(
             }
         }
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 scrollTo(12)
             }
             // initial load [0-4]
@@ -1270,7 +1262,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPager(dataFlow)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 scrollTo(12)
                 scrollTo(18)
             }
@@ -1290,7 +1282,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPager(dataFlow)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 scrollTo(12)
             }
             // initial load [0-4]
@@ -1301,7 +1293,7 @@ class PagerFlowSnapshotTest(
                 listOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)
             )
 
-            val snapshot2 = pager.asSnapshot(this) {
+            val snapshot2 = pager.asSnapshot {
                 scrollTo(18)
             }
             // appended [17-19]
@@ -1319,7 +1311,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(15) { it })
         val pager = createPager(dataFlow).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 // index out of bounds
                 scrollTo(50)
             }
@@ -1337,7 +1329,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPager(dataFlow).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 // after initial Load and prefetch, max loaded index is 7
                 scrollTo(7)
             }
@@ -1356,7 +1348,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPagerNoPrefetch(dataFlow)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 scrollTo(10)
             }
             // initial load [0-4]
@@ -1372,7 +1364,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPagerNoPlaceholders(dataFlow).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 // scroll to max loaded index
                 scrollTo(7)
             }
@@ -1390,7 +1382,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(20) { it })
         val pager = createPagerNoPlaceholders(dataFlow).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 // 12 is larger than differ.size = 8 after initial refresh
                 scrollTo(12)
             }
@@ -1410,7 +1402,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(20) { it })
         val pager = createPagerNoPlaceholders(dataFlow).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 scrollTo(50)
             }
             // ensure index is still capped to max index available
@@ -1428,7 +1420,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPagerNoPlaceholders(dataFlow).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 scrollTo(12)
                 scrollTo(17)
             }
@@ -1449,7 +1441,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPagerNoPlaceholders(dataFlow).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 scrollTo(12)
             }
             // initial load [0-4]
@@ -1460,7 +1452,7 @@ class PagerFlowSnapshotTest(
                 listOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)
             )
 
-            val snapshot2 = pager.asSnapshot(this) {
+            val snapshot2 = pager.asSnapshot {
                 scrollTo(17)
             }
             // initial load [0-4]
@@ -1485,7 +1477,7 @@ class PagerFlowSnapshotTest(
             }
         }
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 scrollTo(8)
             }
             // initial load [0-4]
@@ -1496,7 +1488,7 @@ class PagerFlowSnapshotTest(
                 listOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13)
             )
 
-            val snapshotWithSeparator = pagerWithSeparator.asSnapshot(this) {
+            val snapshotWithSeparator = pagerWithSeparator.asSnapshot {
                 scrollTo(8)
             }
             // initial load [0-4]
@@ -1514,7 +1506,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPager(dataFlow, 50)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 flingTo(42)
             }
             // initial load [50-54]
@@ -1534,7 +1526,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPagerWithDrops(dataFlow, 50)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 flingTo(42)
             }
             // dropped [47-57]
@@ -1553,7 +1545,7 @@ class PagerFlowSnapshotTest(
             }
         }
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 flingTo(42)
             }
             // initial load [50-54]
@@ -1574,7 +1566,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPager(dataFlow, 50)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 flingTo(42)
                 flingTo(38)
             }
@@ -1596,7 +1588,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPager(dataFlow, 50)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 flingTo(42)
             }
             // initial load [50-54]
@@ -1609,7 +1601,7 @@ class PagerFlowSnapshotTest(
                 )
             )
 
-            val snapshot2 = pager.asSnapshot(this) {
+            val snapshot2 = pager.asSnapshot {
                 flingTo(38)
             }
             // prefetched [35-37]
@@ -1626,7 +1618,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPagerWithJump(dataFlow, 50)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 flingTo(30)
                 // jump triggered when flingTo registered lastAccessedIndex[30], refreshKey[28]
             }
@@ -1643,7 +1635,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPagerWithJump(dataFlow, 50)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 scrollTo(43)
                 flingTo(30)
                 // jump triggered when flingTo registered lastAccessedIndex[30], refreshKey[28]
@@ -1661,7 +1653,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPagerWithJump(dataFlow, 50)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 flingTo(30)
                 // jump triggered when flingTo registered lastAccessedIndex[30], refreshKey[28]
                 flingTo(22)
@@ -1681,7 +1673,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPager(dataFlow, 10)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 flingTo(-3)
             }
             // initial load [10-14]
@@ -1698,7 +1690,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPager(dataFlow, 50)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 // page boundary
                 flingTo(44)
             }
@@ -1718,7 +1710,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPagerNoPlaceholders(dataFlow, 50).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 // Without placeholders, first loaded page always starts at index[0]
                 flingTo(0)
             }
@@ -1736,7 +1728,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPagerNoPlaceholders(dataFlow, 50)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 flingTo(-8)
             }
             // ensure we honor negative indices if there is data to load
@@ -1758,7 +1750,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPagerNoPlaceholders(dataFlow, 5).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 flingTo(-20)
             }
             // ensure index is capped when no more data to load
@@ -1776,7 +1768,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPagerNoPlaceholders(dataFlow, 50).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 // Without placeholders, first loaded page always starts at index[0]
                 flingTo(-1)
                 // Without placeholders, first loaded page always starts at index[0]
@@ -1802,7 +1794,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPagerNoPlaceholders(dataFlow, 50).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 // Without placeholders, first loaded page always starts at index[0]
                 flingTo(-1)
             }
@@ -1814,7 +1806,7 @@ class PagerFlowSnapshotTest(
                 listOf(41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57)
             )
 
-            val snapshot2 = pager.asSnapshot(this) {
+            val snapshot2 = pager.asSnapshot {
                 // Without placeholders, first loaded page always starts at index[0]
                 flingTo(-5)
             }
@@ -1844,7 +1836,7 @@ class PagerFlowSnapshotTest(
             pagingSourceFactory = createFactory(dataFlow),
         )
         testScope.runTest {
-            val snapshot = pager.flow.asSnapshot(this) {
+            val snapshot = pager.flow.asSnapshot {
                 // after refresh, lastAccessedIndex == index[2] == item(9)
                 flingTo(-1)
             }
@@ -1863,7 +1855,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPager(dataFlow)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 flingTo(12)
             }
             // initial load [0-4]
@@ -1881,7 +1873,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPagerWithDrops(dataFlow)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 flingTo(12)
             }
             // dropped [0-7]
@@ -1900,7 +1892,7 @@ class PagerFlowSnapshotTest(
             }
         }
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 flingTo(12)
             }
             // initial load [0-4]
@@ -1918,7 +1910,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPager(dataFlow)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 flingTo(12)
                 flingTo(18)
             }
@@ -1938,7 +1930,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPager(dataFlow)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 flingTo(12)
             }
             // initial load [0-4]
@@ -1949,7 +1941,7 @@ class PagerFlowSnapshotTest(
                 listOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)
             )
 
-            val snapshot2 = pager.asSnapshot(this) {
+            val snapshot2 = pager.asSnapshot {
                 flingTo(18)
             }
             // appended [17-19]
@@ -1967,7 +1959,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPagerWithJump(dataFlow)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 flingTo(30)
                 // jump triggered when flingTo registered lastAccessedIndex[30], refreshKey[28]
             }
@@ -1984,7 +1976,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPagerWithJump(dataFlow)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 scrollTo(30)
                 flingTo(43)
                 // jump triggered when flingTo registered lastAccessedIndex[43], refreshKey[41]
@@ -2002,7 +1994,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPagerWithJump(dataFlow)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 flingTo(30)
                 // jump triggered when flingTo registered lastAccessedIndex[30], refreshKey[28]
                 flingTo(38)
@@ -2022,7 +2014,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(15) { it })
         val pager = createPager(dataFlow).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 // index out of bounds
                 flingTo(50)
             }
@@ -2040,7 +2032,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPager(dataFlow).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 // after initial Load and prefetch, max loaded index is 7
                 flingTo(7)
             }
@@ -2059,7 +2051,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPagerNoPlaceholders(dataFlow).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 // scroll to max loaded index
                 flingTo(7)
             }
@@ -2077,7 +2069,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(20) { it })
         val pager = createPagerNoPlaceholders(dataFlow).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 // 12 is larger than differ.size = 8 after initial refresh
                 flingTo(12)
             }
@@ -2097,7 +2089,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(20) { it })
         val pager = createPagerNoPlaceholders(dataFlow).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 flingTo(50)
             }
             // ensure index is still capped to max index available
@@ -2115,7 +2107,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPagerNoPlaceholders(dataFlow).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 flingTo(12)
                 flingTo(17)
             }
@@ -2136,7 +2128,7 @@ class PagerFlowSnapshotTest(
         val dataFlow = flowOf(List(100) { it })
         val pager = createPagerNoPlaceholders(dataFlow).cachedIn(testScope.backgroundScope)
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 flingTo(12)
             }
             // initial load [0-4]
@@ -2147,7 +2139,7 @@ class PagerFlowSnapshotTest(
                 listOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)
             )
 
-            val snapshot2 = pager.asSnapshot(this) {
+            val snapshot2 = pager.asSnapshot {
                 flingTo(17)
             }
             // initial load [0-4]
@@ -2176,7 +2168,7 @@ class PagerFlowSnapshotTest(
             pagingSourceFactory = createFactory(dataFlow),
         )
         testScope.runTest {
-            val snapshot = pager.flow.asSnapshot(this) {
+            val snapshot = pager.flow.asSnapshot {
                 // after refresh, lastAccessedIndex == index[2] == item(9)
                 flingTo(2)
             }
@@ -2208,7 +2200,7 @@ class PagerFlowSnapshotTest(
             }
         }
         testScope.runTest {
-            val snapshot = pager.asSnapshot(this) {
+            val snapshot = pager.asSnapshot {
                 flingTo(51)
             }
             // initial load [50]
@@ -2218,7 +2210,7 @@ class PagerFlowSnapshotTest(
                 listOf(49, 50, 51, 52)
             )
 
-            val snapshotWithSeparator = pagerWithSeparator.asSnapshot(this) {
+            val snapshotWithSeparator = pagerWithSeparator.asSnapshot {
                 flingTo(51)
             }
             // initial load [50]
@@ -2243,10 +2235,7 @@ class PagerFlowSnapshotTest(
         ).flow
         testScope.runTest {
             val error = assertFailsWith(IllegalArgumentException::class) {
-                pager.asSnapshot(
-                    coroutineScope = this,
-                    onError = { ErrorRecovery.THROW }
-                ) {
+                pager.asSnapshot(onError = { ErrorRecovery.THROW }) {
                     val source = pagingSources.first()
                     source.errorOnNextLoad = true
                     scrollTo(12)
@@ -2268,10 +2257,7 @@ class PagerFlowSnapshotTest(
             },
         ).flow
         testScope.runTest {
-            val snapshot = pager.asSnapshot(
-                coroutineScope = this,
-                onError = { ErrorRecovery.RETRY }
-            ) {
+            val snapshot = pager.asSnapshot(onError = { ErrorRecovery.RETRY }) {
                 val source = pagingSources.first()
                 // should have two loads to far - refresh and append(prefetch)
                 assertThat(source.loads.size).isEqualTo(2)
@@ -2312,7 +2298,6 @@ class PagerFlowSnapshotTest(
         var retryCount = 0
         testScope.runTest {
             val snapshot = pager.asSnapshot(
-                coroutineScope = this,
                 onError = {
                     // retry twice
                     if (retryCount < 2) {
@@ -2352,10 +2337,7 @@ class PagerFlowSnapshotTest(
             },
         ).flow
         testScope.runTest {
-            val snapshot = pager.asSnapshot(
-                coroutineScope = this,
-                onError = { ErrorRecovery.RETURN_CURRENT_SNAPSHOT }
-            ) {
+            val snapshot = pager.asSnapshot(onError = { ErrorRecovery.RETURN_CURRENT_SNAPSHOT }) {
                 val source = pagingSources.first()
                 source.errorOnNextLoad = true
                 scrollTo(12)

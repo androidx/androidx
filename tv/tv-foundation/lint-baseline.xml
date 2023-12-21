@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
+<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
 
     <issue
         id="BanThreadSleep"
@@ -35,6 +35,384 @@
         errorLine2="                   ~~~~~">
         <location
             file="src/androidTest/java/androidx/tv/foundation/lazy/grid/LazyScrollTest.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for requireNotNull"
+        errorLine1="                            val keyFactory = requireNotNull(it.value.key)"
+        errorLine2="                                             ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/layout/LazyLayoutKeyIndexMap.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;key&apos; with type Function1&lt;? super Integer, ? extends Object>."
+        errorLine1="        key: ((index: Int) -> Any)? = null,"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/list/LazyDsl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;contentType&apos; with type Function1&lt;? super Integer, ? extends Object>."
+        errorLine1="        contentType: (index: Int) -> Any? = { null },"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/list/LazyDsl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;itemContent&apos; with type Function2&lt;? super TvLazyListItemScope, ? super Integer, Unit>."
+        errorLine1="        itemContent: @Composable TvLazyListItemScope.(index: Int) -> Unit"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/list/LazyDsl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method itemsIndexed has parameter &apos;key&apos; with type Function2&lt;? super Integer, ? super T, ? extends Object>."
+        errorLine1="    noinline key: ((index: Int, item: T) -> Any)? = null,"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/list/LazyDsl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method itemsIndexed has parameter &apos;key&apos; with type Function2&lt;? super Integer, ? super T, ? extends Object>."
+        errorLine1="    noinline key: ((index: Int, item: T) -> Any)? = null,"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/list/LazyDsl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;lineOf&apos; with type Function1&lt;? super Integer, ? extends Integer>."
+        errorLine1="        val lineOf: (Int) -> Int = {"
+        errorLine2="                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/grid/LazyGridAnimateScrollScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method item has parameter &apos;span&apos; with type Function1&lt;? super TvLazyGridItemSpanScope, TvGridItemSpan>."
+        errorLine1="        span: (TvLazyGridItemSpanScope.() -> TvGridItemSpan)? = null,"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/grid/LazyGridDsl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;key&apos; with type Function1&lt;? super Integer, ? extends Object>."
+        errorLine1="        key: ((index: Int) -> Any)? = null,"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/grid/LazyGridDsl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;span&apos; with type Function2&lt;? super TvLazyGridItemSpanScope, ? super Integer, TvGridItemSpan>."
+        errorLine1="        span: (TvLazyGridItemSpanScope.(index: Int) -> TvGridItemSpan)? = null,"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/grid/LazyGridDsl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;contentType&apos; with type Function1&lt;? super Integer, ? extends Object>."
+        errorLine1="        contentType: (index: Int) -> Any? = { null },"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/grid/LazyGridDsl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;itemContent&apos; with type Function2&lt;? super TvLazyGridItemScope, ? super Integer, Unit>."
+        errorLine1="        itemContent: @Composable TvLazyGridItemScope.(index: Int) -> Unit"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/grid/LazyGridDsl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;span&apos; with type Function2&lt;? super TvLazyGridItemSpanScope, ? super T, TvGridItemSpan>."
+        errorLine1="    noinline span: (TvLazyGridItemSpanScope.(item: T) -> TvGridItemSpan)? = null,"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/grid/LazyGridDsl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method itemsIndexed has parameter &apos;key&apos; with type Function2&lt;? super Integer, ? super T, ? extends Object>."
+        errorLine1="    noinline key: ((index: Int, item: T) -> Any)? = null,"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/grid/LazyGridDsl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method itemsIndexed has parameter &apos;span&apos; with type Function3&lt;? super TvLazyGridItemSpanScope, ? super Integer, ? super T, TvGridItemSpan>."
+        errorLine1="    noinline span: (TvLazyGridItemSpanScope.(index: Int, item: T) -> TvGridItemSpan)? = null,"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/grid/LazyGridDsl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;span&apos; with type Function2&lt;? super TvLazyGridItemSpanScope, ? super T, TvGridItemSpan>."
+        errorLine1="    noinline span: (TvLazyGridItemSpanScope.(item: T) -> TvGridItemSpan)? = null,"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/grid/LazyGridDsl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method itemsIndexed has parameter &apos;key&apos; with type Function2&lt;? super Integer, ? super T, ? extends Object>."
+        errorLine1="    noinline key: ((index: Int, item: T) -> Any)? = null,"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/grid/LazyGridDsl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method itemsIndexed has parameter &apos;span&apos; with type Function3&lt;? super TvLazyGridItemSpanScope, ? super Integer, ? super T, TvGridItemSpan>."
+        errorLine1="    noinline span: (TvLazyGridItemSpanScope.(index: Int, item: T) -> TvGridItemSpan)? = null,"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/grid/LazyGridDsl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method measureLazyGrid has parameter &apos;layout&apos; with type Function3&lt;? super Integer, ? super Integer, ? super Function1&lt;? super PlacementScope, Unit>, ? extends MeasureResult>."
+        errorLine1="    layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/grid/LazyGridMeasure.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor NearestRangeKeyIndexMapState has parameter &apos;firstVisibleItemIndex&apos; with type Function0&lt;Integer>."
+        errorLine1="    firstVisibleItemIndex: () -> Int,"
+        errorLine2="                           ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/layout/LazyLayoutKeyIndexMap.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor NearestRangeKeyIndexMapState has parameter &apos;slidingWindowSize&apos; with type Function0&lt;Integer>."
+        errorLine1="    slidingWindowSize: () -> Int,"
+        errorLine2="                       ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/layout/LazyLayoutKeyIndexMap.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor NearestRangeKeyIndexMapState has parameter &apos;extraItemCount&apos; with type Function0&lt;Integer>."
+        errorLine1="    extraItemCount: () -> Int,"
+        errorLine2="                    ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/layout/LazyLayoutKeyIndexMap.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;keyFactory&apos; with type Function1&lt;? super Integer, ? extends Object>."
+        errorLine1="                            val keyFactory = requireNotNull(it.value.key)"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/layout/LazyLayoutKeyIndexMap.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;indexForKeyMapping&apos; with type Function1&lt;? super Object, ? extends Integer>."
+        errorLine1="            val indexForKeyMapping: (Any) -> Int = { needle ->"
+        errorLine2="                                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/layout/LazyLayoutSemantics.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;scrollByAction&apos; with type Function2&lt;? super Float, ? super Float, ? extends Boolean>."
+        errorLine1="            val scrollByAction: ((x: Float, y: Float) -> Boolean)? = if (userScrollEnabled) {"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/layout/LazyLayoutSemantics.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;scrollToIndexAction&apos; with type Function1&lt;? super Integer, ? extends Boolean>."
+        errorLine1="            val scrollToIndexAction: ((Int) -> Boolean)? = if (userScrollEnabled) {"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/layout/LazyLayoutSemantics.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method measureLazyList has parameter &apos;layout&apos; with type Function3&lt;? super Integer, ? super Integer, ? super Function1&lt;? super PlacementScope, Unit>, ? extends MeasureResult>."
+        errorLine1="    layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/list/LazyListMeasure.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;var9cfa9825&apos; with type Function2&lt;? super TvLazyGridItemSpanScope, ? super Integer, ? extends TvGridItemSpan>."
+        errorLine1="                span = span?.let { { span() } } ?: DefaultSpan,"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/grid/TvLazyGridScopeImpl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;varcb3b0c51&apos; with type Function2&lt;? super TvLazyGridItemSpanScope, ? super Integer, ? extends TvGridItemSpan>."
+        errorLine1="                span = span ?: DefaultSpan,"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/grid/TvLazyGridScopeImpl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;TvLazyGridItemSpanScope, Integer, TvGridItemSpan> of &apos;getDefaultSpan&apos;."
+        errorLine1="        val DefaultSpan: TvLazyGridItemSpanScope.(Int) -> TvGridItemSpan = { TvGridItemSpan(1) }"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/grid/TvLazyGridScopeImpl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor LazyGridInterval has parameter &apos;key&apos; with type Function1&lt;? super Integer, ? extends Object>."
+        errorLine1="    override val key: ((index: Int) -> Any)?,"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/grid/TvLazyGridScopeImpl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor LazyGridInterval has parameter &apos;span&apos; with type Function2&lt;? super TvLazyGridItemSpanScope, ? super Integer, TvGridItemSpan>."
+        errorLine1="    val span: TvLazyGridItemSpanScope.(Int) -> TvGridItemSpan,"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/grid/TvLazyGridScopeImpl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;TvLazyGridItemSpanScope, Integer, TvGridItemSpan> of &apos;getSpan&apos;."
+        errorLine1="    val span: TvLazyGridItemSpanScope.(Int) -> TvGridItemSpan,"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/grid/TvLazyGridScopeImpl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor LazyGridInterval has parameter &apos;type&apos; with type Function1&lt;? super Integer, ? extends Object>."
+        errorLine1="    override val type: ((index: Int) -> Any?),"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/grid/TvLazyGridScopeImpl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor LazyGridInterval has parameter &apos;item&apos; with type Function2&lt;? super TvLazyGridItemScope, ? super Integer, Unit>."
+        errorLine1="    val item: @Composable TvLazyGridItemScope.(Int) -> Unit"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/grid/TvLazyGridScopeImpl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;TvLazyGridItemScope, Integer, Unit> of &apos;getItem&apos;."
+        errorLine1="    val item: @Composable TvLazyGridItemScope.(Int) -> Unit"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/grid/TvLazyGridScopeImpl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method setPrefetchInfoRetriever$lint_module has parameter &apos;&lt;set-?>&apos; with type Function1&lt;? super LineIndex, ? extends List&lt;Pair&lt;Integer, Constraints>>>."
+        errorLine1="    /**"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/grid/TvLazyGridState.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;LineIndex, List&lt;Pair&lt;Integer, Constraints>>> of &apos;getPrefetchInfoRetriever$lint_module&apos;."
+        errorLine1="    internal var prefetchInfoRetriever: (line: LineIndex) -> List&lt;Pair&lt;Int, Constraints>> by"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/grid/TvLazyGridState.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor TvLazyListInterval has parameter &apos;key&apos; with type Function1&lt;? super Integer, ? extends Object>."
+        errorLine1="    override val key: ((index: Int) -> Any)?,"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/list/TvLazyListIntervalContent.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor TvLazyListInterval has parameter &apos;type&apos; with type Function1&lt;? super Integer, ? extends Object>."
+        errorLine1="    override val type: ((index: Int) -> Any?),"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/list/TvLazyListIntervalContent.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor TvLazyListInterval has parameter &apos;item&apos; with type Function2&lt;? super TvLazyListItemScope, ? super Integer, Unit>."
+        errorLine1="    val item: @Composable TvLazyListItemScope.(index: Int) -> Unit"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/list/TvLazyListIntervalContent.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;TvLazyListItemScope, Integer, Unit> of &apos;getItem&apos;."
+        errorLine1="    val item: @Composable TvLazyListItemScope.(index: Int) -> Unit"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/list/TvLazyListIntervalContent.kt"/>
     </issue>
 
 </issues>

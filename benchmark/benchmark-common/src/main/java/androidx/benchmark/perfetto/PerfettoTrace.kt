@@ -85,7 +85,10 @@ class PerfettoTrace(
             block: () -> Unit
         ) = record(
             fileLabel = fileLabel,
-            config = PerfettoConfig.Benchmark(appTagPackages),
+            config = PerfettoConfig.Benchmark(
+                appTagPackages = appTagPackages,
+                useStackSamplingConfig = true
+            ),
             userspaceTracingPackage = userspaceTracingPackage,
             traceCallback = traceCallback,
             block = block

@@ -439,7 +439,9 @@ internal abstract class NodeCoordinator(
     private fun updateLayerParameters(invokeOnLayoutChange: Boolean = true) {
         val layer = layer
         if (layer != null) {
-            val layerBlock = requireNotNull(layerBlock)
+            val layerBlock = checkNotNull(layerBlock) {
+                "updateLayerParameters requires a non-null layerBlock"
+            }
             graphicsLayerScope.reset()
             graphicsLayerScope.graphicsDensity = layoutNode.density
             graphicsLayerScope.size = size.toSize()
@@ -476,7 +478,7 @@ internal abstract class NodeCoordinator(
                 layoutNode.owner?.onLayoutChange(layoutNode)
             }
         } else {
-            require(layerBlock == null)
+            check(layerBlock == null) { "non-null layer with a null layerBlock" }
         }
     }
 
@@ -1034,24 +1036,6 @@ internal abstract class NodeCoordinator(
         } else {
             wrappedBy?.invalidateLayer()
         }
-    }
-
-    /**
-     * Send a request to bring a portion of this item into view. The portion that has to be
-     * brought into view is specified as a rectangle where the coordinates are in the local
-     * coordinates of that nodeCoordinator. This request is sent up the hierarchy to all parents
-     * that have a [RelocationModifier][androidx.compose.ui.layout.RelocationModifier].
-     */
-    open suspend fun propagateRelocationRequest(rect: Rect) {
-        val parent = wrappedBy ?: return
-
-        // Translate this nodeCoordinator to the coordinate system of the parent.
-        val boundingBoxInParentCoordinates = parent.localBoundingBoxOf(this, false)
-
-        // Translate the rect to parent coordinates
-        val rectInParentBounds = rect.translate(boundingBoxInParentCoordinates.topLeft)
-
-        parent.propagateRelocationRequest(rectInParentBounds)
     }
 
     /**

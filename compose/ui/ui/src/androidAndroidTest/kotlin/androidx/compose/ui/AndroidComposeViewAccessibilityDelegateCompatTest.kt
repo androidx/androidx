@@ -19,10 +19,15 @@ package androidx.compose.ui
 
 import android.os.Build
 import android.text.SpannableString
+import android.util.LongSparseArray
 import android.view.ViewGroup
 import android.view.ViewStructure
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
+import android.view.translation.TranslationRequestValue
+import android.view.translation.TranslationResponseValue
+import android.view.translation.ViewTranslationRequest
+import android.view.translation.ViewTranslationResponse
 import android.widget.FrameLayout
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -65,8 +70,6 @@ import androidx.compose.ui.platform.SemanticsNodeWithAdjustedBounds
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
-import androidx.compose.ui.platform.coreshims.ContentCaptureSessionCompat
-import androidx.compose.ui.platform.coreshims.ViewStructureCompat
 import androidx.compose.ui.platform.getAllUncoveredSemanticsNodesToMap
 import androidx.compose.ui.platform.invertTo
 import androidx.compose.ui.semantics.CustomAccessibilityAction
@@ -78,6 +81,7 @@ import androidx.compose.ui.semantics.ScrollAxisRange
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.semantics.clearTextSubstitution
 import androidx.compose.ui.semantics.collapse
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.copyText
@@ -92,9 +96,11 @@ import androidx.compose.ui.semantics.focused
 import androidx.compose.ui.semantics.getTextLayoutResult
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.horizontalScrollAxisRange
+import androidx.compose.ui.semantics.isShowingTextSubstitution
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.onLongClick
+import androidx.compose.ui.semantics.originalText
 import androidx.compose.ui.semantics.password
 import androidx.compose.ui.semantics.pasteText
 import androidx.compose.ui.semantics.progressBarRangeInfo
@@ -103,6 +109,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.semantics.setSelection
 import androidx.compose.ui.semantics.setText
+import androidx.compose.ui.semantics.setTextSubstitution
+import androidx.compose.ui.semantics.showTextSubstitution
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.semantics.testTagsAsResourceId
@@ -127,8 +135,10 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.toOffset
 import androidx.core.view.ViewCompat
+import androidx.core.view.ViewStructureCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat
+import androidx.core.view.contentcapture.ContentCaptureSessionCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
@@ -136,6 +146,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.Executors
+import java.util.function.Consumer
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.asCoroutineDispatcher
 import org.junit.Assert.assertEquals
@@ -157,6 +168,7 @@ import org.mockito.kotlin.never
 import org.mockito.kotlin.spy
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
 
 @MediumTest
@@ -1453,6 +1465,35 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 29)
+    fun testInitContentCaptureSemanticsStructureChangeEvents_onStart() {
+        setUpContentCapture()
+
+        accessibilityDelegate.initContentCapture(true)
+
+        // verify the root node appeared
+        verify(contentCaptureSessionCompat).newVirtualViewStructure(any(), any())
+        verify(contentCaptureSessionCompat).notifyViewsAppeared(any())
+        verify(viewStructureCompat).setDimens(any(), any(), any(), any(), any(), any())
+        verify(viewStructureCompat).toViewStructure()
+        verifyNoMoreInteractions(contentCaptureSessionCompat)
+        verifyNoMoreInteractions(viewStructureCompat)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29)
+    fun testInitContentCaptureSemanticsStructureChangeEvents_onStop() {
+        setUpContentCapture()
+
+        accessibilityDelegate.initContentCapture(false)
+
+        // verify the root node disappeared
+        verify(contentCaptureSessionCompat).notifyViewsDisappeared(any())
+        verifyNoMoreInteractions(contentCaptureSessionCompat)
+        verifyNoMoreInteractions(viewStructureCompat)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29)
     fun testSendContentCaptureSemanticsStructureChangeEvents_appeared() {
         setUpContentCapture()
 
@@ -1599,6 +1640,216 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
 
         assertThat(accessibilityDelegate.bufferedContentCaptureAppearedNodes).isEmpty()
         assertThat(accessibilityDelegate.bufferedContentCaptureDisappearedNodes).isEmpty()
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29)
+    fun testUpdateTranslationOnAppeared_showOriginal() {
+        setUpContentCapture()
+        accessibilityDelegate.onHideTranslation()
+
+        val nodeId = 10
+        val oldNode = createSemanticsNodeWithChildren(nodeId, emptyList())
+        val oldNodeCopy = SemanticsNodeCopy(oldNode, mapOf())
+        accessibilityDelegate.previousSemanticsNodes[nodeId] = oldNodeCopy
+
+        var result = true
+        val newNodeId1 = 11
+        val newNodeId2 = 10
+        val newNode1 = createSemanticsNodeWithChildren(newNodeId1, emptyList()) {
+            text = AnnotatedString("foo")
+            originalText = AnnotatedString("bar")
+            isShowingTextSubstitution = true
+            showTextSubstitution {
+                result = it
+                true
+            }
+        }
+        val newNode2 = createSemanticsNodeWithChildren(newNodeId2, listOf(newNode1))
+        accessibilityDelegate.currentSemanticsNodes = mapOf(
+            newNodeId1 to SemanticsNodeWithAdjustedBounds(newNode1, android.graphics.Rect()),
+            newNodeId2 to SemanticsNodeWithAdjustedBounds(newNode2, android.graphics.Rect()),
+        )
+
+        accessibilityDelegate.sendContentCaptureSemanticsStructureChangeEvents(
+            newNode2, oldNodeCopy)
+
+        assertFalse(result)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29)
+    fun testUpdateTranslationOnAppeared_showTranslated() {
+        setUpContentCapture()
+        accessibilityDelegate.onShowTranslation()
+
+        val nodeId = 10
+        val oldNode = createSemanticsNodeWithChildren(nodeId, emptyList())
+        val oldNodeCopy = SemanticsNodeCopy(oldNode, mapOf())
+        accessibilityDelegate.previousSemanticsNodes[nodeId] = oldNodeCopy
+
+        var result = false
+        val newNodeId1 = 11
+        val newNodeId2 = 10
+        val newNode1 = createSemanticsNodeWithChildren(newNodeId1, emptyList()) {
+            text = AnnotatedString("foo")
+            isShowingTextSubstitution = false
+            showTextSubstitution {
+                result = it
+                true
+            }
+        }
+        val newNode2 = createSemanticsNodeWithChildren(newNodeId2, listOf(newNode1))
+        accessibilityDelegate.currentSemanticsNodes = mapOf(
+            newNodeId1 to SemanticsNodeWithAdjustedBounds(newNode1, android.graphics.Rect()),
+            newNodeId2 to SemanticsNodeWithAdjustedBounds(newNode2, android.graphics.Rect()),
+        )
+
+        accessibilityDelegate.sendContentCaptureSemanticsStructureChangeEvents(
+            newNode2, oldNodeCopy)
+
+        assertTrue(result)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 31)
+    fun testOnCreateVirtualViewTranslationRequests() {
+        setUpContentCapture()
+
+        val newNodeId1 = 11
+        val newNodeId2 = 10
+        val newNode1 = createSemanticsNodeWithChildren(newNodeId1, emptyList()) {
+            text = AnnotatedString("foo")
+        }
+        val newNode2 = createSemanticsNodeWithChildren(newNodeId2, listOf(newNode1)) {
+            text = AnnotatedString("bar")
+        }
+        accessibilityDelegate.currentSemanticsNodes = mapOf(
+            newNodeId1 to SemanticsNodeWithAdjustedBounds(newNode1, android.graphics.Rect()),
+            newNodeId2 to SemanticsNodeWithAdjustedBounds(newNode2, android.graphics.Rect()),
+        )
+
+        val ids = LongArray(1)
+        ids[0] = newNodeId1.toLong()
+        val requestsCollector: Consumer<ViewTranslationRequest?> = mock()
+
+        accessibilityDelegate.onCreateVirtualViewTranslationRequests(
+            ids,
+            IntArray(0),
+            requestsCollector,
+        )
+
+        val captor = argumentCaptor<ViewTranslationRequest>()
+        verify(requestsCollector).accept(captor.capture())
+        val request = ViewTranslationRequest.Builder(
+            androidComposeView.autofillId,
+            newNodeId1.toLong()
+        )
+            .setValue(ViewTranslationRequest.ID_TEXT, TranslationRequestValue.forText(
+                AnnotatedString("foo")))
+            .build()
+        assertEquals(captor.firstValue, request)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 31)
+    fun testOnVirtualViewTranslationResponses() {
+        setUpContentCapture()
+        val newNodeId1 = 11
+        var result: AnnotatedString? = null
+        val newNode1 = createSemanticsNodeWithChildren(newNodeId1, emptyList()) {
+            text = AnnotatedString("foo")
+            setTextSubstitution {
+                result = it
+                true
+            }
+        }
+        accessibilityDelegate.currentSemanticsNodes = mapOf(
+            newNodeId1 to SemanticsNodeWithAdjustedBounds(newNode1, android.graphics.Rect()),
+        )
+
+        val autofillId = androidComposeView.autofillId
+        val response = ViewTranslationResponse.Builder(autofillId)
+            .setValue(ViewTranslationRequest.ID_TEXT,
+                TranslationResponseValue.Builder(0).setText("bar").build())
+            .build()
+        val responses = LongSparseArray<ViewTranslationResponse?>()
+        responses.append(newNodeId1.toLong(), response)
+
+        accessibilityDelegate.onVirtualViewTranslationResponses(responses)
+
+        assertEquals("bar", result?.text)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 31)
+    fun testOnShowTranslation() {
+        setUpContentCapture()
+        val newNodeId1 = 11
+        var result = false
+        val newNode1 = createSemanticsNodeWithChildren(newNodeId1, emptyList()) {
+            text = AnnotatedString("foo")
+            isShowingTextSubstitution = false
+            showTextSubstitution {
+                result = it
+                true
+            }
+        }
+        accessibilityDelegate.currentSemanticsNodes = mapOf(
+            newNodeId1 to SemanticsNodeWithAdjustedBounds(newNode1, android.graphics.Rect()),
+        )
+
+        accessibilityDelegate.onShowTranslation()
+
+        assertTrue(result)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 31)
+    fun testOnHideTranslation() {
+        setUpContentCapture()
+        val newNodeId1 = 11
+        var result = true
+        val newNode1 = createSemanticsNodeWithChildren(newNodeId1, emptyList()) {
+            text = AnnotatedString("bar")
+            isShowingTextSubstitution = true
+            originalText = AnnotatedString("foo")
+            showTextSubstitution {
+                result = it
+                true
+            }
+        }
+        accessibilityDelegate.currentSemanticsNodes = mapOf(
+            newNodeId1 to SemanticsNodeWithAdjustedBounds(newNode1, android.graphics.Rect()),
+        )
+
+        accessibilityDelegate.onHideTranslation()
+
+        assertFalse(result)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 31)
+    fun testOnClearTranslation() {
+        setUpContentCapture()
+        val newNodeId1 = 11
+        var result = false
+        val newNode1 = createSemanticsNodeWithChildren(newNodeId1, emptyList()) {
+            text = AnnotatedString("bar")
+            originalText = AnnotatedString("foo")
+            isShowingTextSubstitution = true
+            clearTextSubstitution {
+                result = true
+                true
+            }
+        }
+        accessibilityDelegate.currentSemanticsNodes = mapOf(
+            newNodeId1 to SemanticsNodeWithAdjustedBounds(newNode1, android.graphics.Rect()),
+        )
+
+        accessibilityDelegate.onClearTranslation()
+
+        assertTrue(result)
     }
 
     private fun sendTextSemanticsChangeEvent(oldNodePassword: Boolean, newNodePassword: Boolean) {

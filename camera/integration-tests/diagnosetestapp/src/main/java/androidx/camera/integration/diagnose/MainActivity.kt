@@ -28,7 +28,6 @@ import android.util.Size
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
-import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -43,7 +42,6 @@ import androidx.camera.view.CameraController.VIDEO_CAPTURE
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
 import androidx.camera.view.video.AudioConfig
-import androidx.camera.view.video.ExperimentalVideo
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.util.Preconditions
@@ -62,7 +60,6 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-@OptIn(ExperimentalVideo::class)
 @SuppressLint("NullAnnotationGroup", "MissingPermission")
 class MainActivity : AppCompatActivity() {
 

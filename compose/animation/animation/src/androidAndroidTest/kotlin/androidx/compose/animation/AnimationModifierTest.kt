@@ -20,20 +20,26 @@ import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LayoutModifier
+import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -41,6 +47,8 @@ import androidx.test.filters.LargeTest
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertNull
+import junit.framework.TestCase.assertTrue
+import kotlin.random.Random
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
@@ -142,16 +150,64 @@ class AnimationModifierTest {
         }
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun testAnimatedContentSizeInLookahead() {
+        val lookaheadSizes = mutableListOf<IntSize>()
+        var size by mutableStateOf(IntSize(400, 600))
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                LookaheadScope {
+                    Box(Modifier
+                        .layout { measurable, constraints ->
+                            measurable
+                                .measure(constraints)
+                                .run {
+                                    if (isLookingAhead) {
+                                        lookaheadSizes.add(IntSize(width, height))
+                                    }
+                                    layout(width, height) { place(0, 0) }
+                                }
+                        }
+                        .animateContentSize()
+                        .size(size.width.dp, size.height.dp)) {
+                        Box(Modifier.size(20.dp))
+                    }
+                }
+            }
+        }
+
+        repeat(8) {
+            size = IntSize(
+                Random.nextInt(200, 600),
+                Random.nextInt(100, 800)
+            )
+            lookaheadSizes.clear()
+            rule.runOnIdle {
+                assertTrue(lookaheadSizes.isNotEmpty())
+                lookaheadSizes.forEach {
+                    assertEquals(size, it)
+                }
+            }
+        }
+    }
+
     @Test
     fun testInspectorValue() {
         rule.setContent {
-            val modifier = Modifier.animateContentSize() as InspectableValue
-            assertThat(modifier.nameFallback, `is`("animateContentSize"))
-            assertThat(modifier.valueOverride, nullValue())
-            assertThat(
-                modifier.inspectableElements.map { it.name }.toList(),
-                `is`(listOf("animationSpec", "finishedListener"))
-            )
+            Modifier.animateContentSize().any {
+                it as InspectableValue
+                if (it.nameFallback == "animateContentSize") {
+                    assertThat(it.valueOverride, nullValue())
+                    assertThat(
+                        it.inspectableElements.map { it.name }.toList(),
+                        `is`(listOf("animationSpec", "finishedListener"))
+                    )
+                    true
+                } else {
+                    false
+                }
+            }.also { assertTrue(it) }
         }
     }
 }

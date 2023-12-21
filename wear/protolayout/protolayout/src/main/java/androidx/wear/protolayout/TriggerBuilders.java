@@ -68,11 +68,21 @@ public final class TriggerBuilders {
       return mFingerprint;
     }
 
+    /** Creates a new wrapper instance from the proto. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    static OnLoadTrigger fromProto(@NonNull TriggerProto.OnLoadTrigger proto) {
-      return new OnLoadTrigger(proto, null);
+    public static OnLoadTrigger fromProto(
+        @NonNull TriggerProto.OnLoadTrigger proto, @Nullable Fingerprint fingerprint) {
+      return new OnLoadTrigger(proto, fingerprint);
     }
 
+    @NonNull
+    static OnLoadTrigger fromProto(@NonNull TriggerProto.OnLoadTrigger proto) {
+      return fromProto(proto, null);
+    }
+
+    /** Returns the internal proto instance. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     TriggerProto.OnLoadTrigger toProto() {
       return mImpl;
@@ -83,6 +93,12 @@ public final class TriggerBuilders {
     @NonNull
       public TriggerProto.Trigger toTriggerProto() {
       return TriggerProto.Trigger.newBuilder().setOnLoadTrigger(mImpl).build();
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "OnLoadTrigger";
     }
 
     /** Builder for {@link OnLoadTrigger}. */
@@ -117,7 +133,7 @@ public final class TriggerBuilders {
     }
 
     /**
-     * Gets dynamic boolean used as trigger. Intended for testing purposes only.
+     * Gets dynamic boolean used as trigger.
      *
      * @since 1.2
      */
@@ -137,11 +153,22 @@ public final class TriggerBuilders {
       return mFingerprint;
     }
 
+    /** Creates a new wrapper instance from the proto. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    static OnConditionMetTrigger fromProto(@NonNull TriggerProto.OnConditionMetTrigger proto) {
-      return new OnConditionMetTrigger(proto, null);
+    public static OnConditionMetTrigger fromProto(
+        @NonNull TriggerProto.OnConditionMetTrigger proto,
+        @Nullable Fingerprint fingerprint) {
+      return new OnConditionMetTrigger(proto, fingerprint);
     }
 
+    @NonNull
+    static OnConditionMetTrigger fromProto(@NonNull TriggerProto.OnConditionMetTrigger proto) {
+      return fromProto(proto, null);
+    }
+
+    /** Returns the internal proto instance. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     TriggerProto.OnConditionMetTrigger toProto() {
       return mImpl;
@@ -154,11 +181,17 @@ public final class TriggerBuilders {
       return TriggerProto.Trigger.newBuilder().setOnConditionMetTrigger(mImpl).build();
     }
 
+    @Override
+    @NonNull
+    public String toString() {
+      return "OnConditionMetTrigger{" + "condition=" + getCondition() + "}";
+    }
+
     /** Builder for {@link OnConditionMetTrigger}. */
     public static final class Builder implements Trigger.Builder {
       private final TriggerProto.OnConditionMetTrigger.Builder mImpl =
           TriggerProto.OnConditionMetTrigger.newBuilder();
-      private final Fingerprint mFingerprint = new Fingerprint(1952746052);
+      private final Fingerprint mFingerprint = new Fingerprint(756642641);
 
       public Builder() {}
 
@@ -190,25 +223,17 @@ public final class TriggerBuilders {
    * @since 1.2
    */
   public interface Trigger {
-    /**
-     * Get the protocol buffer representation of this object.
-     *
-     */
+    /** Get the protocol buffer representation of this object. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     TriggerProto.Trigger toTriggerProto();
 
-    /**
-     * Get the fingerprint for this object or null if unknown.
-     *
-     */
+    /** Get the fingerprint for this object or null if unknown. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     Fingerprint getFingerprint();
 
-    /** Builder to create {@link Trigger} objects.
-     *
-     */
+    /** Builder to create {@link Trigger} objects. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     interface Builder {
 
@@ -218,14 +243,22 @@ public final class TriggerBuilders {
     }
   }
 
+  /** Creates a new wrapper instance from the proto. */
+  @RestrictTo(Scope.LIBRARY_GROUP)
   @NonNull
-  static Trigger triggerFromProto(@NonNull TriggerProto.Trigger proto) {
+  public static Trigger triggerFromProto(
+    @NonNull TriggerProto.Trigger proto, @Nullable Fingerprint fingerprint) {
     if (proto.hasOnLoadTrigger()) {
-      return OnLoadTrigger.fromProto(proto.getOnLoadTrigger());
+      return OnLoadTrigger.fromProto(proto.getOnLoadTrigger(), fingerprint);
     }
     if (proto.hasOnConditionMetTrigger()) {
-      return OnConditionMetTrigger.fromProto(proto.getOnConditionMetTrigger());
+      return OnConditionMetTrigger.fromProto(proto.getOnConditionMetTrigger(), fingerprint);
     }
     throw new IllegalStateException("Proto was not a recognised instance of Trigger");
+  }
+
+  @NonNull
+  static Trigger triggerFromProto(@NonNull TriggerProto.Trigger proto) {
+    return triggerFromProto(proto, null);
   }
 }

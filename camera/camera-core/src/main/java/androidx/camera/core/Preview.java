@@ -50,7 +50,6 @@ import static androidx.core.util.Preconditions.checkState;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 
-import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.media.ImageReader;
@@ -180,7 +179,7 @@ public final class Preview extends UseCase {
     // [UseCase attached dynamic] - Can change but is only available when the UseCase is attached.
     ////////////////////////////////////////////////////////////////////////////////////////////
 
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @SuppressWarnings("WeakerAccess") // Synthetic accessor
     SessionConfig.Builder mSessionConfigBuilder;
 
     // TODO(b/259308680): remove mSessionDeferrableSurface and rely on mCameraEdge to get the
@@ -194,11 +193,6 @@ public final class Preview extends UseCase {
     @VisibleForTesting
     @Nullable
     SurfaceRequest mCurrentSurfaceRequest;
-
-    // The attached surface size. Same as getAttachedSurfaceResolution() but is available during
-    // createPipeline().
-    @Nullable
-    private Size mSurfaceSize;
 
     @Nullable
     private SurfaceProcessorNode mNode;
@@ -214,45 +208,6 @@ public final class Preview extends UseCase {
         super(config);
     }
 
-    @MainThread
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    SessionConfig.Builder createPipeline(@NonNull String cameraId, @NonNull PreviewConfig config,
-            @NonNull StreamSpec streamSpec) {
-        // Build pipeline with node if processor is set. Eventually we will move all the code to
-        // createPipelineWithNode.
-        if (getEffect() != null) {
-            return createPipelineWithNode(cameraId, config, streamSpec);
-        }
-
-        checkMainThread();
-        SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config,
-                streamSpec.getResolution());
-
-        // Close previous session's deferrable surface before creating new one
-        clearPipeline();
-
-        final SurfaceRequest surfaceRequest = new SurfaceRequest(
-                streamSpec.getResolution(),
-                getCamera(),
-                streamSpec.getDynamicRange(),
-                streamSpec.getExpectedFrameRateRange(),
-                this::notifyReset);
-        mCurrentSurfaceRequest = surfaceRequest;
-
-        if (mSurfaceProvider != null) {
-            // Only send surface request if the provider is set.
-            sendSurfaceRequest();
-        }
-
-        mSessionDeferrableSurface = surfaceRequest.getDeferrableSurface();
-        addCameraSurfaceAndErrorListener(sessionConfigBuilder, cameraId, config, streamSpec);
-        sessionConfigBuilder.setExpectedFrameRateRange(streamSpec.getExpectedFrameRateRange());
-        if (streamSpec.getImplementationOptions() != null) {
-            sessionConfigBuilder.addImplementationOptions(streamSpec.getImplementationOptions());
-        }
-        return sessionConfigBuilder;
-    }
-
     /**
      * Creates the post-processing pipeline with the {@link Node} pattern.
      *
@@ -261,41 +216,48 @@ public final class Preview extends UseCase {
      */
     @NonNull
     @MainThread
-    private SessionConfig.Builder createPipelineWithNode(
+    private SessionConfig.Builder createPipeline(
             @NonNull String cameraId,
             @NonNull PreviewConfig config,
             @NonNull StreamSpec streamSpec) {
         // Check arguments
         checkMainThread();
-        CameraEffect effect = requireNonNull(getEffect());
-        CameraInternal camera = requireNonNull(getCamera());
 
+        CameraInternal camera = requireNonNull(getCamera());
         clearPipeline();
 
-        // Create nodes and edges.
-        mNode = new SurfaceProcessorNode(camera, effect.createSurfaceProcessorInternal());
         // Make sure the previously created camera edge is cleared before creating a new one.
         checkState(mCameraEdge == null);
         mCameraEdge = new SurfaceEdge(
                 PREVIEW,
                 INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
                 streamSpec,
-                new Matrix(),
+                getSensorToBufferTransformMatrix(),
                 camera.getHasTransform(),
                 requireNonNull(getCropRect(streamSpec.getResolution())),
                 getRelativeRotation(camera, isMirroringRequired(camera)),
+                getAppTargetRotation(),
                 shouldMirror(camera));
-        mCameraEdge.addOnInvalidatedListener(this::notifyReset);
-        SurfaceProcessorNode.OutConfig outConfig = SurfaceProcessorNode.OutConfig.of(mCameraEdge);
-        SurfaceProcessorNode.In nodeInput = SurfaceProcessorNode.In.of(mCameraEdge,
-                singletonList(outConfig));
-        SurfaceProcessorNode.Out nodeOutput = mNode.transform(nodeInput);
-        SurfaceEdge appEdge = requireNonNull(nodeOutput.get(outConfig));
-        appEdge.addOnInvalidatedListener(() -> onAppEdgeInvalidated(appEdge, camera));
 
+        CameraEffect effect = getEffect();
+        if (effect != null) {
+            // Create nodes and edges.
+            mNode = new SurfaceProcessorNode(camera, effect.createSurfaceProcessorInternal());
+            mCameraEdge.addOnInvalidatedListener(this::notifyReset);
+            SurfaceProcessorNode.OutConfig outConfig = SurfaceProcessorNode.OutConfig.of(
+                    mCameraEdge);
+            SurfaceProcessorNode.In nodeInput = SurfaceProcessorNode.In.of(mCameraEdge,
+                    singletonList(outConfig));
+            SurfaceProcessorNode.Out nodeOutput = mNode.transform(nodeInput);
+            SurfaceEdge appEdge = requireNonNull(nodeOutput.get(outConfig));
+            appEdge.addOnInvalidatedListener(() -> onAppEdgeInvalidated(appEdge, camera));
+            mCurrentSurfaceRequest = appEdge.createSurfaceRequest(camera);
+        } else {
+            mCameraEdge.addOnInvalidatedListener(this::notifyReset);
+            mCurrentSurfaceRequest = mCameraEdge.createSurfaceRequest(camera);
+        }
         // Send the app Surface to the app.
         mSessionDeferrableSurface = mCameraEdge.getDeferrableSurface();
-        mCurrentSurfaceRequest = appEdge.createSurfaceRequest(camera);
         if (mSurfaceProvider != null) {
             // Only send surface request if the provider is set.
             sendSurfaceRequest();
@@ -427,21 +389,11 @@ public final class Preview extends UseCase {
         // TODO(b/159659392): only send transformation after CameraCaptureCallback
         //  .onCaptureCompleted is called.
         CameraInternal cameraInternal = getCamera();
-        SurfaceProvider surfaceProvider = mSurfaceProvider;
-        Rect cropRect = getCropRect(mSurfaceSize);
-        SurfaceRequest surfaceRequest = mCurrentSurfaceRequest;
-        if (cameraInternal != null && surfaceProvider != null && cropRect != null
-                && surfaceRequest != null) {
-            if (mNode == null) {
-                surfaceRequest.updateTransformationInfo(SurfaceRequest.TransformationInfo.of(
-                        cropRect,
-                        getRelativeRotation(cameraInternal, isMirroringRequired(cameraInternal)),
-                        getAppTargetRotation(),
-                        cameraInternal.getHasTransform()));
-            } else {
-                mCameraEdge.setRotationDegrees(
-                        getRelativeRotation(cameraInternal, isMirroringRequired(cameraInternal)));
-            }
+        SurfaceEdge cameraEdge = mCameraEdge;
+        if (cameraInternal != null && cameraEdge != null) {
+            cameraEdge.updateTransformation(
+                    getRelativeRotation(cameraInternal, isMirroringRequired(cameraInternal)),
+                    getAppTargetRotation());
         }
     }
 
@@ -645,7 +597,6 @@ public final class Preview extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     protected StreamSpec onSuggestedStreamSpecUpdated(@NonNull StreamSpec suggestedStreamSpec) {
-        mSurfaceSize = suggestedStreamSpec.getResolution();
         updateConfigAndOutput(getCameraId(), (PreviewConfig) getCurrentConfig(),
                 suggestedStreamSpec);
         return suggestedStreamSpec;
@@ -665,7 +616,6 @@ public final class Preview extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
      */
     @Override
     @RestrictTo(Scope.LIBRARY)
@@ -707,7 +657,7 @@ public final class Preview extends UseCase {
      * <p>This is just the frame rate range requested by the user, and may not necessarily be
      * equal to the range the camera is actually operating at.
      *
-     *  @return the target frame rate range of this Preview.
+     * @return the target frame rate range of this Preview.
      */
     @NonNull
     public Range<Integer> getTargetFrameRate() {

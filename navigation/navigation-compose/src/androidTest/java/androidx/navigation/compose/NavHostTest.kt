@@ -23,6 +23,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.OnBackPressedDispatcherOwner
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
 import androidx.compose.foundation.layout.Column
@@ -827,7 +828,7 @@ class NavHostTest {
     }
 
     @Test
-    fun testNavHostCrossFade() {
+    fun testNavHostAnimations() {
         lateinit var navController: NavHostController
 
         composeTestRule.mainClock.autoAdvance = false
@@ -860,7 +861,7 @@ class NavHostTest {
         assertThat(navController.currentBackStackEntry?.lifecycle?.currentState)
             .isEqualTo(Lifecycle.State.STARTED)
 
-        // advance half way between the crossfade
+        // advance half way between animations
         composeTestRule.mainClock.advanceTimeBy(DefaultDurationMillis.toLong() / 2)
 
         assertThat(firstEntry?.lifecycle?.currentState)
@@ -900,7 +901,7 @@ class NavHostTest {
         assertThat(secondEntry?.lifecycle?.currentState)
             .isEqualTo(Lifecycle.State.CREATED)
 
-        // advance half way between the crossfade
+        // advance half way between animations
         composeTestRule.mainClock.advanceTimeBy(DefaultDurationMillis.toLong() / 2)
 
         assertThat(navController.currentBackStackEntry?.lifecycle?.currentState)
@@ -922,7 +923,7 @@ class NavHostTest {
     }
 
     @Test
-    fun testNavHostCrossFadeDeeplink() {
+    fun testNavHostDeeplink() {
         lateinit var navController: NavHostController
 
         composeTestRule.mainClock.autoAdvance = false
@@ -961,7 +962,7 @@ class NavHostTest {
     }
 
     @Test
-    fun testStateSavedByCrossFade() {
+    fun testStateSaved() {
         lateinit var navController: NavHostController
         lateinit var text: MutableState<String>
 
@@ -1109,6 +1110,25 @@ class NavHostTest {
     }
 
     @Test
+    fun testNestedNavHostNullLambda() {
+        lateinit var navController: NavHostController
+
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            NavHost(navController, startDestination = first) {
+                composable(first) { BasicText(first) }
+                navigation(second, "subGraph", enterTransition = { null }) {
+                    composable(second) { BasicText(second) }
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            navController.navigate(second)
+        }
+    }
+
+    @Test
     fun testNestedNavHostOnBackPressed() {
         var innerLifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
         val onBackPressedDispatcher = OnBackPressedDispatcher()
@@ -1142,7 +1162,7 @@ class NavHostTest {
         composeTestRule.runOnIdle {
             assertThat(onBackPressedDispatcher.hasEnabledCallbacks()).isFalse()
             innerNavController.navigate("innerSecond")
-            assertThat(onBackPressedDispatcher.hasEnabledCallbacks()).isTrue()
+            assertThat(onBackPressedDispatcher.hasEnabledCallbacks()).isFalse()
         }
 
         // Now navigate to a second destination in the outer NavHost
@@ -1206,6 +1226,49 @@ class NavHostTest {
             assertWithMessage("Lifecycle should not have been stopped")
                 .that(stopCount)
                 .isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun testPopWithBackHandler() {
+        lateinit var navController: NavHostController
+        var lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        var backPressedDispatcher: OnBackPressedDispatcher? = null
+        var count = 0
+        var wasCalled = false
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            backPressedDispatcher =
+                LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                BackHandler { wasCalled = true }
+                NavHost(navController, startDestination = "first") {
+                    composable("first") {
+                        BackHandler { count++ }
+                    }
+                }
+            }
+        }
+
+        composeTestRule.runOnUiThread {
+            backPressedDispatcher?.onBackPressed()
+            assertThat(count).isEqualTo(1)
+        }
+
+        // move to the back ground to unregister the BackHandlers
+        composeTestRule.runOnIdle {
+            lifecycleOwner.currentState = Lifecycle.State.CREATED
+        }
+
+        // register the BackHandlers again
+        composeTestRule.runOnIdle {
+            lifecycleOwner.currentState = Lifecycle.State.RESUMED
+        }
+
+        composeTestRule.runOnUiThread {
+            backPressedDispatcher?.onBackPressed()
+            assertThat(count).isEqualTo(2)
+            assertThat(wasCalled).isFalse()
         }
     }
 

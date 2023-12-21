@@ -29,7 +29,7 @@ import java.util.Arrays;
 
 /**
  * Utilities for working with {@link android.os.Bundle}.
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class BundleUtil {

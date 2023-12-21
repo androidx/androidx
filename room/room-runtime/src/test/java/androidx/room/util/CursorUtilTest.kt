@@ -15,7 +15,7 @@
  */
 package androidx.room.util
 
-import com.google.common.truth.Truth.assertThat
+import androidx.kruth.assertThat
 import org.junit.Test
 
 class CursorUtilTest {

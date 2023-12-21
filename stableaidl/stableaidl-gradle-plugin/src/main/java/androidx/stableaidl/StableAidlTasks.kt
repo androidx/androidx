@@ -74,6 +74,7 @@ fun registerCompileAidlApi(
     variant: Variant,
     aidlExecutable: Provider<RegularFile>,
     aidlFramework: Provider<RegularFile>,
+    aidlVersion: Provider<String>,
     sourceDir: SourceDirectories.Flat,
     packagedDir: Provider<Directory>,
     importsDir: SourceDirectories.Flat,
@@ -88,6 +89,8 @@ fun registerCompileAidlApi(
     task.variantName = variant.name
     task.aidlExecutable.set(aidlExecutable)
     task.aidlFrameworkProvider.set(aidlFramework)
+    task.aidlVersion.set(aidlVersion)
+    task.minSdkVersion.set(variant.minSdk)
     task.sourceDirs.set(sourceDir.all)
     task.sourceOutputDir.set(outputDir)
     task.packagedDir.set(packagedDir)
@@ -160,6 +163,7 @@ fun registerGenerateAidlApi(
     variant: Variant,
     aidlExecutable: Provider<RegularFile>,
     aidlFramework: Provider<RegularFile>,
+    aidlVersion: Provider<String>,
     sourceDir: SourceDirectories.Flat,
     importsDir: SourceDirectories.Flat,
     depImports: List<FileCollection>,
@@ -174,6 +178,7 @@ fun registerGenerateAidlApi(
     task.variantName = variant.name
     task.aidlExecutable.set(aidlExecutable)
     task.aidlFrameworkProvider.set(aidlFramework)
+    task.aidlVersion.set(aidlVersion)
     task.sourceDirs.set(sourceDir.all)
     task.sourceOutputDir.set(builtApiDir)
     task.importDirs.set(importsDir.all)
@@ -198,7 +203,7 @@ fun registerCheckApiAidlRelease(
     importsDir: SourceDirectories.Flat,
     depImports: List<FileCollection>,
     lastReleasedApiDir: Directory,
-    generateAidlTask: Provider<StableAidlCompile>
+    generateAidlTask: Provider<StableAidlCompile>,
 ): TaskProvider<StableAidlCheckApi> = project.tasks.register(
     computeTaskName("check", variant, "AidlApiRelease"),
     StableAidlCheckApi::class.java
@@ -229,7 +234,7 @@ fun registerCheckAidlApi(
     depImports: List<FileCollection>,
     lastCheckedInApiFile: Directory,
     generateAidlTask: Provider<StableAidlCompile>,
-    checkAidlApiReleaseTask: Provider<StableAidlCheckApi>
+    checkAidlApiReleaseTask: Provider<StableAidlCheckApi>,
 ): TaskProvider<StableAidlCheckApi> = project.tasks.register(
     computeTaskName("check", variant, "AidlApi"),
     StableAidlCheckApi::class.java
@@ -255,6 +260,7 @@ fun registerUpdateAidlApi(
     variant: Variant,
     lastCheckedInApiFile: Directory,
     generateAidlTask: Provider<StableAidlCompile>,
+    checkAidlApiReleaseTask: Provider<StableAidlCheckApi>,
 ): TaskProvider<UpdateStableAidlApiTask> = project.tasks.register(
     computeTaskName("update", variant, "AidlApi"),
     UpdateStableAidlApiTask::class.java
@@ -265,6 +271,7 @@ fun registerUpdateAidlApi(
     task.apiLocation.set(generateAidlTask.flatMap { it.sourceOutputDir })
     task.outputApiLocations.set(listOf(lastCheckedInApiFile.asFile))
     task.forceUpdate.set(project.providers.gradleProperty("force").isPresent)
+    task.dependsOn(checkAidlApiReleaseTask)
 }
 
 /**

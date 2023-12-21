@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.selection
 
+import android.os.Build
 import androidx.compose.foundation.text.InternalFoundationTextApi
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.TextDelegate
@@ -513,8 +514,6 @@ class MultiWidgetSelectionDelegateTest {
         )
     }
 
-    // TODO(b/270441925); Returns a different result below API 26.
-    @SdkSuppress(minSdkVersion = 26)
     @Test
     fun getHandlePosition_EndHandle_not_cross_ltr_overflowed() {
         val text = "hello\nworld"
@@ -618,8 +617,6 @@ class MultiWidgetSelectionDelegateTest {
         )
     }
 
-    // TODO(b/270441925); Returns a different result below API 26.
-    @SdkSuppress(minSdkVersion = 26)
     @Test
     fun getHandlePosition_EndHandle_cross_ltr_overflowed() {
         val text = "hello\nworld"
@@ -774,8 +771,6 @@ class MultiWidgetSelectionDelegateTest {
         )
     }
 
-    // TODO(b/270441925); Returns a different result below API 26.
-    @SdkSuppress(minSdkVersion = 26)
     @Test
     fun getHandlePosition_EndHandle_not_cross_rtl_overflowed() {
         val text = "\u05D0\u05D1\u05D2\n\u05D3\u05D4\u05D5"
@@ -826,8 +821,6 @@ class MultiWidgetSelectionDelegateTest {
         assertThat(coordinates).isEqualTo(Offset(0f, fontSizeInPx))
     }
 
-    // TODO(b/270441925); Returns a different result below API 26.
-    @SdkSuppress(minSdkVersion = 26)
     @Test
     fun getHandlePosition_EndHandle_cross_rtl_overflowed() {
         val text = "\u05D0\u05D1\u05D2\n\u05D3\u05D4\u05D5"
@@ -1322,8 +1315,6 @@ class MultiWidgetSelectionDelegateTest {
         assertThat(lineRange).isEqualTo(TextRange(6, 6))
     }
 
-    // TODO(b/270441925); Returns a different result below API 26.
-    @SdkSuppress(minSdkVersion = 26)
     @Test
     fun getRangeOfLineContaining_overflowed_returnsLastVisibleLine() {
         val text = "hello\nworld"
@@ -1425,8 +1416,6 @@ class MultiWidgetSelectionDelegateTest {
     // start = maxLines 1
     // start = clip
     // start = enabled soft wrap
-    // TODO(b/270441925); Returns a different result below API 26.
-    @SdkSuppress(minSdkVersion = 26)
     @Test
     fun getLastVisibleOffset_maxLines1_clip_enabledSoftwrap_multiLineContent() {
         val text = "hello\nworld"
@@ -1452,8 +1441,6 @@ class MultiWidgetSelectionDelegateTest {
         assertThat(lastVisibleOffset).isEqualTo(5)
     }
 
-    // TODO(b/270441925); Returns a different result below API 26.
-    @SdkSuppress(minSdkVersion = 26)
     @Test
     fun getLastVisibleOffset_maxLines1_clip_enabledSoftwrap_singleLineContent() {
         val text = "hello world"
@@ -1481,8 +1468,6 @@ class MultiWidgetSelectionDelegateTest {
     }
 
     // start = disabled soft wrap
-    // TODO(b/270441925); Returns a different result below API 26.
-    @SdkSuppress(minSdkVersion = 26)
     @Test
     fun getLastVisibleOffset_maxLines1_clip_disabledSoftwrap_multiLineContent() {
         val text = "hello\nworld"
@@ -1531,7 +1516,7 @@ class MultiWidgetSelectionDelegateTest {
 
         val lastVisibleOffset = selectable.getLastVisibleOffset()
 
-        assertThat(lastVisibleOffset).isEqualTo(text.length)
+        assertThat(lastVisibleOffset).isEqualTo(text.length - 1) // ignore last whitespace
     }
 
     // start = ellipsis
@@ -1618,8 +1603,6 @@ class MultiWidgetSelectionDelegateTest {
         assertThat(lastVisibleOffset).isEqualTo(4)
     }
 
-    // TODO(b/270441925); Returns a different result below API 26.
-    @SdkSuppress(minSdkVersion = 26)
     @Test
     fun getLastVisibleOffset_maxLines1_ellipsis_disabledSoftwrap_singleLineContent() {
         val text = "hello world ".repeat(10)
@@ -1643,7 +1626,13 @@ class MultiWidgetSelectionDelegateTest {
 
         val lastVisibleOffset = selectable.getLastVisibleOffset()
 
-        assertThat(lastVisibleOffset).isEqualTo(19)
+        // the way text layout is calculated with ellipsis is vastly different before and
+        // after API 23. Last visible offset logic cannot be unified below API 23.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            assertThat(lastVisibleOffset).isEqualTo(19)
+        } else {
+            assertThat(lastVisibleOffset).isEqualTo(17)
+        }
     }
 
     // start = height constrained
@@ -1749,7 +1738,7 @@ class MultiWidgetSelectionDelegateTest {
 
         val lastVisibleOffset = selectable.getLastVisibleOffset()
 
-        assertThat(lastVisibleOffset).isEqualTo(text.length)
+        assertThat(lastVisibleOffset).isEqualTo(text.length - 1) // ignores last whitespace
     }
 
     // start = ellipsis
@@ -1780,8 +1769,6 @@ class MultiWidgetSelectionDelegateTest {
         assertThat(lastVisibleOffset).isEqualTo(11)
     }
 
-    // TODO(b/270441925); Returns a different result below API 26.
-    @SdkSuppress(minSdkVersion = 26)
     @Test
     fun getLastVisibleOffset_limitHeight_ellipsis_enabledSoftwrap_singleLineContent() {
         val text = "hello world ".repeat(10)
@@ -1805,7 +1792,13 @@ class MultiWidgetSelectionDelegateTest {
 
         val lastVisibleOffset = selectable.getLastVisibleOffset()
 
-        assertThat(lastVisibleOffset).isEqualTo(9)
+        // the way text layout is calculated with ellipsis is vastly different before and
+        // after API 23. Last visible offset logic cannot be unified below API 23.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            assertThat(lastVisibleOffset).isEqualTo(9)
+        } else {
+            assertThat(lastVisibleOffset).isEqualTo(5)
+        }
     }
 
     // start = disabled soft wrap
@@ -1835,8 +1828,6 @@ class MultiWidgetSelectionDelegateTest {
         assertThat(lastVisibleOffset).isEqualTo(5)
     }
 
-    // TODO(b/270441925); Returns a different result below API 26.
-    @SdkSuppress(minSdkVersion = 26)
     @Test
     fun getLastVisibleOffset_limitHeight_ellipsis_disabledSoftwrap_singleLineContent() {
         val text = "hello world ".repeat(10)
@@ -1860,7 +1851,13 @@ class MultiWidgetSelectionDelegateTest {
 
         val lastVisibleOffset = selectable.getLastVisibleOffset()
 
-        assertThat(lastVisibleOffset).isEqualTo(19)
+        // the way text layout is calculated with ellipsis is vastly different before and
+        // after API 23. Last visible offset logic cannot be unified below API 23.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            assertThat(lastVisibleOffset).isEqualTo(19)
+        } else {
+            assertThat(lastVisibleOffset).isEqualTo(17)
+        }
     }
 
     @Test

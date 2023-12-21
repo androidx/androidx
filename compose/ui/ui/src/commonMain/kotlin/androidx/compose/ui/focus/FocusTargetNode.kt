@@ -26,6 +26,7 @@ import androidx.compose.ui.focus.FocusStateImpl.Inactive
 import androidx.compose.ui.layout.BeyondBoundsLayout
 import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.modifier.ModifierLocalModifierNode
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.ObserverModifierNode
@@ -37,6 +38,7 @@ import androidx.compose.ui.node.visitSelfAndAncestors
 import androidx.compose.ui.platform.InspectorInfo
 
 internal class FocusTargetNode :
+    CompositionLocalConsumerModifierNode,
     FocusTargetModifierNode,
     ObserverModifierNode,
     ModifierLocalModifierNode,
@@ -47,6 +49,8 @@ internal class FocusTargetNode :
 
     @OptIn(ExperimentalComposeUiApi::class)
     override var focusState: FocusStateImpl = Inactive
+
+    var previouslyFocusedChildHash: Int = 0
 
     val beyondBoundsLayoutParent: BeyondBoundsLayout?
         get() = ModifierLocalBeyondBoundsLayout.current

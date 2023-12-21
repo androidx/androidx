@@ -67,7 +67,7 @@ fun painterResource(@DrawableRes id: Int): Painter {
     } else {
         // Otherwise load the bitmap resource
         val imageBitmap = remember(path, id, context.theme) {
-            loadImageBitmapResource(res, id)
+            loadImageBitmapResource(path, res, id)
         }
         BitmapPainter(imageBitmap)
     }
@@ -104,13 +104,21 @@ private fun loadVectorResource(
  * an ImageBitmap resource. Because this throws exceptions we cannot have this implementation
  * as part of the composable implementation it is invoked in.
  */
-private fun loadImageBitmapResource(res: Resources, id: Int): ImageBitmap {
+private fun loadImageBitmapResource(path: CharSequence, res: Resources, id: Int): ImageBitmap {
     try {
         return ImageBitmap.imageResource(res, id)
-    } catch (throwable: Throwable) {
-        throw IllegalArgumentException(errorMessage)
+    } catch (exception: Exception) {
+        throw ResourceResolutionException("Error attempting to load resource: $path", exception)
     }
 }
 
+/**
+ * [Throwable] that is thrown in situations where a resource failed to load.
+ */
+class ResourceResolutionException(
+    message: String,
+    cause: Throwable
+) : RuntimeException(message, cause)
+
 private const val errorMessage =
-    "Only VectorDrawables and rasterized asset types are supported ex. PNG, JPG"
+    "Only VectorDrawables and rasterized asset types are supported ex. PNG, JPG, WEBP"

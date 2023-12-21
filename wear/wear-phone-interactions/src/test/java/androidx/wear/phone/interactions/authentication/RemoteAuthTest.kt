@@ -209,11 +209,11 @@ public class RemoteAuthTest {
         var state = ConnectionState.DISCONNECTED
         private var serviceConnection: ServiceConnection? = null
         override fun bindService(
-            intent: Intent?,
-            connection: ServiceConnection?,
+            intent: Intent,
+            connection: ServiceConnection,
             flags: Int
         ): Boolean {
-            if (intent!!.getPackage() != RemoteAuthClient.WEARABLE_PACKAGE_NAME) {
+            if (intent.getPackage() != RemoteAuthClient.WEARABLE_PACKAGE_NAME) {
                 throw UnsupportedOperationException()
             }
             if (intent.action != RemoteAuthClient.ACTION_AUTH) {

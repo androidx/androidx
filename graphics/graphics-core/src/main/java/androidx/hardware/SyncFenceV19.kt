@@ -18,6 +18,7 @@ package androidx.hardware
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.graphics.utils.JniVisible
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -33,6 +34,7 @@ import kotlin.concurrent.withLock
  * such as for display or media encoding.
  */
 @RequiresApi(Build.VERSION_CODES.KITKAT)
+@JniVisible
 internal class SyncFenceV19(private var fd: Int) : AutoCloseable, SyncFenceImpl {
 
     private val fenceLock = ReentrantLock()
@@ -60,6 +62,7 @@ internal class SyncFenceV19(private var fd: Int) : AutoCloseable, SyncFenceImpl 
     }
 
     // Accessed through JNI to obtain the dup'ed file descriptor in a thread safe manner
+    @JniVisible
     private fun dupeFileDescriptor(): Int = fenceLock.withLock {
         return if (isValid()) {
             nDup(fd)

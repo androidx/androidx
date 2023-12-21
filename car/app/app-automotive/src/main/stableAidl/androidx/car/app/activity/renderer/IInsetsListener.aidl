@@ -20,9 +20,8 @@ import android.graphics.Insets;
 
 /**
  * Interface to events relevant to remote rendering.
- *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IInsetsListener {
   /**
    * Notifies that the {@link Insets} have changed.

@@ -380,7 +380,9 @@ class TypeAdapterStore private constructor(
             // Extract the type value of the Value class element
             val underlyingProperty = typeElement.getValueClassUnderlyingProperty()
             val underlyingTypeColumnAdapter = findColumnTypeAdapter(
-                out = underlyingProperty.asMemberOf(type),
+                // Find an adapter for the non-null underlying type, nullability will be handled
+                // by the value class adapter.
+                out = underlyingProperty.asMemberOf(type).makeNonNullable(),
                 affinity = affinity,
                 skipDefaultConverter = false
             ) ?: return null

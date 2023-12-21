@@ -121,9 +121,9 @@ class TextDelegate(
     val maxIntrinsicWidth: Int get() = nonNullIntrinsics.maxIntrinsicWidth.ceilToIntPx()
 
     init {
-        check(maxLines > 0)
-        check(minLines > 0)
-        check(minLines <= maxLines)
+        require(maxLines > 0) { "no maxLines" }
+        require(minLines > 0) { "no minLines" }
+        require(minLines <= maxLines) { "minLines greater than maxLines" }
     }
 
     fun layoutIntrinsics(layoutDirection: LayoutDirection) {

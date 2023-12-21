@@ -19,12 +19,15 @@ package androidx.kruth
 /**
  * Propositions for [Throwable] subjects.
  */
-class ThrowableSubject<T : Throwable>(actual: T?) : Subject<T>(actual) {
+class ThrowableSubject<T : Throwable> internal constructor(
+    actual: T?,
+    private val metadata: FailureMetadata = FailureMetadata(),
+) : Subject<T>(actual = actual, metadata = metadata) {
 
     /**
      * Returns a [StringSubject] to make assertions about the throwable's message.
      */
     fun hasMessageThat(): StringSubject {
-        return StringSubject(actual?.message)
+        return StringSubject(actual = actual?.message, metadata = metadata)
     }
 }

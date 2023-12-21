@@ -36,6 +36,7 @@ import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
+import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -57,31 +58,50 @@ class MeteringRepeatingSession {
     private DeferrableSurface mDeferrableSurface;
 
     @NonNull
-    private final SessionConfig mSessionConfig;
+    private SessionConfig mSessionConfig;
 
     @NonNull
     private final MeteringRepeatingConfig mConfigWithDefaults;
 
     @NonNull
+    private final Size mMeteringRepeatingSize;
+
+    @NonNull
     private final SupportedRepeatingSurfaceSize mSupportedRepeatingSurfaceSize =
             new SupportedRepeatingSurfaceSize();
 
+    interface SurfaceResetCallback {
+        void onSurfaceReset();
+    }
+
+    @Nullable
+    private final SurfaceResetCallback mSurfaceResetCallback;
+
     /** Creates a new instance of a {@link MeteringRepeatingSession}. */
     MeteringRepeatingSession(@NonNull CameraCharacteristicsCompat cameraCharacteristicsCompat,
-            @NonNull DisplayInfoManager displayInfoManager) {
+            @NonNull DisplayInfoManager displayInfoManager,
+            @Nullable SurfaceResetCallback surfaceResetCallback) {
         mConfigWithDefaults = new MeteringRepeatingConfig();
+        mSurfaceResetCallback = surfaceResetCallback;
 
+        mMeteringRepeatingSize = getProperPreviewSize(
+                cameraCharacteristicsCompat, displayInfoManager);
+        Logger.d(TAG, "MeteringSession SurfaceTexture size: " + mMeteringRepeatingSize);
+
+        mSessionConfig = createSessionConfig();
+    }
+
+    @NonNull
+    SessionConfig createSessionConfig() {
         // Create the metering DeferrableSurface
         SurfaceTexture surfaceTexture = new SurfaceTexture(0);
-        Size meteringSurfaceSize = getProperPreviewSize(
-                cameraCharacteristicsCompat, displayInfoManager);
-        Logger.d(TAG, "MeteringSession SurfaceTexture size: " + meteringSurfaceSize);
-        surfaceTexture.setDefaultBufferSize(meteringSurfaceSize.getWidth(),
-                meteringSurfaceSize.getHeight());
+
+        surfaceTexture.setDefaultBufferSize(mMeteringRepeatingSize.getWidth(),
+                mMeteringRepeatingSize.getHeight());
         Surface surface = new Surface(surfaceTexture);
 
         SessionConfig.Builder builder = SessionConfig.Builder.createFrom(mConfigWithDefaults,
-                meteringSurfaceSize);
+                mMeteringRepeatingSize);
         builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
 
         mDeferrableSurface = new ImmediateSurface(surface);
@@ -102,7 +122,14 @@ class MeteringRepeatingSession {
 
         builder.addSurface(mDeferrableSurface);
 
-        mSessionConfig = builder.build();
+        builder.addErrorListener((sessionConfig, error) -> {
+            mSessionConfig = createSessionConfig();
+            if (mSurfaceResetCallback != null) {
+                mSurfaceResetCallback.onSurfaceReset();
+            }
+        });
+
+        return builder.build();
     }
 
     @NonNull
@@ -152,6 +179,12 @@ class MeteringRepeatingSession {
         public Config getConfig() {
             return mConfig;
         }
+
+        @NonNull
+        @Override
+        public UseCaseConfigFactory.CaptureType getCaptureType() {
+            return UseCaseConfigFactory.CaptureType.METERING_REPEATING;
+        }
     }
 
     @NonNull
@@ -200,5 +233,3 @@ class MeteringRepeatingSession {
     }
 
 }
-
-

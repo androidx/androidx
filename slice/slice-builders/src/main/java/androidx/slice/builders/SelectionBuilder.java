@@ -180,7 +180,6 @@ public class SelectionBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public List<Pair<String, CharSequence>> getOptions() {
@@ -188,7 +187,6 @@ public class SelectionBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public SliceAction getPrimaryAction() {
@@ -196,7 +194,6 @@ public class SelectionBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public PendingIntent getInputAction() {
@@ -204,7 +201,6 @@ public class SelectionBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public String getSelectedOption() {
@@ -212,7 +208,6 @@ public class SelectionBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public CharSequence getTitle() {
@@ -220,7 +215,6 @@ public class SelectionBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public CharSequence getSubtitle() {
@@ -228,7 +222,6 @@ public class SelectionBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public CharSequence getContentDescription() {
@@ -236,7 +229,6 @@ public class SelectionBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public int getLayoutDirection() {
@@ -244,7 +236,6 @@ public class SelectionBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public void check() {

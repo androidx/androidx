@@ -46,7 +46,7 @@ internal abstract class LazyGridMeasuredItemProvider @ExperimentalFoundationApi 
         val crossAxisSize = if (constraints.hasFixedWidth) {
             constraints.minWidth
         } else {
-            require(constraints.hasFixedHeight)
+            require(constraints.hasFixedHeight) { "does not have fixed height" }
             constraints.minHeight
         }
         return createItem(

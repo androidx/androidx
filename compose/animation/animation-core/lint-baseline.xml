@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method animateFloatAsState has parameter &apos;finishedListener&apos; with type Function1&lt;? super Float, Unit>."
+        errorLine1="    finishedListener: ((Float) -> Unit)? = null"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/core/AnimateAsState.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method animateIntAsState has parameter &apos;finishedListener&apos; with type Function1&lt;? super Integer, Unit>."
+        errorLine1="    finishedListener: ((Int) -> Unit)? = null"
+        errorLine2="                      ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/core/AnimateAsState.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method animateFloatAsState has parameter &apos;finishedListener&apos; with type Function1&lt;? super Float, ? extends Unit>."
+        errorLine1="    finishedListener: ((Float) -> Unit)? = null"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/core/AnimateAsState.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method animateIntAsState has parameter &apos;finishedListener&apos; with type Function1&lt;? super Integer, ? extends Unit>."
+        errorLine1="    finishedListener: ((Int) -> Unit)? = null"
+        errorLine2="                      ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/core/AnimateAsState.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method withInfiniteAnimationFrameNanos has parameter &apos;onFrame&apos; with type Function1&lt;? super Long, ? extends R>."
+        errorLine1="suspend fun &lt;R> withInfiniteAnimationFrameNanos(onFrame: (frameTimeNanos: Long) -> R): R ="
+        errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/core/InfiniteAnimationPolicy.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method animate has parameter &apos;block&apos; with type Function2&lt;? super Float, ? super Float, Unit>."
+        errorLine1="    block: (value: Float, velocity: Float) -> Unit"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/core/SuspendAnimation.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method animateDecay has parameter &apos;block&apos; with type Function2&lt;? super Float, ? super Float, Unit>."
+        errorLine1="    block: (value: Float, velocity: Float) -> Unit"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/core/SuspendAnimation.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method callWithFrameNanos has parameter &apos;onFrame&apos; with type Function1&lt;? super Long, ? extends R>."
+        errorLine1="    onFrame: (frameTimeNanos: Long) -> R"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/core/SuspendAnimation.kt"/>
+    </issue>
+
+</issues>

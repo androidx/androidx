@@ -14,18 +14,14 @@
  * limitations under the License.
  */
 
-import androidx.build.AndroidXComposePlugin
 import androidx.build.LibraryType
-import androidx.build.Publish
 
 plugins {
     id("AndroidXComposePlugin")
     id("AndroidXPlugin")
+    id("org.jetbrains.kotlin.android")
     id("com.android.library")
 }
-
-// Disable multi-platform; this will only be used on Android.
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project, /* isMultiplatformEnabled= */false)
 
 dependencies {
 

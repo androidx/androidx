@@ -56,7 +56,6 @@ public class SliceStructure {
 
     /**
      * Create a SliceStructure.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public SliceStructure(SliceItem s) {
@@ -72,7 +71,6 @@ public class SliceStructure {
 
     /**
      * @return the Uri associated with this content item if one exists.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Nullable

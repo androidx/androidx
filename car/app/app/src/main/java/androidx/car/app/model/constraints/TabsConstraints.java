@@ -28,7 +28,6 @@ import java.util.Set;
 /**
  * Encapsulates the constraints to apply when creating {@link TabTemplate}.
  *
- * @hide
  */
 @RequiresCarApi(6)
 @RestrictTo(RestrictTo.Scope.LIBRARY)

@@ -33,8 +33,7 @@ import androidx.work.impl.utils.taskexecutor.TaskExecutor
 class BatteryChargingTracker(context: Context, taskExecutor: TaskExecutor) :
     BroadcastReceiverConstraintTracker<Boolean>(context, taskExecutor) {
 
-    override val initialState: Boolean
-        get() {
+    override fun readSystemState(): Boolean {
             // {@link ACTION_CHARGING} and {@link ACTION_DISCHARGING} are not sticky broadcasts, so
             // we use {@link ACTION_BATTERY_CHANGED} on all APIs to get the initial state.
             val intentFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
@@ -44,7 +43,7 @@ class BatteryChargingTracker(context: Context, taskExecutor: TaskExecutor) :
                 return false
             }
             return isBatteryChangedIntentCharging(intent)
-        }
+    }
 
     override val intentFilter: IntentFilter
         get() {

@@ -103,7 +103,6 @@ dependencies {
         exclude group: "com.android.support", module: "support-annotations"
         exclude module: "hamcrest-core"
     })
-    androidTestImplementation(libs.truth) // Kruth still lacks assertWithMessage
     androidTestImplementation(project(":internal-testutils-kmp"))
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(project(":room:room-guava"))

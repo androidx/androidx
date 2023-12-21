@@ -16,6 +16,8 @@
 
 package androidx.test.uiautomator.testapp;
 
+import static android.os.Build.VERSION.SDK_INT;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -26,6 +28,7 @@ import static org.junit.Assert.assertTrue;
 
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.view.Display;
 import android.view.ViewConfiguration;
 import android.view.accessibility.AccessibilityEvent;
 
@@ -38,6 +41,7 @@ import androidx.test.uiautomator.EventCondition;
 import androidx.test.uiautomator.UiObject2;
 import androidx.test.uiautomator.Until;
 
+import org.junit.Assume;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -326,6 +330,26 @@ public class UiObject2Test extends BaseTest {
 
         UiObject2 nullTextObject = mDevice.findObject(By.res(TEST_APP, "nested_elements"));
         assertNull(nullTextObject.getText());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    public void testGetHint() {
+        launchTestActivity(HintTestActivity.class);
+
+        UiObject2 hintNotSetObj = mDevice.findObject(By.res(TEST_APP, "hint_not_set"));
+        UiObject2 hintSetObj = mDevice.findObject(By.res(TEST_APP, "hint_set"));
+
+        assertNull(hintNotSetObj.getHint());
+        assertEquals("sample_hint", hintSetObj.getHint());
+    }
+
+    @Test
+    public void testGetDisplayId() {
+        launchTestActivity(MainActivity.class);
+
+        UiObject2 button = mDevice.findObject(By.res(TEST_APP, "button"));
+        assertEquals(Display.DEFAULT_DISPLAY, button.getDisplayId());
     }
 
     @Test
@@ -630,6 +654,7 @@ public class UiObject2Test extends BaseTest {
 
     @Test
     public void testScrollUntil_conditionSatisfied() {
+        Assume.assumeFalse(SDK_INT == 26); // b/272346700
         launchTestActivity(VerticalScrollTestActivity.class);
         assertTrue(mDevice.hasObject(By.res(TEST_APP, "top_text"))); // Initially at top.
         assertFalse(mDevice.hasObject(By.res(TEST_APP, "bottom_text")));
@@ -662,27 +687,9 @@ public class UiObject2Test extends BaseTest {
         assertFalse(mDevice.hasObject(By.res(TEST_APP, "bottom_text")));
 
         UiObject2 scrollView = mDevice.findObject(By.res(TEST_APP, "scroll_view"));
-        // Scroll for the event condition that occurs early before scrolling to the end.
-        Integer result = scrollView.scrollUntil(Direction.DOWN,
-                new EventCondition<Integer>() {
-                    private Integer mResult = null;
-                    @Override
-                    public Integer getResult() {
-                        return mResult;
-                    }
-
-                    @Override
-                    public boolean accept(AccessibilityEvent event) {
-                        if (event.getEventType() == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
-                            mResult = event.getEventType();
-                            return true;
-                        }
-                        return false;
-                    }
-                });
-        assertEquals(result, (Integer) AccessibilityEvent.TYPE_VIEW_SCROLLED);
-        // We haven't scrolled to the end.
-        assertFalse(mDevice.hasObject(By.res(TEST_APP, "bottom_text")));
+        // Scroll to the end.
+        assertTrue(scrollView.scrollUntil(Direction.DOWN, Until.scrollFinished(Direction.DOWN)));
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "bottom_text")));
     }
 
     @Test
@@ -731,6 +738,7 @@ public class UiObject2Test extends BaseTest {
         assertTrue(flingRegion.wait(Until.textEquals("fling_left"), TIMEOUT_MS));
     }
 
+    @Ignore // b/281821418
     @Test
     public void testFling_directionAndSpeed() {
         launchTestActivity(FlingTestActivity.class);

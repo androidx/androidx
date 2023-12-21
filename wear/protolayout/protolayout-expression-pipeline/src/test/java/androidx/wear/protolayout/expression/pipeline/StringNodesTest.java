@@ -29,10 +29,10 @@ import androidx.wear.protolayout.expression.pipeline.StringNodes.FixedStringNode
 import androidx.wear.protolayout.expression.pipeline.StringNodes.Int32FormatNode;
 import androidx.wear.protolayout.expression.pipeline.StringNodes.StateStringNode;
 import androidx.wear.protolayout.expression.pipeline.StringNodes.StringConcatOpNode;
+import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 import androidx.wear.protolayout.expression.proto.DynamicProto.Int32FormatOp;
 import androidx.wear.protolayout.expression.proto.DynamicProto.StateStringSource;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedString;
-import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 
 import com.google.common.collect.ImmutableMap;
 

@@ -34,7 +34,6 @@ import java.util.List;
 /**
  * Encapsulates the constraints to apply when rendering a {@link CarText} on a template.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class CarTextConstraints {

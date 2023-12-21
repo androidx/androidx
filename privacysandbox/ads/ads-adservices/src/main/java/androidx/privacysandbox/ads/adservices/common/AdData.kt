@@ -17,6 +17,8 @@
 package androidx.privacysandbox.ads.adservices.common
 
 import android.net.Uri
+import android.os.Build
+import androidx.annotation.RequiresApi
 
 /**
  * Represents data specific to an ad that is necessary for ad selection and rendering.
@@ -24,8 +26,8 @@ import android.net.Uri
  * @param metadata buyer ad metadata represented as a JSON string
  */
 class AdData public constructor(
-    val renderUri: Uri,
-    val metadata: String
+    val renderUri: Uri = Uri.EMPTY,
+    val metadata: String = ""
     ) {
 
     /** Checks whether two [AdData] objects contain the same information.  */
@@ -46,5 +48,43 @@ class AdData public constructor(
     /** Overrides the toString method.  */
     override fun toString(): String {
         return "AdData: renderUri=$renderUri, metadata='$metadata'"
+    }
+
+    /** Builder for [AdData] objects. */
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    public class Builder {
+        private var renderUri: Uri = Uri.EMPTY
+        private var metadata: String = ""
+
+        /**
+         * Sets the URI that points to the ad's rendering assets. The URI must use HTTPS.
+         *
+         * @param renderUri a URI pointing to the ad's rendering assets
+         */
+        fun setRenderUri(renderUri: Uri): Builder = apply {
+            this.renderUri = renderUri
+        }
+
+        /**
+         * Sets the buyer ad metadata used during the ad selection process.
+         *
+         * @param metadata The metadata should be a valid JSON object serialized as a string.
+         * Metadata represents ad-specific bidding information that will be used during ad selection
+         * as part of bid generation and used in buyer JavaScript logic, which is executed in an
+         * isolated execution environment.
+         *
+         * If the metadata is not a valid JSON object that can be consumed by the buyer's JS, the
+         * ad will not be eligible for ad selection.
+         */
+        fun setMetadata(metadata: String): Builder = apply {
+            this.metadata = metadata
+        }
+
+        /**
+         * Builds an instance of [AdData]
+         */
+        fun build(): AdData {
+            return AdData(renderUri, metadata)
+        }
     }
 }

@@ -36,8 +36,6 @@ import kotlinx.coroutines.sync.Mutex
 
 /**
  * CapabilitySession implementation for executing single-turn fulfillment requests.
- *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class SingleTurnCapabilitySession<
@@ -69,7 +67,7 @@ internal class SingleTurnCapabilitySession<
         callback: CallbackInternal,
     ) {
         if (!isActiveAtomic.getAndSet(false)) {
-            callback.onError(ErrorStatusInternal.CANCELLED)
+            callback.onError(ErrorStatusInternal.SESSION_NOT_FOUND)
             return
         }
         val paramValuesMap: Map<String, List<ParamValue>> =

@@ -17,7 +17,9 @@
 package androidx.core.view.accessibility;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.core.IsNot.not;
 
 import android.annotation.TargetApi;
 import android.graphics.Region;
@@ -38,6 +40,17 @@ public class AccessibilityWindowInfoCompatTest {
     private AccessibilityWindowInfoCompat obtainedWrappedWindowCompat() {
         AccessibilityWindowInfo accessibilityWindowInfo = AccessibilityWindowInfo.obtain();
         return AccessibilityWindowInfoCompat.wrapNonNullInstance(accessibilityWindowInfo);
+    }
+
+    @SdkSuppress(minSdkVersion = 30)
+    @SmallTest
+    @Test
+    public void testConstructor() {
+        AccessibilityWindowInfoCompat infoCompat = new AccessibilityWindowInfoCompat();
+        AccessibilityWindowInfo info = new AccessibilityWindowInfo();
+
+        assertThat(infoCompat.unwrap(), is(not(equalTo(null))));
+        assertThat(infoCompat.unwrap(), equalTo(info));
     }
 
     @SdkSuppress(minSdkVersion = 33)

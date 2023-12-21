@@ -18,27 +18,12 @@ package androidx.compose.foundation.text
 
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.text.selection.MouseSelectionObserver
-import androidx.compose.foundation.text.selection.mouseSelectionDetector
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.input.pointer.pointerInput
-
-// Touch selection
-internal fun Modifier.longPressDragGestureFilter(
-    observer: TextDragObserver,
-    enabled: Boolean
-) = if (enabled) {
-    this.pointerInput(observer) { detectDragGesturesAfterLongPressWithObserver(observer) }
-} else {
-    this
-}
 
 // Focus modifiers
 internal fun Modifier.textFieldFocusModifier(
@@ -50,15 +35,3 @@ internal fun Modifier.textFieldFocusModifier(
     .focusRequester(focusRequester)
     .onFocusChanged(onFocusChanged)
     .focusable(interactionSource = interactionSource, enabled = enabled)
-
-// Mouse
-internal fun Modifier.mouseDragGestureDetector(
-    observer: MouseSelectionObserver,
-    enabled: Boolean
-) = if (enabled) Modifier.composed {
-    // TODO(https://youtrack.jetbrains.com/issue/COMPOSE-79) how we can rewrite this without `composed`?
-    val currentMouseSelectionObserver by rememberUpdatedState(observer)
-    pointerInput(Unit) {
-        mouseSelectionDetector(currentMouseSelectionObserver)
-    }
-} else this

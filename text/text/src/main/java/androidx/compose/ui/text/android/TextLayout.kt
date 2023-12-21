@@ -462,7 +462,7 @@ internal class TextLayout constructor(
      */
     fun getLineVisibleEnd(lineIndex: Int): Int =
         if (layout.getEllipsisStart(lineIndex) == 0) { // no ellipsis
-            layout.getLineVisibleEnd(lineIndex)
+            layoutHelper.getLineVisibleEnd(lineIndex)
         } else {
             layout.getLineStart(lineIndex) + layout.getEllipsisStart(lineIndex)
         }

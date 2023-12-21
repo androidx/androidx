@@ -147,8 +147,6 @@ InvalidNullabilityOverride: androidx.leanback.app.PlaybackFragment#onViewCreated
     Invalid nullability on parameter `view` in method `onViewCreated`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.leanback.widget.GuidedActionEditText#onTouchEvent(android.view.MotionEvent) parameter #0:
     Invalid nullability on parameter `event` in method `onTouchEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.leanback.widget.ShadowOverlayContainer#draw(android.graphics.Canvas) parameter #0:
-    Invalid nullability on parameter `canvas` in method `draw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 
 
 KotlinOperator: androidx.leanback.widget.ObjectAdapter#get(int):
@@ -1135,6 +1133,8 @@ MissingNullability: androidx.leanback.graphics.CompositeDrawable.ChildDrawable#T
     Missing nullability on field `TOP_FRACTION` in class `class androidx.leanback.graphics.CompositeDrawable.ChildDrawable`
 MissingNullability: androidx.leanback.graphics.FitWidthBitmapDrawable#PROPERTY_VERTICAL_OFFSET:
     Missing nullability on field `PROPERTY_VERTICAL_OFFSET` in class `class androidx.leanback.graphics.FitWidthBitmapDrawable`
+MissingNullability: androidx.leanback.graphics.FitWidthBitmapDrawable#draw(android.graphics.Canvas) parameter #0:
+    Missing nullability on parameter `canvas` in method `draw`
 MissingNullability: androidx.leanback.graphics.FitWidthBitmapDrawable#getBitmap():
     Missing nullability on method `getBitmap` return
 MissingNullability: androidx.leanback.graphics.FitWidthBitmapDrawable#getConstantState():
@@ -2189,6 +2189,8 @@ MissingNullability: androidx.leanback.widget.ShadowOverlayContainer#ShadowOverla
     Missing nullability on parameter `context` in method `ShadowOverlayContainer`
 MissingNullability: androidx.leanback.widget.ShadowOverlayContainer#ShadowOverlayContainer(android.content.Context, android.util.AttributeSet, int) parameter #1:
     Missing nullability on parameter `attrs` in method `ShadowOverlayContainer`
+MissingNullability: androidx.leanback.widget.ShadowOverlayContainer#draw(android.graphics.Canvas) parameter #0:
+    Missing nullability on parameter `canvas` in method `draw`
 MissingNullability: androidx.leanback.widget.ShadowOverlayContainer#getWrappedView():
     Missing nullability on method `getWrappedView` return
 MissingNullability: androidx.leanback.widget.ShadowOverlayContainer#prepareParentForShadow(android.view.ViewGroup) parameter #0:

@@ -197,7 +197,7 @@ private fun Placeable.PlacementScope.placeInBox(
  */
 @Composable
 fun Box(modifier: Modifier) {
-    Layout({}, measurePolicy = EmptyBoxMeasurePolicy, modifier = modifier)
+    Layout(measurePolicy = EmptyBoxMeasurePolicy, modifier = modifier)
 }
 
 internal val EmptyBoxMeasurePolicy = MeasurePolicy { _, constraints ->

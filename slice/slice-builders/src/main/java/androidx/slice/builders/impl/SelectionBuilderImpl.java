@@ -25,7 +25,6 @@ import androidx.slice.Slice;
 import androidx.slice.builders.SelectionBuilder;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY)
 @RequiresApi(19)

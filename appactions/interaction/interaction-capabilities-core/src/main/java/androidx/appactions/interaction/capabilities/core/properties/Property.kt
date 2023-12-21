@@ -22,83 +22,72 @@ package androidx.appactions.interaction.capabilities.core.properties
  */
 class Property<T>
 internal constructor(
-    private val possibleValueSupplier: () -> List<T>,
-    /** Indicates that a value for this property is required to be present for fulfillment. */
-    @get:JvmName("isRequired")
-    val isRequired: Boolean,
+    /** Possible values which can fill the slot. */
+    private val possibleValueSupplier: () -> List<T> = { emptyList() },
     /**
-     * Indicates that a match of possible value for the given property must be present. Defaults to
-     * false.
+     * Indicates that a value for this property is required to be present for fulfillment. The
+     * default value is false.
+     */
+    @get:JvmName("isRequiredForExecution")
+    val isRequiredForExecution: Boolean = false,
+    /**
+     * Indicates that the value for this parameter must be one of [Property.possibleValues].
+     * The default value is false.
      *
-     * <p>If true, Assistant skips the capability if there is no match.
+     * <p>If true, then the assistant should not trigger this capability if there is no match for
+     * this parameter.
      */
-    @get:JvmName("isValueMatchRequired")
-    val isValueMatchRequired: Boolean,
+    @get:JvmName("shouldMatchPossibleValues")
+    val shouldMatchPossibleValues: Boolean = false,
     /**
-     * If true, the {@code Capability} will be rejected by assistant if corresponding param is set
-     * in argument. And the value of |isRequired| and |entityMatchRequired| will also be ignored by
-     * assistant.
+     * If false, the {@code Capability} will be rejected by assistant if corresponding param is set
+     * in Argument. Also, the value of |isRequired| and |entityMatchRequired| will be ignored by
+     * assistant. Default value is true and can be set false with static method
+     * [Property.unsupported].
      */
-    @get:JvmName("isProhibited")
-    val isProhibited: Boolean
+    @get:JvmName("isSupported")
+    val isSupported: Boolean = true,
 ) {
-    /** The current list of possible values for this parameter, can change over time. */
+    /**
+     * The current list of possible values for this parameter, can change over time if this property
+     * was constructed with a possible values supplier.
+     */
     val possibleValues: List<T>
         get() = possibleValueSupplier()
 
-    /** Builder for {@link Property}. */
-    class Builder<T> {
-        private var possibleValueSupplier: () -> List<T> = { emptyList() }
-        private var isRequired = false
-        private var isValueMatchRequired = false
+    /** Creates a property using a static list of possible values. */
+    @JvmOverloads
+    constructor(
+        possibleValues: List<T> = emptyList(),
+        isRequiredForExecution: Boolean = false,
+        shouldMatchPossibleValues: Boolean = false,
+    ) : this({ possibleValues }, isRequiredForExecution, shouldMatchPossibleValues, true)
 
-        /**
-         * Sets one or more possible values for this parameter.
-         *
-         * @param values the possible values.
-         */
-        fun setPossibleValues(vararg values: T) = apply {
-            this.possibleValueSupplier = { values.asList() }
-        }
-
-        /**
-         * Sets a supplier of possible values for this parameter.
-         *
-         * @param supplier the supplier of possible values.
-         */
-        fun setPossibleValueSupplier(supplier: () -> List<T>) = apply {
-            this.possibleValueSupplier = supplier
-        }
-
-        /** Sets whether or not this property requires a value for fulfillment. */
-        fun setRequired(required: Boolean) = apply { this.isRequired = required }
-
-        /**
-         * Sets whether or not this property requires that the value for this property must match
-         * one of the Entity in the defined possible entities.
-         */
-        fun setValueMatchRequired(valueMatchRequired: Boolean) = apply {
-            this.isValueMatchRequired = valueMatchRequired
-        }
-
-        /** Builds the property for this entity parameter. */
-        fun build() =
-            Property(
-                this.possibleValueSupplier,
-                this.isRequired,
-                this.isValueMatchRequired,
-                isProhibited = false,
-            )
-    }
+    /**
+     * Creates a property using a supplier of possible values. This allows for inventory to be
+     * dynamic, i.e. change every time the assistant reads the list of app-supported
+     * capabilities. With background service execution, the supplier may be called once on every
+     * request to the capability.
+     */
+    @JvmOverloads
+    constructor(
+        possibleValueSupplier: () -> List<T>,
+        isRequiredForExecution: Boolean = false,
+        shouldMatchPossibleValues: Boolean = false,
+    ) : this(possibleValueSupplier, isRequiredForExecution, shouldMatchPossibleValues, true)
 
     companion object {
+        /**
+         * Sets the parameter as unsupported. Declares that the app does not support this particular
+         * intent parameter, so it should not be sent to the app.
+         */
         @JvmStatic
-        fun <T> prohibited(): Property<T> {
+        fun <T> unsupported(): Property<T> {
             return Property(
                 possibleValueSupplier = { emptyList() },
-                isRequired = false,
-                isValueMatchRequired = false,
-                isProhibited = true,
+                isRequiredForExecution = false,
+                shouldMatchPossibleValues = false,
+                isSupported = false,
             )
         }
     }

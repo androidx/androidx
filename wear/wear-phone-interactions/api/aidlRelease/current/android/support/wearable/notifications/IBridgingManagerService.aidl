@@ -32,7 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package android.support.wearable.notifications;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IBridgingManagerService {
   void setBridgingConfig(in android.os.Bundle bridgingConfig) = 0;
   int getApiVersion() = 1;

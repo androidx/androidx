@@ -51,7 +51,6 @@ public abstract class TemplateSliceBuilder {
     private List<SliceSpec> mSpecs;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     protected TemplateSliceBuilder(TemplateBuilderImpl impl) {
@@ -62,7 +61,6 @@ public abstract class TemplateSliceBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public TemplateSliceBuilder(Context context, Uri uri) {
@@ -85,7 +83,6 @@ public abstract class TemplateSliceBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     protected Slice.Builder getBuilder() {
@@ -93,13 +90,11 @@ public abstract class TemplateSliceBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     abstract void setImpl(TemplateBuilderImpl impl);
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     protected TemplateBuilderImpl selectImpl() {
@@ -107,7 +102,6 @@ public abstract class TemplateSliceBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     protected boolean checkCompatible(SliceSpec candidate) {
@@ -129,7 +123,6 @@ public abstract class TemplateSliceBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     protected Clock getClock() {
@@ -141,7 +134,6 @@ public abstract class TemplateSliceBuilder {
 
     /**
      * This is for typing, to clean up the code.
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @SuppressWarnings("unchecked")

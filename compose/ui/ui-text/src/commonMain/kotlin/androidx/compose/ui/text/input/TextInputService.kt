@@ -16,8 +16,10 @@
 
 package androidx.compose.ui.text.input
 
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.text.AtomicReference
+import androidx.compose.ui.text.TextLayoutResult
 
 /**
  * Handles communication with the IME. Informs about the IME changes via [EditCommand]s and
@@ -110,6 +112,7 @@ open class TextInputService(private val platformTextInputService: PlatformTextIn
     // TODO(b/183448615) @InternalTextApi
     fun hideSoftwareKeyboard(): Unit = platformTextInputService.hideSoftwareKeyboard()
 }
+
 /**
  * Represents a input session for interactions between a soft keyboard and editable text.
  *
@@ -171,6 +174,33 @@ class TextInputSession(
      */
     fun notifyFocusedRect(rect: Rect): Boolean = ensureOpenSession {
         platformTextInputService.notifyFocusedRect(rect)
+    }
+
+    /**
+     * Notify the input service of layout and position changes.
+     *
+     * @param textFieldValue the text field's [TextFieldValue]
+     * @param textLayoutResult the text field's [TextLayoutResult]
+     * @param textLayoutPositionInWindow position of the text field relative to the window
+     * @param innerTextFieldBounds visible bounds of the text field in local coordinates, or an
+     *   empty rectangle if the text field is not visible
+     * @param decorationBoxBounds visible bounds of the decoration box in local coordinates, or an
+     *   empty rectangle if the decoration box is not visible
+     */
+    fun updateTextLayoutResult(
+        textFieldValue: TextFieldValue,
+        textLayoutResult: TextLayoutResult,
+        textLayoutPositionInWindow: Offset,
+        innerTextFieldBounds: Rect,
+        decorationBoxBounds: Rect
+    ) = ensureOpenSession {
+        platformTextInputService.updateTextLayoutResult(
+            textFieldValue,
+            textLayoutResult,
+            textLayoutPositionInWindow,
+            innerTextFieldBounds,
+            decorationBoxBounds
+        )
     }
 
     /**
@@ -268,10 +298,10 @@ interface PlatformTextInputService {
      */
     fun hideSoftwareKeyboard()
 
-    /*
+    /**
      * Notify the new editor model to IME.
      *
-     * @see TextInputService.updateState
+     * @see TextInputSession.updateState
      */
     fun updateState(oldValue: TextFieldValue?, newValue: TextFieldValue)
 
@@ -284,5 +314,19 @@ interface PlatformTextInputService {
      */
     // TODO(b/262648050) Try to find a better API.
     fun notifyFocusedRect(rect: Rect) {
+    }
+
+    /**
+     * Notify the input service of layout and position changes.
+     *
+     * @see TextInputSession.updateTextLayoutResult
+     */
+    fun updateTextLayoutResult(
+        textFieldValue: TextFieldValue,
+        textLayoutResult: TextLayoutResult,
+        textLayoutPositionInWindow: Offset,
+        innerTextFieldBounds: Rect,
+        decorationBoxBounds: Rect
+    ) {
     }
 }

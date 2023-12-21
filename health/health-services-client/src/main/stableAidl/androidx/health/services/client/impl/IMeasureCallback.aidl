@@ -20,9 +20,8 @@ import androidx.health.services.client.impl.event.MeasureCallbackEvent;
 
 /**
  * Interface to get callback for measure api.
- *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface IMeasureCallback {
     void onMeasureCallbackEvent(in MeasureCallbackEvent event) = 0;
 }

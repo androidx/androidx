@@ -102,7 +102,6 @@ public final class CarIcon {
     /**
      * The type of car icon represented by the {@link CarIcon} instance.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @SuppressLint("UniqueConstants") // TYPE_APP will be removed in a follow-up change.

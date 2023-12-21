@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("Deprecation") // b/274465184
+
 package androidx.compose.material
 
 import androidx.compose.animation.core.AnimationSpec

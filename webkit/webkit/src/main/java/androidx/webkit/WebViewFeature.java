@@ -80,7 +80,7 @@ public class WebViewFeature {
             SAFE_BROWSING_RESPONSE_SHOW_INTERSTITIAL,
             WEB_MESSAGE_PORT_POST_MESSAGE,
             WEB_MESSAGE_PORT_CLOSE,
-            WEB_MESSAGE_GET_MESSAGE_PAYLOAD,
+            WEB_MESSAGE_ARRAY_BUFFER,
             WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK,
             CREATE_WEB_MESSAGE_CHANNEL,
             POST_WEB_MESSAGE,
@@ -350,11 +350,11 @@ public class WebViewFeature {
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
-     * {@link WebMessagePortCompat#postMessage(WebMessageCompat)} with ArrayBuffer type, and
-     * {@link WebViewCompat#postWebMessage(WebView, WebMessageCompat, Uri)} with ArrayBuffer type.
+     * {@link WebMessagePortCompat#postMessage(WebMessageCompat)} with ArrayBuffer type,
+     * {@link WebViewCompat#postWebMessage(WebView, WebMessageCompat, Uri)} with ArrayBuffer type,
+     * and {@link JavaScriptReplyProxy#postMessage(byte[])}.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final String WEB_MESSAGE_GET_MESSAGE_PAYLOAD = "WEB_MESSAGE_GET_MESSAGE_PAYLOAD";
+    public static final String WEB_MESSAGE_ARRAY_BUFFER = "WEB_MESSAGE_ARRAY_BUFFER";
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.

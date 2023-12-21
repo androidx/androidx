@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21)
+
 package androidx.camera.video
 
 import android.content.Context
@@ -31,6 +33,7 @@ import android.os.Looper
 import android.util.Range
 import android.util.Size
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.arch.core.util.Function
 import androidx.camera.core.AspectRatio.RATIO_16_9
 import androidx.camera.core.AspectRatio.RATIO_4_3
@@ -45,8 +48,6 @@ import androidx.camera.core.CameraSelector.LENS_FACING_BACK
 import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.DynamicRange
-import androidx.camera.core.DynamicRange.BIT_DEPTH_10_BIT
-import androidx.camera.core.DynamicRange.FORMAT_HLG
 import androidx.camera.core.MirrorMode.MIRROR_MODE_OFF
 import androidx.camera.core.MirrorMode.MIRROR_MODE_ON
 import androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY
@@ -126,7 +127,7 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadows.ShadowLog
 
-private val ANY_SIZE = Size(640, 480)
+private val ANY_SIZE by lazy { Size(640, 480) }
 private const val CAMERA_ID_0 = "0"
 
 @RunWith(RobolectricTestRunner::class)
@@ -1046,7 +1047,7 @@ class VideoCaptureTest {
         // propagated to the SurfaceRequest. It should come from the StreamSpec.
         testSurfaceRequestContainsExpected(
             requestedDynamicRange = DynamicRange.HDR_UNSPECIFIED_10_BIT,
-            expectedDynamicRange = DynamicRange(FORMAT_HLG, BIT_DEPTH_10_BIT)
+            expectedDynamicRange = DynamicRange.HLG_10_BIT
         )
     }
 

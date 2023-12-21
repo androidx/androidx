@@ -3857,9 +3857,7 @@ class ComposableFunctionBodyTransformer(
                 for (param in function.valueParameters) {
                     val paramName = param.name.asString()
                     when {
-                        !paramName.startsWith('$') &&
-                            !paramName.startsWith("_context_receiver_") ->
-                            realValueParamCount++
+                        paramName.startsWith("_context_receiver_") -> Unit
                         paramName == KtxNameConventions.COMPOSER_PARAMETER.identifier ->
                             composerParameter = param
                         paramName.startsWith(KtxNameConventions.DEFAULT_PARAMETER.identifier) ->
@@ -3869,7 +3867,8 @@ class ComposableFunctionBodyTransformer(
                         paramName.startsWith("\$anonymous\$parameter") -> Unit
                         paramName.startsWith("\$name\$for\$destructuring") -> Unit
                         paramName.startsWith("\$noName_") -> Unit
-                        else -> Unit
+                        paramName == "\$this" -> Unit
+                        else -> realValueParamCount++
                     }
                 }
                 slotCount = realValueParamCount

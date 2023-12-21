@@ -25,11 +25,15 @@ plugins {
 dependencies {
     api(libs.kotlinStdlib)
 
+    implementation(libs.kotlinCoroutinesCore)
+
     testImplementation(libs.testCore)
+    testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
     testImplementation(libs.robolectric)
+    testImplementation(project(":core:core-performance-testing"))
 
     samples(project(":core:core-performance:core-performance-samples"))
 }

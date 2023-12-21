@@ -265,7 +265,7 @@ public abstract class UseCase {
         if (mergedConfig.containsOption(ImageOutputConfig.OPTION_RESOLUTION_SELECTOR)
                 && mergedConfig.retrieveOption(
                 ImageOutputConfig.OPTION_RESOLUTION_SELECTOR).getAllowedResolutionMode()
-                != ResolutionSelector.ALLOWED_RESOLUTIONS_NORMAL) {
+                != ResolutionSelector.PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION) {
             mergedConfig.insertOption(UseCaseConfig.OPTION_ZSL_DISABLED, true);
         }
 

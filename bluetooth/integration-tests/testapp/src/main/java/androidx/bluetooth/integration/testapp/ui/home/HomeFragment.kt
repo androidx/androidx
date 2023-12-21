@@ -36,12 +36,11 @@ import androidx.bluetooth.integration.testapp.experimental.BluetoothLe
 import androidx.bluetooth.integration.testapp.experimental.GattServerCallback
 import androidx.bluetooth.integration.testapp.ui.common.ScanResultAdapter
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
@@ -54,11 +53,9 @@ class HomeFragment : Fragment() {
 
     private lateinit var bluetoothLe: BluetoothLe
 
-    private lateinit var mHomeViewModel: HomeViewModel
+    private val viewModel: HomeViewModel by viewModels()
 
     private var _binding: FragmentHomeBinding? = null
-
-    // This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -66,8 +63,6 @@ class HomeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        mHomeViewModel = ViewModelProvider(this)[HomeViewModel::class.java]
-
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -132,9 +127,9 @@ class HomeFragment : Fragment() {
                     Log.d(TAG, "ScanResult collected: $it")
 
                     if (it.scanRecord?.serviceUuids?.isEmpty() == false)
-                        mHomeViewModel.scanResults[it.device.address] = it
-                    scanResultAdapter?.submitList(mHomeViewModel.scanResults.values.toMutableList())
-                    scanResultAdapter?.notifyItemInserted(mHomeViewModel.scanResults.size)
+                        viewModel.scanResults[it.device.address] = it
+                    scanResultAdapter?.submitList(viewModel.scanResults.values.toMutableList())
+                    scanResultAdapter?.notifyItemInserted(viewModel.scanResults.size)
                 }
         }
     }
@@ -144,30 +139,26 @@ class HomeFragment : Fragment() {
         connectJob?.cancel()
         connectJob = connectScope.launch {
             bluetoothLe.connectGatt(requireContext(), scanResult.device) {
-                launch {
-                    val jobs = ArrayList<Job>()
-                    for (srv in getServices()) {
-                        for (char in srv.characteristics) {
-                            if (char.properties.and(PROPERTY_READ) == 0) continue
-                            jobs.add(launch {
-                                val value = readCharacteristic(char).getOrNull()
-                                if (value != null) {
-                                    Log.d(TAG, "Successfully read characteristic value=$value")
-                                }
-                            })
+                for (srv in getServices()) {
+                    for (char in srv.characteristics) {
+                        if (char.properties.and(PROPERTY_READ) == 0) continue
+                        launch {
+                            val value = readCharacteristic(char).getOrNull()
+                            if (value != null) {
+                                Log.d(TAG, "Successfully read characteristic value=$value")
+                            }
+                        }
+                        launch {
                             if (char.properties.and(PROPERTY_NOTIFY) != 0) {
-                                jobs.add(launch {
-                                    val value = subscribeToCharacteristic(char).first()
-                                    Log.d(TAG, "Successfully get characteristic value=$value")
-                                })
+                                val value = subscribeToCharacteristic(char).first()
+                                Log.d(TAG, "Successfully get characteristic value=$value")
                             }
                         }
                     }
-                    jobs.joinAll()
-                    awaitClose {
-                        Log.d(TAG, "GATT client is closed")
-                        connectJob = null
-                    }
+                }
+                awaitClose {
+                    Log.d(TAG, "GATT client is closed")
+                    connectJob = null
                 }
             }
         }

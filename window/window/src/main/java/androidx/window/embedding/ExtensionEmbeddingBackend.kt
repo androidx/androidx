@@ -17,9 +17,11 @@
 package androidx.window.embedding
 
 import android.app.Activity
+import android.app.ActivityOptions
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.IBinder
 import android.util.Log
 import androidx.annotation.DoNotInline
 import androidx.annotation.GuardedBy
@@ -30,7 +32,6 @@ import androidx.core.util.Consumer
 import androidx.window.WindowProperties
 import androidx.window.core.BuildConfig
 import androidx.window.core.ConsumerAdapter
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.ExtensionsUtil
 import androidx.window.core.PredicateAdapter
 import androidx.window.core.VerificationMode
@@ -335,7 +336,6 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         return embeddingExtension?.isActivityEmbedded(activity) ?: false
     }
 
-    @ExperimentalWindowApi
     override fun setSplitAttributesCalculator(
         calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
     ) {
@@ -353,6 +353,49 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
     override fun isSplitAttributesCalculatorSupported(): Boolean =
         embeddingExtension?.isSplitAttributesCalculatorSupported() ?: false
 
+    override fun getActivityStack(activity: Activity): ActivityStack? {
+        globalLock.withLock {
+            val lastInfo: List<SplitInfo> = splitInfoEmbeddingCallback.lastInfo ?: return null
+            for (info in lastInfo) {
+                if (activity !in info) {
+                    continue
+                }
+                if (activity in info.primaryActivityStack) {
+                    return info.primaryActivityStack
+                }
+                if (activity in info.secondaryActivityStack) {
+                    return info.secondaryActivityStack
+                }
+            }
+            return null
+        }
+    }
+
+    override fun setLaunchingActivityStack(
+        options: ActivityOptions,
+        token: IBinder
+    ): ActivityOptions = embeddingExtension?.setLaunchingActivityStack(options, token) ?: options
+
+    override fun finishActivityStacks(activityStacks: Set<ActivityStack>) {
+        embeddingExtension?.finishActivityStacks(activityStacks)
+    }
+
+    override fun isFinishActivityStacksSupported(): Boolean =
+        embeddingExtension?.isFinishActivityStacksSupported() ?: false
+
+    override fun invalidateTopVisibleSplitAttributes() {
+        embeddingExtension?.invalidateTopVisibleSplitAttributes()
+    }
+
+    override fun updateSplitAttributes(
+        splitInfo: SplitInfo,
+        splitAttributes: SplitAttributes
+    ) {
+        embeddingExtension?.updateSplitAttributes(splitInfo, splitAttributes)
+    }
+
+    override fun areSplitAttributesUpdatesSupported(): Boolean =
+        embeddingExtension?.areSplitAttributesUpdatesSupported() ?: false
     @RequiresApi(31)
     private object Api31Impl {
         @DoNotInline

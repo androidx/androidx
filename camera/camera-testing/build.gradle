@@ -24,11 +24,15 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.testCore)
-    // force runner 1.5.1 so implementation stays consistent with androidTestImplementation
+    // ensuring implementation versions stay consistent with androidTestImplementation
+    def testCoreVersion = "1.5.0"
+    def testRunnerVersion = "1.5.2"
+    def testRulesVersion = "1.5.0"
 
-    implementation(libs.testRunner)
-    implementation(libs.testRules)
+    implementation("androidx.test:core:$testCoreVersion")
+    implementation("androidx.test:rules:$testRulesVersion")
+    implementation("androidx.test:runner:$testRunnerVersion")
+
     implementation(libs.testUiautomator)
     api("androidx.annotation:annotation:1.2.0")
     implementation(libs.guavaListenableFuture)
@@ -44,8 +48,8 @@ dependencies {
     implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesAndroid)
 
-    testImplementation(libs.testCore)
-    testImplementation(libs.testRunner)
+    testImplementation("androidx.test:core:$testCoreVersion")
+    testImplementation("androidx.test:runner:$testRunnerVersion")
     testImplementation(libs.junit)
     testImplementation(libs.truth)
     testImplementation(libs.robolectric)
@@ -53,9 +57,9 @@ dependencies {
 
     androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testRules)
+    androidTestImplementation("androidx.test:core:$testCoreVersion")
+    androidTestImplementation("androidx.test:rules:$testRulesVersion")
+    androidTestImplementation("androidx.test:runner:$testRunnerVersion")
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.kotlinCoroutinesAndroid)

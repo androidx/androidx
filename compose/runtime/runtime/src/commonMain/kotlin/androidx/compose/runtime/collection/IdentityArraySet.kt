@@ -16,7 +16,6 @@
 
 package androidx.compose.runtime.collection
 
-import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.identityHashCode
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
@@ -114,7 +113,18 @@ internal class IdentityArraySet<T : Any> : Set<T> {
         }
     }
 
-    @OptIn(InternalComposeApi::class)
+    inline fun fastAny(block: (T) -> Boolean): Boolean {
+        contract { callsInPlace(block) }
+        val size = size
+        if (size == 0) return false
+        val values = values
+        for (i in 0 until size) {
+            @Suppress("UNCHECKED_CAST")
+            if (block(values[i] as T)) return true
+        }
+        return false
+    }
+
     fun addAll(collection: Collection<T>) {
         if (collection.isEmpty()) return
 
@@ -292,7 +302,6 @@ internal class IdentityArraySet<T : Any> : Set<T> {
      * Returns the index of [value] in the set or the negative index - 1 of the location where
      * it would have been if it had been in the set.
      */
-    @OptIn(InternalComposeApi::class)
     private fun find(value: Any?): Int {
         var low = 0
         var high = size - 1
@@ -320,7 +329,6 @@ internal class IdentityArraySet<T : Any> : Set<T> {
      * If no match is found, the negative index - 1 of the position in which it would be will
      * be returned, which is always after the last item with the same [identityHashCode].
      */
-    @OptIn(InternalComposeApi::class)
     private fun findExactIndex(
         midIndex: Int,
         value: Any?,

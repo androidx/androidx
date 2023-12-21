@@ -654,6 +654,40 @@ public class AccessibilityNodeInfoCompat {
                         :   null, android.R.id.accessibilityActionShowTextSuggestions, null,
                         null, null);
 
+        /**
+         * Action that brings fully on screen the next node in the specified direction.
+         *
+         * <p>
+         *     This should include wrapping around to the next/previous row, column, etc. in a
+         *     collection if one is available. If there is no node in that direction, the action
+         *     should fail and return false.
+         * </p>
+         * <p>
+         *     This action should be used instead of
+         *     {@link AccessibilityActionCompat#ACTION_SCROLL_TO_POSITION} when a widget does not
+         *     have clear row and column semantics or if a directional search is needed to find a
+         *     node in a complex ViewGroup where individual nodes may span multiple rows or
+         *     columns. The implementing widget must send a
+         *     {@link AccessibilityEventCompat#TYPE_VIEW_TARGETED_BY_SCROLL} accessibility event
+         *     with the scroll target as the source.  An accessibility service can listen for this
+         *     event, inspect its source, and use the result when determining where to place
+         *     accessibility focus.
+         * <p>
+         *     <strong>Arguments:</strong> {@link #ACTION_ARGUMENT_DIRECTION_INT}. This is a
+         *     required argument.<br>
+         * </p>
+         */
+        @NonNull
+        @OptIn(markerClass = androidx.core.os.BuildCompat.PrereleaseSdkCheck.class)
+        public static final AccessibilityActionCompat ACTION_SCROLL_IN_DIRECTION =
+                new AccessibilityActionCompat(BuildCompat.isAtLeastU()
+                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_IN_DIRECTION
+                        : null,
+                        // TODO (267511848): update ID value once U resources are finalized.
+                        BuildCompat.isAtLeastU()
+                                ? android.R.id.accessibilityActionScrollInDirection : -1,
+                        null, null, null);
+
         final Object mAction;
         private final int mId;
         private final Class<? extends CommandArguments> mViewCommandArgumentClass;
@@ -1363,6 +1397,7 @@ public class AccessibilityNodeInfoCompat {
     private static final int BOOLEAN_PROPERTY_IS_SHOWING_HINT = 0x00000004;
     private static final int BOOLEAN_PROPERTY_IS_TEXT_ENTRY_KEY = 0x00000008;
     private static final int BOOLEAN_PROPERTY_HAS_REQUEST_INITIAL_ACCESSIBILITY_FOCUS = 1 << 5;
+    private static final int BOOLEAN_PROPERTY_SUPPORTS_GRANULAR_SCROLLING = 1 << 26;
 
     private final AccessibilityNodeInfo mInfo;
 
@@ -1750,6 +1785,71 @@ public class AccessibilityNodeInfoCompat {
     @SuppressLint("ActionValue")
     public static final String ACTION_ARGUMENT_PRESS_AND_HOLD_DURATION_MILLIS_INT =
             "android.view.accessibility.action.ARGUMENT_PRESS_AND_HOLD_DURATION_MILLIS_INT";
+
+    /**
+     * <p>Argument to represent the direction when using
+     * {@link AccessibilityActionCompat#ACTION_SCROLL_IN_DIRECTION}.</p>
+     *
+     * <p>
+     *     The value of this argument can be one of:
+     *     <ul>
+     *         <li>{@link View#FOCUS_DOWN}</li>
+     *         <li>{@link View#FOCUS_UP}</li>
+     *         <li>{@link View#FOCUS_LEFT}</li>
+     *         <li>{@link View#FOCUS_RIGHT}</li>
+     *         <li>{@link View#FOCUS_FORWARD}</li>
+     *         <li>{@link View#FOCUS_BACKWARD}</li>
+     *     </ul>
+     * </p>
+     */
+    public static final String ACTION_ARGUMENT_DIRECTION_INT =
+            "androidx.core.view.accessibility.action.ARGUMENT_DIRECTION_INT";
+
+    /**
+     * <p>Argument to represent the scroll amount as a percent of the visible area of a node, with
+     * 1.0F as the default. Values smaller than 1.0F represent a partial scroll of the node, and
+     * values larger than 1.0F represent a scroll that extends beyond the currently visible node
+     * Rect. Setting this to {@link Float#POSITIVE_INFINITY} or to another "too large" value should
+     * scroll to the end of the node. Negative values should not be used with this argument.
+     * </p>
+     *
+     * <p>
+     *     This argument should be used with the following scroll actions:
+     *     <ul>
+     *         <li>{@link AccessibilityActionCompat#ACTION_SCROLL_FORWARD}</li>
+     *         <li>{@link AccessibilityActionCompat#ACTION_SCROLL_BACKWARD}</li>
+     *         <li>{@link AccessibilityActionCompat#ACTION_SCROLL_UP}</li>
+     *         <li>{@link AccessibilityActionCompat#ACTION_SCROLL_DOWN}</li>
+     *         <li>{@link AccessibilityActionCompat#ACTION_SCROLL_LEFT}</li>
+     *         <li>{@link AccessibilityActionCompat#ACTION_SCROLL_RIGHT}</li>
+     *     </ul>
+     * </p>
+     * <p>
+     *     Example: if a view representing a list of items implements
+     *     {@link AccessibilityActionCompat#ACTION_SCROLL_FORWARD} to scroll forward by an entire
+     *     screen
+     *     (one "page"), then passing a value of .25F via this argument should scroll that view
+     *     only by 1/4th of a screen. Passing a value of 1.50F via this argument should scroll the
+     *     view by 1 1/2 screens or to end of the node if the node doesn't extend to 1 1/2 screens.
+     * </p>
+     *
+     * <p>
+     *     This argument should not be used with the following scroll actions, which don't cleanly
+     *     conform to granular scroll semantics:
+     *     <ul>
+     *         <li>{@link AccessibilityActionCompat#ACTION_SCROLL_IN_DIRECTION}</li>
+     *         <li>{@link AccessibilityActionCompat#ACTION_SCROLL_TO_POSITION}</li>
+     *     </ul>
+     * </p>
+     *
+     * <p>
+     *     Views that support this argument should set
+     *     {@link #setGranularScrollingSupported(boolean)} to true. Clients should use
+     *     {@link #isGranularScrollingSupported()} to check if granular scrolling is supported.
+     * </p>
+     */
+    public static final String ACTION_ARGUMENT_SCROLL_AMOUNT_FLOAT =
+            "androidx.core.view.accessibility.action.ARGUMENT_SCROLL_AMOUNT_FLOAT";
 
     // Focus types
 
@@ -2728,6 +2828,36 @@ public class AccessibilityNodeInfoCompat {
      */
     public void setScrollable(boolean scrollable) {
         mInfo.setScrollable(scrollable);
+    }
+
+
+    /**
+     * Gets if the node supports granular scrolling.
+     *
+     * @return True if all scroll actions that could support
+     * {@link #ACTION_ARGUMENT_SCROLL_AMOUNT_FLOAT} have done so, false otherwise.
+     */
+    public boolean isGranularScrollingSupported() {
+        return getBooleanProperty(BOOLEAN_PROPERTY_SUPPORTS_GRANULAR_SCROLLING);
+    }
+
+    /**
+     * Sets if the node supports granular scrolling. This should be set to true if all scroll
+     * actions which could support {@link #ACTION_ARGUMENT_SCROLL_AMOUNT_FLOAT} have done so.
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     *
+     * @param granularScrollingSupported True if the node supports granular scrolling, false
+     *                                  otherwise.
+     *
+     * @throws IllegalStateException If called from an AccessibilityService.
+     */
+    public void setGranularScrollingSupported(boolean granularScrollingSupported) {
+        setBooleanProperty(BOOLEAN_PROPERTY_SUPPORTS_GRANULAR_SCROLLING,
+                granularScrollingSupported);
     }
 
     /**
@@ -4609,6 +4739,11 @@ public class AccessibilityNodeInfoCompat {
             case android.R.id.accessibilityActionDragCancel:
                 return "ACTION_DRAG_CANCEL";
             default:
+                // TODO (b/267511848): fix after Android U constants are finalized.
+                if (Build.VERSION.SDK_INT >= 34
+                        && action == android.R.id.accessibilityActionScrollInDirection) {
+                    return "ACTION_SCROLL_IN_DIRECTION";
+                }
                 return "ACTION_UNKNOWN";
         }
     }

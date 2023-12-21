@@ -16,13 +16,13 @@
 package androidx.room
 
 import android.content.Context
+import androidx.kruth.assertThat
 import androidx.room.Room.databaseBuilder
 import androidx.room.Room.inMemoryDatabaseBuilder
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
-import com.google.common.truth.Truth.assertThat
 import java.io.File
 import java.util.concurrent.Executor
 import org.junit.Assert
@@ -339,7 +339,7 @@ class BuilderTest {
     fun createBasic() {
         val context: Context = mock()
         val db = inMemoryDatabaseBuilder(context, TestDatabase::class.java).build()
-        assertThat(db).isInstanceOf(BuilderTest_TestDatabase_Impl::class.java)
+        assertThat(db).isInstanceOf<BuilderTest_TestDatabase_Impl>()
         val config: DatabaseConfiguration = (db as BuilderTest_TestDatabase_Impl).mConfig
         assertThat(config).isNotNull()
         assertThat(config.context).isEqualTo(context)
@@ -347,7 +347,7 @@ class BuilderTest {
         assertThat(config.allowMainThreadQueries).isFalse()
         assertThat(config.journalMode).isEqualTo(RoomDatabase.JournalMode.TRUNCATE)
         assertThat(config.sqliteOpenHelperFactory)
-            .isInstanceOf(FrameworkSQLiteOpenHelperFactory::class.java)
+            .isInstanceOf<FrameworkSQLiteOpenHelperFactory>()
     }
 
     @Test
@@ -365,7 +365,7 @@ class BuilderTest {
         val context: Context = mock()
         val db = databaseBuilder(context, TestDatabase::class.java, "foo")
             .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING).build()
-        assertThat(db).isInstanceOf(BuilderTest_TestDatabase_Impl::class.java)
+        assertThat(db).isInstanceOf<BuilderTest_TestDatabase_Impl>()
         val config: DatabaseConfiguration = (db as BuilderTest_TestDatabase_Impl).mConfig
         assertThat(config.journalMode).isEqualTo(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
     }
@@ -377,7 +377,7 @@ class BuilderTest {
         val db = inMemoryDatabaseBuilder(context, TestDatabase::class.java)
             .openHelperFactory(factory)
             .build()
-        assertThat(db).isInstanceOf(BuilderTest_TestDatabase_Impl::class.java)
+        assertThat(db).isInstanceOf<BuilderTest_TestDatabase_Impl>()
         val config: DatabaseConfiguration = (db as BuilderTest_TestDatabase_Impl).mConfig
         assertThat(config).isNotNull()
         assertThat(config.sqliteOpenHelperFactory).isEqualTo(factory)
@@ -399,7 +399,7 @@ class BuilderTest {
         } catch (e: Exception) {
             exception = e
         }
-        assertThat(exception).isInstanceOf(IllegalArgumentException::class.java)
+        assertThat(exception).isInstanceOf<IllegalArgumentException>()
         assertThat(exception).hasMessageThat().contains("More than one of createFromAsset(), " +
             "createFromInputStream(), and createFromFile() were called on this Builder")
     }
@@ -418,7 +418,7 @@ class BuilderTest {
         } catch (e: Exception) {
             exception = e
         }
-        assertThat(exception).isInstanceOf(IllegalArgumentException::class.java)
+        assertThat(exception).isInstanceOf<IllegalArgumentException>()
         assertThat(exception).hasMessageThat().contains(
             "Cannot create from asset or file for an in-memory"
         )
@@ -438,7 +438,7 @@ class BuilderTest {
         } catch (e: Exception) {
             exception = e
         }
-        assertThat(exception).isInstanceOf(IllegalArgumentException::class.java)
+        assertThat(exception).isInstanceOf<IllegalArgumentException>()
         assertThat(exception).hasMessageThat().contains(
             "Cannot create from asset or file for an in-memory"
         )

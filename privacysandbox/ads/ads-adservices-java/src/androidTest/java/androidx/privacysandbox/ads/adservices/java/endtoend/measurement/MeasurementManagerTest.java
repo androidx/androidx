@@ -47,6 +47,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(JUnit4.class)
+@SdkSuppress(minSdkVersion = 28) // API 28 required for device_config used by this test
 // TODO: Consider refactoring so that we're not duplicating code.
 public class MeasurementManagerTest {
     private static final String TAG = "MeasurementManagerTest";
@@ -72,6 +73,7 @@ public class MeasurementManagerTest {
         // We need to turn the Consent Manager into debug mode
         mTestUtil.overrideConsentManagerDebugMode(true);
         mTestUtil.overrideMeasurementKillSwitches(true);
+        mTestUtil.overrideAdIdKillSwitch(true);
         mTestUtil.overrideDisableMeasurementEnrollmentCheck("1");
         mMeasurementManager =
                 MeasurementManagerFutures.from(ApplicationProvider.getApplicationContext());
@@ -87,6 +89,7 @@ public class MeasurementManagerTest {
         mTestUtil.overrideConsentManagerDebugMode(false);
         mTestUtil.resetOverrideDisableMeasurementEnrollmentCheck();
         mTestUtil.overrideMeasurementKillSwitches(false);
+        mTestUtil.overrideAdIdKillSwitch(false);
         mTestUtil.overrideDisableMeasurementEnrollmentCheck("0");
         // Cool-off rate limiter
         TimeUnit.SECONDS.sleep(1);

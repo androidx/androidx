@@ -118,10 +118,7 @@ class AidlGenerator private constructor(
 
     private fun uiAidlWrapper(annotatedInterface: AnnotatedInterface) =
         aidlParcelable(annotatedInterface.uiAdapterAidlWrapper()) {
-            addProperty(
-                "coreLibInfo",
-                AidlTypeSpec(bundleType(), kind = AidlTypeKind.PARCELABLE)
-            )
+            addProperty("coreLibInfo", bundleAidlType)
             addProperty("binder", annotatedInterface.aidlType())
         }
 
@@ -246,7 +243,12 @@ class AidlGenerator private constructor(
 
     private fun throwableParcelType() = Type(packageName(), throwableParcelName)
     private fun parcelableStackFrameType() = Type(packageName(), parcelableStackFrameName)
-    private fun bundleType() = Type("android.os", "Bundle")
+    private val bundleType = Type("android.os", "Bundle")
+    private val bundleAidlType =
+        AidlTypeSpec(
+            bundleType,
+            AidlTypeKind.PARCELABLE
+        )
 
     private fun transactionCallback(type: Type) =
         AidlTypeSpec(
@@ -276,6 +278,7 @@ class AidlGenerator private constructor(
             Short::class.qualifiedName -> primitive("int")
             Unit::class.qualifiedName -> primitive("void")
             List::class.qualifiedName -> getAidlTypeDeclaration(type.typeParameters[0]).listSpec()
+            Types.sdkActivityLauncher.qualifiedName -> bundleAidlType
             else -> throw IllegalArgumentException(
                 "Unsupported type conversion ${type.qualifiedName}"
             )

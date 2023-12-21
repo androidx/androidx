@@ -1,0 +1,87 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.LibraryType
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("kotlin-android")
+}
+
+dependencies {
+    api(libs.kotlinStdlib)
+
+    implementation('androidx.appcompat:appcompat:1.6.1')
+    implementation(project(':core:core'))
+
+    androidTestImplementation("androidx.annotation:annotation:1.4.0")
+    androidTestImplementation("androidx.core:core-ktx:1.8.0")
+    androidTestImplementation("androidx.test:core:1.4.0@aar")
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
+}
+
+android {
+    namespace "androidx.graphics.path"
+
+    defaultConfig {
+        minSdkVersion 21 // Limited to 21+ due to native changes before that release
+        externalNativeBuild {
+            cmake {
+                cppFlags.addAll(
+                        [
+                        "-std=c++17",
+                        "-Wno-unused-command-line-argument",
+                        "-Wl,--hash-style=both", // Required to support API levels below 23
+                        "-fno-stack-protector",
+                        "-fno-exceptions",
+                        "-fno-unwind-tables",
+                        "-fno-asynchronous-unwind-tables",
+                        "-fno-rtti",
+                        "-ffast-math",
+                        "-ffp-contract=fast",
+                        "-fvisibility-inlines-hidden",
+                        "-fvisibility=hidden",
+                        "-fomit-frame-pointer",
+                        "-ffunction-sections",
+                        "-fdata-sections",
+                        "-Wl,--gc-sections",
+                        "-Wl,-Bsymbolic-functions",
+                ])
+            }
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path file('src/main/cpp/CMakeLists.txt')
+            version libs.versions.cmake.get()
+        }
+    }
+
+}
+
+androidx {
+    name = "Android Graphics Path"
+    type = LibraryType.PUBLISHED_LIBRARY
+    mavenVersion = LibraryVersions.GRAPHICS_PATH
+    inceptionYear = "2022"
+    description = "Query segment data for android.graphics.Path objects"
+}

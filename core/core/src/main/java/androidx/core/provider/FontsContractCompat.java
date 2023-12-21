@@ -169,7 +169,7 @@ public class FontsContractCompat {
         }
     }
 
-    /** @hide */
+    @RestrictTo(LIBRARY)
     @VisibleForTesting
     public static void resetTypefaceCache() {
         FontRequestWorker.resetTypefaceCache();

@@ -40,6 +40,9 @@ internal class BufferTransformer() {
     var glHeight = 0
         private set
 
+    var computedTransform: Int = BufferTransformHintResolver.UNKNOWN_TRANSFORM
+        private set
+
     fun invertBufferTransform(transform: Int): Int =
         when (transform) {
             SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90 ->
@@ -65,6 +68,7 @@ internal class BufferTransformer() {
         val fHeight = height.toFloat()
         glWidth = width
         glHeight = height
+        computedTransform = transformHint
         when (transformHint) {
             SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90 -> {
                 Matrix.setRotateM(mViewTransform, 0, -90f, 0f, 0f, 1f)
@@ -82,8 +86,12 @@ internal class BufferTransformer() {
                 glWidth = height
                 glHeight = width
             }
+            SurfaceControlCompat.BUFFER_TRANSFORM_IDENTITY -> {
+                Matrix.setIdentityM(mViewTransform, 0)
+            }
             // Identity or unknown case, just set the identity matrix
             else -> {
+                computedTransform = BufferTransformHintResolver.UNKNOWN_TRANSFORM
                 Matrix.setIdentityM(mViewTransform, 0)
             }
         }

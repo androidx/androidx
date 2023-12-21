@@ -20,7 +20,7 @@ import static androidx.annotation.Dimension.DP;
 import static androidx.wear.protolayout.DimensionBuilders.dp;
 import static androidx.wear.protolayout.DimensionBuilders.expand;
 import static androidx.wear.protolayout.DimensionBuilders.wrap;
-import static androidx.wear.protolayout.material.ChipDefaults.COMPACT_HEIGHT_TAPPABLE;
+import static androidx.wear.protolayout.material.ChipDefaults.MIN_TAPPABLE_HEIGHT;
 import static androidx.wear.protolayout.material.Helper.checkNotNull;
 import static androidx.wear.protolayout.material.Helper.checkTag;
 import static androidx.wear.protolayout.material.Helper.getMetadataTagBytes;
@@ -258,7 +258,7 @@ public class PrimaryLayout implements LayoutElement {
             float horizontalPadding = getHorizontalPadding();
             float horizontalChipPadding = getChipHorizontalPadding();
 
-            float primaryChipHeight = mPrimaryChip != null ? COMPACT_HEIGHT_TAPPABLE.getValue() : 0;
+            float primaryChipHeight = mPrimaryChip != null ? MIN_TAPPABLE_HEIGHT.getValue() : 0;
 
             DpProp mainContentHeight =
                     dp(

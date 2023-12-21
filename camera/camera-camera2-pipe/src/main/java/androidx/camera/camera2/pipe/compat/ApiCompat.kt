@@ -292,6 +292,15 @@ internal object Api28Compat {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.R)
+internal object Api30Compat {
+    @JvmStatic
+    @DoNotInline
+    fun getConcurrentCameraIds(cameraManager: CameraManager): Set<Set<String>> {
+        return cameraManager.concurrentCameraIds
+    }
+}
+
 @RequiresApi(Build.VERSION_CODES.S)
 internal object Api31Compat {
     @JvmStatic

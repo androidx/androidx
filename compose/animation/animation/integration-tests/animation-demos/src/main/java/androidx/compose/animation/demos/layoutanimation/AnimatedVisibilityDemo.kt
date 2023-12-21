@@ -225,7 +225,6 @@ fun FadeTransition(visible: Boolean, content: @Composable () -> Unit) {
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun FullyLoadedTransition(visible: Boolean, content: @Composable () -> Unit) {
     AnimatedVisibility(

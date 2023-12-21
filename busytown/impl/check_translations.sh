@@ -20,6 +20,7 @@ expect="$tempdir/expect.txt"
 find . \
     \( \
       -iname '*sample*' \
+      -o -iname '*demo*' \
       -o -iname '*donottranslate*' \
       -o -iname '*debug*' \
       -o -iname '*test*' \

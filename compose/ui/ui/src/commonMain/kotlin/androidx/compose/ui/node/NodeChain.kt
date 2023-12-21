@@ -23,7 +23,6 @@ import androidx.compose.ui.CombinedModifier
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.areObjectsOfSameType
-import androidx.compose.ui.input.pointer.SuspendPointerInputElement
 import androidx.compose.ui.layout.ModifierInfo
 
 private val SentinelHead = object : Modifier.Node() {
@@ -219,16 +218,6 @@ internal class NodeChain(val layoutNode: LayoutNode) {
         tailToHead {
             if (it.isAttached) it.reset()
         }
-        current?.let { elements ->
-            elements.forEachIndexed { i, element ->
-                // we need to make sure the suspending pointer input modifier node is updated after
-                // being reset so we use the latest lambda, even if the keys provided as input
-                // didn't change.
-                if (element is SuspendPointerInputElement) {
-                    elements[i] = ForceUpdateElement(element)
-                }
-            }
-        }
         runDetachLifecycle()
         markAsDetached()
     }
@@ -323,7 +312,9 @@ internal class NodeChain(val layoutNode: LayoutNode) {
         val infoList = MutableVector<ModifierInfo>(current.size)
         var i = 0
         headToTailExclusive { node ->
-            val coordinator = requireNotNull(node.coordinator)
+            val coordinator = requireNotNull(node.coordinator) {
+                "getModifierInfo called on node with no coordinator"
+            }
             // placeWithLayer puts the layer on the _next_ coordinator
             //
             // - If the last node does placeWithLayer, the layer is on the innerCoordinator
@@ -586,7 +577,7 @@ internal class NodeChain(val layoutNode: LayoutNode) {
             }
             else -> BackwardsCompatNode(element)
         }
-        check(!node.isAttached)
+        check(!node.isAttached) { "createAndInsertNodeAsParent called on an attached node" }
         node.insertedNodeAwaitingAttachForInvalidation = true
         return insertParent(node, child)
     }
@@ -804,15 +795,12 @@ private const val ActionReuse = 2
  * 3. else REPLACE (NO REUSE, NO UPDATE)
  */
 internal fun actionForModifiers(prev: Modifier.Element, next: Modifier.Element): Int {
-    return if (prev == next) {
+    return if (prev == next)
         ActionReuse
-    } else if (areObjectsOfSameType(prev, next) ||
-        (prev is ForceUpdateElement && areObjectsOfSameType(prev.original, next))
-    ) {
+    else if (areObjectsOfSameType(prev, next))
         ActionUpdate
-    } else {
+    else
         ActionReplace
-    }
 }
 
 private fun <T : Modifier.Node> ModifierNodeElement<T>.updateUnsafe(
@@ -827,6 +815,7 @@ private fun Modifier.fillVector(
 ): MutableVector<Modifier.Element> {
     val capacity = result.size.coerceAtLeast(16)
     val stack = MutableVector<Modifier>(capacity).also { it.add(this) }
+    var predicate: ((Modifier.Element) -> Boolean)? = null
     while (stack.isNotEmpty()) {
         when (val next = stack.removeAt(stack.size - 1)) {
             is CombinedModifier -> {
@@ -835,23 +824,12 @@ private fun Modifier.fillVector(
             }
             is Modifier.Element -> result.add(next)
             // some other androidx.compose.ui.node.Modifier implementation that we don't know about...
-            else -> next.all {
-                result.add(it)
+            // late-allocate the predicate only once for the entire stack
+            else -> next.all(predicate ?: { element: Modifier.Element ->
+                result.add(element)
                 true
-            }
+            }.also { predicate = it })
         }
     }
     return result
-}
-
-@Suppress("ModifierNodeInspectableProperties")
-private data class ForceUpdateElement(val original: ModifierNodeElement<*>) :
-    ModifierNodeElement<Modifier.Node>() {
-    override fun create(): Modifier.Node {
-        throw IllegalStateException("Shouldn't be called")
-    }
-
-    override fun update(node: Modifier.Node) {
-        throw IllegalStateException("Shouldn't be called")
-    }
 }

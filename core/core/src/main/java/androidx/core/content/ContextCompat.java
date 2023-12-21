@@ -96,6 +96,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.LauncherApps;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
+import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.hardware.ConsumerIrManager;
 import android.hardware.SensorManager;
@@ -152,11 +153,14 @@ import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.app.LocaleManagerCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.os.BuildCompat;
+import androidx.core.os.ConfigurationCompat;
 import androidx.core.os.EnvironmentCompat;
 import androidx.core.os.ExecutorCompat;
+import androidx.core.os.LocaleListCompat;
 import androidx.core.util.ObjectsCompat;
 
 import java.io.File;
@@ -900,6 +904,65 @@ public class ContextCompat {
     }
 
     /**
+     * Gets the resource string that also respects the per-app locales. If developers set the
+     * per-app locales via
+     * {@link androidx.appcompat.app.AppCompatDelegate#setApplicationLocales(LocaleListCompat)},
+     * this API returns localized strings even if the context is not
+     * {@link androidx.appcompat.app.AppCompatActivity}.
+     *
+     * <p>
+     * Compatibility behavior:
+     * <ul>
+     *     <li>API 17 and above, this method return the localized string that respects per-app
+     *     locales.</li>
+     *     <li>API 16 and earlier, this method directly return the result of
+     *     {@link Context#getString(int)}</li>
+     * </ul>
+     * </p>
+     */
+    @NonNull
+    public static String getString(@NonNull Context context, int resId) {
+        return getContextForLanguage(context).getString(resId);
+    }
+
+    /**
+     * Gets the context which respects the per-app locales locale. This API is specifically for
+     * developers who set the per-app locales via
+     * {@link androidx.appcompat.app.AppCompatDelegate#setApplicationLocales(LocaleListCompat)},
+     * but who needs to use the context out of {@link androidx.appcompat.app.AppCompatActivity}
+     * scope.
+     *
+     * <p>The developers can override the returned context in Application's
+     * {@link android.content.ContextWrapper#attachBaseContext(Context)}, so that developers can
+     * get the localized string via application's context.</p>
+     *
+     * <p>
+     * Compatibility behavior:
+     * <ul>
+     *     <li>API 17 and above, the locale in the context returned by this method will respect the
+     *     the per-app locale.</li>
+     *     <li>API 16 and earlier, this method directly return the {@link Context}</li>
+     * </ul>
+     * </p>
+     */
+    @NonNull
+    public static Context getContextForLanguage(@NonNull Context context) {
+        LocaleListCompat locales = LocaleManagerCompat.getApplicationLocales(context);
+
+        // The Android framework supports per-app locales on API 33, so we assume the
+        // configuration has been updated after API 32.
+        if (Build.VERSION.SDK_INT <= 32 && Build.VERSION.SDK_INT >= 17) {
+            if (!locales.isEmpty()) {
+                Configuration newConfig = new Configuration(
+                        context.getResources().getConfiguration());
+                ConfigurationCompat.setLocales(newConfig, locales);
+                return Api17Impl.createConfigurationContext(context, newConfig);
+            }
+        }
+        return context;
+    }
+
+    /**
      * Gets the name of the permission required to unexport receivers on pre Tiramisu versions of
      * Android, and then asserts that the app registering the receiver also has that permission
      * so it can receiver its own broadcasts.
@@ -1003,6 +1066,18 @@ public class ContextCompat {
         @DoNotInline
         static void startActivity(Context obj, Intent intent, Bundle options) {
             obj.startActivity(intent, options);
+        }
+    }
+
+    @RequiresApi(17)
+    static class Api17Impl {
+        private Api17Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static Context createConfigurationContext(Context obj, Configuration config) {
+            return obj.createConfigurationContext(config);
         }
     }
 

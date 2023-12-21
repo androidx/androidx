@@ -40,6 +40,8 @@ internal class KspExecutableParameterElement(
 
     override fun isKotlinPropertyParam() = false
 
+    override fun isVarArgs() = parameter.isVararg
+
     override val name: String
         get() = parameter.name?.asString() ?: "_no_param_name"
 
@@ -110,7 +112,7 @@ internal class KspExecutableParameterElement(
                     )
                 }
                 is KSPropertySetter -> KspSyntheticPropertyMethodElement.create(
-                    env, parent
+                    env, parent, isSyntheticStatic = false
                 ).parameters.single()
                 else -> error(
                     "Don't know how to create a parameter element whose parent is a " +

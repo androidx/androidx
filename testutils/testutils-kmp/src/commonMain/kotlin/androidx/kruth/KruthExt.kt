@@ -29,11 +29,11 @@ import kotlin.test.assertFailsWith
 // See: https://github.com/google/truth/issues/621
 inline fun <reified T : Throwable> assertThrows(block: () -> Unit): ThrowableSubject<T> {
     val e = assertFailsWith<T>(block = block)
-    return ThrowableSubject(e)
+    return assertThat(e)
 }
 
 inline fun <T : Throwable> assertThrows(exceptionClass: KClass<T>, block: () -> Unit):
     ThrowableSubject<T> {
     val e = assertFailsWith<T>(exceptionClass = exceptionClass, block = block)
-    return ThrowableSubject(e)
+    return assertThat(e)
 }

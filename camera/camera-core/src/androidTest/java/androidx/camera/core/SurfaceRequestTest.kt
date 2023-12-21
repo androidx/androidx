@@ -15,6 +15,7 @@
  */
 package androidx.camera.core
 
+import android.graphics.Matrix
 import android.graphics.Rect
 import android.util.Range
 import android.util.Size
@@ -408,7 +409,7 @@ class SurfaceRequestTest {
         private val FAKE_SIZE: Size by lazy { Size(0, 0) }
         private val FAKE_INFO: SurfaceRequest.TransformationInfo by lazy {
             SurfaceRequest.TransformationInfo.of(Rect(), 0, Surface.ROTATION_0,
-                /*hasCameraTransform=*/true
+                /*hasCameraTransform=*/true, /*sensorToBufferTransform=*/Matrix()
             )
         }
         private val NO_OP_RESULT_LISTENER = Consumer { _: SurfaceRequest.Result? -> }

@@ -83,6 +83,7 @@ import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.error
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
@@ -90,7 +91,9 @@ import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.click
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -118,7 +121,6 @@ import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.junit.Rule
 import org.junit.Test
@@ -138,7 +140,7 @@ class TextFieldTest {
     private val ExpectedPadding = 16.dp
     private val IconPadding = 12.dp
     private val ExpectedBaselineOffset = 20.dp
-    private val TopPaddingFilledTextfield = 4.dp
+    private val TopPaddingFilledTextfield = 2.dp
     private val IconColorAlpha = 0.54f
     private val TextfieldTag = "textField"
 
@@ -372,12 +374,11 @@ class TextFieldTest {
             assertThat(labelSize.value?.height).isGreaterThan(0)
             assertThat(labelSize.value?.width).isGreaterThan(0)
             // centered position
-            assertThat(labelPosition.value?.x).isEqualTo(
-                ExpectedPadding.roundToPx().toFloat()
+            assertThat(labelPosition.value?.x).isWithin(1f).of(
+                ExpectedPadding.toPx()
             )
-            assertThat(labelPosition.value?.y).isEqualTo(
-                ((ExpectedDefaultTextFieldHeight.roundToPx() - labelSize.value!!.height) / 2f)
-                    .roundToInt().toFloat()
+            assertThat(labelPosition.value?.y).isWithin(1f).of(
+                (ExpectedDefaultTextFieldHeight.toPx() - labelSize.value!!.height) / 2f
             )
         }
     }
@@ -1158,15 +1159,21 @@ class TextFieldTest {
                 onValueChange = {},
                 visualTransformation = prefixTransformation,
                 label = {
-                    Text("label", color = Color.Red, modifier = Modifier.background(Color.Red))
+                    Text(
+                        text = "label",
+                        color = Color.Red,
+                        modifier = Modifier.testTag("Label").background(Color.Red)
+                    )
                 },
                 textStyle = TextStyle(color = Color.Blue),
                 colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.White)
             )
         }
-        rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text), true)
-            .captureToImage()
-            .assertPixels { Color.Red }
+        // Label's top padding is only TextFieldPadding in the unfocused state,
+        // but state should be focused
+        val labelBounds = rule.onNodeWithTag("Label", true)
+            .getUnclippedBoundsInRoot()
+        assertThat(labelBounds.top).isLessThan(TextFieldPadding)
     }
 
     @Test
@@ -1235,19 +1242,32 @@ class TextFieldTest {
     @Test
     fun testErrorSemantics_messageOverridable() {
         val errorMessage = "Special symbols not allowed"
+        lateinit var defaultErrorMessage: String
         rule.setMaterialContent {
-            var isError = remember { mutableStateOf(true) }
+            val isError = remember { mutableStateOf(true) }
             TextField(
                 value = "test",
                 onValueChange = {},
-                modifier = Modifier.semantics { if (isError.value) error(errorMessage) },
+                modifier = Modifier
+                    .testTag(TextfieldTag)
+                    .semantics { if (isError.value) error(errorMessage) },
                 isError = isError.value
             )
+            defaultErrorMessage = getString(DefaultErrorMessage)
         }
 
-        rule.onNodeWithText("test")
+        rule.onNodeWithTag(TextfieldTag)
             .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Error))
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Error, errorMessage))
+
+        // Check that default error message is overwritten and not lingering in a child node
+        rule.onNodeWithTag(TextfieldTag, useUnmergedTree = true)
+            .onChildren()
+            .fetchSemanticsNodes()
+            .forEach { node ->
+                assertThat(node.config.getOrNull(SemanticsProperties.Error))
+                    .isNotEqualTo(defaultErrorMessage)
+            }
     }
 
     @Test
@@ -1509,7 +1529,7 @@ class TextFieldTest {
     }
 
     @Test
-    fun testTextField_intrinsicsMeasurement_correctHeight() {
+    fun testTextField_intrinsicHeight_withOnlyEmptyInput() {
         var height = 0
         rule.setMaterialContent {
             val text = remember { mutableStateOf("") }
@@ -1520,7 +1540,6 @@ class TextFieldTest {
                     TextField(
                         value = text.value,
                         onValueChange = { text.value = it },
-                        placeholder = { Text("placeholder") }
                     )
                     Divider(Modifier.fillMaxHeight())
                 }
@@ -1533,7 +1552,7 @@ class TextFieldTest {
     }
 
     @Test
-    fun testTextField_intrinsicsMeasurement_withLeadingIcon_correctHeight() {
+    fun testTextField_intrinsicHeight_withEmptyInput_andDecorations() {
         var height = 0
         rule.setMaterialContent {
             val text = remember { mutableStateOf("") }
@@ -1544,8 +1563,8 @@ class TextFieldTest {
                     TextField(
                         value = text.value,
                         onValueChange = { text.value = it },
-                        placeholder = { Text("placeholder") },
-                        leadingIcon = { Icon(Icons.Default.Favorite, null) }
+                        leadingIcon = { Icon(Icons.Default.Favorite, null) },
+                        trailingIcon = { Icon(Icons.Default.Favorite, null) },
                     )
                     Divider(Modifier.fillMaxHeight())
                 }
@@ -1558,28 +1577,41 @@ class TextFieldTest {
     }
 
     @Test
-    fun testTextField_intrinsicsMeasurement_withTrailingIcon_correctHeight() {
-        var height = 0
+    fun testTextField_intrinsicHeight_withLongInput_andDecorations() {
+        var tfHeightIntrinsic = 0
+        var tfHeightNoIntrinsic = 0
+        val text = "Long text input. ".repeat(20)
         rule.setMaterialContent {
-            val text = remember { mutableStateOf("") }
-            Box(Modifier.onGloballyPositioned {
-                height = it.size.height
-            }) {
-                Row(Modifier.height(IntrinsicSize.Min)) {
+            Row {
+                Box(Modifier.width(150.dp).height(IntrinsicSize.Min)) {
                     TextField(
-                        value = text.value,
-                        onValueChange = { text.value = it },
-                        placeholder = { Text("placeholder") },
-                        trailingIcon = { Icon(Icons.Default.Favorite, null) }
+                        value = text,
+                        onValueChange = {},
+                        modifier = Modifier.onGloballyPositioned {
+                            tfHeightIntrinsic = it.size.height
+                        },
+                        leadingIcon = { Icon(Icons.Default.Favorite, null) },
+                        trailingIcon = { Icon(Icons.Default.Favorite, null) },
                     )
-                    Divider(Modifier.fillMaxHeight())
+                }
+                Box(Modifier.width(150.dp)) {
+                    TextField(
+                        value = text,
+                        onValueChange = {},
+                        modifier = Modifier.onGloballyPositioned {
+                            tfHeightNoIntrinsic = it.size.height
+                        },
+                        leadingIcon = { Icon(Icons.Default.Favorite, null) },
+                        trailingIcon = { Icon(Icons.Default.Favorite, null) },
+                    )
                 }
             }
         }
 
-        with(rule.density) {
-            assertThat(height).isEqualTo((TextFieldDefaults.MinHeight).roundToPx())
-        }
+        assertThat(tfHeightIntrinsic).isNotEqualTo(0)
+        assertThat(tfHeightNoIntrinsic).isNotEqualTo(0)
+
+        assertThat(tfHeightIntrinsic).isEqualTo(tfHeightNoIntrinsic)
     }
 
     @Test

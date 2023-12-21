@@ -157,7 +157,7 @@ class State3AControl @Inject constructor(
                 }
             }
         } ?: run {
-            synchronized(lock) { updateSignal = CompletableDeferred(null) }
+            synchronized(lock) { updateSignal = CompletableDeferred(Unit) }
         }
     }
 

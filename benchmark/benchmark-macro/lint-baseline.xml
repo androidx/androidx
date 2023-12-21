@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta01)" variant="all" version="8.1.0-beta01">
+<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
 
     <issue
         id="BanThreadSleep"
@@ -35,69 +35,6 @@
         errorLine2="                   ~~~~~">
         <location
             file="src/androidTest/java/androidx/benchmark/macro/ConfigurableActivity.kt"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="            Thread.sleep(2000)"
-        errorLine2="                   ~~~~~">
-        <location
-            file="src/main/java/androidx/benchmark/macro/MacrobenchmarkScope.kt"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="                Thread.sleep(100)"
-        errorLine2="                       ~~~~~">
-        <location
-            file="src/main/java/androidx/benchmark/macro/MacrobenchmarkScope.kt"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="        Thread.sleep(delayDurationMs)"
-        errorLine2="               ~~~~~">
-        <location
-            file="src/main/java/androidx/benchmark/macro/MacrobenchmarkScope.kt"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="        Thread.sleep(delayDurationMs)"
-        errorLine2="               ~~~~~">
-        <location
-            file="src/main/java/androidx/benchmark/macro/MacrobenchmarkScope.kt"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="            Thread.sleep(50)"
-        errorLine2="                   ~~~~~">
-        <location
-            file="src/main/java/androidx/benchmark/macro/MacrobenchmarkScope.kt"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="        Thread.sleep(5000) // sleep to await flushing cache to disk"
-        errorLine2="               ~~~~~">
-        <location
-            file="src/androidTest/java/androidx/benchmark/macro/MacrobenchmarkScopeTest.kt"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="                trace(label) { Thread.sleep(50) }"
-        errorLine2="                                      ~~~~~">
-        <location
-            file="src/androidTest/java/androidx/benchmark/macro/perfetto/PerfettoCaptureSweepTest.kt"/>
     </issue>
 
     <issue

@@ -30,15 +30,17 @@ import android.os.Bundle
  * Note: The Bundle keys for [data] should not be in the form of androidx.credentials.*` as they
  * are reserved for internal use by this androidx library.
  *
- * @property type the credential type determined by the credential-type-specific subclass for custom
+ * @param type the credential type determined by the credential-type-specific subclass for custom
  * use cases
- * @property data the response data in the [Bundle] format for custom use cases
+ * @param data the response data in the [Bundle] format for custom use cases  (note: bundle keys in
+ * the form of `androidx.credentials.*` and `android.credentials.*` are reserved for internal
+ * library usage)
  * @throws IllegalArgumentException If [type] is empty
  * @throws NullPointerException If [type] or [data] are null
 */
 open class CreateCustomCredentialResponse(
-    final override val type: String,
-    final override val data: Bundle
+    type: String,
+    data: Bundle
 ) : CreateCredentialResponse(type, data) {
     init {
         require(type.isNotEmpty()) { "type should not be empty" }

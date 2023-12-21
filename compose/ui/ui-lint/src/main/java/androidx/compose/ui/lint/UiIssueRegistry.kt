@@ -37,9 +37,9 @@ class UiIssueRegistry : IssueRegistry() {
         ModifierDeclarationDetector.ModifierFactoryUnreferencedReceiver,
         ModifierNodeInspectablePropertiesDetector.ModifierNodeInspectableProperties,
         ModifierParameterDetector.ModifierParameter,
+        MultipleAwaitPointerEventScopesDetector.MultipleAwaitPointerEventScopes,
         ReturnFromAwaitPointerEventScopeDetector.ExitAwaitPointerEventScope,
         SuspiciousCompositionLocalModifierReadDetector.SuspiciousCompositionLocalModifierRead,
-        MultipleAwaitPointerEventScopesDetector.MultipleAwaitPointerEventScopes
     )
     override val vendor = Vendor(
         vendorName = "Jetpack Compose",

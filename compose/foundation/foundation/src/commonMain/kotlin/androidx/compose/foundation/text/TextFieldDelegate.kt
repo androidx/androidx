@@ -16,12 +16,14 @@
 
 package androidx.compose.foundation.text
 
+import androidx.compose.foundation.text.selection.visibleBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Paragraph
 import androidx.compose.ui.text.SpanStyle
@@ -175,6 +177,36 @@ internal class TextFieldDelegate {
             textInputSession.notifyFocusedRect(
                 Rect(Offset(globalLT.x, globalLT.y), Size(bbox.width, bbox.height))
             )
+        }
+
+        /**
+         * Notify the input service of layout and position changes.
+         *
+         * @param textInputSession the current input session
+         * @param textFieldValue the editor state
+         * @param textLayoutResult the layout result
+         */
+        @JvmStatic
+        internal fun updateTextLayoutResult(
+            textInputSession: TextInputSession,
+            textFieldValue: TextFieldValue,
+            textLayoutResult: TextLayoutResultProxy
+        ) {
+            textLayoutResult.innerTextFieldCoordinates?.let { innerTextFieldCoordinates ->
+                if (!innerTextFieldCoordinates.isAttached) return
+                textLayoutResult.decorationBoxCoordinates?.let { decorationBoxCoordinates ->
+                    textInputSession.updateTextLayoutResult(
+                        textFieldValue,
+                        textLayoutResult.value,
+                        innerTextFieldCoordinates.positionInWindow(),
+                        innerTextFieldCoordinates.visibleBounds(),
+                        innerTextFieldCoordinates.localBoundingBoxOf(
+                            decorationBoxCoordinates,
+                            clipBounds = false
+                        )
+                    )
+                }
+            }
         }
 
         /**

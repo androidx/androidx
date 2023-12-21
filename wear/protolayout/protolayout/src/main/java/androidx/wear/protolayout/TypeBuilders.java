@@ -25,6 +25,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.expression.DynamicBuilders;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
 import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.proto.AlignmentProto;
 import androidx.wear.protolayout.proto.TypesProto;
@@ -48,7 +49,7 @@ public final class TypeBuilders {
         }
 
         /**
-         * Gets the value.
+         * Gets the static value.
          *
          * @since 1.0
          */
@@ -63,14 +64,33 @@ public final class TypeBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static Int32Prop fromProto(@NonNull TypesProto.Int32Prop proto) {
-            return new Int32Prop(proto, null);
+        public static Int32Prop fromProto(
+            @NonNull TypesProto.Int32Prop proto, @Nullable Fingerprint fingerprint) {
+            return new Int32Prop(proto, fingerprint);
         }
 
         @NonNull
-        TypesProto.Int32Prop toProto() {
+        static Int32Prop fromProto(@NonNull TypesProto.Int32Prop proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public TypesProto.Int32Prop toProto() {
             return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "Int32Prop{"
+                    + "value="
+                    + getValue()
+                    + "}";
         }
 
         /** Builder for {@link Int32Prop} */
@@ -81,7 +101,7 @@ public final class TypeBuilders {
             public Builder() {}
 
             /**
-             * Sets the value.
+             * Sets the static value.
              *
              * @since 1.0
              */
@@ -145,9 +165,17 @@ public final class TypeBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static StringProp fromProto(
+            @NonNull TypesProto.StringProp proto, @Nullable Fingerprint fingerprint) {
+            return new StringProp(proto, fingerprint);
+        }
+
         @NonNull
         static StringProp fromProto(@NonNull TypesProto.StringProp proto) {
-            return new StringProp(proto, null);
+            return fromProto(proto, null);
         }
 
         /** Returns the internal proto instance. */
@@ -155,6 +183,17 @@ public final class TypeBuilders {
         @NonNull
         public TypesProto.StringProp toProto() {
             return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "StringProp{"
+                    + "value="
+                    + getValue()
+                    + ", dynamicValue="
+                    + getDynamicValue()
+                    + "}";
         }
 
         /** Builder for {@link StringProp} */
@@ -165,7 +204,7 @@ public final class TypeBuilders {
             /**
              * Creates an instance of {@link Builder}.
              *
-             * @deprecated use {@link Builder(String)}
+             * @deprecated use {@link #Builder(String)}
              */
             @Deprecated
             public Builder() {}
@@ -181,7 +220,8 @@ public final class TypeBuilders {
 
             /**
              * Sets the static value. If a dynamic value is also set and the renderer supports
-             * dynamic values for the corresponding field, this static value will be ignored.
+             * dynamic values for the corresponding field, this static value will be ignored. If the
+             * static value is not specified, {@code null} will be used instead.
              *
              * @since 1.0
              */
@@ -194,7 +234,9 @@ public final class TypeBuilders {
 
             /**
              * Sets the dynamic value. Note that when setting this value, the static value is still
-             * required to be set to support older renderers that only read the static value.
+             * required to be set to support older renderers that only read the static value. If
+             * {@code dynamicValue} has an invalid result, the provided static value will be used
+             * instead.
              *
              * @since 1.2
              */
@@ -206,7 +248,14 @@ public final class TypeBuilders {
                 return this;
             }
 
-            /** Builds an instance from accumulated values. */
+            /**
+             * Builds an instance from accumulated values.
+             *
+             * @throws IllegalStateException if a dynamic value is set using {@link
+             *     #setDynamicValue(DynamicBuilders.DynamicString)} but neither {@link
+             *     #Builder(String)} nor {@link #setValue(String)} is used to provide a static
+             *     value.
+             */
             @NonNull
             public StringProp build() {
                 if (mImpl.hasDynamicValue() && !mImpl.hasValue()) {
@@ -344,6 +393,20 @@ public final class TypeBuilders {
             return mImpl.getValue();
         }
 
+        /**
+         * Gets the dynamic value.
+         *
+         * @since 1.2
+         */
+        @Nullable
+        public DynamicFloat getDynamicValue() {
+            if (mImpl.hasDynamicValue()) {
+                return DynamicBuilders.dynamicFloatFromProto(mImpl.getDynamicValue());
+            } else {
+                return null;
+            }
+        }
+
         /** Get the fingerprint for this object, or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -351,14 +414,35 @@ public final class TypeBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static FloatProp fromProto(@NonNull TypesProto.FloatProp proto) {
-            return new FloatProp(proto, null);
+        public static FloatProp fromProto(
+            @NonNull TypesProto.FloatProp proto, @Nullable Fingerprint fingerprint) {
+            return new FloatProp(proto, fingerprint);
         }
 
         @NonNull
-        TypesProto.FloatProp toProto() {
+        static FloatProp fromProto(@NonNull TypesProto.FloatProp proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public TypesProto.FloatProp toProto() {
             return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "FloatProp{"
+                    + "value="
+                    + getValue()
+                    + ", dynamicValue="
+                    + getDynamicValue()
+                    + "}";
         }
 
         /** Builder for {@link FloatProp} */
@@ -366,10 +450,27 @@ public final class TypeBuilders {
             private final TypesProto.FloatProp.Builder mImpl = TypesProto.FloatProp.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-641088370);
 
+            /**
+             * Creates an instance of {@link Builder}.
+             *
+             * @deprecated use {@link #Builder(float)}
+             */
+            @Deprecated
             public Builder() {}
 
             /**
-             * Sets the value.
+             * Creates an instance of {@link Builder}.
+             *
+             * @param staticValue the static value.
+             */
+            public Builder(float staticValue) {
+                setValue(staticValue);
+            }
+
+            /**
+             * Sets the static value. If a dynamic value is also set and the renderer supports
+             * dynamic values for the corresponding field, this static value will be ignored. If the
+             * static value is not specified, zero will be used instead.
              *
              * @since 1.0
              */
@@ -380,9 +481,34 @@ public final class TypeBuilders {
                 return this;
             }
 
-            /** Builds an instance from accumulated values. */
+            /**
+             * Sets the dynamic value. Note that when setting this value, the static value is still
+             * required to be set (with either {@link #Builder(float)} or {@link #setValue(float)})
+             * to support older renderers that only read the static value. If {@code dynamicValue }
+             * has an invalid result, the provided static value will be used instead.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setDynamicValue(@NonNull DynamicFloat dynamicValue) {
+                mImpl.setDynamicValue(dynamicValue.toDynamicFloatProto());
+                mFingerprint.recordPropertyUpdate(
+                        2, checkNotNull(dynamicValue.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Builds an instance from accumulated values.
+             *
+             * @throws IllegalStateException if a dynamic value is set using {@link
+             *     #setDynamicValue(DynamicFloat)} but neither {@link #Builder(float)} nor {@link
+             *     #setValue(float)} is used to provide a static value.
+             */
             @NonNull
             public FloatProp build() {
+                if (mImpl.hasDynamicValue() && !mImpl.hasValue()) {
+                    throw new IllegalStateException("Static value is missing.");
+                }
                 return new FloatProp(mImpl.build(), mFingerprint);
             }
         }
@@ -403,7 +529,7 @@ public final class TypeBuilders {
         }
 
         /**
-         * Gets the value.
+         * Gets the static value.
          *
          * @since 1.0
          */
@@ -418,20 +544,33 @@ public final class TypeBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static BoolProp fromProto(@NonNull TypesProto.BoolProp proto) {
-            return new BoolProp(proto, null);
+        public static BoolProp fromProto(
+            @NonNull TypesProto.BoolProp proto, @Nullable Fingerprint fingerprint) {
+            return new BoolProp(proto, fingerprint);
         }
 
         @NonNull
-        TypesProto.BoolProp toProto() {
+        static BoolProp fromProto(@NonNull TypesProto.BoolProp proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public TypesProto.BoolProp toProto() {
             return mImpl;
         }
 
         @Override
         @NonNull
         public String toString() {
-            return "BoolProp{" + "value=" + getValue() + "}";
+            return "BoolProp{"
+                    + "value="
+                    + getValue()
+                    + "}";
         }
 
         /** Builder for {@link BoolProp} */
@@ -442,7 +581,7 @@ public final class TypeBuilders {
             public Builder() {}
 
             /**
-             * Sets the value.
+             * Sets the static value.
              *
              * @since 1.0
              */

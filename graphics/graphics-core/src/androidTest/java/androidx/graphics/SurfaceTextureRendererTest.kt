@@ -35,6 +35,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -184,6 +185,8 @@ class SurfaceTextureRendererTest {
         val handler = Handler(handlerThread.looper)
         try {
             block(handler)
+        } catch (exception: Exception) {
+            fail("Exception thrown in test case: " + exception.message)
         } finally {
             handlerThread.quit()
         }

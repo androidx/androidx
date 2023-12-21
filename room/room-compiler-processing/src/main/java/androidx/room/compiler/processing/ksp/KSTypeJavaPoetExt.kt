@@ -21,6 +21,7 @@ import androidx.room.compiler.processing.javac.kotlin.typeNameFromJvmSignature
 import androidx.room.compiler.processing.tryBox
 import androidx.room.compiler.processing.util.ISSUE_TRACKER_LINK
 import com.google.devtools.ksp.KspExperimental
+import com.google.devtools.ksp.isAnnotationPresent
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSName
@@ -29,6 +30,7 @@ import com.google.devtools.ksp.symbol.KSTypeAlias
 import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSTypeReference
+import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.symbol.Variance
 import com.squareup.kotlinpoet.javapoet.JClassName
 import com.squareup.kotlinpoet.javapoet.JParameterizedTypeName
@@ -45,7 +47,10 @@ internal val ERROR_JTYPE_NAME = JClassName.get("error", "NonExistentClass")
  * To handle self referencing types and avoid infinite recursion, we keep a lookup map for
  * TypeVariables.
  */
-private typealias JTypeArgumentTypeLookup = LinkedHashMap<KSName, JTypeName>
+private class TypeResolutionContext(
+    val originalType: KSType? = null,
+    val typeArgumentTypeLookup: MutableMap<KSName, JTypeName> = LinkedHashMap(),
+)
 
 /**
  * Turns a KSTypeReference into a TypeName in java's type system.
@@ -53,17 +58,17 @@ private typealias JTypeArgumentTypeLookup = LinkedHashMap<KSName, JTypeName>
 internal fun KSTypeReference?.asJTypeName(resolver: Resolver): JTypeName =
     asJTypeName(
         resolver = resolver,
-        typeArgumentTypeLookup = JTypeArgumentTypeLookup()
+        typeResolutionContext = TypeResolutionContext()
     )
 
 private fun KSTypeReference?.asJTypeName(
     resolver: Resolver,
-    typeArgumentTypeLookup: JTypeArgumentTypeLookup
+    typeResolutionContext: TypeResolutionContext
 ): JTypeName {
     return if (this == null) {
         ERROR_JTYPE_NAME
     } else {
-        resolve().asJTypeName(resolver, typeArgumentTypeLookup)
+        resolve().asJTypeName(resolver, typeResolutionContext)
     }
 }
 
@@ -73,33 +78,39 @@ private fun KSTypeReference?.asJTypeName(
 internal fun KSDeclaration.asJTypeName(resolver: Resolver): JTypeName =
     asJTypeName(
         resolver = resolver,
-        typeArgumentTypeLookup = JTypeArgumentTypeLookup()
+        typeResolutionContext = TypeResolutionContext()
     )
 
 @OptIn(KspExperimental::class)
 private fun KSDeclaration.asJTypeName(
     resolver: Resolver,
-    typeArgumentTypeLookup: JTypeArgumentTypeLookup
+    typeResolutionContext: TypeResolutionContext
 ): JTypeName {
     if (this is KSTypeAlias) {
-        return this.type.asJTypeName(resolver, typeArgumentTypeLookup)
+        return this.type.asJTypeName(resolver, typeResolutionContext)
     }
     if (this is KSTypeParameter) {
-        return this.asJTypeName(resolver, typeArgumentTypeLookup)
+        return this.asJTypeName(resolver, typeResolutionContext)
     }
     // if there is no qualified name, it is a resolution error so just return shared instance
     // KSP may improve that later and if not, we can improve it in Room
     // TODO: https://issuetracker.google.com/issues/168639183
     val qualified = qualifiedName?.asString() ?: return ERROR_JTYPE_NAME
-    val jvmSignature = resolver.mapToJvmSignature(this)
-    if (jvmSignature != null && jvmSignature.isNotBlank()) {
-        return jvmSignature.typeNameFromJvmSignature()
+    val pkg = getNormalizedPackageName()
+
+    // Note: To match KAPT behavior, a type annotated with @JvmInline is only replaced with the
+    // underlying type if the inline type is used directly (e.g. MyInlineType) rather than in the
+    // type args of another type, (e.g. List<MyInlineType>).
+    val isInlineUsedDirectly =
+        (isAnnotationPresent(JvmInline::class) || modifiers.contains(Modifier.INLINE)) &&
+            typeResolutionContext.originalType?.declaration?.qualifiedName?.asString() == qualified
+    if (pkg == "kotlin" || pkg.startsWith("kotlin.") || isInlineUsedDirectly) {
+        val jvmSignature = resolver.mapToJvmSignature(this)
+        if (!jvmSignature.isNullOrBlank()) {
+            return jvmSignature.typeNameFromJvmSignature()
+        }
     }
 
-    // fallback to custom generation, it is very likely that this is an unresolved type
-    // get the package name first, it might throw for invalid types, hence we use
-    // safeGetPackageName
-    val pkg = getNormalizedPackageName()
     // using qualified name and pkg, figure out the short names.
     val shortNames = if (pkg == "") {
         qualified
@@ -112,40 +123,38 @@ private fun KSDeclaration.asJTypeName(
 /**
  * Turns a KSTypeArgument into a TypeName in java's type system.
  */
-internal fun KSTypeArgument.asJTypeName(
-    resolver: Resolver
-): JTypeName = asJTypeName(
+internal fun KSTypeArgument.asJTypeName(resolver: Resolver): JTypeName = asJTypeName(
     resolver = resolver,
-    typeArgumentTypeLookup = JTypeArgumentTypeLookup()
+    typeResolutionContext = TypeResolutionContext()
 )
 
 private fun KSTypeParameter.asJTypeName(
     resolver: Resolver,
-    typeArgumentTypeLookup: JTypeArgumentTypeLookup
+    typeResolutionContext: TypeResolutionContext
 ): JTypeName {
     // see https://github.com/square/javapoet/issues/842
-    typeArgumentTypeLookup[name]?.let {
+    typeResolutionContext.typeArgumentTypeLookup[name]?.let {
         return it
     }
     val mutableBounds = mutableListOf<JTypeName>()
     val typeName = createModifiableTypeVariableName(name = name.asString(), bounds = mutableBounds)
-    typeArgumentTypeLookup[name] = typeName
+    typeResolutionContext.typeArgumentTypeLookup[name] = typeName
     val resolvedBounds = bounds.map {
-        it.asJTypeName(resolver, typeArgumentTypeLookup).tryBox()
+        it.asJTypeName(resolver, typeResolutionContext).tryBox()
     }.toList()
     if (resolvedBounds.isNotEmpty()) {
         mutableBounds.addAll(resolvedBounds)
         mutableBounds.remove(JTypeName.OBJECT)
     }
-    typeArgumentTypeLookup.remove(name)
+    typeResolutionContext.typeArgumentTypeLookup.remove(name)
     return typeName
 }
 
 private fun KSTypeArgument.asJTypeName(
     resolver: Resolver,
-    typeArgumentTypeLookup: JTypeArgumentTypeLookup
+    typeResolutionContext: TypeResolutionContext
 ): JTypeName {
-    fun resolveTypeName() = type.asJTypeName(resolver, typeArgumentTypeLookup).tryBox()
+    fun resolveTypeName() = type.asJTypeName(resolver, typeResolutionContext).tryBox()
     return when (variance) {
         Variance.CONTRAVARIANT -> JWildcardTypeName.supertypeOf(resolveTypeName())
         Variance.COVARIANT -> JWildcardTypeName.subtypeOf(resolveTypeName())
@@ -160,27 +169,29 @@ private fun KSTypeArgument.asJTypeName(
 internal fun KSType.asJTypeName(resolver: Resolver): JTypeName =
     asJTypeName(
         resolver = resolver,
-        typeArgumentTypeLookup = JTypeArgumentTypeLookup()
+        typeResolutionContext = TypeResolutionContext(this)
     )
 
 @OptIn(KspExperimental::class)
 private fun KSType.asJTypeName(
     resolver: Resolver,
-    typeArgumentTypeLookup: JTypeArgumentTypeLookup
+    typeResolutionContext: TypeResolutionContext,
 ): JTypeName {
-    return if (this.arguments.isNotEmpty() && !resolver.isJavaRawType(this)) {
+    return if (declaration is KSTypeAlias) {
+        replaceTypeAliases(resolver).asJTypeName(resolver, typeResolutionContext)
+    } else if (this.arguments.isNotEmpty() && !resolver.isJavaRawType(this)) {
         val args: Array<JTypeName> = this.arguments
-            .map { typeArg -> typeArg.asJTypeName(resolver, typeArgumentTypeLookup) }
+            .map { typeArg -> typeArg.asJTypeName(resolver, typeResolutionContext) }
             .map { it.tryBox() }
             .toTypedArray()
 
-        when (val typeName = declaration.asJTypeName(resolver, typeArgumentTypeLookup).tryBox()) {
+        when (val typeName = declaration.asJTypeName(resolver, typeResolutionContext).tryBox()) {
             is JArrayTypeName -> JArrayTypeName.of(args.single())
             is JClassName -> JParameterizedTypeName.get(typeName, *args)
             else -> error("Unexpected type name for KSType: $typeName")
         }
     } else {
-        this.declaration.asJTypeName(resolver, typeArgumentTypeLookup)
+        this.declaration.asJTypeName(resolver, typeResolutionContext)
     }
 }
 

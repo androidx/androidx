@@ -42,6 +42,8 @@ import androidx.lifecycle.LifecycleOwner
  * Instead, see [currentStateAsState] to obtain a [State<Lifecycle.State>][State]
  * that may be used to launch jobs in response to state changes.
  *
+ * @sample androidx.lifecycle.compose.samples.lifecycleEventEffectSample
+ *
  * @param event The [Lifecycle.Event] to listen for
  * @param lifecycleOwner The lifecycle owner to attach an observer
  * @param onEvent The effect to be launched when we receive an [event] callback
@@ -90,6 +92,8 @@ fun LifecycleEventEffect(
  *         // add ON_STOP effect work here
  *     }
  * }
+ *
+ * @sample androidx.lifecycle.compose.samples.lifecycleStartEffectSample
  *
  * A [LifecycleStartEffect] **must** include an [onStop][LifecycleStartStopEffectScope.onStop]
  * clause as the final statement in its [effects] block. If your operation does not require
@@ -176,6 +180,8 @@ class LifecycleStartStopEffectScope {
  *         // add ON_PAUSE effect work here
  *     }
  * }
+ *
+ * @sample androidx.lifecycle.compose.samples.lifecycleResumeEffectSample
  *
  * A [LifecycleResumeEffect] **must** include an [onPause][LifecycleResumePauseEffectScope.onPause]
  * clause as the final statement in its [effects] block. If your operation does not require

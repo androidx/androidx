@@ -1584,8 +1584,8 @@ public final class ProtoLayoutInflater {
     }
 
     @Nullable
-    private static TruncateAt textTruncationToEllipsize(TextOverflowProp type) {
-        switch (type.getValue()) {
+    private static TruncateAt textTruncationToEllipsize(TextOverflow overflowValue) {
+        switch (overflowValue) {
             case TEXT_OVERFLOW_TRUNCATE:
                 // A null TruncateAt disables adding an ellipsis.
                 return null;
@@ -2108,11 +2108,15 @@ public final class ProtoLayoutInflater {
                         .applyPendingChildLayoutParams(layoutParams));
     }
 
-    private static void applyTextOverflow(
+    private void applyTextOverflow(
             TextView textView, TextOverflowProp overflow, MarqueeParameters marqueeParameters) {
-        textView.setEllipsize(textTruncationToEllipsize(overflow));
-        if (overflow.getValue() == TextOverflow.TEXT_OVERFLOW_MARQUEE
-                && textView.getMaxLines() == 1) {
+        TextOverflow overflowValue = overflow.getValue();
+        if (!mAnimationEnabled && overflowValue == TextOverflow.TEXT_OVERFLOW_MARQUEE) {
+            overflowValue = TextOverflow.TEXT_OVERFLOW_UNDEFINED;
+        }
+
+        textView.setEllipsize(textTruncationToEllipsize(overflowValue));
+        if (overflowValue == TextOverflow.TEXT_OVERFLOW_MARQUEE && textView.getMaxLines() == 1) {
             int marqueeIterations =
                     marqueeParameters.hasIterations()
                             ? marqueeParameters.getIterations()

@@ -67,7 +67,12 @@ class AndroidxTracingTraceTest {
 
         verifyTraceEnable(false)
 
-        perfettoCapture.start(PerfettoConfig.Benchmark(listOf(Packages.TEST)))
+        perfettoCapture.start(
+            PerfettoConfig.Benchmark(
+                appTagPackages = listOf(Packages.TEST),
+                useStackSamplingConfig = false
+            )
+        )
 
         assertTrue(
             Trace.isEnabled(),

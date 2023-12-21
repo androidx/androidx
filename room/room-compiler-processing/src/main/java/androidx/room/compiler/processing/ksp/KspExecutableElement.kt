@@ -65,7 +65,11 @@ internal abstract class KspExecutableElement(
     }
 
     override fun isVarArgs(): Boolean {
-        return declaration.parameters.any { it.isVararg }
+        // TODO(b/254135327): Revisit with the introduction of a target language.
+        if (this is KspMethodElement && this.isSuspendFunction()) {
+            return false
+        }
+        return declaration.parameters.lastOrNull()?.isVararg ?: false
     }
 
     companion object {

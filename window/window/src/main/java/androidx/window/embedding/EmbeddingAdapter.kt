@@ -20,10 +20,10 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.os.Binder
 import android.util.LayoutDirection
 import android.util.Pair as AndroidPair
 import android.view.WindowMetrics
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.ExtensionsUtil
 import androidx.window.core.PredicateAdapter
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.BOTTOM_TO_TOP
@@ -56,7 +56,6 @@ import androidx.window.extensions.embedding.SplitPlaceholderRule as OEMSplitPlac
 import androidx.window.extensions.embedding.SplitPlaceholderRule.Builder as SplitPlaceholderRuleBuilder
 import androidx.window.layout.WindowMetricsCalculator
 import androidx.window.layout.adapter.extensions.ExtensionsWindowLayoutInfoAdapter
-import kotlin.Pair
 
 /**
  * Adapter class that translates data classes between Extension and Jetpack interfaces.
@@ -82,13 +81,16 @@ internal class EmbeddingAdapter(
                 SplitInfo(
                     ActivityStack(
                         primaryActivityStack.activities,
-                        primaryActivityStack.isEmpty
+                        primaryActivityStack.isEmpty,
+                        primaryActivityStack.token,
                     ),
                     ActivityStack(
                         secondaryActivityStack.activities,
-                        secondaryActivityStack.isEmpty
+                        secondaryActivityStack.isEmpty,
+                        secondaryActivityStack.token,
                     ),
-                    translate(splitInfo.splitAttributes)
+                    translate(splitInfo.splitAttributes),
+                    splitInfo.token,
                 )
             }
         }
@@ -117,14 +119,12 @@ internal class EmbeddingAdapter(
             )
             .build()
 
-    @OptIn(ExperimentalWindowApi::class)
     fun translateSplitAttributesCalculator(
         calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
     ): Function<OEMSplitAttributesCalculatorParams, OEMSplitAttributes> = Function { oemParams ->
             translateSplitAttributes(calculator.invoke(translate(oemParams)))
         }
 
-    @OptIn(ExperimentalWindowApi::class)
     @SuppressLint("NewApi")
     fun translate(
         params: OEMSplitAttributesCalculatorParams
@@ -322,18 +322,21 @@ internal class EmbeddingAdapter(
             val primaryActivityStack = splitInfo.primaryActivityStack
             val primaryFragment = ActivityStack(
                 primaryActivityStack.activities,
-                primaryActivityStack.isEmpty
+                primaryActivityStack.isEmpty,
+                INVALID_ACTIVITY_STACK_TOKEN,
             )
 
             val secondaryActivityStack = splitInfo.secondaryActivityStack
             val secondaryFragment = ActivityStack(
                 secondaryActivityStack.activities,
-                secondaryActivityStack.isEmpty
+                secondaryActivityStack.isEmpty,
+                INVALID_ACTIVITY_STACK_TOKEN,
             )
             return SplitInfo(
                 primaryFragment,
                 secondaryFragment,
-                translate(splitInfo.splitAttributes)
+                translate(splitInfo.splitAttributes),
+                INVALID_SPLIT_INFO_TOKEN,
             )
         }
     }
@@ -501,12 +504,28 @@ internal class EmbeddingAdapter(
                 ActivityStack(
                     splitInfo.primaryActivityStack.activities,
                     splitInfo.primaryActivityStack.isEmpty,
+                    INVALID_ACTIVITY_STACK_TOKEN,
                 ),
                 ActivityStack(
                     splitInfo.secondaryActivityStack.activities,
                     splitInfo.secondaryActivityStack.isEmpty,
+                    INVALID_ACTIVITY_STACK_TOKEN,
                 ),
                 getSplitAttributesCompat(splitInfo),
+                INVALID_SPLIT_INFO_TOKEN,
             )
+    }
+
+    internal companion object {
+        /**
+         * The default token of [SplitInfo], which provides compatibility for device prior to
+         * [WindowExtensions.VENDOR_API_LEVEL_3]
+         */
+        val INVALID_SPLIT_INFO_TOKEN = Binder()
+        /**
+         * The default token of [ActivityStack], which provides compatibility for device prior to
+         * [WindowExtensions.VENDOR_API_LEVEL_3]
+         */
+        val INVALID_ACTIVITY_STACK_TOKEN = Binder()
     }
 }

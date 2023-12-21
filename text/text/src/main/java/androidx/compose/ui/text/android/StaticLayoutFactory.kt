@@ -153,12 +153,12 @@ private class StaticLayoutParams constructor(
     val rightIndents: IntArray?
 ) {
     init {
-        require(start in 0..end)
-        require(end in 0..text.length)
-        require(maxLines >= 0)
-        require(width >= 0)
-        require(ellipsizedWidth >= 0)
-        require(lineSpacingMultiplier >= 0f)
+        require(start in 0..end) { "invalid start value" }
+        require(end in 0..text.length) { "invalid end value" }
+        require(maxLines >= 0) { "invalid maxLines value" }
+        require(width >= 0) { "invalid width value" }
+        require(ellipsizedWidth >= 0) { "invalid ellipsizedWidth value" }
+        require(lineSpacingMultiplier >= 0f) { "invalid lineSpacingMultiplier value" }
     }
 }
 

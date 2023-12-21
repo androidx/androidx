@@ -57,7 +57,6 @@ import java.util.List;
 
 /**
  * Extracts information required to present content in a row format from a slice.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @RequiresApi(19)
@@ -353,7 +352,6 @@ public class RowContent extends SliceContent {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override

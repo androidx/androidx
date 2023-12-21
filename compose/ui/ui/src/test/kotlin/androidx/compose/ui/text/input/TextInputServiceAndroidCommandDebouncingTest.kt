@@ -17,6 +17,7 @@
 package androidx.compose.ui.text.input
 
 import android.view.View
+import android.view.inputmethod.CursorAnchorInfo
 import android.view.inputmethod.ExtractedText
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.Executor
@@ -270,6 +271,8 @@ class TextInputServiceAndroidCommandDebouncingTest {
         var showSoftInputCalls = 0
         var hideSoftInputCalls = 0
 
+        override fun isActive(): Boolean = true
+
         override fun restartInput() {
             restartCalls++
         }
@@ -291,6 +294,9 @@ class TextInputServiceAndroidCommandDebouncingTest {
             compositionStart: Int,
             compositionEnd: Int
         ) {
+        }
+
+        override fun updateCursorAnchorInfo(cursorAnchorInfo: CursorAnchorInfo) {
         }
     }
 }

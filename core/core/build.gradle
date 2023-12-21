@@ -22,6 +22,9 @@ dependencies {
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation("androidx.interpolator:interpolator:1.0.0")
 
+    // Workaround for Kotlin dependency constraints
+    implementation(libs.kotlinStdlib)
+
     // We don't ship this as a public artifact, so it must remain a project-type dependency.
     annotationProcessor(projectOrArtifact(":versionedparcelable:versionedparcelable-compiler"))
 

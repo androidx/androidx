@@ -114,7 +114,7 @@ abstract class ComposeIrTransformTest : AbstractIrTransformTest() {
     }
 }
 
-abstract class AbstractIrTransformTest : AbstractCodegenTest() {
+abstract class AbstractIrTransformTest(useFir: Boolean) : AbstractCodegenTest(useFir) {
     private var testLocalUnique = 0
     protected var classesDirectory = tmpDir(
         "kotlin-${testLocalUnique++}-classes"

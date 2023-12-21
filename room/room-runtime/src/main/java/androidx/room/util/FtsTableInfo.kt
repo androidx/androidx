@@ -24,7 +24,6 @@ import java.util.ArrayDeque
 /**
  * A data class that holds the information about an FTS table.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 class FtsTableInfo(

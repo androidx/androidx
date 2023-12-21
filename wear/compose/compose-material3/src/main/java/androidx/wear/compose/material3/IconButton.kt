@@ -52,6 +52,9 @@ import androidx.compose.ui.unit.max
  *
  * TODO(b/261838497) Add Material3 samples and UX guidance links
  *
+ * Example of an [IconButton]:
+ * @sample androidx.wear.compose.material3.samples.IconButtonSample
+ *
  * @param onClick Will be called when the user clicks the button.
  * @param modifier Modifier to be applied to the button.
  * @param enabled Controls the enabled state of the button. When `false`, this button will not
@@ -114,6 +117,9 @@ fun IconButton(
  *
  * TODO(b/261838497) Add Material3 samples and UX guidance links
  *
+ * Example of [FilledIconButton]:
+ * @sample androidx.wear.compose.material3.samples.FilledIconButtonSample
+ *
  * @param onClick Will be called when the user clicks the button.
  * @param modifier Modifier to be applied to the button.
  * @param enabled Controls the enabled state of the button. When `false`, this button will not
@@ -160,6 +166,9 @@ fun FilledIconButton(
  * A disabled button will not respond to click events.
  *
  * TODO(b/261838497) Add Material3 samples and UX guidance links
+ *
+ * Example of [FilledTonalIconButton]:
+ * @sample androidx.wear.compose.material3.samples.FilledTonalIconButtonSample
  *
  * @param onClick Will be called when the user clicks the button.
  * @param modifier Modifier to be applied to the button.
@@ -210,6 +219,9 @@ fun FilledTonalIconButton(
  * content taking the theme primary color.
  *
  * TODO(b/261838497) Add Material3 samples and UX guidance links
+ *
+ * Example of [OutlinedIconButton]:
+ * @sample androidx.wear.compose.material3.samples.OutlinedIconButtonSample
  *
  * @param onClick Will be called when the user clicks the button.
  * @param modifier Modifier to be applied to the button.

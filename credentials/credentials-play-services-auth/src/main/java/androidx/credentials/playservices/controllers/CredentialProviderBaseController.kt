@@ -16,6 +16,7 @@
 
 package androidx.credentials.playservices.controllers
 
+import android.content.Context
 import android.content.Intent
 import android.os.Parcel
 import android.os.ResultReceiver
@@ -32,9 +33,8 @@ import com.google.android.gms.common.api.CommonStatusCodes
 
 /**
  * Holds all non type specific details shared by the controllers.
- * @hide
  */
-open class CredentialProviderBaseController(private val activity: android.app.Activity) {
+internal open class CredentialProviderBaseController(private val context: Context) {
     companion object {
 
         // Common retryable status codes from the play modules found
@@ -48,6 +48,16 @@ open class CredentialProviderBaseController(private val activity: android.app.Ac
         // Generic controller request code used by all controllers
         @JvmStatic
         protected val CONTROLLER_REQUEST_CODE: Int = 1
+
+        /** -- Used to avoid reflection, these constants map errors from HiddenActivity -- */
+        const val GET_CANCELED = "GET_CANCELED_TAG"
+        const val GET_INTERRUPTED = "GET_INTERRUPTED"
+        const val GET_NO_CREDENTIALS = "GET_NO_CREDENTIALS"
+        const val GET_UNKNOWN = "GET_UNKNOWN"
+
+        const val CREATE_CANCELED = "CREATE_CANCELED"
+        const val CREATE_INTERRUPTED = "CREATE_INTERRUPTED"
+        const val CREATE_UNKNOWN = "CREATE_UNKNOWN"
 
         /** ---- Data Constants to pass between the controllers and the hidden activity---- **/
 
@@ -88,13 +98,13 @@ open class CredentialProviderBaseController(private val activity: android.app.Ac
         internal fun getCredentialExceptionTypeToException(typeName: String?, msg: String?):
             GetCredentialException {
             return when (typeName) {
-                GetCredentialCancellationException::class.java.name -> {
+                GET_CANCELED -> {
                     GetCredentialCancellationException(msg)
                 }
-                GetCredentialInterruptedException::class.java.name -> {
+                GET_INTERRUPTED -> {
                     GetCredentialInterruptedException(msg)
                 }
-                NoCredentialException::class.java.name -> {
+                GET_NO_CREDENTIALS -> {
                     NoCredentialException(msg)
                 }
                 else -> {
@@ -106,10 +116,10 @@ open class CredentialProviderBaseController(private val activity: android.app.Ac
         internal fun createCredentialExceptionTypeToException(typeName: String?, msg: String?):
             CreateCredentialException {
             return when (typeName) {
-                CreateCredentialCancellationException::class.java.name -> {
+                CREATE_CANCELED -> {
                     CreateCredentialCancellationException(msg)
                 }
-                CreateCredentialInterruptedException::class.java.name -> {
+                CREATE_INTERRUPTED -> {
                     CreateCredentialInterruptedException(msg)
                 }
                 else -> {

@@ -172,6 +172,7 @@ fun OutlinedTextField(
             modifier
         }
             .background(colors.backgroundColor(enabled).value, shape)
+            .defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
             .defaultMinSize(
                 minWidth = TextFieldDefaults.MinWidth,
                 minHeight = TextFieldDefaults.MinHeight
@@ -373,6 +374,7 @@ fun OutlinedTextField(
             modifier
         }
             .background(colors.backgroundColor(enabled).value, shape)
+            .defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
             .defaultMinSize(
                 minWidth = TextFieldDefaults.MinWidth,
                 minHeight = TextFieldDefaults.MinHeight
@@ -750,20 +752,26 @@ private class OutlinedTextFieldMeasurePolicy(
         width: Int,
         intrinsicMeasurer: (IntrinsicMeasurable, Int) -> Int
     ): Int {
-        val textFieldHeight =
-            intrinsicMeasurer(measurables.first { it.layoutId == TextFieldId }, width)
-        val labelHeight = measurables.find { it.layoutId == LabelId }?.let {
+        var remainingWidth = width
+        val leadingHeight = measurables.find { it.layoutId == LeadingId }?.let {
+            remainingWidth -= it.maxIntrinsicWidth(Constraints.Infinity)
             intrinsicMeasurer(it, width)
         } ?: 0
         val trailingHeight = measurables.find { it.layoutId == TrailingId }?.let {
+            remainingWidth -= it.maxIntrinsicWidth(Constraints.Infinity)
             intrinsicMeasurer(it, width)
         } ?: 0
-        val leadingHeight = measurables.find { it.layoutId == LeadingId }?.let {
-            intrinsicMeasurer(it, width)
+
+        val labelHeight = measurables.find { it.layoutId == LabelId }?.let {
+            intrinsicMeasurer(it, lerp(remainingWidth, width, animationProgress))
         } ?: 0
+
+        val textFieldHeight =
+            intrinsicMeasurer(measurables.first { it.layoutId == TextFieldId }, remainingWidth)
         val placeholderHeight = measurables.find { it.layoutId == PlaceholderId }?.let {
-            intrinsicMeasurer(it, width)
+            intrinsicMeasurer(it, remainingWidth)
         } ?: 0
+
         return calculateHeight(
             leadingPlaceableHeight = leadingHeight,
             trailingPlaceableHeight = trailingHeight,

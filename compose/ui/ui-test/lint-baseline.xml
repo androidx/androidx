@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
+<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
 
     <issue
         id="BanThreadSleep"
@@ -8,6 +8,87 @@
         errorLine2="               ~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/compose/ui/test/android/WindowCapture.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method animateAlong has parameter &apos;curve&apos; with type Function1&lt;? super Long, Offset>."
+        errorLine1="    curve: (Long) -> Offset,"
+        errorLine2="           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/MouseInjectionScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor TestMonotonicFrameClock has parameter &apos;onPerformTraversals&apos; with type Function1&lt;? super Long, Unit>."
+        errorLine1="    private val onPerformTraversals: (Long) -> Unit = {}"
+        errorLine2="                                     ~~~~~~~~~~~~~~">
+        <location
+            file="src/jvmMain/kotlin/androidx/compose/ui/test/TestMonotonicFrameClock.jvm.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;toRun&apos; with type List&lt;Function1&lt;? super Long, ? extends Unit>>."
+        errorLine1="            val toRun = synchronized(lock) {"
+        errorLine2="            ^">
+        <location
+            file="src/jvmMain/kotlin/androidx/compose/ui/test/TestMonotonicFrameClock.jvm.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method swipe has parameter &apos;curve&apos; with type Function1&lt;? super Long, Offset>."
+        errorLine1="    curve: (Long) -> Offset,"
+        errorLine2="           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/TouchInjectionScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;Long, Offset> of &apos;generateFunction&apos;."
+        errorLine1="    fun generateFunction(): (Long) -> Offset {"
+        errorLine2="                            ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/VelocityPathFinder.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;fx&apos; with type Function1&lt;? super Long, ? extends Float>."
+        errorLine1="        val fx = createFunctionForVelocity(vx, Offset::x)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/VelocityPathFinder.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;fy&apos; with type Function1&lt;? super Long, ? extends Float>."
+        errorLine1="        val fy = createFunctionForVelocity(vy, Offset::y)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/VelocityPathFinder.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method createFunctionForVelocity has parameter &apos;value&apos; with type Function1&lt;? super Offset, Float>."
+        errorLine1="        value: Offset.() -> Float"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/VelocityPathFinder.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;Long, Float> of &apos;createFunctionForVelocity&apos;."
+        errorLine1="    ): (Long) -> Float {"
+        errorLine2="       ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/VelocityPathFinder.kt"/>
     </issue>
 
 </issues>

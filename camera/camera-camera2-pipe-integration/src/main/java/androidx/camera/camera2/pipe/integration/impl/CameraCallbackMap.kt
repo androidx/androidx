@@ -118,6 +118,10 @@ class CameraCallbackMap @Inject constructor() : Request.Listener {
         }
     }
 
+    @Deprecated(
+        message = "Migrating to using RequestFailureWrapper instead of CaptureFailure",
+        level = DeprecationLevel.WARNING
+    )
     override fun onFailed(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,

@@ -32,7 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package androidx.car.app.suggestion;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface ISuggestionHost {
   void updateSuggestions(in androidx.car.app.serialization.Bundleable suggestions) = 1;
 }

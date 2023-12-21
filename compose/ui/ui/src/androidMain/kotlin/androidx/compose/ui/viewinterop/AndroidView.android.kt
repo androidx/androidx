@@ -304,7 +304,7 @@ private fun <T : View> Updater<LayoutNode>.updateViewHolderParams(
     set(compositeKeyHash, SetCompositeKeyHash)
 }
 
-@Suppress("UNCHECKED_CAST")
+@Suppress("UNCHECKED_CAST", "ExceptionMessage")
 private fun <T : View> LayoutNode.requireViewFactoryHolder(): ViewFactoryHolder<T> {
     @OptIn(InternalComposeUiApi::class)
     return checkNotNull(interopViewFactoryHolder) as ViewFactoryHolder<T>

@@ -27,6 +27,7 @@ import androidx.compose.ui.focus.FocusStateImpl.Inactive
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.nearestAncestor
+import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.node.visitChildren
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
@@ -229,8 +230,8 @@ private object FocusableChildrenComparator : Comparator<FocusTargetNode> {
             return 0
         }
 
-        val layoutNode1 = checkNotNull(focusTarget1.coordinator?.layoutNode)
-        val layoutNode2 = checkNotNull(focusTarget2.coordinator?.layoutNode)
+        val layoutNode1 = focusTarget1.requireLayoutNode()
+        val layoutNode2 = focusTarget2.requireLayoutNode()
 
         // Use natural order for focus modifiers within the same layout node.
         if (layoutNode1 == layoutNode2) return 0

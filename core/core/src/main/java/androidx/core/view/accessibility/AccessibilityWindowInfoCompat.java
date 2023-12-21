@@ -87,6 +87,25 @@ public class AccessibilityWindowInfoCompat {
         return null;
     }
 
+    /**
+     * Creates a new AccessibilityWindowInfoCompat.
+     * <p>
+     * Compatibility:
+     *  <ul>
+     *      <li>Api &lt; 30: Will not wrap an
+     *      {@link android.view.accessibility.AccessibilityWindowInfo} instance.</li>
+     *  </ul>
+     * </p>
+     *
+     */
+    public AccessibilityWindowInfoCompat() {
+        if (SDK_INT >= 30) {
+            mInfo = Api30Impl.instantiateAccessibilityWindowInfo();
+        } else {
+            mInfo = null;
+        }
+    }
+
     private AccessibilityWindowInfoCompat(Object info) {
         mInfo = info;
     }
@@ -538,6 +557,18 @@ public class AccessibilityWindowInfoCompat {
         @DoNotInline
         static CharSequence getTitle(AccessibilityWindowInfo info) {
             return info.getTitle();
+        }
+    }
+
+    @RequiresApi(30)
+    private static class Api30Impl {
+        private Api30Impl() {
+            // This class is non instantiable.
+        }
+
+        @DoNotInline
+        static AccessibilityWindowInfo instantiateAccessibilityWindowInfo() {
+            return new AccessibilityWindowInfo();
         }
     }
 

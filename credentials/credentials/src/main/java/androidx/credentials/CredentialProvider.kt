@@ -16,8 +16,9 @@
 
 package androidx.credentials
 
-import android.app.Activity
+import android.content.Context
 import android.os.CancellationSignal
+import androidx.annotation.RequiresApi
 import androidx.credentials.exceptions.ClearCredentialException
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.GetCredentialException
@@ -50,15 +51,15 @@ interface CredentialProvider {
     /**
      * Invoked on a request to get a credential.
      *
+     * @param context the client calling context used to potentially launch any UI needed
      * @param request the request for getting the credential
-     * @param activity the client calling activity used to potentially launch any UI needed
      * @param cancellationSignal an optional signal that allows for cancelling this call
      * @param executor the callback will take place on this executor
      * @param callback the callback invoked when the request succeeds or fails
      */
     fun onGetCredential(
+        context: Context,
         request: GetCredentialRequest,
-        activity: Activity,
         cancellationSignal: CancellationSignal?,
         executor: Executor,
         callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>,
@@ -67,15 +68,15 @@ interface CredentialProvider {
     /**
      * Invoked on a request to create a credential.
      *
+     * @param context the client calling context used to potentially launch any UI needed
      * @param request the request for creating the credential
-     * @param activity the client calling activity used to potentially launch any UI needed
      * @param cancellationSignal an optional signal that allows for cancelling this call
      * @param executor the callback will take place on this executor
      * @param callback the callback invoked when the request succeeds or fails
      */
     fun onCreateCredential(
+        context: Context,
         request: CreateCredentialRequest,
-        activity: Activity,
         cancellationSignal: CancellationSignal?,
         executor: Executor,
         callback: CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>,
@@ -98,4 +99,38 @@ interface CredentialProvider {
         executor: Executor,
         callback: CredentialManagerCallback<Void?, ClearCredentialException>,
     )
+
+    /**
+     * Invoked on a request to prepare for a get-credential operation
+     *
+     * @param request the request for getting the credential
+     * @param cancellationSignal an optional signal that allows for cancelling this call
+     * @param executor the callback will take place on this executor
+     * @param callback the callback invoked when the request succeeds or fails
+     */
+    @RequiresApi(34)
+    fun onPrepareCredential(
+        request: GetCredentialRequest,
+        cancellationSignal: CancellationSignal?,
+        executor: Executor,
+        callback: CredentialManagerCallback<PrepareGetCredentialResponse, GetCredentialException>,
+    ) {}
+
+    /**
+     * Complete on a request to get a credential represented by the [pendingGetCredentialHandle].
+     *
+     * @param context the client calling context used to potentially launch any UI needed
+     * @param pendingGetCredentialHandle the handle representing the pending operation to resume
+     * @param cancellationSignal an optional signal that allows for cancelling this call
+     * @param executor the callback will take place on this executor
+     * @param callback the callback invoked when the request succeeds or fails
+     */
+    @RequiresApi(34)
+    fun onGetCredential(
+        context: Context,
+        pendingGetCredentialHandle: PrepareGetCredentialResponse.PendingGetCredentialHandle,
+        cancellationSignal: CancellationSignal?,
+        executor: Executor,
+        callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>,
+    ) {}
 }

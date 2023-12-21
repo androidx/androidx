@@ -28,7 +28,6 @@ import java.lang.annotation.Retention;
 
 /**
  * Temporary class to contain hint constants for slices to be used.
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 @RequiresApi(19)

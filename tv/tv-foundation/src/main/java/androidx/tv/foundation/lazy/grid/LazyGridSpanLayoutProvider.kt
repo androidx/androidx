@@ -111,7 +111,7 @@ internal class LazyGridSpanLayoutProvider(private val gridContent: LazyGridInter
             cachedBucket.clear()
         }
 
-        check(currentLine <= lineIndex)
+        check(currentLine <= lineIndex) { "invalid currentLine" }
 
         while (currentLine < lineIndex && currentItemIndex < totalSize) {
             if (cacheThisBucket) {
@@ -137,7 +137,7 @@ internal class LazyGridSpanLayoutProvider(private val gridContent: LazyGridInter
             if (currentLine % bucketSize == 0 && currentItemIndex < totalSize) {
                 val currentLineBucket = currentLine / bucketSize
                 // This should happen, as otherwise this should have been used as starting point.
-                check(buckets.size == currentLineBucket)
+                check(buckets.size == currentLineBucket) { "invalid starting point" }
                 buckets.add(Bucket(currentItemIndex, knownCurrentItemSpan))
             }
         }
@@ -172,7 +172,7 @@ internal class LazyGridSpanLayoutProvider(private val gridContent: LazyGridInter
         if (totalSize <= 0) {
             return LineIndex(0)
         }
-        require(itemIndex < totalSize)
+        require(itemIndex < totalSize) { "invalid itemIndex" }
         if (!gridContent.hasCustomSpans) {
             return LineIndex(itemIndex / slotsPerLine)
         }
@@ -183,7 +183,7 @@ internal class LazyGridSpanLayoutProvider(private val gridContent: LazyGridInter
         var currentLine = lowerBoundBucket * bucketSize
         var currentItemIndex = buckets[lowerBoundBucket].firstItemIndex
 
-        require(currentItemIndex <= itemIndex)
+        require(currentItemIndex <= itemIndex) { "invalid currentItemIndex" }
         var spansUsed = 0
         while (currentItemIndex < itemIndex) {
             val span = spanOf(currentItemIndex++, slotsPerLine - spansUsed)

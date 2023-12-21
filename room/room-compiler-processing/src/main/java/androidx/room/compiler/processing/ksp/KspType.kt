@@ -49,10 +49,10 @@ import kotlin.reflect.KClass
 internal abstract class KspType(
     env: KspProcessingEnv,
     val ksType: KSType,
-    /**
-     * Type resolver to convert KSType into its JVM representation.
-     */
-    val scope: KSTypeVarianceResolverScope?
+    /** Type resolver to convert KSType into its JVM representation. */
+    val scope: KSTypeVarianceResolverScope?,
+    /** The `typealias` that was resolved to get the [ksType], or null if none exists. */
+    val typeAlias: KSType?,
 ) : KspAnnotated(env), XType, XEquality {
     override val rawType by lazy {
         KspRawType(this)
@@ -69,7 +69,7 @@ internal abstract class KspType(
      * The [XTypeName] represents those differences as [JTypeName] and [KTypeName], respectively.
      */
     private val xTypeName: XTypeName by lazy {
-        val jvmWildcardType = env.resolveWildcards(ksType, scope).let {
+        val jvmWildcardType = env.resolveWildcards(typeAlias ?: ksType, scope).let {
             if (it == ksType) {
                 this
             } else {
@@ -266,14 +266,23 @@ internal abstract class KspType(
 
     abstract override fun boxed(): KspType
 
-    abstract fun copyWithScope(scope: KSTypeVarianceResolverScope): KspType
+    abstract fun copy(
+        env: KspProcessingEnv,
+        ksType: KSType,
+        scope: KSTypeVarianceResolverScope?,
+        typeAlias: KSType?,
+    ): KspType
 
-    /**
-     * Create a copy of this type with the given nullability.
-     * This method is not called if the nullability of the type is already equal to the given
-     * nullability.
-     */
-    protected abstract fun copyWithNullability(nullability: XNullability): KspType
+    fun copyWithScope(scope: KSTypeVarianceResolverScope) = copy(env, ksType, scope, typeAlias)
+
+    fun copyWithTypeAlias(typeAlias: KSType) = copy(env, ksType, scope, typeAlias)
+
+    private fun copyWithNullability(nullability: XNullability): KspType = boxed().copy(
+        env = env,
+        ksType = ksType.withNullability(nullability),
+        scope = scope,
+        typeAlias = typeAlias,
+    )
 
     final override fun makeNullable(): KspType {
         if (nullability == XNullability.NULLABLE) {

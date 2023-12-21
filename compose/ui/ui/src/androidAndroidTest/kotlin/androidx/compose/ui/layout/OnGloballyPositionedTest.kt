@@ -16,12 +16,15 @@
 
 package androidx.compose.ui.layout
 
+import android.os.SystemClock
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
@@ -53,6 +56,7 @@ import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -1049,6 +1053,62 @@ class OnGloballyPositionedTest {
 
         rule.runOnIdle {
             assertFalse(coordindates.isAttached)
+        }
+    }
+
+    // In some special circumstances, the onGloballyPositioned callbacks can be called recursively
+    // and they shouldn't crash when that happens. This tests a pointer event causing an
+    // onGloballyPositioned callback while processing the onGloballyPositioned.
+    @Test
+    fun recurseGloballyPositionedCallback() {
+        val view = rule.activity.findViewById<View>(android.R.id.content)
+        var offset by mutableStateOf(IntOffset.Zero)
+        var position = Offset.Unspecified
+        var hasSent = false
+        rule.setContent {
+            Box(Modifier.fillMaxSize()) {
+                Box(Modifier.fillMaxSize().offset { offset }.onGloballyPositioned {
+                    if (offset != IntOffset.Zero) {
+                        position = it.positionInRoot()
+                    }
+                })
+                Box(Modifier.fillMaxSize().offset { offset }.onGloballyPositioned {
+                    if (offset != IntOffset.Zero && !hasSent) {
+                        hasSent = true
+                        val now = SystemClock.uptimeMillis()
+                        val event = MotionEvent.obtain(now, now, MotionEvent.ACTION_DOWN, 0f, 0f, 0)
+                        view.dispatchTouchEvent(event)
+                    }
+                })
+            }
+        }
+        rule.runOnIdle {
+            offset = IntOffset(1, 1)
+        }
+        rule.runOnIdle {
+            assertThat(position).isEqualTo(Offset(1f, 1f))
+        }
+    }
+
+    @Test
+    fun lotsOfNotifications() {
+        // have more than 16 OnGloballyPositioned liseteners to test listener cache
+        var offset by mutableStateOf(IntOffset.Zero)
+        var position = Offset.Unspecified
+        rule.setContent {
+            Box(Modifier.fillMaxSize()) {
+                repeat(30) {
+                    Box(Modifier.fillMaxSize().offset { offset }.onGloballyPositioned {
+                        position = it.positionInRoot()
+                    })
+                }
+            }
+        }
+        rule.runOnIdle {
+            offset = IntOffset(1, 1)
+        }
+        rule.runOnIdle {
+            assertThat(position).isEqualTo(Offset(1f, 1f))
         }
     }
 }

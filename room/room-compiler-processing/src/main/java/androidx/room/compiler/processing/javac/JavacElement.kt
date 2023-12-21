@@ -132,6 +132,10 @@ internal abstract class JavacElement(
         return element.modifiers.contains(Modifier.ABSTRACT)
     }
 
+    override fun isKtPrivate(): Boolean {
+        return kotlinMetadata?.flags?.let { Flag.IS_PRIVATE(it) } ?: false
+    }
+
     override fun isPrivate(): Boolean {
         return element.modifiers.contains(Modifier.PRIVATE)
     }

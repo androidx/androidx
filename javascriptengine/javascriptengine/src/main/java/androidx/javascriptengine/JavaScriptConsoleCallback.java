@@ -19,6 +19,7 @@ package androidx.javascriptengine;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 
 import org.chromium.android_webview.js_sandbox.common.IJsSandboxConsoleCallback;
 
@@ -35,8 +36,8 @@ public interface JavaScriptConsoleCallback {
     final class ConsoleMessage {
         /**
          * Console message (error) level
-         * @hide
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @IntDef({LEVEL_LOG, LEVEL_DEBUG, LEVEL_INFO, LEVEL_ERROR, LEVEL_WARNING})
         @Retention(RetentionPolicy.SOURCE)
         public @interface Level {}
@@ -114,7 +115,7 @@ public interface JavaScriptConsoleCallback {
                 default:
                     return "?";
             }
-        };
+        }
 
         /**
          * Return the log level.
@@ -165,17 +166,8 @@ public interface JavaScriptConsoleCallback {
         @NonNull
         @Override
         public String toString() {
-            return new StringBuilder()
-                    .append(getLevelInitial())
-                    .append(" ")
-                    .append(mSource)
-                    .append(":")
-                    .append(mLine)
-                    .append(":")
-                    .append(mColumn)
-                    .append(": ")
-                    .append(mMessage)
-                    .toString();
+            return getLevelInitial() + " " + mSource + ":" + mLine + ":" + mColumn + ": "
+                    + mMessage;
         }
     }
 
@@ -193,4 +185,4 @@ public interface JavaScriptConsoleCallback {
      * The default implementation does nothing.
      */
     default void onConsoleClear() {}
-};
+}

@@ -16,7 +16,6 @@
 
 /**
  * A temporary fork of wear-ipc code source. Migrate to reuse the library once it is published.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 package androidx.health.platform.client.impl.ipc;

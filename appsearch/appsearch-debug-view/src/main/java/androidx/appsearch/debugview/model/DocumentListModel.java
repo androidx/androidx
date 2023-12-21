@@ -45,7 +45,7 @@ import java.util.concurrent.ExecutorService;
  *
  * <p>Instances of {@link DocumentListModel} are created by {@link DocumentListModelFactory}.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class DocumentListModel extends ViewModel {

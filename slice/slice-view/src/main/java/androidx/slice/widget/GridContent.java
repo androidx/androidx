@@ -72,7 +72,6 @@ public class GridContent extends SliceContent {
     private SliceItem mTitleItem;
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public GridContent(@NonNull SliceItem gridItem, int position) {
@@ -133,7 +132,6 @@ public class GridContent extends SliceContent {
 
     /**
      * @return the title of this grid row, if it exists.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Nullable
@@ -148,7 +146,6 @@ public class GridContent extends SliceContent {
 
     /**
      * @return the list of cell content for this grid.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @NonNull
@@ -158,7 +155,6 @@ public class GridContent extends SliceContent {
 
     /**
      * @return the content intent item for this grid.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Nullable
@@ -168,7 +164,6 @@ public class GridContent extends SliceContent {
 
     /**
      * @return the see more item to use when not all items in the grid can be displayed.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Nullable
@@ -186,7 +181,6 @@ public class GridContent extends SliceContent {
 
     /**
      * @return whether the contents of this grid is just images.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public boolean isAllImages() {
@@ -195,7 +189,6 @@ public class GridContent extends SliceContent {
 
     /**
      * @return the largest image size in this row, if there are images.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public int getLargestImageMode() {
@@ -242,7 +235,6 @@ public class GridContent extends SliceContent {
 
     /**
      * @return the max number of lines of text in the cells of this grid row.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public int getMaxCellLineCount() {
@@ -251,7 +243,6 @@ public class GridContent extends SliceContent {
 
     /**
      * @return whether this row contains an image.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public boolean hasImage() {
@@ -260,14 +251,12 @@ public class GridContent extends SliceContent {
 
     /**
      * @return whether this content is being displayed last in a list.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public boolean getIsLastIndex() { return mIsLastIndex; }
 
     /**
      * Sets whether this content is being displayed last in a list.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public void setIsLastIndex(boolean isLast) {
@@ -275,7 +264,6 @@ public class GridContent extends SliceContent {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -286,7 +274,6 @@ public class GridContent extends SliceContent {
     /**
      * Extracts information required to present content in a cell.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public static class CellContent {

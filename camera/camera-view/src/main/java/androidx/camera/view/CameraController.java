@@ -70,21 +70,17 @@ import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.lifecycle.ProcessCameraProvider;
-import androidx.camera.video.FallbackStrategy;
 import androidx.camera.video.FileDescriptorOutputOptions;
 import androidx.camera.video.FileOutputOptions;
 import androidx.camera.video.MediaStoreOutputOptions;
 import androidx.camera.video.OutputOptions;
 import androidx.camera.video.PendingRecording;
-import androidx.camera.video.Quality;
 import androidx.camera.video.QualitySelector;
 import androidx.camera.video.Recorder;
 import androidx.camera.video.Recording;
 import androidx.camera.video.VideoCapture;
 import androidx.camera.video.VideoRecordEvent;
-import androidx.camera.view.transform.OutputTransform;
 import androidx.camera.view.video.AudioConfig;
-import androidx.camera.view.video.ExperimentalVideo;
 import androidx.core.content.PermissionChecker;
 import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
@@ -192,7 +188,6 @@ public abstract class CameraController {
     /**
      * Bitmask options to enable/disable use cases.
      */
-    @OptIn(markerClass = ExperimentalVideo.class)
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(flag = true, value = {IMAGE_CAPTURE, IMAGE_ANALYSIS, VIDEO_CAPTURE})
@@ -213,7 +208,6 @@ public abstract class CameraController {
      * Bitmask option to enable video capture use case. In {@link #setEnabledUseCases}, if
      * (enabledUseCases & VIDEO_CAPTURE) != 0, then controller will enable video capture features.
      */
-    @ExperimentalVideo
     public static final int VIDEO_CAPTURE = 1 << 2;
 
     CameraSelector mCameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
@@ -266,8 +260,8 @@ public abstract class CameraController {
     @NonNull
     Map<Consumer<VideoRecordEvent>, Recording> mRecordingMap = new HashMap<>();
 
-    @Nullable
-    Quality mVideoCaptureQuality;
+    @NonNull
+    QualitySelector mVideoCaptureQualitySelector = Recorder.DEFAULT_QUALITY_SELECTOR;
 
     // The latest bound camera.
     // Synthetic access
@@ -357,16 +351,8 @@ public abstract class CameraController {
         };
     }
 
-    private static Recorder generateVideoCaptureRecorder(Quality videoQuality) {
-        Recorder.Builder builder = new Recorder.Builder();
-        if (videoQuality != null) {
-            builder.setQualitySelector(QualitySelector.from(
-                    videoQuality,
-                    FallbackStrategy.lowerQualityOrHigherThan(videoQuality)
-            ));
-        }
-
-        return builder.build();
+    private static Recorder generateVideoCaptureRecorder(@NonNull QualitySelector qualitySelector) {
+        return new Recorder.Builder().setQualitySelector(qualitySelector).build();
     }
 
     /**
@@ -472,7 +458,6 @@ public abstract class CameraController {
      * @see ImageAnalysis
      */
     @MainThread
-    @OptIn(markerClass = ExperimentalVideo.class)
     public void setEnabledUseCases(@UseCases int enabledUseCases) {
         checkMainThread();
         if (enabledUseCases == mEnabledUseCases) {
@@ -1112,16 +1097,16 @@ public abstract class CameraController {
 
     @OptIn(markerClass = {TransformExperimental.class})
     @MainThread
-    void updatePreviewViewTransform(@Nullable OutputTransform outputTransform) {
+    void updatePreviewViewTransform(@Nullable Matrix matrix) {
         checkMainThread();
         if (mAnalysisAnalyzer == null) {
             return;
         }
-        if (outputTransform == null) {
+        if (matrix == null) {
             mAnalysisAnalyzer.updateTransform(null);
         } else if (mAnalysisAnalyzer.getTargetCoordinateSystem()
                 == COORDINATE_SYSTEM_VIEW_REFERENCED) {
-            mAnalysisAnalyzer.updateTransform(outputTransform.getMatrix());
+            mAnalysisAnalyzer.updateTransform(matrix);
         }
     }
 
@@ -1135,7 +1120,6 @@ public abstract class CameraController {
      * <p> Video capture is disabled by default. It has to be enabled before
      * {@link #startRecording} can be called.
      */
-    @ExperimentalVideo
     @MainThread
     public boolean isVideoCaptureEnabled() {
         checkMainThread();
@@ -1169,7 +1153,6 @@ public abstract class CameraController {
      *                               is denied.
      */
     @SuppressLint("MissingPermission")
-    @ExperimentalVideo
     @MainThread
     @NonNull
     public Recording startRecording(
@@ -1210,7 +1193,6 @@ public abstract class CameraController {
      *                               is denied.
      */
     @SuppressLint("MissingPermission")
-    @ExperimentalVideo
     @RequiresApi(26)
     @MainThread
     @NonNull
@@ -1249,7 +1231,6 @@ public abstract class CameraController {
      *                               is denied.
      */
     @SuppressLint("MissingPermission")
-    @ExperimentalVideo
     @MainThread
     @NonNull
     public Recording startRecording(
@@ -1261,7 +1242,6 @@ public abstract class CameraController {
     }
 
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
-    @ExperimentalVideo
     @MainThread
     private Recording startRecordingInternal(
             @NonNull OutputOptions outputOptions,
@@ -1307,7 +1287,6 @@ public abstract class CameraController {
      * hand, the public {@code startRecording()} is overloaded with subclasses. The reason is to
      * enforce compile-time check for API levels.
      */
-    @ExperimentalVideo
     @MainThread
     private PendingRecording prepareRecording(@NonNull OutputOptions options) {
         Recorder recorder = mVideoCapture.getOutput();
@@ -1327,7 +1306,6 @@ public abstract class CameraController {
         }
     }
 
-    @ExperimentalVideo
     private Consumer<VideoRecordEvent> wrapListenerToDeactivateRecordingOnFinalized(
             @NonNull final Consumer<VideoRecordEvent> listener) {
         final Executor mainExecutor = getMainExecutor(mAppContext);
@@ -1348,7 +1326,6 @@ public abstract class CameraController {
         };
     }
 
-    @ExperimentalVideo
     @MainThread
     void deactivateRecordingByListener(@NonNull Consumer<VideoRecordEvent> listener) {
         Recording recording = mRecordingMap.remove(listener);
@@ -1360,7 +1337,6 @@ public abstract class CameraController {
     /**
      * Clears the active video recording reference if the recording to be deactivated matches.
      */
-    @ExperimentalVideo
     @MainThread
     private void deactivateRecording(@NonNull Recording recording) {
         if (mActiveRecording == recording) {
@@ -1368,7 +1344,6 @@ public abstract class CameraController {
         }
     }
 
-    @ExperimentalVideo
     @MainThread
     private void setActiveRecording(
             @NonNull Recording recording,
@@ -1385,7 +1360,6 @@ public abstract class CameraController {
      * <p> If the recording completes successfully, a {@link VideoRecordEvent.Finalize} event with
      * {@link VideoRecordEvent.Finalize#ERROR_NONE} will be sent to the provided listener.
      */
-    @ExperimentalVideo
     @MainThread
     private void stopRecording() {
         checkMainThread();
@@ -1399,7 +1373,6 @@ public abstract class CameraController {
     /**
      * Returns whether there is an in-progress video recording.
      */
-    @ExperimentalVideo
     @MainThread
     public boolean isRecording() {
         checkMainThread();
@@ -1407,44 +1380,40 @@ public abstract class CameraController {
     }
 
     /**
-     * Sets the intended video quality for {@code VideoCapture}.
+     * Sets the {@link QualitySelector} for {@link #VIDEO_CAPTURE}.
      *
-     * <p> The value is used as a hint when determining the resolution of the video.
-     * The actual output may differ from the requested value due to device constraints.
-     * The {@link FallbackStrategy#lowerQualityOrHigherThan(Quality)} fallback strategy
-     * will be applied when the quality is not supported.
+     * <p>The provided quality selector is used to select the resolution of the recording
+     * depending on the resolutions supported by the camera and codec capabilities.
      *
-     * <p> When set to null, the output will be based on the default config of {@link
-     * Recorder#DEFAULT_QUALITY_SELECTOR}.
+     * <p>If no quality selector is provided, the default is
+     * {@link Recorder#DEFAULT_QUALITY_SELECTOR}.
      *
-     * <p> Changing the value will reconfigure the camera which will cause video
-     * capture to stop. To avoid this, set the value before controller is bound to
-     * lifecycle.
+     * <p>Changing the value will reconfigure the camera which will cause video capture to stop.
+     * To avoid this, set the value before controller is bound to lifecycle.
      *
-     * @param targetQuality the intended video quality for {@code VideoCapture}.
+     * @param qualitySelector the quality selector for {@link #VIDEO_CAPTURE}.
+     * @see QualitySelector
      */
-    @ExperimentalVideo
     @MainThread
-    public void setVideoCaptureTargetQuality(@Nullable Quality targetQuality) {
+    public void setVideoCaptureQualitySelector(@NonNull QualitySelector qualitySelector) {
         checkMainThread();
-        if (targetQuality == mVideoCaptureQuality) {
-            return;
-        }
-        mVideoCaptureQuality = targetQuality;
+        mVideoCaptureQualitySelector = qualitySelector;
         unbindVideoAndRecreate();
         startCameraAndTrackStates();
     }
 
     /**
-     * Returns the intended quality for {@code VideoCapture} set by
-     * {@link #setVideoCaptureTargetQuality(Quality)}, or null if not set.
+     * Returns the {@link QualitySelector} for {@link #VIDEO_CAPTURE}.
+     *
+     * @return the {@link QualitySelector} provided to
+     * {@link #setVideoCaptureQualitySelector(QualitySelector)} or the default value of
+     * {@link Recorder#DEFAULT_QUALITY_SELECTOR} if no quality selector was provided.
      */
-    @ExperimentalVideo
     @MainThread
-    @Nullable
-    public Quality getVideoCaptureTargetQuality() {
+    @NonNull
+    public QualitySelector getVideoCaptureQualitySelector() {
         checkMainThread();
-        return mVideoCaptureQuality;
+        return mVideoCaptureQualitySelector;
     }
 
     /**
@@ -1458,7 +1427,7 @@ public abstract class CameraController {
     }
 
     private VideoCapture<Recorder> createNewVideoCapture() {
-        return VideoCapture.withOutput(generateVideoCaptureRecorder(mVideoCaptureQuality));
+        return VideoCapture.withOutput(generateVideoCaptureRecorder(mVideoCaptureQualitySelector));
     }
 
     // -----------------
@@ -1990,7 +1959,6 @@ public abstract class CameraController {
      */
     @Nullable
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @OptIn(markerClass = {ExperimentalVideo.class})
     protected UseCaseGroup createUseCaseGroup() {
         if (!isCameraInitialized()) {
             Logger.d(TAG, CAMERA_NOT_INITIALIZED);

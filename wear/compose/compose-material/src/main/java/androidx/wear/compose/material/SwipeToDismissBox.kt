@@ -126,8 +126,6 @@ public fun SwipeToDismissBox(
                 orientation = Orientation.Horizontal,
             )
     ) {
-        // Use remember { derivedStateOf{ ... } } idiom to re-use modifiers where possible.
-
         var squeezeMode by remember {
             mutableStateOf(true)
         }
@@ -145,7 +143,10 @@ public fun SwipeToDismissBox(
         }
 
         val isRound = isRoundDevice()
-        val modifiers by remember(isRound, backgroundScrimColor) {
+
+        // Use remember { derivedStateOf{ ... } } idiom to re-use modifiers where possible.
+        // b/280392104: re-calculate modifiers if keys have changed
+        val modifiers by remember(isRound, backgroundScrimColor, backgroundKey, contentKey) {
             derivedStateOf {
                 val progress = (state.swipeableState.offset.value / maxWidth).coerceIn(0f, 1f)
                 val scale = lerp(SCALE_MAX, SCALE_MIN, progress).coerceIn(SCALE_MIN, SCALE_MAX)

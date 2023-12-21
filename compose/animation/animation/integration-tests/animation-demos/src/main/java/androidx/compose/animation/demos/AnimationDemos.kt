@@ -39,10 +39,12 @@ import androidx.compose.animation.demos.lookahead.AnimateBoundsModifierDemo
 import androidx.compose.animation.demos.lookahead.CraneDemo
 import androidx.compose.animation.demos.lookahead.LookaheadLayoutWithAlignmentLinesDemo
 import androidx.compose.animation.demos.lookahead.LookaheadSamplesDemo
+import androidx.compose.animation.demos.lookahead.LookaheadWithAnimatedContentSize
 import androidx.compose.animation.demos.lookahead.LookaheadWithBoxWithConstraints
 import androidx.compose.animation.demos.lookahead.LookaheadWithDisappearingMovableContentDemo
 import androidx.compose.animation.demos.lookahead.LookaheadWithFlowRowDemo
 import androidx.compose.animation.demos.lookahead.LookaheadWithIntrinsicsDemo
+import androidx.compose.animation.demos.lookahead.LookaheadWithLazyColumn
 import androidx.compose.animation.demos.lookahead.LookaheadWithMovableContentDemo
 import androidx.compose.animation.demos.lookahead.LookaheadWithScaffold
 import androidx.compose.animation.demos.lookahead.LookaheadWithSubcompose
@@ -112,6 +114,9 @@ val AnimationDemos = DemoCategory(
                 },
                 ComposableDemo("Crane Nested Shared Element") { CraneDemo() },
                 ComposableDemo("Screen Size Change Demo") { ScreenSizeChangeDemo() },
+                ComposableDemo("LookaheadWithAnimatedContentSize") {
+                    LookaheadWithAnimatedContentSize()
+                },
                 ComposableDemo("Lookahead Samples Demo") {
                     LookaheadSamplesDemo()
                 },
@@ -122,6 +127,7 @@ val AnimationDemos = DemoCategory(
                     LookaheadWithBoxWithConstraints()
                 },
                 ComposableDemo("Lookahead With Subcompose") { LookaheadWithSubcompose() },
+                ComposableDemo("Lookahead With LazyColumn") { LookaheadWithLazyColumn() },
                 ComposableDemo("Lookahead With Flow Row") { LookaheadWithFlowRowDemo() },
                 ComposableDemo("Lookahead With Intrinsics") {
                     LookaheadWithIntrinsicsDemo()

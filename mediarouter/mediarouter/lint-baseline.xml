@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
+<issues format="6" by="lint 8.1.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta01)" variant="all" version="8.1.0-beta01">
 
     <issue
         id="NewApi"
@@ -17,6 +17,51 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/mediarouter/media/MediaRouter2TestActivity.java"/>
+    </issue>
+
+    <issue
+        id="BanHideAnnotation"
+        message="@hide is not allowed in Javadoc"
+        errorLine1="        ProviderInfo(MediaRouteProvider provider, boolean treatRouteDescriptorIdsAsUnique) {"
+        errorLine2="        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRouter.java"/>
+    </issue>
+
+    <issue
+        id="BanHideAnnotation"
+        message="@hide is not allowed in Javadoc"
+        errorLine1="    android.media.RouteListingPreference toPlatformRouteListingPreference() {"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/RouteListingPreference.java"/>
+    </issue>
+
+    <issue
+        id="BanHideAnnotation"
+        message="@hide is not allowed in Javadoc"
+        errorLine1="        public @interface SelectionBehavior {}"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/RouteListingPreference.java"/>
+    </issue>
+
+    <issue
+        id="BanHideAnnotation"
+        message="@hide is not allowed in Javadoc"
+        errorLine1="        public @interface Flags {}"
+        errorLine2="                          ~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/RouteListingPreference.java"/>
+    </issue>
+
+    <issue
+        id="BanHideAnnotation"
+        message="@hide is not allowed in Javadoc"
+        errorLine1="        public @interface SubText {}"
+        errorLine2="                          ~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/RouteListingPreference.java"/>
     </issue>
 
     <issue
@@ -89,6 +134,42 @@
         errorLine2="                ~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/mediarouter/media/MediaRouterTest.java"/>
+    </issue>
+
+    <issue
+        id="PrereleaseSdkCoreDependency"
+        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
+        errorLine1="        if (BuildCompat.isAtLeastU()) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"/>
+    </issue>
+
+    <issue
+        id="PrereleaseSdkCoreDependency"
+        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
+        errorLine1="            if (mMr2Provider != null &amp;&amp; BuildCompat.isAtLeastU()) {"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRouter.java"/>
+    </issue>
+
+    <issue
+        id="PrereleaseSdkCoreDependency"
+        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
+        errorLine1="        if (BuildCompat.isAtLeastU()) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRouter2Utils.java"/>
+    </issue>
+
+    <issue
+        id="PrereleaseSdkCoreDependency"
+        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
+        errorLine1="        if (BuildCompat.isAtLeastU()) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRouter2Utils.java"/>
     </issue>
 
 </issues>

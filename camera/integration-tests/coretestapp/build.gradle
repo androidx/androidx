@@ -82,7 +82,10 @@ dependencies {
     // 3P library
     debugImplementation(libs.leakcanary)
     // Testing resource dependency for manifest
-    debugImplementation(project(":camera:camera-testing"))
+    debugImplementation(project(":camera:camera-testing")) {
+        // Ensure camera-testing does not pull in androidx.test dependencies
+        exclude(group:"androidx.test")
+    }
     debugImplementation(libs.testCore)
     // explicitly add runner here to force consistency with androidTestImplementation
     debugImplementation(libs.testRunner)
@@ -100,7 +103,10 @@ dependencies {
     androidTestImplementation(libs.leakcanaryInstrumentation)
     androidTestImplementation(libs.truth)
     androidTestImplementation(project(":camera:camera-camera2"))
-    androidTestImplementation(project(":camera:camera-testing"))
+    androidTestImplementation(project(":camera:camera-testing")) {
+        // Ensure camera-testing does not pull in androidx.test dependencies
+        exclude(group:"androidx.test")
+    }
     androidTestImplementation(project(":concurrent:concurrent-futures"))
     androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
     androidTestImplementation(project(":internal-testutils-runtime"))

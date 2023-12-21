@@ -25,7 +25,6 @@ import androidx.room.compiler.processing.XExecutableType
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XFiler
 import androidx.room.compiler.processing.XMessager
-import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XRoundEnv
 import androidx.room.compiler.processing.XType
@@ -37,6 +36,7 @@ import androidx.room.compiler.processing.javac.JavacElement
 import androidx.room.compiler.processing.javac.JavacExecutableElement
 import androidx.room.compiler.processing.javac.JavacExecutableType
 import androidx.room.compiler.processing.javac.JavacFiler
+import androidx.room.compiler.processing.javac.JavacMethodElement
 import androidx.room.compiler.processing.javac.JavacProcessingEnv
 import androidx.room.compiler.processing.javac.JavacProcessingEnvMessager
 import androidx.room.compiler.processing.javac.JavacRoundEnv
@@ -148,7 +148,7 @@ object XConverters {
     @JvmStatic
     fun AnnotationValue.toXProcessing(method: ExecutableElement, env: XProcessingEnv):
         XAnnotationValue = JavacAnnotationValue(
-            env as JavacProcessingEnv, method.toXProcessing(env) as XMethodElement, this
+            env as JavacProcessingEnv, method.toXProcessing(env) as JavacMethodElement, this
         )
 
     @JvmStatic

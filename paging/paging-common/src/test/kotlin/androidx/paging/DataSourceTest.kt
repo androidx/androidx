@@ -16,12 +16,9 @@
 
 package androidx.paging
 
-import com.google.common.truth.Truth.assertThat
+import androidx.kruth.assertThat
 import kotlin.test.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
-@RunWith(JUnit4::class)
 class DataSourceTest {
 
     @Test

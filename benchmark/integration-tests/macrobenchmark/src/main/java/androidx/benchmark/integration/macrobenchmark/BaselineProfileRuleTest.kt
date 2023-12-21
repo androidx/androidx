@@ -26,7 +26,6 @@ import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import java.io.File
 import kotlin.test.assertFailsWith
-import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Assume.assumeTrue
@@ -45,7 +44,7 @@ class BaselineProfileRuleTest {
     @Test
     fun appNotInstalled() {
         val error = assertFailsWith<AssertionError> {
-            baselineRule.collectBaselineProfile(
+            baselineRule.collect(
                 packageName = "fake.package.not.installed",
                 profileBlock = {
                     fail("not expected")
@@ -62,18 +61,15 @@ class BaselineProfileRuleTest {
         //  test class is moved out of integration-tests, into benchmark-macro-junit4
         assumeTrue(Build.VERSION.SDK_INT >= 33 || Shell.isSessionRooted())
 
-        var expectedIteration = 0
         // Collects the baseline profile
-        baselineRule.collectBaselineProfile(
+        baselineRule.collect(
             packageName = PACKAGE_NAME,
             filterPredicate = { it.contains(filterRegex) },
             profileBlock = {
-                assertEquals(expectedIteration++, iteration)
                 startActivityAndWait(Intent(ACTION))
                 device.waitForIdle()
             }
         )
-        assertEquals(3, expectedIteration)
 
         // Note: this name is automatically generated starting from class and method name,
         // according to the patter `<class>_<method>-baseline-prof.txt`. Changes for class and
@@ -83,11 +79,13 @@ class BaselineProfileRuleTest {
         // Asserts the output of the baseline profile
         val lines = File(Outputs.outputDirectory, baselineProfileOutputFileName).readLines()
         assertThat(lines).containsExactly(
-            "HSPLandroidx/benchmark/integration/macrobenchmark/target/EmptyActivity;" +
-                "-><init>()V",
+            "Landroidx/benchmark/integration/macrobenchmark/target/EmptyActivity;",
+            "HSPLandroidx/benchmark/integration/macrobenchmark/target/EmptyActivity;-><init>()V",
+            "PLandroidx/benchmark/integration/macrobenchmark/target/EmptyActivity;-><init>()V",
             "HSPLandroidx/benchmark/integration/macrobenchmark/target/EmptyActivity;" +
                 "->onCreate(Landroid/os/Bundle;)V",
-            "Landroidx/benchmark/integration/macrobenchmark/target/EmptyActivity;",
+            "PLandroidx/benchmark/integration/macrobenchmark/target/EmptyActivity;" +
+                "->onCreate(Landroid/os/Bundle;)V",
         )
     }
 
@@ -103,7 +101,7 @@ class BaselineProfileRuleTest {
         ).forEach { (includeInStartupProfile, outputFilename) ->
 
             // Collects the baseline profile
-            baselineRule.collectBaselineProfile(
+            baselineRule.collect(
                 packageName = PACKAGE_NAME,
                 filterPredicate = { it.contains(filterRegex) },
                 includeInStartupProfile = includeInStartupProfile,
@@ -116,11 +114,14 @@ class BaselineProfileRuleTest {
             // Asserts the output of the baseline profile
             val lines = File(Outputs.outputDirectory, outputFilename).readLines()
             assertThat(lines).containsExactly(
+                "Landroidx/benchmark/integration/macrobenchmark/target/EmptyActivity;",
                 "HSPLandroidx/benchmark/integration/macrobenchmark/target/EmptyActivity;" +
                     "-><init>()V",
+                "PLandroidx/benchmark/integration/macrobenchmark/target/EmptyActivity;-><init>()V",
                 "HSPLandroidx/benchmark/integration/macrobenchmark/target/EmptyActivity;" +
                     "->onCreate(Landroid/os/Bundle;)V",
-                "Landroidx/benchmark/integration/macrobenchmark/target/EmptyActivity;",
+                "PLandroidx/benchmark/integration/macrobenchmark/target/EmptyActivity;" +
+                    "->onCreate(Landroid/os/Bundle;)V",
             )
         }
     }

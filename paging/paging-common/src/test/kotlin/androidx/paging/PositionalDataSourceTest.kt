@@ -22,18 +22,14 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.test.fail
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
 
 @Suppress("DEPRECATION")
-@RunWith(JUnit4::class)
 class PositionalDataSourceTest {
     private fun computeInitialLoadPos(
         requestedStartPosition: Int,
@@ -112,7 +108,8 @@ class PositionalDataSourceTest {
         )
     }
 
-    private fun validatePositionOffset(enablePlaceholders: Boolean) = runBlocking {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun validatePositionOffset(enablePlaceholders: Boolean) = testScope.runTest {
         val config = PagedList.Config.Builder()
             .setPageSize(10)
             .setEnablePlaceholders(enablePlaceholders)
@@ -159,11 +156,12 @@ class PositionalDataSourceTest {
         validatePositionOffset(false)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun performLoadInitial(
         enablePlaceholders: Boolean = true,
         invalidateDataSource: Boolean = false,
         callbackInvoker: (callback: PositionalDataSource.LoadInitialCallback<String>) -> Unit
-    ) {
+    ) = testScope.runTest {
         val dataSource = object : PositionalDataSource<String>() {
             override fun loadInitial(
                 params: LoadInitialParams,
@@ -193,7 +191,7 @@ class PositionalDataSourceTest {
             config.enablePlaceholders
         )
 
-        runBlocking { dataSource.loadInitial(params) }
+        dataSource.loadInitial(params)
     }
 
     @Test
@@ -453,7 +451,7 @@ class PositionalDataSourceTest {
     private val testScope = TestScope(UnconfinedTestDispatcher())
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private fun verifyRefreshIsTerminal(counted: Boolean): Unit = testScope.runTest {
+    private fun verifyRefreshIsTerminal(counted: Boolean) = testScope.runTest {
         val dataSource = ListDataSource(list = listOf(0, 1, 2), counted = counted)
         dataSource.load(
             DataSource.Params(

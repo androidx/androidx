@@ -50,7 +50,7 @@ import javax.lang.model.util.Types;
 /**
  * Utilities for working with data structures representing parsed Java code.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class IntrospectionHelper {

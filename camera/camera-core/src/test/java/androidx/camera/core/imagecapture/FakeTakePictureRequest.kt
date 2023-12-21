@@ -18,6 +18,7 @@ package androidx.camera.core.imagecapture
 
 import android.graphics.Matrix
 import android.graphics.Rect
+import androidx.annotation.RequiresApi
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.OnImageCapturedCallback
 import androidx.camera.core.ImageCaptureException
@@ -31,6 +32,7 @@ import java.util.concurrent.Executor
 /**
  * Fake [TakePictureRequest].
  */
+@RequiresApi(21)
 class FakeTakePictureRequest() : TakePictureRequest() {
 
     var imageCapturedCallback: OnImageCapturedCallback? = null

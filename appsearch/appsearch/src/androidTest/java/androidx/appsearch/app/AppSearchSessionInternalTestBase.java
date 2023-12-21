@@ -17,12 +17,18 @@
 package androidx.appsearch.app;
 
 import static androidx.appsearch.testutil.AppSearchTestUtils.checkIsBatchResultSuccess;
+import static androidx.appsearch.testutil.AppSearchTestUtils.convertSearchResultsToDocuments;
 
 import static com.google.common.truth.Truth.assertThat;
+
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assume.assumeFalse;
+import static org.junit.Assume.assumeTrue;
 
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
+import androidx.appsearch.testutil.AppSearchEmail;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -32,6 +38,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
 public abstract class AppSearchSessionInternalTestBase {
@@ -166,5 +173,383 @@ public abstract class AppSearchSessionInternalTestBase {
                         .addFilterProperties("Type1", ImmutableList.of("propertyone"))
                         .build()).get();
         assertThat(suggestions).containsExactly(resultOne, resultThree, resultFour);
+    }
+
+    // TODO(b/258715421): move this test to cts test once we un-hide schema type grouping API.
+    @Test
+    public void testQuery_ResultGroupingLimits_SchemaGroupingSupported() throws Exception {
+        assumeTrue(mDb1.getFeatures()
+                .isFeatureSupported(Features.SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA));
+        // Schema registration
+        AppSearchSchema genericSchema = new AppSearchSchema.Builder("Generic")
+                .addProperty(new StringPropertyConfig.Builder("foo")
+                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                .build()
+            ).build();
+        mDb1.setSchemaAsync(new SetSchemaRequest.Builder()
+                .addSchemas(AppSearchEmail.SCHEMA)
+                .addSchemas(genericSchema)
+                .build())
+            .get();
+
+        // Index four documents.
+        AppSearchEmail inEmail1 =
+                new AppSearchEmail.Builder("namespace1", "id1")
+                .setFrom("from@example.com")
+                .setTo("to1@example.com", "to2@example.com")
+                .setSubject("testPut example")
+                .setBody("This is the body of the testPut email")
+                .build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(inEmail1).build()));
+        AppSearchEmail inEmail2 =
+                new AppSearchEmail.Builder("namespace1", "id2")
+                .setFrom("from@example.com")
+                .setTo("to1@example.com", "to2@example.com")
+                .setSubject("testPut example")
+                .setBody("This is the body of the testPut email")
+                .build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(inEmail2).build()));
+        AppSearchEmail inEmail3 =
+                new AppSearchEmail.Builder("namespace2", "id3")
+                .setFrom("from@example.com")
+                .setTo("to1@example.com", "to2@example.com")
+                .setSubject("testPut example")
+                .setBody("This is the body of the testPut email")
+                .build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(inEmail3).build()));
+        AppSearchEmail inEmail4 =
+                new AppSearchEmail.Builder("namespace2", "id4")
+                .setFrom("from@example.com")
+                .setTo("to1@example.com", "to2@example.com")
+                .setSubject("testPut example")
+                .setBody("This is the body of the testPut email")
+                .build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(inEmail4).build()));
+        AppSearchEmail inEmail5 =
+                new AppSearchEmail.Builder("namespace2", "id5")
+                .setFrom("from@example.com")
+                .setTo("to1@example.com", "to2@example.com")
+                .setSubject("testPut example")
+                .setBody("This is the body of the testPut email")
+                .build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(inEmail5).build()));
+        GenericDocument inDoc1 =
+                new GenericDocument.Builder<>("namespace3", "id6", "Generic")
+                .setPropertyString("foo", "body").build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(inDoc1).build()));
+        GenericDocument inDoc2 =
+                new GenericDocument.Builder<>("namespace3", "id7", "Generic")
+                .setPropertyString("foo", "body").build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(inDoc2).build()));
+        GenericDocument inDoc3 =
+                new GenericDocument.Builder<>("namespace4", "id8", "Generic")
+                .setPropertyString("foo", "body").build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(inDoc3).build()));
+
+        // Query with per package result grouping. Only the last document 'doc3' should be
+        // returned.
+        SearchResults searchResults = mDb1.search("body", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .setResultGrouping(SearchSpec.GROUPING_TYPE_PER_PACKAGE, /*resultLimit=*/ 1)
+                .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(inDoc3);
+
+        // Query with per namespace result grouping. Only the last document in each namespace should
+        // be returned ('doc3', 'doc2', 'email5' and 'email2').
+        searchResults = mDb1.search("body", new SearchSpec.Builder()
+            .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+            .setResultGrouping(
+                SearchSpec.GROUPING_TYPE_PER_NAMESPACE, /*resultLimit=*/ 1)
+            .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(inDoc3, inDoc2, inEmail5, inEmail2);
+
+        // Query with per namespace result grouping. Two of the last documents in each namespace
+        // should be returned ('doc3', 'doc2', 'doc1', 'email5', 'email4', 'email2', 'email1')
+        searchResults = mDb1.search("body", new SearchSpec.Builder()
+            .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+            .setResultGrouping(
+                SearchSpec.GROUPING_TYPE_PER_NAMESPACE, /*resultLimit=*/ 2)
+            .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(inDoc3, inDoc2, inDoc1, inEmail5, inEmail4, inEmail2,
+                inEmail1);
+
+        // Query with per schema result grouping. Only the last document of each schema type should
+        // be returned ('doc3', 'email5')
+        searchResults = mDb1.search("body", new SearchSpec.Builder()
+            .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+            .setResultGrouping(
+                SearchSpec.GROUPING_TYPE_PER_SCHEMA, /*resultLimit=*/ 1)
+            .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(inDoc3, inEmail5);
+
+        // Query with per schema result grouping. Only the last two documents of each schema type
+        // should be returned ('doc3', 'doc2', 'email5', 'email4')
+        searchResults = mDb1.search("body", new SearchSpec.Builder()
+            .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+            .setResultGrouping(
+                SearchSpec.GROUPING_TYPE_PER_SCHEMA, /*resultLimit=*/ 2)
+            .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(inDoc3, inDoc2, inEmail5, inEmail4);
+
+        // Query with per package and per namespace result grouping. Only the last document in each
+        // namespace should be returned ('doc3', 'doc2', 'email5' and 'email2').
+        searchResults = mDb1.search("body", new SearchSpec.Builder()
+            .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+            .setResultGrouping(
+                SearchSpec.GROUPING_TYPE_PER_NAMESPACE
+                    | SearchSpec.GROUPING_TYPE_PER_PACKAGE, /*resultLimit=*/ 1)
+            .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(inDoc3, inDoc2, inEmail5, inEmail2);
+
+        // Query with per package and per namespace result grouping. Only the last two documents
+        // in each namespace should be returned ('doc3', 'doc2', 'doc1', 'email5', 'email4',
+        // 'email2', 'email1')
+        searchResults = mDb1.search("body", new SearchSpec.Builder()
+            .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+            .setResultGrouping(
+                SearchSpec.GROUPING_TYPE_PER_NAMESPACE
+                    | SearchSpec.GROUPING_TYPE_PER_PACKAGE, /*resultLimit=*/ 2)
+            .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(inDoc3, inDoc2, inDoc1, inEmail5, inEmail4, inEmail2,
+                inEmail1);
+
+        // Query with per package and per schema type result grouping. Only the last document in
+        // each schema type should be returned. ('doc3', 'email5')
+        searchResults = mDb1.search("body", new SearchSpec.Builder()
+            .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+            .setResultGrouping(
+                SearchSpec.GROUPING_TYPE_PER_SCHEMA
+                    | SearchSpec.GROUPING_TYPE_PER_PACKAGE, /*resultLimit=*/ 1)
+            .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(inDoc3, inEmail5);
+
+        // Query with per package and per schema type result grouping. Only the last two document in
+        // each schema type should be returned. ('doc3', 'doc2', 'email5', 'email4')
+        searchResults = mDb1.search("body", new SearchSpec.Builder()
+            .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+            .setResultGrouping(
+                SearchSpec.GROUPING_TYPE_PER_SCHEMA
+                    | SearchSpec.GROUPING_TYPE_PER_PACKAGE, /*resultLimit=*/ 2)
+            .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(inDoc3, inDoc2, inEmail5, inEmail4);
+
+        // Query with per namespace and per schema type result grouping. Only the last document in
+        // each namespace should be returned. ('doc3', 'doc2', 'email5' and 'email2').
+        searchResults = mDb1.search("body", new SearchSpec.Builder()
+            .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+            .setResultGrouping(
+                SearchSpec.GROUPING_TYPE_PER_NAMESPACE
+                    | SearchSpec.GROUPING_TYPE_PER_SCHEMA, /*resultLimit=*/ 1)
+            .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(inDoc3, inDoc2, inEmail5, inEmail2);
+
+        // Query with per namespace and per schema type result grouping. Only the last two documents
+        // in each namespace should be returned. ('doc3', 'doc2', 'doc1', 'email5', 'email4',
+        // 'email2', 'email1')
+        searchResults = mDb1.search("body", new SearchSpec.Builder()
+            .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+            .setResultGrouping(
+                SearchSpec.GROUPING_TYPE_PER_NAMESPACE
+                    | SearchSpec.GROUPING_TYPE_PER_SCHEMA, /*resultLimit=*/ 2)
+            .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(inDoc3, inDoc2, inDoc1, inEmail5, inEmail4, inEmail2,
+                inEmail1);
+
+        // Query with per namespace, per package and per schema type result grouping. Only the last
+        // document in each namespace should be returned. ('doc3', 'doc2', 'email5' and 'email2')
+        searchResults = mDb1.search("body", new SearchSpec.Builder()
+            .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+            .setResultGrouping(
+                SearchSpec.GROUPING_TYPE_PER_NAMESPACE | SearchSpec.GROUPING_TYPE_PER_SCHEMA
+                    | SearchSpec.GROUPING_TYPE_PER_PACKAGE, /*resultLimit=*/ 1)
+            .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(inDoc3, inDoc2, inEmail5, inEmail2);
+
+        // Query with per namespace, per package and per schema type result grouping. Only the last
+        // two documents in each namespace should be returned.('doc3', 'doc2', 'doc1', 'email5',
+        // 'email4', 'email2', 'email1')
+        searchResults = mDb1.search("body", new SearchSpec.Builder()
+            .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+            .setResultGrouping(
+                SearchSpec.GROUPING_TYPE_PER_NAMESPACE | SearchSpec.GROUPING_TYPE_PER_SCHEMA
+                    | SearchSpec.GROUPING_TYPE_PER_PACKAGE, /*resultLimit=*/ 2)
+            .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(inDoc3, inDoc2, inDoc1, inEmail5, inEmail4, inEmail2,
+                inEmail1);
+    }
+
+    // TODO(b/258715421): move this test to cts test once we un-hide schema type grouping API.
+    @Test
+    public void testQuery_ResultGroupingLimits_SchemaGroupingNotSupported() throws Exception {
+        assumeFalse(mDb1.getFeatures()
+                .isFeatureSupported(Features.SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA));
+        // Schema registration
+        mDb1.setSchemaAsync(new SetSchemaRequest.Builder()
+            .addSchemas(AppSearchEmail.SCHEMA).build()).get();
+
+        // Index four documents.
+        AppSearchEmail inEmail1 =
+                new AppSearchEmail.Builder("namespace1", "id1")
+                .setFrom("from@example.com")
+                .setTo("to1@example.com", "to2@example.com")
+                .setSubject("testPut example")
+                .setBody("This is the body of the testPut email")
+                .build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(inEmail1).build()));
+        AppSearchEmail inEmail2 =
+                new AppSearchEmail.Builder("namespace1", "id2")
+                .setFrom("from@example.com")
+                .setTo("to1@example.com", "to2@example.com")
+                .setSubject("testPut example")
+                .setBody("This is the body of the testPut email")
+                .build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(inEmail2).build()));
+        AppSearchEmail inEmail3 =
+                new AppSearchEmail.Builder("namespace2", "id3")
+                .setFrom("from@example.com")
+                .setTo("to1@example.com", "to2@example.com")
+                .setSubject("testPut example")
+                .setBody("This is the body of the testPut email")
+                .build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(inEmail3).build()));
+        AppSearchEmail inEmail4 =
+                new AppSearchEmail.Builder("namespace2", "id4")
+                .setFrom("from@example.com")
+                .setTo("to1@example.com", "to2@example.com")
+                .setSubject("testPut example")
+                .setBody("This is the body of the testPut email")
+                .build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(inEmail4).build()));
+
+        // SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA is not supported.
+        // UnsupportedOperationException will be thrown.
+        SearchSpec searchSpec1 = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .setResultGrouping(SearchSpec.GROUPING_TYPE_PER_SCHEMA, /*resultLimit=*/ 1)
+                .build();
+        UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class,
+                () -> mDb1.search("body", searchSpec1));
+        assertThat(exception).hasMessageThat().contains(
+                Features.SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA + " is not available on this"
+                + " AppSearch implementation.");
+
+        // SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA is not supported.
+        // UnsupportedOperationException will be thrown.
+        SearchSpec searchSpec2 = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .setResultGrouping(SearchSpec.GROUPING_TYPE_PER_PACKAGE
+                | SearchSpec.GROUPING_TYPE_PER_SCHEMA, /*resultLimit=*/ 1)
+                .build();
+        exception = assertThrows(UnsupportedOperationException.class,
+            () -> mDb1.search("body", searchSpec2));
+        assertThat(exception).hasMessageThat().contains(
+                Features.SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA + " is not available on this"
+                + " AppSearch implementation.");
+
+        // SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA is not supported.
+        // UnsupportedOperationException will be thrown.
+        SearchSpec searchSpec3 = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .setResultGrouping(SearchSpec.GROUPING_TYPE_PER_NAMESPACE
+                | SearchSpec.GROUPING_TYPE_PER_SCHEMA, /*resultLimit=*/ 1)
+                .build();
+        exception = assertThrows(UnsupportedOperationException.class,
+                () -> mDb1.search("body", searchSpec3));
+        assertThat(exception).hasMessageThat().contains(
+                Features.SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA + " is not available on this"
+                + " AppSearch implementation.");
+
+        // SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA is not supported.
+        // UnsupportedOperationException will be thrown.
+        SearchSpec searchSpec4 = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .setResultGrouping(SearchSpec.GROUPING_TYPE_PER_NAMESPACE
+                | SearchSpec.GROUPING_TYPE_PER_SCHEMA
+                | SearchSpec.GROUPING_TYPE_PER_PACKAGE, /*resultLimit=*/ 1)
+                .build();
+        exception = assertThrows(UnsupportedOperationException.class,
+                () -> mDb1.search("body", searchSpec4));
+        assertThat(exception).hasMessageThat().contains(
+                Features.SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA + " is not available on this"
+                + " AppSearch implementation.");
+    }
+
+    // TODO(b/268521214): Move test to cts once deletion propagation is available in framework.
+    @Test
+    public void testGetSchema_joinableValueType() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.JOIN_SPEC_AND_QUALIFIED_ID));
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(
+                Features.SCHEMA_SET_DELETION_PROPAGATION));
+        AppSearchSchema inSchema = new AppSearchSchema.Builder("Test")
+                .addProperty(new StringPropertyConfig.Builder("normalStr")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .build()
+                ).addProperty(new StringPropertyConfig.Builder("optionalQualifiedIdStr")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setJoinableValueType(StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                        .build()
+                ).addProperty(new StringPropertyConfig.Builder("requiredQualifiedIdStr")
+                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                        .setJoinableValueType(StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                        .setDeletionPropagation(true)
+                        .build()
+                ).build();
+
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                .addSchemas(inSchema).build();
+
+        mDb1.setSchemaAsync(request).get();
+
+        Set<AppSearchSchema> actual = mDb1.getSchemaAsync().get().getSchemas();
+        assertThat(actual).hasSize(1);
+        assertThat(actual).containsExactlyElementsIn(request.getSchemas());
+    }
+
+    // TODO(b/268521214): Move test to cts once deletion propagation is available in framework.
+    @Test
+    public void testGetSchema_deletionPropagation_unsupported() {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.JOIN_SPEC_AND_QUALIFIED_ID));
+        assumeFalse(mDb1.getFeatures().isFeatureSupported(
+                Features.SCHEMA_SET_DELETION_PROPAGATION));
+        AppSearchSchema schema = new AppSearchSchema.Builder("Test")
+                .addProperty(new StringPropertyConfig.Builder("qualifiedIdDeletionPropagation")
+                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                        .setJoinableValueType(StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                        .setDeletionPropagation(true)
+                        .build()
+                ).build();
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                .addSchemas(schema).build();
+        Exception e = assertThrows(UnsupportedOperationException.class, () ->
+                mDb1.setSchemaAsync(request).get());
+        assertThat(e.getMessage()).isEqualTo("Setting deletion propagation is not supported "
+                + "on this AppSearch implementation.");
     }
 }

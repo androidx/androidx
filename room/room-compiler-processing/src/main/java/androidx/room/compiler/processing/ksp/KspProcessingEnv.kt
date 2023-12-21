@@ -98,14 +98,13 @@ internal class KspProcessingEnv(
     override val filer: XFiler = KspFiler(codeGenerator, messager)
 
     val commonTypes
-        get() = CommonTypes(resolver)
+        get() = CommonTypes()
 
     val voidType
         get() = KspVoidType(
             env = this,
             ksType = resolver.builtIns.unitType,
             boxed = false,
-            scope = null
         )
 
     override fun findTypeElement(qName: String): KspTypeElement? {
@@ -227,7 +226,6 @@ internal class KspProcessingEnv(
         return KspTypeArgumentType(
             env = this,
             typeArg = ksTypeArgument,
-            scope = null
         )
     }
 
@@ -242,41 +240,27 @@ internal class KspProcessingEnv(
     fun wrap(ksType: KSType, allowPrimitives: Boolean): KspType {
         val declaration = ksType.declaration
         if (declaration is KSTypeAlias) {
-            val actual = wrap(
-                ksType = declaration.type.resolve().replace(ksType.arguments),
+            return wrap(
+                ksType = ksType.replaceTypeAliases(resolver),
                 allowPrimitives = allowPrimitives && ksType.nullability == Nullability.NOT_NULL
-            )
-            // if this type is nullable, carry it over
-            return if (ksType.nullability == Nullability.NULLABLE) {
-                actual.makeNullable()
-            } else {
-                actual
-            }
+            ).copyWithTypeAlias(ksType)
         }
         val qName = ksType.declaration.qualifiedName?.asString()
         if (declaration is KSTypeParameter) {
-            return KspTypeVariableType(
-                env = this,
-                ksType = ksType,
-                scope = null
-            )
+            return KspTypeVariableType(this, ksType)
         }
         if (allowPrimitives && qName != null && ksType.nullability == Nullability.NOT_NULL) {
             // check for primitives
             val javaPrimitive = KspTypeMapper.getPrimitiveJavaTypeName(qName)
             if (javaPrimitive != null) {
-                return KspPrimitiveType(this, ksType, scope = null)
+                return KspPrimitiveType(this, ksType)
             }
             // special case for void
             if (qName == "kotlin.Unit") {
                 return voidType
             }
         }
-        return arrayTypeFactory.createIfArray(ksType) ?: DefaultKspType(
-            this,
-            ksType,
-            scope = null
-        )
+        return arrayTypeFactory.createIfArray(ksType) ?: DefaultKspType(this, ksType)
     }
 
     fun wrapClassDeclaration(declaration: KSClassDeclaration): KspTypeElement {
@@ -324,15 +308,7 @@ internal class KspProcessingEnv(
         return returnType(type1).isSameType(returnType(type2))
     }
 
-    class CommonTypes(resolver: Resolver) {
-        val nullableInt by lazy {
-            resolver.builtIns.intType.makeNullable()
-        }
-        val nullableLong by lazy {
-            resolver.builtIns.longType.makeNullable()
-        }
-        val nullableByte by lazy {
-            resolver.builtIns.byteType.makeNullable()
-        }
+    inner class CommonTypes() {
+        val anyType: XType = requireType("kotlin.Any")
     }
 }

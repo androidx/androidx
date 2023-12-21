@@ -36,7 +36,6 @@ import androidx.car.app.utils.RemoteUtils;
 /**
  * Implementation class for {@link OnItemVisibilityChangedDelegate}.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 @CarProtocol

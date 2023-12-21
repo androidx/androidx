@@ -363,14 +363,16 @@ internal abstract class AbstractSelectionMagnifierTests {
 
         showHandle(handle)
 
-        // Touch the handle to show the magnifier.
-        rule.onNode(isSelectionHandle(handle))
-            .performTouchInput { down(center) }
+        // Touch and move the handle to show the magnifier.
+        rule.onNode(isSelectionHandle(handle)).performTouchInput {
+            down(center)
+            movePastSlopBy(dragDistance)
+        }
         val magnifierInitialPosition = getMagnifierCenterOffset()
 
         // Drag the handle horizontally - the magnifier should follow.
         rule.onNode(isSelectionHandle(handle))
-            .performTouchInput { movePastSlopBy(dragDistance) }
+            .performTouchInput { moveBy(dragDistance) }
 
         assertThat(getMagnifierCenterOffset())
             .isEqualTo(magnifierInitialPosition + dragDistance)
@@ -383,6 +385,7 @@ internal abstract class AbstractSelectionMagnifierTests {
     ) {
         val dragDistance = Offset(1f, 0f)
         val dragDirection = if (checkStart xor (layoutDirection == LayoutDirection.Rtl)) -1f else 1f
+        val moveOffset = dragDistance * dragDirection
         val fillerWord = if (layoutDirection == LayoutDirection.Ltr) "aaaa" else "באמת"
         // When testing the cursor, we use an empty line so it doesn't have room to move in either
         // direction. For other handles, the line needs to have some text to select.
@@ -402,14 +405,27 @@ internal abstract class AbstractSelectionMagnifierTests {
 
         showHandle(handle)
 
-        // Touch the handle to show the magnifier.
-        rule.onNode(isSelectionHandle(handle))
-            .performTouchInput { down(center) }
+        // Touch and move the handle to show the magnifier.
+        rule.onNode(isSelectionHandle(handle)).performTouchInput {
+            down(center)
+            // If cursor, we have to drag the cursor to show the magnifier,
+            // press alone will not suffice
+            if (handle == Handle.Cursor) {
+                movePastSlopBy(moveOffset)
+            }
+        }
         val magnifierInitialPosition = getMagnifierCenterOffset()
 
         // Drag just a little past the end of the line.
         rule.onNode(isSelectionHandle(handle))
-            .performTouchInput { movePastSlopBy(dragDistance * dragDirection) }
+            .performTouchInput {
+                if (handle == Handle.Cursor) {
+                    // If cursor, we dragged past slop before, so just move the normal delta
+                    moveBy(moveOffset)
+                } else {
+                    movePastSlopBy(moveOffset)
+                }
+            }
 
         // The magnifier shouldn't have moved.
         assertThat(getMagnifierCenterOffset()).isEqualTo(magnifierInitialPosition)

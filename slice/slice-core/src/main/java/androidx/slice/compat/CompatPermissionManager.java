@@ -37,7 +37,6 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(19)

@@ -29,7 +29,7 @@ class AppVerificationInfoTest {
         val verificationInfo: AppVerificationInfo =
             AppVerificationInfo.Builder()
                 .setPackageName("packageName")
-                .addSignature(listOf(ByteArray(5)))
+                .addSignature(ByteArray(5))
                 .build()
 
         assertThat(verificationInfo.packageName).isEqualTo("packageName")

@@ -175,7 +175,11 @@ internal class SdkProviderV1 private constructor(
                 LoadSdkCompatExceptionBuilderV1.create(classLoader)
 
             val sdkProvider = sdkProviderClass.getConstructor().newInstance()
-            val sandboxedSdkContextCompat = SandboxedSdkContextCompat(appContext, classLoader)
+            val sandboxedSdkContextCompat = SandboxedSdkContextCompat(
+                appContext,
+                sdkConfig.packageName,
+                classLoader
+            )
             attachContextMethod.invoke(sdkProvider, sandboxedSdkContextCompat)
 
             return SdkProviderV1(

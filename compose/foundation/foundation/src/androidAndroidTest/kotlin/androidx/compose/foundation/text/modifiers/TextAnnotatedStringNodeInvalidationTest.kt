@@ -32,6 +32,16 @@ class TextAnnotatedStringNodeInvalidationTest : NodeInvalidationTestParent() {
         )
     }
 
+    override fun Any.invalidateAll() {
+        this as TextAnnotatedStringNode
+        doInvalidations(
+            drawChanged = true,
+            textChanged = true,
+            layoutChanged = true,
+            callbacksChanged = true
+        )
+    }
+
     override fun Any.updateDrawArgs(drawParams: DrawParams): Boolean {
         this as TextAnnotatedStringNode
         return updateDraw(drawParams.color, drawParams.style)

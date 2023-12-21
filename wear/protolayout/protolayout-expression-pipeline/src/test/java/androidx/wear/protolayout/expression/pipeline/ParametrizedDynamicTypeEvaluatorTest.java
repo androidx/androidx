@@ -29,6 +29,7 @@ import android.icu.util.ULocale;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
+import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration;
@@ -38,12 +39,11 @@ import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32.IntFormatter;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString;
-import androidx.wear.protolayout.expression.AppDataKey;
+import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedBool;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedFloat;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedInt32;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedString;
-import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;

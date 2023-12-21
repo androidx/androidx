@@ -46,6 +46,8 @@ internal class KspSyntheticReceiverParameterElement(
 
     override fun isKotlinPropertyParam() = false
 
+    override fun isVarArgs() = false
+
     override val name: String by lazy {
         // KAPT uses `$this$<functionName>`
         "$" + "this" + "$" + enclosingElement.name
@@ -113,6 +115,10 @@ internal class KspSyntheticReceiverParameterElement(
 
     override fun equals(other: Any?): Boolean {
         return XEquality.equals(this, other)
+    }
+
+    override fun toString(): String {
+        return name
     }
 
     override fun hashCode(): Int {

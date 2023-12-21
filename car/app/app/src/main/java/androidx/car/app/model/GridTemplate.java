@@ -217,7 +217,7 @@ public final class GridTemplate implements Template {
      */
     @ExperimentalCarApi
     @NonNull
-    @RequiresCarApi(6)
+    @RequiresCarApi(7)
     public List<Action> getActions() {
         return mActions;
     }
@@ -418,7 +418,7 @@ public final class GridTemplate implements Template {
          */
         @ExperimentalCarApi
         @NonNull
-        @RequiresCarApi(6)
+        @RequiresCarApi(7)
         public Builder addAction(@NonNull Action action) {
             List<Action> mActionsCopy = new ArrayList<>(mActions);
             mActionsCopy.add(requireNonNull(action));

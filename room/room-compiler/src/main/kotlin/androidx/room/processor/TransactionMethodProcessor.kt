@@ -69,12 +69,10 @@ class TransactionMethodProcessor(
                 TransactionMethod.CallType.CONCRETE
         }
 
-        val isVarArgs = executableElement.isVarArgs()
         val parameters = delegate.extractParams()
-        val processedParamNames = parameters.mapIndexed { index, param ->
+        val processedParamNames = parameters.map { param ->
             // Apply spread operator when delegating to a vararg parameter in Kotlin.
-            if (context.codeLanguage == CodeLanguage.KOTLIN &&
-                isVarArgs && index == parameters.size - 1) {
+            if (context.codeLanguage == CodeLanguage.KOTLIN && param.isVarArgs()) {
                 "*${param.name}"
             } else {
                 param.name

@@ -38,16 +38,24 @@ import androidx.camera.camera2.pipe.CameraMetadata
 class FlashTooSlowQuirk : UseTorchAsFlashQuirk {
 
     companion object {
-
-        // List of devices with the issue. See b/181966663.
-        private val AFFECTED_MODELS = listOf(
+        private val AFFECTED_MODEL_PREFIXES = listOf(
             "PIXEL 3A",
-            "PIXEL 3A XL"
+            "PIXEL 3A XL",
+            "SM-A320"
         )
 
         fun isEnabled(cameraMetadata: CameraMetadata): Boolean {
-            return AFFECTED_MODELS.contains(Build.MODEL.uppercase()) &&
+            return isAffectedModel() &&
                 cameraMetadata[LENS_FACING] == LENS_FACING_BACK
+        }
+
+        private fun isAffectedModel(): Boolean {
+            for (modelPrefix in AFFECTED_MODEL_PREFIXES) {
+                if (Build.MODEL.uppercase().startsWith(modelPrefix)) {
+                    return true
+                }
+            }
+            return false
         }
     }
 }

@@ -107,12 +107,12 @@ class SdkApi(sdkContext: Context) : ISdkApi.Stub() {
     }
 
     private inner class TestView(context: Context) : View(context) {
-        override fun onDraw(canvas: Canvas?) {
+        override fun onDraw(canvas: Canvas) {
             super.onDraw(canvas)
 
             val paint = Paint()
             paint.textSize = 50F
-            canvas!!.drawColor(
+            canvas.drawColor(
                 Color.rgb((0..255).random(), (0..255).random(), (0..255).random())
             )
             canvas.drawText("Hey", 75F, 75F, paint)

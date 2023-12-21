@@ -16,7 +16,6 @@ HSPLandroidx/wear/compose/material/ChipKt**->**(**)**
 HSPLandroidx/wear/compose/material/Colors;->**(**)**
 HSPLandroidx/wear/compose/material/ColorsKt**->**(**)**
 HSPLandroidx/wear/compose/material/CombinedPaddingValues;->**(**)**
-PLandroidx/wear/compose/material/ComposableSingletons;->**(**)**
 HSPLandroidx/wear/compose/material/ContentAlpha;->**(**)**
 HSPLandroidx/wear/compose/material/ContentAlphaKt**->**(**)**
 HSPLandroidx/wear/compose/material/ContentColorKt**->**(**)**
@@ -33,11 +32,10 @@ HSPLandroidx/wear/compose/material/DefaultScalingLazyListLayoutInfo;->**(**)**
 HSPLandroidx/wear/compose/material/DefaultScalingParams;->**(**)**
 HSPLandroidx/wear/compose/material/DefaultSplitToggleChipColors;->**(**)**
 HSPLandroidx/wear/compose/material/DefaultSwitchColors;->**(**)**
-HSPLandroidx/wear/compose/material/DefaultTimeSource;->**(**)**
+SPLandroidx/wear/compose/material/DefaultTimeSource;->**(**)**
 HSPLandroidx/wear/compose/material/DefaultTimeSourceKt**->**(**)**
-HSPLandroidx/wear/compose/material/DefaultToggleButtonColors;->**(**)**
+SPLandroidx/wear/compose/material/DefaultToggleButtonColors;->**(**)**
 HSPLandroidx/wear/compose/material/DefaultToggleChipColors;->**(**)**
-HPLandroidx/wear/compose/material/DefaultTouchExplorationStateProvider;->**(**)**
 HSPLandroidx/wear/compose/material/DisplayState;->**(**)**
 SPLandroidx/wear/compose/material/EmptyScalingLazyListLayoutInfo;->**(**)**
 HSPLandroidx/wear/compose/material/FortyFiveDegreeLinearGradient;->**(**)**
@@ -51,14 +49,11 @@ HSPLandroidx/wear/compose/material/InlineSliderDefaults;->**(**)**
 Landroidx/wear/compose/material/LazyColumnStateAdapter;
 HSPLandroidx/wear/compose/material/ListHeaderKt**->**(**)**
 HSPLandroidx/wear/compose/material/MaterialRippleTheme;->**(**)**
-HSPLandroidx/wear/compose/material/MaterialTextSelectionColorsKt**->**(**)**
+SPLandroidx/wear/compose/material/MaterialTextSelectionColorsKt**->**(**)**
 HSPLandroidx/wear/compose/material/MaterialTheme;->**(**)**
-HSPLandroidx/wear/compose/material/MaterialThemeKt**->**(**)**
+SPLandroidx/wear/compose/material/MaterialThemeKt**->**(**)**
 HSPLandroidx/wear/compose/material/Modifiers;->**(**)**
 HSPLandroidx/wear/compose/material/PickerDefaults;->**(**)**
-HPLandroidx/wear/compose/material/PickerGroupItem;->**(**)**
-HPLandroidx/wear/compose/material/PickerGroupKt**->**(**)**
-PLandroidx/wear/compose/material/PickerGroupState;->**(**)**
 HSPLandroidx/wear/compose/material/PickerKt**->**(**)**
 SPLandroidx/wear/compose/material/PickerScopeImpl;->**(**)**
 HSPLandroidx/wear/compose/material/PickerState;->**(**)**
@@ -80,7 +75,8 @@ Landroidx/wear/compose/material/R;
 Landroidx/wear/compose/material/RadioButtonColors;
 HSPLandroidx/wear/compose/material/RadioButtonDefaults;->**(**)**
 SPLandroidx/wear/compose/material/RangeDefaults;->**(**)**
-HSPLandroidx/wear/compose/material/RangeDefaultsKt**->**(**)**
+SPLandroidx/wear/compose/material/RangeDefaultsKt**->**(**)**
+SPLandroidx/wear/compose/material/RangeIcons;->**(**)**
 HSPLandroidx/wear/compose/material/ResistanceConfig;->**(**)**
 HSPLandroidx/wear/compose/material/ResourcesKt**->**(**)**
 HSPLandroidx/wear/compose/material/ScaffoldKt**->**(**)**
@@ -100,7 +96,7 @@ HSPLandroidx/wear/compose/material/ScalingLazyListScopeImpl;->**(**)**
 HSPLandroidx/wear/compose/material/ScalingLazyListState;->**(**)**
 HSPLandroidx/wear/compose/material/ScalingLazyListStateKt**->**(**)**
 Landroidx/wear/compose/material/ScalingParams;
-HSPLandroidx/wear/compose/material/ScrollAwayKt**->**(**)**
+SPLandroidx/wear/compose/material/ScrollAwayKt**->**(**)**
 SPLandroidx/wear/compose/material/ScrollParams;->**(**)**
 HSPLandroidx/wear/compose/material/ScrollStateAdapter;->**(**)**
 HSPLandroidx/wear/compose/material/Shapes;->**(**)**
@@ -124,7 +120,7 @@ HSPLandroidx/wear/compose/material/TextKt**->**(**)**
 Landroidx/wear/compose/material/ThresholdConfig;
 SPLandroidx/wear/compose/material/TimeBroadcastReceiver;->**(**)**
 Landroidx/wear/compose/material/TimeSource;
-HSPLandroidx/wear/compose/material/TimeTextDefaults;->**(**)**
+SPLandroidx/wear/compose/material/TimeTextDefaults;->**(**)**
 HSPLandroidx/wear/compose/material/TimeTextKt**->**(**)**
 Landroidx/wear/compose/material/ToggleButtonColors;
 HSPLandroidx/wear/compose/material/ToggleButtonDefaults;->**(**)**
@@ -144,9 +140,4 @@ HSPLandroidx/wear/compose/materialcore/ButtonKt**->**(**)**
 HSPLandroidx/wear/compose/materialcore/CardKt**->**(**)**
 HSPLandroidx/wear/compose/materialcore/ChipKt**->**(**)**
 HSPLandroidx/wear/compose/materialcore/IconKt**->**(**)**
-HPLandroidx/wear/compose/materialcore/RangeDefaults;->**(**)**
-PLandroidx/wear/compose/materialcore/RangeIcons;->**(**)**
-HPLandroidx/wear/compose/materialcore/SliderKt**->**(**)**
-PLandroidx/wear/compose/materialcore/StepperDefaults;->**(**)**
-HPLandroidx/wear/compose/materialcore/StepperKt**->**(**)**
 HSPLandroidx/wear/compose/materialcore/TextKt**->**(**)**

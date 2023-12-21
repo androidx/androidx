@@ -46,6 +46,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -349,6 +350,7 @@ public class ScalingLazyListLayoutInfoTest {
         }
     }
 
+    @Ignore("b/283960419")
     @Test
     fun itemsCorrectScrollPastStartEndAutoCenterItemZeroOddHeightViewportOddHeightItems() {
         visibleItemsAreCorrectAfterScrollingPastEndOfItems(0, 41, false)

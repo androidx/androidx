@@ -86,11 +86,11 @@ internal class RowColumnMeasurementHelper(
         @Suppress("NAME_SHADOWING")
         val constraints = OrientationIndependentConstraints(constraints, orientation)
         val arrangementSpacingPx = with(measureScope) {
-            arrangementSpacing.roundToPx().toLong()
+            arrangementSpacing.roundToPx()
         }
 
         var totalWeight = 0f
-        var fixedSpace = 0L
+        var fixedSpace = 0
         var crossAxisSpace = 0
         var weightChildrenCount = 0
 
@@ -116,15 +116,14 @@ internal class RowColumnMeasurementHelper(
                         mainAxisMax = if (mainAxisMax == Constraints.Infinity) {
                             Constraints.Infinity
                         } else {
-                            (mainAxisMax - fixedSpace).coerceAtLeast(0).toInt()
+                            mainAxisMax - fixedSpace
                         },
                         crossAxisMin = 0
                     ).toBoxConstraints(orientation)
                 )
                 spaceAfterLastNoWeight = min(
-                    arrangementSpacingPx.toInt(),
-                    (mainAxisMax - fixedSpace - placeable.mainAxisSize())
-                        .coerceAtLeast(0).toInt()
+                    arrangementSpacingPx,
+                    mainAxisMax - fixedSpace - placeable.mainAxisSize()
                 )
                 fixedSpace += placeable.mainAxisSize() + spaceAfterLastNoWeight
                 crossAxisSpace = max(crossAxisSpace, placeable.crossAxisSize())
@@ -145,9 +144,8 @@ internal class RowColumnMeasurementHelper(
                 } else {
                     constraints.mainAxisMin
                 }
-            val arrangementSpacingTotal = arrangementSpacingPx * (weightChildrenCount - 1)
             val remainingToTarget =
-                (targetSpace - fixedSpace - arrangementSpacingTotal).coerceAtLeast(0)
+                targetSpace - fixedSpace - arrangementSpacingPx * (weightChildrenCount - 1)
 
             val weightUnitSpace = if (totalWeight > 0) remainingToTarget / totalWeight else 0f
             var remainder = remainingToTarget - (startIndex until endIndex).sumOf {
@@ -187,9 +185,8 @@ internal class RowColumnMeasurementHelper(
                     placeables[i] = placeable
                 }
             }
-            weightedSpace = (weightedSpace + arrangementSpacingTotal)
-                .coerceIn(0, constraints.mainAxisMax - fixedSpace)
-                .toInt()
+            weightedSpace = (weightedSpace + arrangementSpacingPx * (weightChildrenCount - 1))
+                .coerceAtMost(constraints.mainAxisMax - fixedSpace)
         }
 
         var beforeCrossAxisAlignmentLine = 0
@@ -225,10 +222,7 @@ internal class RowColumnMeasurementHelper(
         }
 
         // Compute the Row or Column size and position the children.
-        val mainAxisLayoutSize = max(
-            (fixedSpace + weightedSpace).coerceAtLeast(0).toInt(),
-            constraints.mainAxisMin
-        )
+        val mainAxisLayoutSize = max(fixedSpace + weightedSpace, constraints.mainAxisMin)
         val crossAxisLayoutSize = if (constraints.crossAxisMax != Constraints.Infinity &&
             crossAxisSize == SizeMode.Expand
         ) {
@@ -254,11 +248,11 @@ internal class RowColumnMeasurementHelper(
             endIndex = endIndex,
             beforeCrossAxisAlignmentLine = beforeCrossAxisAlignmentLine,
             mainAxisPositions = mainAxisPositions(
-                mainAxisLayoutSize,
-                childrenMainAxisSize,
-                mainAxisPositions,
-                measureScope
-            ))
+                    mainAxisLayoutSize,
+                    childrenMainAxisSize,
+                    mainAxisPositions,
+                    measureScope
+                ))
     }
 
     private fun mainAxisPositions(
