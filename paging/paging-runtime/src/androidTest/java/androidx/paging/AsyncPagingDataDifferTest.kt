@@ -261,8 +261,11 @@ class AsyncPagingDataDifferTest {
             )
 
             // Load REFRESH [51, 52]
-            // Load PREPEND [50] to fulfill prefetch distance of transformed index
             currentPagedSource!!.invalidate()
+            advanceUntilIdle()
+
+            // UI access refreshed items. Load PREPEND [50] to fulfill prefetch distance
+            differ.getItem(51)
             advanceUntilIdle()
 
             assertEvents(
@@ -482,9 +485,7 @@ class AsyncPagingDataDifferTest {
             pager2.flow.collectLatest(differ::submitData)
         }
         advanceUntilIdle()
-        // This prepends an extra page due to transformedAnchorPosition re-sending an Access at the
-        // first position, we therefore load 19 + 7 items.
-        assertEquals(26, differ.itemCount)
+        assertEquals(19, differ.itemCount)
 
         // now if pager1 gets an invalidation, it overrides pager2
         source1.invalidate()
