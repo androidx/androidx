@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.compose.ui.graphics.AndroidPaint_androidKt#toComposePaint(android.graphics.Paint):
+    Removed method androidx.compose.ui.graphics.AndroidPaint_androidKt.toComposePaint(android.graphics.Paint)

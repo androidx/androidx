@@ -18,8 +18,12 @@ package androidx.compose.ui.input.pointer
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReusableContent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -28,10 +32,12 @@ import androidx.compose.ui.platform.ValueElement
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.elementFor
+import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
@@ -863,5 +869,70 @@ class SuspendingPointerInputFilterTest {
             down(Offset.Zero)
         }
         assertThat(events).hasSize(2)
+    }
+
+    @Test
+    @MediumTest
+    fun lambdaIsRecapturedWhenReused() {
+        val tag = "box"
+        val events = mutableListOf<Int>()
+
+        @Composable
+        fun BoxWithKey(key: Int) {
+            // imitating one of the recommended patterns for Modifier.pointerInput() where we use
+            // rememberUpdatedState in order to have the latest value inside the suspending lambda.
+            // technically the state backing rememberUpdatedState will be recreated when the reuse
+            // happens so Modifier.pointerInput() have to update it's lambda to the new one even
+            // given that the key (Unit) didn't change.
+            val currentKey by rememberUpdatedState(key)
+            Box(
+                Modifier
+                    .testTag(tag)
+                    .fillMaxSize()
+                    .pointerInput(Unit) {
+                        events.add(currentKey)
+                    })
+        }
+
+        var key by mutableStateOf(0)
+
+        rule.setContent {
+            ReusableContent(key = key) {
+                BoxWithKey(key)
+            }
+        }
+
+        rule.runOnIdle {
+            key++
+        }
+
+        rule.onNodeWithTag(tag).performTouchInput {
+            down(Offset.Zero)
+        }
+        assertThat(events).isEqualTo(listOf(key))
+    }
+
+    @Test
+    fun reuseWithReplacingPointerInputWithOtherModifier() {
+        val tag = "box"
+        var key by mutableStateOf(0)
+
+        rule.setContent {
+            ReusableContent(key = key) {
+                val modifier = if (key == 0) {
+                    Modifier.pointerInput(Unit) {}
+                } else {
+                    Modifier.size(10.dp)
+                }
+                Box(modifier.testTag(tag))
+            }
+        }
+
+        rule.runOnIdle {
+            key++
+        }
+
+        rule.onNodeWithTag(tag)
+            .assertHeightIsEqualTo(10.dp)
     }
 }

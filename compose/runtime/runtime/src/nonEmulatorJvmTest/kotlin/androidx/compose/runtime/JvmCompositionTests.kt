@@ -25,11 +25,14 @@ import androidx.compose.runtime.mock.compositionTest
 import androidx.compose.runtime.mock.expectChanges
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotStateObserver
+import java.lang.ref.WeakReference
 import kotlin.concurrent.thread
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -165,6 +168,23 @@ class JvmCompositionTests {
 
         value = 2
         expectChanges()
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test // Regression test for https://issuetracker.google.com/262356264
+    fun compositionDoesNotRetainSnapshotReference() = runTest {
+        localRecomposerTest { recomposer ->
+            var compositionSnapshot: WeakReference<Snapshot>? = null
+            val composition = Composition(UnitApplier(), recomposer)
+            composition.setContent {
+                compositionSnapshot = WeakReference(Snapshot.current)
+            }
+            assertNotNull(compositionSnapshot, "compositionSnapshot weak reference")
+            repeat(10) {
+                Runtime.getRuntime().gc()
+            }
+            assertNull(compositionSnapshot?.get(), "weak snapshot reference after forced gc")
+        }
     }
 
     private var count = 0

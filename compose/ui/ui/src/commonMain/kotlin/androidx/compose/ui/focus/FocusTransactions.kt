@@ -54,23 +54,21 @@ internal fun FocusTargetNode.requestFocus(): Boolean {
  * custom focus [enter][FocusProperties.enter] and [exit][FocusProperties.exit]
  * [properties][FocusProperties] have been specified.
  */
-internal fun FocusTargetNode.performRequestFocus(): Boolean {
-    when (focusStateImpl) {
-        Active, Captured -> {
-            // There is no change in focus state, but we send a focus event to notify the user
-            // that the focus request is completed.
-            refreshFocusEventNodes()
-            return true
-        }
-        ActiveParent -> return (clearChildFocus() && grantFocus()).also { success ->
+internal fun FocusTargetNode.performRequestFocus(): Boolean = when (focusState) {
+    Active, Captured -> {
+        // There is no change in focus state, but we send a focus event to notify the user
+        // that the focus request is completed.
+        refreshFocusEventNodes()
+        true
+    }
+    ActiveParent -> (clearChildFocus() && grantFocus()).also { success ->
+        if (success) refreshFocusEventNodes()
+    }
+    Inactive -> nearestAncestor(FocusTarget)
+        ?.requestFocusForChild(this)
+        ?: (requestFocusForOwner() && grantFocus()).also { success ->
             if (success) refreshFocusEventNodes()
         }
-        Inactive -> return nearestAncestor(FocusTarget)
-            ?.requestFocusForChild(this)
-            ?: (requestFocusForOwner() && grantFocus()).also { success ->
-                if (success) refreshFocusEventNodes()
-            }
-    }
 }
 
 /**
@@ -81,9 +79,9 @@ internal fun FocusTargetNode.performRequestFocus(): Boolean {
  *
  * @return true if the focus was successfully captured. False otherwise.
  */
-internal fun FocusTargetNode.captureFocus() = when (focusStateImpl) {
+internal fun FocusTargetNode.captureFocus() = when (focusState) {
     Active -> {
-        focusStateImpl = Captured
+        focusState = Captured
         refreshFocusEventNodes()
         true
     }
@@ -98,9 +96,9 @@ internal fun FocusTargetNode.captureFocus() = when (focusStateImpl) {
  *
  * @return true if the captured focus was released. False Otherwise.
  */
-internal fun FocusTargetNode.freeFocus() = when (focusStateImpl) {
+internal fun FocusTargetNode.freeFocus() = when (focusState) {
     Captured -> {
-        focusStateImpl = Active
+        focusState = Active
         refreshFocusEventNodes()
         true
     }
@@ -118,9 +116,9 @@ internal fun FocusTargetNode.freeFocus() = when (focusStateImpl) {
 internal fun FocusTargetNode.clearFocus(
     forced: Boolean = false,
     refreshFocusEvents: Boolean
-): Boolean = when (focusStateImpl) {
+): Boolean = when (focusState) {
     Active -> {
-        focusStateImpl = Inactive
+        focusState = Inactive
         if (refreshFocusEvents) refreshFocusEventNodes()
         true
     }
@@ -129,7 +127,7 @@ internal fun FocusTargetNode.clearFocus(
      * first, before clearing focus from this node.
      */
     ActiveParent -> if (clearChildFocus(forced, refreshFocusEvents)) {
-        focusStateImpl = Inactive
+        focusState = Inactive
         if (refreshFocusEvents) refreshFocusEventNodes()
         true
     } else {
@@ -141,7 +139,7 @@ internal fun FocusTargetNode.clearFocus(
      */
     Captured -> {
         if (forced) {
-            focusStateImpl = Inactive
+            focusState = Inactive
             if (refreshFocusEvents) refreshFocusEventNodes()
         }
         forced
@@ -162,8 +160,8 @@ private fun FocusTargetNode.grantFocus(): Boolean {
     // If canFocus is set to false, we need to clear focus.
     observeReads { fetchFocusProperties() }
     // No Focused Children, or we don't want to propagate focus to children.
-    when (focusStateImpl) {
-        Inactive, ActiveParent -> focusStateImpl = Active
+    when (focusState) {
+        Inactive, ActiveParent -> focusState = Active
         Active, Captured -> { /* Already focused. */ }
     }
     return true
@@ -191,11 +189,11 @@ private fun FocusTargetNode.requestFocusForChild(
         error("Non child node cannot request focus.")
     }
 
-    return when (focusStateImpl) {
+    return when (focusState) {
         // If this node is [Active], it can give focus to the requesting child.
         Active -> childNode.grantFocus().also { success ->
             if (success) {
-                focusStateImpl = ActiveParent
+                focusState = ActiveParent
                 childNode.refreshFocusEventNodes()
                 refreshFocusEventNodes()
             }
@@ -215,7 +213,7 @@ private fun FocusTargetNode.requestFocusForChild(
             when {
                 // If this node is the root, request focus from the compose owner.
                 focusParent == null && requestFocusForOwner() -> {
-                    focusStateImpl = Active
+                    focusState = Active
                     refreshFocusEventNodes()
                     requestFocusForChild(childNode)
                 }
@@ -249,13 +247,13 @@ internal enum class CustomDestinationResult { None, Cancelled, Redirected, Redir
 internal fun FocusTargetNode.performCustomRequestFocus(
     focusDirection: FocusDirection
 ): CustomDestinationResult {
-    when (focusStateImpl) {
+    when (focusState) {
         Active, Captured -> return None
         ActiveParent ->
             return checkNotNull(activeChild).performCustomClearFocus(focusDirection)
         Inactive -> {
             val focusParent = nearestAncestor(FocusTarget) ?: return None
-            return when (focusParent.focusStateImpl) {
+            return when (focusParent.focusState) {
                 Captured -> Cancelled
                 ActiveParent -> focusParent.performCustomRequestFocus(focusDirection)
                 Active -> focusParent.performCustomEnter(focusDirection)
@@ -269,7 +267,7 @@ internal fun FocusTargetNode.performCustomRequestFocus(
 
 internal fun FocusTargetNode.performCustomClearFocus(
     focusDirection: FocusDirection
-): CustomDestinationResult = when (focusStateImpl) {
+): CustomDestinationResult = when (focusState) {
     Active, Inactive -> None
     Captured -> Cancelled
     ActiveParent ->

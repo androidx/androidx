@@ -16,6 +16,7 @@
 
 import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
+import androidx.build.PlatformIdentifier
 
 import static androidx.inspection.gradle.InspectionPluginKt.packageInspector
 
@@ -31,6 +32,7 @@ androidXMultiplatform {
     android()
     if (desktopEnabled) desktop()
 
+    defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
         commonMain {
@@ -84,7 +86,7 @@ androidXMultiplatform {
                 implementation(libs.kotlinCoroutinesAndroid)
 
                 implementation("androidx.activity:activity-ktx:1.7.0")
-                implementation(project(":core:core"))
+                implementation("androidx.core:core:1.10.0")
                 implementation('androidx.collection:collection:1.0.0')
                 implementation("androidx.customview:customview-poolingcontainer:1.0.0")
                 implementation("androidx.savedstate:savedstate-ktx:1.2.1")

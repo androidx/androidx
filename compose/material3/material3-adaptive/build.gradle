@@ -15,9 +15,10 @@
  */
 
 import androidx.build.AndroidXComposePlugin
-import androidx.build.LibraryType
-import androidx.build.Publish
 import androidx.build.KmpPlatformsKt
+import androidx.build.LibraryType
+import androidx.build.PlatformIdentifier
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -30,6 +31,8 @@ def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
 androidXMultiplatform {
     android()
     if (desktopEnabled) desktop()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
         commonMain {

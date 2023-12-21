@@ -161,7 +161,6 @@ package androidx.wear.compose.material3 {
     method public float getSmallIconSize();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.IconButtonColors iconButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
     method public float iconSizeFor(float size);
-    method @androidx.compose.runtime.Composable public androidx.compose.foundation.BorderStroke outlinedIconButtonBorder(boolean enabled, optional long borderColor, optional long disabledBorderColor, optional float borderWidth);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.IconButtonColors outlinedIconButtonColors(optional long contentColor);
     property public final float DefaultButtonSize;
     property public final float DefaultIconSize;
@@ -242,6 +241,32 @@ package androidx.wear.compose.material3 {
     property public final androidx.compose.ui.graphics.Shape medium;
     property public final androidx.compose.ui.graphics.Shape none;
     property public final androidx.compose.ui.graphics.Shape small;
+  }
+
+  @androidx.compose.runtime.Immutable public final class TextButtonColors {
+    ctor public TextButtonColors(long containerColor, long contentColor, long disabledContainerColor, long disabledContentColor);
+  }
+
+  public final class TextButtonDefaults {
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.TextButtonColors filledTextButtonColors(optional long containerColor, optional long contentColor);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.TextButtonColors filledTonalTextButtonColors(optional long containerColor, optional long contentColor);
+    method public float getDefaultButtonSize();
+    method public float getExtraSmallButtonSize();
+    method public float getLargeButtonSize();
+    method public androidx.compose.foundation.shape.RoundedCornerShape getShape();
+    method public float getSmallButtonSize();
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.TextButtonColors outlinedTextButtonColors(optional long contentColor);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.TextButtonColors textButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
+    property public final float DefaultButtonSize;
+    property public final float ExtraSmallButtonSize;
+    property public final float LargeButtonSize;
+    property public final float SmallButtonSize;
+    property public final androidx.compose.foundation.shape.RoundedCornerShape shape;
+    field public static final androidx.wear.compose.material3.TextButtonDefaults INSTANCE;
+  }
+
+  public final class TextButtonKt {
+    method @androidx.compose.runtime.Composable public static void TextButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.ui.graphics.Shape shape, optional androidx.wear.compose.material3.TextButtonColors colors, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
   }
 
   public final class TextKt {

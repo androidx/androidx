@@ -180,16 +180,19 @@ class RecomposerTests {
         var someState by mutableStateOf(0)
         var someOtherState by mutableStateOf(1)
 
-        @Composable fun B(@Suppress("UNUSED_PARAMETER") value: Int) {
+        @Composable
+        fun B(@Suppress("UNUSED_PARAMETER") value: Int) {
             // empty
         }
 
-        @Composable fun A() {
+        @Composable
+        fun A() {
             B(someState)
             someState++
         }
 
-        @Composable fun T() {
+        @Composable
+        fun T() {
             TestSubcomposition {
                 // Take up some slot space
                 // This makes it more likely to reproduce bug 157111271.
@@ -260,6 +263,22 @@ class RecomposerTests {
 
         state2 = 2
         advance()
+        advance()
+    }
+
+    @Test // b/254645321
+    fun testSubcompositionDisposedInParent() = compositionTest {
+        var state by mutableStateOf(true)
+
+        compose {
+            if (state) {
+                TestSubcomposition {
+                    assert(state) { "Subcomposition should be disposed if state is false" }
+                }
+            }
+        }
+
+        state = false
         advance()
     }
 

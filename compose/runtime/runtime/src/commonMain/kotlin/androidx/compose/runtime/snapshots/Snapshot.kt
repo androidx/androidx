@@ -63,6 +63,13 @@ sealed class Snapshot(
     open var id: Int = id
         internal set
 
+    internal open var writeCount: Int
+        get() = 0
+        @Suppress("UNUSED_PARAMETER")
+        set(value) {
+            error("Updating write count is not supported for this snapshot")
+        }
+
     /**
      * The root snapshot for this snapshot. For non-nested snapshots this is always `this`. For
      * nested snapshot it is the parent's [root].
@@ -715,17 +722,20 @@ open class MutableSnapshot internal constructor(
             this,
             openSnapshots.clear(currentGlobalSnapshot.get().id)
         ) else null
-        val (observers, globalModified) = sync {
+
+        var observers = emptyList<(Set<Any>, Snapshot) -> Unit>()
+        var globalModified: IdentityArraySet<StateObject>? = null
+        sync {
             validateOpen(this)
             if (modified == null || modified.size == 0) {
                 closeLocked()
                 val previousGlobalSnapshot = currentGlobalSnapshot.get()
                 takeNewGlobalSnapshot(previousGlobalSnapshot, emptyLambda)
-                val globalModified = previousGlobalSnapshot.modified
-                if (!globalModified.isNullOrEmpty())
-                    applyObservers.toMutableList() to globalModified
-                else
-                    emptyList<(Set<Any>, Snapshot) -> Unit>() to null
+                val previousModified = previousGlobalSnapshot.modified
+                if (!previousModified.isNullOrEmpty()) {
+                    observers = applyObservers.toMutableList()
+                    globalModified = previousModified
+                }
             } else {
                 val previousGlobalSnapshot = currentGlobalSnapshot.get()
                 val result = innerApplyLocked(
@@ -739,11 +749,12 @@ open class MutableSnapshot internal constructor(
 
                 // Take a new global snapshot that includes this one.
                 takeNewGlobalSnapshot(previousGlobalSnapshot, emptyLambda)
-                val globalModified = previousGlobalSnapshot.modified
+                val previousModified = previousGlobalSnapshot.modified
                 this.modified = null
                 previousGlobalSnapshot.modified = null
 
-                applyObservers.toMutableList() to globalModified
+                observers = applyObservers.toMutableList()
+                globalModified = previousModified
             }
         }
 
@@ -752,8 +763,9 @@ open class MutableSnapshot internal constructor(
 
         // Notify any apply observers that changes applied were seen
         if (!globalModified.isNullOrEmpty()) {
+            val nonNullGlobalModified = globalModified!!
             observers.fastForEach {
-                it(globalModified, this)
+                it(nonNullGlobalModified, this)
             }
         }
 
@@ -1015,6 +1027,8 @@ open class MutableSnapshot internal constructor(
     override fun recordModified(state: StateObject) {
         (modified ?: IdentityArraySet<StateObject>().also { modified = it }).add(state)
     }
+
+    override var writeCount: Int = 0
 
     override var modified: IdentityArraySet<StateObject>? = null
 
@@ -1495,6 +1509,12 @@ internal class TransparentObserverMutableSnapshot(
         get() = currentSnapshot.modified
         @Suppress("UNUSED_PARAMETER")
         set(value) = unsupported()
+
+    override var writeCount: Int
+        get() = currentSnapshot.writeCount
+        set(value) {
+            currentSnapshot.writeCount = value
+        }
 
     override val readOnly: Boolean
         get() = currentSnapshot.readOnly
@@ -2114,6 +2134,7 @@ internal fun <T : StateRecord> T.newOverwritableRecordLocked(state: StateObject)
 
 @PublishedApi
 internal fun notifyWrite(snapshot: Snapshot, state: StateObject) {
+    snapshot.writeCount += 1
     snapshot.writeObserver?.invoke(state)
 }
 

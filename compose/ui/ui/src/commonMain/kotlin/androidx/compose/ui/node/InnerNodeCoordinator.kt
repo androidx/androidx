@@ -29,15 +29,35 @@ import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 
+internal class TailModifierNode : Modifier.Node() {
+    init {
+        // aggregateChildKindSet defaults to all bits being set, and is expected to be set later.
+        // We can deterministically set the tail's because the tail will never have children by
+        // definition.
+        aggregateChildKindSet = 0
+    }
+    // BackwardsCompatNode uses this to determine if it is in a "chain update" or not. If attach
+    // has been run on the tail node, then we can assume that it is a chain update. Importantly,
+    // this is different than using isAttached.
+    var attachHasBeenRun = false
+    override fun toString(): String {
+        return "<tail>"
+    }
+
+    override fun onAttach() {
+        attachHasBeenRun = true
+    }
+
+    override fun onDetach() {
+        attachHasBeenRun = false
+    }
+}
+
 internal class InnerNodeCoordinator(
     layoutNode: LayoutNode
 ) : NodeCoordinator(layoutNode) {
     @OptIn(ExperimentalComposeUiApi::class)
-    override val tail: Modifier.Node = object : Modifier.Node() {
-        override fun toString(): String {
-            return "<tail>"
-        }
-    }
+    override val tail = TailModifierNode()
 
     init {
         @OptIn(ExperimentalComposeUiApi::class)

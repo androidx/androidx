@@ -18,6 +18,7 @@ package androidx.compose.foundation.lazy.grid
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.list.TrackPlacedElement
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,7 +33,6 @@ import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.B
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Left
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Right
 import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
-import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -97,7 +97,7 @@ class LazyGridBeyondBoundsTest(param: Param) {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += index }
+                        .trackPlaced(index)
                 )
             }
         }
@@ -117,7 +117,7 @@ class LazyGridBeyondBoundsTest(param: Param) {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += index }
+                        .trackPlaced(index)
                 )
             }
         }
@@ -137,7 +137,7 @@ class LazyGridBeyondBoundsTest(param: Param) {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += index }
+                        .trackPlaced(index)
                 )
             }
         }
@@ -191,13 +191,13 @@ class LazyGridBeyondBoundsTest(param: Param) {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += index }
+                        .trackPlaced(index)
                 )
             }
             item {
                 Box(Modifier
                     .size(10.toDp())
-                    .onPlaced { placedItems += 5 }
+                    .trackPlaced(5)
                     .modifierLocalConsumer {
                         beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
                     }
@@ -207,11 +207,10 @@ class LazyGridBeyondBoundsTest(param: Param) {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += index + 6 }
+                        .trackPlaced(index + 6)
                 )
             }
         }
-        rule.runOnIdle { placedItems.clear() }
 
         // Act.
         rule.runOnUiThread {
@@ -224,7 +223,6 @@ class LazyGridBeyondBoundsTest(param: Param) {
                     assertThat(placedItems).containsExactly(5, 6, 7, 8)
                     assertThat(visibleItems).containsExactly(5, 6, 7)
                 }
-                placedItems.clear()
                 // Just return true so that we stop as soon as we run this once.
                 // This should result in one extra item being added.
                 true
@@ -251,13 +249,13 @@ class LazyGridBeyondBoundsTest(param: Param) {
                 Box(
                     Modifier
                         .size(itemSizeDp)
-                        .onPlaced { placedItems += index }
+                        .trackPlaced(index)
                 )
             }
             item {
                 Box(Modifier
                     .size(itemSizeDp)
-                    .onPlaced { placedItems += 11 }
+                    .trackPlaced(11)
                     .modifierLocalConsumer {
                         beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
                     }
@@ -267,11 +265,10 @@ class LazyGridBeyondBoundsTest(param: Param) {
                 Box(
                     Modifier
                         .size(itemSizeDp)
-                        .onPlaced { placedItems += index + 12 }
+                        .trackPlaced(index + 12)
                 )
             }
         }
-        rule.runOnIdle { placedItems.clear() }
 
         // Act.
         rule.runOnUiThread {
@@ -284,7 +281,6 @@ class LazyGridBeyondBoundsTest(param: Param) {
                     assertThat(placedItems).containsExactly(10, 11, 12, 13, 14, 15, 16)
                     assertThat(visibleItems).containsExactly(10, 11, 12, 13, 14, 15)
                 }
-                placedItems.clear()
                 // Just return true so that we stop as soon as we run this once.
                 // This should result in one extra item being added.
                 true
@@ -307,14 +303,14 @@ class LazyGridBeyondBoundsTest(param: Param) {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += index }
+                        .trackPlaced(index)
                 )
             }
             item {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += 5 }
+                        .trackPlaced(5)
                         .modifierLocalConsumer {
                             beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
                         }
@@ -324,17 +320,15 @@ class LazyGridBeyondBoundsTest(param: Param) {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += index + 6 }
+                        .trackPlaced(index + 6)
                 )
             }
         }
-        rule.runOnIdle { placedItems.clear() }
 
         // Act.
         rule.runOnUiThread {
             beyondBoundsLayout!!.layout(beyondBoundsLayoutDirection) {
                 if (--extraItemCount > 0) {
-                    placedItems.clear()
                     // Return null to continue the search.
                     null
                 } else {
@@ -346,7 +340,6 @@ class LazyGridBeyondBoundsTest(param: Param) {
                         assertThat(placedItems).containsExactly(5, 6, 7, 8, 9)
                         assertThat(visibleItems).containsExactly(5, 6, 7)
                     }
-                    placedItems.clear()
                     // Return true to stop the search.
                     true
                 }
@@ -368,7 +361,7 @@ class LazyGridBeyondBoundsTest(param: Param) {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += index }
+                        .trackPlaced(index)
                 )
             }
             item {
@@ -378,26 +371,22 @@ class LazyGridBeyondBoundsTest(param: Param) {
                         .modifierLocalConsumer {
                             beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
                         }
-                        .onPlaced { placedItems += 5 }
+                        .trackPlaced(5)
                 )
             }
             items(5) { index ->
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced {
-                            placedItems += index + 6
-                        }
+                        .trackPlaced(index + 6)
                 )
             }
         }
-        rule.runOnIdle { placedItems.clear() }
 
         // Act.
         rule.runOnUiThread {
             beyondBoundsLayout!!.layout(beyondBoundsLayoutDirection) {
                 if (hasMoreContent) {
-                    placedItems.clear()
                     // Just return null so that we keep adding more items till we reach the end.
                     null
                 } else {
@@ -409,7 +398,6 @@ class LazyGridBeyondBoundsTest(param: Param) {
                         assertThat(placedItems).containsExactly(5, 6, 7, 8, 9, 10)
                         assertThat(visibleItems).containsExactly(5, 6, 7)
                     }
-                    placedItems.clear()
                     // Return true to end the search.
                     true
                 }
@@ -431,14 +419,14 @@ class LazyGridBeyondBoundsTest(param: Param) {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += index }
+                        .trackPlaced(index)
                 )
             }
             item {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += 5 }
+                        .trackPlaced(5)
                         .modifierLocalConsumer {
                             beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
                         }
@@ -448,14 +436,13 @@ class LazyGridBeyondBoundsTest(param: Param) {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += index + 6 }
+                        .trackPlaced(index + 6)
                 )
             }
         }
         rule.runOnIdle {
             assertThat(placedItems).containsExactly(5, 6, 7)
             assertThat(visibleItems).containsExactly(5, 6, 7)
-            placedItems.clear()
         }
 
         // Act.
@@ -477,7 +464,6 @@ class LazyGridBeyondBoundsTest(param: Param) {
                         }
                     }
                 }
-                placedItems.clear()
                 // Just return true so that we stop as soon as we run this once.
                 // This should result in one extra item being added.
                 true
@@ -509,9 +495,7 @@ class LazyGridBeyondBoundsTest(param: Param) {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced {
-                            placedItems += index
-                        }
+                        .trackPlaced(index)
                 )
             }
             item {
@@ -521,20 +505,17 @@ class LazyGridBeyondBoundsTest(param: Param) {
                         .modifierLocalConsumer {
                             beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
                         }
-                        .onPlaced { placedItems += 5 }
+                        .trackPlaced(5)
                 )
             }
             items(5) { index ->
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced {
-                            placedItems += index + 6
-                        }
+                        .trackPlaced(index + 6)
                 )
             }
         }
-        rule.runOnIdle { placedItems.clear() }
 
         // Act.
         var count = 0
@@ -542,7 +523,6 @@ class LazyGridBeyondBoundsTest(param: Param) {
             beyondBoundsLayout!!.layout(beyondBoundsLayoutDirection) {
                 // Assert that we don't keep iterating when there is no ending condition.
                 assertThat(count++).isLessThan(lazyGridState.layoutInfo.totalItemsCount)
-                placedItems.clear()
                 // Always return null to continue the search.
                 null
             }
@@ -636,4 +616,7 @@ class LazyGridBeyondBoundsTest(param: Param) {
     private fun unsupportedDirection(): Nothing = error(
         "Lazy list does not support beyond bounds layout for the specified direction"
     )
+
+    private fun Modifier.trackPlaced(index: Int): Modifier =
+        this then TrackPlacedElement(placedItems, index)
 }

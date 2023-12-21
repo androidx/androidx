@@ -77,10 +77,10 @@ fun ViewInteropDemo() {
         val colorIndex = remember { mutableIntStateOf(0) }
         Button(
             onClick = {
-                colorIndex.value = (colorIndex.value + 1) % 4
+                colorIndex.intValue = (colorIndex.intValue + 1) % 4
                 squareRef.value!!.color = arrayOf(
                     Color.Blue, Color.LightGray, Color.Yellow, Color.Cyan
-                )[colorIndex.value]
+                )[colorIndex.intValue]
             }
         ) {
             Text("Change color of Android view")

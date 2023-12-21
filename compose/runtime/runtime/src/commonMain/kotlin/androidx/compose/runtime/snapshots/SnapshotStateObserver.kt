@@ -362,6 +362,11 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
          */
         private val invalidated = IdentityArraySet<Any>()
 
+        /**
+         * Reusable vector for re-recording states inside [recordInvalidation]
+         */
+        private val statesToReread = mutableVectorOf<DerivedState<*>>()
+
         // derived state handling
 
         /**
@@ -380,7 +385,8 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
         /**
          * Counter for skipping reads inside derived states. If count is > 0, read happens inside
          * a derived state.
-         * Reads for derived states are captured separately through [DerivedState.dependencies].
+         * Reads for derived states are captured separately through
+         * [DerivedState.Record.dependencies].
          */
         private var deriveStateScopeCount = 0
 
@@ -423,10 +429,11 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
 
             val previousToken = recordedValues.add(value, currentToken)
             if (value is DerivedState<*> && previousToken != currentToken) {
+                val record = value.currentRecord
                 // re-read the value before removing dependencies, in case the new value wasn't read
-                recordedDerivedStateValues[value] = value.currentValue
+                recordedDerivedStateValues[value] = record.currentValue
 
-                val dependencies = value.dependencies
+                val dependencies = record.dependencies
                 val dependencyToDerivedStates = dependencyToDerivedStates
 
                 dependencyToDerivedStates.removeScope(value)
@@ -542,14 +549,18 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
                         val policy = derivedState.policy ?: structuralEqualityPolicy()
 
                         // Invalidate only if currentValue is different than observed on read
-                        if (!policy.equivalent(derivedState.currentValue, previousValue)) {
+                        if (!policy.equivalent(
+                                derivedState.currentRecord.currentValue,
+                                previousValue
+                            )
+                        ) {
                             valueToScopes.forEachScopeOf(derivedState) { scope ->
                                 invalidated.add(scope)
                                 hasValues = true
                             }
                         } else {
                             // Re-read state to ensure its dependencies are up-to-date
-                            rereadDerivedState(derivedState)
+                            statesToReread.add(derivedState)
                         }
                     }
                 }
@@ -558,6 +569,13 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
                     invalidated.add(scope)
                     hasValues = true
                 }
+            }
+
+            if (statesToReread.isNotEmpty()) {
+                statesToReread.forEach {
+                    rereadDerivedState(it)
+                }
+                statesToReread.clear()
             }
 
             return hasValues

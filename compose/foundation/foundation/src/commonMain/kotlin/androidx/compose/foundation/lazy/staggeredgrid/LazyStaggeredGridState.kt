@@ -39,6 +39,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.layout.Remeasurement
 import androidx.compose.ui.layout.RemeasurementModifier
@@ -223,6 +224,8 @@ class LazyStaggeredGridState private constructor(
 
     internal val placementAnimator = LazyStaggeredGridItemPlacementAnimator()
 
+    internal val nearestRange: IntRange by scrollPosition.nearestRangeState
+
     /**
      * Call this function to take control of scrolling and gain the ability to send scroll events
      * via [ScrollScope.scrollBy]. All actions that change the logical scroll position must be
@@ -331,9 +334,11 @@ class LazyStaggeredGridState private constructor(
     /**
      * Maintain scroll position for item based on custom key if its index has changed.
      */
-    internal fun updateScrollPositionIfTheFirstItemWasMoved(itemProvider: LazyLayoutItemProvider) {
-        scrollPosition.updateScrollPositionIfTheFirstItemWasMoved(itemProvider)
-    }
+    internal fun updateScrollPositionIfTheFirstItemWasMoved(
+        itemProvider: LazyLayoutItemProvider,
+        firstItemIndex: IntArray = Snapshot.withoutReadObservation { scrollPosition.indices }
+    ): IntArray =
+        scrollPosition.updateScrollPositionIfTheFirstItemWasMoved(itemProvider, firstItemIndex)
 
     override fun dispatchRawDelta(delta: Float): Float =
         scrollableState.dispatchRawDelta(delta)

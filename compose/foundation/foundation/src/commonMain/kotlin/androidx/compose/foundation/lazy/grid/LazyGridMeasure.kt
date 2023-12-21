@@ -98,7 +98,7 @@ internal fun measureLazyGrid(
         }
 
         // this will contain all the MeasuredItems representing the visible lines
-        val visibleLines = mutableListOf<LazyGridMeasuredLine>()
+        val visibleLines = ArrayDeque<LazyGridMeasuredLine>()
 
         // define min and max offsets
         val minOffset = -beforeContentPadding + if (spaceBetweenLines < 0) spaceBetweenLines else 0
@@ -343,14 +343,14 @@ private fun calculateItemsOffsets(
     horizontalArrangement: Arrangement.Horizontal?,
     reverseLayout: Boolean,
     density: Density,
-): MutableList<LazyGridPositionedItem> {
+): MutableList<LazyGridMeasuredItem> {
     val mainAxisLayoutSize = if (isVertical) layoutHeight else layoutWidth
     val hasSpareSpace = finalMainAxisOffset < min(mainAxisLayoutSize, maxOffset)
     if (hasSpareSpace) {
         check(firstLineScrollOffset == 0)
     }
 
-    val positionedItems = ArrayList<LazyGridPositionedItem>(lines.fastSumBy { it.items.size })
+    val positionedItems = ArrayList<LazyGridMeasuredItem>(lines.fastSumBy { it.items.size })
 
     if (hasSpareSpace) {
         require(itemsBefore.isEmpty() && itemsAfter.isEmpty())
@@ -395,7 +395,8 @@ private fun calculateItemsOffsets(
 
         itemsBefore.fastForEach {
             currentMainAxis -= it.mainAxisSizeWithSpacings
-            positionedItems.add(it.positionExtraItem(currentMainAxis, layoutWidth, layoutHeight))
+            it.position(currentMainAxis, 0, layoutWidth, layoutHeight)
+            positionedItems.add(it)
         }
 
         currentMainAxis = firstLineScrollOffset
@@ -405,23 +406,10 @@ private fun calculateItemsOffsets(
         }
 
         itemsAfter.fastForEach {
-            positionedItems.add(it.positionExtraItem(currentMainAxis, layoutWidth, layoutHeight))
+            it.position(currentMainAxis, 0, layoutWidth, layoutHeight)
+            positionedItems.add(it)
             currentMainAxis += it.mainAxisSizeWithSpacings
         }
     }
     return positionedItems
 }
-
-private fun LazyGridMeasuredItem.positionExtraItem(
-    mainAxisOffset: Int,
-    layoutWidth: Int,
-    layoutHeight: Int
-): LazyGridPositionedItem =
-    position(
-        mainAxisOffset = mainAxisOffset,
-        crossAxisOffset = 0,
-        layoutWidth = layoutWidth,
-        layoutHeight = layoutHeight,
-        row = -1,
-        column = -1
-    )

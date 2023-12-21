@@ -34,7 +34,9 @@ import androidx.compose.ui.node.visitChildren
 import kotlin.math.absoluteValue
 import kotlin.math.max
 
+@Suppress("ConstPropertyName")
 private const val InvalidFocusDirection = "This function should only be used for 2-D focus search"
+@Suppress("ConstPropertyName")
 private const val NoActiveChild = "ActiveParent must have a focusedChild"
 
 /**
@@ -52,7 +54,7 @@ internal fun FocusTargetNode.twoDimensionalFocusSearch(
     direction: FocusDirection,
     onFound: (FocusTargetNode) -> Boolean
 ): Boolean? {
-    when (focusStateImpl) {
+    when (focusState) {
         Inactive -> return if (fetchFocusProperties().canFocus) onFound.invoke(this) else false
         ActiveParent -> {
             val focusedChild = activeChild ?: error(NoActiveChild)
@@ -61,7 +63,7 @@ internal fun FocusTargetNode.twoDimensionalFocusSearch(
             // search to a child only if it "has focus". If this node "is focused", we just skip the
             // children and search among the siblings of the focused item by calling
             // "searchChildren" on this node.
-            when (focusedChild.focusStateImpl) {
+            when (focusedChild.focusState) {
 
                 ActiveParent -> {
                     // If the focusedChild is an intermediate parent, we search among its children.

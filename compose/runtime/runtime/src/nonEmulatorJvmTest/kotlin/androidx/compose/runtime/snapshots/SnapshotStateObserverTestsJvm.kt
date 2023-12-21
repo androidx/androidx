@@ -207,6 +207,41 @@ class SnapshotStateObserverTestsJvm {
         }
     }
 
+    @Test
+    fun rereadingDerivedState_whenDependenciesChanged() {
+        var changes = 0
+        val changeBlock: (Any) -> Unit = { changes++ }
+
+        val states =
+            List(2) { mutableStateOf(true) }
+                .sortedBy { System.identityHashCode(it) }
+
+        val derivedStates =
+            List(10) {
+                derivedStateOf {
+                    if (states[1].value) {
+                        states[0].value
+                    }
+                }
+            }
+
+        runSimpleTest { stateObserver, _ ->
+            // record observation for a draw scope
+            stateObserver.observeReads("draw", changeBlock) {
+                derivedStates.forEach { it.value }
+            }
+
+            Snapshot.sendApplyNotifications()
+
+            // flip the states to force re-recording value
+            states[0].value = false
+            states[1].value = false
+
+            Snapshot.sendApplyNotifications()
+        }
+        assertEquals(0, changes)
+    }
+
     private fun runSimpleTest(
         block: (modelObserver: SnapshotStateObserver, data: MutableState<Int>) -> Unit
     ) {

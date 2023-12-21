@@ -257,7 +257,7 @@ class PlacementLayoutCoordinatesTest {
                 Layout(content, Modifier.alignByBaseline()) { measurables, constraints ->
                     val p = measurables[0].measure(constraints)
                     layout(p.width, p.height) {
-                        locations += coordinates
+                        locations += coordinates.use()
                         p.place(0, 0)
                     }
                 }
@@ -287,7 +287,7 @@ class PlacementLayoutCoordinatesTest {
                     Layout(content, Modifier.alignByBaseline()) { measurables, constraints ->
                         val p = measurables[0].measure(constraints)
                         layout(p.width, p.height) {
-                            locations += coordinates
+                            locations += coordinates.use()
                             p.place(0, 0)
                         }
                     }
@@ -329,7 +329,7 @@ class PlacementLayoutCoordinatesTest {
                         }) { measurables, constraints ->
                     val p = measurables[0].measure(constraints)
                     layout(p.width, p.height) {
-                        locations += coordinates
+                        locations += coordinates.use()
                         p.place(0, 0)
                     }
                 }
@@ -343,7 +343,7 @@ class PlacementLayoutCoordinatesTest {
     }
 
     @Test
-    fun parentCoordateChangeCausesRelayout() {
+    fun parentCoordinateChangeCausesRelayout() {
         val locations = mutableStateListOf<LayoutCoordinates?>()
         var offset by mutableStateOf(DpOffset(0.dp, 0.dp))
         rule.setContent {
@@ -354,7 +354,7 @@ class PlacementLayoutCoordinatesTest {
                             .layout { measurable, constraints ->
                                 val p = measurable.measure(constraints)
                                 layout(p.width, p.height) {
-                                    locations += coordinates
+                                    locations += coordinates.use()
                                     p.place(0, 0)
                                 }
                             }
@@ -386,7 +386,7 @@ class PlacementLayoutCoordinatesTest {
                                 .layout { measurable, constraints ->
                                     val p = measurable.measure(constraints)
                                     layout(p.width, p.height) {
-                                        locations += coordinates
+                                        locations += coordinates.use()
                                         p.place(0, 0)
                                     }
                                 }
@@ -422,7 +422,7 @@ class PlacementLayoutCoordinatesTest {
                                     .layout { measurable, constraints ->
                                         val p = measurable.measure(constraints)
                                         layout(p.width, p.height) {
-                                            locations += coordinates
+                                            locations += coordinates.use()
                                             p.place(0, 0)
                                         }
                                     }
@@ -459,7 +459,8 @@ class PlacementLayoutCoordinatesTest {
                                 .layout { measurable, constraints ->
                                     val p = measurable.measure(constraints)
                                     layout(p.width, p.height) {
-                                        layoutCalls += if (readCoordinates) coordinates else null
+                                        layoutCalls +=
+                                            if (readCoordinates) coordinates.use() else null
                                         p.place(0, 0)
                                     }
                                 }
@@ -507,7 +508,7 @@ class PlacementLayoutCoordinatesTest {
                             .layout { measurable, constraints ->
                                 val p = measurable.measure(constraints)
                                 layout(p.width, p.height) {
-                                    locations += coordinates
+                                    locations += coordinates.use()
                                     p.place(0, 0)
                                 }
                             }
@@ -568,7 +569,7 @@ class PlacementLayoutCoordinatesTest {
                             .layout { measurable, constraints ->
                                 val p = measurable.measure(constraints)
                                 layout(p.width, p.height) {
-                                    locations += coordinates
+                                    locations += coordinates.use()
                                     p.place(0, 0)
                                 }
                             }
@@ -604,7 +605,7 @@ class PlacementLayoutCoordinatesTest {
                         .layout { measurable, constraints ->
                             val p = measurable.measure(constraints)
                             layout(p.width, p.height) {
-                                locations += coordinates
+                                locations += coordinates.use()
                                 p.place(0, 0)
                             }
                         }
@@ -634,7 +635,7 @@ class PlacementLayoutCoordinatesTest {
                             .layout { measurable, constraints ->
                                 val p = measurable.measure(constraints)
                                 layout(p.width, p.height) {
-                                    locations += coordinates
+                                    locations += coordinates.use()
                                     p.place(0, 0)
                                 }
                             }
@@ -668,4 +669,235 @@ class PlacementLayoutCoordinatesTest {
         rule.waitForIdle()
         assertEquals(1, locations.size)
     }
+
+    @Test
+    fun readingFromMainLayoutPolicyAfterMultipleMoves() {
+        var offset by mutableStateOf(0)
+        var layoutBlockCalls = 0
+        rule.setContent {
+            Layout(content = {
+                Layout { _, _ ->
+                    layout(10, 10) {
+                        coordinates?.positionInParent()
+                        layoutBlockCalls++
+                    }
+                }
+            }) { measurables, constraints ->
+                val placeable = measurables.first().measure(constraints)
+                layout(placeable.width, placeable.height) {
+                    placeable.place(offset, 0)
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            layoutBlockCalls = 0
+            offset = 1
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, layoutBlockCalls)
+            layoutBlockCalls = 0
+            offset = 2
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, layoutBlockCalls)
+        }
+    }
+
+    @Test
+    fun onlyRealPositionReadsTriggerRelayout() {
+        var offset by mutableStateOf(0)
+        var coordinatesAction: (LayoutCoordinates) -> Unit by mutableStateOf({})
+        var layoutBlockCalls = 0
+        rule.setContent {
+            Layout(content = {
+                Layout { _, _ ->
+                    layout(10, 10) {
+                        coordinates?.let(coordinatesAction)
+                        layoutBlockCalls++
+                    }
+                }
+            }) { measurables, constraints ->
+                val placeable = measurables.first().measure(constraints)
+                layout(placeable.width, placeable.height) {
+                    placeable.place(offset, 0)
+                }
+            }
+        }
+
+        fun assert(
+            relayoutExpected: Boolean,
+            description: String,
+            action: (LayoutCoordinates) -> Unit
+        ) {
+            coordinatesAction = action
+            rule.runOnIdle {
+                layoutBlockCalls = 0
+                offset = if (offset == 0) 10 else 0
+            }
+            rule.runOnIdle {
+                assertEquals(
+                    "Relayout because of `$description` read was " +
+                        "${if (!relayoutExpected) " not" else ""} expected, but " +
+                        "$layoutBlockCalls calls happened",
+                    if (relayoutExpected) 1 else 0,
+                    layoutBlockCalls
+                )
+            }
+        }
+
+        assert(relayoutExpected = true, "positionInParent()") { it.positionInParent() }
+        assert(relayoutExpected = true, "positionInRoot()") { it.positionInRoot() }
+        assert(relayoutExpected = true, "positionInWindow()") { it.positionInWindow() }
+        assert(relayoutExpected = true, "boundsInParent()") { it.boundsInParent() }
+        assert(relayoutExpected = true, "boundsInRoot()") { it.boundsInRoot() }
+        assert(relayoutExpected = true, "boundsInWindow()") { it.boundsInWindow() }
+
+        assert(relayoutExpected = false, "empty") { }
+        assert(relayoutExpected = false, "size") { it.size }
+        assert(relayoutExpected = false, "isAttached") { it.isAttached }
+        assert(relayoutExpected = false, "providedAlignmentLines") { it.providedAlignmentLines }
+    }
+
+    @Test
+    fun onlyRealPositionReadsTriggerRelayout_inModifier() {
+        var offset by mutableStateOf(0)
+        var coordinatesAction: (LayoutCoordinates) -> Unit by mutableStateOf({})
+        var layoutBlockCalls = 0
+        rule.setContent {
+            Layout(content = {
+                Box(
+                    Modifier
+                        .layout { measurable, constraints ->
+                            val p = measurable.measure(constraints)
+                            layout(p.width, p.height) {
+                                coordinates?.let(coordinatesAction)
+                                layoutBlockCalls++
+                                p.place(0, 0)
+                            }
+                        }
+                )
+            }) { measurables, constraints ->
+                val placeable = measurables.first().measure(constraints)
+                layout(placeable.width, placeable.height) {
+                    placeable.place(offset, 0)
+                }
+            }
+        }
+
+        fun assert(
+            relayoutExpected: Boolean,
+            description: String,
+            action: (LayoutCoordinates) -> Unit
+        ) {
+            coordinatesAction = action
+            rule.runOnIdle {
+                layoutBlockCalls = 0
+                offset = if (offset == 0) 10 else 0
+            }
+            rule.runOnIdle {
+                assertEquals(
+                    "Relayout because of `$description` read was " +
+                        "${if (!relayoutExpected) " not" else ""} expected, but " +
+                        "$layoutBlockCalls calls happened",
+                    if (relayoutExpected) 1 else 0,
+                    layoutBlockCalls
+                )
+            }
+        }
+
+        assert(relayoutExpected = true, "positionInParent()") { it.positionInParent() }
+        assert(relayoutExpected = true, "positionInRoot()") { it.positionInRoot() }
+        assert(relayoutExpected = true, "positionInWindow()") { it.positionInWindow() }
+        assert(relayoutExpected = true, "boundsInParent()") { it.boundsInParent() }
+        assert(relayoutExpected = true, "boundsInRoot()") { it.boundsInRoot() }
+        assert(relayoutExpected = true, "boundsInWindow()") { it.boundsInWindow() }
+
+        assert(relayoutExpected = false, "empty") { }
+        assert(relayoutExpected = false, "size") { it.size }
+        assert(relayoutExpected = false, "isAttached") { it.isAttached }
+        assert(relayoutExpected = false, "providedAlignmentLines") { it.providedAlignmentLines }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun onlyRealPositionReadsTriggerRelayout_inLookahead() {
+        var offset by mutableStateOf(0)
+        var coordinatesAction: (LayoutCoordinates) -> Unit by mutableStateOf({})
+        var intermediateLayoutBlockCalls = 0
+        rule.setContent {
+            LookaheadScope {
+                Layout(content = {
+                    Box(
+                        Modifier
+                            .intermediateLayout { measurable, constraints ->
+                                val p = measurable.measure(constraints)
+                                layout(p.width, p.height) {
+                                    coordinates?.let(coordinatesAction)
+                                    intermediateLayoutBlockCalls++
+                                    p.place(0, 0)
+                                }
+                            }
+                            .layout { measurable, constraints ->
+                                val p = measurable.measure(constraints)
+                                layout(10, 10) {
+                                    // if we don't read the coordinates here as well
+                                    // the read of coordinates in intermediate layout could be
+                                    // skipped as both passes share the same
+                                    // coordinatesAccessedDuringPlacement property.
+                                    // filed b/284153462 to track this issue
+                                    coordinates?.let(coordinatesAction)
+                                    p.place(0, 0)
+                                }
+                            }
+                    )
+                }) { measurables, constraints ->
+                    val placeable = measurables.first().measure(constraints)
+                    layout(placeable.width, placeable.height) {
+                        placeable.place(offset, 0)
+                    }
+                }
+            }
+        }
+
+        fun assert(
+            relayoutExpected: Boolean,
+            description: String,
+            action: (LayoutCoordinates) -> Unit
+        ) {
+            coordinatesAction = action
+            rule.runOnIdle {
+                intermediateLayoutBlockCalls = 0
+                offset = if (offset == 0) 10 else 0
+            }
+            rule.runOnIdle {
+                assertEquals(
+                    "Relayout because of `$description` read was " +
+                        "${if (!relayoutExpected) " not" else ""} expected, but " +
+                        "$intermediateLayoutBlockCalls calls happened",
+                    if (relayoutExpected) 1 else 0,
+                    intermediateLayoutBlockCalls
+                )
+            }
+        }
+
+        assert(relayoutExpected = true, "positionInParent()") { it.positionInParent() }
+        assert(relayoutExpected = true, "positionInRoot()") { it.positionInRoot() }
+        assert(relayoutExpected = true, "positionInWindow()") { it.positionInWindow() }
+        assert(relayoutExpected = true, "boundsInParent()") { it.boundsInParent() }
+        assert(relayoutExpected = true, "boundsInRoot()") { it.boundsInRoot() }
+        assert(relayoutExpected = true, "boundsInWindow()") { it.boundsInWindow() }
+
+        assert(relayoutExpected = false, "empty") { }
+        assert(relayoutExpected = false, "size") { it.size }
+        assert(relayoutExpected = false, "isAttached") { it.isAttached }
+        assert(relayoutExpected = false, "providedAlignmentLines") { it.providedAlignmentLines }
+    }
+}
+
+private fun LayoutCoordinates?.use(): LayoutCoordinates? {
+    this?.parentCoordinates
+    return this
 }

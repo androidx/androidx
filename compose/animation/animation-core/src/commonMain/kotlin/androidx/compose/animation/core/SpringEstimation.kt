@@ -52,10 +52,16 @@ fun estimateAnimationDurationMillis(
     delta: Double
 ): Long {
     val dampingCoefficient = 2.0 * dampingRatio * sqrt(stiffness)
-    val roots = complexQuadraticFormula(1.0, dampingCoefficient, stiffness)
+
+    // Compute the roots of the polynomial [a]x^2+[b]x+[c]=0 which may be complex.
+    // Here a is set to the constant 1.0, and folded into the other computations
+    val partialRoot = dampingCoefficient * dampingCoefficient - 4.0 * stiffness
+    val firstRoot = (-dampingCoefficient + complexSqrt(partialRoot)) * 0.5
+    val secondRoot = (-dampingCoefficient - complexSqrt(partialRoot)) * 0.5
 
     return estimateDurationInternal(
-        roots,
+        firstRoot,
+        secondRoot,
         dampingRatio,
         initialVelocity,
         initialDisplacement,
@@ -77,14 +83,20 @@ fun estimateAnimationDurationMillis(
 ): Long {
     val criticalDamping = 2.0 * sqrt(springConstant * mass)
     val dampingRatio = dampingCoefficient / criticalDamping
-    val roots = complexQuadraticFormula(mass, dampingCoefficient, springConstant)
+
+    // Compute the roots of the polynomial [a]x^2+[b]x+[c]=0 which may be complex.
+    val partialRoot = dampingCoefficient * dampingCoefficient - 4.0 * mass * springConstant
+    val divisor = 1.0 / (2.0 * mass)
+    val firstRoot = (-dampingCoefficient + complexSqrt(partialRoot)) * divisor
+    val secondRoot = (-dampingCoefficient - complexSqrt(partialRoot)) * divisor
 
     return estimateDurationInternal(
-        roots = roots,
-        dampingRatio = dampingRatio,
-        initialVelocity = initialVelocity,
-        initialPosition = initialDisplacement,
-        delta = delta
+        firstRoot,
+        secondRoot,
+        dampingRatio,
+        initialVelocity,
+        initialDisplacement,
+        delta
     )
 }
 
@@ -94,14 +106,14 @@ fun estimateAnimationDurationMillis(
  * which simplifies to x(t) = c*e^(r*t)*cos(...) where c*e^(r*t) is the envelope of x(t)
  */
 private fun estimateUnderDamped(
-    roots: Pair<ComplexDouble, ComplexDouble>,
+    firstRoot: ComplexDouble,
     p0: Double,
     v0: Double,
     delta: Double
 ): Double {
-    val r = roots.first.real
+    val r = firstRoot.real
     val c1 = p0
-    val c2 = (v0 - r * c1) / roots.first.imaginary
+    val c2 = (v0 - r * c1) / firstRoot.imaginary
     val c = sqrt(c1 * c1 + c2 * c2)
 
     return ln(delta / c) / r
@@ -112,28 +124,27 @@ private fun estimateUnderDamped(
  * the equation x(t) = c_1*e^(r*t) + c_2*t*e^(r*t)
  */
 private fun estimateCriticallyDamped(
-    roots: Pair<ComplexDouble, ComplexDouble>,
+    firstRoot: ComplexDouble,
     p0: Double,
     v0: Double,
     delta: Double
 ): Double {
-    val r = roots.first.real
+    val r = firstRoot.real
     val c1 = p0
     val c2 = v0 - r * c1
-
-    // Application of Lambert's W function to solve te^t
-    fun t2Iterate(guess: Double, r: Double): Double {
-        var t = guess
-        for (i in 0..5) {
-            t = (guess - ln(abs(t / r)))
-        }
-        return t
-    }
 
     // For our initial guess, determine the max t of c_1*e^(r*t) = delta and
     // c_2*t*e^(r*t) = delta
     val t1 = ln(abs(delta / c1)) / r
-    val t2 = t2Iterate(ln(abs(delta / c2)), r) / r
+    val t2 = run {
+        // Application of Lambert's W function to solve te^t
+        val guess = ln(abs(delta / c2))
+        var t = guess
+        for (i in 0..5) {
+            t = (guess - ln(abs(t / r)))
+        }
+        t
+    } / r
     var tCurr = when {
         t1.isNotFinite() -> t2
         t2.isNotFinite() -> t1
@@ -142,13 +153,13 @@ private fun estimateCriticallyDamped(
 
     // Calculate the inflection time. This is important if the inflection is in t > 0
     val tInflection = -(r * c1 + c2) / (r * c2)
-    fun xInflection() = c1 * exp(r * tInflection) + c2 * tInflection * exp(r * tInflection)
+    val xInflection = c1 * exp(r * tInflection) + c2 * tInflection * exp(r * tInflection)
 
     // For inflection that does not exist in real time, we always solve for x(t)=delta. Note
     // the system is manipulated such that p0 is always positive.
     val signedDelta = if (tInflection.isNaN() || tInflection <= 0.0) {
         -delta
-    } else if (tInflection > 0.0 && -xInflection() < delta) {
+    } else if (tInflection > 0.0 && -xInflection < delta) {
         // In this scenario the first crossing with the threshold is to be found. Note that
         // the inflection does not exceed delta. As such, we search from the left.
         if (c2 < 0 && c1 > 0) {
@@ -169,15 +180,16 @@ private fun estimateCriticallyDamped(
         delta
     }
 
-    val fn: (Double) -> Double = { t -> (c1 + c2 * t) * exp(r * t) + signedDelta }
-    val fnPrime: (Double) -> Double = { t -> (c2 * (r * t + 1) + c1 * r) * exp(r * t) }
-
     var tDelta = Double.MAX_VALUE
     var iterations = 0
     while (tDelta > 0.001 && iterations < 100) {
         iterations++
         val tLast = tCurr
-        tCurr = iterateNewtonsMethod(tCurr, fn, fnPrime)
+        tCurr = iterateNewtonsMethod(
+            tCurr,
+            { t -> (c1 + c2 * t) * exp(r * t) + signedDelta },
+            { t -> (c2 * (r * t + 1) + c1 * r) * exp(r * t) }
+        )
         tDelta = abs(tLast - tCurr)
     }
 
@@ -189,13 +201,14 @@ private fun estimateCriticallyDamped(
  * the equation x(t) = c_1*e^(r_1*t) + c_2*e^(r_2*t)
  */
 private fun estimateOverDamped(
-    roots: Pair<ComplexDouble, ComplexDouble>,
+    firstRoot: ComplexDouble,
+    secondRoot: ComplexDouble,
     p0: Double,
     v0: Double,
     delta: Double
 ): Double {
-    val r1 = roots.first.real
-    val r2 = roots.second.real
+    val r1 = firstRoot.real
+    val r2 = secondRoot.real
     val c2 = (r1 * p0 - v0) / (r1 - r2)
     val c1 = p0 - c2
 
@@ -239,11 +252,8 @@ private fun estimateOverDamped(
         delta
     }
 
-    val fn: (Double) -> Double = { t -> c1 * exp(r1 * t) + c2 * exp(r2 * t) + signedDelta }
-    val fnPrime: (Double) -> Double = { t -> c1 * r1 * exp(r1 * t) + c2 * r2 * exp(r2 * t) }
-
     // For a good initial guess, simply return
-    if (abs(fn(tCurr)) < 0.0001) {
+    if (abs(c1 * r1 * exp(r1 * tCurr) + c2 * r2 * exp(r2 * tCurr)) < 0.0001) {
         return tCurr
     }
     var tDelta = Double.MAX_VALUE
@@ -253,7 +263,11 @@ private fun estimateOverDamped(
     while (tDelta > 0.001 && iterations < 100) {
         iterations++
         val tLast = tCurr
-        tCurr = iterateNewtonsMethod(tCurr, fn, fnPrime)
+        tCurr = iterateNewtonsMethod(
+            tCurr,
+            { t -> c1 * exp(r1 * t) + c2 * exp(r2 * t) + signedDelta },
+            { t -> c1 * r1 * exp(r1 * t) + c2 * r2 * exp(r2 * t) }
+        )
         tDelta = abs(tLast - tCurr)
     }
 
@@ -262,15 +276,14 @@ private fun estimateOverDamped(
 
 // Applies Newton-Raphson's method to solve for the estimated time the spring mass system will
 // last be at [delta].
-@Suppress("UnnecessaryVariable")
 private fun estimateDurationInternal(
-    roots: Pair<ComplexDouble, ComplexDouble>,
+    firstRoot: ComplexDouble,
+    secondRoot: ComplexDouble,
     dampingRatio: Double,
     initialVelocity: Double,
     initialPosition: Double,
     delta: Double
 ): Long {
-
     if (initialPosition == 0.0 && initialVelocity == 0.0) {
         return 0L
     }
@@ -281,25 +294,26 @@ private fun estimateDurationInternal(
     return (
         when {
             dampingRatio > 1.0 -> estimateOverDamped(
-                roots = roots,
+                firstRoot = firstRoot,
+                secondRoot = secondRoot,
                 v0 = v0,
                 p0 = p0,
                 delta = delta
             )
             dampingRatio < 1.0 -> estimateUnderDamped(
-                roots = roots,
+                firstRoot = firstRoot,
                 v0 = v0,
                 p0 = p0,
                 delta = delta
             )
             else -> estimateCriticallyDamped(
-                roots = roots,
+                firstRoot = firstRoot,
                 v0 = v0,
                 p0 = p0,
                 delta = delta
             )
         } * 1000.0
-        ).toLong()
+    ).toLong()
 }
 
 private inline fun iterateNewtonsMethod(
@@ -311,4 +325,4 @@ private inline fun iterateNewtonsMethod(
 }
 
 @Suppress("NOTHING_TO_INLINE")
-private inline fun Double.isNotFinite() = !this.isFinite()
+private inline fun Double.isNotFinite() = !isFinite()

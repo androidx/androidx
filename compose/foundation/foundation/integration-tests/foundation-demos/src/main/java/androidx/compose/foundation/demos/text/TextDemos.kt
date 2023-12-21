@@ -118,6 +118,7 @@ val TextDemos = DemoCategory(
                 ComposableDemo("Focus immediately") { FocusTextFieldImmediatelyDemo() },
                 ComposableDemo("Secondary input system") { PlatformTextInputAdapterDemo() },
                 ComposableDemo("TextField focus") { TextFieldFocusDemo() },
+                ComposableDemo("Read-only field") { ReadOnlyTextFieldDemo() },
             )
         ),
         DemoCategory(

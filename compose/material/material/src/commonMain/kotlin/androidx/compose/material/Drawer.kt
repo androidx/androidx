@@ -326,6 +326,15 @@ class BottomDrawerState @Deprecated(
     val currentValue: BottomDrawerValue get() = anchoredDraggableState.currentValue
 
     /**
+     * The fraction of the progress, within [0f..1f] bounds, or 1f if the [AnchoredDraggableState]
+     * is in a settled state.
+     */
+    /*@FloatRange(from = 0f, to = 1f)*/
+    @ExperimentalMaterialApi
+    val progress: Float
+        get() = anchoredDraggableState.progress
+
+    /**
      * Whether the drawer is open, either in opened or expanded state.
      */
     val isOpen: Boolean

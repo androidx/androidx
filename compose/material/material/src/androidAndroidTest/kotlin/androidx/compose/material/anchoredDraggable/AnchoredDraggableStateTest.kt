@@ -266,6 +266,40 @@ class AnchoredDraggableStateTest {
     }
 
     @Test
+    fun anchoredDraggable_closestValue() {
+        val initialValue = A
+        val initialValueOffset = 0f
+        val state = AnchoredDraggableState(
+            initialValue = initialValue,
+            positionalThreshold = defaultPositionalThreshold,
+            velocityThreshold = defaultVelocityThreshold
+        )
+        val anchors = mapOf(
+            initialValue to initialValueOffset,
+            B to 200f,
+            C to 400f
+        )
+        state.updateAnchors(anchors)
+
+        assertThat(state.offset).isEqualTo(initialValueOffset)
+        assertThat(state.currentValue).isEqualTo(A)
+        assertThat(state.closestValue).isEqualTo(A)
+
+        val aToBDistance = 200f
+        val firstTargetOffset = aToBDistance * 0.4f
+        state.dispatchRawDelta(firstTargetOffset)
+        assertThat(state.offset).isEqualTo(firstTargetOffset)
+        assertThat(state.currentValue).isEqualTo(A)
+        assertThat(state.closestValue).isEqualTo(B)
+
+        val secondTargetOffset = aToBDistance * 0.6f
+        state.dispatchRawDelta(secondTargetOffset - state.offset)
+        assertThat(state.offset).isEqualTo(secondTargetOffset)
+        assertThat(state.currentValue).isEqualTo(A)
+        assertThat(state.closestValue).isEqualTo(B)
+    }
+
+    @Test
     fun anchoredDraggable_progress_matchesSwipePosition() {
         lateinit var state: AnchoredDraggableState<AnchoredDraggableTestValue>
         rule.setContent {
