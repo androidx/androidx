@@ -113,10 +113,10 @@ import androidx.compose.ui.text.input.VisualTransformation
  * [TextLayoutResult] object that callback provides contains paragraph information, size of the
  * text, baselines and other details. The callback can be used to add additional decoration or
  * functionality to the text. For example, to draw a cursor or selection around the text.
- * @param interactionSource the [MutableInteractionSource] representing the stream of
- * [Interaction]s for this TextField. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this TextField in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this text field. You can use this to change the text field's
+ * appearance or preview the text field in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param cursorBrush [Brush] to paint cursor with. If [SolidColor] with [Color.Unspecified]
  * provided, there will be no cursor drawn
  * @param decorationBox Composable lambda that allows to add decorations around text field, such
@@ -141,7 +141,7 @@ fun BasicTextField(
     minLines: Int = 1,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     onTextLayout: (TextLayoutResult) -> Unit = {},
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     cursorBrush: Brush = SolidColor(Color.Black),
     decorationBox: @Composable (innerTextField: @Composable () -> Unit) -> Unit =
         @Composable { innerTextField -> innerTextField() }
@@ -265,10 +265,10 @@ fun BasicTextField(
  * [TextLayoutResult] object that callback provides contains paragraph information, size of the
  * text, baselines and other details. The callback can be used to add additional decoration or
  * functionality to the text. For example, to draw a cursor or selection around the text.
- * @param interactionSource the [MutableInteractionSource] representing the stream of
- * [Interaction]s for this TextField. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this TextField in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this text field. You can use this to change the text field's
+ * appearance or preview the text field in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param cursorBrush [Brush] to paint cursor with. If [SolidColor] with [Color.Unspecified]
  * provided, there will be no cursor drawn
  * @param decorationBox Composable lambda that allows to add decorations around text field, such
@@ -293,7 +293,7 @@ fun BasicTextField(
     minLines: Int = 1,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     onTextLayout: (TextLayoutResult) -> Unit = {},
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     cursorBrush: Brush = SolidColor(Color.Black),
     decorationBox: @Composable (innerTextField: @Composable () -> Unit) -> Unit =
         @Composable { innerTextField -> innerTextField() }
