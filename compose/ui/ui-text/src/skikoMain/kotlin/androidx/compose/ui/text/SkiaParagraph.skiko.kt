@@ -440,6 +440,14 @@ internal class SkiaParagraph(
         return box.rect.toComposeRect()
     }
 
+    override fun fillBoundingBoxes(
+        range: TextRange,
+        array: FloatArray,
+        arrayStart: Int
+    ) {
+        // TODO(https://youtrack.jetbrains.com/issue/COMPOSE-720/Implement-Paragraph.fillBoundingBoxes) implement fillBoundingBoxes
+    }
+
     override fun getWordBoundary(offset: Int): TextRange {
         checkOffsetIsValid(offset)
 
