@@ -17,7 +17,6 @@
 package androidx.build.paparazzi
 
 import java.util.zip.ZipInputStream
-import org.gradle.api.artifacts.transform.CacheableTransform
 import org.gradle.api.artifacts.transform.InputArtifact
 import org.gradle.api.artifacts.transform.TransformAction
 import org.gradle.api.artifacts.transform.TransformOutputs
@@ -26,13 +25,14 @@ import org.gradle.api.file.FileSystemLocation
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
+import org.gradle.work.DisableCachingByDefault
 
 /**
  * Unzips one of Paparazzi's platform-specific layoutlib JAR artifacts so that Paparazzi can read
  * its contents at run time. These contain a native dynamic library and supporting resources
  * including ICU and fonts.
  */
-@CacheableTransform
+@DisableCachingByDefault(because = "Just an unzip task, faster to rerun locally")
 abstract class UnzipPaparazziNativeTransform : TransformAction<None> {
     @get:PathSensitive(PathSensitivity.NAME_ONLY)
     @get:InputArtifact
