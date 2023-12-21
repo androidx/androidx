@@ -645,8 +645,8 @@ public class CameraXActivity extends AppCompatActivity {
         }
 
         mScreenFlashView.setScreenFlashWindow(getWindow());
-        getImageCapture().setScreenFlashUiControl(
-                mScreenFlashView.getScreenFlashUiControl());
+        getImageCapture().setScreenFlash(
+                mScreenFlashView.getScreenFlash());
         getImageCapture().setFlashMode(FLASH_MODE_SCREEN);
     }
 

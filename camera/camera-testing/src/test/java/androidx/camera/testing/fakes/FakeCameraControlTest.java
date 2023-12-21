@@ -37,7 +37,7 @@ import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.impl.fakes.FakeCameraCaptureResult;
-import androidx.camera.testing.impl.mocks.MockScreenFlashUiControl;
+import androidx.camera.testing.impl.mocks.MockScreenFlash;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -216,18 +216,18 @@ public final class FakeCameraControlTest {
     }
 
     @Test
-    public void canSetScreenFlashUiControl() {
-        ImageCapture.ScreenFlashUiControl screenFlashUiControl = new MockScreenFlashUiControl();
-        mCameraControl.setScreenFlashUiControl(screenFlashUiControl);
-        assertThat(mCameraControl.getScreenFlashUiControl()).isEqualTo(screenFlashUiControl);
+    public void canSetScreenFlash() {
+        ImageCapture.ScreenFlash screenFlash = new MockScreenFlash();
+        mCameraControl.setScreenFlash(screenFlash);
+        assertThat(mCameraControl.getScreenFlash()).isEqualTo(screenFlash);
     }
 
     @Test
-    public void canClearScreenFlashUiControl_afterEnable() {
-        ImageCapture.ScreenFlashUiControl screenFlashUiControl = new MockScreenFlashUiControl();
-        mCameraControl.setScreenFlashUiControl(screenFlashUiControl);
-        mCameraControl.setScreenFlashUiControl(null);
-        assertThat(mCameraControl.getScreenFlashUiControl()).isEqualTo(null);
+    public void canClearScreenFlash_afterEnable() {
+        ImageCapture.ScreenFlash screenFlash = new MockScreenFlash();
+        mCameraControl.setScreenFlash(screenFlash);
+        mCameraControl.setScreenFlash(null);
+        assertThat(mCameraControl.getScreenFlash()).isEqualTo(null);
     }
 
     @Test

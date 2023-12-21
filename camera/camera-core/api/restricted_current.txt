@@ -293,12 +293,12 @@ package androidx.camera.core {
     method public androidx.camera.core.resolutionselector.ResolutionSelector? getPostviewResolutionSelector();
     method public androidx.camera.core.ResolutionInfo? getResolutionInfo();
     method public androidx.camera.core.resolutionselector.ResolutionSelector? getResolutionSelector();
-    method public androidx.camera.core.ImageCapture.ScreenFlashUiControl? getScreenFlashUiControl();
+    method public androidx.camera.core.ImageCapture.ScreenFlash? getScreenFlash();
     method public int getTargetRotation();
     method public boolean isPostviewEnabled();
     method public void setCropAspectRatio(android.util.Rational);
     method public void setFlashMode(int);
-    method public void setScreenFlashUiControl(androidx.camera.core.ImageCapture.ScreenFlashUiControl?);
+    method public void setScreenFlash(androidx.camera.core.ImageCapture.ScreenFlash?);
     method public void setTargetRotation(int);
     method public void takePicture(androidx.camera.core.ImageCapture.OutputFileOptions, java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageSavedCallback);
     method public void takePicture(java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageCapturedCallback);
@@ -314,7 +314,6 @@ package androidx.camera.core {
     field public static final int FLASH_MODE_OFF = 2; // 0x2
     field public static final int FLASH_MODE_ON = 1; // 0x1
     field public static final int FLASH_MODE_SCREEN = 3; // 0x3
-    field public static final long SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS = 3L; // 0x3L
   }
 
   public static final class ImageCapture.Builder implements androidx.camera.core.ExtendableBuilder<androidx.camera.core.ImageCapture> {
@@ -327,7 +326,7 @@ package androidx.camera.core {
     method public androidx.camera.core.ImageCapture.Builder setPostviewEnabled(boolean);
     method public androidx.camera.core.ImageCapture.Builder setPostviewResolutionSelector(androidx.camera.core.resolutionselector.ResolutionSelector);
     method public androidx.camera.core.ImageCapture.Builder setResolutionSelector(androidx.camera.core.resolutionselector.ResolutionSelector);
-    method public androidx.camera.core.ImageCapture.Builder setScreenFlashUiControl(androidx.camera.core.ImageCapture.ScreenFlashUiControl);
+    method public androidx.camera.core.ImageCapture.Builder setScreenFlash(androidx.camera.core.ImageCapture.ScreenFlash);
     method @Deprecated public androidx.camera.core.ImageCapture.Builder setTargetAspectRatio(int);
     method public androidx.camera.core.ImageCapture.Builder setTargetName(String);
     method @Deprecated public androidx.camera.core.ImageCapture.Builder setTargetResolution(android.util.Size);
@@ -376,13 +375,14 @@ package androidx.camera.core {
     method public android.net.Uri? getSavedUri();
   }
 
-  public static interface ImageCapture.ScreenFlashUiCompleter {
-    method public void complete();
+  public static interface ImageCapture.ScreenFlash {
+    method @UiThread public void apply(androidx.camera.core.ImageCapture.ScreenFlashUiCompleter);
+    method @UiThread public void clear();
   }
 
-  public static interface ImageCapture.ScreenFlashUiControl {
-    method @UiThread public void applyScreenFlashUi(androidx.camera.core.ImageCapture.ScreenFlashUiCompleter);
-    method @UiThread public void clearScreenFlashUi();
+  public static interface ImageCapture.ScreenFlashUiCompleter {
+    method public void complete();
+    method public long getExpirationTimeMillis();
   }
 
   public interface ImageCaptureCapabilities {
