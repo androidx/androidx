@@ -99,7 +99,7 @@ class BaselineProfileProducerPluginTest(agpVersion: TestAgpVersion) {
         )
 
         projectSetup.producer.gradleRunner.buildAndFailAndAssertThatOutput("tasks") {
-            contains("It wasn't possible to determine the test task for managed device")
+            contains("No managed device named `nonExisting` was found.")
         }
     }
 
