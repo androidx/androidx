@@ -83,6 +83,7 @@ androidXMultiplatform {
         androidInstrumentedTest {
             dependsOn(jvmTest)
             dependencies {
+                implementation(project(":compose:material3:material3"))
                 implementation(project(":compose:material3:material3-common"))
                 implementation(project(":compose:test-utils"))
                 implementation(libs.testRules)
