@@ -17,7 +17,6 @@
 
 import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
-import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
@@ -32,8 +31,6 @@ androidXMultiplatform {
     mac()
     linux()
     ios()
-
-    defaultPlatform(PlatformIdentifier.JVM)
 
     sourceSets {
         all {

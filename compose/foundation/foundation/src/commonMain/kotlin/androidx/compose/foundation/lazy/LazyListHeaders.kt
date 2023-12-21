@@ -28,13 +28,13 @@ import androidx.compose.ui.util.fastForEachIndexed
  * @param beforeContentPadding the padding before the first item in the list
  */
 internal fun findOrComposeLazyListHeader(
-    composedVisibleItems: MutableList<LazyListMeasuredItem>,
+    composedVisibleItems: MutableList<LazyListPositionedItem>,
     itemProvider: LazyListMeasuredItemProvider,
     headerIndexes: List<Int>,
     beforeContentPadding: Int,
     layoutWidth: Int,
     layoutHeight: Int,
-): LazyListMeasuredItem? {
+): LazyListPositionedItem? {
     var currentHeaderOffset: Int = Int.MIN_VALUE
     var nextHeaderOffset: Int = Int.MIN_VALUE
 
@@ -83,11 +83,11 @@ internal fun findOrComposeLazyListHeader(
         headerOffset = minOf(headerOffset, nextHeaderOffset - measuredHeaderItem.size)
     }
 
-    measuredHeaderItem.position(headerOffset, layoutWidth, layoutHeight)
-    if (indexInComposedVisibleItems != -1) {
-        composedVisibleItems[indexInComposedVisibleItems] = measuredHeaderItem
-    } else {
-        composedVisibleItems.add(0, measuredHeaderItem)
+    return measuredHeaderItem.position(headerOffset, layoutWidth, layoutHeight).also {
+        if (indexInComposedVisibleItems != -1) {
+            composedVisibleItems[indexInComposedVisibleItems] = it
+        } else {
+            composedVisibleItems.add(0, it)
+        }
     }
-    return measuredHeaderItem
 }

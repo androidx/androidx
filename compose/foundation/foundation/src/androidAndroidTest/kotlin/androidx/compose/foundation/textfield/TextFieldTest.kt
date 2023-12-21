@@ -101,7 +101,6 @@ import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextInputSelection
-import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ExperimentalTextApi
@@ -589,78 +588,6 @@ class TextFieldTest {
         rule.onNodeWithTag(Tag)
             .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(textLayoutResults) }
         assert(textLayoutResults.size == 1) { "TextLayoutResult is null" }
-    }
-
-    @Test
-    fun semantics_setTextAction_doesNothingWhenReadOnly() {
-        rule.setContent {
-            var value by remember { mutableStateOf("") }
-            BasicTextField(
-                modifier = Modifier.testTag(Tag),
-                value = value,
-                onValueChange = { value = it },
-                readOnly = true
-            )
-        }
-
-        rule.onNodeWithTag(Tag)
-            .performTextReplacement("hello")
-        rule.onNodeWithTag(Tag)
-            .assertEditableTextEquals("")
-    }
-
-    @Test
-    fun semantics_setTextAction_throwsWhenDisabled() {
-        rule.setContent {
-            var value by remember { mutableStateOf("") }
-            BasicTextField(
-                modifier = Modifier.testTag(Tag),
-                value = value,
-                onValueChange = { value = it },
-                enabled = false
-            )
-        }
-
-        assertFailsWith<AssertionError> {
-            rule.onNodeWithTag(Tag)
-                .performTextReplacement("hello")
-        }
-    }
-
-    @Test
-    fun semantics_insertTextAction_doesNothingWhenReadOnly() {
-        rule.setContent {
-            var value by remember { mutableStateOf("") }
-            BasicTextField(
-                modifier = Modifier.testTag(Tag),
-                value = value,
-                onValueChange = { value = it },
-                readOnly = true
-            )
-        }
-
-        rule.onNodeWithTag(Tag)
-            .performTextInput("hello")
-        rule.onNodeWithTag(Tag)
-            .assertEditableTextEquals("")
-    }
-
-    @Test
-    fun semantics_insertTextAction_throwsWhenDisabled() {
-        rule.setContent {
-            var value by remember { mutableStateOf("") }
-            BasicTextField(
-                modifier = Modifier.testTag(Tag),
-                value = value,
-                onValueChange = { value = it },
-                enabled = false
-            )
-        }
-
-        assertFailsWith<AssertionError> {
-            rule.onNodeWithTag(Tag)
-                .performTextInput("hello")
-        }
     }
 
     @Test
@@ -1513,45 +1440,6 @@ class TextFieldTest {
             assertThat(size).isNotNull()
             assertThat(dividerSize!!.height).isEqualTo(size!!.height)
         }
-    }
-
-    @Test
-    fun decorationBox_togglingInnerTextField() {
-        var value by mutableStateOf("")
-        val decorationTag = "decorationTag"
-        rule.setContent {
-            Column {
-                BasicTextField(
-                    value = value,
-                    onValueChange = { value = it },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .testTag(Tag),
-                    decorationBox = {
-                        // the core text field is at the very bottom
-                        if (value.isEmpty()) {
-                            BasicText("test", modifier = Modifier.testTag(decorationTag))
-                        } else {
-                            it()
-                        }
-                    }
-                )
-            }
-        }
-
-        rule.onNodeWithTag(decorationTag, true).assertExists()
-
-        rule.onNode(hasSetTextAction()).performTextInput("hello")
-
-        rule.onNodeWithTag(decorationTag, true).assertDoesNotExist()
-
-        rule.onNode(hasSetTextAction()).performTextClearance()
-
-        rule.onNodeWithTag(decorationTag, true).assertExists()
-
-        rule.onNode(hasSetTextAction()).performTextInput("hello2")
-
-        rule.onNodeWithTag(decorationTag, true).assertDoesNotExist()
     }
 }
 

@@ -209,10 +209,6 @@ package androidx.compose.ui.draw {
     property public abstract long size;
   }
 
-  public sealed interface CacheDrawModifierNode extends androidx.compose.ui.node.DrawModifierNode {
-    method public void invalidateDrawCache();
-  }
-
   public final class CacheDrawScope implements androidx.compose.ui.unit.Density {
     method public float getDensity();
     method public float getFontScale();
@@ -240,7 +236,7 @@ package androidx.compose.ui.draw {
   }
 
   public final class DrawModifierKt {
-    method public static androidx.compose.ui.draw.CacheDrawModifierNode CacheDrawModifierNode(kotlin.jvm.functions.Function1<? super androidx.compose.ui.draw.CacheDrawScope,androidx.compose.ui.draw.DrawResult> onBuildDrawCache);
+    method public static androidx.compose.ui.node.CacheDrawModifierNode CacheDrawModifierNode(kotlin.jvm.functions.Function1<? super androidx.compose.ui.draw.CacheDrawScope,androidx.compose.ui.draw.DrawResult> onBuildDrawCache);
     method public static androidx.compose.ui.Modifier drawBehind(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> onDraw);
     method public static androidx.compose.ui.Modifier drawWithCache(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.draw.CacheDrawScope,androidx.compose.ui.draw.DrawResult> onBuildDrawCache);
     method public static androidx.compose.ui.Modifier drawWithContent(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.ContentDrawScope,kotlin.Unit> onDraw);
@@ -436,13 +432,11 @@ package androidx.compose.ui.focus {
     property public abstract boolean isFocused;
   }
 
-  public sealed interface FocusTargetModifierNode extends androidx.compose.ui.node.DelegatableNode {
+  public final class FocusTargetNode extends androidx.compose.ui.Modifier.Node implements androidx.compose.ui.modifier.ModifierLocalModifierNode androidx.compose.ui.node.ObserverModifierNode {
+    ctor public FocusTargetNode();
     method public androidx.compose.ui.focus.FocusState getFocusState();
-    property public abstract androidx.compose.ui.focus.FocusState focusState;
-  }
-
-  public final class FocusTargetModifierNodeKt {
-    method public static androidx.compose.ui.focus.FocusTargetModifierNode FocusTargetModifierNode();
+    method public void onObservedReadsChanged();
+    property public final androidx.compose.ui.focus.FocusState focusState;
   }
 
 }
@@ -2278,22 +2272,23 @@ package androidx.compose.ui.modifier {
 
 package androidx.compose.ui.node {
 
+  public interface CacheDrawModifierNode extends androidx.compose.ui.node.DrawModifierNode {
+    method public void invalidateDrawCache();
+  }
+
   @kotlin.PublishedApi internal interface ComposeUiNode {
-    method public int getCompositeKeyHash();
     method public androidx.compose.runtime.CompositionLocalMap getCompositionLocalMap();
     method public androidx.compose.ui.unit.Density getDensity();
     method public androidx.compose.ui.unit.LayoutDirection getLayoutDirection();
     method public androidx.compose.ui.layout.MeasurePolicy getMeasurePolicy();
     method public androidx.compose.ui.Modifier getModifier();
     method public androidx.compose.ui.platform.ViewConfiguration getViewConfiguration();
-    method public void setCompositeKeyHash(int);
     method public void setCompositionLocalMap(androidx.compose.runtime.CompositionLocalMap);
     method public void setDensity(androidx.compose.ui.unit.Density);
     method public void setLayoutDirection(androidx.compose.ui.unit.LayoutDirection);
     method public void setMeasurePolicy(androidx.compose.ui.layout.MeasurePolicy);
     method public void setModifier(androidx.compose.ui.Modifier);
     method public void setViewConfiguration(androidx.compose.ui.platform.ViewConfiguration);
-    property public abstract int compositeKeyHash;
     property public abstract androidx.compose.runtime.CompositionLocalMap compositionLocalMap;
     property public abstract androidx.compose.ui.unit.Density density;
     property public abstract androidx.compose.ui.unit.LayoutDirection layoutDirection;

@@ -38,15 +38,17 @@ import org.junit.runners.Parameterized
 // 2) Run this BaselineProfile test then click 'Baseline profile results' link
 // 3) Build profileparser:
 //    If necessary, include it in settings.gradle:
-//      includeProject(":wear:compose:integration-tests:profileparser", [BuildType.MAIN])
+//      includeProject(":wear:compose:integration-tests:profileparser",
+//                     "wear/compose/integration-tests/profileparser",
+//                     [BuildType.MAIN])
 //    ./gradlew :wear:compose:integration-tests:profileparser:assemble
 // 4) Run profileparser for each of wear.compose.material, wear.compose.foundation and
 //    wear.compose.navigation. From <workspace>/frameworks/support:
-//    /usr/bin/java -jar
+//    java -jar
 //      ../../out/androidx/wear/compose/integration-tests/profileparser/build/libs/profileparser-all.jar
 //      <input-generated-file eg ./wear/compose/BaselineProfile_profile-baseline-prof.txt>
 //      <library-name e.g. androidx/wear/compose/material>
-//      <output-file eg ./wear/compose/compose-material/src/main/baseline-prof.txt>
+//      <output-file eg ./wear/compose/compose-material/src/androidMain/baseline-prof.txt>
 @LargeTest
 @SdkSuppress(minSdkVersion = 29)
 class BaselineProfile {
@@ -56,26 +58,21 @@ class BaselineProfile {
 
     private lateinit var device: UiDevice
     private val ALERT_DIALOG = "alert-dialog"
+    private val CONFIRMATION_DIALOG = "confirmation-dialog"
     private val BUTTONS = "buttons"
     private val CARDS = "cards"
-    private val CHECKBOX = "checkbox"
     private val CHIPS = "chips"
-    private val CONFIRMATION_DIALOG = "confirmation-dialog"
-    private val DIALOGS = "dialogs"
-    private val EXPANDABLES = "expandables"
-    private val EXPAND_ITEMS = "ExpandItems"
-    private val EXPAND_TEXT = "ExpandText"
-    private val HIERARCHICAL_FOCUS_COORDINATOR = "HierarchicalFocusCoordinator"
-    private val PICKER = "picker"
-    private val PLACEHOLDERS = "placeholders"
-    private val PROGRESS_INDICATOR = "progress-indicator"
-    private val PROGRESSINDICATORS = "progressindicators"
-    private val PROGRESS_INDICATOR_INDETERMINATE = "progress-indicator-indeterminate"
     private val RADIO_BUTTON = "radio-button"
+    private val CHECKBOX = "checkbox"
+    private val SWITCH = "switch"
+    private val DIALOGS = "dialogs"
+    private val PICKER = "picker"
+    private val PROGRESSINDICATORS = "progressindicators"
     private val SLIDER = "slider"
     private val STEPPER = "stepper"
-    private val SWIPE_TO_REVEAL = "swipe-to-reveal"
-    private val SWITCH = "switch"
+    private val PROGRESS_INDICATOR = "progress-indicator"
+    private val PROGRESS_INDICATOR_INDETERMINATE = "progress-indicator-indeterminate"
+    private val PLACEHOLDERS = "placeholders"
 
     @Before
     fun setUp() {
@@ -93,16 +90,13 @@ class BaselineProfile {
                 startActivityAndWait(intent)
                 testDestination(description = BUTTONS)
                 testDestination(description = CARDS)
-                testExpandables()
                 testChips()
                 testDialogs()
-                testDestination(description = HIERARCHICAL_FOCUS_COORDINATOR)
                 testDestination(description = PICKER)
                 testDestination(description = PLACEHOLDERS)
                 testProgressIndicators()
                 testDestination(description = SLIDER)
                 testDestination(description = STEPPER)
-                testDestination(description = SWIPE_TO_REVEAL)
             }
         )
     }
@@ -122,16 +116,6 @@ class BaselineProfile {
         device.waitForIdle()
         testDestination(description = ALERT_DIALOG)
         testDestination(description = CONFIRMATION_DIALOG)
-        device.pressBack()
-        device.waitForIdle()
-    }
-
-    private fun testExpandables() {
-        findAndClick(By.desc(EXPANDABLES))
-        device.waitForIdle()
-        findAndClick(By.desc(EXPAND_ITEMS))
-        findAndClick(By.desc(EXPAND_TEXT))
-        device.waitForIdle()
         device.pressBack()
         device.waitForIdle()
     }

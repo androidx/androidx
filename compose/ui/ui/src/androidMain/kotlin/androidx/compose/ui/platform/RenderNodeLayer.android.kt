@@ -208,12 +208,8 @@ internal class RenderNodeLayer(
         val newLeft = position.x
         val newTop = position.y
         if (oldLeft != newLeft || oldTop != newTop) {
-            if (oldLeft != newLeft) {
-                renderNode.offsetLeftAndRight(newLeft - oldLeft)
-            }
-            if (oldTop != newTop) {
-                renderNode.offsetTopAndBottom(newTop - oldTop)
-            }
+            renderNode.offsetLeftAndRight(newLeft - oldLeft)
+            renderNode.offsetTopAndBottom(newTop - oldTop)
             triggerRepaint()
             matrixCache.invalidate()
         }

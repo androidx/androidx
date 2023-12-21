@@ -211,9 +211,8 @@ interface Modifier {
 
         // NOTE: We use an aggregate mask that or's all of the type masks of the children of the
         // chain so that we can quickly prune a subtree. This INCLUDES the kindSet of this node
-        // as well. Initialize this to "every node" so that before it is set it doesn't
-        // accidentally cause a truncated traversal.
-        internal var aggregateChildKindSet: Int = 0.inv()
+        // as well
+        internal var aggregateChildKindSet: Int = 0
         internal var parent: Node? = null
         internal var child: Node? = null
         internal var ownerScope: ObserverNodeOwnerScope? = null
@@ -221,8 +220,6 @@ interface Modifier {
             private set
         internal var insertedNodeAwaitingAttachForInvalidation = false
         internal var updatedNodeAwaitingAttachForInvalidation = false
-        private var onAttachRunExpected = false
-        private var onDetachRunExpected = false
         /**
          * Indicates that the node is attached to a [androidx.compose.ui.layout.Layout] which is
          * part of the UI tree.
@@ -260,38 +257,17 @@ interface Modifier {
         @Suppress("NOTHING_TO_INLINE")
         internal inline fun isKind(kind: NodeKind<*>) = kindSet and kind.mask != 0
 
-        internal open fun markAsAttached() {
-            check(!isAttached) { "node attached multiple times" }
-            check(coordinator != null) { "attach invoked on a node without a coordinator" }
+        internal open fun attach() {
+            check(!isAttached)
+            check(coordinator != null)
             isAttached = true
-            onAttachRunExpected = true
-        }
-
-        internal open fun runAttachLifecycle() {
-            check(isAttached) { "Must run markAsAttached() prior to runAttachLifecycle" }
-            check(onAttachRunExpected) { "Must run runAttachLifecycle() only once after " +
-                "markAsAttached()"
-            }
-            onAttachRunExpected = false
             onAttach()
-            onDetachRunExpected = true
         }
 
-        internal open fun runDetachLifecycle() {
-            check(isAttached) { "node detached multiple times" }
-            check(coordinator != null) { "detach invoked on a node without a coordinator" }
-            check(onDetachRunExpected) {
-                "Must run runDetachLifecycle() once after runAttachLifecycle() and before " +
-                    "markAsDetached()"
-            }
-            onDetachRunExpected = false
+        internal open fun detach() {
+            check(isAttached)
+            check(coordinator != null)
             onDetach()
-        }
-
-        internal open fun markAsDetached() {
-            check(isAttached) { "Cannot detach a node that is not attached" }
-            check(!onAttachRunExpected) { "Must run runAttachLifecycle() before markAsDetached()" }
-            check(!onDetachRunExpected) { "Must run runDetachLifecycle() before markAsDetached()" }
             isAttached = false
 
             scope?.let {
@@ -310,12 +286,6 @@ interface Modifier {
          * part of the UI tree.
          * When called, `node` is guaranteed to be non-null. You can call sideEffect,
          * coroutineScope, etc.
-         * This is not guaranteed to get called at a time where the rest of the Modifier.Nodes in
-         * the hierarchy are "up to date". For instance, at the time of calling onAttach for this
-         * node, another node may be in the tree that will be detached by the time Compose has
-         * finished applying changes. As a result, if you need to guarantee that the state of the
-         * tree is "final" for this round of changes, you should use the [sideEffect] API to
-         * schedule the calculation to be done at that time.
          */
         open fun onAttach() {}
 

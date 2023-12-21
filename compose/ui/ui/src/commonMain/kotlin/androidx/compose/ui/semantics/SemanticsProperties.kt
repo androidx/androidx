@@ -101,10 +101,9 @@ object SemanticsProperties {
     @Deprecated("Use `isTraversalGroup` instead.",
         replaceWith = ReplaceWith("IsTraversalGroup"),
     )
-    val IsContainer: SemanticsPropertyKey<Boolean>
-        get() = IsTraversalGroup
+    val IsContainer = SemanticsPropertyKey<Boolean>("IsTraversalGroup")
 
-    /**
+    /**us
      * @see SemanticsPropertyReceiver.isTraversalGroup
      */
     val IsTraversalGroup = SemanticsPropertyKey<Boolean>("IsTraversalGroup")

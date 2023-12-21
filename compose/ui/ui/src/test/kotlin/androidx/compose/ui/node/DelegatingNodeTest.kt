@@ -609,8 +609,7 @@ class DelegatingNodeTest {
         assert(c.node === a)
 
         // detached now, nodes should still point to a
-        chain.runDetachLifecycle()
-        chain.markAsDetached()
+        chain.detach()
 
         assert(!a.isAttached)
         assert(!b.isAttached)
@@ -620,8 +619,7 @@ class DelegatingNodeTest {
         assert(b.node === a)
         assert(c.node === a)
 
-        chain.markAsAttached()
-        chain.runAttachLifecycle()
+        chain.attach()
 
         // attached now, nodes should still point to a
         assert(a.isAttached)
@@ -674,8 +672,7 @@ class DelegatingNodeTest {
         assert(a.node === a)
         assert(b.node === a)
 
-        chain.runDetachLifecycle()
-        chain.markAsDetached()
+        chain.detach()
 
         // detached AND undelegated now
         assert(!a.isAttached)
@@ -684,8 +681,7 @@ class DelegatingNodeTest {
         assert(a.node === a)
         assert(b.node === b)
 
-        chain.markAsAttached()
-        chain.runAttachLifecycle()
+        chain.attach()
 
         // attached and delegated now
         assert(a.isAttached)
@@ -720,8 +716,7 @@ class DelegatingNodeTest {
         assert(a.node === a)
         assert(b.node === a)
 
-        chain.runDetachLifecycle()
-        chain.markAsDetached()
+        chain.detach()
 
         // detached now, still delegated
         assert(!a.isAttached)
@@ -730,8 +725,7 @@ class DelegatingNodeTest {
         assert(a.node === a)
         assert(b.node === a)
 
-        chain.markAsAttached()
-        chain.runAttachLifecycle()
+        chain.attach()
 
         // attached, still delegated
         assert(a.isAttached)

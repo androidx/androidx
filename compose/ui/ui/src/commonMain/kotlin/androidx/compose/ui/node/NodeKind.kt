@@ -286,7 +286,7 @@ private fun autoInvalidateNodeSelf(node: Modifier.Node, selfKindSet: Int, phase:
             else -> node.invalidateFocusProperties()
         }
     }
-    if (Nodes.FocusEvent in selfKindSet && node is FocusEventModifierNode) {
+    if (Nodes.FocusEvent in selfKindSet && node is FocusEventModifierNode && phase != Removed) {
         node.invalidateFocusEvent()
     }
 }

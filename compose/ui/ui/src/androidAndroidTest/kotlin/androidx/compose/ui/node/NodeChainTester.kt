@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.node
 
-import androidx.compose.ui.MockOwner
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.InspectorInfo
 import com.google.common.base.Objects
@@ -32,7 +31,7 @@ class DiffLog {
     fun assertElementDiff(expected: String) {
         Assert.assertEquals(
             expected,
-            oplog.joinToString("\n") {
+            oplog.reversed().joinToString("\n") {
                 it.elementDiffString()
             }
         )
@@ -60,18 +59,6 @@ internal class NodeChainTester : NodeChain.Logger {
 
     val aggregateChildMasks: List<Int> get() = nodes.map { it.aggregateChildKindSet }
 
-    fun attach(): NodeChainTester {
-        check(!layoutNode.isAttached)
-        layoutNode.attach(MockOwner())
-        return this
-    }
-
-    fun detach(): NodeChainTester {
-        check(layoutNode.isAttached)
-        layoutNode.detach()
-        return this
-    }
-
     fun clearLog(): NodeChainTester {
         log.clear()
         return this
@@ -82,19 +69,8 @@ internal class NodeChainTester : NodeChain.Logger {
         return this
     }
 
-    fun validateAttached(): NodeChainTester {
-        chain.head.visitSubtree(Nodes.Any) {
-            check(it.isAttached)
-        }
-        return this
-    }
-
     fun withModifiers(vararg modifiers: Modifier): NodeChainTester {
         chain.updateFrom(modifierOf(*modifiers))
-        return this
-    }
-    fun withModifierNodes(vararg nodes: Modifier.Node): NodeChainTester {
-        chain.updateFrom(modifierOf(*nodes))
         return this
     }
 
@@ -122,9 +98,10 @@ internal class NodeChainTester : NodeChain.Logger {
         newIndex: Int,
         prev: Modifier.Element,
         next: Modifier.Element,
-        node: Modifier.Node,
+        before: Modifier.Node,
+        after: Modifier.Node
     ) {
-        log.op(DiffOp.Same(oldIndex, newIndex, prev, next, node, true))
+        log.op(DiffOp.Same(oldIndex, newIndex, prev, next, before, after, true))
     }
 
     override fun nodeReused(
@@ -134,7 +111,7 @@ internal class NodeChainTester : NodeChain.Logger {
         next: Modifier.Element,
         node: Modifier.Node
     ) {
-        log.op(DiffOp.Same(oldIndex, newIndex, prev, next, node, false))
+        log.op(DiffOp.Same(oldIndex, newIndex, prev, next, node, node, false))
     }
 
     override fun nodeInserted(
@@ -167,13 +144,15 @@ sealed class DiffOp(
         private val newIndex: Int,
         private val beforeEl: Modifier.Element,
         private val afterEl: Modifier.Element,
-        private val node: Modifier.Node,
+        private val beforeEntity: Modifier.Node,
+        private val afterEntity: Modifier.Node,
         val updated: Boolean,
     ) : DiffOp(beforeEl, if (updated) "*" else " ", "Same") {
         override fun debug() = """
             <$opString>
                 $beforeEl @ $oldIndex = $afterEl @ $newIndex
-                node: $node
+                before = $beforeEntity
+                after = $afterEntity
                 updated? = $updated
             </$opString>
         """.trimIndent()
@@ -215,25 +194,6 @@ fun modifierOf(vararg modifiers: Modifier): Modifier {
         result = result.then(m)
     }
     return result
-}
-
-fun modifierOf(vararg nodes: Modifier.Node): Modifier {
-    var result: Modifier = Modifier
-    for (n in nodes) {
-        result = result.then(NodeModifierElementNode(n))
-    }
-    return result
-}
-
-internal open class NodeModifierElementNode(val node: Modifier.Node) :
-    ModifierNodeElement<Modifier.Node>() {
-    override fun create(): Modifier.Node = node
-    override fun update(node: Modifier.Node) { }
-    override fun hashCode(): Int = node.hashCode()
-    override fun equals(other: Any?): Boolean {
-        if (other !is NodeModifierElementNode) return false
-        return other.node === node
-    }
 }
 
 fun reusableModifier(name: String): Modifier.Element = object : Modifier.Element {

@@ -247,10 +247,8 @@ private class DialogLayout(
         super.internalOnLayout(changed, left, top, right, bottom)
         // Now set the content size as fixed layout params, such that ViewRootImpl knows
         // the exact window size.
-        if (!usePlatformDefaultWidth) {
-            val child = getChildAt(0) ?: return
-            window.setLayout(child.measuredWidth, child.measuredHeight)
-        }
+        val child = getChildAt(0) ?: return
+        window.setLayout(child.measuredWidth, child.measuredHeight)
     }
 
     private val displayWidth: Int
@@ -407,14 +405,6 @@ private class DialogWrapper(
         this.properties = properties
         setSecurePolicy(properties.securePolicy)
         setLayoutDirection(layoutDirection)
-        if (properties.usePlatformDefaultWidth && !dialogLayout.usePlatformDefaultWidth) {
-            // Undo fixed size in internalOnLayout, which would suppress size changes when
-            // usePlatformDefaultWidth is true.
-            window?.setLayout(
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.WRAP_CONTENT
-            )
-        }
         dialogLayout.usePlatformDefaultWidth = properties.usePlatformDefaultWidth
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
             @OptIn(ExperimentalComposeUiApi::class)

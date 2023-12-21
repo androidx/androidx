@@ -32,14 +32,11 @@ import androidx.compose.runtime.currentCompositeKeyHash
 import androidx.compose.runtime.rememberCompositionContext
 import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
 import androidx.compose.runtime.saveable.SaveableStateRegistry
-import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
 import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
 import androidx.compose.ui.materialize
-import androidx.compose.ui.node.ComposeUiNode.Companion.SetCompositeKeyHash
-import androidx.compose.ui.node.ComposeUiNode.Companion.SetResolvedCompositionLocals
+import androidx.compose.ui.node.ComposeUiNode
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.UiApplier
 import androidx.compose.ui.platform.LocalContext
@@ -207,7 +204,6 @@ fun <T : View> AndroidView(
     onRelease: (T) -> Unit = NoOpUpdate,
     update: (T) -> Unit = NoOpUpdate
 ) {
-    val compositeKeyHash = currentCompositeKeyHash
     val materializedModifier = currentComposer.materialize(modifier)
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
@@ -226,7 +222,6 @@ fun <T : View> AndroidView(
             update = {
                 updateViewHolderParams<T>(
                     modifier = materializedModifier,
-                    compositeKeyHash = compositeKeyHash,
                     density = density,
                     lifecycleOwner = lifecycleOwner,
                     savedStateRegistryOwner = savedStateRegistryOwner,
@@ -244,7 +239,6 @@ fun <T : View> AndroidView(
             update = {
                 updateViewHolderParams<T>(
                     modifier = materializedModifier,
-                    compositeKeyHash = compositeKeyHash,
                     density = density,
                     lifecycleOwner = lifecycleOwner,
                     savedStateRegistryOwner = savedStateRegistryOwner,
@@ -262,32 +256,31 @@ fun <T : View> AndroidView(
 private fun <T : View> createAndroidViewNodeFactory(
     factory: (Context) -> T
 ): () -> LayoutNode {
-    val compositeKeyHash = currentCompositeKeyHash
     val context = LocalContext.current
     val parentReference = rememberCompositionContext()
     val stateRegistry = LocalSaveableStateRegistry.current
+    val stateKey = currentCompositeKeyHash.toString()
 
     return {
-        ViewFactoryHolder(
+        ViewFactoryHolder<T>(
             context = context,
             factory = factory,
             parentContext = parentReference,
             saveStateRegistry = stateRegistry,
-            compositeKeyHash = compositeKeyHash
+            saveStateKey = stateKey
         ).layoutNode
     }
 }
 
 private fun <T : View> Updater<LayoutNode>.updateViewHolderParams(
     modifier: Modifier,
-    compositeKeyHash: Int,
     density: Density,
     lifecycleOwner: LifecycleOwner,
     savedStateRegistryOwner: SavedStateRegistryOwner,
     layoutDirection: LayoutDirection,
     compositionLocalMap: CompositionLocalMap
 ) {
-    set(compositionLocalMap, SetResolvedCompositionLocals)
+    set(compositionLocalMap, ComposeUiNode.SetResolvedCompositionLocals)
     set(modifier) { requireViewFactoryHolder<T>().modifier = it }
     set(density) { requireViewFactoryHolder<T>().density = it }
     set(lifecycleOwner) { requireViewFactoryHolder<T>().lifecycleOwner = it }
@@ -300,13 +293,10 @@ private fun <T : View> Updater<LayoutNode>.updateViewHolderParams(
             LayoutDirection.Rtl -> android.util.LayoutDirection.RTL
         }
     }
-    @OptIn(ExperimentalComposeUiApi::class)
-    set(compositeKeyHash, SetCompositeKeyHash)
 }
 
 @Suppress("UNCHECKED_CAST")
 private fun <T : View> LayoutNode.requireViewFactoryHolder(): ViewFactoryHolder<T> {
-    @OptIn(InternalComposeUiApi::class)
     return checkNotNull(interopViewFactoryHolder) as ViewFactoryHolder<T>
 }
 
@@ -318,33 +308,30 @@ val NoOpUpdate: View.() -> Unit = {}
 internal class ViewFactoryHolder<T : View> private constructor(
     context: Context,
     parentContext: CompositionContext? = null,
-    private val typedView: T,
+    val typedView: T,
     // NestedScrollDispatcher that will be passed/used for nested scroll interop
     val dispatcher: NestedScrollDispatcher = NestedScrollDispatcher(),
     private val saveStateRegistry: SaveableStateRegistry?,
-    private val compositeKeyHash: Int,
-) : AndroidViewHolder(context, parentContext, compositeKeyHash, dispatcher, typedView),
-    ViewRootForInspector {
+    private val saveStateKey: String
+) : AndroidViewHolder(context, parentContext, dispatcher, typedView), ViewRootForInspector {
 
     constructor(
         context: Context,
         factory: (Context) -> T,
         parentContext: CompositionContext? = null,
         saveStateRegistry: SaveableStateRegistry?,
-        compositeKeyHash: Int
+        saveStateKey: String
     ) : this(
         context = context,
         typedView = factory(context),
         parentContext = parentContext,
         saveStateRegistry = saveStateRegistry,
-        compositeKeyHash = compositeKeyHash,
+        saveStateKey = saveStateKey,
     )
 
     override val viewRoot: View get() = this
 
-    private val saveStateKey: String
-
-    private var savableRegistryEntry: SaveableStateRegistry.Entry? = null
+    private var saveableRegistryEntry: SaveableStateRegistry.Entry? = null
         set(value) {
             field?.unregister()
             field = value
@@ -352,7 +339,6 @@ internal class ViewFactoryHolder<T : View> private constructor(
 
     init {
         clipChildren = false
-        saveStateKey = compositeKeyHash.toString()
 
         @Suppress("UNCHECKED_CAST")
         val savedState = saveStateRegistry
@@ -384,7 +370,7 @@ internal class ViewFactoryHolder<T : View> private constructor(
 
     private fun registerSaveStateProvider() {
         if (saveStateRegistry != null) {
-            savableRegistryEntry = saveStateRegistry.registerProvider(saveStateKey) {
+            saveableRegistryEntry = saveStateRegistry.registerProvider(saveStateKey) {
                 SparseArray<Parcelable>().apply {
                     typedView.saveHierarchyState(this)
                 }
@@ -393,6 +379,6 @@ internal class ViewFactoryHolder<T : View> private constructor(
     }
 
     private fun unregisterSaveStateProvider() {
-        savableRegistryEntry = null
+        saveableRegistryEntry = null
     }
 }

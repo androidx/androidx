@@ -89,7 +89,6 @@ internal class LookaheadLayoutCoordinatesImpl(val lookaheadDelegate: LookaheadDe
     ): Offset {
         if (sourceCoordinates is LookaheadLayoutCoordinatesImpl) {
             val source = sourceCoordinates.lookaheadDelegate
-            source.coordinator.onCoordinatesUsed()
             val commonAncestor = coordinator.findCommonAncestor(source.coordinator)
 
             return commonAncestor.lookaheadDelegate?.let { ancestor ->

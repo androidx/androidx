@@ -89,7 +89,7 @@ private fun Modifier.swipeToDismiss(index: Int): Modifier = composed {
     this.pointerInput(Unit) {
         coroutineScope {
             while (true) {
-                height.intValue = size.height
+                height.value = size.height
                 val velocityTracker = VelocityTracker()
                 awaitPointerEventScope {
                     val pointerId = awaitFirstDown().id
@@ -126,7 +126,7 @@ private fun Modifier.swipeToDismiss(index: Int): Modifier = composed {
             }
         }
     }.offset { IntOffset(0, animatedOffset.value.roundToInt()) }
-        .graphicsLayer(alpha = calculateAlpha(animatedOffset.value, height.intValue))
+        .graphicsLayer(alpha = calculateAlpha(animatedOffset.value, height.value))
 }
 
 private fun calculateAlpha(offset: Float, size: Int): Float {

@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
-import androidx.build.PlatformIdentifier
+import androidx.build.KmpPlatformsKt
 
 plugins {
     id("AndroidXPlugin")
@@ -30,8 +29,6 @@ def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
 androidXMultiplatform {
     android()
     if (desktopEnabled) desktop()
-
-    defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
         commonMain {

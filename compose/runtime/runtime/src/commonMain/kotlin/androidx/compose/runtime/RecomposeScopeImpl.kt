@@ -269,7 +269,7 @@ internal class RecomposeScopeImpl(
             val tracked = trackedDependencies ?: IdentityArrayMap<DerivedState<*>, Any?>().also {
                 trackedDependencies = it
             }
-            tracked[instance] = instance.currentRecord.currentValue
+            tracked[instance] = instance.currentValue
         }
 
         return false
@@ -299,7 +299,7 @@ internal class RecomposeScopeImpl(
                     @Suppress("UNCHECKED_CAST")
                     it as DerivedState<Any?>
                     val policy = it.policy ?: structuralEqualityPolicy()
-                    policy.equivalent(it.currentRecord.currentValue, trackedDependencies[it])
+                    policy.equivalent(it.currentValue, trackedDependencies[it])
                 }
             }
         )

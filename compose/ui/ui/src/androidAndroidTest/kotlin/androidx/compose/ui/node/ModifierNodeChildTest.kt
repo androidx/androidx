@@ -151,7 +151,7 @@ class ModifierNodeChildTest {
             )
         }
         rule.runOnIdle {
-            child1.markAsDetached()
+            child1.detach()
         }
 
         // Act.

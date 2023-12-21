@@ -292,8 +292,6 @@ internal class TextLayout constructor(
           always returned.
          */
         lineCount = min(layout.lineCount, maxLines)
-        val lastLine = lineCount - 1
-
         didExceedMaxLines =
             /* When lineCount is less than maxLines, actual line count is guaranteed not to exceed
             the maxLines.
@@ -314,8 +312,8 @@ internal class TextLayout constructor(
                   handled by truncating.
                   So we have to check both cases, no matter what ellipsis parameter is passed.
                  */
-                layout.getEllipsisCount(lastLine) > 0 ||
-                    layout.getLineEnd(lastLine) != charSequence.length
+                layout.getEllipsisCount(lineCount - 1) > 0 ||
+                    layout.getLineEnd(lineCount - 1) != charSequence.length
             }
 
         val verticalPaddings = getVerticalPaddings()
@@ -325,18 +323,12 @@ internal class TextLayout constructor(
         topPadding = max(verticalPaddings.topPadding, lineHeightPaddings.topPadding)
         bottomPadding = max(verticalPaddings.bottomPadding, lineHeightPaddings.bottomPadding)
 
-        val fontMetrics = getLastLineMetrics(textPaint, frameworkTextDir, lineHeightSpans)
-        lastLineExtra = if (fontMetrics != null) {
-            fontMetrics.bottom - getLineHeight(lastLine).toInt()
-        } else {
-            0
-        }
-        // Set lastLineFontMetrics after calling getLineHeight() above, as the metrics
-        // are different when lastLineFontMetrics is null
-        lastLineFontMetrics = fontMetrics
+        val lastLineMetricsPair = getLastLineMetrics(textPaint, frameworkTextDir, lineHeightSpans)
+        lastLineFontMetrics = lastLineMetricsPair.first
+        lastLineExtra = lastLineMetricsPair.second
 
-        leftPadding = layout.getEllipsizedLeftPadding(lastLine)
-        rightPadding = layout.getEllipsizedRightPadding(lastLine)
+        leftPadding = layout.getEllipsizedLeftPadding(lineCount - 1)
+        rightPadding = layout.getEllipsizedRightPadding(lineCount - 1)
     }
 
     private val layoutHelper by lazy(LazyThreadSafetyMode.NONE) { LayoutHelper(layout) }
@@ -971,7 +963,7 @@ private fun TextLayout.getLastLineMetrics(
     textPaint: TextPaint,
     frameworkTextDir: TextDirectionHeuristic,
     lineHeightSpans: Array<LineHeightStyleSpan>
-): FontMetricsInt? {
+): Pair<FontMetricsInt?, Int> {
     val lastLine = lineCount - 1
     // did not check for "\n" since the last line might include zero width characters
     if (layout.getLineStart(lastLine) == layout.getLineEnd(lastLine) &&
@@ -1014,9 +1006,10 @@ private fun TextLayout.getLastLineMetrics(
             bottom = tmpLayout.getLineBottom(0)
         }
 
-        return lastLineFontMetrics
+        val lastLineExtra = lastLineFontMetrics.bottom - getLineHeight(lastLine).toInt()
+        return Pair(lastLineFontMetrics, lastLineExtra)
     }
-    return null
+    return Pair(null, 0)
 }
 
 @OptIn(InternalPlatformTextApi::class)

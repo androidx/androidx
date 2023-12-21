@@ -284,8 +284,7 @@ internal class PointerInputNodeMock(
     init {
         updateCoordinator(coordinator)
         if (coordinator.isAttached) {
-            markAsAttached()
-            runAttachLifecycle()
+            attach()
         }
     }
 
@@ -295,8 +294,7 @@ internal class PointerInputNodeMock(
             coordinator.isAttached = false
         }
         if (isAttached) {
-            runDetachLifecycle()
-            markAsDetached()
+            detach()
         }
     }
 

@@ -1693,34 +1693,6 @@ class RowColumnTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_protectsAgainstOverflow() = with(density) {
-        val rowMinWidth = 0.toDp()
-        val latch = CountDownLatch(3)
-        show {
-            WithInfiniteConstraints {
-                ConstrainedBox(DpConstraints(minWidth = rowMinWidth)) {
-                    Row(horizontalArrangement = Arrangement.spacedBy((0.5).dp)) {
-                        Layout { _, constraints ->
-                            assertEquals(Constraints(), constraints)
-                            layout(Constraints.Infinity, 100) {
-                                latch.countDown()
-                            }
-                        }
-                        Box(modifier = Modifier.weight(1f, true)) {
-                            latch.countDown()
-                        }
-
-                        Box(modifier = Modifier.weight(.00000001f, true)) {
-                            latch.countDown()
-                        }
-                    }
-                }
-            }
-        }
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
-    }
-
-    @Test
     fun testRow_measuresNoWeightChildrenCorrectly() = with(density) {
         val availableWidth = 100.toDp()
         val childWidth = 50.toDp()

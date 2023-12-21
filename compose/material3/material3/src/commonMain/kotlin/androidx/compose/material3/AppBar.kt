@@ -839,9 +839,9 @@ class TopAppBarState(
      * Updates to the [heightOffset] value are coerced between zero and [heightOffsetLimit].
      */
     var heightOffset: Float
-        get() = _heightOffset.floatValue
+        get() = _heightOffset.value
         set(newOffset) {
-            _heightOffset.floatValue = newOffset.coerceIn(
+            _heightOffset.value = newOffset.coerceIn(
                 minimumValue = heightOffsetLimit,
                 maximumValue = 0f
             )

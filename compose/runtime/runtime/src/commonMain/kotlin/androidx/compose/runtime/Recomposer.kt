@@ -208,7 +208,6 @@ class Recomposer(
     private val compositionValueStatesAvailable =
         mutableMapOf<MovableContentStateReference, MovableContentState>()
     private var failedCompositions: MutableList<ControlledComposition>? = null
-    private var compositionsRemoved: MutableSet<ControlledComposition>? = null
     private var workContinuation: CancellableContinuation<Unit>? = null
     private var concurrentCompositionsOutstanding = 0
     private var isClosed: Boolean = false
@@ -553,9 +552,7 @@ class Recomposer(
                     // composers to work on
                     recordComposerModifications()
                     synchronized(stateLock) {
-                        compositionInvalidations.fastForEach {
-                            toRecompose += it
-                        }
+                        compositionInvalidations.fastForEach { toRecompose += it }
                         compositionInvalidations.clear()
                     }
 
@@ -672,7 +669,6 @@ class Recomposer(
                     // sendApplyNotifications to ensure that objects that were _created_ in this
                     // snapshot are also considered changed after this point.
                     Snapshot.notifyObjectsInitialized()
-                    compositionsRemoved = null
                 }
             }
 
@@ -1081,10 +1077,7 @@ class Recomposer(
         composition: ControlledComposition,
         modifiedValues: IdentityArraySet<Any>?
     ): ControlledComposition? {
-        if (composition.isComposing ||
-            composition.isDisposed ||
-            compositionsRemoved?.contains(composition) == true) return null
-
+        if (composition.isComposing || composition.isDisposed) return null
         return if (
             composing(composition, modifiedValues) {
                 if (modifiedValues?.isNotEmpty() == true) {
@@ -1309,16 +1302,6 @@ class Recomposer(
     ) {
         synchronized(stateLock) {
             compositionValueStatesAvailable[reference] = data
-        }
-    }
-
-    internal override fun reportRemovedComposition(composition: ControlledComposition) {
-        synchronized(stateLock) {
-            val compositionsRemoved = compositionsRemoved
-                ?: mutableSetOf<ControlledComposition>().also {
-                    compositionsRemoved = it
-                }
-            compositionsRemoved.add(composition)
         }
     }
 

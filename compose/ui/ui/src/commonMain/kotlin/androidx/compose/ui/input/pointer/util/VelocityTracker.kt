@@ -160,9 +160,6 @@ class VelocityTracker1D internal constructor(
     private val reusableDataPointsArray = FloatArray(HistorySize)
     private val reusableTimeArray = FloatArray(HistorySize)
 
-    // Reusable array to minimize allocations inside calculateLeastSquaresVelocity.
-    private val reusableVelocityCoefficients = FloatArray(3)
-
     /**
      * Adds a data point for velocity calculation at a given time, [timeMillis]. The data ponit
      * represents an amount of a change in position (for differential data points), or an absolute
@@ -255,16 +252,10 @@ class VelocityTracker1D internal constructor(
         // The 2nd coefficient is the derivative of the quadratic polynomial at
         // x = 0, and that happens to be the last timestamp that we end up
         // passing to polyFitLeastSquares.
-        return try {
-            polyFitLeastSquares(
-                time,
-                dataPoints,
-                sampleCount,
-                2,
-                reusableVelocityCoefficients
-            )[1]
+        try {
+            return polyFitLeastSquares(time, dataPoints, sampleCount, 2)[1]
         } catch (exception: IllegalArgumentException) {
-            0f
+            return 0f
         }
     }
 }
@@ -365,8 +356,7 @@ internal fun polyFitLeastSquares(
     y: FloatArray,
     /** number of items in each array */
     sampleCount: Int,
-    degree: Int,
-    coefficients: FloatArray = FloatArray((degree + 1).coerceAtLeast(0))
+    degree: Int
 ): FloatArray {
     if (degree < 1) {
         throw IllegalArgumentException("The degree must be at positive integer")
@@ -382,6 +372,7 @@ internal fun polyFitLeastSquares(
             degree
         }
 
+    val coefficients = FloatArray(degree + 1)
     // Shorthands for the purpose of notation equivalence to original C++ code.
     val m: Int = sampleCount
     val n: Int = truncatedDegree + 1
@@ -389,34 +380,31 @@ internal fun polyFitLeastSquares(
     // Expand the X vector to a matrix A, pre-multiplied by the weights.
     val a = Matrix(n, m)
     for (h in 0 until m) {
-        a[0, h] = DefaultWeight
+        a.set(0, h, DefaultWeight)
         for (i in 1 until n) {
-            a[i, h] = a[i - 1, h] * x[h]
+            a.set(i, h, a.get(i - 1, h) * x[h])
         }
     }
 
     // Apply the Gram-Schmidt process to A to obtain its QR decomposition.
 
-    // Orthonormal basis, column-major order.
+    // Orthonormal basis, column-major ordVectorer.
     val q = Matrix(n, m)
     // Upper triangular matrix, row-major order.
     val r = Matrix(n, n)
     for (j in 0 until n) {
-        val w = q[j]
-        val aw = a[j]
         for (h in 0 until m) {
-            w[h] = aw[h]
+            q.set(j, h, a.get(j, h))
         }
         for (i in 0 until j) {
-            val z = q[i]
-            val dot = w.dot(z)
+            val dot: Float = q.getRow(j) * q.getRow(i)
             for (h in 0 until m) {
-                w[h] -= dot * z[h]
+                q.set(j, h, q.get(j, h) - dot * q.get(i, h))
             }
         }
 
-        val norm: Float = w.norm()
-        if (norm < 0.000001f) {
+        val norm: Float = q.getRow(j).norm()
+        if (norm < 0.000001) {
             // TODO(b/129494471): Determine what this actually means and see if there are
             // alternatives to throwing an Exception here.
 
@@ -429,37 +417,25 @@ internal fun polyFitLeastSquares(
 
         val inverseNorm: Float = 1.0f / norm
         for (h in 0 until m) {
-            w[h] *= inverseNorm
+            q.set(j, h, q.get(j, h) * inverseNorm)
         }
-        val v = r[j]
         for (i in 0 until n) {
-            v[i] = if (i < j) 0.0f else w.dot(a[i])
+            r.set(j, i, if (i < j) 0.0f else q.getRow(j) * a.getRow(i))
         }
     }
 
     // Solve R B = Qt W Y to find B. This is easy because R is upper triangular.
     // We just work from bottom-right to top-left calculating B's coefficients.
-    var wy = y
-
-    // NOTE: DefaultWeight is currently always set to 1.0f, there's no need to allocate a new
-    // array and to perform several multiplications for no reason
-    @Suppress("KotlinConstantConditions")
-    if (DefaultWeight != 1.0f) {
-        // TODO: Even when we pass the test above, this allocation is likely unnecessary.
-        // We could just modify wy (y) in place instead. This would need to be documented
-        // to avoid surprises for the caller though.
-        wy = FloatArray(m)
-        for (h in 0 until m) {
-            wy[h] = y[h] * DefaultWeight
-        }
+    val wy = Vector(m)
+    for (h in 0 until m) {
+        wy[h] = y[h] * DefaultWeight
     }
-
     for (i in n - 1 downTo 0) {
-        coefficients[i] = q[i].dot(wy)
+        coefficients[i] = q.getRow(i) * wy
         for (j in n - 1 downTo i + 1) {
-            coefficients[i] -= r[i, j] * coefficients[j]
+            coefficients[i] -= r.get(i, j) * coefficients[j]
         }
-        coefficients[i] /= r[i, i]
+        coefficients[i] /= r.get(i, i)
     }
 
     return coefficients
@@ -585,33 +561,44 @@ private fun calculateImpulseVelocity(
  *          Kinetic Energy = 0.5 * mass * (velocity)^2
  * where a mass of "1" is used.
  */
-@Suppress("NOTHING_TO_INLINE")
-private inline fun kineticEnergyToVelocity(kineticEnergy: Float): Float {
+private fun kineticEnergyToVelocity(kineticEnergy: Float): Float {
     return sign(kineticEnergy) * sqrt(2 * abs(kineticEnergy))
 }
 
-private typealias Vector = FloatArray
+private class Vector(
+    val length: Int
+) {
+    val elements: FloatArray = FloatArray(length)
 
-private fun FloatArray.dot(a: FloatArray): Float {
-    var result = 0.0f
-    for (i in indices) {
-        result += this[i] * a[i]
+    operator fun get(i: Int) = elements[i]
+
+    operator fun set(i: Int, value: Float) {
+        elements[i] = value
     }
-    return result
+
+    operator fun times(a: Vector): Float {
+        var result = 0.0f
+        for (i in 0 until length) {
+            result += this[i] * a[i]
+        }
+        return result
+    }
+
+    fun norm(): Float = sqrt(this * this)
 }
 
-@Suppress("NOTHING_TO_INLINE")
-private inline fun FloatArray.norm(): Float = sqrt(this.dot(this))
+private class Matrix(rows: Int, cols: Int) {
+    private val elements: Array<Vector> = Array(rows) { Vector(cols) }
 
-private typealias Matrix = Array<FloatArray>
+    fun get(row: Int, col: Int): Float {
+        return elements[row][col]
+    }
 
-@Suppress("NOTHING_TO_INLINE")
-private inline fun Matrix(rows: Int, cols: Int) = Array(rows) { Vector(cols) }
+    fun set(row: Int, col: Int, value: Float) {
+        elements[row][col] = value
+    }
 
-@Suppress("NOTHING_TO_INLINE")
-private inline operator fun Matrix.get(row: Int, col: Int): Float = this[row][col]
-
-@Suppress("NOTHING_TO_INLINE")
-private inline operator fun Matrix.set(row: Int, col: Int, value: Float) {
-    this[row][col] = value
+    fun getRow(row: Int): Vector {
+        return elements[row]
+    }
 }

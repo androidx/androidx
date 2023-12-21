@@ -21,7 +21,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.ReusableContentHost
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.SaveableStateHolder
+import androidx.compose.runtime.setValue
 
 /**
  * This class:
@@ -49,7 +52,7 @@ internal class LazyLayoutItemContentFactory(
 
         val cachedContent = lambdasCache[key]
         return if (cachedContent != null) {
-            cachedContent.contentType
+            cachedContent.type
         } else {
             val itemProvider = itemProvider()
             val index = itemProvider.getIndex(key)
@@ -64,24 +67,24 @@ internal class LazyLayoutItemContentFactory(
     /**
      * Return cached item content lambda or creates a new lambda and puts it in the cache.
      */
-    fun getContent(index: Int, key: Any, contentType: Any?): @Composable () -> Unit {
+    fun getContent(index: Int, key: Any): @Composable () -> Unit {
         val cached = lambdasCache[key]
-        return if (cached != null && cached.index == index && cached.contentType == contentType) {
+        val type = itemProvider().getContentType(index)
+        return if (cached != null && cached.lastKnownIndex == index && cached.type == type) {
             cached.content
         } else {
-            val newContent = CachedItemContent(index, key, contentType)
+            val newContent = CachedItemContent(index, key, type)
             lambdasCache[key] = newContent
             newContent.content
         }
     }
 
     private inner class CachedItemContent(
-        index: Int,
+        initialIndex: Int,
         val key: Any,
-        val contentType: Any?
+        val type: Any?
     ) {
-        // the index resolved during the latest composition
-        var index = index
+        var lastKnownIndex by mutableIntStateOf(initialIndex)
             private set
 
         private var _content: (@Composable () -> Unit)? = null
@@ -91,10 +94,10 @@ internal class LazyLayoutItemContentFactory(
         private fun createContentLambda() = @Composable {
             val itemProvider = itemProvider()
 
-            var index = index
+            var index = lastKnownIndex
             if (index >= itemProvider.itemCount || itemProvider.getKey(index) != key) {
                 index = itemProvider.getIndex(key)
-                if (index != -1) this.index = index
+                if (index != -1) lastKnownIndex = index
             }
 
             ReusableContentHost(active = index != -1) {

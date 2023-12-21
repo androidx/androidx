@@ -39,9 +39,17 @@ import kotlin.math.min
  */
 internal interface DerivedState<T> : State<T> {
     /**
-     * Provides a current [Record].
+     * The value of the derived state retrieved without triggering a notification to read observers.
      */
-    val currentRecord: Record<T>
+    val currentValue: T
+
+    /**
+     * A list of the dependencies used to produce [value] or [currentValue].
+     *
+     * The [dependencies] list can be used to determine when a [StateObject] appears in the apply
+     * observer set, if the state could affect value of this derived state.
+     */
+    val dependencies: Array<Any?>
 
     /**
      * Mutation policy that controls how changes are handled after state dependencies update.
@@ -49,21 +57,6 @@ internal interface DerivedState<T> : State<T> {
      * produced and it is up to observer to invalidate it correctly.
      */
     val policy: SnapshotMutationPolicy<T>?
-
-    interface Record<T> {
-        /**
-         * The value of the derived state retrieved without triggering a notification to read observers.
-         */
-        val currentValue: T
-
-        /**
-         * A list of the dependencies used to produce [value] or [currentValue].
-         *
-         * The [dependencies] list can be used to determine when a [StateObject] appears in the apply
-         * observer set, if the state could affect value of this derived state.
-         */
-        val dependencies: Array<Any?>
-    }
 }
 
 private val calculationBlockNestedLevel = SnapshotThreadLocal<Int>()
@@ -74,48 +67,31 @@ private class DerivedSnapshotState<T>(
 ) : StateObject, DerivedState<T> {
     private var first: ResultRecord<T> = ResultRecord()
 
-    class ResultRecord<T> : StateRecord(), DerivedState.Record<T> {
+    class ResultRecord<T> : StateRecord() {
         companion object {
             val Unset = Any()
         }
 
-        var validSnapshotId: Int = 0
-        var validSnapshotWriteCount: Int = 0
-
-        var _dependencies: IdentityArrayMap<StateObject, Int>? = null
+        var dependencies: IdentityArrayMap<StateObject, Int>? = null
         var result: Any? = Unset
         var resultHash: Int = 0
 
         override fun assign(value: StateRecord) {
             @Suppress("UNCHECKED_CAST")
             val other = value as ResultRecord<T>
-            _dependencies = other._dependencies
+            dependencies = other.dependencies
             result = other.result
             resultHash = other.resultHash
         }
 
         override fun create(): StateRecord = ResultRecord<T>()
 
-        fun isValid(derivedState: DerivedState<*>, snapshot: Snapshot): Boolean {
-            val snapshotChanged = sync {
-                validSnapshotId != snapshot.id || validSnapshotWriteCount != snapshot.writeCount
-            }
-            val isValid = result !== Unset &&
-                (!snapshotChanged || resultHash == readableHash(derivedState, snapshot))
-
-            if (isValid && snapshotChanged) {
-                sync {
-                    validSnapshotId = snapshot.id
-                    validSnapshotWriteCount = snapshot.writeCount
-                }
-            }
-
-            return isValid
-        }
+        fun isValid(derivedState: DerivedState<*>, snapshot: Snapshot): Boolean =
+            result !== Unset && resultHash == readableHash(derivedState, snapshot)
 
         fun readableHash(derivedState: DerivedState<*>, snapshot: Snapshot): Int {
             var hash = 7
-            val dependencies = sync { _dependencies }
+            val dependencies = sync { dependencies }
             if (dependencies != null) {
                 notifyObservers(derivedState) {
                     dependencies.forEach { stateObject, readLevel ->
@@ -141,13 +117,6 @@ private class DerivedSnapshotState<T>(
             }
             return hash
         }
-
-        override val currentValue: T
-            @Suppress("UNCHECKED_CAST")
-            get() = result as T
-
-        override val dependencies: Array<Any?>
-            get() = _dependencies?.keys ?: emptyArray()
     }
 
     /**
@@ -157,6 +126,7 @@ private class DerivedSnapshotState<T>(
      * @return latest state record for the derived state.
      */
     fun current(snapshot: Snapshot): StateRecord =
+        @Suppress("UNCHECKED_CAST")
         currentRecord(current(first, snapshot), snapshot, false, calculation)
 
     private fun currentRecord(
@@ -170,7 +140,7 @@ private class DerivedSnapshotState<T>(
             // for correct invalidation later
             if (forceDependencyReads) {
                 notifyObservers(this) {
-                    val dependencies = readable._dependencies
+                    val dependencies = readable.dependencies
                     val invalidationNestedLevel = calculationBlockNestedLevel.get() ?: 0
                     dependencies?.forEach { dependency, nestedLevel ->
                         calculationBlockNestedLevel.set(nestedLevel + invalidationNestedLevel)
@@ -214,17 +184,13 @@ private class DerivedSnapshotState<T>(
                 @Suppress("UNCHECKED_CAST")
                 policy?.equivalent(result, readable.result as T) == true
             ) {
-                readable._dependencies = newDependencies
+                readable.dependencies = newDependencies
                 readable.resultHash = readable.readableHash(this, currentSnapshot)
-                readable.validSnapshotId = snapshot.id
-                readable.validSnapshotWriteCount = snapshot.writeCount
                 readable
             } else {
                 val writable = first.newWritableRecord(this, currentSnapshot)
-                writable._dependencies = newDependencies
+                writable.dependencies = newDependencies
                 writable.resultHash = writable.readableHash(this, currentSnapshot)
-                writable.validSnapshotId = snapshot.id
-                writable.validSnapshotWriteCount = snapshot.writeCount
                 writable.result = result
                 writable
             }
@@ -258,11 +224,18 @@ private class DerivedSnapshotState<T>(
             }
         }
 
-    override val currentRecord: DerivedState.Record<T> get() {
-        return first.withCurrent {
-            currentRecord(it, Snapshot.current, false, calculation)
+    override val currentValue: T
+        get() = first.withCurrent {
+            @Suppress("UNCHECKED_CAST")
+            currentRecord(it, Snapshot.current, false, calculation).result as T
         }
-    }
+
+    override val dependencies: Array<Any?>
+        get() = first.withCurrent {
+            val record = currentRecord(it, Snapshot.current, false, calculation)
+            @Suppress("UNCHECKED_CAST")
+            record.dependencies?.keys ?: emptyArray()
+        }
 
     override fun toString(): String = first.withCurrent {
         "DerivedState(value=${displayValue()})@${hashCode()}"

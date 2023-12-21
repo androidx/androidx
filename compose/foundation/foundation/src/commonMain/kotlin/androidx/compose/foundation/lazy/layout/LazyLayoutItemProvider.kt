@@ -70,7 +70,7 @@ internal fun LazyLayoutItemProvider.findIndexByKey(
     key: Any?,
     lastKnownIndex: Int,
 ): Int {
-    if (key == null || itemCount == 0) {
+    if (key == null) {
         // there were no real item during the previous measure
         return lastKnownIndex
     }

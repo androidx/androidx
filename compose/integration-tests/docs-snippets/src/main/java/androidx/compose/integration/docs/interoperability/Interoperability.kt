@@ -179,7 +179,7 @@ private object InteropSnippet5 {
                 CustomView(context).apply {
                     // Sets up listeners for View -> Compose communication
                     myView.setOnClickListener {
-                        selectedItem.intValue = 1
+                        selectedItem.value = 1
                     }
                 }
             },
@@ -190,7 +190,7 @@ private object InteropSnippet5 {
                 // As selectedItem is read here, AndroidView will recompose
                 // whenever the state changes
                 // Example of Compose -> View communication
-                view.coordinator.selectedItem = selectedItem.intValue
+                view.coordinator.selectedItem = selectedItem.value
             }
         )
     }

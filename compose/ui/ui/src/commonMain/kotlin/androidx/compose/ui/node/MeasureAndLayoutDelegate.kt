@@ -48,11 +48,6 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
     val hasPendingMeasureOrLayout get() = relayoutNodes.isNotEmpty()
 
     /**
-     * Whether any on positioned callbacks need to be dispatched
-     */
-    val hasPendingOnPositionedCallbacks get() = onPositionedDispatcher.isNotEmpty()
-
-    /**
      * Flag to indicate that we're currently measuring.
      */
     private var duringMeasureLayout = false
@@ -370,7 +365,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
     private fun recurseRemeasure(layoutNode: LayoutNode) {
         remeasureOnly(layoutNode)
 
-        layoutNode.forEachChild { child ->
+        layoutNode._children.forEach { child ->
             if (child.measureAffectsParent) {
                 recurseRemeasure(child)
             }

@@ -2060,35 +2060,6 @@ class LazyStaggeredGridAnimateItemPlacementTest(private val config: Config) {
         }
     }
 
-    @Test
-    fun columnCountChange() {
-        var columnCount by mutableStateOf(2)
-        val containerCrossAxisSize = itemSizeDp * 2
-        rule.setContent {
-            LazyStaggeredGrid(
-                cells = columnCount,
-                maxSize = itemSizeDp,
-                crossAxisSize = containerCrossAxisSize
-            ) {
-                items(10, key = { it }) {
-                    Item(it)
-                }
-            }
-        }
-
-        rule.runOnUiThread {
-            columnCount = 1
-        }
-
-        onAnimationFrame { _ ->
-            // todo: proper animations when removal is supported
-            assertPositions(
-                0 to AxisOffset(0f, 0f),
-                1 to AxisOffset(itemSize, 0f)
-            )
-        }
-    }
-
     private fun AxisOffset(crossAxis: Float, mainAxis: Float) =
         if (isVertical) Offset(crossAxis, mainAxis) else Offset(mainAxis, crossAxis)
 
@@ -2189,7 +2160,6 @@ class LazyStaggeredGridAnimateItemPlacementTest(private val config: Config) {
         startPadding: Dp = 0.dp,
         endPadding: Dp = 0.dp,
         spacing: Dp = 0.dp,
-        crossAxisSize: Dp? = null,
         content: LazyStaggeredGridScope.() -> Unit
     ) {
         state = rememberLazyStaggeredGridState(startIndex)
@@ -2198,7 +2168,7 @@ class LazyStaggeredGridAnimateItemPlacementTest(private val config: Config) {
                 StaggeredGridCells.Fixed(cells),
                 Modifier
                     .requiredHeightIn(minSize, maxSize)
-                    .requiredWidth(crossAxisSize ?: (itemSizeDp * cells))
+                    .requiredWidth(itemSizeDp * cells)
                     .testTag(ContainerTag),
                 state = state,
                 verticalItemSpacing = spacing,

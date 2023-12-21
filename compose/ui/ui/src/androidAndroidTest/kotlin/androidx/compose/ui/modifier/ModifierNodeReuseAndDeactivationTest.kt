@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalComposeUiApi::class)
+
 package androidx.compose.ui.modifier
 
 import androidx.compose.runtime.Applier
@@ -790,7 +792,6 @@ class ModifierNodeReuseAndDeactivationTest {
         rule.setContent {
             ReusableContentHost(active) {
                 ReusableContent(0) {
-                    @OptIn(ExperimentalComposeUiApi::class)
                     Layout(
                         modifier = Modifier
                             .modifierLocalProvider(key) { providedValue }

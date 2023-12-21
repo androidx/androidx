@@ -99,10 +99,9 @@ sealed interface LazyLayoutMeasureScope : MeasureScope {
 @ExperimentalFoundationApi
 internal class LazyLayoutMeasureScopeImpl internal constructor(
     private val itemContentFactory: LazyLayoutItemContentFactory,
-    private val subcomposeMeasureScope: SubcomposeMeasureScope
+    private val subcomposeMeasureScope: SubcomposeMeasureScope,
+    private val timeTracker: LazyLayoutPrefetchState.AverageTimeTracker?
 ) : LazyLayoutMeasureScope, MeasureScope by subcomposeMeasureScope {
-
-    private val itemProvider = itemContentFactory.itemProvider()
 
     /**
      * A cache of the previously composed items. It allows us to support [get]
@@ -115,15 +114,34 @@ internal class LazyLayoutMeasureScopeImpl internal constructor(
         return if (cachedPlaceable != null) {
             cachedPlaceable
         } else {
-            val key = itemProvider.getKey(index)
-            val contentType = itemProvider.getContentType(index)
-            val itemContent = itemContentFactory.getContent(index, key, contentType)
-            val measurables = subcomposeMeasureScope.subcompose(key, itemContent)
-            List(measurables.size) { i ->
-                measurables[i].measure(constraints)
-            }.also {
-                placeablesCache[index] = it
+            val key = itemContentFactory.itemProvider().getKey(index)
+            val itemContent = itemContentFactory.getContent(index, key)
+            val measurables = trackComposition {
+                subcomposeMeasureScope.subcompose(key, itemContent)
             }
+            trackMeasurement {
+                List(measurables.size) { i ->
+                    measurables[i].measure(constraints)
+                }.also {
+                    placeablesCache[index] = it
+                }
+            }
+        }
+    }
+
+    private inline fun <T> trackComposition(block: () -> T): T {
+        return if (timeTracker != null) {
+            timeTracker.trackComposition(block)
+        } else {
+            block()
+        }
+    }
+
+    private inline fun <T> trackMeasurement(block: () -> T): T {
+        return if (timeTracker != null) {
+            timeTracker.trackMeasurement(block)
+        } else {
+            block()
         }
     }
 

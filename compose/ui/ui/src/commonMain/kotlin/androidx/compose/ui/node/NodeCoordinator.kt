@@ -247,21 +247,15 @@ internal abstract class NodeCoordinator(
             return null
         }
 
-    internal fun onCoordinatesUsed() {
-        layoutNode.layoutDelegate.onCoordinatesUsed()
-    }
-
     final override val parentLayoutCoordinates: LayoutCoordinates?
         get() {
             check(isAttached) { ExpectAttachedLayoutCoordinates }
-            onCoordinatesUsed()
             return layoutNode.outerCoordinator.wrappedBy
         }
 
     final override val parentCoordinates: LayoutCoordinates?
         get() {
             check(isAttached) { ExpectAttachedLayoutCoordinates }
-            onCoordinatesUsed()
             return wrappedBy
         }
 
@@ -307,14 +301,6 @@ internal abstract class NodeCoordinator(
         zIndex: Float,
         layerBlock: (GraphicsLayerScope.() -> Unit)?
     ) {
-        placeSelf(position, zIndex, layerBlock)
-    }
-
-    private fun placeSelf(
-        position: IntOffset,
-        zIndex: Float,
-        layerBlock: (GraphicsLayerScope.() -> Unit)?
-    ) {
         updateLayerBlock(layerBlock)
         if (this.position != position) {
             this.position = position
@@ -330,14 +316,6 @@ internal abstract class NodeCoordinator(
             layoutNode.owner?.onLayoutChange(layoutNode)
         }
         this.zIndex = zIndex
-    }
-
-    fun placeSelfApparentToRealOffset(
-        position: IntOffset,
-        zIndex: Float,
-        layerBlock: (GraphicsLayerScope.() -> Unit)?
-    ) {
-        placeSelf(position + apparentToRealOffset, zIndex, layerBlock)
     }
 
     /**
@@ -396,9 +374,9 @@ internal abstract class NodeCoordinator(
         layerBlock: (GraphicsLayerScope.() -> Unit)?,
         forceUpdateLayerParameters: Boolean = false
     ) {
-        val layoutNode = layoutNode
-        val updateParameters = forceUpdateLayerParameters || this.layerBlock !== layerBlock ||
-            layerDensity != layoutNode.density || layerLayoutDirection != layoutNode.layoutDirection
+        val updateParameters = this.layerBlock !== layerBlock || layerDensity != layoutNode
+            .density || layerLayoutDirection != layoutNode.layoutDirection ||
+            forceUpdateLayerParameters
         this.layerBlock = layerBlock
         this.layerDensity = layoutNode.density
         this.layerLayoutDirection = layoutNode.layoutDirection
@@ -759,7 +737,6 @@ internal abstract class NodeCoordinator(
         }
 
         val nodeCoordinator = sourceCoordinates.toCoordinator()
-        nodeCoordinator.onCoordinatesUsed()
         val commonAncestor = findCommonAncestor(nodeCoordinator)
 
         var position = relativeToSource
@@ -774,7 +751,6 @@ internal abstract class NodeCoordinator(
 
     override fun transformFrom(sourceCoordinates: LayoutCoordinates, matrix: Matrix) {
         val coordinator = sourceCoordinates.toCoordinator()
-        coordinator.onCoordinatesUsed()
         val commonAncestor = findCommonAncestor(coordinator)
 
         matrix.reset()
@@ -819,7 +795,6 @@ internal abstract class NodeCoordinator(
             "LayoutCoordinates $sourceCoordinates is not attached!"
         }
         val srcCoordinator = sourceCoordinates.toCoordinator()
-        srcCoordinator.onCoordinatesUsed()
         val commonAncestor = findCommonAncestor(srcCoordinator)
 
         val bounds = rectCache
@@ -867,7 +842,6 @@ internal abstract class NodeCoordinator(
 
     override fun localToRoot(relativeToLocal: Offset): Offset {
         check(isAttached) { ExpectAttachedLayoutCoordinates }
-        onCoordinatesUsed()
         var coordinator: NodeCoordinator? = this
         var position = relativeToLocal
         while (coordinator != null) {
@@ -1204,8 +1178,7 @@ internal abstract class NodeCoordinator(
                         val layoutNode = coordinator.layoutNode
                         val layoutDelegate = layoutNode.layoutDelegate
                         if (layoutDelegate.childrenAccessingCoordinatesDuringPlacement > 0) {
-                            if (layoutDelegate.coordinatesAccessedDuringModifierPlacement ||
-                                layoutDelegate.coordinatesAccessedDuringPlacement) {
+                            if (layoutDelegate.coordinatesAccessedDuringPlacement) {
                                 layoutNode.requestRelayout()
                             }
                             layoutDelegate.measurePassDelegate

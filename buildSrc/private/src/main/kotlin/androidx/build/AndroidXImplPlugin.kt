@@ -107,11 +107,10 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
             throw Exception("Root project should use AndroidXRootImplPlugin instead")
         val extension = project.extensions.create<AndroidXExtension>(EXTENSION_NAME, project)
 
-        val kmpExtension = project.extensions.create<AndroidXMultiplatformExtension>(
+        project.extensions.create<AndroidXMultiplatformExtension>(
             AndroidXMultiplatformExtension.EXTENSION_NAME,
             project
         )
-
         project.tasks.register(BUILD_ON_SERVER_TASK, DefaultTask::class.java)
         // Perform different actions based on which plugins have been applied to the project.
         // Many of the actions overlap, ex. API tracking.
@@ -141,7 +140,7 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
         }
 
         project.configureTaskTimeouts()
-        project.configureMavenArtifactUpload(extension, kmpExtension, componentFactory)
+        project.configureMavenArtifactUpload(extension, componentFactory)
         project.configureExternalDependencyLicenseCheck()
         project.configureProjectStructureValidation(extension)
         project.configureProjectVersionValidation(extension)
@@ -157,11 +156,6 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
         project.configureConstraintsWithinGroup(extension)
         project.validateProjectParser(extension)
         project.validateAllArchiveInputsRecognized()
-        project.afterEvaluate {
-            if (extension.shouldPublish()) {
-                project.validatePublishedMultiplatformHasDefault()
-            }
-        }
     }
 
     private fun Project.registerProjectOrArtifact() {

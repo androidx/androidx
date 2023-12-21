@@ -20,9 +20,10 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
 import androidx.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
 import androidx.compose.foundation.lazy.layout.LazyLayoutPinnableItem
-import androidx.compose.foundation.lazy.layout.NearestRangeKeyIndexMap
+import androidx.compose.foundation.lazy.layout.NearestRangeKeyIndexMapState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -35,66 +36,63 @@ internal interface LazyGridItemProvider : LazyLayoutItemProvider {
 
 @ExperimentalFoundationApi
 @Composable
-internal fun rememberLazyGridItemProviderLambda(
+internal fun rememberLazyGridItemProvider(
     state: LazyGridState,
     content: LazyGridScope.() -> Unit,
-): () -> LazyGridItemProvider {
+): LazyGridItemProvider {
     val latestContent = rememberUpdatedState(content)
     return remember(state) {
-        val intervalContentState = derivedStateOf(referentialEqualityPolicy()) {
-            LazyGridIntervalContent(latestContent.value)
-        }
-        val itemProviderState = derivedStateOf(referentialEqualityPolicy()) {
-            val intervalContent = intervalContentState.value
-            val map = NearestRangeKeyIndexMap(state.nearestRange, intervalContent)
-            LazyGridItemProviderImpl(
-                state = state,
-                intervalContent = intervalContent,
-                keyIndexMap = map
-            )
-        }
-        itemProviderState::value
+        LazyGridItemProviderImpl(
+            state,
+            { latestContent.value },
+        )
     }
 }
 
 @ExperimentalFoundationApi
 private class LazyGridItemProviderImpl(
     private val state: LazyGridState,
-    private val intervalContent: LazyGridIntervalContent,
-    override val keyIndexMap: LazyLayoutKeyIndexMap,
+    private val latestContent: () -> (LazyGridScope.() -> Unit)
 ) : LazyGridItemProvider {
+    private val gridContent by derivedStateOf(referentialEqualityPolicy()) {
+        LazyGridIntervalContent(latestContent())
+    }
 
-    override val itemCount: Int get() = intervalContent.itemCount
+    override val keyIndexMap: LazyLayoutKeyIndexMap by NearestRangeKeyIndexMapState(
+        firstVisibleItemIndex = { state.firstVisibleItemIndex },
+        slidingWindowSize = { NearestItemsSlidingWindowSize },
+        extraItemCount = { NearestItemsExtraItemCount },
+        content = { gridContent }
+    )
 
-    override fun getKey(index: Int): Any =
-        keyIndexMap.getKey(index) ?: intervalContent.getKey(index)
+    override val itemCount: Int get() = gridContent.itemCount
 
-    override fun getContentType(index: Int): Any? = intervalContent.getContentType(index)
+    override fun getKey(index: Int): Any = keyIndexMap.getKey(index) ?: gridContent.getKey(index)
+
+    override fun getContentType(index: Int): Any? = gridContent.getContentType(index)
 
     @Composable
     override fun Item(index: Int, key: Any) {
         LazyLayoutPinnableItem(key, index, state.pinnedItems) {
-            intervalContent.withInterval(index) { localIndex, content ->
+            gridContent.withInterval(index) { localIndex, content ->
                 content.item(LazyGridItemScopeImpl, localIndex)
             }
         }
     }
 
     override val spanLayoutProvider: LazyGridSpanLayoutProvider
-        get() = intervalContent.spanLayoutProvider
+        get() = gridContent.spanLayoutProvider
 
     override fun getIndex(key: Any): Int = keyIndexMap.getIndex(key)
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is LazyGridItemProviderImpl) return false
-
-        // the identity of this class is represented by intervalContent object.
-        // having equals() allows us to skip items recomposition when intervalContent didn't change
-        return intervalContent == other.intervalContent
-    }
-
-    override fun hashCode(): Int {
-        return intervalContent.hashCode()
-    }
 }
+
+/**
+ * We use the idea of sliding window as an optimization, so user can scroll up to this number of
+ * items until we have to regenerate the key to index map.
+ */
+private const val NearestItemsSlidingWindowSize = 90
+
+/**
+ * The minimum amount of items near the current first visible item we want to have mapping for.
+ */
+private const val NearestItemsExtraItemCount = 200

@@ -25,8 +25,6 @@ import androidx.compose.runtime.collection.mutableVectorOf
 internal class OnPositionedDispatcher {
     private val layoutNodes = mutableVectorOf<LayoutNode>()
 
-    fun isNotEmpty() = layoutNodes.isNotEmpty()
-
     fun onNodePositioned(node: LayoutNode) {
         layoutNodes += node
         node.needsOnPositionedDispatch = true

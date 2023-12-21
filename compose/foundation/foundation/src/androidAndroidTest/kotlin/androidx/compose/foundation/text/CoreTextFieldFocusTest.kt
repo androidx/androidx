@@ -58,24 +58,4 @@ class CoreTextFieldFocusTest {
         // Assert
         rule.onNodeWithTag("TextField").assertIsFocused()
     }
-
-    @Test
-    fun tapToFocus_whenReadOnly() {
-        // Arrange.
-        val value = TextFieldValue("initial text")
-        rule.setContent {
-            CoreTextField(
-                value = value,
-                onValueChange = {},
-                modifier = Modifier.testTag("TextField"),
-                readOnly = true
-            )
-        }
-
-        // Act.
-        rule.onNodeWithTag("TextField").performClick()
-
-        // Assert
-        rule.onNodeWithTag("TextField").assertIsFocused()
-    }
 }

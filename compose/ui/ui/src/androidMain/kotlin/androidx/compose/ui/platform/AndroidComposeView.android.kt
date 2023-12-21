@@ -42,7 +42,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewStructure
 import android.view.ViewTreeObserver
-import android.view.accessibility.AccessibilityNodeInfo
 import android.view.animation.AnimationUtils
 import android.view.autofill.AutofillValue
 import android.view.inputmethod.EditorInfo
@@ -716,24 +715,6 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         }
     }
 
-    private fun addExtraDataToAccessibilityNodeInfoHelper(
-        virtualViewId: Int,
-        info: AccessibilityNodeInfo,
-        extraDataKey: String
-    ) {
-        // This extra is just for testing: needed a way to retrieve `traversalBefore` and
-        // `traversalAfter` from a non-sealed instance of an ANI
-        if (extraDataKey == accessibilityDelegate.EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL) {
-            accessibilityDelegate.idToBeforeMap[virtualViewId]?.let {
-                info.extras.putInt(extraDataKey, it)
-            }
-        } else if (extraDataKey == accessibilityDelegate.EXTRA_DATA_TEST_TRAVERSALAFTER_VAL) {
-            accessibilityDelegate.idToAfterMap[virtualViewId]?.let {
-                info.extras.putInt(extraDataKey, it)
-            }
-        }
-    }
-
     /**
      * Called to inform the owner that a new Android [View] was [attached][Owner.onAttach]
      * to the hierarchy.
@@ -766,40 +747,6 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
                         parentId = AccessibilityNodeProviderCompat.HOST_VIEW_ID
                     }
                     info.setParent(thisView, parentId)
-                    val semanticsId = layoutNode.semanticsId
-
-                    val beforeId = accessibilityDelegate.idToBeforeMap[semanticsId]
-                    beforeId?.let {
-                        val beforeView = androidViewsHandler.semanticsIdToView(beforeId)
-                        if (beforeView != null) {
-                            // If the node that should come before this one is a view, we want to
-                            // pass in the "before" view itself, which is retrieved
-                            // from `androidViewsHandler.idToViewMap`.
-                            info.setTraversalBefore(beforeView)
-                        } else {
-                            // Otherwise, we'll just set the "before" value by passing in
-                            // the semanticsId.
-                            info.setTraversalBefore(thisView, it)
-                        }
-                        addExtraDataToAccessibilityNodeInfoHelper(
-                            semanticsId, info.unwrap(),
-                            accessibilityDelegate.EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL
-                        )
-                    }
-
-                    val afterId = accessibilityDelegate.idToAfterMap[semanticsId]
-                    afterId?.let {
-                        val afterView = androidViewsHandler.semanticsIdToView(afterId)
-                        if (afterView != null) {
-                            info.setTraversalAfter(afterView)
-                        } else {
-                            info.setTraversalAfter(thisView, it)
-                        }
-                        addExtraDataToAccessibilityNodeInfoHelper(
-                            semanticsId, info.unwrap(),
-                            accessibilityDelegate.EXTRA_DATA_TEST_TRAVERSALAFTER_VAL
-                        )
-                    }
                 }
             }
         )
@@ -870,30 +817,20 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     }
 
     override fun measureAndLayout(sendPointerUpdate: Boolean) {
-        // only run the logic when we have something pending
-        if (measureAndLayoutDelegate.hasPendingMeasureOrLayout ||
-            measureAndLayoutDelegate.hasPendingOnPositionedCallbacks
-        ) {
-            trace("AndroidOwner:measureAndLayout") {
-                val resend = if (sendPointerUpdate) resendMotionEventOnLayout else null
-                val rootNodeResized = measureAndLayoutDelegate.measureAndLayout(resend)
-                if (rootNodeResized) {
-                    requestLayout()
-                }
-                measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
+        trace("AndroidOwner:measureAndLayout") {
+            val resend = if (sendPointerUpdate) resendMotionEventOnLayout else null
+            val rootNodeResized = measureAndLayoutDelegate.measureAndLayout(resend)
+            if (rootNodeResized) {
+                requestLayout()
             }
+            measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
         }
     }
 
     override fun measureAndLayout(layoutNode: LayoutNode, constraints: Constraints) {
         trace("AndroidOwner:measureAndLayout") {
             measureAndLayoutDelegate.measureAndLayout(layoutNode, constraints)
-            // only dispatch the callbacks if we don't have other nodes to process as otherwise
-            // we will have one more measureAndLayout() pass anyway in the same frame.
-            // it allows us to not traverse the hierarchy twice.
-            if (!measureAndLayoutDelegate.hasPendingMeasureOrLayout) {
-                measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
-            }
+            measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
         }
     }
 

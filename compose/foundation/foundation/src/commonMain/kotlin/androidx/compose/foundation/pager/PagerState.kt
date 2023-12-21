@@ -240,7 +240,7 @@ abstract class PagerState(
     internal val pageSize: Int
         get() = pagerLayoutInfoState.value.pageSize
 
-    internal var density: Density = UnitDensity
+    internal var density: Density by mutableStateOf(UnitDensity)
 
     private val visiblePages: List<PageInfo>
         get() = pagerLayoutInfoState.value.visiblePagesInfo
@@ -397,14 +397,12 @@ abstract class PagerState(
     /**
      * Constraints passed to the prefetcher for premeasuring the prefetched items.
      */
-    internal var premeasureConstraints = Constraints()
+    internal var premeasureConstraints by mutableStateOf(Constraints())
 
     /**
      * Stores currently pinned pages which are always composed, used by for beyond bound pages.
      */
     internal val pinnedPages = LazyLayoutPinnedItemList()
-
-    internal val nearestRange: IntRange by scrollPosition.nearestRangeState
 
     /**
      * Scroll (jump immediately) to a given [page].

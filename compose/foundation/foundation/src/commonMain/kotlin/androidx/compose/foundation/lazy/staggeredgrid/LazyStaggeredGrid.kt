@@ -63,10 +63,10 @@ internal fun LazyStaggeredGrid(
 ) {
     val overscrollEffect = ScrollableDefaults.overscrollEffect()
 
-    val itemProviderLambda = rememberStaggeredGridItemProviderLambda(state, content)
+    val itemProvider = rememberStaggeredGridItemProvider(state, content)
     val measurePolicy = rememberStaggeredGridMeasurePolicy(
         state,
-        itemProviderLambda,
+        itemProvider,
         contentPadding,
         reverseLayout,
         orientation,
@@ -76,14 +76,14 @@ internal fun LazyStaggeredGrid(
     )
     val semanticState = rememberLazyStaggeredGridSemanticState(state, reverseLayout)
 
-    ScrollPositionUpdater(itemProviderLambda, state)
+    ScrollPositionUpdater(itemProvider, state)
 
     LazyLayout(
         modifier = modifier
             .then(state.remeasurementModifier)
             .then(state.awaitLayoutModifier)
             .lazyLayoutSemantics(
-                itemProviderLambda = itemProviderLambda,
+                itemProvider = itemProvider,
                 state = semanticState,
                 orientation = orientation,
                 userScrollEnabled = userScrollEnabled,
@@ -110,7 +110,7 @@ internal fun LazyStaggeredGrid(
                 enabled = userScrollEnabled
             ),
         prefetchState = state.prefetchState,
-        itemProvider = itemProviderLambda,
+        itemProvider = itemProvider,
         measurePolicy = measurePolicy
     )
 }
@@ -119,10 +119,9 @@ internal fun LazyStaggeredGrid(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ScrollPositionUpdater(
-    itemProviderLambda: () -> LazyLayoutItemProvider,
+    itemProvider: LazyLayoutItemProvider,
     state: LazyStaggeredGridState
 ) {
-    val itemProvider = itemProviderLambda()
     if (itemProvider.itemCount > 0) {
         state.updateScrollPositionIfTheFirstItemWasMoved(itemProvider)
     }

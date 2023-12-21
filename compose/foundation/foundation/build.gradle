@@ -17,7 +17,6 @@
 
 import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
-import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
@@ -31,8 +30,6 @@ def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
 androidXMultiplatform {
     android()
     if (desktopEnabled) desktop()
-
-    defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
         commonMain {
@@ -48,8 +45,8 @@ androidXMultiplatform {
         }
         androidMain.dependencies {
             api("androidx.annotation:annotation:1.1.0")
-            implementation("androidx.emoji2:emoji2:1.4.0")
-            implementation("androidx.core:core:1.10.0")
+            implementation(project(':emoji2:emoji2'))
+            implementation(project(":core:core"))
         }
 
         commonTest {
@@ -70,7 +67,7 @@ androidXMultiplatform {
             dependsOn(jvmMain)
             dependencies {
                 api("androidx.annotation:annotation:1.1.0")
-                implementation("androidx.emoji2:emoji2:1.4.0")
+                implementation(project(':emoji2:emoji2'))
             }
         }
 

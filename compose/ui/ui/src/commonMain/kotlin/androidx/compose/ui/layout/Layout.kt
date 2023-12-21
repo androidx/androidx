@@ -23,19 +23,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReusableComposeNode
 import androidx.compose.runtime.SkippableUpdater
 import androidx.compose.runtime.currentComposer
-import androidx.compose.runtime.currentCompositeKeyHash
 import androidx.compose.runtime.remember
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.materialize
 import androidx.compose.ui.materializeWithCompositionLocalInjectionInternal
 import androidx.compose.ui.node.ComposeUiNode
-import androidx.compose.ui.node.ComposeUiNode.Companion.SetCompositeKeyHash
-import androidx.compose.ui.node.ComposeUiNode.Companion.SetMeasurePolicy
-import androidx.compose.ui.node.ComposeUiNode.Companion.SetModifier
-import androidx.compose.ui.node.ComposeUiNode.Companion.SetResolvedCompositionLocals
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
@@ -75,15 +69,12 @@ inline fun Layout(
     modifier: Modifier = Modifier,
     measurePolicy: MeasurePolicy
 ) {
-    val compositeKeyHash = currentCompositeKeyHash
     val localMap = currentComposer.currentCompositionLocalMap
     ReusableComposeNode<ComposeUiNode, Applier<Any>>(
         factory = ComposeUiNode.Constructor,
         update = {
-            set(measurePolicy, SetMeasurePolicy)
-            set(localMap, SetResolvedCompositionLocals)
-            @OptIn(ExperimentalComposeUiApi::class)
-            set(compositeKeyHash, SetCompositeKeyHash)
+            set(measurePolicy, ComposeUiNode.SetMeasurePolicy)
+            set(localMap, ComposeUiNode.SetResolvedCompositionLocals)
         },
         skippableUpdate = materializerOf(modifier),
         content = content
@@ -120,17 +111,14 @@ inline fun Layout(
     modifier: Modifier = Modifier,
     measurePolicy: MeasurePolicy
 ) {
-    val compositeKeyHash = currentCompositeKeyHash
     val materialized = currentComposer.materialize(modifier)
     val localMap = currentComposer.currentCompositionLocalMap
     ReusableComposeNode<ComposeUiNode, Applier<Any>>(
         factory = ComposeUiNode.Constructor,
         update = {
-            set(measurePolicy, SetMeasurePolicy)
-            set(localMap, SetResolvedCompositionLocals)
-            set(materialized, SetModifier)
-            @OptIn(ExperimentalComposeUiApi::class)
-            set(compositeKeyHash, SetCompositeKeyHash)
+            set(measurePolicy, ComposeUiNode.SetMeasurePolicy)
+            set(localMap, ComposeUiNode.SetResolvedCompositionLocals)
+            set(materialized, ComposeUiNode.SetModifier)
         },
     )
 }
@@ -178,13 +166,9 @@ internal fun combineAsVirtualLayouts(
     contents: List<@Composable @UiComposable () -> Unit>
 ): @Composable @UiComposable () -> Unit = {
     contents.fastForEach { content ->
-        val compositeKeyHash = currentCompositeKeyHash
         ReusableComposeNode<ComposeUiNode, Applier<Any>>(
             factory = ComposeUiNode.VirtualConstructor,
-            update = {
-                @OptIn(ExperimentalComposeUiApi::class)
-                set(compositeKeyHash, SetCompositeKeyHash)
-            },
+            update = {},
             content = content
         )
     }
@@ -200,12 +184,9 @@ internal fun combineAsVirtualLayouts(
 internal fun materializerOf(
     modifier: Modifier
 ): @Composable SkippableUpdater<ComposeUiNode>.() -> Unit = {
-    val compositeKeyHash = currentCompositeKeyHash
     val materialized = currentComposer.materialize(modifier)
     update {
-        set(materialized, SetModifier)
-        @OptIn(ExperimentalComposeUiApi::class)
-        set(compositeKeyHash, SetCompositeKeyHash)
+        set(materialized, ComposeUiNode.SetModifier)
     }
 }
 
@@ -223,12 +204,9 @@ internal fun materializerOf(
 internal fun materializerOfWithCompositionLocalInjection(
     modifier: Modifier
 ): @Composable SkippableUpdater<ComposeUiNode>.() -> Unit = {
-    val compositeKeyHash = currentCompositeKeyHash
     val materialized = currentComposer.materializeWithCompositionLocalInjectionInternal(modifier)
     update {
-        set(materialized, SetModifier)
-        @OptIn(ExperimentalComposeUiApi::class)
-        set(compositeKeyHash, SetCompositeKeyHash)
+        set(materialized, ComposeUiNode.SetModifier)
     }
 }
 
@@ -244,20 +222,17 @@ fun MultiMeasureLayout(
     content: @Composable @UiComposable () -> Unit,
     measurePolicy: MeasurePolicy
 ) {
-    val compositeKeyHash = currentCompositeKeyHash
     val materialized = currentComposer.materialize(modifier)
     val localMap = currentComposer.currentCompositionLocalMap
 
     ReusableComposeNode<LayoutNode, Applier<Any>>(
         factory = LayoutNode.Constructor,
         update = {
-            set(measurePolicy, SetMeasurePolicy)
-            set(localMap, SetResolvedCompositionLocals)
+            set(measurePolicy, ComposeUiNode.SetMeasurePolicy)
+            set(localMap, ComposeUiNode.SetResolvedCompositionLocals)
             @Suppress("DEPRECATION")
             init { this.canMultiMeasure = true }
-            set(materialized, SetModifier)
-            @OptIn(ExperimentalComposeUiApi::class)
-            set(compositeKeyHash, SetCompositeKeyHash)
+            set(materialized, ComposeUiNode.SetModifier)
         },
         content = content
     )
@@ -302,8 +277,8 @@ internal enum class IntrinsicWidthHeight {
  */
 internal class DefaultIntrinsicMeasurable(
     val measurable: IntrinsicMeasurable,
-    private val minMax: IntrinsicMinMax,
-    private val widthHeight: IntrinsicWidthHeight
+    val minMax: IntrinsicMinMax,
+    val widthHeight: IntrinsicWidthHeight
 ) : Measurable {
     override val parentData: Any?
         get() = measurable.parentData

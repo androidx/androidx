@@ -36,19 +36,22 @@ import androidx.compose.ui.node.visitAncestors
 import androidx.compose.ui.node.visitSelfAndAncestors
 import androidx.compose.ui.platform.InspectorInfo
 
-internal class FocusTargetNode :
-    FocusTargetModifierNode,
-    ObserverModifierNode,
-    ModifierLocalModifierNode,
-    Modifier.Node() {
+/**
+ * This modifier node can be used to create a modifier that makes a component focusable.
+ * Use a different instance of [FocusTargetNode] for each focusable component.
+ */
+class FocusTargetNode : ObserverModifierNode, ModifierLocalModifierNode, Modifier.Node() {
+    /**
+     * The [FocusState] associated with this [FocusTargetNode].
+     */
+    val focusState: FocusState
+        get() = focusStateImpl
 
     private var isProcessingCustomExit = false
     private var isProcessingCustomEnter = false
 
-    @OptIn(ExperimentalComposeUiApi::class)
-    override var focusState: FocusStateImpl = Inactive
-
-    val beyondBoundsLayoutParent: BeyondBoundsLayout?
+    internal var focusStateImpl = Inactive
+    internal val beyondBoundsLayoutParent: BeyondBoundsLayout?
         get() = ModifierLocalBeyondBoundsLayout.current
 
     override fun onObservedReadsChanged() {
@@ -69,7 +72,7 @@ internal class FocusTargetNode :
             ActiveParent -> {
                 scheduleInvalidationForFocusEvents()
                 // This node might be reused, so reset the state to Inactive.
-                focusState = Inactive
+                focusStateImpl = Inactive
             }
             Inactive -> scheduleInvalidationForFocusEvents()
         }

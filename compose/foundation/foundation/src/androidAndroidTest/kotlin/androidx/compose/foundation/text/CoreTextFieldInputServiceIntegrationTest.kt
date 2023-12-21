@@ -323,30 +323,6 @@ class CoreTextFieldInputServiceIntegrationTest {
     }
 
     @Test
-    fun keyboardShownWhenFieldChangedToWritableWhileFocused() {
-        // Arrange.
-        val focusRequester = FocusRequester()
-        var readOnly by mutableStateOf(true)
-        setContent {
-            CoreTextField(
-                value = TextFieldValue("Hello"),
-                onValueChange = {},
-                modifier = Modifier.focusRequester(focusRequester),
-                readOnly = readOnly
-            )
-        }
-        // Request focus and wait for keyboard.
-        rule.runOnIdle { focusRequester.requestFocus() }
-        rule.runOnIdle { assertThat(platformTextInputService.keyboardShown).isFalse() }
-
-        // Act.
-        readOnly = false
-
-        // Assert.
-        rule.runOnIdle { assertThat(platformTextInputService.keyboardShown).isTrue() }
-    }
-
-    @Test
     fun focusedRectIsPassedOnFocus() {
         val value = TextFieldValue("abc\nefg", TextRange(6))
         lateinit var textLayoutResult: TextLayoutResult

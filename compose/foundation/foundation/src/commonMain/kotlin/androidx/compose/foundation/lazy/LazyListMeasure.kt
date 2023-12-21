@@ -102,7 +102,7 @@ internal fun measureLazyList(
         }
 
         // this will contain all the MeasuredItems representing the visible items
-        val visibleItems = ArrayDeque<LazyListMeasuredItem>()
+        val visibleItems = mutableListOf<LazyListMeasuredItem>()
 
         // define min and max offsets
         val minOffset = -beforeContentPadding + if (spaceBetweenItems < 0) spaceBetweenItems else 0
@@ -342,17 +342,22 @@ private fun createItemsAfterList(
 
     var end = visibleItems.last().index
 
+    fun addItem(index: Int) {
+        if (list == null) list = mutableListOf()
+        requireNotNull(list).add(
+            measuredItemProvider.getAndMeasure(index)
+        )
+    }
+
     end = minOf(end + beyondBoundsItemCount, itemsCount - 1)
 
     for (i in visibleItems.last().index + 1..end) {
-        if (list == null) list = mutableListOf()
-        list.add(measuredItemProvider.getAndMeasure(i))
+        addItem(i)
     }
 
     pinnedItems.fastForEach { index ->
         if (index > end) {
-            if (list == null) list = mutableListOf()
-            list?.add(measuredItemProvider.getAndMeasure(index))
+            addItem(index)
         }
     }
 
@@ -369,17 +374,22 @@ private fun createItemsBeforeList(
 
     var start = currentFirstItemIndex
 
+    fun addItem(index: Int) {
+        if (list == null) list = mutableListOf()
+        requireNotNull(list).add(
+            measuredItemProvider.getAndMeasure(index)
+        )
+    }
+
     start = maxOf(0, start - beyondBoundsItemCount)
 
     for (i in currentFirstItemIndex - 1 downTo start) {
-        if (list == null) list = mutableListOf()
-        list.add(measuredItemProvider.getAndMeasure(i))
+        addItem(i)
     }
 
     pinnedItems.fastForEach { index ->
         if (index < start) {
-            if (list == null) list = mutableListOf()
-            list?.add(measuredItemProvider.getAndMeasure(index))
+            addItem(index)
         }
     }
 
@@ -403,7 +413,7 @@ private fun calculateItemsOffsets(
     horizontalArrangement: Arrangement.Horizontal?,
     reverseLayout: Boolean,
     density: Density,
-): MutableList<LazyListMeasuredItem> {
+): MutableList<LazyListPositionedItem> {
     val mainAxisLayoutSize = if (isVertical) layoutHeight else layoutWidth
     val hasSpareSpace = finalMainAxisOffset < minOf(mainAxisLayoutSize, maxOffset)
     if (hasSpareSpace) {
@@ -411,7 +421,7 @@ private fun calculateItemsOffsets(
     }
 
     val positionedItems =
-        ArrayList<LazyListMeasuredItem>(items.size + extraItemsBefore.size + extraItemsAfter.size)
+        ArrayList<LazyListPositionedItem>(items.size + extraItemsBefore.size + extraItemsAfter.size)
 
     if (hasSpareSpace) {
         require(extraItemsBefore.isEmpty() && extraItemsAfter.isEmpty())
@@ -447,29 +457,29 @@ private fun calculateItemsOffsets(
             } else {
                 absoluteOffset
             }
-            item.position(relativeOffset, layoutWidth, layoutHeight)
-            positionedItems.add(item)
+            positionedItems.add(item.position(relativeOffset, layoutWidth, layoutHeight))
         }
     } else {
         var currentMainAxis = itemsScrollOffset
         extraItemsBefore.fastForEach {
             currentMainAxis -= it.sizeWithSpacings
-            it.position(currentMainAxis, layoutWidth, layoutHeight)
-            positionedItems.add(it)
+            positionedItems.add(it.position(currentMainAxis, layoutWidth, layoutHeight))
         }
 
         currentMainAxis = itemsScrollOffset
         items.fastForEach {
-            it.position(currentMainAxis, layoutWidth, layoutHeight)
-            positionedItems.add(it)
+            positionedItems.add(it.position(currentMainAxis, layoutWidth, layoutHeight))
             currentMainAxis += it.sizeWithSpacings
         }
 
         extraItemsAfter.fastForEach {
-            it.position(currentMainAxis, layoutWidth, layoutHeight)
-            positionedItems.add(it)
+            positionedItems.add(it.position(currentMainAxis, layoutWidth, layoutHeight))
             currentMainAxis += it.sizeWithSpacings
         }
     }
     return positionedItems
 }
+
+private val EmptyRange = Int.MIN_VALUE to Int.MIN_VALUE
+private val Int.notInEmptyRange
+    get() = this != Int.MIN_VALUE

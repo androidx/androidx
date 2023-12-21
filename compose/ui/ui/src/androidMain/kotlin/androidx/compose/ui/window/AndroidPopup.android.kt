@@ -483,12 +483,10 @@ internal class PopupLayout(
         super.internalOnLayout(changed, left, top, right, bottom)
         // Now set the content size as fixed layout params, such that ViewRootImpl knows
         // the exact window size.
-        if (!properties.usePlatformDefaultWidth) {
-            val child = getChildAt(0) ?: return
-            params.width = child.measuredWidth
-            params.height = child.measuredHeight
-            popupLayoutHelper.updateViewLayout(windowManager, this, params)
-        }
+        val child = getChildAt(0) ?: return
+        params.width = child.measuredWidth
+        params.height = child.measuredHeight
+        popupLayoutHelper.updateViewLayout(windowManager, this, params)
     }
 
     private val displayWidth: Int
@@ -564,13 +562,6 @@ internal class PopupLayout(
         layoutDirection: LayoutDirection
     ) {
         this.onDismissRequest = onDismissRequest
-        if (properties.usePlatformDefaultWidth && !this.properties.usePlatformDefaultWidth) {
-            // Undo fixed size in internalOnLayout, which would suppress size changes when
-            // usePlatformDefaultWidth is true.
-            params.width = WindowManager.LayoutParams.WRAP_CONTENT
-            params.height = WindowManager.LayoutParams.WRAP_CONTENT
-            popupLayoutHelper.updateViewLayout(windowManager, this, params)
-        }
         this.properties = properties
         this.testTag = testTag
         setIsFocusable(properties.focusable)

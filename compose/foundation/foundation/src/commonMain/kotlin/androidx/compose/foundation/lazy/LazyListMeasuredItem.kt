@@ -23,16 +23,15 @@ import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.fastForEachIndexed
 
 /**
  * Represents one measured item of the lazy list. It can in fact consist of multiple placeables
  * if the user emit multiple layout nodes in the item callback.
  */
 internal class LazyListMeasuredItem @ExperimentalFoundationApi constructor(
-    override val index: Int,
+    val index: Int,
     private val placeables: List<Placeable>,
-    val isVertical: Boolean,
+    private val isVertical: Boolean,
     private val horizontalAlignment: Alignment.Horizontal?,
     private val verticalAlignment: Alignment.Vertical?,
     private val layoutDirection: LayoutDirection,
@@ -49,16 +48,13 @@ internal class LazyListMeasuredItem @ExperimentalFoundationApi constructor(
      * value passed into the place() call.
      */
     private val visualOffset: IntOffset,
-    override val key: Any,
-    override val contentType: Any?
-) : LazyListItemInfo {
-    override var offset: Int = 0
-        private set
-
+    val key: Any,
+    private val contentType: Any?
+) {
     /**
      * Sum of the main axis sizes of all the inner placeables.
      */
-    override val size: Int
+    val size: Int
 
     /**
      * Sum of the main axis sizes of all the inner placeables and [spacing].
@@ -70,14 +66,6 @@ internal class LazyListMeasuredItem @ExperimentalFoundationApi constructor(
      */
     val crossAxisSize: Int
 
-    private var mainAxisLayoutSize: Int = Unset
-    private var minMainAxisOffset: Int = 0
-    private var maxMainAxisOffset: Int = 0
-
-    // optimized for storing x and y offsets for each placeable one by one.
-    // array's size == placeables.size * 2, first we store x, then y.
-    private val placeableOffsets: IntArray
-
     init {
         var mainAxisSize = 0
         var maxCrossAxis = 0
@@ -88,7 +76,6 @@ internal class LazyListMeasuredItem @ExperimentalFoundationApi constructor(
         size = mainAxisSize
         sizeWithSpacings = (size + spacing).coerceAtLeast(0)
         crossAxisSize = maxCrossAxis
-        placeableOffsets = IntArray(placeables.size * 2)
     }
 
     val placeablesCount: Int get() = placeables.size
@@ -103,37 +90,64 @@ internal class LazyListMeasuredItem @ExperimentalFoundationApi constructor(
         offset: Int,
         layoutWidth: Int,
         layoutHeight: Int
-    ) {
-        this.offset = offset
-        mainAxisLayoutSize = if (isVertical) layoutHeight else layoutWidth
+    ): LazyListPositionedItem {
+        val wrappers = mutableListOf<LazyListPlaceableWrapper>()
+        val mainAxisLayoutSize = if (isVertical) layoutHeight else layoutWidth
         var mainAxisOffset = offset
-        placeables.fastForEachIndexed { index, placeable ->
-            val indexInArray = index * 2
-            if (isVertical) {
-                placeableOffsets[indexInArray] = requireNotNull(horizontalAlignment)
-                    .align(placeable.width, layoutWidth, layoutDirection)
-                placeableOffsets[indexInArray + 1] = mainAxisOffset
-                mainAxisOffset += placeable.height
+        placeables.fastForEach {
+            val placeableOffset = if (isVertical) {
+                val x = requireNotNull(horizontalAlignment)
+                    .align(it.width, layoutWidth, layoutDirection)
+                IntOffset(x, mainAxisOffset)
             } else {
-                placeableOffsets[indexInArray] = mainAxisOffset
-                placeableOffsets[indexInArray + 1] = requireNotNull(verticalAlignment)
-                    .align(placeable.height, layoutHeight)
-                mainAxisOffset += placeable.width
+                val y = requireNotNull(verticalAlignment).align(it.height, layoutHeight)
+                IntOffset(mainAxisOffset, y)
             }
+            mainAxisOffset += if (isVertical) it.height else it.width
+            wrappers.add(LazyListPlaceableWrapper(placeableOffset, it))
         }
-        minMainAxisOffset = -beforeContentPadding
-        maxMainAxisOffset = mainAxisLayoutSize + afterContentPadding
+        return LazyListPositionedItem(
+            offset = offset,
+            index = this.index,
+            key = key,
+            size = size,
+            minMainAxisOffset = -beforeContentPadding,
+            maxMainAxisOffset = mainAxisLayoutSize + afterContentPadding,
+            isVertical = isVertical,
+            wrappers = wrappers,
+            visualOffset = visualOffset,
+            reverseLayout = reverseLayout,
+            mainAxisLayoutSize = mainAxisLayoutSize,
+            contentType = contentType
+        )
     }
+}
 
-    fun getOffset(index: Int) =
-        IntOffset(placeableOffsets[index * 2], placeableOffsets[index * 2 + 1])
+internal class LazyListPositionedItem(
+    override val offset: Int,
+    override val index: Int,
+    override val key: Any,
+    override val size: Int,
+    private val minMainAxisOffset: Int,
+    private val maxMainAxisOffset: Int,
+    val isVertical: Boolean,
+    private val wrappers: List<LazyListPlaceableWrapper>,
+    private val visualOffset: IntOffset,
+    private val reverseLayout: Boolean,
+    private val mainAxisLayoutSize: Int,
+    override val contentType: Any?
+) : LazyListItemInfo {
+    val placeablesCount: Int get() = wrappers.size
+
+    fun getOffset(index: Int) = wrappers[index].offset
+
+    fun getParentData(index: Int) = wrappers[index].placeable.parentData
 
     fun place(
         scope: Placeable.PlacementScope,
     ) = with(scope) {
-        require(mainAxisLayoutSize != Unset) { "position() should be called first" }
         repeat(placeablesCount) { index ->
-            val placeable = placeables[index]
+            val placeable = wrappers[index].placeable
             val minOffset = minMainAxisOffset - placeable.mainAxisSize
             val maxOffset = maxMainAxisOffset
             var offset = getOffset(index)
@@ -168,4 +182,7 @@ internal class LazyListMeasuredItem @ExperimentalFoundationApi constructor(
         IntOffset(if (isVertical) x else mainAxisMap(x), if (isVertical) mainAxisMap(y) else y)
 }
 
-private const val Unset = Int.MIN_VALUE
+internal class LazyListPlaceableWrapper(
+    val offset: IntOffset,
+    val placeable: Placeable
+)

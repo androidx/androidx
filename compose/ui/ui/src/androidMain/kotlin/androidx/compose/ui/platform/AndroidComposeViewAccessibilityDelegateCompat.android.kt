@@ -61,9 +61,6 @@ import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.platform.accessibility.hasCollectionInfo
 import androidx.compose.ui.platform.accessibility.setCollectionInfo
 import androidx.compose.ui.platform.accessibility.setCollectionItemInfo
-import androidx.compose.ui.platform.coreshims.ContentCaptureSessionCompat
-import androidx.compose.ui.platform.coreshims.ViewCompatShims
-import androidx.compose.ui.platform.coreshims.ViewStructureCompat
 import androidx.compose.ui.semantics.AccessibilityAction
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -94,11 +91,12 @@ import androidx.core.view.AccessibilityDelegateCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.ViewCompat.ACCESSIBILITY_LIVE_REGION_ASSERTIVE
 import androidx.core.view.ViewCompat.ACCESSIBILITY_LIVE_REGION_POLITE
+import androidx.core.view.ViewStructureCompat
 import androidx.core.view.accessibility.AccessibilityEventCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat
-import androidx.core.view.children
+import androidx.core.view.contentcapture.ContentCaptureSessionCompat
 import androidx.lifecycle.Lifecycle
 import kotlin.math.abs
 import kotlin.math.ceil
@@ -388,12 +386,11 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             return field
         }
     private var paneDisplayed = ArraySet<Int>()
-
-    internal var idToBeforeMap = HashMap<Int, Int>()
-    internal var idToAfterMap = HashMap<Int, Int>()
-    internal val EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL =
+    private var idToBeforeMap = HashMap<Int, Int>()
+    private var idToAfterMap = HashMap<Int, Int>()
+    private val EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL =
         "android.view.accessibility.extra.EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL"
-    internal val EXTRA_DATA_TEST_TRAVERSALAFTER_VAL =
+    private val EXTRA_DATA_TEST_TRAVERSALAFTER_VAL =
         "android.view.accessibility.extra.EXTRA_DATA_TEST_TRAVERSALAFTER_VAL"
 
     private val urlSpanCache = URLSpanCache()
@@ -667,24 +664,14 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             // Add all container's children after the container itself.
             // Because we've already recursed on the containers children, the children should
             // also be sorted by their traversal index
-            val containersChildrenList = containerChildrenMapping[currNodeId]
-            if (containersChildrenList != null) {
-                val containerIsScreenReaderFocusable = isScreenReaderFocusable(returnList[i])
-                if (!containerIsScreenReaderFocusable) {
-                    // Container is removed if it is not screenreader-focusable
-                    returnList.removeAt(i)
-                } else {
-                    // Increase counter if the container was not removed
-                    i += 1
-                }
-                // Add all the container's children and increase counter by the number of children
-                returnList.addAll(i, containersChildrenList)
-                i += containersChildrenList.size
-            } else {
-                // Advance to the next item
-                i += 1
+            containerChildrenMapping[currNodeId]?.let {
+                returnList.removeAt(i) // Container is removed
+                returnList.addAll(i, it) // and its children are added
             }
+            // Move pointer to end of children if they exist, otherwise, += 1
+            i += containerChildrenMapping[currNodeId]?.size ?: 1
         }
+
         return returnList
     }
 
@@ -1240,35 +1227,18 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
         info.isScreenReaderFocusable = isScreenReaderFocusable(semanticsNode)
 
-        // `beforeId` refers to the semanticsId that should be read before this `virtualViewId`.
-        val beforeId = idToBeforeMap[virtualViewId]
-        beforeId?.let {
-            val beforeView = view.androidViewsHandler.semanticsIdToView(beforeId)
-            if (beforeView != null) {
-                // If the node that should come before this one is a view, we want to pass in the
-                // "before" view itself, which is retrieved from our `idToViewMap`.
-                info.setTraversalBefore(beforeView)
-            } else {
-                // Otherwise, we'll set the "before" value by passing in the semanticsId.
-                info.setTraversalBefore(view, beforeId)
-            }
+        if (idToBeforeMap[virtualViewId] != null) {
+            idToBeforeMap[virtualViewId]?.let { info.setTraversalBefore(view, it) }
             addExtraDataToAccessibilityNodeInfoHelper(
                 virtualViewId, info.unwrap(), EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL, null
             )
         }
 
-        val afterId = idToAfterMap[virtualViewId]
-        afterId?.let {
-            val afterView = view.androidViewsHandler.semanticsIdToView(afterId)
-            // Specially use `traversalAfter` value if the node after is a View,
-            // as expressing the order using traversalBefore in this case would require mutating the
-            // View itself, which is not under Compose's full control.
-            if (afterView != null) {
-                info.setTraversalAfter(afterView)
-                addExtraDataToAccessibilityNodeInfoHelper(
-                    virtualViewId, info.unwrap(), EXTRA_DATA_TEST_TRAVERSALAFTER_VAL, null
-                )
-            }
+        if (idToAfterMap[virtualViewId] != null) {
+            idToAfterMap[virtualViewId]?.let { info.setTraversalAfter(view, it) }
+            addExtraDataToAccessibilityNodeInfoHelper(
+                virtualViewId, info.unwrap(), EXTRA_DATA_TEST_TRAVERSALAFTER_VAL, null
+            )
         }
     }
 
@@ -2777,11 +2747,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     }
 
     private fun View.getContentCaptureSessionCompat(): ContentCaptureSessionCompat? {
-        ViewCompatShims.setImportantForContentCapture(
-            this,
-            ViewCompatShims.IMPORTANT_FOR_CONTENT_CAPTURE_YES
-        )
-        return ViewCompatShims.getContentCaptureSession(this)
+        ViewCompat.setImportantForContentCapture(this, ViewCompat.IMPORTANT_FOR_CONTENT_CAPTURE_YES)
+        return ViewCompat.getContentCaptureSession(this)
     }
 
     private fun SemanticsNode.toViewStructure(): ViewStructureCompat? {
@@ -2790,7 +2757,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             return null
         }
 
-        val rootAutofillId = ViewCompatShims.getAutofillId(view) ?: return null
+        val rootAutofillId = ViewCompat.getAutofillId(view) ?: return null
         val parentNode = parent
         val parentAutofillId = if (parentNode != null) {
             session.newAutofillId(parentNode.id.toLong()) ?: return null
@@ -3317,6 +3284,7 @@ private val SemanticsNode.getTraversalIndex: Float
         // If the traversal index has not been set, default to zero
         return 0f
     }
+
 private val SemanticsNode.infoContentDescriptionOrNull get() = this.unmergedConfig.getOrNull(
     SemanticsProperties.ContentDescription)?.firstOrNull()
 
@@ -3492,9 +3460,3 @@ private fun Role.toLegacyClassName(): String? =
         Role.DropdownList -> "android.widget.Spinner"
         else -> null
     }
-
-/**
- * This function retrieves the View corresponding to a semanticsId, if it exists.
- */
-internal fun AndroidViewsHandler.semanticsIdToView(id: Int): View? =
-    layoutNodeToHolder.entries.firstOrNull { it.key.semanticsId == id }?.value

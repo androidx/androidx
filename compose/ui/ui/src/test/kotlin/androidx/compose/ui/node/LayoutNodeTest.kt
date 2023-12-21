@@ -521,10 +521,10 @@ class LayoutNodeTest {
 
     @Test
     fun testLocalPositionOfWithSiblings() {
-        val node0 = ZeroSizedLayoutNode()
+        val node0 = LayoutNode()
         node0.attach(MockOwner())
-        val node1 = ZeroSizedLayoutNode()
-        val node2 = ZeroSizedLayoutNode()
+        val node1 = LayoutNode()
+        val node2 = LayoutNode()
         node0.insertAt(0, node1)
         node0.insertAt(1, node2)
         node1.place(10, 20)

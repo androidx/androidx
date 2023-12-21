@@ -138,7 +138,7 @@ internal val FocusTargetNode.activeChild: FocusTargetNode?
         if (!node.isAttached) return null
 
         visitChildren(Nodes.FocusTarget) {
-            when (it.focusState) {
+            when (it.focusStateImpl) {
                 Active, ActiveParent, Captured -> return it
                 Inactive -> return@visitChildren
             }
@@ -146,8 +146,9 @@ internal val FocusTargetNode.activeChild: FocusTargetNode?
         return null
     }
 
+@OptIn(ExperimentalComposeUiApi::class)
 internal fun FocusTargetNode.findActiveFocusNode(): FocusTargetNode? {
-    when (focusState) {
+    when (focusStateImpl) {
         Active, Captured -> return this
         ActiveParent -> {
             visitChildren(Nodes.FocusTarget) { node ->
@@ -160,6 +161,7 @@ internal fun FocusTargetNode.findActiveFocusNode(): FocusTargetNode? {
 }
 
 @Suppress("ModifierFactoryExtensionFunction", "ModifierFactoryReturnType")
+@OptIn(ExperimentalComposeUiApi::class)
 private fun FocusTargetNode.findNonDeactivatedParent(): FocusTargetNode? {
     visitAncestors(Nodes.FocusTarget) {
         if (it.fetchFocusProperties().canFocus) return it

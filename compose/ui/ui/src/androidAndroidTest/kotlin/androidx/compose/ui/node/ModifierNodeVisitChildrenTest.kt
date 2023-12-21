@@ -152,7 +152,7 @@ class ModifierNodeVisitChildrenTest {
             )
         }
         rule.runOnIdle {
-            child1.markAsDetached()
+            child1.detach()
         }
 
         // Act.
@@ -187,8 +187,8 @@ class ModifierNodeVisitChildrenTest {
             }
         }
         rule.runOnIdle {
-            child1.markAsDetached()
-            child3.markAsDetached()
+            child1.detach()
+            child3.detach()
         }
 
         // Act.

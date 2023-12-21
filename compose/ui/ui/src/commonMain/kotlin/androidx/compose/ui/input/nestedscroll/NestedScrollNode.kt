@@ -128,10 +128,9 @@ internal class NestedScrollNode(
     }
 
     override fun onAttach() {
-        // NOTE: It is possible for the dispatcher of a yet-to-be-removed node above this one in the
-        // chain is being used here where the dispatcher's modifierLocalNode will not be null. As a
-        // result, we should not check to see if the dispatcher's node is null, we should just set
-        // it assuming that it is not going to be used by the previous node anymore.
+        assert(resolvedDispatcher.modifierLocalNode == null) {
+            "This dispatcher should only be used by a single Modifier.nestedScroll."
+        }
         updateDispatcherFields()
     }
 
@@ -150,10 +149,7 @@ internal class NestedScrollNode(
     }
 
     private fun resetDispatcherFields() {
-        // only null this out if the modifier local node is what we set it to, since it is possible
-        // it has already been reused in a different node
-        if (resolvedDispatcher.modifierLocalNode === this)
-            resolvedDispatcher.modifierLocalNode = null
+        resolvedDispatcher.modifierLocalNode = null
     }
 
     internal fun updateNode(

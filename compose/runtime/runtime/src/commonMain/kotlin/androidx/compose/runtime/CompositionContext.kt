@@ -72,6 +72,4 @@ abstract class CompositionContext internal constructor() {
     internal open fun movableContentStateResolve(
         reference: MovableContentStateReference
     ): MovableContentState? = null
-
-    internal abstract fun reportRemovedComposition(composition: ControlledComposition)
 }

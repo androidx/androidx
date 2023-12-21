@@ -20,7 +20,7 @@ import android.content.Context
 import android.util.Log
 import android.view.View
 import android.view.inputmethod.ExtractedText
-import androidx.compose.ui.platform.coreshims.SoftwareKeyboardControllerCompat
+import androidx.core.view.SoftwareKeyboardControllerCompat
 
 internal interface InputMethodManager {
     fun restartInput()

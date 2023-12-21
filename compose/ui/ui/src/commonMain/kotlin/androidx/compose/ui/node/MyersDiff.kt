@@ -22,8 +22,8 @@ import kotlin.math.min
 
 internal interface DiffCallback {
     fun areItemsTheSame(oldIndex: Int, newIndex: Int): Boolean
-    fun insert(newIndex: Int)
-    fun remove(atIndex: Int, oldIndex: Int)
+    fun insert(atIndex: Int, newIndex: Int)
+    fun remove(oldIndex: Int)
     fun same(oldIndex: Int, newIndex: Int)
 }
 
@@ -104,37 +104,45 @@ private fun calculateDiff(
 }
 
 private fun applyDiff(
+    oldSize: Int,
+    newSize: Int,
     diagonals: IntStack,
     callback: DiffCallback,
 ) {
-    var posX = 0
-    var posY = 0
-    var i = 0
-
-    while (i < diagonals.size) {
-        val startX = diagonals[i] - diagonals[i + 2]
-        val startY = diagonals[i + 1] - diagonals[i + 2]
-        var len = diagonals[i + 2] // diagonal size
-        i += 3
-        while (posX < startX) {
-            callback.remove(posY, posX)
-            posX++
+    var posX = oldSize
+    var posY = newSize
+    while (diagonals.isNotEmpty()) {
+        var i = diagonals.pop() // diagonal size
+        val endY = diagonals.pop()
+        val endX = diagonals.pop()
+        while (posX > endX) {
+            posX--
+            callback.remove(posX)
         }
-        while (posY < startY) {
-            callback.insert(posY)
-            posY++
+        while (posY > endY) {
+            posY--
+            callback.insert(posX, posY)
         }
-        while (len-- > 0) {
+        while (i-- > 0) {
+            posX--
+            posY--
             callback.same(posX, posY)
-            posX++
-            posY++
         }
+    }
+    // the last remaining diagonals are just remove/insert until we hit zero
+    while (posX > 0) {
+        posX--
+        callback.remove(posX)
+    }
+    while (posY > 0) {
+        posY--
+        callback.insert(posX, posY)
     }
 }
 
 internal fun executeDiff(oldSize: Int, newSize: Int, callback: DiffCallback) {
     val diagonals = calculateDiff(oldSize, newSize, callback)
-    applyDiff(diagonals, callback)
+    applyDiff(oldSize, newSize, diagonals, callback)
 }
 
 /**
@@ -411,9 +419,6 @@ private value class CenteredArray(private val data: IntArray) {
 private class IntStack(initialCapacity: Int) {
     private var stack = IntArray(initialCapacity)
     private var lastIndex = 0
-
-    operator fun get(index: Int): Int = stack[index]
-    val size: Int get() = lastIndex
 
     fun pushRange(
         oldStart: Int,

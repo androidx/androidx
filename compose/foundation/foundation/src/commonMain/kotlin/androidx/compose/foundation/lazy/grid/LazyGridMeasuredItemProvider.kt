@@ -26,10 +26,11 @@ import androidx.compose.ui.unit.Constraints
  * Abstracts away the subcomposition from the measuring logic.
  */
 @OptIn(ExperimentalFoundationApi::class)
-internal abstract class LazyGridMeasuredItemProvider @ExperimentalFoundationApi constructor(
+internal class LazyGridMeasuredItemProvider @ExperimentalFoundationApi constructor(
     private val itemProvider: LazyGridItemProvider,
     private val measureScope: LazyLayoutMeasureScope,
-    private val defaultMainAxisSpacing: Int
+    private val defaultMainAxisSpacing: Int,
+    private val measuredItemFactory: MeasuredItemFactory
 ) {
     /**
      * Used to subcompose individual items of lazy grids. Composed placeables will be measured
@@ -40,7 +41,7 @@ internal abstract class LazyGridMeasuredItemProvider @ExperimentalFoundationApi 
         mainAxisSpacing: Int = defaultMainAxisSpacing,
         constraints: Constraints
     ): LazyGridMeasuredItem {
-        val key = itemProvider.getKey(index)
+        val key = keyIndexMap.getKey(index) ?: itemProvider.getKey(index)
         val contentType = itemProvider.getContentType(index)
         val placeables = measureScope.measure(index, constraints)
         val crossAxisSize = if (constraints.hasFixedWidth) {
@@ -49,7 +50,7 @@ internal abstract class LazyGridMeasuredItemProvider @ExperimentalFoundationApi 
             require(constraints.hasFixedHeight)
             constraints.minHeight
         }
-        return createItem(
+        return measuredItemFactory.createItem(
             index,
             key,
             contentType,
@@ -63,9 +64,12 @@ internal abstract class LazyGridMeasuredItemProvider @ExperimentalFoundationApi 
      * Contains the mapping between the key and the index. It could contain not all the items of
      * the list as an optimization.
      **/
-    val keyIndexMap: LazyLayoutKeyIndexMap get() = itemProvider.keyIndexMap
+    val keyIndexMap: LazyLayoutKeyIndexMap = itemProvider.keyIndexMap
+}
 
-    abstract fun createItem(
+// This interface allows to avoid autoboxing on index param
+internal fun interface MeasuredItemFactory {
+    fun createItem(
         index: Int,
         key: Any,
         contentType: Any?,

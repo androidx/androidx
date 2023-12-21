@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
+import androidx.compose.ui.node.CacheDrawModifierNode
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.Nodes
@@ -158,15 +159,6 @@ fun CacheDrawModifierNode(
     onBuildDrawCache: CacheDrawScope.() -> DrawResult
 ): CacheDrawModifierNode {
     return CacheDrawModifierNodeImpl(CacheDrawScope(), onBuildDrawCache)
-}
-
-/**
- * Expands on the [androidx.compose.ui.node.DrawModifierNode] by adding the ability to invalidate
- * the draw cache for changes in things like shapes and bitmaps (see Modifier.border for a usage
- * examples).
- */
-sealed interface CacheDrawModifierNode : DrawModifierNode {
-    fun invalidateDrawCache()
 }
 
 private class CacheDrawModifierNodeImpl(

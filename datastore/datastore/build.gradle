@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
+
+import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
-import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
@@ -32,9 +33,6 @@ androidXMultiplatform {
     ios()
     linux()
     android()
-
-    defaultPlatform(PlatformIdentifier.ANDROID)
-
     sourceSets {
         commonMain {
             dependencies {

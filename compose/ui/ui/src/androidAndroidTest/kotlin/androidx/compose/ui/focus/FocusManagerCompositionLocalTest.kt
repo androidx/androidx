@@ -18,6 +18,7 @@ package androidx.compose.ui.focus
 
 import android.view.View
 import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusStateImpl.Active
 import androidx.compose.ui.focus.FocusStateImpl.ActiveParent
@@ -424,10 +425,12 @@ class FocusManagerCompositionLocalTest {
         }
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     private val FocusManager.rootFocusState: FocusState
         get() = (this as FocusOwnerImpl).rootFocusNode.focusState
 
+    @OptIn(ExperimentalComposeUiApi::class)
     private fun FocusManager.setRootFocusState(focusState: FocusStateImpl) {
-        (this as FocusOwnerImpl).rootFocusNode.focusState = focusState
+        (this as FocusOwnerImpl).rootFocusNode.focusStateImpl = focusState
     }
 }
