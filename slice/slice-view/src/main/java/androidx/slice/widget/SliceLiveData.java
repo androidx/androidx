@@ -61,19 +61,16 @@ public final class SliceLiveData {
     private static final String TAG = "SliceLiveData";
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final SliceSpec OLD_BASIC = new SliceSpec("androidx.app.slice.BASIC", 1);
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final SliceSpec OLD_LIST = new SliceSpec("androidx.app.slice.LIST", 1);
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final Set<SliceSpec> SUPPORTED_SPECS = new ArraySet<>(
@@ -139,7 +136,6 @@ public final class SliceLiveData {
 
     /**
      * Version for testing
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @NonNull
@@ -208,7 +204,6 @@ public final class SliceLiveData {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @SuppressWarnings("deprecation") /* AsyncTask */
@@ -292,7 +287,6 @@ public final class SliceLiveData {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         protected void updateSlice() {

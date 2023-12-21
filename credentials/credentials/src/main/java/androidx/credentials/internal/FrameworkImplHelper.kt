@@ -20,32 +20,31 @@ import android.content.Context
 import android.graphics.drawable.Icon
 import android.os.Bundle
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.credentials.CreateCredentialRequest
 import androidx.credentials.CreatePasswordRequest
 import androidx.credentials.CreatePublicKeyCredentialRequest
 import androidx.credentials.R
 
-/** @hide */
 @RequiresApi(23)
-class FrameworkImplHelper {
+internal class FrameworkImplHelper {
     companion object {
         /**
          * Take the create request's `credentialData` and add SDK specific values to it.
-         *
-         * @hide
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
         @JvmStatic
         @RequiresApi(23)
         fun getFinalCreateCredentialData(
             request: CreateCredentialRequest,
-            activity: Context,
+            context: Context,
         ): Bundle {
             val createCredentialData = request.credentialData
             val displayInfoBundle = request.displayInfo.toBundle()
             displayInfoBundle.putParcelable(
                 CreateCredentialRequest.DisplayInfo.BUNDLE_KEY_CREDENTIAL_TYPE_ICON,
                 Icon.createWithResource(
-                    activity,
+                    context,
                     when (request) {
                         is CreatePasswordRequest -> R.drawable.ic_password
                         is CreatePublicKeyCredentialRequest -> R.drawable.ic_passkey

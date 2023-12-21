@@ -45,10 +45,11 @@ public class StopwatchLap extends Thing {
     StopwatchLap(@NonNull String namespace, @NonNull String id, int documentScore,
             long creationTimestampMillis, long documentTtlMillis, @Nullable String name,
             @Nullable List<String> alternateNames, @Nullable String description,
-            @Nullable String image, @Nullable String url, int lapNumber,
-            long lapDurationMillis, long accumulatedLapDurationMillis) {
+            @Nullable String image, @Nullable String url,
+            @NonNull List<PotentialAction> potentialActions,
+            int lapNumber, long lapDurationMillis, long accumulatedLapDurationMillis) {
         super(namespace, id, documentScore, creationTimestampMillis, documentTtlMillis, name,
-                alternateNames, description, image, url);
+                alternateNames, description, image, url, potentialActions);
         mLapNumber = lapNumber;
         mLapDurationMillis = lapDurationMillis;
         mAccumulatedLapDurationMillis = accumulatedLapDurationMillis;
@@ -146,6 +147,7 @@ public class StopwatchLap extends Thing {
         public StopwatchLap build() {
             return new StopwatchLap(mNamespace, mId, mDocumentScore, mCreationTimestampMillis,
                     mDocumentTtlMillis, mName, mAlternateNames, mDescription, mImage, mUrl,
+                    mPotentialActions,
                     mLapNumber, mLapDurationMillis, mAccumulatedLapDurationMillis);
         }
     }

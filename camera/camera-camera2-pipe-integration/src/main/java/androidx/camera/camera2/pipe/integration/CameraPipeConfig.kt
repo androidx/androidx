@@ -26,9 +26,6 @@ import androidx.camera.core.CameraXConfig
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class CameraPipeConfig private constructor() {
-    /**
-     * @hide
-     */
     companion object {
 
         /**

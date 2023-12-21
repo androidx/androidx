@@ -28,7 +28,7 @@ import javax.tools.Diagnostic;
 
 /**
  * An exception thrown from the appsearch annotation processor to indicate something went wrong.
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 final class ProcessingException extends Exception {

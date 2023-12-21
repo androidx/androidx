@@ -16,7 +16,7 @@
 
 package androidx.paging
 
-import com.google.common.truth.Truth.assertThat
+import androidx.kruth.assertThat
 import java.util.Collections
 import java.util.concurrent.CountDownLatch
 import kotlin.test.Test
@@ -39,16 +39,13 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@RunWith(JUnit4::class)
 class SingleRunnerTest {
     private val testScope = TestScope()
 
     @Test
-    fun cancelsPreviousRun() = runBlocking {
+    fun cancelsPreviousRun() = testScope.runTest {
         val runner = SingleRunner()
         val job = launch(Dispatchers.Unconfined) {
             runner.runInIsolation {
@@ -65,7 +62,7 @@ class SingleRunnerTest {
     }
 
     @Test
-    fun previousRunCanCancelItself() = runBlocking {
+    fun previousRunCanCancelItself() = testScope.runTest {
         val runner = SingleRunner()
         val job = launch(Dispatchers.Unconfined) {
             runner.runInIsolation {

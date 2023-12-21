@@ -29,16 +29,16 @@ internal class ModeEnum3ATest {
 
     @Test
     fun iterateAfModes() {
-        assertThat(AfMode.values().all { afMode -> afMode.value >= 0 }).isTrue()
+        assertThat(AfMode.values.all { afMode -> afMode.value >= 0 }).isTrue()
     }
 
     @Test
     fun iterateAeModes() {
-        assertThat(AeMode.values().all { aeMode -> aeMode.value >= 0 }).isTrue()
+        assertThat(AeMode.values.all { aeMode -> aeMode.value >= 0 }).isTrue()
     }
 
     @Test
     fun iterateAwbModes() {
-        assertThat(AwbMode.values().all { awbMode -> awbMode.value >= 0 }).isTrue()
+        assertThat(AwbMode.values.all { awbMode -> awbMode.value >= 0 }).isTrue()
     }
 }

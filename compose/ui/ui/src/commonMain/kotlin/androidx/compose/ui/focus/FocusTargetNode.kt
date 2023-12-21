@@ -26,6 +26,7 @@ import androidx.compose.ui.focus.FocusStateImpl.Inactive
 import androidx.compose.ui.layout.BeyondBoundsLayout
 import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.modifier.ModifierLocalModifierNode
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.ObserverModifierNode
@@ -36,22 +37,22 @@ import androidx.compose.ui.node.visitAncestors
 import androidx.compose.ui.node.visitSelfAndAncestors
 import androidx.compose.ui.platform.InspectorInfo
 
-/**
- * This modifier node can be used to create a modifier that makes a component focusable.
- * Use a different instance of [FocusTargetNode] for each focusable component.
- */
-class FocusTargetNode : ObserverModifierNode, ModifierLocalModifierNode, Modifier.Node() {
-    /**
-     * The [FocusState] associated with this [FocusTargetNode].
-     */
-    val focusState: FocusState
-        get() = focusStateImpl
+internal class FocusTargetNode :
+    CompositionLocalConsumerModifierNode,
+    FocusTargetModifierNode,
+    ObserverModifierNode,
+    ModifierLocalModifierNode,
+    Modifier.Node() {
 
     private var isProcessingCustomExit = false
     private var isProcessingCustomEnter = false
 
-    internal var focusStateImpl = Inactive
-    internal val beyondBoundsLayoutParent: BeyondBoundsLayout?
+    @OptIn(ExperimentalComposeUiApi::class)
+    override var focusState: FocusStateImpl = Inactive
+
+    var previouslyFocusedChildHash: Int = 0
+
+    val beyondBoundsLayoutParent: BeyondBoundsLayout?
         get() = ModifierLocalBeyondBoundsLayout.current
 
     override fun onObservedReadsChanged() {
@@ -72,7 +73,7 @@ class FocusTargetNode : ObserverModifierNode, ModifierLocalModifierNode, Modifie
             ActiveParent -> {
                 scheduleInvalidationForFocusEvents()
                 // This node might be reused, so reset the state to Inactive.
-                focusStateImpl = Inactive
+                focusState = Inactive
             }
             Inactive -> scheduleInvalidationForFocusEvents()
         }

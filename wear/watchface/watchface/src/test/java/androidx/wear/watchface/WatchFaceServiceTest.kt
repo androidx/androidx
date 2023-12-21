@@ -47,6 +47,7 @@ import android.support.wearable.watchface.WatchFaceStyle
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import android.view.Choreographer
 import android.view.Surface
+import android.view.SurfaceControl
 import android.view.SurfaceHolder
 import android.view.WindowInsets
 import android.view.accessibility.AccessibilityManager
@@ -98,6 +99,7 @@ import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import com.google.common.truth.Truth.assertThat
 import java.io.StringWriter
+import java.lang.reflect.Field
 import java.nio.ByteBuffer
 import java.time.Instant
 import java.time.ZoneId
@@ -750,6 +752,18 @@ public class WatchFaceServiceTest {
         }
 
         if (this::engineWrapper.isInitialized && !engineWrapper.destroyed) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                /*
+                 (TODO: b/264994539) - Explicitly releasing the mSurfaceControl field,
+                 accessed via reflection. Remove when a proper fix is found
+                */
+                val mSurfaceControlObject: Field = WatchFaceService.EngineWrapper::class
+                    .java.superclass // android.service.wallpaper.WallpaperService$Engine
+                    .getDeclaredField("mSurfaceControl")
+                mSurfaceControlObject.isAccessible = true
+                (mSurfaceControlObject.get(engineWrapper) as SurfaceControl).release()
+            }
+
             engineWrapper.onDestroy()
         }
 

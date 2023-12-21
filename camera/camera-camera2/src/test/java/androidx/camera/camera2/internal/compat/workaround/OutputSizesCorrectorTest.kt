@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21)
+
 package androidx.camera.camera2.internal.compat.workaround
 
 import android.graphics.ImageFormat
@@ -21,6 +23,7 @@ import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
 import android.util.Size
+import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.ImageFormatConstants
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test

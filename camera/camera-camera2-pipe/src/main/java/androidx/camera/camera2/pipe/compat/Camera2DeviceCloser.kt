@@ -85,15 +85,15 @@ internal class Camera2DeviceCloserImpl @Inject constructor(
             }
         }
         Log.debug { "Closing $cameraDevice" }
-        Threading.runBlockingWithTimeout(threads.backgroundDispatcher, 2000L) {
+        Threading.runBlockingWithTimeout(threads.backgroundDispatcher, 5000L) {
             cameraDevice.closeWithTrace()
         }
         if (camera2Quirks.shouldWaitForCameraDeviceOnClosed(cameraId)) {
             Log.debug { "Waiting for camera device to be completely closed" }
-            if (androidCameraState.awaitCameraDeviceClosed(timeoutMillis = 2000)) {
+            if (androidCameraState.awaitCameraDeviceClosed(timeoutMillis = 5000)) {
                 Log.debug { "Camera device is closed" }
             } else {
-                Log.warn { "Failed to wait for camera device to close after 2000ms" }
+                Log.warn { "Failed to wait for camera device to close after 5000ms" }
             }
         }
     }

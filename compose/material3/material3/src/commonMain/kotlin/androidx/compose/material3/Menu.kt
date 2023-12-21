@@ -369,16 +369,27 @@ internal data class DropdownMenuPositionProvider(
 /**
  * Represents the text and icon colors used in a menu item at different states.
  *
- * - See [MenuDefaults.itemColors] for the default colors used in a [DropdownMenuItemContent].
+ * @constructor create an instance with arbitrary colors.
+ * See [MenuDefaults.itemColors] for the default colors used in a [DropdownMenuItemContent].
+ *
+ * @param textColor the text color of this [DropdownMenuItemContent] when enabled
+ * @param leadingIconColor the leading icon color of this [DropdownMenuItemContent] when enabled
+ * @param trailingIconColor the trailing icon color of this [DropdownMenuItemContent] when
+ * enabled
+ * @param disabledTextColor the text color of this [DropdownMenuItemContent] when not enabled
+ * @param disabledLeadingIconColor the leading icon color of this [DropdownMenuItemContent] when
+ * not enabled
+ * @param disabledTrailingIconColor the trailing icon color of this [DropdownMenuItemContent]
+ * when not enabled
  */
 @Immutable
-class MenuItemColors internal constructor(
-    private val textColor: Color,
-    private val leadingIconColor: Color,
-    private val trailingIconColor: Color,
-    private val disabledTextColor: Color,
-    private val disabledLeadingIconColor: Color,
-    private val disabledTrailingIconColor: Color,
+class MenuItemColors constructor(
+    val textColor: Color,
+    val leadingIconColor: Color,
+    val trailingIconColor: Color,
+    val disabledTextColor: Color,
+    val disabledLeadingIconColor: Color,
+    val disabledTrailingIconColor: Color,
 ) {
     /**
      * Represents the text color for a menu item, depending on its [enabled] state.

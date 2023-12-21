@@ -203,6 +203,7 @@ class VirtualCamera implements CameraInternal {
             UseCase useCase = entry.getKey();
             SurfaceEdge surfaceEdge = entry.getValue();
             useCase.setViewPortCropRect(surfaceEdge.getCropRect());
+            useCase.setSensorToBufferTransformMatrix(surfaceEdge.getSensorToBufferTransform());
             useCase.updateSuggestedStreamSpec(surfaceEdge.getStreamSpec());
             useCase.notifyState();
         }

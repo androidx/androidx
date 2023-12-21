@@ -1,23 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.1.0-alpha07">
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="        public @interface Level {}"
-        errorLine2="                          ~~~~~">
-        <location
-            file="src/main/java/androidx/javascriptengine/JavaScriptConsoleCallback.java"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="            Thread.sleep(1000);"
-        errorLine2="                   ~~~~~">
-        <location
-            file="src/androidTest/java/androidx/javascriptengine/WebViewJavaScriptSandboxTest.java"/>
-    </issue>
+<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
 
     <issue
         id="BanThreadSleep"
@@ -26,60 +8,6 @@
         errorLine2="                       ~~~~~">
         <location
             file="src/androidTest/java/androidx/javascriptengine/WebViewJavaScriptSandboxTest.java"/>
-    </issue>
-
-    <issue
-        id="PrivateConstructorForUtilityClass"
-        message="Utility class is missing private constructor"
-        errorLine1="public class Utils {"
-        errorLine2="             ~~~~~">
-        <location
-            file="src/main/java/androidx/javascriptengine/common/Utils.java"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="interface IJsSandboxConsoleCallback {"
-        errorLine2="^">
-        <location
-            file="src/main/aidl/org/chromium/android_webview/js_sandbox/common/IJsSandboxConsoleCallback.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="interface IJsSandboxIsolate {"
-        errorLine2="^">
-        <location
-            file="src/main/aidl/org/chromium/android_webview/js_sandbox/common/IJsSandboxIsolate.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IJsSandboxIsolateCallback {"
-        errorLine2="^">
-        <location
-            file="src/main/aidl/org/chromium/android_webview/js_sandbox/common/IJsSandboxIsolateCallback.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="interface IJsSandboxIsolateSyncCallback {"
-        errorLine2="^">
-        <location
-            file="src/main/aidl/org/chromium/android_webview/js_sandbox/common/IJsSandboxIsolateSyncCallback.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="interface IJsSandboxService {"
-        errorLine2="^">
-        <location
-            file="src/main/aidl/org/chromium/android_webview/js_sandbox/common/IJsSandboxService.aidl"/>
     </issue>
 
 </issues>

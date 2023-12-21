@@ -73,6 +73,7 @@ public class FakeUseCase extends UseCase {
     public FakeUseCase() {
         this(new FakeUseCaseConfig.Builder()
                 .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY)
+                .setCaptureType(CaptureType.PREVIEW)
                 .getUseCaseConfig());
     }
 

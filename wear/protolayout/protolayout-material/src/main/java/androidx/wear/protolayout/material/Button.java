@@ -442,7 +442,7 @@ public class Button implements LayoutElement {
     @Nullable
     public String getTextContent() {
         Text text = getTextContentObject();
-        return text != null ? text.getText() : null;
+        return text != null ? text.getText().getValue() : null;
     }
 
     @NonNull

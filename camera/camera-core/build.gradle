@@ -62,7 +62,10 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it's own MockMaker
-    androidTestImplementation(project(":camera:camera-testing"))
+    androidTestImplementation(project(":camera:camera-testing")) {
+        // Ensure camera-testing does not pull in androidx.test dependencies
+        exclude(group:"androidx.test")
+    }
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
     androidTestImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
@@ -108,6 +111,10 @@ android {
         pickFirst "META-INF/support.camera_camera-core.version"
     }
     namespace "androidx.camera.core"
+}
+
+tasks.withType(Test).configureEach { test ->
+    test.maxParallelForks(2)
 }
 
 androidx {

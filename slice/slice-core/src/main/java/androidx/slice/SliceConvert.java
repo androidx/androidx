@@ -169,7 +169,6 @@ public class SliceConvert {
     }
 
     /**
-     * @hide
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY)

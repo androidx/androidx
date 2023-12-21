@@ -13,8 +13,6 @@ RemovedClass: androidx.benchmark.macro.MacrobenchmarkKt:
     Removed class androidx.benchmark.macro.MacrobenchmarkKt
 RemovedClass: androidx.benchmark.macro.MetricKt:
     Removed class androidx.benchmark.macro.MetricKt
-RemovedClass: androidx.benchmark.macro.MetricResultExtensionsKt:
-    Removed class androidx.benchmark.macro.MetricResultExtensionsKt
 RemovedClass: androidx.benchmark.macro.TagKt:
     Removed class androidx.benchmark.macro.TagKt
 

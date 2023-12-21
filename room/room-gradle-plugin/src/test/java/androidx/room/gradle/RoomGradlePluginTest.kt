@@ -16,8 +16,8 @@
 
 package androidx.room.gradle
 
+import androidx.kruth.assertThat
 import androidx.testutils.gradle.ProjectSetupRule
-import com.google.common.truth.Truth.assertThat
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import java.io.File

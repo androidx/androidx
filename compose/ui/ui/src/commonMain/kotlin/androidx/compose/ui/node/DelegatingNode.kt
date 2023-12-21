@@ -112,7 +112,8 @@ abstract class DelegatingNode : Modifier.Node() {
             } else {
                 updateCoordinator(coordinator)
             }
-            delegateNode.attach()
+            delegateNode.markAsAttached()
+            delegateNode.runAttachLifecycle()
             autoInvalidateInsertedNode(delegateNode)
         }
         return delegatableNode
@@ -135,7 +136,8 @@ abstract class DelegatingNode : Modifier.Node() {
                 // remove from delegate chain
                 if (it.isAttached) {
                     autoInvalidateRemovedNode(it)
-                    it.detach()
+                    it.runDetachLifecycle()
+                    it.markAsDetached()
                 }
                 it.setAsDelegateTo(it) // sets "node" back to itself
                 it.aggregateChildKindSet = 0
@@ -236,21 +238,35 @@ abstract class DelegatingNode : Modifier.Node() {
         }
     }
 
-    override fun attach() {
-        super.attach()
+    override fun markAsAttached() {
+        super.markAsAttached()
         forEachImmediateDelegate {
             it.updateCoordinator(coordinator)
             // NOTE: it might already be attached if the delegate was delegated to inside of
             // onAttach()
             if (!it.isAttached) {
-                it.attach()
+                it.markAsAttached()
             }
         }
     }
 
-    override fun detach() {
-        forEachImmediateDelegate { it.detach() }
-        super.detach()
+    override fun runAttachLifecycle() {
+        forEachImmediateDelegate {
+            it.runAttachLifecycle()
+        }
+        super.runAttachLifecycle()
+    }
+
+    override fun runDetachLifecycle() {
+        super.runDetachLifecycle()
+        forEachImmediateDelegate {
+            it.runDetachLifecycle()
+        }
+    }
+
+    override fun markAsDetached() {
+        forEachImmediateDelegate { it.markAsDetached() }
+        super.markAsDetached()
     }
 
     override fun reset() {

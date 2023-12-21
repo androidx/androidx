@@ -801,18 +801,24 @@ object IconButtonDefaults {
 /**
  * Represents the container and content colors used in an icon button in different states.
  *
+ * @constructor create an instance with arbitrary colors.
  * - See [IconButtonDefaults.filledIconButtonColors] and
  * [IconButtonDefaults.filledTonalIconButtonColors] for the default colors used in a
  * [FilledIconButton].
  * - See [IconButtonDefaults.outlinedIconButtonColors] for the default colors used in an
  * [OutlinedIconButton].
+ *
+ * @param containerColor the container color of this icon button when enabled.
+ * @param contentColor the content color of this icon button when enabled.
+ * @param disabledContainerColor the container color of this icon button when not enabled.
+ * @param disabledContentColor the content color of this icon button when not enabled.
  */
 @Immutable
-class IconButtonColors internal constructor(
-    private val containerColor: Color,
-    private val contentColor: Color,
-    private val disabledContainerColor: Color,
-    private val disabledContentColor: Color,
+class IconButtonColors constructor(
+    val containerColor: Color,
+    val contentColor: Color,
+    val disabledContainerColor: Color,
+    val disabledContentColor: Color,
 ) {
     /**
      * Represents the container color for this icon button, depending on [enabled].
@@ -860,20 +866,28 @@ class IconButtonColors internal constructor(
  * Represents the container and content colors used in a toggleable icon button in
  * different states.
  *
+ * @constructor create an instance with arbitrary colors.
  * - See [IconButtonDefaults.filledIconToggleButtonColors] and
  * [IconButtonDefaults.filledTonalIconToggleButtonColors] for the default colors used in a
  * [FilledIconButton].
  * - See [IconButtonDefaults.outlinedIconToggleButtonColors] for the default colors used in a
  *  toggleable [OutlinedIconButton].
+ *
+ * @param containerColor the container color of this icon button when enabled.
+ * @param contentColor the content color of this icon button when enabled.
+ * @param disabledContainerColor the container color of this icon button when not enabled.
+ * @param disabledContentColor the content color of this icon button when not enabled.
+ * @param checkedContainerColor the container color of this icon button when checked.
+ * @param checkedContentColor the content color of this icon button when checked.
  */
 @Immutable
-class IconToggleButtonColors internal constructor(
-    private val containerColor: Color,
-    private val contentColor: Color,
-    private val disabledContainerColor: Color,
-    private val disabledContentColor: Color,
-    private val checkedContainerColor: Color,
-    private val checkedContentColor: Color,
+class IconToggleButtonColors constructor(
+    val containerColor: Color,
+    val contentColor: Color,
+    val disabledContainerColor: Color,
+    val disabledContentColor: Color,
+    val checkedContainerColor: Color,
+    val checkedContentColor: Color,
 ) {
     /**
      * Represents the container color for this icon button, depending on [enabled] and [checked].

@@ -76,8 +76,8 @@ package androidx.tvprovider.media.tv {
   @WorkerThread public class ChannelLogoUtils {
     ctor @Deprecated public ChannelLogoUtils();
     method @WorkerThread public static android.graphics.Bitmap? loadChannelLogo(android.content.Context, long);
-    method public static boolean storeChannelLogo(android.content.Context, long, android.net.Uri);
     method @WorkerThread public static boolean storeChannelLogo(android.content.Context, long, android.graphics.Bitmap);
+    method public static boolean storeChannelLogo(android.content.Context, long, android.net.Uri);
   }
 
   public class PreviewChannel {
@@ -336,20 +336,20 @@ package androidx.tvprovider.media.tv {
   }
 
   public final class TvContractCompat {
-    method public static android.net.Uri! buildChannelLogoUri(long);
     method public static android.net.Uri! buildChannelLogoUri(android.net.Uri!);
+    method public static android.net.Uri! buildChannelLogoUri(long);
     method public static android.net.Uri! buildChannelUri(long);
     method public static android.net.Uri! buildChannelUriForPassthroughInput(String!);
     method public static android.net.Uri! buildChannelsUriForInput(String?);
     method public static String! buildInputId(android.content.ComponentName!);
     method public static android.net.Uri! buildPreviewProgramUri(long);
-    method public static android.net.Uri! buildPreviewProgramsUriForChannel(long);
     method public static android.net.Uri! buildPreviewProgramsUriForChannel(android.net.Uri!);
+    method public static android.net.Uri! buildPreviewProgramsUriForChannel(long);
     method public static android.net.Uri! buildProgramUri(long);
-    method public static android.net.Uri! buildProgramsUriForChannel(long);
     method public static android.net.Uri! buildProgramsUriForChannel(android.net.Uri!);
-    method public static android.net.Uri! buildProgramsUriForChannel(long, long, long);
     method public static android.net.Uri! buildProgramsUriForChannel(android.net.Uri!, long, long);
+    method public static android.net.Uri! buildProgramsUriForChannel(long);
+    method public static android.net.Uri! buildProgramsUriForChannel(long, long, long);
     method public static android.net.Uri! buildRecordedProgramUri(long);
     method public static android.net.Uri! buildWatchNextProgramUri(long);
     method public static boolean isChannelUri(android.net.Uri!);

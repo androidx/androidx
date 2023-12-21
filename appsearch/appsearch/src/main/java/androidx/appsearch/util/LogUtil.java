@@ -25,7 +25,7 @@ import androidx.annotation.Size;
 
 /**
  * Utilities for logging to logcat.
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class LogUtil {

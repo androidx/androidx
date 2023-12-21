@@ -78,7 +78,8 @@ internal class KspFieldElement(
                         KspSyntheticPropertyMethodElement.create(
                             env = env,
                             field = this,
-                            accessor = accessor
+                            accessor = accessor,
+                            isSyntheticStatic = false
                         )
                     }.toList()
             }

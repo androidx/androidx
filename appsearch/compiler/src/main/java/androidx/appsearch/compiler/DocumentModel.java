@@ -52,7 +52,7 @@ import javax.lang.model.util.Types;
 /**
  * Processes @Document annotations.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class DocumentModel {

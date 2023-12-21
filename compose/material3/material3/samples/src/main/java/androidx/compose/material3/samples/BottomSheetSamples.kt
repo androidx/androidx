@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -33,6 +34,7 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
@@ -70,6 +72,7 @@ import kotlinx.coroutines.launch
 fun ModalBottomSheetSample() {
     var openBottomSheet by rememberSaveable { mutableStateOf(false) }
     var skipPartiallyExpanded by remember { mutableStateOf(false) }
+    var edgeToEdgeEnabled by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val bottomSheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = skipPartiallyExpanded
@@ -92,6 +95,17 @@ fun ModalBottomSheetSample() {
             Spacer(Modifier.width(16.dp))
             Text("Skip partially expanded State")
         }
+        Row(
+            Modifier.toggleable(
+                value = edgeToEdgeEnabled,
+                role = Role.Checkbox,
+                onValueChange = { checked -> edgeToEdgeEnabled = checked }
+            )
+        ) {
+            Checkbox(checked = edgeToEdgeEnabled, onCheckedChange = null)
+            Spacer(Modifier.width(16.dp))
+            Text("Toggle edge to edge enabled.")
+        }
         Button(onClick = { openBottomSheet = !openBottomSheet }) {
             Text(text = "Show Bottom Sheet")
         }
@@ -99,9 +113,13 @@ fun ModalBottomSheetSample() {
 
     // Sheet content
     if (openBottomSheet) {
+        val windowInsets = if (edgeToEdgeEnabled)
+            WindowInsets(0) else BottomSheetDefaults.windowInsets
+
         ModalBottomSheet(
             onDismissRequest = { openBottomSheet = false },
             sheetState = bottomSheetState,
+            windowInsets = windowInsets
         ) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                 Button(

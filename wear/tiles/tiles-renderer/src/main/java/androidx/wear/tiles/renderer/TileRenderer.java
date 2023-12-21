@@ -28,10 +28,13 @@ import androidx.annotation.StyleRes;
 import androidx.wear.protolayout.LayoutElementBuilders;
 import androidx.wear.protolayout.ResourceBuilders;
 import androidx.wear.protolayout.StateBuilders;
+import androidx.wear.protolayout.expression.AppDataKey;
+import androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue;
 import androidx.wear.protolayout.expression.pipeline.StateStore;
 import androidx.wear.protolayout.proto.LayoutElementProto;
 import androidx.wear.protolayout.proto.ResourceProto;
 import androidx.wear.protolayout.renderer.impl.ProtoLayoutViewInstance;
+import androidx.wear.protolayout.renderer.inflater.ProtoLayoutThemeImpl;
 import androidx.wear.tiles.TileService;
 
 import com.google.common.collect.ImmutableMap;
@@ -40,6 +43,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 
+import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -75,6 +79,7 @@ public final class TileRenderer {
     @Nullable private final LayoutElementProto.Layout mLayout;
     @Nullable private final ResourceProto.Resources mResources;
     @NonNull private final ListeningExecutorService mUiExecutor;
+    @NonNull private final StateStore mStateStore = new StateStore(ImmutableMap.of());
 
     /**
      * Default constructor.
@@ -97,6 +102,7 @@ public final class TileRenderer {
             @NonNull LoadActionListener loadActionListener) {
         this(
                 uiContext,
+                /* tilesTheme= */ 0,
                 loadActionExecutor,
                 toStateConsumer(loadActionListener),
                 layout.toProto(),
@@ -125,9 +131,9 @@ public final class TileRenderer {
             @NonNull androidx.wear.tiles.ResourceBuilders.Resources resources,
             @NonNull Executor loadActionExecutor,
             @NonNull LoadActionListener loadActionListener) {
-        // TODO(b/272527869): Enable setting theme.
         this(
                 uiContext,
+                tilesTheme,
                 loadActionExecutor,
                 toStateConsumer(loadActionListener),
                 layout.toProto(),
@@ -145,6 +151,7 @@ public final class TileRenderer {
             @NonNull Consumer<StateBuilders.State> loadActionListener) {
         this(
                 uiContext,
+                /* tilesTheme= */ 0,
                 loadActionExecutor,
                 loadActionListener,
                 /* layout= */ null,
@@ -153,10 +160,12 @@ public final class TileRenderer {
 
     private TileRenderer(
             @NonNull Context uiContext,
+            @StyleRes int tilesTheme,
             @NonNull Executor loadActionExecutor,
             @NonNull Consumer<StateBuilders.State> loadActionListener,
             @Nullable LayoutElementProto.Layout layout,
             @Nullable ResourceProto.Resources resources) {
+
         this.mLayout = layout;
         this.mResources = resources;
         this.mUiExecutor = MoreExecutors.newDirectExecutorService();
@@ -172,13 +181,16 @@ public final class TileRenderer {
                                 uiContext, mUiExecutor, mUiExecutor, TileService.EXTRA_CLICKABLE_ID)
                         .setAnimationEnabled(true)
                         .setIsViewFullyVisible(true)
-                        .setStateStore(new StateStore(ImmutableMap.of()))
+                        .setStateStore(mStateStore)
                         .setLoadActionListener(instanceListener);
+        if (tilesTheme != 0) {
+            config.setProtoLayoutTheme(new ProtoLayoutThemeImpl(uiContext, tilesTheme));
+        }
         this.mInstance = new ProtoLayoutViewInstance(config.build());
     }
 
     @NonNull
-    @SuppressWarnings("deprecation") // TODO(b/276343540): Use protolayout types
+    @SuppressWarnings("deprecation") // For backward compatibility
     private static Consumer<StateBuilders.State> toStateConsumer(
             @NonNull LoadActionListener loadActionListener) {
         return nextState ->
@@ -217,6 +229,20 @@ public final class TileRenderer {
             // Wrap checked exceptions to avoid changing the method signature.
             throw new RuntimeException("Rendering tile has not successfully finished.", e);
         }
+    }
+
+    /**
+     * Sets the state for the current (and future) layouts. This is equivalent to setting the tile
+     * state via {@link StateBuilders.State.Builder#addKeyToValueMapping(AppDataKey,
+     * DynamicDataValue)}
+     *
+     * @param newState the state to use for the current layout (and any future layouts). This value
+     *     will replace any previously set state.
+     * @throws IllegalStateException if number of {@code newState} entries is greater than {@link
+     *     StateStore#getMaxStateEntryCount()}.
+     */
+    public void setState(@NonNull Map<AppDataKey<?>, DynamicDataValue<?>> newState) {
+        mStateStore.setAppStateEntryValues(newState);
     }
 
     /**

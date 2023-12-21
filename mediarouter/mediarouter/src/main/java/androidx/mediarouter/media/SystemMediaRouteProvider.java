@@ -16,6 +16,7 @@
 
 package androidx.mediarouter.media;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -862,6 +863,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
             super(context, syncCallback);
         }
 
+        @SuppressLint("WrongConstant") // False positive. See b/283059575.
         @Override
         @DoNotInline
         protected void onBuildSystemRouteDescriptor(SystemRouteRecord record,

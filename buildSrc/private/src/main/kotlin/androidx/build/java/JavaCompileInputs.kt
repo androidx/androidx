@@ -77,12 +77,14 @@ data class JavaCompileInputs(
             val jvmTarget = kmpExtension.targets.requirePlatform(
                 KotlinPlatformType.jvm
             )
-            val sourceCollection = jvmTarget.sourceFiles(
-                compilationName = KotlinCompilation.MAIN_COMPILATION_NAME
-            )
+            val sourceCollection = project.files(project.provider {
+                jvmTarget.sourceFiles(
+                    compilationName = KotlinCompilation.MAIN_COMPILATION_NAME
+                )
+            })
 
             return JavaCompileInputs(
-                sourcePaths = project.files(sourceCollection),
+                sourcePaths = sourceCollection,
                 dependencyClasspath = jvmTarget
                     .compilations[KotlinCompilation.MAIN_COMPILATION_NAME].compileDependencyFiles,
                 bootClasspath = project.getAndroidJar()

@@ -151,7 +151,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.center
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import java.text.NumberFormat
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.atan2
@@ -321,26 +320,52 @@ object TimePickerDefaults {
 /**
  * Represents the colors used by a [TimePicker] in different states
  *
+ * @constructor create an instance with arbitrary colors.
  * See [TimePickerDefaults.colors] for the default implementation that follows Material
  * specifications.
+ *
+ * @param clockDialColor The color of the clock dial.
+ * @param clockDialSelectedContentColor the color of the numbers of the clock dial when they
+ * are selected or overlapping with the selector
+ * @param clockDialUnselectedContentColor the color of the numbers of the clock dial when they
+ * are unselected
+ * @param selectorColor The color of the clock dial selector.
+ * @param containerColor The container color of the time picker.
+ * @param periodSelectorBorderColor the color used for the border of the AM/PM toggle.
+ * @param periodSelectorSelectedContainerColor the color used for the selected container of
+ * the AM/PM toggle
+ * @param periodSelectorUnselectedContainerColor the color used for the unselected container
+ * of the AM/PM toggle
+ * @param periodSelectorSelectedContentColor color used for the selected content of
+ * the AM/PM toggle
+ * @param periodSelectorUnselectedContentColor color used for the unselected content
+ * of the AM/PM toggle
+ * @param timeSelectorSelectedContainerColor color used for the selected container of the
+ * display buttons to switch between hour and minutes
+ * @param timeSelectorUnselectedContainerColor color used for the unselected container of the
+ * display buttons to switch between hour and minutes
+ * @param timeSelectorSelectedContentColor color used for the selected content of the display
+ * buttons to switch between hour and minutes
+ * @param timeSelectorUnselectedContentColor color used for the unselected content of the
+ * display buttons to switch between hour and minutes
  */
 @Immutable
 @ExperimentalMaterial3Api
-class TimePickerColors internal constructor(
-    internal val clockDialColor: Color,
-    internal val selectorColor: Color,
-    internal val containerColor: Color,
-    internal val periodSelectorBorderColor: Color,
-    private val clockDialSelectedContentColor: Color,
-    private val clockDialUnselectedContentColor: Color,
-    private val periodSelectorSelectedContainerColor: Color,
-    private val periodSelectorUnselectedContainerColor: Color,
-    private val periodSelectorSelectedContentColor: Color,
-    private val periodSelectorUnselectedContentColor: Color,
-    private val timeSelectorSelectedContainerColor: Color,
-    private val timeSelectorUnselectedContainerColor: Color,
-    private val timeSelectorSelectedContentColor: Color,
-    private val timeSelectorUnselectedContentColor: Color,
+class TimePickerColors constructor(
+    val clockDialColor: Color,
+    val selectorColor: Color,
+    val containerColor: Color,
+    val periodSelectorBorderColor: Color,
+    val clockDialSelectedContentColor: Color,
+    val clockDialUnselectedContentColor: Color,
+    val periodSelectorSelectedContainerColor: Color,
+    val periodSelectorUnselectedContainerColor: Color,
+    val periodSelectorSelectedContentColor: Color,
+    val periodSelectorUnselectedContentColor: Color,
+    val timeSelectorSelectedContainerColor: Color,
+    val timeSelectorUnselectedContainerColor: Color,
+    val timeSelectorSelectedContentColor: Color,
+    val timeSelectorUnselectedContentColor: Color,
 ) {
     internal fun periodSelectorContainerColor(selected: Boolean) =
         if (selected) {
@@ -497,7 +522,7 @@ class TimePickerState(
 ) {
     init {
         require(initialHour in 0..23) { "initialHour should in [0..23] range" }
-        require(initialHour in 0..59) { "initialMinute should be in [0..59] range" }
+        require(initialMinute in 0..59) { "initialMinute should be in [0..59] range" }
     }
 
     val minute: Int get() = minuteAngle.toMinute()
@@ -525,11 +550,11 @@ class TimePickerState(
     internal val values get() = if (selection == Selection.Minute) Minutes else Hours
 
     internal var selection by mutableStateOf(Selection.Hour)
-    internal var isAfternoonToggle by mutableStateOf(initialHour > 12 && !is24Hour)
+    internal var isAfternoonToggle by mutableStateOf(initialHour >= 12 && !is24Hour)
     internal var isInnerCircle by mutableStateOf(initialHour >= 12)
 
     internal var hourAngle by mutableFloatStateOf(
-        RadiansPerHour * initialHour % 12 - FullCircle / 4
+        RadiansPerHour * (initialHour % 12) - FullCircle / 4
     )
     internal var minuteAngle by mutableFloatStateOf(
         RadiansPerMinute * initialMinute - FullCircle / 4
@@ -545,8 +570,8 @@ class TimePickerState(
     }
 
     internal fun setHour(hour: Int) {
-        isInnerCircle = hour > 12 || hour == 0
-        hourAngle = RadiansPerHour * hour % 12 - FullCircle / 4
+        isInnerCircle = hour >= 12
+        hourAngle = RadiansPerHour * (hour % 12) - FullCircle / 4
     }
 
     internal fun moveSelector(x: Float, y: Float, maxDist: Float) {
@@ -592,7 +617,6 @@ class TimePickerState(
     }
 
     private fun hourForDisplay(hour: Int): Int = when {
-        is24hour && isInnerCircle && hour == 0 -> 12
         is24hour -> hour % 24
         hour % 12 == 0 -> 12
         isAfternoon -> hour - 12
@@ -611,8 +635,8 @@ class TimePickerState(
     }
 
     private fun Float.toMinute(): Int {
-        val hourOffset: Float = RadiansPerMinute / 2
-        val totalOffset = hourOffset + QuarterCircle
+        val minuteOffset: Float = RadiansPerMinute / 2
+        val totalOffset = minuteOffset + QuarterCircle
         return ((this + totalOffset) / RadiansPerMinute).toInt() % 60
     }
 
@@ -702,10 +726,10 @@ private fun TimeInputImpl(
     state: TimePickerState,
 ) {
     var hourValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(text = state.hourForDisplay.toLocalString(2)))
+        mutableStateOf(TextFieldValue(text = state.hourForDisplay.toLocalString(minDigits = 2)))
     }
     var minuteValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(text = state.minute.toLocalString(2)))
+        mutableStateOf(TextFieldValue(text = state.minute.toLocalString(minDigits = 2)))
     }
 
     Row(
@@ -789,7 +813,7 @@ private fun TimeInputImpl(
         }
 
         if (!state.is24hour) {
-            Box(modifier.padding(start = PeriodToggleMargin)) {
+            Box(Modifier.padding(start = PeriodToggleMargin)) {
                 VerticalPeriodToggle(
                     modifier = Modifier.size(
                         PeriodSelectorContainerWidth,
@@ -1306,11 +1330,11 @@ private fun ClockText(state: TimePickerState, value: Int, autoSwitchToMinute: Bo
             number = value
         )
 
-    val text = value.toLocalString(minDigits = 1)
+    val text = value.toLocalString()
     val selected = if (state.selection == Selection.Minute) {
-        state.minute.toLocalString(minDigits = 1) == text
+        state.minute.toLocalString() == text
     } else {
-        state.hour.toLocalString(minDigits = 1) == text
+        state.hour.toLocalString() == text
     }
 
     Box(
@@ -1668,12 +1692,4 @@ private class VisibleModifier(
         val otherModifier = other as? VisibleModifier ?: return false
         return visible == otherModifier.visible
     }
-}
-
-private fun Int.toLocalString(minDigits: Int): String {
-    val formatter = NumberFormat.getIntegerInstance()
-    // Eliminate any use of delimiters when formatting the integer.
-    formatter.isGroupingUsed = false
-    formatter.minimumIntegerDigits = minDigits
-    return formatter.format(this)
 }

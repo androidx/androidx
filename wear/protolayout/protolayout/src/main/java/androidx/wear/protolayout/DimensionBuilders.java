@@ -53,11 +53,7 @@ public final class DimensionBuilders {
         return new SpProp.Builder().setValue(valueSp).build();
     }
 
-    /**
-     * Shortcut for building a {@link EmProp} using a measurement in EM.
-     *
-     * @since 1.0
-     */
+    /** Shortcut for building a {@link EmProp} using a measurement in EM. */
     @NonNull
     public static EmProp em(int valueEm) {
         return new EmProp.Builder().setValue(valueEm).build();
@@ -105,6 +101,11 @@ public final class DimensionBuilders {
         return WRAP;
     }
 
+    /**
+     * A type for linear dimensions, measured in dp.
+     *
+     * @since 1.0
+     */
     @OptIn(markerClass = ExperimentalProtoLayoutExtensionApi.class)
     public static final class DpProp
             implements ContainerDimension, ImageDimension, SpacerDimension, ExtensionDimension {
@@ -117,7 +118,9 @@ public final class DimensionBuilders {
         }
 
         /**
-         * Gets the static value, in dp.
+         * Gets the static value, in dp. If a dynamic value is also set and the renderer supports
+         * dynamic values for the corresponding field, this static value will be ignored. If the
+         * static value is not specified, zero will be used instead.
          *
          * @since 1.0
          */
@@ -127,7 +130,10 @@ public final class DimensionBuilders {
         }
 
         /**
-         * Gets the dynamic value, in dp.
+         * Gets the dynamic value, in dp. Note that when setting this value, the static value is
+         * still required to be set to support older renderers that only read the static value. If
+         * {@code dynamicValue} has an invalid result, the provided static value will be used
+         * instead.
          *
          * @since 1.2
          */
@@ -199,7 +205,12 @@ public final class DimensionBuilders {
         @Override
         @NonNull
         public String toString() {
-            return "DpProp{" + "value=" + getValue() + ", dynamicValue=" + getDynamicValue() + "}";
+            return "DpProp{"
+                    + "value="
+                    + getValue()
+                    + ", dynamicValue="
+                    + getDynamicValue()
+                    + "}";
         }
 
         /** Builder for {@link DpProp}. */
@@ -229,7 +240,7 @@ public final class DimensionBuilders {
             /**
              * Sets the static value, in dp. If a dynamic value is also set and the renderer
              * supports dynamic values for the corresponding field, this static value will be
-             * ignored.
+             * ignored. If the static value is not specified, zero will be used instead.
              *
              * @since 1.0
              */
@@ -243,6 +254,8 @@ public final class DimensionBuilders {
             /**
              * Sets the dynamic value, in dp. Note that when setting this value, the static value is
              * still required to be set to support older renderers that only read the static value.
+             * If {@code dynamicValue} has an invalid result, the provided static value will be used
+             * instead.
              *
              * @since 1.2
              */
@@ -254,6 +267,13 @@ public final class DimensionBuilders {
                 return this;
             }
 
+            /**
+             * Builds an instance from accumulated values.
+             *
+             * @throws IllegalStateException if a dynamic value is set using {@link
+             *     #setDynamicValue(DynamicFloat)} but neither {@link #Builder(float)} nor {@link
+             *     #setValue(float)} is used to provide a static value.
+             */
             @Override
             @NonNull
             public DpProp build() {
@@ -525,8 +545,7 @@ public final class DimensionBuilders {
             public Builder() {}
 
             /**
-             * Sets the value, in sp. If a dynamic value is also set and the renderer supports
-             * dynamic values for the corresponding field, this static value will be ignored.
+             * Sets the value, in sp.
              *
              * @since 1.0
              */
@@ -643,7 +662,9 @@ public final class DimensionBuilders {
         }
 
         /**
-         * Gets the static value, in degrees.
+         * Gets the static value, in degrees. If a dynamic value is also set and the renderer
+         * supports dynamic values for the corresponding field, this static value will be ignored.
+         * If the static value is not specified, zero will be used instead.
          *
          * @since 1.0
          */
@@ -652,7 +673,10 @@ public final class DimensionBuilders {
         }
 
         /**
-         * Gets the dynamic value, in degrees.
+         * Gets the dynamic value, in degrees. Note that when setting this value, the static value
+         * is still required to be set to support older renderers that only read the static value.
+         * If {@code dynamicValue} has an invalid result, the provided static value will be used
+         * instead.
          *
          * @since 1.2
          */
@@ -727,7 +751,7 @@ public final class DimensionBuilders {
             /**
              * Sets the static value, in degrees. If a dynamic value is also set and the renderer
              * supports dynamic values for the corresponding field, this static value will be
-             * ignored.
+             * ignored. If the static value is not specified, zero will be used instead.
              *
              * @since 1.0
              */
@@ -741,7 +765,8 @@ public final class DimensionBuilders {
             /**
              * Sets the dynamic value, in degrees. Note that when setting this value, the static
              * value is still required to be set to support older renderers that only read the
-             * static value.
+             * static value. If {@code dynamicValue} has an invalid result, the provided static
+             * value will be used instead.
              *
              * @since 1.2
              */
@@ -753,7 +778,13 @@ public final class DimensionBuilders {
                 return this;
             }
 
-            /** Builds an instance from accumulated values. */
+            /**
+             * Builds an instance from accumulated values.
+             *
+             * @throws IllegalStateException if a dynamic value is set using {@link
+             *     #setDynamicValue(DynamicFloat)} but neither {@link #Builder(float)} nor {@link
+             *     #setValue(float)} is used to provide a static value.
+             */
             @NonNull
             public DegreesProp build() {
                 if (mImpl.hasDynamicValue() && !mImpl.hasValue()) {
@@ -950,6 +981,12 @@ public final class DimensionBuilders {
             return DimensionProto.ImageDimension.newBuilder().setExpandedDimension(mImpl).build();
         }
 
+        @Override
+        @NonNull
+        public String toString() {
+            return "ExpandedDimensionProp{" + "layoutWeight=" + getLayoutWeight() + "}";
+        }
+
         /** Builder for {@link ExpandedDimensionProp}. */
         public static final class Builder
                 implements ContainerDimension.Builder, ImageDimension.Builder {
@@ -967,10 +1004,16 @@ public final class DimensionBuilders {
              * children have equal weight. Where applicable, the width or height of the element is
              * proportional to the sum of the weights of its siblings.
              *
+             * <p>Note that this field only supports static values.
+             *
              * @since 1.2
              */
             @NonNull
             public Builder setLayoutWeight(@NonNull FloatProp layoutWeight) {
+                if (layoutWeight.getDynamicValue() != null) {
+                    throw new IllegalArgumentException(
+                            "setLayoutWeight doesn't support dynamic values.");
+                }
                 mImpl.setLayoutWeight(layoutWeight.toProto());
                 mFingerprint.recordPropertyUpdate(
                         1, checkNotNull(layoutWeight.getFingerprint()).aggregateValueAsInt());

@@ -421,9 +421,10 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     metadata = metadata,
                     segments = subTypeDataListsMap["segments"]?.toSegmentList() ?: emptyList(),
                     laps = subTypeDataListsMap["laps"]?.toLapList() ?: emptyList(),
-                    route = subTypeDataListsMap["route"]?.let {
-                        ExerciseRoute(route = it.toLocationList())
-                    },
+                    route =
+                        subTypeDataListsMap["route"]?.let {
+                            ExerciseRoute(route = it.toLocationList())
+                        },
                     hasRoute = valuesMap["hasRoute"]?.booleanVal ?: false,
                 )
             "Distance" ->
@@ -580,3 +581,20 @@ fun toRecord(proto: DataProto.DataPoint): Record =
             else -> throw RuntimeException("Unknown data type ${dataType.name}")
         }
     }
+
+fun toExerciseRoute(
+    protoWrapper: androidx.health.platform.client.exerciseroute.ExerciseRoute
+): ExerciseRoute {
+    return ExerciseRoute(
+        protoWrapper.proto.valuesList.map { value ->
+            ExerciseRoute.Location(
+                time = Instant.ofEpochMilli(value.startTimeMillis),
+                latitude = value.valuesMap["latitude"]!!.doubleVal,
+                longitude = value.valuesMap["longitude"]!!.doubleVal,
+                altitude = value.valuesMap["altitude"]?.doubleVal?.meters,
+                horizontalAccuracy = value.valuesMap["horizontal_accuracy"]?.doubleVal?.meters,
+                verticalAccuracy = value.valuesMap["vertical_accuracy"]?.doubleVal?.meters
+            )
+        }
+    )
+}

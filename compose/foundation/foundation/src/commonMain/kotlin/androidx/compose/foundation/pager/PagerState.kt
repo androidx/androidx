@@ -240,7 +240,7 @@ abstract class PagerState(
     internal val pageSize: Int
         get() = pagerLayoutInfoState.value.pageSize
 
-    internal var density: Density by mutableStateOf(UnitDensity)
+    internal var density: Density = UnitDensity
 
     private val visiblePages: List<PageInfo>
         get() = pagerLayoutInfoState.value.visiblePagesInfo
@@ -397,12 +397,14 @@ abstract class PagerState(
     /**
      * Constraints passed to the prefetcher for premeasuring the prefetched items.
      */
-    internal var premeasureConstraints by mutableStateOf(Constraints())
+    internal var premeasureConstraints = Constraints()
 
     /**
      * Stores currently pinned pages which are always composed, used by for beyond bound pages.
      */
     internal val pinnedPages = LazyLayoutPinnedItemList()
+
+    internal val nearestRange: IntRange by scrollPosition.nearestRangeState
 
     /**
      * Scroll (jump immediately) to a given [page].
@@ -447,7 +449,9 @@ abstract class PagerState(
         pageOffsetFraction: Float = 0f,
         animationSpec: AnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow)
     ) {
-        if (page == currentPage && currentPageOffsetFraction == pageOffsetFraction) return
+        if (page == currentPage && currentPageOffsetFraction == pageOffsetFraction ||
+            pageCount == 0
+        ) return
         awaitScrollDependencies()
         require(pageOffsetFraction in -0.5..0.5) {
             "pageOffsetFraction $pageOffsetFraction is not within the range -0.5 to 0.5"

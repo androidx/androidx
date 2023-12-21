@@ -115,7 +115,6 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
@@ -253,7 +252,6 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
 
     /**
      * Indicates whether this view reacts to click events or not.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public boolean isSliceViewClickable() {
@@ -263,7 +261,6 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
 
     /**
      * Sets the event info for logging a click.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setClickInfo(int[] info) {
@@ -629,7 +626,6 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setMode(@SliceMode int mode, boolean animate) {
@@ -714,7 +710,6 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     }
 
     /**
-     * @hide
      *
      * Whether this view should show a row of actions with it.
      */
@@ -726,7 +721,6 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
 
     /**
      * @return whether this view is showing a row of actions.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public boolean isShowingActionRow() {
@@ -853,7 +847,6 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
 
     /**
      * @return String representation of the provided mode.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static String modeToString(@SliceMode int mode) {
@@ -970,7 +963,6 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     };
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final Comparator<SliceAction> SLICE_ACTION_PRIORITY_COMPARATOR =

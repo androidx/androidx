@@ -15,9 +15,10 @@
  */
 
 import androidx.build.AndroidXComposePlugin
-import androidx.build.LibraryType
-import androidx.build.Publish
 import androidx.build.KmpPlatformsKt
+import androidx.build.LibraryType
+import androidx.build.PlatformIdentifier
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -31,11 +32,16 @@ androidXMultiplatform {
     android()
     if (desktopEnabled) desktop()
 
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
     sourceSets {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlibCommon)
                 api(project(":compose:foundation:foundation"))
+                implementation(project(":compose:foundation:foundation-layout"))
+                implementation(project(":compose:material3:material3"))
+                implementation(project(":compose:material3:material3-window-size-class"))
             }
         }
 
@@ -55,6 +61,8 @@ androidXMultiplatform {
             dependsOn(jvmMain)
             dependencies {
                 api("androidx.annotation:annotation:1.1.0")
+                implementation(project(":lifecycle:lifecycle-runtime-compose"))
+                implementation(project(":window:window"))
             }
         }
 
@@ -77,8 +85,16 @@ androidXMultiplatform {
             }
         }
 
-        androidTest {
+        androidAndroidTest {
             dependsOn(jvmTest)
+            dependsOn(androidMain)
+            dependencies {
+                implementation(project(":compose:test-utils"))
+                implementation(project(":window:window-testing"))
+                implementation(libs.junit)
+                implementation(libs.testRunner)
+                implementation(libs.truth)
+            }
         }
     }
 }

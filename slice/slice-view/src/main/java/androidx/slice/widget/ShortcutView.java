@@ -39,7 +39,6 @@ import androidx.slice.view.R;
 import java.util.Set;
 
 /**
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)

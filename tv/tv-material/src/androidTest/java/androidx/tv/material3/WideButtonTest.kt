@@ -25,7 +25,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.testTag
@@ -55,7 +54,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @OptIn(
-    ExperimentalComposeUiApi::class,
     ExperimentalTestApi::class,
     ExperimentalTvMaterial3Api::class
 )
@@ -85,6 +83,32 @@ class WideButtonTest {
 
         rule.onNodeWithTag(WideButtonTag)
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            .assertHasClickAction()
+            .assertIsEnabled()
+    }
+
+    @Test
+    fun wideButton_longClickSemantics() {
+        rule.setContent {
+            Box {
+                WideButton(
+                    onClick = { },
+                    onLongClick = {},
+                    modifier = Modifier
+                        .testTag(WideButtonTag),
+                    title = { Text(text = "Settings") },
+                    icon = {
+                        Icon(imageVector = Icons.Default.Settings, contentDescription = "")
+                    },
+                    subtitle = { Text(text = "Update device preferences") }
+                )
+            }
+        }
+
+        rule.onNodeWithTag(WideButtonTag)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            .assertHasClickAction()
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.OnLongClick))
             .assertIsEnabled()
     }
 
@@ -133,6 +157,35 @@ class WideButtonTest {
         rule.onNodeWithTag(WideButtonTag)
             .performSemanticsAction(SemanticsActions.RequestFocus)
             .performKeyInput { pressKey(Key.DirectionCenter) }
+        rule.runOnIdle {
+            Truth.assertThat(counter).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun wideButton_findByTagAndLongClick() {
+        var counter = 0
+        val onLongClick: () -> Unit = { ++counter }
+
+        rule.setContent {
+            Box {
+                WideButton(
+                    onClick = {},
+                    onLongClick = onLongClick,
+                    modifier = Modifier
+                        .testTag(WideButtonTag),
+                    title = { Text(text = "Settings") },
+                    icon = {
+                        Icon(imageVector = Icons.Default.Settings, contentDescription = "")
+                    },
+                    subtitle = { Text(text = "Update device preferences") }
+                )
+            }
+        }
+
+        rule.onNodeWithTag(WideButtonTag)
+            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .performLongKeyPress(rule, Key.DirectionCenter)
         rule.runOnIdle {
             Truth.assertThat(counter).isEqualTo(1)
         }

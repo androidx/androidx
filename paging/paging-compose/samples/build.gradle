@@ -27,16 +27,15 @@ dependencies {
     implementation(libs.kotlinStdlib)
 
     compileOnly(projectOrArtifact(":annotation:annotation-sampled"))
-    implementation(projectOrArtifact(":compose:foundation:foundation"))
-    implementation(projectOrArtifact(":compose:material:material"))
-    implementation projectOrArtifact(":compose:ui:ui-tooling")
+    implementation("androidx.compose.foundation:foundation:1.5.0-beta01")
+    implementation("androidx.compose.material:material:1.5.0-beta01")
+    implementation("androidx.compose.ui:ui-tooling:1.5.0-beta01")
     implementation(project(":paging:paging-compose"))
 }
 
 androidx {
     name = "Paging Compose Samples"
     type = LibraryType.SAMPLES
-    mavenVersion = LibraryVersions.PAGING_COMPOSE
     inceptionYear = "2020"
     description = "Contains the sample code for the Androidx Paging library compose interop"
 }

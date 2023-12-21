@@ -30,7 +30,6 @@ import java.lang.annotation.RetentionPolicy;
 public class EventInfo {
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
@@ -82,19 +81,16 @@ public class EventInfo {
     public static final int ROW_TYPE_SELECTION = 6;
     /**
      * Indicates the row represents a date selection (date picker).
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int ROW_TYPE_DATE_PICK = 7;
     /**
      * Indicates the row represents a time selection (time picker).
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int ROW_TYPE_TIME_PICK = 8;
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
@@ -134,19 +130,16 @@ public class EventInfo {
     public static final int ACTION_TYPE_SELECTION = 5;
     /**
      * Indicates the event was a selection from a date picker.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int ACTION_TYPE_DATE_PICK = 6;
     /**
      * Indicates the event was a selection from a time picker.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int ACTION_TYPE_TIME_PICK = 7;
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({

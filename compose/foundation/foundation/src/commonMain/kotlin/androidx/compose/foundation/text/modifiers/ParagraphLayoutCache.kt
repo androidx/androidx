@@ -330,7 +330,7 @@ internal class ParagraphLayoutCache(
      *
      * Exposed for semantics GetTextLayoutResult
      */
-    fun slowCreateTextLayoutResultOrNull(): TextLayoutResult? {
+    fun slowCreateTextLayoutResultOrNull(style: TextStyle): TextLayoutResult? {
         // make sure we're in a valid place
         val localLayoutDirection = intrinsicsLayoutDirection ?: return null
         val localDensity = density ?: return null

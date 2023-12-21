@@ -21,6 +21,7 @@ import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
+import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
 import android.media.Image
 import android.media.ImageReader
@@ -193,6 +194,12 @@ class StillCaptureProcessorTest {
             override fun onError(e: Exception) {
                 deferredCaptureCompleted.completeExceptionally(e)
             }
+
+            override fun onCaptureResult(
+                shutterTimestamp: Long,
+                result: MutableList<android.util.Pair<CaptureResult.Key<Any>, Any>>
+            ) {
+            }
         })
 
         val outputJpegDeferred = CompletableDeferred<ImageProxy>()
@@ -288,6 +295,12 @@ class StillCaptureProcessorTest {
 
             override fun onError(e: java.lang.Exception) {
                 deferredCapture.completeExceptionally(e)
+            }
+
+            override fun onCaptureResult(
+                shutterTimestamp: Long,
+                result: MutableList<android.util.Pair<CaptureResult.Key<Any>, Any>>
+            ) {
             }
         })
 

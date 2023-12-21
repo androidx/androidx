@@ -25,10 +25,8 @@ import android.os.LocaleList;
 import androidx.annotation.AnyThread;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
-import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
-import androidx.core.os.BuildCompat;
 import androidx.core.os.LocaleListCompat;
 
 import java.util.Locale;
@@ -36,10 +34,6 @@ import java.util.Locale;
 /**
  * Helper for accessing features in {@link android.app.LocaleManager} in a backwards compatible
  * fashion.
- *
- * <p><b>Note:</b> Backwards compatibility for
- * {@link LocaleManager#setApplicationLocales(LocaleList)} and
- * {@link LocaleManager#getApplicationLocales()} is available via AppCompatDelegate.
  */
 public final class LocaleManagerCompat {
 
@@ -53,13 +47,12 @@ public final class LocaleManagerCompat {
      * is set, this method helps cater to rare use-cases which might require specifically knowing
      * the system locale.
      */
-    @OptIn(markerClass = androidx.core.os.BuildCompat.PrereleaseSdkCheck.class)
     @NonNull
     @AnyThread
     public static LocaleListCompat getSystemLocales(@NonNull Context context) {
         LocaleListCompat systemLocales = LocaleListCompat.getEmptyLocaleList();
         // TODO: modify the check to Build.Version.SDK_INT >= 33.
-        if (BuildCompat.isAtLeastT()) {
+        if (Build.VERSION.SDK_INT >= 33) {
             // If the API version is 33 or above we want to redirect the call to the framework API.
             Object localeManager = getLocaleManagerForApplication(context);
             if (localeManager != null) {
@@ -74,6 +67,31 @@ public final class LocaleManagerCompat {
                     .getResources().getConfiguration());
         }
         return systemLocales;
+    }
+
+    /**
+     * Returns application locales for the calling app as a {@link LocaleListCompat}. This API
+     * for non-{@link androidx.appcompat.app.AppCompatDelegate} context to easily get the per-app
+     * locale on the prior API 33 devices.
+     *
+     * <p>Returns a {@link LocaleListCompat#getEmptyLocaleList()} if no app-specific locales are
+     * set.
+     */
+    @AnyThread
+    @NonNull
+    public static LocaleListCompat getApplicationLocales(@NonNull Context context) {
+        if (Build.VERSION.SDK_INT >= 33) {
+            // If the API version is 33 or above we want to redirect the call to the framework API.
+            Object localeManager = getLocaleManagerForApplication(context);
+            if (localeManager != null) {
+                return LocaleListCompat.wrap(Api33Impl.localeManagerGetApplicationLocales(
+                        localeManager));
+            } else {
+                return LocaleListCompat.getEmptyLocaleList();
+            }
+        } else {
+            return LocaleListCompat.forLanguageTags(AppLocalesStorageHelper.readLocales(context));
+        }
     }
 
     /**
@@ -125,6 +143,12 @@ public final class LocaleManagerCompat {
         static LocaleList localeManagerGetSystemLocales(Object localeManager) {
             LocaleManager mLocaleManager = (LocaleManager) localeManager;
             return mLocaleManager.getSystemLocales();
+        }
+
+        @DoNotInline
+        static LocaleList localeManagerGetApplicationLocales(Object localeManager) {
+            LocaleManager mLocaleManager = (LocaleManager) localeManager;
+            return mLocaleManager.getApplicationLocales();
         }
     }
 }

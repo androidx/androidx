@@ -96,6 +96,10 @@ abstract class FtlRunner : DefaultTask() {
 
     @TaskAction
     fun execThings() {
+        if (!System.getenv().containsKey("GOOGLE_APPLICATION_CREDENTIALS")) {
+            throw Exception("Running tests in FTL requires credentials, you have not set up " +
+                "GOOGLE_APPLICATION_CREDENTIALS, follow go/androidx-dev#remote-build-cache")
+        }
         val testApk = testLoader.get().load(testFolder.get())
             ?: throw RuntimeException("Cannot load required APK for task: $name")
         val testApkPath = testApk.elements.single().outputFile

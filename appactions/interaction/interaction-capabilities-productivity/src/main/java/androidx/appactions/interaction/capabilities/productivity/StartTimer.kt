@@ -21,13 +21,8 @@ import androidx.appactions.builtintypes.experimental.types.SuccessStatus
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
-import androidx.appactions.interaction.capabilities.core.HostProperties
-import androidx.appactions.interaction.capabilities.core.ValueListener
-import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.impl.task.SessionBridge
-import androidx.appactions.interaction.capabilities.core.impl.task.TaskHandler
 import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import androidx.appactions.interaction.proto.ParamValue
@@ -35,13 +30,10 @@ import androidx.appactions.interaction.protobuf.Struct
 import androidx.appactions.interaction.protobuf.Value
 import java.time.Duration
 
-private const val CAPABILITY_NAME = "actions.intent.START_TIMER"
-
 /** A capability corresponding to actions.intent.START_TIMER */
-@CapabilityFactory(name = CAPABILITY_NAME)
+@CapabilityFactory(name = StartTimer.CAPABILITY_NAME)
 class StartTimer private constructor() {
-    internal enum class PropertyMapStrings(val key: String) {
-        TIMER_LIST("timer.timerList"),
+    internal enum class SlotMetadata(val path: String) {
         IDENTIFIER("timer.identifier"),
         NAME("timer.name"),
         DURATION("timer.duration")
@@ -55,45 +47,25 @@ class StartTimer private constructor() {
             Confirmation,
             ExecutionSession
             >(ACTION_SPEC) {
-        private var properties = mutableMapOf<String, Property<*>>()
+        fun setIdentifierProperty(
+            identifier: Property<StringValue>
+        ): CapabilityBuilder = setProperty(
+            SlotMetadata.IDENTIFIER.path,
+            identifier,
+            TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+        )
 
-        override val sessionBridge: SessionBridge<
-            ExecutionSession,
-            Arguments,
-            Confirmation
-        > = SESSION_BRIDGE
+        fun setNameProperty(name: Property<StringValue>): CapabilityBuilder = setProperty(
+            SlotMetadata.NAME.path,
+            name,
+            TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+        )
 
-        override fun setExecutionSessionFactory(
-            sessionFactory: (hostProperties: HostProperties?) -> ExecutionSession
-        ): CapabilityBuilder = super.setExecutionSessionFactory(sessionFactory)
-
-        fun setTimerList(timerList: Property<TimerValue>): CapabilityBuilder = apply {
-            properties[PropertyMapStrings.TIMER_LIST.key] = timerList
-        }
-
-        fun setIdentifier(identifier: Property<StringValue>): CapabilityBuilder = apply {
-            properties[PropertyMapStrings.IDENTIFIER.key] = identifier
-        }
-
-        fun setName(name: Property<StringValue>): CapabilityBuilder = apply {
-            properties[PropertyMapStrings.NAME.key] = name
-        }
-
-        fun setDuration(duration: Property<Duration>): CapabilityBuilder = apply {
-            properties[PropertyMapStrings.DURATION.key] = duration
-        }
-
-        override fun build(): Capability {
-            super.setProperty(properties)
-            return super.build()
-        }
-    }
-
-    interface ExecutionSession : BaseExecutionSession<Arguments, Output> {
-        val nameListener: ValueListener<String>?
-            get() = null
-        val durationListener: ValueListener<Duration>?
-            get() = null
+        fun setDurationProperty(duration: Property<Duration>): CapabilityBuilder = setProperty(
+            SlotMetadata.DURATION.path,
+            duration,
+            TypeConverters.DURATION_ENTITY_CONVERTER
+        )
     }
 
     class Arguments internal constructor(
@@ -125,7 +97,7 @@ class StartTimer private constructor() {
             return result
         }
 
-        class Builder : BuilderOf<Arguments> {
+        class Builder {
             private var identifier: String? = null
             private var name: String? = null
             private var duration: Duration? = null
@@ -136,10 +108,9 @@ class StartTimer private constructor() {
 
             fun setDuration(duration: Duration): Builder = apply { this.duration = duration }
 
-            override fun build(): Arguments = Arguments(identifier, name, duration)
+            fun build(): Arguments = Arguments(identifier, name, duration)
         }
     }
-
     class Output internal constructor(val executionStatus: ExecutionStatus?) {
         override fun toString(): String {
             return "Output(executionStatus=$executionStatus)"
@@ -200,40 +171,30 @@ class StartTimer private constructor() {
         }
     }
 
+    sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
     class Confirmation internal constructor()
 
     companion object {
-        @Suppress("UNCHECKED_CAST")
+        /** Canonical name for [StartTimer] capability */
+        const val CAPABILITY_NAME = "actions.intent.START_TIMER"
         private val ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-                .setArguments(Arguments::class.java, Arguments::Builder)
+                .setArguments(Arguments::class.java, Arguments::Builder, Arguments.Builder::build)
                 .setOutput(Output::class.java)
                 .bindParameter(
-                    "timer.identifier",
-                    { properties ->
-                        properties[PropertyMapStrings.IDENTIFIER.key] as? Property<StringValue>
-                    },
+                    SlotMetadata.IDENTIFIER.path,
                     Arguments.Builder::setIdentifier,
-                    TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                    TypeConverters.STRING_PARAM_VALUE_CONVERTER
                 )
                 .bindParameter(
-                    "timer.name",
-                    { properties ->
-                        properties[PropertyMapStrings.NAME.key] as? Property<StringValue>
-                    },
+                    SlotMetadata.NAME.path,
                     Arguments.Builder::setName,
-                    TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                    TypeConverters.STRING_PARAM_VALUE_CONVERTER
                 )
                 .bindParameter(
-                    "timer.duration",
-                    { properties ->
-                        properties[PropertyMapStrings.DURATION.key] as? Property<Duration>
-                    },
+                    SlotMetadata.DURATION.path,
                     Arguments.Builder::setDuration,
-                    TypeConverters.DURATION_PARAM_VALUE_CONVERTER,
-                    TypeConverters.DURATION_ENTITY_CONVERTER
+                    TypeConverters.DURATION_PARAM_VALUE_CONVERTER
                 )
                 .bindOutput(
                     "executionStatus",
@@ -241,25 +202,5 @@ class StartTimer private constructor() {
                     ExecutionStatus::toParamValue
                 )
                 .build()
-
-        private val SESSION_BRIDGE = SessionBridge<ExecutionSession, Arguments, Confirmation> {
-                session ->
-            val taskHandlerBuilder = TaskHandler.Builder<Arguments, Confirmation>()
-            session.nameListener?.let {
-                taskHandlerBuilder.registerValueTaskParam(
-                    "timer.name",
-                    it,
-                    TypeConverters.STRING_PARAM_VALUE_CONVERTER
-                )
-            }
-            session.durationListener?.let {
-                taskHandlerBuilder.registerValueTaskParam(
-                    "timer.duration",
-                    it,
-                    TypeConverters.DURATION_PARAM_VALUE_CONVERTER
-                )
-            }
-            taskHandlerBuilder.build()
-        }
     }
 }

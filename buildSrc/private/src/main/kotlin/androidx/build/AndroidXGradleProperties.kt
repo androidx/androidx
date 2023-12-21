@@ -151,6 +151,18 @@ const val ALLOW_CUSTOM_COMPILE_SDK = "androidx.allowCustomCompileSdk"
  */
 const val UPDATE_SIGNATURES = "androidx.update.signatures"
 
+/**
+ * Comma-delimited list of project path prefixes which have been opted-out of the Suppress
+ * Compatibility migration.
+ */
+const val SUPPRESS_COMPATIBILITY_OPT_OUT = "androidx.suppress.compatibility.optout"
+
+/**
+ * Comma-delimited list of project path prefixes which have been opted-in to the Suppress
+ * Compatibility migration.
+ */
+const val SUPPRESS_COMPATIBILITY_OPT_IN = "androidx.suppress.compatibility.optin"
+
 val ALL_ANDROIDX_PROPERTIES = setOf(
     ADD_GROUP_CONSTRAINTS,
     ALTERNATIVE_PROJECT_URL,
@@ -178,7 +190,14 @@ val ALL_ANDROIDX_PROPERTIES = setOf(
     ALLOW_MISSING_LINT_CHECKS_PROJECT,
     XCODEGEN_DOWNLOAD_URI,
     ALLOW_CUSTOM_COMPILE_SDK,
-    UPDATE_SIGNATURES
+    UPDATE_SIGNATURES,
+    FilteredAnchorTask.PROP_TASK_NAME,
+    FilteredAnchorTask.PROP_PATH_PREFIX,
+)
+
+val PREFIXED_ANDROIDX_PROPERTIES = setOf(
+    SUPPRESS_COMPATIBILITY_OPT_OUT,
+    SUPPRESS_COMPATIBILITY_OPT_IN,
 )
 
 /**
@@ -215,7 +234,8 @@ fun Project.isValidateProjectStructureEnabled(): Boolean =
 fun Project.validateAllAndroidxArgumentsAreRecognized() {
     for (propertyName in project.properties.keys) {
         if (propertyName.startsWith("androidx")) {
-            if (!ALL_ANDROIDX_PROPERTIES.contains(propertyName)) {
+            if (!ALL_ANDROIDX_PROPERTIES.contains(propertyName) &&
+                PREFIXED_ANDROIDX_PROPERTIES.none { propertyName.startsWith(it) }) {
                 val message = "Unrecognized Androidx property '$propertyName'.\n" +
                     "\n" +
                     "Is this a misspelling? All recognized Androidx properties:\n" +
@@ -285,3 +305,24 @@ fun Project.booleanPropertyProvider(propName: String): Provider<Boolean> {
         s.toBoolean()
     }.orElse(false)
 }
+
+/**
+ * List of project path prefixes which have been opted-in to the Suppress Compatibility migration.
+ */
+fun Project.getSuppressCompatibilityOptInPathPrefixes(): List<String> =
+    aggregatePropertyPrefix(SUPPRESS_COMPATIBILITY_OPT_IN)
+
+/**
+ * List of project path prefixes which have been opted out of the Suppress Compatibility migration.
+ */
+fun Project.getSuppressCompatibilityOptOutPathPrefixes(): List<String> =
+    aggregatePropertyPrefix(SUPPRESS_COMPATIBILITY_OPT_OUT)
+
+internal fun Project.aggregatePropertyPrefix(prefix: String): List<String> =
+    properties.flatMap { (name, value) ->
+        if (name.startsWith(prefix)) {
+            (value as? String)?.split(",") ?: emptyList()
+        } else {
+            emptyList()
+        }
+    }

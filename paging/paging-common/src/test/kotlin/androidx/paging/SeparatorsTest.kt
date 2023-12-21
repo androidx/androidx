@@ -16,6 +16,7 @@
 
 package androidx.paging
 
+import androidx.kruth.assertThat
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.APPEND
@@ -23,15 +24,12 @@ import androidx.paging.LoadType.PREPEND
 import androidx.paging.PageEvent.Drop
 import androidx.paging.TerminalSeparatorType.FULLY_COMPLETE
 import androidx.paging.TerminalSeparatorType.SOURCE_COMPLETE
-import com.google.common.truth.Truth.assertThat
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
 private fun <T : Any> List<PageEvent<T>>.getItems() = mapNotNull { event ->
     when (event) {
@@ -55,7 +53,6 @@ private fun <T : Any> assertInsertData(
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@RunWith(JUnit4::class)
 class SeparatorsTest {
     @Test
     fun refreshFull() = runTest {

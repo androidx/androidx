@@ -15,10 +15,10 @@
  */
 package androidx.paging
 
+import androidx.kruth.assertThat
 import androidx.paging.ActiveFlowTracker.FlowType
 import androidx.paging.ActiveFlowTracker.FlowType.PAGED_DATA_FLOW
 import androidx.paging.ActiveFlowTracker.FlowType.PAGE_EVENT_FLOW
-import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.Test
 import kotlinx.coroutines.CoroutineScope
@@ -37,17 +37,13 @@ import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@RunWith(JUnit4::class)
 class CachingTest {
     private val tracker = ActiveFlowTrackerImpl()
 
@@ -106,7 +102,7 @@ class CachingTest {
     @Test
     fun cachedData() = testScope.runTest {
         val pageFlow = buildPageFlow().cachedIn(backgroundScope, tracker)
-        assertThat(pageFlow).isInstanceOf(SharedFlow::class.java)
+        assertThat(pageFlow).isInstanceOf<SharedFlow<PagingData<Item>>>()
         assertThat((pageFlow as SharedFlow<PagingData<Item>>).replayCache).isEmpty()
 
         pageFlow.collectItemsUntilSize(6)
@@ -365,15 +361,13 @@ class CachingTest {
     }
 
     @Test
-    fun pagesAreClosedProperty() {
+    fun pagesAreClosedProperty() = testScope.runTest {
         val job = SupervisorJob()
         val subScope = CoroutineScope(job + Dispatchers.Default)
         val pageFlow = buildPageFlow().cachedIn(subScope, tracker)
         assertThat(tracker.pageEventFlowCount()).isEqualTo(0)
         assertThat(tracker.pageDataFlowCount()).isEqualTo(0)
-        val items = runBlocking {
-            pageFlow.collectItemsUntilSize(9)
-        }
+        val items = pageFlow.collectItemsUntilSize(9)
         val firstList = buildItems(
             version = 0,
             generation = 0,
@@ -381,9 +375,7 @@ class CachingTest {
             size = 9
         )
         assertThat(tracker.pageDataFlowCount()).isEqualTo(1)
-        val items2 = runBlocking {
-            pageFlow.collectItemsUntilSize(21)
-        }
+        val items2 = pageFlow.collectItemsUntilSize(21)
         assertThat(items2).isEqualTo(
             buildItems(
                 version = 0,
@@ -395,9 +387,7 @@ class CachingTest {
         assertThat(tracker.pageEventFlowCount()).isEqualTo(0)
         assertThat(tracker.pageDataFlowCount()).isEqualTo(1)
         assertThat(items).isEqualTo(firstList)
-        runBlocking {
-            job.cancelAndJoin()
-        }
+        job.cancelAndJoin()
         assertThat(tracker.pageEventFlowCount()).isEqualTo(0)
         assertThat(tracker.pageDataFlowCount()).isEqualTo(0)
     }
@@ -452,7 +442,7 @@ class CachingTest {
      * invalidations create new PagingData BUT a new collector only sees the latest one.
      */
     @Test
-    public fun unusedPagingDataIsNeverCollectedByNewDownstream(): Unit = testScope.runTest {
+    public fun unusedPagingDataIsNeverCollectedByNewDownstream() = testScope.runTest {
         val factory = StringPagingSource.VersionedFactory()
         val flow = buildPageFlow(factory).cachedIn(backgroundScope, tracker)
         val collector = ItemCollector(flow)
@@ -517,7 +507,7 @@ class CachingTest {
     }
 
     @Test
-    public fun unusedPagingDataIsNeverCached(): Unit = testScope.runTest {
+    public fun unusedPagingDataIsNeverCached() = testScope.runTest {
         val factory = StringPagingSource.VersionedFactory()
         val flow = buildPageFlow(factory).cachedIn(backgroundScope, tracker)
         val collector = ItemCollector(flow)
@@ -655,7 +645,7 @@ class CachingTest {
     }
 
     private fun Flow<PagingData<Item>>.cachedData(): List<Item> {
-        assertThat(this).isInstanceOf(SharedFlow::class.java)
+        assertThat(this).isInstanceOf<SharedFlow<PagingData<Item>>>()
         val flow = this as SharedFlow<PagingData<Item>>
         assertThat(flow.replayCache).isNotEmpty()
 
@@ -663,7 +653,7 @@ class CachingTest {
         assertThat(pagingData).isNotNull()
 
         val event = pagingData!!.cachedEvent()
-        assertThat(event).isInstanceOf(PageEvent.Insert::class.java)
+        assertThat(event).isInstanceOf<PageEvent.Insert<Item>>()
 
         return (event as PageEvent.Insert<Item>).pages.flatMap { it.data }
     }

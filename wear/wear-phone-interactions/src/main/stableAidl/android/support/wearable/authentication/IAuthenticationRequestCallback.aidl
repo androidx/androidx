@@ -5,9 +5,8 @@ import android.os.Bundle;
 /**
  * Interface for defining the callback to be notified when an aync remote authentication request
  * completes.
- *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IAuthenticationRequestCallback {
   // IMPORTANT NOTE: All methods must be given an explicit transcation id that must never change
   // in the future to remain binary backwards compatible

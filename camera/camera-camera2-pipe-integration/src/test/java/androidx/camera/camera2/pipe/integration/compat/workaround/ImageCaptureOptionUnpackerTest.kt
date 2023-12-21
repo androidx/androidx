@@ -27,13 +27,14 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadows.ShadowBuild
 import org.robolectric.util.ReflectionHelpers
 
-// @Config() is left out since there currently aren't any API level dependencies in this workaround
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
+@Config(minSdk = 26)
 class ImageCaptureOptionUnpackerTest {
 
     private val unpacker = CameraUseCaseAdapter.ImageCaptureOptionUnpacker.INSTANCE

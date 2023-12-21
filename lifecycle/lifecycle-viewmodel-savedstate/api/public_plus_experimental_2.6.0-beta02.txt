@@ -1,0 +1,45 @@
+// Signature format: 4.0
+package androidx.lifecycle {
+
+  public abstract class AbstractSavedStateViewModelFactory implements androidx.lifecycle.ViewModelProvider.Factory {
+    ctor public AbstractSavedStateViewModelFactory();
+    ctor public AbstractSavedStateViewModelFactory(androidx.savedstate.SavedStateRegistryOwner owner, android.os.Bundle? defaultArgs);
+    method protected abstract <T extends androidx.lifecycle.ViewModel> T create(String key, Class<T> modelClass, androidx.lifecycle.SavedStateHandle handle);
+  }
+
+  public final class SavedStateHandle {
+    ctor public SavedStateHandle(java.util.Map<java.lang.String,?> initialState);
+    ctor public SavedStateHandle();
+    method @MainThread public void clearSavedStateProvider(String key);
+    method @MainThread public operator boolean contains(String key);
+    method @MainThread public operator <T> T? get(String key);
+    method @MainThread public <T> androidx.lifecycle.MutableLiveData<T> getLiveData(String key);
+    method @MainThread public <T> androidx.lifecycle.MutableLiveData<T> getLiveData(String key, T? initialValue);
+    method @MainThread public <T> kotlinx.coroutines.flow.StateFlow<T> getStateFlow(String key, T? initialValue);
+    method @MainThread public java.util.Set<java.lang.String> keys();
+    method @MainThread public <T> T? remove(String key);
+    method @MainThread public operator <T> void set(String key, T? value);
+    method @MainThread public void setSavedStateProvider(String key, androidx.savedstate.SavedStateRegistry.SavedStateProvider provider);
+    field public static final androidx.lifecycle.SavedStateHandle.Companion Companion;
+  }
+
+  public static final class SavedStateHandle.Companion {
+  }
+
+  public final class SavedStateHandleSupport {
+    method @MainThread public static androidx.lifecycle.SavedStateHandle createSavedStateHandle(androidx.lifecycle.viewmodel.CreationExtras);
+    method @MainThread public static <T extends androidx.savedstate.SavedStateRegistryOwner & androidx.lifecycle.ViewModelStoreOwner> void enableSavedStateHandles(T);
+    field public static final androidx.lifecycle.viewmodel.CreationExtras.Key<android.os.Bundle> DEFAULT_ARGS_KEY;
+    field public static final androidx.lifecycle.viewmodel.CreationExtras.Key<androidx.savedstate.SavedStateRegistryOwner> SAVED_STATE_REGISTRY_OWNER_KEY;
+    field public static final androidx.lifecycle.viewmodel.CreationExtras.Key<androidx.lifecycle.ViewModelStoreOwner> VIEW_MODEL_STORE_OWNER_KEY;
+  }
+
+  public final class SavedStateViewModelFactory implements androidx.lifecycle.ViewModelProvider.Factory {
+    ctor public SavedStateViewModelFactory();
+    ctor public SavedStateViewModelFactory(android.app.Application? application, androidx.savedstate.SavedStateRegistryOwner owner);
+    ctor public SavedStateViewModelFactory(android.app.Application? application, androidx.savedstate.SavedStateRegistryOwner owner, android.os.Bundle? defaultArgs);
+    method public <T extends androidx.lifecycle.ViewModel> T create(String key, Class<T> modelClass);
+  }
+
+}
+

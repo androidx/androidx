@@ -764,4 +764,55 @@ class SaveRestoreBackStackTest {
             assertThat(fm.backStackEntryCount).isEqualTo(0)
         }
     }
+
+    @Test
+    fun resumeClearsFragmentStoreSavedState() {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity {
+                supportFragmentManager
+            }
+            val fragmentBase = StrictViewFragment()
+            val fragmentReplacement = StateSaveFragment()
+            val fragmentReplacementChild = StateSaveFragment()
+
+            fm.beginTransaction()
+                .add(R.id.content, fragmentBase)
+                .commit()
+            executePendingTransactions()
+
+            fm.beginTransaction()
+                .setReorderingAllowed(true)
+                .replace(R.id.content, fragmentReplacement)
+                .addToBackStack("replacement")
+                .commit()
+            executePendingTransactions()
+
+            fragmentReplacement.childFragmentManager.beginTransaction()
+                .add(fragmentReplacementChild, "replacementChild")
+                .commit()
+            executePendingTransactions(fragmentReplacement.childFragmentManager)
+
+            // stop activity and save fragments
+            moveToState(Lifecycle.State.CREATED)
+            executePendingTransactions()
+
+            // states should be stored in fragmentStore
+            assertThat(fm.fragmentStore.getSavedState(fragmentReplacement.mWho))
+                .isNotNull()
+            assertThat(fragmentReplacement.childFragmentManager.fragmentStore
+                .getSavedState(fragmentReplacementChild.mWho)
+            ).isNotNull()
+
+            // resume activity and restore fragments
+            moveToState(Lifecycle.State.RESUMED)
+            executePendingTransactions()
+
+            // states should be cleared from fragmentStore
+            assertThat(fm.fragmentStore.getSavedState(fragmentReplacement.mWho))
+                .isNull()
+            assertThat(fragmentReplacement.childFragmentManager.fragmentStore
+                .getSavedState(fragmentReplacementChild.mWho)
+            ).isNull()
+        }
+    }
 }

@@ -52,13 +52,13 @@ public class PackageIdentifier {
         mBundle.putByteArray(SHA256_CERTIFICATE_FIELD, sha256Certificate);
     }
 
-    /** @hide */
+    /** @exportToFramework:hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public PackageIdentifier(@NonNull Bundle bundle) {
         mBundle = Preconditions.checkNotNull(bundle);
     }
 
-    /** @hide */
+    /** @exportToFramework:hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
     public Bundle getBundle() {

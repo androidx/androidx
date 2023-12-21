@@ -47,7 +47,6 @@ import org.gradle.build.event.BuildEventsListenerRegistry
 import org.gradle.kotlin.dsl.extra
 
 abstract class AndroidXRootImplPlugin : Plugin<Project> {
-    @Suppress("UnstableApiUsage")
     @get:javax.inject.Inject
     abstract val registry: BuildEventsListenerRegistry
 
@@ -68,6 +67,8 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
         setDependencyVersions()
         configureKtlintCheckFile()
         tasks.register(CheckExternalDependencyLicensesTask.TASK_NAME)
+
+        maybeRegisterFilterableTask()
 
         // If we're running inside Studio, validate the Android Gradle Plugin version.
         val expectedAgpVersion = System.getenv("EXPECTED_AGP_VERSION")

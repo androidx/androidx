@@ -56,9 +56,11 @@ public abstract class Lifecycle {
     /**
      * Lifecycle coroutines extensions stashes the CoroutineScope into this field.
      *
-     * @hide used by lifecycle-common-ktx
+     * RestrictTo as it is used by lifecycle-common-ktx
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var internalScopeRef: AtomicReference<Any> = AtomicReference<Any>()
 
     /**

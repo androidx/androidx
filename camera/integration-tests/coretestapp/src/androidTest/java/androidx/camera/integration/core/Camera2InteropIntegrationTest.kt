@@ -156,9 +156,10 @@ class Camera2InteropIntegrationTest(
                 when (state) {
                     // Filter out this state from the downstream flow
                     is SessionState.Unknown -> true
-                    is SessionState.Configured -> {
+                    is SessionState.Configured -> true
+                    is SessionState.Ready -> {
                         withContext(Dispatchers.Main) { processCameraProvider!!.unbindAll() }
-                        true // Filter out this state from the downstream flow
+                        false
                     }
 
                     else -> false // Forward to the downstream flow
@@ -368,19 +369,19 @@ class Camera2InteropIntegrationTest(
         MutableStateFlow<SessionState>(SessionState.Unknown).apply {
             val stateCallback = object : CameraCaptureSession.StateCallback() {
                 override fun onReady(session: CameraCaptureSession) {
-                    tryEmit(SessionState.Ready)
+                        tryEmit(SessionState.Ready)
                 }
 
                 override fun onConfigured(session: CameraCaptureSession) {
-                    tryEmit(SessionState.Configured)
+                        tryEmit(SessionState.Configured)
                 }
 
                 override fun onConfigureFailed(session: CameraCaptureSession) {
-                    tryEmit(SessionState.ConfigureFailed)
+                        tryEmit(SessionState.ConfigureFailed)
                 }
 
                 override fun onClosed(session: CameraCaptureSession) {
-                    tryEmit(SessionState.Closed)
+                        tryEmit(SessionState.Closed)
                 }
             }
             CameraPipeUtil.setSessionStateCallback(

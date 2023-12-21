@@ -36,7 +36,6 @@ open class SingleFileCopy : DefaultTask() {
 
     @TaskAction
     fun copyFile() {
-        @Suppress("UnstableApiUsage")
         Files.copy(sourceFile, destinationFile)
     }
 }

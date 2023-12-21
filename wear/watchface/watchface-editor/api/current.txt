@@ -12,8 +12,8 @@ package androidx.wear.watchface.editor {
   }
 
   public final class EditorRequest {
-    ctor @RequiresApi(android.os.Build.VERSION_CODES.R) public EditorRequest(android.content.ComponentName watchFaceComponentName, String editorPackageName, androidx.wear.watchface.style.UserStyleData? initialUserStyle, @RequiresApi(android.os.Build.VERSION_CODES.R) androidx.wear.watchface.client.WatchFaceId watchFaceId, androidx.wear.watchface.client.DeviceConfig? headlessDeviceConfig, androidx.wear.watchface.editor.PreviewScreenshotParams? previewScreenshotParams);
     ctor public EditorRequest(android.content.ComponentName watchFaceComponentName, String editorPackageName, androidx.wear.watchface.style.UserStyleData? initialUserStyle);
+    ctor @RequiresApi(android.os.Build.VERSION_CODES.R) public EditorRequest(android.content.ComponentName watchFaceComponentName, String editorPackageName, androidx.wear.watchface.style.UserStyleData? initialUserStyle, @RequiresApi(android.os.Build.VERSION_CODES.R) androidx.wear.watchface.client.WatchFaceId watchFaceId, androidx.wear.watchface.client.DeviceConfig? headlessDeviceConfig, androidx.wear.watchface.editor.PreviewScreenshotParams? previewScreenshotParams);
     method @kotlin.jvm.Throws(exceptionClasses=TimeoutCancellationException::class) public static androidx.wear.watchface.editor.EditorRequest createFromIntent(android.content.Intent intent) throws kotlinx.coroutines.TimeoutCancellationException;
     method public String getEditorPackageName();
     method public androidx.wear.watchface.client.DeviceConfig? getHeadlessDeviceConfig();

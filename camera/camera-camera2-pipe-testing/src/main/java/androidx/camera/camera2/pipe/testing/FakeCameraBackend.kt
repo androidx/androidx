@@ -50,6 +50,7 @@ class FakeCameraBackend(private val fakeCameras: Map<CameraId, CameraMetadata>) 
         get() = MutableSharedFlow()
 
     override fun awaitCameraIds(): List<CameraId> = fakeCameraIds
+    override fun awaitConcurrentCameraIds(): Set<Set<CameraId>> = emptySet()
 
     override fun awaitCameraMetadata(cameraId: CameraId): CameraMetadata? = fakeCameras[cameraId]
 

@@ -18,6 +18,11 @@ package androidx.wear.protolayout.expression;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString;
 import androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,14 +32,14 @@ import org.robolectric.RobolectricTestRunner;
 public final class DynamicDataValueTest {
   @Test
   public void boolDynamicDataValue() {
-    DynamicDataValue boolDynamicDataValue = DynamicDataValue.fromBool(true);
+    DynamicDataValue<DynamicBool> boolDynamicDataValue = DynamicDataValue.fromBool(true);
 
     assertThat(boolDynamicDataValue.toDynamicDataValueProto().getBoolVal().getValue()).isTrue();
   }
 
   @Test
   public void colorDynamicDataValue() {
-    DynamicDataValue colorDynamicDataValue = DynamicDataValue.fromColor(0xff00ff00);
+    DynamicDataValue<DynamicColor> colorDynamicDataValue = DynamicDataValue.fromColor(0xff00ff00);
 
     assertThat(colorDynamicDataValue.toDynamicDataValueProto().getColorVal().getArgb())
         .isEqualTo(0xff00ff00);
@@ -42,7 +47,7 @@ public final class DynamicDataValueTest {
 
   @Test
   public void floatDynamicDataValue() {
-    DynamicDataValue floatDynamicDataValue = DynamicDataValue.fromFloat(42.42f);
+    DynamicDataValue<DynamicFloat> floatDynamicDataValue = DynamicDataValue.fromFloat(42.42f);
 
     assertThat(floatDynamicDataValue.toDynamicDataValueProto().getFloatVal().getValue())
         .isWithin(0.0001f)
@@ -51,7 +56,7 @@ public final class DynamicDataValueTest {
 
   @Test
   public void intDynamicDataValue() {
-    DynamicDataValue intDynamicDataValue = DynamicDataValue.fromInt(42);
+    DynamicDataValue<DynamicInt32> intDynamicDataValue = DynamicDataValue.fromInt(42);
 
     assertThat(intDynamicDataValue.toDynamicDataValueProto().getInt32Val().getValue())
             .isEqualTo(42);
@@ -59,7 +64,8 @@ public final class DynamicDataValueTest {
 
   @Test
   public void stringDynamicDataValue() {
-    DynamicDataValue stringDynamicDataValue = DynamicDataValue.fromString("constant-value");
+    DynamicDataValue<DynamicString> stringDynamicDataValue =
+            DynamicDataValue.fromString("constant-value");
 
     assertThat(stringDynamicDataValue.toDynamicDataValueProto().getStringVal().getValue())
         .isEqualTo("constant-value");

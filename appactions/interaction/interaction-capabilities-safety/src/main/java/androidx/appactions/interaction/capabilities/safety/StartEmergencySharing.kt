@@ -22,10 +22,8 @@ import androidx.appactions.builtintypes.experimental.types.SuccessStatus
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
-import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.safety.executionstatus.EmergencySharingInProgress
 import androidx.appactions.interaction.capabilities.safety.executionstatus.SafetyAccountNotLoggedIn
 import androidx.appactions.interaction.capabilities.safety.executionstatus.SafetyFeatureNotOnboarded
@@ -33,27 +31,17 @@ import androidx.appactions.interaction.proto.ParamValue
 import androidx.appactions.interaction.protobuf.Struct
 import androidx.appactions.interaction.protobuf.Value
 
-private const val CAPABILITY_NAME = "actions.intent.START_EMERGENCY_SHARING"
-
 /** A capability corresponding to actions.intent.START_EMERGENCY_SHARING */
-@CapabilityFactory(name = CAPABILITY_NAME)
+@CapabilityFactory(name = StartEmergencySharing.CAPABILITY_NAME)
 class StartEmergencySharing private constructor() {
-    // TODO(b/267805819): Update to include the SessionFactory once Session API is ready.
     class CapabilityBuilder :
         Capability.Builder<
             CapabilityBuilder, Arguments, Output, Confirmation, ExecutionSession,
-            >(ACTION_SPEC) {
-
-        private var properties = mutableMapOf<String, Property<*>>()
-        override fun build(): Capability {
-            super.setProperty(properties)
-            return super.build()
-        }
-    }
+            >(ACTION_SPEC)
 
     class Arguments internal constructor() {
-        class Builder : BuilderOf<Arguments> {
-            override fun build(): Arguments = Arguments()
+        class Builder {
+            fun build(): Arguments = Arguments()
         }
     }
 
@@ -155,11 +143,14 @@ class StartEmergencySharing private constructor() {
     sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
 
     companion object {
+        /** Canonical name for [StartEmergencySharing] capability */
+        const val CAPABILITY_NAME = "actions.intent.START_EMERGENCY_SHARING"
         private val ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
                 .setArguments(
                     Arguments::class.java,
-                    Arguments::Builder
+                    Arguments::Builder,
+                    Arguments.Builder::build
                 )
                 .setOutput(Output::class.java)
                 .bindOutput(

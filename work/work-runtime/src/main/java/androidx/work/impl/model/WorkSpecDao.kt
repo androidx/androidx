@@ -88,6 +88,7 @@ interface WorkSpecDao {
     @Transaction
     @Query("SELECT id FROM workspec")
     fun getAllWorkSpecIdsLiveData(): LiveData<List<String>>
+
     /**
      * Updates the state of at least one [WorkSpec] by ID.
      *
@@ -139,6 +140,29 @@ interface WorkSpecDao {
      */
     @Query("UPDATE workspec SET run_attempt_count=0 WHERE id=:id")
     fun resetWorkSpecRunAttemptCount(id: String): Int
+
+    /**
+     * Updates the next schedule time of a [WorkSpec].
+     *
+     * @param id The [WorkSpec] identifier to update
+     * @param nextScheduleTimeOverrideMillis The next schedule time in millis since epoch. See
+     * [WorkSpec.nextScheduleTimeOverride]
+     */
+    @Query("UPDATE workspec SET next_schedule_time_override=:nextScheduleTimeOverrideMillis " +
+        "WHERE id=:id")
+    fun setNextScheduleTimeOverride(id: String, nextScheduleTimeOverrideMillis: Long)
+
+    /**
+     * Resets the next schedule time override of a [WorkSpec] if the override generation has not
+     * changed.
+     *
+     * @param id The identifier for the [WorkSpec]
+     */
+    @Query(
+        "UPDATE workspec SET next_schedule_time_override=${Long.MAX_VALUE} WHERE " +
+            "(id=:id AND next_schedule_time_override_generation=:overrideGeneration)"
+    )
+    fun resetWorkSpecNextScheduleTimeOverride(id: String, overrideGeneration: Int)
 
     /**
      * Retrieves the state of a [WorkSpec].
@@ -282,7 +306,7 @@ interface WorkSpecDao {
      */
     @Query(
         "SELECT id FROM workspec WHERE state NOT IN " + COMPLETED_STATES +
-        " AND id IN (SELECT work_spec_id FROM worktag WHERE tag=:tag)"
+            " AND id IN (SELECT work_spec_id FROM worktag WHERE tag=:tag)"
     )
     fun getUnfinishedWorkWithTag(tag: String): List<String>
 
@@ -436,7 +460,8 @@ interface WorkSpecDao {
     @Update
     fun updateWorkSpec(workSpec: WorkSpec)
 
-    @Query("Select COUNT(*) FROM workspec WHERE LENGTH(content_uri_triggers)<>0" +
+    @Query(
+        "Select COUNT(*) FROM workspec WHERE LENGTH(content_uri_triggers)<>0" +
             " AND state NOT IN $COMPLETED_STATES"
     )
     fun countNonFinishedContentUriTriggerWorkers(): Int
@@ -464,7 +489,7 @@ internal fun Flow<List<WorkSpec.WorkInfoPojo>>.dedup(
 
 private const val WORK_INFO_COLUMNS = "id, state, output, run_attempt_count, generation" +
     ", $CONSTRAINTS_COLUMNS, initial_delay, interval_duration, flex_duration, backoff_policy" +
-    ", backoff_delay_duration, last_enqueue_time, period_count"
+    ", backoff_delay_duration, last_enqueue_time, period_count, next_schedule_time_override"
 
 @Language("sql")
 private const val WORK_INFO_BY_IDS = "SELECT $WORK_INFO_COLUMNS FROM workspec WHERE id IN (:ids)"

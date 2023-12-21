@@ -98,9 +98,14 @@ internal interface ParentRenderLayer<T> {
     fun clear()
 
     /**
+     * Detach the parent [SurfaceControlCompat] as part of the provided transaction
+     */
+    fun detach(transaction: SurfaceControlCompat.Transaction)
+
+    /**
      * Release all resources associated with this [ParentRenderLayer] instance
      */
-    fun release(transaction: SurfaceControlCompat.Transaction)
+    fun release()
 
     /**
      * Callbacks to be implemented by the consumer of [ParentRenderLayer] to be alerted

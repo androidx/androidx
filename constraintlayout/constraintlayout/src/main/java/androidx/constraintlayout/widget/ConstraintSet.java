@@ -57,27 +57,24 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
- * This class allows you to define programmatically a set of constraints to be used with
- *  {@link ConstraintLayout}.
- * <p>
- * For details about Constraint behaviour see {@link ConstraintLayout}.
- * It lets you create and save constraints, and apply them to an existing ConstraintLayout.
- * ConstraintsSet can be created in various ways:
+ * Defines a set of constraints to be used with {@link ConstraintLayout}.
+ *
+ * <p>{@code ConstraintSet} enables you create and save constraints and apply
+ * them to an existing {@code ConstraintLayout}. For details about constraint
+ * behaviour, see {@link ConstraintLayout}.</p>
+ *
+ * <p>{@code ConstraintsSet} can be created in various ways:</p>
  * <ul>
- * <li>
- * Manually <br> {@code c = new ConstraintSet(); c.connect(....);}
- * </li>
- * <li>
- * from a R.layout.* object <br> {@code c.clone(context, R.layout.layout1);}
- * </li>
- * <li>
- * from a ConstraintLayout <br> {@code c.clone(constraintLayout);}
- * </li>
+ *     <li>Manually &mdash;
+ *         {@code c = new ConstraintSet(); c.connect(...);}</li>
+ *     <li>From an {@code R.layout.*} object &mdash;
+ *         {@code c.clone(context, R.layout.layout1);}</li>
+ *     <li>From a {@code ConstraintLayout} &mdash;
+ *         {@code c.clone(constraintLayout);}</li>
  * </ul>
- * <p>
- *  Example code:
- *  <pre>
- *      import android.content.Context;
+ *
+ * <p>Example code:</p>
+ * <pre>import android.content.Context;
  *      import android.os.Bundle;
  *      import android.support.constraint.ConstraintLayout;
  *      import android.support.constraint.ConstraintSet;
@@ -86,32 +83,30 @@ import java.util.Set;
  *      import android.view.View;
  *
  *      public class MainActivity extends AppCompatActivity {
- *          ConstraintSet mConstraintSet1 = new ConstraintSet(); // create a Constraint Set
- *          ConstraintSet mConstraintSet2 = new ConstraintSet(); // create a Constraint Set
- *          ConstraintLayout mConstraintLayout; // cache the ConstraintLayout
+ *          ConstraintSet mConstraintSet1 = new ConstraintSet(); // Create a ConstraintSet.
+ *          ConstraintSet mConstraintSet2 = new ConstraintSet(); // Create a ConstraintSet.
+ *          ConstraintLayout mConstraintLayout; // Cache the ConstraintLayout.
  *          boolean mOld = true;
  *
  *
  *          protected void onCreate(Bundle savedInstanceState) {
  *              super.onCreate(savedInstanceState);
  *              Context context = this;
- *              mConstraintSet2.clone(context, R.layout.state2); // get constraints from layout
+ *              mConstraintSet2.clone(context, R.layout.state2); // Get constraints from layout.
  *              setContentView(R.layout.state1);
  *              mConstraintLayout = (ConstraintLayout) findViewById(R.id.activity_main);
- *              mConstraintSet1.clone(mConstraintLayout); // get constraints from ConstraintSet
+ *              mConstraintSet1.clone(mConstraintLayout); // Get constraints from ConstraintSet.
  *          }
  *
  *          public void foo(View view) {
  *              TransitionManager.beginDelayedTransition(mConstraintLayout);
  *              if (mOld = !mOld) {
- *                  mConstraintSet1.applyTo(mConstraintLayout); // set new constraints
+ *                  mConstraintSet1.applyTo(mConstraintLayout); // Set new constraints.
  *              }  else {
- *                  mConstraintSet2.applyTo(mConstraintLayout); // set new constraints
+ *                  mConstraintSet2.applyTo(mConstraintLayout); // Set new constraints.
  *              }
  *          }
- *      }
- *  <pre/>
- * <p/>
+ *      }</pre>
  */
 public class ConstraintSet {
     private static final String TAG = "ConstraintSet";
@@ -2833,8 +2828,8 @@ public class ConstraintSet {
 
     /**
      * Center widget between the other two widgets.
-     * (for sides see: {@link #TOP, {@link #BOTTOM}, {@link #START,
-     * {@link #END}, {@link #LEFT, {@link #RIGHT})
+     * (for sides see: {@link #TOP}, {@link #BOTTOM}, {@link #START},
+     * {@link #END}, {@link #LEFT}, {@link #RIGHT})
      * Note, sides must be all vertical or horizontal sides.
      *
      * @param centerID     ID of the widget to be centered
@@ -2888,7 +2883,7 @@ public class ConstraintSet {
 
     /**
      * Centers the widget horizontally to the left and right side on another widgets sides.
-     * (for sides see: {@link #START, {@link #END}, {@link #LEFT, {@link #RIGHT})
+     * (for sides see: {@link #START}, {@link #END}, {@link #LEFT}, {@link #RIGHT})
      *
      * @param centerID    ID of widget to be centered
      * @param leftId      The Id of the widget on the left side
@@ -2942,7 +2937,7 @@ public class ConstraintSet {
 
     /**
      * Centers the widgets vertically to the top and bottom side on another widgets sides.
-     * (for sides see: {@link #TOP, {@link #BOTTOM})
+     * (for sides see: {@link #TOP}, {@link #BOTTOM})
      *
      * @param centerID     ID of widget to be centered
      * @param topId        The Id of the widget on the top side
@@ -2969,7 +2964,7 @@ public class ConstraintSet {
      * Widgets can be spaced with weights.
      * This operation sets all the related margins to 0.
      * <p>
-     * (for sides see: {@link #TOP, {@link #BOTTOM})
+     * (for sides see: {@link #TOP}, {@link #BOTTOM})
      *
      * @param topId      The id of the widget to connect to or PARENT_ID
      * @param topSide    the side of the start to connect to
@@ -3013,8 +3008,8 @@ public class ConstraintSet {
      * Widgets can be spaced with weights.
      * This operation sets all the related margins to 0.
      * <p>
-     * (for sides see: {@link #START, {@link #END},
-     * {@link #LEFT, {@link #RIGHT}
+     * (for sides see: {@link #START}, {@link #END},
+     * {@link #LEFT}, {@link #RIGHT})
      *
      * @param leftId    The id of the widget to connect to or PARENT_ID
      * @param leftSide  the side of the start to connect to
@@ -3038,8 +3033,8 @@ public class ConstraintSet {
     /**
      * Spaces a set of widgets horizontal between the view startID and endId.
      * Widgets can be spaced with weights.
-     * (for sides see: {@link #START, {@link #END},
-     * {@link #LEFT, {@link #RIGHT})
+     * (for sides see: {@link #START}, {@link #END},
+     * {@link #LEFT}, {@link #RIGHT})
      *
      * @param startId   The id of the widget to connect to or PARENT_ID
      * @param startSide the side of the start to connect to
@@ -3094,8 +3089,8 @@ public class ConstraintSet {
 
     /**
      * Create a constraint between two widgets.
-     * (for sides see: {@link #TOP, {@link #BOTTOM}, {@link #START, {@link #END},
-     * {@link #LEFT, {@link #RIGHT}, {@link #BASELINE})
+     * (for sides see: {@link #TOP}, {@link #BOTTOM}, {@link #START}, {@link #END},
+     * {@link #LEFT}, {@link #RIGHT}, {@link #BASELINE})
      *
      * @param startID   the ID of the widget to be constrained
      * @param startSide the side of the widget to constrain
@@ -3237,8 +3232,8 @@ public class ConstraintSet {
 
     /**
      * Create a constraint between two widgets.
-     * (for sides see: {@link #TOP, {@link #BOTTOM}, {@link #START,
-     * {@link #END}, {@link #LEFT, {@link #RIGHT}, {@link #BASELINE})
+     * (for sides see: {@link #TOP}, {@link #BOTTOM}, {@link #START},
+     * {@link #END}, {@link #LEFT}, {@link #RIGHT}, {@link #BASELINE})
      *
      * @param startID   the ID of the widget to be constrained
      * @param startSide the side of the widget to constrain

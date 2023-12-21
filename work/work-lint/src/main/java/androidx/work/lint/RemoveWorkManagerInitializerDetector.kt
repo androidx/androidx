@@ -43,10 +43,6 @@ class RemoveWorkManagerInitializerDetector : Detector(), SourceCodeScanner, XmlS
     private var removedDefaultInitializer = false
     private var location: Location? = null
 
-    // The `Application` subclass.
-    private var javaContext: JavaContext? = null
-    private var klass: UClass? = null
-
     private var applicationImplementsConfigurationProvider = false
 
     companion object {
@@ -90,12 +86,13 @@ class RemoveWorkManagerInitializerDetector : Detector(), SourceCodeScanner, XmlS
 
     override fun getApplicableElements() = listOf("application")
 
-    override fun applicableSuperClasses() = listOf(
-        "android.app.Application",
-        "androidx.work.Configuration.Provider"
-    )
+    override fun applicableSuperClasses() = listOf("android.app.Application")
 
     override fun visitElement(context: XmlContext, element: Element) {
+        // Use the application tag as the location, unless we find something better.
+        if (location == null) {
+            location = context.getLocation(element)
+        }
         // Check providers
         val providers = element.getElementsByTagName("provider")
         val provider = providers.find { node ->
@@ -125,35 +122,39 @@ class RemoveWorkManagerInitializerDetector : Detector(), SourceCodeScanner, XmlS
     }
 
     override fun visitClass(context: JavaContext, declaration: UClass) {
-        javaContext = context
-        if (context.evaluator.inheritsFrom(
+        if (!context.evaluator.inheritsFrom(
                 declaration.javaPsi,
                 "android.app.Application",
                 false
             )
         ) {
-            klass = declaration
-            if (context.evaluator.implementsInterface(
-                    declaration.javaPsi,
-                    "androidx.work.Configuration.Provider",
-                    false
-                )
-            ) {
-                applicationImplementsConfigurationProvider = true
-            }
+            return
+        }
+
+        // Ignore abstract classes.
+        if (context.evaluator.isAbstract(declaration)) {
+            return
+        }
+
+        // Allow suppression on the class itself.
+        if (context.driver.isSuppressed(context, ISSUE, declaration.javaPsi)) {
+            return
+        }
+
+        if (context.evaluator.implementsInterface(
+                declaration.javaPsi,
+                "androidx.work.Configuration.Provider",
+                false
+            )
+        ) {
+            applicationImplementsConfigurationProvider = true
         }
     }
 
     override fun afterCheckRootProject(context: Context) {
-        val location = location ?: Location.create(context.file)
-        val javaKlass = klass
-        val isSuppressed = if (javaContext != null && javaKlass != null) {
-            context.driver.isSuppressed(javaContext, ISSUE, javaKlass.javaPsi)
-        } else {
-            false
-        }
+        val location = location ?: return
         if (applicationImplementsConfigurationProvider) {
-            if (!removedDefaultInitializer && !isSuppressed) {
+            if (!removedDefaultInitializer) {
                 context.report(
                     issue = ISSUE,
                     location = location,

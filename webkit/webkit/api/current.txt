@@ -16,6 +16,7 @@ package androidx.webkit {
   }
 
   public abstract class JavaScriptReplyProxy {
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_ARRAY_BUFFER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void postMessage(byte[]);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_LISTENER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void postMessage(String);
   }
 
@@ -39,8 +40,8 @@ package androidx.webkit {
     ctor public ProxyConfig.Builder();
     ctor public ProxyConfig.Builder(androidx.webkit.ProxyConfig);
     method public androidx.webkit.ProxyConfig.Builder addBypassRule(String);
-    method public androidx.webkit.ProxyConfig.Builder addDirect(String);
     method public androidx.webkit.ProxyConfig.Builder addDirect();
+    method public androidx.webkit.ProxyConfig.Builder addDirect(String);
     method public androidx.webkit.ProxyConfig.Builder addProxyRule(String);
     method public androidx.webkit.ProxyConfig.Builder addProxyRule(String, String);
     method public androidx.webkit.ProxyConfig build();
@@ -123,17 +124,23 @@ package androidx.webkit {
   }
 
   public class WebMessageCompat {
+    ctor @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_ARRAY_BUFFER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public WebMessageCompat(byte[]);
+    ctor @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_ARRAY_BUFFER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public WebMessageCompat(byte[], androidx.webkit.WebMessagePortCompat![]?);
     ctor public WebMessageCompat(String?);
     ctor public WebMessageCompat(String?, androidx.webkit.WebMessagePortCompat![]?);
+    method public byte[] getArrayBuffer();
     method public String? getData();
     method public androidx.webkit.WebMessagePortCompat![]? getPorts();
+    method public int getType();
+    field public static final int TYPE_ARRAY_BUFFER = 1; // 0x1
+    field public static final int TYPE_STRING = 0; // 0x0
   }
 
   public abstract class WebMessagePortCompat {
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_PORT_CLOSE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void close();
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_PORT_POST_MESSAGE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void postMessage(androidx.webkit.WebMessageCompat);
-    method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void setWebMessageCallback(androidx.webkit.WebMessagePortCompat.WebMessageCallbackCompat);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void setWebMessageCallback(android.os.Handler?, androidx.webkit.WebMessagePortCompat.WebMessageCallbackCompat);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void setWebMessageCallback(androidx.webkit.WebMessagePortCompat.WebMessageCallbackCompat);
   }
 
   public abstract static class WebMessagePortCompat.WebMessageCallbackCompat {
@@ -231,8 +238,8 @@ package androidx.webkit {
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_LISTENER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void removeWebMessageListener(android.webkit.WebView, String);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.SAFE_BROWSING_ALLOWLIST, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setSafeBrowsingAllowlist(java.util.Set<java.lang.String!>, android.webkit.ValueCallback<java.lang.Boolean!>?);
     method @Deprecated @RequiresFeature(name=androidx.webkit.WebViewFeature.SAFE_BROWSING_WHITELIST, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setSafeBrowsingWhitelist(java.util.List<java.lang.String!>, android.webkit.ValueCallback<java.lang.Boolean!>?);
-    method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setWebViewRenderProcessClient(android.webkit.WebView, java.util.concurrent.Executor, androidx.webkit.WebViewRenderProcessClient);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setWebViewRenderProcessClient(android.webkit.WebView, androidx.webkit.WebViewRenderProcessClient?);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setWebViewRenderProcessClient(android.webkit.WebView, java.util.concurrent.Executor, androidx.webkit.WebViewRenderProcessClient);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.START_SAFE_BROWSING, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void startSafeBrowsing(android.content.Context, android.webkit.ValueCallback<java.lang.Boolean!>?);
   }
 
@@ -285,6 +292,7 @@ package androidx.webkit {
     field public static final String START_SAFE_BROWSING = "START_SAFE_BROWSING";
     field public static final String TRACING_CONTROLLER_BASIC_USAGE = "TRACING_CONTROLLER_BASIC_USAGE";
     field public static final String VISUAL_STATE_CALLBACK = "VISUAL_STATE_CALLBACK";
+    field public static final String WEB_MESSAGE_ARRAY_BUFFER = "WEB_MESSAGE_ARRAY_BUFFER";
     field public static final String WEB_MESSAGE_CALLBACK_ON_MESSAGE = "WEB_MESSAGE_CALLBACK_ON_MESSAGE";
     field public static final String WEB_MESSAGE_LISTENER = "WEB_MESSAGE_LISTENER";
     field public static final String WEB_MESSAGE_PORT_CLOSE = "WEB_MESSAGE_PORT_CLOSE";

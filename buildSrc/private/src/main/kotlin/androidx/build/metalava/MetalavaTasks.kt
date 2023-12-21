@@ -17,6 +17,7 @@
 package androidx.build.metalava
 
 import androidx.build.AndroidXExtension
+import androidx.build.addFilterableTasks
 import androidx.build.addToBuildOnServer
 import androidx.build.addToCheckTask
 import androidx.build.checkapi.ApiBaselinesLocation
@@ -24,6 +25,7 @@ import androidx.build.checkapi.ApiLocation
 import androidx.build.checkapi.getRequiredCompatibilityApiLocation
 import androidx.build.java.JavaCompileInputs
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
+import androidx.build.version
 import com.android.build.gradle.tasks.ProcessLibraryManifest
 import org.gradle.api.Project
 import org.gradle.api.tasks.TaskProvider
@@ -40,6 +42,7 @@ object MetalavaTasks {
         outputApiLocations: List<ApiLocation>
     ) {
         val metalavaClasspath = project.getMetalavaClasspath()
+        val version = project.version()
 
         // Policy: If the artifact belongs to an atomic (e.g. same-version) group, we don't enforce
         // binary compatibility for APIs annotated with @RestrictTo(LIBRARY_GROUP). This is
@@ -79,6 +82,7 @@ object MetalavaTasks {
                 task.referenceApi.set(lastReleasedApiFile)
                 task.baselines.set(baselinesApiLocation)
                 task.api.set(builtApiLocation)
+                task.version.set(version)
                 task.dependencyClasspath = javaCompileInputs.dependencyClasspath
                 task.bootClasspath = javaCompileInputs.bootClasspath
                 task.k2UastEnabled.set(extension.metalavaK2UastEnabled)
@@ -101,7 +105,7 @@ object MetalavaTasks {
             }
         }
 
-        project.tasks.register(
+        val updateApiLintBaseline = project.tasks.register(
             "updateApiLintBaseline",
             UpdateApiLintBaselineTask::class.java
         ) { task ->
@@ -168,7 +172,7 @@ object MetalavaTasks {
         // Make sure it always runs *after* the updateApi task.
         ignoreApiChanges?.configure { it.mustRunAfter(updateApi) }
 
-        project.tasks.register("regenerateApis") { task ->
+        val regenerateApis = project.tasks.register("regenerateApis") { task ->
             task.group = "API"
             task.description = "Regenerates current and historic API .txt files using the " +
                 "corresponding prebuilt and the latest Metalava, then updates API ignore files"
@@ -179,6 +183,14 @@ object MetalavaTasks {
 
         project.addToCheckTask(checkApi)
         project.addToBuildOnServer(checkApi)
+        project.addFilterableTasks(
+            ignoreApiChanges,
+            updateApiLintBaseline,
+            checkApi,
+            regenerateOldApis,
+            updateApi,
+            regenerateApis,
+        )
     }
 
     private fun applyInputs(inputs: JavaCompileInputs, task: MetalavaTask) {

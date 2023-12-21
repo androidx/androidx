@@ -28,6 +28,7 @@ import androidx.compose.runtime.ComposeNodeLifecycleCallback
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.snapshots.SnapshotStateObserver
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
@@ -73,6 +74,7 @@ import kotlinx.coroutines.launch
 internal open class AndroidViewHolder(
     context: Context,
     parentContext: CompositionContext?,
+    private val compositeKeyHash: Int,
     private val dispatcher: NestedScrollDispatcher,
     /**
      * The view hosted by this holder.
@@ -177,6 +179,10 @@ internal open class AndroidViewHolder(
         }
     }
 
+    private val runInvalidate: () -> Unit = {
+        layoutNode.invalidateLayer()
+    }
+
     internal var onRequestDisallowInterceptTouchEvent: ((Boolean) -> Unit)? = null
 
     private val location = IntArray(2)
@@ -186,6 +192,8 @@ internal open class AndroidViewHolder(
 
     private val nestedScrollingParentHelper: NestedScrollingParentHelper =
         NestedScrollingParentHelper(this)
+
+    private var isDrawing = false
 
     override fun onReuse() {
         // We reset at the same time we remove the view. So if the view was removed, we can just
@@ -262,14 +270,26 @@ internal open class AndroidViewHolder(
     @Suppress("Deprecation")
     override fun invalidateChildInParent(location: IntArray?, dirty: Rect?): ViewParent? {
         super.invalidateChildInParent(location, dirty)
-        layoutNode.invalidateLayer()
+        invalidateOrDefer()
         return null
     }
 
     override fun onDescendantInvalidated(child: View, target: View) {
         // We need to call super here in order to correctly update the dirty flags of the holder.
         super.onDescendantInvalidated(child, target)
-        layoutNode.invalidateLayer()
+        invalidateOrDefer()
+    }
+
+    fun invalidateOrDefer() {
+        if (isDrawing) {
+            // If an invalidation occurs while drawing invalidate until next frame to avoid
+            // redrawing multiple times during the same frame the same content.
+            view.postOnAnimation(runInvalidate)
+        } else {
+            // when not drawing, we can invalidate any time and not risk multiple draws, we don't
+            // defer to avoid waiting a full frame to draw content.
+            layoutNode.invalidateLayer()
+        }
     }
 
     override fun onWindowVisibilityChanged(visibility: Int) {
@@ -305,6 +325,7 @@ internal open class AndroidViewHolder(
     val layoutNode: LayoutNode = run {
         // Prepare layout node that proxies measure and layout passes to the View.
         val layoutNode = LayoutNode()
+        @OptIn(InternalComposeUiApi::class)
         layoutNode.interopViewFactoryHolder = this@AndroidViewHolder
 
         val coreModifier = Modifier
@@ -313,14 +334,17 @@ internal open class AndroidViewHolder(
             .pointerInteropFilter(this)
             .drawBehind {
                 drawIntoCanvas { canvas ->
+                    isDrawing = true
                     (layoutNode.owner as? AndroidComposeView)
                         ?.drawAndroidView(this@AndroidViewHolder, canvas.nativeCanvas)
+                    isDrawing = false
                 }
             }.onGloballyPositioned {
                 // The global position of this LayoutNode can change with it being replaced. For
                 // these cases, we need to inform the View.
                 layoutAccordingTo(layoutNode)
             }
+        layoutNode.compositeKeyHash = compositeKeyHash
         layoutNode.modifier = modifier.then(coreModifier)
         onModifierChanged = { layoutNode.modifier = it.then(coreModifier) }
 

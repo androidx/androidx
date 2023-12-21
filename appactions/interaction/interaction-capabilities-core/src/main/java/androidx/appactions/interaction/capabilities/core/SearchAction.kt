@@ -35,6 +35,12 @@ class SearchAction<FilterT> internal constructor(
         return true
     }
 
+    override fun hashCode(): Int {
+        var result = query?.hashCode() ?: 0
+        result += 31 * (filter?.hashCode() ?: 0)
+        return result
+    }
+
     /** Builder class for Entity. */
     class Builder<FilterT> {
         private var query: String? = null

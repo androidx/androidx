@@ -16,4 +16,18 @@
 
 package androidx.compose.foundation.text
 
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+
+/**
+ * A boolean representing whether or not we are in touch mode or not.
+ *
+ * This is a temporary workaround and should be removed after proper mouse handling is settled
+ * (b/171402426).
+ *
+ * Until then, it is recommended to use [Modifier.pointerInput] to read whether an event comes
+ * from a touch or mouse source. A more global way of determining this mode will also be added
+ * as part of b/171402426.
+ */
+@Deprecated(message = "Avoid using if possible, see kdoc.", level = DeprecationLevel.WARNING)
 internal actual val isInTouchMode = true

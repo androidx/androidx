@@ -23,7 +23,15 @@ plugins {
 }
 
 dependencies {
+    api(project(":bluetooth:bluetooth"))
+
     implementation(libs.kotlinStdlib)
+    implementation(libs.kotlinCoroutinesCore)
+
+    testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.kotlinTest)
+
+    testImplementation(libs.robolectric)
 }
 
 androidx {
@@ -35,4 +43,8 @@ androidx {
 
 android {
     namespace "androidx.bluetooth.testing"
+    defaultConfig {
+        minSdkVersion 33
+        targetSdkVersion 33
+    }
 }

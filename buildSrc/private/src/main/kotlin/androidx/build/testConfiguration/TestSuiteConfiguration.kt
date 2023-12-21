@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("UnstableApiUsage") // Incubating AGP APIs
-
 package androidx.build.testConfiguration
 
 import androidx.build.AndroidXExtension
@@ -237,6 +235,7 @@ fun Project.addAppApkToTestConfigGeneration(androidXExtension: AndroidXExtension
 
             // Recreate the same configuration existing for test modules to pull the artifact
             // from the application module specified in the deviceTests extension.
+            @Suppress("UnstableApiUsage") // Incubating dependencyFactory APIs
             val configuration = configurations.create("${variant.name}TestedApks") { config ->
                 config.isCanBeResolved = true
                 config.isCanBeConsumed = false

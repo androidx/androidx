@@ -49,6 +49,7 @@ import androidx.compose.ui.test.swipe
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
@@ -153,6 +154,7 @@ class PositionInWindowTest {
     }
 
     // Make sure that the position in the window changes when the decor view's scroll changes.
+    @FlakyTest(bugId = 283784222)
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun positionInWindowOnScrollWindow() {

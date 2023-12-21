@@ -913,6 +913,52 @@ class SnapshotTests {
     }
 
     @Test
+    fun cannotApplyASnapshotTwice() {
+        var state by mutableStateOf("initial")
+        val snapshot = takeMutableSnapshot()
+        try {
+            snapshot.enter { state = "mutated" }
+            snapshot.apply().check()
+            snapshot.apply().check()
+            fail("An exception should have been thrown by second apply()")
+        } catch (ise: IllegalStateException) {
+            // Expected exception
+            assertTrue(
+                ise.message?.let {
+                    it.contains("Snapshot is not open") &&
+                        it.contains("applied=")
+                } == true,
+                "Incorrect message: ${ise.message}"
+            )
+        } finally {
+            snapshot.dispose()
+        }
+    }
+
+    @Test
+    fun cannotApplyAfterADispose() {
+        var state by mutableStateOf("initial")
+        val snapshot = takeMutableSnapshot()
+        try {
+            snapshot.enter { state = "mutated" }
+            snapshot.dispose()
+            snapshot.apply().check()
+            fail("An exception should have been thrown by the apply()")
+        } catch (ise: IllegalStateException) {
+            // Expected exception
+            assertTrue(
+                ise.message?.let {
+                    it.contains("Snapshot is not open") &&
+                        it.contains("applied=")
+                } == true,
+                "Incorrect message: ${ise.message}"
+            )
+        } finally {
+            snapshot.dispose()
+        }
+    }
+
+    @Test
     fun testRecordsAreReusedCorrectly() {
         val value = mutableStateOf<Int>(0)
         Snapshot.withMutableSnapshot { value.value++ }
@@ -1163,6 +1209,51 @@ class SnapshotTests {
         assertEquals(1, usedRecords(state1 as StateObject))
         assertEquals(1, usedRecords(state2 as StateObject))
         assertEquals(1, usedRecords(state3 as StateObject))
+    }
+
+    @Test
+    fun testWriteCount() {
+        val state = mutableStateOf<Int>(0)
+        val writtenStates = mutableListOf<Any>()
+        val snapshot = takeMutableSnapshot { write ->
+            writtenStates.add(write)
+        }
+        try {
+            snapshot.enter {
+                assertEquals(0, writtenStates.size)
+                assertEquals(0, snapshot.writeCount)
+                state.value = 2
+                assertEquals(1, writtenStates.size)
+                assertEquals(1, snapshot.writeCount)
+            }
+        } finally {
+            snapshot.dispose()
+        }
+        assertEquals(1, writtenStates.size)
+        assertEquals(state, writtenStates[0])
+        assertEquals(0, current.writeCount)
+    }
+
+    @Test
+    fun testTransparentSnapshotWriteCount() {
+        val state = mutableStateOf<Int>(0)
+        val transparentSnapshot = TransparentObserverMutableSnapshot(
+            parentSnapshot = currentSnapshot() as? MutableSnapshot,
+            specifiedReadObserver = null,
+            specifiedWriteObserver = null,
+            mergeParentObservers = false,
+            ownsParentSnapshot = false
+        )
+        try {
+            transparentSnapshot.enter {
+                assertEquals(0, transparentSnapshot.writeCount)
+                state.value = 2
+                assertEquals(1, transparentSnapshot.writeCount)
+            }
+        } finally {
+            transparentSnapshot.dispose()
+        }
+        assertEquals(1, current.writeCount)
     }
 
     private fun usedRecords(state: StateObject): Int {

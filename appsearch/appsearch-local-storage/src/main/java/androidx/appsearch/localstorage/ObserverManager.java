@@ -49,7 +49,7 @@ import java.util.concurrent.Executor;
  *
  * <p>This class is thread-safe.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ObserverManager {

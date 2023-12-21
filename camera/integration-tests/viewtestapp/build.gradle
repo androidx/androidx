@@ -14,9 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
@@ -103,5 +100,8 @@ dependencies {
     debugImplementation(libs.testCore)
     debugImplementation("androidx.fragment:fragment-testing:1.2.3")
     // camera-testing added as 'implementation' dependency to include camera-testing activity in APK
-    debugImplementation(project(":camera:camera-testing"))
+    debugImplementation(project(":camera:camera-testing")) {
+        // Ensure camera-testing does not pull in androidx.test dependencies
+        exclude(group:"androidx.test")
+    }
 }

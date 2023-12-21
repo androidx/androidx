@@ -327,7 +327,7 @@ private fun Modifier.scroll(
     }
 )
 
-private class ScrollingLayoutElement(
+internal class ScrollingLayoutElement(
     val scrollState: ScrollState,
     val isReversed: Boolean,
     val isVertical: Boolean
@@ -368,7 +368,7 @@ private class ScrollingLayoutElement(
     }
 }
 
-private class ScrollingLayoutNode(
+internal class ScrollingLayoutNode(
     var scrollerState: ScrollState,
     var isReversed: Boolean,
     var isVertical: Boolean

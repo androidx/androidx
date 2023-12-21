@@ -78,6 +78,6 @@ public abstract class DynamicDataKey<T extends DynamicBuilders.DynamicType> {
     @NonNull
     @Override
     public String toString() {
-        return String.format("namespace = %s, key = %s", mNamespace, mKey);
+        return String.format("DynamicDataKey{namespace=%s, key=%s}", mNamespace, mKey);
     }
 }

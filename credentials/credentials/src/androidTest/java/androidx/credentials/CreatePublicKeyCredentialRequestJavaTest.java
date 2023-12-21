@@ -16,8 +16,8 @@
 
 package androidx.credentials;
 
+import static androidx.credentials.CreateCredentialRequest.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS;
 import static androidx.credentials.CreatePublicKeyCredentialRequest.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED;
-import static androidx.credentials.CreatePublicKeyCredentialRequest.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS;
 import static androidx.credentials.CreatePublicKeyCredentialRequest.BUNDLE_KEY_REQUEST_JSON;
 import static androidx.credentials.internal.FrameworkImplHelper.getFinalCreateCredentialData;
 
@@ -60,10 +60,20 @@ public class CreatePublicKeyCredentialRequestJavaTest {
     }
 
     @Test
+    public void constructor_invalidJson_throwsIllegalArgumentException() {
+        assertThrows("Expected empty Json to throw error",
+                IllegalArgumentException.class,
+                () -> new CreatePublicKeyCredentialRequest("invalid")
+        );
+    }
+
+    @Test
     public void constructor_jsonMissingUserName_throwsIllegalArgumentException() {
         assertThrows(
                 IllegalArgumentException.class,
-                () -> new CreatePublicKeyCredentialRequest("json")
+                () -> new CreatePublicKeyCredentialRequest(
+                        "{\"key\":{\"value\":{\"lol\":\"Value\"}}}"
+                )
         );
     }
 
@@ -77,8 +87,38 @@ public class CreatePublicKeyCredentialRequestJavaTest {
 
     @Test
     public void constructor_success() {
-        new CreatePublicKeyCredentialRequest(
-                "{\"user\":{\"name\":{\"lol\":\"Value\"}}}");
+        new CreatePublicKeyCredentialRequest(TEST_REQUEST_JSON);
+    }
+
+    @Test
+    public void constructor_defaultProviderVariant() {
+        byte[] clientDataHashExpected = "hash".getBytes();
+        String originExpected = "origin";
+        Boolean preferImmediatelyAvailableCredentialsExpected = true;
+        String defaultProviderExpected = "com.test/com.test.TestProviderComponent";
+        boolean isAutoSelectAllowedExpected = true;
+
+        CreatePublicKeyCredentialRequest request = new CreatePublicKeyCredentialRequest(
+                TEST_REQUEST_JSON, clientDataHashExpected,
+                preferImmediatelyAvailableCredentialsExpected, originExpected,
+                defaultProviderExpected, isAutoSelectAllowedExpected);
+
+        assertThat(request.getDisplayInfo().getPreferDefaultProvider())
+                .isEqualTo(defaultProviderExpected);
+        assertThat(request.getClientDataHash()).isEqualTo(clientDataHashExpected);
+        assertThat(request.getOrigin()).isEqualTo(originExpected);
+        assertThat(request.getRequestJson()).isEqualTo(TEST_REQUEST_JSON);
+        assertThat(request.preferImmediatelyAvailableCredentials())
+                .isEqualTo(preferImmediatelyAvailableCredentialsExpected);
+        assertThat(request.isAutoSelectAllowed()).isEqualTo(isAutoSelectAllowedExpected);
+    }
+
+    @Test
+    public void constructor_setsAutoSelectToFalseByDefault() {
+        CreatePublicKeyCredentialRequest createPublicKeyCredentialRequest =
+                new CreatePublicKeyCredentialRequest(TEST_REQUEST_JSON);
+
+        assertThat(createPublicKeyCredentialRequest.isAutoSelectAllowed()).isFalse();
     }
 
     @Test
@@ -93,7 +133,7 @@ public class CreatePublicKeyCredentialRequestJavaTest {
     @Test
     public void constructor_setPreferImmediatelyAvailableCredentialsToTrue() {
         boolean preferImmediatelyAvailableCredentialsExpected = true;
-        String clientDataHash = "hash";
+        byte[] clientDataHash = "hash".getBytes();
         CreatePublicKeyCredentialRequest createPublicKeyCredentialRequest =
                 new CreatePublicKeyCredentialRequest(TEST_REQUEST_JSON,
                         clientDataHash,
@@ -119,38 +159,42 @@ public class CreatePublicKeyCredentialRequestJavaTest {
     @Test
     public void getter_frameworkProperties_success() {
         String requestJsonExpected = TEST_REQUEST_JSON;
-        String clientDataHash = "hash";
-        boolean preferImmediatelyAvailableCredentialsExpected = false;
-        Bundle expectedData = new Bundle();
-        expectedData.putString(
+        byte[] clientDataHash = "hash".getBytes();
+        boolean preferImmediatelyAvailableCredentialsExpected = true;
+        boolean autoSelectExpected = true;
+        Bundle expectedCandidateQueryData = new Bundle();
+        expectedCandidateQueryData.putString(
                 PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
                 CreatePublicKeyCredentialRequest
                         .BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST);
-        expectedData.putString(
+        expectedCandidateQueryData.putString(
                 BUNDLE_KEY_REQUEST_JSON, requestJsonExpected);
-        expectedData.putString(CreatePublicKeyCredentialRequest.BUNDLE_KEY_CLIENT_DATA_HASH,
+        expectedCandidateQueryData.putByteArray(
+                CreatePublicKeyCredentialRequest.BUNDLE_KEY_CLIENT_DATA_HASH,
                 clientDataHash);
-        expectedData.putBoolean(
+        expectedCandidateQueryData.putBoolean(
+                BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
+                autoSelectExpected);
+        Bundle expectedCredentialData = expectedCandidateQueryData.deepCopy();
+        expectedCredentialData.putBoolean(
                 BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
                 preferImmediatelyAvailableCredentialsExpected);
-        expectedData.putBoolean(
-                BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
-                preferImmediatelyAvailableCredentialsExpected);
-        Bundle expectedQuery = TestUtilsKt.deepCopyBundle(expectedData);
-        expectedQuery.remove(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED);
 
         CreatePublicKeyCredentialRequest request = new CreatePublicKeyCredentialRequest(
-                requestJsonExpected, clientDataHash, preferImmediatelyAvailableCredentialsExpected);
+                requestJsonExpected, clientDataHash,
+                preferImmediatelyAvailableCredentialsExpected,
+                /*origin=*/ null, autoSelectExpected);
 
         assertThat(request.getType()).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL);
-        assertThat(TestUtilsKt.equals(request.getCandidateQueryData(), expectedQuery)).isTrue();
+        assertThat(TestUtilsKt.equals(request.getCandidateQueryData(), expectedCandidateQueryData))
+                .isTrue();
         assertThat(request.isSystemProviderRequired()).isFalse();
         Bundle credentialData = getFinalCreateCredentialData(
                 request, mContext);
         assertThat(credentialData.keySet())
-                .hasSize(expectedData.size() + /* added request info */ 1);
-        for (String key : expectedData.keySet()) {
-            assertThat(credentialData.get(key)).isEqualTo(credentialData.get(key));
+                .hasSize(expectedCredentialData.size() + /* added request info */ 1);
+        for (String key : expectedCredentialData.keySet()) {
+            assertThat(credentialData.get(key)).isEqualTo(expectedCredentialData.get(key));
         }
         Bundle displayInfoBundle =
                 credentialData.getBundle(
@@ -169,28 +213,49 @@ public class CreatePublicKeyCredentialRequestJavaTest {
     @SdkSuppress(minSdkVersion = 28)
     @Test
     public void frameworkConversion_success() {
-        String clientDataHash = "hash";
-        CreatePublicKeyCredentialRequest request =
-                new CreatePublicKeyCredentialRequest(TEST_REQUEST_JSON, clientDataHash, true);
+        byte[] clientDataHashExpected = "hash".getBytes();
+        String originExpected = "origin";
+        Boolean preferImmediatelyAvailableCredentialsExpected = true;
+        boolean isAutoSelectAllowedExpected = true;
+        CreatePublicKeyCredentialRequest request = new CreatePublicKeyCredentialRequest(
+                TEST_REQUEST_JSON, clientDataHashExpected,
+                preferImmediatelyAvailableCredentialsExpected, originExpected,
+                isAutoSelectAllowedExpected);
+        // Add additional data to the request data and candidate query data to make sure
+        // they persist after the conversion
+        Bundle credentialData = getFinalCreateCredentialData(
+                request, mContext);
+        String customRequestDataKey = "customRequestDataKey";
+        String customRequestDataValue = "customRequestDataValue";
+        credentialData.putString(customRequestDataKey, customRequestDataValue);
+        Bundle candidateQueryData = request.getCandidateQueryData();
+        String customCandidateQueryDataKey = "customRequestDataKey";
+        Boolean customCandidateQueryDataValue = true;
+        candidateQueryData.putBoolean(customCandidateQueryDataKey, customCandidateQueryDataValue);
 
         CreateCredentialRequest convertedRequest = CreateCredentialRequest.createFrom(
-                request.getType(), getFinalCreateCredentialData(
-                        request, mContext),
-                request.getCandidateQueryData(), request.isSystemProviderRequired(),
-                request.getOrigin()
-        );
+                request.getType(), credentialData, candidateQueryData,
+                request.isSystemProviderRequired(), request.getOrigin());
 
         assertThat(convertedRequest).isInstanceOf(CreatePublicKeyCredentialRequest.class);
         CreatePublicKeyCredentialRequest convertedSubclassRequest =
                 (CreatePublicKeyCredentialRequest) convertedRequest;
         assertThat(convertedSubclassRequest.getRequestJson()).isEqualTo(request.getRequestJson());
+        assertThat(convertedSubclassRequest.getOrigin()).isEqualTo(originExpected);
+        assertThat(convertedSubclassRequest.getClientDataHash()).isEqualTo(clientDataHashExpected);
         assertThat(convertedSubclassRequest.preferImmediatelyAvailableCredentials())
-                .isEqualTo(request.preferImmediatelyAvailableCredentials());
+                .isEqualTo(preferImmediatelyAvailableCredentialsExpected);
+        assertThat(convertedSubclassRequest.isAutoSelectAllowed())
+                .isEqualTo(isAutoSelectAllowedExpected);
         CreateCredentialRequest.DisplayInfo displayInfo =
                 convertedRequest.getDisplayInfo();
         assertThat(displayInfo.getUserDisplayName()).isEqualTo(TEST_USER_DISPLAYNAME);
         assertThat(displayInfo.getUserId()).isEqualTo(TEST_USERNAME);
         assertThat(displayInfo.getCredentialTypeIcon().getResId())
                 .isEqualTo(R.drawable.ic_passkey);
+        assertThat(convertedRequest.getCredentialData().getString(customRequestDataKey))
+                .isEqualTo(customRequestDataValue);
+        assertThat(convertedRequest.getCandidateQueryData().getBoolean(customCandidateQueryDataKey))
+                .isEqualTo(customCandidateQueryDataValue);
     }
 }

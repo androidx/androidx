@@ -146,7 +146,7 @@ class ModifierNodeNearestAncestorTest {
             )
         }
         rule.runOnIdle {
-            ancestor1.detach()
+            ancestor1.markAsDetached()
         }
 
         // Act.
@@ -175,7 +175,7 @@ class ModifierNodeNearestAncestorTest {
             }
         }
         rule.runOnIdle {
-            localAncestor.detach()
+            localAncestor.markAsDetached()
         }
 
         // Act.
@@ -202,7 +202,7 @@ class ModifierNodeNearestAncestorTest {
             }
         }
         rule.runOnIdle {
-            ancestor1.detach()
+            ancestor1.markAsDetached()
         }
 
         // Act.

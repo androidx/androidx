@@ -96,9 +96,9 @@ class TextMeasurerBenchmark(
     fun text_measurer_no_cache() {
         textBenchmarkRule.generator { textGenerator ->
             val textMeasurer = TextMeasurer(
-                fallbackFontFamilyResolver = createFontFamilyResolver(instrumentationContext),
-                fallbackDensity = Density(instrumentationContext),
-                fallbackLayoutDirection = LayoutDirection.Ltr,
+                defaultFontFamilyResolver = createFontFamilyResolver(instrumentationContext),
+                defaultDensity = Density(instrumentationContext),
+                defaultLayoutDirection = LayoutDirection.Ltr,
                 cacheSize = 0
             )
             val text = text(textGenerator)
@@ -116,9 +116,9 @@ class TextMeasurerBenchmark(
     fun text_measurer_cached() {
         textBenchmarkRule.generator { textGenerator ->
             val textMeasurer = TextMeasurer(
-                fallbackFontFamilyResolver = createFontFamilyResolver(instrumentationContext),
-                fallbackDensity = Density(instrumentationContext),
-                fallbackLayoutDirection = LayoutDirection.Ltr,
+                defaultFontFamilyResolver = createFontFamilyResolver(instrumentationContext),
+                defaultDensity = Density(instrumentationContext),
+                defaultLayoutDirection = LayoutDirection.Ltr,
                 cacheSize = 16
             )
             val text = text(textGenerator)
@@ -136,9 +136,9 @@ class TextMeasurerBenchmark(
     fun drawText_TextLayoutResult_no_change() {
         textBenchmarkRule.generator { textGenerator ->
             val textMeasurer = TextMeasurer(
-                fallbackFontFamilyResolver = createFontFamilyResolver(instrumentationContext),
-                fallbackDensity = Density(instrumentationContext),
-                fallbackLayoutDirection = LayoutDirection.Ltr,
+                defaultFontFamilyResolver = createFontFamilyResolver(instrumentationContext),
+                defaultDensity = Density(instrumentationContext),
+                defaultLayoutDirection = LayoutDirection.Ltr,
                 cacheSize = 16
             )
             val textLayoutResult = textMeasurer.measure(
@@ -167,9 +167,9 @@ class TextMeasurerBenchmark(
     fun drawText_TextLayoutResult_color_override() {
         textBenchmarkRule.generator { textGenerator ->
             val textMeasurer = TextMeasurer(
-                fallbackFontFamilyResolver = createFontFamilyResolver(instrumentationContext),
-                fallbackDensity = Density(instrumentationContext),
-                fallbackLayoutDirection = LayoutDirection.Ltr,
+                defaultFontFamilyResolver = createFontFamilyResolver(instrumentationContext),
+                defaultDensity = Density(instrumentationContext),
+                defaultLayoutDirection = LayoutDirection.Ltr,
                 cacheSize = 16
             )
             val textLayoutResult = textMeasurer.measure(

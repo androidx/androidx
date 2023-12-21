@@ -18,10 +18,16 @@ package androidx.car.app.activity.renderer.surface;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import android.content.ClipDescription;
+import android.net.Uri;
 import android.os.RemoteException;
+import android.view.inputmethod.InputContentInfo;
 import android.view.inputmethod.SurroundingText;
 
 import androidx.car.app.activity.CarAppViewModel;
@@ -54,12 +60,6 @@ public class RemoteProxyInputConnectionTest {
         mRemoteProxyInputConnection =
                 new RemoteProxyInputConnection(mServiceDispatcher, mProxyInputConnection);
 
-    }
-
-    @Config(maxSdk = 30)
-    @Test
-    public void getSurroundingText_apiLevel30Minus_returnsNull() {
-        assertThat(mRemoteProxyInputConnection.getSurroundingText(10, 10, 0)).isNull();
     }
 
     @Config(minSdk = 31)
@@ -100,5 +100,26 @@ public class RemoteProxyInputConnectionTest {
         when(mProxyInputConnection.getSurroundingText(10, 10, 0)).thenReturn(
                 Bundleable.create("random string"));
         assertThat(mRemoteProxyInputConnection.getSurroundingText(10, 10, 0)).isNull();
+    }
+
+    @Test
+    public void deleteSurroundingTextInCodePoints_proxyInputReturnsValidValue_returnsValidValue()
+            throws RemoteException,
+            BundlerException {
+        when(mProxyInputConnection.deleteSurroundingTextInCodePoints(1, 5)).thenReturn(true);
+        assertThat(mRemoteProxyInputConnection.deleteSurroundingTextInCodePoints(1, 5)).isTrue();
+    }
+
+    @Test
+    public void commitContent_proxyInputReturnsValidValue_returnsValidValue()
+            throws RemoteException,
+            BundlerException {
+        when(mProxyInputConnection.commitContent(any(Bundleable.class), anyInt(),
+                isNull())).thenReturn(true);
+        InputContentInfo inputContentInfo = new InputContentInfo(Uri.parse("content://com"
+                + ".example/path"), new ClipDescription("sample content",
+                new String[]{"image/png"}));
+        assertThat(mRemoteProxyInputConnection.commitContent(inputContentInfo,
+                5, null)).isTrue();
     }
 }

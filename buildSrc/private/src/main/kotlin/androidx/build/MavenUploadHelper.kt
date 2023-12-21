@@ -18,20 +18,14 @@ package androidx.build
 
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryPlugin
+import com.android.utils.childrenIterator
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import com.google.gson.stream.JsonWriter
 import groovy.util.Node
 import java.io.File
-import java.io.StringReader
 import java.io.StringWriter
-import java.util.StringTokenizer
-import org.apache.xerces.jaxp.SAXParserImpl.JAXPSAXParser
-import org.dom4j.Document
-import org.dom4j.DocumentException
-import org.dom4j.DocumentFactory
 import org.dom4j.Element
-import org.dom4j.io.SAXReader
 import org.dom4j.io.XMLWriter
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -56,18 +50,17 @@ import org.gradle.kotlin.dsl.findByType
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
-import org.xml.sax.InputSource
-import org.xml.sax.XMLReader
 
 fun Project.configureMavenArtifactUpload(
     extension: AndroidXExtension,
+    kmpExtension: AndroidXMultiplatformExtension,
     componentFactory: SoftwareComponentFactory
 ) {
     apply(mapOf("plugin" to "maven-publish"))
     var registered = false
     fun registerOnFirstPublishableArtifact(component: SoftwareComponent) {
         if (!registered) {
-            configureComponentPublishing(extension, component, componentFactory)
+            configureComponentPublishing(extension, kmpExtension, component, componentFactory)
             Release.register(this, extension)
             registered = true
         }
@@ -104,6 +97,7 @@ private fun Project.releaseTaskShouldBeRegistered(extension: AndroidXExtension):
  */
 private fun Project.configureComponentPublishing(
     extension: AndroidXExtension,
+    kmpExtension: AndroidXMultiplatformExtension,
     component: SoftwareComponent,
     componentFactory: SoftwareComponentFactory
 ) {
@@ -123,11 +117,14 @@ private fun Project.configureComponentPublishing(
         // Check every project is the project map to see if they are an Android Library
         val projectModules = project.getProjectsMap()
         for ((mavenCoordinates, projectPath) in projectModules) {
-            project.findProject(projectPath)?.plugins?.hasPlugin(
-                LibraryPlugin::class.java
-            )?.let { hasLibraryPlugin ->
-                if (hasLibraryPlugin) {
-                    androidxAndroidProjects.add(mavenCoordinates)
+            project.findProject(projectPath)?.plugins?.let { plugins ->
+                if (plugins.hasPlugin(LibraryPlugin::class.java)) {
+                    if (plugins.hasPlugin(KotlinMultiplatformPluginWrapper::class.java)) {
+                        // For KMP projects, android AAR is published under -android
+                        androidxAndroidProjects.add("$mavenCoordinates-android")
+                    } else {
+                        androidxAndroidProjects.add(mavenCoordinates)
+                    }
                 }
             }
         }
@@ -160,10 +157,11 @@ private fun Project.configureComponentPublishing(
                 }
             }
         }
-        publications.withType(MavenPublication::class.java).all {
-            it.pom { pom ->
+        publications.withType(MavenPublication::class.java).all { publication ->
+            publication.pom { pom ->
                 addInformativeMetadata(extension, pom)
-                tweakDependenciesMetadata(androidxGroup, pom, androidLibrariesSetProvider)
+                tweakDependenciesMetadata(androidxGroup, pom, androidLibrariesSetProvider,
+                    publication.name == KMP_ANCHOR_PUBLICATION_NAME, kmpExtension.defaultPlatform)
             }
         }
     }
@@ -213,11 +211,7 @@ private fun Project.configureComponentPublishing(
 fun sortPomDependencies(pom: String): String {
     // Workaround for using the default namespace in dom4j.
     val namespaceUris = mapOf("ns" to "http://maven.apache.org/POM/4.0.0")
-    val docFactory = DocumentFactory()
-    docFactory.xPathNamespaceURIs = namespaceUris
-    // Ensure that we're consistently using JAXP parser.
-    val xmlReader = JAXPSAXParser()
-    val document = parseText(docFactory, xmlReader, pom)
+    val document = parseXml(pom, namespaceUris)
 
     // For each <dependencies> element, sort the contained elements in-place.
     document.rootElement
@@ -251,47 +245,6 @@ fun sortPomDependencies(pom: String): String {
     }
 
     return stringWriter.toString()
-}
-
-// Coped from org.dom4j.DocumentHelper with modifications to allow SAXReader configuration.
-@Throws(DocumentException::class)
-fun parseText(
-    documentFactory: DocumentFactory,
-    xmlReader: XMLReader,
-    text: String,
-): Document {
-    val reader = SAXReader.createDefault()
-    reader.documentFactory = documentFactory
-    reader.xmlReader = xmlReader
-    val encoding = getEncoding(text)
-    val source = InputSource(StringReader(text))
-    source.encoding = encoding
-    val result = reader.read(source)
-    if (result.xmlEncoding == null) {
-        result.xmlEncoding = encoding
-    }
-    return result
-}
-
-// Coped from org.dom4j.DocumentHelper.
-private fun getEncoding(text: String): String? {
-    var result: String? = null
-    val xml = text.trim { it <= ' ' }
-    if (xml.startsWith("<?xml")) {
-        val end = xml.indexOf("?>")
-        val sub = xml.substring(0, end)
-        val tokens = StringTokenizer(sub, " =\"'")
-        while (tokens.hasMoreTokens()) {
-            val token = tokens.nextToken()
-            if ("encoding" == token) {
-                if (tokens.hasMoreTokens()) {
-                    result = tokens.nextToken()
-                }
-                break
-            }
-        }
-    }
-    return result
 }
 
 /**
@@ -348,7 +301,7 @@ private fun Project.replaceBaseMultiplatformPublication(
     ) { sourcesComponents ->
         configure<PublishingExtension> {
             publications { pubs ->
-                pubs.create<MavenPublication>("androidxKmp") {
+                pubs.create<MavenPublication>(KMP_ANCHOR_PUBLICATION_NAME) {
                     // Duplicate behavior from KMP plugin
                     // (https://cs.github.com/JetBrains/kotlin/blob/0c001cc9939a2ab11815263ed825c1096b3ce087/libraries/tools/kotlin-gradle-plugin/src/common/kotlin/org/jetbrains/kotlin/gradle/plugin/mpp/Publishing.kt#L42)
                     // Should be able to remove internal API usage once
@@ -357,7 +310,7 @@ private fun Project.replaceBaseMultiplatformPublication(
 
                     from(object : ComponentWithVariants, SoftwareComponentInternal {
                         override fun getName(): String {
-                            return "androidxKmp"
+                            return KMP_ANCHOR_PUBLICATION_NAME
                         }
 
                         override fun getUsages(): MutableSet<out UsageContext> {
@@ -505,7 +458,9 @@ private fun Project.addInformativeMetadata(extension: AndroidXExtension, pom: Ma
 private fun tweakDependenciesMetadata(
     mavenGroup: LibraryGroup,
     pom: MavenPom,
-    androidLibrariesSetProvider: Provider<Set<String>>
+    androidLibrariesSetProvider: Provider<Set<String>>,
+    kmpAnchor: Boolean,
+    pomPlatform: String?
 ) {
     pom.withXml { xml ->
         // The following code depends on getProjectsMap which is only available late in
@@ -516,6 +471,10 @@ private fun tweakDependenciesMetadata(
         assignSingleVersionDependenciesInGroupForPom(xml, mavenGroup)
         assignAarTypes(xml, androidLibrariesSetProvider)
         ensureConsistentJvmSuffix(xml)
+
+        if (kmpAnchor && pomPlatform != null) {
+            insertDefaultMultiplatformDependencies(xml, pomPlatform)
+        }
     }
 }
 
@@ -546,6 +505,37 @@ private fun assignAarTypes(
             dep.appendNode("type", "aar")
         }
     }
+}
+
+fun insertDefaultMultiplatformDependencies(
+    xml: XmlProvider,
+    platformId: String
+) {
+    val groupId = xml.asElement().find { it.nodeName == "groupId" }?.textContent ?: return
+    val artifactId = xml.asElement().find { it.nodeName == "artifactId" }?.textContent ?: return
+    val version = xml.asElement().find { it.nodeName == "version" }?.textContent ?: return
+
+    val dependencies = xml.asNode().children().find {
+        it is Node && it.name().toString().endsWith("dependencies")
+    } as Node? ?: return
+
+    dependencies.appendNode("dependency").apply {
+        appendNode("groupId", groupId)
+        appendNode("artifactId", "$artifactId-$platformId")
+        appendNode("version", version)
+        appendNode("scope", "compile")
+    }
+}
+
+private fun org.w3c.dom.Element.find(predicate: (org.w3c.dom.Node) -> Boolean): org.w3c.dom.Node? {
+    val iterator = childrenIterator()
+    while (iterator.hasNext()) {
+        val node = iterator.next()
+        if (predicate(node)) {
+            return node
+        }
+    }
+    return null
 }
 
 /**
@@ -632,3 +622,5 @@ private fun Project.appliesJavaGradlePluginPlugin() = pluginManager.hasPlugin("j
 
 private const val ANDROID_GIT_URL =
     "scm:git:https://android.googlesource.com/platform/frameworks/support"
+
+internal const val KMP_ANCHOR_PUBLICATION_NAME = "androidxKmp"

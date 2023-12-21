@@ -528,7 +528,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
             if (frontBufferedLayerSurfaceControl != null) {
                 transaction.reparent(frontBufferedLayerSurfaceControl, null)
             }
-            mParentRenderLayer.release(transaction)
+            mParentRenderLayer.detach(transaction)
             transaction.commit()
             frontBufferedLayerSurfaceControl?.release()
 
@@ -559,7 +559,10 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
             Log.w(TAG, "Attempt to release GLFrontbufferedRenderer that is already released")
             return
         }
-        detachTargets(cancelPending, onReleaseComplete)
+        detachTargets(cancelPending) {
+            mParentRenderLayer.release()
+            onReleaseComplete?.invoke()
+        }
 
         mGLRenderer.unregisterEGLContextCallback(mContextCallbacks)
         if (mIsManagingGLRenderer) {

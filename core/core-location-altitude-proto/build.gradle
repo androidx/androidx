@@ -1,0 +1,74 @@
+/*
+ * Copyright 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.Publish
+
+plugins {
+    id("AndroidXPlugin")
+    id("java-library")
+    id("com.google.protobuf")
+}
+
+dependencies {
+    implementation(libs.protobufLite)
+}
+
+protobuf {
+    protoc {
+        artifact = libs.protobufCompiler.get()
+    }
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                java {
+                    option "lite"
+                }
+            }
+        }
+    }
+}
+
+afterEvaluate {
+    lint {
+        lintOptions {
+            // protobuf generates unannotated and synthetic accessor methods
+            disable("UnknownNullness", "SyntheticAccessor")
+        }
+    }
+}
+
+def preferencesProtoJarJarTask = tasks.register("exportJar", Jar) {
+    archiveBaseName.set("export")
+    from(sourceSets.main.output)
+    // The proto-lite dependency includes .proto files, which are not used by the altitude
+    // compatibility library. When apps depend on this library as well as proto-lite directly, these
+    // files conflict since jarjar only renames the java classes. Remove them here since they are
+    // unused.
+    exclude("**/*.proto")
+
+    from(zipTree(configurations.detachedConfiguration(
+            dependencies.create(libs.protobufLite.get())).getSingleFile()))
+}
+
+def jarjarConf = configurations.register("export")
+artifacts.add(jarjarConf.name, preferencesProtoJarJarTask.flatMap { it.archiveFile })
+
+androidx {
+    name = "Location Altitude Compatibility Library Protos"
+    publish = Publish.NONE
+    inceptionYear = "2022"
+    description = "Implementation protos for core-location-altitude artifact."
+}

@@ -34,7 +34,7 @@ import java.util.function.Function;
 /**
  * Translates {@link androidx.appsearch.app.AppSearchResult} and
  * {@link androidx.appsearch.app.AppSearchBatchResult} to platform versions.
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.S)

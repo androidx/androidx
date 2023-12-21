@@ -126,7 +126,9 @@ class XExecutableElementTest {
             """
             interface Subject {
                 fun method(vararg inputs: String)
-                suspend fun suspendMethod(vararg inputs: String);
+                suspend fun suspendMethod(vararg inputs: String)
+                fun method2(vararg inputs: String, arg: Int)
+                fun String.extFun(vararg inputs: String)
             }
             """.trimIndent()
         )
@@ -134,11 +136,34 @@ class XExecutableElementTest {
             sources = listOf(subject)
         ) {
             val element = it.processingEnv.requireTypeElement("Subject")
-            assertThat(element.getMethodByJvmName("method").isVarArgs()).isTrue()
-            if (it.isKsp) {
-                assertThat(element.getMethodByJvmName("suspendMethod").isVarArgs()).isTrue()
-            } else {
-                assertThat(element.getMethodByJvmName("suspendMethod").isVarArgs()).isFalse()
+
+            element.getMethodByJvmName("method").let { method ->
+                assertThat(method.isVarArgs()).isTrue()
+                assertThat(method.parameters).hasSize(1)
+                assertThat(method.parameters.single().isVarArgs()).isTrue()
+            }
+
+            element.getMethodByJvmName("suspendMethod").let { suspendMethod ->
+                assertThat(suspendMethod.isVarArgs()).isFalse()
+                assertThat(suspendMethod.parameters).hasSize(2)
+                assertThat(
+                    suspendMethod.parameters.first { it.name == "inputs" }.isVarArgs()
+                ).isTrue()
+            }
+
+            element.getMethodByJvmName("extFun").let { extFun ->
+                assertThat(extFun.isVarArgs()).isTrue()
+                assertThat(extFun.parameters).hasSize(2)
+                // kapt messed with parameter names, sometimes the synthetic parameter can use the
+                // second parameter's name.
+                assertThat(extFun.parameters.get(1).isVarArgs()).isTrue()
+            }
+
+            element.getMethodByJvmName("method2").let { method2 ->
+                assertThat(method2.isVarArgs()).isFalse()
+                assertThat(method2.parameters).hasSize(2)
+                assertThat(method2.parameters.first { it.name == "inputs" }.isVarArgs())
+                    .isTrue()
             }
         }
     }
@@ -1286,6 +1311,41 @@ class XExecutableElementTest {
                 myTypeAlias(MyType<java.lang.Integer>):MyType<java.lang.Long>
                 """.trimIndent()
             )
+        }
+    }
+
+    @Test
+    fun testMethodWithParameterizedSyntheticReceiver() {
+        runProcessorTest(
+            sources = listOf(
+                Source.kotlin(
+                    "Usage.kt",
+                    """
+                    class Usage {
+                      fun <T> Foo<T>.method(param: Foo<String>): Foo<T> = this
+                    }
+                    class Foo<T>
+                    """.trimIndent()
+                ),
+            )
+        ) { invocation ->
+            val usage = invocation.processingEnv.requireTypeElement("Usage")
+            val method = usage.getDeclaredMethodByJvmName("method")
+            assertThat(method.parameters).hasSize(2)
+            method.parameters[0].apply {
+                assertThat(name).isEqualTo("\$this\$method")
+                assertThat(type.asTypeName().java.toString()).isEqualTo("Foo<T>")
+                if (invocation.isKsp) {
+                    assertThat(type.asTypeName().kotlin.toString()).isEqualTo("Foo<T>")
+                }
+            }
+            method.parameters[1].apply {
+                assertThat(name).isEqualTo("param")
+                assertThat(type.asTypeName().java.toString()).isEqualTo("Foo<java.lang.String>")
+                if (invocation.isKsp) {
+                    assertThat(type.asTypeName().kotlin.toString()).isEqualTo("Foo<kotlin.String>")
+                }
+            }
         }
     }
 }

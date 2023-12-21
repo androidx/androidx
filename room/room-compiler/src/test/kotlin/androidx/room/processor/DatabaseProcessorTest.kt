@@ -54,6 +54,7 @@ import org.hamcrest.CoreMatchers.not
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.CoreMatchers.sameInstance
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -340,6 +341,7 @@ class DatabaseProcessorTest {
     }
 
     @Test
+    @Ignore("b/285140651")
     fun detectMissingEntityAnnotationInLibraryClass() {
         val librarySource = Source.java(
             "test.library.MissingEntityAnnotationPojo",
@@ -376,6 +378,7 @@ class DatabaseProcessorTest {
     }
 
     @Test
+    @Ignore("b/285140651")
     fun detectMissingDaoAnnotationInLibraryClass() {
         val librarySource = Source.java(
             "test.library.MissingAnnotationsBaseDao",

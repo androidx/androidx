@@ -1,6 +1,7 @@
 package com.mysdk
 
 import android.content.Context
+import android.os.Bundle
 import androidx.privacysandbox.ui.provider.toCoreLibInfo
 import com.mysdk.PrivacySandboxThrowableParcelConverter
 import com.mysdk.PrivacySandboxThrowableParcelConverter.toThrowableParcel
@@ -171,5 +172,27 @@ public class MySdkStubDelegate internal constructor(
     coroutineScope.launch {
       delegate.acceptUiInterfaceParam((input.binder as MyUiInterfaceStubDelegate).delegate)
     }
+  }
+
+  public override fun acceptSdkActivityLauncherParam(activityLauncher: Bundle): Unit {
+    coroutineScope.launch {
+      delegate.acceptSdkActivityLauncherParam(SdkActivityLauncherAndBinderWrapper(activityLauncher))
+    }
+  }
+
+  public override
+      fun returnSdkActivityLauncher(transactionCallback: ISdkActivityLauncherTransactionCallback):
+      Unit {
+    val job = coroutineScope.launch {
+      try {
+        val result = delegate.returnSdkActivityLauncher()
+        transactionCallback.onSuccess(SdkActivityLauncherAndBinderWrapper.getLauncherInfo(result))
+      }
+      catch (t: Throwable) {
+        transactionCallback.onFailure(toThrowableParcel(t))
+      }
+    }
+    val cancellationSignal = TransportCancellationCallback() { job.cancel() }
+    transactionCallback.onCancellable(cancellationSignal)
   }
 }

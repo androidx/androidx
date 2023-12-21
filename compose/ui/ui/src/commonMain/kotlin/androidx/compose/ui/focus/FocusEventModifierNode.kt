@@ -45,7 +45,7 @@ internal fun FocusEventModifierNode.invalidateFocusEvent() {
 
 internal fun FocusEventModifierNode.getFocusState(): FocusState {
     visitSelfAndChildren(Nodes.FocusTarget) {
-        when (val focusState = it.focusStateImpl) {
+        when (val focusState = it.focusState) {
             // If we find a focused child, we use that child's state as the aggregated state.
             Active, ActiveParent, Captured -> return focusState
             // We use the Inactive state only if we don't have a focused child.

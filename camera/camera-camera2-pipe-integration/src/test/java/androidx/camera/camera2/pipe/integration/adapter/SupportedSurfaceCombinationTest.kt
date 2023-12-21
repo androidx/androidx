@@ -1865,9 +1865,12 @@ class SupportedSurfaceCombinationTest {
             CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to mockMap,
         ).also { characteristicsMap ->
             mockMaximumResolutionMap?.let {
-                characteristicsMap[
-                    CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP_MAXIMUM_RESOLUTION] =
+                if (Build.VERSION.SDK_INT >= 31) {
+                    characteristicsMap[
+                        CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP_MAXIMUM_RESOLUTION
+                    ] =
                     mockMaximumResolutionMap
+                }
             }
         }
 
@@ -1898,7 +1901,10 @@ class SupportedSurfaceCombinationTest {
         ).thenReturn(supportedSizes)
         // This is setup for high resolution output sizes
         highResolutionSupportedSizes?.let {
-            whenever(mockMap.getHighResolutionOutputSizes(ArgumentMatchers.anyInt())).thenReturn(it)
+            if (Build.VERSION.SDK_INT >= 23) {
+                whenever(mockMap.getHighResolutionOutputSizes(ArgumentMatchers.anyInt()))
+                    .thenReturn(it)
+            }
         }
         shadowCharacteristics.set(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP, mockMap)
         mockMaximumResolutionMap?.let {
@@ -1906,17 +1912,21 @@ class SupportedSurfaceCombinationTest {
                 .thenReturn(maximumResolutionSupportedSizes)
             whenever(mockMaximumResolutionMap.getOutputSizes(SurfaceTexture::class.java))
                 .thenReturn(maximumResolutionSupportedSizes)
-            whenever(
-                mockMaximumResolutionMap.getHighResolutionOutputSizes(
-                    ArgumentMatchers.anyInt()
+            if (Build.VERSION.SDK_INT >= 23) {
+                whenever(
+                    mockMaximumResolutionMap.getHighResolutionOutputSizes(
+                        ArgumentMatchers.anyInt()
+                    )
+                ).thenReturn(
+                    maximumResolutionHighResolutionSupportedSizes
                 )
-            ).thenReturn(
-                maximumResolutionHighResolutionSupportedSizes
-            )
-            shadowCharacteristics.set(
-                CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP_MAXIMUM_RESOLUTION,
-                mockMaximumResolutionMap
-            )
+            }
+            if (Build.VERSION.SDK_INT >= 31) {
+                shadowCharacteristics.set(
+                    CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP_MAXIMUM_RESOLUTION,
+                    mockMaximumResolutionMap
+                )
+            }
         }
         @LensFacing val lensFacingEnum = CameraUtil.getLensFacingEnumFromInt(
             CameraCharacteristics.LENS_FACING_BACK

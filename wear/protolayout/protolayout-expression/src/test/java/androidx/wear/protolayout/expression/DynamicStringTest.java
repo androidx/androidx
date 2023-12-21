@@ -120,7 +120,7 @@ public final class DynamicStringTest {
   }
 
   @Test
-  public void validProto() {
+  public void fromByteArray_validProto() {
     DynamicString from = DynamicString.constant(CONSTANT_VALUE);
     DynamicString to = DynamicString.fromByteArray(from.toDynamicStringByteArray());
 
@@ -128,7 +128,55 @@ public final class DynamicStringTest {
   }
 
   @Test
-  public void invalidProto() {
+  public void fromByteArray_invalidProto() {
     assertThrows(IllegalArgumentException.class, () -> DynamicString.fromByteArray(new byte[] {1}));
+  }
+
+  @Test
+  public void fromByteArray_existingByteArray() {
+    DynamicString from = DynamicString.constant(CONSTANT_VALUE);
+    byte[] buffer = new byte[100];
+    int written = from.toDynamicStringByteArray(buffer, 10, 50);
+
+    DynamicString to = DynamicString.fromByteArray(buffer, 10, written);
+
+    assertThat(to.toDynamicStringProto().getFixed().getValue()).isEqualTo(CONSTANT_VALUE);
+  }
+
+  @Test
+  public void fromByteArray_existingByteArrayTooSmall() {
+    DynamicString from = DynamicString.constant(CONSTANT_VALUE);
+    byte[] buffer = new byte[100];
+    int written = from.toDynamicStringByteArray(buffer);
+
+    assertThrows(
+            IllegalArgumentException.class,
+            () -> DynamicString.fromByteArray(buffer, 0, written - 1));
+  }
+
+  @Test
+  public void fromByteArray_existingByteArrayTooLarge() {
+    DynamicString from = DynamicString.constant(CONSTANT_VALUE);
+    byte[] buffer = new byte[100];
+    int written = from.toDynamicStringByteArray(buffer);
+
+    assertThrows(
+            IllegalArgumentException.class,
+            () -> DynamicString.fromByteArray(buffer, 0, written + 1));
+  }
+
+  @Test
+  public void toByteArray_existingByteArrayTooSmall() {
+    assertThrows(
+            IllegalArgumentException.class,
+            () -> DynamicString.constant(CONSTANT_VALUE).toDynamicStringByteArray(new byte[1]));
+  }
+
+  @Test
+  public void toByteArray_existingByteArraySameSize() {
+    DynamicString from = DynamicString.constant(CONSTANT_VALUE);
+
+    assertThat(from.toDynamicStringByteArray(new byte[100]))
+            .isEqualTo(from.toDynamicStringByteArray().length);
   }
 }

@@ -28,8 +28,10 @@ import android.view.inputmethod.BaseInputConnection
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextInputServiceAndroid.TextInputCommand.HideKeyboard
 import androidx.compose.ui.text.input.TextInputServiceAndroid.TextInputCommand.ShowKeyboard
@@ -52,16 +54,9 @@ private const val DEBUG_CLASS = "TextInputServiceAndroid"
 internal class TextInputServiceAndroid(
     val view: View,
     private val inputMethodManager: InputMethodManager,
-    private val platformTextInput: PlatformTextInput?,
+    private val platformTextInput: PlatformTextInput? = null,
     private val inputCommandProcessorExecutor: Executor = Choreographer.getInstance().asExecutor(),
 ) : PlatformTextInputService {
-
-    // Non-experimental constructor.
-    constructor(
-        view: View,
-        inputMethodManager: InputMethodManager,
-        inputCommandProcessorExecutor: Executor = Choreographer.getInstance().asExecutor(),
-    ) : this(view, inputMethodManager, platformTextInput = null, inputCommandProcessorExecutor)
 
     /**
      * Commands that can be sent into [textInputCommandQueue] to be processed by
@@ -98,6 +93,8 @@ internal class TextInputServiceAndroid(
     }
 
     private var focusedRect: AndroidRect? = null
+
+    private val cursorAnchorInfoController = CursorAnchorInfoController(inputMethodManager)
 
     /**
      * A channel that is used to debounce rapid operations such as showing/hiding the keyboard and
@@ -141,6 +138,24 @@ internal class TextInputServiceAndroid(
 
                 override fun onKeyEvent(event: KeyEvent) {
                     baseInputConnection.sendKeyEvent(event)
+                }
+
+                override fun onRequestCursorAnchorInfo(
+                    immediate: Boolean,
+                    monitor: Boolean,
+                    includeInsertionMarker: Boolean,
+                    includeCharacterBounds: Boolean,
+                    includeEditorBounds: Boolean,
+                    includeLineBounds: Boolean
+                ) {
+                    cursorAnchorInfoController.requestUpdate(
+                        immediate,
+                        monitor,
+                        includeInsertionMarker,
+                        includeCharacterBounds,
+                        includeEditorBounds,
+                        includeLineBounds
+                    )
                 }
 
                 override fun onConnectionClosed(ic: RecordingInputConnection) {
@@ -329,6 +344,7 @@ internal class TextInputServiceAndroid(
         for (i in 0 until ics.size) {
             ics[i].get()?.mTextFieldValue = newValue
         }
+        cursorAnchorInfoController.invalidate()
 
         if (oldValue == newValue) {
             if (DEBUG) {
@@ -387,6 +403,22 @@ internal class TextInputServiceAndroid(
                 view.requestRectangleOnScreen(AndroidRect(it))
             }
         }
+    }
+
+    override fun updateTextLayoutResult(
+        textFieldValue: TextFieldValue,
+        textLayoutResult: TextLayoutResult,
+        textLayoutPositionInWindow: Offset,
+        innerTextFieldBounds: Rect,
+        decorationBoxBounds: Rect
+    ) {
+        cursorAnchorInfoController.updateTextLayoutResult(
+            textFieldValue,
+            textLayoutResult,
+            textLayoutPositionInWindow,
+            innerTextFieldBounds,
+            decorationBoxBounds
+        )
     }
 
     /** Immediately restart the IME connection, bypassing the [textInputCommandQueue]. */

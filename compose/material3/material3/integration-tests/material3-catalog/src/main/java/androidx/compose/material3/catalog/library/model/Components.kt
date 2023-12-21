@@ -396,7 +396,7 @@ val Components = listOf(
     Switches,
     Tabs,
     TextFields,
-    Tooltips,
     TimePickers,
+    Tooltips,
     TopAppBar
 )

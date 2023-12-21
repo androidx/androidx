@@ -62,7 +62,6 @@ import androidx.compose.ui.platform.invertTo
 import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.SemanticsModifier
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.PlatformTextInputPluginRegistry
@@ -521,10 +520,10 @@ class LayoutNodeTest {
 
     @Test
     fun testLocalPositionOfWithSiblings() {
-        val node0 = LayoutNode()
+        val node0 = ZeroSizedLayoutNode()
         node0.attach(MockOwner())
-        val node1 = LayoutNode()
-        val node2 = LayoutNode()
+        val node1 = ZeroSizedLayoutNode()
+        val node2 = ZeroSizedLayoutNode()
         node0.insertAt(0, node1)
         node0.insertAt(1, node2)
         node1.place(10, 20)
@@ -2530,7 +2529,6 @@ internal class MockOwner(
         get() = Density(1f)
     override val textInputService: TextInputService
         get() = TODO("Not yet implemented")
-    @OptIn(ExperimentalTextApi::class)
     override val platformTextInputPluginRegistry: PlatformTextInputPluginRegistry
         get() = TODO("Not yet implemented")
     override val pointerIconService: PointerIconService

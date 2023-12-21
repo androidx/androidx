@@ -48,6 +48,7 @@ import android.util.SparseArray;
 import android.view.Display;
 import android.view.FocusFinder;
 import android.view.InputDevice;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -1954,6 +1955,72 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     public void scrollTo(int x, int y) {
         Log.w(TAG, "RecyclerView does not support scrolling to an absolute position. "
                 + "Use scrollToPosition instead");
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(@Nullable KeyEvent event) {
+        // Let child to dispatch first, then handle ours if child didn't do it.
+        if (super.dispatchKeyEvent(event)) {
+            return true;
+        }
+
+        if (getLayoutManager().canScrollVertically()) {
+            final int keyCode = event.getKeyCode();
+            switch (keyCode) {
+                case KeyEvent.KEYCODE_PAGE_DOWN:
+                case KeyEvent.KEYCODE_PAGE_UP:
+                    int height = getMeasuredHeight();
+                    if (keyCode == KeyEvent.KEYCODE_PAGE_DOWN) {
+                        smoothScrollBy(0, height, null, UNDEFINED_DURATION);
+                    } else {
+                        smoothScrollBy(0, -height, null, UNDEFINED_DURATION);
+                    }
+                    return true;
+
+                case KeyEvent.KEYCODE_MOVE_HOME:
+                case KeyEvent.KEYCODE_MOVE_END:
+                    final boolean isReversed = getLayoutManager().isLayoutReversed();
+
+                    final int targetOffset;
+                    if (keyCode == KeyEvent.KEYCODE_MOVE_HOME) {
+                        targetOffset = isReversed ? getAdapter().getItemCount() : 0;
+                    } else {
+                        targetOffset = isReversed ? 0 : getAdapter().getItemCount();
+                    }
+
+                    smoothScrollToPosition(targetOffset);
+                    return true;
+            }
+        } else if (getLayoutManager().canScrollHorizontally()) {
+            final int keyCode = event.getKeyCode();
+            switch (keyCode) {
+                case KeyEvent.KEYCODE_PAGE_DOWN:
+                case KeyEvent.KEYCODE_PAGE_UP:
+                    int width = getMeasuredWidth();
+                    if (keyCode == KeyEvent.KEYCODE_PAGE_DOWN) {
+                        smoothScrollBy(width, 0, null, UNDEFINED_DURATION);
+                    } else {
+                        smoothScrollBy(-width, 0, null, UNDEFINED_DURATION);
+                    }
+                    return true;
+
+                case KeyEvent.KEYCODE_MOVE_HOME:
+                case KeyEvent.KEYCODE_MOVE_END:
+                    final boolean isReversed = getLayoutManager().isLayoutReversed();
+
+                    final int targetOffset;
+                    if (keyCode == KeyEvent.KEYCODE_MOVE_HOME) {
+                        targetOffset = isReversed ? getAdapter().getItemCount() : 0;
+                    } else {
+                        targetOffset = isReversed ? 0 : getAdapter().getItemCount();
+                    }
+
+                    smoothScrollToPosition(targetOffset);
+                    return true;
+            }
+        }
+
+        return false;
     }
 
     @Override
@@ -9353,6 +9420,16 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         }
 
         /**
+         * Query if the layout is in reverse order. This will affect, for example, keyboard
+         * navigation via page up/page down.  The default implementation returns false.
+         *
+         * @return true if this LayoutManager is currently in reverse order.
+         */
+        public boolean isLayoutReversed() {
+            return false;
+        }
+
+        /**
          * Ends all animations on the view created by the {@link ItemAnimator}.
          *
          * @param view The View for which the animations should be ended.
@@ -11230,10 +11307,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             if (mRecyclerView.canScrollVertically(-1) || mRecyclerView.canScrollHorizontally(-1)) {
                 info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD);
                 info.setScrollable(true);
+                info.setGranularScrollingSupported(true);
             }
             if (mRecyclerView.canScrollVertically(1) || mRecyclerView.canScrollHorizontally(1)) {
                 info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD);
                 info.setScrollable(true);
+                info.setGranularScrollingSupported(true);
             }
             final AccessibilityNodeInfoCompat.CollectionInfoCompat collectionInfo =
                     AccessibilityNodeInfoCompat.CollectionInfoCompat
@@ -11428,6 +11507,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 height = rect.height();
                 width = rect.width();
             }
+
             switch (action) {
                 case AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD:
                     if (mRecyclerView.canScrollVertically(-1)) {
@@ -11446,9 +11526,54 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                     }
                     break;
             }
+
             if (vScroll == 0 && hScroll == 0) {
                 return false;
             }
+
+            float granularScrollAmount = 1F; // The default value.
+
+            if (args != null) {
+                granularScrollAmount = args.getFloat(
+                        AccessibilityNodeInfoCompat.ACTION_ARGUMENT_SCROLL_AMOUNT_FLOAT, 1F);
+                if (granularScrollAmount < 0) {
+                    if (sDebugAssertionsEnabled) {
+                        throw new IllegalArgumentException(
+                                "attempting to use ACTION_ARGUMENT_SCROLL_AMOUNT_FLOAT with a "
+                                        + "negative value (" + granularScrollAmount + ")");
+                    }
+                    return false;
+                }
+            }
+
+            if (Float.compare(granularScrollAmount, Float.POSITIVE_INFINITY) == 0) {
+                // Assume that the client wants to scroll as far as possible. For
+                // ACTION_SCROLL_BACKWARD, this means scrolling to the beginning of the collection.
+                // For ACTION_SCROLL_FORWARD, this means scrolling to the end of the collection.
+
+                if (mRecyclerView.mAdapter == null) {
+                    return false;
+                }
+                switch (action) {
+                    case AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD:
+                        mRecyclerView.smoothScrollToPosition(0);
+                        break;
+                    case AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD:
+                        mRecyclerView.smoothScrollToPosition(
+                                mRecyclerView.mAdapter.getItemCount() - 1);
+                        break;
+                }
+                return true;
+            }
+
+            // No adjustments needed to scroll values if granular scroll amount is 1F, which is
+            // the default, or 0F, which is undefined.
+            if (Float.compare(1F, granularScrollAmount) != 0 && Float.compare(0F,
+                    granularScrollAmount) != 0) {
+                hScroll = (int) (hScroll * granularScrollAmount);
+                vScroll = (int) (vScroll * granularScrollAmount);
+            }
+
             mRecyclerView.smoothScrollBy(hScroll, vScroll, null, UNDEFINED_DURATION, true);
             return true;
         }

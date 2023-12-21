@@ -31,7 +31,6 @@ import org.gradle.api.Project
  * <ul>
  * <li>public
  * <li>restricted
- * <li>experimental
  * <li>resource
  * </ul>
  */
@@ -49,9 +48,6 @@ data class ApiLocation(
     val removedApiFile: File,
     // File where the library's public plus restricted (see @RestrictTo) API surfaces are recorded
     val restrictedApiFile: File,
-    // File where the library's public plus experimental (see @Experimental) API surfaces are
-    // recorded
-    val experimentalApiFile: File,
     // File where the library's public resources are recorded
     val resourceFile: File,
     // Directory where native API files are stored
@@ -95,7 +91,6 @@ data class ApiLocation(
                 publicApiFile = File(apiFileDir, "$baseName$EXTENSION"),
                 removedApiFile = File(apiFileDir, "$PREFIX_REMOVED$baseName$EXTENSION"),
                 restrictedApiFile = File(apiFileDir, "$PREFIX_RESTRICTED$baseName$EXTENSION"),
-                experimentalApiFile = File(apiFileDir, "$PREFIX_EXPERIMENTAL$baseName$EXTENSION"),
                 resourceFile = File(apiFileDir, "$PREFIX_RESOURCE$baseName$EXTENSION"),
                 nativeApiDirectory = File(apiFileDir, NATIVE_API_DIRECTORY_NAME).resolve(baseName),
                 aidlApiDirectory = File(apiFileDir, AIDL_API_DIRECTORY_NAME).resolve(baseName)
@@ -121,11 +116,6 @@ data class ApiLocation(
          * Prefix used for restricted API surface files.
          */
         private const val PREFIX_RESTRICTED = "restricted_"
-
-        /**
-         * Prefix used for experimental API surface files.
-         */
-        private const val PREFIX_EXPERIMENTAL = "public_plus_experimental_"
 
         /**
          * Prefix used for resource-type API files.

@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.text.input
 
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.text.TextUtils
@@ -257,9 +258,57 @@ internal class RecordingInputConnection(
     }
 
     override fun requestCursorUpdates(cursorUpdateMode: Int): Boolean = ensureActive {
-        if (DEBUG) { logDebug("requestCursorUpdates($cursorUpdateMode)") }
-        Log.w(TAG, "requestCursorUpdates is not supported")
-        return false
+        val immediate = cursorUpdateMode and InputConnection.CURSOR_UPDATE_IMMEDIATE != 0
+        val monitor = cursorUpdateMode and InputConnection.CURSOR_UPDATE_MONITOR != 0
+        if (DEBUG) {
+            logDebug(
+                "requestCursorUpdates($cursorUpdateMode=[immediate:$immediate, monitor: $monitor])"
+            )
+        }
+
+        // Before Android T, filter flags are not used, and insertion marker and character bounds
+        // info are always included.
+        var includeInsertionMarker = true
+        var includeCharacterBounds = true
+        var includeEditorBounds = false
+        var includeLineBounds = false
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            includeInsertionMarker =
+                cursorUpdateMode and InputConnection.CURSOR_UPDATE_FILTER_INSERTION_MARKER != 0
+            includeCharacterBounds =
+                cursorUpdateMode and InputConnection.CURSOR_UPDATE_FILTER_CHARACTER_BOUNDS != 0
+            includeEditorBounds =
+                cursorUpdateMode and InputConnection.CURSOR_UPDATE_FILTER_EDITOR_BOUNDS != 0
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                includeLineBounds =
+                    cursorUpdateMode and InputConnection.CURSOR_UPDATE_FILTER_VISIBLE_LINE_BOUNDS !=
+                        0
+            }
+            // If no filter flags are used, then all info should be included.
+            if (
+                !includeInsertionMarker &&
+                    !includeCharacterBounds &&
+                    !includeEditorBounds &&
+                    !includeLineBounds
+            ) {
+                includeInsertionMarker = true
+                includeCharacterBounds = true
+                includeEditorBounds = true
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    includeLineBounds = true
+                }
+            }
+        }
+
+        eventCallback.onRequestCursorAnchorInfo(
+            immediate,
+            monitor,
+            includeInsertionMarker,
+            includeCharacterBounds,
+            includeEditorBounds,
+            includeLineBounds
+        )
+        return true
     }
 
     override fun getExtractedText(request: ExtractedTextRequest?, flags: Int): ExtractedText {

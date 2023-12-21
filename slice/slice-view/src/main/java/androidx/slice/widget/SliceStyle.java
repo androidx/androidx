@@ -41,7 +41,6 @@ import java.util.List;
 /**
  * Holds style information shared between child views of a slice
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)

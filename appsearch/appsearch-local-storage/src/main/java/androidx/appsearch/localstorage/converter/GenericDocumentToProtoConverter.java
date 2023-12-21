@@ -35,7 +35,7 @@ import java.util.Map;
 /**
  * Translates a {@link GenericDocument} into a {@link DocumentProto}.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class GenericDocumentToProtoConverter {

@@ -145,7 +145,7 @@ class ModifierNodeVisitSubtreeTest {
             )
         }
         rule.runOnIdle {
-            localChild1.detach()
+            localChild1.markAsDetached()
         }
 
         // Act.

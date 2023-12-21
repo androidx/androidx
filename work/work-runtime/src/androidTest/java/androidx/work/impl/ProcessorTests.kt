@@ -17,6 +17,7 @@
 package androidx.work.impl
 
 import android.content.Context
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -106,7 +107,7 @@ class ProcessorTests : DatabaseTest() {
         val blockedThread = Executors.newSingleThreadExecutor()
         blockedThread.execute {
             // gonna stall for 10 seconds
-            processor.stopWork(startStopToken)
+            processor.stopWork(startStopToken, 0)
         }
         assertTrue((firstWorker as StopLatchWorker).awaitOnStopCall())
         // onStop call results in onExecuted. It happens on "main thread", which is instant
@@ -147,10 +148,10 @@ class ProcessorTests : DatabaseTest() {
             .setContentText("content text")
             .setSmallIcon(androidx.core.R.drawable.notification_bg)
             .build()
-        val info = ForegroundInfo(1, notification)
+        val info = ForegroundInfo(1, notification, FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
         processor.startForeground(startStopToken.id.workSpecId, info)
         // won't actually stopWork, because stopForeground should be used
-        processor.stopWork(startStopToken)
+        processor.stopWork(startStopToken, 0)
         processor.startWork(StartStopToken(request.workSpec.generationalId()))
         assertTrue(processor.isEnqueued(startStopToken.id.workSpecId))
         val firstWorker = factory.awaitWorker(request.id)

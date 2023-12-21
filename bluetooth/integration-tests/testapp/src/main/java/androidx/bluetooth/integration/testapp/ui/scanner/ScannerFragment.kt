@@ -16,48 +16,56 @@
 
 package androidx.bluetooth.integration.testapp.ui.scanner
 
-// TODO(ofy) Migrate from androidx.bluetooth.integration.testapp.experimental.BluetoothLe
-// to androidx.bluetooth.BluetoothLe once scan API is in place
+// TODO(ofy) Migrate to androidx.bluetooth.AdvertiseParams
+// TODO(ofy) Migrate to androidx.bluetooth.BluetoothDevice
+// TODO(ofy) Migrate to androidx.bluetooth.BluetoothGattCharacteristic
 import android.annotation.SuppressLint
-import android.bluetooth.le.ScanResult
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.le.ScanSettings
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.bluetooth.integration.testapp.R
+import androidx.bluetooth.integration.testapp.data.connection.DeviceConnection
+import androidx.bluetooth.integration.testapp.data.connection.OnClickCharacteristic
+import androidx.bluetooth.integration.testapp.data.connection.Status
 import androidx.bluetooth.integration.testapp.databinding.FragmentScannerBinding
 import androidx.bluetooth.integration.testapp.experimental.BluetoothLe
 import androidx.bluetooth.integration.testapp.ui.common.getColor
+import androidx.bluetooth.integration.testapp.ui.common.toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.Tab
-import java.lang.Exception
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 class ScannerFragment : Fragment() {
 
-    private companion object {
+    internal companion object {
         private const val TAG = "ScannerFragment"
 
         private const val TAB_RESULTS_POSITION = 0
-    }
 
-    private lateinit var scannerViewModel: ScannerViewModel
+        internal const val MANUAL_DISCONNECT = "MANUAL_DISCONNECT"
+    }
 
     // TODO(ofy) Migrate to androidx.bluetooth.BluetoothLe once scan API is in place
     private lateinit var bluetoothLe: BluetoothLe
-
-    private var scannerAdapter: ScannerAdapter? = null
 
     private var deviceServicesAdapter: DeviceServicesAdapter? = null
 
@@ -65,7 +73,6 @@ class ScannerFragment : Fragment() {
     private var scanJob: Job? = null
 
     private val connectScope = CoroutineScope(Dispatchers.Default + Job())
-    private var connectJob: Job? = null
 
     private var isScanning: Boolean = false
         set(value) {
@@ -84,15 +91,15 @@ class ScannerFragment : Fragment() {
     private var showingScanResults: Boolean = false
         set(value) {
             field = value
-            _binding?.relativeLayoutScanResults?.isVisible = value
-            _binding?.linearLayoutDevice?.isVisible = !value
+            _binding?.layoutScanResults?.isVisible = value
+            _binding?.layoutDevice?.isVisible = !value
         }
 
     private val onTabSelectedListener = object : TabLayout.OnTabSelectedListener {
         override fun onTabSelected(tab: Tab) {
             showingScanResults = tab.position == TAB_RESULTS_POSITION
             if (tab.position != TAB_RESULTS_POSITION) {
-                updateDeviceUI(scannerViewModel.deviceConnection(tab.position))
+                updateDeviceUI(viewModel.deviceConnection(tab.position))
             }
         }
 
@@ -103,9 +110,27 @@ class ScannerFragment : Fragment() {
         }
     }
 
-    private var _binding: FragmentScannerBinding? = null
+    private val onClickReadCharacteristic = object : OnClickCharacteristic {
+        override fun onClick(
+            deviceConnection: DeviceConnection,
+            characteristic: BluetoothGattCharacteristic
+        ) {
+            deviceConnection.onClickReadCharacteristic?.onClick(deviceConnection, characteristic)
+        }
+    }
 
-    // This property is only valid between onCreateView and onDestroyView.
+    private val onClickWriteCharacteristic = object : OnClickCharacteristic {
+        override fun onClick(
+            deviceConnection: DeviceConnection,
+            characteristic: BluetoothGattCharacteristic
+        ) {
+            deviceConnection.onClickWriteCharacteristic?.onClick(deviceConnection, characteristic)
+        }
+    }
+
+    private val viewModel: ScannerViewModel by viewModels()
+
+    private var _binding: FragmentScannerBinding? = null
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -113,21 +138,25 @@ class ScannerFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        scannerViewModel = ViewModelProvider(this)[ScannerViewModel::class.java]
+        _binding = FragmentScannerBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         bluetoothLe = BluetoothLe(requireContext())
 
-        _binding = FragmentScannerBinding.inflate(inflater, container, false)
-
         binding.tabLayout.addOnTabSelectedListener(onTabSelectedListener)
 
-        scannerAdapter = ScannerAdapter { scanResult -> onClickScanResult(scanResult) }
+        val scannerAdapter = ScannerAdapter(::onClickScanResult)
         binding.recyclerViewScanResults.adapter = scannerAdapter
         binding.recyclerViewScanResults.addItemDecoration(
             DividerItemDecoration(context, LinearLayoutManager.VERTICAL)
         )
 
-        deviceServicesAdapter = DeviceServicesAdapter(emptyList())
+        deviceServicesAdapter =
+            DeviceServicesAdapter(null, onClickReadCharacteristic, onClickWriteCharacteristic)
         binding.recyclerViewDeviceServices.adapter = deviceServicesAdapter
         binding.recyclerViewDeviceServices.addItemDecoration(
             DividerItemDecoration(context, LinearLayoutManager.VERTICAL)
@@ -141,9 +170,18 @@ class ScannerFragment : Fragment() {
             }
         }
 
-        initData()
+        binding.buttonReconnect.setOnClickListener {
+            connectTo(viewModel.deviceConnection(binding.tabLayout.selectedTabPosition))
+        }
 
-        return binding.root
+        binding.buttonDisconnect.setOnClickListener {
+            disconnect(viewModel.deviceConnection(binding.tabLayout.selectedTabPosition))
+        }
+
+        viewModel.scanResults
+            .observe(viewLifecycleOwner) { scannerAdapter.submitList(it) }
+
+        initData()
     }
 
     override fun onDestroyView() {
@@ -153,10 +191,7 @@ class ScannerFragment : Fragment() {
     }
 
     private fun initData() {
-        scannerAdapter?.submitList(scannerViewModel.results)
-        scannerAdapter?.notifyItemRangeChanged(0, scannerViewModel.results.size)
-
-        scannerViewModel.devices.map { it.scanResult }.forEach(::addNewTab)
+        viewModel.deviceConnections.map { it.bluetoothDevice }.forEach(::addNewTab)
     }
 
     private fun startScan() {
@@ -171,21 +206,18 @@ class ScannerFragment : Fragment() {
                 .collect {
                     Log.d(TAG, "ScanResult collected: $it")
 
-                    if (scannerViewModel.addScanResultIfNew(it)) {
-                        scannerAdapter?.submitList(scannerViewModel.results)
-                        scannerAdapter?.notifyItemInserted(scannerViewModel.results.size)
-                    }
+                    viewModel.addScanResultIfNew(it)
                 }
         }
     }
 
-    private fun onClickScanResult(scanResult: ScanResult) {
+    private fun onClickScanResult(bluetoothDevice: BluetoothDevice) {
         isScanning = false
 
-        val index = scannerViewModel.addDeviceConnectionIfNew(scanResult)
+        val index = viewModel.addDeviceConnectionIfNew(bluetoothDevice)
 
         val deviceTab = if (index == ScannerViewModel.NEW_DEVICE) {
-            addNewTab(scanResult)
+            addNewTab(bluetoothDevice)
         } else {
             binding.tabLayout.getTabAt(index)
         }
@@ -197,13 +229,13 @@ class ScannerFragment : Fragment() {
 
         showingScanResults = false
 
-        connectTo(scannerViewModel.deviceConnection(binding.tabLayout.selectedTabPosition))
+        connectTo(viewModel.deviceConnection(binding.tabLayout.selectedTabPosition))
     }
 
     @SuppressLint("MissingPermission")
-    private fun addNewTab(scanResult: ScanResult): Tab {
-        val deviceAddress = scanResult.device.address
-        val deviceName = scanResult.device.name
+    private fun addNewTab(bluetoothDevice: BluetoothDevice): Tab {
+        val deviceAddress = bluetoothDevice.address
+        val deviceName = bluetoothDevice.name
 
         val newTab = binding.tabLayout.newTab()
         newTab.setCustomView(R.layout.tab_item_device)
@@ -213,6 +245,10 @@ class ScannerFragment : Fragment() {
         val textViewName = customView?.findViewById<TextView>(R.id.text_view_name)
         textViewName?.text = deviceName
         textViewName?.isVisible = deviceName.isNullOrEmpty().not()
+        customView?.findViewById<Button>(R.id.image_button_remove)?.setOnClickListener {
+            viewModel.remove(bluetoothDevice)
+            binding.tabLayout.removeTab(newTab)
+        }
 
         binding.tabLayout.addTab(newTab)
         return newTab
@@ -221,41 +257,121 @@ class ScannerFragment : Fragment() {
     private fun connectTo(deviceConnection: DeviceConnection) {
         Log.d(TAG, "connectTo() called with: deviceConnection = $deviceConnection")
 
-        connectJob = connectScope.launch {
+        deviceConnection.job = connectScope.launch {
             deviceConnection.status = Status.CONNECTING
             launch(Dispatchers.Main) {
                 updateDeviceUI(deviceConnection)
             }
 
             try {
-                bluetoothLe.connectGatt(requireContext(), deviceConnection.scanResult.device) {
-                    Log.d(TAG, "connectGatt result. getServices() = ${getServices()}")
+                bluetoothLe.connectGatt(requireContext(), deviceConnection.bluetoothDevice) {
+                    Log.d(TAG, "connectGatt result: getServices() = ${getServices()}")
 
                     deviceConnection.status = Status.CONNECTED
                     deviceConnection.services = getServices()
                     launch(Dispatchers.Main) {
                         updateDeviceUI(deviceConnection)
                     }
+
+                    // TODO(ofy) Improve this. Remove OnClickCharacteristic as it's not ideal
+                    // to hold so many OnClickCharacteristic and difficult to use with Compose.
+                    deviceConnection.onClickReadCharacteristic =
+                        object : OnClickCharacteristic {
+                            override fun onClick(
+                                deviceConnection: DeviceConnection,
+                                characteristic: BluetoothGattCharacteristic
+                            ) {
+                                connectScope.launch {
+                                    val result = readCharacteristic(characteristic)
+                                    Log.d(TAG, "readCharacteristic() called with: result = $result")
+
+                                    deviceConnection.storeValueFor(
+                                        characteristic,
+                                        result.getOrNull()
+                                    )
+                                    launch(Dispatchers.Main) {
+                                        updateDeviceUI(deviceConnection)
+                                    }
+                                }
+                            }
+                        }
+
+                    // TODO(ofy) Improve this. Remove OnClickCharacteristic as it's not ideal
+                    // to hold so many OnClickCharacteristic and difficult to use with Compose.
+                    deviceConnection.onClickWriteCharacteristic =
+                        object : OnClickCharacteristic {
+                            override fun onClick(
+                                deviceConnection: DeviceConnection,
+                                characteristic: BluetoothGattCharacteristic
+                            ) {
+                                val view = layoutInflater.inflate(
+                                    R.layout.dialog_write_characteristic,
+                                    null
+                                )
+                                val editTextValue =
+                                    view.findViewById<EditText>(R.id.edit_text_value)
+
+                                AlertDialog.Builder(requireContext())
+                                    .setTitle(getString(R.string.write))
+                                    .setView(view)
+                                    .setPositiveButton(getString(R.string.write)) { _, _ ->
+                                        val editTextValueString = editTextValue.text.toString()
+                                        val value = editTextValueString.toByteArray()
+
+                                        connectScope.launch {
+                                            val result = writeCharacteristic(
+                                                characteristic,
+                                                value,
+                                                BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+                                            )
+                                            Log.d(TAG, "writeCharacteristic() called with: " +
+                                                "result = $result")
+                                            launch(Dispatchers.Main) {
+                                                toast("Called write with: `$editTextValueString`")
+                                                    .show()
+                                            }
+                                        }
+                                    }
+                                    .setNegativeButton(getString(R.string.cancel), null)
+                                    .create()
+                                    .show()
+                            }
+                        }
                 }
             } catch (exception: Exception) {
-                Log.e(TAG, "connectTo: exception", exception)
-
-                deviceConnection.status = Status.CONNECTION_FAILED
-                launch(Dispatchers.Main) {
-                    updateDeviceUI(deviceConnection)
+                if (exception is CancellationException) {
+                    Log.d(TAG, "connectGatt() CancellationException")
+                } else {
+                    Log.e(TAG, "connectGatt() exception", exception)
+                    deviceConnection.status = Status.DISCONNECTED
+                    launch(Dispatchers.Main) {
+                        updateDeviceUI(deviceConnection)
+                    }
                 }
             }
         }
     }
 
+    private fun disconnect(deviceConnection: DeviceConnection) {
+        Log.d(TAG, "disconnect() called with: deviceConnection = $deviceConnection")
+
+        deviceConnection.job?.cancel(MANUAL_DISCONNECT)
+        deviceConnection.job = null
+        deviceConnection.status = Status.DISCONNECTED
+        updateDeviceUI(deviceConnection)
+    }
+
     @SuppressLint("NotifyDataSetChanged")
     private fun updateDeviceUI(deviceConnection: DeviceConnection) {
         binding.progressIndicatorDeviceConnection.isVisible = false
+        binding.buttonReconnect.isVisible = false
+        binding.buttonDisconnect.isVisible = false
 
         when (deviceConnection.status) {
-            Status.NOT_CONNECTED -> {
-                binding.textViewDeviceConnectionStatus.text = getString(R.string.not_connected)
+            Status.DISCONNECTED -> {
+                binding.textViewDeviceConnectionStatus.text = getString(R.string.disconnected)
                 binding.textViewDeviceConnectionStatus.setTextColor(getColor(R.color.green_500))
+                binding.buttonReconnect.isVisible = true
             }
             Status.CONNECTING -> {
                 binding.progressIndicatorDeviceConnection.isVisible = true
@@ -265,13 +381,10 @@ class ScannerFragment : Fragment() {
             Status.CONNECTED -> {
                 binding.textViewDeviceConnectionStatus.text = getString(R.string.connected)
                 binding.textViewDeviceConnectionStatus.setTextColor(getColor(R.color.indigo_500))
-            }
-            Status.CONNECTION_FAILED -> {
-                binding.textViewDeviceConnectionStatus.text = getString(R.string.connection_failed)
-                binding.textViewDeviceConnectionStatus.setTextColor(getColor(R.color.red_500))
+                binding.buttonDisconnect.isVisible = true
             }
         }
-        deviceServicesAdapter?.services = deviceConnection.services
+        deviceServicesAdapter?.deviceConnection = deviceConnection
         deviceServicesAdapter?.notifyDataSetChanged()
     }
 }

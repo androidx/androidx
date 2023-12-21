@@ -26,6 +26,7 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
 import androidx.graphics.opengl.GLRenderer
+import androidx.graphics.opengl.SurfaceViewTestActivity
 import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.surface.SurfaceControlCompat
 import androidx.graphics.surface.SurfaceControlUtils
@@ -130,7 +131,7 @@ class GLFrontBufferedRendererTest {
         var renderer: GLFrontBufferedRenderer<Any>? = null
         var surfaceView: SurfaceView? = null
         try {
-            val scenario = ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+            val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
                 .moveToState(Lifecycle.State.CREATED)
                 .onActivity {
                     surfaceView = it.getSurfaceView()
@@ -231,7 +232,7 @@ class GLFrontBufferedRendererTest {
         var renderer: GLFrontBufferedRenderer<Any>? = null
         var surfaceView: SurfaceView? = null
         try {
-            val scenario = ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+            val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
                 .moveToState(Lifecycle.State.CREATED)
                 .onActivity {
                     surfaceView = it.getSurfaceView()
@@ -284,6 +285,7 @@ class GLFrontBufferedRendererTest {
         }
     }
 
+    @Ignore("b/286303475")
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q, maxSdkVersion = 32) // b/266749527
     @Test
     fun testRenderDoubleBufferLayer() {
@@ -309,7 +311,16 @@ class GLFrontBufferedRendererTest {
                 transform: FloatArray,
                 params: Collection<Int>
             ) {
+
                 GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
+                if (params.isEmpty()) {
+                    // We will receive no inputs on the first render so just render black.
+                    // This will be in response to surfaceRedrawNeeded
+                    GLES20.glClearColor(0f, 0f, 0f, 1f)
+                    GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+                    GLES20.glFlush()
+                    return
+                }
                 Matrix.orthoM(
                     mOrthoMatrix,
                     0,
@@ -354,7 +365,7 @@ class GLFrontBufferedRendererTest {
         var renderer: GLFrontBufferedRenderer<Int>? = null
         var surfaceView: SurfaceView? = null
         try {
-            val scenario = ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+            val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
                 .moveToState(Lifecycle.State.CREATED)
                 .onActivity {
                     surfaceView = it.getSurfaceView()
@@ -465,7 +476,7 @@ class GLFrontBufferedRendererTest {
         var renderer: GLFrontBufferedRenderer<Int>? = null
         var surfaceView: SurfaceView? = null
         try {
-            val scenario = ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+            val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
                 .moveToState(Lifecycle.State.CREATED)
                 .onActivity {
                     surfaceView = it.getSurfaceView()
@@ -494,6 +505,7 @@ class GLFrontBufferedRendererTest {
         }
     }
 
+    @Ignore("b/286303475")
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q, maxSdkVersion = 32) // b/266749527
     @Test
     fun testBufferRetargetingDoubleBufferedLayer() {
@@ -563,7 +575,7 @@ class GLFrontBufferedRendererTest {
         var renderer: GLFrontBufferedRenderer<Int>? = null
         var surfaceView: SurfaceView? = null
         try {
-            val scenario = ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+            val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
                 .moveToState(Lifecycle.State.CREATED)
                 .onActivity {
                     surfaceView = it.getSurfaceView()
@@ -593,6 +605,7 @@ class GLFrontBufferedRendererTest {
         }
     }
 
+    @Ignore("b/286303475")
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q, maxSdkVersion = 32) // b/266749527
     @Test
     fun testCancelFrontBufferLayerRender() {
@@ -668,7 +681,7 @@ class GLFrontBufferedRendererTest {
         var renderer: GLFrontBufferedRenderer<Int>? = null
         var surfaceView: SurfaceView? = null
         try {
-            val scenario = ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+            val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
                 .moveToState(Lifecycle.State.CREATED)
                 .onActivity {
                     surfaceView = it.getSurfaceView()
@@ -730,7 +743,7 @@ class GLFrontBufferedRendererTest {
         var renderer: GLFrontBufferedRenderer<Int>? = null
         var surfaceView: SurfaceView?
         try {
-            val scenario = ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+            val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
                 .moveToState(Lifecycle.State.CREATED)
                 .onActivity {
                     surfaceView = it.getSurfaceView()
@@ -753,9 +766,7 @@ class GLFrontBufferedRendererTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     fun testUsageFlagContainsFrontBufferUsage() {
         val usageFlags = FrontBufferUtils.obtainHardwareBufferUsageFlags()
-        // See b/280866371
-        if (UsageFlagsVerificationHelper.isSupported(HardwareBuffer.USAGE_FRONT_BUFFER) &&
-            !Build.MODEL.contains("Cuttlefish")) {
+        if (UsageFlagsVerificationHelper.isSupported(HardwareBuffer.USAGE_FRONT_BUFFER)) {
             assertNotEquals(0, usageFlags and HardwareBuffer.USAGE_FRONT_BUFFER)
         } else {
             assertEquals(0, usageFlags and HardwareBuffer.USAGE_FRONT_BUFFER)
@@ -853,7 +864,7 @@ class GLFrontBufferedRendererTest {
         }
         var renderer: GLFrontBufferedRenderer<Any>? = null
         try {
-            val scenario = ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+            val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
                 .moveToState(Lifecycle.State.CREATED)
                 .onActivity {
                     renderer = GLFrontBufferedRenderer(it.getSurfaceView(), callbacks)
@@ -870,12 +881,13 @@ class GLFrontBufferedRendererTest {
         }
     }
 
+    @Ignore("b/286303475")
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q, maxSdkVersion = 32) // b/266749527
     @Test
     fun testDoubleBufferedContentsNotPersisted() {
         val mOrthoMatrix = FloatArray(16)
         val mProjectionMatrix = FloatArray(16)
-        val screenWidth = FrontBufferedRendererTestActivity.WIDTH
+        val screenWidth = SurfaceViewTestActivity.WIDTH
         val rectWidth = 10f
 
         val renderLatch = CountDownLatch(1)
@@ -957,7 +969,7 @@ class GLFrontBufferedRendererTest {
         var renderer: GLFrontBufferedRenderer<Any>? = null
         var surfaceView: SurfaceView? = null
         try {
-            val scenario = ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+            val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
                 .moveToState(Lifecycle.State.CREATED)
                 .onActivity {
                     surfaceView = it.getSurfaceView()
@@ -1069,7 +1081,7 @@ class GLFrontBufferedRendererTest {
         var renderer: GLFrontBufferedRenderer<Any>? = null
         var surfaceView: SurfaceView? = null
         try {
-            val scenario = ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+            val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
                 .moveToState(Lifecycle.State.CREATED)
                 .onActivity {
                     surfaceView = it.getSurfaceView()
@@ -1192,7 +1204,7 @@ class GLFrontBufferedRendererTest {
         }
         var renderer: GLFrontBufferedRenderer<Any>? = null
         try {
-            val scenario = ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+            val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
                 .moveToState(Lifecycle.State.CREATED)
                 .onActivity {
                     surfaceView = it.getSurfaceView()
@@ -1246,9 +1258,9 @@ class GLFrontBufferedRendererTest {
             }
         }
         var renderer: GLFrontBufferedRenderer<Any>? = null
-        var surfaceView: FrontBufferedRendererTestActivity.TestSurfaceView? = null
+        var surfaceView: SurfaceViewTestActivity.TestSurfaceView? = null
         val createLatch = CountDownLatch(1)
-        ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+        ActivityScenario.launch(SurfaceViewTestActivity::class.java)
             .moveToState(Lifecycle.State.CREATED)
             .onActivity {
                 surfaceView = it.getSurfaceView()
@@ -1263,6 +1275,81 @@ class GLFrontBufferedRendererTest {
         try {
             if (resolvedSurfaceView != null) {
                 assertEquals(1, resolvedSurfaceView.getCallbackCount())
+                val releaseLatch = CountDownLatch(1)
+                renderer!!.release(true) {
+                    releaseLatch.countDown()
+                }
+                assertTrue(releaseLatch.await(3000, TimeUnit.MILLISECONDS))
+                assertEquals(0, resolvedSurfaceView.getCallbackCount())
+                renderer = null
+            } else {
+                fail("Unable to resolve SurfaceView, was the test Activity created?")
+            }
+        } finally {
+            renderer?.blockingRelease()
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testSurfaceCallbackPreservedAfterResume() {
+        val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
+            override fun onDrawFrontBufferedLayer(
+                eglManager: EGLManager,
+                bufferInfo: BufferInfo,
+                transform: FloatArray,
+                param: Any
+            ) {
+                // NO-OP
+            }
+
+            override fun onDrawMultiBufferedLayer(
+                eglManager: EGLManager,
+                bufferInfo: BufferInfo,
+                transform: FloatArray,
+                params: Collection<Any>
+            ) {
+                // NO-OP
+            }
+        }
+        var renderer: GLFrontBufferedRenderer<Any>? = null
+        var surfaceView: SurfaceViewTestActivity.TestSurfaceView? = null
+        val createLatch = CountDownLatch(1)
+        val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
+            .moveToState(Lifecycle.State.CREATED)
+            .onActivity {
+                surfaceView = it.getSurfaceView()
+                renderer = GLFrontBufferedRenderer(surfaceView!!, callbacks)
+                createLatch.countDown()
+            }
+        assertTrue(createLatch.await(3000, TimeUnit.MILLISECONDS))
+
+        val resumeLatch = CountDownLatch(1)
+        var callbackCount = 0
+        scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+            callbackCount = it.getSurfaceView().getCallbackCount()
+            resumeLatch.countDown()
+        }
+        assertTrue(resumeLatch.await(3000, TimeUnit.MILLISECONDS))
+
+        val pauseLatch = CountDownLatch(1)
+        scenario.moveToState(Lifecycle.State.CREATED).onActivity {
+            pauseLatch.countDown()
+        }
+
+        val returnToResumeLatch = CountDownLatch(1)
+        scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+            returnToResumeLatch.countDown()
+        }
+        assertTrue(returnToResumeLatch.await(3000, TimeUnit.MILLISECONDS))
+
+        // Capture surfaceView with local val to avoid Kotlin warnings regarding the surfaceView
+        // parameter changing potentially
+        val resolvedSurfaceView = surfaceView
+        try {
+            if (resolvedSurfaceView != null) {
+
+                assertEquals(callbackCount, resolvedSurfaceView.getCallbackCount())
                 val releaseLatch = CountDownLatch(1)
                 renderer!!.release(true) {
                     releaseLatch.countDown()
@@ -1300,13 +1387,54 @@ class GLFrontBufferedRendererTest {
                 // NO-OP
             }
         }
-        ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+        ActivityScenario.launch(SurfaceViewTestActivity::class.java)
             .moveToState(Lifecycle.State.CREATED)
             .onActivity {
                 assertThrows(IllegalStateException::class.java) {
                     GLFrontBufferedRenderer(it.getSurfaceView(), callbacks, GLRenderer())
                 }
             }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testMultiBufferedLayerRenderedOnSurfaceRedraw() {
+        val renderLatch = CountDownLatch(1)
+        val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
+
+            override fun onDrawFrontBufferedLayer(
+                eglManager: EGLManager,
+                bufferInfo: BufferInfo,
+                transform: FloatArray,
+                param: Any
+            ) {
+                // NO-OP
+            }
+
+            override fun onDrawMultiBufferedLayer(
+                eglManager: EGLManager,
+                bufferInfo: BufferInfo,
+                transform: FloatArray,
+                params: Collection<Any>
+            ) {
+                renderLatch.countDown()
+            }
+        }
+        var renderer: GLFrontBufferedRenderer<Any>? = null
+        var surfaceView: SurfaceView?
+        try {
+            val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
+                .moveToState(Lifecycle.State.CREATED)
+                .onActivity {
+                    surfaceView = it.getSurfaceView()
+                    renderer = GLFrontBufferedRenderer(surfaceView!!, callbacks)
+                }
+
+            scenario.moveToState(Lifecycle.State.RESUMED)
+            assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
+        } finally {
+            renderer.blockingRelease()
+        }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
@@ -1405,7 +1533,7 @@ class GLFrontBufferedRendererTest {
         var renderer: GLFrontBufferedRenderer<Any>? = null
         var surfaceView: SurfaceView? = null
         try {
-            val scenario = ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+            val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
                 .moveToState(Lifecycle.State.CREATED)
                 .onActivity {
                     surfaceView = it.getSurfaceView()

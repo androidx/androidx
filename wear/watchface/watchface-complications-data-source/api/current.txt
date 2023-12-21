@@ -53,9 +53,9 @@ package androidx.wear.watchface.complications.datasource {
   }
 
   public final class ComplicationRequest {
-    ctor @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public ComplicationRequest(int complicationInstanceId, androidx.wear.watchface.complications.data.ComplicationType complicationType, boolean immediateResponseRequired, int isForSafeWatchFace);
-    ctor public ComplicationRequest(int complicationInstanceId, androidx.wear.watchface.complications.data.ComplicationType complicationType, boolean immediateResponseRequired);
     ctor @Deprecated public ComplicationRequest(int complicationInstanceId, androidx.wear.watchface.complications.data.ComplicationType complicationType);
+    ctor public ComplicationRequest(int complicationInstanceId, androidx.wear.watchface.complications.data.ComplicationType complicationType, boolean immediateResponseRequired);
+    ctor @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public ComplicationRequest(int complicationInstanceId, androidx.wear.watchface.complications.data.ComplicationType complicationType, boolean immediateResponseRequired, int isForSafeWatchFace);
     method public int getComplicationInstanceId();
     method public androidx.wear.watchface.complications.data.ComplicationType getComplicationType();
     method public int isForSafeWatchFace();

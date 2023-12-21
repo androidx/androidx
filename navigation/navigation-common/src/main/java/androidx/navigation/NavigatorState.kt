@@ -36,10 +36,8 @@ public abstract class NavigatorState {
     private val _transitionsInProgress: MutableStateFlow<Set<NavBackStackEntry>> =
         MutableStateFlow(setOf())
 
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var isNavigating = false
 
     /**

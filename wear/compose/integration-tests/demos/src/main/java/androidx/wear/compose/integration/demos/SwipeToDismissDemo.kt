@@ -32,6 +32,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,6 +43,7 @@ import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.SwipeToDismissBox
 import androidx.wear.compose.material.SwipeToDismissBoxState
+import androidx.wear.compose.material.SwipeToDismissKeys
 import androidx.wear.compose.material.SwipeToDismissValue
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.edgeSwipeToDismiss
@@ -125,6 +128,39 @@ fun EdgeSwipeDemo(swipeToDismissBoxState: SwipeToDismissBoxState) {
                 .width(30.dp)
                 .background(Color.White.copy(alpha = 0.5f))
         )
+    }
+}
+
+@Composable
+fun NestedSwipeToDismissDemo() {
+    val items = remember { mutableStateListOf(1, 2) }
+
+    val current = items.last()
+    val previous = items.dropLast(1).lastOrNull()
+
+    val state = SwipeToDismissBoxState()
+    SwipeToDismissBox(
+        state = state,
+        backgroundKey = previous ?: SwipeToDismissKeys.Background,
+        contentKey = current,
+        hasBackground = previous != null,
+        onDismissed = { items.removeLastOrNull() }
+    ) { isBackground ->
+        val item = if (isBackground) {
+            previous
+        } else {
+            current
+        }
+
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            if (item != null) {
+                Chip(
+                    onClick = { items.add(items.size + 1) },
+                    label = { Text("Screen number $item") })
+            } else {
+                Text("Empty Screen")
+            }
+        }
     }
 }
 

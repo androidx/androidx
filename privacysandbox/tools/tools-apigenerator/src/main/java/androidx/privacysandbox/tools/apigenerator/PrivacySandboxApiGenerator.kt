@@ -27,12 +27,14 @@ import androidx.privacysandbox.tools.core.generator.CoreLibInfoAndBinderWrapperC
 import androidx.privacysandbox.tools.core.generator.GenerationTarget
 import androidx.privacysandbox.tools.core.generator.PrivacySandboxCancellationExceptionFileGenerator
 import androidx.privacysandbox.tools.core.generator.PrivacySandboxExceptionFileGenerator
+import androidx.privacysandbox.tools.core.generator.SdkActivityLauncherProxyGenerator
 import androidx.privacysandbox.tools.core.generator.ServiceFactoryFileGenerator
 import androidx.privacysandbox.tools.core.generator.StubDelegatesGenerator
 import androidx.privacysandbox.tools.core.generator.ThrowableParcelConverterFileGenerator
 import androidx.privacysandbox.tools.core.generator.ValueConverterFileGenerator
 import androidx.privacysandbox.tools.core.generator.ValueFileGenerator
 import androidx.privacysandbox.tools.core.model.ParsedApi
+import androidx.privacysandbox.tools.core.model.containsSdkActivityLauncher
 import androidx.privacysandbox.tools.core.model.getOnlyService
 import androidx.privacysandbox.tools.core.model.hasSuspendFunctions
 import androidx.privacysandbox.tools.core.proto.PrivacySandboxToolsProtocol.ToolMetadata
@@ -113,6 +115,7 @@ class PrivacySandboxApiGenerator {
         generateValueConverters(api, binderCodeConverter, output)
         generateSuspendFunctionUtilities(api, basePackageName, output)
         generateCoreLibInfoConverters(api, output)
+        generateSdkActivityLauncherUtilities(api, basePackageName, output)
     }
 
     private fun generateBinders(api: ParsedApi, aidlCompiler: AidlCompiler, output: File) {
@@ -186,6 +189,15 @@ class PrivacySandboxApiGenerator {
         api.interfaces.filter { it.inheritsSandboxedUiAdapter }.map {
             CoreLibInfoAndBinderWrapperConverterGenerator.generate(it).writeTo(output)
         }
+    }
+
+    private fun generateSdkActivityLauncherUtilities(
+        api: ParsedApi,
+        basePackageName: String,
+        output: File
+    ) {
+        if (!api.containsSdkActivityLauncher()) return
+        SdkActivityLauncherProxyGenerator(basePackageName).generate().writeTo(output)
     }
 
     private fun unzipDescriptorsFileAndParseStubs(

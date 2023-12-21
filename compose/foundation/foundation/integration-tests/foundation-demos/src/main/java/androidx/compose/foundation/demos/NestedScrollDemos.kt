@@ -31,9 +31,17 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -101,6 +109,44 @@ private fun InnerColumn(outerOuterIndex: Int, outerIndex: Int) {
                     text = "$outerOuterIndex : $outerIndex : $innerIndex",
                     fontSize = 24.sp
                 )
+            }
+        }
+    }
+}
+
+@Composable
+fun NestedScrollConnectionSample() {
+    var availableOffset by remember { mutableStateOf(Offset.Zero) }
+
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                availableOffset = available
+
+                // In this case we aren't consuming any of the offset, just showing what is
+                // available.
+                return Offset.Zero
+            }
+        }
+    }
+    Box(
+        Modifier
+            .fillMaxSize()
+            // attach as a parent to the nested scroll system
+            .nestedScroll(nestedScrollConnection)
+    ) {
+        Column {
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = "Scroll Connection PreScroll available: $availableOffset")
+
+            // our list with build in nested scroll support that will notify us about its scroll
+            LazyColumn {
+                items(100) { index ->
+                    Text("I'm item $index", modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp))
+                }
             }
         }
     }

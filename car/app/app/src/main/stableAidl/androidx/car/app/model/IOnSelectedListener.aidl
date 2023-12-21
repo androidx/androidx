@@ -18,7 +18,7 @@ package androidx.car.app.model;
 
 import androidx.car.app.IOnDoneCallback;
 
-/** @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface IOnSelectedListener {
   void onSelected(int index, IOnDoneCallback callback) = 1;
 }

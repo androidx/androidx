@@ -68,7 +68,7 @@ private class FocusedBoundsObserverElement(
     }
 }
 
-private class FocusedBoundsObserverNode(
+internal class FocusedBoundsObserverNode(
     var onPositioned: (LayoutCoordinates?) -> Unit
 ) : Modifier.Node(), ModifierLocalModifierNode, (LayoutCoordinates?) -> Unit {
     private val parent: ((LayoutCoordinates?) -> Unit)?

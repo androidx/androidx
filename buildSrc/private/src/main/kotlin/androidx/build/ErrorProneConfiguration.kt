@@ -71,6 +71,7 @@ fun Project.configureErrorProneForAndroid(
     var annotationArgs: MapProperty<String, String>? = null
     val extension = extensions.findByType(AndroidComponentsExtension::class.java)
     extension?.onVariants { variant ->
+        @Suppress("UnstableApiUsage")
         annotationArgs = variant.javaCompilation.annotationProcessor.arguments
     }
     val errorProneConfiguration = createErrorProneConfiguration()

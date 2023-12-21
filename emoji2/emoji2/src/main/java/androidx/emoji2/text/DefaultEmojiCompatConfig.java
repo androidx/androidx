@@ -102,7 +102,6 @@ public final class DefaultEmojiCompatConfig {
      * Actual factory for generating default emoji configs, does service locator lookup internally.
      *
      * @see DefaultEmojiCompatConfig#create
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static class DefaultEmojiCompatConfigFactory {
@@ -113,7 +112,6 @@ public final class DefaultEmojiCompatConfig {
         private final DefaultEmojiCompatConfigHelper mHelper;
 
         /**
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         public DefaultEmojiCompatConfigFactory(@Nullable DefaultEmojiCompatConfigHelper helper) {
@@ -122,7 +120,6 @@ public final class DefaultEmojiCompatConfig {
 
         /**
          * @see DefaultEmojiCompatConfig#create
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Nullable
@@ -150,7 +147,6 @@ public final class DefaultEmojiCompatConfig {
          * Find the installed font provider and return a FontInfo that describes it.
          * @param context context for getting package manager
          * @return valid FontRequest, or null if no provider could be found
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Nullable
@@ -256,7 +252,6 @@ public final class DefaultEmojiCompatConfig {
     /**
      * Helper to lookup signatures in package manager.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static class DefaultEmojiCompatConfigHelper {
@@ -295,7 +290,6 @@ public final class DefaultEmojiCompatConfig {
     /**
      * Actually do lookups > API 19
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @RequiresApi(19)
@@ -318,7 +312,6 @@ public final class DefaultEmojiCompatConfig {
 
     /**
      * Helper to lookup signatures in package manager > API 28
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @RequiresApi(28)

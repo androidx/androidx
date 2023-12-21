@@ -1,6 +1,12 @@
 // Signature format: 4.0
 package androidx.tracing.perfetto {
 
+  public final class StartupTracingInitializer implements androidx.startup.Initializer<kotlin.Unit> {
+    ctor public StartupTracingInitializer();
+    method public void create(android.content.Context context);
+    method public java.util.List<java.lang.Class<? extends androidx.startup.Initializer<?>>> dependencies();
+  }
+
   public final class Tracing {
     method public boolean isEnabled();
     method public void traceEventEnd();

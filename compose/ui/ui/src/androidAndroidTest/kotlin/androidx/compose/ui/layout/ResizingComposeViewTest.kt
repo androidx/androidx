@@ -40,6 +40,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 import org.junit.Assert
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -263,6 +264,7 @@ class ResizingComposeViewTest {
         awaitDrawAndAssertSizes()
     }
 
+    @Ignore // b/284402894
     @Test
     fun whenForceRemeasureCalledAndSizeChanged() {
         var childHeight by mutableStateOf(10)

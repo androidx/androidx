@@ -1688,54 +1688,105 @@ object OutlinedTextFieldDefaults {
  * Represents the colors of the input text, container, and content (including label, placeholder,
  * leading and trailing icons) used in a text field in different states.
  *
+ * @constructor create an instance with arbitrary colors.
  * See [TextFieldDefaults.colors] for the default colors used in [TextField].
  * See [OutlinedTextFieldDefaults.colors] for the default colors used in [OutlinedTextField].
+ *
+ * @param focusedTextColor the color used for the input text of this text field when focused
+ * @param unfocusedTextColor the color used for the input text of this text field when not
+ * focused
+ * @param disabledTextColor the color used for the input text of this text field when disabled
+ * @param errorTextColor the color used for the input text of this text field when in error
+ * state
+ * @param focusedContainerColor the container color for this text field when focused
+ * @param unfocusedContainerColor the container color for this text field when not focused
+ * @param disabledContainerColor the container color for this text field when disabled
+ * @param errorContainerColor the container color for this text field when in error state
+ * @param cursorColor the cursor color for this text field
+ * @param errorCursorColor the cursor color for this text field when in error state
+ * @param textSelectionColors the colors used when the input text of this text field is selected
+ * @param focusedIndicatorColor the indicator color for this text field when focused
+ * @param unfocusedIndicatorColor the indicator color for this text field when not focused
+ * @param disabledIndicatorColor the indicator color for this text field when disabled
+ * @param errorIndicatorColor the indicator color for this text field when in error state
+ * @param focusedLeadingIconColor the leading icon color for this text field when focused
+ * @param unfocusedLeadingIconColor the leading icon color for this text field when not focused
+ * @param disabledLeadingIconColor the leading icon color for this text field when disabled
+ * @param errorLeadingIconColor the leading icon color for this text field when in error state
+ * @param focusedTrailingIconColor the trailing icon color for this text field when focused
+ * @param unfocusedTrailingIconColor the trailing icon color for this text field when not
+ * focused
+ * @param disabledTrailingIconColor the trailing icon color for this text field when disabled
+ * @param errorTrailingIconColor the trailing icon color for this text field when in error state
+ * @param focusedLabelColor the label color for this text field when focused
+ * @param unfocusedLabelColor the label color for this text field when not focused
+ * @param disabledLabelColor the label color for this text field when disabled
+ * @param errorLabelColor the label color for this text field when in error state
+ * @param focusedPlaceholderColor the placeholder color for this text field when focused
+ * @param unfocusedPlaceholderColor the placeholder color for this text field when not focused
+ * @param disabledPlaceholderColor the placeholder color for this text field when disabled
+ * @param errorPlaceholderColor the placeholder color for this text field when in error state
+ * @param focusedSupportingTextColor the supporting text color for this text field when focused
+ * @param unfocusedSupportingTextColor the supporting text color for this text field when not
+ * focused
+ * @param disabledSupportingTextColor the supporting text color for this text field when
+ * disabled
+ * @param errorSupportingTextColor the supporting text color for this text field when in error
+ * state
+ * @param focusedPrefixColor the prefix color for this text field when focused
+ * @param unfocusedPrefixColor the prefix color for this text field when not focused
+ * @param disabledPrefixColor the prefix color for this text field when disabled
+ * @param errorPrefixColor the prefix color for this text field when in error state
+ * @param focusedSuffixColor the suffix color for this text field when focused
+ * @param unfocusedSuffixColor the suffix color for this text field when not focused
+ * @param disabledSuffixColor the suffix color for this text field when disabled
+ * @param errorSuffixColor the suffix color for this text field when in error state
  */
 @Immutable
-class TextFieldColors internal constructor(
-    private val focusedTextColor: Color,
-    private val unfocusedTextColor: Color,
-    private val disabledTextColor: Color,
-    private val errorTextColor: Color,
-    private val focusedContainerColor: Color,
-    private val unfocusedContainerColor: Color,
-    private val disabledContainerColor: Color,
-    private val errorContainerColor: Color,
-    private val cursorColor: Color,
-    private val errorCursorColor: Color,
-    private val textSelectionColors: TextSelectionColors,
-    private val focusedIndicatorColor: Color,
-    private val unfocusedIndicatorColor: Color,
-    private val disabledIndicatorColor: Color,
-    private val errorIndicatorColor: Color,
-    private val focusedLeadingIconColor: Color,
-    private val unfocusedLeadingIconColor: Color,
-    private val disabledLeadingIconColor: Color,
-    private val errorLeadingIconColor: Color,
-    private val focusedTrailingIconColor: Color,
-    private val unfocusedTrailingIconColor: Color,
-    private val disabledTrailingIconColor: Color,
-    private val errorTrailingIconColor: Color,
-    private val focusedLabelColor: Color,
-    private val unfocusedLabelColor: Color,
-    private val disabledLabelColor: Color,
-    private val errorLabelColor: Color,
-    private val focusedPlaceholderColor: Color,
-    private val unfocusedPlaceholderColor: Color,
-    private val disabledPlaceholderColor: Color,
-    private val errorPlaceholderColor: Color,
-    private val focusedSupportingTextColor: Color,
-    private val unfocusedSupportingTextColor: Color,
-    private val disabledSupportingTextColor: Color,
-    private val errorSupportingTextColor: Color,
-    private val focusedPrefixColor: Color,
-    private val unfocusedPrefixColor: Color,
-    private val disabledPrefixColor: Color,
-    private val errorPrefixColor: Color,
-    private val focusedSuffixColor: Color,
-    private val unfocusedSuffixColor: Color,
-    private val disabledSuffixColor: Color,
-    private val errorSuffixColor: Color,
+class TextFieldColors constructor(
+    val focusedTextColor: Color,
+    val unfocusedTextColor: Color,
+    val disabledTextColor: Color,
+    val errorTextColor: Color,
+    val focusedContainerColor: Color,
+    val unfocusedContainerColor: Color,
+    val disabledContainerColor: Color,
+    val errorContainerColor: Color,
+    val cursorColor: Color,
+    val errorCursorColor: Color,
+    val textSelectionColors: TextSelectionColors,
+    val focusedIndicatorColor: Color,
+    val unfocusedIndicatorColor: Color,
+    val disabledIndicatorColor: Color,
+    val errorIndicatorColor: Color,
+    val focusedLeadingIconColor: Color,
+    val unfocusedLeadingIconColor: Color,
+    val disabledLeadingIconColor: Color,
+    val errorLeadingIconColor: Color,
+    val focusedTrailingIconColor: Color,
+    val unfocusedTrailingIconColor: Color,
+    val disabledTrailingIconColor: Color,
+    val errorTrailingIconColor: Color,
+    val focusedLabelColor: Color,
+    val unfocusedLabelColor: Color,
+    val disabledLabelColor: Color,
+    val errorLabelColor: Color,
+    val focusedPlaceholderColor: Color,
+    val unfocusedPlaceholderColor: Color,
+    val disabledPlaceholderColor: Color,
+    val errorPlaceholderColor: Color,
+    val focusedSupportingTextColor: Color,
+    val unfocusedSupportingTextColor: Color,
+    val disabledSupportingTextColor: Color,
+    val errorSupportingTextColor: Color,
+    val focusedPrefixColor: Color,
+    val unfocusedPrefixColor: Color,
+    val disabledPrefixColor: Color,
+    val errorPrefixColor: Color,
+    val focusedSuffixColor: Color,
+    val unfocusedSuffixColor: Color,
+    val disabledSuffixColor: Color,
+    val errorSuffixColor: Color,
 ) {
     /**
      * Represents the color used for the leading icon of this text field.

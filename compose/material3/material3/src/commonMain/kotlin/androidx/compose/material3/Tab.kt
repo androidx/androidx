@@ -136,7 +136,7 @@ fun Tab(
  * @param selected whether this tab is selected or not
  * @param onClick called when this tab is clicked
  * @param text the text label displayed in this tab
- * @param icon the icon displayed in this tab
+ * @param icon the icon displayed in this tab. Should be 24.dp.
  * @param modifier the [Modifier] to be applied to this tab
  * @param enabled controls the enabled state of this tab. When `false`, this component will not
  * respond to user input, and it will appear visually disabled and disabled to accessibility
@@ -314,11 +314,7 @@ private fun TabBaselineLayout(
                 ) { text() }
             }
             if (icon != null) {
-                Box(
-                    Modifier
-                        .layoutId("icon")
-                        .padding(horizontal = HorizontalTextPadding)
-                ) { icon() }
+                Box(Modifier.layoutId("icon")) { icon() }
             }
         }
     ) { measurables, constraints ->

@@ -34,7 +34,7 @@ import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.core.resolutionselector.ResolutionSelector
-import androidx.camera.core.resolutionselector.ResolutionSelector.ALLOWED_RESOLUTIONS_SLOW
+import androidx.camera.core.resolutionselector.ResolutionSelector.PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE
 import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraUtil.PreTestCameraIdList
@@ -88,6 +88,7 @@ class PreviewTest(
     companion object {
         private const val ANY_THREAD_NAME = "any-thread-name"
         private val DEFAULT_RESOLUTION: Size by lazy { Size(640, 480) }
+
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun data() = listOf(
@@ -143,20 +144,22 @@ class PreviewTest(
 
         // TODO(b/160261462) move off of main thread when setSurfaceProvider does not need to be
         //  done on the main thread
-        instrumentation.runOnMainSync { preview.setSurfaceProvider { request ->
-            val surfaceTexture = SurfaceTexture(0)
-            surfaceTexture.setDefaultBufferSize(
-                request.resolution.width,
-                request.resolution.height
-            )
-            surfaceTexture.detachFromGLContext()
-            val surface = Surface(surfaceTexture)
-            request.provideSurface(surface, CameraXExecutors.directExecutor()) {
-                surface.release()
-                surfaceTexture.release()
+        instrumentation.runOnMainSync {
+            preview.setSurfaceProvider { request ->
+                val surfaceTexture = SurfaceTexture(0)
+                surfaceTexture.setDefaultBufferSize(
+                    request.resolution.width,
+                    request.resolution.height
+                )
+                surfaceTexture.detachFromGLContext()
+                val surface = Surface(surfaceTexture)
+                request.provideSurface(surface, CameraXExecutors.directExecutor()) {
+                    surface.release()
+                    surfaceTexture.release()
+                }
+                completableDeferred.complete(Unit)
             }
-            completableDeferred.complete(Unit)
-        } }
+        }
         camera = CameraUtil.createCameraAndAttachUseCase(context!!, cameraSelector, preview)
         withTimeout(3_000) {
             completableDeferred.await()
@@ -184,7 +187,9 @@ class PreviewTest(
         Truth.assertThat(surfaceFutureSemaphore!!.tryAcquire(5, TimeUnit.SECONDS)).isTrue()
 
         // Remove the UseCase from the camera
-        camera!!.removeUseCases(setOf<UseCase>(preview))
+        instrumentation.runOnMainSync {
+            camera!!.removeUseCases(setOf<UseCase>(preview))
+        }
 
         // Assert.
         Truth.assertThat(safeToReleaseSemaphore!!.tryAcquire(5, TimeUnit.SECONDS)).isTrue()
@@ -557,7 +562,7 @@ class PreviewTest(
         // Arrange.
         val resolutionSelector =
             ResolutionSelector.Builder()
-                .setAllowedResolutionMode(ALLOWED_RESOLUTIONS_SLOW)
+                .setAllowedResolutionMode(PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE)
                 .setResolutionFilter { _, _ ->
                     listOf(maxHighResolutionOutputSize)
                 }

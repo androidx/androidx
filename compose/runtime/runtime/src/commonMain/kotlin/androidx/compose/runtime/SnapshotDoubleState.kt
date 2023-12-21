@@ -19,6 +19,7 @@
 package androidx.compose.runtime
 
 import androidx.compose.runtime.internal.JvmDefaultWithCompatibility
+import androidx.compose.runtime.internal.equalsWithNanFix
 import androidx.compose.runtime.snapshots.AutoboxingStateValueProperty
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotMutableState
@@ -136,7 +137,7 @@ internal open class SnapshotMutableDoubleStateImpl(
     override var doubleValue: Double
         get() = next.readable(this).value
         set(value) = next.withCurrent {
-            if (it.value != value) {
+            if (!it.value.equalsWithNanFix(value)) {
                 next.overwritable(this, it) { this.value = value }
             }
         }
@@ -161,7 +162,7 @@ internal open class SnapshotMutableDoubleStateImpl(
     ): StateRecord? {
         val currentRecord = current as DoubleStateStateRecord
         val appliedRecord = applied as DoubleStateStateRecord
-        return if (currentRecord.value == appliedRecord.value) {
+        return if (currentRecord.value.equalsWithNanFix(appliedRecord.value)) {
             current
         } else {
             null

@@ -232,6 +232,55 @@ class XTypeElementTest(
     }
 
     @Test
+    fun superTypeWithNoSuperClass() {
+        runTest(
+            sources = listOf(
+                Source.kotlin(
+                    "foo.bar.KotlinClass.kt",
+                    """
+                    package foo.bar
+                    class KotlinClass
+                    class KotlinClassWithInterface : KotlinInterface
+                    interface KotlinInterface
+                    """.trimIndent()
+                ),
+                Source.java(
+                    "foo.bar.JavaClass",
+                    """
+                    package foo.bar;
+                    class JavaClass {}
+                    class JavaClassWithInterface implements JavaInterface {}
+                    interface JavaInterface {}
+                    """.trimIndent()
+                )
+            )
+        ) { invocation ->
+            invocation.processingEnv.requireTypeElement("foo.bar.KotlinClass").let {
+                assertThat(it.superClass?.asTypeName()).isEqualTo(XTypeName.ANY_OBJECT)
+            }
+            invocation.processingEnv.requireTypeElement("foo.bar.KotlinClassWithInterface").let {
+                assertThat(it.superClass?.asTypeName()).isEqualTo(XTypeName.ANY_OBJECT)
+            }
+            invocation.processingEnv.requireTypeElement("foo.bar.JavaClass").let {
+                assertThat(it.superClass?.asTypeName()).isEqualTo(XTypeName.ANY_OBJECT)
+            }
+            invocation.processingEnv.requireTypeElement("foo.bar.JavaClassWithInterface").let {
+                assertThat(it.superClass?.asTypeName()).isEqualTo(XTypeName.ANY_OBJECT)
+            }
+        }
+    }
+
+    @Test
+    fun superTypeOfAny() {
+        runTest(sources = listOf()) { invocation ->
+            val any = invocation.processingEnv.requireTypeElement(Any::class)
+            val obj = invocation.processingEnv.requireTypeElement(Object::class)
+            assertThat(any.superClass).isNull()
+            assertThat(obj.superClass).isNull()
+        }
+    }
+
+    @Test
     fun superInterfaces() {
         val src = Source.kotlin(
             "foo.kt",
@@ -339,7 +388,7 @@ class XTypeElementTest(
                 val result = mutableSetOf<String>()
                 if (element.isAbstract()) result.add("abstract")
                 if (element.isFinal()) result.add("final")
-                if (element.isPrivate()) result.add("private")
+                if (element.isPrivate() || element.isKtPrivate()) result.add("private")
                 if (element.isProtected()) result.add("protected")
                 if (element.isPublic()) result.add("public")
                 if (element.isKotlinObject()) result.add("object")
@@ -371,14 +420,7 @@ class XTypeElementTest(
             assertThat(getModifiers("Final"))
                 .containsExactly("final", "public", "class")
             assertThat(getModifiers("PrivateClass"))
-                .containsExactlyElementsIn(
-                    if (invocation.isKsp) {
-                        listOf("private", "final", "class")
-                    } else {
-                        // java does not support top level private classes.
-                        listOf("final", "class")
-                    }
-                )
+                .containsExactly("private", "final", "class")
             assertThat(getModifiers("OuterKotlinClass.InnerKotlinClass"))
                 .containsExactly("final", "public", "class")
             assertThat(getModifiers("OuterKotlinClass.NestedKotlinClass"))
@@ -787,12 +829,15 @@ class XTypeElementTest(
             open class Base(x:Int) {
                 open fun baseFun(): Int = TODO()
                 suspend fun suspendFun(): Int = TODO()
-                private fun privateBaseFun(): Int = TODO()
                 companion object {
                     @JvmStatic
                     fun staticBaseFun(): Int = TODO()
                     fun companionMethod(): Int = TODO()
+                    @JvmStatic val name: String get() = "hello"
+                    @JvmStatic suspend fun suspendFun2():Int = TODO()
+                    @JvmStatic fun String.extFun(): Int = TODO()
                 }
+                private fun privateBaseFun(): Int = TODO()
             }
             open class SubClass : Base {
                 constructor(y:Int): super(y) {
@@ -811,10 +856,28 @@ class XTypeElementTest(
         )
         runTest(sources = listOf(src)) { invocation ->
             val base = invocation.processingEnv.requireTypeElement("Base")
+            val baseCompanion = invocation.processingEnv.requireTypeElement("Base.Companion")
             val objectMethodNames = invocation.objectMethodNames()
-            assertThat(base.getDeclaredMethods().jvmNames()).containsExactly(
-                "baseFun", "suspendFun", "privateBaseFun", "staticBaseFun"
-            )
+            val declaredMethods = base.getDeclaredMethods()
+            assertThat(declaredMethods.jvmNames()).containsExactly(
+                "baseFun",
+                "suspendFun",
+                "privateBaseFun",
+                "staticBaseFun",
+                "getName",
+                "suspendFun2",
+                "extFun"
+            ).inOrder()
+            declaredMethods.forEach { method ->
+              assertWithMessage("Enclosing element of method ${method.jvmName}")
+                .that(method.enclosingElement.name)
+                .isEqualTo("Base")
+            }
+            baseCompanion.getDeclaredMethods().forEach { method ->
+              assertWithMessage("Enclosing element of method ${method.jvmName}")
+                .that(method.enclosingElement.name)
+                .isEqualTo("Companion")
+            }
 
             val sub = invocation.processingEnv.requireTypeElement("SubClass")
             assertThat(sub.getDeclaredMethods().jvmNames()).containsExactly(
@@ -2072,6 +2135,24 @@ class XTypeElementTest(
                     "method(Ljava/lang/Object;)Ljava/lang/String;",
                     "method(Ltest/Bar;)Ltest/Baz;",
                 )
+        }
+    }
+
+    @Test
+    fun testClassNameWithDollarSign() {
+        runTest(
+            sources = listOf(
+                Source.java(
+                    "test.MyClass\$Foo",
+                    """
+                    package test;
+                    class MyClass${'$'}Foo {}
+                    """.trimIndent()
+                )
+            )
+        ) { invocation ->
+            val subject = invocation.processingEnv.requireTypeElement("test.MyClass\$Foo")
+            assertThat(subject.asClassName().canonicalName).isEqualTo("test.MyClass\$Foo")
         }
     }
 

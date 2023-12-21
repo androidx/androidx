@@ -33,6 +33,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.proto.LayoutElementProto;
 
 /**
@@ -363,5 +364,12 @@ public class CircularProgressIndicator
     @RestrictTo(Scope.LIBRARY_GROUP)
     public LayoutElementProto.LayoutElement toLayoutElementProto() {
         return mElement.toLayoutElementProto();
+    }
+
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    @Override
+    public Fingerprint getFingerprint() {
+        return mElement.getFingerprint();
     }
 }

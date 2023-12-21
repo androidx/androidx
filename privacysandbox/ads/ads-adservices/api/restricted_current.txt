@@ -100,11 +100,18 @@ package androidx.privacysandbox.ads.adservices.appsetid {
 package androidx.privacysandbox.ads.adservices.common {
 
   public final class AdData {
-    ctor public AdData(android.net.Uri renderUri, String metadata);
+    ctor public AdData(optional android.net.Uri renderUri, optional String metadata);
     method public String getMetadata();
     method public android.net.Uri getRenderUri();
     property public final String metadata;
     property public final android.net.Uri renderUri;
+  }
+
+  @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static final class AdData.Builder {
+    ctor public AdData.Builder();
+    method public androidx.privacysandbox.ads.adservices.common.AdData build();
+    method public androidx.privacysandbox.ads.adservices.common.AdData.Builder setMetadata(String metadata);
+    method public androidx.privacysandbox.ads.adservices.common.AdData.Builder setRenderUri(android.net.Uri renderUri);
   }
 
   public final class AdSelectionSignals {
@@ -185,11 +192,18 @@ package androidx.privacysandbox.ads.adservices.customaudience {
   }
 
   public final class TrustedBiddingData {
-    ctor public TrustedBiddingData(android.net.Uri trustedBiddingUri, java.util.List<java.lang.String> trustedBiddingKeys);
+    ctor public TrustedBiddingData(optional android.net.Uri trustedBiddingUri, optional java.util.List<java.lang.String> trustedBiddingKeys);
     method public java.util.List<java.lang.String> getTrustedBiddingKeys();
     method public android.net.Uri getTrustedBiddingUri();
     property public final java.util.List<java.lang.String> trustedBiddingKeys;
     property public final android.net.Uri trustedBiddingUri;
+  }
+
+  @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static final class TrustedBiddingData.Builder {
+    ctor public TrustedBiddingData.Builder();
+    method public androidx.privacysandbox.ads.adservices.customaudience.TrustedBiddingData build();
+    method public androidx.privacysandbox.ads.adservices.customaudience.TrustedBiddingData.Builder setTrustedBiddingKeys(java.util.List<java.lang.String> trustedBiddingKeys);
+    method public androidx.privacysandbox.ads.adservices.customaudience.TrustedBiddingData.Builder setTrustedBiddingUri(android.net.Uri trustedBiddingUri);
   }
 
 }

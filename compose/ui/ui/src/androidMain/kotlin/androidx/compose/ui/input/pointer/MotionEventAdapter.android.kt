@@ -39,6 +39,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.util.VelocityTrackerAddPointsFix
 
 /**
  * Converts Android framework [MotionEvent]s into Compose [PointerInputEvent]s.
@@ -157,6 +158,7 @@ internal class MotionEventAdapter {
                     motionEventToComposePointerIdMap.put(pointerId, nextId++)
                 }
             }
+
             ACTION_DOWN,
             ACTION_POINTER_DOWN -> {
                 val actionIndex = motionEvent.actionIndex
@@ -288,7 +290,11 @@ internal class MotionEventAdapter {
                 if (x.isFinite() && y.isFinite()) {
                     val historicalChange = HistoricalChange(
                         getHistoricalEventTime(pos),
-                        Offset(x, y)
+                        if (VelocityTrackerAddPointsFix) {
+                            positionCalculator.screenToLocal(Offset(x, y))
+                        } else {
+                            Offset(x, y)
+                        }
                     )
                     historical.add(historicalChange)
                 }

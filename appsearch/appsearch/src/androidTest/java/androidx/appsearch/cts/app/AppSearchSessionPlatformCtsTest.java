@@ -160,63 +160,24 @@ public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase
         // b/229770338 was fixed in Android T, this test will fail on S_V2 devices and below.
         assumeTrue(BuildCompat.isAtLeastT());
         super.testEmojiSnippet();
-    }@Override
-    @Test
-    public void testSearchSuggestion() throws Exception {
-        // TODO(b/227356108) enable the test when suggestion is ready in platform.
     }
 
+    // TODO(b/256022027) Remove this overridden test once the change to setMaxJoinedResultCount
+    // is synced over into framework.
     @Override
     @Test
-    public void testSearchSuggestion_namespaceFilter() throws Exception {
-        // TODO(b/227356108) enable the test when suggestion is ready in platform.
-    }
+    public void testSimpleJoin() throws Exception { }
 
+    // TODO(b/256022027) Remove this overridden test once the change to rename
+    //  `this.childrenScores()` to `this.childrenRankingSignals()` is synced to udc-dev.
     @Override
     @Test
-    public void testSearchSuggestion_documentIdFilter() throws Exception {
-        // TODO(b/227356108) enable the test when suggestion is ready in platform.
-    }
+    public void testQuery_invalidAdvancedRankingWithChildrenRankingSignals() throws Exception { }
 
+    // TODO(b/256022027) Remove this overridden test once the change to rename
+    //  `this.childrenScores()` to `this.childrenRankingSignals()` is synced to udc-dev.
     @Override
     @Test
-    public void testSearchSuggestion_differentPrefix() throws Exception {
-        // TODO(b/227356108) enable the test when suggestion is ready in platform.
-    }
+    public void testQuery_advancedRankingWithJoin() throws Exception { }
 
-    @Override
-    @Test
-    public void testSearchSuggestion_differentRankingStrategy() throws Exception {
-        // TODO(b/227356108) enable the test when suggestion is ready in platform.
-    }
-
-    @Override
-    @Test
-    public void testSearchSuggestion_removeDocument() throws Exception {
-        // TODO(b/227356108) enable the test when suggestion is ready in platform.
-    }
-
-    @Override
-    @Test
-    public void testSearchSuggestion_replacementDocument() throws Exception {
-        // TODO(b/227356108) enable the test when suggestion is ready in platform.
-    }
-
-    @Override
-    @Test
-    public void testSearchSuggestion_ignoreOperators() throws Exception {
-        // TODO(b/227356108) enable the test when suggestion is ready in platform.
-    }
-
-    @Override
-    @Test
-    public void testSearchSuggestion_schemaFilter() throws Exception {
-        // TODO(b/227356108) enable the test when suggestion is ready in platform.
-    }
-
-    @Override
-    @Test
-    public void testSearchSuggestion_twoInstances() throws Exception {
-        // TODO(b/227356108) enable the test when suggestion is ready in platform.
-    }
 }

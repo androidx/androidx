@@ -17,8 +17,8 @@
 package androidx.credentials
 
 import android.os.Bundle
-import androidx.annotation.VisibleForTesting
 import androidx.credentials.internal.FrameworkClassParsingException
+import androidx.credentials.internal.RequestValidationHelper
 
 /**
  * Represents the user's passkey credential granted by the user for app sign-in.
@@ -26,33 +26,39 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * @property authenticationResponseJson the public key credential authentication response in
  * JSON format that follows the standard webauthn json format shown at
  * [this w3c link](https://w3c.github.io/webauthn/#dictdef-authenticationresponsejson)
- * @throws NullPointerException If [authenticationResponseJson] is null
- * @throws IllegalArgumentException If [authenticationResponseJson] is empty
  */
-class PublicKeyCredential constructor(
-    val authenticationResponseJson: String
-) : Credential(
-    TYPE_PUBLIC_KEY_CREDENTIAL,
-    toBundle(authenticationResponseJson)
-) {
+class PublicKeyCredential private constructor(
+    val authenticationResponseJson: String,
+    data: Bundle,
+) : Credential(TYPE_PUBLIC_KEY_CREDENTIAL, data) {
+
+    /**
+     * Constructs a [PublicKeyCredential].
+     *
+     * @param authenticationResponseJson the public key credential authentication response in
+     * JSON format that follows the standard webauthn json format shown at
+     * [this w3c link](https://w3c.github.io/webauthn/#dictdef-authenticationresponsejson)
+     * @throws NullPointerException If [authenticationResponseJson] is null
+     * @throws IllegalArgumentException If [authenticationResponseJson] is empty, or if it is
+     * not a valid JSON
+     */
+    constructor(
+        authenticationResponseJson: String
+    ) : this(authenticationResponseJson, toBundle(authenticationResponseJson))
 
     init {
-        require(authenticationResponseJson.isNotEmpty()) {
-            "authentication response JSON must not be empty" }
+        require(RequestValidationHelper.isValidJSON(authenticationResponseJson)) {
+            "authenticationResponseJson must not be empty, and must be a valid JSON" }
     }
 
-    /** @hide */
+    /** Companion constants / helpers for [PublicKeyCredential]. */
     companion object {
-        /**
-         * The type value for public key credential related operations.
-         *
-         * @hide
-         */
+        /** The type value for public key credential related operations. */
         const val TYPE_PUBLIC_KEY_CREDENTIAL: String =
             "androidx.credentials.TYPE_PUBLIC_KEY_CREDENTIAL"
+
         /** The Bundle key value for the public key credential subtype (privileged or regular). */
         internal const val BUNDLE_KEY_SUBTYPE = "androidx.credentials.BUNDLE_KEY_SUBTYPE"
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val BUNDLE_KEY_AUTHENTICATION_RESPONSE_JSON =
             "androidx.credentials.BUNDLE_KEY_AUTHENTICATION_RESPONSE_JSON"
 
@@ -68,7 +74,7 @@ class PublicKeyCredential constructor(
             try {
                 val authenticationResponseJson =
                     data.getString(BUNDLE_KEY_AUTHENTICATION_RESPONSE_JSON)
-                return PublicKeyCredential(authenticationResponseJson!!)
+                return PublicKeyCredential(authenticationResponseJson!!, data)
             } catch (e: Exception) {
                 throw FrameworkClassParsingException()
             }

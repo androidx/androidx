@@ -63,6 +63,7 @@ internal fun Project.registerOwnersServiceTasks() {
         task.from(layout.projectDirectory)
         task.include("**/OWNERS")
         task.exclude("buildSrc/.gradle/**")
+        task.exclude(".gradle/**")
         task.includeEmptyDirs = false
     }
 

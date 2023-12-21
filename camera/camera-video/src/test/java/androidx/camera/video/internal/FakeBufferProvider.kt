@@ -16,6 +16,7 @@
 
 package androidx.camera.video.internal
 
+import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.Observable
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor
 import androidx.camera.core.impl.utils.futures.Futures.immediateFailedFuture
@@ -28,6 +29,7 @@ import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
 
+@RequiresApi(21)
 class FakeBufferProvider(
     private var state: BufferProvider.State = BufferProvider.State.ACTIVE,
     private val bufferFactory: (Int) -> ListenableFuture<FakeInputBuffer>,

@@ -24,8 +24,6 @@ import android.hardware.camera2.params.MeteringRectangle
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.AeMode
-import androidx.camera.camera2.pipe.AfMode
-import androidx.camera.camera2.pipe.AwbMode
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.METERING_REGIONS_DEFAULT
 import androidx.camera.camera2.pipe.Lock3ABehavior
@@ -38,6 +36,8 @@ import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.CaptureConfig.TEMPLATE_TYPE_NONE
 import androidx.camera.core.impl.Config
@@ -46,8 +46,8 @@ import androidx.camera.core.impl.TagBundle
 import dagger.Binds
 import dagger.Module
 import javax.inject.Inject
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
 
 internal const val DEFAULT_REQUEST_TEMPLATE = CameraDevice.TEMPLATE_PREVIEW
 
@@ -157,7 +157,6 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
     private val configAdapter: CaptureConfigAdapter,
     private val capturePipeline: CapturePipeline,
     private val state: UseCaseCameraState,
-    private val threads: UseCaseThreads,
     private val useCaseGraphConfig: UseCaseGraphConfig,
 ) : UseCaseCameraRequestControl {
     private val graph = useCaseGraphConfig.graph
@@ -265,9 +264,24 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
         flashType: Int,
         flashMode: Int,
     ): List<Deferred<Void?>> {
+        if (captureSequence.hasInvalidSurface()) {
+            return List(captureSequence.size) {
+                CompletableDeferred<Void?>().apply {
+                    completeExceptionally(
+                        ImageCaptureException(
+                            ImageCapture.ERROR_CAPTURE_FAILED,
+                            "Capture request failed due to invalid surface",
+                            null
+                        )
+                    )
+                }
+            }
+        }
+
         return synchronized(lock) {
             infoBundleMap.merge()
         }.let { infoBundle ->
+            debug { "UseCaseCameraRequestControl: Submitting still captures to capture pipeline" }
             capturePipeline.submitStillCaptures(
                 requests = captureSequence.map {
                     configAdapter.mapToRequest(
@@ -281,6 +295,20 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
                 flashMode = flashMode,
             )
         }
+    }
+
+    private fun List<CaptureConfig>.hasInvalidSurface(): Boolean {
+        forEach { captureConfig ->
+            if (captureConfig.surfaces.isEmpty()) {
+                return true
+            }
+            captureConfig.surfaces.forEach {
+                if (useCaseGraphConfig.surfaceToStreamMap[it] == null) {
+                    return true
+                }
+            }
+        }
+        return false
     }
 
     /**
@@ -311,52 +339,23 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
             }
         }
 
-    private fun InfoBundle.updateCameraStateAsync(
-        streams: Set<StreamId>? = null,
-    ): Deferred<Unit> {
-        return threads.sequentialScope.async {
-            val implConfig = options.build().apply {
-                // TODO(wenhungteng@): Camera-pipe will provide a way to let clients override some
-                // of the 3A parameters, we may need to use that way instead of using
-                // CameraGraph.Session#update3A to control the 3A state.
-                update3A()
+    private fun InfoBundle.updateCameraStateAsync(streams: Set<StreamId>? = null): Deferred<Unit> {
+        capturePipeline.template =
+            if (template != null && template!!.value != TEMPLATE_TYPE_NONE) {
+                template!!.value
+            } else {
+                DEFAULT_REQUEST_TEMPLATE
             }
 
-            capturePipeline.template =
-                if (template != null && template!!.value != TEMPLATE_TYPE_NONE) {
-                    template!!.value
-                } else {
-                    DEFAULT_REQUEST_TEMPLATE
-                }
-
-            state.updateAsync(
-                parameters = implConfig.toParameters(),
-                appendParameters = false,
-                internalParameters = mapOf(CAMERAX_TAG_BUNDLE to toTagBundle()),
-                appendInternalParameters = false,
-                streams = streams,
-                template = template,
-                listeners = listeners,
-            ).join()
-        }
-    }
-
-    private suspend fun Camera2ImplConfig.update3A() {
-        val aeMode = getCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE)?.let {
-            AeMode.fromIntOrNull(it)
-        }
-        val afMode = getCaptureRequestOption(CaptureRequest.CONTROL_AF_MODE)?.let {
-            AfMode.fromIntOrNull(it)
-        }
-        val awbMode = getCaptureRequestOption(CaptureRequest.CONTROL_AWB_MODE)?.let {
-            AwbMode.fromIntOrNull(it)
-        }
-
-        if (aeMode != null || afMode != null || awbMode != null) {
-            graph.acquireSession().use {
-                it.update3A(aeMode = aeMode, afMode = afMode, awbMode = awbMode)
-            }
-        }
+        return state.updateAsync(
+            parameters = options.build().toParameters(),
+            appendParameters = false,
+            internalParameters = mapOf(CAMERAX_TAG_BUNDLE to toTagBundle()),
+            appendInternalParameters = false,
+            streams = streams,
+            template = template,
+            listeners = listeners,
+        )
     }
 
     @Module

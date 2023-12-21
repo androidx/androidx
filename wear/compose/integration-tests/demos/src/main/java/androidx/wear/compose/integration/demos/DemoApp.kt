@@ -32,7 +32,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.focus.FocusRequester
@@ -49,6 +48,11 @@ import androidx.wear.compose.foundation.lazy.ScalingLazyListScope
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
 import androidx.wear.compose.foundation.lazy.ScalingParams
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
+import androidx.wear.compose.integration.demos.common.ActivityDemo
+import androidx.wear.compose.integration.demos.common.ComposableDemo
+import androidx.wear.compose.integration.demos.common.Demo
+import androidx.wear.compose.integration.demos.common.DemoCategory
+import androidx.wear.compose.integration.demos.common.DemoParameters
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.ListHeader
@@ -154,13 +158,13 @@ internal fun BoxScope.DisplayDemoList(
                     modifier = Modifier.fillMaxWidth()
                 )
             }
-            if (demo.description != null) {
+            demo.description?.let { description ->
                 item {
                     CompositionLocalProvider(
                         LocalTextStyle provides MaterialTheme.typography.caption3
                     ) {
                         Text(
-                            text = demo.description,
+                            text = description,
                             modifier = Modifier.fillMaxWidth().align(Alignment.Center),
                             textAlign = TextAlign.Center
                         )
@@ -187,7 +191,6 @@ internal fun swipeDismissStateWithNavigation(
 
 internal data class TimestampedDelta(val time: Long, val delta: Float)
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Suppress("ComposableModifierFactory")
 @Composable
 fun Modifier.rsbScroll(

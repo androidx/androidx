@@ -16,6 +16,7 @@
 
 package androidx.compose.material.anchoredDraggable
 
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box
@@ -24,6 +25,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.material.AnchoredDraggableState
 import androidx.compose.material.AutoTestFrameClock
+import androidx.compose.material.DraggableAnchors
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.anchoredDraggable
 import androidx.compose.material.anchoredDraggable.AnchoredDraggableTestValue.A
@@ -78,13 +80,14 @@ class AnchoredDraggableGestureTest {
         val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = DefaultPositionalThreshold,
-            velocityThreshold = DefaultVelocityThreshold
+            velocityThreshold = DefaultVelocityThreshold,
+            animationSpec = tween()
         )
-        val anchors = mapOf(
-            A to 0f,
-            B to 250f,
-            C to 500f
-        )
+        val anchors = DraggableAnchors {
+            A at 0f
+            B at 250f
+            C at 500f
+        }
         state.updateAnchors(anchors)
 
         rule.setContent {
@@ -120,27 +123,27 @@ class AnchoredDraggableGestureTest {
         rule.waitForIdle()
 
         assertThat(state.currentValue).isEqualTo(B)
-        assertThat(state.offset).isEqualTo(anchors.getValue(B))
+        assertThat(state.offset).isEqualTo(anchors.positionOf(B))
 
         rule.onNodeWithTag(AnchoredDraggableTestTag)
             .performTouchInput { swipeRight(startX = right / 2, endX = right) }
         rule.waitForIdle()
         assertThat(state.currentValue).isEqualTo(C)
-        assertThat(state.offset).isEqualTo(anchors.getValue(C))
+        assertThat(state.offset).isEqualTo(anchors.positionOf(C))
 
         rule.onNodeWithTag(AnchoredDraggableTestTag)
             .performTouchInput { swipeLeft(endX = right / 2) }
         rule.waitForIdle()
 
         assertThat(state.currentValue).isEqualTo(B)
-        assertThat(state.offset).isEqualTo(anchors.getValue(B))
+        assertThat(state.offset).isEqualTo(anchors.positionOf(B))
 
         rule.onNodeWithTag(AnchoredDraggableTestTag)
             .performTouchInput { swipeLeft(startX = right / 2) }
         rule.waitForIdle()
 
         assertThat(state.currentValue).isEqualTo(A)
-        assertThat(state.offset).isEqualTo(anchors.getValue(A))
+        assertThat(state.offset).isEqualTo(anchors.positionOf(A))
     }
 
     @Test
@@ -148,13 +151,14 @@ class AnchoredDraggableGestureTest {
         val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = DefaultPositionalThreshold,
-            velocityThreshold = DefaultVelocityThreshold
+            velocityThreshold = DefaultVelocityThreshold,
+            animationSpec = tween()
         )
-        val anchors = mapOf(
-            A to 0f,
-            B to 250f,
-            C to 500f
-        )
+        val anchors = DraggableAnchors {
+            A at 0f
+            B at 250f
+            C at 500f
+        }
         state.updateAnchors(anchors)
 
         rule.setContent {
@@ -190,27 +194,27 @@ class AnchoredDraggableGestureTest {
         rule.waitForIdle()
 
         assertThat(state.currentValue).isEqualTo(B)
-        assertThat(state.offset).isEqualTo(anchors.getValue(B))
+        assertThat(state.offset).isEqualTo(anchors.positionOf(B))
 
         rule.onNodeWithTag(AnchoredDraggableTestTag)
             .performTouchInput { swipeDown(startY = bottom / 2, endY = bottom) }
         rule.waitForIdle()
         assertThat(state.currentValue).isEqualTo(C)
-        assertThat(state.offset).isEqualTo(anchors.getValue(C))
+        assertThat(state.offset).isEqualTo(anchors.positionOf(C))
 
         rule.onNodeWithTag(AnchoredDraggableTestTag)
             .performTouchInput { swipeUp(startY = bottom, endY = bottom / 2) }
         rule.waitForIdle()
 
         assertThat(state.currentValue).isEqualTo(B)
-        assertThat(state.offset).isEqualTo(anchors.getValue(B))
+        assertThat(state.offset).isEqualTo(anchors.positionOf(B))
 
         rule.onNodeWithTag(AnchoredDraggableTestTag)
             .performTouchInput { swipeUp(startY = bottom / 2, endY = top) }
         rule.waitForIdle()
 
         assertThat(state.currentValue).isEqualTo(A)
-        assertThat(state.offset).isEqualTo(anchors.getValue(A))
+        assertThat(state.offset).isEqualTo(anchors.positionOf(A))
     }
 
     @Test
@@ -218,13 +222,14 @@ class AnchoredDraggableGestureTest {
         val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = DefaultPositionalThreshold,
-            velocityThreshold = DefaultVelocityThreshold
+            velocityThreshold = DefaultVelocityThreshold,
+            animationSpec = tween()
         )
-        val anchors = mapOf(
-            A to 0f,
-            B to 250f,
-            C to 500f
-        )
+        val anchors = DraggableAnchors {
+            A at 0f
+            B at 250f
+            C at 500f
+        }
         state.updateAnchors(anchors)
 
         rule.setContent {
@@ -269,13 +274,14 @@ class AnchoredDraggableGestureTest {
         val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = DefaultPositionalThreshold,
-            velocityThreshold = DefaultVelocityThreshold
+            velocityThreshold = DefaultVelocityThreshold,
+            animationSpec = tween()
         )
-        val anchors = mapOf(
-            A to 0f,
-            B to 250f,
-            C to 500f
-        )
+        val anchors = DraggableAnchors {
+            A at 0f
+            B at 250f
+            C at 500f
+        }
         state.updateAnchors(anchors)
 
         rule.setContent {
@@ -322,7 +328,8 @@ class AnchoredDraggableGestureTest {
         val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = { totalDistance -> totalDistance * positionalThreshold },
-            velocityThreshold = DefaultVelocityThreshold
+            velocityThreshold = DefaultVelocityThreshold,
+            animationSpec = tween()
         )
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
@@ -335,11 +342,11 @@ class AnchoredDraggableGestureTest {
                             orientation = Orientation.Horizontal
                         )
                         .onSizeChanged { layoutSize ->
-                            val anchors = mapOf(
-                                A to 0f,
-                                B to layoutSize.width / 2f,
-                                C to layoutSize.width.toFloat()
-                            )
+                            val anchors = DraggableAnchors {
+                                A at 0f
+                                B at layoutSize.width / 2f
+                                C at layoutSize.width.toFloat()
+                            }
                             state.updateAnchors(anchors)
                         }
                         .offset {
@@ -354,8 +361,8 @@ class AnchoredDraggableGestureTest {
             }
         }
 
-        val positionOfA = state.anchors.getValue(A)
-        val positionOfB = state.anchors.getValue(B)
+        val positionOfA = state.anchors.positionOf(A)
+        val positionOfB = state.anchors.positionOf(B)
         val distance = abs(positionOfA - positionOfB)
         state.dispatchRawDelta(positionOfA + distance * (absThreshold * 0.9f))
         rule.waitForIdle()
@@ -401,7 +408,8 @@ class AnchoredDraggableGestureTest {
         val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = { totalDistance -> totalDistance * positionalThreshold },
-            velocityThreshold = DefaultVelocityThreshold
+            velocityThreshold = DefaultVelocityThreshold,
+            animationSpec = tween()
         )
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
@@ -414,11 +422,11 @@ class AnchoredDraggableGestureTest {
                             orientation = Orientation.Horizontal
                         )
                         .onSizeChanged { layoutSize ->
-                            val anchors = mapOf(
-                                A to 0f,
-                                B to layoutSize.width / 2f,
-                                C to layoutSize.width.toFloat()
-                            )
+                            val anchors = DraggableAnchors {
+                                A at 0f
+                                B at layoutSize.width / 2f
+                                C at layoutSize.width.toFloat()
+                            }
                             state.updateAnchors(anchors)
                         }
                         .offset {
@@ -433,8 +441,8 @@ class AnchoredDraggableGestureTest {
             }
         }
 
-        val positionOfA = state.anchors.getValue(A)
-        val positionOfB = state.anchors.getValue(B)
+        val positionOfA = state.anchors.positionOf(A)
+        val positionOfB = state.anchors.positionOf(B)
         val distance = abs(positionOfA - positionOfB)
         state.dispatchRawDelta(positionOfA + distance * (absThreshold * 0.9f))
         rule.waitForIdle()
@@ -481,7 +489,8 @@ class AnchoredDraggableGestureTest {
         val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = { positionalThresholdPx },
-            velocityThreshold = DefaultVelocityThreshold
+            velocityThreshold = DefaultVelocityThreshold,
+            animationSpec = tween()
         )
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
@@ -494,11 +503,11 @@ class AnchoredDraggableGestureTest {
                             orientation = Orientation.Horizontal
                         )
                         .onSizeChanged { layoutSize ->
-                            val anchors = mapOf(
-                                A to 0f,
-                                B to layoutSize.width / 2f,
-                                C to layoutSize.width.toFloat()
-                            )
+                            val anchors = DraggableAnchors {
+                                A at 0f
+                                B at layoutSize.width / 2f
+                                C at layoutSize.width.toFloat()
+                            }
                             state.updateAnchors(anchors)
                         }
                         .offset {
@@ -564,7 +573,8 @@ class AnchoredDraggableGestureTest {
         val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = { positionalThresholdPx },
-            velocityThreshold = DefaultVelocityThreshold
+            velocityThreshold = DefaultVelocityThreshold,
+            animationSpec = tween()
         )
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
@@ -577,11 +587,11 @@ class AnchoredDraggableGestureTest {
                             orientation = Orientation.Horizontal
                         )
                         .onSizeChanged { layoutSize ->
-                            val anchors = mapOf(
-                                A to 0f,
-                                B to layoutSize.width / 2f,
-                                C to layoutSize.width.toFloat()
-                            )
+                            val anchors = DraggableAnchors {
+                                A at 0f
+                                B at layoutSize.width / 2f
+                                C at layoutSize.width.toFloat()
+                            }
                             state.updateAnchors(anchors)
                         }
                         .offset {
@@ -647,14 +657,15 @@ class AnchoredDraggableGestureTest {
             val state = AnchoredDraggableState(
                 initialValue = A,
                 positionalThreshold = DefaultPositionalThreshold,
-                velocityThreshold = { velocityPx / 2f }
+                velocityThreshold = { velocityPx / 2f },
+                animationSpec = tween()
             )
             state.updateAnchors(
-                mapOf(
-                    A to 0f,
-                    B to 100f,
-                    C to 200f
-                )
+                DraggableAnchors {
+                    A at 0f
+                    B at 100f
+                    C at 200f
+                }
             )
             state.dispatchRawDelta(60f)
             state.settle(velocityPx)
@@ -670,14 +681,15 @@ class AnchoredDraggableGestureTest {
             val state = AnchoredDraggableState(
                 initialValue = A,
                 velocityThreshold = { velocityPx },
-                positionalThreshold = { Float.POSITIVE_INFINITY }
+                positionalThreshold = { Float.POSITIVE_INFINITY },
+                animationSpec = tween()
             )
             state.updateAnchors(
-                mapOf(
-                    A to 0f,
-                    B to 100f,
-                    C to 200f
-                )
+                DraggableAnchors {
+                    A at 0f
+                    B at 100f
+                    C at 200f
+                }
             )
             state.dispatchRawDelta(60f)
             state.settle(velocityPx / 2)
@@ -690,7 +702,8 @@ class AnchoredDraggableGestureTest {
         val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = DefaultPositionalThreshold,
-            velocityThreshold = { with(rule.density) { velocityThreshold.toPx() } }
+            velocityThreshold = { with(rule.density) { velocityThreshold.toPx() } },
+            animationSpec = tween()
         )
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
@@ -703,11 +716,11 @@ class AnchoredDraggableGestureTest {
                             orientation = Orientation.Horizontal
                         )
                         .onSizeChanged { layoutSize ->
-                            val anchors = mapOf(
-                                A to 0f,
-                                B to layoutSize.width / 2f,
-                                C to layoutSize.width.toFloat()
-                            )
+                            val anchors = DraggableAnchors {
+                                A at 0f
+                                B at layoutSize.width / 2f
+                                C at layoutSize.width.toFloat()
+                            }
                             state.updateAnchors(anchors)
                         }
                         .offset {
@@ -741,7 +754,8 @@ class AnchoredDraggableGestureTest {
         val state = AnchoredDraggableState(
             initialValue = A,
             velocityThreshold = { with(rule.density) { velocityThreshold.toPx() } },
-            positionalThreshold = { Float.POSITIVE_INFINITY }
+            positionalThreshold = { Float.POSITIVE_INFINITY },
+            animationSpec = tween()
         )
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
@@ -754,11 +768,11 @@ class AnchoredDraggableGestureTest {
                             orientation = Orientation.Horizontal
                         )
                         .onSizeChanged { layoutSize ->
-                            val anchors = mapOf(
-                                A to 0f,
-                                B to layoutSize.width / 2f,
-                                C to layoutSize.width.toFloat()
-                            )
+                            val anchors = DraggableAnchors {
+                                A at 0f
+                                B at layoutSize.width / 2f
+                                C at layoutSize.width.toFloat()
+                            }
                             state.updateAnchors(anchors)
                         }
                         .offset {
@@ -788,14 +802,15 @@ class AnchoredDraggableGestureTest {
 
     @Test
     fun anchoredDraggable_dragBeyondBounds_clampsAndSwipesBack() {
-        val anchors = mapOf(
-            A to 0f,
-            C to 500f
-        )
+        val anchors = DraggableAnchors {
+            A at 0f
+            C at 500f
+        }
         val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = DefaultPositionalThreshold,
-            velocityThreshold = { 0f }
+            velocityThreshold = { 0f },
+            animationSpec = tween()
         )
         state.updateAnchors(anchors)
         rule.setContent {
@@ -821,7 +836,7 @@ class AnchoredDraggableGestureTest {
         }
 
         val overdrag = 100f
-        val maxBound = state.anchors.getValue(C)
+        val maxBound = state.anchors.positionOf(C)
 
         rule.onNodeWithTag(AnchoredDraggableTestTag)
             .performTouchInput {
@@ -842,15 +857,16 @@ class AnchoredDraggableGestureTest {
     @Test
     fun anchoredDraggable_animationCancelledByDrag_resetsTargetValueToClosest() {
         rule.mainClock.autoAdvance = false
-        val anchors = mapOf(
-            A to 0f,
-            B to 250f,
-            C to 500f
-        )
+        val anchors = DraggableAnchors {
+            A at 0f
+            B at 250f
+            C at 500f
+        }
         val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = { totalDistance -> totalDistance * 0.5f },
-            velocityThreshold = DefaultVelocityThreshold
+            velocityThreshold = DefaultVelocityThreshold,
+            animationSpec = tween()
         )
         state.updateAnchors(anchors)
         lateinit var scope: CoroutineScope
@@ -885,7 +901,7 @@ class AnchoredDraggableGestureTest {
         scope.launch { state.animateTo(C) }
 
         rule.mainClock.advanceTimeUntil {
-            state.requireOffset() > abs(state.requireOffset() - anchors.getValue(B))
+            state.requireOffset() > abs(state.requireOffset() - anchors.positionOf(B))
         } // Advance until our closest anchor is B
         assertThat(state.targetValue).isEqualTo(C)
 

@@ -1,6 +1,13 @@
 // Signature format: 4.0
 package androidx.privacysandbox.sdkruntime.core {
 
+  public final class AppOwnedSdkSandboxInterfaceCompat {
+    ctor public AppOwnedSdkSandboxInterfaceCompat(String name, long version, android.os.IBinder binder);
+    method public android.os.IBinder getInterface();
+    method public String getName();
+    method public long getVersion();
+  }
+
   public final class LoadSdkCompatException extends java.lang.Exception {
     ctor public LoadSdkCompatException(Throwable cause, android.os.Bundle extraInfo);
     method public android.os.Bundle getExtraInformation();
@@ -51,11 +58,27 @@ package androidx.privacysandbox.sdkruntime.core {
 
 }
 
+package androidx.privacysandbox.sdkruntime.core.activity {
+
+  public interface ActivityHolder extends androidx.lifecycle.LifecycleOwner {
+    method public android.app.Activity getActivity();
+    method public androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
+  }
+
+  public interface SdkSandboxActivityHandlerCompat {
+    method public void onActivityCreated(androidx.privacysandbox.sdkruntime.core.activity.ActivityHolder activityHolder);
+  }
+
+}
+
 package androidx.privacysandbox.sdkruntime.core.controller {
 
   public final class SdkSandboxControllerCompat {
     method public static androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat from(android.content.Context context);
+    method public java.util.List<androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat> getAppOwnedSdkSandboxInterfaces();
     method public java.util.List<androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat> getSandboxedSdks();
+    method public android.os.IBinder registerSdkSandboxActivityHandler(androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat handlerCompat);
+    method public void unregisterSdkSandboxActivityHandler(androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat handlerCompat);
     field public static final androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat.Companion Companion;
   }
 

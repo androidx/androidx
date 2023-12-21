@@ -17,7 +17,6 @@
 package androidx.appactions.interaction.capabilities.core.impl.spec
 
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException
-import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.proto.AppActionsContext
 import androidx.appactions.interaction.proto.FulfillmentResponse
 import androidx.appactions.interaction.proto.ParamValue
@@ -30,8 +29,18 @@ import androidx.appactions.interaction.proto.ParamValue
  */
 interface ActionSpec<ArgumentsT, OutputT> {
 
-    /** Converts the property to the `AppAction` proto.  */
-    fun convertPropertyToProto(property: Map<String, Property<*>>): AppActionsContext.AppAction
+    /**
+     * Converts the input parameters to the `AppAction` proto.
+     * @param identifier                    the capability identifier
+     * @param boundProperties               the list of BoundProperty instances.
+     * @param supportsPartialFulfillment    whether or not this capability supports partial
+     * fulfillment.
+     */
+    fun createAppAction(
+        identifier: String,
+        boundProperties: List<BoundProperty<*>>,
+        supportsPartialFulfillment: Boolean
+    ): AppActionsContext.AppAction
 
     /** Builds this action's arguments from an ArgumentsWrapper instance.  */
     @Throws(StructConversionException::class)

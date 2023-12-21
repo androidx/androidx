@@ -16,7 +16,7 @@
 
 package androidx.paging
 
-import com.google.common.truth.Truth.assertThat
+import androidx.kruth.assertThat
 import kotlin.test.Test
 import kotlin.test.fail
 import kotlinx.coroutines.CancellationException

@@ -31,7 +31,6 @@ androidx {
     name = "Experimental annotation"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.ANNOTATION_EXPERIMENTAL
-    mavenMultiplatformVersion = LibraryVersions.ANNOTATION_EXPERIMENTAL_KMP
     inceptionYear = "2019"
     description = "Java annotation for use on unstable Android API surfaces. When used in " +
             "conjunction with the Experimental annotation lint checks, this annotation provides " +

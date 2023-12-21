@@ -35,12 +35,14 @@ import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.internal.CameraErrorListener
 import androidx.camera.camera2.pipe.testing.FakeCamera2DeviceCloser
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.FakeTimeSource
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -101,6 +103,7 @@ class RetryingCameraStateOpenerTest {
             cameraDeviceCloser,
             fakeTimeSource,
             cameraInteropConfig = null,
+            FakeThreads.fromTestScope(TestScope())
         )
 
     private val cameraAvailabilityMonitor =

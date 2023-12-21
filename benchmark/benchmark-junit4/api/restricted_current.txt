@@ -20,5 +20,16 @@ package androidx.benchmark.junit4 {
     method public static inline void measureRepeated(androidx.benchmark.junit4.BenchmarkRule, kotlin.jvm.functions.Function1<? super androidx.benchmark.junit4.BenchmarkRule.Scope,kotlin.Unit> block);
   }
 
+  @androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi public final class PerfettoTraceRule implements org.junit.rules.TestRule {
+    ctor public PerfettoTraceRule(optional boolean enableAppTagTracing, optional boolean enableUserspaceTracing, optional kotlin.jvm.functions.Function1<? super androidx.benchmark.perfetto.PerfettoTrace,kotlin.Unit>? traceCallback);
+    method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description description);
+    method public boolean getEnableAppTagTracing();
+    method public boolean getEnableUserspaceTracing();
+    method public kotlin.jvm.functions.Function1<androidx.benchmark.perfetto.PerfettoTrace,kotlin.Unit>? getTraceCallback();
+    property public final boolean enableAppTagTracing;
+    property public final boolean enableUserspaceTracing;
+    property public final kotlin.jvm.functions.Function1<androidx.benchmark.perfetto.PerfettoTrace,kotlin.Unit>? traceCallback;
+  }
+
 }
 

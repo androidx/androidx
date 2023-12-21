@@ -26,7 +26,7 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
-    api(libs.kotlinCoroutinesCore)
+    api(libs.kotlinCoroutinesCore171)
     implementation("androidx.core:core-ktx:1.8.0")
     api("androidx.annotation:annotation:1.6.0")
 
@@ -44,8 +44,6 @@ dependencies {
 }
 
 android {
-    compileSdk = 33
-    compileSdkExtension = 5
     namespace "androidx.privacysandbox.ads.adservices"
 }
 

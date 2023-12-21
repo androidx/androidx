@@ -16,7 +16,10 @@
 
 package androidx.privacysandbox.sdkruntime.core.controller.impl
 
+import android.os.IBinder
+import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
+import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
 
 /**
@@ -24,4 +27,20 @@ import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCo
  */
 internal class NoOpImpl : SdkSandboxControllerCompat.SandboxControllerImpl {
     override fun getSandboxedSdks(): List<SandboxedSdkCompat> = emptyList()
+
+    override fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> =
+        emptyList()
+
+    override fun registerSdkSandboxActivityHandler(
+        handlerCompat: SdkSandboxActivityHandlerCompat
+    ):
+        IBinder {
+        throw UnsupportedOperationException("Not supported")
+    }
+
+    override fun unregisterSdkSandboxActivityHandler(
+        handlerCompat: SdkSandboxActivityHandlerCompat
+    ) {
+        throw UnsupportedOperationException("Not supported")
+    }
 }

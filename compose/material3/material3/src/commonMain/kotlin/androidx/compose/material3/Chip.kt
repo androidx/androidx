@@ -28,6 +28,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -1372,10 +1373,8 @@ private fun SelectableChip(
         enabled = enabled,
         shape = shape,
         color = colors.containerColor(enabled, selected).value,
-        tonalElevation = elevation?.tonalElevation(enabled, interactionSource)?.value
-            ?: 0.dp,
-        shadowElevation = elevation?.shadowElevation(enabled, interactionSource)?.value
-            ?: 0.dp,
+        tonalElevation = elevation?.tonalElevation(enabled, interactionSource)?.value ?: 0.dp,
+        shadowElevation = elevation?.shadowElevation(enabled, interactionSource)?.value ?: 0.dp,
         border = border,
         interactionSource = interactionSource,
     ) {
@@ -1413,6 +1412,7 @@ private fun ChipContent(
     ) {
         Row(
             Modifier
+                .width(IntrinsicSize.Max)
                 .defaultMinSize(minHeight = minHeight)
                 .padding(paddingValues),
             horizontalArrangement = Arrangement.Start,
@@ -1426,7 +1426,11 @@ private fun ChipContent(
                 )
             }
             Spacer(Modifier.width(HorizontalElementsPadding))
-            label()
+            Row(
+                modifier = Modifier.weight(1f),
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically
+            ) { label() }
             Spacer(Modifier.width(HorizontalElementsPadding))
             if (trailingIcon != null) {
                 CompositionLocalProvider(
@@ -1550,15 +1554,17 @@ class ChipElevation internal constructor(
         val animatable = remember { Animatable(target, Dp.VectorConverter) }
 
         LaunchedEffect(target) {
-            if (!enabled) {
-                // No transition when moving to a disabled state
-                animatable.snapTo(target)
-            } else {
-                animatable.animateElevation(
-                    from = lastInteraction, to = interaction, target = target
-                )
+            if (animatable.targetValue != target) {
+                if (!enabled) {
+                    // No transition when moving to a disabled state
+                    animatable.snapTo(target)
+                } else {
+                    animatable.animateElevation(
+                        from = lastInteraction, to = interaction, target = target
+                    )
+                }
+                lastInteraction = interaction
             }
-            lastInteraction = interaction
         }
 
         return animatable.asState()
@@ -1593,16 +1599,22 @@ class ChipElevation internal constructor(
  * Note that this default implementation does not take into consideration the `selectable` state
  * passed into its [tonalElevation] and [shadowElevation]. If you wish to apply that state, use a
  * different [SelectableChipElevation].
+ *
+ * @param pressedElevation the elevation used when the chip is pressed.
+ * @param focusedElevation the elevation used when the chip is focused
+ * @param hoveredElevation the elevation used when the chip is hovered
+ * @param draggedElevation the elevation used when the chip is dragged
+ * @param disabledElevation the elevation used when the chip is not enabled
  */
 @ExperimentalMaterial3Api
 @Immutable
 class SelectableChipElevation internal constructor(
-    private val elevation: Dp,
-    private val pressedElevation: Dp,
-    private val focusedElevation: Dp,
-    private val hoveredElevation: Dp,
-    private val draggedElevation: Dp,
-    private val disabledElevation: Dp
+    val elevation: Dp,
+    val pressedElevation: Dp,
+    val focusedElevation: Dp,
+    val hoveredElevation: Dp,
+    val draggedElevation: Dp,
+    val disabledElevation: Dp
 ) {
     /**
      * Represents the tonal elevation used in a chip, depending on [enabled] and
@@ -1705,15 +1717,17 @@ class SelectableChipElevation internal constructor(
         val animatable = remember { Animatable(target, Dp.VectorConverter) }
 
         LaunchedEffect(target) {
-            if (!enabled) {
-                // No transition when moving to a disabled state
-                animatable.snapTo(target)
-            } else {
-                animatable.animateElevation(
-                    from = lastInteraction, to = interaction, target = target
-                )
+            if (animatable.targetValue != target) {
+                if (!enabled) {
+                    // No transition when moving to a disabled state
+                    animatable.snapTo(target)
+                } else {
+                    animatable.animateElevation(
+                        from = lastInteraction, to = interaction, target = target
+                    )
+                }
+                lastInteraction = interaction
             }
-            lastInteraction = interaction
         }
 
         return animatable.asState()
@@ -1745,19 +1759,29 @@ class SelectableChipElevation internal constructor(
 /**
  * Represents the container and content colors used in a clickable chip in different states.
  *
- * See [AssistChipDefaults], [InputChipDefaults], and [SuggestionChipDefaults] for the default
- * colors used in the various Chip configurations.
+ * @constructor create an instance with arbitrary colors, see [AssistChipDefaults],
+ * [InputChipDefaults], and [SuggestionChipDefaults] for the default colors used in the various Chip
+ * configurations.
+ *
+ * @param containerColor the container color of this chip when enabled
+ * @param labelColor the label color of this chip when enabled
+ * @param leadingIconContentColor the color of this chip's start icon when enabled
+ * @param trailingIconContentColor the color of this chip's end icon when enabled
+ * @param disabledContainerColor the container color of this chip when not enabled
+ * @param disabledLabelColor the label color of this chip when not enabled
+ * @param disabledLeadingIconContentColor the color of this chip's start icon when not enabled
+ * @param disabledTrailingIconContentColor the color of this chip's end icon when not enabled
  */
 @Immutable
-class ChipColors internal constructor(
-    private val containerColor: Color,
-    private val labelColor: Color,
-    private val leadingIconContentColor: Color,
-    private val trailingIconContentColor: Color,
-    private val disabledContainerColor: Color,
-    private val disabledLabelColor: Color,
-    private val disabledLeadingIconContentColor: Color,
-    private val disabledTrailingIconContentColor: Color
+class ChipColors constructor(
+    val containerColor: Color,
+    val labelColor: Color,
+    val leadingIconContentColor: Color,
+    val trailingIconContentColor: Color,
+    val disabledContainerColor: Color,
+    val disabledLabelColor: Color,
+    val disabledLeadingIconContentColor: Color,
+    val disabledTrailingIconContentColor: Color
     // TODO(b/113855296): Support other states: hover, focus, drag
 ) {
     /**
@@ -1842,7 +1866,7 @@ class ChipColors internal constructor(
  */
 @ExperimentalMaterial3Api
 @Immutable
-class SelectableChipColors internal constructor(
+class SelectableChipColors constructor(
     private val containerColor: Color,
     private val labelColor: Color,
     private val leadingIconColor: Color,

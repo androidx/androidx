@@ -44,6 +44,12 @@ android {
         all {
             signingConfig signingConfigs.config
         }
+        release {
+            minifyEnabled true
+        }
+    }
+    compileOptions {
+        coreLibraryDesugaringEnabled = true
     }
 }
 
@@ -72,6 +78,8 @@ dependencies {
     androidTestImplementation(libs.espressoCore, excludes.espresso)
     androidTestImplementation(project(":window:window-testing"))
     androidTestImplementation(project(":window:window-demos:demo-common"))
+
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.2.2")
 }
 
 // Allow usage of Kotlin's @OptIn.
@@ -84,6 +92,7 @@ tasks.withType(KotlinCompile).configureEach {
 androidx {
     name = "WM Samples"
     type = LibraryType.SAMPLES
+    mavenVersion = LibraryVersions.WINDOW
     inceptionYear = "2023"
     description = "Samples for the WM Jetpack Library"
 }

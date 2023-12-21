@@ -49,6 +49,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.first
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -64,10 +65,12 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.util.VelocityTracker
+import androidx.compose.ui.input.pointer.util.VelocityTrackerAddPointsFix
 import androidx.compose.ui.materialize
 import androidx.compose.ui.modifier.ModifierLocalConsumer
 import androidx.compose.ui.modifier.ModifierLocalReadScope
@@ -105,6 +108,7 @@ import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.abs
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
@@ -800,17 +804,19 @@ class ScrollableTest {
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun scrollable_nestedScroll_disabledForMouseWheel() {
+    fun scrollable_nestedScroll_childPartialConsumptionForMouseWheel() {
         var innerDrag = 0f
         var outerDrag = 0f
         val outerState = ScrollableState(
             consumeScrollDelta = {
+                // Since the child has already consumed half, the parent will consume the rest.
                 outerDrag += it
                 it
             }
         )
         val innerState = ScrollableState(
             consumeScrollDelta = {
+                // Child consumes half, leaving the rest for the parent to consume.
                 innerDrag += it / 2
                 it / 2
             }
@@ -844,7 +850,10 @@ class ScrollableTest {
         }
         rule.runOnIdle {
             assertThat(innerDrag).isGreaterThan(0f)
-            assertThat(outerDrag).isZero()
+            assertThat(outerDrag).isGreaterThan(0f)
+            // Since child (inner) consumes half of the scroll, the parent (outer) consumes the
+            // remainder (which is half as well), so they will be equal.
+            assertThat(innerDrag).isEqualTo(outerDrag)
             innerDrag
         }
     }
@@ -1311,6 +1320,61 @@ class ScrollableTest {
             // but allow nested scroll to propagate up correctly
             assertThat(parentValue).isGreaterThan(0f)
         }
+    }
+
+    @Test
+    fun scrollable_nestedFlingCancellation_shouldPreventDeltasFromPropagating() {
+        var childDeltas = 0f
+        var touchSlop = 0f
+        val childController = ScrollableState {
+            childDeltas += it
+            it
+        }
+        val flingCancellationParent = object : NestedScrollConnection {
+            override fun onPostScroll(
+                consumed: Offset,
+                available: Offset,
+                source: NestedScrollSource
+            ): Offset {
+                if (source == NestedScrollSource.Fling && available != Offset.Zero) {
+                    throw CancellationException()
+                }
+                return Offset.Zero
+            }
+        }
+
+        rule.setContent {
+            touchSlop = LocalViewConfiguration.current.touchSlop
+            Box(modifier = Modifier.nestedScroll(flingCancellationParent)) {
+                Box(
+                    modifier = Modifier
+                        .size(600.dp)
+                        .testTag("childScrollable")
+                        .scrollable(childController, Orientation.Horizontal)
+                )
+            }
+        }
+
+        // First drag, this won't trigger the cancellation flow.
+        rule.onNodeWithTag("childScrollable").performTouchInput {
+            down(centerLeft)
+            moveBy(Offset(100f, 0f))
+            up()
+        }
+
+        rule.runOnIdle {
+            assertThat(childDeltas).isEqualTo(100f - touchSlop)
+        }
+
+        childDeltas = 0f
+        var dragged = 0f
+        rule.onNodeWithTag("childScrollable").performTouchInput {
+            swipeWithVelocity(centerLeft, centerRight, 2000f)
+            dragged = centerRight.x - centerLeft.x
+        }
+
+        // child didn't receive more deltas after drag, because fling was cancelled by the parent
+        assertThat(childDeltas).isEqualTo(dragged - touchSlop)
     }
 
     @Test
@@ -2161,7 +2225,8 @@ class ScrollableTest {
             consumeScrollDelta = { it }
         )
         rule.setContentAndGetScope {
-            val modifier = Modifier.scrollable(controller, Orientation.Vertical) as InspectableValue
+            val modifier =
+                Modifier.scrollable(controller, Orientation.Vertical).first() as InspectableValue
             assertThat(modifier.nameFallback).isEqualTo("scrollable")
             assertThat(modifier.valueOverride).isNull()
             assertThat(modifier.inspectableElements.map { it.name }.asIterable()).containsExactly(
@@ -2172,6 +2237,7 @@ class ScrollableTest {
                 "reverseDirection",
                 "flingBehavior",
                 "interactionSource",
+                "scrollableBringIntoViewConfig",
             )
         }
     }
@@ -2583,6 +2649,53 @@ internal val VelocityTrackerCalculationThreshold = 1
 
 @OptIn(ExperimentalComposeUiApi::class)
 internal suspend fun savePointerInputEvents(
+    tracker: VelocityTracker,
+    pointerInputScope: PointerInputScope
+) {
+    if (VelocityTrackerAddPointsFix) {
+        savePointerInputEventsWithFix(tracker, pointerInputScope)
+    } else {
+        savePointerInputEventsLegacy(tracker, pointerInputScope)
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+internal suspend fun savePointerInputEventsWithFix(
+    tracker: VelocityTracker,
+    pointerInputScope: PointerInputScope
+) {
+    with(pointerInputScope) {
+        coroutineScope {
+            awaitPointerEventScope {
+                while (true) {
+                    var event: PointerInputChange? = awaitFirstDown()
+                    while (event != null && !event.changedToUpIgnoreConsumed()) {
+                        val currentEvent = awaitPointerEvent().changes
+                            .firstOrNull()
+
+                        if (currentEvent != null && !currentEvent.changedToUpIgnoreConsumed()) {
+                            if (currentEvent.historical.isEmpty()) {
+                                tracker.addPosition(
+                                    currentEvent.uptimeMillis,
+                                    currentEvent.position
+                                )
+                            } else {
+                                currentEvent.historical.fastForEach {
+                                    tracker.addPosition(it.uptimeMillis, it.position)
+                                }
+                            }
+                        }
+
+                        event = currentEvent
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+internal suspend fun savePointerInputEventsLegacy(
     tracker: VelocityTracker,
     pointerInputScope: PointerInputScope
 ) {

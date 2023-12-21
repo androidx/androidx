@@ -52,6 +52,25 @@ enum class KmpPlatform {
     }
 }
 
+enum class PlatformIdentifier(val id: String) {
+    JVM("jvm"),
+    JS("js"),
+    ANDROID("android"),
+    MAC_ARM_64("macosarm64"),
+    MAC_OSX_64("macosx64"),
+    LINUX_64("linuxx64"),
+    IOS_SIMULATOR_ARM_64("iossimulatorarm64"),
+    IOS_X_64("iosx64"),
+    IOS_ARM_64("iosarm64"),
+    DESKTOP("desktop");
+
+    companion object {
+        private val byId = values().associateBy { it.id }
+
+        fun fromId(id: String): PlatformIdentifier? = byId[id]
+    }
+}
+
 object KmpFlagParser {
     fun parse(flag: String?): Set<KmpPlatform> {
         if (flag.isNullOrBlank()) {

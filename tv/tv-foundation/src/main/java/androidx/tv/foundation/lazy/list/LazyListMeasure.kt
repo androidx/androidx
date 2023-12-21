@@ -65,8 +65,8 @@ internal fun measureLazyList(
     pinnedItems: LazyLayoutPinnedItemList,
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
 ): LazyListMeasureResult {
-    require(beforeContentPadding >= 0)
-    require(afterContentPadding >= 0)
+    require(beforeContentPadding >= 0) { "negative beforeContentPadding" }
+    require(afterContentPadding >= 0) { "negative afterContentPadding" }
     if (itemsCount <= 0) {
         // empty data set. reset the current scroll and report zero size
         return LazyListMeasureResult(
@@ -214,7 +214,7 @@ internal fun measureLazyList(
         }
 
         // the initial offset for items from visibleItems list
-        require(currentFirstItemScrollOffset >= 0)
+        require(currentFirstItemScrollOffset >= 0) { "negative scroll offset" }
         val visibleItemsScrollOffset = -currentFirstItemScrollOffset
         var firstItem = visibleItems.first()
 
@@ -360,7 +360,8 @@ private fun createItemsAfterList(
 
     fun addItem(index: Int) {
         if (list == null) list = mutableListOf()
-        requireNotNull(list).add(
+        @Suppress("ExceptionMessage")
+        checkNotNull(list).add(
             measuredItemProvider.getAndMeasure(DataIndex(index))
         )
     }
@@ -404,9 +405,8 @@ private fun createItemsBeforeList(
 
     fun addItem(index: Int) {
         if (list == null) list = mutableListOf()
-        requireNotNull(list).add(
-            measuredItemProvider.getAndMeasure(DataIndex(index))
-        )
+        @Suppress("ExceptionMessage")
+        checkNotNull(list).add(measuredItemProvider.getAndMeasure(DataIndex(index)))
     }
 
     if (beyondBoundsInfo.hasIntervals()) {
@@ -450,14 +450,14 @@ private fun calculateItemsOffsets(
     val mainAxisLayoutSize = if (isVertical) layoutHeight else layoutWidth
     val hasSpareSpace = finalMainAxisOffset < minOf(mainAxisLayoutSize, maxOffset)
     if (hasSpareSpace) {
-        check(itemsScrollOffset == 0)
+        check(itemsScrollOffset == 0) { "non-zero itemsScrollOffset" }
     }
 
     val positionedItems =
         ArrayList<LazyListPositionedItem>(items.size + extraItemsBefore.size + extraItemsAfter.size)
 
     if (hasSpareSpace) {
-        require(extraItemsBefore.isEmpty() && extraItemsAfter.isEmpty())
+        require(extraItemsBefore.isEmpty() && extraItemsAfter.isEmpty()) { "no extra items" }
 
         val itemsCount = items.size
         fun Int.reverseAware() =
@@ -468,11 +468,11 @@ private fun calculateItemsOffsets(
         }
         val offsets = IntArray(itemsCount) { 0 }
         if (isVertical) {
-            with(requireNotNull(verticalArrangement)) {
+            with(requireNotNull(verticalArrangement) { "null verticalArrangement" }) {
                 density.arrange(mainAxisLayoutSize, sizes, offsets)
             }
         } else {
-            with(requireNotNull(horizontalArrangement)) {
+            with(requireNotNull(horizontalArrangement) { "null horizontalAlignment" }) {
                 // Enforces Ltr layout direction as it is mirrored with placeRelative later.
                 density.arrange(mainAxisLayoutSize, sizes, LayoutDirection.Ltr, offsets)
             }

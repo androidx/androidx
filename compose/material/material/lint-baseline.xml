@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
+<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
 
     <issue
         id="BanThreadSleep"
@@ -134,6 +134,330 @@
         errorLine2="                   ~~~~~">
         <location
             file="src/androidAndroidTest/kotlin/androidx/compose/material/TabScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor AnchoredDraggableState has parameter &apos;positionalThreshold&apos; with type Function1&lt;? super Float, Float>."
+        errorLine1="    internal val positionalThreshold: (totalDistance: Float) -> Float,"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/AnchoredDraggable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;Float, Float> of &apos;getPositionalThreshold$lint_module&apos;."
+        errorLine1="    internal val positionalThreshold: (totalDistance: Float) -> Float,"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/AnchoredDraggable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor AnchoredDraggableState has parameter &apos;velocityThreshold&apos; with type Function0&lt;Float>."
+        errorLine1="    internal val velocityThreshold: () -> Float,"
+        errorLine2="                                    ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/AnchoredDraggable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function0&lt;Float> of &apos;getVelocityThreshold$lint_module&apos;."
+        errorLine1="    internal val velocityThreshold: () -> Float,"
+        errorLine2="                                    ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/AnchoredDraggable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor AnchoredDraggableState has parameter &apos;positionalThreshold&apos; with type Function1&lt;? super Float, Float>."
+        errorLine1="        positionalThreshold: (totalDistance: Float) -> Float,"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/AnchoredDraggable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor AnchoredDraggableState has parameter &apos;velocityThreshold&apos; with type Function0&lt;Float>."
+        errorLine1="        velocityThreshold: () -> Float,"
+        errorLine2="                           ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/AnchoredDraggable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method Saver has parameter &apos;positionalThreshold&apos; with type Function1&lt;? super Float, Float>."
+        errorLine1="            positionalThreshold: (distance: Float) -> Float,"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/AnchoredDraggable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method Saver has parameter &apos;velocityThreshold&apos; with type Function0&lt;Float>."
+        errorLine1="            velocityThreshold: () -> Float,"
+        errorLine2="                               ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/AnchoredDraggable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method BackdropStack has parameter &apos;frontLayer&apos; with type Function2&lt;? super Constraints, ? super Float, Unit>."
+        errorLine1="    frontLayer: @Composable @UiComposable (Constraints, Float) -> Unit"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/BackdropScaffold.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method BottomNavigationTransition has parameter &apos;content&apos; with type Function1&lt;? super Float, Unit>."
+        errorLine1="    content: @Composable (animationProgress: Float) -> Unit"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/BottomNavigation.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method BottomSheetScaffoldLayout has parameter &apos;bottomSheet&apos; with type Function1&lt;? super Integer, Unit>."
+        errorLine1="    bottomSheet: @Composable (layoutHeight: Int) -> Unit,"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/BottomSheetScaffold.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method BottomSheetScaffoldLayout has parameter &apos;sheetOffset&apos; with type Function0&lt;Float>."
+        errorLine1="    sheetOffset: () -> Float,"
+        errorLine2="                 ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/BottomSheetScaffold.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method awaitHorizontalPointerSlopOrCancellation has parameter &apos;onPointerSlopReached&apos; with type Function2&lt;? super PointerInputChange, ? super Float, Unit>."
+        errorLine1="    onPointerSlopReached: (change: PointerInputChange, overSlop: Float) -> Unit"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/DragGestureDetectorCopy.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method Scrim has parameter &apos;fraction&apos; with type Function0&lt;Float>."
+        errorLine1="    fraction: () -> Float,"
+        errorLine2="              ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/Drawer.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method updateHeight has parameter &apos;onHeightUpdate&apos; with type Function1&lt;? super Integer, Unit>."
+        errorLine1="    onHeightUpdate: (Int) -> Unit"
+        errorLine2="                    ~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/material/ExposedDropdownMenu.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method NavigationRailTransition has parameter &apos;content&apos; with type Function1&lt;? super Float, Unit>."
+        errorLine1="    content: @Composable (animationProgress: Float) -> Unit"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/NavigationRail.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method intrinsicWidth has parameter &apos;intrinsicMeasurer&apos; with type Function2&lt;? super IntrinsicMeasurable, ? super Integer, Integer>."
+        errorLine1="        intrinsicMeasurer: (IntrinsicMeasurable, Int) -> Int"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/OutlinedTextField.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method intrinsicHeight has parameter &apos;intrinsicMeasurer&apos; with type Function2&lt;? super IntrinsicMeasurable, ? super Integer, Integer>."
+        errorLine1="        intrinsicMeasurer: (IntrinsicMeasurable, Int) -> Int"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/OutlinedTextField.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method pullRefresh has parameter &apos;onPull&apos; with type Function1&lt;? super Float, Float>."
+        errorLine1="    onPull: (pullDelta: Float) -> Float,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/pullrefresh/PullRefresh.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method pullRefresh has parameter &apos;onRelease&apos; with type Function2&lt;? super Float, ? super Continuation&lt;? super Float>, ? extends Object>."
+        errorLine1="    onRelease: suspend (flingVelocity: Float) -> Float,"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/pullrefresh/PullRefresh.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor PullRefreshNestedScrollConnection has parameter &apos;onPull&apos; with type Function1&lt;? super Float, Float>."
+        errorLine1="    private val onPull: (pullDelta: Float) -> Float,"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/pullrefresh/PullRefresh.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor PullRefreshNestedScrollConnection has parameter &apos;onRelease&apos; with type Function2&lt;? super Float, ? super Continuation&lt;? super Float>, ? extends Object>."
+        errorLine1="    private val onRelease: suspend (flingVelocity: Float) -> Float,"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/pullrefresh/PullRefresh.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method Slider has parameter &apos;onValueChange&apos; with type Function1&lt;? super Float, Unit>."
+        errorLine1="    onValueChange: (Float) -> Unit,"
+        errorLine2="                   ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;postPointerSlop&apos; with type Function2&lt;? super PointerInputChange, ? super Float, ? extends Unit>."
+        errorLine1="    val postPointerSlop = { pointerInput: PointerInputChange, offset: Float ->"
+        errorLine2="    ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method CorrectValueSideEffect has parameter &apos;scaleToOffset&apos; with type Function1&lt;? super Float, Float>."
+        errorLine1="    scaleToOffset: (Float) -> Float,"
+        errorLine2="                   ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method sliderSemantics has parameter &apos;onValueChange&apos; with type Function1&lt;? super Float, Unit>."
+        errorLine1="    onValueChange: (Float) -> Unit,"
+        errorLine2="                   ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type State&lt;Function2&lt;Boolean, Float, Unit>> of &apos;getOnDrag&apos;."
+        errorLine1="    val onDrag: State&lt;(Boolean, Float) -> Unit>,"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor SliderDraggableState has parameter &apos;onDelta&apos; with type Function1&lt;? super Float, Unit>."
+        errorLine1="    val onDelta: (Float) -> Unit"
+        errorLine2="                 ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;Float, Unit> of &apos;getOnDelta&apos;."
+        errorLine1="    val onDelta: (Float) -> Unit"
+        errorLine2="                 ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method setThresholds$lint_module has parameter &apos;&lt;set-?>&apos; with type Function2&lt;? super Float, ? super Float, Float>."
+        errorLine1="    internal var thresholds: (Float, Float) -> Float by mutableStateOf({ _, _ -> 0f })"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;Float, Float, Float> of &apos;getThresholds$lint_module&apos;."
+        errorLine1="    internal var thresholds: (Float, Float) -> Float by mutableStateOf({ _, _ -> 0f })"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method computeTarget has parameter &apos;thresholds&apos; with type Function2&lt;? super Float, ? super Float, Float>."
+        errorLine1="    thresholds: (Float, Float) -> Float,"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method SwitchImpl has parameter &apos;thumbValue&apos; with type Function0&lt;Float>."
+        errorLine1="    thumbValue: () -> Float,"
+        errorLine2="                ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/Switch.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method intrinsicWidth has parameter &apos;intrinsicMeasurer&apos; with type Function2&lt;? super IntrinsicMeasurable, ? super Integer, Integer>."
+        errorLine1="        intrinsicMeasurer: (IntrinsicMeasurable, Int) -> Int"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/TextField.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method intrinsicHeight has parameter &apos;intrinsicMeasurer&apos; with type Function2&lt;? super IntrinsicMeasurable, ? super Integer, Integer>."
+        errorLine1="        intrinsicMeasurer: (IntrinsicMeasurable, Int) -> Int"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/TextField.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method Transition has parameter &apos;content&apos; with type Function4&lt;? super Float, ? super Color, ? super Color, ? super Float, Unit>."
+        errorLine1="        content: @Composable ("
+        errorLine2="                 ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/TextFieldImpl.kt"/>
     </issue>
 
 </issues>

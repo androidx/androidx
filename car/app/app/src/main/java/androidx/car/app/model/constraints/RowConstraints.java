@@ -26,7 +26,6 @@ import androidx.car.app.model.Row;
 /**
  * Encapsulates the constraints to apply when rendering a {@link Row} in different contexts.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class RowConstraints {

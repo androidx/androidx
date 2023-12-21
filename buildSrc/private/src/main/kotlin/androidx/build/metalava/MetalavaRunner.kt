@@ -40,18 +40,27 @@ fun runMetalavaWithArgs(
     metalavaClasspath: FileCollection,
     args: List<String>,
     k2UastEnabled: Boolean,
-    workerExecutor: WorkerExecutor
+    workerExecutor: WorkerExecutor,
 ) {
-    val allArgs = listOf(
+    val allArgs = args + listOf(
         "--no-banner",
         "--hide",
         "HiddenSuperclass", // We allow having a hidden parent class
+        "--hide",
+        // Removing final from a method does not cause compatibility issues for AndroidX.
+        "RemovedFinalStrict",
 
         "--error",
         "UnresolvedImport",
 
-        "--delete-empty-removed-signatures"
-    ) + args
+        "--delete-empty-removed-signatures",
+
+        // Metalava arguments to suppress compatibility checks for experimental API surfaces.
+        "--suppress-compatibility-meta-annotation",
+        "androidx.annotation.RequiresOptIn",
+        "--suppress-compatibility-meta-annotation",
+        "kotlin.RequiresOptIn",
+    )
     val workQueue = workerExecutor.processIsolation()
     workQueue.submit(MetalavaWorkAction::class.java) { parameters ->
         parameters.args.set(allArgs)
@@ -107,18 +116,6 @@ fun Project.getMetalavaClasspath(): FileCollection {
     }
     return project.files(configuration)
 }
-
-// Metalava arguments to hide all experimental API surfaces.
-val HIDE_EXPERIMENTAL_ARGS: List<String> = listOf(
-    "--hide-annotation", "androidx.annotation.experimental.Experimental",
-    "--hide-annotation", "kotlin.Experimental",
-    "--hide-annotation", "androidx.annotation.RequiresOptIn",
-    "--hide-annotation", "kotlin.RequiresOptIn",
-    "--hide-meta-annotation", "androidx.annotation.experimental.Experimental",
-    "--hide-meta-annotation", "kotlin.Experimental",
-    "--hide-meta-annotation", "androidx.annotation.RequiresOptIn",
-    "--hide-meta-annotation", "kotlin.RequiresOptIn",
-)
 
 fun getApiLintArgs(targetsJavaConsumers: Boolean): List<String> {
     val args = mutableListOf(
@@ -188,7 +185,6 @@ sealed class GenerateApiMode {
     object PublicApi : GenerateApiMode()
     object AllRestrictedApis : GenerateApiMode()
     object RestrictToLibraryGroupPrefixApis : GenerateApiMode()
-    object ExperimentalApi : GenerateApiMode()
 }
 
 sealed class ApiLintMode {
@@ -208,30 +204,32 @@ fun generateApi(
     includeRestrictToLibraryGroupApis: Boolean,
     k2UastEnabled: Boolean,
     workerExecutor: WorkerExecutor,
-    pathToManifest: String? = null
+    pathToManifest: String? = null,
 ) {
-    // API lint runs on the experimental pass, which also includes public API. This means API lint
-    // can safely be skipped on the public pass.
-    generateApi(
-        metalavaClasspath, files.bootClasspath, files.dependencyClasspath, files.sourcePaths.files,
-        apiLocation, GenerateApiMode.PublicApi, ApiLintMode.Skip, k2UastEnabled, workerExecutor,
-        pathToManifest
-    )
-    generateApi(
-        metalavaClasspath, files.bootClasspath, files.dependencyClasspath, files.sourcePaths.files,
-        apiLocation, GenerateApiMode.ExperimentalApi, apiLintMode, k2UastEnabled, workerExecutor,
-        pathToManifest
-    )
+    val generateApiConfigs: MutableList<Pair<GenerateApiMode, ApiLintMode>> =
+        mutableListOf(GenerateApiMode.PublicApi to apiLintMode)
 
-    val restrictedAPIMode = if (includeRestrictToLibraryGroupApis) {
-        GenerateApiMode.AllRestrictedApis
+    @Suppress("LiftReturnOrAssignment")
+    if (includeRestrictToLibraryGroupApis) {
+        generateApiConfigs += GenerateApiMode.AllRestrictedApis to ApiLintMode.Skip
     } else {
-        GenerateApiMode.RestrictToLibraryGroupPrefixApis
+        generateApiConfigs += GenerateApiMode.RestrictToLibraryGroupPrefixApis to ApiLintMode.Skip
     }
-    generateApi(
-        metalavaClasspath, files.bootClasspath, files.dependencyClasspath, files.sourcePaths.files,
-        apiLocation, restrictedAPIMode, ApiLintMode.Skip, k2UastEnabled, workerExecutor
-    )
+
+    generateApiConfigs.forEach { (generateApiMode, apiLintMode) ->
+        generateApi(
+            metalavaClasspath,
+            files.bootClasspath,
+            files.dependencyClasspath,
+            files.sourcePaths.files,
+            apiLocation,
+            generateApiMode,
+            apiLintMode,
+            k2UastEnabled,
+            workerExecutor,
+            pathToManifest
+        )
+    }
 }
 
 // Gets arguments for generating the specified api file
@@ -248,8 +246,8 @@ private fun generateApi(
     pathToManifest: String? = null
 ) {
     val args = getGenerateApiArgs(
-        bootClasspath, dependencyClasspath, sourcePaths, outputLocation,
-        generateApiMode, apiLintMode, pathToManifest
+        bootClasspath, dependencyClasspath, sourcePaths, outputLocation, generateApiMode,
+        apiLintMode, pathToManifest
     )
     runMetalavaWithArgs(metalavaClasspath, args, k2UastEnabled, workerExecutor)
 }
@@ -291,15 +289,11 @@ fun getGenerateApiArgs(
             GenerateApiMode.RestrictToLibraryGroupPrefixApis -> {
                 args += listOf("--api", outputLocation.restrictedApiFile.toString())
             }
-            is GenerateApiMode.ExperimentalApi -> {
-                args += listOf("--api", outputLocation.experimentalApiFile.toString())
-            }
         }
     }
 
     when (generateApiMode) {
         is GenerateApiMode.PublicApi -> {
-            args += HIDE_EXPERIMENTAL_ARGS
             args += listOf(
                 "--hide-annotation", "androidx.annotation.RestrictTo"
             )
@@ -335,13 +329,6 @@ fun getGenerateApiArgs(
                         "LIBRARY_GROUP)"
                 )
             }
-            args += HIDE_EXPERIMENTAL_ARGS
-        }
-        is GenerateApiMode.ExperimentalApi -> {
-            args += listOf(
-                "--hide-annotation", "androidx.annotation.RestrictTo"
-            )
-            args += listOf("--show-unannotated")
         }
     }
 

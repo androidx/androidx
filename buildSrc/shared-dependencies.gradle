@@ -6,8 +6,6 @@ dependencies {
     // Gradle APIs
     implementation(gradleApi())
     compileOnly(findGradleKotlinDsl())
-    //noinspection UseTomlInstead,GradleDependency
-    implementation("com.android.tools:r8:8.1.41") // Temporary workaround for b/279807477
 
     // Android Gradle Plugin APIs used by Stable AIDL
     implementation(libs.androidGradlePluginApi)
@@ -18,6 +16,7 @@ dependencies {
     implementation(libs.androidToolsRepository) // com.android.repository for Stable AIDL plugin
     implementation(libs.androidToolsSdkCommon) // com.android.ide.common for Stable AIDL plugin
     implementation(libs.kotlinGradlePluginz)
+    implementation(libs.spdxGradlePluginz)
 
     // variety of json parsers
     implementation(libs.gson)

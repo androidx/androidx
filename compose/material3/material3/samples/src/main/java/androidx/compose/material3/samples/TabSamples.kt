@@ -61,6 +61,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
+@Preview
 @Composable
 fun PrimaryTabs() {
     var state by remember { mutableStateOf(0) }
@@ -91,6 +92,32 @@ fun PrimaryTabs() {
     }
 }
 
+@Preview
+@Composable
+fun PrimaryIconTabs() {
+    var state by remember { mutableStateOf(0) }
+    val icons = listOf(Icons.Filled.Favorite, Icons.Filled.Favorite, Icons.Filled.Favorite)
+    Column {
+        TabRow(selectedTabIndex = state, indicator = @Composable { tabPositions ->
+            if (state < tabPositions.size) {
+                TabRowDefaults.PrimaryIndicator(
+                    modifier = Modifier.tabIndicatorOffset(tabPositions[state]),
+                    width = tabPositions[state].contentWidth
+                )
+            }
+        }) {
+            icons.forEachIndexed { index, icon ->
+                Tab(
+                    selected = state == index,
+                    onClick = { state = index },
+                    icon = { Icon(icon, contentDescription = "Favorite") }
+                )
+            }
+        }
+    }
+}
+
+@Preview
 @Composable
 fun SecondaryTabs() {
     var state by remember { mutableStateOf(0) }
@@ -137,6 +164,7 @@ fun TextTabs() {
     }
 }
 
+@Preview
 @Composable
 fun IconTabs() {
     var state by remember { mutableStateOf(0) }
@@ -159,6 +187,7 @@ fun IconTabs() {
     }
 }
 
+@Preview
 @Composable
 fun TextAndIconTabs() {
     var state by remember { mutableStateOf(0) }
@@ -186,6 +215,7 @@ fun TextAndIconTabs() {
     }
 }
 
+@Preview
 @Composable
 fun LeadingIconTabs() {
     var state by remember { mutableStateOf(0) }
@@ -213,6 +243,7 @@ fun LeadingIconTabs() {
     }
 }
 
+@Preview
 @Composable
 fun ScrollingPrimaryTabs() {
     var state by remember { mutableStateOf(0) }
@@ -254,6 +285,7 @@ fun ScrollingPrimaryTabs() {
     }
 }
 
+@Preview
 @Composable
 fun ScrollingSecondaryTabs() {
     var state by remember { mutableStateOf(0) }
@@ -287,6 +319,7 @@ fun ScrollingSecondaryTabs() {
     }
 }
 
+@Preview
 @Composable
 fun ScrollingTextTabs() {
     var state by remember { mutableStateOf(0) }
@@ -412,6 +445,7 @@ fun FancyIndicatorContainerTabs() {
     }
 }
 
+@Preview
 @Composable
 fun ScrollingFancyIndicatorContainerTabs() {
     var state by remember { mutableStateOf(0) }
@@ -452,7 +486,6 @@ fun ScrollingFancyIndicatorContainerTabs() {
     }
 }
 
-@Preview
 @Sampled
 @Composable
 fun FancyTab(title: String, onClick: () -> Unit, selected: Boolean) {
@@ -478,7 +511,6 @@ fun FancyTab(title: String, onClick: () -> Unit, selected: Boolean) {
     }
 }
 
-@Preview
 @Sampled
 @Composable
 fun FancyIndicator(color: Color, modifier: Modifier = Modifier) {
@@ -492,7 +524,6 @@ fun FancyIndicator(color: Color, modifier: Modifier = Modifier) {
     )
 }
 
-@Preview
 @Sampled
 @Composable
 fun FancyAnimatedIndicator(tabPositions: List<TabPosition>, selectedTabIndex: Int) {

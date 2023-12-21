@@ -18,9 +18,9 @@ package androidx.benchmark
 
 import android.os.Debug
 
-internal abstract class MetricCapture {
-    abstract val name: String
-
+internal abstract class MetricCapture(
+    val names: List<String>
+) {
     /**
      * Starts collecting data for a run.
      *
@@ -29,11 +29,12 @@ internal abstract class MetricCapture {
     abstract fun captureStart(timeNs: Long)
 
     /**
-     * Marks the end of a run, and stores the metric value changes since the last start.
+     * Marks the end of a run, and stores one metric value in the output array since the last call
+     * to start.
      *
      * Should be called when a run stops.
      */
-    abstract fun captureStop(timeNs: Long): Long
+    abstract fun captureStop(timeNs: Long, output: LongArray, offset: Int)
 
     /**
      * Pauses data collection.
@@ -50,16 +51,17 @@ internal abstract class MetricCapture {
     abstract fun captureResumed()
 
     override fun equals(other: Any?): Boolean {
-        return (other is MetricCapture && other.name == this.name)
+        return (other is MetricCapture && other.names == this.names)
     }
 
     override fun hashCode(): Int {
-        return name.hashCode() // This is the only true state retained, and hashCode must match ==
+        return names.hashCode() // This is the only true state retained, and hashCode must match ==
     }
 }
 
-internal class TimeCapture : MetricCapture() {
-    override val name: String = "timeNs"
+internal class TimeCapture : MetricCapture(
+    names = listOf("timeNs")
+) {
     private var currentStarted = 0L
     private var currentPausedStarted = 0L
     private var currentTotalPaused = 0L
@@ -69,8 +71,8 @@ internal class TimeCapture : MetricCapture() {
         currentStarted = timeNs
     }
 
-    override fun captureStop(timeNs: Long): Long {
-        return timeNs - currentStarted - currentTotalPaused
+    override fun captureStop(timeNs: Long, output: LongArray, offset: Int) {
+        output[offset] = timeNs - currentStarted - currentTotalPaused
     }
 
     override fun capturePaused() {
@@ -83,8 +85,9 @@ internal class TimeCapture : MetricCapture() {
 }
 
 @Suppress("DEPRECATION")
-internal class AllocationCountCapture : MetricCapture() {
-    override val name = "allocationCount"
+internal class AllocationCountCapture : MetricCapture(
+    names = listOf("allocationCount")
+) {
     private var currentPausedStarted = 0
     private var currentTotalPaused = 0
 
@@ -93,9 +96,9 @@ internal class AllocationCountCapture : MetricCapture() {
         Debug.startAllocCounting()
     }
 
-    override fun captureStop(timeNs: Long): Long {
+    override fun captureStop(timeNs: Long, output: LongArray, offset: Int) {
         Debug.stopAllocCounting()
-        return (Debug.getGlobalAllocCount() - currentTotalPaused).toLong()
+        output[offset] = (Debug.getGlobalAllocCount() - currentTotalPaused).toLong()
     }
 
     override fun capturePaused() {

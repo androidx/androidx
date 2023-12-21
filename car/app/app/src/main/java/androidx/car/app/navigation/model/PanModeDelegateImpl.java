@@ -38,7 +38,6 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Implementation class for {@link PanModeDelegate}.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 @CarProtocol

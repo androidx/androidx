@@ -40,6 +40,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
+import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceOutput;
 import androidx.core.util.Preconditions;
@@ -59,7 +60,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * OpenGLRenderer renders texture image to the output surface.
  *
  * <p>OpenGLRenderer's methods must run on the same thread, so called GL thread. The GL thread is
- * locked as the thread running the {@link #init(ShaderProvider)} method, otherwise an
+ * locked as the thread running the {@link #init(DynamicRange, ShaderProvider)} method, otherwise an
  * {@link IllegalStateException} will be thrown when other methods are called.
  */
 @WorkerThread
@@ -81,6 +82,17 @@ public final class OpenGlRenderer {
                     + "    %s = (uTexMatrix * aTextureCoord).xy;\n"
                     + "}\n", VAR_TEXTURE_COORD, VAR_TEXTURE_COORD);
 
+    private static final String HDR_VERTEX_SHADER = String.format(Locale.US,
+            "#version 300 es\n"
+                    + "in vec4 aPosition;\n"
+                    + "in vec4 aTextureCoord;\n"
+                    + "uniform mat4 uTexMatrix;\n"
+                    + "out vec2 %s;\n"
+                    + "void main() {\n"
+                    + "  gl_Position = aPosition;\n"
+                    + "  %s = (uTexMatrix * aTextureCoord).xy;\n"
+                    + "}\n", VAR_TEXTURE_COORD, VAR_TEXTURE_COORD);
+
     private static final String DEFAULT_FRAGMENT_SHADER = String.format(Locale.US,
             "#extension GL_OES_EGL_image_external : require\n"
                     + "precision mediump float;\n"
@@ -89,6 +101,31 @@ public final class OpenGlRenderer {
                     + "void main() {\n"
                     + "    gl_FragColor = texture2D(%s, %s);\n"
                     + "}\n", VAR_TEXTURE_COORD, VAR_TEXTURE, VAR_TEXTURE, VAR_TEXTURE_COORD);
+
+    private static final String HDR_FRAGMENT_SHADER = String.format(Locale.US,
+            "#version 300 es\n"
+                    + "#extension GL_OES_EGL_image_external : require\n"
+                    + "#extension GL_EXT_YUV_target : require\n"
+                    + "precision mediump float;\n"
+                    + "uniform __samplerExternal2DY2YEXT %s;\n"
+                    + "in vec2 %s;\n"
+                    + "out vec4 outColor;\n"
+                    + "\n"
+                    + "vec3 yuvToRgb(vec3 yuv) {\n"
+                    + "  const vec3 yuvOffset = vec3(0.0625, 0.5, 0.5);\n"
+                    + "  const mat3 yuvToRgbColorTransform = mat3(\n"
+                    + "    1.1689f, 1.1689f, 1.1689f,\n"
+                    + "    0.0000f, -0.1881f, 2.1502f,\n"
+                    + "    1.6853f, -0.6530f, 0.0000f\n"
+                    + "  );\n"
+                    + "  return clamp(yuvToRgbColorTransform * (yuv - yuvOffset), 0.0, 1.0);\n"
+                    + "}\n"
+                    + "\n"
+                    + "void main() {\n"
+                    + "  vec3 srcYuv = texture(%s, %s).xyz;\n"
+                    + "  outColor = vec4(yuvToRgb(srcYuv), 1.0);\n"
+                    + "}", VAR_TEXTURE, VAR_TEXTURE_COORD, VAR_TEXTURE, VAR_TEXTURE_COORD
+    );
 
     private static final float[] VERTEX_COORDS = {
             -1.0f, -1.0f,   // 0 bottom left
@@ -144,13 +181,20 @@ public final class OpenGlRenderer {
      * @throws IllegalArgumentException if the ShaderProvider fails to create shader or provides
      *                                  invalid shader string.
      */
-    public void init(@NonNull ShaderProvider shaderProvider) {
+    public void init(@NonNull DynamicRange dynamicRange, @NonNull ShaderProvider shaderProvider) {
         checkInitializedOrThrow(false);
         try {
-            createEglContext();
+            if (dynamicRange.is10BitHdr()) {
+                String glExtensions = getGlExtensionsBeforeInitialized(dynamicRange);
+                if (!glExtensions.contains("GL_EXT_YUV_target")) {
+                    Log.w(TAG, "Device does not support GL_EXT_YUV_target. Fallback to SDR.");
+                    dynamicRange = DynamicRange.SDR;
+                }
+            }
+            createEglContext(dynamicRange);
             createTempSurface();
             makeCurrent(mTempSurface);
-            createProgram(shaderProvider);
+            createProgram(dynamicRange, shaderProvider);
             loadLocations();
             createTexture();
             useAndConfigureProgram();
@@ -369,6 +413,24 @@ public final class OpenGlRenderer {
         GLES20.glBindTexture(GL_TEXTURE_EXTERNAL_OES, mExternalTextureId);
     }
 
+    @NonNull
+    private String getGlExtensionsBeforeInitialized(
+            @NonNull DynamicRange dynamicRangeToInitialize) {
+        checkInitializedOrThrow(false);
+        try {
+            createEglContext(dynamicRangeToInitialize);
+            createTempSurface();
+            makeCurrent(mTempSurface);
+            // eglMakeCurrent() has to be called before checking GL_EXTENSIONS.
+            String glExtensions = GLES20.glGetString(GLES20.GL_EXTENSIONS);
+            return glExtensions != null ? glExtensions : "";
+        } catch (IllegalStateException e) {
+            Logger.w(TAG, "Failed to get GL extensions: " + e.getMessage(), e);
+            return "";
+        } finally {
+            releaseInternal();
+        }
+    }
 
     private static int generateFbo() {
         int[] fbos = new int[1];
@@ -396,7 +458,7 @@ public final class OpenGlRenderer {
         checkGlErrorOrThrow("glDeleteFramebuffers");
     }
 
-    private void createEglContext() {
+    private void createEglContext(@NonNull DynamicRange dynamicRange) {
         mEglDisplay = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
         if (Objects.equals(mEglDisplay, EGL14.EGL_NO_DISPLAY)) {
             throw new IllegalStateException("Unable to get EGL14 display");
@@ -406,13 +468,21 @@ public final class OpenGlRenderer {
             mEglDisplay = EGL14.EGL_NO_DISPLAY;
             throw new IllegalStateException("Unable to initialize EGL14");
         }
+        int rgbBits = dynamicRange.is10BitHdr() ? 10 : 8;
+        int alphaBits = dynamicRange.is10BitHdr() ? 2 : 8;
+        int renderType = dynamicRange.is10BitHdr() ? EGLExt.EGL_OPENGL_ES3_BIT_KHR
+                : EGL14.EGL_OPENGL_ES2_BIT;
+        // recordableAndroid with EGL14.EGL_TRUE causes eglError for 10BitHdr.
+        int recordableAndroid = dynamicRange.is10BitHdr() ? EGL14.EGL_FALSE : EGL14.EGL_TRUE;
         int[] attribToChooseConfig = {
-                EGL14.EGL_RED_SIZE, 8,
-                EGL14.EGL_GREEN_SIZE, 8,
-                EGL14.EGL_BLUE_SIZE, 8,
-                EGL14.EGL_ALPHA_SIZE, 8,
-                EGL14.EGL_RENDERABLE_TYPE, EGL14.EGL_OPENGL_ES2_BIT,
-                EGLExt.EGL_RECORDABLE_ANDROID, EGL14.EGL_TRUE,
+                EGL14.EGL_RED_SIZE, rgbBits,
+                EGL14.EGL_GREEN_SIZE, rgbBits,
+                EGL14.EGL_BLUE_SIZE, rgbBits,
+                EGL14.EGL_ALPHA_SIZE, alphaBits,
+                EGL14.EGL_DEPTH_SIZE, 0,
+                EGL14.EGL_STENCIL_SIZE, 0,
+                EGL14.EGL_RENDERABLE_TYPE, renderType,
+                EGLExt.EGL_RECORDABLE_ANDROID, recordableAndroid,
                 EGL14.EGL_SURFACE_TYPE, EGL14.EGL_WINDOW_BIT | EGL14.EGL_PBUFFER_BIT,
                 EGL14.EGL_NONE
         };
@@ -424,7 +494,7 @@ public final class OpenGlRenderer {
         }
         EGLConfig config = configs[0];
         int[] attribToCreateContext = {
-                EGL14.EGL_CONTEXT_CLIENT_VERSION, 2,
+                EGL14.EGL_CONTEXT_CLIENT_VERSION, dynamicRange.is10BitHdr() ? 3 : 2,
                 EGL14.EGL_NONE
         };
         EGLContext context = EGL14.eglCreateContext(mEglDisplay, config, EGL14.EGL_NO_CONTEXT,
@@ -453,13 +523,15 @@ public final class OpenGlRenderer {
         }
     }
 
-    private void createProgram(@NonNull ShaderProvider shaderProvider) {
+    private void createProgram(@NonNull DynamicRange dynamicRange,
+            @NonNull ShaderProvider shaderProvider) {
         int vertexShader = -1;
         int fragmentShader = -1;
         int program = -1;
         try {
-            vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, DEFAULT_VERTEX_SHADER);
-            fragmentShader = loadFragmentShader(shaderProvider);
+            vertexShader = loadShader(GLES20.GL_VERTEX_SHADER,
+                    dynamicRange.is10BitHdr() ? HDR_VERTEX_SHADER : DEFAULT_VERTEX_SHADER);
+            fragmentShader = loadFragmentShader(dynamicRange, shaderProvider);
             program = GLES20.glCreateProgram();
             checkGlErrorOrThrow("glCreateProgram");
             GLES20.glAttachShader(program, vertexShader);
@@ -551,9 +623,11 @@ public final class OpenGlRenderer {
         mExternalTextureId = texId;
     }
 
-    private int loadFragmentShader(@NonNull ShaderProvider shaderProvider) {
+    private int loadFragmentShader(@NonNull DynamicRange dynamicRange,
+            @NonNull ShaderProvider shaderProvider) {
         if (shaderProvider == ShaderProvider.DEFAULT) {
-            return loadShader(GLES20.GL_FRAGMENT_SHADER, DEFAULT_FRAGMENT_SHADER);
+            return loadShader(GLES20.GL_FRAGMENT_SHADER,
+                    dynamicRange.is10BitHdr() ? HDR_FRAGMENT_SHADER : DEFAULT_FRAGMENT_SHADER);
         } else {
             // Throw IllegalArgumentException if the shader provider can not provide a valid
             // fragment shader.
@@ -775,7 +849,7 @@ public final class OpenGlRenderer {
         try {
             checkEglErrorOrThrow(op);
         } catch (IllegalStateException e) {
-            Logger.e(TAG, e.getMessage(), e);
+            Logger.e(TAG, e.toString(), e);
         }
     }
 

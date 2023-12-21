@@ -16,6 +16,7 @@
 
 package androidx.paging
 
+import androidx.kruth.assertThat
 import androidx.paging.LoadState.Error
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadState.NotLoading
@@ -24,12 +25,8 @@ import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.PageEvent.Drop
 import androidx.paging.PageEvent.StaticList
-import com.google.common.truth.Truth.assertThat
 import kotlin.test.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
-@RunWith(JUnit4::class)
 class FlattenedPageEventStorageTest {
     private val list = FlattenedPageEventStorage<String>()
 

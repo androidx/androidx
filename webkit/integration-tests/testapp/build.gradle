@@ -16,6 +16,7 @@
 
 import androidx.build.BuildOnServerKt
 import androidx.build.BuildServerConfigurationKt
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -77,4 +78,12 @@ android {
         }
     }
     namespace "com.example.androidx.webkit"
+}
+
+androidx {
+    name = "WebKit Test App"
+    publish = Publish.NONE
+    inceptionYear = "2017"
+    description = "The WebKit Support Library test application is a demonstration of the APIs provided in the androidx.webkit library."
+    additionalDeviceTestApkKeys.add("chrome")
 }

@@ -27,8 +27,8 @@ dependencies {
     api("androidx.core:core:1.7.0")
     annotationProcessor(libs.nullaway)
     androidTestImplementation(libs.robolectric)
-    androidTestImplementation(libs.mockitoAndroid)
-
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)

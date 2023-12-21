@@ -40,14 +40,23 @@ import java.util.Locale;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class FlashTooSlowQuirk implements UseTorchAsFlashQuirk {
-    // List of devices with the issue. See b/181966663.
-    private static final List<String> AFFECTED_MODELS = Arrays.asList(
+    private static final List<String> AFFECTED_MODEL_PREFIXES = Arrays.asList(
             "PIXEL 3A",
-            "PIXEL 3A XL"
+            "PIXEL 3A XL",
+            "SM-A320"
     );
 
     static boolean load(@NonNull CameraCharacteristicsCompat cameraCharacteristics) {
-        return AFFECTED_MODELS.contains(Build.MODEL.toUpperCase(Locale.US))
+        return isAffectedModel()
                 && cameraCharacteristics.get(CameraCharacteristics.LENS_FACING) == LENS_FACING_BACK;
+    }
+
+    private static boolean isAffectedModel() {
+        for (String modelPrefix : AFFECTED_MODEL_PREFIXES) {
+            if (Build.MODEL.toUpperCase(Locale.US).startsWith(modelPrefix)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

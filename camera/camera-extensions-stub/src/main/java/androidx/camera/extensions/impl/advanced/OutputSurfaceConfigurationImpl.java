@@ -26,13 +26,15 @@ import androidx.annotation.Nullable;
  */
 public interface OutputSurfaceConfigurationImpl {
     /**
-     * gets the preview {@link OutputSurfaceImpl}.
+     * gets the preview {@link OutputSurfaceImpl}, which may contain a <code>null</code> surface
+     * if the app doesn't specify the preview output surface.
      */
     @NonNull
     OutputSurfaceImpl getPreviewOutputSurface();
 
     /**
-     * gets the still capture {@link OutputSurfaceImpl}.
+     * gets the still capture {@link OutputSurfaceImpl} which may contain a <code>null</code>
+     * surface if the app doesn't specify the still capture output surface.
      */
     @NonNull
     OutputSurfaceImpl getImageCaptureOutputSurface();
@@ -44,7 +46,8 @@ public interface OutputSurfaceConfigurationImpl {
     OutputSurfaceImpl getImageAnalysisOutputSurface();
 
     /**
-     * gets the postview {@link OutputSurfaceImpl}.
+     * gets the postview {@link OutputSurfaceImpl} which may contain a <code>null</code> surface
+     * if the app doesn't specify the postview output surface.
      */
     @Nullable
     OutputSurfaceImpl getPostviewOutputSurface();

@@ -24,7 +24,6 @@ import android.graphics.Rect;
 import android.hardware.display.DisplayManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -42,6 +41,8 @@ import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.test.uiautomator.util.Traces;
+import androidx.test.uiautomator.util.Traces.Section;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -87,8 +88,7 @@ public class UiObject2 implements Searchable {
             DEFAULT_GESTURE_MARGIN_PERCENT,
             DEFAULT_GESTURE_MARGIN_PERCENT);
 
-    /** Package-private constructor. Used by {@link UiDevice#findObject(BySelector)}. */
-    UiObject2(UiDevice device, BySelector selector, AccessibilityNodeInfo cachedNode) {
+    private UiObject2(UiDevice device, BySelector selector, AccessibilityNodeInfo cachedNode) {
         mDevice = device;
         mSelector = selector;
         mCachedNode = cachedNode;
@@ -105,6 +105,17 @@ public class UiObject2 implements Searchable {
         Context uiContext = device.getUiContext(mDisplayId);
         int densityDpi = uiContext.getResources().getConfiguration().densityDpi;
         mDisplayDensity = (float) densityDpi / DisplayMetrics.DENSITY_DEFAULT;
+    }
+
+    @Nullable
+    static UiObject2 create(@NonNull UiDevice device, @NonNull BySelector selector,
+            @NonNull AccessibilityNodeInfo cachedNode) {
+        try {
+            return new UiObject2(device, selector, cachedNode);
+        } catch (RuntimeException e) {
+            Log.w(TAG, String.format("Failed to create UiObject2 for node %s.", cachedNode), e);
+            return null;
+        }
     }
 
     @Override
@@ -187,8 +198,10 @@ public class UiObject2 implements Searchable {
      * condition} was not met before the {@code timeout}.
      */
     public <U> U wait(@NonNull Condition<? super UiObject2, U> condition, long timeout) {
-        Log.d(TAG, String.format("Waiting %dms for %s.", timeout, condition));
-        return mWaitMixin.wait(condition, timeout);
+        try (Section ignored = Traces.trace("UiObject2#wait")) {
+            Log.d(TAG, String.format("Waiting %dms for %s.", timeout, condition));
+            return mWaitMixin.wait(condition, timeout);
+        }
     }
 
     // Search functions
@@ -197,7 +210,7 @@ public class UiObject2 implements Searchable {
     @SuppressLint("UnknownNullness") // Avoid unnecessary null checks from nullable testing APIs.
     public UiObject2 getParent() {
         AccessibilityNodeInfo parent = getAccessibilityNodeInfo().getParent();
-        return parent != null ? new UiObject2(getDevice(), mSelector, parent) : null;
+        return parent != null ? UiObject2.create(getDevice(), mSelector, parent) : null;
     }
 
     /** Returns the number of child elements directly under this object. */
@@ -214,6 +227,7 @@ public class UiObject2 implements Searchable {
     /** Returns {@code true} if there is a nested element which matches the {@code selector}. */
     @Override
     public boolean hasObject(@NonNull BySelector selector) {
+        Log.d(TAG, String.format("Searching for node with selector: %s.", selector));
         AccessibilityNodeInfo node =
                 ByMatcher.findMatch(getDevice(), selector, getAccessibilityNodeInfo());
         if (node != null) {
@@ -230,13 +244,14 @@ public class UiObject2 implements Searchable {
     @Override
     @SuppressLint("UnknownNullness") // Avoid unnecessary null checks from nullable testing APIs.
     public UiObject2 findObject(@NonNull BySelector selector) {
+        Log.d(TAG, String.format("Retrieving node with selector: %s.", selector));
         AccessibilityNodeInfo node =
                 ByMatcher.findMatch(getDevice(), selector, getAccessibilityNodeInfo());
         if (node == null) {
             Log.d(TAG, String.format("Node not found with selector: %s.", selector));
             return null;
         }
-        return new UiObject2(getDevice(), selector, node);
+        return UiObject2.create(getDevice(), selector, node);
     }
 
     /**
@@ -245,10 +260,14 @@ public class UiObject2 implements Searchable {
     @Override
     @NonNull
     public List<UiObject2> findObjects(@NonNull BySelector selector) {
+        Log.d(TAG, String.format("Retrieving nodes with selector: %s.", selector));
         List<UiObject2> ret = new ArrayList<>();
         for (AccessibilityNodeInfo node :
                 ByMatcher.findMatches(getDevice(), selector, getAccessibilityNodeInfo())) {
-            ret.add(new UiObject2(getDevice(), selector, node));
+            UiObject2 object = UiObject2.create(getDevice(), selector, node);
+            if (object != null) {
+                ret.add(object);
+            }
         }
         return ret;
     }
@@ -355,6 +374,18 @@ public class UiObject2 implements Searchable {
     public String getText() {
         CharSequence chars = getAccessibilityNodeInfo().getText();
         return chars != null ? chars.toString() : null;
+    }
+
+    /**
+     * Returns the hint text of this object, or null if hint text is not preset.
+     * <p>Hint text is displayed when there's no user input text.
+     *
+     * @see TextView#getHint()
+     */
+    @RequiresApi(26)
+    @Nullable
+    public String getHint() {
+        return Api26Impl.getHintText(getAccessibilityNodeInfo());
     }
 
     /**
@@ -805,40 +836,6 @@ public class UiObject2 implements Searchable {
                 Until.scrollFinished(direction), FLING_TIMEOUT, swipe);
     }
 
-    /**
-     * Set the text content by sending individual key codes.
-     *
-     * @hide
-     */
-    public void legacySetText(@Nullable String text) {
-        AccessibilityNodeInfo node = getAccessibilityNodeInfo();
-
-        // Per framework convention, setText(null) means clearing it
-        if (text == null) {
-            text = "";
-        }
-
-        Log.d(TAG, String.format("Setting text to '%s'.", text));
-        CharSequence currentText = node.getText();
-        if (currentText == null || !text.contentEquals(currentText)) {
-            InteractionController ic = getDevice().getInteractionController();
-
-            // Long click left + center
-            Rect rect = getVisibleBounds();
-            ic.longTapNoSync(rect.left + 20, rect.centerY());
-
-            // Select existing text
-            getDevice().wait(Until.findObject(By.descContains("Select all")), 50).click();
-            // Wait for the selection
-            SystemClock.sleep(250);
-            // Delete it
-            ic.sendKey(KeyEvent.KEYCODE_DEL, 0);
-
-            // Send new text
-            ic.sendText(text);
-        }
-    }
-
     /** Sets this object's text content if it is an editable field. */
     public void setText(@Nullable String text) {
         AccessibilityNodeInfo node = getAccessibilityNodeInfo();
@@ -949,6 +946,18 @@ public class UiObject2 implements Searchable {
         static void getBoundsInScreen(AccessibilityWindowInfo accessibilityWindowInfo,
                 Rect outBounds) {
             accessibilityWindowInfo.getBoundsInScreen(outBounds);
+        }
+    }
+
+    @RequiresApi(26)
+    static class Api26Impl {
+        private Api26Impl() {
+        }
+
+        @DoNotInline
+        static String getHintText(AccessibilityNodeInfo accessibilityNodeInfo) {
+            CharSequence chars = accessibilityNodeInfo.getHintText();
+            return chars != null ? chars.toString() : null;
         }
     }
 

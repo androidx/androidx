@@ -37,7 +37,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 /** Test class to verify [TestSplitAttributesCalculatorParams]. */
-@OptIn(ExperimentalWindowApi::class)
 @RunWith(RobolectricTestRunner::class)
 class SplitAttributesCalculatorParamsTestingTest {
 

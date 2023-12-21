@@ -43,6 +43,7 @@ import androidx.compose.ui.zIndex
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import org.junit.Assert.assertNotNull
@@ -1040,20 +1041,28 @@ class DrawReorderingTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    fun placingInDifferentOrderTriggersRedraw() {
+    fun changingPlaceOrderInLayout() {
         var reverseOrder by mutableStateOf(false)
+        var childRelayoutCount = 0
+        val childRelayoutModifier = Modifier.layout { measurable, constraints ->
+            val placeable = measurable.measure(constraints)
+            layout(placeable.width, placeable.height) {
+                childRelayoutCount++
+                placeable.place(0, 0)
+            }
+        }
         rule.runOnUiThread {
             activity.setContent {
                 Layout(
                     content = {
-                        FixedSize(30) {
+                        FixedSize(30, childRelayoutModifier) {
                             FixedSize(
                                 10,
                                 Modifier.padding(10)
                                     .background(Color.White)
                             )
                         }
-                        FixedSize(30) {
+                        FixedSize(30, childRelayoutModifier) {
                             FixedSize(
                                 30,
                                 Modifier.background(Color.Red)
@@ -1084,6 +1093,7 @@ class DrawReorderingTest {
         rule.runOnUiThread {
             drawLatch = CountDownLatch(1)
             reverseOrder = true
+            childRelayoutCount = 0
         }
 
         rule.validateSquareColors(
@@ -1092,6 +1102,74 @@ class DrawReorderingTest {
             size = 10,
             drawLatch = drawLatch
         )
+        rule.runOnUiThread {
+            // changing drawing order doesn't require child's layer block rerun
+            assertThat(childRelayoutCount).isEqualTo(0)
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun changingZIndexInLayout() {
+        var zIndex by mutableStateOf(1f)
+        var childRelayoutCount = 0
+        val childRelayoutModifier = Modifier.layout { measurable, constraints ->
+            val placeable = measurable.measure(constraints)
+            layout(placeable.width, placeable.height) {
+                childRelayoutCount++
+                placeable.place(0, 0)
+            }
+        }
+        rule.runOnUiThread {
+            activity.setContent {
+                Layout(
+                    content = {
+                        FixedSize(30, childRelayoutModifier) {
+                            FixedSize(
+                                10,
+                                Modifier.padding(10)
+                                    .background(Color.White)
+                            )
+                        }
+                        FixedSize(30, childRelayoutModifier) {
+                            FixedSize(
+                                30,
+                                Modifier.background(Color.Red)
+                            )
+                        }
+                    },
+                    modifier = Modifier.drawLatchModifier()
+                ) { measurables, _ ->
+                    val newConstraints = Constraints.fixed(30, 30)
+                    val placeables = measurables.map { m ->
+                        m.measure(newConstraints)
+                    }
+                    layout(newConstraints.maxWidth, newConstraints.maxWidth) {
+                        placeables[0].place(0, 0)
+                        placeables[1].place(0, 0, zIndex)
+                    }
+                }
+            }
+        }
+
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+
+        rule.runOnUiThread {
+            drawLatch = CountDownLatch(1)
+            zIndex = -1f
+            childRelayoutCount = 0
+        }
+
+        rule.validateSquareColors(
+            outerColor = Color.Red,
+            innerColor = Color.White,
+            size = 10,
+            drawLatch = drawLatch
+        )
+        rule.runOnUiThread {
+            // changing zIndex doesn't require child's layer block rerun
+            assertThat(childRelayoutCount).isEqualTo(0)
+        }
     }
 
     fun Modifier.drawLatchModifier() = drawBehind { drawLatch.countDown() }

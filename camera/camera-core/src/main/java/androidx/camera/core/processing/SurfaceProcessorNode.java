@@ -16,6 +16,7 @@
 
 package androidx.camera.core.processing;
 
+import static androidx.camera.core.impl.ImageOutputConfig.ROTATION_NOT_SPECIFIED;
 import static androidx.camera.core.impl.utils.TransformUtils.getRectToRect;
 import static androidx.camera.core.impl.utils.TransformUtils.getRotatedSize;
 import static androidx.camera.core.impl.utils.TransformUtils.isAspectRatioMatchingWithRoundingError;
@@ -28,6 +29,7 @@ import static androidx.core.util.Preconditions.checkArgument;
 import static java.util.UUID.randomUUID;
 
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.util.Size;
 
 import androidx.annotation.MainThread;
@@ -133,7 +135,7 @@ public class SurfaceProcessorNode implements
         android.graphics.Matrix sensorToBufferTransform =
                 new android.graphics.Matrix(input.getSensorToBufferTransform());
         android.graphics.Matrix imageTransform = getRectToRect(
-                sizeToRectF(input.getStreamSpec().getResolution()),
+                new RectF(cropRect),
                 sizeToRectF(outConfig.getSize()), rotationDegrees, mirroring);
         sensorToBufferTransform.postConcat(imageTransform);
 
@@ -156,6 +158,8 @@ public class SurfaceProcessorNode implements
                 // Crop rect is always the full size.
                 sizeToRect(outConfig.getSize()),
                 /*rotationDegrees=*/input.getRotationDegrees() - rotationDegrees,
+                // Once copied, the target rotation is no longer useful.
+                /*targetRotation*/ ROTATION_NOT_SPECIFIED,
                 /*mirroring=*/input.getMirroring() != mirroring);
 
         return outputSurface;
@@ -247,7 +251,8 @@ public class SurfaceProcessorNode implements
                     rotationDegrees = -rotationDegrees;
                 }
                 rotationDegrees = within360(rotationDegrees);
-                output.getValue().setRotationDegrees(rotationDegrees);
+                // Once copied, the target rotation is no longer useful.
+                output.getValue().updateTransformation(rotationDegrees, ROTATION_NOT_SPECIFIED);
             }
         });
     }

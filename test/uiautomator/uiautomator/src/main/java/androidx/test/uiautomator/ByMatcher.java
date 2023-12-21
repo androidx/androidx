@@ -16,10 +16,15 @@
 
 package androidx.test.uiautomator;
 
+import android.os.Build;
 import android.util.Log;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.test.uiautomator.util.Traces;
+import androidx.test.uiautomator.util.Traces.Section;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -75,14 +80,16 @@ class ByMatcher {
      */
     static AccessibilityNodeInfo findMatch(UiDevice device, BySelector selector,
             AccessibilityNodeInfo... roots) {
-        ByMatcher matcher = new ByMatcher(device, selector, true);
-        for (AccessibilityNodeInfo root : roots) {
-            List<AccessibilityNodeInfo> matches = matcher.findMatches(root);
-            if (!matches.isEmpty()) {
-                return matches.get(0);
+        try (Section ignored = Traces.trace("ByMatcher.findMatch")) {
+            ByMatcher matcher = new ByMatcher(device, selector, true);
+            for (AccessibilityNodeInfo root : roots) {
+                List<AccessibilityNodeInfo> matches = matcher.findMatches(root);
+                if (!matches.isEmpty()) {
+                    return matches.get(0);
+                }
             }
+            return null;
         }
-        return null;
     }
 
     /**
@@ -91,12 +98,14 @@ class ByMatcher {
      */
     static List<AccessibilityNodeInfo> findMatches(UiDevice device, BySelector selector,
             AccessibilityNodeInfo... roots) {
-        List<AccessibilityNodeInfo> ret = new ArrayList<>();
-        ByMatcher matcher = new ByMatcher(device, selector, false);
-        for (AccessibilityNodeInfo root : roots) {
-            ret.addAll(matcher.findMatches(root));
+        try (Section ignored = Traces.trace("ByMatcher.findMatches")) {
+            List<AccessibilityNodeInfo> ret = new ArrayList<>();
+            ByMatcher matcher = new ByMatcher(device, selector, false);
+            for (AccessibilityNodeInfo root : roots) {
+                ret.addAll(matcher.findMatches(root));
+            }
+            return ret;
         }
-        return ret;
     }
 
     /** Searches the hierarchy under the root for nodes that match the selector. */
@@ -124,7 +133,6 @@ class ByMatcher {
 
         // Don't bother searching the subtree if it is not visible
         if (!node.isVisibleToUser()) {
-            Log.v(TAG, String.format("Skipping invisible child: %s", node));
             return ret;
         }
 
@@ -218,8 +226,8 @@ class ByMatcher {
          * Returns true if the node matches the selector, ignoring child selectors.
          *
          * @param selector search criteria to match
-         * @param node node to check
-         * @param depth distance between the node and its relevant ancestor
+         * @param node     node to check
+         * @param depth    distance between the node and its relevant ancestor
          */
         private static boolean matchesSelector(
                 BySelector selector, AccessibilityNodeInfo node, int depth) {
@@ -238,7 +246,8 @@ class ByMatcher {
                     && matchesCriteria(selector.mFocusable, node.isFocusable())
                     && matchesCriteria(selector.mLongClickable, node.isLongClickable())
                     && matchesCriteria(selector.mScrollable, node.isScrollable())
-                    && matchesCriteria(selector.mSelected, node.isSelected());
+                    && matchesCriteria(selector.mSelected, node.isSelected())
+                    && matchesHint(selector.mHint, node);
         }
 
         /** Returns true if the criteria is null or matches the value. */
@@ -252,6 +261,15 @@ class ByMatcher {
         /** Returns true if the criteria is null or equal to the value. */
         private static boolean matchesCriteria(Boolean criteria, boolean value) {
             return criteria == null || criteria.equals(value);
+        }
+
+        /** Returns true if the criteria is null or equal to the hint text of node. */
+        private static boolean matchesHint(Pattern criteria, AccessibilityNodeInfo node) {
+            if (criteria == null) {
+                return true;
+            }
+            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && matchesCriteria(criteria,
+                    Api26Impl.getHintText(node));
         }
 
         /**
@@ -308,6 +326,18 @@ class ByMatcher {
             }
             for (PartialMatch pm : mChildMatches) {
                 pm.recycleNodes();
+            }
+        }
+
+        @RequiresApi(26)
+        static class Api26Impl {
+            private Api26Impl() {
+            }
+
+            @DoNotInline
+            static String getHintText(AccessibilityNodeInfo accessibilityNodeInfo) {
+                CharSequence chars = accessibilityNodeInfo.getHintText();
+                return chars != null ? chars.toString() : null;
             }
         }
     }

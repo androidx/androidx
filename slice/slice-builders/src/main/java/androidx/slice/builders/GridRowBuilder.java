@@ -184,7 +184,6 @@ public class GridRowBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public SliceAction getPrimaryAction() {
@@ -192,7 +191,6 @@ public class GridRowBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public List<CellBuilder> getCells() {
@@ -200,7 +198,6 @@ public class GridRowBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public CellBuilder getSeeMoreCell() {
@@ -208,7 +205,6 @@ public class GridRowBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public PendingIntent getSeeMoreIntent() {
@@ -216,7 +212,6 @@ public class GridRowBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public CharSequence getDescription() {
@@ -224,7 +219,6 @@ public class GridRowBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public int getLayoutDirection() {
@@ -265,22 +259,18 @@ public class GridRowBuilder {
      */
     public static class CellBuilder {
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public static final int TYPE_TEXT = 0;
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public static final int TYPE_TITLE = 1;
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public static final int TYPE_IMAGE = 2;
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public static final int TYPE_OVERLAY = 3;
@@ -465,7 +455,6 @@ public class GridRowBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public List<Object> getObjects() {
@@ -473,7 +462,6 @@ public class GridRowBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public List<Integer> getTypes() {
@@ -481,7 +469,6 @@ public class GridRowBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public List<Boolean> getLoadings() {
@@ -489,7 +476,6 @@ public class GridRowBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public CharSequence getCellDescription() {
@@ -497,7 +483,6 @@ public class GridRowBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public PendingIntent getContentIntent() {
@@ -505,7 +490,6 @@ public class GridRowBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -519,7 +503,6 @@ public class GridRowBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -533,7 +516,6 @@ public class GridRowBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable

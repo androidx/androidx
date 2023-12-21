@@ -1,6 +1,4 @@
 // Baseline format: 1.0
-InvalidNullabilityOverride: androidx.coordinatorlayout.widget.CoordinatorLayout#onDraw(android.graphics.Canvas) parameter #0:
-    Invalid nullability on parameter `c` in method `onDraw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.coordinatorlayout.widget.CoordinatorLayout#onNestedPreScroll(android.view.View, int, int, int[]) parameter #0:
     Invalid nullability on parameter `target` in method `onNestedPreScroll`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.coordinatorlayout.widget.CoordinatorLayout#onNestedPreScroll(android.view.View, int, int, int[]) parameter #3:
@@ -35,6 +33,8 @@ MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#generate
     Missing nullability on method `generateLayoutParams` return
 MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#generateLayoutParams(android.view.ViewGroup.LayoutParams) parameter #0:
     Missing nullability on parameter `p` in method `generateLayoutParams`
+MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#onDraw(android.graphics.Canvas) parameter #0:
+    Missing nullability on parameter `c` in method `onDraw`
 MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#onInterceptTouchEvent(android.view.MotionEvent) parameter #0:
     Missing nullability on parameter `ev` in method `onInterceptTouchEvent`
 MissingNullability: androidx.coordinatorlayout.widget.CoordinatorLayout#onNestedFling(android.view.View, float, float, boolean) parameter #0:

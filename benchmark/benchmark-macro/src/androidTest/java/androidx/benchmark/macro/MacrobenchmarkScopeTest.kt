@@ -16,10 +16,12 @@
 
 package androidx.benchmark.macro
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.benchmark.DeviceInfo
+import androidx.benchmark.Outputs
 import androidx.benchmark.Shell
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -62,7 +64,10 @@ class MacrobenchmarkScopeTest {
 
     @Test
     fun killTest() {
-        val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = true)
+        val scope = MacrobenchmarkScope(
+            Packages.TARGET,
+            launchWithClearTask = true
+        )
         scope.pressHome()
         scope.startActivityAndWait()
         assertTrue(Shell.isPackageAlive(Packages.TARGET))
@@ -77,7 +82,10 @@ class MacrobenchmarkScopeTest {
         // Emulator api 30 does not have dex2oat (b/264938965)
         assumeTrue(Build.VERSION.SDK_INT != Build.VERSION_CODES.R)
 
-        val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = true)
+        val scope = MacrobenchmarkScope(
+            Packages.TARGET,
+            launchWithClearTask = true
+        )
         val iterations = 1
         var executions = 0
         val compilation = CompilationMode.Partial(
@@ -101,7 +109,10 @@ class MacrobenchmarkScopeTest {
         // Emulator api 30 does not have dex2oat (b/264938965)
         assumeTrue(Build.VERSION.SDK_INT != Build.VERSION_CODES.R)
 
-        val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = true)
+        val scope = MacrobenchmarkScope(
+            Packages.TARGET,
+            launchWithClearTask = true
+        )
         val compilation = CompilationMode.Full()
         compilation.resetAndCompile(
             Packages.TARGET,
@@ -113,7 +124,10 @@ class MacrobenchmarkScopeTest {
 
     @Test
     fun startActivityAndWait_activityNotExported() {
-        val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = true)
+        val scope = MacrobenchmarkScope(
+            Packages.TARGET,
+            launchWithClearTask = true
+        )
         scope.pressHome()
 
         val intent = Intent()
@@ -146,7 +160,10 @@ class MacrobenchmarkScopeTest {
     @SdkSuppress(minSdkVersion = 24)
     @Test
     fun startActivityAndWait_invalidActivity() {
-        val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = true)
+        val scope = MacrobenchmarkScope(
+            Packages.TARGET,
+            launchWithClearTask = true
+        )
         scope.pressHome()
 
         val intent = Intent()
@@ -184,6 +201,34 @@ class MacrobenchmarkScopeTest {
             )
         )
         assertTrue(device.hasObject(By.text("UpdatedText")))
+    }
+
+    @Test
+    fun startActivityAndWait_methodTracing() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val device = UiDevice.getInstance(instrumentation)
+        val files = Outputs.outputDirectory.walk().filter {
+            it.isFile
+        }.toSet()
+        val scope = MacrobenchmarkScope(
+            Packages.TEST, // self-instrumenting macrobench, so don't kill the process!
+            launchWithClearTask = true,
+        )
+        // Turn on method tracing
+        scope.launchWithMethodTracing = true
+        // Launch first activity, and validate it is displayed
+        scope.startActivityAndWait(ConfigurableActivity.createIntent("InitialText"))
+        assertTrue(device.hasObject(By.text("InitialText")))
+        scope.stopMethodTracing()
+        val outputs = Outputs.outputDirectory.walk().filter {
+            it.isFile
+        }.toSet()
+        val testOutputs = outputs - files
+        val trace = testOutputs.singleOrNull { file ->
+            file.absolutePath.endsWith("-method.trace")
+        }
+        // One method trace should have been created
+        assertNotNull(trace)
     }
 
     private fun validateLaunchAndFrameStats(pressHome: Boolean) {
@@ -238,13 +283,13 @@ class MacrobenchmarkScopeTest {
         }
     }
 
+    @SuppressLint("BanThreadSleep") // Need to await flush to disk
     private fun validateDropShaderCacheWithRoot(
         dropShaderCacheBlock: MacrobenchmarkScope.() -> Unit
     ) {
         // need root to inspect target app's code cache dir, and emulators
         // don't seem to store shaders
         assumeTrue(Shell.isSessionRooted() && !DeviceInfo.isEmulator)
-
         val scope = MacrobenchmarkScope(
             Packages.TARGET,
             launchWithClearTask = false

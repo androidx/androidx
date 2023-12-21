@@ -17,11 +17,18 @@
 package androidx.window.java.embedding
 
 import android.app.Activity
+import androidx.annotation.GuardedBy
 import androidx.core.util.Consumer
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.SplitController
 import androidx.window.embedding.SplitInfo
 import java.util.concurrent.Executor
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.launch
 
 /**
  * An adapted interface for [SplitController] that provides callback shaped APIs to report
@@ -33,8 +40,13 @@ import java.util.concurrent.Executor
  * @param controller A [SplitController] that can be obtained by [SplitController.getInstance]
  */
 @ExperimentalWindowApi
-@Suppress("Deprecation") // To call legacy SplitController SplitInfo callback APIs
 class SplitControllerCallbackAdapter(private val controller: SplitController) {
+
+    /** A [ReentrantLock] to protect against concurrent access to [consumerToJobMap]. */
+    private val lock = ReentrantLock()
+    @GuardedBy("lock")
+    private val consumerToJobMap = mutableMapOf<Consumer<List<SplitInfo>>, Job>()
+
     /**
      * Registers a listener for updates about the active split state(s) that this
      * activity is part of. An activity can be in zero, one or more active splits.
@@ -56,13 +68,28 @@ class SplitControllerCallbackAdapter(private val controller: SplitController) {
         activity: Activity,
         executor: Executor,
         consumer: Consumer<List<SplitInfo>>
-    ) = controller.addSplitListener(activity, executor, consumer)
+    ) {
+        lock.withLock {
+            if (consumerToJobMap[consumer] != null) {
+                return
+            }
+            val scope = CoroutineScope(executor.asCoroutineDispatcher())
+            consumerToJobMap[consumer] = scope.launch {
+                controller.splitInfoList(activity).collect { splitInfoList ->
+                    consumer.accept(splitInfoList) }
+            }
+        }
+    }
 
     /**
      * Unregisters a listener that was previously registered via [addSplitListener].
      *
      * @param consumer the previously registered [Consumer] to unregister.
      */
-    fun removeSplitListener(consumer: Consumer<List<SplitInfo>>) =
-        controller.removeSplitListener(consumer)
+    fun removeSplitListener(consumer: Consumer<List<SplitInfo>>) {
+        lock.withLock {
+            consumerToJobMap[consumer]?.cancel()
+            consumerToJobMap.remove(consumer)
+        }
+    }
 }

@@ -131,7 +131,9 @@ class SupportedSurfaceCombination(
         // TODO(b/262772650): camera-pipe support for concurrent camera
         val targetSurfaceCombinations = getSurfaceCombinationsByCameraMode(cameraMode)
         for (surfaceCombination in targetSurfaceCombinations) {
-            if (surfaceCombination.isSupported(surfaceConfigList)) {
+            if (surfaceCombination
+                    .getOrderedSupportedSurfaceConfigList(surfaceConfigList) != null
+            ) {
                 return true
             }
         }
@@ -539,7 +541,7 @@ class SupportedSurfaceCombination(
      * CamcorderProfile.
      */
     private fun getRecordSize(): Size {
-        val cameraId: Int = try {
+        try {
             this.cameraId.toInt()
         } catch (e: NumberFormatException) {
             // The camera Id is not an integer because the camera may be a removable device. Use
@@ -547,8 +549,8 @@ class SupportedSurfaceCombination(
             return getRecordSizeFromStreamConfigurationMapCompat()
         }
         var profiles: EncoderProfilesProxy? = null
-        if (encoderProfilesProviderAdapter.hasProfile(cameraId)) {
-            profiles = encoderProfilesProviderAdapter.getAll(cameraId)
+        if (encoderProfilesProviderAdapter.hasProfile(CamcorderProfile.QUALITY_HIGH)) {
+            profiles = encoderProfilesProviderAdapter.getAll(CamcorderProfile.QUALITY_HIGH)
         }
         return if (profiles != null && profiles.videoProfiles.isNotEmpty()) {
             Size(profiles.videoProfiles[0].width, profiles.videoProfiles[0].height)

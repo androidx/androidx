@@ -17,7 +17,10 @@
 package androidx.privacysandbox.ads.adservices.common
 
 import android.net.Uri
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
 import org.junit.Test
@@ -25,6 +28,7 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 33)
 class AdDataTest {
     private val uri: Uri = Uri.parse("abc.com")
     private val metadata = "metadata"
@@ -40,5 +44,15 @@ class AdDataTest {
         val adData1 = AdData(uri, metadata)
         var adData2 = AdData(Uri.parse("abc.com"), "metadata")
         Truth.assertThat(adData1 == adData2).isTrue()
+    }
+
+    @Test
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    fun testBuilderSetters() {
+        val constructed = AdData(uri, metadata)
+        val builder = AdData.Builder()
+            .setRenderUri(uri)
+            .setMetadata(metadata)
+        Truth.assertThat(builder.build()).isEqualTo(constructed)
     }
 }

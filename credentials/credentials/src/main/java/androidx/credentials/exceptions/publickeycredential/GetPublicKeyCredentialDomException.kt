@@ -16,7 +16,6 @@
 
 package androidx.credentials.exceptions.publickeycredential
 
-import androidx.annotation.VisibleForTesting
 import androidx.credentials.exceptions.domerrors.DomError
 
 /**
@@ -35,10 +34,8 @@ class GetPublicKeyCredentialDomException @JvmOverloads constructor(
 ) : GetPublicKeyCredentialException(
     TYPE_GET_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION + domError.type,
     errorMessage) {
-    /** @hide */
-    companion object {
-        @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
-        const val TYPE_GET_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION: String =
+    internal companion object {
+        internal const val TYPE_GET_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION: String =
             "androidx.credentials.TYPE_GET_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION"
     }
 }

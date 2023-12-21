@@ -50,6 +50,7 @@ import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
@@ -67,6 +68,7 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.BottomAppBar
+import androidx.compose.material.Button
 import androidx.compose.material.DrawerValue
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
@@ -1808,6 +1810,208 @@ class AndroidAccessibilityTest {
         // Rtl
         assertThat(rtl1TraverseBefore).isLessThan(rtlChild2.id)
         assertThat(rtl2TraverseBefore).isLessThan(rtlChild3.id)
+    }
+
+    @Composable
+    fun InteropColumn(
+        padding: PaddingValues,
+        columnTag: String,
+        interopText: String,
+        firstButtonText: String,
+        lastButtonText: String
+    ) {
+        Column(
+            Modifier
+                .verticalScroll(rememberScrollState())
+                .padding(padding)
+                .testTag(columnTag)
+        ) {
+            Button(onClick = { }) {
+                Text(firstButtonText)
+            }
+
+            AndroidView(::TextView) {
+                it.text = interopText
+            }
+
+            Button(onClick = { }) {
+                Text(lastButtonText)
+            }
+        }
+    }
+
+    @Test
+    fun testChildrenSortedByBounds_ViewInterop() {
+        val topAppBarText = "Top App Bar"
+        val columnTag = "Column Tag"
+        val interopText = "This is a text in a TextView"
+        val firstButtonText = "First Button"
+        val lastButtonText = "Last Button"
+        val fabContentText = "FAB Icon"
+
+        container.setContent {
+            val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
+            Scaffold(
+                scaffoldState = scaffoldState,
+                topBar = { TopAppBar(title = { Text(topAppBarText) }) },
+                floatingActionButtonPosition = FabPosition.End,
+                floatingActionButton = { FloatingActionButton(onClick = {}) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = fabContentText)
+                } },
+                drawerContent = { Text(text = "Drawer Menu 1") },
+                content = { padding -> InteropColumn(
+                    padding, columnTag, interopText, firstButtonText, lastButtonText) },
+                bottomBar = { BottomAppBar { Text("Bottom App Bar") } }
+            )
+        }
+
+        val colSemanticsNode = rule.onNodeWithTag(columnTag)
+            .fetchSemanticsNode("can't find node with tag $columnTag")
+        val colAccessibilityNode = provider.createAccessibilityNodeInfo(colSemanticsNode.id)!!
+        assertEquals(3, colAccessibilityNode.childCount)
+        assertEquals(3, colSemanticsNode.replacedChildren.size)
+        val viewHolder = androidComposeView.androidViewsHandler
+            .layoutNodeToHolder[colSemanticsNode.replacedChildren[1].layoutNode]
+        assertNotNull(viewHolder)
+
+        val firstButton = rule.onNodeWithText(firstButtonText).fetchSemanticsNode()
+        val lastButton = rule.onNodeWithText(lastButtonText).fetchSemanticsNode()
+
+        val firstButtonANI = provider.createAccessibilityNodeInfo(firstButton.id)
+        val lastButtonANI = provider.createAccessibilityNodeInfo(lastButton.id)
+        val viewANI = viewHolder?.createAccessibilityNodeInfo()
+
+        val firstButtonBefore = firstButtonANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
+        val lastButtonAfter = lastButtonANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALAFTER_VAL)
+        val viewBefore = viewANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
+        val viewAfter = viewANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALAFTER_VAL)
+
+        // Desired ordering: Top App Bar -> first button -> android view -> last button -> FAB.
+        // First check that the View exists
+        if (viewHolder != null) {
+            // Then verify that the first button comes before the View
+            assertThat(firstButtonBefore).isEqualTo(viewHolder.layoutNode.semanticsId)
+            // And the last button comes after the View
+            assertThat(lastButtonAfter).isEqualTo(viewHolder.layoutNode.semanticsId)
+        }
+        // Check the View's `before` and `after` values have also been set
+        assertEquals(viewAfter, firstButton.id)
+        assertEquals(viewBefore, lastButton.id)
+    }
+
+    @Composable
+    fun InteropColumnBackwards(
+        padding: PaddingValues,
+        columnTag: String,
+        interopText: String,
+        firstButtonText: String,
+        thirdButtonText: String,
+        fourthButtonText: String
+    ) {
+        Column(
+            Modifier
+                .verticalScroll(rememberScrollState())
+                .padding(padding)
+                .testTag(columnTag)
+        ) {
+            Button(
+                modifier = Modifier.semantics { traversalIndex = 3f },
+                onClick = { }
+            ) {
+                Text(firstButtonText)
+            }
+
+            AndroidView(
+                ::TextView,
+                modifier = Modifier.semantics { traversalIndex = 2f }
+            ) {
+                it.text = interopText
+            }
+
+            Button(
+                modifier = Modifier.semantics { traversalIndex = 1f },
+                onClick = { }
+            ) {
+                Text(thirdButtonText)
+            }
+
+            Button(
+                modifier = Modifier.semantics { traversalIndex = 0f },
+                onClick = { }
+            ) {
+                Text(fourthButtonText)
+            }
+        }
+    }
+
+    @Test
+    fun testChildrenSortedByBounds_ViewInteropBackwards() {
+        val topAppBarText = "Top App Bar"
+        val columnTag = "Column Tag"
+        val interopText = "This is a text in a TextView"
+        val firstButtonText = "First Button"
+        val thirdButtonText = "Third Button"
+        val fourthButtonText = "Fourth Button"
+        val fabContentText = "FAB Icon"
+
+        container.setContent {
+            val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
+            Scaffold(
+                scaffoldState = scaffoldState,
+                topBar = { TopAppBar(title = { Text(topAppBarText) }) },
+                floatingActionButtonPosition = FabPosition.End,
+                floatingActionButton = { FloatingActionButton(onClick = {}) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = fabContentText)
+                } },
+                drawerContent = { Text(text = "Drawer Menu 1") },
+                content = { padding -> InteropColumnBackwards(
+                    padding, columnTag, interopText,
+                    firstButtonText, thirdButtonText, fourthButtonText
+                ) },
+                bottomBar = { BottomAppBar { Text("Bottom App Bar") } }
+            )
+        }
+
+        val colSemanticsNode = rule.onNodeWithTag(columnTag)
+            .fetchSemanticsNode("can't find node with tag $columnTag")
+        val colAccessibilityNode = provider.createAccessibilityNodeInfo(colSemanticsNode.id)!!
+        assertEquals(4, colAccessibilityNode.childCount)
+        assertEquals(4, colSemanticsNode.replacedChildren.size)
+        val viewHolder = androidComposeView.androidViewsHandler
+            .layoutNodeToHolder[colSemanticsNode.replacedChildren[1].layoutNode]
+        assertNotNull(viewHolder)
+
+        val firstButton = rule.onNodeWithText(firstButtonText).fetchSemanticsNode()
+        val thirdButton = rule.onNodeWithText(thirdButtonText).fetchSemanticsNode()
+        val fourthButton = rule.onNodeWithText(fourthButtonText).fetchSemanticsNode()
+
+        val firstButtonANI = provider.createAccessibilityNodeInfo(firstButton.id)
+        val thirdButtonANI = provider.createAccessibilityNodeInfo(thirdButton.id)
+        val fourthButtonANI = provider.createAccessibilityNodeInfo(fourthButton.id)
+        val viewANI = viewHolder?.createAccessibilityNodeInfo()
+
+        val firstButtonAfter = firstButtonANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALAFTER_VAL)
+        val thirdButtonBefore = thirdButtonANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
+        val fourthButtonBefore =
+            fourthButtonANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
+        val viewBefore = viewANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
+        val viewAfter = viewANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALAFTER_VAL)
+
+        // Desired ordering:
+        // Top App Bar -> fourth button -> third button -> android view -> first button -> FAB.
+        // Fourth button comes before the third button
+        assertThat(fourthButtonBefore).isEqualTo(thirdButton.id)
+        // Check that the View exists
+        assertNotNull(viewHolder)
+        if (viewHolder != null) {
+            // Then verify that the third button comes before Android View
+            assertThat(thirdButtonBefore).isEqualTo(viewHolder.layoutNode.semanticsId)
+            // And the first button comes after the View
+            assertThat(firstButtonAfter).isEqualTo(viewHolder.layoutNode.semanticsId)
+        }
+        // Check the View's `before` and `after` values have also been set
+        assertEquals(viewAfter, thirdButton.id)
+        assertEquals(viewBefore, firstButton.id)
     }
 
     companion object {

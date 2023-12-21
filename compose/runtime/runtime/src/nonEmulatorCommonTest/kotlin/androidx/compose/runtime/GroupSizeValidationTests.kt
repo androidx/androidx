@@ -32,7 +32,7 @@ class GroupSizeValidationTests {
         slotExpect(
             name = "SpacerLike",
             noMoreGroupsThan = 5,
-            noMoreSlotsThan = 9,
+            noMoreSlotsThan = 10,
         ) {
             SpacerLike(Modifier)
         }
@@ -43,7 +43,7 @@ class GroupSizeValidationTests {
         slotExpect(
             name = "ColumnLike",
             noMoreGroupsThan = 6,
-            noMoreSlotsThan = 8,
+            noMoreSlotsThan = 9,
         ) {
             ColumnLike { }
         }
@@ -65,7 +65,7 @@ class GroupSizeValidationTests {
         slotExpect(
             name = "TextLike",
             noMoreGroupsThan = 9,
-            noMoreSlotsThan = 13
+            noMoreSlotsThan = 14
         ) {
             BasicTextLike("")
         }
@@ -76,7 +76,7 @@ class GroupSizeValidationTests {
         slotExpect(
             name = "CheckboxLike",
             noMoreGroupsThan = 12,
-            noMoreSlotsThan = 20
+            noMoreSlotsThan = 21
         ) {
             CheckboxLike(checked = false, onCheckedChange = { })
         }
@@ -84,7 +84,7 @@ class GroupSizeValidationTests {
 }
 
 // The following are a sketch of how compose ui uses composition to produce some important
-// composable functions. These are derived from the implementation as of Oct 2022.
+// composable functions. These are derived from the implementation as of May 2023.
 
 // The slot usage should be validated against the actual usage in GroupSizeTests in the
 // integration-tests periodically to avoid these skewing too far.
@@ -100,6 +100,7 @@ private val LocalViewConfiguration = staticCompositionLocalOf { 0 }
 
 private object ViewHelper {
     val Constructor = ::View
+    val SetCompositeKeyHash: View.(Int) -> Unit = { attributes["compositeKeyHash"] = it }
     val SetModifier: View.(Modifier) -> Unit = { attributes["modifier"] = it }
     val SetMeasurePolicy: View.(MeasurePolicy) -> Unit = { attributes["measurePolicy"] = it }
     val SetDensity: View.(Int) -> Unit = { attributes["density"] = it }
@@ -113,12 +114,14 @@ private inline fun LayoutLike(
     modifier: Modifier = Modifier,
     measurePolicy: MeasurePolicy
 ) {
+    val compositeKeyHash = currentCompositeKeyHash
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
     val viewConfiguration = LocalViewConfiguration.current
     ReusableComposeNode<View, Applier<Any>>(
         factory = ViewHelper.Constructor,
         update = {
+            set(compositeKeyHash, ViewHelper.SetCompositeKeyHash)
             set(modifier, ViewHelper.SetModifier)
             set(measurePolicy, ViewHelper.SetMeasurePolicy)
             set(density, ViewHelper.SetDensity)
@@ -132,12 +135,14 @@ private inline fun LayoutLike(
 @Composable
 @NonRestartableComposable
 private fun LayoutLike(modifier: Modifier, measurePolicy: MeasurePolicy) {
+    val compositeKeyHash = currentCompositeKeyHash
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
     val viewConfiguration = LocalViewConfiguration.current
     ReusableComposeNode<View, Applier<Any>>(
         factory = ViewHelper.Constructor,
         update = {
+            set(compositeKeyHash, ViewHelper.SetCompositeKeyHash)
             set(modifier, ViewHelper.SetModifier)
             set(measurePolicy, ViewHelper.SetMeasurePolicy)
             set(density, ViewHelper.SetDensity)
@@ -647,6 +652,7 @@ private fun CompositionGroup.asString(): String {
     return stringOf(this, "")
 }
 
+@Suppress("ConstPropertyName")
 private const val MarkerGroup = -340126117
 
 private fun findMarkerGroup(compositionData: CompositionData): CompositionGroup {

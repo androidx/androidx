@@ -217,24 +217,6 @@ InvalidNullabilityOverride: androidx.constraintlayout.motion.widget.MotionLayout
     Invalid nullability on parameter `target` in method `onNestedFling`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.constraintlayout.motion.widget.MotionLayout#onNestedPreFling(android.view.View, float, float) parameter #0:
     Invalid nullability on parameter `target` in method `onNestedPreFling`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.constraintlayout.utils.widget.ImageFilterButton#draw(android.graphics.Canvas) parameter #0:
-    Invalid nullability on parameter `canvas` in method `draw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.constraintlayout.utils.widget.ImageFilterView#draw(android.graphics.Canvas) parameter #0:
-    Invalid nullability on parameter `canvas` in method `draw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.constraintlayout.utils.widget.MockView#onDraw(android.graphics.Canvas) parameter #0:
-    Invalid nullability on parameter `canvas` in method `onDraw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.constraintlayout.utils.widget.MotionButton#draw(android.graphics.Canvas) parameter #0:
-    Invalid nullability on parameter `canvas` in method `draw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.constraintlayout.utils.widget.MotionLabel#onDraw(android.graphics.Canvas) parameter #0:
-    Invalid nullability on parameter `canvas` in method `onDraw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.constraintlayout.widget.ConstraintHelper#onDraw(android.graphics.Canvas) parameter #0:
-    Invalid nullability on parameter `canvas` in method `onDraw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.constraintlayout.widget.Guideline#draw(android.graphics.Canvas) parameter #0:
-    Invalid nullability on parameter `canvas` in method `draw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.constraintlayout.widget.Placeholder#onDraw(android.graphics.Canvas) parameter #0:
-    Invalid nullability on parameter `canvas` in method `onDraw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.constraintlayout.widget.ReactiveGuide#draw(android.graphics.Canvas) parameter #0:
-    Invalid nullability on parameter `canvas` in method `draw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 
 
 KotlinOperator: androidx.constraintlayout.motion.utils.ViewTimeCycle#get(float, long, android.view.View, androidx.constraintlayout.core.motion.utils.KeyCache):
@@ -349,6 +331,8 @@ MissingNullability: androidx.constraintlayout.helper.widget.Grid#getSpans():
     Missing nullability on method `getSpans` return
 MissingNullability: androidx.constraintlayout.helper.widget.Grid#init(android.util.AttributeSet) parameter #0:
     Missing nullability on parameter `attrs` in method `init`
+MissingNullability: androidx.constraintlayout.helper.widget.Grid#onDraw(android.graphics.Canvas) parameter #0:
+    Missing nullability on parameter `canvas` in method `onDraw`
 MissingNullability: androidx.constraintlayout.helper.widget.Grid#setColumnWeights(String) parameter #0:
     Missing nullability on parameter `columnWeights` in method `setColumnWeights`
 MissingNullability: androidx.constraintlayout.helper.widget.Grid#setRowWeights(String) parameter #0:
@@ -1089,6 +1073,8 @@ MissingNullability: androidx.constraintlayout.utils.widget.ImageFilterButton#Ima
     Missing nullability on parameter `context` in method `ImageFilterButton`
 MissingNullability: androidx.constraintlayout.utils.widget.ImageFilterButton#ImageFilterButton(android.content.Context, android.util.AttributeSet, int) parameter #1:
     Missing nullability on parameter `attrs` in method `ImageFilterButton`
+MissingNullability: androidx.constraintlayout.utils.widget.ImageFilterButton#draw(android.graphics.Canvas) parameter #0:
+    Missing nullability on parameter `canvas` in method `draw`
 MissingNullability: androidx.constraintlayout.utils.widget.ImageFilterButton#setImageDrawable(android.graphics.drawable.Drawable) parameter #0:
     Missing nullability on parameter `drawable` in method `setImageDrawable`
 MissingNullability: androidx.constraintlayout.utils.widget.ImageFilterView#ImageFilterView(android.content.Context) parameter #0:
@@ -1101,6 +1087,8 @@ MissingNullability: androidx.constraintlayout.utils.widget.ImageFilterView#Image
     Missing nullability on parameter `context` in method `ImageFilterView`
 MissingNullability: androidx.constraintlayout.utils.widget.ImageFilterView#ImageFilterView(android.content.Context, android.util.AttributeSet, int) parameter #1:
     Missing nullability on parameter `attrs` in method `ImageFilterView`
+MissingNullability: androidx.constraintlayout.utils.widget.ImageFilterView#draw(android.graphics.Canvas) parameter #0:
+    Missing nullability on parameter `canvas` in method `draw`
 MissingNullability: androidx.constraintlayout.utils.widget.ImageFilterView#setAltImageDrawable(android.graphics.drawable.Drawable) parameter #0:
     Missing nullability on parameter `altDrawable` in method `setAltImageDrawable`
 MissingNullability: androidx.constraintlayout.utils.widget.ImageFilterView#setImageDrawable(android.graphics.drawable.Drawable) parameter #0:
@@ -1117,6 +1105,8 @@ MissingNullability: androidx.constraintlayout.utils.widget.MockView#MockView(and
     Missing nullability on parameter `attrs` in method `MockView`
 MissingNullability: androidx.constraintlayout.utils.widget.MockView#mText:
     Missing nullability on field `mText` in class `class androidx.constraintlayout.utils.widget.MockView`
+MissingNullability: androidx.constraintlayout.utils.widget.MockView#onDraw(android.graphics.Canvas) parameter #0:
+    Missing nullability on parameter `canvas` in method `onDraw`
 MissingNullability: androidx.constraintlayout.utils.widget.MotionButton#MotionButton(android.content.Context) parameter #0:
     Missing nullability on parameter `context` in method `MotionButton`
 MissingNullability: androidx.constraintlayout.utils.widget.MotionButton#MotionButton(android.content.Context, android.util.AttributeSet) parameter #0:
@@ -1127,6 +1117,8 @@ MissingNullability: androidx.constraintlayout.utils.widget.MotionButton#MotionBu
     Missing nullability on parameter `context` in method `MotionButton`
 MissingNullability: androidx.constraintlayout.utils.widget.MotionButton#MotionButton(android.content.Context, android.util.AttributeSet, int) parameter #1:
     Missing nullability on parameter `attrs` in method `MotionButton`
+MissingNullability: androidx.constraintlayout.utils.widget.MotionButton#draw(android.graphics.Canvas) parameter #0:
+    Missing nullability on parameter `canvas` in method `draw`
 MissingNullability: androidx.constraintlayout.utils.widget.MotionLabel#MotionLabel(android.content.Context) parameter #0:
     Missing nullability on parameter `context` in method `MotionLabel`
 MissingNullability: androidx.constraintlayout.utils.widget.MotionLabel#MotionLabel(android.content.Context, android.util.AttributeSet) parameter #0:
@@ -1135,6 +1127,8 @@ MissingNullability: androidx.constraintlayout.utils.widget.MotionLabel#MotionLab
     Missing nullability on parameter `context` in method `MotionLabel`
 MissingNullability: androidx.constraintlayout.utils.widget.MotionLabel#getTypeface():
     Missing nullability on method `getTypeface` return
+MissingNullability: androidx.constraintlayout.utils.widget.MotionLabel#onDraw(android.graphics.Canvas) parameter #0:
+    Missing nullability on parameter `canvas` in method `onDraw`
 MissingNullability: androidx.constraintlayout.utils.widget.MotionLabel#setText(CharSequence) parameter #0:
     Missing nullability on parameter `text` in method `setText`
 MissingNullability: androidx.constraintlayout.utils.widget.MotionLabel#setTypeface(android.graphics.Typeface) parameter #0:
@@ -1149,6 +1143,8 @@ MissingNullability: androidx.constraintlayout.utils.widget.MotionTelltales#Motio
     Missing nullability on parameter `context` in method `MotionTelltales`
 MissingNullability: androidx.constraintlayout.utils.widget.MotionTelltales#MotionTelltales(android.content.Context, android.util.AttributeSet, int) parameter #1:
     Missing nullability on parameter `attrs` in method `MotionTelltales`
+MissingNullability: androidx.constraintlayout.utils.widget.MotionTelltales#onDraw(android.graphics.Canvas) parameter #0:
+    Missing nullability on parameter `canvas` in method `onDraw`
 MissingNullability: androidx.constraintlayout.utils.widget.MotionTelltales#setText(CharSequence) parameter #0:
     Missing nullability on parameter `text` in method `setText`
 MissingNullability: androidx.constraintlayout.widget.Barrier#Barrier(android.content.Context) parameter #0:
@@ -1267,6 +1263,8 @@ MissingNullability: androidx.constraintlayout.widget.ConstraintHelper#mReference
     Missing nullability on field `mReferenceTags` in class `class androidx.constraintlayout.widget.ConstraintHelper`
 MissingNullability: androidx.constraintlayout.widget.ConstraintHelper#myContext:
     Missing nullability on field `myContext` in class `class androidx.constraintlayout.widget.ConstraintHelper`
+MissingNullability: androidx.constraintlayout.widget.ConstraintHelper#onDraw(android.graphics.Canvas) parameter #0:
+    Missing nullability on parameter `canvas` in method `onDraw`
 MissingNullability: androidx.constraintlayout.widget.ConstraintHelper#removeView(android.view.View) parameter #0:
     Missing nullability on parameter `view` in method `removeView`
 MissingNullability: androidx.constraintlayout.widget.ConstraintHelper#resolveRtl(androidx.constraintlayout.core.widgets.ConstraintWidget, boolean) parameter #0:
@@ -1713,6 +1711,8 @@ MissingNullability: androidx.constraintlayout.widget.Guideline#Guideline(android
     Missing nullability on parameter `context` in method `Guideline`
 MissingNullability: androidx.constraintlayout.widget.Guideline#Guideline(android.content.Context, android.util.AttributeSet, int, int) parameter #1:
     Missing nullability on parameter `attrs` in method `Guideline`
+MissingNullability: androidx.constraintlayout.widget.Guideline#draw(android.graphics.Canvas) parameter #0:
+    Missing nullability on parameter `canvas` in method `draw`
 MissingNullability: androidx.constraintlayout.widget.Placeholder#Placeholder(android.content.Context) parameter #0:
     Missing nullability on parameter `context` in method `Placeholder`
 MissingNullability: androidx.constraintlayout.widget.Placeholder#Placeholder(android.content.Context, android.util.AttributeSet) parameter #0:
@@ -1729,6 +1729,8 @@ MissingNullability: androidx.constraintlayout.widget.Placeholder#Placeholder(and
     Missing nullability on parameter `attrs` in method `Placeholder`
 MissingNullability: androidx.constraintlayout.widget.Placeholder#getContent():
     Missing nullability on method `getContent` return
+MissingNullability: androidx.constraintlayout.widget.Placeholder#onDraw(android.graphics.Canvas) parameter #0:
+    Missing nullability on parameter `canvas` in method `onDraw`
 MissingNullability: androidx.constraintlayout.widget.Placeholder#updatePostMeasure(androidx.constraintlayout.widget.ConstraintLayout) parameter #0:
     Missing nullability on parameter `container` in method `updatePostMeasure`
 MissingNullability: androidx.constraintlayout.widget.Placeholder#updatePreLayout(androidx.constraintlayout.widget.ConstraintLayout) parameter #0:
@@ -1747,6 +1749,8 @@ MissingNullability: androidx.constraintlayout.widget.ReactiveGuide#ReactiveGuide
     Missing nullability on parameter `context` in method `ReactiveGuide`
 MissingNullability: androidx.constraintlayout.widget.ReactiveGuide#ReactiveGuide(android.content.Context, android.util.AttributeSet, int, int) parameter #1:
     Missing nullability on parameter `attrs` in method `ReactiveGuide`
+MissingNullability: androidx.constraintlayout.widget.ReactiveGuide#draw(android.graphics.Canvas) parameter #0:
+    Missing nullability on parameter `canvas` in method `draw`
 MissingNullability: androidx.constraintlayout.widget.SharedValues#addListener(int, androidx.constraintlayout.widget.SharedValues.SharedValuesListener) parameter #1:
     Missing nullability on parameter `listener` in method `addListener`
 MissingNullability: androidx.constraintlayout.widget.SharedValues#removeListener(androidx.constraintlayout.widget.SharedValues.SharedValuesListener) parameter #0:

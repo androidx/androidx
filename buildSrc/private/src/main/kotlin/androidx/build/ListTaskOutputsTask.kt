@@ -46,7 +46,7 @@ abstract class ListTaskOutputsTask : DefaultTask() {
         group = "Help"
         // compute the output text when the taskgraph is ready so that the output text can be
         // saved in the configuration cache and not generate a configuration cache violation
-        project.gradle.taskGraph.whenReady({ outputText.toString() })
+        project.gradle.taskGraph.whenReady { outputText }
     }
 
     fun setOutput(f: File) {
@@ -110,22 +110,10 @@ abstract class ListTaskOutputsTask : DefaultTask() {
 
 // TODO(149103692): remove all elements of this set
 val taskNamesKnownToDuplicateOutputs = setOf(
-    "jarRelease",
-    "jarDebug",
     "kotlinSourcesJar",
     "releaseSourcesJar",
     "sourceJarRelease",
     "sourceJar",
-    // MPP plugin has issues with modules using withJava() clause, see b/158747039.
-    "processTestResources",
-    "jvmTestProcessResources",
-    "desktopTestProcessResources",
-    "processResources",
-    "jvmProcessResources",
-    "desktopProcessResources",
-    // https://github.com/square/wire/issues/1947
-    "generateDebugProtos",
-    "generateReleaseProtos",
     // Release APKs
     "copyReleaseApk",
     // The following tests intentionally have the same output of golden images
@@ -133,17 +121,11 @@ val taskNamesKnownToDuplicateOutputs = setOf(
     "updateGoldenDebugUnitTest"
 )
 
-val taskTypesKnownToDuplicateOutputs = setOf(
-    // b/224564238
-    "com.android.build.gradle.internal.lint.AndroidLintTask_Decorated"
-)
-
 fun shouldValidateTaskOutput(task: Task): Boolean {
     if (!task.enabled) {
         return false
     }
-    return !taskNamesKnownToDuplicateOutputs.contains(task.name) &&
-        !taskTypesKnownToDuplicateOutputs.contains(task::class.qualifiedName)
+    return !taskNamesKnownToDuplicateOutputs.contains(task.name)
 }
 
 // For this project and all subprojects, collects all tasks and creates a map keyed by their output files
@@ -151,7 +133,7 @@ fun Project.findAllTasksByOutput(): Map<File, Task> {
     // find list of all tasks
     val allTasks = mutableListOf<Task>()
     project.allprojects { otherProject ->
-        otherProject.tasks.all { task ->
+        otherProject.tasks.forEach { task ->
             allTasks.add(task)
         }
     }

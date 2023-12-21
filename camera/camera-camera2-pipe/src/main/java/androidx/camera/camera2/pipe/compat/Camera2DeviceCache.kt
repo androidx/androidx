@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.compat
 
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraManager
+import android.os.Build
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
@@ -41,6 +42,9 @@ constructor(
 
     @GuardedBy("lock")
     private var openableCameras: List<CameraId>? = null
+
+    @GuardedBy("lock")
+    private var concurrentCameras: Set<Set<CameraId>>? = null
 
     suspend fun getCameraIds(): List<CameraId> {
         val cameras = synchronized(lock) { openableCameras }
@@ -92,5 +96,50 @@ constructor(
             return emptyList()
         }
         return cameraIdArray.map { CameraId(it) }
+    }
+
+    suspend fun getConcurrentCameraIds(): Set<Set<CameraId>> {
+        val cameras = synchronized(lock) { concurrentCameras }
+        if (!cameras.isNullOrEmpty()) {
+            return cameras
+        }
+
+        // Suspend and query the list of concurrent Cameras on the ioDispatcher
+        return withContext(threads.backgroundDispatcher) {
+            Debug.trace("readConcurrentCameraIds") {
+                val cameraIds = awaitConcurrentCameraIds()
+
+                if (!cameraIds.isNullOrEmpty()) {
+                    synchronized(lock) { concurrentCameras = cameraIds }
+                    return@trace cameraIds
+                }
+
+                return@trace emptySet()
+            }
+        }
+    }
+
+    fun awaitConcurrentCameraIds(): Set<Set<CameraId>>? {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            return emptySet()
+        }
+        val cameras = synchronized(lock) { concurrentCameras }
+        if (!cameras.isNullOrEmpty()) {
+            return cameras
+        }
+
+        val cameraManager = cameraManager.get()
+        val cameraIdsSet =
+            try {
+                val idSetSet = Api30Compat.getConcurrentCameraIds(cameraManager)
+                Log.debug { "Loaded ConcurrentCameraIdsSet $idSetSet" }
+                idSetSet
+            } catch (e: CameraAccessException) {
+                Log.warn(e) { "Failed to query CameraManager#getConcurrentStreamingCameraIds" }
+                return null
+            }
+        return cameraIdsSet.map {
+            it.map { cameraIdString -> CameraId(cameraIdString) }.toSet()
+        }.toSet()
     }
 }

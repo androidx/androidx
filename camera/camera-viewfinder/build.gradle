@@ -29,7 +29,7 @@ dependencies {
     implementation(libs.guavaListenableFuture)
     implementation("androidx.core:core:1.7.0")
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
-    implementation("androidx.concurrent:concurrent-futures-ktx:1.2.0-alpha01")
+    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     implementation(libs.autoValueAnnotations)
     implementation("androidx.appcompat:appcompat:1.1.0")
     implementation("androidx.test.espresso:espresso-idling-resource:3.1.0")

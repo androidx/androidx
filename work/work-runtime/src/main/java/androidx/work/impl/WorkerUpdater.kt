@@ -58,14 +58,22 @@ private fun updateWorkImpl(
         val workTagDao = workDatabase.workTagDao()
 
         // should keep state BLOCKING, preserving the chain, or possibly RUNNING
-        // preserving run attempt count, to calculate back off correctly
+        // preserving run attempt count, to calculate back off correctly, and enqueue/override time
         val updatedSpec = newWorkSpec.copy(
             state = oldWorkSpec.state,
             runAttemptCount = oldWorkSpec.runAttemptCount,
             lastEnqueueTime = oldWorkSpec.lastEnqueueTime,
             generation = oldWorkSpec.generation + 1,
-            periodCount = oldWorkSpec.periodCount
-        )
+            periodCount = oldWorkSpec.periodCount,
+            nextScheduleTimeOverride = oldWorkSpec.nextScheduleTimeOverride,
+            nextScheduleTimeOverrideGeneration = oldWorkSpec.nextScheduleTimeOverrideGeneration
+        ).apply {
+            if (newWorkSpec.nextScheduleTimeOverrideGeneration == 1) {
+                nextScheduleTimeOverride = newWorkSpec.nextScheduleTimeOverride
+                nextScheduleTimeOverrideGeneration += 1
+                // Other fields are left unchanged, so they can be used after override is cleared.
+            }
+        }
 
         workSpecDao.updateWorkSpec(wrapInConstraintTrackingWorkerIfNeeded(schedulers, updatedSpec))
         workTagDao.deleteByWorkSpecId(workSpecId)
@@ -100,7 +108,6 @@ internal fun WorkManagerImpl.updateWorkImpl(
 
 /**
  * Enqueue or update the work.
- *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun WorkManagerImpl.enqueueUniquelyNamedPeriodic(

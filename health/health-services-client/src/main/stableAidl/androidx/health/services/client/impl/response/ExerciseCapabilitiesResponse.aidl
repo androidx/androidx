@@ -16,5 +16,5 @@
 
 package androidx.health.services.client.impl.response;
 
-/** @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 @JavaOnlyStableParcelable parcelable ExerciseCapabilitiesResponse;

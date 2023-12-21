@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method SnappingSlider has parameter &apos;onValueChange&apos; with type Function1&lt;? super Float, Unit>."
+        errorLine1="    onValueChange: (Float) -> Unit,"
+        errorLine2="                   ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/foundation/demos/text/ComposeLineHeight.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method rememberDragDropState has parameter &apos;onMove&apos; with type Function2&lt;? super Integer, ? super Integer, Unit>."
+        errorLine1="    onMove: (Int, Int) -> Unit"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/foundation/demos/LazyColumnDragAndDropDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor DragDropState has parameter &apos;onMove&apos; with type Function2&lt;? super Integer, ? super Integer, Unit>."
+        errorLine1="    private val onMove: (Int, Int) -> Unit"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/foundation/demos/LazyColumnDragAndDropDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method rememberGridDragDropState has parameter &apos;onMove&apos; with type Function2&lt;? super Integer, ? super Integer, Unit>."
+        errorLine1="    onMove: (Int, Int) -> Unit"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/foundation/demos/LazyGridDragAndDropDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor GridDragDropState has parameter &apos;onMove&apos; with type Function2&lt;? super Integer, ? super Integer, Unit>."
+        errorLine1="    private val onMove: (Int, Int) -> Unit"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/foundation/demos/LazyGridDragAndDropDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;item1&apos; with type Function1&lt;? super Integer, ? extends Unit>."
+        errorLine1="        val item1 = @Composable { index: Int ->"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/androidx/compose/foundation/demos/ListDemos.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;item2&apos; with type Function1&lt;? super Integer, ? extends Unit>."
+        errorLine1="        val item2 = @Composable { index: Int ->"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/androidx/compose/foundation/demos/ListDemos.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;item&apos; with type Function1&lt;? super Integer, ? extends Unit>."
+        errorLine1="    val item = @Composable { index: Int ->"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/compose/foundation/demos/ListDemos.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method SnapLayoutInfoProvider has parameter &apos;itemSize&apos; with type Function1&lt;? super Density, Float>."
+        errorLine1="    itemSize: Density.() -> Float,"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/foundation/demos/snapping/RowSnapLayoutInfoProvider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method SnapLayoutInfoProvider has parameter &apos;layoutSize&apos; with type Function1&lt;? super Density, Float>."
+        errorLine1="    layoutSize: Density.() -> Float"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/foundation/demos/snapping/RowSnapLayoutInfoProvider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method rememberRowSnapLayoutInfoProvider has parameter &apos;layoutSize&apos; with type Function1&lt;? super Density, Float>."
+        errorLine1="    layoutSize: Density.() -> Float"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/foundation/demos/snapping/RowSnappingDemos.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method rememberMultiPageRowSnapLayoutInfoProvider has parameter &apos;layoutSize&apos; with type Function1&lt;? super Density, Float>."
+        errorLine1="    layoutSize: Density.() -> Float"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/foundation/demos/snapping/RowSnappingDemos.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method rememberViewPortRowSnapLayoutInfoProvider has parameter &apos;layoutSize&apos; with type Function1&lt;? super Density, Float>."
+        errorLine1="    layoutSize: Density.() -> Float"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/foundation/demos/snapping/RowSnappingDemos.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method ResizeHandle has parameter &apos;onDrag&apos; with type Function1&lt;? super Float, Unit>."
+        errorLine1="private fun ResizeHandle(orientation: Orientation, onDrag: (Float) -> Unit) {"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/foundation/demos/ScrollableFocusedChildDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor ViewPortBasedSnappingLayoutInfoProvider has parameter &apos;viewPortStep&apos; with type Function0&lt;Float>."
+        errorLine1="    private val viewPortStep: () -> Float"
+        errorLine2="                              ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/foundation/demos/snapping/SnappingDemos.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method SnappingDemoMainLayout has parameter &apos;content&apos; with type Function1&lt;? super Integer, Unit>."
+        errorLine1="    content: @Composable (Int) -> Unit"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/foundation/demos/snapping/SnappingDemos.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;setDemoIndex&apos; with type Function1&lt;? super Integer, ? extends Unit>."
+        errorLine1="    val (currentDemoIndex, setDemoIndex) = rememberSaveable { mutableIntStateOf(-1) }"
+        errorLine2="                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/foundation/demos/text/TextFieldsInDialogDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;setWeight&apos; with type Function1&lt;? super Float, ? extends Unit>."
+        errorLine1="    val (weight, setWeight) = remember { mutableFloatStateOf(1000f) }"
+        errorLine2="                 ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/foundation/demos/text/VariableFontsDemo.kt"/>
+    </issue>
+
+</issues>

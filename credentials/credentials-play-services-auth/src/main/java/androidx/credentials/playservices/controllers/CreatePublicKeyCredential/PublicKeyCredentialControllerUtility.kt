@@ -67,10 +67,8 @@ import org.json.JSONObject
 
 /**
  * A utility class to handle logic for the begin sign in controller.
- *
- * @hide
  */
-class PublicKeyCredentialControllerUtility {
+internal class PublicKeyCredentialControllerUtility {
 
     companion object {
 
@@ -241,12 +239,37 @@ class PublicKeyCredentialControllerUtility {
          * Converts from the Credential Manager public key credential option to the Play Auth
          * Module passkey json option.
          *
+         * @return the current auth module passkey request
          */
         fun convertToPlayAuthPasskeyJsonRequest(option: GetPublicKeyCredentialOption):
             BeginSignInRequest.PasskeyJsonRequestOptions {
             return BeginSignInRequest.PasskeyJsonRequestOptions.Builder()
                 .setSupported(true)
                 .setRequestJson(option.requestJson)
+                .build()
+        }
+
+        /**
+         * Converts from the Credential Manager public key credential option to the Play Auth
+         * Module passkey option, used in a backwards compatible flow for the auth dependency.
+         *
+         * @return the backwards compatible auth module passkey request
+         */
+        @Deprecated("Upgrade GMS version so 'convertToPlayAuthPasskeyJsoNRequest' is used")
+        @Suppress("deprecation")
+        fun convertToPlayAuthPasskeyRequest(option: GetPublicKeyCredentialOption):
+            BeginSignInRequest.PasskeysRequestOptions {
+            val json = JSONObject(option.requestJson)
+            val rpId = json.optString("rpId", "")
+            if (rpId.isEmpty()) {
+                throw JSONException("GetPublicKeyCredentialOption - rpId not specified in the " +
+                    "request or is unexpectedly empty")
+            }
+            val challenge = getChallenge(json)
+            return BeginSignInRequest.PasskeysRequestOptions.Builder()
+                .setSupported(true)
+                .setRpId(rpId)
+                .setChallenge(challenge)
                 .build()
         }
 
@@ -553,14 +576,15 @@ class PublicKeyCredentialControllerUtility {
         }
 
         private const val FLAGS = Base64.NO_WRAP or Base64.URL_SAFE or Base64.NO_PADDING
-        private val TAG = PublicKeyCredentialControllerUtility::class.java.name
+        private const val TAG = "PublicKeyUtility"
         internal val orderedErrorCodeToExceptions = linkedMapOf(ErrorCode.UNKNOWN_ERR to
             UnknownError(),
             ErrorCode.ABORT_ERR to AbortError(),
             ErrorCode.ATTESTATION_NOT_PRIVATE_ERR to NotReadableError(),
             ErrorCode.CONSTRAINT_ERR to ConstraintError(),
             ErrorCode.DATA_ERR to DataError(),
-            ErrorCode.ENCODING_ERR to InvalidStateError(),
+            ErrorCode.INVALID_STATE_ERR to InvalidStateError(),
+            ErrorCode.ENCODING_ERR to EncodingError(),
             ErrorCode.NETWORK_ERR to NetworkError(),
             ErrorCode.NOT_ALLOWED_ERR to NotAllowedError(),
             ErrorCode.NOT_SUPPORTED_ERR to NotSupportedError(),

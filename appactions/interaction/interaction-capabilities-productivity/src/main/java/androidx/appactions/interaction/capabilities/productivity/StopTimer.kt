@@ -18,24 +18,24 @@ package androidx.appactions.interaction.capabilities.productivity
 
 import androidx.appactions.builtintypes.experimental.types.GenericErrorStatus
 import androidx.appactions.builtintypes.experimental.types.SuccessStatus
+import androidx.appactions.builtintypes.types.Timer
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
-import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
+import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.Property
+import androidx.appactions.interaction.capabilities.serializers.types.TIMER_TYPE_SPEC
 import androidx.appactions.interaction.proto.ParamValue
 import androidx.appactions.interaction.protobuf.Struct
 import androidx.appactions.interaction.protobuf.Value
 
-private const val CAPABILITY_NAME = "actions.intent.STOP_TIMER"
-
 /** A capability corresponding to actions.intent.STOP_TIMER */
-@CapabilityFactory(name = CAPABILITY_NAME)
+@CapabilityFactory(name = StopTimer.CAPABILITY_NAME)
 class StopTimer private constructor() {
-    internal enum class PropertyMapStrings(val key: String) {
-        TIMER_LIST("timer.timerList")
+    internal enum class SlotMetadata(val path: String) {
+        TIMER("timer")
     }
 
     class CapabilityBuilder :
@@ -46,15 +46,11 @@ class StopTimer private constructor() {
             Confirmation,
             ExecutionSession
             >(ACTION_SPEC) {
-        private var properties = mutableMapOf<String, Property<*>>()
-
-        fun setTimerList(timerList: Property<TimerValue>): CapabilityBuilder =
-            apply { properties[PropertyMapStrings.TIMER_LIST.key] = timerList }
-
-        override fun build(): Capability {
-            super.setProperty(properties)
-            return super.build()
-        }
+        fun setTimerProperty(timer: Property<Timer>): CapabilityBuilder = setProperty(
+            SlotMetadata.TIMER.path,
+            timer,
+            EntityConverter.of(TIMER_TYPE_SPEC)
+        )
     }
 
     class Arguments internal constructor(val timerList: List<TimerValue>?) {
@@ -77,14 +73,14 @@ class StopTimer private constructor() {
             return timerList.hashCode()
         }
 
-        class Builder : BuilderOf<Arguments> {
+        class Builder {
             private var timerList: List<TimerValue>? = null
 
             fun setTimerList(
                 timerList: List<TimerValue>
             ): Builder = apply { this.timerList = timerList }
 
-            override fun build(): Arguments = Arguments(timerList)
+            fun build(): Arguments = Arguments(timerList)
         }
     }
 
@@ -153,19 +149,16 @@ class StopTimer private constructor() {
     sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
 
     companion object {
-        @Suppress("UNCHECKED_CAST")
+        /** Canonical name for [StopTimer] capability */
+        const val CAPABILITY_NAME = "actions.intent.STOP_TIMER"
         private val ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-                .setArguments(Arguments::class.java, Arguments::Builder)
+                .setArguments(Arguments::class.java, Arguments::Builder, Arguments.Builder::build)
                 .setOutput(Output::class.java)
                 .bindRepeatedParameter(
-                    "timer",
-                    { properties ->
-                        properties[PropertyMapStrings.TIMER_LIST.key] as? Property<TimerValue>
-                    },
+                    SlotMetadata.TIMER.path,
                     Arguments.Builder::setTimerList,
-                    TimerValue.PARAM_VALUE_CONVERTER,
-                    TimerValue.ENTITY_CONVERTER
+                    TimerValue.PARAM_VALUE_CONVERTER
                 )
                 .bindOutput(
                     "executionStatus",

@@ -558,6 +558,16 @@ class ColorTest {
         }
     }
 
+    @Test
+    fun convertCieLab() {
+        val green = Color(100, 180, 50)
+        val cieGreen = green.convert(ColorSpaces.CieLab)
+        val srgbGreen = cieGreen.convert(ColorSpaces.Srgb)
+        assertEquals(100f / 255f, srgbGreen.red, 0.01f)
+        assertEquals(180f / 255f, srgbGreen.green, 0.01f)
+        assertEquals(50f / 255f, srgbGreen.blue, 0.01f)
+    }
+
     companion object {
         fun Int.toHexString() = "0x${toUInt().toString(16).padStart(8, '0')}"
     }

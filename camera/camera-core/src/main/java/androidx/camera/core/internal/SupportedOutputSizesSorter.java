@@ -290,7 +290,7 @@ class SupportedOutputSizesSorter {
             @NonNull ResolutionSelector resolutionSelector, int imageFormat) {
         // Appends high resolution output sizes if high resolution is enabled by ResolutionSelector
         if (resolutionSelector.getAllowedResolutionMode()
-                == ResolutionSelector.ALLOWED_RESOLUTIONS_SLOW) {
+                == ResolutionSelector.PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE) {
             List<Size> allSizesList = new ArrayList<>();
             allSizesList.addAll(resolutionCandidateList);
             allSizesList.addAll(mCameraInfoInternal.getSupportedHighResolutions(imageFormat));

@@ -200,6 +200,16 @@ class PagerStateNonGestureScrollingTest(val config: ParamConfig) : BasePagerTest
     }
 
     @Test
+    fun animatedScrollToPage_emptyPager_shouldNotReact() {
+        createPager(pageCount = { 0 }, additionalContent = {
+            LaunchedEffect(pagerState) {
+                pagerState.animateScrollToPage(10)
+            }
+        })
+        Truth.assertThat(pagerState.currentPage).isEqualTo(0)
+    }
+
+    @Test
     fun animatedScrollToPageWithOffset_usingLaunchedEffect() {
 
         createPager(additionalContent = {

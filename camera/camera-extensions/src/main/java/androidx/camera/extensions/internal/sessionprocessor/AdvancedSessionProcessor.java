@@ -47,6 +47,9 @@ import androidx.camera.extensions.impl.advanced.ImageReferenceImpl;
 import androidx.camera.extensions.impl.advanced.OutputSurfaceImpl;
 import androidx.camera.extensions.impl.advanced.RequestProcessorImpl;
 import androidx.camera.extensions.impl.advanced.SessionProcessorImpl;
+import androidx.camera.extensions.internal.ClientVersion;
+import androidx.camera.extensions.internal.ExtensionVersion;
+import androidx.camera.extensions.internal.Version;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
@@ -166,7 +169,12 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
     @Override
     public int startTrigger(@NonNull Config config, @NonNull CaptureCallback callback) {
         HashMap<CaptureRequest.Key<?>, Object> map = convertConfigToMap(config);
-        return mImpl.startTrigger(map, new SessionProcessorImplCaptureCallbackAdapter(callback));
+        if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_3)
+                && ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_3)) {
+            return mImpl.startTrigger(map,
+                    new SessionProcessorImplCaptureCallbackAdapter(callback));
+        }
+        return -1;
     }
 
     @Override

@@ -66,17 +66,6 @@ class GitRunnerGitClient(
             ?.firstOrNull()
     }
 
-    private fun findGitDirInParentFilepath(filepath: File): File? {
-        var curDirectory: File = filepath
-        while (curDirectory.path != "/") {
-            if (File("$curDirectory/.git").exists()) {
-                return curDirectory
-            }
-            curDirectory = curDirectory.parentFile
-        }
-        return null
-    }
-
     private fun parseCommitLogString(
         commitLogString: String,
         commitStartDelimiter: String,
@@ -109,12 +98,12 @@ class GitRunnerGitClient(
      *
      * @param gitCommitRange the [GitCommitRange] that defines the parameters of the git log command
      * @param keepMerges boolean for whether or not to add merges to the return [List<Commit>].
-     * @param fullProjectDir a [File] object that represents the full project directory.
+     * @param projectDir a [File] object that represents the project directory.
      */
     override fun getGitLog(
         gitCommitRange: GitCommitRange,
         keepMerges: Boolean,
-        fullProjectDir: File
+        projectDir: File?
     ): List<Commit> {
         val commitStartDelimiter: String = "_CommitStart"
         val commitSHADelimiter: String = "_CommitSHA:"
@@ -122,6 +111,10 @@ class GitRunnerGitClient(
         val authorEmailDelimiter: String = "_Author:"
         val dateDelimiter: String = "_Date:"
         val bodyDelimiter: String = "_Body:"
+        val fullProjectDir = if (projectDir == null)
+                workingDir
+            else
+                projectDir
         val localProjectDir: String = fullProjectDir.relativeTo(gitRoot).toString()
         val relativeProjectDir: String = fullProjectDir.relativeTo(workingDir).toString()
 
@@ -213,4 +206,18 @@ class GitRunnerGitClient(
         const val CHANGED_FILES_CMD_PREFIX = "git diff --name-only"
         const val GIT_LOG_CMD_PREFIX = "git log --name-only"
     }
+}
+
+/**
+ * Finds the git directory containing the given File by checking parent directories
+ */
+internal fun findGitDirInParentFilepath(filepath: File): File? {
+    var curDirectory: File = filepath
+    while (curDirectory.path != "/") {
+        if (File("$curDirectory/.git").exists()) {
+            return curDirectory
+        }
+        curDirectory = curDirectory.parentFile
+    }
+    return null
 }

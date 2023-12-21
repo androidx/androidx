@@ -35,6 +35,7 @@ fun interface EntityConverter<T> {
         /**
          * @param typeSpec the TypeSpec of the structured type.
          */
+        @JvmStatic
         fun <T> of(typeSpec: TypeSpec<T>): EntityConverter<T> {
             return EntityConverter { obj ->
                 val builder = valueToEntity(typeSpec.toValue(obj)).toBuilder()
@@ -46,10 +47,10 @@ fun interface EntityConverter<T> {
         internal fun valueToEntity(value: Value): Entity {
             val builder = Entity.newBuilder()
             when {
-                value.hasStringValue() -> builder.setStringValue(value.getStringValue())
-                value.hasBoolValue() -> builder.setBoolValue(value.getBoolValue())
-                value.hasNumberValue() -> builder.setNumberValue(value.getNumberValue())
-                value.hasStructValue() -> builder.setStructValue(value.getStructValue())
+                value.hasStringValue() -> builder.stringValue = value.stringValue
+                value.hasBoolValue() -> builder.boolValue = value.boolValue
+                value.hasNumberValue() -> builder.numberValue = value.numberValue
+                value.hasStructValue() -> builder.structValue = value.structValue
                 else -> throw IllegalStateException("cannot convert $value into Entity.")
             }
             return builder.build()

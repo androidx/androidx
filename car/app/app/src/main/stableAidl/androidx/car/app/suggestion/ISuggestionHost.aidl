@@ -18,7 +18,7 @@ package androidx.car.app.suggestion;
 
 import androidx.car.app.serialization.Bundleable;
 
-/** @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface ISuggestionHost {
    /**
       * Sends the list of suggestions that an application wants to expose, in order for a user

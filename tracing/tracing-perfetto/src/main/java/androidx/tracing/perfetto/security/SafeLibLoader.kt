@@ -24,28 +24,39 @@ import java.io.FileNotFoundException
 import java.security.MessageDigest
 
 internal class SafeLibLoader(context: Context) {
-    private val approvedLocations = listOfNotNull(context.cacheDir, getCodeCacheDir(context))
+    private val approvedLocations = listOfNotNull(getCodeCacheDir(context), context.cacheDir)
 
     // TODO(235105064): consider moving off the main thread (I/O work)
     fun loadLib(file: File, abiToSha256Map: Map<String, String>) {
-        // verify that file is in an approved location
-        if (!file.exists()) throw FileNotFoundException("Cannot locate library file: $file")
-        if (approvedLocations.none { approvedLocation -> file.isChildOf(approvedLocation) })
-            throw UnapprovedLocationException(
-                "File is located in a path that is not on the approved list of locations. " +
-                    "Approved list: $approvedLocations."
-            )
+        // ensure the file is in an approved location (and if not, copy it over to one)
+        val safeLocationFile = copyToSafeLocation(file)
 
         // verify checksum of the file
-        val expected = findAbiAwareSha(abiToSha256Map)
-        val actualSha = calcSha256Digest(file)
-        if (actualSha != expected) throw IncorrectChecksumException(
-            "Invalid checksum for file: $file. Ensure you are using correct version" +
-                " of the library and clear local caches."
-        )
+        verifyChecksum(safeLocationFile, findAbiAwareSha(abiToSha256Map))
 
-        // load the library after performing all checks
-        System.load(file.absolutePath)
+        // load the library
+        System.load(safeLocationFile.absolutePath)
+    }
+
+    /**
+     * Copies the file to a location where the app has exclusive write access. No-op if the file is
+     * already in such location.
+     */
+    private fun copyToSafeLocation(file: File): File {
+        if (!file.exists()) throw FileNotFoundException("Cannot locate library file: $file")
+        val isInApprovedLocation = approvedLocations.any { approvedLocation ->
+            file.isDescendantOf(approvedLocation)
+        }
+        return if (isInApprovedLocation) file
+        else file.copyTo(approvedLocations.first().resolve(file.name), overwrite = true)
+    }
+
+    private fun verifyChecksum(file: File, expectedSha: String) {
+        val actualSha = calcSha256Digest(file)
+        if (actualSha != expectedSha) throw IncorrectChecksumException(
+            "Invalid checksum for file: $file. Ensure you are using correct" +
+                " version of the library and clear local caches."
+        )
     }
 
     private fun findAbiAwareSha(abiToShaMap: Map<String, String>): String {
@@ -74,8 +85,8 @@ internal class SafeLibLoader(context: Context) {
         return digest.digest().joinToString("") { "%02x".format(it) }
     }
 
-    private fun File.isChildOf(ancestor: File) =
-        generateSequence(this) { it.parentFile }.any { it == ancestor }
+    private fun File.isDescendantOf(ancestor: File) =
+        generateSequence(this.parentFile) { it.parentFile }.any { it == ancestor }
 
     private fun getCodeCacheDir(context: Context): File? =
         if (Build.VERSION.SDK_INT >= 21) Impl21.getCodeCacheDir(context)
@@ -89,4 +100,3 @@ internal class SafeLibLoader(context: Context) {
 
 internal class MissingChecksumException(message: String) : NoSuchElementException(message)
 internal class IncorrectChecksumException(message: String) : SecurityException(message)
-internal class UnapprovedLocationException(message: String) : SecurityException(message)

@@ -257,6 +257,17 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
                     cameraSelectorSecondary = cameraInfo.getCameraSelector();
                 }
             }
+
+            if (cameraSelectorPrimary == null || cameraSelectorSecondary == null) {
+                // If either a primary or secondary selector wasn't found, reset both
+                // to move on to the next list of CameraInfos.
+                cameraSelectorPrimary = null;
+                cameraSelectorSecondary = null;
+            } else {
+                // If both primary and secondary camera selectors were found, we can
+                // conclude the search.
+                break;
+            }
         }
         if (cameraSelectorPrimary == null || cameraSelectorSecondary == null) {
             return;

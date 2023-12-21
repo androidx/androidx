@@ -75,6 +75,7 @@ public class DimensionBuildersTest {
         assertThrows(IllegalStateException.class, DP_PROP_WITHOUT_STATIC_VALUE::build);
     }
 
+    @Test
     public void degreesPropSupportsDynamicValue() {
         DimensionProto.DegreesProp degreesPropProto = DEGREES_PROP.toProto();
 
@@ -91,7 +92,7 @@ public class DimensionBuildersTest {
     @Test
     public void expandedLayoutWeight() {
         TypeBuilders.FloatProp layoutWeight =
-                new TypeBuilders.FloatProp.Builder().setValue(3.14f).build();
+                new TypeBuilders.FloatProp.Builder(3.14f).build();
         DimensionBuilders.ContainerDimension dimensionProp =
                 new DimensionBuilders.ExpandedDimensionProp.Builder()
                         .setLayoutWeight(layoutWeight)

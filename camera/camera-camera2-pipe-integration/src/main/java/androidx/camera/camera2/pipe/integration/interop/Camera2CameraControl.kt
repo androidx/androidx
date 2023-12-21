@@ -56,14 +56,8 @@ private constructor(
 
     private var _useCaseCamera: UseCaseCamera? = null
     override var useCaseCamera
-        /**
-         * @hide
-         */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         get() = _useCaseCamera
-        /**
-         * @hide
-         */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         set(value) {
             _useCaseCamera = value
@@ -74,9 +68,6 @@ private constructor(
             }
         }
 
-    /**
-     * @hide
-     */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     override fun reset() {
         // Clear the current task, but don't clear the CaptureRequestOptions. Camera2CameraControl
@@ -163,9 +154,6 @@ private constructor(
             compat.applyAsync(useCaseCamera).asListenableFuture(tag)
         )
 
-    /**
-     * @hide
-     */
     companion object {
 
         /**
@@ -197,8 +185,6 @@ private constructor(
 
         /**
          * This is the workaround to prevent constructor from being added to public API.
-         *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic

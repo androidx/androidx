@@ -24,9 +24,10 @@ import androidx.test.platform.app.InstrumentationRegistry
 
 /**
  * This allows tests to override arguments from code
- *
- * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+@get:RestrictTo(RestrictTo.Scope.LIBRARY)
+@set:RestrictTo(RestrictTo.Scope.LIBRARY)
 @VisibleForTesting
 public var argumentSource: Bundle? = null
 
@@ -36,9 +37,6 @@ public var argumentSource: Bundle? = null
 @VisibleForTesting
 internal var profilerOverride: Profiler? = null
 
-/**
- * @hide
- */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 object Arguments {
     // public properties are shared by micro + macro benchmarks
@@ -198,6 +196,14 @@ object Arguments {
 
         strictStartupProfiles =
             arguments.getBenchmarkArgument("startupProfiles.strict")?.toBoolean() ?: false
+    }
+
+    fun methodTracingEnabled(): Boolean {
+        return when {
+            dryRunMode -> false
+            _profiler != null && _profiler.javaClass.simpleName == "MethodTracing" -> true
+            else -> false
+        }
     }
 
     fun throwIfError() {

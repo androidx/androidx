@@ -200,7 +200,8 @@ internal object ColumnScopeInstance : ColumnScope {
         require(weight > 0.0) { "invalid weight $weight; must be greater than zero" }
         return this.then(
             LayoutWeightElement(
-                weight = weight,
+                // Coerce Float.POSITIVE_INFINITY to Float.MAX_VALUE to avoid errors
+                weight = weight.coerceAtMost(Float.MAX_VALUE),
                 fill = fill
             )
         )

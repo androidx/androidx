@@ -24,6 +24,7 @@ import android.os.Build
 import android.os.Looper
 import android.os.SystemClock
 import android.util.Log
+import android.util.LongSparseArray
 import android.util.SparseArray
 import android.view.KeyEvent as AndroidKeyEvent
 import android.view.MotionEvent
@@ -42,10 +43,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewStructure
 import android.view.ViewTreeObserver
+import android.view.accessibility.AccessibilityNodeInfo
 import android.view.animation.AnimationUtils
 import android.view.autofill.AutofillValue
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
+import android.view.translation.ViewTranslationCallback
+import android.view.translation.ViewTranslationRequest
+import android.view.translation.ViewTranslationResponse
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
@@ -156,6 +161,7 @@ import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import java.lang.reflect.Method
+import java.util.function.Consumer
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToInt
 
@@ -579,6 +585,11 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
             // Support for this feature in Compose is tracked here: b/207654434
             AndroidComposeViewForceDarkModeQ.disallowForceDark(this)
         }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            AndroidComposeViewTranslationCallbackS.setViewTranslationCallback(
+                this, AndroidComposeViewTranslationCallback())
+        }
     }
 
     /**
@@ -715,6 +726,24 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         }
     }
 
+    private fun addExtraDataToAccessibilityNodeInfoHelper(
+        virtualViewId: Int,
+        info: AccessibilityNodeInfo,
+        extraDataKey: String
+    ) {
+        // This extra is just for testing: needed a way to retrieve `traversalBefore` and
+        // `traversalAfter` from a non-sealed instance of an ANI
+        if (extraDataKey == accessibilityDelegate.EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL) {
+            accessibilityDelegate.idToBeforeMap[virtualViewId]?.let {
+                info.extras.putInt(extraDataKey, it)
+            }
+        } else if (extraDataKey == accessibilityDelegate.EXTRA_DATA_TEST_TRAVERSALAFTER_VAL) {
+            accessibilityDelegate.idToAfterMap[virtualViewId]?.let {
+                info.extras.putInt(extraDataKey, it)
+            }
+        }
+    }
+
     /**
      * Called to inform the owner that a new Android [View] was [attached][Owner.onAttach]
      * to the hierarchy.
@@ -747,6 +776,40 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
                         parentId = AccessibilityNodeProviderCompat.HOST_VIEW_ID
                     }
                     info.setParent(thisView, parentId)
+                    val semanticsId = layoutNode.semanticsId
+
+                    val beforeId = accessibilityDelegate.idToBeforeMap[semanticsId]
+                    beforeId?.let {
+                        val beforeView = androidViewsHandler.semanticsIdToView(beforeId)
+                        if (beforeView != null) {
+                            // If the node that should come before this one is a view, we want to
+                            // pass in the "before" view itself, which is retrieved
+                            // from `androidViewsHandler.idToViewMap`.
+                            info.setTraversalBefore(beforeView)
+                        } else {
+                            // Otherwise, we'll just set the "before" value by passing in
+                            // the semanticsId.
+                            info.setTraversalBefore(thisView, it)
+                        }
+                        addExtraDataToAccessibilityNodeInfoHelper(
+                            semanticsId, info.unwrap(),
+                            accessibilityDelegate.EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL
+                        )
+                    }
+
+                    val afterId = accessibilityDelegate.idToAfterMap[semanticsId]
+                    afterId?.let {
+                        val afterView = androidViewsHandler.semanticsIdToView(afterId)
+                        if (afterView != null) {
+                            info.setTraversalAfter(afterView)
+                        } else {
+                            info.setTraversalAfter(thisView, it)
+                        }
+                        addExtraDataToAccessibilityNodeInfoHelper(
+                            semanticsId, info.unwrap(),
+                            accessibilityDelegate.EXTRA_DATA_TEST_TRAVERSALAFTER_VAL
+                        )
+                    }
                 }
             }
         )
@@ -817,20 +880,30 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     }
 
     override fun measureAndLayout(sendPointerUpdate: Boolean) {
-        trace("AndroidOwner:measureAndLayout") {
-            val resend = if (sendPointerUpdate) resendMotionEventOnLayout else null
-            val rootNodeResized = measureAndLayoutDelegate.measureAndLayout(resend)
-            if (rootNodeResized) {
-                requestLayout()
+        // only run the logic when we have something pending
+        if (measureAndLayoutDelegate.hasPendingMeasureOrLayout ||
+            measureAndLayoutDelegate.hasPendingOnPositionedCallbacks
+        ) {
+            trace("AndroidOwner:measureAndLayout") {
+                val resend = if (sendPointerUpdate) resendMotionEventOnLayout else null
+                val rootNodeResized = measureAndLayoutDelegate.measureAndLayout(resend)
+                if (rootNodeResized) {
+                    requestLayout()
+                }
+                measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
             }
-            measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
         }
     }
 
     override fun measureAndLayout(layoutNode: LayoutNode, constraints: Constraints) {
         trace("AndroidOwner:measureAndLayout") {
             measureAndLayoutDelegate.measureAndLayout(layoutNode, constraints)
-            measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
+            // only dispatch the callbacks if we don't have other nodes to process as otherwise
+            // we will have one more measureAndLayout() pass anyway in the same frame.
+            // it allows us to not traverse the hierarchy twice.
+            if (!measureAndLayoutDelegate.hasPendingMeasureOrLayout) {
+                measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
+            }
         }
     }
 
@@ -1207,6 +1280,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         _inputModeManager.inputMode = if (isInTouchMode) Touch else Keyboard
 
         viewTreeOwners!!.lifecycleOwner.lifecycle.addObserver(this)
+        viewTreeOwners!!.lifecycleOwner.lifecycle.addObserver(accessibilityDelegate)
         viewTreeObserver.addOnGlobalLayoutListener(globalLayoutListener)
         viewTreeObserver.addOnScrollChangedListener(scrollChangedListener)
         viewTreeObserver.addOnTouchModeChangeListener(touchModeChangeListener)
@@ -1216,6 +1290,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         super.onDetachedFromWindow()
         snapshotObserver.stopObserving()
         viewTreeOwners?.lifecycleOwner?.lifecycle?.removeObserver(this)
+        viewTreeOwners?.lifecycleOwner?.lifecycle?.removeObserver(accessibilityDelegate)
         ifDebug {
             if (autofillSupported()) {
                 _autofill?.let { AutofillCallback.unregister(it) }
@@ -1232,6 +1307,23 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
 
     override fun autofill(values: SparseArray<AutofillValue>) {
         if (autofillSupported()) _autofill?.performAutofill(values)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    override fun onCreateVirtualViewTranslationRequests(
+        virtualIds: LongArray,
+        supportedFormats: IntArray,
+        requestsCollector: Consumer<ViewTranslationRequest?>
+    ) {
+        accessibilityDelegate.onCreateVirtualViewTranslationRequests(
+            virtualIds, supportedFormats, requestsCollector)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    override fun onVirtualViewTranslationResponses(
+        response: LongSparseArray<ViewTranslationResponse?>
+    ) {
+        accessibilityDelegate.onVirtualViewTranslationResponses(response)
     }
 
     override fun dispatchGenericMotionEvent(event: MotionEvent) = when (event.actionMasked) {
@@ -1363,6 +1455,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         }
     }
 
+    @OptIn(InternalCoreApi::class)
     private fun sendMotionEvent(motionEvent: MotionEvent): ProcessResult {
         if (keyboardModifiersRequireUpdate) {
             keyboardModifiersRequireUpdate = false
@@ -1404,6 +1497,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         }
     }
 
+    @OptIn(InternalCoreApi::class)
     private fun sendSimulatedEvent(
         motionEvent: MotionEvent,
         action: Int,
@@ -1783,6 +1877,27 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
          */
         val savedStateRegistryOwner: SavedStateRegistryOwner
     )
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    private class AndroidComposeViewTranslationCallback : ViewTranslationCallback {
+        override fun onShowTranslation(view: View): Boolean {
+            val androidComposeView = view as AndroidComposeView
+            androidComposeView.accessibilityDelegate.onShowTranslation()
+            return true
+        }
+
+        override fun onHideTranslation(view: View): Boolean {
+            val androidComposeView = view as AndroidComposeView
+            androidComposeView.accessibilityDelegate.onHideTranslation()
+            return true
+        }
+
+        override fun onClearTranslation(view: View): Boolean {
+            val androidComposeView = view as AndroidComposeView
+            androidComposeView.accessibilityDelegate.onClearTranslation()
+            return true
+        }
+    }
 }
 
 /**
@@ -1851,6 +1966,15 @@ private object AndroidComposeViewForceDarkModeQ {
     @RequiresApi(Build.VERSION_CODES.Q)
     fun disallowForceDark(view: View) {
         view.isForceDarkAllowed = false
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.S)
+private object AndroidComposeViewTranslationCallbackS {
+    @DoNotInline
+    @RequiresApi(Build.VERSION_CODES.S)
+    fun setViewTranslationCallback(view: View, translationCallback: ViewTranslationCallback) {
+        view.setViewTranslationCallback(translationCallback)
     }
 }
 

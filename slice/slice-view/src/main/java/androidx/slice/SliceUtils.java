@@ -236,7 +236,6 @@ public class SliceUtils {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static IconCompat convert(Context context, IconCompat icon, SerializeOptions options) {
@@ -314,7 +313,6 @@ public class SliceUtils {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static int parseImageMode(@NonNull SliceItem iconItem) {
@@ -375,7 +373,6 @@ public class SliceUtils {
         private int mQuality = 100;
 
         /**
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         public void checkThrow(String format) {
@@ -394,7 +391,6 @@ public class SliceUtils {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         public @FormatMode int getActionMode() {
@@ -402,7 +398,6 @@ public class SliceUtils {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         public @FormatMode int getImageMode() {
@@ -410,7 +405,6 @@ public class SliceUtils {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         public int getMaxWidth() {
@@ -418,7 +412,6 @@ public class SliceUtils {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         public int getMaxHeight() {
@@ -426,7 +419,6 @@ public class SliceUtils {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         public Bitmap.CompressFormat getFormat() {
@@ -434,7 +426,6 @@ public class SliceUtils {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         public int getQuality() {
@@ -527,7 +518,6 @@ public class SliceUtils {
      */
     public static class SliceParseException extends Exception {
         /**
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         public SliceParseException(String s, Throwable e) {
@@ -535,7 +525,6 @@ public class SliceUtils {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         public SliceParseException(String s) {

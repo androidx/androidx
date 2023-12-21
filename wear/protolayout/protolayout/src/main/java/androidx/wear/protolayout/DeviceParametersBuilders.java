@@ -23,6 +23,7 @@ import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.expression.ProtoLayoutExperimental;
@@ -167,8 +168,8 @@ public final class DeviceParametersBuilders {
 
     /**
      * Gets the maximum schema version supported by the current renderer. When building a layout
-     * that uses features not available on schema version 1.0 , the result of this method can be
-     * used to conditionally choose which feature to use.
+     * that uses features not available on schema version 1.0 , this can be used to conditionally
+     * choose which feature to use.
      *
      * @since 1.2
      */
@@ -196,11 +197,7 @@ public final class DeviceParametersBuilders {
       }
     }
 
-    /**
-     * Creates a new wrapper instance from the proto. Intended for testing purposes only. An object
-     * created using this method can't be added to any other wrapper.
-     *
-     */
+    /** Creates a new wrapper instance from the proto. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static DeviceParameters fromProto(
@@ -208,14 +205,35 @@ public final class DeviceParametersBuilders {
       return new DeviceParameters(proto);
     }
 
-    /**
-     * Returns the internal proto instance.
-     *
-     */
+    /** Returns the internal proto instance. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public DeviceParametersProto.DeviceParameters toProto() {
       return mImpl;
+    }
+
+    @Override
+    @OptIn(markerClass = ProtoLayoutExperimental.class)
+    @NonNull
+    public String toString() {
+      return "DeviceParameters{"
+          + "screenWidthDp="
+          + getScreenWidthDp()
+          + ", screenHeightDp="
+          + getScreenHeightDp()
+          + ", screenDensity="
+          + getScreenDensity()
+          + ", fontScale="
+          + getFontScale()
+          + ", devicePlatform="
+          + getDevicePlatform()
+          + ", screenShape="
+          + getScreenShape()
+          + ", rendererSchemaVersion="
+          + getRendererSchemaVersion()
+          + ", capabilities="
+          + getCapabilities()
+          + "}";
     }
 
     /** Builder for {@link DeviceParameters} */
@@ -296,8 +314,9 @@ public final class DeviceParametersBuilders {
       }
 
       /**
-       * Sets the maximum schema version supported by the current renderer. If not set defaults
-       * to schema version 1.0
+       * Sets the maximum schema version supported by the current renderer. When building a layout
+       * that uses features not available on schema version 1.0 , this can be used to conditionally
+       * choose which feature to use.
        *
        * @since 1.2
        */
@@ -328,10 +347,10 @@ public final class DeviceParametersBuilders {
   }
 
   /**
-   * {@link Capabilities} describing the features that the renderer supports. These features can
-   * are not necessarily tied to a specific schema version. Layout providers can use these
-   * information to conditionally generate different layouts based on the presence/value of a
-   * feature.
+   * {@link Capabilities} describing the features that the renderer supports. These features are not
+   * necessarily tied to a specific schema version. {@link
+   * androidx.wear.protolayout.LayoutElementBuilders.Layout} providers can use these information to
+   * conditionally generate different layouts based on the presence/value of a feature.
    *
    * @since 1.2
    */
@@ -355,14 +374,27 @@ public final class DeviceParametersBuilders {
       return mImpl.getMinimumFreshnessLimitMillis();
     }
 
+    /** Creates a new wrapper instance from the proto. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    static Capabilities fromProto(@NonNull DeviceParametersProto.Capabilities proto) {
+    public static Capabilities fromProto(@NonNull DeviceParametersProto.Capabilities proto) {
       return new Capabilities(proto);
     }
 
+    /** Returns the internal proto instance. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    DeviceParametersProto.Capabilities toProto() {
+    public DeviceParametersProto.Capabilities toProto() {
       return mImpl;
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "Capabilities{"
+          + "minimumFreshnessLimitMillis="
+          + getMinimumFreshnessLimitMillis()
+          + "}";
     }
 
     /** Builder for {@link Capabilities} */

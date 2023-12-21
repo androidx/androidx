@@ -21,9 +21,8 @@ import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.HostProperties
 import androidx.appactions.interaction.capabilities.core.impl.CapabilitySession
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
-import androidx.appactions.interaction.capabilities.core.properties.Property
+import androidx.appactions.interaction.capabilities.core.impl.spec.BoundProperty
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction
-import androidx.appactions.interaction.proto.TaskInfo
 import java.util.function.Supplier
 
 /**
@@ -44,25 +43,23 @@ internal class TaskCapabilityImpl<
 constructor(
     id: String,
     private val actionSpec: ActionSpec<ArgumentsT, OutputT>,
-    private val property: Map<String, Property<*>>,
-    private val sessionFactory: (hostProperties: HostProperties?) -> ExecutionSessionT?,
+    private val boundProperties: List<BoundProperty<*>>,
+    private val sessionFactory: (hostProperties: HostProperties?) -> ExecutionSessionT,
     private val sessionBridge: SessionBridge<ExecutionSessionT, ArgumentsT, ConfirmationT>,
     private val sessionUpdaterSupplier: Supplier<SessionUpdaterT>
 ) : Capability(id) {
 
-    override val appAction: AppAction get() =
-        actionSpec
-            .convertPropertyToProto(property)
-            .toBuilder()
-            .setTaskInfo(TaskInfo.newBuilder().setSupportsPartialFulfillment(true))
-            .setIdentifier(id)
-            .build()
+    override val appAction: AppAction get() = actionSpec.createAppAction(
+        id,
+        boundProperties,
+        supportsPartialFulfillment = true
+    )
 
     override fun createSession(
         sessionId: String,
         hostProperties: HostProperties
     ): CapabilitySession {
-        val externalSession = sessionFactory.invoke(hostProperties)!!
+        val externalSession = sessionFactory.invoke(hostProperties)
         return TaskCapabilitySession(
             sessionId,
             actionSpec,

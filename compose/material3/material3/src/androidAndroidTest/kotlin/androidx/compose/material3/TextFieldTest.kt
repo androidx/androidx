@@ -65,6 +65,7 @@ import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.error
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
@@ -74,6 +75,7 @@ import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -1466,19 +1468,32 @@ class TextFieldTest {
     @Test
     fun testTextField_errorSemantics_messageOverridable() {
         val errorMessage = "Special symbols not allowed"
+        lateinit var defaultErrorMessage: String
         rule.setMaterialContent(lightColorScheme()) {
             val isError = remember { mutableStateOf(true) }
             TextField(
                 value = "test",
                 onValueChange = {},
-                modifier = Modifier.semantics { if (isError.value) error(errorMessage) },
+                modifier = Modifier
+                    .testTag(TextFieldTag)
+                    .semantics { if (isError.value) error(errorMessage) },
                 isError = isError.value
             )
+            defaultErrorMessage = getString(DefaultErrorMessage)
         }
 
-        rule.onNodeWithText("test")
+        rule.onNodeWithTag(TextFieldTag)
             .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Error))
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Error, errorMessage))
+
+        // Check that default error message is overwritten and not lingering in a child node
+        rule.onNodeWithTag(TextFieldTag, useUnmergedTree = true)
+            .onChildren()
+            .fetchSemanticsNodes()
+            .forEach { node ->
+                assertThat(node.config.getOrNull(SemanticsProperties.Error))
+                    .isNotEqualTo(defaultErrorMessage)
+            }
     }
 
     @Test
@@ -1714,7 +1729,7 @@ class TextFieldTest {
     }
 
     @Test
-    fun testTextField_intrinsicsMeasurement_correctHeight() {
+    fun testTextField_intrinsicHeight_withOnlyEmptyInput() {
         var height = 0
         rule.setMaterialContent(lightColorScheme()) {
             val text = remember { mutableStateOf("") }
@@ -1725,7 +1740,6 @@ class TextFieldTest {
                     TextField(
                         value = text.value,
                         onValueChange = { text.value = it },
-                        textStyle = TextStyle(fontSize = 1.sp), // ensure text size is minimum
                     )
                     Divider(Modifier.fillMaxHeight())
                 }
@@ -1738,7 +1752,7 @@ class TextFieldTest {
     }
 
     @Test
-    fun testTextField_intrinsicsMeasurement_withLeadingIcon_correctHeight() {
+    fun testTextField_intrinsicHeight_withEmptyInput_andDecorations() {
         var height = 0
         rule.setMaterialContent(lightColorScheme()) {
             val text = remember { mutableStateOf("") }
@@ -1749,8 +1763,10 @@ class TextFieldTest {
                     TextField(
                         value = text.value,
                         onValueChange = { text.value = it },
-                        textStyle = TextStyle(fontSize = 1.sp), // ensure text size is minimum
-                        leadingIcon = { Icon(Icons.Default.Favorite, null) }
+                        leadingIcon = { Icon(Icons.Default.Favorite, null) },
+                        trailingIcon = { Icon(Icons.Default.Favorite, null) },
+                        prefix = { Text("P") },
+                        suffix = { Text("S") },
                     )
                     Divider(Modifier.fillMaxHeight())
                 }
@@ -1763,28 +1779,46 @@ class TextFieldTest {
     }
 
     @Test
-    fun testTextField_intrinsicsMeasurement_withTrailingIcon_correctHeight() {
-        var height = 0
+    fun testTextField_intrinsicHeight_withLongInput_andDecorations() {
+        var tfHeightIntrinsic = 0
+        var tfHeightNoIntrinsic = 0
+        val text = "Long text input. ".repeat(20)
         rule.setMaterialContent(lightColorScheme()) {
-            val text = remember { mutableStateOf("") }
-            Box(Modifier.onGloballyPositioned {
-                height = it.size.height
-            }) {
-                Row(Modifier.height(IntrinsicSize.Min)) {
+            Row {
+                Box(Modifier.width(150.dp).height(IntrinsicSize.Min)) {
                     TextField(
-                        value = text.value,
-                        onValueChange = { text.value = it },
-                        textStyle = TextStyle(fontSize = 1.sp), // ensure text size is minimum
-                        trailingIcon = { Icon(Icons.Default.Favorite, null) }
+                        value = text,
+                        onValueChange = {},
+                        modifier = Modifier.onGloballyPositioned {
+                            tfHeightIntrinsic = it.size.height
+                        },
+                        leadingIcon = { Icon(Icons.Default.Favorite, null) },
+                        trailingIcon = { Icon(Icons.Default.Favorite, null) },
+                        prefix = { Text("P") },
+                        suffix = { Text("S") },
                     )
-                    Divider(Modifier.fillMaxHeight())
+                }
+
+                Box(Modifier.width(150.dp)) {
+                    TextField(
+                        value = text,
+                        onValueChange = {},
+                        modifier = Modifier.onGloballyPositioned {
+                            tfHeightNoIntrinsic = it.size.height
+                        },
+                        leadingIcon = { Icon(Icons.Default.Favorite, null) },
+                        trailingIcon = { Icon(Icons.Default.Favorite, null) },
+                        prefix = { Text("P") },
+                        suffix = { Text("S") },
+                    )
                 }
             }
         }
 
-        with(rule.density) {
-            assertThat(height).isEqualTo((TextFieldDefaults.MinHeight).roundToPx())
-        }
+        assertThat(tfHeightIntrinsic).isNotEqualTo(0)
+        assertThat(tfHeightNoIntrinsic).isNotEqualTo(0)
+
+        assertThat(tfHeightIntrinsic).isEqualTo(tfHeightNoIntrinsic)
     }
 
     @Test

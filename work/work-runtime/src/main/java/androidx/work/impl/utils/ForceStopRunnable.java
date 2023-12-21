@@ -48,6 +48,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.core.os.UserManagerCompat;
 import androidx.core.util.Consumer;
 import androidx.work.Configuration;
 import androidx.work.Logger;
@@ -146,8 +147,17 @@ public class ForceStopRunnable implements Runnable {
                         // PackageManager bugs are attributed to ForceStopRunnable, which is
                         // unfortunate. This gives the developer a better error
                         // message.
-                        String message = "The file system on the device is in a bad state. "
-                                + "WorkManager cannot access the app's internal data store.";
+                        String message;
+                        if (UserManagerCompat.isUserUnlocked(mContext)) {
+                            message = "The file system on the device is in a bad state. "
+                                    + "WorkManager cannot access the app's internal data store.";
+                        } else {
+                            message = "WorkManager can't be accessed from direct boot, because "
+                                    + "credential encrypted storage isn't accessible.\n"
+                                    + "Don't access or initialise WorkManager from directAware "
+                                    + "components. See "
+                                    + "https://developer.android.com/training/articles/direct-boot";
+                        }
                         Logger.get().error(TAG, message, exception);
                         IllegalStateException throwable = new IllegalStateException(message,
                                 exception);

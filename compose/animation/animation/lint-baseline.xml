@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="cli" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method slideIntoContainer has parameter &apos;initialOffset&apos; with type Function1&lt;? super Integer, Integer>."
+        errorLine1="        initialOffset: (offsetForFullSlide: Int) -> Int = { it }"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/AnimatedContent.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method slideOutOfContainer has parameter &apos;targetOffset&apos; with type Function1&lt;? super Integer, Integer>."
+        errorLine1="        targetOffset: (offsetForFullSlide: Int) -> Int = { it }"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/AnimatedContent.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method expandHorizontally has parameter &apos;initialWidth&apos; with type Function1&lt;? super Integer, Integer>."
+        errorLine1="    initialWidth: (fullWidth: Int) -> Int = { 0 },"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/EnterExitTransition.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method expandVertically has parameter &apos;initialHeight&apos; with type Function1&lt;? super Integer, Integer>."
+        errorLine1="    initialHeight: (fullHeight: Int) -> Int = { 0 },"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/EnterExitTransition.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method shrinkHorizontally has parameter &apos;targetWidth&apos; with type Function1&lt;? super Integer, Integer>."
+        errorLine1="    targetWidth: (fullWidth: Int) -> Int = { 0 }"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/EnterExitTransition.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method shrinkVertically has parameter &apos;targetHeight&apos; with type Function1&lt;? super Integer, Integer>."
+        errorLine1="    targetHeight: (fullHeight: Int) -> Int = { 0 },"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/EnterExitTransition.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method slideInHorizontally has parameter &apos;initialOffsetX&apos; with type Function1&lt;? super Integer, Integer>."
+        errorLine1="    initialOffsetX: (fullWidth: Int) -> Int = { -it / 2 },"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/EnterExitTransition.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method slideInVertically has parameter &apos;initialOffsetY&apos; with type Function1&lt;? super Integer, Integer>."
+        errorLine1="    initialOffsetY: (fullHeight: Int) -> Int = { -it / 2 },"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/EnterExitTransition.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method slideOutHorizontally has parameter &apos;targetOffsetX&apos; with type Function1&lt;? super Integer, Integer>."
+        errorLine1="    targetOffsetX: (fullWidth: Int) -> Int = { -it / 2 },"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/EnterExitTransition.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method slideOutVertically has parameter &apos;targetOffsetY&apos; with type Function1&lt;? super Integer, Integer>."
+        errorLine1="    targetOffsetY: (fullHeight: Int) -> Int = { -it / 2 },"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/EnterExitTransition.kt"/>
+    </issue>
+
+</issues>

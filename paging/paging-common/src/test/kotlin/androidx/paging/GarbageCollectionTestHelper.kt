@@ -16,7 +16,7 @@
 
 package androidx.paging
 
-import com.google.common.truth.Truth.assertWithMessage
+import androidx.kruth.assertWithMessage
 import java.lang.ref.ReferenceQueue
 import java.lang.ref.WeakReference
 import java.util.concurrent.atomic.AtomicBoolean

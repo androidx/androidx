@@ -111,7 +111,7 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
     }
 
     private fun unInitializeModifier() {
-        check(isAttached)
+        check(isAttached) { "unInitializeModifier called on unattached node" }
         val element = element
         if (isKind(Nodes.Locals)) {
             if (element is ModifierLocalProvider<*>) {
@@ -132,17 +132,14 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
     }
 
     private fun initializeModifier(duringAttach: Boolean) {
-        check(isAttached)
+        check(isAttached) { "initializeModifier called on unattached node" }
         val element = element
         if (isKind(Nodes.Locals)) {
+            if (element is ModifierLocalConsumer) {
+                sideEffect { updateModifierLocalConsumer() }
+            }
             if (element is ModifierLocalProvider<*>) {
                 updateModifierLocalProvider(element)
-            }
-            if (element is ModifierLocalConsumer) {
-                if (duringAttach)
-                    updateModifierLocalConsumer()
-                else
-                    sideEffect { updateModifierLocalConsumer() }
             }
         }
         if (isKind(Nodes.Draw)) {
@@ -154,7 +151,7 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
             }
         }
         if (isKind(Nodes.Layout)) {
-            val isChainUpdate = requireLayoutNode().nodes.tail.isAttached
+            val isChainUpdate = isChainUpdate()
             if (isChainUpdate) {
                 val coordinator = coordinator!!
                 coordinator as LayoutModifierNodeCoordinator
@@ -173,14 +170,14 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
             if (element is OnRemeasuredModifier) {
                 // if the modifier was added but layout has already happened and might not change,
                 // we want to call remeasured in case layout doesn't happen again
-                val isChainUpdate = requireLayoutNode().nodes.tail.isAttached
+                val isChainUpdate = isChainUpdate()
                 if (isChainUpdate) {
                     requireLayoutNode().invalidateMeasurements()
                 }
             }
             if (element is OnPlacedModifier) {
                 lastOnPlacedCoordinates = null
-                val isChainUpdate = requireLayoutNode().nodes.tail.isAttached
+                val isChainUpdate = isChainUpdate()
                 if (isChainUpdate) {
                     requireOwner().registerOnLayoutCompletedListener(
                         object : Owner.OnLayoutCompletedListener {
@@ -198,7 +195,7 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
             // if the modifier was added but layout has already happened and might not change,
             // we want to call remeasured in case layout doesn't happen again
             if (element is OnGloballyPositionedModifier) {
-                val isChainUpdate = requireLayoutNode().nodes.tail.isAttached
+                val isChainUpdate = isChainUpdate()
                 if (isChainUpdate) {
                     requireLayoutNode().invalidateMeasurements()
                 }
@@ -295,7 +292,7 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
             // do nothing and wait for the child consumers to read us. We infer this by
             // checking to see if the tail node is attached or not. If it is not, then the node
             // chain is being attached for the first time.
-            val isChainUpdate = requireLayoutNode().nodes.tail.isAttached
+            val isChainUpdate = isChainUpdate()
             if (isChainUpdate) {
                 requireOwner()
                     .modifierLocalManager
@@ -415,13 +412,15 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
 
     override fun onFocusEvent(focusState: FocusState) {
         val focusEventModifier = element
-        check(focusEventModifier is FocusEventModifier)
+        check(focusEventModifier is FocusEventModifier) { "onFocusEvent called on wrong node" }
         focusEventModifier.onFocusEvent(focusState)
     }
 
     override fun applyFocusProperties(focusProperties: FocusProperties) {
         val focusOrderModifier = element
-        check(focusOrderModifier is FocusOrderModifier)
+        check(focusOrderModifier is FocusOrderModifier) {
+            "applyFocusProperties called on wrong node"
+        }
         focusProperties.apply(FocusOrderModifierToProperties(focusOrderModifier))
     }
 
@@ -452,4 +451,9 @@ private class FocusOrderModifierToProperties(
     override fun invoke(focusProperties: FocusProperties) {
         modifier.populateFocusOrder(FocusOrder(focusProperties))
     }
+}
+
+private fun BackwardsCompatNode.isChainUpdate(): Boolean {
+    val tailNode = requireLayoutNode().nodes.tail as TailModifierNode
+    return tailNode.attachHasBeenRun
 }

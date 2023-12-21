@@ -152,7 +152,7 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
             includeGroupRegex = """com\.android\.tools\.metalava"""
         )
         val prebuilts = PlaygroundRepository(
-            "https://androidx.dev/storage/prebuilts/androidx/internal/repository",
+            INTERNAL_PREBUILTS_REPO_URL,
             includeGroupRegex = """androidx\..*"""
         )
         val dokka = PlaygroundRepository(
@@ -226,5 +226,7 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
             }
         }
         const val SNAPSHOT_MARKER = "REPLACE_WITH_SNAPSHOT"
+        const val INTERNAL_PREBUILTS_REPO_URL =
+            "https://androidx.dev/storage/prebuilts/androidx/internal/repository"
     }
 }

@@ -55,6 +55,11 @@ interface XBasicAnnotationProcessor {
     fun initialize(env: XProcessingEnv) { }
 
     /**
+     * Called at the beginning of a processing round before all [processingSteps] execute.
+     */
+    fun preRound(env: XProcessingEnv, round: XRoundEnv) { }
+
+    /**
      * The list of processing steps to execute.
      */
     fun processingSteps(): Iterable<XProcessingStep>

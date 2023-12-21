@@ -281,6 +281,29 @@ class ProcessingCaptureSessionTest(
         ).isTrue()
     }
 
+    @Test
+    fun setSessionConfigWithoutSurface_stopPreviewFrame(): Unit = runBlocking(Dispatchers.Main) {
+        // Arrange
+        val cameraDevice = cameraDeviceHolder.get()!!
+        val captureSession = createProcessingCaptureSession()
+        captureSession.sessionConfig =
+            sessionConfigParameters.getActiveSessionConfigForRepeating()
+        captureSession.open(
+            sessionConfigParameters.getSessionConfigForOpen(), cameraDevice,
+            captureSessionOpenerBuilder.build()
+        ).awaitWithTimeout(3000)
+        sessionConfigParameters.assertPreviewImageReceived()
+
+        // Act.  set SessionConfig without the surface.
+        captureSession.sessionConfig =
+            sessionConfigParameters.getActiveSessionConfigForRepeating(
+                includePreviewSurface = false
+            )
+
+        // Assert: ensure stopRepeating is invoked.
+        sessionProcessor.assertStopRepeatingInvoked()
+    }
+
     private fun areParametersConfigIdentical(config1: Config, config2: Config): Boolean {
         val options1 = CaptureRequestOptions.Builder.from(config1).build()
         val options2 = CaptureRequestOptions.Builder.from(config2).build()
@@ -824,8 +847,13 @@ class ProcessingCaptureSessionTest(
             return sessionBuilder.build()
         }
 
-        fun getActiveSessionConfigForRepeating(): SessionConfig {
+        fun getActiveSessionConfigForRepeating(
+            includePreviewSurface: Boolean = true
+        ): SessionConfig {
             return SessionConfig.Builder().apply {
+                if (includePreviewSurface) {
+                    addSurface(previewOutputDeferrableSurface)
+                }
                 setImplementationOptions(
                     CaptureRequestOptions.Builder()
                         .setCaptureRequestOption(

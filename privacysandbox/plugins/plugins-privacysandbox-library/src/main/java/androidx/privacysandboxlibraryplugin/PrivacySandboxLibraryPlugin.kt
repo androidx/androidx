@@ -77,7 +77,7 @@ abstract class PrivacySandboxLibraryPlugin : Plugin<Project> {
 
             // Add additional dependencies required for KSP outputs
 
-            val toolsVersion = "1.0.0-alpha03"
+            val toolsVersion = "1.0.0-alpha04"
             project.dependencies {
                 add(
                     "ksp",

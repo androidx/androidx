@@ -24,9 +24,11 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReusableComposeNode
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.currentComposer
+import androidx.compose.runtime.currentCompositeKeyHash
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
@@ -37,6 +39,12 @@ import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.materializerOfWithCompositionLocalInjection
 import androidx.compose.ui.materializeWithCompositionLocalInjectionInternal
 import androidx.compose.ui.node.ComposeUiNode
+import androidx.compose.ui.node.ComposeUiNode.Companion.SetCompositeKeyHash
+import androidx.compose.ui.node.ComposeUiNode.Companion.SetDensity
+import androidx.compose.ui.node.ComposeUiNode.Companion.SetLayoutDirection
+import androidx.compose.ui.node.ComposeUiNode.Companion.SetMeasurePolicy
+import androidx.compose.ui.node.ComposeUiNode.Companion.SetModifier
+import androidx.compose.ui.node.ComposeUiNode.Companion.SetViewConfiguration
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.LayoutModifierNode
@@ -292,6 +300,7 @@ inline fun OldLayoutSkippableUpdate(
     modifier: Modifier = Modifier,
     measurePolicy: MeasurePolicy
 ) {
+    val compositeKeyHash = currentCompositeKeyHash
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
     val viewConfiguration = LocalViewConfiguration.current
@@ -299,10 +308,12 @@ inline fun OldLayoutSkippableUpdate(
     ReusableComposeNode<ComposeUiNode, Applier<Any>>(
         factory = ComposeUiNode.Constructor,
         update = {
-            set(measurePolicy, ComposeUiNode.SetMeasurePolicy)
-            set(density, ComposeUiNode.SetDensity)
-            set(layoutDirection, ComposeUiNode.SetLayoutDirection)
-            set(viewConfiguration, ComposeUiNode.SetViewConfiguration)
+            set(measurePolicy, SetMeasurePolicy)
+            set(density, SetDensity)
+            set(layoutDirection, SetLayoutDirection)
+            set(viewConfiguration, SetViewConfiguration)
+            @OptIn(ExperimentalComposeUiApi::class)
+            set(compositeKeyHash, SetCompositeKeyHash)
         },
         // The old version of Layout called a function called "materializerOf". The function below
         // has the same JVM signature as that function used to have, so the code that this source
@@ -320,6 +331,7 @@ internal inline fun OldLayout(
     modifier: Modifier = Modifier,
     measurePolicy: MeasurePolicy
 ) {
+    val compositeKeyHash = currentCompositeKeyHash
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
     val viewConfiguration = LocalViewConfiguration.current
@@ -331,11 +343,13 @@ internal inline fun OldLayout(
     ReusableComposeNode<ComposeUiNode, Applier<Any>>(
         factory = ComposeUiNode.Constructor,
         update = {
-            set(measurePolicy, ComposeUiNode.SetMeasurePolicy)
-            set(density, ComposeUiNode.SetDensity)
-            set(layoutDirection, ComposeUiNode.SetLayoutDirection)
-            set(viewConfiguration, ComposeUiNode.SetViewConfiguration)
-            set(materialized, ComposeUiNode.SetModifier)
+            set(measurePolicy, SetMeasurePolicy)
+            set(density, SetDensity)
+            set(layoutDirection, SetLayoutDirection)
+            set(viewConfiguration, SetViewConfiguration)
+            set(materialized, SetModifier)
+            @OptIn(ExperimentalComposeUiApi::class)
+            set(compositeKeyHash, SetCompositeKeyHash)
         },
     )
 }

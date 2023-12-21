@@ -161,5 +161,9 @@ internal abstract class CameraPipeModules {
             }
             return CameraBackendsImpl(defaultBackendId, allBackends, cameraPipeContext, threads)
         }
+
+        @Singleton
+        @Provides
+        fun provideCameraSurfaceManager() = CameraSurfaceManager()
     }
 }

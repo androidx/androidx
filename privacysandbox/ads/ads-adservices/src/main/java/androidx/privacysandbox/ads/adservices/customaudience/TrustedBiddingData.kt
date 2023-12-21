@@ -17,6 +17,8 @@
 package androidx.privacysandbox.ads.adservices.customaudience
 
 import android.net.Uri
+import android.os.Build
+import androidx.annotation.RequiresApi
 
 /**
  * Represents data used during the ad selection process to fetch buyer bidding signals from a
@@ -29,8 +31,8 @@ import android.net.Uri
  * bidding signals.
  */
 class TrustedBiddingData public constructor(
-    val trustedBiddingUri: Uri,
-    val trustedBiddingKeys: List<String>
+    val trustedBiddingUri: Uri = Uri.EMPTY,
+    val trustedBiddingKeys: List<String> = emptyList()
     ) {
     /**
      * @return `true` if two [TrustedBiddingData] objects contain the same information
@@ -52,5 +54,39 @@ class TrustedBiddingData public constructor(
     override fun toString(): String {
         return "TrustedBiddingData: trustedBiddingUri=$trustedBiddingUri " +
             "trustedBiddingKeys=$trustedBiddingKeys"
+    }
+
+    /** Builder for [TrustedBiddingData] objects. */
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    public class Builder {
+        private var trustedBiddingUri: Uri = Uri.EMPTY
+        private var trustedBiddingKeys: List<String> = emptyList()
+
+        /**
+         * Sets the trusted Bidding Uri
+         *
+         * @param trustedBiddingUri the URI pointing to the trusted key-value server holding bidding
+         * signals. The URI must use HTTPS.
+         */
+        fun setTrustedBiddingUri(trustedBiddingUri: Uri): Builder = apply {
+            this.trustedBiddingUri = trustedBiddingUri
+        }
+
+        /**
+         * Sets the trusted Bidding keys.
+         *
+         * @param trustedBiddingKeys list of keys to query the trusted key-value server with.
+         * This list is permitted to be empty.
+         */
+        fun setTrustedBiddingKeys(trustedBiddingKeys: List<String>): Builder = apply {
+            this.trustedBiddingKeys = trustedBiddingKeys
+        }
+
+        /**
+         * Builds and instance of [TrustedBiddingData]
+         */
+        fun build(): TrustedBiddingData {
+            return TrustedBiddingData(trustedBiddingUri, trustedBiddingKeys)
+        }
     }
 }

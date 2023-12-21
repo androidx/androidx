@@ -54,7 +54,7 @@ interface StaggeredGridCells {
      */
     class Fixed(private val count: Int) : StaggeredGridCells {
         init {
-            require(count > 0)
+            require(count > 0) { "grid with no rows/columns" }
         }
 
         override fun Density.calculateCrossAxisCellSizes(
@@ -84,7 +84,7 @@ interface StaggeredGridCells {
      */
     class Adaptive(private val minSize: Dp) : StaggeredGridCells {
         init {
-            require(minSize > 0.dp)
+            require(minSize > 0.dp) { "invalid minSize" }
         }
 
         override fun Density.calculateCrossAxisCellSizes(

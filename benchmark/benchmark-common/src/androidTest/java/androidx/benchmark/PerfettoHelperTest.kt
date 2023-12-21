@@ -53,8 +53,12 @@ class PerfettoHelperTest {
 
         // start perfetto
         val capture = PerfettoCapture(unbundled)
-        capture.start(PerfettoConfig.Benchmark(listOf(Packages.TEST)))
-
+        capture.start(
+            PerfettoConfig.Benchmark(
+                appTagPackages = listOf(Packages.TEST),
+                useStackSamplingConfig = false
+            )
+        )
         // should be at least one perfetto process
         assertNotEquals(illegal = listOf(), actual = getPerfettoPids())
         assertTrue(capture.isRunning())

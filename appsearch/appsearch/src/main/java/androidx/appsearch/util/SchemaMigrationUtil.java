@@ -34,7 +34,7 @@ import java.util.Set;
 
 /**
  * Utilities for schema migration.
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class SchemaMigrationUtil {

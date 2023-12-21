@@ -16,6 +16,7 @@
 
 package androidx.paging
 
+import androidx.kruth.assertThat
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
@@ -24,7 +25,6 @@ import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
 import androidx.paging.RemoteMediator.InitializeAction.SKIP_INITIAL_REFRESH
 import androidx.paging.RemoteMediatorMock.LoadEvent
 import androidx.paging.TestPagingSource.Companion.LOAD_ERROR
-import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -39,11 +39,8 @@ import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalPagingApi::class)
-@RunWith(JUnit4::class)
 class RemoteMediatorAccessorTest {
     private val testScope = TestScope(UnconfinedTestDispatcher())
     private var mockStateId = 0

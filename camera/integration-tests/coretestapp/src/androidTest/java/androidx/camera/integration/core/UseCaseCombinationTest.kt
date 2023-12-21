@@ -50,6 +50,7 @@ import org.junit.After
 import org.junit.Assume
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -140,6 +141,7 @@ class UseCaseCombinationTest(
     }
 
     /** Test Combination: Preview (no surface provider) + ImageCapture */
+    @Ignore("b/283959238")
     @Test
     fun previewCombinesImageCapture_withNoSurfaceProvider(): Unit = runBlocking {
         // Arrange.

@@ -40,8 +40,8 @@ internal class LazyListItemPlacementAnimator {
 
     // stored to not allocate it every pass.
     private val movingAwayKeys = LinkedHashSet<Any>()
-    private val movingInFromStartBound = mutableListOf<LazyListPositionedItem>()
-    private val movingInFromEndBound = mutableListOf<LazyListPositionedItem>()
+    private val movingInFromStartBound = mutableListOf<LazyListMeasuredItem>()
+    private val movingInFromEndBound = mutableListOf<LazyListMeasuredItem>()
     private val movingAwayToStartBound = mutableListOf<LazyListMeasuredItem>()
     private val movingAwayToEndBound = mutableListOf<LazyListMeasuredItem>()
 
@@ -54,9 +54,11 @@ internal class LazyListItemPlacementAnimator {
         consumedScroll: Int,
         layoutWidth: Int,
         layoutHeight: Int,
-        positionedItems: MutableList<LazyListPositionedItem>,
+        positionedItems: MutableList<LazyListMeasuredItem>,
         itemProvider: LazyListMeasuredItemProvider,
-        isVertical: Boolean
+        isVertical: Boolean,
+        isLookingAhead: Boolean,
+        hasLookaheadOccurred: Boolean
     ) {
         if (!positionedItems.fastAny { it.hasAnimations } && activeKeys.isEmpty()) {
             // no animations specified - no work needed
@@ -66,6 +68,7 @@ internal class LazyListItemPlacementAnimator {
 
         val previousFirstVisibleIndex = firstVisibleIndex
         firstVisibleIndex = positionedItems.firstOrNull()?.index ?: 0
+
         val previousKeyToIndexMap = keyIndexMap
         keyIndexMap = itemProvider.keyIndexMap
 
@@ -78,6 +81,9 @@ internal class LazyListItemPlacementAnimator {
             IntOffset(consumedScroll, 0)
         }
 
+        // Only setup animations when we have access to target value in the current pass, which
+        // means lookahead pass, or regular pass when not in a lookahead scope.
+        val shouldSetupAnimation = isLookingAhead || !hasLookaheadOccurred
         // first add all items we had in the previous run
         movingAwayKeys.addAll(activeKeys)
         // iterate through the items which are visible (without animated offsets)
@@ -102,12 +108,15 @@ internal class LazyListItemPlacementAnimator {
                         )
                     }
                 } else {
-                    item.forEachNode { _, node ->
-                        if (node.rawOffset != LazyLayoutAnimateItemModifierNode.NotInitialized) {
-                            node.rawOffset += scrollOffset
+                    if (shouldSetupAnimation) {
+                        item.forEachNode { _, node ->
+                            if (node.rawOffset != LazyLayoutAnimateItemModifierNode.NotInitialized
+                            ) {
+                                node.rawOffset += scrollOffset
+                            }
                         }
+                        startAnimationsIfNeeded(item)
                     }
-                    startAnimationsIfNeeded(item)
                 }
             } else {
                 // no animation, clean up if needed
@@ -116,20 +125,22 @@ internal class LazyListItemPlacementAnimator {
         }
 
         var accumulatedOffset = 0
-        movingInFromStartBound.sortByDescending { previousKeyToIndexMap.getIndex(it.key) }
-        movingInFromStartBound.fastForEach { item ->
-            accumulatedOffset += item.size
-            val mainAxisOffset = 0 - accumulatedOffset
-            initializeNode(item, mainAxisOffset)
-            startAnimationsIfNeeded(item)
-        }
-        accumulatedOffset = 0
-        movingInFromEndBound.sortBy { previousKeyToIndexMap.getIndex(it.key) }
-        movingInFromEndBound.fastForEach { item ->
-            val mainAxisOffset = mainAxisLayoutSize + accumulatedOffset
-            accumulatedOffset += item.size
-            initializeNode(item, mainAxisOffset)
-            startAnimationsIfNeeded(item)
+        if (shouldSetupAnimation) {
+            movingInFromStartBound.sortByDescending { previousKeyToIndexMap.getIndex(it.key) }
+            movingInFromStartBound.fastForEach { item ->
+                accumulatedOffset += item.size
+                val mainAxisOffset = 0 - accumulatedOffset
+                initializeNode(item, mainAxisOffset)
+                startAnimationsIfNeeded(item)
+            }
+            accumulatedOffset = 0
+            movingInFromEndBound.sortBy { previousKeyToIndexMap.getIndex(it.key) }
+            movingInFromEndBound.fastForEach { item ->
+                val mainAxisOffset = mainAxisLayoutSize + accumulatedOffset
+                accumulatedOffset += item.size
+                initializeNode(item, mainAxisOffset)
+                startAnimationsIfNeeded(item)
+            }
         }
 
         movingAwayKeys.forEach { key ->
@@ -167,20 +178,28 @@ internal class LazyListItemPlacementAnimator {
             accumulatedOffset += item.size
             val mainAxisOffset = 0 - accumulatedOffset
 
-            val positionedItem = item.position(mainAxisOffset, layoutWidth, layoutHeight)
-            positionedItems.add(positionedItem)
-            startAnimationsIfNeeded(positionedItem)
+            item.position(mainAxisOffset, layoutWidth, layoutHeight)
+            if (shouldSetupAnimation) {
+                startAnimationsIfNeeded(item)
+            }
         }
+
         accumulatedOffset = 0
         movingAwayToEndBound.sortBy { keyIndexMap.getIndex(it.key) }
         movingAwayToEndBound.fastForEach { item ->
             val mainAxisOffset = mainAxisLayoutSize + accumulatedOffset
             accumulatedOffset += item.size
 
-            val positionedItem = item.position(mainAxisOffset, layoutWidth, layoutHeight)
-            positionedItems.add(positionedItem)
-            startAnimationsIfNeeded(positionedItem)
+            item.position(mainAxisOffset, layoutWidth, layoutHeight)
+            if (shouldSetupAnimation) {
+                startAnimationsIfNeeded(item)
+            }
         }
+
+        // This adds the new items to the list of positioned items while keeping the index of
+        // the positioned items sorted in ascending order.
+        positionedItems.addAll(0, movingAwayToStartBound.apply { reverse() })
+        positionedItems.addAll(movingAwayToEndBound)
 
         movingInFromStartBound.clear()
         movingInFromEndBound.clear()
@@ -200,7 +219,7 @@ internal class LazyListItemPlacementAnimator {
     }
 
     private fun initializeNode(
-        item: LazyListPositionedItem,
+        item: LazyListMeasuredItem,
         mainAxisOffset: Int
     ) {
         val firstPlaceableOffset = item.getOffset(0)
@@ -219,7 +238,7 @@ internal class LazyListItemPlacementAnimator {
         }
     }
 
-    private fun startAnimationsIfNeeded(item: LazyListPositionedItem) {
+    private fun startAnimationsIfNeeded(item: LazyListMeasuredItem) {
         item.forEachNode { placeableIndex, node ->
             val newTarget = item.getOffset(placeableIndex)
             val currentTarget = node.rawOffset
@@ -234,13 +253,13 @@ internal class LazyListItemPlacementAnimator {
 
     private val Any?.node get() = this as? LazyLayoutAnimateItemModifierNode
 
-    private val LazyListPositionedItem.hasAnimations: Boolean
+    private val LazyListMeasuredItem.hasAnimations: Boolean
         get() {
             forEachNode { _, _ -> return true }
             return false
         }
 
-    private inline fun LazyListPositionedItem.forEachNode(
+    private inline fun LazyListMeasuredItem.forEachNode(
         block: (placeableIndex: Int, node: LazyLayoutAnimateItemModifierNode) -> Unit
     ) {
         repeat(placeablesCount) { index ->

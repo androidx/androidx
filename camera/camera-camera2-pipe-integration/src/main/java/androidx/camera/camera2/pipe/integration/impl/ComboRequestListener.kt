@@ -84,11 +84,16 @@ class ComboRequestListener @Inject constructor() : Request.Listener {
         }
     }
 
+    @Deprecated(
+        message = "Migrating to using RequestFailureWrapper instead of CaptureFailure",
+        level = DeprecationLevel.WARNING
+    )
     override fun onFailed(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
         captureFailure: CaptureFailure
     ) {
+        @Suppress("DEPRECATION")
         listeners.forEach { (listener, executor) ->
             executor.execute { listener.onFailed(requestMetadata, frameNumber, captureFailure) }
         }

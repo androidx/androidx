@@ -106,7 +106,7 @@ fun getRequiredCompatibilityApiFileFromDir(
             val pathVersion = Version.parseFilenameOrNull(pathName)
             if (pathVersion != null &&
                 (highestVersion == null || pathVersion > highestVersion!!) &&
-                pathVersion < apiVersion &&
+                pathVersion <= apiVersion &&
                 pathVersion.isFinalApi() &&
                 pathVersion.major == apiVersion.major
             ) {

@@ -213,8 +213,15 @@ public class BenchmarkRule internal constructor(
 
             val tracePath = PerfettoCaptureWrapper().record(
                 fileLabel = uniqueName,
-                config = PerfettoConfig.Benchmark(packages),
-                userspaceTracingPackage = null
+                config = PerfettoConfig.Benchmark(
+                    appTagPackages = packages,
+                    useStackSamplingConfig = false
+                ),
+                userspaceTracingPackage = null,
+
+                // optimize throughput in dryRunMode, since trace isn't useful, and extremely
+                // expensive on some emulators. Could alternately use UserspaceTracing if desired
+                enableTracing = !Arguments.dryRunMode
             ) {
                 UserspaceTracing.commitToTrace() // clear buffer
 

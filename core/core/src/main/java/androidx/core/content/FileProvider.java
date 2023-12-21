@@ -376,8 +376,12 @@ public class FileProvider extends ContentProvider {
     @GuardedBy("sCache")
     private static final HashMap<String, PathStrategy> sCache = new HashMap<>();
 
-    private PathStrategy mStrategy;
+    // Do not use {@code mLocalPathStrategy} directly; access it via {@link #getLocalPathStrategy}.
+    @GuardedBy("this")
+    @Nullable private PathStrategy mLocalPathStrategy;
+
     private int mResourceId;
+    private String mAuthority;
 
     public FileProvider() {
         mResourceId = ResourcesCompat.ID_NULL;
@@ -416,12 +420,10 @@ public class FileProvider extends ContentProvider {
             throw new SecurityException("Provider must grant uri permissions");
         }
 
-        String authority = info.authority.split(";")[0];
+        mAuthority = info.authority.split(";")[0];
         synchronized (sCache) {
-            sCache.remove(authority);
+            sCache.remove(mAuthority);
         }
-
-        mStrategy = getPathStrategy(context, authority, mResourceId);
     }
 
     /**
@@ -514,7 +516,7 @@ public class FileProvider extends ContentProvider {
             @Nullable String[] selectionArgs,
             @Nullable String sortOrder) {
         // ContentProvider has already checked granted permissions
-        final File file = mStrategy.getFileForUri(uri);
+        final File file = getLocalPathStrategy().getFileForUri(uri);
         String displayName = uri.getQueryParameter(DISPLAYNAME_FIELD);
 
         if (projection == null) {
@@ -555,7 +557,7 @@ public class FileProvider extends ContentProvider {
     @Override
     public String getType(@NonNull Uri uri) {
         // ContentProvider has already checked granted permissions
-        final File file = mStrategy.getFileForUri(uri);
+        final File file = getLocalPathStrategy().getFileForUri(uri);
 
         final int lastDot = file.getName().lastIndexOf('.');
         if (lastDot >= 0) {
@@ -614,7 +616,7 @@ public class FileProvider extends ContentProvider {
     public int delete(@NonNull Uri uri, @Nullable String selection,
             @Nullable String[] selectionArgs) {
         // ContentProvider has already checked granted permissions
-        final File file = mStrategy.getFileForUri(uri);
+        final File file = getLocalPathStrategy().getFileForUri(uri);
         return file.delete() ? 1 : 0;
     }
 
@@ -638,9 +640,20 @@ public class FileProvider extends ContentProvider {
     public ParcelFileDescriptor openFile(@NonNull Uri uri, @NonNull String mode)
             throws FileNotFoundException {
         // ContentProvider has already checked granted permissions
-        final File file = mStrategy.getFileForUri(uri);
+        final File file = getLocalPathStrategy().getFileForUri(uri);
         final int fileMode = modeToMode(mode);
         return ParcelFileDescriptor.open(file, fileMode);
+    }
+
+    /** Return the local {@link PathStrategy}, creating it if necessary. */
+    private PathStrategy getLocalPathStrategy() {
+        synchronized (this) {
+            if (mLocalPathStrategy == null) {
+                mLocalPathStrategy = getPathStrategy(getContext(), mAuthority, mResourceId);
+            }
+
+            return mLocalPathStrategy;
+        }
     }
 
     /**

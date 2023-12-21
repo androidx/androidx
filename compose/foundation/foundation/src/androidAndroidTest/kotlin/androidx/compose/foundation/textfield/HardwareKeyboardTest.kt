@@ -374,6 +374,10 @@ class HardwareKeyboardTest {
             Key.DirectionUp.downAndUp(META_CTRL_ON)
             Key.Zero.downAndUp()
             expectedText("hello world0\n0hi")
+            Key.DirectionUp.downAndUp(META_CTRL_ON)
+            Key.DirectionUp.downAndUp(META_CTRL_ON)
+            Key.Zero.downAndUp()
+            expectedText("0hello world0\n0hi")
         }
     }
 

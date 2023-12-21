@@ -26,7 +26,6 @@ import androidx.annotation.RequiresPermission;
  * A class providing configuration for audio settings in the video recording.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-@ExperimentalVideo
 public class AudioConfig {
 
     /**

@@ -24,7 +24,7 @@ import androidx.compose.ui.node.NodeCoordinator
 import androidx.compose.ui.unit.IntSize
 
 /**
- * A holder of the measured bounds for the layout (MeasureBox).
+ * A holder of the measured bounds for the [Layout].
  */
 @JvmDefaultWithCompatibility
 interface LayoutCoordinates {

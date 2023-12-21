@@ -82,7 +82,6 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY)
 @RequiresApi(19)

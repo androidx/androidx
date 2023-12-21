@@ -52,7 +52,6 @@ import androidx.slice.view.R;
 
 /**
  * Supports displaying {@link androidx.slice.core.SliceActionImpl}s.
- * @hide
  */
 @SuppressWarnings("AppCompatCustomView")
 @RestrictTo(LIBRARY)

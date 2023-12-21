@@ -24,6 +24,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.MutatorMutex
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
@@ -56,6 +57,8 @@ import androidx.compose.ui.input.pointer.PointerEventTimeoutCancellationExceptio
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.onLongClick
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
@@ -85,6 +88,11 @@ import kotlinx.coroutines.withTimeout
  *
  * @param tooltip the composable that will be used to populate the tooltip's content.
  * @param modifier the [Modifier] to be applied to the tooltip.
+ * @param focusable [Boolean] that determines if the tooltip is focusable. When true,
+ * the tooltip will consume touch events while it's shown and will have accessibility
+ * focus move to the first element of the component. When false, the tooltip
+ * won't consume touch events while it's shown but assistive-tech users will need
+ * to swipe or drag to get to the first element of the component.
  * @param tooltipState handles the state of the tooltip's visibility.
  * @param shape the [Shape] that should be applied to the tooltip container.
  * @param containerColor [Color] that will be applied to the tooltip's container.
@@ -96,6 +104,7 @@ import kotlinx.coroutines.withTimeout
 fun PlainTooltipBox(
     tooltip: @Composable () -> Unit,
     modifier: Modifier = Modifier,
+    focusable: Boolean = true,
     tooltipState: PlainTooltipState = rememberPlainTooltipState(),
     shape: Shape = TooltipDefaults.plainTooltipContainerShape,
     containerColor: Color = TooltipDefaults.plainTooltipContainerColor,
@@ -113,6 +122,7 @@ fun PlainTooltipBox(
             )
         },
         modifier = modifier,
+        focusable = focusable,
         tooltipState = tooltipState,
         shape = shape,
         containerColor = containerColor,
@@ -138,6 +148,11 @@ fun PlainTooltipBox(
  *
  * @param text the message to be displayed in the center of the tooltip.
  * @param modifier the [Modifier] to be applied to the tooltip.
+ * @param focusable [Boolean] that determines if the tooltip is focusable. When true,
+ * the tooltip will consume touch events while it's shown and will have accessibility
+ * focus move to the first element of the component. When false, the tooltip
+ * won't consume touch events while it's shown but assistive-tech users will need
+ * to swipe or drag to get to the first element of the component.
  * @param tooltipState handles the state of the tooltip's visibility.
  * @param title An optional title for the tooltip.
  * @param action An optional action for the tooltip.
@@ -150,6 +165,7 @@ fun PlainTooltipBox(
 fun RichTooltipBox(
     text: @Composable () -> Unit,
     modifier: Modifier = Modifier,
+    focusable: Boolean = false,
     title: (@Composable () -> Unit)? = null,
     action: (@Composable () -> Unit)? = null,
     tooltipState: RichTooltipState = rememberRichTooltipState(action != null),
@@ -176,6 +192,7 @@ fun RichTooltipBox(
         elevation = RichTooltipTokens.ContainerElevation,
         maxWidth = RichTooltipMaxWidth,
         modifier = modifier,
+        focusable = focusable,
         content = content
     )
 }
@@ -189,6 +206,7 @@ private fun TooltipBox(
     tooltipContent: @Composable () -> Unit,
     tooltipPositionProvider: PopupPositionProvider,
     modifier: Modifier,
+    focusable: Boolean,
     shape: Shape,
     tooltipState: TooltipState,
     containerColor: Color,
@@ -252,7 +270,8 @@ private fun TooltipBox(
                     if (tooltipState.isVisible) {
                         coroutineScope.launch { tooltipState.dismiss() }
                     }
-                }
+                },
+                focusable = focusable
             ) {
                 Surface(
                     modifier = modifier
@@ -262,7 +281,10 @@ private fun TooltipBox(
                             minHeight = TooltipMinHeight
                         )
                         .animateTooltip(transition)
-                        .semantics { paneTitle = tooltipPaneDescription },
+                        .semantics {
+                            liveRegion = LiveRegionMode.Assertive
+                            paneTitle = tooltipPaneDescription
+                        },
                     shape = shape,
                     color = containerColor,
                     shadowElevation = elevation,
@@ -371,7 +393,7 @@ object TooltipDefaults {
         @Composable get() = PlainTooltipTokens.ContainerColor.toColor()
 
     /**
-     * The default [color] for the content within the [PlainTooltipBox].
+     * The default [Color] for the content within the [PlainTooltipBox].
      */
     val plainTooltipContentColor: Color
         @Composable get() = PlainTooltipTokens.SupportingTextColor.toColor()
@@ -783,6 +805,7 @@ private fun Modifier.animateTooltip(
 internal expect fun TooltipPopup(
     popupPositionProvider: PopupPositionProvider,
     onDismissRequest: () -> Unit,
+    focusable: Boolean,
     content: @Composable () -> Unit
 )
 

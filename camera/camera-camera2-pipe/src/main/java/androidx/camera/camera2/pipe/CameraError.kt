@@ -25,7 +25,9 @@ import android.hardware.camera2.CameraAccessException.MAX_CAMERAS_IN_USE
 import android.hardware.camera2.CameraDevice.StateCallback
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 @RequiresApi(21)
 value class CameraError private constructor(val value: Int) {
@@ -172,7 +174,9 @@ value class CameraError private constructor(val value: Int) {
 }
 
 // TODO(b/276918807): When we have CameraProperties, handle the exception on a more granular level.
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class DoNotDisturbException(message: String) : RuntimeException(message)
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 // An exception indicating that the CameraDevice.close() call has stalled.
 class CameraCloseStallException(message: String) : RuntimeException(message)

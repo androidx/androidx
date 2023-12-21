@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-import androidx.build.AndroidXComposePlugin
 import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
+    id("org.jetbrains.kotlin.android")
     id("com.android.library")
 }
-
-// Disable multi-platform.
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project, /* isMultiplatformEnabled= */ false)
 
 dependencies {
     api("androidx.annotation:annotation:1.5.0")

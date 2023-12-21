@@ -23,13 +23,10 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
 
-@RunWith(JUnit4::class)
 class PagedStorageTest {
     private fun pageOf(vararg strings: String): Page<Any, String> = Page(
         data = strings.asList(),

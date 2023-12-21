@@ -64,7 +64,6 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 @RequiresApi(19)

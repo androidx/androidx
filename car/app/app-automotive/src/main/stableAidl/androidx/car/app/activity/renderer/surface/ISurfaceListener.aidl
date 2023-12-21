@@ -20,9 +20,8 @@ import androidx.car.app.serialization.Bundleable;
 
 /**
  * A surface event listener interface.
- *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface ISurfaceListener {
   /**
    * Notifies that the surface has become available.

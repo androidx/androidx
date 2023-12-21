@@ -63,7 +63,7 @@ public class GoldenTestActivity extends Activity {
         }
 
         LayoutElementBuilders.LayoutElement rootLayoutElement =
-                LayoutElementBuilders.layoutElementFromProto(layoutElementProto);
+                LayoutElementBuilders.layoutElementFromProto(layoutElementProto, null);
 
         Context appContext = getApplicationContext();
         FrameLayout root = new FrameLayout(appContext);

@@ -755,7 +755,7 @@ class AndroidViewCompatTest {
             }
         }
 
-        rule.runOnIdle { assertEquals(invalidatesDuringScroll + 1, view!!.draws) }
+        rule.waitUntil { view!!.draws == (invalidatesDuringScroll + 1) }
     }
 
     @Test
@@ -775,8 +775,9 @@ class AndroidViewCompatTest {
                 invalidate()
             }
         }
-
-        rule.runOnIdle { assertEquals(invalidatesDuringScroll + 1, view!!.draws) }
+        rule.waitUntil(10000) {
+            view!!.draws == invalidatesDuringScroll + 1
+        }
     }
 
     @Ignore // b/254573760

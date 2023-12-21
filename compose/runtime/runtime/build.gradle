@@ -16,6 +16,7 @@
 
 import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
+import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
@@ -29,6 +30,8 @@ androidXMultiplatform {
     android()
     if (desktopEnabled) desktop()
 
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
     sourceSets {
         commonMain {
             dependencies {
@@ -41,6 +44,7 @@ androidXMultiplatform {
             dependencies {
                 implementation kotlin("test")
                 implementation(libs.kotlinCoroutinesTest)
+                implementation(libs.kotlinReflect)
             }
         }
 

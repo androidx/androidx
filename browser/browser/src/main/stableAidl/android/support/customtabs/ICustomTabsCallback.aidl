@@ -21,8 +21,8 @@ import android.os.Bundle;
 
 /**
  * Interface to a CustomTabsCallback.
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface ICustomTabsCallback {
     oneway void onNavigationEvent(int navigationEvent, in Bundle extras) = 1;
     oneway void extraCallback(String callbackName, in Bundle args) = 2;

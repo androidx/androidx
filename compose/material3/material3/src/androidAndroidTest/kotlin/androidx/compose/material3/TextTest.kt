@@ -17,14 +17,17 @@
 package androidx.compose.material3
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
-import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -34,7 +37,7 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -55,6 +58,26 @@ class TextTest {
     )
 
     private val TestText = "TestText"
+
+    @Test
+    fun testDefaultIncludeFontPadding() {
+        var localTextStyle: TextStyle? = null
+        var displayMediumTextStyle: TextStyle? = null
+        rule.setContent {
+            MaterialTheme {
+                localTextStyle = LocalTextStyle.current
+                displayMediumTextStyle = LocalTypography.current.displayMedium
+            }
+        }
+
+        assertThat(
+            localTextStyle?.platformStyle?.paragraphStyle?.includeFontPadding
+        ).isEqualTo(false)
+
+        assertThat(
+            displayMediumTextStyle?.platformStyle?.paragraphStyle?.includeFontPadding
+        ).isEqualTo(false)
+    }
 
     @Test
     fun inheritsThemeTextStyle() {
@@ -81,11 +104,11 @@ class TextTest {
         }
 
         rule.runOnIdle {
-            Truth.assertThat(textColor).isEqualTo(ExpectedTextStyle.color)
-            Truth.assertThat(textAlign).isEqualTo(ExpectedTextStyle.textAlign)
-            Truth.assertThat(fontSize).isEqualTo(ExpectedTextStyle.fontSize)
-            Truth.assertThat(fontStyle).isEqualTo(ExpectedTextStyle.fontStyle)
-            Truth.assertThat(letterSpacing).isEqualTo(ExpectedTextStyle.letterSpacing)
+            assertThat(textColor).isEqualTo(ExpectedTextStyle.color)
+            assertThat(textAlign).isEqualTo(ExpectedTextStyle.textAlign)
+            assertThat(fontSize).isEqualTo(ExpectedTextStyle.fontSize)
+            assertThat(fontStyle).isEqualTo(ExpectedTextStyle.fontStyle)
+            assertThat(letterSpacing).isEqualTo(ExpectedTextStyle.letterSpacing)
         }
     }
 
@@ -122,11 +145,11 @@ class TextTest {
         }
 
         rule.runOnIdle {
-            Truth.assertThat(textColor).isEqualTo(testStyle.color)
-            Truth.assertThat(textAlign).isEqualTo(testStyle.textAlign)
-            Truth.assertThat(fontSize).isEqualTo(testStyle.fontSize)
-            Truth.assertThat(fontStyle).isEqualTo(testStyle.fontStyle)
-            Truth.assertThat(letterSpacing).isEqualTo(testStyle.letterSpacing)
+            assertThat(textColor).isEqualTo(testStyle.color)
+            assertThat(textAlign).isEqualTo(testStyle.textAlign)
+            assertThat(fontSize).isEqualTo(testStyle.fontSize)
+            assertThat(fontStyle).isEqualTo(testStyle.fontStyle)
+            assertThat(letterSpacing).isEqualTo(testStyle.letterSpacing)
         }
     }
 
@@ -167,11 +190,11 @@ class TextTest {
 
         rule.runOnIdle {
             // explicit parameters should override values from the style.
-            Truth.assertThat(textColor).isEqualTo(expectedColor)
-            Truth.assertThat(textAlign).isEqualTo(expectedTextAlign)
-            Truth.assertThat(fontSize).isEqualTo(expectedFontSize)
-            Truth.assertThat(fontStyle).isEqualTo(expectedFontStyle)
-            Truth.assertThat(letterSpacing).isEqualTo(expectedLetterSpacing)
+            assertThat(textColor).isEqualTo(expectedColor)
+            assertThat(textAlign).isEqualTo(expectedTextAlign)
+            assertThat(fontSize).isEqualTo(expectedFontSize)
+            assertThat(fontStyle).isEqualTo(expectedFontStyle)
+            assertThat(letterSpacing).isEqualTo(expectedLetterSpacing)
         }
     }
 
@@ -214,11 +237,11 @@ class TextTest {
 
         rule.runOnIdle {
             // explicit parameters should override values from the style.
-            Truth.assertThat(textColor).isEqualTo(expectedColor)
-            Truth.assertThat(textAlign).isEqualTo(expectedTextAlign)
-            Truth.assertThat(fontSize).isEqualTo(expectedFontSize)
-            Truth.assertThat(fontStyle).isEqualTo(expectedFontStyle)
-            Truth.assertThat(letterSpacing).isEqualTo(expectedLetterSpacing)
+            assertThat(textColor).isEqualTo(expectedColor)
+            assertThat(textAlign).isEqualTo(expectedTextAlign)
+            assertThat(fontSize).isEqualTo(expectedFontSize)
+            assertThat(fontStyle).isEqualTo(expectedFontStyle)
+            assertThat(letterSpacing).isEqualTo(expectedLetterSpacing)
         }
     }
 
@@ -235,10 +258,72 @@ class TextTest {
             }
         }
 
+        val textLayoutResults = getTextLayoutResults("text")
+        assert(textLayoutResults != null) { "TextLayoutResult is null" }
+    }
+
+    @Test
+    fun testContentColorChangeVisibleInSemantics() {
+        var switchColor by mutableStateOf(false)
+        rule.setContent {
+            MaterialTheme {
+                val color = if (switchColor) {
+                    MaterialTheme.colorScheme.surface
+                } else {
+                    MaterialTheme.colorScheme.secondary
+                }
+                Surface(color = color) {
+                    Text(
+                        TestText,
+                        modifier = Modifier.testTag("text")
+                    )
+                }
+            }
+        }
+
+        val textLayoutResults = getTextLayoutResults("text")
+        switchColor = true
+        rule.waitForIdle()
+        val textLayoutResults2 = getTextLayoutResults("text")
+
+        assertThat(textLayoutResults2?.layoutInput?.style?.color).isNotNull()
+        assertThat(textLayoutResults2?.layoutInput?.style?.color)
+            .isNotEqualTo(textLayoutResults?.layoutInput?.style?.color)
+    }
+
+    @Test
+    fun testContentColorChangeVisibleInSemantics_annotatedString() {
+        var switchColor by mutableStateOf(false)
+        rule.setContent {
+            MaterialTheme {
+                val color = if (switchColor) {
+                    MaterialTheme.colorScheme.surface
+                } else {
+                    MaterialTheme.colorScheme.secondary
+                }
+                Surface(color = color) {
+                    Text(
+                        AnnotatedString(TestText),
+                        modifier = Modifier.testTag("text")
+                    )
+                }
+            }
+        }
+
+        val textLayoutResults = getTextLayoutResults("text")
+        switchColor = true
+        rule.waitForIdle()
+        val textLayoutResults2 = getTextLayoutResults("text")
+
+        assertThat(textLayoutResults2?.layoutInput?.style?.color).isNotNull()
+        assertThat(textLayoutResults2?.layoutInput?.style?.color)
+            .isNotEqualTo(textLayoutResults?.layoutInput?.style?.color)
+    }
+
+    private fun getTextLayoutResults(tag: String): TextLayoutResult? {
         val textLayoutResults = mutableListOf<TextLayoutResult>()
-        rule.onNodeWithTag("text")
-            .assertTextEquals(TestText)
+        rule.onNodeWithTag(tag)
             .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(textLayoutResults) }
-        assert(textLayoutResults.size == 1) { "TextLayoutResult is null" }
+        return textLayoutResults.firstOrNull()
     }
 }

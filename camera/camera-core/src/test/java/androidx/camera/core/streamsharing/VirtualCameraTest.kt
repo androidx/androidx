@@ -37,6 +37,7 @@ import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
+import androidx.camera.core.impl.ImageOutputConfig.ROTATION_NOT_SPECIFIED
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionConfig.defaultEmptySessionConfig
 import androidx.camera.core.impl.StreamSpec
@@ -71,6 +72,10 @@ class VirtualCameraTest {
         private const val HAS_PROVIDER = true
         private const val NO_PROVIDER = false
         private val INPUT_SIZE = Size(800, 600)
+        private val CROP_RECT = Rect(0, 0, 800, 600)
+
+        // Arbitrary transform to test that the transform is propagated.
+        private val SENSOR_TO_BUFFER = Matrix().apply { setScale(1f, -1f) }
         private var receivedSessionConfigError: SessionConfig.SessionError? = null
         private val SESSION_CONFIG_WITH_SURFACE = SessionConfig.Builder()
             .addSurface(FakeDeferrableSurface(INPUT_SIZE, ImageFormat.PRIVATE))
@@ -289,18 +294,22 @@ class VirtualCameraTest {
     fun updateChildrenSpec_updateAndNotifyChildren() {
         // Act: update children with the map.
         virtualCamera.setChildrenEdges(childrenEdges)
-        // Assert: surface size propagated to children
+        // Assert: surface size, crop rect and transformation propagated to children
         assertThat(child1.attachedStreamSpec!!.resolution).isEqualTo(INPUT_SIZE)
         assertThat(child2.attachedStreamSpec!!.resolution).isEqualTo(INPUT_SIZE)
+        assertThat(child1.viewPortCropRect).isEqualTo(CROP_RECT)
+        assertThat(child2.viewPortCropRect).isEqualTo(CROP_RECT)
+        assertThat(child1.sensorToBufferTransformMatrix).isEqualTo(SENSOR_TO_BUFFER)
+        assertThat(child2.sensorToBufferTransformMatrix).isEqualTo(SENSOR_TO_BUFFER)
     }
 
     private fun createSurfaceEdge(
         target: Int = PREVIEW,
         format: Int = INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
         streamSpec: StreamSpec = StreamSpec.builder(INPUT_SIZE).build(),
-        matrix: Matrix = Matrix(),
+        matrix: Matrix = SENSOR_TO_BUFFER,
         hasCameraTransform: Boolean = true,
-        cropRect: Rect = Rect(),
+        cropRect: Rect = CROP_RECT,
         rotationDegrees: Int = 0,
         mirroring: Boolean = false
     ): SurfaceEdge {
@@ -312,6 +321,7 @@ class VirtualCameraTest {
             hasCameraTransform,
             cropRect,
             rotationDegrees,
+            ROTATION_NOT_SPECIFIED,
             mirroring
         ).also { surfaceEdgesToClose.add(it) }
     }

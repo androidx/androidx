@@ -16,8 +16,6 @@
 
 package androidx.build
 
-import androidx.build.Multiplatform.Companion.isMultiplatformEnabled
-import kotlin.reflect.KFunction
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -32,24 +30,5 @@ class AndroidXComposePlugin : Plugin<Project> {
                 "from" to "$supportRoot/buildSrc/apply/applyAndroidXComposeImplPlugin.gradle"
             )
         )
-    }
-
-    companion object {
-        @JvmStatic
-        fun isMultiplatformEnabled(project: Project): Boolean {
-            return project.isMultiplatformEnabled()
-        }
-
-        @JvmOverloads
-        @JvmStatic
-        fun applyAndConfigureKotlinPlugin(
-            project: Project,
-            isMultiplatformEnabled: Boolean = project.isMultiplatformEnabled()
-        ) {
-            @Suppress("UNCHECKED_CAST")
-            val companion: KFunction<Unit> =
-                project.extensions.getByName("applyAndConfigureKotlinPlugin") as KFunction<Unit>
-            companion.call(project, isMultiplatformEnabled)
-        }
     }
 }

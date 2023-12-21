@@ -22,7 +22,7 @@ class EntityLookupCandidate<T> internal constructor(
 ) {
 
     override fun toString(): String {
-        return "EntityLookupCandidate(cadidate=$candidate)"
+        return "EntityLookupCandidate(candidate=$candidate)"
     }
 
     override fun equals(other: Any?): Boolean {

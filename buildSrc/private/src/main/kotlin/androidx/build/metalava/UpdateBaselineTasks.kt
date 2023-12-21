@@ -60,7 +60,7 @@ abstract class UpdateApiLintBaselineTask @Inject constructor(
         val baselineFile = baselines.get().apiLintFile
         val checkArgs = getGenerateApiArgs(
             bootClasspath, dependencyClasspath,
-            sourcePaths.files.filter { it.exists() }, null, GenerateApiMode.ExperimentalApi,
+            sourcePaths.files.filter { it.exists() }, null, GenerateApiMode.PublicApi,
             ApiLintMode.CheckBaseline(baselineFile, targetsJavaConsumers.get()),
             manifestPath.orNull?.asFile?.absolutePath
         )

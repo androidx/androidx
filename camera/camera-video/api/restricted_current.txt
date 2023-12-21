@@ -94,8 +94,8 @@ package androidx.camera.video {
     method public static androidx.camera.video.QualitySelector fromOrderedList(java.util.List<androidx.camera.video.Quality!>);
     method public static androidx.camera.video.QualitySelector fromOrderedList(java.util.List<androidx.camera.video.Quality!>, androidx.camera.video.FallbackStrategy);
     method public static android.util.Size? getResolution(androidx.camera.core.CameraInfo, androidx.camera.video.Quality);
-    method public static java.util.List<androidx.camera.video.Quality!> getSupportedQualities(androidx.camera.core.CameraInfo);
-    method public static boolean isQualitySupported(androidx.camera.core.CameraInfo, androidx.camera.video.Quality);
+    method @Deprecated public static java.util.List<androidx.camera.video.Quality!> getSupportedQualities(androidx.camera.core.CameraInfo);
+    method @Deprecated public static boolean isQualitySupported(androidx.camera.core.CameraInfo, androidx.camera.video.Quality);
   }
 
   @RequiresApi(21) public final class Recorder implements androidx.camera.video.VideoOutput {
@@ -103,9 +103,10 @@ package androidx.camera.video {
     method public java.util.concurrent.Executor? getExecutor();
     method public androidx.camera.video.QualitySelector getQualitySelector();
     method public int getTargetVideoEncodingBitRate();
+    method public static androidx.camera.video.VideoCapabilities getVideoCapabilities(androidx.camera.core.CameraInfo);
     method public void onSurfaceRequested(androidx.camera.core.SurfaceRequest);
-    method public androidx.camera.video.PendingRecording prepareRecording(android.content.Context, androidx.camera.video.FileOutputOptions);
     method @RequiresApi(26) public androidx.camera.video.PendingRecording prepareRecording(android.content.Context, androidx.camera.video.FileDescriptorOutputOptions);
+    method public androidx.camera.video.PendingRecording prepareRecording(android.content.Context, androidx.camera.video.FileOutputOptions);
     method public androidx.camera.video.PendingRecording prepareRecording(android.content.Context, androidx.camera.video.MediaStoreOutputOptions);
     field public static final androidx.camera.video.QualitySelector DEFAULT_QUALITY_SELECTOR;
   }
@@ -133,19 +134,26 @@ package androidx.camera.video {
     method public abstract long getRecordedDurationNanos();
   }
 
+  @RequiresApi(21) public interface VideoCapabilities {
+    method public java.util.Set<androidx.camera.core.DynamicRange!> getSupportedDynamicRanges();
+    method public java.util.List<androidx.camera.video.Quality!> getSupportedQualities(androidx.camera.core.DynamicRange);
+    method public boolean isQualitySupported(androidx.camera.video.Quality, androidx.camera.core.DynamicRange);
+  }
+
   @RequiresApi(21) public final class VideoCapture<T extends androidx.camera.video.VideoOutput> extends androidx.camera.core.UseCase {
+    method public androidx.camera.core.DynamicRange getDynamicRange();
     method public int getMirrorMode();
     method public T getOutput();
     method public android.util.Range<java.lang.Integer!> getTargetFrameRate();
     method public int getTargetRotation();
     method public void setTargetRotation(int);
-    method @Deprecated public void setTargetRotationDegrees(int);
     method public static <T extends androidx.camera.video.VideoOutput> androidx.camera.video.VideoCapture<T!> withOutput(T);
   }
 
   @RequiresApi(21) public static final class VideoCapture.Builder<T extends androidx.camera.video.VideoOutput> implements androidx.camera.core.ExtendableBuilder<androidx.camera.video.VideoCapture> {
     ctor public VideoCapture.Builder(T);
     method public androidx.camera.video.VideoCapture<T!> build();
+    method public androidx.camera.video.VideoCapture.Builder<T!> setDynamicRange(androidx.camera.core.DynamicRange);
     method public androidx.camera.video.VideoCapture.Builder<T!> setMirrorMode(int);
     method public androidx.camera.video.VideoCapture.Builder<T!> setTargetFrameRate(android.util.Range<java.lang.Integer!>);
     method public androidx.camera.video.VideoCapture.Builder<T!> setTargetRotation(int);

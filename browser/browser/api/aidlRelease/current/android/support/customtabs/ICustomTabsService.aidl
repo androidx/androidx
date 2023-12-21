@@ -32,7 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package android.support.customtabs;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface ICustomTabsService {
   boolean warmup(long flags) = 1;
   boolean newSession(in android.support.customtabs.ICustomTabsCallback callback) = 2;
@@ -47,5 +47,4 @@ interface ICustomTabsService {
   boolean receiveFile(in android.support.customtabs.ICustomTabsCallback callback, in android.net.Uri uri, int purpose, in android.os.Bundle extras) = 11;
   boolean isEngagementSignalsApiAvailable(in android.support.customtabs.ICustomTabsCallback customTabsCallback, in android.os.Bundle extras) = 12;
   boolean setEngagementSignalsCallback(in android.support.customtabs.ICustomTabsCallback customTabsCallback, in IBinder callback, in android.os.Bundle extras) = 13;
-  int getGreatestScrollPercentage(in android.support.customtabs.ICustomTabsCallback customTabsCallback, in android.os.Bundle extras) = 14;
 }

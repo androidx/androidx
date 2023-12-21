@@ -62,6 +62,9 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) : A
 
     private val baselineProfileExtension = BaselineProfileProducerExtension.register(project)
     private val configurationManager = ConfigurationManager(project)
+    private val shouldSkipGeneration by lazy {
+        project.properties.containsKey(PROP_SKIP_GENERATION)
+    }
 
     // This maps all the extended build types to the original ones. Note that release does not
     // exist by default so we need to create nonMinifiedRelease and map it manually to `release`.
@@ -183,6 +186,14 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) : A
                 configureBlock = configureBlock
             )
         }
+
+        if (shouldSkipGeneration) {
+            logger.info(
+                """
+                Property `$PROP_SKIP_GENERATION` set. Baseline profile generation will be skipped.
+            """.trimIndent()
+            )
+        }
     }
 
     override fun onTestBeforeVariants(variantBuilder: TestVariantBuilder) {
@@ -276,13 +287,17 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) : A
             }
 
             task
-        }.onEach { it.setEnableEmulatorDisplay(baselineProfileExtension.enableEmulatorDisplay) }
+        }.onEach {
+            it.setEnableEmulatorDisplay(baselineProfileExtension.enableEmulatorDisplay)
+            if (shouldSkipGeneration) it.setTaskEnabled(false)
+        }
 
         // The collect task collects the baseline profile files from the ui test results
         val collectTaskProvider = CollectBaselineProfileTask.registerForVariant(
             project = project,
             variant = variant,
-            testTaskDependencies = testTasks
+            testTaskDependencies = testTasks,
+            shouldSkipGeneration = shouldSkipGeneration
         )
 
         // The artifacts are added to the configuration that exposes the generated baseline profile

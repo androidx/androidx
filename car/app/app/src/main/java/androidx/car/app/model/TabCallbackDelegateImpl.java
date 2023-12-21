@@ -36,7 +36,6 @@ import androidx.car.app.utils.RemoteUtils;
 /**
  * Implementation class for {@link TabCallbackDelegate}.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 @CarProtocol

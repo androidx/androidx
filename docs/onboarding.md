@@ -524,7 +524,7 @@ the prebuilt checked into
 `{androidx-main-checkout}/prebuilts/androidx/internal/androidx/`. We
 colloquially refer to this two step process of (1) updating `docs-public` and
 (2) checking in a prebuilt artifact into the prebuilts directory as
-[The Prebuilts Dance](/company/teams/androidx/releasing_detailed.md#the-prebuilts-dance™).
+[The Prebuilts Dance](/company/teams/androidx/releasing_prebuilts_dance.md#the-prebuilts-dance™).
 So, to build javadocs that will be published to
 https://developer.android.com/reference/androidx/packages, both of these steps
 need to be completed.

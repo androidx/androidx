@@ -18,7 +18,6 @@
 package androidx.window.testing.embedding
 
 import android.content.res.Configuration
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.SplitAttributes
 import androidx.window.embedding.SplitAttributesCalculatorParams
 import androidx.window.embedding.SplitController
@@ -55,7 +54,6 @@ import java.util.Collections
  *
  * @see SplitAttributesCalculatorParams
  */
-@OptIn(ExperimentalWindowApi::class)
 @Suppress("FunctionName")
 @JvmName("createTestSplitAttributesCalculatorParams")
 @JvmOverloads

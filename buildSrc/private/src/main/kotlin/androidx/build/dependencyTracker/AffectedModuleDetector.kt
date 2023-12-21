@@ -17,6 +17,7 @@
 package androidx.build.dependencyTracker
 
 import androidx.build.dependencyTracker.AffectedModuleDetector.Companion.ENABLE_ARG
+import androidx.build.getCheckoutRoot
 import androidx.build.getDistributionDirectory
 import androidx.build.gitclient.GitClient
 import androidx.build.gradle.isRoot
@@ -158,6 +159,7 @@ abstract class AffectedModuleDetector(
                     { spec ->
                         val params = spec.parameters
                         params.rootDir = rootProject.projectDir
+                        params.checkoutRoot = rootProject.getCheckoutRoot()
                         params.projectGraph = projectGraph
                         params.dependencyTracker = dependencyTracker
                         params.log = logger
@@ -257,6 +259,7 @@ abstract class AffectedModuleDetectorLoader :
         var acceptAll: Boolean
 
         var rootDir: File
+        var checkoutRoot: File
         var projectGraph: ProjectGraph
         var dependencyTracker: DependencyTracker
         var log: FileLogger?
@@ -278,7 +281,8 @@ abstract class AffectedModuleDetectorLoader :
                 logger.info("using base commit override $baseCommitOverride")
             }
             val gitClient = GitClient.create(
-                rootProjectDir = parameters.rootDir,
+                projectDir = parameters.rootDir,
+                checkoutRoot = parameters.checkoutRoot,
                 logger = logger.toLogger(),
                 changeInfoPath = parameters.changeInfoPath.get(),
                 manifestPath = parameters.manifestPath.get()

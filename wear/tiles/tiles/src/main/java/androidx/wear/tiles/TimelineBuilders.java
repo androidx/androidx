@@ -62,15 +62,13 @@ public final class TimelineBuilders {
             return mImpl.getEndMillis();
         }
 
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public static TimeInterval fromProto(@NonNull TimelineProto.TimeInterval proto) {
+        static TimeInterval fromProto(@NonNull TimelineProto.TimeInterval proto) {
             return new TimeInterval(proto);
         }
 
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public TimelineProto.TimeInterval toProto() {
+        TimelineProto.TimeInterval toProto() {
             return mImpl;
         }
 

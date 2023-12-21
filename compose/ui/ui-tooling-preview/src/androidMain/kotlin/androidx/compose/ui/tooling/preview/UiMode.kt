@@ -31,11 +31,12 @@ import android.content.res.Configuration.UI_MODE_TYPE_UNDEFINED
 import android.content.res.Configuration.UI_MODE_TYPE_VR_HEADSET
 import android.content.res.Configuration.UI_MODE_TYPE_WATCH
 import androidx.annotation.IntDef
+import androidx.annotation.RestrictTo
 
 /**
  * Annotation of setting uiMode in [Preview].
- * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressLint("UniqueConstants") // UI_MODE_NIGHT_UNDEFINED == UI_MODE_TYPE_UNDEFINED
 @Retention(AnnotationRetention.SOURCE)
 @IntDef(

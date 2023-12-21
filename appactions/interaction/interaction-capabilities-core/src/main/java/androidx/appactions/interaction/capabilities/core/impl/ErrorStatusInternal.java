@@ -21,22 +21,21 @@ import androidx.annotation.RestrictTo;
 /** A class to define exceptions that are reported from dialog capability API. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public enum ErrorStatusInternal {
-    CANCELLED(0),
-    TIMEOUT(1),
-    INVALID_REQUEST(2),
-    UNCHANGED_DISAMBIG_STATE(3),
-    INVALID_RESOLVER(4),
-    STRUCT_CONVERSION_FAILURE(5),
-    EXTERNAL_EXCEPTION(9),
-    SESSION_ALREADY_DESTROYED(10);
-
-    private final int mCode;
-
-    ErrorStatusInternal(int code) {
-        this.mCode = code;
-    }
-
-    public int getCode() {
-        return mCode;
-    }
+    // Unexpected error which doesn't fall into any other error status.
+    UNKNOWN_ERROR_STATUS,
+    // Exception occurred which is internal to the capabilities library.
+    INTERNAL,
+    // The current capability session was cancelled, likely because a new request was sent to the
+    // capability before the first had time to complete.
+    CANCELED,
+    // Developer provided callback has timed out.
+    TIMEOUT,
+    // Invalid data was sent to the capability. This could be a nonsensical request Type or
+    // malformed arguments (e.g. wrong data format for a BII argument).
+    INVALID_REQUEST,
+    // An exception was thrown from a developer-provided callback.
+    EXTERNAL_EXCEPTION,
+    // Tried to send request to a particular capability session, but that session never started
+    // or has already ended.
+    SESSION_NOT_FOUND,
 }

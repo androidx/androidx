@@ -32,7 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package androidx.car.app.activity.renderer;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IProxyInputConnection {
   CharSequence getTextBeforeCursor(int length, int flags) = 1;
   CharSequence getTextAfterCursor(int length, int flags) = 2;
@@ -59,4 +59,6 @@ interface IProxyInputConnection {
   void closeConnection() = 23;
   android.view.inputmethod.EditorInfo getEditorInfo() = 24;
   androidx.car.app.serialization.Bundleable getSurroundingText(int beforeLength, int afterLength, int flags) = 25;
+  boolean deleteSurroundingTextInCodePoints(int beforeLength, int afterLength) = 26;
+  boolean commitContent(in androidx.car.app.serialization.Bundleable inputContentInfoBundleable, int flags, in android.os.Bundle opts) = 27;
 }

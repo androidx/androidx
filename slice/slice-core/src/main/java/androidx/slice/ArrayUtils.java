@@ -24,7 +24,6 @@ import androidx.core.util.ObjectsCompat;
 import java.lang.reflect.Array;
 
 /**
- * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 @RequiresApi(19)

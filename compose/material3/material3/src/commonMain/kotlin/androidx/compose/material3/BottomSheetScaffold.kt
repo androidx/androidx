@@ -43,7 +43,7 @@ import androidx.compose.ui.semantics.dismiss
 import androidx.compose.ui.semantics.expand
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
-import java.lang.Float.max
+import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 

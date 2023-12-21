@@ -26,6 +26,17 @@
     <string name="color_ramp2_data_source_name" translatable="false">Non interpolated color ramp</string>
     <string name="goal_progress_data_source_name" translatable="false">Goal Progress</string>
     <string name="weighted_elements_data_source_name" translatable="false">Weighted Elements</string>
+    <string name="dynamic_time_data_source_name" translatable="false">Example Dynamic Time</string>
+    <string name="dynamic_calories_data_source_name" translatable="false">Example Dynamic Calories</string>
+    <string name="dynamic_distance_data_source_name" translatable="false">Example Dynamic Distance</string>
+    <string name="dynamic_floors_data_source_name" translatable="false">Example Dynamic Floors</string>
+    <string name="dynamic_heart_rate_data_source_name" translatable="false">Example Dynamic Heart Rate</string>
+    <string name="dynamic_steps_data_source_name" translatable="false">Example Dynamic Steps</string>
+
+    <string name="dynamic_data_no_permission" translatable="false">NP</string>
+    <string name="dynamic_data_not_supported" translatable="false">NS</string>
+    <string name="dynamic_data_not_available_or_ready" translatable="false">NA</string>
+    <string name="dynamic_data_low_accuracy" translatable="false">LA</string>
 
     <string name="config_title" translatable="false">Configuration</string>
     <string name="config_button_title" translatable="false">Generate</string>

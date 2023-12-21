@@ -1,0 +1,116 @@
+// Signature format: 4.0
+package androidx.core.telecom {
+
+  public final class CallAttributesCompat {
+    ctor public CallAttributesCompat(CharSequence displayName, android.net.Uri address, @androidx.core.telecom.CallAttributesCompat.Companion.Direction int direction, optional @androidx.core.telecom.CallAttributesCompat.Companion.CallType int callType, optional @androidx.core.telecom.CallAttributesCompat.Companion.CallCapability int callCapabilities);
+    method public android.net.Uri getAddress();
+    method public int getCallCapabilities();
+    method public int getCallType();
+    method public int getDirection();
+    method public CharSequence getDisplayName();
+    property public final android.net.Uri address;
+    property public final int callCapabilities;
+    property public final int callType;
+    property public final int direction;
+    property public final CharSequence displayName;
+    field public static final int CALL_TYPE_AUDIO_CALL = 1; // 0x1
+    field public static final int CALL_TYPE_VIDEO_CALL = 2; // 0x2
+    field public static final androidx.core.telecom.CallAttributesCompat.Companion Companion;
+    field public static final int DIRECTION_INCOMING = 1; // 0x1
+    field public static final int DIRECTION_OUTGOING = 2; // 0x2
+    field public static final int SUPPORTS_SET_INACTIVE = 2; // 0x2
+    field public static final int SUPPORTS_STREAM = 4; // 0x4
+    field public static final int SUPPORTS_TRANSFER = 8; // 0x8
+  }
+
+  public static final class CallAttributesCompat.Companion {
+  }
+
+  @IntDef(value={androidx.core.telecom.CallAttributesCompat.SUPPORTS_SET_INACTIVE, androidx.core.telecom.CallAttributesCompat.SUPPORTS_STREAM, androidx.core.telecom.CallAttributesCompat.SUPPORTS_TRANSFER}, flag=true) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.TYPE, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.VALUE_PARAMETER}) public static @interface CallAttributesCompat.Companion.CallCapability {
+  }
+
+  @IntDef({androidx.core.telecom.CallAttributesCompat.CALL_TYPE_AUDIO_CALL, androidx.core.telecom.CallAttributesCompat.CALL_TYPE_VIDEO_CALL}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.TYPE, kotlin.annotation.AnnotationTarget.VALUE_PARAMETER, kotlin.annotation.AnnotationTarget.PROPERTY}) public static @interface CallAttributesCompat.Companion.CallType {
+  }
+
+  @IntDef({androidx.core.telecom.CallAttributesCompat.DIRECTION_INCOMING, androidx.core.telecom.CallAttributesCompat.DIRECTION_OUTGOING}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.TYPE, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.VALUE_PARAMETER}) public static @interface CallAttributesCompat.Companion.Direction {
+  }
+
+  public interface CallControlCallback {
+    method public suspend Object? onAnswer(@androidx.core.telecom.CallAttributesCompat.Companion.CallType int callType, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    method public suspend Object? onDisconnect(android.telecom.DisconnectCause disconnectCause, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    method public suspend Object? onSetActive(kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    method public suspend Object? onSetInactive(kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+  }
+
+  public interface CallControlScope {
+    method public suspend Object? answer(@androidx.core.telecom.CallAttributesCompat.Companion.CallType int callType, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    method public suspend Object? disconnect(android.telecom.DisconnectCause disconnectCause, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    method public kotlinx.coroutines.flow.Flow<java.util.List<androidx.core.telecom.CallEndpointCompat>> getAvailableEndpoints();
+    method public android.os.ParcelUuid getCallId();
+    method public kotlinx.coroutines.flow.Flow<androidx.core.telecom.CallEndpointCompat> getCurrentCallEndpoint();
+    method public kotlinx.coroutines.flow.Flow<java.lang.Boolean> isMuted();
+    method public suspend Object? requestEndpointChange(androidx.core.telecom.CallEndpointCompat endpoint, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    method public suspend Object? setActive(kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    method public void setCallback(androidx.core.telecom.CallControlCallback callControlCallback);
+    method public suspend Object? setInactive(kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    property public abstract kotlinx.coroutines.flow.Flow<java.util.List<androidx.core.telecom.CallEndpointCompat>> availableEndpoints;
+    property public abstract kotlinx.coroutines.flow.Flow<androidx.core.telecom.CallEndpointCompat> currentCallEndpoint;
+    property public abstract kotlinx.coroutines.flow.Flow<java.lang.Boolean> isMuted;
+  }
+
+  @RequiresApi(android.os.Build.VERSION_CODES.O) public final class CallEndpointCompat {
+    ctor public CallEndpointCompat(CharSequence name, int type, android.os.ParcelUuid identifier);
+    method public android.os.ParcelUuid getIdentifier();
+    method public CharSequence getName();
+    method public int getType();
+    property public final android.os.ParcelUuid identifier;
+    property public final CharSequence name;
+    property public final int type;
+    field public static final androidx.core.telecom.CallEndpointCompat.Companion Companion;
+    field public static final int TYPE_BLUETOOTH = 2; // 0x2
+    field public static final int TYPE_EARPIECE = 1; // 0x1
+    field public static final int TYPE_SPEAKER = 4; // 0x4
+    field public static final int TYPE_STREAMING = 5; // 0x5
+    field public static final int TYPE_UNKNOWN = -1; // 0xffffffff
+    field public static final int TYPE_WIRED_HEADSET = 3; // 0x3
+  }
+
+  public static final class CallEndpointCompat.Companion {
+  }
+
+  @IntDef({androidx.core.telecom.CallEndpointCompat.TYPE_UNKNOWN, androidx.core.telecom.CallEndpointCompat.TYPE_EARPIECE, androidx.core.telecom.CallEndpointCompat.TYPE_BLUETOOTH, androidx.core.telecom.CallEndpointCompat.TYPE_WIRED_HEADSET, androidx.core.telecom.CallEndpointCompat.TYPE_SPEAKER, androidx.core.telecom.CallEndpointCompat.TYPE_STREAMING}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.TYPE, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.VALUE_PARAMETER}) public static @interface CallEndpointCompat.Companion.EndpointType {
+  }
+
+  public final class CallException extends java.lang.RuntimeException {
+    ctor public CallException(optional @androidx.core.telecom.CallException.Companion.CallErrorCode int code, optional String? message);
+    method public int getCode();
+    property public final int code;
+    field public static final androidx.core.telecom.CallException.Companion Companion;
+    field public static final int ERROR_CALLBACKS_CODE = 2; // 0x2
+    field public static final int ERROR_UNKNOWN_CODE = 1; // 0x1
+  }
+
+  public static final class CallException.Companion {
+  }
+
+  @IntDef({androidx.core.telecom.CallException.ERROR_UNKNOWN_CODE, androidx.core.telecom.CallException.ERROR_CALLBACKS_CODE}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) public static @interface CallException.Companion.CallErrorCode {
+  }
+
+  @RequiresApi(android.os.Build.VERSION_CODES.O) public final class CallsManager {
+    ctor public CallsManager(android.content.Context context);
+    method @RequiresPermission("android.permission.MANAGE_OWN_CALLS") public suspend Object? addCall(androidx.core.telecom.CallAttributesCompat callAttributes, kotlin.jvm.functions.Function1<? super androidx.core.telecom.CallControlScope,kotlin.Unit> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @RequiresPermission("android.permission.MANAGE_OWN_CALLS") public void registerAppWithTelecom(@androidx.core.telecom.CallsManager.Companion.Capability int capabilities);
+    field public static final int CAPABILITY_BASELINE = 1; // 0x1
+    field public static final int CAPABILITY_SUPPORTS_CALL_STREAMING = 4; // 0x4
+    field public static final int CAPABILITY_SUPPORTS_VIDEO_CALLING = 2; // 0x2
+    field public static final androidx.core.telecom.CallsManager.Companion Companion;
+  }
+
+  public static final class CallsManager.Companion {
+  }
+
+  @IntDef(value={androidx.core.telecom.CallsManager.CAPABILITY_BASELINE, androidx.core.telecom.CallsManager.CAPABILITY_SUPPORTS_VIDEO_CALLING, androidx.core.telecom.CallsManager.CAPABILITY_SUPPORTS_CALL_STREAMING}, flag=true) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.VALUE_PARAMETER, kotlin.annotation.AnnotationTarget.TYPE}) public static @interface CallsManager.Companion.Capability {
+  }
+
+}
+

@@ -40,7 +40,8 @@ private const val ANIMATE_VALUE_AS_STATE = "animateValueAsState"
 private const val REMEMBER = "remember"
 private const val REMEMBER_INFINITE_TRANSITION = "rememberInfiniteTransition"
 private const val REMEMBER_UPDATED_STATE = "rememberUpdatedState"
-private const val SIZE_ANIMATION_MODIFIER = "androidx.compose.animation.SizeAnimationModifier"
+private const val SIZE_ANIMATION_MODIFIER =
+        "androidx.compose.animation.SizeAnimationModifierElement"
 
 /** Find first data with type [T] within all remember calls. */
 @OptIn(UiToolingDataApi::class)
@@ -136,8 +137,8 @@ internal class AnimationSearch(
         // table as the one containing the `@Composable` being previewed, e.g. when they're
         // defined using sub-composition.
         slotTrees.forEach { tree ->
-            val groupsWithLocation = tree.findAll { it.location != null }
-            setToSearch.forEach { it.addAnimations(groupsWithLocation) }
+            val groups = tree.findAll { true }
+            setToSearch.forEach { it.addAnimations(groups) }
             // Remove all AnimatedVisibility parent transitions from the transitions list,
             // otherwise we'd duplicate them in the Android Studio Animation Preview because we
             // will track them separately.
@@ -158,7 +159,7 @@ internal class AnimationSearch(
     /** Search for animations with type [T]. */
     open class Search<T : Any>(private val trackAnimation: (T) -> Unit) {
         val animations = mutableSetOf<T>()
-        open fun addAnimations(groupsWithLocation: Collection<Group>) {}
+        open fun addAnimations(groups: Collection<Group>) {}
         fun hasAnimations() = animations.isNotEmpty()
         fun track() {
             // Animations are found in reversed order in the tree,
@@ -172,7 +173,8 @@ internal class AnimationSearch(
         private val clazz: KClass<T>,
         trackAnimation: (T) -> Unit
     ) : Search<T>(trackAnimation) {
-        override fun addAnimations(groupsWithLocation: Collection<Group>) {
+        override fun addAnimations(groups: Collection<Group>) {
+            val groupsWithLocation = groups.filter { it.location != null }
             animations.addAll(groupsWithLocation.findRememberCallWithType(clazz).toSet())
         }
 
@@ -199,7 +201,8 @@ internal class AnimationSearch(
     class InfiniteTransitionSearch(trackAnimation: (InfiniteTransitionSearchInfo) -> Unit) :
         Search<InfiniteTransitionSearchInfo>(trackAnimation) {
 
-        override fun addAnimations(groupsWithLocation: Collection<Group>) {
+        override fun addAnimations(groups: Collection<Group>) {
+            val groupsWithLocation = groups.filter { it.location != null }
             animations.addAll(findAnimations(groupsWithLocation))
         }
 
@@ -234,7 +237,8 @@ internal class AnimationSearch(
     /** Search for animateXAsState() and animateValueAsState() animations. */
     class AnimateXAsStateSearch(trackAnimation: (AnimateXAsStateSearchInfo<*, *>) -> Unit) :
         Search<AnimateXAsStateSearchInfo<*, *>>(trackAnimation) {
-        override fun addAnimations(groupsWithLocation: Collection<Group>) {
+        override fun addAnimations(groups: Collection<Group>) {
+            val groupsWithLocation = groups.filter { it.location != null }
             animations.addAll(findAnimations<Any?>(groupsWithLocation))
         }
 
@@ -288,22 +292,31 @@ internal class AnimationSearch(
     /** Search for animateContentSize() animations. */
     class AnimateContentSizeSearch(trackAnimation: (Any) -> Unit) :
         Search<Any>(trackAnimation) {
-        override fun addAnimations(groupsWithLocation: Collection<Group>) {
-            animations.addAll(groupsWithLocation.filter { call -> call.name == REMEMBER }
-                .mapNotNull {
-                    // SizeAnimationModifier is currently private.
-                    it.data.firstOrNull { data ->
-                        data?.javaClass?.name == SIZE_ANIMATION_MODIFIER
+        // It's important not to pre-filter the groups by location, as there's no guarantee
+        // that the group containing the modifierInfo we are looking for has a non-null location.
+        override fun addAnimations(groups: Collection<Group>) {
+            groups.filter {
+                it.modifierInfo.isNotEmpty()
+            }.forEach { group ->
+                group.modifierInfo.forEach {
+                    it.modifier.any { mod ->
+                        if (mod.javaClass.name == SIZE_ANIMATION_MODIFIER) {
+                            animations.add(mod)
+                            true
+                        } else
+                            false
                     }
-                }.toSet())
+                }
+            }
         }
     }
 
     /** Search for updateTransition() animations. */
     class TransitionSearch(trackAnimation: (Transition<*>) -> Unit) :
         Search<Transition<*>>(trackAnimation) {
-        override fun addAnimations(groupsWithLocation: Collection<Group>) {
+        override fun addAnimations(groups: Collection<Group>) {
             // Find `updateTransition` calls.
+            val groupsWithLocation = groups.filter { it.location != null }
             animations.addAll(groupsWithLocation.filter {
                 it.name == UPDATE_TRANSITION
             }.findRememberedData())
@@ -313,9 +326,10 @@ internal class AnimationSearch(
     /** Search for AnimatedVisibility animations. */
     class AnimatedVisibilitySearch(trackAnimation: (Transition<*>) -> Unit) :
         Search<Transition<*>>(trackAnimation) {
-        override fun addAnimations(groupsWithLocation: Collection<Group>) {
+        override fun addAnimations(groups: Collection<Group>) {
             // Find `AnimatedVisibility` calls.
             // Then, find the underlying `updateTransition` it uses.
+            val groupsWithLocation = groups.filter { it.location != null }
             animations.addAll(groupsWithLocation.filter { it.name == ANIMATED_VISIBILITY }
                 .mapNotNull {
                     it.children.firstOrNull { updateTransitionCall ->
@@ -328,7 +342,8 @@ internal class AnimationSearch(
     /** Search for AnimatedContent animations. */
     class AnimatedContentSearch(trackAnimation: (Transition<*>) -> Unit) :
         Search<Transition<*>>(trackAnimation) {
-        override fun addAnimations(groupsWithLocation: Collection<Group>) {
+        override fun addAnimations(groups: Collection<Group>) {
+            val groupsWithLocation = groups.filter { it.location != null }
             animations.addAll(groupsWithLocation.filter { it.name == ANIMATED_CONTENT }
                 .mapNotNull {
                     it.children.firstOrNull { updateTransitionCall ->

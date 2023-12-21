@@ -16,6 +16,7 @@
 
 package androidx.paging.testing
 
+import androidx.annotation.VisibleForTesting
 import androidx.paging.LoadType
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
@@ -44,6 +45,7 @@ import kotlinx.coroutines.sync.withLock
  * @param config the [PagingConfig] to configure this TestPager's loading behavior.
  * @param pagingSource the [PagingSource] to load data from.
  */
+@VisibleForTesting
 public class TestPager<Key : Any, Value : Any>(
     private val config: PagingConfig,
     private val pagingSource: PagingSource<Key, Value>,

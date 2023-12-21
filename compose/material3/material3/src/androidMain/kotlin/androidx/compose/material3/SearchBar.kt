@@ -53,6 +53,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.SearchBarDefaults.InputFieldHeight
+import androidx.compose.material3.tokens.ElevationTokens
 import androidx.compose.material3.tokens.FilledTextFieldTokens
 import androidx.compose.material3.tokens.MotionTokens
 import androidx.compose.material3.tokens.SearchBarTokens
@@ -64,9 +65,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -92,7 +91,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -149,6 +147,7 @@ import kotlinx.coroutines.delay
  * translucent primary color overlay is applied on top of the container. A higher tonal elevation
  * value will result in a darker color in light theme and lighter color in dark theme. See also:
  * [Surface].
+ * @param shadowElevation the elevation for the shadow below the search bar
  * @param windowInsets the window insets that the search bar will respect
  * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
  * for this search bar. You can create and pass in your own `remember`ed instance to observe
@@ -170,7 +169,8 @@ fun SearchBar(
     trailingIcon: @Composable (() -> Unit)? = null,
     shape: Shape = SearchBarDefaults.inputFieldShape,
     colors: SearchBarColors = SearchBarDefaults.colors(),
-    tonalElevation: Dp = SearchBarDefaults.Elevation,
+    tonalElevation: Dp = SearchBarDefaults.TonalElevation,
+    shadowElevation: Dp = SearchBarDefaults.ShadowElevation,
     windowInsets: WindowInsets = SearchBarDefaults.windowInsets,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable ColumnScope.() -> Unit,
@@ -221,6 +221,7 @@ fun SearchBar(
         color = colors.containerColor,
         contentColor = contentColorFor(colors.containerColor),
         tonalElevation = tonalElevation,
+        shadowElevation = shadowElevation,
         modifier = modifier
             .zIndex(1f)
             .onConsumedWindowInsetsChanged { consumedInsets ->
@@ -333,6 +334,7 @@ fun SearchBar(
  * translucent primary color overlay is applied on top of the container. A higher tonal elevation
  * value will result in a darker color in light theme and lighter color in dark theme. See also:
  * [Surface].
+ * @param shadowElevation the elevation for the shadow below the search bar
  * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
  * for this search bar. You can create and pass in your own `remember`ed instance to observe
  * [Interaction]s and customize the appearance / behavior of this search bar in different states.
@@ -353,7 +355,8 @@ fun DockedSearchBar(
     trailingIcon: @Composable (() -> Unit)? = null,
     shape: Shape = SearchBarDefaults.dockedShape,
     colors: SearchBarColors = SearchBarDefaults.colors(),
-    tonalElevation: Dp = SearchBarDefaults.Elevation,
+    tonalElevation: Dp = SearchBarDefaults.TonalElevation,
+    shadowElevation: Dp = SearchBarDefaults.ShadowElevation,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable ColumnScope.() -> Unit,
 ) {
@@ -364,6 +367,7 @@ fun DockedSearchBar(
         color = colors.containerColor,
         contentColor = contentColorFor(colors.containerColor),
         tonalElevation = tonalElevation,
+        shadowElevation = shadowElevation,
         modifier = modifier
             .zIndex(1f)
             .width(SearchBarMinWidth)
@@ -495,8 +499,18 @@ private fun SearchBarInputField(
  */
 @ExperimentalMaterial3Api
 object SearchBarDefaults {
-    /** Default elevation for a search bar. */
-    val Elevation: Dp = SearchBarTokens.ContainerElevation
+    /** Default tonal elevation for a search bar. */
+    val TonalElevation: Dp = SearchBarTokens.ContainerElevation
+
+    /** Default shadow elevation for a search bar. */
+    val ShadowElevation: Dp = ElevationTokens.Level0
+
+    @Deprecated(
+        message = "Renamed to TonalElevation. Not to be confused with ShadowElevation.",
+        replaceWith = ReplaceWith("TonalElevation"),
+        level = DeprecationLevel.WARNING,
+    )
+    val Elevation: Dp = TonalElevation
 
     /** Default height for a search bar's input field, or a search bar in the inactive state. */
     val InputFieldHeight: Dp = SearchBarTokens.ContainerHeight
@@ -676,30 +690,6 @@ private class AnimatedPaddingValues(
 
     override fun calculateLeftPadding(layoutDirection: LayoutDirection): Dp = 0.dp
     override fun calculateRightPadding(layoutDirection: LayoutDirection): Dp = 0.dp
-}
-
-/**
- * A [WindowInsets] whose values can change without changing the instance. This is useful
- * to avoid recomposition when [WindowInsets] can change.
- *
- * Copied from [androidx.compose.foundation.layout.MutableWindowInsets], which is marked as
- * experimental and thus cannot be used cross-module.
- */
-private class MutableWindowInsets(
-    initialInsets: WindowInsets = WindowInsets(0, 0, 0, 0)
-) : WindowInsets {
-    /**
-     * The [WindowInsets] that are used for [left][getLeft], [top][getTop], [right][getRight],
-     * and [bottom][getBottom] values.
-     */
-    var insets by mutableStateOf(initialInsets)
-
-    override fun getLeft(density: Density, layoutDirection: LayoutDirection): Int =
-        insets.getLeft(density, layoutDirection)
-    override fun getTop(density: Density): Int = insets.getTop(density)
-    override fun getRight(density: Density, layoutDirection: LayoutDirection): Int =
-        insets.getRight(density, layoutDirection)
-    override fun getBottom(density: Density): Int = insets.getBottom(density)
 }
 
 // Measurement specs

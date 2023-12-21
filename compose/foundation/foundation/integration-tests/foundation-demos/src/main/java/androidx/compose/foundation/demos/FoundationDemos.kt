@@ -46,10 +46,15 @@ private val FocusDemos = listOf(
     ComposableDemo("Focus Group") { FocusGroupDemo() },
 )
 
+private val GestureDemos = listOf(
+    ComposableDemo("AnchoredDraggable") { AnchoredDraggableDemo() },
+    ComposableDemo("Draggable, Scrollable, Zoomable, Focusable") { HighLevelGesturesDemo() }
+)
+
 val FoundationDemos = DemoCategory(
     "Foundation",
     listOf(
-        ComposableDemo("Draggable, Scrollable, Zoomable, Focusable") { HighLevelGesturesDemo() },
+        DemoCategory("High-level Gesures", GestureDemos),
         ComposableDemo("Overscroll") { OverscrollDemo() },
         ComposableDemo("Can scroll forward / backward") { CanScrollSample() },
         ComposableDemo("Vertical scroll") { VerticalScrollExample() },
@@ -61,7 +66,8 @@ val FoundationDemos = DemoCategory(
         ComposableDemo("Simple InteractionSource") { SimpleInteractionSourceSample() },
         ComposableDemo("Flow InteractionSource") { InteractionSourceFlowSample() },
         DemoCategory("Suspending Gesture Detectors", CoroutineGestureDemos),
-        ComposableDemo("NestedScroll") { NestedScrollDemo() },
+        ComposableDemo("Nested Scroll") { NestedScrollDemo() },
+        ComposableDemo("Nested Scroll Connection") { NestedScrollConnectionSample() },
         DemoCategory("Relocation Demos", RelocationDemos),
         DemoCategory("Focus Demos", FocusDemos),
         DemoCategory("Magnifier Demos", MagnifierDemos),

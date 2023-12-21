@@ -258,13 +258,8 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
          * of the build that is released.  Thus, we use frameworks/support to get the sha
          */
         fun Project.getFrameworksSupportCommitShaAtHead(): String {
-            val gitClient = GitClient.create(
-                project.getSupportRootFolder(),
-                logger,
-                GitClient.getChangeInfoPath(project).get(),
-                GitClient.getManifestPath(project).get()
-            )
-            return gitClient.getHeadSha(getSupportRootFolder())
+            val gitClient = GitClient.forProject(project)
+            return gitClient.getHeadSha()
         }
     }
 }

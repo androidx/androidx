@@ -33,7 +33,7 @@ internal expect fun String.findPrecedingBreak(index: Int): Int
 internal expect fun String.findFollowingBreak(index: Int): Int
 
 internal fun CharSequence.findParagraphStart(startIndex: Int): Int {
-    for (index in startIndex - 1 downTo 1) {
+    for (index in startIndex downTo 1) {
         if (this[index - 1] == '\n') {
             return index
         }
@@ -42,7 +42,7 @@ internal fun CharSequence.findParagraphStart(startIndex: Int): Int {
 }
 
 internal fun CharSequence.findParagraphEnd(startIndex: Int): Int {
-    for (index in startIndex + 1 until this.length) {
+    for (index in startIndex until this.length) {
         if (this[index] == '\n') {
             return index
         }

@@ -20,6 +20,7 @@ import android.content.Context
 import androidx.work.Configuration
 import androidx.work.impl.Processor
 import androidx.work.impl.Scheduler
+import androidx.work.impl.SchedulersCreator
 import androidx.work.impl.WorkDatabase
 import androidx.work.impl.WorkLauncherImpl
 import androidx.work.impl.WorkManagerImpl
@@ -27,11 +28,13 @@ import androidx.work.impl.constraints.trackers.Trackers
 import androidx.work.impl.utils.taskexecutor.SerialExecutor
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor
+import androidx.work.testing.WorkManagerTestInitHelper.ExecutorsMode
 
 internal fun createTestWorkManagerImpl(
     context: Context,
     configuration: Configuration,
     serialExecutor: SerialExecutor,
+    executorsMode: ExecutorsMode
 ): WorkManagerImpl {
     val taskExecutor = object : TaskExecutor {
         val synchronousExecutor = SynchronousExecutor()
@@ -44,23 +47,25 @@ internal fun createTestWorkManagerImpl(
         configuration = configuration,
         workTaskExecutor = taskExecutor,
         workDatabase = WorkDatabase.create(
-            context, taskExecutor.serialTaskExecutor, configuration.clock, true),
-        schedulersCreator = ::createTestSchedulers
+            context, taskExecutor.serialTaskExecutor, configuration.clock, true
+        ), schedulersCreator = createTestSchedulersOuter(executorsMode)
     )
 }
 
 internal fun createTestWorkManagerImpl(
     context: Context,
     configuration: Configuration,
+    executorsMode: ExecutorsMode
 ): WorkManagerImpl {
-    val taskExecutor = WorkManagerTaskExecutor(configuration.taskExecutor)
+    val taskExecutor =
+        WorkManagerTaskExecutor(configuration.taskExecutor)
     return WorkManagerImpl(
         context = context,
         configuration = configuration,
         workTaskExecutor = taskExecutor,
         workDatabase = WorkDatabase.create(
-            context, taskExecutor.serialTaskExecutor, configuration.clock, true),
-        schedulersCreator = ::createTestSchedulers
+            context, taskExecutor.serialTaskExecutor, configuration.clock, true
+        ), schedulersCreator = createTestSchedulersOuter(executorsMode)
     )
 }
 
@@ -73,6 +78,14 @@ internal val WorkManagerImpl.testDriver: TestDriver
             )
     }
 
+private fun createTestSchedulersOuter(executorsMode: ExecutorsMode): SchedulersCreator =
+    { context, configuration, workTaskExecutor, workDatabase, trackers, processor ->
+        createTestSchedulers(
+            context, configuration, workTaskExecutor, workDatabase, trackers, processor,
+            executorsMode
+        )
+    }
+
 @Suppress("UNUSED_PARAMETER")
 private fun createTestSchedulers(
     context: Context,
@@ -81,7 +94,16 @@ private fun createTestSchedulers(
     workDatabase: WorkDatabase,
     trackers: Trackers,
     processor: Processor,
+    executorsMode: ExecutorsMode
 ): List<Scheduler> {
     val launcher = WorkLauncherImpl(processor, workTaskExecutor)
-    return listOf<Scheduler>(TestScheduler(workDatabase, launcher, configuration.clock))
+    return listOf<Scheduler>(
+        TestScheduler(
+            workDatabase,
+            launcher,
+            configuration.clock,
+            configuration.runnableScheduler,
+            executorsMode
+        )
+    )
 }

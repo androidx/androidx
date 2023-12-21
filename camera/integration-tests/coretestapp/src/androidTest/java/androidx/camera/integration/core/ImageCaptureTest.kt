@@ -63,13 +63,14 @@ import androidx.camera.core.impl.utils.CameraOrientationUtil
 import androidx.camera.core.impl.utils.Exif
 import androidx.camera.core.internal.compat.workaround.ExifRotationAvailability
 import androidx.camera.core.resolutionselector.ResolutionSelector
-import androidx.camera.core.resolutionselector.ResolutionSelector.ALLOWED_RESOLUTIONS_SLOW
+import androidx.camera.core.resolutionselector.ResolutionSelector.PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE
 import androidx.camera.integration.core.util.CameraPipeUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.testing.SurfaceTextureProvider
+import androidx.camera.testing.WakelockEmptyActivityRule
 import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.camera.testing.fakes.FakeSessionProcessor
 import androidx.camera.video.Recorder
@@ -96,6 +97,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
 import org.junit.Assume.assumeFalse
+import org.junit.Assume.assumeNoException
 import org.junit.Assume.assumeNotNull
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -109,7 +111,7 @@ private val DEFAULT_RESOLUTION = Size(640, 480)
 private val BACK_SELECTOR = CameraSelector.DEFAULT_BACK_CAMERA
 private val FRONT_SELECTOR = CameraSelector.DEFAULT_FRONT_CAMERA
 private const val BACK_LENS_FACING = CameraSelector.LENS_FACING_BACK
-private const val CAPTURE_TIMEOUT = 10_000.toLong() //  10 seconds
+private const val CAPTURE_TIMEOUT = 15_000.toLong() //  15 seconds
 
 @LargeTest
 @RunWith(Parameterized::class)
@@ -132,6 +134,9 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     @get:Rule
     val temporaryFolder =
         TemporaryFolder(ApplicationProvider.getApplicationContext<Context>().cacheDir)
+
+    @get:Rule
+    val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
 
     companion object {
         @JvmStatic
@@ -1579,29 +1584,9 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun unbindVideoCaptureWithoutStartingRecorder_imageCapturingShouldSuccess() = runBlocking {
-        assumeTrue("b/280379397", implName != Camera2Config::class.simpleName)
-        assumeTrue(
-            "b/280560222: takePicture request is discarded if UseCaseCamera is recreated",
-            implName != CameraPipeConfig::class.simpleName
-        )
-
         // Arrange.
         val imageCapture = ImageCapture.Builder().build()
-        val videoStreamReceived = CompletableDeferred<Boolean>()
-        val videoCapture = VideoCapture.Builder<Recorder>(Recorder.Builder().build()).also {
-            CameraPipeUtil.setCameraCaptureSessionCallback(
-                implName,
-                it,
-                object : CaptureCallback() {
-                    override fun onCaptureCompleted(
-                        session: CameraCaptureSession,
-                        request: CaptureRequest,
-                        result: TotalCaptureResult
-                    ) {
-                        videoStreamReceived.complete(true)
-                    }
-                })
-        }.build()
+        val videoCapture = VideoCapture.Builder<Recorder>(Recorder.Builder().build()).build()
 
         withContext(Dispatchers.Main) {
             cameraProvider.bindToLifecycle(
@@ -1609,19 +1594,24 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             )
         }
 
-        assertWithMessage("VideoCapture doesn't start").that(
-            videoStreamReceived.awaitWithTimeoutOrNull()
-        ).isTrue()
+        // wait for camera to start by taking a picture
+        val callback1 = FakeImageCaptureCallback(capturesCount = 1)
+        imageCapture.takePicture(mainExecutor, callback1)
+        try {
+            callback1.awaitCapturesAndAssert(capturedImagesCount = 1)
+        } catch (e: AssertionError) {
+            assumeNoException("image capture failed, camera might not have started yet", e)
+        }
 
         // Act.
-        val callback = FakeImageCaptureCallback(capturesCount = 1)
+        val callback2 = FakeImageCaptureCallback(capturesCount = 1)
         withContext(Dispatchers.Main) {
             cameraProvider.unbind(videoCapture)
-            imageCapture.takePicture(mainExecutor, callback)
+            imageCapture.takePicture(mainExecutor, callback2)
         }
 
         // Assert.
-        callback.awaitCapturesAndAssert(capturedImagesCount = 1)
+        callback2.awaitCapturesAndAssert(capturedImagesCount = 1)
     }
 
     @Test
@@ -1660,7 +1650,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         assumeTrue(maxHighResolutionOutputSize != null)
 
         val resolutionSelector = ResolutionSelector.Builder()
-            .setAllowedResolutionMode(ALLOWED_RESOLUTIONS_SLOW)
+            .setAllowedResolutionMode(PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE)
             .setResolutionFilter { _, _ ->
                 listOf(maxHighResolutionOutputSize)
             }

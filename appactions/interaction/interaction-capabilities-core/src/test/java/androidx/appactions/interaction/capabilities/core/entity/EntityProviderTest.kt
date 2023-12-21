@@ -16,7 +16,7 @@
 
 package androidx.appactions.interaction.capabilities.core.entity
 
-import androidx.appactions.builtintypes.experimental.types.Alarm
+import androidx.appactions.builtintypes.types.Alarm
 import androidx.appactions.interaction.proto.Entity
 import androidx.appactions.interaction.proto.GroundingRequest
 import androidx.appactions.interaction.proto.GroundingResponse

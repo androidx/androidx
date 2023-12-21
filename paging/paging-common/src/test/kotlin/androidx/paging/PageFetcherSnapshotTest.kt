@@ -16,6 +16,7 @@
 
 package androidx.paging
 
+import androidx.kruth.assertThat
 import androidx.paging.ContiguousPagedListTest.Companion.EXCEPTION
 import androidx.paging.LoadState.Error
 import androidx.paging.LoadState.Loading
@@ -28,7 +29,6 @@ import androidx.paging.PagingSource.LoadResult
 import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.RemoteMediatorMock.LoadEvent
 import androidx.paging.TestPagingSource.Companion.LOAD_ERROR
-import com.google.common.truth.Truth.assertThat
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -57,7 +57,6 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -67,11 +66,8 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalPagingApi::class)
-@RunWith(JUnit4::class)
 class PageFetcherSnapshotTest {
     private val testScope = TestScope(UnconfinedTestDispatcher())
     private val retryBus = ConflatedEventBus<Unit>()
@@ -3571,7 +3567,7 @@ class PageFetcherSnapshotTest {
 
     @OptIn(DelicateCoroutinesApi::class)
     @Test
-    fun pageEventSentAfterChannelClosed() {
+    fun pageEventSentAfterChannelClosed() = runTest {
         val pager = PageFetcherSnapshot(
             initialKey = 50,
             pagingSource = TestPagingSource(loadDelay = 100),
@@ -3584,7 +3580,7 @@ class PageFetcherSnapshotTest {
         }
         pager.close()
 
-        runBlocking { deferred.await() }
+        deferred.await()
     }
 
     @Test

@@ -48,6 +48,8 @@ import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.test.uiautomator.util.Traces;
+import androidx.test.uiautomator.util.Traces.Section;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -71,12 +73,15 @@ import java.util.concurrent.TimeoutException;
  * such as pressing the d-pad or pressing the Home and Menu buttons.
  */
 public class UiDevice implements Searchable {
-    private static final String TAG = UiDevice.class.getSimpleName();
+
+    static final String TAG = UiDevice.class.getSimpleName();
 
     // Use a short timeout after HOME or BACK key presses, as no events might be generated if
     // already on the home page or if there is nothing to go back to.
     private static final long KEY_PRESS_EVENT_TIMEOUT = 1_000; // ms
-    private static final long ROTATION_TIMEOUT = 1_000; // ms
+    private static final long ROTATION_TIMEOUT = 2_000; // ms
+    private static final int MAX_UIAUTOMATION_RETRY = 3;
+    private static final int UIAUTOMATION_RETRY_INTERVAL = 500;
 
     // Singleton instance.
     private static UiDevice sInstance;
@@ -126,6 +131,7 @@ public class UiDevice implements Searchable {
     /** Returns whether there is a match for the given {@code selector} criteria. */
     @Override
     public boolean hasObject(@NonNull BySelector selector) {
+        Log.d(TAG, String.format("Searching for node with selector: %s.", selector));
         AccessibilityNodeInfo node = ByMatcher.findMatch(this, selector, getWindowRoots());
         if (node != null) {
             node.recycle();
@@ -141,23 +147,27 @@ public class UiDevice implements Searchable {
     @Override
     @SuppressLint("UnknownNullness") // Avoid unnecessary null checks from nullable testing APIs.
     public UiObject2 findObject(@NonNull BySelector selector) {
+        Log.d(TAG, String.format("Retrieving node with selector: %s.", selector));
         AccessibilityNodeInfo node = ByMatcher.findMatch(this, selector, getWindowRoots());
         if (node == null) {
             Log.d(TAG, String.format("Node not found with selector: %s.", selector));
             return null;
         }
-        return new UiObject2(this, selector, node);
+        return UiObject2.create(this, selector, node);
     }
 
     /** Returns all objects that match the {@code selector} criteria. */
     @Override
     @NonNull
     public List<UiObject2> findObjects(@NonNull BySelector selector) {
+        Log.d(TAG, String.format("Retrieving nodes with selector: %s.", selector));
         List<UiObject2> ret = new ArrayList<>();
         for (AccessibilityNodeInfo node : ByMatcher.findMatches(this, selector, getWindowRoots())) {
-            ret.add(new UiObject2(this, selector, node));
+            UiObject2 object = UiObject2.create(this, selector, node);
+            if (object != null) {
+                ret.add(object);
+            }
         }
-
         return ret;
     }
 
@@ -171,8 +181,10 @@ public class UiDevice implements Searchable {
      * was not met before the {@code timeout}.
      */
     public <U> U wait(@NonNull Condition<? super UiDevice, U> condition, long timeout) {
-        Log.d(TAG, String.format("Waiting %dms for %s.", timeout, condition));
-        return mWaitMixin.wait(condition, timeout);
+        try (Section ignored = Traces.trace("UiDevice#wait")) {
+            Log.d(TAG, String.format("Waiting %dms for %s.", timeout, condition));
+            return mWaitMixin.wait(condition, timeout);
+        }
     }
 
     /**
@@ -185,22 +197,24 @@ public class UiDevice implements Searchable {
      */
     public <U> U performActionAndWait(@NonNull Runnable action,
             @NonNull EventCondition<U> condition, long timeout) {
-        AccessibilityEvent event = null;
-        Log.d(TAG, String.format("Performing action %s and waiting %dms for %s.", action, timeout,
-                condition));
-        try {
-            event = getUiAutomation().executeAndWaitForEvent(
-                    action, condition, timeout);
-        } catch (TimeoutException e) {
-            // Ignore
-            Log.w(TAG, String.format("Timed out waiting %dms on the condition.", timeout), e);
-        }
+        try (Section ignored = Traces.trace("UiDevice#performActionAndWait")) {
+            AccessibilityEvent event = null;
+            Log.d(TAG, String.format("Performing action %s and waiting %dms for %s.", action,
+                    timeout, condition));
+            try {
+                event = getUiAutomation().executeAndWaitForEvent(
+                        action, condition, timeout);
+            } catch (TimeoutException e) {
+                // Ignore
+                Log.w(TAG, String.format("Timed out waiting %dms on the condition.", timeout), e);
+            }
 
-        if (event != null) {
-            event.recycle();
-        }
+            if (event != null) {
+                event.recycle();
+            }
 
-        return condition.getResult();
+            return condition.getResult();
+        }
     }
 
     /**
@@ -620,7 +634,9 @@ public class UiDevice implements Searchable {
      * Default wait timeout is 10 seconds
      */
     public void waitForIdle() {
-        getQueryController().waitForIdle();
+        try (Section ignored = Traces.trace("UiDevice#waitForIdle")) {
+            getQueryController().waitForIdle();
+        }
     }
 
     /**
@@ -628,7 +644,9 @@ public class UiDevice implements Searchable {
      * @param timeout in milliseconds
      */
     public void waitForIdle(long timeout) {
-        getQueryController().waitForIdle(timeout);
+        try (Section ignored = Traces.trace("UiDevice#waitForIdle")) {
+            getQueryController().waitForIdle(timeout);
+        }
     }
 
     /**
@@ -973,33 +991,36 @@ public class UiDevice implements Searchable {
      *         window does not have the specified package name
      */
     public boolean waitForWindowUpdate(@Nullable String packageName, long timeout) {
-        if (packageName != null) {
-            if (!packageName.equals(getCurrentPackageName())) {
-                Log.w(TAG, String.format("Skipping wait as package %s does not match current "
-                        + "window %s.", packageName, getCurrentPackageName()));
+        try (Section ignored = Traces.trace("UiDevice#waitForWindowUpdate")) {
+            if (packageName != null) {
+                if (!packageName.equals(getCurrentPackageName())) {
+                    Log.w(TAG, String.format("Skipping wait as package %s does not match current "
+                            + "window %s.", packageName, getCurrentPackageName()));
+                    return false;
+                }
+            }
+            Runnable emptyRunnable = () -> {
+            };
+            AccessibilityEventFilter checkWindowUpdate = t -> {
+                if (t.getEventType() == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
+                    return packageName == null || (t.getPackageName() != null
+                            && packageName.contentEquals(t.getPackageName()));
+                }
+                return false;
+            };
+            Log.d(TAG, String.format("Waiting %dms for window update of package %s.", timeout,
+                    packageName));
+            try {
+                getUiAutomation().executeAndWaitForEvent(emptyRunnable, checkWindowUpdate, timeout);
+            } catch (TimeoutException e) {
+                Log.w(TAG, String.format("Timed out waiting %dms on window update.", timeout), e);
+                return false;
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to wait for window update.", e);
                 return false;
             }
+            return true;
         }
-        Runnable emptyRunnable = () -> {};
-        AccessibilityEventFilter checkWindowUpdate = t -> {
-            if (t.getEventType() == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
-                return packageName == null || (t.getPackageName() != null
-                        && packageName.contentEquals(t.getPackageName()));
-            }
-            return false;
-        };
-        Log.d(TAG, String.format("Waiting %dms for window update of package %s.", timeout,
-                packageName));
-        try {
-            getUiAutomation().executeAndWaitForEvent(emptyRunnable, checkWindowUpdate, timeout);
-        } catch (TimeoutException e) {
-            Log.w(TAG, String.format("Timed out waiting %dms on window update.", timeout), e);
-            return false;
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to wait for window update.", e);
-            return false;
-        }
-        return true;
     }
 
     /**
@@ -1082,7 +1103,7 @@ public class UiDevice implements Searchable {
      * @param cmd the command to run
      * @return the standard output of the command
      * @throws IOException
-     * @hide
+     * @hide legacy hidden method, kept for compatibility with existing tests.
      */
     @RequiresApi(21)
     @NonNull
@@ -1155,8 +1176,14 @@ public class UiDevice implements Searchable {
         Context context = mUiContexts.get(displayId);
         if (context == null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                Display display = mDisplayManager.getDisplay(displayId);
-                context = Api31Impl.createWindowContext(mInstrumentation.getContext(), display);
+                final Display display = mDisplayManager.getDisplay(displayId);
+                if (display != null) {
+                    context = Api31Impl.createWindowContext(mInstrumentation.getContext(), display);
+                } else {
+                    // The display may be null because it may be private display, for example. In
+                    // such a case, use the instrumentation's context instead.
+                    context = mInstrumentation.getContext();
+                }
             } else {
                 context = mInstrumentation.getContext();
             }
@@ -1169,7 +1196,7 @@ public class UiDevice implements Searchable {
         UiAutomation uiAutomation;
         int flags = Configurator.getInstance().getUiAutomationFlags();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            uiAutomation = Api24Impl.getUiAutomation(getInstrumentation(), flags);
+            uiAutomation = Api24Impl.getUiAutomationWithRetry(getInstrumentation(), flags);
         } else {
             if (flags != Configurator.DEFAULT_UIAUTOMATION_FLAGS) {
                 Log.w(TAG, "UiAutomation flags not supported prior to API 24");
@@ -1177,6 +1204,9 @@ public class UiDevice implements Searchable {
             uiAutomation = getInstrumentation().getUiAutomation();
         }
 
+        if (uiAutomation == null) {
+            throw new NullPointerException("Got null UiAutomation from instrumentation.");
+        }
         // Verify and update the accessibility service flags if necessary. These might get reset
         // if the underlying UiAutomationConnection is recreated.
         AccessibilityServiceInfo serviceInfo = uiAutomation.getServiceInfo();
@@ -1238,8 +1268,19 @@ public class UiDevice implements Searchable {
         }
 
         @DoNotInline
-        static UiAutomation getUiAutomation(Instrumentation instrumentation, int flags) {
-            return instrumentation.getUiAutomation(flags);
+        static UiAutomation getUiAutomationWithRetry(Instrumentation instrumentation, int flags) {
+            UiAutomation uiAutomation = null;
+            for (int i = 0; i < MAX_UIAUTOMATION_RETRY; i++) {
+                uiAutomation = instrumentation.getUiAutomation(flags);
+                if (uiAutomation != null) {
+                    break;
+                }
+                if (i < MAX_UIAUTOMATION_RETRY - 1) {
+                    Log.e(TAG, "Got null UiAutomation from instrumentation - Retrying...");
+                    SystemClock.sleep(UIAUTOMATION_RETRY_INTERVAL);
+                }
+            }
+            return uiAutomation;
         }
     }
 

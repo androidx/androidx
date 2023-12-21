@@ -110,44 +110,44 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
     private int mHiddenItemCount;
 
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected final View mForeground;
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected int mRowIndex;
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected int mRowCount;
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected int mMaxCells = -1;
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected @Nullable GridContent mGridContent;
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected final int mLargeImageHeight;
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected final int mSmallImageSize;
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected final int mSmallImageMinWidth;
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected final int mIconSize;
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected final LinearLayout mViewContainer;
 
     public GridRowView(@NonNull Context context) {
@@ -173,7 +173,6 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -215,7 +214,6 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -776,7 +774,6 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -802,7 +799,6 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -840,7 +836,6 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override

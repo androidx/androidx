@@ -186,7 +186,8 @@ class SurfaceOutputImplTest {
         sizeToRect(INPUT_SIZE),
         /*rotationDegrees=*/180,
         /*mirroring=*/false,
-        camera
+        camera,
+        android.graphics.Matrix()
     ).apply {
         surfaceOutputsToCleanup.add(this)
     }

@@ -26,8 +26,8 @@ import java.util.List;
 
 /**
  * Interface to a CustomTabsService.
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface ICustomTabsService {
     boolean warmup(long flags) = 1;
     boolean newSession(in ICustomTabsCallback callback) = 2;
@@ -43,5 +43,4 @@ interface ICustomTabsService {
     boolean receiveFile(in ICustomTabsCallback callback, in Uri uri, int purpose, in Bundle extras) = 11;
     boolean isEngagementSignalsApiAvailable(in ICustomTabsCallback customTabsCallback, in Bundle extras) = 12;
     boolean setEngagementSignalsCallback(in ICustomTabsCallback customTabsCallback, in IBinder callback, in Bundle extras) = 13;
-    int getGreatestScrollPercentage(in ICustomTabsCallback customTabsCallback, in Bundle extras) = 14;
 }

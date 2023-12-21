@@ -18,7 +18,6 @@ package androidx.compose.ui.focus
 
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.mutableVectorOf
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.FocusDirection.Companion.Next
 import androidx.compose.ui.focus.FocusDirection.Companion.Previous
 import androidx.compose.ui.focus.FocusStateImpl.Active
@@ -28,11 +27,14 @@ import androidx.compose.ui.focus.FocusStateImpl.Inactive
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.nearestAncestor
+import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.node.visitChildren
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
+@Suppress("ConstPropertyName")
 private const val InvalidFocusDirection = "This function should only be used for 1-D focus search"
+@Suppress("ConstPropertyName")
 private const val NoActiveChild = "ActiveParent must have a focusedChild"
 
 internal fun FocusTargetNode.oneDimensionalFocusSearch(
@@ -46,7 +48,7 @@ internal fun FocusTargetNode.oneDimensionalFocusSearch(
 
 private fun FocusTargetNode.forwardFocusSearch(
     onFound: (FocusTargetNode) -> Boolean
-): Boolean = when (focusStateImpl) {
+): Boolean = when (focusState) {
     ActiveParent -> {
         val focusedChild = activeChild ?: error(NoActiveChild)
         focusedChild.forwardFocusSearch(onFound) ||
@@ -62,12 +64,12 @@ private fun FocusTargetNode.forwardFocusSearch(
 
 private fun FocusTargetNode.backwardFocusSearch(
     onFound: (FocusTargetNode) -> Boolean
-): Boolean = when (focusStateImpl) {
+): Boolean = when (focusState) {
     ActiveParent -> {
         val focusedChild = activeChild ?: error(NoActiveChild)
 
         // Unlike forwardFocusSearch, backwardFocusSearch visits the children before the parent.
-        when (focusedChild.focusStateImpl) {
+        when (focusedChild.focusState) {
             ActiveParent -> focusedChild.backwardFocusSearch(onFound) ||
                 generateAndSearchChildren(focusedChild, Previous, onFound) ||
                 (focusedChild.fetchFocusProperties().canFocus && onFound.invoke(focusedChild))
@@ -120,7 +122,7 @@ private fun FocusTargetNode.searchChildren(
     direction: FocusDirection,
     onFound: (FocusTargetNode) -> Boolean
 ): Boolean {
-    check(focusStateImpl == ActiveParent) {
+    check(focusState == ActiveParent) {
         "This function should only be used within a parent that has focus."
     }
     val children = MutableVector<FocusTargetNode>().apply {
@@ -171,7 +173,6 @@ private fun FocusTargetNode.pickChildForBackwardSearch(
     return false
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 private fun FocusTargetNode.isRoot() = nearestAncestor(Nodes.FocusTarget) == null
 
 @Suppress("BanInlineOptIn")
@@ -217,14 +218,13 @@ private inline fun <T> MutableVector<T>.forEachItemBefore(item: T, action: (T) -
  * order index. This would be more expensive than sorting the items. In addition to this, sorting
  * the items makes the next focus search more efficient.
  */
-@OptIn(ExperimentalComposeUiApi::class)
 private object FocusableChildrenComparator : Comparator<FocusTargetNode> {
     override fun compare(
         focusTarget1: FocusTargetNode?,
         focusTarget2: FocusTargetNode?
     ): Int {
-        requireNotNull(focusTarget1)
-        requireNotNull(focusTarget2)
+        requireNotNull(focusTarget1) { "compare requires non-null focus targets" }
+        requireNotNull(focusTarget2) { "compare requires non-null focus targets" }
 
         // Ignore focus modifiers that won't be considered during focus search.
         if (!focusTarget1.isEligibleForFocusSearch || !focusTarget2.isEligibleForFocusSearch) {
@@ -233,8 +233,8 @@ private object FocusableChildrenComparator : Comparator<FocusTargetNode> {
             return 0
         }
 
-        val layoutNode1 = checkNotNull(focusTarget1.coordinator?.layoutNode)
-        val layoutNode2 = checkNotNull(focusTarget2.coordinator?.layoutNode)
+        val layoutNode1 = focusTarget1.requireLayoutNode()
+        val layoutNode2 = focusTarget2.requireLayoutNode()
 
         // Use natural order for focus modifiers within the same layout node.
         if (layoutNode1 == layoutNode2) return 0

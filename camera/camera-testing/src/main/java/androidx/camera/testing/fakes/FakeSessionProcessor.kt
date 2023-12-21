@@ -45,7 +45,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 
 const val FAKE_CAPTURE_SEQUENCE_ID = 1
 
-@RequiresApi(28) // writing to PRIVATE surface requires API 28+
+@RequiresApi(23) // ImageWriter requires API 23+
 class FakeSessionProcessor(
     val inputFormatPreview: Int? = null,
     val inputFormatCapture: Int? = null
@@ -72,6 +72,7 @@ class FakeSessionProcessor(
     private val startCaptureCalled = CompletableDeferred<Long>()
     private val setParametersCalled = CompletableDeferred<Config>()
     private val startTriggerCalled = CompletableDeferred<Config>()
+    private val stopRepeatingCalled = CompletableDeferred<Long>()
     private var latestParameters: Config = OptionsBundle.emptyBundle()
     private var blockRunAfterInitSession: () -> Unit = {}
 
@@ -277,6 +278,8 @@ class FakeSessionProcessor(
     }
 
     override fun stopRepeating() {
+        requestProcessor!!.stopRepeating()
+        stopRepeatingCalled.complete(SystemClock.elapsedRealtimeNanos())
     }
 
     override fun startCapture(callback: SessionProcessor.CaptureCallback): Int {
@@ -378,6 +381,10 @@ class FakeSessionProcessor(
 
     suspend fun assertStartTriggerInvoked(): Config {
         return startTriggerCalled.awaitWithTimeout(3000)
+    }
+
+    suspend fun assertStopRepeatingInvoked(): Long {
+        return stopRepeatingCalled.awaitWithTimeout(3000)
     }
 
     private suspend fun <T> Deferred<T>.awaitWithTimeout(timeMillis: Long): T {

@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21)
+
 package androidx.camera.camera2.pipe.integration.testing
 
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.MeteringRectangle
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.Lock3ABehavior
@@ -152,7 +155,9 @@ open class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
         flashType: Int,
         flashMode: Int,
     ): List<Deferred<Void?>> {
-        return listOf(CompletableDeferred(null))
+        return captureSequence.map {
+            CompletableDeferred<Void?>(null).apply { complete(null) }
+        }
     }
 
     data class FocusMeteringParams(

@@ -21,18 +21,30 @@
     <string name="title_scanner">Scanner</string>
     <string name="title_advertiser">Advertiser</string>
 
+    <!-- Main -->
+    <string name="bluetooth_is_disabled">Bluetooth is disabled</string>
+    <string name="enable">Enable</string>
+
     <!-- Scanner -->
     <string name="start_scanning">Start Scanning</string>
     <string name="stop_scanning">Stop scanning</string>
     <string name="scan_result_icon">Scan Result Icon</string>
     <string name="connect">Connect</string>
+    <string name="reconnect">Reconnect</string>
+    <string name="disconnect">Disconnect</string>
     <string name="scan_results">Scan Results</string>
-    <string name="not_connected">Not Connected</string>
+    <string name="disconnected">Disconnected</string>
     <string name="connecting">Connecting…</string>
     <string name="connected">Connected</string>
-    <string name="connection_failed">Connection Failed</string>
     <string name="generic_attribute">Generic Attribute</string>
+    <string name="uuid">uuid</string>
+    <string name="properties">Properties</string>
     <string name="primary_service">Primary Service</string>
+    <string name="indicate">Indicate</string>
+    <string name="notify">Notify</string>
+    <string name="read">Read</string>
+    <string name="write">Write</string>
+    <string name="value">Value</string>
 
     <!-- Advertiser -->
     <string name="configure_advertising_packet">Configure Advertising Packet</string>
@@ -53,6 +65,11 @@
     <string name="add">Add</string>
     <string name="cancel">Cancel</string>
     <string name="clear_data">Clear Data</string>
+
+    <!-- GATT Server -->
+    <string name="gatt_server">Gatt Server</string>
+    <string name="open_gatt_server">Open Gatt Server</string>
+    <string name="stop_gatt_server">Stop Gatt Server</string>
 
     <string name="scan_using_androidx_bluetooth">Scan using AndroidX Bluetooth APIs</string>
     <string name="scan_start_message">Scan started. Results are in Logcat</string>
