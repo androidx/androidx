@@ -615,6 +615,7 @@ class MultiTypedPagingSourceTestWithRawQuery(
     }
 
     @Test
+    @Ignore // b/312434479
     fun loadEverythingRawQuery_inReverse() {
         // open db
         val items = createItems(startId = 0, count = 100)
