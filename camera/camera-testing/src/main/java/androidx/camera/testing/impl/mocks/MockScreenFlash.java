@@ -31,53 +31,53 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A mock implementations of {@link ImageCapture.ScreenFlashUiControl} for testing purpose.
+ * A mock implementations of {@link ImageCapture.ScreenFlash} for testing purpose.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public class MockScreenFlashUiControl implements ImageCapture.ScreenFlashUiControl {
+public class MockScreenFlash implements ImageCapture.ScreenFlash {
     /**
      * Represents
-     * {@link ImageCapture.ScreenFlashUiControl#applyScreenFlashUi(ImageCapture.ScreenFlashUiCompleter)}
+     * {@link ImageCapture.ScreenFlash#apply(ImageCapture.ScreenFlashUiCompleter)}
      * event.
      */
-    public static final int APPLY_SCREEN_FLASH = 0;
+    public static final int APPLY = 0;
     /**
-     * Represents {@link ImageCapture.ScreenFlashUiControl#clearScreenFlashUi()} event.
+     * Represents {@link ImageCapture.ScreenFlash#clear()} event.
      */
-    public static final int CLEAR_SCREEN_FLASH = 1;
+    public static final int CLEAR = 1;
 
     /**
-     * The event types in {@link ImageCapture.ScreenFlashUiControl}.
+     * The event types in {@link ImageCapture.ScreenFlash}.
      */
-    @IntDef({APPLY_SCREEN_FLASH, CLEAR_SCREEN_FLASH})
+    @IntDef({APPLY, CLEAR})
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.TYPE_USE})
-    public @interface ScreenFlashUiEvent {
+    public @interface ScreenFlashEvent {
     }
 
     private final Object mLock = new Object();
-    private final List<@ScreenFlashUiEvent Integer> mEventList = new ArrayList<>();
-    private final CountDownLatch mScreenFlashUiClearLatch = new CountDownLatch(1);
+    private final List<@ScreenFlashEvent Integer> mEventList = new ArrayList<>();
+    private final CountDownLatch mClearLatch = new CountDownLatch(1);
 
     /**
-     * Returns a list of {@link ScreenFlashUiEvent} in the same order as invoked.
+     * Returns a list of {@link ScreenFlashEvent} in the same order as invoked.
      */
     @NonNull
-    public List<@ScreenFlashUiEvent Integer> getScreenFlashUiEvents() {
+    public List<@ScreenFlashEvent Integer> getScreenFlashEvents() {
         synchronized (mLock) {
             return new ArrayList<>(mEventList);
         }
     }
 
     /**
-     * Waits for {@link #clearScreenFlashUi} to be invoked once.
+     * Waits for {@link #clear} to be invoked once.
      *
      * @param timeoutInMillis The timeout of waiting in milliseconds.
-     * @return True if {@link #clearScreenFlashUi} was invoked, false if timed out.
+     * @return True if {@link #clear} was invoked, false if timed out.
      */
-    public boolean awaitScreenFlashUiClear(long timeoutInMillis) {
+    public boolean awaitClear(long timeoutInMillis) {
         try {
-            return mScreenFlashUiClearLatch.await(timeoutInMillis, TimeUnit.MILLISECONDS);
+            return mClearLatch.await(timeoutInMillis, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -85,20 +85,20 @@ public class MockScreenFlashUiControl implements ImageCapture.ScreenFlashUiContr
 
     /** {@inheritDoc} */
     @Override
-    public void applyScreenFlashUi(
+    public void apply(
             @NonNull ImageCapture.ScreenFlashUiCompleter screenFlashUiCompleter) {
         synchronized (mLock) {
-            mEventList.add(APPLY_SCREEN_FLASH);
+            mEventList.add(APPLY);
             screenFlashUiCompleter.complete();
         }
     }
 
     /** {@inheritDoc} */
     @Override
-    public void clearScreenFlashUi() {
+    public void clear() {
         synchronized (mLock) {
-            mEventList.add(CLEAR_SCREEN_FLASH);
-            mScreenFlashUiClearLatch.countDown();
+            mEventList.add(CLEAR);
+            mClearLatch.countDown();
         }
     }
 }

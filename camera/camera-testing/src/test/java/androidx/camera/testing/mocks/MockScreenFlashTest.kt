@@ -19,9 +19,9 @@ package androidx.camera.testing.mocks
 import android.annotation.SuppressLint
 import android.os.Build
 import androidx.camera.core.ImageCapture.ScreenFlashUiCompleter
-import androidx.camera.testing.impl.mocks.MockScreenFlashUiControl
-import androidx.camera.testing.impl.mocks.MockScreenFlashUiControl.APPLY_SCREEN_FLASH
-import androidx.camera.testing.impl.mocks.MockScreenFlashUiControl.CLEAR_SCREEN_FLASH
+import androidx.camera.testing.impl.mocks.MockScreenFlash
+import androidx.camera.testing.impl.mocks.MockScreenFlash.APPLY
+import androidx.camera.testing.impl.mocks.MockScreenFlash.CLEAR
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -33,52 +33,68 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-class MockScreenFlashUiControlTest {
-    private val dummyCompleter = ScreenFlashUiCompleter { }
+class MockScreenFlashTest {
+    private val dummyCompleter = object : ScreenFlashUiCompleter {
+        override fun complete() {
+            // no-op
+        }
 
-    private lateinit var mMockScreenFlashUiControl: MockScreenFlashUiControl
+        override fun getExpirationTimeMillis(): Long {
+            return 0
+        }
+    }
+
+    private lateinit var mMockScreenFlash: MockScreenFlash
 
     @Before
     fun setUp() {
-        mMockScreenFlashUiControl = MockScreenFlashUiControl()
+        mMockScreenFlash = MockScreenFlash()
     }
 
     @Test
-    fun getScreenFlashUiEvents_invocationsRecordedExactlyInSameOrder() {
-        mMockScreenFlashUiControl.clearScreenFlashUi()
-        mMockScreenFlashUiControl.applyScreenFlashUi(dummyCompleter)
-        mMockScreenFlashUiControl.clearScreenFlashUi()
+    fun getScreenFlashEvents_invocationsRecordedExactlyInSameOrder() {
+        mMockScreenFlash.clear()
+        mMockScreenFlash.apply(dummyCompleter)
+        mMockScreenFlash.clear()
 
-        assertThat(mMockScreenFlashUiControl.screenFlashUiEvents).isEqualTo(listOf(
-            CLEAR_SCREEN_FLASH,
-            APPLY_SCREEN_FLASH,
-            CLEAR_SCREEN_FLASH,
+        assertThat(mMockScreenFlash.screenFlashEvents).isEqualTo(listOf(
+            CLEAR,
+            APPLY,
+            CLEAR,
         ))
     }
 
     @Test
-    fun awaitScreenFlashUiApply_completerCompletedAutomaticallyByDefault() {
+    fun awaitApply_listenerCompletedAutomaticallyByDefault() {
         var isCompleted = false
-        val completer = ScreenFlashUiCompleter { isCompleted = true }
-        mMockScreenFlashUiControl.applyScreenFlashUi(completer)
+        val completer = object : ScreenFlashUiCompleter {
+            override fun complete() {
+                isCompleted = true
+            }
+
+            override fun getExpirationTimeMillis(): Long {
+                return 0
+            }
+        }
+        mMockScreenFlash.apply(completer)
 
         assertThat(isCompleted).isTrue()
     }
 
     @Test
-    fun awaitScreenFlashUiClear_returnsFalseWhenClearScreenFlashUiNotInvoked() {
-        assertThat(mMockScreenFlashUiControl.awaitScreenFlashUiClear(3000)).isFalse()
+    fun awaitClear_returnsFalseWhenClearNotInvoked() {
+        assertThat(mMockScreenFlash.awaitClear(3000)).isFalse()
     }
 
     @Test
-    fun awaitScreenFlashUiClear_returnsTrueWhenClearScreenFlashUiInvokedEarlier() {
-        mMockScreenFlashUiControl.clearScreenFlashUi()
-        assertThat(mMockScreenFlashUiControl.awaitScreenFlashUiClear(3000)).isTrue()
+    fun awaitClear_returnsTrueWhenClearInvokedEarlier() {
+        mMockScreenFlash.clear()
+        assertThat(mMockScreenFlash.awaitClear(3000)).isTrue()
     }
 
     @SuppressLint("BanThreadSleep")
     @Test
-    fun awaitScreenFlashUiClear_returnsTrueWhenClearScreenFlashUiInvokedLater() {
+    fun awaitClear_returnsTrueWhenClearInvokedLater() {
         Thread({
             try {
                 // ensure clearScreenFlashUi is not invoked immediately, but after some delay and
@@ -87,9 +103,9 @@ class MockScreenFlashUiControlTest {
             } catch (e: InterruptedException) {
                 throw RuntimeException(e)
             }
-            mMockScreenFlashUiControl.clearScreenFlashUi()
+            mMockScreenFlash.clear()
         }, "test thread").start()
 
-        assertThat(mMockScreenFlashUiControl.awaitScreenFlashUiClear(3000)).isTrue()
+        assertThat(mMockScreenFlash.awaitClear(3000)).isTrue()
     }
 }

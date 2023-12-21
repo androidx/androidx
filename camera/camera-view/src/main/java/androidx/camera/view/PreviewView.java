@@ -66,7 +66,6 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCapture.ScreenFlashUiControl;
 import androidx.camera.core.Logger;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
@@ -973,7 +972,7 @@ public final class PreviewView extends FrameLayout {
         }
         mCameraController = cameraController;
         attachToControllerIfReady(/*shouldFailSilently=*/false);
-        setScreenFlashUiInfo(getScreenFlashUiControl());
+        setScreenFlashUiInfo(getScreenFlash());
     }
 
     /**
@@ -1079,9 +1078,9 @@ public final class PreviewView extends FrameLayout {
         }
     }
 
-    private void setScreenFlashUiInfo(ScreenFlashUiControl control) {
+    private void setScreenFlashUiInfo(ImageCapture.ScreenFlash control) {
         if (mCameraController == null) {
-            Logger.d(TAG, "setScreenFlashUiControl: mCameraController is null!");
+            Logger.d(TAG, "setScreenFlashUiInfo: mCameraController is null!");
             return;
         }
         mCameraController.setScreenFlashUiInfo(new ScreenFlashUiInfo(
@@ -1139,24 +1138,24 @@ public final class PreviewView extends FrameLayout {
     public void setScreenFlashWindow(@Nullable Window screenFlashWindow) {
         checkMainThread();
         mScreenFlashView.setScreenFlashWindow(screenFlashWindow);
-        setScreenFlashUiInfo(getScreenFlashUiControl());
+        setScreenFlashUiInfo(getScreenFlash());
     }
 
     /**
-     * Returns an {@link ScreenFlashUiControl} implementation based
+     * Returns an {@link ImageCapture.ScreenFlash} implementation based
      * on the {@link Window} instance set via {@link #setScreenFlashWindow(Window)}.
      *
      * <p> This API uses an internally managed {@link ScreenFlashView} to provide the
-     * {@link ScreenFlashUiControl} implementation.
+     * {@link ImageCapture.ScreenFlash} implementation.
      *
-     * @return An {@link ScreenFlashUiControl} implementation provided by
-     *         {@link ScreenFlashView#getScreenFlashUiControl()}.
+     * @return An {@link ImageCapture.ScreenFlash} implementation provided by
+     *         {@link ScreenFlashView#getScreenFlash()}.
      */
     @UiThread
     @Nullable
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public ScreenFlashUiControl getScreenFlashUiControl() {
-        return mScreenFlashView.getScreenFlashUiControl();
+    public ImageCapture.ScreenFlash getScreenFlash() {
+        return mScreenFlashView.getScreenFlash();
     }
 
     /**
@@ -1164,7 +1163,7 @@ public final class PreviewView extends FrameLayout {
      *
      * @param color The color value of the top overlay.
      *
-     * @see #getScreenFlashUiControl()
+     * @see #getScreenFlash()
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void setScreenFlashOverlayColor(@ColorInt int color) {

@@ -58,7 +58,7 @@ import androidx.camera.testing.impl.fakes.FakeCameraConfig
 import androidx.camera.testing.impl.fakes.FakeCameraFactory
 import androidx.camera.testing.impl.fakes.FakeImageReaderProxy
 import androidx.camera.testing.impl.fakes.FakeSessionProcessor
-import androidx.camera.testing.impl.mocks.MockScreenFlashUiControl
+import androidx.camera.testing.impl.mocks.MockScreenFlash
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.io.File
@@ -462,14 +462,14 @@ class ImageCaptureTest {
     }
 
     @Test
-    fun throwExceptionWhileBuilding_whenScreenFlashSetWithoutScreenFlashUiControl() {
+    fun throwExceptionWhileBuilding_whenFlashModeScreenSetWithoutScreenFlashInstanceSet() {
         assertThrows(IllegalArgumentException::class.java) {
             ImageCapture.Builder().setFlashMode(ImageCapture.FLASH_MODE_SCREEN).build()
         }
     }
 
     @Test
-    fun throwException_whenScreenFlashSetWithoutScreenFlashUiControl() {
+    fun throwException_whenFlashModeScreenSetWithoutScreenFlashInstanceSet() {
         val imageCapture = ImageCapture.Builder().build()
 
         assertThrows(IllegalArgumentException::class.java) {
@@ -478,11 +478,11 @@ class ImageCaptureTest {
     }
 
     @Test
-    fun throwException_whenTakePictureWithScreenFlashButNoUiControl() {
+    fun throwException_whenTakePictureWithFlashModeScreenButNoScreenFlashInstance() {
         val imageCapture = ImageCapture.Builder().build()
-        imageCapture.screenFlashUiControl = MockScreenFlashUiControl()
+        imageCapture.screenFlash = MockScreenFlash()
         imageCapture.flashMode = ImageCapture.FLASH_MODE_SCREEN
-        imageCapture.screenFlashUiControl = null
+        imageCapture.screenFlash = null
 
         assertThrows(IllegalArgumentException::class.java) {
             imageCapture.takePicture(executor, onImageCapturedCallback)
@@ -490,9 +490,9 @@ class ImageCaptureTest {
     }
 
     @Test
-    fun throwException_whenScreenFlashSetToBackCamera() {
+    fun throwException_whenFlashModeScreenSetToBackCamera() {
         val imageCapture = bindImageCapture(cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA)
-        imageCapture.screenFlashUiControl = MockScreenFlashUiControl()
+        imageCapture.screenFlash = MockScreenFlash()
 
         assertThrows(IllegalArgumentException::class.java) {
             imageCapture.flashMode = ImageCapture.FLASH_MODE_SCREEN
@@ -500,17 +500,17 @@ class ImageCaptureTest {
     }
 
     @Test
-    fun canSetScreenFlash_whenFrontCameraAndUiControlSet() {
+    fun canSetFlashModeScreen_whenFrontCameraAndScreenFlashSet() {
         val imageCapture = bindImageCapture(cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA)
 
-        imageCapture.screenFlashUiControl = MockScreenFlashUiControl()
+        imageCapture.screenFlash = MockScreenFlash()
         imageCapture.flashMode = ImageCapture.FLASH_MODE_SCREEN
     }
 
     @Test
-    fun throwException_whenSwitchToBackCameraAfterScreenFlashSetToFrontCamera() {
+    fun throwException_whenSwitchToBackCameraAfterFlashModeScreenSetToFrontCamera() {
         val imageCapture = bindImageCapture(cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA)
-        imageCapture.screenFlashUiControl = MockScreenFlashUiControl()
+        imageCapture.screenFlash = MockScreenFlash()
         imageCapture.flashMode = ImageCapture.FLASH_MODE_SCREEN
 
         assertThrows(CameraUseCaseAdapter.CameraException::class.java) {

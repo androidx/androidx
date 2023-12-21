@@ -30,7 +30,7 @@ import androidx.camera.core.DynamicRange
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageAnalysis.COORDINATE_SYSTEM_ORIGINAL
 import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCapture.ScreenFlashUiControl
+import androidx.camera.core.ImageCapture.ScreenFlash
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.MirrorMode
 import androidx.camera.core.TorchState
@@ -544,14 +544,14 @@ class CameraControllerTest {
         controller.setScreenFlashUiInfo(
             ScreenFlashUiInfo(
                 ScreenFlashUiInfo.ProviderType.SCREEN_FLASH_VIEW,
-                object : ScreenFlashUiControl {
-                    override fun applyScreenFlashUi(
+                object : ScreenFlash {
+                    override fun apply(
                         screenFlashUiCompleter: ImageCapture.ScreenFlashUiCompleter
                     ) {
                         screenFlashUiCompleter.complete()
                     }
 
-                    override fun clearScreenFlashUi() {
+                    override fun clear() {
                     }
                 }
             )

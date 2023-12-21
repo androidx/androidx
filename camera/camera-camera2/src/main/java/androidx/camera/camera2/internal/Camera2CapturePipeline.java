@@ -615,7 +615,7 @@ class Camera2CapturePipeline {
         private final Camera2CameraControlImpl mCameraControl;
         private final Executor mExecutor;
         private final ScheduledExecutorService mScheduler;
-        private final ImageCapture.ScreenFlashUiControl mScreenFlashUiControl;
+        private final ImageCapture.ScreenFlash mScreenFlash;
         private final UseFlashModeTorchFor3aUpdate mUseFlashModeTorchFor3aUpdate;
 
         ScreenFlashTask(@NonNull Camera2CameraControlImpl cameraControl, @NonNull Executor executor,
@@ -626,8 +626,7 @@ class Camera2CapturePipeline {
             mScheduler = scheduler;
             mUseFlashModeTorchFor3aUpdate = useFlashModeTorchFor3aUpdate;
 
-            mScreenFlashUiControl =
-                    Objects.requireNonNull(mCameraControl.getScreenFlashUiControl());
+            mScreenFlash = Objects.requireNonNull(mCameraControl.getScreenFlash());
         }
 
         @ExecutedBy("mExecutor")
@@ -641,9 +640,18 @@ class Camera2CapturePipeline {
 
             ListenableFuture<Void> uiAppliedFuture = CallbackToFutureAdapter.getFuture(
                     completer -> {
-                        screenFlashUiCompleter.set(() -> {
-                            Logger.d(TAG, "ScreenFlashTask#preCapture: UI change applied");
-                            completer.set(null);
+                        screenFlashUiCompleter.set(new ImageCapture.ScreenFlashUiCompleter() {
+                            @Override
+                            public void complete() {
+                                Logger.d(TAG, "ScreenFlashTask#preCapture: UI change applied");
+                                completer.set(null);
+                            }
+
+                            @Override
+                            public long getExpirationTimeMillis() {
+                                return System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(
+                                        ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS);
+                            }
                         });
                         return "OnScreenFlashUiApplied";
                     });
@@ -651,7 +659,7 @@ class Camera2CapturePipeline {
             ListenableFuture<Void> future = CallbackToFutureAdapter.getFuture(completer -> {
                 CameraXExecutors.mainThreadExecutor().execute(() -> {
                     Logger.d(TAG, "ScreenFlashTask#preCapture: invoking applyScreenFlashUi");
-                    mScreenFlashUiControl.applyScreenFlashUi(screenFlashUiCompleter.get());
+                    mScreenFlash.apply(screenFlashUiCompleter.get());
                     completer.set(null);
                 });
                 return "OnScreenFlashStart";
@@ -675,10 +683,12 @@ class Camera2CapturePipeline {
                             }),
                     mExecutor
             ).transformAsync(
-                    input -> Futures.makeTimeoutFuture(TimeUnit.SECONDS.toMillis(
+                    input -> Futures.makeTimeoutFuture(
+                            // Not using ScreenFlashUiCompleter#getExpirationTimeMillis here gives
+                            // users a bit more grace time before CameraX stops waiting.
+                            TimeUnit.SECONDS.toMillis(
                                     ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS),
-                            mScheduler, null,
-                            uiAppliedFuture),
+                            mScheduler, null, uiAppliedFuture),
                     mExecutor
             ).transformAsync(
                     input -> mCameraControl.getFocusMeteringControl().triggerAePrecapture(),
@@ -706,8 +716,7 @@ class Camera2CapturePipeline {
                     () -> Log.d(TAG, "enableExternalFlashAeMode disabled"), mExecutor
             );
             mCameraControl.getFocusMeteringControl().cancelAfAeTrigger(false, true);
-            CameraXExecutors.mainThreadExecutor().execute(
-                    mScreenFlashUiControl::clearScreenFlashUi);
+            CameraXExecutors.mainThreadExecutor().execute(mScreenFlash::clear);
         }
     }
 
