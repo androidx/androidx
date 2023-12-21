@@ -90,6 +90,27 @@ object Room {
     }
 
     /**
+     * Creates a RoomDatabase.Builder for an in memory database. Information stored in an in memory
+     * database disappears when the process is killed.
+     * Once a database is built, you should keep a reference to it and re-use it.
+     *
+     * This [inMemoryDatabaseBuilder] avoids using reflection to access the generated database
+     * implementation.
+     *
+     * @param context The context for the database. This is usually the Application context.
+     * @param factory The lambda calling `initializeImpl()` on the database class which returns
+     * the generated database implementation.
+     * @param T The type of the database class.
+     * @return A `RoomDatabaseBuilder<T>` which you can use to create the database.
+     */
+    inline fun <reified T : RoomDatabase> inMemoryDatabaseBuilder(
+        context: Context,
+        noinline factory: () -> T
+    ): RoomDatabase.Builder<T> {
+        return RoomDatabase.Builder(T::class, null, factory, context)
+    }
+
+    /**
      * Creates a RoomDatabase.Builder for a persistent database. Once a database is built, you
      * should keep a reference to it and re-use it.
      *
@@ -112,5 +133,32 @@ object Room {
                 ".inMemoryDatabaseBuilder"
         }
         return RoomDatabase.Builder(context, klass, name)
+    }
+
+    /**
+     * Creates a RoomDatabase.Builder for a persistent database. Once a database is built, you
+     * should keep a reference to it and re-use it.
+     *
+     * This [databaseBuilder] avoids using reflection to access the generated database
+     * implementation.
+     *
+     * @param context The context for the database. This is usually the Application context.
+     * @param name    The name of the database file.
+     * @param factory The lambda calling `initializeImpl()` on the database class which returns
+     * the generated database implementation.
+     * @param T The type of the database class.
+     * @return A `RoomDatabaseBuilder<T>` which you can use to create the database.
+     */
+    inline fun <reified T : RoomDatabase> databaseBuilder(
+        context: Context,
+        name: String,
+        noinline factory: () -> T
+    ): RoomDatabase.Builder<T> {
+        require(name.isNotBlank()) {
+            "Cannot build a database with empty name." +
+                " If you are trying to create an in memory database, use Room" +
+                ".inMemoryDatabaseBuilder"
+        }
+        return RoomDatabase.Builder(T::class, name, factory, context)
     }
 }

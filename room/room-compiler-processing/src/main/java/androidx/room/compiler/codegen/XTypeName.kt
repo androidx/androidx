@@ -453,3 +453,5 @@ fun XTypeName.unbox() = XTypeName(java.unbox(), kotlin.copy(nullable = false), X
 
 fun XTypeName.toJavaPoet(): JTypeName = this.java
 fun XClassName.toJavaPoet(): JClassName = this.java
+fun XTypeName.toKotlinPoet(): KTypeName = this.kotlin
+fun XClassName.toKotlinPoet(): KClassName = this.kotlin
