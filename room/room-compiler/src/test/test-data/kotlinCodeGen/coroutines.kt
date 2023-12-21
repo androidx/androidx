@@ -9,7 +9,6 @@ import androidx.room.util.appendPlaceholders
 import androidx.room.util.getColumnIndexOrThrow
 import androidx.room.util.newStringBuilder
 import androidx.room.util.query
-import java.lang.Class
 import java.lang.StringBuilder
 import java.util.ArrayList
 import java.util.concurrent.Callable
@@ -20,6 +19,7 @@ import kotlin.Suppress
 import kotlin.collections.List
 import kotlin.collections.MutableList
 import kotlin.jvm.JvmStatic
+import kotlin.reflect.KClass
 import kotlinx.coroutines.flow.Flow
 
 @Generated(value = ["androidx.room.RoomProcessor"])
@@ -171,6 +171,6 @@ public class MyDao_Impl(
 
   public companion object {
     @JvmStatic
-    public fun getRequiredConverters(): List<Class<*>> = emptyList()
+    public fun getRequiredConverters(): List<KClass<*>> = emptyList()
   }
 }

@@ -1,6 +1,5 @@
 import androidx.room.RoomDatabase
 import androidx.room.withTransaction
-import java.lang.Class
 import javax.`annotation`.processing.Generated
 import kotlin.Function0
 import kotlin.Long
@@ -10,6 +9,7 @@ import kotlin.Unit
 import kotlin.collections.List
 import kotlin.coroutines.SuspendFunction0
 import kotlin.jvm.JvmStatic
+import kotlin.reflect.KClass
 
 @Generated(value = ["androidx.room.RoomProcessor"])
 @Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION"])
@@ -100,6 +100,6 @@ public class MyDao_Impl(
 
   public companion object {
     @JvmStatic
-    public fun getRequiredConverters(): List<Class<*>> = emptyList()
+    public fun getRequiredConverters(): List<KClass<*>> = emptyList()
   }
 }

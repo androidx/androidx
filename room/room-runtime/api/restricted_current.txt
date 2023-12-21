@@ -126,7 +126,7 @@ package androidx.room {
     method public androidx.sqlite.db.SupportSQLiteOpenHelper getOpenHelper();
     method public java.util.concurrent.Executor getQueryExecutor();
     method public java.util.concurrent.Executor getTransactionExecutor();
-    method public <T> T? getTypeConverter(Class<T> klass);
+    method @Deprecated public <T> T? getTypeConverter(Class<T> klass);
     method public boolean inTransaction();
     method @CallSuper public void init(androidx.room.DatabaseConfiguration configuration);
     method protected void internalInitInvalidationTracker(androidx.sqlite.db.SupportSQLiteDatabase db);

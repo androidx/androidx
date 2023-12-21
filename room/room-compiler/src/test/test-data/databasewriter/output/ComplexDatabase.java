@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.processing.Generated;
 import kotlin.collections.CollectionsKt;
+import kotlin.collections.MapsKt;
 import kotlin.collections.SetsKt;
 
 @Generated("androidx.room.RoomProcessor")
@@ -161,7 +162,7 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
     @Override
     @NonNull
     protected Map<Class<?>, List<Class<?>>> getRequiredTypeConverters() {
-        final HashMap<Class<?>, List<Class<?>>> _typeConvertersMap = new HashMap<Class<?>, List<Class<?>>>();
+        final Map<Class<?>, List<Class<?>>> _typeConvertersMap = MapsKt.mutableMapOf();
         _typeConvertersMap.put(ComplexDao.class, ComplexDao_Impl.getRequiredConverters());
         return _typeConvertersMap;
     }
