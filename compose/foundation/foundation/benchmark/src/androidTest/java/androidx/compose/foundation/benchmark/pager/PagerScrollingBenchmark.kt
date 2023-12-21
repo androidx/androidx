@@ -23,7 +23,6 @@ import androidx.compose.foundation.benchmark.lazy.LazyItem
 import androidx.compose.foundation.benchmark.lazy.toggleStateBenchmark
 import androidx.compose.foundation.benchmark.lazy.toggleStateBenchmarkDraw
 import androidx.compose.foundation.gestures.scrollBy
-import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
 import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Box
@@ -305,7 +304,7 @@ val VerticalPagerContent: @Composable PagerRemeasureTestCase.(
     { state, useKeys, beyondBoundsPageCount ->
         val flingBehavior = rememberSnapFlingBehavior(
             snapLayoutInfoProvider = NoOpInfoProvider
-        ) as SnapFlingBehavior
+        )
         VerticalPager(
             state = state, modifier = Modifier
                 .requiredHeight(400.dp)
@@ -332,7 +331,7 @@ val HorizontalPagerContent: @Composable PagerRemeasureTestCase.(
     { state, useKeys, beyondBoundsPageCount ->
         val flingBehavior = rememberSnapFlingBehavior(
             snapLayoutInfoProvider = NoOpInfoProvider
-        ) as SnapFlingBehavior
+        )
         HorizontalPager(
             state = state, modifier = Modifier
                 .requiredWidth(400.dp)
