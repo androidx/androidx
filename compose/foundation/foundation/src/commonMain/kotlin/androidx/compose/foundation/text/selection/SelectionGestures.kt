@@ -20,7 +20,10 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.gestures.drag
 import androidx.compose.foundation.text.TextDragObserver
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.PointerEvent
@@ -96,18 +99,23 @@ internal fun Modifier.updateSelectionTouchMode(
 internal fun Modifier.selectionGestureInput(
     mouseSelectionObserver: MouseSelectionObserver,
     textDragObserver: TextDragObserver,
-) = this.pointerInput(mouseSelectionObserver, textDragObserver) {
-    val clicksCounter = ClicksCounter(viewConfiguration, clicksSlop = 50.dp.toPx())
-    awaitEachGesture {
-        val down = awaitDown()
-        if (
-            down.isPrecisePointer &&
-            down.buttons.isPrimaryPressed &&
-            down.changes.fastAll { !it.isConsumed }
-        ) {
-            mouseSelection(mouseSelectionObserver, clicksCounter, down)
-        } else if (!down.isPrecisePointer) {
-            touchSelection(textDragObserver, down)
+): Modifier = composed {
+    // TODO(https://youtrack.jetbrains.com/issue/COMPOSE-79) how we can rewrite this without `composed`?
+    val currentMouseSelectionObserver by rememberUpdatedState(mouseSelectionObserver)
+    val currentTextDragObserver by rememberUpdatedState(textDragObserver)
+    this.pointerInput(Unit) {
+        val clicksCounter = ClicksCounter(viewConfiguration, clicksSlop = 50.dp.toPx())
+        awaitEachGesture {
+            val down = awaitDown()
+            if (
+                down.isPrecisePointer &&
+                down.buttons.isPrimaryPressed &&
+                down.changes.fastAll { !it.isConsumed }
+            ) {
+                mouseSelection(currentMouseSelectionObserver, clicksCounter, down)
+            } else if (!down.isPrecisePointer) {
+                touchSelection(currentTextDragObserver, down)
+            }
         }
     }
 }
