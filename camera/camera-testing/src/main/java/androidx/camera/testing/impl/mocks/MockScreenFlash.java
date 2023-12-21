@@ -16,10 +16,13 @@
 
 package androidx.camera.testing.impl.mocks;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCapture.ScreenFlash;
+import androidx.camera.core.ImageCapture.ScreenFlashUiCompleter;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -31,23 +34,21 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A mock implementations of {@link ImageCapture.ScreenFlash} for testing purpose.
+ * A mock implementations of {@link ScreenFlash} for testing purpose.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public class MockScreenFlash implements ImageCapture.ScreenFlash {
+public class MockScreenFlash implements ScreenFlash {
     /**
-     * Represents
-     * {@link ImageCapture.ScreenFlash#apply(ImageCapture.ScreenFlashUiCompleter)}
-     * event.
+     * Represents {@link ScreenFlash#apply(ScreenFlashUiCompleter)} event.
      */
     public static final int APPLY = 0;
     /**
-     * Represents {@link ImageCapture.ScreenFlash#clear()} event.
+     * Represents {@link ScreenFlash#clear()} event.
      */
     public static final int CLEAR = 1;
 
     /**
-     * The event types in {@link ImageCapture.ScreenFlash}.
+     * The event types in {@link ScreenFlash}.
      */
     @IntDef({APPLY, CLEAR})
     @Retention(RetentionPolicy.SOURCE)
@@ -56,8 +57,14 @@ public class MockScreenFlash implements ImageCapture.ScreenFlash {
     }
 
     private final Object mLock = new Object();
+    @GuardedBy("mLock")
     private final List<@ScreenFlashEvent Integer> mEventList = new ArrayList<>();
     private final CountDownLatch mClearLatch = new CountDownLatch(1);
+    private boolean mIsApplyCompletedInstantly = true;
+
+    @GuardedBy("mLock")
+    @Nullable
+    private ScreenFlashUiCompleter mLastApplyCompleter;
 
     /**
      * Returns a list of {@link ScreenFlashEvent} in the same order as invoked.
@@ -83,13 +90,35 @@ public class MockScreenFlash implements ImageCapture.ScreenFlash {
         }
     }
 
+    /**
+     * Enables or disables the {@link ScreenFlashUiCompleter} being completed instantly when
+     * {@link ScreenFlash#apply(ScreenFlashUiCompleter)} is invoked.
+     */
+    public void setApplyCompletedInstantly(boolean completedInstantly) {
+        mIsApplyCompletedInstantly = completedInstantly;
+    }
+
+    /**
+     * Gets the {@link ScreenFlashUiCompleter} instance of the last
+     * {@link ScreenFlash#apply(ScreenFlashUiCompleter)} invocation, or null in case of no
+     * invocation.
+     */
+    @Nullable
+    public ScreenFlashUiCompleter getLastApplyCompleter() {
+        synchronized (mLock) {
+            return mLastApplyCompleter;
+        }
+    }
+
     /** {@inheritDoc} */
     @Override
-    public void apply(
-            @NonNull ImageCapture.ScreenFlashUiCompleter screenFlashUiCompleter) {
+    public void apply(@NonNull ScreenFlashUiCompleter screenFlashUiCompleter) {
         synchronized (mLock) {
             mEventList.add(APPLY);
-            screenFlashUiCompleter.complete();
+            mLastApplyCompleter = screenFlashUiCompleter;
+            if (mIsApplyCompletedInstantly) {
+                screenFlashUiCompleter.complete();
+            }
         }
     }
 

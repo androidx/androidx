@@ -116,6 +116,7 @@ import androidx.camera.core.impl.utils.CompareSizesByArea;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.IoConfig;
+import androidx.camera.core.internal.ScreenFlashWrapper;
 import androidx.camera.core.internal.SupportedOutputSizesSorter;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.compat.quirk.SoftwareJpegEncodingPreferredQuirk;
@@ -332,7 +333,8 @@ public final class ImageCapture extends UseCase {
     @FlashMode
     private int mFlashMode = FLASH_MODE_UNKNOWN;
     private Rational mCropAspectRatio = null;
-    private ScreenFlash mScreenFlash;
+    @NonNull
+    private ScreenFlashWrapper mScreenFlashWrapper;
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase attached dynamic] - Can change but is only available when the UseCase is attached.
@@ -364,7 +366,7 @@ public final class ImageCapture extends UseCase {
         }
 
         mFlashType = useCaseConfig.getFlashType(FLASH_TYPE_ONE_SHOT_FLASH);
-        mScreenFlash = useCaseConfig.getScreenFlash();
+        mScreenFlashWrapper = ScreenFlashWrapper.from(useCaseConfig.getScreenFlash());
     }
 
     private boolean isSessionProcessorEnabledInCurrentCamera() {
@@ -545,7 +547,7 @@ public final class ImageCapture extends UseCase {
         if (flashMode != FLASH_MODE_AUTO && flashMode != FLASH_MODE_ON
                 && flashMode != FLASH_MODE_OFF) {
             if (flashMode == FLASH_MODE_SCREEN) {
-                if (mScreenFlash == null) {
+                if (mScreenFlashWrapper.getBaseScreenFlash() == null) {
                     throw new IllegalArgumentException("ScreenFlash not set for FLASH_MODE_SCREEN");
                 }
 
@@ -581,7 +583,7 @@ public final class ImageCapture extends UseCase {
      *                             with this method.
      */
     public void setScreenFlash(@Nullable ScreenFlash screenFlash) {
-        mScreenFlash = screenFlash;
+        mScreenFlashWrapper = ScreenFlashWrapper.from(screenFlash);
         setScreenFlashToCameraControl();
     }
 
@@ -590,11 +592,11 @@ public final class ImageCapture extends UseCase {
      */
     @Nullable
     public ScreenFlash getScreenFlash() {
-        return mScreenFlash;
+        return mScreenFlashWrapper.getBaseScreenFlash();
     }
 
     private void setScreenFlashToCameraControl() {
-        setScreenFlashToCameraControl(mScreenFlash);
+        setScreenFlashToCameraControl(mScreenFlashWrapper);
     }
 
     private void setScreenFlashToCameraControl(@Nullable ImageCapture.ScreenFlash screenFlash) {
@@ -954,6 +956,11 @@ public final class ImageCapture extends UseCase {
 
     @UiThread
     private void abortImageCaptureRequests() {
+        // Camera2CapturePipeline ScreenFlash#clear event may come a bit later due to
+        // thread-hopping or listener invocation delay. When all requests are aborted anyway, we can
+        // complete all pending tasks earlier and ignore any that comes from user/camera-camera2.
+        mScreenFlashWrapper.completePendingTasks();
+
         if (mTakePictureManager != null) {
             mTakePictureManager.abortRequests();
         }
@@ -1273,9 +1280,9 @@ public final class ImageCapture extends UseCase {
             @Nullable ImageCapture.OnImageSavedCallback onDiskCallback,
             @Nullable OutputFileOptions outputFileOptions) {
         checkMainThread();
-        if (getFlashMode() == ImageCapture.FLASH_MODE_SCREEN && mScreenFlash == null) {
-            throw new IllegalArgumentException(
-                    "ScreenFlash not set for FLASH_MODE_SCREEN");
+        if (getFlashMode() == ImageCapture.FLASH_MODE_SCREEN
+                && mScreenFlashWrapper.getBaseScreenFlash() == null) {
+            throw new IllegalArgumentException("ScreenFlash not set for FLASH_MODE_SCREEN");
         }
         Log.d(TAG, "takePictureInternal");
         CameraInternal camera = getCamera();
@@ -1695,7 +1702,14 @@ public final class ImageCapture extends UseCase {
         long getExpirationTimeMillis();
     }
 
-    /** Interface to do the application changes required for screen flash operations. */
+
+    /**
+     * Interface to do the application changes required for screen flash operations.
+     *
+     * <p> Each {@link #apply} invocation will be followed up with a corresponding {@link #clear}
+     * invocation. For each image capture, {@code #apply} and {@code #clear} will be invoked only
+     * once.
+     */
     public interface ScreenFlash {
         /**
          * Applies the necessary application changes for a screen flash photo capture.
