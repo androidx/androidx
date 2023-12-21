@@ -24,6 +24,7 @@ import androidx.compose.foundation.samples.AnchoredDraggableAnchorsFromCompositi
 import androidx.compose.foundation.samples.AnchoredDraggableCatchAnimatingWidgetSample
 import androidx.compose.foundation.samples.AnchoredDraggableCustomAnchoredSample
 import androidx.compose.foundation.samples.AnchoredDraggableLayoutDependentAnchorsSample
+import androidx.compose.foundation.samples.AnchoredDraggableWithOverscrollSample
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -41,5 +42,7 @@ fun AnchoredDraggableDemo() {
         AnchoredDraggableCatchAnimatingWidgetSample()
         Spacer(Modifier.height(50.dp))
         AnchoredDraggableCustomAnchoredSample()
+        Spacer(Modifier.height(50.dp))
+        AnchoredDraggableWithOverscrollSample()
     }
 }

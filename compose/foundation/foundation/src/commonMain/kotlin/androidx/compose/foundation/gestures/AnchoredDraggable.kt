@@ -26,6 +26,7 @@ import androidx.compose.animation.core.calculateTargetValue
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.MutatorMutex
+import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.gestures.DragEvent.DragDelta
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.offset
@@ -40,6 +41,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
@@ -187,6 +189,10 @@ interface AnchoredDragScope {
  * drag will behave like bottom to top, and a left to right drag will behave like right to left.
  * @param interactionSource Optional [MutableInteractionSource] that will passed on to
  * the internal [Modifier.draggable].
+ * @param overscrollEffect optional effect to dispatch any excess delta or velocity to. The excess
+ * delta or velocity are a result of dragging/flinging and reaching the bounds. If you provide an
+ * [overscrollEffect], make sure to apply [androidx.compose.foundation.overscroll] to render the
+ * effect as well.
  * @param startDragImmediately when set to false, [draggable] will start dragging only when the
  * gesture crosses the touchSlop. This is useful to prevent users from "catching" an animating
  * widget when pressing on it. See [draggable] to learn more about startDragImmediately.
@@ -198,6 +204,7 @@ fun <T> Modifier.anchoredDraggable(
     enabled: Boolean = true,
     reverseDirection: Boolean = false,
     interactionSource: MutableInteractionSource? = null,
+    overscrollEffect: OverscrollEffect? = null,
     startDragImmediately: Boolean = state.isAnimationRunning
 ): Modifier = this then AnchoredDraggableElement(
     state = state,
@@ -205,16 +212,18 @@ fun <T> Modifier.anchoredDraggable(
     enabled = enabled,
     reverseDirection = reverseDirection,
     interactionSource = interactionSource,
+    overscrollEffect = overscrollEffect,
     startDragImmediately = startDragImmediately
 )
 
-@ExperimentalFoundationApi
+@OptIn(ExperimentalFoundationApi::class)
 private class AnchoredDraggableElement<T>(
     private val state: AnchoredDraggableState<T>,
     private val orientation: Orientation,
     private val enabled: Boolean,
     private val reverseDirection: Boolean,
     private val interactionSource: MutableInteractionSource?,
+    private val overscrollEffect: OverscrollEffect?,
     private val startDragImmediately: Boolean
 ) : ModifierNodeElement<AnchoredDraggableNode<T>>() {
     override fun create(): AnchoredDraggableNode<T> {
@@ -224,6 +233,7 @@ private class AnchoredDraggableElement<T>(
             enabled,
             reverseDirection,
             interactionSource,
+            overscrollEffect,
             { startDragImmediately }
         )
     }
@@ -235,6 +245,7 @@ private class AnchoredDraggableElement<T>(
             enabled,
             reverseDirection,
             interactionSource,
+            overscrollEffect,
             { startDragImmediately }
         )
     }
@@ -245,6 +256,7 @@ private class AnchoredDraggableElement<T>(
         result = 31 * result + enabled.hashCode()
         result = 31 * result + reverseDirection.hashCode()
         result = 31 * result + interactionSource.hashCode()
+        result = 31 * result + overscrollEffect.hashCode()
         result = 31 * result + startDragImmediately.hashCode()
         return result
     }
@@ -259,6 +271,7 @@ private class AnchoredDraggableElement<T>(
         if (enabled != other.enabled) return false
         if (reverseDirection != other.reverseDirection) return false
         if (interactionSource != other.interactionSource) return false
+        if (overscrollEffect != other.overscrollEffect) return false
         if (startDragImmediately != other.startDragImmediately) return false
 
         return true
@@ -271,6 +284,7 @@ private class AnchoredDraggableElement<T>(
         properties["enabled"] = enabled
         properties["reverseDirection"] = reverseDirection
         properties["interactionSource"] = interactionSource
+        properties["overscrollEffect"] = overscrollEffect
         properties["startDragImmediately"] = startDragImmediately
     }
 }
@@ -282,6 +296,7 @@ private class AnchoredDraggableNode<T>(
     enabled: Boolean,
     reverseDirection: Boolean,
     interactionSource: MutableInteractionSource?,
+    private var overscrollEffect: OverscrollEffect?,
     startDragImmediately: () -> Boolean
 ) : AbstractDraggableNode(
     canDrag = AlwaysDrag,
@@ -294,7 +309,19 @@ private class AnchoredDraggableNode<T>(
     override suspend fun drag(forEachDelta: suspend ((dragDelta: DragDelta) -> Unit) -> Unit) {
         state.anchoredDrag(MutatePriority.Default) {
             forEachDelta { dragDelta ->
-                dragTo(state.newOffsetForDelta(dragDelta.delta.toFloat(orientation)))
+                if (overscrollEffect == null) {
+                    dragTo(state.newOffsetForDelta(dragDelta.delta.toFloat()))
+                } else {
+                    overscrollEffect!!.applyToScroll(
+                        delta = dragDelta.delta,
+                        source = NestedScrollSource.Drag
+                    ) { deltaForDrag ->
+                        val dragOffset = state.newOffsetForDelta(deltaForDrag.toFloat())
+                        val consumedDelta = (dragOffset - state.requireOffset()).toOffset()
+                        dragTo(dragOffset)
+                        consumedDelta
+                    }
+                }
             }
         }
     }
@@ -305,7 +332,24 @@ private class AnchoredDraggableNode<T>(
     override suspend fun CoroutineScope.onDragStarted(startedPosition: Offset) {}
 
     override suspend fun CoroutineScope.onDragStopped(velocity: Velocity) {
-        state.settle(velocity.toFloat(orientation))
+        if (overscrollEffect == null) {
+            state.settle(velocity.toFloat()).toVelocity()
+        } else {
+            overscrollEffect!!.applyToFling(
+                velocity = velocity
+            ) { availableVelocity ->
+                val consumed = state.settle(availableVelocity.toFloat()).toVelocity()
+                val currentOffset = state.requireOffset()
+                val minAnchor = state.anchors.minAnchor()
+                val maxAnchor = state.anchors.maxAnchor()
+                // return consumed velocity only if we are reaching the min/max anchors
+                if (currentOffset >= maxAnchor || currentOffset <= minAnchor) {
+                    consumed
+                } else {
+                    availableVelocity
+                }
+            }
+        }
     }
 
     fun update(
@@ -314,6 +358,7 @@ private class AnchoredDraggableNode<T>(
         enabled: Boolean,
         reverseDirection: Boolean,
         interactionSource: MutableInteractionSource?,
+        overscrollEffect: OverscrollEffect?,
         startDragImmediately: () -> Boolean
     ) {
         var resetPointerInputHandling = false
@@ -327,6 +372,8 @@ private class AnchoredDraggableNode<T>(
             resetPointerInputHandling = true
         }
 
+        this.overscrollEffect = overscrollEffect
+
         update(
             enabled = enabled,
             interactionSource = interactionSource,
@@ -335,6 +382,22 @@ private class AnchoredDraggableNode<T>(
             isResetPointerInputHandling = resetPointerInputHandling,
         )
     }
+
+    private fun Float.toOffset() = Offset(
+        x = if (orientation == Orientation.Horizontal) this else 0f,
+        y = if (orientation == Orientation.Vertical) this else 0f,
+    )
+
+    fun Float.toVelocity() = Velocity(
+        x = if (orientation == Orientation.Horizontal) this else 0f,
+        y = if (orientation == Orientation.Vertical) this else 0f,
+    )
+
+    private fun Velocity.toFloat() =
+        if (orientation == Orientation.Vertical) this.y else this.x
+
+    private fun Offset.toFloat() =
+        if (orientation == Orientation.Vertical) this.y else this.x
 }
 
 private val AlwaysDrag: (PointerInputChange) -> Boolean = { true }
@@ -553,15 +616,17 @@ class AnchoredDraggableState<T>(
      *
      * Based on the [velocity], either [snapAnimationSpec] or [decayAnimationSpec] will be used
      * to animate towards the target.
+     *
+     * @return The velocity consumed in the animation
      */
-    suspend fun settle(velocity: Float) {
+    suspend fun settle(velocity: Float): Float {
         val previousValue = this.currentValue
         val targetValue = computeTarget(
             offset = requireOffset(),
             currentValue = previousValue,
             velocity = velocity
         )
-        if (confirmValueChange(targetValue)) {
+        return if (confirmValueChange(targetValue)) {
             animateToWithDecay(targetValue, velocity)
         } else {
             // If the user vetoed the state change, rollback to the previous state.
@@ -889,7 +954,7 @@ suspend fun <T> AnchoredDraggableState<T>.animateToWithDecay(
                             if (abs(value) >= abs(targetOffset)) {
                                 val finalValue = value.coerceToTarget(targetOffset)
                                 dragTo(finalValue, this.velocity)
-                                remainingVelocity = this.velocity
+                                remainingVelocity = if (this.velocity.isNaN()) 0f else this.velocity
                                 prev = finalValue
                                 cancelAnimation()
                             } else {
@@ -981,12 +1046,6 @@ private class MapDraggableAnchors<T>(private val anchors: Map<T, Float>) : Dragg
 
     override fun toString() = "MapDraggableAnchors($anchors)"
 }
-
-private fun Velocity.toFloat(orientation: Orientation) =
-    if (orientation == Orientation.Vertical) this.y else this.x
-
-private fun Offset.toFloat(orientation: Orientation) =
-    if (orientation == Orientation.Vertical) this.y else this.x
 
 private const val DEBUG = false
 private inline fun debugLog(generateMsg: () -> String) {

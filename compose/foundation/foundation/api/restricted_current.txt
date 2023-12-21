@@ -321,7 +321,7 @@ package androidx.compose.foundation.gestures {
 
   public final class AnchoredDraggableKt {
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static <T> androidx.compose.foundation.gestures.DraggableAnchors<T> DraggableAnchors(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.gestures.DraggableAnchorsConfig<T>,kotlin.Unit> builder);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static <T> androidx.compose.ui.Modifier anchoredDraggable(androidx.compose.ui.Modifier, androidx.compose.foundation.gestures.AnchoredDraggableState<T> state, androidx.compose.foundation.gestures.Orientation orientation, optional boolean enabled, optional boolean reverseDirection, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional boolean startDragImmediately);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static <T> androidx.compose.ui.Modifier anchoredDraggable(androidx.compose.ui.Modifier, androidx.compose.foundation.gestures.AnchoredDraggableState<T> state, androidx.compose.foundation.gestures.Orientation orientation, optional boolean enabled, optional boolean reverseDirection, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional androidx.compose.foundation.OverscrollEffect? overscrollEffect, optional boolean startDragImmediately);
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static suspend <T> Object? animateTo(androidx.compose.foundation.gestures.AnchoredDraggableState<T>, T targetValue, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static suspend <T> Object? animateToWithDecay(androidx.compose.foundation.gestures.AnchoredDraggableState<T>, T targetValue, float velocity, kotlin.coroutines.Continuation<? super java.lang.Float>);
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static suspend <T> Object? snapTo(androidx.compose.foundation.gestures.AnchoredDraggableState<T>, T targetValue, kotlin.coroutines.Continuation<? super kotlin.Unit>);
@@ -343,7 +343,7 @@ package androidx.compose.foundation.gestures {
     method public T getTargetValue();
     method public boolean isAnimationRunning();
     method public float requireOffset();
-    method public suspend Object? settle(float velocity, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? settle(float velocity, kotlin.coroutines.Continuation<? super java.lang.Float>);
     method public void updateAnchors(androidx.compose.foundation.gestures.DraggableAnchors<T> newAnchors, optional T newTarget);
     property public final androidx.compose.foundation.gestures.DraggableAnchors<T> anchors;
     property public final T currentValue;
