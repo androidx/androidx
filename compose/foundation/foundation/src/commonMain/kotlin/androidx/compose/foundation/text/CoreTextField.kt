@@ -59,6 +59,7 @@ import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.IntrinsicMeasurable
@@ -348,35 +349,15 @@ internal fun CoreTextField(
         }
     }
 
-    val pointerModifier = Modifier
-        .updateSelectionTouchMode { state.isInTouchMode = it }
-        .tapPressTextFieldModifier(interactionSource, enabled) { offset ->
-            tapToFocus(state, focusRequester, !readOnly)
-            if (state.hasFocus) {
-                if (state.handleState != HandleState.Selection) {
-                    state.layoutResult?.let { layoutResult ->
-                        TextFieldDelegate.setCursorOffset(
-                            offset,
-                            layoutResult,
-                            state.processor,
-                            offsetMapping,
-                            state.onValueChange
-                        )
-                        // Won't enter cursor state when text is empty.
-                        if (state.textDelegate.text.isNotEmpty()) {
-                            state.handleState = HandleState.Cursor
-                        }
-                    }
-                } else {
-                    manager.deselect(offset)
-                }
-            }
-        }
-        .selectionGestureInput(
-            mouseSelectionObserver = manager.mouseSelectionObserver,
-            textDragObserver = manager.touchSelectionObserver,
-        )
-        .pointerHoverIcon(textPointerIcon)
+    val pointerModifier = Modifier.textFieldPointer(
+        manager,
+        enabled,
+        interactionSource,
+        state,
+        focusRequester,
+        readOnly,
+        offsetMapping
+    )
 
     val drawModifier = Modifier.drawBehind {
         state.layoutResult?.let { layoutResult ->

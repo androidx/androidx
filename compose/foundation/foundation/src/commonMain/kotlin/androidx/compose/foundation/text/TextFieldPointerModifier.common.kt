@@ -18,6 +18,8 @@ package androidx.compose.foundation.text
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.text.selection.TextFieldSelectionManager
+import androidx.compose.foundation.text.selection.selectionGestureInput
+import androidx.compose.foundation.text.selection.updateSelectionTouchMode
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -45,39 +47,32 @@ internal fun Modifier.defaultTextFieldPointer(
     focusRequester: FocusRequester,
     readOnly: Boolean,
     offsetMapping: OffsetMapping
-): Modifier = if (isInTouchMode) {
-    val selectionModifier =
-        Modifier.longPressDragGestureFilter(manager.touchSelectionObserver, enabled)
-    this
-        .tapPressTextFieldModifier(interactionSource, enabled) { offset ->
-            tapTextFieldToFocus(state, focusRequester, !readOnly)
-            if (state.hasFocus) {
-                if (state.handleState != HandleState.Selection) {
-                    state.layoutResult?.let { layoutResult ->
-                        TextFieldDelegate.setCursorOffset(
-                            offset,
-                            layoutResult,
-                            state.processor,
-                            offsetMapping,
-                            state.onValueChange
-                        )
-                        // Won't enter cursor state when text is empty.
-                        if (state.textDelegate.text.isNotEmpty()) {
-                            state.handleState = HandleState.Cursor
-                        }
+) = this
+    .updateSelectionTouchMode { state.isInTouchMode = it }
+    .tapPressTextFieldModifier(interactionSource, enabled) { offset ->
+        tapTextFieldToFocus(state, focusRequester, !readOnly)
+        if (state.hasFocus) {
+            if (state.handleState != HandleState.Selection) {
+                state.layoutResult?.let { layoutResult ->
+                    TextFieldDelegate.setCursorOffset(
+                        offset,
+                        layoutResult,
+                        state.processor,
+                        offsetMapping,
+                        state.onValueChange
+                    )
+                    // Won't enter cursor state when text is empty.
+                    if (state.textDelegate.text.isNotEmpty()) {
+                        state.handleState = HandleState.Cursor
                     }
-                } else {
-                    manager.deselect(offset)
                 }
+            } else {
+                manager.deselect(offset)
             }
         }
-        .then(selectionModifier)
-        .pointerHoverIcon(textPointerIcon)
-} else {
-    this
-        .mouseDragGestureDetector(
-            observer = manager.mouseSelectionObserver,
-            enabled = enabled
-        )
-        .pointerHoverIcon(textPointerIcon)
-}
+    }
+    .selectionGestureInput(
+        mouseSelectionObserver = manager.mouseSelectionObserver,
+        textDragObserver = manager.touchSelectionObserver,
+    )
+    .pointerHoverIcon(textPointerIcon)

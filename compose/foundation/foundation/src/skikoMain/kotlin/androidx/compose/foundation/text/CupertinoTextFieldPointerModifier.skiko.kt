@@ -23,6 +23,7 @@ import androidx.compose.foundation.text.selection.SelectionAdjustment
 import androidx.compose.foundation.text.selection.TextFieldSelectionManager
 import androidx.compose.foundation.text.selection.getTextFieldSelection
 import androidx.compose.foundation.text.selection.isSelectionHandleInVisibleBound
+import androidx.compose.foundation.text.selection.selectionGestureInput
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
@@ -47,6 +48,7 @@ internal fun Modifier.cupertinoTextFieldPointer(
     readOnly: Boolean,
     offsetMapping: OffsetMapping
 ): Modifier = if (enabled) {
+    // TODO switch to ".updateSelectionTouchMode { state.isInTouchMode = it }" as in defaultTextFieldPointer
     if (isInTouchMode) {
         val longPressHandlerModifier = getLongPressHandlerModifier(state, offsetMapping)
         val tapHandlerModifier = getTapHandlerModifier(
@@ -63,9 +65,9 @@ internal fun Modifier.cupertinoTextFieldPointer(
             .pointerHoverIcon(textPointerIcon)
     } else {
         this
-            .mouseDragGestureDetector(
-                observer = manager.mouseSelectionObserver,
-                enabled = enabled
+            .selectionGestureInput(
+                mouseSelectionObserver = manager.mouseSelectionObserver,
+                textDragObserver = manager.touchSelectionObserver,
             )
             .pointerHoverIcon(textPointerIcon)
     }
