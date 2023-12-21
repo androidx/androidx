@@ -1964,7 +1964,6 @@ class CombinedClickableTest {
                 "onClickLabel",
                 "onClick",
                 "role",
-                "lazilyCreateIndication",
                 "onDoubleClick",
                 "onLongClick",
                 "onLongClickLabel",
