@@ -34,6 +34,7 @@ import androidx.compose.ui.input.pointer.isShiftPressed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.ViewConfiguration
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastForEach
 import kotlinx.coroutines.CancellationException
@@ -96,7 +97,7 @@ internal fun Modifier.selectionGestureInput(
     mouseSelectionObserver: MouseSelectionObserver,
     textDragObserver: TextDragObserver,
 ) = this.pointerInput(mouseSelectionObserver, textDragObserver) {
-    val clicksCounter = ClicksCounter(viewConfiguration)
+    val clicksCounter = ClicksCounter(viewConfiguration, clicksSlop = 50.dp.toPx())
     awaitEachGesture {
         val down = awaitDown()
         if (
@@ -146,8 +147,8 @@ private suspend fun AwaitPointerEventScope.mouseSelection(
     clicksCounter: ClicksCounter,
     down: PointerEvent
 ) {
-    clicksCounter.update(down)
     val downChange = down.changes[0]
+    clicksCounter.update(downChange)
     if (down.keyboardModifiers.isShiftPressed) {
         val started = observer.onExtend(downChange.position)
         if (started) {
@@ -193,33 +194,32 @@ private suspend fun AwaitPointerEventScope.mouseSelection(
     }
 }
 
-internal const val ClicksSlop = 100.0
-
-private class ClicksCounter(
-    private val viewConfiguration: ViewConfiguration
+internal class ClicksCounter(
+    private val viewConfiguration: ViewConfiguration,
+    private val clicksSlop: Float // Distance in pixels between consecutive click positions to be considered them as clicks sequence
 ) {
     var clicks = 0
-    var prevClick: PointerInputChange? = null
+    private var prevClick: PointerInputChange? = null
 
-    fun update(event: PointerEvent) {
-        val currentPrevClick = prevClick
-        val newClick = event.changes[0]
-        if (currentPrevClick != null &&
-            timeIsTolerable(currentPrevClick, newClick) &&
-            positionIsTolerable(currentPrevClick, newClick)
+    fun update(event: PointerInputChange) {
+        val currentPrevEvent = prevClick
+        // Here and further event means upcoming event (new)
+        if (currentPrevEvent != null &&
+            timeIsTolerable(currentPrevEvent, event) &&
+            positionIsTolerable(currentPrevEvent, event)
         ) {
             clicks += 1
         } else {
             clicks = 1
         }
-        prevClick = newClick
+        prevClick = event
     }
 
     fun timeIsTolerable(prevClick: PointerInputChange, newClick: PointerInputChange): Boolean =
         newClick.uptimeMillis - prevClick.uptimeMillis < viewConfiguration.doubleTapTimeoutMillis
 
     fun positionIsTolerable(prevClick: PointerInputChange, newClick: PointerInputChange): Boolean =
-        (newClick.position - prevClick.position).getDistance() < ClicksSlop
+        (newClick.position - prevClick.position).getDistance() < clicksSlop
 }
 
 private suspend fun AwaitPointerEventScope.awaitDown(): PointerEvent {
