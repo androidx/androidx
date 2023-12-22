@@ -627,9 +627,9 @@ public final class CameraUtil {
         try {
             CameraX cameraX = CameraXUtil.getOrCreateInstance(context, null).get(5000,
                     TimeUnit.MILLISECONDS);
-            LinkedHashSet<CameraInternal> cameras =
-                    cameraSelector.filter(cameraX.getCameraRepository().getCameras());
-            return new CameraUseCaseAdapter(cameras,
+            CameraInternal camera =
+                    cameraSelector.select(cameraX.getCameraRepository().getCameras());
+            return new CameraUseCaseAdapter(camera,
                     cameraCoordinator,
                     cameraX.getCameraDeviceSurfaceManager(),
                     cameraX.getDefaultConfigFactory(),

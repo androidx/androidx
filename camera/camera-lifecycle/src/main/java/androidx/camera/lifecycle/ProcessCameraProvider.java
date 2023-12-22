@@ -57,6 +57,7 @@ import androidx.camera.core.ViewPort;
 import androidx.camera.core.concurrent.CameraCoordinator.CameraOperatingMode;
 import androidx.camera.core.impl.CameraConfig;
 import androidx.camera.core.impl.CameraConfigs;
+import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.ExtendedCameraConfigProviderStore;
 import androidx.camera.core.impl.utils.ContextUtil;
@@ -76,7 +77,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -567,23 +567,16 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
         Threads.checkMainThread();
         // TODO(b/153096869): override UseCase's target rotation.
 
-        LinkedHashSet<CameraInternal> cameraInternals =
-                cameraSelector.filter(mCameraX.getCameraRepository().getCameras());
-        if (cameraInternals.isEmpty()) {
-            throw new IllegalArgumentException("Provided camera selector unable to resolve a "
-                    + "camera for the given use case");
-        }
-
-        CameraConfig cameraConfig = getCameraConfig(cameraSelector,
-                cameraInternals.iterator().next().getCameraInfo());
-
-        CameraUseCaseAdapter.CameraId cameraId =
-                CameraUseCaseAdapter.generateCameraId(cameraInternals);
-
+        // Get the LifecycleCamera if existed.
+        CameraInternal cameraInternal =
+                cameraSelector.select(mCameraX.getCameraRepository().getCameras());
+        CameraInfoInternal cameraInfoInternal = cameraInternal.getCameraInfoInternal();
+        CameraConfig cameraConfig = getCameraConfig(cameraSelector, cameraInfoInternal);
         LifecycleCamera lifecycleCameraToBind =
                 mLifecycleCameraRepository.getLifecycleCamera(
-                        lifecycleOwner, cameraId, cameraConfig);
+                        lifecycleOwner, cameraInfoInternal.getCameraId(), cameraConfig);
 
+        // Check if there's another camera that has already been bound.
         Collection<LifecycleCamera> lifecycleCameras =
                 mLifecycleCameraRepository.getLifecycleCameras();
         for (UseCase useCase : useCases) {
@@ -598,12 +591,11 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
             }
         }
 
-        // Try to get the camera before binding to the use case, and throw IllegalArgumentException
-        // if the camera not found.
+        // Create the LifecycleCamera if there's no existing one that can be used.
         if (lifecycleCameraToBind == null) {
             lifecycleCameraToBind =
                     mLifecycleCameraRepository.createLifecycleCamera(lifecycleOwner,
-                            new CameraUseCaseAdapter(cameraInternals,
+                            new CameraUseCaseAdapter(cameraInternal,
                                     mCameraX.getCameraFactory().getCameraCoordinator(),
                                     mCameraX.getCameraDeviceSurfaceManager(),
                                     mCameraX.getDefaultConfigFactory(),

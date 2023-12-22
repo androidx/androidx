@@ -137,7 +137,7 @@ final class LifecycleCameraRepository {
      */
     @Nullable
     LifecycleCamera getLifecycleCamera(LifecycleOwner lifecycleOwner,
-            @NonNull CameraUseCaseAdapter.CameraId cameraId,
+            @NonNull String cameraId,
             @NonNull CameraConfig cameraConfig) {
         synchronized (mLock) {
             return mCameraMap.get(Key.create(lifecycleOwner, cameraId,
@@ -511,7 +511,7 @@ final class LifecycleCameraRepository {
     @AutoValue
     abstract static class Key {
         static Key create(@NonNull LifecycleOwner lifecycleOwner,
-                @NonNull CameraUseCaseAdapter.CameraId cameraId,
+                @NonNull String cameraId,
                 @NonNull Identifier cameraConfigId) {
             return new AutoValue_LifecycleCameraRepository_Key(
                     lifecycleOwner, cameraId, cameraConfigId);
@@ -521,7 +521,7 @@ final class LifecycleCameraRepository {
         public abstract LifecycleOwner getLifecycleOwner();
 
         @NonNull
-        public abstract CameraUseCaseAdapter.CameraId getCameraId();
+        public abstract String getCameraId();
 
         @NonNull
         public abstract Identifier getCameraConfigId();
