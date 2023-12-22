@@ -182,7 +182,7 @@ public class BasicVendorExtender implements VendorExtender {
                 Version.VERSION_1_2) >= 0) {
             try {
                 return mImageCaptureExtenderImpl.getEstimatedCaptureLatencyRange(size);
-            } catch (NoSuchMethodError e) {
+            } catch (Throwable e) {
             }
         }
         return null;
