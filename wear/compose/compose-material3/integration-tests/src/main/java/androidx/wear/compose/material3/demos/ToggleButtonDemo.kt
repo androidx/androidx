@@ -89,7 +89,7 @@ fun ToggleButtonDemo() {
                 initiallyChecked = true,
                 primary = "Primary label",
             ) {
-                Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite")
+                Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
             }
         }
         item {
@@ -99,7 +99,7 @@ fun ToggleButtonDemo() {
                 primary = "Primary label",
                 secondary = "Secondary label"
             ) {
-                Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite")
+                Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
             }
         }
         item {
