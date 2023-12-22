@@ -594,7 +594,11 @@ public final class ImageCapture extends UseCase {
     }
 
     private void setScreenFlashToCameraControl() {
-        getCameraControl().setScreenFlash(mScreenFlash);
+        setScreenFlashToCameraControl(mScreenFlash);
+    }
+
+    private void setScreenFlashToCameraControl(@Nullable ImageCapture.ScreenFlash screenFlash) {
+        getCameraControl().setScreenFlash(screenFlash);
     }
 
     /**
@@ -1072,6 +1076,7 @@ public final class ImageCapture extends UseCase {
     public void onUnbind() {
         abortImageCaptureRequests();
         clearPipeline();
+        setScreenFlashToCameraControl(null);
     }
 
     /**
