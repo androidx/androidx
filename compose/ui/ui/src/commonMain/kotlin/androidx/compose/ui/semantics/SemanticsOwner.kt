@@ -85,15 +85,17 @@ internal fun SemanticsOwner.getAllSemanticsNodesToMap(
     val nodes = mutableMapOf<Int, SemanticsNode>()
 
     fun findAllSemanticNodesRecursive(currentNode: SemanticsNode) {
-        if (!skipDeactivatedNodes || !currentNode.layoutInfo.isDeactivated) {
-            nodes[currentNode.id] = currentNode
-            currentNode.children.fastForEach { child ->
+        nodes[currentNode.id] = currentNode
+        currentNode
+            .getChildren(includeDeactivatedNodes = !skipDeactivatedNodes)
+            .fastForEach { child ->
                 findAllSemanticNodesRecursive(child)
             }
-        }
     }
 
     val root = if (useUnmergedTree) unmergedRootSemanticsNode else rootSemanticsNode
-    findAllSemanticNodesRecursive(root)
+    if (!skipDeactivatedNodes || !root.layoutNode.isDeactivated) {
+        findAllSemanticNodesRecursive(root)
+    }
     return nodes
 }
