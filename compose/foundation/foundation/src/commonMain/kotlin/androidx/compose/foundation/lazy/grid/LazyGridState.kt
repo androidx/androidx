@@ -34,7 +34,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.saveable.Saver
@@ -45,7 +44,6 @@ import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Remeasurement
 import androidx.compose.ui.layout.RemeasurementModifier
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.abs
@@ -155,20 +153,9 @@ class LazyGridState constructor(
     internal var scrollToBeConsumed = 0f
         private set
 
-    /**
-     * Needed for [animateScrollToItem]. Updated on every measure.
-     */
-    internal var slotsPerLine: Int by mutableIntStateOf(0)
+    internal val slotsPerLine: Int get() = layoutInfoState.value.slotsPerLine
 
-    /**
-     * Needed for [animateScrollToItem]. Updated on every measure.
-     */
-    internal var density: Density = Density(1f, 1f)
-
-    /**
-     * Needed for [notifyPrefetch].
-     */
-    internal var isVertical: Boolean = true
+    internal val density: Density get() = layoutInfoState.value.density
 
     /**
      * The ScrollableController instance. We keep it as we need to call stopAnimation on it once
@@ -211,6 +198,7 @@ class LazyGridState constructor(
      * synchronously during scroll.
      */
     internal var remeasurement: Remeasurement? = null
+        private set
 
     /**
      * The modifier which provides [remeasurement].
@@ -226,12 +214,6 @@ class LazyGridState constructor(
      * until layout is ready.
      */
     internal val awaitLayoutModifier = AwaitFirstLayoutModifier()
-
-    /**
-     * Finds items on a line and their measurement constraints. Used for prefetching.
-     */
-    internal var prefetchInfoRetriever: (line: Int) -> List<Pair<Int, Constraints>> by
-        mutableStateOf({ emptyList() })
 
     internal val placementAnimator = LazyGridItemPlacementAnimator()
 
@@ -352,25 +334,24 @@ class LazyGridState constructor(
 
     private fun notifyPrefetch(
         delta: Float,
-        layoutInfo: LazyGridLayoutInfo = layoutInfoState.value
+        info: LazyGridMeasureResult = layoutInfoState.value
     ) {
         val prefetchState = prefetchState
         if (!prefetchingEnabled) {
             return
         }
-        val info = layoutInfo
         if (info.visibleItemsInfo.isNotEmpty()) {
             val scrollingForward = delta < 0
             val lineToPrefetch: Int
             val closestNextItemToPrefetch: Int
             if (scrollingForward) {
                 lineToPrefetch = 1 + info.visibleItemsInfo.last().let {
-                    if (isVertical) it.row else it.column
+                    if (info.orientation == Orientation.Vertical) it.row else it.column
                 }
                 closestNextItemToPrefetch = info.visibleItemsInfo.last().index + 1
             } else {
                 lineToPrefetch = -1 + info.visibleItemsInfo.first().let {
-                    if (isVertical) it.row else it.column
+                    if (info.orientation == Orientation.Vertical) it.row else it.column
                 }
                 closestNextItemToPrefetch = info.visibleItemsInfo.first().index - 1
             }
@@ -387,7 +368,7 @@ class LazyGridState constructor(
                 this.wasScrollingForward = scrollingForward
                 this.lineToPrefetch = lineToPrefetch
                 currentLinePrefetchHandles.clear()
-                prefetchInfoRetriever(lineToPrefetch).fastForEach {
+                info.prefetchInfoRetriever(lineToPrefetch).fastForEach {
                     currentLinePrefetchHandles.add(
                         prefetchState.schedulePrefetch(it.first, it.second)
                     )
@@ -400,11 +381,11 @@ class LazyGridState constructor(
         if (lineToPrefetch != -1 && info.visibleItemsInfo.isNotEmpty()) {
             val expectedLineToPrefetch = if (wasScrollingForward) {
                 info.visibleItemsInfo.last().let {
-                    if (isVertical) it.row else it.column
+                    if (info.orientation == Orientation.Vertical) it.row else it.column
                 } + 1
             } else {
                 info.visibleItemsInfo.first().let {
-                    if (isVertical) it.row else it.column
+                    if (info.orientation == Orientation.Vertical) it.row else it.column
                 } - 1
             }
             if (lineToPrefetch != expectedLineToPrefetch) {
@@ -503,5 +484,8 @@ private val EmptyLazyGridLayoutInfo = LazyGridMeasureResult(
     orientation = Orientation.Vertical,
     afterContentPadding = 0,
     mainAxisItemSpacing = 0,
-    remeasureNeeded = false
+    remeasureNeeded = false,
+    density = Density(1f),
+    slotsPerLine = 0,
+    prefetchInfoRetriever = { emptyList() }
 )

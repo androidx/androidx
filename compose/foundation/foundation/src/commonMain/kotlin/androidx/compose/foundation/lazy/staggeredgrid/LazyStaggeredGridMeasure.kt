@@ -262,7 +262,10 @@ private fun LazyStaggeredGridMeasureContext.measure(
                 viewportEndOffset = mainAxisAvailableSize + afterContentPadding,
                 beforeContentPadding = beforeContentPadding,
                 afterContentPadding = afterContentPadding,
-                mainAxisItemSpacing = mainAxisSpacing
+                mainAxisItemSpacing = mainAxisSpacing,
+                slots = resolvedSlots,
+                spanProvider = itemProvider.spanProvider,
+                density = this
             )
         }
 
@@ -850,7 +853,10 @@ private fun LazyStaggeredGridMeasureContext.measure(
             viewportEndOffset = maxOffset,
             beforeContentPadding = beforeContentPadding,
             afterContentPadding = afterContentPadding,
-            mainAxisItemSpacing = mainAxisSpacing
+            mainAxisItemSpacing = mainAxisSpacing,
+            slots = resolvedSlots,
+            spanProvider = itemProvider.spanProvider,
+            density = this
         )
     }
 }

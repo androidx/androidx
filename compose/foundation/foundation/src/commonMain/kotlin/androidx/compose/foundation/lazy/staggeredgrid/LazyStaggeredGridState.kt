@@ -18,6 +18,7 @@ package androidx.compose.foundation.lazy.staggeredgrid
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MutatePriority
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.interaction.InteractionSource
@@ -43,7 +44,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.layout.Remeasurement
 import androidx.compose.ui.layout.RemeasurementModifier
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.Density
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -179,17 +179,11 @@ class LazyStaggeredGridState private constructor(
     /* @VisibleForTesting */
     internal var measurePassCount = 0
 
-    /** transient information from measure required for prefetching */
-    internal var isVertical = false
-    internal var slots: LazyStaggeredGridSlots? = null
-    internal var spanProvider: LazyStaggeredGridSpanProvider? = null
     /** prefetch state */
     private var prefetchBaseIndex: Int = -1
     private val currentItemPrefetchHandles = mutableMapOf<Int, PrefetchHandle>()
 
-    /** state required for implementing [animateScrollScope] */
-    internal var density: Density = Density(1f, 1f)
-    internal val laneCount get() = slots?.sizes?.size ?: 0
+    internal val laneCount get() = layoutInfoState.value.slots.sizes.size
 
     /**
      * [InteractionSource] that will be used to dispatch drag events when this
@@ -301,7 +295,6 @@ class LazyStaggeredGridState private constructor(
         }
     }
 
-    private val numOfItemsToTeleport: Int get() = 100 * laneCount
     /**
      * Animate (smooth scroll) to the given item.
      *
@@ -315,13 +308,25 @@ class LazyStaggeredGridState private constructor(
         index: Int,
         scrollOffset: Int = 0
     ) {
-        animateScrollScope.animateScrollToItem(index, scrollOffset, numOfItemsToTeleport, density)
+        val layoutInfo = layoutInfoState.value
+        val numOfItemsToTeleport = 100 * layoutInfo.slots.sizes.size
+        animateScrollScope.animateScrollToItem(
+            index,
+            scrollOffset,
+            numOfItemsToTeleport,
+            layoutInfo.density
+        )
     }
 
     internal fun ScrollScope.snapToItemInternal(index: Int, scrollOffset: Int) {
+        val layoutInfo = layoutInfo
         val visibleItem = layoutInfo.findVisibleItem(index)
         if (visibleItem != null) {
-            val currentOffset = if (isVertical) visibleItem.offset.y else visibleItem.offset.x
+            val currentOffset = if (layoutInfo.orientation == Orientation.Vertical) {
+                visibleItem.offset.y
+            } else {
+                visibleItem.offset.x
+            }
             val delta = currentOffset + scrollOffset
             scrollBy(delta.toFloat())
         } else {
@@ -345,7 +350,7 @@ class LazyStaggeredGridState private constructor(
     /** Start prefetch of the items based on provided delta */
     private fun notifyPrefetch(
         delta: Float,
-        info: LazyStaggeredGridLayoutInfo = layoutInfoState.value
+        info: LazyStaggeredGridMeasureResult = layoutInfoState.value
     ) {
         if (prefetchingEnabled && info.visibleItemsInfo.isNotEmpty()) {
             val scrollingForward = delta < 0
@@ -364,6 +369,8 @@ class LazyStaggeredGridState private constructor(
 
             val prefetchHandlesUsed = mutableSetOf<Int>()
             var targetIndex = prefetchIndex
+            val slots = info.slots
+            val laneCount = slots.sizes.size
             for (lane in 0 until laneCount) {
                 val previousIndex = targetIndex
 
@@ -385,13 +392,11 @@ class LazyStaggeredGridState private constructor(
                     continue
                 }
 
-                val isFullSpan = spanProvider?.isFullSpan(targetIndex) == true
+                val isFullSpan = info.spanProvider.isFullSpan(targetIndex)
                 val slot = if (isFullSpan) 0 else lane
                 val span = if (isFullSpan) laneCount else 1
 
-                val slots = slots
                 val crossAxisSize = when {
-                    slots == null -> 0
                     span == 1 -> slots.sizes[slot]
                     else -> {
                         val start = slots.positions[slot]
@@ -401,7 +406,7 @@ class LazyStaggeredGridState private constructor(
                     }
                 }
 
-                val constraints = if (isVertical) {
+                val constraints = if (info.orientation == Orientation.Vertical) {
                     Constraints.fixedWidth(crossAxisSize)
                 } else {
                     Constraints.fixedHeight(crossAxisSize)
@@ -461,7 +466,7 @@ class LazyStaggeredGridState private constructor(
 
     private fun fillNearestIndices(itemIndex: Int, laneCount: Int): IntArray {
         val indices = IntArray(laneCount)
-        if (spanProvider?.isFullSpan(itemIndex) == true) {
+        if (layoutInfoState.value.spanProvider.isFullSpan(itemIndex)) {
             indices.fill(itemIndex)
             return indices
         }

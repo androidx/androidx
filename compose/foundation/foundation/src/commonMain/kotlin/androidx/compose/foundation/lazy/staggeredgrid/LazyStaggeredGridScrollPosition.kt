@@ -143,7 +143,7 @@ internal class LazyStaggeredGridScrollPosition(
         )
         return if (newIndex !in indices) {
             nearestRangeState.update(newIndex)
-            val newIndices = fillIndices(newIndex, indices.size)
+            val newIndices = Snapshot.withoutReadObservation { fillIndices(newIndex, indices.size) }
             this.indices = newIndices
             this.index = calculateFirstVisibleIndex(newIndices)
             newIndices
