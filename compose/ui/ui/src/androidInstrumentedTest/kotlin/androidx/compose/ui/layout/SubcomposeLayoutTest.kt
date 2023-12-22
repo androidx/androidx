@@ -62,6 +62,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.TestActivity
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
@@ -70,6 +71,7 @@ import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -2692,6 +2694,38 @@ class SubcomposeLayoutTest {
             val handle = state.precompose(Unit) { Box(Modifier) }
             assertThat(handle.placeablesCount).isEqualTo(0)
         }
+    }
+
+    @Test
+    fun deactivatedNodesAreNotPartOfChildrenSemantics() {
+        val layoutState = mutableStateOf(SubcomposeLayoutState(SubcomposeSlotReusePolicy(1)))
+        val needChild = mutableStateOf(true)
+
+        rule.setContent {
+            SubcomposeLayout(
+                modifier = Modifier.testTag("layout"),
+                state = layoutState.value
+            ) { constraints ->
+                val node = if (needChild.value) {
+                    subcompose(Unit) {
+                        Box(Modifier.testTag("child"))
+                    }.first().measure(constraints)
+                } else {
+                    null
+                }
+                layout(10, 10) {
+                    node?.place(0, 0)
+                }
+            }
+        }
+
+        rule.onNodeWithTag("layout")
+            .onChildren().assertCountEquals(1)
+
+        needChild.value = false
+
+        rule.onNodeWithTag("layout")
+            .onChildren().assertCountEquals(0)
     }
 
     private fun SubcomposeMeasureScope.measure(
