@@ -26,7 +26,6 @@ import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraConfig;
-import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Lifecycle.State;
@@ -37,7 +36,6 @@ import androidx.lifecycle.OnLifecycleEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 /**
@@ -260,12 +258,6 @@ final class LifecycleCamera implements LifecycleObserver, Camera {
     @Override
     public CameraInfo getCameraInfo() {
         return mCameraUseCaseAdapter.getCameraInfo();
-    }
-
-    @NonNull
-    @Override
-    public LinkedHashSet<CameraInternal> getCameraInternals() {
-        return mCameraUseCaseAdapter.getCameraInternals();
     }
 
     @NonNull

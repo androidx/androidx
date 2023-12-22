@@ -46,7 +46,6 @@ import org.junit.runner.RunWith;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 
 @SmallTest
@@ -58,17 +57,15 @@ public final class LifecycleCameraRepositoryTest {
     private LifecycleCameraRepository mRepository;
     private CameraCoordinator mCameraCoordinator;
     private CameraUseCaseAdapter mCameraUseCaseAdapter;
-    private LinkedHashSet<CameraInternal> mCameraSet;
     private int mCameraId = 0;
+    private CameraInternal mCamera = new FakeCamera(String.valueOf(mCameraId));
 
     @Before
     public void setUp() {
         mCameraCoordinator = new FakeCameraCoordinator();
         mLifecycle = new FakeLifecycleOwner();
         mRepository = new LifecycleCameraRepository();
-        CameraInternal camera = new FakeCamera(String.valueOf(mCameraId));
-        mCameraSet = new LinkedHashSet<>(Collections.singleton(camera));
-        mCameraUseCaseAdapter = new CameraUseCaseAdapter(mCameraSet,
+        mCameraUseCaseAdapter = new CameraUseCaseAdapter(mCamera,
                 mCameraCoordinator,
                 new FakeCameraDeviceSurfaceManager(),
                 new FakeUseCaseConfigFactory());
@@ -446,8 +443,8 @@ public final class LifecycleCameraRepositoryTest {
     public void retrievesExistingCamera() {
         LifecycleCamera lifecycleCamera = mRepository.createLifecycleCamera(
                 mLifecycle, mCameraUseCaseAdapter);
-        CameraUseCaseAdapter.CameraId cameraId = CameraUseCaseAdapter.generateCameraId(mCameraSet);
-        LifecycleCamera retrieved = mRepository.getLifecycleCamera(mLifecycle, cameraId,
+        LifecycleCamera retrieved = mRepository.getLifecycleCamera(mLifecycle,
+                mCamera.getCameraInfoInternal().getCameraId(),
                 mCameraUseCaseAdapter.getExtendedConfig());
 
         assertThat(lifecycleCamera).isSameInstanceAs(retrieved);
@@ -482,7 +479,7 @@ public final class LifecycleCameraRepositoryTest {
                 mCameraUseCaseAdapter.getCameraId(),
                 CameraConfigs.defaultConfig().getCompatibilityId());
         LifecycleCameraRepository.Key key1 = LifecycleCameraRepository.Key.create(mLifecycle,
-                CameraUseCaseAdapter.generateCameraId(mCameraSet),
+                mCamera.getCameraInfoInternal().getCameraId(),
                 CameraConfigs.defaultConfig().getCompatibilityId());
 
         Map<LifecycleCameraRepository.Key, LifecycleOwner> map = new HashMap<>();
@@ -623,7 +620,7 @@ public final class LifecycleCameraRepositoryTest {
     private CameraUseCaseAdapter createNewCameraUseCaseAdapter() {
         String cameraId = String.valueOf(++mCameraId);
         CameraInternal fakeCamera = new FakeCamera(cameraId);
-        return new CameraUseCaseAdapter(new LinkedHashSet<>(Collections.singleton(fakeCamera)),
+        return new CameraUseCaseAdapter(fakeCamera,
                 mCameraCoordinator,
                 new FakeCameraDeviceSurfaceManager(),
                 new FakeUseCaseConfigFactory());
@@ -631,7 +628,7 @@ public final class LifecycleCameraRepositoryTest {
 
     private CameraUseCaseAdapter createCameraUseCaseAdapterWithNewCameraConfig() {
         CameraConfig cameraConfig = new FakeCameraConfig();
-        return new CameraUseCaseAdapter(mCameraSet,
+        return new CameraUseCaseAdapter(mCamera,
                 mCameraCoordinator,
                 new FakeCameraDeviceSurfaceManager(),
                 new FakeUseCaseConfigFactory(),

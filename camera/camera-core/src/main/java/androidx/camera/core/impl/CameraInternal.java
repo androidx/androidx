@@ -32,8 +32,6 @@ import androidx.camera.core.streamsharing.StreamSharing;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashSet;
 
 /**
  * The camera interface. It is controlled by the change of state in use cases.
@@ -213,15 +211,6 @@ public interface CameraInternal extends Camera, UseCase.StateChangeCallback {
      */
     default boolean getHasTransform() {
         return true;
-    }
-
-    /**
-     * Always returns only itself since there is only ever one CameraInternal.
-     */
-    @NonNull
-    @Override
-    default LinkedHashSet<CameraInternal> getCameraInternals() {
-        return new LinkedHashSet<>(Collections.singleton(this));
     }
 
     /**
