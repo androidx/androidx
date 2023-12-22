@@ -16,7 +16,9 @@
 
 package androidx.window.demo.embedding
 
+import android.graphics.Color
 import androidx.annotation.GuardedBy
+import androidx.window.embedding.EmbeddingAnimationBackground
 import androidx.window.embedding.SplitAttributes
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.locks.ReentrantLock
@@ -61,6 +63,21 @@ class DemoActivityEmbeddingController private constructor() {
     @GuardedBy("lock")
     private var splitTypeLocked = SplitAttributes.SplitType.SPLIT_TYPE_EQUAL
 
+    @GuardedBy("lock")
+    private var animationBackgroundLocked = EmbeddingAnimationBackground.DEFAULT
+
+    internal var animationBackground: EmbeddingAnimationBackground
+        get() {
+            lock.withLock {
+                return animationBackgroundLocked
+            }
+        }
+        set(value) {
+            lock.withLock {
+                animationBackgroundLocked = value
+            }
+        }
+
     companion object {
         @Volatile
         private var globalInstance: DemoActivityEmbeddingController? = null
@@ -80,5 +97,14 @@ class DemoActivityEmbeddingController private constructor() {
             }
             return globalInstance!!
         }
+
+        /** Anmiation background constants. */
+        val ANIMATION_BACKGROUND_TEXTS = arrayOf("DEFAULT", "BLUE", "GREEN", "YELLOW")
+        val ANIMATION_BACKGROUND_VALUES = arrayOf(
+            EmbeddingAnimationBackground.DEFAULT,
+            EmbeddingAnimationBackground.createColorBackground(Color.BLUE),
+            EmbeddingAnimationBackground.createColorBackground(Color.GREEN),
+            EmbeddingAnimationBackground.createColorBackground(Color.YELLOW)
+        )
     }
 }
