@@ -75,6 +75,12 @@ package androidx.kruth {
     method public Void fail(Error failure);
   }
 
+  public final class GuavaOptionalSubject<T> extends androidx.kruth.Subject<com.google.common.base.Optional<? extends T>> {
+    method public void hasValue(Object? expected);
+    method public void isAbsent();
+    method public void isPresent();
+  }
+
   public class IntegerSubject extends androidx.kruth.ComparableSubject<java.lang.Integer> {
     method @Deprecated public void isEquivalentAccordingToCompareTo(Integer? other);
   }
@@ -132,6 +138,10 @@ package androidx.kruth {
     method public static <T extends java.lang.Throwable> androidx.kruth.ThrowableSubject<T> assertThat(T? actual);
     method public static <T> androidx.kruth.ObjectArraySubject<T> assertThat(T[]? actual);
     method public static androidx.kruth.StandardSubjectBuilder assertWithMessage(String messageToPrepend);
+  }
+
+  public final class Kruth_jvmKt {
+    method public static <T> androidx.kruth.GuavaOptionalSubject<T> assertThat(com.google.common.base.Optional<T>? actual);
   }
 
   public final class MapSubject<K, V> extends androidx.kruth.Subject<java.util.Map<K,? extends V>> {
