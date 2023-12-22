@@ -37,7 +37,6 @@ import androidx.compose.foundation.gestures.snapping.calculateDistanceToDesiredS
 import androidx.compose.foundation.gestures.snapping.calculateFinalSnappingItem
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -51,7 +50,6 @@ import androidx.compose.ui.semantics.pageLeft
 import androidx.compose.ui.semantics.pageRight
 import androidx.compose.ui.semantics.pageUp
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
@@ -235,57 +233,6 @@ fun VerticalPager(
         snapPosition = snapPosition,
         pageContent = pageContent
     )
-}
-
-/**
- * This is used to determine how Pages are laid out in [Pager]. By changing the size of the pages
- * one can change how many pages are shown.
- *
- * Please refer to the sample to learn how to use this API.
- * @sample androidx.compose.foundation.samples.CustomPageSizeSample
- *
- */
-@ExperimentalFoundationApi
-@Stable
-interface PageSize {
-
-    /**
-     * Based on [availableSpace] pick a size for the pages
-     * @param availableSpace The amount of space the pages in this Pager can use.
-     * @param pageSpacing The amount of space used to separate pages.
-     */
-    fun Density.calculateMainAxisPageSize(availableSpace: Int, pageSpacing: Int): Int
-
-    /**
-     * Pages take up the whole Pager size.
-     */
-    @ExperimentalFoundationApi
-    object Fill : PageSize {
-        override fun Density.calculateMainAxisPageSize(availableSpace: Int, pageSpacing: Int): Int {
-            return availableSpace
-        }
-    }
-
-    /**
-     * Multiple pages in a viewport
-     * @param pageSize A fixed size for pages
-     */
-    @ExperimentalFoundationApi
-    class Fixed(val pageSize: Dp) : PageSize {
-        override fun Density.calculateMainAxisPageSize(availableSpace: Int, pageSpacing: Int): Int {
-            return pageSize.roundToPx()
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (other !is Fixed) return false
-            return pageSize == other.pageSize
-        }
-
-        override fun hashCode(): Int {
-            return pageSize.hashCode()
-        }
-    }
 }
 
 /**
@@ -487,86 +434,6 @@ object PagerDefaults {
      * composed and laid out by the pre-fetcher in the direction of the scroll during scroll events.
      */
     const val BeyondBoundsPageCount = 0
-}
-
-/**
- * [PagerSnapDistance] defines the way the [Pager] will treat the distance between the current
- * page and the page where it will settle.
- */
-@ExperimentalFoundationApi
-@Stable
-interface PagerSnapDistance {
-
-    /** Provides a chance to change where the [Pager] fling will settle.
-     *
-     * @param startPage The current page right before the fling starts.
-     * @param suggestedTargetPage The proposed target page where this fling will stop. This target
-     * will be the page that will be correctly positioned (snapped) after naturally decaying with
-     * [velocity] using a [DecayAnimationSpec].
-     * @param velocity The initial fling velocity.
-     * @param pageSize The page size for this [Pager].
-     * @param pageSpacing The spacing used between pages.
-     *
-     * @return An updated target page where to settle. Note that this value needs to be between 0
-     * and the total count of pages in this pager. If an invalid value is passed, the pager will
-     * coerce within the valid values.
-     */
-    fun calculateTargetPage(
-        startPage: Int,
-        suggestedTargetPage: Int,
-        velocity: Float,
-        pageSize: Int,
-        pageSpacing: Int
-    ): Int
-
-    companion object {
-        /**
-         * Limits the maximum number of pages that can be flung per fling gesture.
-         * @param pages The maximum number of extra pages that can be flung at once.
-         */
-        fun atMost(pages: Int): PagerSnapDistance {
-            require(pages >= 0) {
-                "pages should be greater than or equal to 0. You have used $pages."
-            }
-            return PagerSnapDistanceMaxPages(pages)
-        }
-    }
-}
-
-/**
- * Limits the maximum number of pages that can be flung per fling gesture.
- * @param pagesLimit The maximum number of extra pages that can be flung at once.
- */
-@OptIn(ExperimentalFoundationApi::class)
-internal class PagerSnapDistanceMaxPages(private val pagesLimit: Int) : PagerSnapDistance {
-    override fun calculateTargetPage(
-        startPage: Int,
-        suggestedTargetPage: Int,
-        velocity: Float,
-        pageSize: Int,
-        pageSpacing: Int,
-    ): Int {
-        debugLog {
-            "PagerSnapDistanceMaxPages: startPage=$startPage " +
-                "suggestedTargetPage=$suggestedTargetPage " +
-                "velocity=$velocity " +
-                "pageSize=$pageSize " +
-                "pageSpacing$pageSpacing"
-        }
-        return suggestedTargetPage.coerceIn(startPage - pagesLimit, startPage + pagesLimit)
-    }
-
-    override fun equals(other: Any?): Boolean {
-        return if (other is PagerSnapDistanceMaxPages) {
-            this.pagesLimit == other.pagesLimit
-        } else {
-            false
-        }
-    }
-
-    override fun hashCode(): Int {
-        return pagesLimit.hashCode()
-    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -989,4 +856,5 @@ internal object PagerDebugConfig {
     const val MeasurePolicy = false
     const val MeasureLogic = false
     const val ScrollPosition = false
+    const val PagerSnapDistance = false
 }
