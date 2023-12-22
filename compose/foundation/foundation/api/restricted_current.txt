@@ -1163,16 +1163,16 @@ package androidx.compose.foundation.pager {
     property public abstract int offset;
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public interface PageSize {
+  @androidx.compose.runtime.Stable public interface PageSize {
     method public int calculateMainAxisPageSize(androidx.compose.ui.unit.Density, int availableSpace, int pageSpacing);
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static final class PageSize.Fill implements androidx.compose.foundation.pager.PageSize {
+  public static final class PageSize.Fill implements androidx.compose.foundation.pager.PageSize {
     method public int calculateMainAxisPageSize(androidx.compose.ui.unit.Density, int availableSpace, int pageSpacing);
     field public static final androidx.compose.foundation.pager.PageSize.Fill INSTANCE;
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static final class PageSize.Fixed implements androidx.compose.foundation.pager.PageSize {
+  public static final class PageSize.Fixed implements androidx.compose.foundation.pager.PageSize {
     ctor public PageSize.Fixed(float pageSize);
     method public int calculateMainAxisPageSize(androidx.compose.ui.unit.Density, int availableSpace, int pageSpacing);
     method public float getPageSize();
@@ -1222,7 +1222,7 @@ package androidx.compose.foundation.pager {
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public sealed interface PagerScope {
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public interface PagerSnapDistance {
+  @androidx.compose.runtime.Stable public interface PagerSnapDistance {
     method public int calculateTargetPage(int startPage, int suggestedTargetPage, float velocity, int pageSize, int pageSpacing);
     field public static final androidx.compose.foundation.pager.PagerSnapDistance.Companion Companion;
   }
