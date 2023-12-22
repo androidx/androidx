@@ -50,6 +50,9 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.LookaheadScope
+import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.layout.SubcomposeLayoutState
+import androidx.compose.ui.layout.SubcomposeSlotReusePolicy
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
@@ -617,6 +620,42 @@ class LazyColumnTest(val useLookaheadScope: Boolean) {
             // no remeasures are expected as the LayoutNode should be reused and modifiers
             // didn't change.
             assertThat(remeasuresCount).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun scrollingDeactivatedListIsNotCrashing() {
+        val itemSize = 10f
+        val itemSizeDp = with(rule.density) { itemSize.toDp() }
+
+        val subcomposeState = SubcomposeLayoutState(SubcomposeSlotReusePolicy(1))
+        val state = LazyListState()
+        var compose by mutableStateOf(true)
+        rule.setContent {
+            SubcomposeLayout(state = subcomposeState) { constraints ->
+                val node = if (compose) {
+                    subcompose(Unit) {
+                        LazyColumn(Modifier.size(itemSizeDp), state) {
+                            items(100) {
+                                Box(Modifier.size(itemSizeDp))
+                            }
+                        }
+                    }.first().measure(constraints)
+                } else {
+                    null
+                }
+                layout(10, 10) {
+                    node?.place(0, 0)
+                }
+            }
+        }
+        rule.runOnIdle {
+            compose = false
+        }
+        rule.runOnIdle {
+            runBlocking {
+                state.scrollBy(itemSize)
+            }
         }
     }
 
