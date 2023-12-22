@@ -34,7 +34,7 @@ class StandardSubjectBuilder internal constructor(
          */
         @JvmStatic
         fun forCustomFailureStrategy(failureStrategy: FailureStrategy): StandardSubjectBuilder {
-            return StandardSubjectBuilder(FailureMetadata.forFailureStrategy(failureStrategy))
+            return StandardSubjectBuilder(FailureMetadata(failureStrategy = failureStrategy))
         }
     }
 
@@ -44,7 +44,7 @@ class StandardSubjectBuilder internal constructor(
      * specified.
      */
     fun withMessage(messageToPrepend: String): StandardSubjectBuilder =
-        StandardSubjectBuilder(metadata = metadata.withMessage(messageToPrepend = messageToPrepend))
+        StandardSubjectBuilder(metadata = metadata.withMessage(message = messageToPrepend))
 
     fun <T> that(actual: T): Subject<T> =
         Subject(actual = actual, metadata = metadata)
@@ -117,7 +117,7 @@ class StandardSubjectBuilder internal constructor(
      * [assertWithMessage].
      */
     fun fail(): Nothing {
-        kotlin.test.fail(metadata.formatMessage())
+        metadata.fail()
     }
 }
 
