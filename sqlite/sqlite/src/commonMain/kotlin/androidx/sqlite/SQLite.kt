@@ -24,44 +24,10 @@ fun SQLiteConnection.execSQL(sql: String) {
 }
 
 /**
- * Performs an `EXCLUSIVE TRANSACTION`, committing to it if the [block] completes or rolling it back
- * if an exception is thrown.
- */
-// TODO(b/304302260): To be replaced with proper threading & transaction APIs.
-fun <R> SQLiteConnection.exclusiveTransaction(block: SQLiteConnection.() -> R): R {
-    val result: R
-    var success = false
-    this.beginExclusiveTransaction()
-    try {
-        result = this.block()
-        success = true
-    } finally {
-        if (success) {
-            this.endTransaction()
-        } else {
-            this.rollbackTransaction()
-        }
-    }
-    return result
-}
-
-private fun SQLiteConnection.beginExclusiveTransaction() {
-    execSQL("BEGIN EXCLUSIVE TRANSACTION")
-}
-
-private fun SQLiteConnection.rollbackTransaction() {
-    execSQL("ROLLBACK TRANSACTION")
-}
-
-private fun SQLiteConnection.endTransaction() {
-    execSQL("END TRANSACTION")
-}
-
-/**
  * Use the receiver statement within the [block] and closes it once it is done.
  */
 // TODO(b/315461431): Migrate to a Closeable interface in KMP
-fun <R> SQLiteStatement.use(block: (SQLiteStatement) -> R): R {
+inline fun <R> SQLiteStatement.use(block: (SQLiteStatement) -> R): R {
     try {
         return block.invoke(this)
     } finally {

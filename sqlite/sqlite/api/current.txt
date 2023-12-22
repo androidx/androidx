@@ -11,10 +11,9 @@ package androidx.sqlite {
   }
 
   public final class SQLiteKt {
-    method public static <R> R exclusiveTransaction(androidx.sqlite.SQLiteConnection, kotlin.jvm.functions.Function1<? super androidx.sqlite.SQLiteConnection,? extends R> block);
     method public static void execSQL(androidx.sqlite.SQLiteConnection, String sql);
     method public static Void throwSQLiteException(int errorCode, String? errorMsg);
-    method public static <R> R use(androidx.sqlite.SQLiteStatement, kotlin.jvm.functions.Function1<? super androidx.sqlite.SQLiteStatement,? extends R> block);
+    method public static inline <R> R use(androidx.sqlite.SQLiteStatement, kotlin.jvm.functions.Function1<? super androidx.sqlite.SQLiteStatement,? extends R> block);
   }
 
   public interface SQLiteStatement {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.room.driver
+@file:JvmName("SQLiteUtil")
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
-import androidx.sqlite.SQLiteDriver
-import androidx.sqlite.db.SupportSQLiteOpenHelper
+package androidx.room.util
 
-internal class SupportSQLiteDriver(
-    val openHelper: SupportSQLiteOpenHelper
-) : SQLiteDriver {
-    override fun open(): SupportSQLiteConnection {
-        return SupportSQLiteConnection(openHelper.writableDatabase)
-    }
-}
+import androidx.annotation.RestrictTo
+import kotlin.jvm.JvmName
 
-internal object ResultCode {
+internal object SQLiteResultCode {
+    const val SQLITE_ERROR = 1
+    const val SQLITE_BUSY = 5
     const val SQLITE_MISUSE = 21
-    const val SQLITE_RANGE = 25
 }
