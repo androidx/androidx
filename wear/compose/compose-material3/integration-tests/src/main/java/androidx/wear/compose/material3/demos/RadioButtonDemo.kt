@@ -78,7 +78,7 @@ fun RadioButtonDemo() {
                 enabled = true,
                 selected = true,
             ) {
-                Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite")
+                Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
             }
         }
         item {
@@ -87,7 +87,7 @@ fun RadioButtonDemo() {
                 selected = true,
                 secondary = "Secondary label"
             ) {
-                Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite")
+                Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
             }
         }
         item {
@@ -98,7 +98,7 @@ fun RadioButtonDemo() {
                 enabled = true,
                 selected = true,
                 primary = "8:15AM",
-                secondary = "Mon, Tue, Wed"
+                secondary = "Monday"
             )
         }
         item {

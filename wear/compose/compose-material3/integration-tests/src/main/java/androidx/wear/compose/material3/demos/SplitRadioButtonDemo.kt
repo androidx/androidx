@@ -73,7 +73,7 @@ fun SplitRadioButtonDemo() {
                 enabled = true,
                 selected = true,
                 primary = "8:15AM",
-                secondary = "Mon, Tue, Wed"
+                secondary = "Monday"
             )
         }
         item {
@@ -104,6 +104,7 @@ private fun DemoSplitRadioButton(
 ) {
     val context = LocalContext.current
     SplitRadioButton(
+        modifier = Modifier.fillMaxWidth(),
         label = {
             Text(
                 primary,
@@ -127,7 +128,8 @@ private fun DemoSplitRadioButton(
         selected = selected,
         onSelected = onSelected,
         onClick = {
-            Toast.makeText(context, "Clicked", Toast.LENGTH_SHORT).show()
+            val toastText = if (selected) "Checked" else "Not Checked"
+            Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show()
         },
         enabled = enabled,
     )
