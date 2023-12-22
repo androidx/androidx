@@ -46,6 +46,7 @@ import androidx.window.extensions.core.util.function.Predicate
 import androidx.window.extensions.embedding.ActivityRule as OEMActivityRule
 import androidx.window.extensions.embedding.ActivityRule.Builder as ActivityRuleBuilder
 import androidx.window.extensions.embedding.ActivityStack as OEMActivityStack
+import androidx.window.extensions.embedding.AnimationBackground as OEMEmbeddingAnimationBackground
 import androidx.window.extensions.embedding.EmbeddingRule as OEMEmbeddingRule
 import androidx.window.extensions.embedding.ParentContainerInfo as OEMParentContainerInfo
 import androidx.window.extensions.embedding.SplitAttributes as OEMSplitAttributes
@@ -112,9 +113,8 @@ internal class EmbeddingAdapter(
     internal fun translate(activityStacks: List<OEMActivityStack>): List<ActivityStack> =
         activityStacks.map(this::translate)
 
-    internal fun translate(splitAttributes: OEMSplitAttributes): SplitAttributes =
-        // TODO(b/263047900): hook to Extension color API
-        SplitAttributes.Builder()
+    internal fun translate(splitAttributes: OEMSplitAttributes): SplitAttributes {
+        val builder = SplitAttributes.Builder()
             .setSplitType(
                 when (val splitType = splitAttributes.splitType) {
                     is OEMSplitType.HingeSplitType -> SPLIT_TYPE_HINGE
@@ -134,7 +134,18 @@ internal class EmbeddingAdapter(
                     )
                 }
             )
-            .build()
+        if (extensionVersion >= 5) {
+            val animationBackground = splitAttributes.animationBackground
+            builder.setAnimationBackground(
+                if (animationBackground is OEMEmbeddingAnimationBackground.ColorBackground) {
+                    EmbeddingAnimationBackground.createColorBackground(animationBackground.color)
+                } else {
+                    EmbeddingAnimationBackground.DEFAULT
+                }
+            )
+        }
+        return builder.build()
+    }
 
     @OptIn(ExperimentalWindowApi::class)
     @SuppressLint("NewApi", "ClassVerificationFailure")
@@ -271,6 +282,8 @@ internal class EmbeddingAdapter(
             )
         if (extensionVersion >= 5) {
             builder.setWindowAttributes(translateWindowAttributes())
+                .setAnimationBackground(
+                    translateAnimationBackground(splitAttributes.animationBackground))
         }
         return builder.build()
     }
@@ -389,6 +402,17 @@ internal class EmbeddingAdapter(
                 else -> throw IllegalArgumentException("Unsupported rule type")
             }
         }.toSet()
+    }
+
+    private fun translateAnimationBackground(
+        animationBackground: EmbeddingAnimationBackground
+    ): OEMEmbeddingAnimationBackground {
+        WindowSdkExtensions.getInstance().requireExtensionVersion(5)
+        return if (animationBackground is EmbeddingAnimationBackground.ColorBackground) {
+            OEMEmbeddingAnimationBackground.createColorBackground(animationBackground.color)
+        } else {
+            OEMEmbeddingAnimationBackground.ANIMATION_BACKGROUND_DEFAULT
+        }
     }
 
     /** Provides backward compatibility for Window extensions with API level 2 */
