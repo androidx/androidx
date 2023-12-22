@@ -70,12 +70,21 @@ private fun HorizontalCarrouselDemoWithCustomSnapPosition() {
     val pagerState = rememberPagerState { PagesCount }
 
     val snapPosition = remember {
-        SnapPosition { layoutSize, itemSize, beforeContentPadding, afterContentPadding, pageIndex ->
-            val availableLayoutSpace = layoutSize - beforeContentPadding - afterContentPadding
-            when (pageIndex) {
-                0 -> 0
-                PagesCount - 2 -> availableLayoutSpace - itemSize
-                else -> availableLayoutSpace / 2 - itemSize / 2
+        object : SnapPosition {
+            override fun position(
+                layoutSize: Int,
+                itemSize: Int,
+                beforeContentPadding: Int,
+                afterContentPadding: Int,
+                itemIndex: Int,
+                itemCount: Int
+            ): Int {
+                val availableLayoutSpace = layoutSize - beforeContentPadding - afterContentPadding
+                return when (itemIndex) {
+                    0 -> 0
+                    itemCount - 2 -> availableLayoutSpace - itemSize
+                    else -> availableLayoutSpace / 2 - itemSize / 2
+                }
             }
         }
     }

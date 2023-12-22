@@ -107,8 +107,17 @@ fun SnapFlingBehaviorSnapPosition() {
     // Illustrate using a custom SnapPosition that will snap to a static location (200dp) after
     // the content padding.
     val snappingLayout = remember(state, density) {
-        val snapPosition = SnapPosition { _, _, beforeContentPadding, _, _ ->
-            with(density) { beforeContentPadding + 200.dp.roundToPx() }
+        val snapPosition = object : SnapPosition {
+            override fun position(
+                layoutSize: Int,
+                itemSize: Int,
+                beforeContentPadding: Int,
+                afterContentPadding: Int,
+                itemIndex: Int,
+                itemCount: Int
+            ): Int {
+                return with(density) { beforeContentPadding + 200.dp.roundToPx() }
+            }
         }
         SnapLayoutInfoProvider(state, snapPosition)
     }
