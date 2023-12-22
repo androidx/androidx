@@ -17,10 +17,12 @@
 package androidx.kruth
 
 import com.google.common.base.Optional
+import java.math.BigDecimal
 
 internal actual interface PlatformStandardSubjectBuilder {
 
     fun <T : Any> that(actual: Optional<T>): GuavaOptionalSubject<T>
+    fun that(actual: BigDecimal): BigDecimalSubject
 }
 
 internal actual class PlatformStandardSubjectBuilderImpl actual constructor(
@@ -29,4 +31,7 @@ internal actual class PlatformStandardSubjectBuilderImpl actual constructor(
 
     override fun <T : Any> that(actual: Optional<T>): GuavaOptionalSubject<T> =
         GuavaOptionalSubject(actual = actual, metadata = metadata)
+
+    override fun that(actual: BigDecimal): BigDecimalSubject =
+        BigDecimalSubject(actual = actual, metadata = metadata)
 }

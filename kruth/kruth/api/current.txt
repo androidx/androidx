@@ -1,6 +1,13 @@
 // Signature format: 4.0
 package androidx.kruth {
 
+  public final class BigDecimalSubject extends androidx.kruth.ComparableSubject<java.math.BigDecimal> {
+    method public void isEqualToIgnoringScale(String expected);
+    method public void isEqualToIgnoringScale(java.math.BigDecimal expected);
+    method public void isEqualToIgnoringScale(long expected);
+    method public void isEquivalentAccordingToCompareTo(java.math.BigDecimal? other);
+  }
+
   public final class BooleanSubject extends androidx.kruth.Subject<java.lang.Boolean> {
     method public void isFalse();
     method public void isTrue();
@@ -142,6 +149,7 @@ package androidx.kruth {
 
   public final class Kruth_jvmKt {
     method public static <T> androidx.kruth.GuavaOptionalSubject<T> assertThat(com.google.common.base.Optional<T>? actual);
+    method public static androidx.kruth.BigDecimalSubject assertThat(java.math.BigDecimal actual);
   }
 
   public final class MapSubject<K, V> extends androidx.kruth.Subject<java.util.Map<K,? extends V>> {

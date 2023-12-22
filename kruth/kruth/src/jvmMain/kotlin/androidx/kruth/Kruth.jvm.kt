@@ -17,6 +17,10 @@
 package androidx.kruth
 
 import com.google.common.base.Optional
+import java.math.BigDecimal
 
 fun <T : Any> assertThat(actual: Optional<T>?): GuavaOptionalSubject<T> =
     GuavaOptionalSubject(actual)
+
+fun assertThat(actual: BigDecimal): BigDecimalSubject =
+    BigDecimalSubject(actual)
