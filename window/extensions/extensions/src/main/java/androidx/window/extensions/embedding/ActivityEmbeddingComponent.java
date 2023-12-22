@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
+// TODO(b/316493273): Add guard check for new APIs
 /**
  * Extension component definition that is used by the WindowManager library to trigger custom
  * OEM-provided methods for organizing activities that isn't covered by platform APIs.
