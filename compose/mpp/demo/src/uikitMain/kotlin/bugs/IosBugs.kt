@@ -17,6 +17,7 @@
 package bugs
 
 import androidx.compose.mpp.demo.Screen
+import androidx.compose.mpp.demo.bug.BackspaceIssue
 
 val IosBugs = Screen.Selection(
     "IosBugs",
@@ -26,4 +27,5 @@ val IosBugs = Screen.Selection(
     UIKitRenderSync,
     DispatchersMainDelayCheck,
     StartRecompositionCheck,
+    BackspaceIssue,
 )
