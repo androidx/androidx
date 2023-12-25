@@ -74,6 +74,7 @@ import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.After
@@ -185,6 +186,7 @@ class Camera2CapturePipelineTest {
 
         val pipeline = Camera2CapturePipeline.Pipeline(
             CameraDevice.TEMPLATE_PREVIEW,
+            executorService,
             executorService,
             cameraControl,
             false,
@@ -1093,6 +1095,99 @@ class Camera2CapturePipelineTest {
         // Ensure 3A is converged (skips 3A check) and capture request is sent.
         withTimeout(2000) {
             assertThat(deferred.await())
+        }
+    }
+
+    @Test
+    fun waitForResultCompletes_whenCaptureResultProvided_noTimeout_noCheckingCondition() {
+        val cameraControl = createCameraControl().apply {
+            simulateRepeatingResult(initialDelay = 1)
+        }
+
+        val future = Camera2CapturePipeline.waitForResult(cameraControl, null)
+
+        future.get(500, TimeUnit.MILLISECONDS)
+    }
+
+    @Test
+    fun waitForResultCompletes_whenCaptureResultProvided_noTimeout_specificCheckingCondition() {
+        val cameraControl = createCameraControl().apply {
+            simulateRepeatingResult(initialDelay = 1)
+        }
+
+        cameraControl.simulateRepeatingResult(
+            initialDelay = 50,
+            resultParameters = resultConverged
+        )
+
+        val future = Camera2CapturePipeline.waitForResult(cameraControl
+        ) { result -> Camera2CapturePipeline.is3AConverged(result, false) }
+
+        future.get(500, TimeUnit.MILLISECONDS).verifyResultFields(resultConverged)
+    }
+
+    @Test
+    fun waitForResultDoesNotComplete_whenNoResult_noCheckingCondition() {
+        // tested for 500ms
+        Camera2CapturePipeline.waitForResult(createCameraControl(), null)
+            .awaitException(500, TimeoutException::class.java)
+    }
+
+    @Test
+    fun waitForResultDoesNotComplete_whenNoMatchingResult() {
+        // tested for 500ms
+        Camera2CapturePipeline.waitForResult(createCameraControl().apply {
+            simulateRepeatingResult(initialDelay = 1)
+        }) { result ->
+            Camera2CapturePipeline.is3AConverged(result, false)
+        }.awaitException(500, TimeoutException::class.java)
+    }
+
+    @Test
+    fun waitForResultCompletesWithNullResult_whenNoResultWithinTimeout_noCheckingCondition() {
+        val result = Camera2CapturePipeline.waitForResult(
+            TimeUnit.MILLISECONDS.toNanos(500),
+            executorService,
+            createCameraControl(),
+            null
+        ).get(1, TimeUnit.SECONDS) // timeout exception will be thrown if not completed within 1s
+
+        assertThat(result).isNull()
+    }
+
+    @Test
+    fun waitForResultCompletesWithNullResult_whenNoMatchingResultWithinTimeout() {
+        val result = Camera2CapturePipeline.waitForResult(
+            TimeUnit.MILLISECONDS.toNanos(500),
+            executorService,
+            createCameraControl().apply {
+                simulateRepeatingResult(initialDelay = 1)
+            }
+        ) { result ->
+            Camera2CapturePipeline.is3AConverged(result, false)
+        }.get(1, TimeUnit.SECONDS) // timeout exception will be thrown if not completed within 1s
+
+        assertThat(result).isNull()
+    }
+
+    private fun TotalCaptureResult.verifyResultFields(
+        expectedFields: Map<CaptureResult.Key<*>, Any>
+    ) {
+        assertThat(this).isNotNull()
+        expectedFields.forEach { entry ->
+            assertThat(this[entry.key]).isEqualTo(entry.value)
+        }
+    }
+
+    private fun ListenableFuture<*>.awaitException(timeoutMillis: Long, exceptionType: Class<*>) {
+        try {
+            get(timeoutMillis, TimeUnit.MILLISECONDS)
+        } catch (e: ExecutionException) {
+            if (exceptionType != ExecutionException::class.java) {
+                assertThat(e.cause).isInstanceOf(exceptionType)
+            }
+        } catch (e: Exception) {
+            assertThat(e).isInstanceOf(exceptionType)
         }
     }
 
