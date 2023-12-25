@@ -50,7 +50,7 @@ internal fun Modifier.defaultTextFieldPointer(
         Modifier.longPressDragGestureFilter(manager.touchSelectionObserver, enabled)
     this
         .tapPressTextFieldModifier(interactionSource, enabled) { offset ->
-            tapTextFieldToFocus(state, focusRequester, !readOnly)
+            requestFocusAndShowKeyboardIfNeeded(state, focusRequester, !readOnly)
             if (state.hasFocus) {
                 if (state.handleState != HandleState.Selection) {
                     state.layoutResult?.let { layoutResult ->

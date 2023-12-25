@@ -522,7 +522,7 @@ internal fun CoreTextField(
         onClick {
             // according to the documentation, we still need to provide proper semantics actions
             // even if the state is 'disabled'
-            tapTextFieldToFocus(state, focusRequester, !readOnly)
+            requestFocusAndShowKeyboardIfNeeded(state, focusRequester, !readOnly)
             true
         }
         onLongClick {
@@ -947,7 +947,7 @@ internal class TextFieldState(
 /**
  * Request focus on tap. If already focused, makes sure the keyboard is requested.
  */
-internal fun tapTextFieldToFocus(
+internal fun requestFocusAndShowKeyboardIfNeeded(
     state: TextFieldState,
     focusRequester: FocusRequester,
     allowKeyboard: Boolean
