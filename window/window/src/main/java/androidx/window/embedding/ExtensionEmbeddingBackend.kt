@@ -403,6 +403,12 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         embeddingExtension?.finishActivityStacks(activityStacks)
     }
 
+    @OptIn(ExperimentalWindowApi::class)
+    @RequiresWindowSdkExtension(5)
+    override fun setEmbeddingConfiguration(embeddingConfig: EmbeddingConfiguration) {
+        embeddingExtension?.setEmbeddingConfiguration(embeddingConfig)
+    }
+
     @RequiresWindowSdkExtension(3)
     override fun invalidateTopVisibleSplitAttributes() {
         embeddingExtension?.invalidateTopVisibleSplitAttributes()

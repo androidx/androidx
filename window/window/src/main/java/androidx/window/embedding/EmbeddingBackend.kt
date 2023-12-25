@@ -80,6 +80,10 @@ interface EmbeddingBackend {
     @RequiresWindowSdkExtension(5)
     fun finishActivityStacks(activityStacks: Set<ActivityStack>)
 
+    @OptIn(ExperimentalWindowApi::class)
+    @RequiresWindowSdkExtension(5)
+    fun setEmbeddingConfiguration(embeddingConfig: EmbeddingConfiguration)
+
     @RequiresWindowSdkExtension(3)
     fun invalidateTopVisibleSplitAttributes()
 

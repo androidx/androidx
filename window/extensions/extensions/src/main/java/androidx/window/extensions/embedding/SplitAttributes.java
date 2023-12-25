@@ -21,6 +21,7 @@ import static androidx.window.extensions.embedding.SplitAttributes.LayoutDirecti
 import static androidx.window.extensions.embedding.SplitAttributes.LayoutDirection.LOCALE;
 import static androidx.window.extensions.embedding.SplitAttributes.LayoutDirection.RIGHT_TO_LEFT;
 import static androidx.window.extensions.embedding.SplitAttributes.LayoutDirection.TOP_TO_BOTTOM;
+import static androidx.window.extensions.embedding.WindowAttributes.DIM_AREA_ON_ACTIVITY_STACK;
 
 import android.annotation.SuppressLint;
 import android.graphics.Color;
@@ -69,7 +70,6 @@ import java.util.Objects;
  */
 @RequiresVendorApiLevel(level = 2)
 public class SplitAttributes {
-
 
     /**
      * A class to represent the background used while animating an {@link android.app.Activity} for
@@ -492,6 +492,9 @@ public class SplitAttributes {
     @NonNull
     private final AnimationBackground mAnimationBackground;
 
+    @NonNull
+    private final WindowAttributes mWindowAttributes;
+
     /**
      * Creates an instance of this {@code SplitAttributes}.
      *
@@ -503,16 +506,20 @@ public class SplitAttributes {
      * @param animationBackground The {@link AnimationBackground} to use for the during animation
      *                           of the split involving this {@code SplitAttributes} object if the
      *                           animation requires a background.
+     * @param attributes          The {@link WindowAttributes} of the split, such as dim area
+     *                            behavior.
      */
     SplitAttributes(
             @NonNull SplitType splitType,
             @ExtLayoutDirection int layoutDirection,
             @NonNull
-            AnimationBackground animationBackground
+            AnimationBackground animationBackground,
+            @NonNull WindowAttributes attributes
     ) {
         mSplitType = splitType;
         mLayoutDirection = layoutDirection;
         mAnimationBackground = animationBackground;
+        mWindowAttributes = attributes;
     }
 
     /**
@@ -546,6 +553,16 @@ public class SplitAttributes {
     }
 
     /**
+     * Returns the {@link WindowAttributes} which contains the configurations of the embedded
+     * Activity windows in this SplitAttributes.
+     */
+    @NonNull
+    @RequiresVendorApiLevel(level = 5)
+    public WindowAttributes getWindowAttributes() {
+        return mWindowAttributes;
+    }
+
+    /**
      * Builder for creating an instance of {@link SplitAttributes}.
      *
      * - The default split type is an equal split between primary and secondary containers.
@@ -561,6 +578,9 @@ public class SplitAttributes {
         @NonNull
         private AnimationBackground mAnimationBackground =
                 AnimationBackground.getDefaultBackground();
+
+        private WindowAttributes mWindowAttributes =
+                new WindowAttributes(DIM_AREA_ON_ACTIVITY_STACK);
 
         /**
          * Sets the split type attribute.
@@ -621,6 +641,18 @@ public class SplitAttributes {
         }
 
         /**
+         * Sets the window attributes
+         * @param attributes The window attributes, see {@link WindowAttributes}
+         * @return This {@code Builder}.
+         */
+        @NonNull
+        @RequiresVendorApiLevel(level = 5)
+        public Builder setWindowAttributes(@NonNull WindowAttributes attributes) {
+            mWindowAttributes = attributes;
+            return this;
+        }
+
+        /**
          * Builds a {@link SplitAttributes} instance with the attributes
          * specified by {@link #setSplitType}, {@link #setLayoutDirection}, and
          * {@link #setAnimationBackground}.
@@ -629,7 +661,8 @@ public class SplitAttributes {
          */
         @NonNull
         public SplitAttributes build() {
-            return new SplitAttributes(mSplitType, mLayoutDirection, mAnimationBackground);
+            return new SplitAttributes(mSplitType, mLayoutDirection, mAnimationBackground,
+                    mWindowAttributes);
         }
     }
 
@@ -639,12 +672,13 @@ public class SplitAttributes {
         if (!(o instanceof SplitAttributes)) return false;
         SplitAttributes that = (SplitAttributes) o;
         return mLayoutDirection == that.mLayoutDirection && mSplitType.equals(that.mSplitType)
-                && mAnimationBackground.equals(that.mAnimationBackground);
+                && mAnimationBackground.equals(that.mAnimationBackground)
+                && mWindowAttributes.equals(that.mWindowAttributes);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mLayoutDirection, mSplitType, mAnimationBackground);
+        return Objects.hash(mLayoutDirection, mSplitType, mAnimationBackground, mWindowAttributes);
     }
 
     @NonNull
@@ -654,6 +688,7 @@ public class SplitAttributes {
                 + "layoutDir=" + layoutDirectionToString()
                 + ", ratio=" + mSplitType
                 + ", animationBackground=" + mAnimationBackground
+                + ", windowAttributes=" + mWindowAttributes
                 + "}";
     }
 

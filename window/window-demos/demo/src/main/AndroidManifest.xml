@@ -136,10 +136,17 @@
             android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
             android:taskAffinity="androidx.window.demo.manual_split_affinity"/>
         <activity
+            android:name=".embedding.DialogActivity"
+            android:theme="@style/Theme.AppCompat.Dialog"
+            android:exported="false"
+            android:label="Dialog Activity"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:taskAffinity="androidx.window.demo.manual_split_affinity"/>
+        <activity
             android:name=".embedding.ExpandedDialogActivity"
             android:theme="@style/ExpandedDialogTheme"
             android:exported="false"
-            android:label="Dialog Activity"
+            android:label="Expanded Dialog Activity"
             android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
             android:taskAffinity="androidx.window.demo.manual_split_affinity"/>
         <activity

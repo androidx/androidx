@@ -24,6 +24,7 @@ import androidx.core.util.Consumer
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.ActivityStack
 import androidx.window.embedding.EmbeddingBackend
+import androidx.window.embedding.EmbeddingConfiguration
 import androidx.window.embedding.EmbeddingRule
 import androidx.window.embedding.OverlayCreateParams
 import androidx.window.embedding.SplitAttributes
@@ -192,6 +193,11 @@ internal class StubEmbeddingBackend : EmbeddingBackend {
     }
 
     override fun finishActivityStacks(activityStacks: Set<ActivityStack>) {
+        TODO("Not yet implemented")
+    }
+
+    @OptIn(ExperimentalWindowApi::class)
+    override fun setEmbeddingConfiguration(embeddingConfig: EmbeddingConfiguration) {
         TODO("Not yet implemented")
     }
 

@@ -194,6 +194,20 @@
             android:layout_centerHorizontal="true"
             android:text="Launch Expanded Dialog" />
 
+        <Button
+            android:id="@+id/launch_dialog_activity_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="Launch Dialog Activity" />
+
+        <Button
+            android:id="@+id/launch_dialog_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="Launch Dialog" />
+
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
