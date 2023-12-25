@@ -101,12 +101,14 @@ package androidx.window.extensions.embedding {
 
   public class ActivityStackAttributes {
     method public android.graphics.Rect getRelativeBounds();
+    method public androidx.window.extensions.embedding.WindowAttributes getWindowAttributes();
   }
 
   public static final class ActivityStackAttributes.Builder {
     ctor public ActivityStackAttributes.Builder();
     method public androidx.window.extensions.embedding.ActivityStackAttributes build();
     method public androidx.window.extensions.embedding.ActivityStackAttributes.Builder setRelativeBounds(android.graphics.Rect);
+    method public androidx.window.extensions.embedding.ActivityStackAttributes.Builder setWindowAttributes(androidx.window.extensions.embedding.WindowAttributes);
   }
 
   public class ActivityStackAttributesCalculatorParams {

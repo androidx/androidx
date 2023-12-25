@@ -16,6 +16,8 @@
 
 package androidx.window.extensions.embedding;
 
+import static androidx.window.extensions.embedding.WindowAttributes.DIM_AREA_ON_ACTIVITY_STACK;
+
 import android.graphics.Rect;
 
 import androidx.annotation.NonNull;
@@ -23,16 +25,20 @@ import androidx.annotation.Nullable;
 import androidx.window.extensions.RequiresVendorApiLevel;
 
 /**
- * Attributes used to update the layout of an {@link ActivityStack}.
+ * Attributes used to update the layout and configuration of an {@link ActivityStack}.
  */
-@RequiresVendorApiLevel(level = 5)
 public class ActivityStackAttributes {
 
     @NonNull
     private final Rect mRelativeBounds;
 
-    ActivityStackAttributes(@NonNull Rect relativeBounds) {
+    @NonNull
+    private final WindowAttributes mWindowAttributes;
+
+    private ActivityStackAttributes(@NonNull Rect relativeBounds,
+            @NonNull WindowAttributes windowAttributes) {
         mRelativeBounds = relativeBounds;
+        mWindowAttributes = windowAttributes;
     }
 
     /**
@@ -42,14 +48,25 @@ public class ActivityStackAttributes {
      * {@link Rect#isEmpty() Empty} bounds mean that this {@link ActivityStack} should fill its
      * parent container bounds.
      */
+    @RequiresVendorApiLevel(level = 5)
     @NonNull
     public Rect getRelativeBounds() {
         return mRelativeBounds;
     }
 
+    /**
+     * Returns the {@link WindowAttributes} which contains the configurations of the embedded
+     * Activity windows with this attributes.
+     */
+    @RequiresVendorApiLevel(level = 5)
+    @NonNull
+    public WindowAttributes getWindowAttributes() {
+        return mWindowAttributes;
+    }
+
     @Override
     public int hashCode() {
-        return mRelativeBounds.hashCode();
+        return mRelativeBounds.hashCode() * 31 + mWindowAttributes.hashCode();
     }
 
     @Override
@@ -57,31 +74,42 @@ public class ActivityStackAttributes {
         if (this == obj) return true;
         if (!(obj instanceof ActivityStackAttributes)) return false;
         final ActivityStackAttributes attrs = (ActivityStackAttributes) obj;
-        return mRelativeBounds.equals(attrs.mRelativeBounds);
+        return mRelativeBounds.equals(attrs.mRelativeBounds)
+                && mWindowAttributes.equals(attrs.mWindowAttributes);
     }
 
     @NonNull
     @Override
     public String toString() {
         return ActivityStackAttributes.class.getSimpleName() + ": {"
-                + " , relativeBounds=" + mRelativeBounds
+                + " relativeBounds=" + mRelativeBounds
+                + ", windowAttributes=" + mWindowAttributes
                 + "}";
     }
 
-    /** The builder class of {@link ActivityStackAttributes} */
+    /** The builder class of {@link ActivityStackAttributes}. */
     public static final class Builder {
+
+        /** The {@link ActivityStackAttributes} builder constructor. */
+        @RequiresVendorApiLevel(level = 5)
+        public Builder() {}
 
         @NonNull
         private final Rect mRelativeBounds = new Rect();
+
+        @NonNull
+        private WindowAttributes mWindowAttributes =
+                new WindowAttributes(DIM_AREA_ON_ACTIVITY_STACK);
 
         /**
          * Sets the requested relative bounds of the {@link ActivityStack}. If this value is
          * not specified, {@link #getRelativeBounds()} defaults to {@link Rect#isEmpty() empty}
          * bounds, which means to follow the parent container bounds.
          *
-         * @param relativeBounds The requested relative bounds
-         * @return the builder class
+         * @param relativeBounds The requested relative bounds.
+         * @return This {@code Builder}.
          */
+        @RequiresVendorApiLevel(level = 5)
         @NonNull
         public Builder setRelativeBounds(@NonNull Rect relativeBounds) {
             mRelativeBounds.set(relativeBounds);
@@ -89,11 +117,27 @@ public class ActivityStackAttributes {
         }
 
         /**
-         * Builds an {@link ActivityStackAttributes} instance.
+         * Sets the window attributes. If this value is not specified, the
+         * {@link WindowAttributes#getDimArea()} will be only applied on the {@link ActivityStack}
+         * of the requested activity.
+         *
+         * @param attributes The {@link WindowAttributes}
+         * @return This {@code Builder}.
          */
         @NonNull
+        @RequiresVendorApiLevel(level = 5)
+        public Builder setWindowAttributes(@NonNull WindowAttributes attributes) {
+            mWindowAttributes = attributes;
+            return this;
+        }
+
+        /**
+         * Builds an {@link ActivityStackAttributes} instance.
+         */
+        @RequiresVendorApiLevel(level = 5)
+        @NonNull
         public ActivityStackAttributes build() {
-            return new ActivityStackAttributes(mRelativeBounds);
+            return new ActivityStackAttributes(mRelativeBounds, mWindowAttributes);
         }
     }
 }

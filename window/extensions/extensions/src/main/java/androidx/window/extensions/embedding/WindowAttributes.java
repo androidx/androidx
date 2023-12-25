@@ -32,11 +32,10 @@ public class WindowAttributes {
 
     /**
      * The dim effect is applying on the {@link ActivityStack} of the Activity window when
-     * needed. If the {@link ActivityStack} is split and displayed side-by-side with another
-     * {@link ActivityStack}, the dim effect is applying only on the {@link ActivityStack} of
+     * needed. If the {@link ActivityStack} is not expanded to fill the parent container, the dim
+     * effect is applying only on the {@link ActivityStack} of
      * the requested Activity.
      */
-    @RequiresVendorApiLevel(level = 5)
     public static final int DIM_AREA_ON_ACTIVITY_STACK = 1;
 
     /**
@@ -44,7 +43,6 @@ public class WindowAttributes {
      * transparent activity is split and displayed side-by-side with another activity, the dim
      * effect is applying on the Task, which across over the two {@link ActivityStack}s.
      */
-    @RequiresVendorApiLevel(level = 5)
     public static final int DIM_AREA_ON_TASK = 2;
 
     @IntDef({

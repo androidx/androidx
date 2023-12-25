@@ -641,8 +641,11 @@ public class SplitAttributes {
         }
 
         /**
-         * Sets the window attributes
-         * @param attributes The window attributes, see {@link WindowAttributes}
+         * Sets the window attributes. If this value is not specified, the
+         * {@link WindowAttributes#getDimArea()} will be only applied on the {@link ActivityStack}
+         * of the requested activity.
+         *
+         * @param attributes The {@link WindowAttributes}
          * @return This {@code Builder}.
          */
         @NonNull
@@ -686,7 +689,7 @@ public class SplitAttributes {
     public String toString() {
         return SplitAttributes.class.getSimpleName() + "{"
                 + "layoutDir=" + layoutDirectionToString()
-                + ", ratio=" + mSplitType
+                + ", splitType=" + mSplitType
                 + ", animationBackground=" + mAnimationBackground
                 + ", windowAttributes=" + mWindowAttributes
                 + "}";
