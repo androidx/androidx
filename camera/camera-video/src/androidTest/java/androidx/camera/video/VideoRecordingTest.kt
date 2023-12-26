@@ -22,18 +22,13 @@ import android.graphics.Rect
 import android.graphics.SurfaceTexture
 import android.media.MediaMetadataRetriever
 import android.net.Uri
-import android.os.Build
 import android.util.Log
 import android.util.Rational
 import android.util.Size
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks as Camera2DeviceQuirks
-import androidx.camera.camera2.internal.compat.quirk.ExtraCroppingQuirk as Camera2ExtraCroppingQuirk
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
-import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks as PipeDeviceQuirks
-import androidx.camera.camera2.pipe.integration.compat.quirk.ExtraCroppingQuirk as PipeExtraCroppingQuirk
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
@@ -62,8 +57,6 @@ import androidx.camera.testing.impl.mocks.helpers.ArgumentCaptor as ArgumentCapt
 import androidx.camera.testing.impl.mocks.helpers.CallTimesAtLeast
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE
-import androidx.camera.video.internal.compat.quirk.DeviceQuirks
-import androidx.camera.video.internal.compat.quirk.StopCodecAfterSurfaceRemovalCrashMediaServerQuirk
 import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -76,7 +69,6 @@ import java.io.File
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import org.junit.After
-import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Ignore
@@ -1241,8 +1233,7 @@ class VideoRecordingTest(
     private fun verifyMetadataRotation(expectedRotation: Int, file: File) {
         MediaMetadataRetriever().useAndRelease {
             it.setDataSource(context, Uri.fromFile(file))
-            val videoRotation =
-                it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION)!!.toInt()
+            val videoRotation = it.getRotation()
 
             // Checks the rotation from video file's metadata is matched with the relative rotation.
             assertWithMessage(
@@ -1256,13 +1247,8 @@ class VideoRecordingTest(
     private fun verifyVideoResolution(expectedResolution: Size, file: File) {
         MediaMetadataRetriever().useAndRelease {
             it.setDataSource(context, Uri.fromFile(file))
-            val height = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)!!
-                .toInt()
-            val width = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)!!
-                .toInt()
-            val resolution = Size(width, height)
+            val resolution = it.getResolution()
 
-            // Compare with the resolution of video and the targetResolution in VideoCapabilities.
             assertWithMessage(
                 TAG + ", verifyVideoResolution failure:" +
                     ", videoResolution: $resolution" +
@@ -1274,11 +1260,7 @@ class VideoRecordingTest(
     private fun verifyVideoAspectRatio(expectedAspectRatio: Rational, file: File) {
         MediaMetadataRetriever().useAndRelease {
             it.setDataSource(context, Uri.fromFile(file))
-            val height = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)!!
-                .toInt()
-            val width = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)!!
-                .toInt()
-            val aspectRatio = Rational(width, height)
+            val aspectRatio = it.getAspectRatio()
 
             assertWithMessage(
                 TAG + ", verifyVideoAspectRatio failure:" +
@@ -1291,11 +1273,9 @@ class VideoRecordingTest(
     private fun verifyRecordingResult(file: File, hasAudio: Boolean = false) {
         MediaMetadataRetriever().useAndRelease {
             it.setDataSource(context, Uri.fromFile(file))
-            val video = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO)
-            val audio = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_AUDIO)
 
-            assertThat(video).isEqualTo("yes")
-            assertThat(audio).isEqualTo(if (hasAudio) "yes" else null)
+            assertThat(it.hasVideo()).isTrue()
+            assertThat(it.hasAudio()).isEqualTo(hasAudio)
         }
     }
 
@@ -1313,15 +1293,6 @@ class VideoRecordingTest(
                     surfaceTexture.release()
                 }
             }
-        )
-    }
-
-    /** Skips tests which will enable surface processing and encounter device specific issues. */
-    private fun assumeSuccessfulSurfaceProcessing() {
-        // Skip for b/253211491
-        assumeFalse(
-            "Skip tests for Cuttlefish API 30 eglCreateWindowSurface issue",
-            Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 30
         )
     }
 
@@ -1408,42 +1379,4 @@ private class VideoCaptureMonitor : Consumer<VideoRecordEvent> {
             }
         }
     }
-}
-
-internal fun MediaMetadataRetriever.useAndRelease(block: (MediaMetadataRetriever) -> Unit) {
-    try {
-        block(this)
-    } finally {
-        release()
-    }
-}
-
-internal fun MediaMetadataRetriever.hasAudio(): Boolean =
-    extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_AUDIO) == "yes"
-
-internal fun MediaMetadataRetriever.hasVideo(): Boolean =
-    extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO) == "yes"
-
-internal fun MediaMetadataRetriever.getDuration(): Long? =
-    extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLong()
-
-@RequiresApi(21)
-fun assumeExtraCroppingQuirk(implName: String) {
-    val msg =
-        "Devices in ExtraCroppingQuirk will get a fixed resolution regardless of any settings"
-    if (implName.contains(CameraPipeConfig::class.simpleName!!)) {
-        assumeTrue(msg, PipeDeviceQuirks[PipeExtraCroppingQuirk::class.java] == null)
-    } else {
-        assumeTrue(msg, Camera2DeviceQuirks.get(Camera2ExtraCroppingQuirk::class.java) == null)
-    }
-}
-
-@RequiresApi(21)
-fun assumeStopCodecAfterSurfaceRemovalCrashMediaServerQuirk() {
-    // Skip for b/293978082. For tests that will unbind the VideoCapture before stop the recording,
-    // they should be skipped since media server will crash if the codec surface has been removed
-    // before MediaCodec.stop() is called.
-    assumeTrue(
-        DeviceQuirks.get(StopCodecAfterSurfaceRemovalCrashMediaServerQuirk::class.java) == null
-    )
 }
