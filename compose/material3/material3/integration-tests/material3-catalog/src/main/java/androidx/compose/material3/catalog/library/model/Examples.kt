@@ -86,6 +86,10 @@ import androidx.compose.material3.samples.InputChipSample
 import androidx.compose.material3.samples.InputChipWithAvatarSample
 import androidx.compose.material3.samples.LargeFloatingActionButtonSample
 import androidx.compose.material3.samples.LeadingIconTabs
+import androidx.compose.material3.samples.LegacyCircularProgressIndicatorSample
+import androidx.compose.material3.samples.LegacyIndeterminateCircularProgressIndicatorSample
+import androidx.compose.material3.samples.LegacyIndeterminateLinearProgressIndicatorSample
+import androidx.compose.material3.samples.LegacyLinearProgressIndicatorSample
 import androidx.compose.material3.samples.LinearProgressIndicatorSample
 import androidx.compose.material3.samples.MenuSample
 import androidx.compose.material3.samples.MenuWithScrollStateSample
@@ -813,6 +817,34 @@ val ProgressIndicatorsExamples = listOf(
         sourceUrl = ProgressIndicatorsExampleSourceUrl
     ) {
         IndeterminateCircularProgressIndicatorSample()
+    },
+    Example(
+        name = ::LegacyLinearProgressIndicatorSample.name,
+        description = ProgressIndicatorsExampleDescription,
+        sourceUrl = ProgressIndicatorsExampleSourceUrl
+    ) {
+        LegacyLinearProgressIndicatorSample()
+    },
+    Example(
+        name = ::LegacyIndeterminateLinearProgressIndicatorSample.name,
+        description = ProgressIndicatorsExampleDescription,
+        sourceUrl = ProgressIndicatorsExampleSourceUrl
+    ) {
+        LegacyIndeterminateLinearProgressIndicatorSample()
+    },
+    Example(
+        name = ::LegacyCircularProgressIndicatorSample.name,
+        description = ProgressIndicatorsExampleDescription,
+        sourceUrl = ProgressIndicatorsExampleSourceUrl
+    ) {
+        LegacyCircularProgressIndicatorSample()
+    },
+    Example(
+        name = ::LegacyIndeterminateCircularProgressIndicatorSample.name,
+        description = ProgressIndicatorsExampleDescription,
+        sourceUrl = ProgressIndicatorsExampleSourceUrl
+    ) {
+        LegacyIndeterminateCircularProgressIndicatorSample()
     }
 )
 
