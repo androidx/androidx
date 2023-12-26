@@ -164,7 +164,7 @@ package androidx.transition {
     method public androidx.transition.Transition setDuration(long);
     method public void setEpicenterCallback(androidx.transition.Transition.EpicenterCallback?);
     method public androidx.transition.Transition setInterpolator(android.animation.TimeInterpolator?);
-    method public void setMatchOrder(int...);
+    method public void setMatchOrder(int...?);
     method public void setPathMotion(androidx.transition.PathMotion?);
     method public void setPropagation(androidx.transition.TransitionPropagation?);
     method public androidx.transition.Transition setStartDelay(long);

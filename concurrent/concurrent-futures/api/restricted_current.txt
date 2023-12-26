@@ -14,7 +14,7 @@ package androidx.concurrent.futures {
     method protected String? pendingToString();
     method protected boolean set(V?);
     method protected boolean setException(Throwable!);
-    method protected boolean setFuture(com.google.common.util.concurrent.ListenableFuture<? extends V>!);
+    method protected boolean setFuture(com.google.common.util.concurrent.ListenableFuture<? extends V!>!);
     method protected final boolean wasInterrupted();
   }
 
@@ -38,7 +38,7 @@ package androidx.concurrent.futures {
     method public static <V> androidx.concurrent.futures.ResolvableFuture<V!> create();
     method public boolean set(V?);
     method public boolean setException(Throwable);
-    method public boolean setFuture(com.google.common.util.concurrent.ListenableFuture<? extends V>);
+    method public boolean setFuture(com.google.common.util.concurrent.ListenableFuture<? extends V!>);
   }
 
 }
