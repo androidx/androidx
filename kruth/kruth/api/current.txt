@@ -82,17 +82,17 @@ package androidx.kruth {
   public class IterableSubject<T> extends androidx.kruth.Subject<java.lang.Iterable<? extends T>> {
     method public final void contains(Object? element);
     method public final void containsAnyIn(Iterable<?>? expected);
-    method public final void containsAnyIn(Object![]? expected);
+    method public final void containsAnyIn(Object?[]? expected);
     method public final void containsAnyOf(Object? first, Object? second, java.lang.Object?... rest);
     method public final androidx.kruth.Ordered containsAtLeast(Object? firstExpected, Object? secondExpected, java.lang.Object?... restOfExpected);
     method public final androidx.kruth.Ordered containsAtLeastElementsIn(Iterable<?>? expected);
-    method public final androidx.kruth.Ordered containsAtLeastElementsIn(Object![]? expected);
+    method public final androidx.kruth.Ordered containsAtLeastElementsIn(Object?[]? expected);
     method public final androidx.kruth.Ordered containsExactly(java.lang.Object?... expected);
     method public final androidx.kruth.Ordered containsExactlyElementsIn(Iterable<?>? required);
-    method public final androidx.kruth.Ordered containsExactlyElementsIn(Object![]? expected);
+    method public final androidx.kruth.Ordered containsExactlyElementsIn(Object?[]? expected);
     method public final void containsNoDuplicates();
     method public final void containsNoneIn(Iterable<?>? excluded);
-    method public final void containsNoneIn(Object![]? excluded);
+    method public final void containsNoneIn(Object?[]? excluded);
     method public final void containsNoneOf(Object? firstExcluded, Object? secondExcluded, java.lang.Object?... restOfExcluded);
     method public final void doesNotContain(Object? element);
     method public final void hasSize(int expectedSize);
@@ -130,7 +130,7 @@ package androidx.kruth {
     method public static <T extends java.lang.Comparable<? super T>> androidx.kruth.ComparableSubject<T> assertThat(T? actual);
     method public static <T> androidx.kruth.Subject<T> assertThat(T? actual);
     method public static <T extends java.lang.Throwable> androidx.kruth.ThrowableSubject<T> assertThat(T? actual);
-    method public static <T> androidx.kruth.ObjectArraySubject<T> assertThat(T![]? actual);
+    method public static <T> androidx.kruth.ObjectArraySubject<T> assertThat(T[]? actual);
     method public static androidx.kruth.StandardSubjectBuilder assertWithMessage(String messageToPrepend);
   }
 
@@ -242,7 +242,7 @@ package androidx.kruth {
     method public <T> androidx.kruth.Subject<T> that(T actual);
     method public <T extends java.lang.Comparable<? super T>> androidx.kruth.ComparableSubject<T> that(T? actual);
     method public <T extends java.lang.Throwable> androidx.kruth.ThrowableSubject<T> that(T? actual);
-    method public <T> androidx.kruth.ObjectArraySubject<T> that(T![]? actual);
+    method public <T> androidx.kruth.ObjectArraySubject<T> that(T[]? actual);
     method public androidx.kruth.StandardSubjectBuilder withMessage(String messageToPrepend);
     field public static final androidx.kruth.StandardSubjectBuilder.Companion Companion;
   }

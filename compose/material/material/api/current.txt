@@ -440,9 +440,9 @@ package androidx.compose.material {
 
   public final class ElevationOverlayKt {
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.Dp> getLocalAbsoluteElevation();
-    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.material.ElevationOverlay> getLocalElevationOverlay();
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.material.ElevationOverlay?> getLocalElevationOverlay();
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.Dp> LocalAbsoluteElevation;
-    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.material.ElevationOverlay> LocalElevationOverlay;
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.material.ElevationOverlay?> LocalElevationOverlay;
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This material API is experimental and is likely to change or to be removed in" + " the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalMaterialApi {

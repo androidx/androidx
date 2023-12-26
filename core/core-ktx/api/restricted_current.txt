@@ -21,7 +21,7 @@ package androidx.core.content {
   }
 
   public final class ContextKt {
-    method public static inline <reified T> T! getSystemService(android.content.Context);
+    method public static inline <reified T> T? getSystemService(android.content.Context);
     method public static inline void withStyledAttributes(android.content.Context, optional android.util.AttributeSet? set, int[] attrs, optional @AttrRes int defStyleAttr, optional @StyleRes int defStyleRes, kotlin.jvm.functions.Function1<? super android.content.res.TypedArray,kotlin.Unit> block);
     method public static inline void withStyledAttributes(android.content.Context, @StyleRes int resourceId, int[] attrs, kotlin.jvm.functions.Function1<? super android.content.res.TypedArray,kotlin.Unit> block);
   }
@@ -48,7 +48,7 @@ package androidx.core.content.res {
     method public static int getIntegerOrThrow(android.content.res.TypedArray, @StyleableRes int index);
     method @AnyRes public static int getResourceIdOrThrow(android.content.res.TypedArray, @StyleableRes int index);
     method public static String getStringOrThrow(android.content.res.TypedArray, @StyleableRes int index);
-    method public static CharSequence![] getTextArrayOrThrow(android.content.res.TypedArray, @StyleableRes int index);
+    method public static CharSequence[] getTextArrayOrThrow(android.content.res.TypedArray, @StyleableRes int index);
     method public static CharSequence getTextOrThrow(android.content.res.TypedArray, @StyleableRes int index);
     method public static inline <R> R use(android.content.res.TypedArray, kotlin.jvm.functions.Function1<? super android.content.res.TypedArray,? extends R> block);
   }
@@ -360,7 +360,7 @@ package androidx.core.text {
     method public static inline android.text.SpannedString buildSpannedString(kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
     method public static inline android.text.SpannableStringBuilder color(android.text.SpannableStringBuilder, @ColorInt int color, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
     method public static inline android.text.SpannableStringBuilder inSpans(android.text.SpannableStringBuilder, Object span, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
-    method public static inline android.text.SpannableStringBuilder inSpans(android.text.SpannableStringBuilder, Object![] spans, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
+    method public static inline android.text.SpannableStringBuilder inSpans(android.text.SpannableStringBuilder, Object[] spans, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
     method public static inline android.text.SpannableStringBuilder italic(android.text.SpannableStringBuilder, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
     method public static inline android.text.SpannableStringBuilder scale(android.text.SpannableStringBuilder, float proportion, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
     method public static inline android.text.SpannableStringBuilder strikeThrough(android.text.SpannableStringBuilder, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
@@ -377,7 +377,7 @@ package androidx.core.text {
   }
 
   public final class SpannedStringKt {
-    method public static inline <reified T> T![] getSpans(android.text.Spanned, optional int start, optional int end);
+    method public static inline <reified T> T[] getSpans(android.text.Spanned, optional int start, optional int end);
     method public static inline android.text.Spanned toSpanned(CharSequence);
   }
 
@@ -444,7 +444,7 @@ package androidx.core.util {
   }
 
   public final class LruCacheKt {
-    method public static inline <K, V> android.util.LruCache<K,V> lruCache(int maxSize, optional kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Integer> sizeOf, optional kotlin.jvm.functions.Function1<? super K,? extends V> create, optional kotlin.jvm.functions.Function4<? super java.lang.Boolean,? super K,? super V,? super V,kotlin.Unit> onEntryRemoved);
+    method public static inline <K, V> android.util.LruCache<K,V> lruCache(int maxSize, optional kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Integer> sizeOf, optional kotlin.jvm.functions.Function1<? super K,? extends V?> create, optional kotlin.jvm.functions.Function4<? super java.lang.Boolean,? super K,? super V,? super V?,kotlin.Unit> onEntryRemoved);
   }
 
   public final class PairKt {
@@ -624,10 +624,10 @@ package androidx.core.view {
 package androidx.core.widget {
 
   public final class TextViewKt {
-    method public static inline android.text.TextWatcher addTextChangedListener(android.widget.TextView, optional kotlin.jvm.functions.Function4<? super java.lang.CharSequence,? super java.lang.Integer,? super java.lang.Integer,? super java.lang.Integer,kotlin.Unit> beforeTextChanged, optional kotlin.jvm.functions.Function4<? super java.lang.CharSequence,? super java.lang.Integer,? super java.lang.Integer,? super java.lang.Integer,kotlin.Unit> onTextChanged, optional kotlin.jvm.functions.Function1<? super android.text.Editable,kotlin.Unit> afterTextChanged);
-    method public static inline android.text.TextWatcher doAfterTextChanged(android.widget.TextView, kotlin.jvm.functions.Function1<? super android.text.Editable,kotlin.Unit> action);
-    method public static inline android.text.TextWatcher doBeforeTextChanged(android.widget.TextView, kotlin.jvm.functions.Function4<? super java.lang.CharSequence,? super java.lang.Integer,? super java.lang.Integer,? super java.lang.Integer,kotlin.Unit> action);
-    method public static inline android.text.TextWatcher doOnTextChanged(android.widget.TextView, kotlin.jvm.functions.Function4<? super java.lang.CharSequence,? super java.lang.Integer,? super java.lang.Integer,? super java.lang.Integer,kotlin.Unit> action);
+    method public static inline android.text.TextWatcher addTextChangedListener(android.widget.TextView, optional kotlin.jvm.functions.Function4<? super java.lang.CharSequence?,? super java.lang.Integer,? super java.lang.Integer,? super java.lang.Integer,kotlin.Unit> beforeTextChanged, optional kotlin.jvm.functions.Function4<? super java.lang.CharSequence?,? super java.lang.Integer,? super java.lang.Integer,? super java.lang.Integer,kotlin.Unit> onTextChanged, optional kotlin.jvm.functions.Function1<? super android.text.Editable?,kotlin.Unit> afterTextChanged);
+    method public static inline android.text.TextWatcher doAfterTextChanged(android.widget.TextView, kotlin.jvm.functions.Function1<? super android.text.Editable?,kotlin.Unit> action);
+    method public static inline android.text.TextWatcher doBeforeTextChanged(android.widget.TextView, kotlin.jvm.functions.Function4<? super java.lang.CharSequence?,? super java.lang.Integer,? super java.lang.Integer,? super java.lang.Integer,kotlin.Unit> action);
+    method public static inline android.text.TextWatcher doOnTextChanged(android.widget.TextView, kotlin.jvm.functions.Function4<? super java.lang.CharSequence?,? super java.lang.Integer,? super java.lang.Integer,? super java.lang.Integer,kotlin.Unit> action);
   }
 
 }

@@ -847,14 +847,14 @@ package androidx.health.services.client.data {
   }
 
   public final class PassiveListenerConfig {
-    ctor public PassiveListenerConfig(java.util.Set<? extends androidx.health.services.client.data.DataType<? extends java.lang.Object,? extends androidx.health.services.client.data.DataPoint<?>>> dataTypes, boolean shouldUserActivityInfoBeRequested, java.util.Set<androidx.health.services.client.data.PassiveGoal> dailyGoals, java.util.Set<androidx.health.services.client.data.HealthEvent.Type> healthEventTypes);
+    ctor public PassiveListenerConfig(java.util.Set<? extends androidx.health.services.client.data.DataType<?,? extends androidx.health.services.client.data.DataPoint<?>>> dataTypes, boolean shouldUserActivityInfoBeRequested, java.util.Set<androidx.health.services.client.data.PassiveGoal> dailyGoals, java.util.Set<androidx.health.services.client.data.HealthEvent.Type> healthEventTypes);
     method public static androidx.health.services.client.data.PassiveListenerConfig.Builder builder();
     method public java.util.Set<androidx.health.services.client.data.PassiveGoal> getDailyGoals();
-    method public java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object,? extends androidx.health.services.client.data.DataPoint<?>>> getDataTypes();
+    method public java.util.Set<androidx.health.services.client.data.DataType<?,? extends androidx.health.services.client.data.DataPoint<?>>> getDataTypes();
     method public java.util.Set<androidx.health.services.client.data.HealthEvent.Type> getHealthEventTypes();
     method public boolean getShouldUserActivityInfoBeRequested();
     property public final java.util.Set<androidx.health.services.client.data.PassiveGoal> dailyGoals;
-    property public final java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object,? extends androidx.health.services.client.data.DataPoint<?>>> dataTypes;
+    property public final java.util.Set<androidx.health.services.client.data.DataType<?,? extends androidx.health.services.client.data.DataPoint<?>>> dataTypes;
     property public final java.util.Set<androidx.health.services.client.data.HealthEvent.Type> healthEventTypes;
     property public final boolean shouldUserActivityInfoBeRequested;
     field public static final androidx.health.services.client.data.PassiveListenerConfig.Companion Companion;
