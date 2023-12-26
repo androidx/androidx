@@ -50,6 +50,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -67,6 +68,8 @@ public class ResolutionsMerger {
     // The width to height ratio that has same area when cropping into 4:3 and 16:9.
     private static final double SAME_AREA_WIDTH_HEIGHT_RATIO = sqrt(4.0 / 3.0 * 16.0 / 9.0);
 
+    @NonNull
+    private final Size mSensorSize;
     @NonNull
     private final Rational mSensorAspectRatio;
     @NonNull
@@ -96,6 +99,7 @@ public class ResolutionsMerger {
     ResolutionsMerger(@NonNull Size sensorSize, @NonNull Set<UseCaseConfig<?>> childrenConfigs,
             @NonNull SupportedOutputSizesSorter supportedOutputSizesSorter,
             @NonNull List<Size> cameraSupportedResolutions) {
+        mSensorSize = sensorSize;
         mSensorAspectRatio = getSensorAspectRatio(sensorSize);
         mFallbackAspectRatio = getFallbackAspectRatio(mSensorAspectRatio);
         mChildrenConfigs = childrenConfigs;
@@ -121,7 +125,7 @@ public class ResolutionsMerger {
             candidateSizes = getSupportedPrivResolutions(parentSupportedSizesMap);
         }
 
-        return mergeChildrenResolutions(candidateSizes);
+        return selectParentResolutions(candidateSizes);
     }
 
     /**
@@ -192,8 +196,9 @@ public class ResolutionsMerger {
      * Returns the preferred child size with considering parent size and child's configuration.
      *
      * <p>Returns the first size in the child's ordered size list that can be cropped from {@code
-     * parentSize} without upscaling it and causing double-cropping, or {@code parentSize} if no
-     * matching is found.
+     * parentSize} without upscaling it, or {@code parentSize} if no matching is found.
+     *
+     * <p>The child size not causing double-cropping will be selected in priority.
      *
      * <p>Notes that the input {@code childConfig} is expected to be one of the values that use to
      * construct the {@link ResolutionsMerger}, if not an IllegalArgumentException will be thrown.
@@ -201,19 +206,23 @@ public class ResolutionsMerger {
     @VisibleForTesting
     @NonNull
     Size getPreferredChildSize(@NonNull Size parentSize, @NonNull UseCaseConfig<?> childConfig) {
-        boolean isSourceCropped = !isSensorAspectRatio(parentSize);
-
+        // Select the first child resolution that does not result in double-cropping and upscaling.
         List<Size> candidateChildSizes = getSortedChildSizes(childConfig);
         for (Size childSize : candidateChildSizes) {
-            // Skip child sizes that need another cropping when source is already cropped.
-            if (isSourceCropped) {
-                boolean needAnotherCropping = !(isFallbackAspectRatio(parentSize)
-                        && isFallbackAspectRatio(childSize));
-                if (needAnotherCropping) {
-                    continue;
-                }
+            if (isDoubleCropping(parentSize, childSize)) {
+                continue;
             }
 
+            if (!hasUpscaling(childSize, parentSize)) {
+                return childSize;
+            }
+        }
+
+        // Select the first child resolution that does not result in upscaling (might have
+        // smaller FOV due to double-cropping). This may occur when selecting parent resolutions
+        // that are expected to result in double-clipping in order to reduce binding failures in
+        // edge cases.
+        for (Size childSize : candidateChildSizes) {
             if (!hasUpscaling(childSize, parentSize)) {
                 return childSize;
             }
@@ -251,40 +260,52 @@ public class ResolutionsMerger {
     }
 
     @NonNull
-    private List<Size> mergeChildrenResolutions(@NonNull List<Size> candidateParentResolutions) {
+    private List<Size> selectParentResolutions(@NonNull List<Size> candidateParentResolutions) {
         // The following sequence of parent resolution selection is used to prevent double-cropping
         // from happening:
-        // 1. Add sensor aspect-ratio resolutions, which will not cause double-cropping when the
-        // child resolution is in any aspect-ratio. This is to provide parent resolution that can
-        // be accepted by children in general cases.
-        // 2. Add fallback aspect-ratio resolutions, which will not cause double-cropping only when
-        // the child resolution is in fallback aspect-ratio.
+        // 1. Add sensor aspect-ratio resolutions, which do not result in double-cropping with any
+        // aspect-ratio of child resolution. This is to provide parent resolution that can be
+        // accepted by children in general cases.
+        // 2. Add fallback aspect-ratio (the one between 4:3 and 16:9 that is not sensor
+        // aspect-ratio) resolutions, that can crop/downscale to at least one child size for
+        // each child.
+        // 3. Add other aspect-ratio resolutions, that can crop/downscale to at least one child
+        // size for each child.
+        // The parent sizes added in step 2 and step 3 will only be used to crop to child sizes
+        // that do not result in double-cropping. For example, if childRatio < parentRatio <
+        // sensorRatio or childRatio > parentRatio > sensorRatio, then there is no double-cropping.
         List<Size> result = new ArrayList<>();
 
         // Add resolutions for sensor aspect-ratio.
         if (needToAddSensorResolutions()) {
-            result.addAll(mergeChildrenResolutionsByAspectRatio(mSensorAspectRatio,
-                    candidateParentResolutions));
+            result.addAll(selectParentResolutionsByAspectRatio(mSensorAspectRatio,
+                    candidateParentResolutions, false));
         }
 
-        // Add resolutions for fallback aspect-ratio if needed.
-        if (needToAddFallbackResolutions()) {
-            result.addAll(mergeChildrenResolutionsByAspectRatio(mFallbackAspectRatio,
-                    candidateParentResolutions));
-        }
+        // Add resolutions for fallback aspect-ratio.
+        result.addAll(selectParentResolutionsByAspectRatio(mFallbackAspectRatio,
+                candidateParentResolutions, false));
 
-        // TODO(b/315098647): When the resulting parent resolution list is empty, consider adding
-        //  resolutions that are neither 4:3 nor 16:9, but have a high overlap area (e.g. 80%)
-        //  compared to the sensor size, which do not cause severe reduction of FOV, to prevent
-        //  binding failures in some edge cases.
+        // Add other aspect-ratio resolutions. Resolutions with larger FOV will be added first.
+        result.addAll(selectOtherAspectRatioParentResolutionsWithFovPriority(
+                candidateParentResolutions, false));
+
+        if (result.isEmpty()) {
+            // When the resulting parent resolution list is empty (this may be due to the camera
+            // not supporting 4:3 and 16:9 resolutions or a strict ResolutionSelector settings),
+            // add resolutions that are neither 4:3 nor 16:9 to prevent binding failures.
+            // Resolutions with larger FOV will be added first.
+            result.addAll(selectOtherAspectRatioParentResolutionsWithFovPriority(
+                    candidateParentResolutions, true));
+        }
 
         Logger.d(TAG, "Parent resolutions: " + result);
 
         return result;
     }
 
-    private List<Size> mergeChildrenResolutionsByAspectRatio(@NonNull Rational aspectRatio,
-            @NonNull List<Size> candidateParentResolutions) {
+    private List<Size> selectParentResolutionsByAspectRatio(@NonNull Rational aspectRatio,
+            @NonNull List<Size> candidateParentResolutions, boolean allowDoubleCropping) {
         List<Size> candidates = filterResolutionsByAspectRatio(aspectRatio,
                 candidateParentResolutions);
         sortInDescendingOrder(candidates);
@@ -293,9 +314,12 @@ public class ResolutionsMerger {
         Set<Size> sizesTooLarge = new HashSet<>(candidates);
         for (UseCaseConfig<?> childConfig : mChildrenConfigs) {
             List<Size> childSizes = getSortedChildSizes(childConfig);
+            if (!allowDoubleCropping) {
+                childSizes = filterOutChildSizesCausingDoubleCropping(aspectRatio, childSizes);
+            }
             if (childSizes.isEmpty()) {
-                // When the list is empty, which means no child required resolutions are supported,
-                // make the parent list to be empty to reflect this.
+                // When the list is empty, which means no child sizes match requirement, make the
+                // parent list to be empty to reflect this.
                 return new ArrayList<>();
             }
 
@@ -310,6 +334,66 @@ public class ResolutionsMerger {
                 result.add(candidate);
             }
         }
+        return result;
+    }
+
+    @NonNull
+    private List<Size> selectOtherAspectRatioParentResolutionsWithFovPriority(
+            @NonNull List<Size> candidates, boolean allowDoubleCropping) {
+        Map<Rational, List<Size>> ratioToSizesMap = groupSizesByAspectRatio(candidates);
+
+        // Get aspect-ratio of candidate parent sizes and sort by overlapping area (FOV) in
+        // descending order.
+        List<Rational> ratios = new ArrayList<>(ratioToSizesMap.keySet());
+        sortByFov(ratios);
+
+        // Add resolutions that are neither 4:3 nor 16:9. Resolutions with larger FOV will be
+        // added first.
+        List<Size> result = new ArrayList<>();
+        for (Rational ratio: ratios) {
+            if (ratio.equals(ASPECT_RATIO_16_9) || ratio.equals(ASPECT_RATIO_4_3)) {
+                continue;
+            }
+
+            List<Size> sizes = Objects.requireNonNull(ratioToSizesMap.get(ratio));
+            result.addAll(selectParentResolutionsByAspectRatio(ratio, sizes, allowDoubleCropping));
+        }
+
+        return result;
+    }
+
+    @NonNull
+    private Map<Rational, List<Size>> groupSizesByAspectRatio(@NonNull List<Size> sizes) {
+        Map<Rational, List<Size>> result = new HashMap<>();
+
+        // Add 4:3 and 16:9 first so that other mod-16 sizes won't introduce additional keys.
+        result.put(ASPECT_RATIO_4_3, new ArrayList<>());
+        result.put(ASPECT_RATIO_16_9, new ArrayList<>());
+
+        // Group sizes by aspect-ratio with mod-16 considered.
+        for (Size size : sizes) {
+            if (size.getHeight() <= 0) {
+                continue;
+            }
+
+            // Get the aspect-ratio group if it is ready existed.
+            List<Size> group = null;
+            for (Rational ratio : result.keySet()) {
+                if (hasMatchingAspectRatio(size, ratio)) {
+                    group = result.get(ratio);
+                    break;
+                }
+            }
+
+            // Create a new aspect-ratio group if it is not existed.
+            if (group == null) {
+                group = new ArrayList<>();
+                result.put(toRational(size), group);
+            }
+
+            Objects.requireNonNull(group).add(size);
+        }
+
         return result;
     }
 
@@ -347,16 +431,6 @@ public class ResolutionsMerger {
         return false;
     }
 
-    private boolean needToAddFallbackResolutions() {
-        // Need to add fallback resolutions if any required resolution is fallback aspect-ratio.
-        for (Size size : getChildrenRequiredResolutions()) {
-            if (hasMatchingAspectRatio(size, mFallbackAspectRatio)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     @NonNull
     private Set<Size> getChildrenRequiredResolutions() {
         Set<Size> result = new HashSet<>();
@@ -368,12 +442,64 @@ public class ResolutionsMerger {
         return result;
     }
 
-    private boolean isSensorAspectRatio(@NonNull Size size) {
-        return hasMatchingAspectRatio(size, mSensorAspectRatio);
+    @NonNull
+    private List<Size> filterOutChildSizesCausingDoubleCropping(@NonNull Rational parentAspectRatio,
+            @NonNull List<Size> childSizes) {
+        List<Size> result = new ArrayList<>();
+        for (Size childSize: childSizes) {
+            if (!isDoubleCropping(parentAspectRatio, childSize)) {
+                result.add(childSize);
+            }
+        }
+
+        return result;
     }
 
-    private boolean isFallbackAspectRatio(@NonNull Size size) {
-        return hasMatchingAspectRatio(size, mFallbackAspectRatio);
+    private boolean isDoubleCropping(@NonNull Rational parentRatio, @NonNull Size childSize) {
+        // No double cropping results when the sensor and parent have the same aspect ratio or
+        // when the parent and child have the same aspect ratio.
+        if (mSensorAspectRatio.equals(parentRatio) || hasMatchingAspectRatio(childSize,
+                parentRatio)) {
+            return false;
+        }
+
+        // When the cropping from sensor to parent and from parent to child are in the same
+        // direction, there is no double-cropping.
+        return areCroppingInDifferentDirection(
+                mSensorAspectRatio.floatValue(),
+                parentRatio.floatValue(),
+                toRational(childSize).floatValue()
+        );
+    }
+
+    private boolean isDoubleCropping(@NonNull Size parentSize, @NonNull Size childSize) {
+        return isDoubleCropping(toRational(parentSize), childSize);
+    }
+
+    private boolean areCroppingInDifferentDirection(float sensorRatioValue, float parentRatioValue,
+            float childRatioValue) {
+        // There is only one cropping direction When the sensor and parent have the same
+        // aspect-ratio or when the parent and child have the same aspect-ratio.
+        if (sensorRatioValue == parentRatioValue || parentRatioValue == childRatioValue) {
+            return false;
+        }
+
+        // When childRatio < parentRatio < sensorRatio or childRatio > parentRatio > sensorRatio,
+        // the cropping from sensor to parent and from parent to child are in the same direction.
+        if (sensorRatioValue > parentRatioValue) {
+            return parentRatioValue < childRatioValue;
+        } else {
+            return parentRatioValue > childRatioValue;
+        }
+    }
+
+    /**
+     * Sorts the input aspect-ratio by overlapping area with sensor (FOV) in descending order.
+     */
+    private void sortByFov(@NonNull List<Rational> ratios) {
+        Rational actualSensorAspectRatio = toRational(mSensorSize);
+        Collections.sort(ratios, new CompareAspectRatioByOverlappingAreaToReference(
+                actualSensorAspectRatio, true));
     }
 
     /**
@@ -383,7 +509,7 @@ public class ResolutionsMerger {
     @NonNull
     static Rect getCropRectOfReferenceAspectRatio(@NonNull Size targetSize,
             @NonNull Size referenceSize) {
-        Rational referenceRatio = new Rational(referenceSize.getWidth(), referenceSize.getHeight());
+        Rational referenceRatio = toRational(referenceSize);
         return getCenterCroppedRectangle(referenceRatio, targetSize);
     }
 
@@ -438,7 +564,7 @@ public class ResolutionsMerger {
             @NonNull Size baseSize) {
         int width = baseSize.getWidth();
         int height = baseSize.getHeight();
-        Rational referenceRatio = new Rational(width, height);
+        Rational referenceRatio = toRational(baseSize);
 
         RectF cropRectInFloat;
         if (cropRatio.floatValue() == referenceRatio.floatValue()) {
@@ -592,5 +718,54 @@ public class ResolutionsMerger {
         // Upscaling is needed if child size is larger than the parent.
         return childSize.getHeight() > parentSize.getHeight()
                 || childSize.getWidth() > parentSize.getWidth();
+    }
+
+    @NonNull
+    private static Rational toRational(@NonNull Size size) {
+        // For 4:3 and 16:9, use hasMatchingAspectRatio to take "mod 16 calculation" into
+        // consideration. For example, a standard 16:9 supported size is 1920x1080. It may become
+        // 1920x1088 on some devices because 1088 is multiple of 16.
+        if (hasMatchingAspectRatio(size, ASPECT_RATIO_4_3)) {
+            return ASPECT_RATIO_4_3;
+        } else if (hasMatchingAspectRatio(size, ASPECT_RATIO_16_9)) {
+            return ASPECT_RATIO_16_9;
+        } else {
+            return new Rational(size.getWidth(), size.getHeight());
+        }
+    }
+
+    private static float computeAreaOverlapping(@NonNull Rational croppingRatio,
+            @NonNull Rational baseRatio) {
+        float croppingRatioValue = croppingRatio.floatValue();
+        float baseRatioValue = baseRatio.floatValue();
+
+        return (croppingRatioValue > baseRatioValue) ? baseRatioValue / croppingRatioValue
+                : croppingRatioValue / baseRatioValue;
+    }
+
+    private static class CompareAspectRatioByOverlappingAreaToReference implements
+            Comparator<Rational> {
+        @NonNull
+        private final Rational mReferenceAspectRatio;
+        private final boolean mReverse;
+
+        /** Creates a comparator which can reverse the total ordering. */
+        CompareAspectRatioByOverlappingAreaToReference(@NonNull Rational referenceAspectRatio,
+                boolean reverse) {
+            mReferenceAspectRatio = referenceAspectRatio;
+            mReverse = reverse;
+        }
+
+        @Override
+        public int compare(@NonNull Rational lhs, @NonNull Rational rhs) {
+            float lhsOverlapping = computeAreaOverlapping(lhs, mReferenceAspectRatio);
+            float rhsOverlapping = computeAreaOverlapping(rhs, mReferenceAspectRatio);
+
+            if (mReverse) {
+                return Float.compare(rhsOverlapping, lhsOverlapping);
+            } else {
+                return Float.compare(lhsOverlapping, rhsOverlapping);
+            }
+        }
     }
 }
