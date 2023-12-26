@@ -72,7 +72,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.AbstractComposeView
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
@@ -441,8 +440,7 @@ internal fun ModalBottomSheetPopup(
     val parentComposition = rememberCompositionContext()
     val currentContent by rememberUpdatedState(content)
     val layoutDirection = LocalLayoutDirection.current
-    val configuration = LocalConfiguration.current
-    val modalBottomSheetWindow = remember(configuration) {
+    val modalBottomSheetWindow = remember {
         ModalBottomSheetWindow(
             properties = properties,
             onDismissRequest = onDismissRequest,
