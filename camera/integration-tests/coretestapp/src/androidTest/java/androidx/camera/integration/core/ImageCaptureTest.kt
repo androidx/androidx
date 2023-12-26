@@ -1589,6 +1589,11 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     @Test
     @SdkSuppress(minSdkVersion = 28)
     fun returnJpegImage_whenSessionProcessorIsSet_outputFormatJpeg() = runBlocking {
+        assumeTrue(
+            "TODO(b/275493663): Enable when camera-pipe has extensions support",
+            implName != CameraPipeConfig::class.simpleName
+        )
+
         assumeFalse(
             "Cuttlefish does not correctly handle Jpeg exif. Unable to test.",
             Build.MODEL.contains("Cuttlefish")

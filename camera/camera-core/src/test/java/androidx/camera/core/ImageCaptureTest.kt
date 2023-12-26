@@ -45,6 +45,7 @@ import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.core.internal.ScreenFlashWrapper
 import androidx.camera.core.internal.utils.SizeUtil
 import androidx.camera.core.resolutionselector.AspectRatioStrategy
 import androidx.camera.core.resolutionselector.ResolutionSelector
@@ -59,6 +60,7 @@ import androidx.camera.testing.impl.fakes.FakeCameraFactory
 import androidx.camera.testing.impl.fakes.FakeImageReaderProxy
 import androidx.camera.testing.impl.fakes.FakeSessionProcessor
 import androidx.camera.testing.impl.mocks.MockScreenFlash
+import androidx.camera.testing.impl.mocks.MockScreenFlashUiCompleter
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.io.File
@@ -87,7 +89,6 @@ import org.robolectric.shadows.ShadowLooper
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class ImageCaptureTest {
-
     private val resolution = Size(640, 480)
 
     private lateinit var callbackHandler: Handler
@@ -97,6 +98,7 @@ class ImageCaptureTest {
     private lateinit var cameraFront: FakeCamera
     private var fakeImageReaderProxy: FakeImageReaderProxy? = null
     private var capturedImage: ImageProxy? = null
+    private var captureError: Exception? = null
     private lateinit var cameraUseCaseAdapter: CameraUseCaseAdapter
     private val onImageCapturedCallback = object : ImageCapture.OnImageCapturedCallback() {
         override fun onCaptureSuccess(image: ImageProxy) {
@@ -104,6 +106,7 @@ class ImageCaptureTest {
         }
 
         override fun onError(exception: ImageCaptureException) {
+            captureError = exception
         }
     }
     private val testImplementationOption: androidx.camera.core.impl.Config.Option<Int> =
@@ -147,11 +150,15 @@ class ImageCaptureTest {
         shadowOf(callbackThread.looper).pause()
         callbackHandler = Handler(callbackThread.looper)
         executor = CameraXExecutors.newHandlerExecutor(callbackHandler)
+
+        capturedImage = null
+        captureError = null
     }
 
     @After
     @Throws(ExecutionException::class, InterruptedException::class)
     fun tearDown() {
+        capturedImage?.close()
         CameraXUtil.shutdown().get()
         fakeImageReaderProxy = null
         callbackThread.quitSafely()
@@ -297,7 +304,7 @@ class ImageCaptureTest {
         val imageCapture = bindImageCapture(
             ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
             ViewPort.Builder(Rational(1, 1), Surface.ROTATION_0).build(),
-            imageReaderProxyProvider = getImageReaderProxyProvider()
+            imageReaderProxyProvider = getFakeImageReaderProxyProvider()
         )
 
         // Act
@@ -346,7 +353,7 @@ class ImageCaptureTest {
         // Act/arrange.
         val imageCapture = bindImageCapture(
             ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
-            imageReaderProxyProvider = getImageReaderProxyProvider()
+            imageReaderProxyProvider = getFakeImageReaderProxyProvider()
         )
 
         // Act
@@ -523,7 +530,7 @@ class ImageCaptureTest {
     }
 
     @Test
-    fun screenFlashUiControlSetToCameraControl_whenSetInImageCapture() {
+    fun screenFlashSetToCameraControl_whenSetInImageCapture() {
         val imageCapture = bindImageCapture(cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA)
         imageCapture.screenFlash = MockScreenFlash()
 
@@ -532,7 +539,7 @@ class ImageCaptureTest {
     }
 
     @Test
-    fun screenFlashUiControlClearedFromCameraControl_whenImageCaptureUnbound() {
+    fun screenFlashClearedFromCameraControl_whenImageCaptureUnbound() {
         val imageCapture = bindImageCapture(cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA)
         imageCapture.screenFlash = MockScreenFlash()
 
@@ -543,7 +550,7 @@ class ImageCaptureTest {
     }
 
     @Test
-    fun screenFlashUiControlSetToCameraControl_whenUnboundAndBoundAgain() {
+    fun screenFlashSetToCameraControl_whenUnboundAndBoundAgain() {
         val imageCapture = bindImageCapture(cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA)
         imageCapture.screenFlash = MockScreenFlash()
 
@@ -552,6 +559,155 @@ class ImageCaptureTest {
 
         assertThat((cameraFront.cameraControl as FakeCameraControl).screenFlash)
             .isNotNull()
+    }
+
+    @Test
+    fun canCaptureScreenFlashImage() {
+        val imageCapture = bindImageCapture(
+            cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA,
+            imageReaderProxyProvider = getFakeImageReaderProxyProvider(),
+        )
+
+        imageCapture.screenFlash = MockScreenFlash()
+        imageCapture.flashMode = ImageCapture.FLASH_MODE_SCREEN
+
+        // TODO: check why mainThreadExecutor() is needed here, instead of just any executor
+        imageCapture.takePicture(mainThreadExecutor(), onImageCapturedCallback)
+
+        provideFakeImageData()
+        assertThat(capturedImage).isNotNull()
+    }
+
+    @Test
+    fun screenFlashSetToImageCapture_cameraControlGetsWrapperScreenFlash() {
+        val imageCapture = bindImageCapture(
+            cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA,
+            imageReaderProxyProvider = getFakeImageReaderProxyProvider(),
+        )
+
+        imageCapture.screenFlash = MockScreenFlash()
+
+        val fakeCameraControl = cameraFront.cameraControl as FakeCameraControl
+
+        assertThat(fakeCameraControl.screenFlash).isInstanceOf(ScreenFlashWrapper::class.java)
+    }
+
+    @Test
+    fun cameraControlWrapperScreenFlash_hasImageCaptureScreenFlashInternally() {
+        val imageCapture = bindImageCapture(
+            cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA,
+            imageReaderProxyProvider = getFakeImageReaderProxyProvider(),
+        )
+
+        imageCapture.screenFlash = MockScreenFlash()
+
+        val fakeCameraControl = cameraFront.cameraControl as FakeCameraControl
+        val screenFlashWrapper = fakeCameraControl.screenFlash as ScreenFlashWrapper
+
+        assertThat(screenFlashWrapper.getBaseScreenFlash()).isEqualTo(imageCapture.screenFlash)
+    }
+
+    @Test
+    fun imageCaptureUnbound_screenFlashClearNotInvoked_whenApplyWasNotInvokedBefore() {
+        val imageCapture = bindImageCapture(
+            cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA,
+            imageReaderProxyProvider = getFakeImageReaderProxyProvider(),
+        )
+        imageCapture.screenFlash = MockScreenFlash()
+
+        cameraUseCaseAdapter.removeUseCases(listOf(imageCapture))
+
+        assertThat((imageCapture.screenFlash as MockScreenFlash).screenFlashEvents).isEmpty()
+    }
+
+    @Test
+    fun imageCaptureUnbound_screenFlashClearInvoked_whenApplyWasInvokedBefore() {
+        val imageCapture = bindImageCapture(
+            cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA,
+            imageReaderProxyProvider = getFakeImageReaderProxyProvider(),
+        )
+        imageCapture.screenFlash = MockScreenFlash()
+
+        (cameraFront.cameraControl as FakeCameraControl).screenFlash?.apply(
+            MockScreenFlashUiCompleter()
+        )
+        imageCapture.unbindFromCamera(cameraFront)
+
+        assertThat((imageCapture.screenFlash as MockScreenFlash).screenFlashEvents)
+            .contains(MockScreenFlash.CLEAR)
+    }
+
+    @Test
+    fun imageCaptureUnbound_noScreenFlashEventIsDuplicate_whenApplyAndClearWasInvokedBefore() {
+        val imageCapture = bindImageCapture(
+            cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA,
+            imageReaderProxyProvider = getFakeImageReaderProxyProvider(),
+        )
+        imageCapture.screenFlash = MockScreenFlash()
+
+        (cameraFront.cameraControl as FakeCameraControl).screenFlash?.apply(
+            MockScreenFlashUiCompleter()
+        )
+        (cameraFront.cameraControl as FakeCameraControl).screenFlash?.clear()
+        imageCapture.unbindFromCamera(cameraFront)
+
+        assertThat((imageCapture.screenFlash as MockScreenFlash).screenFlashEvents)
+            .containsNoDuplicates()
+    }
+
+    @Test
+    fun cameraControlScreenFlashUiCompleterCompleted_whenImageCaptureCompleterIsCompleted() {
+        val completer = MockScreenFlashUiCompleter()
+        val imageCapture = bindImageCapture(
+            cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA,
+            imageReaderProxyProvider = getFakeImageReaderProxyProvider(),
+        )
+        imageCapture.screenFlash = MockScreenFlash().apply {
+            setApplyCompletedInstantly(false)
+        }
+
+        (cameraFront.cameraControl as FakeCameraControl).screenFlash?.apply(completer)
+        (imageCapture.screenFlash as MockScreenFlash).lastApplyCompleter?.complete()
+
+        completer.awaitComplete(3000)
+        assertThat(completer.getCompleteCount()).isEqualTo(1)
+    }
+
+    @Test
+    fun imageCaptureUnboundWithoutCompletion_cameraControlScreenFlashUiCompleterCompleted() {
+        val completer = MockScreenFlashUiCompleter()
+        val imageCapture = bindImageCapture(
+            cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA,
+            imageReaderProxyProvider = getFakeImageReaderProxyProvider(),
+        )
+        imageCapture.screenFlash = MockScreenFlash().apply {
+            setApplyCompletedInstantly(false)
+        }
+
+        (cameraFront.cameraControl as FakeCameraControl).screenFlash?.apply(completer)
+        imageCapture.unbindFromCamera(cameraFront)
+
+        completer.awaitComplete(3000)
+        assertThat(completer.getCompleteCount()).isEqualTo(1)
+    }
+
+    @Test
+    fun imageCaptureUnboundAndCompleterCompleted_cameraControlCompleterCompletedOnlyOnce() {
+        val completer = MockScreenFlashUiCompleter()
+        val imageCapture = bindImageCapture(
+            cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA,
+            imageReaderProxyProvider = getFakeImageReaderProxyProvider(),
+        )
+        imageCapture.screenFlash = MockScreenFlash().apply {
+            setApplyCompletedInstantly(false)
+        }
+
+        (cameraFront.cameraControl as FakeCameraControl).screenFlash?.apply(completer)
+        imageCapture.unbindFromCamera(cameraFront)
+        (imageCapture.screenFlash as MockScreenFlash).lastApplyCompleter?.complete()
+
+        completer.awaitComplete(3000)
+        assertThat(completer.getCompleteCount()).isEqualTo(1)
     }
 
     @Test
@@ -703,7 +859,7 @@ class ImageCaptureTest {
         return builder.build()
     }
 
-    private fun getImageReaderProxyProvider(): ImageReaderProxyProvider {
+    private fun getFakeImageReaderProxyProvider(): ImageReaderProxyProvider {
         return ImageReaderProxyProvider { width, height, imageFormat, queueDepth, usage ->
             fakeImageReaderProxy = FakeImageReaderProxy.newInstance(
                 width, height, imageFormat, queueDepth, usage
@@ -714,5 +870,16 @@ class ImageCaptureTest {
 
     private fun flushHandler(handler: Handler?) {
         (Shadow.extract<Any>(handler!!.looper) as ShadowLooper).idle()
+    }
+
+    private fun provideFakeImageData() {
+        // Send fake image.
+        fakeImageReaderProxy?.triggerImageAvailable(TagBundle.create(Pair("TagBundleKey", 0)), 0)
+        flushAll()
+    }
+
+    private fun flushAll() {
+        flushHandler(callbackHandler)
+        shadowOf(getMainLooper()).idle()
     }
 }
