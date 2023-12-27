@@ -23,7 +23,6 @@ import androidx.annotation.Px
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.window.core.Bounds
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.EmbeddingBounds.Alignment.Companion.ALIGN_BOTTOM
 import androidx.window.embedding.EmbeddingBounds.Alignment.Companion.ALIGN_LEFT
 import androidx.window.embedding.EmbeddingBounds.Alignment.Companion.ALIGN_RIGHT
@@ -52,7 +51,6 @@ import kotlin.math.min
  * @constructor creates an embedding bounds.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@ExperimentalWindowApi
 class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height: Dimension) {
     override fun toString(): String {
         return "Bounds:{alignment=$alignment, width=$width, height=$height}"
@@ -331,7 +329,6 @@ class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height
         }
     }
 
-    @ExperimentalWindowApi
     companion object {
 
         /** The bounds fills the parent window bounds */

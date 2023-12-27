@@ -19,9 +19,7 @@ package androidx.window.embedding
 import android.content.Context
 import android.os.Bundle
 import androidx.window.RequiresWindowSdkExtension
-import androidx.window.core.ExperimentalWindowApi
 
-@ExperimentalWindowApi
 internal class OverlayController(val backend: EmbeddingBackend) {
 
     @RequiresWindowSdkExtension(5)

@@ -17,7 +17,6 @@
 package androidx.window.embedding
 
 import androidx.annotation.RestrictTo
-import androidx.window.core.ExperimentalWindowApi
 import java.util.UUID
 
 // TODO(295803704): Pending unhide.
@@ -38,7 +37,6 @@ import java.util.UUID
  * @constructor creates a parameter container to launch an overlay [ActivityStack].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@ExperimentalWindowApi
 class OverlayCreateParams @JvmOverloads constructor(
     val tag: String = generateOverlayTag(),
     val overlayAttributes: OverlayAttributes = OverlayAttributes.Builder().build(),

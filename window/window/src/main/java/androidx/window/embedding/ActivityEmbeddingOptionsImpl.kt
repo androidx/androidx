@@ -19,7 +19,6 @@ package androidx.window.embedding
 import android.os.Bundle
 import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowSdkExtensions
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.extensions.embedding.ActivityEmbeddingOptionsProperties.KEY_OVERLAY_TAG
 
 /**
@@ -34,7 +33,6 @@ internal object ActivityEmbeddingOptionsImpl {
      * @param overlayCreateParams The [OverlayCreateParams] to launch the overlay container
      */
     @RequiresWindowSdkExtension(5)
-    @ExperimentalWindowApi
     internal fun setOverlayCreateParams(
         options: Bundle,
         overlayCreateParams: OverlayCreateParams,

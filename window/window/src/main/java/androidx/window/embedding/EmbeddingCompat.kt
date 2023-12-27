@@ -195,7 +195,6 @@ internal class EmbeddingCompat(
     }
 
     @RequiresWindowSdkExtension(5)
-    @ExperimentalWindowApi
     override fun setOverlayCreateParams(
         options: Bundle,
         overlayCreateParams: OverlayCreateParams
