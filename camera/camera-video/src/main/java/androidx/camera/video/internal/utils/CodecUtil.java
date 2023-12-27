@@ -18,7 +18,9 @@ package androidx.camera.video.internal.utils;
 
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
+import android.util.LruCache;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.video.internal.encoder.EncoderConfig;
@@ -34,6 +36,14 @@ public final class CodecUtil {
         // Prevent instantiation.
     }
 
+    private static final int MAX_CODEC_INFO_CACHE_COUNT = 10;
+    // A cache from mimeType to MediaCodecInfo.
+    // This cache is created because MediaCodec.createEncoderByType() take relatively long time and
+    // findCodecAndGetCodecInfo() is being called frequently in camera-video.
+    @GuardedBy("sCodecInfoCache")
+    private static final LruCache<String, MediaCodecInfo> sCodecInfoCache = new LruCache<>(
+            MAX_CODEC_INFO_CACHE_COUNT);
+
     /**
      * Creates a codec instance suitable for the encoder config.
      *
@@ -42,11 +52,7 @@ public final class CodecUtil {
     @NonNull
     public static MediaCodec createCodec(@NonNull EncoderConfig encoderConfig)
             throws InvalidConfigException {
-        try {
-            return MediaCodec.createEncoderByType(encoderConfig.getMimeType());
-        } catch (IOException | IllegalArgumentException e) {
-            throw new InvalidConfigException(e);
-        }
+        return createCodec(encoderConfig.getMimeType());
     }
 
     /**
@@ -57,14 +63,35 @@ public final class CodecUtil {
     @NonNull
     public static MediaCodecInfo findCodecAndGetCodecInfo(@NonNull EncoderConfig encoderConfig)
             throws InvalidConfigException {
+        String mimeType = encoderConfig.getMimeType();
+        MediaCodecInfo codecInfo;
+        synchronized (sCodecInfoCache) {
+            codecInfo = sCodecInfoCache.get(mimeType);
+        }
+        if (codecInfo != null) {
+            return codecInfo;
+        }
         MediaCodec codec = null;
         try {
-            codec = createCodec(encoderConfig);
-            return codec.getCodecInfo();
+            codec = createCodec(mimeType);
+            codecInfo = codec.getCodecInfo();
+            synchronized (sCodecInfoCache) {
+                sCodecInfoCache.put(mimeType, codecInfo);
+            }
+            return codecInfo;
         } finally {
             if (codec != null) {
                 codec.release();
             }
+        }
+    }
+
+    @NonNull
+    private static MediaCodec createCodec(@NonNull String mimeType) throws InvalidConfigException {
+        try {
+            return MediaCodec.createEncoderByType(mimeType);
+        } catch (IOException | IllegalArgumentException e) {
+            throw new InvalidConfigException(e);
         }
     }
 }
