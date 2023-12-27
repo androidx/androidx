@@ -123,10 +123,10 @@ fun Surface(
  * @param border Defines a border around the Surface.
  * @param glow Diffused shadow to be shown behind the Surface. Note that glow is disabled for API
  * levels below 28 as it is not supported by the underlying OS
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this Surface. You can create and pass in your own remembered [MutableInteractionSource] if
- * you want to observe [Interaction]s and customize the appearance / behavior of this Surface in
- * different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this surface. You can use this to change the surface's appearance
+ * or preview the surface in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  * @param content defines the [Composable] content inside the surface
  */
 @ExperimentalTvMaterial3Api
@@ -142,9 +142,11 @@ fun Surface(
     scale: ClickableSurfaceScale = ClickableSurfaceDefaults.scale(),
     border: ClickableSurfaceBorder = ClickableSurfaceDefaults.border(),
     glow: ClickableSurfaceGlow = ClickableSurfaceDefaults.glow(),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable (BoxScope.() -> Unit)
 ) {
+    @Suppress("NAME_SHADOWING")
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     val focused by interactionSource.collectIsFocusedAsState()
     val pressed by interactionSource.collectIsPressedAsState()
     SurfaceImpl(
@@ -230,10 +232,10 @@ fun Surface(
  * @param border Defines a border around the Surface.
  * @param glow Diffused shadow to be shown behind the Surface. Note that glow is disabled for API
  * levels below 28 as it is not supported by the underlying OS
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this Surface. You can create and pass in your own remembered [MutableInteractionSource] if
- * you want to observe [Interaction]s and customize the appearance / behavior of this Surface in
- * different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this surface. You can use this to change the surface's appearance
+ * or preview the surface in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  * @param content defines the [Composable] content inside the surface
  */
 @ExperimentalTvMaterial3Api
@@ -250,9 +252,11 @@ fun Surface(
     scale: ToggleableSurfaceScale = ToggleableSurfaceDefaults.scale(),
     border: ToggleableSurfaceBorder = ToggleableSurfaceDefaults.border(),
     glow: ToggleableSurfaceGlow = ToggleableSurfaceDefaults.glow(),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable (BoxScope.() -> Unit)
 ) {
+    @Suppress("NAME_SHADOWING")
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     val focused by interactionSource.collectIsFocusedAsState()
     val pressed by interactionSource.collectIsPressedAsState()
 
@@ -327,9 +331,11 @@ private fun SurfaceImpl(
     border: Border,
     glow: Glow,
     tonalElevation: Dp,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable (BoxScope.() -> Unit)
 ) {
+    @Suppress("NAME_SHADOWING")
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     val focused by interactionSource.collectIsFocusedAsState()
     val pressed by interactionSource.collectIsPressedAsState()
 
