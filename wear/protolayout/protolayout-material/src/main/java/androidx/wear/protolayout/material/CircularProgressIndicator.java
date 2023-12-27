@@ -255,17 +255,21 @@ public class CircularProgressIndicator implements LayoutElement {
 
             ArcLine.Builder progressArcLineBuilder =
                     new ArcLine.Builder()
+                            .setArcDirection(LayoutElementBuilders.ARC_DIRECTION_CLOCKWISE)
                             .setColor(mCircularProgressIndicatorColors.getIndicatorColor())
                             .setThickness(mStrokeWidth);
             applyCorrectValue(progressArcLineBuilder);
 
             Arc.Builder element =
                     new Arc.Builder()
+                            .setArcDirection(LayoutElementBuilders.ARC_DIRECTION_CLOCKWISE)
                             .setAnchorType(LayoutElementBuilders.ARC_ANCHOR_START)
                             .setAnchorAngle(mStartAngle)
                             .setModifiers(modifiers.build())
                             .addContent(
                                     new ArcLine.Builder()
+                                            .setArcDirection(
+                                                    LayoutElementBuilders.ARC_DIRECTION_CLOCKWISE)
                                             .setColor(
                                                     mCircularProgressIndicatorColors
                                                             .getTrackColor())

@@ -33,6 +33,10 @@ import androidx.wear.widget.ArcLayout;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import static androidx.wear.protolayout.proto.LayoutElementProto.ArcDirection.ARC_DIRECTION_CLOCKWISE_VALUE;
+import static androidx.wear.protolayout.proto.LayoutElementProto.ArcDirection.ARC_DIRECTION_COUNTER_CLOCKWISE_VALUE;
+import static androidx.wear.protolayout.proto.LayoutElementProto.ArcDirection.ARC_DIRECTION_NORMAL_VALUE;
+import static androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater.isRtlLayoutDirectionFromLocale;
 
 /**
  * A container, which can be added to a ArcLayout, which occupies a fixed size.
@@ -42,6 +46,7 @@ import java.lang.annotation.RetentionPolicy;
  */
 class SizedArcContainer extends ViewGroup implements ArcLayout.Widget {
     private static final float DEFAULT_SWEEP_ANGLE_DEGREES = 0;
+    private int mArcDirection = ARC_DIRECTION_CLOCKWISE_VALUE;
 
     private float mSweepAngleDegrees;
 
@@ -87,6 +92,11 @@ class SizedArcContainer extends ViewGroup implements ArcLayout.Widget {
 
     SizedArcContainer(@NonNull Context context) {
         this(context, null);
+    }
+
+    SizedArcContainer(@NonNull Context context, int arcDirection) {
+        this(context, null);
+        mArcDirection = arcDirection;
     }
 
     SizedArcContainer(@NonNull Context context, @Nullable AttributeSet attrs) {
@@ -232,15 +242,29 @@ class SizedArcContainer extends ViewGroup implements ArcLayout.Widget {
         float childSweep = ((ArcLayout.Widget) child).getSweepAngleDegrees();
         float offsetDegrees = (mSweepAngleDegrees - childSweep) / 2;
 
+        int sign = getSignForClockwise();
+
         switch (alignment) {
             case LayoutParams.ANGULAR_ALIGNMENT_START:
-                canvas.rotate(-offsetDegrees, centerX, centerY);
+                canvas.rotate(-1 * sign * offsetDegrees, centerX, centerY);
                 return super.drawChild(canvas, child, drawingTime);
             case LayoutParams.ANGULAR_ALIGNMENT_END:
-                canvas.rotate(offsetDegrees, centerX, centerY);
+                canvas.rotate(sign * offsetDegrees, centerX, centerY);
                 return super.drawChild(canvas, child, drawingTime);
             default:
                 return super.drawChild(canvas, child, drawingTime);
+        }
+    }
+
+    private int getSignForClockwise() {
+        switch (mArcDirection) {
+            case ARC_DIRECTION_CLOCKWISE_VALUE:
+                return 1;
+            case ARC_DIRECTION_COUNTER_CLOCKWISE_VALUE:
+                return -1;
+            case ARC_DIRECTION_NORMAL_VALUE:
+            default:
+                return isRtlLayoutDirectionFromLocale() ? -1 : 1;
         }
     }
 }
