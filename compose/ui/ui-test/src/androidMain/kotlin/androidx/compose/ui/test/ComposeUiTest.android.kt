@@ -219,26 +219,30 @@ inline fun <A : ComponentActivity> AndroidComposeUiTestEnvironment(
 @ExperimentalTestApi
 @OptIn(InternalTestApi::class, ExperimentalCoroutinesApi::class, ExperimentalComposeUiApi::class)
 abstract class AndroidComposeUiTestEnvironment<A : ComponentActivity>(
-    effectContext: CoroutineContext = EmptyCoroutineContext
+    private val effectContext: CoroutineContext = EmptyCoroutineContext
 ) {
     private val idlingResourceRegistry = IdlingResourceRegistry()
 
     internal val composeRootRegistry = ComposeRootRegistry()
 
     private val mainClockImpl: MainTestClockImpl
-    private val composeIdlingResource: ComposeIdlingResource
+    private lateinit var composeIdlingResource: ComposeIdlingResource
     private var idlingStrategy: IdlingStrategy = EspressoLink(idlingResourceRegistry)
 
-    private val recomposer: Recomposer
+    private lateinit var recomposer: Recomposer
     // We can only accept a TestDispatcher here because we need to access its scheduler.
     private val testCoroutineDispatcher = effectContext[ContinuationInterceptor] as? TestDispatcher
         ?: UnconfinedTestDispatcher()
     private val testCoroutineScope = TestScope(testCoroutineDispatcher)
-    private val recomposerCoroutineScope: CoroutineScope
+    private lateinit var recomposerCoroutineScope: CoroutineScope
     private val coroutineExceptionHandler = UncaughtExceptionHandler()
 
+    private val frameClock: TestMonotonicFrameClock
+    private val recomposerContinuationInterceptor: ApplyingContinuationInterceptor
+    private val infiniteAnimationPolicy: InfiniteAnimationPolicy
+
     init {
-        val frameClock = TestMonotonicFrameClock(
+        frameClock = TestMonotonicFrameClock(
             testCoroutineScope,
             // This callback will get run at the same time, relative to frame callbacks and
             // coroutine resumptions, as the Choreographer's perform traversal frame, where it runs
@@ -252,10 +256,12 @@ abstract class AndroidComposeUiTestEnvironment<A : ComponentActivity>(
         )
         // The applying interceptor needs to be the outermost wrapper since TestMonotonicFrameClock
         // will not delegate if the dispatcher dispatch is not needed at the time of intercept.
-        val recomposerContinuationInterceptor =
+        recomposerContinuationInterceptor =
             ApplyingContinuationInterceptor(frameClock.continuationInterceptor)
+
         mainClockImpl = MainTestClockImpl(testCoroutineDispatcher.scheduler, frameClock)
-        val infiniteAnimationPolicy = object : InfiniteAnimationPolicy {
+
+        infiniteAnimationPolicy = object : InfiniteAnimationPolicy {
             override suspend fun <R> onInfiniteOperation(block: suspend () -> R): R {
                 if (mainClockImpl.autoAdvance) {
                     throw CancellationException("Infinite animations are disabled on tests")
@@ -263,6 +269,11 @@ abstract class AndroidComposeUiTestEnvironment<A : ComponentActivity>(
                 return block()
             }
         }
+
+        createRecomposer()
+    }
+
+    private fun createRecomposer() {
         recomposerCoroutineScope = CoroutineScope(
             effectContext +
                 recomposerContinuationInterceptor +
@@ -272,9 +283,15 @@ abstract class AndroidComposeUiTestEnvironment<A : ComponentActivity>(
                 Job()
         )
         recomposer = Recomposer(recomposerCoroutineScope.coroutineContext)
+
         composeIdlingResource = ComposeIdlingResource(
             composeRootRegistry, mainClockImpl, recomposer
         )
+    }
+
+    fun cancelAndRecreateRecomposer() {
+        recomposer.cancel()
+        createRecomposer()
     }
 
     internal val testReceiverScope = AndroidComposeUiTestImpl()

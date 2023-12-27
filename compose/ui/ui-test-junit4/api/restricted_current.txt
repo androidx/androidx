@@ -6,6 +6,7 @@ package androidx.compose.ui.test.junit4 {
     ctor public AndroidComposeTestRule(R activityRule, kotlin.jvm.functions.Function1<? super R,? extends A> activityProvider);
     method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description description);
     method public suspend Object? awaitIdle(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public void cancelAndRecreateRecomposer();
     method public A getActivity();
     method public R getActivityRule();
     method public androidx.compose.ui.unit.Density getDensity();
