@@ -288,14 +288,14 @@
     <string name="rows_demo_title" msgid="3198566660454251007">"ردیف‌های نمونه"</string>
     <string name="text_icons_demo_title" msgid="8732943920672143201">"نوشتار و نمادهای نمونه"</string>
     <string name="row_text_icons_demo_title" msgid="135167694047524905">"نمونه ردیف‌ها به‌همراه نوشتار و نمادها"</string>
-    <string name="radio_button_list_demo_title" msgid="9082264324855338774">"نسخه نمونه فهرست‌های دکمه رادیو"</string>
+    <string name="radio_button_list_demo_title" msgid="9082264324855338774">"نسخه نمونه فهرست‌های دکمه رادیویی"</string>
     <string name="selectable_lists_demo_title" msgid="5492658731113129386">"فهرست‌های قابل‌انتخاب نمونه"</string>
     <string name="option_1_title" msgid="7221252541651471199">"گزینه ١"</string>
     <string name="option_2_title" msgid="1905146448697963818">"گزینه ۲"</string>
     <string name="option_3_title" msgid="6319268250436119258">"گزینه ۳"</string>
-    <string name="option_row_radio_title" msgid="5978617101267398181">"ردیف دارای دکمه رادیو"</string>
-    <string name="option_row_radio_icon_title" msgid="3304229002524317977">"ردیف دارای نماد و دکمه رادیو"</string>
-    <string name="option_row_radio_icon_colored_text_title" msgid="947641896184637026">"ردیف دارای دکمه رادیو و نماد و نوشتار رنگی"</string>
+    <string name="option_row_radio_title" msgid="5978617101267398181">"ردیف دارای دکمه رادیویی"</string>
+    <string name="option_row_radio_icon_title" msgid="3304229002524317977">"ردیف دارای نماد و دکمه رادیویی"</string>
+    <string name="option_row_radio_icon_colored_text_title" msgid="947641896184637026">"ردیف دارای دکمه رادیویی و نماد و نوشتار رنگی"</string>
     <string name="some_additional_text" msgid="4009872495806318260">"چند نوشتار دیگر"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"فهرست نمونه قابل‌انتخاب"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"محدودیت تکلیف نمونه"</string>
