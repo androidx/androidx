@@ -133,10 +133,10 @@ public fun Button(
  * be clickable.
  * @param colors [ButtonColors] that will be used to resolve the background and content color for
  * this button in different states. See [ButtonDefaults.buttonColors].
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this Button. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this Button in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's appearance
+ * or preview the button in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  * @param shape Defines the button's shape. It is strongly recommended to use the default as this
  * shape is a key characteristic of the Wear Material Theme.
  * @param border [ButtonBorder] that will be used to resolve the button border in different states.
@@ -149,7 +149,7 @@ public fun Button(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     colors: ButtonColors = ButtonDefaults.primaryButtonColors(),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     shape: Shape = CircleShape,
     border: ButtonBorder = ButtonDefaults.buttonBorder(),
     content: @Composable BoxScope.() -> Unit,
@@ -200,10 +200,10 @@ public fun Button(
  * be clickable.
  * @param colors [ButtonColors] that will be used to resolve the background and content color for
  * this button in different states. See [ButtonDefaults.outlinedButtonColors].
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this Button. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this Button in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's appearance
+ * or preview the button in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  * @param shape Defines the button's shape. It is strongly recommended to use the default as this
  * shape is a key characteristic of the Wear Material Theme.
  * @param border [ButtonBorder] that will be used to resolve the button border in different states.
@@ -216,7 +216,7 @@ public fun OutlinedButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     colors: ButtonColors = ButtonDefaults.outlinedButtonColors(),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     shape: Shape = CircleShape,
     border: ButtonBorder = ButtonDefaults.outlinedButtonBorder(),
     content: @Composable BoxScope.() -> Unit,
@@ -313,10 +313,10 @@ public fun CompactButton(
  * this button in different states. See [ButtonDefaults.buttonColors].
  * @param backgroundPadding Increases the transparent clickable area around the background,
  * defaults to [ButtonDefaults.CompactButtonBackgroundPadding]
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this Button. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this Button in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's appearance
+ * or preview the button in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  * @param shape Defines the button's shape. It is strongly recommended to use the default as this
  * shape is a key characteristic of the Wear Material Theme.
  * @param border [ButtonBorder] that will be used to resolve the button border in different states.
@@ -330,7 +330,7 @@ public fun CompactButton(
     enabled: Boolean = true,
     colors: ButtonColors = ButtonDefaults.primaryButtonColors(),
     backgroundPadding: Dp = ButtonDefaults.CompactButtonBackgroundPadding,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     shape: Shape = CircleShape,
     border: ButtonBorder = ButtonDefaults.buttonBorder(),
     content: @Composable BoxScope.() -> Unit,
@@ -385,10 +385,10 @@ public fun CompactButton(
  * this button in different states. See [ButtonDefaults.outlinedButtonColors].
  * @param backgroundPadding Increases the transparent clickable area around the background,
  * defaults to [ButtonDefaults.CompactButtonBackgroundPadding]
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this Button. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this Button in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's appearance
+ * or preview the button in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  * @param shape Defines the button's shape. It is strongly recommended to use the default as this
  * shape is a key characteristic of the Wear Material Theme.
  * @param border [ButtonBorder] that will be used to resolve the button border in different states.
@@ -402,7 +402,7 @@ public fun OutlinedCompactButton(
     enabled: Boolean = true,
     colors: ButtonColors = ButtonDefaults.outlinedButtonColors(),
     backgroundPadding: Dp = ButtonDefaults.CompactButtonBackgroundPadding,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     shape: Shape = CircleShape,
     border: ButtonBorder = ButtonDefaults.outlinedButtonBorder(),
     content: @Composable BoxScope.() -> Unit,

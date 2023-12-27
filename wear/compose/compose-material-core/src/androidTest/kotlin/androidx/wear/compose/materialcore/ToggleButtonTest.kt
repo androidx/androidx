@@ -1006,7 +1006,7 @@ private fun RoundToggleButtonWithDefaults(
     border: @Composable (enabled: Boolean, checked: Boolean) -> State<BorderStroke?>? =
         { _, _ -> null },
     toggleButtonSize: Dp = 52.dp,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     shape: Shape = CircleShape,
     content: @Composable BoxScope.() -> Unit = {
         TestText(text = "Label")
@@ -1044,7 +1044,7 @@ private fun ToggleButtonWithDefaults(
         Modifier.background(BACKGROUND_COLOR)
     },
     enabled: Boolean = true,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     contentPadding: PaddingValues = PaddingValues(
         start = CHIP_HORIZONTAL_PADDING,
         top = CHIP_VERTICAL_PADDING,
@@ -1093,8 +1093,8 @@ private fun SplitToggleButtonWithDefaults(
             remember { mutableStateOf(SPLIT_BACKGROUND_OVERLAY) }
         },
     enabled: Boolean = true,
-    checkedInteractionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    clickInteractionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    checkedInteractionSource: MutableInteractionSource? = null,
+    clickInteractionSource: MutableInteractionSource? = null,
     contentPadding: PaddingValues = PaddingValues(
         start = CHIP_HORIZONTAL_PADDING,
         top = CHIP_VERTICAL_PADDING,

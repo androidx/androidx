@@ -73,10 +73,10 @@ import androidx.compose.ui.unit.dp
  * content
  * @param shape Defines the card's shape. It is strongly recommended to use the default as this
  * shape is a key characteristic of the Wear Material Theme
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this card. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this card in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this card. You can use this to change the card's appearance
+ * or preview the card in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  * @param role The type of user interface element. Accessibility services might use this
  * to describe the element or do customizations
  * @param ripple Ripple used for this card
@@ -92,7 +92,7 @@ public fun Card(
     enabled: Boolean,
     contentPadding: PaddingValues,
     shape: Shape,
-    interactionSource: MutableInteractionSource,
+    interactionSource: MutableInteractionSource?,
     role: Role?,
     ripple: Indication,
     content: @Composable ColumnScope.() -> Unit,
@@ -157,10 +157,10 @@ public fun Card(
  * @param contentPadding The spacing values to apply internally between the container and the
  * content
  * @param containerPainter A Painter which is used for background drawing.
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this card. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this card in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this card. You can use this to change the card's appearance
+ * or preview the card in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  * @param shape Defines the card's shape. It is strongly recommended to use the default as this
  * shape is a key characteristic of the Wear Material Theme
  * @param ripple Ripple used for this card
@@ -182,7 +182,7 @@ public fun AppCard(
     border: BorderStroke?,
     contentPadding: PaddingValues,
     containerPainter: Painter,
-    interactionSource: MutableInteractionSource,
+    interactionSource: MutableInteractionSource?,
     shape: Shape,
     ripple: Indication,
     appImage: @Composable (RowScope.() -> Unit)?,

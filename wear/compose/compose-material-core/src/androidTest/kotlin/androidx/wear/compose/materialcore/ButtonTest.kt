@@ -32,7 +32,6 @@ import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -405,7 +404,7 @@ class ButtonTest {
         backgroundColor: @Composable (enabled: Boolean) -> State<Color> = {
             rememberUpdatedState(DEFAULT_SHAPE_COLOR)
         },
-        interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+        interactionSource: MutableInteractionSource? = null,
         shape: Shape = CircleShape,
         border: @Composable (enabled: Boolean) -> State<BorderStroke?>? = { null },
         content: @Composable BoxScope.() -> Unit

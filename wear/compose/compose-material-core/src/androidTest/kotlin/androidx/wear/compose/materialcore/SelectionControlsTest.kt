@@ -851,7 +851,7 @@ class SelectionControlsTest {
             },
         enabled: Boolean = true,
         onCheckedChange: ((Boolean) -> Unit)? = null,
-        interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+        interactionSource: MutableInteractionSource? = null,
         drawBox: FunctionDrawBox = FunctionDrawBox { _, _, _, _ -> },
         width: Dp = 24.dp,
         height: Dp = 24.dp
@@ -877,9 +877,7 @@ class SelectionControlsTest {
         checked: Boolean = true,
         enabled: Boolean = true,
         onCheckedChange: ((Boolean) -> Unit)? = null,
-        interactionSource: MutableInteractionSource = remember {
-            MutableInteractionSource()
-        },
+        interactionSource: MutableInteractionSource? = null,
         trackFillColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color> =
             { isEnabled, isChecked ->
                 selectionControlColor(
@@ -953,9 +951,7 @@ class SelectionControlsTest {
                 )
             },
         onClick: (() -> Unit)? = null,
-        interactionSource: MutableInteractionSource = remember {
-            MutableInteractionSource()
-        },
+        interactionSource: MutableInteractionSource? = null,
         dotRadiusProgressDuration: FunctionDotRadiusProgressDuration =
             FunctionDotRadiusProgressDuration { _ -> 200 },
         dotAlphaProgressDuration: Int = 200,

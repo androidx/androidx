@@ -191,10 +191,10 @@ public fun ToggleButton(
  * this toggle button will not be clickable.
  * @param colors [ToggleButtonColors] that will be used to resolve the background and
  * content color for this toggle button. See [ToggleButtonDefaults.toggleButtonColors].
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this toggle button. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this ToggleButton in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this toggle button. You can use this to change the toggle button's
+ * appearance or preview the toggle button in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param shape Defines the shape for this toggle button. It is strongly recommended to use the
  * default as this shape is a key characteristic of the Wear Material Theme.
  * @param role Role semantics that accessibility services can use to provide more
@@ -208,7 +208,7 @@ public fun ToggleButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     colors: ToggleButtonColors = ToggleButtonDefaults.toggleButtonColors(),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     shape: Shape = CircleShape,
     role: Role = ToggleButtonDefaults.DefaultRole,
     content: @Composable BoxScope.() -> Unit,
