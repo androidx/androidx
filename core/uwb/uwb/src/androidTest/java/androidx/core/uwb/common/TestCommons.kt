@@ -18,7 +18,7 @@ package androidx.core.uwb.common
 
 import androidx.core.uwb.RangingParameters
 import androidx.core.uwb.UwbDevice
-import com.google.android.gms.internal.nearby.zzua
+import com.google.android.gms.internal.nearby.zzpe
 import com.google.android.gms.nearby.uwb.RangingCapabilities
 import com.google.android.gms.nearby.uwb.UwbAddress
 import com.google.android.gms.nearby.uwb.UwbComplexChannel
@@ -31,7 +31,7 @@ internal class TestCommons {
             .build()
         val LOCAL_ADDRESS = UwbAddress(byteArrayOf(0xB0.toByte()))
         val RANGING_CAPABILITIES = RangingCapabilities(true, false, false, false,
-            200, zzua.zzl(9), zzua.zzl(1), zzua.zzn(1, 2, 3), zzua.zzl(2), zzua.zzl(1), false)
+            200, zzpe.zzl(9), zzpe.zzl(1), zzpe.zzn(1, 2, 3), zzpe.zzl(2), zzpe.zzl(1), false)
         val NEIGHBOR_1 = byteArrayOf(0xA1.toByte())
         val NEIGHBOR_2 = byteArrayOf(0xA5.toByte())
         val UWB_DEVICE = UwbDevice.createForAddress(NEIGHBOR_1)
