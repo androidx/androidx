@@ -1146,6 +1146,7 @@ package androidx.core.content {
     method public static android.os.Parcelable![]? getParcelableArrayExtra(android.content.Intent, String?, Class<? extends android.os.Parcelable!>);
     method public static <T> java.util.ArrayList<T!>? getParcelableArrayListExtra(android.content.Intent, String?, Class<? extends T!>);
     method public static <T> T? getParcelableExtra(android.content.Intent, String?, Class<T!>);
+    method public static <T extends java.io.Serializable> T? getSerializableExtra(android.content.Intent, String?, Class<T!>);
     method public static android.content.Intent makeMainSelectorActivity(String, String);
     field public static final String ACTION_CREATE_REMINDER = "android.intent.action.CREATE_REMINDER";
     field public static final String CATEGORY_LEANBACK_LAUNCHER = "android.intent.category.LEANBACK_LAUNCHER";
@@ -1907,6 +1908,7 @@ package androidx.core.os {
     method public static <T> T? getParcelable(android.os.Bundle, String?, Class<T!>);
     method public static android.os.Parcelable![]? getParcelableArray(android.os.Bundle, String?, Class<? extends android.os.Parcelable!>);
     method public static <T> java.util.ArrayList<T!>? getParcelableArrayList(android.os.Bundle, String?, Class<? extends T!>);
+    method public static <T extends java.io.Serializable> T? getSerializable(android.os.Bundle, String?, Class<T!>);
     method public static <T> android.util.SparseArray<T!>? getSparseParcelableArray(android.os.Bundle, String?, Class<? extends T!>);
     method public static void putBinder(android.os.Bundle, String?, android.os.IBinder?);
   }
