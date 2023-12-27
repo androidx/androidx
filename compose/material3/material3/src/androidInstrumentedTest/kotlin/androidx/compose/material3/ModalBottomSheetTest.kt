@@ -247,7 +247,7 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
                     )
                 }
             }
-
+            rule.waitForIdle()
             val simulatedRootWidth = rule.onNode(isPopup()).getUnclippedBoundsInRoot().width
             val maxSheetWidth = 640.dp
             val expectedSheetWidth = maxSheetWidth.coerceAtMost(simulatedRootWidth)
@@ -310,7 +310,7 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
                     )
                 }
             }
-
+            rule.waitForIdle()
             val sheet = rule.onNodeWithTag(sheetTag).onParent().getUnclippedBoundsInRoot()
             val sheetWidthPx = with(rule.density) { sheet.width.roundToPx() }
             assertThat(sheetWidthPx).isEqualTo(screenWidthPx)
