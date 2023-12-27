@@ -274,6 +274,38 @@ class XTypeElementTest(
     }
 
     @Test
+    fun superTypeWithAlias() {
+        runTest(
+            sources = listOf(
+                Source.kotlin(
+                    "foo.bar.KotlinClass.kt",
+                    """
+                    package foo.bar
+                    class MyClass : MyAliasClass(), MyAliasInterface
+                    typealias MyAliasClass = MyBaseClass
+                    typealias MyAliasInterface = MyBaseInterface
+                    abstract class MyBaseClass
+                    interface MyBaseInterface
+                    """.trimIndent()
+                ),
+            )
+        ) { invocation ->
+            invocation.processingEnv.requireTypeElement("foo.bar.MyClass").let { myClass ->
+                val myBaseClassName = XClassName.get("foo.bar", "MyBaseClass")
+                val myBaseInterfaceName = XClassName.get("foo.bar", "MyBaseInterface")
+                assertThat(myClass.superClass?.asTypeName()).isEqualTo(myBaseClassName)
+                assertThat(myClass.superInterfaces.map { it.asTypeName() }.toList())
+                    .containsExactly(myBaseInterfaceName)
+                assertThat(myClass.getSuperInterfaceElements().map { it.asClassName() }.toList())
+                    .containsExactly(myBaseInterfaceName)
+                assertThat(myClass.type.superTypes.map { it.asTypeName() }.toList())
+                    .containsExactly(myBaseClassName, myBaseInterfaceName)
+                    .inOrder()
+            }
+        }
+    }
+
+    @Test
     fun superTypeOfAny() {
         runTest(sources = listOf()) { invocation ->
             val any = invocation.processingEnv.requireTypeElement(Any::class)
