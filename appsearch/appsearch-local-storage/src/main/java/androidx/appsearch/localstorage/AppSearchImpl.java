@@ -26,7 +26,6 @@ import static androidx.appsearch.localstorage.util.PrefixUtil.getPackageName;
 import static androidx.appsearch.localstorage.util.PrefixUtil.getPrefix;
 import static androidx.appsearch.localstorage.util.PrefixUtil.removePrefixesFromDocument;
 
-import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
 
@@ -1344,7 +1343,7 @@ public final class AppSearchImpl implements Closeable {
                 if (sStatsBuilder != null && logger != null) {
                     sStatsBuilder.setStatusCode(AppSearchResult.RESULT_SECURITY_ERROR);
                 }
-                return new SearchResultPage(Bundle.EMPTY);
+                return new SearchResultPage();
             }
 
             String prefix = createPrefix(packageName, databaseName);
@@ -1355,7 +1354,7 @@ public final class AppSearchImpl implements Closeable {
             if (searchSpecToProtoConverter.hasNothingToSearch()) {
                 // there is nothing to search over given their search filters, so we can return an
                 // empty SearchResult and skip sending request to Icing.
-                return new SearchResultPage(Bundle.EMPTY);
+                return new SearchResultPage();
             }
 
             SearchResultPage searchResultPage =
@@ -1459,7 +1458,7 @@ public final class AppSearchImpl implements Closeable {
             if (searchSpecToProtoConverter.hasNothingToSearch()) {
                 // there is nothing to search over given their search filters, so we can return an
                 // empty SearchResult and skip sending request to Icing.
-                return new SearchResultPage(Bundle.EMPTY);
+                return new SearchResultPage();
             }
             if (sStatsBuilder != null) {
                 sStatsBuilder.setAclCheckLatencyMillis(

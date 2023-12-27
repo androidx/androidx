@@ -20,8 +20,6 @@ import static androidx.appsearch.localstorage.util.PrefixUtil.getDatabaseName;
 import static androidx.appsearch.localstorage.util.PrefixUtil.getPackageName;
 import static androidx.appsearch.localstorage.util.PrefixUtil.removePrefixesFromDocument;
 
-import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchResult;
@@ -39,6 +37,7 @@ import com.google.android.icing.proto.SnippetMatchProto;
 import com.google.android.icing.proto.SnippetProto;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -64,15 +63,12 @@ public class SearchResultToProtoConverter {
             @NonNull Map<String, Map<String, SchemaTypeConfigProto>> schemaMap,
             @NonNull AppSearchConfig config)
             throws AppSearchException {
-        Bundle bundle = new Bundle();
-        bundle.putLong(SearchResultPage.NEXT_PAGE_TOKEN_FIELD, proto.getNextPageToken());
-        ArrayList<Bundle> resultBundles = new ArrayList<>(proto.getResultsCount());
+        List<SearchResult> results = new ArrayList<>(proto.getResultsCount());
         for (int i = 0; i < proto.getResultsCount(); i++) {
             SearchResult result = toUnprefixedSearchResult(proto.getResults(i), schemaMap, config);
-            resultBundles.add(result.getBundle());
+            results.add(result);
         }
-        bundle.putParcelableArrayList(SearchResultPage.RESULTS_FIELD, resultBundles);
-        return new SearchResultPage(bundle);
+        return new SearchResultPage(proto.getNextPageToken(), results);
     }
 
     /**
