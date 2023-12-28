@@ -17,7 +17,6 @@
 package androidx.window.embedding
 
 import androidx.annotation.RestrictTo
-import androidx.window.core.ExperimentalWindowApi
 
 // TODO(295803704): Pending unhide.
 /**
@@ -28,7 +27,6 @@ import androidx.window.core.ExperimentalWindowApi
  * @constructor creates an overlay attributes.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@ExperimentalWindowApi
 class OverlayAttributes @JvmOverloads constructor(
     val bounds: EmbeddingBounds = EmbeddingBounds.BOUNDS_EXPANDED
 ) {

@@ -16,8 +16,6 @@
 
 package androidx.window.extensions.embedding;
 
-import androidx.window.extensions.RequiresVendorApiLevel;
-
 /**
  * A class that contains activity embedding properties that puts to or retrieves from
  * {@link android.app.ActivityOptions}.
@@ -34,7 +32,6 @@ public class ActivityEmbeddingOptionsProperties {
      * An {@code OverlayCreateParams} property that represents the unique identifier of the overlay
      * container.
      */
-    @RequiresVendorApiLevel(level = 5)
     public static final String KEY_OVERLAY_TAG =
             "androidx.window.extensions.embedding.OverlayTag";
 }

@@ -17,12 +17,10 @@
 package androidx.window.embedding
 
 import android.os.Bundle
-import androidx.window.core.ExperimentalWindowApi
 import org.junit.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 
-@OptIn(ExperimentalWindowApi::class)
 class OverlayControllerTest {
     private val mockBackend = mock<EmbeddingBackend>()
     private val overlayController = OverlayController(mockBackend)

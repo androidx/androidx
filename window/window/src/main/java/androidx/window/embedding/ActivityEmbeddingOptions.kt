@@ -115,7 +115,6 @@ fun ActivityOptions.setLaunchingActivityStack(activity: Activity): ActivityOptio
  * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion] is less than 5.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@ExperimentalWindowApi
 @RequiresWindowSdkExtension(5)
 fun Bundle.setOverlayCreateParams(
     activity: Activity,

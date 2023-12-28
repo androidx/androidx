@@ -20,14 +20,12 @@ import android.app.Activity
 import android.content.Intent
 import androidx.annotation.Sampled
 import androidx.core.app.ActivityOptionsCompat
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.EmbeddingBounds
 import androidx.window.embedding.OverlayAttributes
 import androidx.window.embedding.OverlayCreateParams
 import androidx.window.embedding.setOverlayCreateParams
 
 @Sampled
-@OptIn(ExperimentalWindowApi::class)
 fun launchOverlayActivityStackSample() {
     // Creates an overlay container on the right
     val params = OverlayCreateParams(

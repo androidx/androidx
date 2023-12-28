@@ -74,7 +74,6 @@ interface EmbeddingBackend {
     fun setLaunchingActivityStack(options: ActivityOptions, token: IBinder): ActivityOptions
 
     @RequiresWindowSdkExtension(5)
-    @ExperimentalWindowApi
     fun setOverlayCreateParams(options: Bundle, overlayCreateParams: OverlayCreateParams): Bundle
 
     @RequiresWindowSdkExtension(5)

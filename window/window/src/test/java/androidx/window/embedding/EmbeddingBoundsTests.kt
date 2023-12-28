@@ -18,7 +18,6 @@ package androidx.window.embedding
 
 import android.graphics.Rect
 import androidx.window.core.Bounds
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowLayoutInfo
 import com.google.common.truth.Truth.assertThat
@@ -29,7 +28,6 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
 /** Unit tests for [EmbeddingBounds] */
-@OptIn(ExperimentalWindowApi::class)
 class EmbeddingBoundsTests {
 
     private val taskBounds = Bounds(0, 0, 10, 10)

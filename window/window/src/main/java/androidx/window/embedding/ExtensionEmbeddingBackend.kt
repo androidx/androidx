@@ -391,7 +391,6 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
     ): ActivityOptions = embeddingExtension?.setLaunchingActivityStack(options, token) ?: options
 
     @RequiresWindowSdkExtension(5)
-    @ExperimentalWindowApi
     override fun setOverlayCreateParams(
         options: Bundle,
         overlayCreateParams: OverlayCreateParams,
