@@ -502,7 +502,13 @@ private class MultiLayerComposeSceneImpl(
 
         override var density: Density by owner::density
         override var layoutDirection: LayoutDirection by owner::layoutDirection
-        override var boundsInWindow: IntRect by mutableStateOf(owner.bounds ?: IntRect.Zero)
+
+        /*
+         * We cannot set [owner.bounds] as default value because real bounds will be available
+         * not immediately, so it will change [lastHoverOwner] for a few frames.
+         * This scenario is important when user code relies on hover events to show tooltips.
+         */
+        override var boundsInWindow: IntRect by mutableStateOf(IntRect.Zero)
         override var scrimColor: Color? by mutableStateOf(null)
         override var focusable: Boolean = focusable
             set(value) {
