@@ -421,6 +421,18 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         embeddingExtension?.updateSplitAttributes(splitInfo, splitAttributes)
     }
 
+    @RequiresWindowSdkExtension(5)
+    override fun setOverlayAttributesCalculator(
+        calculator: (OverlayAttributesCalculatorParams) -> OverlayAttributes
+    ) {
+        embeddingExtension?.setOverlayAttributesCalculator(calculator)
+    }
+
+    @RequiresWindowSdkExtension(5)
+    override fun clearOverlayAttributesCalculator() {
+        embeddingExtension?.clearOverlayAttributesCalculator()
+    }
+
     @RequiresApi(31)
     private object Api31Impl {
         @DoNotInline

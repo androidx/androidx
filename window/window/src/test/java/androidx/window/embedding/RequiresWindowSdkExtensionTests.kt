@@ -19,8 +19,6 @@ package androidx.window.embedding
 import android.app.ActivityOptions
 import android.content.Context
 import android.os.Binder
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowSdkExtensions
 import androidx.window.WindowSdkExtensionsRule
@@ -52,7 +50,6 @@ import org.mockito.kotlin.whenever
  *   successfully
  * - Otherwise, [UnsupportedOperationException] must be thrown.
  */
-@RequiresApi(Build.VERSION_CODES.M) // To call ActivityOptions.makeBasic()
 class RequiresWindowSdkExtensionTests {
 
     @get:Rule
