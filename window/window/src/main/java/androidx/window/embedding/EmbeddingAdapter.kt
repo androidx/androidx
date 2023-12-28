@@ -61,6 +61,7 @@ import androidx.window.extensions.embedding.SplitPinRule as OEMSplitPinRule
 import androidx.window.extensions.embedding.SplitPinRule.Builder as SplitPinRuleBuilder
 import androidx.window.extensions.embedding.SplitPlaceholderRule as OEMSplitPlaceholderRule
 import androidx.window.extensions.embedding.SplitPlaceholderRule.Builder as SplitPlaceholderRuleBuilder
+import androidx.window.extensions.embedding.WindowAttributes
 import androidx.window.extensions.embedding.WindowAttributes as OEMWindowAttributes
 import androidx.window.layout.WindowMetricsCalculator
 import androidx.window.layout.adapter.extensions.ExtensionsWindowLayoutInfoAdapter
@@ -130,8 +131,8 @@ internal class EmbeddingAdapter(
             )
             .build()
 
+    @OptIn(ExperimentalWindowApi::class)
     @SuppressLint("NewApi", "ClassVerificationFailure")
-    @ExperimentalWindowApi
     internal fun translate(parentContainerInfo: OEMParentContainerInfo): ParentContainerInfo {
         val windowMetrics = WindowMetricsCalculator
             .translateWindowMetrics(parentContainerInfo.windowMetrics)
@@ -264,16 +265,22 @@ internal class EmbeddingAdapter(
                 }
             )
         if (vendorApiLevel >= 5) {
-            builder.setWindowAttributes(
-                OEMWindowAttributes(
-                    when (embeddingConfiguration?.dimArea) {
-                        ON_TASK -> OEMWindowAttributes.DIM_AREA_ON_TASK
-                        else -> OEMWindowAttributes.DIM_AREA_ON_ACTIVITY_STACK
-                    }
-                )
-            )
+            builder.setWindowAttributes(translateWindowAttributes())
         }
         return builder.build()
+    }
+
+    /** Translates [embeddingConfiguration] from adapter to [WindowAttributes]. */
+    @OptIn(ExperimentalWindowApi::class)
+    internal fun translateWindowAttributes(): OEMWindowAttributes = let {
+        WindowSdkExtensions.getInstance().requireExtensionVersion(5)
+
+        OEMWindowAttributes(
+            when (embeddingConfiguration?.dimArea) {
+                ON_TASK -> OEMWindowAttributes.DIM_AREA_ON_TASK
+                else -> OEMWindowAttributes.DIM_AREA_ON_ACTIVITY_STACK
+            }
+        )
     }
 
     private fun translateSplitType(splitType: SplitType): OEMSplitType {
