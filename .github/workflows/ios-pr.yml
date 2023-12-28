@@ -38,11 +38,3 @@ jobs:
           name: iOS Unit tests results
           path: out/androidx/compose/**/**/build/test-results/**/TEST*.xml
           reporter: java-junit
-      - name: Generate report (Publish Test Results)
-        uses: EnricoMi/publish-unit-test-result-action/composite@v2
-        if: always()
-        with:
-          files: |
-            out/androidx/compose/ui/ui/build/test-results/**/*.xml
-            out/androidx/compose/ui/ui/build/test-results/**/*.trx
-            out/androidx/compose/ui/ui/build/test-results/**/*.json
