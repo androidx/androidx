@@ -309,9 +309,10 @@ interface NavigationSuiteScope {
      * @param badge optional badge to show on this item
      * @param colors [NavigationSuiteItemColors] that will be used to resolve the colors used for this
      * item in different states.
-     * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
-     * for this item. You can create and pass in your own `remember`ed instance to observe
-     * [Interaction]s and customize the appearance / behavior of this item in different states
+     * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+     * emitting [Interaction]s for this item. You can use this to change the item's appearance
+     * or preview the item in different states. Note that if `null` is provided, interactions will
+     * still happen internally.
      */
     fun item(
         selected: Boolean,
@@ -323,7 +324,7 @@ interface NavigationSuiteScope {
         alwaysShowLabel: Boolean = true,
         badge: (@Composable () -> Unit)? = null,
         colors: NavigationSuiteItemColors? = null,
-        interactionSource: MutableInteractionSource = MutableInteractionSource()
+        interactionSource: MutableInteractionSource? = null
     )
 }
 
@@ -509,7 +510,7 @@ private class NavigationSuiteItem(
     val alwaysShowLabel: Boolean,
     val badge: (@Composable () -> Unit)?,
     val colors: NavigationSuiteItemColors?,
-    val interactionSource: MutableInteractionSource
+    val interactionSource: MutableInteractionSource?
 )
 
 @OptIn(ExperimentalMaterial3AdaptiveNavigationSuiteApi::class)
@@ -526,7 +527,7 @@ private class NavigationSuiteScopeImpl : NavigationSuiteScope,
         alwaysShowLabel: Boolean,
         badge: (@Composable () -> Unit)?,
         colors: NavigationSuiteItemColors?,
-        interactionSource: MutableInteractionSource
+        interactionSource: MutableInteractionSource?
     ) {
         itemList.add(
             NavigationSuiteItem(

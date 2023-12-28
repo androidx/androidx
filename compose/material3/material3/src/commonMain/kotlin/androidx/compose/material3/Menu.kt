@@ -300,7 +300,7 @@ internal fun DropdownMenuItemContent(
     enabled: Boolean,
     colors: MenuItemColors,
     contentPadding: PaddingValues,
-    interactionSource: MutableInteractionSource
+    interactionSource: MutableInteractionSource?
 ) {
     Row(
         modifier = modifier

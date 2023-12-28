@@ -64,10 +64,12 @@ import kotlinx.coroutines.flow.collectLatest
 fun Label(
     label: @Composable CaretScope.() -> Unit,
     modifier: Modifier = Modifier,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     isPersistent: Boolean = false,
     content: @Composable () -> Unit
 ) {
+    @Suppress("NAME_SHADOWING")
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     // Has the same positioning logic as PlainTooltips
     val positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider()
     val state = if (isPersistent)

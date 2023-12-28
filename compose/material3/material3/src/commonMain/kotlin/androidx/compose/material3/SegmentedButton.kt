@@ -116,9 +116,10 @@ import kotlinx.coroutines.launch
  * @param colors [SegmentedButtonColors] that will be used to resolve the colors used for this
  * @param border the border for this button, see [SegmentedButtonColors]
  * Button in different states
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this button. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this button in different states.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's
+ * appearance or preview the button in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param icon the icon slot for this button, you can pass null in unchecked, in which case
  * the content will displace to show the checked icon, or pass different icon lambdas for
  * unchecked and checked in which case the icons will crossfade.
@@ -136,10 +137,12 @@ fun MultiChoiceSegmentedButtonRowScope.SegmentedButton(
     border: BorderStroke = SegmentedButtonDefaults.borderStroke(
         colors.borderColor(enabled, checked)
     ),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     icon: @Composable () -> Unit = { SegmentedButtonDefaults.Icon(checked) },
     label: @Composable () -> Unit,
 ) {
+    @Suppress("NAME_SHADOWING")
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     val containerColor = colors.containerColor(enabled, checked)
     val contentColor = colors.contentColor(enabled, checked)
     val interactionCount = interactionSource.interactionCountAsState()
@@ -191,9 +194,10 @@ fun MultiChoiceSegmentedButtonRowScope.SegmentedButton(
  * @param colors [SegmentedButtonColors] that will be used to resolve the colors used for this
  * @param border the border for this button, see [SegmentedButtonColors]
  * Button in different states
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this button. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this button in different states.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's
+ * appearance or preview the button in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param icon the icon slot for this button, you can pass null in unchecked, in which case
  * the content will displace to show the checked icon, or pass different icon lambdas for
  * unchecked and checked in which case the icons will crossfade.
@@ -211,10 +215,12 @@ fun SingleChoiceSegmentedButtonRowScope.SegmentedButton(
     border: BorderStroke = SegmentedButtonDefaults.borderStroke(
         colors.borderColor(enabled, selected)
     ),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     icon: @Composable () -> Unit = { SegmentedButtonDefaults.Icon(selected) },
     label: @Composable () -> Unit,
 ) {
+    @Suppress("NAME_SHADOWING")
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     val containerColor = colors.containerColor(enabled, selected)
     val contentColor = colors.contentColor(enabled, selected)
     val interactionCount = interactionSource.interactionCountAsState()
