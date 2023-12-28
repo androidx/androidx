@@ -27,6 +27,8 @@ import androidx.compose.ui.scene.getConstraintsToFillParent
 import androidx.compose.ui.unit.Density
 import kotlin.math.absoluteValue
 import kotlin.math.min
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import org.jetbrains.skia.BreakIterator
 import org.jetbrains.skiko.SkikoKey
 import org.jetbrains.skiko.SkikoKeyboardEventKind
@@ -92,6 +94,7 @@ internal class UIKitTextInputService(
      * And after clear in updateState function.
      */
     private var _tempCursorPos: Int? = null
+    private val mainScope = MainScope()
 
     override fun startInput(
         value: TextFieldValue,
@@ -106,6 +109,7 @@ internal class UIKitTextInputService(
         currentImeOptions = imeOptions
         currentImeActionHandler = onImeActionPerformed
 
+        textUIView?.removeFromSuperview()
         textUIView = IntermediateTextInputUIView(
             keyboardEventHandler = keyboardEventHandler,
         ).also {
@@ -127,7 +131,13 @@ internal class UIKitTextInputService(
         currentImeOptions = null
         currentImeActionHandler = null
         hideSoftwareKeyboard()
-        textUIView?.removeFromSuperview()
+
+        textUIView?.input = null
+        textUIView?.let { view ->
+            mainScope.launch {
+                view.removeFromSuperview()
+            }
+        }
         textUIView = null
     }
 

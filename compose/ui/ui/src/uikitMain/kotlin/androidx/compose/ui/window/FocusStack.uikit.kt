@@ -17,6 +17,8 @@
 package androidx.compose.ui.window
 
 import androidx.compose.ui.util.fastForEachReversed
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import platform.UIKit.UIView
 
 /**
@@ -43,24 +45,31 @@ internal interface FocusStack<V> {
 
 internal class FocusStackImpl : FocusStack<UIView> {
 
-    private var list = emptyList<UIView>()
+    private var activeViews = emptyList<UIView>()
+    private var resignedViews = emptyList<UIView>()
+    private val mainScope = MainScope()
 
     override fun pushAndFocus(view: UIView) {
-        list += view
+        activeViews += view
+        resignedViews -= view
         view.becomeFirstResponder()
     }
 
     override fun popUntilNext(view: UIView) {
-        if (list.contains(view)) {
-            val index = list.indexOf(view)
-            list.subList(index, list.lastIndex).fastForEachReversed {
-                it.resignFirstResponder()
+        if (activeViews.contains(view)) {
+            val index = activeViews.indexOf(view)
+            resignedViews += activeViews.subList(index, activeViews.lastIndex)
+            activeViews = activeViews.subList(0, index)
+
+            mainScope.launch {
+                resignedViews.fastForEachReversed {
+                    it.resignFirstResponder()
+                }
+                resignedViews = emptyList()
+                activeViews.lastOrNull()?.becomeFirstResponder()
             }
-            list = list.subList(0, index)
-            list.lastOrNull()?.becomeFirstResponder()
         }
     }
 
-    override fun first(): UIView? = list.firstOrNull()
-
+    override fun first(): UIView? = activeViews.firstOrNull()
 }
