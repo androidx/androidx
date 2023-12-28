@@ -141,5 +141,5 @@ androidx {
 }
 
 android {
-    namespace "androidx.sqlite.driver"
+    namespace "androidx.sqlite.db.framework"
 }
