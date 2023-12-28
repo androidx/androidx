@@ -48,6 +48,17 @@ public class SearchResultPage {
         mNextPageToken = mBundle.getLong(NEXT_PAGE_TOKEN_FIELD);
     }
 
+    public SearchResultPage(long nextPageToken, @NonNull List<SearchResult> results) {
+        mBundle = new Bundle();
+        mBundle.putLong(NEXT_PAGE_TOKEN_FIELD, nextPageToken);
+        ArrayList<Bundle> resultsBundle = new ArrayList<>();
+        for (int i = 0; i < results.size(); i++) {
+            resultsBundle.add(results.get(i).getBundle());
+        }
+        mBundle.putParcelableArrayList(RESULTS_FIELD, resultsBundle);
+        mNextPageToken = nextPageToken;
+    }
+
     /** Returns the {@link Bundle} of this class. */
     @NonNull
     public Bundle getBundle() {
