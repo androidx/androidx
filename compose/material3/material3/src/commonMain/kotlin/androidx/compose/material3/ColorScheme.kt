@@ -648,7 +648,7 @@ fun darkColorScheme(
     surfaceBright: Color = ColorDarkTokens.SurfaceBright,
     surfaceContainer: Color = ColorDarkTokens.SurfaceContainer,
     surfaceContainerHigh: Color = ColorDarkTokens.SurfaceContainerHigh,
-    surfaceContainerHighest: Color = ColorLightTokens.SurfaceContainerHighest,
+    surfaceContainerHighest: Color = ColorDarkTokens.SurfaceContainerHighest,
     surfaceContainerLow: Color = ColorDarkTokens.SurfaceContainerLow,
     surfaceContainerLowest: Color = ColorDarkTokens.SurfaceContainerLowest,
     surfaceDim: Color = ColorDarkTokens.SurfaceDim,
