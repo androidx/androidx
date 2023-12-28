@@ -274,7 +274,6 @@ class TableInfo(
             }
         }
 
-        // TODO: problem probably here
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Column) return false
