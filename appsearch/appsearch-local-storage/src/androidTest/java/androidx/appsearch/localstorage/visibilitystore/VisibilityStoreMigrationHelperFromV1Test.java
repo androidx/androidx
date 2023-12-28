@@ -138,7 +138,9 @@ public class VisibilityStoreMigrationHelperFromV1Test {
                         VisibilityStore.VISIBILITY_DATABASE_NAME,
                         VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                         /*id=*/ prefix + "Schema",
-                        /*typePropertyPaths=*/ Collections.emptyMap()), null);
+                        /*typePropertyPaths=*/ Collections.emptyMap()),
+                /*publicAclDocument=*/null,
+                /*visibleToConfigDocument=*/null);
 
         assertThat(actualConfig.isNotDisplayedBySystem()).isTrue();
         assertThat(actualConfig.getVisibleToPackages())

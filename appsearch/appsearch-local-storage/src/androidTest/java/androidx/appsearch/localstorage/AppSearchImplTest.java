@@ -93,6 +93,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+// TODO(b/300162279) add test to verify overlay document is saved to AppSearchImpl.
 @SuppressWarnings("GuardedBy")
 public class AppSearchImplTest {
     /**
@@ -4275,7 +4276,9 @@ public class AppSearchImplTest {
                 VISIBILITY_DATABASE_NAME,
                 VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                 /*id=*/ prefix + "Email",
-                /*typePropertyPaths=*/ Collections.emptyMap()), null);
+                /*typePropertyPaths=*/ Collections.emptyMap()),
+                        /*publicAclDocument=*/null,
+                        /*visibleToConfigDocument=*/null);
         assertThat(actualDocument).isEqualTo(expectedDocument);
     }
 
@@ -4310,13 +4313,16 @@ public class AppSearchImplTest {
                 .getVisibility(prefix1 + "Email1"))
                 .isEqualTo(expectedDocument1);
         // Verify the VisibilityConfig is saved to AppSearchImpl.
-        VisibilityConfig actualDocument1 =
-                VisibilityToDocumentConverter.createVisibilityConfig(mAppSearchImpl.getDocument(
-                VISIBILITY_PACKAGE_NAME,
-                VISIBILITY_DATABASE_NAME,
-                VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
-                /*id=*/ prefix1 + "Email1",
-                /*typePropertyPaths=*/ Collections.emptyMap()), null);
+        VisibilityConfig actualDocument1 = VisibilityToDocumentConverter.createVisibilityConfig(
+                mAppSearchImpl.getDocument(
+                        VISIBILITY_PACKAGE_NAME,
+                        VISIBILITY_DATABASE_NAME,
+                        VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
+                        /*id=*/ prefix1 + "Email1",
+                        /*typePropertyPaths=*/ Collections.emptyMap()),
+                /*publicAclDocument=*/null,
+                /*visibleToConfigDocument=*/null);
+
         assertThat(actualDocument1).isEqualTo(expectedDocument1);
 
         // Create Visibility Document for Email2
@@ -4354,7 +4360,9 @@ public class AppSearchImplTest {
                 VISIBILITY_DATABASE_NAME,
                 VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                 /*id=*/ prefix2 + "Email2",
-                /*typePropertyPaths=*/ Collections.emptyMap()), null);
+                /*typePropertyPaths=*/ Collections.emptyMap()),
+                /*publicAclDocument=*/null,
+                /*visibleToConfigDocument=*/null);
         assertThat(actualDocument2).isEqualTo(expectedDocument2);
 
         // Check the existing visibility document retains.
@@ -4368,7 +4376,9 @@ public class AppSearchImplTest {
                         VISIBILITY_DATABASE_NAME,
                         VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                         /*id=*/ prefix1 + "Email1",
-                        /*typePropertyPaths=*/ Collections.emptyMap()), null);
+                        /*typePropertyPaths=*/ Collections.emptyMap()),
+                /*publicAclDocument=*/null,
+                /*visibleToConfigDocument=*/null);
         assertThat(actualDocument1).isEqualTo(expectedDocument1);
     }
 
@@ -4407,7 +4417,9 @@ public class AppSearchImplTest {
                 VISIBILITY_DATABASE_NAME,
                 VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                 /*id=*/ prefix + "Email",
-                /*typePropertyPaths=*/ Collections.emptyMap()), null);
+                /*typePropertyPaths=*/ Collections.emptyMap()),
+                        /*publicAclDocument=*/null,
+                        /*visibleToConfigDocument=*/null);
         assertThat(actualDocument).isEqualTo(expectedDocument);
 
         // Set schema Email and its all-default visibility document to AppSearch database1
@@ -4470,7 +4482,9 @@ public class AppSearchImplTest {
                         VISIBILITY_DATABASE_NAME,
                 VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                 /*id=*/ prefix + "Email",
-                /*typePropertyPaths=*/ Collections.emptyMap()), null);
+                /*typePropertyPaths=*/ Collections.emptyMap()),
+                        /*publicAclDocument=*/null,
+                        /*visibleToConfigDocument=*/null);
         assertThat(actualDocument).isEqualTo(expectedDocument);
 
         // remove the schema and visibility setting from AppSearch
@@ -4554,7 +4568,9 @@ public class AppSearchImplTest {
                         VISIBILITY_DATABASE_NAME,
                 VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                 /*id=*/ prefix + "Email",
-                /*typePropertyPaths=*/ Collections.emptyMap()), null);
+                /*typePropertyPaths=*/ Collections.emptyMap()),
+                        /*publicAclDocument=*/null,
+                        /*visibleToConfigDocument=*/null);
         assertThat(actualDocument).isEqualTo(expectedDocument);
 
         // remove schema and visibility document

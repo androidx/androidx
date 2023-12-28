@@ -52,7 +52,44 @@ public class VisibilityToDocumentConverter {
      */
     public static final String PUBLIC_ACL_OVERLAY_SCHEMA_TYPE = "PublicAclOverlayType";
     /** Namespace of documents that contain public acl visibility settings */
-    public static final String PUBLIC_ACL_OVERLAY_NAMESPACE = "overlay";
+    public static final String PUBLIC_ACL_OVERLAY_NAMESPACE = "publicAclOverlay";
+
+    /**
+     * The schema type for the visible to {@link VisibilityConfig} overlay documents, that allow
+     * for additional visibility settings.
+     */
+    public static final String VISIBLE_TO_CONFIG_OVERLAY_SCHEMA_TYPE =
+            "VisibleToConfigOverlayType";
+    /** Namespace for the visible to {@link VisibilityConfig} overlay documents */
+    public static final String VISIBLE_TO_CONFIG_OVERLAY_NAMESPACE =
+            "visibleToConfigOverlay";
+
+    /**
+     * The schema type that combine two documents from {@link #VISIBILITY_DOCUMENT_SCHEMA} and
+     * {@link #PUBLIC_ACL_OVERLAY_SCHEMA}.
+     *
+     * <p> This will be used in {@link #VISIBLE_TO_CONFIG_OVERLAY_SCHEMA}
+     */
+    public static final String VISIBLE_TO_CONFIG_WRAPPER_SCHEMA_TYPE =
+            "VisibleToConfigWrapper";
+    /**
+     * Property that holds the {@link #VISIBLE_TO_CONFIG_WRAPPER_SCHEMA} property, as part of
+     * the {@link #VISIBLE_TO_CONFIG_OVERLAY_SCHEMA}.
+     */
+    public static final String VISIBLE_TO_CONFIG_WRAPPER_PROPERTY =
+            "visibleToConfigWrapperProperty";
+
+    /**
+     * Property that holds the {@link #VISIBILITY_DOCUMENT_SCHEMA_TYPE} property, as part of the
+     * {@link #VISIBLE_TO_CONFIG_WRAPPER_SCHEMA}.
+     */
+    public static final String VISIBILITY_DOCUMENT_PROPERTY = "visibilityDocumentProperty";
+
+    /**
+     * Property that holds the public acl visibility overlay property, as part of the
+     * {@link #VISIBLE_TO_CONFIG_WRAPPER_SCHEMA}.
+     */
+    public static final String PUBLIC_ACL_PROPERTY = "publicAclProperty";
 
     /**
      * Property that holds the list of platform-hidden schemas, as part of the visibility settings.
@@ -135,23 +172,61 @@ public class VisibilityToDocumentConverter {
                     .build();
 
     /**
+     * Schema for the VisibilityStore's visible to {@link VisibilityConfig} overlays.
+     *
+     * <p>NOTE: If you need to add an additional visibility property, add another overlay type.
+     */
+    public static final AppSearchSchema VISIBLE_TO_CONFIG_OVERLAY_SCHEMA =
+            new AppSearchSchema.Builder(VISIBLE_TO_CONFIG_OVERLAY_SCHEMA_TYPE)
+                    .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder(
+                            VISIBLE_TO_CONFIG_WRAPPER_PROPERTY,
+                            VISIBLE_TO_CONFIG_WRAPPER_SCHEMA_TYPE)
+                            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+                            .build())
+                    .build();
+
+    /**
+     * The schema type that combine two documents from {@link #VISIBILITY_DOCUMENT_SCHEMA} and
+     * {@link #PUBLIC_ACL_OVERLAY_SCHEMA}.
+     */
+    // TODO(b/319547374) merge this with public acl overlay schema
+    public static final AppSearchSchema VISIBLE_TO_CONFIG_WRAPPER_SCHEMA =
+            new AppSearchSchema.Builder(VISIBLE_TO_CONFIG_WRAPPER_SCHEMA_TYPE)
+                    .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder(
+                            VISIBILITY_DOCUMENT_PROPERTY, VISIBILITY_DOCUMENT_SCHEMA_TYPE)
+                            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                            .build())
+                    .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder(
+                            PUBLIC_ACL_PROPERTY, PUBLIC_ACL_OVERLAY_SCHEMA_TYPE)
+                            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                            .build())
+                    .build();
+
+    /**
      * Constructs a {@link VisibilityConfig} from two {@link GenericDocument}s.
      *
      * <p>This constructor is still needed until we don't treat Visibility related documents as
      * {@link GenericDocument}s internally.
      *
-     * @param visibilityDocument a {@link GenericDocument} holding all visibility properties
-     *                           other than publiclyVisibleTargetPackage.
-     * @param publicAclDocument a {@link GenericDocument} holding the
-     *                          publiclyVisibleTargetPackage visibility property
+     * @param visibilityDocument       a {@link GenericDocument} holding all visibility properties
+     *                                 other than publiclyVisibleTargetPackage.
+     * @param publicAclDocument        a {@link GenericDocument} holding the
+     *                                 publiclyVisibleTargetPackage visibility property
+     * @param visibleToConfigDocument  a {@link GenericDocument} holding all
+     *                                 {@link VisibilityConfig}s this schema visible to.
      */
     @NonNull
     public static VisibilityConfig createVisibilityConfig(
             @NonNull GenericDocument visibilityDocument,
-            @Nullable GenericDocument publicAclDocument) {
+            @Nullable GenericDocument publicAclDocument,
+            @Nullable GenericDocument visibleToConfigDocument) {
         Objects.requireNonNull(visibilityDocument);
 
         String schemaType = visibilityDocument.getId();
+        if (schemaType.isEmpty()) {
+            // This is nested VisibilityConfig, we don't need to set schemaType.
+            schemaType = null;
+        }
         boolean isNotDisplayedBySystem = visibilityDocument.getPropertyBoolean(
                 NOT_DISPLAYED_BY_SYSTEM_PROPERTY);
 
@@ -179,6 +254,21 @@ public class VisibilityToDocumentConverter {
                     PUBLICLY_VISIBLE_TARGET_PACKAGE_SHA_256_CERT);
         }
 
+        List<VisibilityConfig> visibleToConfigs = new ArrayList<>();
+        if (visibleToConfigDocument != null) {
+            GenericDocument[] configAndPublicAclDocuments = visibleToConfigDocument
+                    .getPropertyDocumentArray(VISIBLE_TO_CONFIG_WRAPPER_PROPERTY);
+            for (int i = 0; i < configAndPublicAclDocuments.length; i++) {
+                GenericDocument visibilityConfigPropertyDocument =
+                        configAndPublicAclDocuments[i]
+                                .getPropertyDocument(VISIBILITY_DOCUMENT_PROPERTY);
+                GenericDocument publicAclPropertyDocument = configAndPublicAclDocuments[i]
+                        .getPropertyDocument(PUBLIC_ACL_PROPERTY);
+                visibleToConfigs.add(createVisibilityConfig(visibilityConfigPropertyDocument,
+                        publicAclPropertyDocument, /*visibleToConfigDocument=*/null));
+            }
+        }
+
         return new VisibilityConfig(
                 schemaType,
                 isNotDisplayedBySystem,
@@ -186,7 +276,8 @@ public class VisibilityToDocumentConverter {
                 visibleToPackageShaCerts,
                 visibilityPermissionConfigs,
                 publiclyVisibleTargetPackage,
-                publiclyVisibleTargetPackageSha);
+                publiclyVisibleTargetPackageSha,
+                visibleToConfigs);
     }
 
     /**
@@ -197,9 +288,15 @@ public class VisibilityToDocumentConverter {
     @NonNull
     public static GenericDocument createVisibilityDocument(
             @NonNull VisibilityConfig config) {
+        // We are using schemaType to be the document Id when store to Icing.
+        String documentId = config.getSchemaType();
+        if (documentId == null) {
+            // This is the nested VisibilityConfig, we could skip to set the document id.
+            documentId = "";
+        }
         GenericDocument.Builder<?> builder = new GenericDocument.Builder<>(
                 VISIBILITY_DOCUMENT_NAMESPACE,
-                config.getSchemaType(),
+                documentId,
                 VISIBILITY_DOCUMENT_SCHEMA_TYPE);
         builder.setPropertyBoolean(NOT_DISPLAYED_BY_SYSTEM_PROPERTY,
                 config.isNotDisplayedBySystem());
@@ -247,9 +344,15 @@ public class VisibilityToDocumentConverter {
         if (publiclyVisibleTargetPackage == null) {
             return null;
         }
+        // We are using schemaType to be the document Id when store to Icing.
+        String documentId = config.getSchemaType();
+        if (documentId == null) {
+            // This is the nested VisibilityConfig, we could skip to set the document id.
+            documentId = "";
+        }
         GenericDocument.Builder<?> builder = new GenericDocument.Builder<>(
                 PUBLIC_ACL_OVERLAY_NAMESPACE,
-                config.getSchemaType(),
+                documentId,
                 PUBLIC_ACL_OVERLAY_SCHEMA_TYPE);
 
         builder.setPropertyString(PUBLICLY_VISIBLE_TARGET_PACKAGE,
@@ -265,5 +368,51 @@ public class VisibilityToDocumentConverter {
         return builder.build();
     }
 
+    /**
+     * Returns the {@link GenericDocument} for the
+     * {@link #VISIBLE_TO_CONFIG_OVERLAY_SCHEMA_TYPE} if it is provided, null otherwise.
+     */
+    @Nullable
+    public static GenericDocument createVisibleToConfigOverlay(@NonNull VisibilityConfig config) {
+        Set<VisibilityConfig> visibilityConfigs = config.getVisibleToConfigs();
+        if (visibilityConfigs.isEmpty()) {
+            return null;
+        }
 
+        GenericDocument.Builder<?> builder = new GenericDocument.Builder<>(
+                VISIBLE_TO_CONFIG_OVERLAY_NAMESPACE,
+                config.getSchemaType(),
+                VISIBLE_TO_CONFIG_OVERLAY_SCHEMA_TYPE);
+        GenericDocument[] configAndPublicAclDocs = new GenericDocument[visibilityConfigs.size()];
+        int i = 0;
+        for (VisibilityConfig visibilityConfig : visibilityConfigs) {
+            GenericDocument configDocument = createVisibilityDocument(visibilityConfig);
+            GenericDocument publicAclDocument = createPublicAclOverlay(visibilityConfig);
+            GenericDocument.Builder<?> configAndPublicAclBuilder =
+                    new GenericDocument.Builder<>(/*namespace=*/"", /*id=*/ "",
+                            VISIBLE_TO_CONFIG_WRAPPER_SCHEMA_TYPE);
+            configAndPublicAclBuilder.setPropertyDocument(
+                    VISIBILITY_DOCUMENT_PROPERTY, configDocument);
+            if (publicAclDocument != null) {
+                configAndPublicAclBuilder.setPropertyDocument(
+                        PUBLIC_ACL_PROPERTY, publicAclDocument);
+            }
+
+            // The creationTimestamp doesn't matter for Visibility documents.
+            // But to make tests pass, we set it 0 so two GenericDocuments generated from
+            // the same VisibilityConfig can be same.
+            configAndPublicAclBuilder.setCreationTimestampMillis(0L);
+            configAndPublicAclDocs[i++] = configAndPublicAclBuilder.build();
+        }
+
+        builder.setPropertyDocument(VISIBLE_TO_CONFIG_WRAPPER_PROPERTY,
+                configAndPublicAclDocs);
+
+        // The creationTimestamp doesn't matter for Visibility documents.
+        // But to make tests pass, we set it 0 so two GenericDocuments generated from
+        // the same VisibilityConfig can be same.
+        builder.setCreationTimestampMillis(0L);
+
+        return builder.build();
+    }
 }

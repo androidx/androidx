@@ -24,6 +24,7 @@ import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SetSchemaRequest;
+import androidx.appsearch.app.VisibilityConfig;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -157,6 +158,32 @@ public class GetSchemaResponseCtsTest {
                                 .READ_ASSISTANT_APP_SEARCH_DATA)));
     }
 
+
+    @Test
+    public void setVisibilityConfig() {
+        VisibilityConfig visibilityConfig1 = new VisibilityConfig.Builder()
+                .setNotDisplayedBySystem(true)
+                .addVisibleToPackage(new PackageIdentifier("pkg1", new byte[32]))
+                .setPubliclyVisibleTargetPackage(new PackageIdentifier("pkg2", new byte[32]))
+                .addVisibleToPermissions(ImmutableSet.of(1, 2))
+                .build();
+        VisibilityConfig visibilityConfig2 = new VisibilityConfig.Builder()
+                .setNotDisplayedBySystem(true)
+                .addVisibleToPackage(new PackageIdentifier("pkg3", new byte[32]))
+                .setPubliclyVisibleTargetPackage(new PackageIdentifier("pkg4", new byte[32]))
+                .addVisibleToPermissions(ImmutableSet.of(3, 4))
+                .build();
+
+        GetSchemaResponse getSchemaResponse =
+                new GetSchemaResponse.Builder().setVersion(42)
+                        .setSchemaTypeVisibleToConfigs("Email",
+                                ImmutableSet.of(visibilityConfig1, visibilityConfig2))
+                        .build();
+
+        assertThat(getSchemaResponse.getSchemaTypesVisibleToConfigs()).containsExactly("Email",
+                ImmutableSet.of(visibilityConfig1, visibilityConfig2));
+    }
+
     @Test
     public void getEmptyVisibility() {
         GetSchemaResponse getSchemaResponse =
@@ -165,6 +192,14 @@ public class GetSchemaResponseCtsTest {
         assertThat(getSchemaResponse.getSchemaTypesNotDisplayedBySystem()).isEmpty();
         assertThat(getSchemaResponse.getSchemaTypesVisibleToPackages()).isEmpty();
         assertThat(getSchemaResponse.getRequiredPermissionsForSchemaTypeVisibility()).isEmpty();
+    }
+
+    @Test
+    public void getEmptyVisibility_visibilityConfig() {
+        GetSchemaResponse getSchemaResponse =
+                new GetSchemaResponse.Builder().setVersion(42)
+                        .build();
+        assertThat(getSchemaResponse.getSchemaTypesVisibleToConfigs()).isEmpty();
     }
 
     // @exportToFramework:startStrip()
@@ -212,6 +247,10 @@ public class GetSchemaResponseCtsTest {
                 + " this backend/Android API level combination.");
         e = assertThrows(UnsupportedOperationException.class,
                 getSchemaResponse::getPubliclyVisibleSchemas);
+        assertThat(e.getMessage()).isEqualTo("Get visibility setting is not supported with"
+                + " this backend/Android API level combination.");
+        e = assertThrows(UnsupportedOperationException.class,
+                getSchemaResponse::getSchemaTypesVisibleToConfigs);
         assertThat(e.getMessage()).isEqualTo("Get visibility setting is not supported with"
                 + " this backend/Android API level combination.");
     }

@@ -105,6 +105,9 @@ final class FeaturesImpl implements Features {
                 // fall through
             case Features.SET_SCHEMA_REQUEST_SET_PUBLICLY_VISIBLE:
                 // TODO(b/296088047) : Update when feature is ready in service-appsearch.
+            // fall through
+            case Features.SET_SCHEMA_REQUEST_ADD_SCHEMA_TYPE_VISIBLE_TO_CONFIG:
+                // TODO(b/296088047) : Update when feature is ready in service-appsearch.
                 return false;
             default:
                 return false;

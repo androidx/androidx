@@ -166,7 +166,9 @@ public class VisibilityStoreMigrationFromV2Test {
                         VisibilityStore.VISIBILITY_DATABASE_NAME,
                         VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                         /*id=*/ prefix + "Schema",
-                        /*typePropertyPaths=*/ Collections.emptyMap()), null);
+                        /*typePropertyPaths=*/ Collections.emptyMap()),
+                /*publicAclDocument=*/null,
+                /*visibleToConfigDocument=*/null);
 
         assertThat(actualConfig.isNotDisplayedBySystem()).isTrue();
         assertThat(actualConfig.getVisibleToPackages())
@@ -195,8 +197,8 @@ public class VisibilityStoreMigrationFromV2Test {
                          VisibilityToDocumentConverter.PUBLIC_ACL_OVERLAY_NAMESPACE,
                         /*id=*/ prefix + "Schema",
                         /*typePropertyPaths=*/ Collections.emptyMap()));
-        assertThat(e.getMessage())
-                 .isEqualTo("Document (VS#Pkg$VS#Db/overlay, package$database/Schema) not found.");
+        assertThat(e.getMessage()).isEqualTo(
+                "Document (VS#Pkg$VS#Db/publicAclOverlay, package$database/Schema) not found.");
 
         appSearchImpl.close();
     }

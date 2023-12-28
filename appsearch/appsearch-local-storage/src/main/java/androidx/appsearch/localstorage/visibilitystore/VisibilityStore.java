@@ -183,6 +183,7 @@ public class VisibilityStore {
             GenericDocument publicAclOverlay =
                     VisibilityToDocumentConverter.createPublicAclOverlay(prefixedVisibilityConfig);
             if (publicAclOverlay != null) {
+                // TODO(b/319547374) put overlay visibility document in a new database.
                 mAppSearchImpl.putDocument(
                         VISIBILITY_PACKAGE_NAME,
                         VISIBILITY_DATABASE_NAME,
@@ -313,9 +314,10 @@ public class VisibilityStore {
                 // map can be null
             }
 
+            // TODO(b/300162279) Implement visible to config overlay in VisibilityStore.
             mVisibilityConfigMap.put(prefixedSchemaType,
                     VisibilityToDocumentConverter.createVisibilityConfig(visibilityDocument,
-                            visibilityOverlay));
+                            visibilityOverlay, /*visibleToConfigDocument=*/null));
         }
     }
 

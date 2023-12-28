@@ -120,18 +120,17 @@ public class VisibilityStoreMigrationHelperFromV1 {
                 visibleToPermissionSets.add(deprecatedVisibleToPermissions);
             }
 
-            Set<PackageIdentifier> packageIdentifiers = new ArraySet<>();
+            VisibilityConfig.Builder latestVisibilityDocumentBuilder =
+                    new VisibilityConfig.Builder(visibilityDocumentV1.getId())
+                            .setNotDisplayedBySystem(visibilityDocumentV1.isNotDisplayedBySystem());
             String[] packageNames = visibilityDocumentV1.getPackageNames();
             byte[][] sha256Certs = visibilityDocumentV1.getSha256Certs();
             if (packageNames.length == sha256Certs.length) {
                 for (int j = 0; j < packageNames.length; j++) {
-                    packageIdentifiers.add(new PackageIdentifier(packageNames[j], sha256Certs[j]));
+                    latestVisibilityDocumentBuilder.addVisibleToPackage(
+                            new PackageIdentifier(packageNames[j], sha256Certs[j]));
                 }
             }
-            VisibilityConfig.Builder latestVisibilityDocumentBuilder =
-                    new VisibilityConfig.Builder(visibilityDocumentV1.getId())
-                            .setNotDisplayedBySystem(visibilityDocumentV1.isNotDisplayedBySystem())
-                            .addVisibleToPackages(packageIdentifiers);
             for (Set<Integer> visibleToPermissions : visibleToPermissionSets) {
                 latestVisibilityDocumentBuilder.addVisibleToPermissions(visibleToPermissions);
             }
