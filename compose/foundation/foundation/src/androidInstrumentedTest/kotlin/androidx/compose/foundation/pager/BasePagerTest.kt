@@ -117,7 +117,7 @@ open class BasePagerTest(private val config: ParamConfig) :
         initialPageOffsetFraction: Float = 0f,
         pageCount: () -> Int = { DefaultPageCount },
         modifier: Modifier = Modifier,
-        beyondBoundsPageCount: Int = config.beyondBoundsPageCount,
+        outOfBoundsPageCount: Int = config.outOfBoundsPageCount,
         pageSize: () -> PageSize = { PageSize.Fill },
         userScrollEnabled: Boolean = true,
         snappingPage: PagerSnapDistance = PagerSnapDistance.atMost(1),
@@ -156,7 +156,7 @@ open class BasePagerTest(private val config: ParamConfig) :
                 ) {
                     HorizontalOrVerticalPager(
                         state = state,
-                        beyondBoundsPageCount = beyondBoundsPageCount,
+                        outOfBoundsPageCount = outOfBoundsPageCount,
                         modifier = modifier
                             .testTag(PagerTestTag)
                             .onSizeChanged { pagerSize = if (vertical) it.height else it.width },
@@ -285,7 +285,7 @@ open class BasePagerTest(private val config: ParamConfig) :
         userScrollEnabled: Boolean = true,
         reverseLayout: Boolean = false,
         contentPadding: PaddingValues = PaddingValues(0.dp),
-        beyondBoundsPageCount: Int = 0,
+        outOfBoundsPageCount: Int = 0,
         pageSize: PageSize = PageSize.Fill,
         flingBehavior: SnapFlingBehavior = PagerDefaults.flingBehavior(state = state),
         pageSpacing: Dp = 0.dp,
@@ -300,7 +300,7 @@ open class BasePagerTest(private val config: ParamConfig) :
                 userScrollEnabled = userScrollEnabled,
                 reverseLayout = reverseLayout,
                 contentPadding = contentPadding,
-                beyondBoundsPageCount = beyondBoundsPageCount,
+                outOfBoundsPageCount = outOfBoundsPageCount,
                 pageSize = pageSize,
                 flingBehavior = flingBehavior,
                 pageSpacing = pageSpacing,
@@ -315,7 +315,7 @@ open class BasePagerTest(private val config: ParamConfig) :
                 userScrollEnabled = userScrollEnabled,
                 reverseLayout = reverseLayout,
                 contentPadding = contentPadding,
-                beyondBoundsPageCount = beyondBoundsPageCount,
+                outOfBoundsPageCount = outOfBoundsPageCount,
                 pageSize = pageSize,
                 flingBehavior = flingBehavior,
                 pageSpacing = pageSpacing,
@@ -374,7 +374,7 @@ class ParamConfig(
     val layoutDirection: LayoutDirection = LayoutDirection.Ltr,
     val pageSpacing: Dp = 0.dp,
     val mainAxisContentPadding: PaddingValues = PaddingValues(0.dp),
-    val beyondBoundsPageCount: Int = 0,
+    val outOfBoundsPageCount: Int = 0,
     val snapPosition: Pair<SnapPosition, String> = SnapPosition.Start to "Start",
 ) {
     override fun toString(): String {
@@ -383,7 +383,7 @@ class ParamConfig(
             "layoutDirection=$layoutDirection " +
             "pageSpacing=$pageSpacing " +
             "mainAxisContentPadding=$mainAxisContentPadding " +
-            "beyondBoundsPageCount=$beyondBoundsPageCount " +
+            "outOfBoundsPageCount=$outOfBoundsPageCount " +
             "snapPosition=${snapPosition.second}"
     }
 }

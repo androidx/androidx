@@ -64,7 +64,7 @@ import kotlinx.coroutines.launch
  * A Pager that scrolls horizontally. Pages are lazily placed in accordance to the available
  * viewport size. By definition, pages in a [Pager] have the same size, defined by [pageSize] and
  * use a snap animation (provided by [flingBehavior] to scroll pages into a specific position). You
- * can use [beyondBoundsPageCount] to place more pages before and after the visible pages.
+ * can use [outOfBoundsPageCount] to place more pages before and after the visible pages.
  *
  * If you need snapping with pages of different size, you can use a [SnapFlingBehavior] with a
  * [SnapLayoutInfoProvider] adapted to a LazyList.
@@ -82,8 +82,8 @@ import kotlinx.coroutines.launch
  * to add a padding before the first page or after the last one. Use [pageSpacing] to add spacing
  * between the pages.
  * @param pageSize Use this to change how the pages will look like inside this pager.
- * @param beyondBoundsPageCount Pages to compose and layout before and after the list of visible
- * pages. Note: Be aware that using a large value for [beyondBoundsPageCount] will cause a lot of
+ * @param outOfBoundsPageCount Pages to compose and layout before and after the list of visible
+ * pages. Note: Be aware that using a large value for [outOfBoundsPageCount] will cause a lot of
  * pages to be composed, measured and placed which will defeat the purpose of using lazy loading.
  * This should be used as an optimization to pre-load a couple of pages before and after the visible
  * ones. This does not include the pages automatically composed and laid out by the pre-fetcher in
@@ -115,7 +115,7 @@ fun HorizontalPager(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     pageSize: PageSize = PageSize.Fill,
-    beyondBoundsPageCount: Int = PagerDefaults.BeyondBoundsPageCount,
+    outOfBoundsPageCount: Int = PagerDefaults.OutOfBoundsPageCount,
     pageSpacing: Dp = 0.dp,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
     flingBehavior: SnapFlingBehavior = PagerDefaults.flingBehavior(state = state),
@@ -133,7 +133,7 @@ fun HorizontalPager(
         modifier = modifier,
         contentPadding = contentPadding,
         pageSize = pageSize,
-        beyondBoundsPageCount = beyondBoundsPageCount,
+        outOfBoundsPageCount = outOfBoundsPageCount,
         pageSpacing = pageSpacing,
         orientation = Orientation.Horizontal,
         verticalAlignment = verticalAlignment,
@@ -152,7 +152,7 @@ fun HorizontalPager(
  * A Pager that scrolls vertically. Pages are lazily placed in accordance to the available
  * viewport size. By definition, pages in a [Pager] have the same size, defined by [pageSize] and
  * use a snap animation (provided by [flingBehavior] to scroll pages into a specific position). You
- * can use [beyondBoundsPageCount] to place more pages before and after the visible pages.
+ * can use [outOfBoundsPageCount] to place more pages before and after the visible pages.
  *
  * If you need snapping with pages of different size, you can use a [SnapFlingBehavior] with a
  * [SnapLayoutInfoProvider] adapted to a LazyList.
@@ -169,8 +169,8 @@ fun HorizontalPager(
  * to add a padding before the first page or after the last one. Use [pageSpacing] to add spacing
  * between the pages.
  * @param pageSize Use this to change how the pages will look like inside this pager.
- * @param beyondBoundsPageCount Pages to compose and layout before and after the list of visible
- * pages. Note: Be aware that using a large value for [beyondBoundsPageCount] will cause a lot of
+ * @param outOfBoundsPageCount Pages to compose and layout before and after the list of visible
+ * pages. Note: Be aware that using a large value for [outOfBoundsPageCount] will cause a lot of
  * pages to be composed, measured and placed which will defeat the purpose of using lazy loading.
  * This should be used as an optimization to pre-load a couple of pages before and after the visible
  * ones. This does not include the pages automatically composed and laid out by the pre-fetcher in
@@ -202,7 +202,7 @@ fun VerticalPager(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     pageSize: PageSize = PageSize.Fill,
-    beyondBoundsPageCount: Int = PagerDefaults.BeyondBoundsPageCount,
+    outOfBoundsPageCount: Int = PagerDefaults.OutOfBoundsPageCount,
     pageSpacing: Dp = 0.dp,
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     flingBehavior: SnapFlingBehavior = PagerDefaults.flingBehavior(state = state),
@@ -220,7 +220,7 @@ fun VerticalPager(
         modifier = modifier,
         contentPadding = contentPadding,
         pageSize = pageSize,
-        beyondBoundsPageCount = beyondBoundsPageCount,
+        outOfBoundsPageCount = outOfBoundsPageCount,
         pageSpacing = pageSpacing,
         orientation = Orientation.Vertical,
         verticalAlignment = Alignment.CenterVertically,
@@ -429,11 +429,11 @@ object PagerDefaults {
     }
 
     /**
-     * The default value of beyondBoundsPageCount used to specify the number of pages to compose
+     * The default value of outOfBoundsPageCount used to specify the number of pages to compose
      * and layout before and after the visible pages. It does not include the pages automatically
      * composed and laid out by the pre-fetcher in the direction of the scroll during scroll events.
      */
-    const val BeyondBoundsPageCount = 0
+    const val OutOfBoundsPageCount = 0
 }
 
 @OptIn(ExperimentalFoundationApi::class)
