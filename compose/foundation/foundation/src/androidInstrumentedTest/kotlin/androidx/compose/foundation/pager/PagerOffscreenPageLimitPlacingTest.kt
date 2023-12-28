@@ -45,7 +45,7 @@ class PagerOffscreenPageLimitPlacingTest(
         createPager(
             pageCount = { DefaultPageCount },
             modifier = Modifier.fillMaxSize(),
-            beyondBoundsPageCount = 1
+            outOfBoundsPageCount = 1
         )
         val delta = pagerSize * 1.4f * scrollForwardSign
 
@@ -79,7 +79,7 @@ class PagerOffscreenPageLimitPlacingTest(
             initialPage = initialIndex,
             pageCount = { DefaultPageCount },
             modifier = Modifier.fillMaxSize(),
-            beyondBoundsPageCount = 2
+            outOfBoundsPageCount = 2
         )
         val firstVisible = pagerState.layoutInfo.visiblePagesInfo.first().index
         val lastVisible = pagerState.layoutInfo.visiblePagesInfo.last().index
@@ -105,7 +105,7 @@ class PagerOffscreenPageLimitPlacingTest(
             initialPage = 5,
             pageCount = { DefaultPageCount },
             modifier = Modifier.fillMaxSize(),
-            beyondBoundsPageCount = 0
+            outOfBoundsPageCount = 0
         )
 
         // Assert

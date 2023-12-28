@@ -52,7 +52,7 @@ class PagerGestureTest(private val paramConfig: ParamConfig) : BasePagerTest(con
         rule.onNodeWithTag(
             max(
                 0,
-                initialPage - paramConfig.beyondBoundsPageCount - 1
+                initialPage - paramConfig.outOfBoundsPageCount - 1
             ).toString()
         ).assertDoesNotExist()
     }
