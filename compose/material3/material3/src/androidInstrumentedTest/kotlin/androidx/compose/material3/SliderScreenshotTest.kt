@@ -48,7 +48,9 @@ class SliderScreenshotTest {
     @get:Rule
     val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
 
-    val wrap = Modifier.requiredWidth(70.dp).wrapContentSize(Alignment.TopStart)
+    val wrap = Modifier
+        .requiredWidth(70.dp)
+        .wrapContentSize(Alignment.TopStart)
 
     private val wrapperTestTag = "sliderWrapper"
 
@@ -90,6 +92,63 @@ class SliderScreenshotTest {
             }
         }
         assertSliderAgainstGolden("slider_middle")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun sliderTest_middle_no_gap() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                Slider(
+                    state = remember { SliderState(0.5f) },
+                    track = {
+                        SliderDefaults.Track(
+                            sliderState = it,
+                            thumbTrackGapSize = 0.dp
+                        )
+                    }
+                )
+            }
+        }
+        assertSliderAgainstGolden("slider_middle_no_gap")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun sliderTest_middle_no_inside_corner() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                Slider(
+                    state = remember { SliderState(0.5f) },
+                    track = {
+                        SliderDefaults.Track(
+                            sliderState = it,
+                            trackInsideCornerSize = 0.dp
+                        )
+                    }
+                )
+            }
+        }
+        assertSliderAgainstGolden("slider_middle_no_inside_corner")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun sliderTest_middle_no_stop_indicator() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                Slider(
+                    state = remember { SliderState(0.5f) },
+                    track = {
+                        SliderDefaults.Track(
+                            sliderState = it,
+                            drawStopIndicator = null
+                        )
+                    }
+                )
+            }
+        }
+        assertSliderAgainstGolden("slider_middle_no_stop_indicator")
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -214,6 +273,78 @@ class SliderScreenshotTest {
             }
         }
         assertSliderAgainstGolden("slider_customColors_disabled")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun rangeSliderTest_middle_no_gap() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                RangeSlider(
+                    state = remember {
+                        RangeSliderState(
+                            0.5f,
+                            1f
+                        )
+                    },
+                    track = {
+                        SliderDefaults.Track(
+                            rangeSliderState = it,
+                            thumbTrackGapSize = 0.dp
+                        )
+                    }
+                )
+            }
+        }
+        assertSliderAgainstGolden("rangeSlider_middle_no_gap")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun rangeSliderTest_middle_no_inside_corner() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                RangeSlider(
+                    state = remember {
+                        RangeSliderState(
+                            0.5f,
+                            1f
+                        )
+                    },
+                    track = {
+                        SliderDefaults.Track(
+                            rangeSliderState = it,
+                            trackInsideCornerSize = 0.dp
+                        )
+                    }
+                )
+            }
+        }
+        assertSliderAgainstGolden("rangeSlider_middle_no_inside_corner")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun rangeSliderTest_middle_no_stop_indicator() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                RangeSlider(
+                    state = remember {
+                        RangeSliderState(
+                            0.5f,
+                            1f
+                        )
+                    },
+                    track = {
+                        SliderDefaults.Track(
+                            rangeSliderState = it,
+                            drawStopIndicator = null
+                        )
+                    }
+                )
+            }
+        }
+        assertSliderAgainstGolden("rangeSlider_middle_no_stop_indicator")
     }
 
     @OptIn(ExperimentalMaterial3Api::class)

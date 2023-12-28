@@ -90,6 +90,8 @@ import androidx.compose.material3.samples.LegacyCircularProgressIndicatorSample
 import androidx.compose.material3.samples.LegacyIndeterminateCircularProgressIndicatorSample
 import androidx.compose.material3.samples.LegacyIndeterminateLinearProgressIndicatorSample
 import androidx.compose.material3.samples.LegacyLinearProgressIndicatorSample
+import androidx.compose.material3.samples.LegacyRangeSliderSample
+import androidx.compose.material3.samples.LegacySliderSample
 import androidx.compose.material3.samples.LinearProgressIndicatorSample
 import androidx.compose.material3.samples.MenuSample
 import androidx.compose.material3.samples.MenuWithScrollStateSample
@@ -935,6 +937,13 @@ private const val SlidersExampleDescription = "Sliders examples"
 private const val SlidersExampleSourceUrl = "$SampleSourceUrl/SliderSamples.kt"
 val SlidersExamples = listOf(
     Example(
+        name = ::LegacySliderSample.name,
+        description = SlidersExampleDescription,
+        sourceUrl = SlidersExampleSourceUrl
+    ) {
+        LegacySliderSample()
+    },
+    Example(
         name = ::SliderSample.name,
         description = SlidersExampleDescription,
         sourceUrl = SlidersExampleSourceUrl
@@ -961,6 +970,13 @@ val SlidersExamples = listOf(
         sourceUrl = SlidersExampleSourceUrl
     ) {
         SliderWithCustomTrackAndThumb()
+    },
+    Example(
+        name = ::LegacyRangeSliderSample.name,
+        description = SlidersExampleDescription,
+        sourceUrl = SlidersExampleSourceUrl
+    ) {
+        LegacyRangeSliderSample()
     },
     Example(
         name = ::RangeSliderSample.name,
