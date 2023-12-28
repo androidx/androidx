@@ -19,6 +19,7 @@ import androidx.kruth.assertThat
 import androidx.room.Room.databaseBuilder
 import androidx.sqlite.driver.NativeSQLiteDriver
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 
 class BuilderTest {
     @Test
@@ -30,6 +31,20 @@ class BuilderTest {
 
         // Assert that the db is built successfully.
         assertThat(db).isInstanceOf<TestDatabase>()
+    }
+
+    @Test
+    fun missingDriver() {
+        assertThat(
+            assertFailsWith<IllegalArgumentException> {
+                databaseBuilder(
+                    name = "TestDatabase",
+                    factory = { TestDatabase::class.instantiateImpl() }
+                ).build()
+            }.message
+        ).isEqualTo(
+            "Cannot create a RoomDatabase without providing a SQLiteDriver via setDriver()."
+        )
     }
 
     internal abstract class TestDatabase : RoomDatabase()

@@ -175,12 +175,13 @@ actual abstract class RoomDatabase {
      * Builder for [RoomDatabase].
      *
      * @param T The type of the abstract database class.
-     * @param klass The database class.
+     * @param klass The abstract database class.
      * @param name The name of the database or NULL for an in-memory database.
-     * @param factory The lambda calling initializeImpl()` on the database class which returns
-     * the generated database implementation.
+     * @param factory The lambda calling `initializeImpl()` on the abstract database class which
+     * returns the generated database implementation.
      */
-    actual class Builder<T : RoomDatabase>(
+    actual class Builder<T : RoomDatabase>
+    @PublishedApi internal constructor(
         private val klass: KClass<T>,
         private val name: String?,
         private val factory: (() -> T)
@@ -207,8 +208,22 @@ actual abstract class RoomDatabase {
          * @throws IllegalArgumentException if the builder was misconfigured.
          */
         actual fun build(): T {
-            requireNotNull(driver)
-            return factory.invoke()
+            requireNotNull(driver) {
+                "Cannot create a RoomDatabase without providing a SQLiteDriver via setDriver()."
+            }
+            val configuration = DatabaseConfiguration(
+                migrationContainer = RoomDatabase.MigrationContainer(),
+                journalMode = RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING,
+                requireMigration = false,
+                allowDestructiveMigrationOnDowngrade = false,
+                migrationNotRequiredFrom = null,
+                typeConverters = emptyList(),
+                autoMigrationSpecs = emptyList(),
+                sqliteDriver = driver
+            )
+            val db = factory.invoke()
+            db.init(configuration)
+            return db
         }
     }
 

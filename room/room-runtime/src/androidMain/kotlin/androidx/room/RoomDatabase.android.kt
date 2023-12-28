@@ -726,10 +726,6 @@ actual abstract class RoomDatabase {
      * Builder for [RoomDatabase].
      *
      * @param T The type of the abstract database class.
-     * @param klass The database class.
-     * @param name The name of the database or null if it is an in-memory database.
-     * @param factory The lambda calling `initializeImpl()` on the database class which returns
-     * the generated database implementation.
      */
     @Suppress("GetterOnBuilder") // To keep ABI compatibility from Java
     actual open class Builder<T : RoomDatabase> {
@@ -738,6 +734,15 @@ actual abstract class RoomDatabase {
         private val name: String?
         private val factory: (() -> T)?
 
+        /**
+         * Constructor for [RoomDatabase.Builder].
+         *
+         * @param klass The abstract database class.
+         * @param name The name of the database or NULL for an in-memory database.
+         * @param factory The lambda calling `initializeImpl()` on the abstract database class which
+         * returns the generated database implementation.
+         * @param context The context for the database, this is usually the Application context.
+         */
         @PublishedApi
         internal constructor(
             klass: KClass<T>,
@@ -751,6 +756,13 @@ actual abstract class RoomDatabase {
             this.factory = factory
         }
 
+        /**
+         * Constructor for [RoomDatabase.Builder].
+         *
+         * @param context The context for the database, this is usually the Application context.
+         * @param klass The abstract database class.
+         * @param name The name of the database or NULL for an in-memory database.
+         */
         internal constructor(
             context: Context,
             klass: Class<T>,
