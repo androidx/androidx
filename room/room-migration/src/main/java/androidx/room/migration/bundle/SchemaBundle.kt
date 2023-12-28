@@ -38,7 +38,6 @@ import java.io.UnsupportedEncodingException
 
 /**
  * Data class that holds the information about a database schema export.
- *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public open class SchemaBundle(

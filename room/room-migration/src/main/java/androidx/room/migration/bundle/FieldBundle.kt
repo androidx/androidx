@@ -20,9 +20,7 @@ import androidx.annotation.RestrictTo
 import com.google.gson.annotations.SerializedName
 
 /**
- * Data class that holds the schema information for an
- * [androidx.room.Entity] field.
- *
+ * Data class that holds the schema information for an [androidx.room.Entity] field.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public open class FieldBundle(
@@ -38,9 +36,6 @@ public open class FieldBundle(
     public open val defaultValue: String?,
 ) : SchemaEquality<FieldBundle> {
 
-    /**
-     * @deprecated Use [FieldBundle(String, String, String, boolean, String)]
-     */
     @Deprecated("Use [FieldBundle(String, String, String, boolean, String)")
     public constructor(fieldPath: String, columnName: String, affinity: String, nonNull: Boolean) :
         this(fieldPath, columnName, affinity, nonNull, null)
