@@ -52,8 +52,8 @@ public class VisibilityConfigTest {
 
         // Create a VisibilityOverlay for testing
         GenericDocument visibilityOverlay =
-                new GenericDocument.Builder<GenericDocument.Builder<?>>("overlay", "someSchema",
-                        "PublicAclOverlayType")
+                new GenericDocument.Builder<GenericDocument.Builder<?>>("overlay",
+                        "someSchema", "PublicAclOverlayType")
                         .setCreationTimestampMillis(0)
                         .setPropertyString("publiclyVisibleTargetPackage", "com.example.test")
                         .setPropertyBytes("publiclyVisibleTargetPackageSha256Cert", new byte[32])
@@ -92,8 +92,8 @@ public class VisibilityConfigTest {
 
         // Create a VisibilityOverlay for testing
         GenericDocument expectedOverlay =
-                new GenericDocument.Builder<GenericDocument.Builder<?>>("overlay", "someSchema",
-                        "PublicAclOverlayType")
+                new GenericDocument.Builder<GenericDocument.Builder<?>>("overlay",
+                        "someSchema", "PublicAclOverlayType")
                         .setCreationTimestampMillis(0)
                         .setPropertyString("publiclyVisibleTargetPackage", "com.example.test")
                         .setPropertyBytes("publiclyVisibleTargetPackageSha256Cert", new byte[32])
@@ -183,7 +183,8 @@ public class VisibilityConfigTest {
 
         // Create a VisibilityOverlay for testing
         GenericDocument visibilityOverlay =
-                new GenericDocument.Builder<GenericDocument.Builder<?>>("overlay", "someSchema",
+                new GenericDocument.Builder<GenericDocument.Builder<?>>("overlay",
+                        "someSchema",
                         "PublicAclOverlayType")
                         .setCreationTimestampMillis(0)
                         .setPropertyString("publiclyVisibleTargetPackage", "com.example.test")

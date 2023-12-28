@@ -23,7 +23,6 @@ import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.app.SetSchemaResponse.MigrationFailure;
 import androidx.appsearch.app.StorageInfo;
 import androidx.appsearch.app.VisibilityConfig;
-import androidx.appsearch.app.VisibilityDocument;
 import androidx.appsearch.app.VisibilityPermissionConfig;
 import androidx.appsearch.observer.ObserverSpec;
 import androidx.appsearch.safeparcel.PropertyConfigParcel;
@@ -81,15 +80,6 @@ public class StubCreators {
      */
     public static class DocumentIndexingConfigParcelCreator extends
             AbstractCreator<DocumentIndexingConfigParcel> {
-    }
-
-    /** Stub creator for {@link androidx.appsearch.app.VisibilityPermissionDocument}. */
-    public static class VisibilityPermissionDocumentCreator extends
-            AbstractCreator<VisibilityPermissionDocumentCreator> {
-    }
-
-    /** Stub creator for {@link androidx.appsearch.app.VisibilityDocument}. */
-    public static class VisibilityDocumentCreator extends AbstractCreator<VisibilityDocument> {
     }
 
     /** Stub creator for {@link VisibilityConfig}. */
