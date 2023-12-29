@@ -174,12 +174,19 @@ internal object RuleParser {
                 ALWAYS.value
             )
             val clearTop = typedArray.getBoolean(R.styleable.SplitPairRule_clearTop, false)
+            val animationBackgroundColor = typedArray.getColor(
+                R.styleable.SplitPairRule_animationBackgroundColor,
+                0
+            )
             typedArray.recycle()
 
             val defaultAttrs = SplitAttributes.Builder()
                 .setSplitType(SplitAttributes.SplitType.buildSplitTypeFromValue(ratio))
                 .setLayoutDirection(
                     SplitAttributes.LayoutDirection.getLayoutDirectionFromValue(layoutDir)
+                )
+                .setAnimationBackground(
+                    EmbeddingAnimationBackground.buildFromValue(animationBackgroundColor)
                 )
                 .build()
 
@@ -252,12 +259,19 @@ internal object RuleParser {
                 R.styleable.SplitPlaceholderRule_splitLayoutDirection,
                 LOCALE.value
             )
+            val animationBackgroundColor = typedArray.getColor(
+                R.styleable.SplitPlaceholderRule_animationBackgroundColor,
+                0
+            )
             typedArray.recycle()
 
             val defaultAttrs = SplitAttributes.Builder()
                 .setSplitType(SplitAttributes.SplitType.buildSplitTypeFromValue(ratio))
                 .setLayoutDirection(
                     SplitAttributes.LayoutDirection.getLayoutDirectionFromValue(layoutDir)
+                )
+                .setAnimationBackground(
+                    EmbeddingAnimationBackground.buildFromValue(animationBackgroundColor)
                 )
                 .build()
             val packageName = context.applicationContext.packageName
