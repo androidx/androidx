@@ -21,11 +21,6 @@ package androidx.room.migration.bundle
 import androidx.annotation.RestrictTo
 
 /**
- * Utility functions for bundling.
- *
- */
-
-/**
  * Placeholder for table names in queries.
  */
 public const val TABLE_NAME_PLACEHOLDER: String = "\${TABLE_NAME}"
