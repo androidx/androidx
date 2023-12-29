@@ -259,15 +259,6 @@ class SupportedQualitiesVerificationTest(
         )
     }
 
-    /** Skips tests which will enable surface processing and encounter device specific issues. */
-    private fun assumeSuccessfulSurfaceProcessing() {
-        // Skip for b/253211491
-        Assume.assumeFalse(
-            "Skip tests for Cuttlefish API 30 eglCreateWindowSurface issue",
-            Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 30
-        )
-    }
-
     private fun VideoCapture<Recorder>.startVideoRecording(
         file: File,
         eventListener: Consumer<VideoRecordEvent>
