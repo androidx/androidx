@@ -821,7 +821,7 @@ var SemanticsPropertyReceiver.contentDescription: String
 var SemanticsPropertyReceiver.stateDescription by SemanticsProperties.StateDescription
 
 /**
- * The semantics is represents a range of possible values with a current value.
+ * The semantics represents a range of possible values with a current value.
  * For example, when used on a slider control, this will allow screen readers to communicate
  * the slider's state.
  */
