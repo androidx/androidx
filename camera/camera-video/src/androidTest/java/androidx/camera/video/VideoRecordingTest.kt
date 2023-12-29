@@ -29,7 +29,8 @@ import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
-import androidx.camera.core.AspectRatio
+import androidx.camera.core.AspectRatio.RATIO_16_9
+import androidx.camera.core.AspectRatio.RATIO_4_3
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
@@ -40,10 +41,14 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
-import androidx.camera.core.impl.utils.AspectRatioUtil
+import androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_16_9
+import androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_3_4
+import androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_4_3
+import androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_9_16
 import androidx.camera.core.impl.utils.TransformUtils.is90or270
 import androidx.camera.core.impl.utils.TransformUtils.rectToSize
 import androidx.camera.core.impl.utils.TransformUtils.rotateSize
+import androidx.camera.core.impl.utils.TransformUtils.within360
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.AndroidUtil.skipVideoRecordingTestIfNotSupportedByEmulator
@@ -266,7 +271,7 @@ class VideoRecordingTest(
         val metadataRotation2 = cameraInfo.getSensorRotationDegrees(targetRotation2).let {
             if (isSurfaceProcessingEnabled(videoCapture)) {
                 // If effect is enabled, the rotation should eliminate the video content rotation.
-                it - videoContentRotation
+                within360(it - videoContentRotation)
             } else it
         }
         verifyMetadataRotation(metadataRotation2, file2)
@@ -316,7 +321,10 @@ class VideoRecordingTest(
             completeVideoRecording(videoCapture, file)
 
             // Verify.
-            verifyVideoResolution(getExpectedResolution(videoCapture, targetResolution), file)
+            verifyVideoResolution(
+                rotateSize(targetResolution, getRotationNeeded(videoCapture, cameraInfo)),
+                file
+            )
 
             // Cleanup.
             instrumentation.runOnMainSync {
@@ -332,7 +340,7 @@ class VideoRecordingTest(
         assumeExtraCroppingQuirk()
         assumeTrue(videoCapabilities.getSupportedQualities(dynamicRange).isNotEmpty())
 
-        for (aspectRatio in listOf(AspectRatio.RATIO_4_3, AspectRatio.RATIO_16_9)) {
+        for (aspectRatio in listOf(RATIO_4_3, RATIO_16_9)) {
             // Arrange.
             val recorder = Recorder.Builder()
                 .setAspectRatio(aspectRatio)
@@ -361,7 +369,10 @@ class VideoRecordingTest(
             completeVideoRecording(videoCapture, file)
 
             // Verify.
-            verifyVideoAspectRatio(getExpectedAspectRatio(videoCapture)!!, file)
+            verifyVideoAspectRatio(
+                getRotatedAspectRatio(aspectRatio, getRotationNeeded(videoCapture, cameraInfo)),
+                file
+            )
 
             // Cleanup.
             instrumentation.runOnMainSync {
@@ -415,8 +426,9 @@ class VideoRecordingTest(
         completeVideoRecording(videoCapture, file)
 
         // Verify.
+        val resolution = rectToSize(videoCapture.cropRect!!)
         verifyVideoResolution(
-            getExpectedResolution(videoCapture, rectToSize(videoCapture.cropRect!!)),
+            rotateSize(resolution, getRotationNeeded(videoCapture, cameraInfo)),
             file
         )
 
@@ -1197,7 +1209,7 @@ class VideoRecordingTest(
         videoCapture: VideoCapture<Recorder>,
         cameraInfo: CameraInfo
     ): ExpectedRotation {
-        val rotationNeeded = cameraInfo.getSensorRotationDegrees(videoCapture.targetRotation)
+        val rotationNeeded = getRotationNeeded(videoCapture, cameraInfo)
         return if (isSurfaceProcessingEnabled(videoCapture)) {
             ExpectedRotation(rotationNeeded, 0)
         } else {
@@ -1205,28 +1217,17 @@ class VideoRecordingTest(
         }
     }
 
-    private fun getExpectedResolution(
+    private fun getRotationNeeded(
         videoCapture: VideoCapture<Recorder>,
-        resolution: Size
-    ): Size = rotateSize(resolution, getExpectedRotation(videoCapture, cameraInfo).contentRotation)
+        cameraInfo: CameraInfo
+    ) = cameraInfo.getSensorRotationDegrees(videoCapture.targetRotation)
 
-    private fun getExpectedAspectRatio(videoCapture: VideoCapture<Recorder>): Rational? {
-        val needRotate by lazy {
-            is90or270(
-                getExpectedRotation(
-                    videoCapture,
-                    cameraInfo
-                ).contentRotation
-            )
-        }
-        return when (videoCapture.output.aspectRatio) {
-            AspectRatio.RATIO_4_3 ->
-                if (needRotate) AspectRatioUtil.ASPECT_RATIO_3_4
-                else AspectRatioUtil.ASPECT_RATIO_4_3
-            AspectRatio.RATIO_16_9 ->
-                if (needRotate) AspectRatioUtil.ASPECT_RATIO_9_16
-                else AspectRatioUtil.ASPECT_RATIO_16_9
-            else -> null
+    private fun getRotatedAspectRatio(aspectRatio: Int, rotation: Int): Rational {
+        val needRotate = is90or270(rotation)
+        return when (aspectRatio) {
+            RATIO_4_3 -> if (needRotate) ASPECT_RATIO_3_4 else ASPECT_RATIO_4_3
+            RATIO_16_9 -> if (needRotate) ASPECT_RATIO_9_16 else ASPECT_RATIO_16_9
+            else -> throw IllegalArgumentException("Unknown aspect ratio: $aspectRatio")
         }
     }
 
@@ -1247,7 +1248,7 @@ class VideoRecordingTest(
     private fun verifyVideoResolution(expectedResolution: Size, file: File) {
         MediaMetadataRetriever().useAndRelease {
             it.setDataSource(context, Uri.fromFile(file))
-            val resolution = it.getResolution()
+            val resolution = it.getRotatedResolution()
 
             assertWithMessage(
                 TAG + ", verifyVideoResolution failure:" +
@@ -1260,7 +1261,7 @@ class VideoRecordingTest(
     private fun verifyVideoAspectRatio(expectedAspectRatio: Rational, file: File) {
         MediaMetadataRetriever().useAndRelease {
             it.setDataSource(context, Uri.fromFile(file))
-            val aspectRatio = it.getAspectRatio()
+            val aspectRatio = it.getRotatedAspectRatio()
 
             assertWithMessage(
                 TAG + ", verifyVideoAspectRatio failure:" +
