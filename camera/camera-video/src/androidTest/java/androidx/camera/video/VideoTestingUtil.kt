@@ -16,26 +16,38 @@
 
 package androidx.camera.video
 
+import android.content.Context
+import android.media.MediaMetadataRetriever
+import android.net.Uri
 import android.os.Build
+import android.util.Size
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks as Camera2DeviceQuirks
 import androidx.camera.camera2.internal.compat.quirk.ExtraCroppingQuirk as Camera2ExtraCroppingQuirk
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks as PipeDeviceQuirks
 import androidx.camera.camera2.pipe.integration.compat.quirk.ExtraCroppingQuirk as PipeExtraCroppingQuirk
+import androidx.camera.core.CameraInfo
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks
 import androidx.camera.video.internal.compat.quirk.StopCodecAfterSurfaceRemovalCrashMediaServerQuirk
+import com.google.common.truth.Truth.assertThat
+import java.io.File
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 
 @RequiresApi(21)
 fun assumeExtraCroppingQuirk(implName: String) {
-    val msg = "Devices in ExtraCroppingQuirk will get a fixed resolution regardless of any settings"
-    if (implName.contains(CameraPipeConfig::class.simpleName!!)) {
-        assumeTrue(msg, PipeDeviceQuirks[PipeExtraCroppingQuirk::class.java] == null)
-    } else {
-        assumeTrue(msg, Camera2DeviceQuirks.get(Camera2ExtraCroppingQuirk::class.java) == null)
-    }
+    assumeFalse(
+        "Devices in ExtraCroppingQuirk will get a fixed resolution regardless of any settings",
+        hasExtraCroppingQuirk(implName)
+    )
+}
+
+@RequiresApi(21)
+fun hasExtraCroppingQuirk(implName: String): Boolean {
+    return (implName.contains(CameraPipeConfig::class.simpleName!!) &&
+        PipeDeviceQuirks[PipeExtraCroppingQuirk::class.java] != null) ||
+        Camera2DeviceQuirks.get(Camera2ExtraCroppingQuirk::class.java) != null
 }
 
 @RequiresApi(21)
@@ -55,4 +67,18 @@ fun assumeSuccessfulSurfaceProcessing() {
         "Skip tests for Cuttlefish API 30 eglCreateWindowSurface issue",
         Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 30
     )
+}
+
+@RequiresApi(21)
+fun getRotationNeeded(
+    videoCapture: VideoCapture<Recorder>,
+    cameraInfo: CameraInfo
+) = cameraInfo.getSensorRotationDegrees(videoCapture.targetRotation)
+
+@RequiresApi(21)
+fun verifyVideoResolution(context: Context, file: File, expectedResolution: Size) {
+    MediaMetadataRetriever().useAndRelease {
+        it.setDataSource(context, Uri.fromFile(file))
+        assertThat(it.getRotatedResolution()).isEqualTo(expectedResolution)
+    }
 }

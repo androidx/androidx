@@ -281,60 +281,6 @@ class VideoRecordingTest(
     }
 
     @Test
-    fun getCorrectResolution_when_setSupportedQuality() {
-        // Pre-arrange.
-        assumeExtraCroppingQuirk()
-        val qualityList = videoCapabilities.getSupportedQualities(dynamicRange)
-        assumeTrue(qualityList.isNotEmpty())
-        Log.d(TAG, "CameraSelector: ${cameraSelector.lensFacing}, QualityList: $qualityList ")
-
-        qualityList.forEach loop@{ quality ->
-            // Arrange.
-            val profile = videoCapabilities.getProfiles(quality, dynamicRange)!!.defaultVideoProfile
-            val targetResolution = Size(profile.width, profile.height)
-            val recorder = Recorder.Builder()
-                .setQualitySelector(QualitySelector.from(quality)).build()
-
-            val videoCapture = VideoCapture.withOutput(recorder)
-
-            if (!camera.isUseCasesCombinationSupported(preview, videoCapture)) {
-                Log.e(TAG, "The UseCase combination is not supported for quality setting: $quality")
-                return@loop
-            }
-
-            instrumentation.runOnMainSync {
-                cameraProvider.bindToLifecycle(
-                    lifecycleOwner,
-                    cameraSelector,
-                    preview,
-                    videoCapture
-                )
-            }
-
-            val file = File.createTempFile("video_$targetResolution", ".tmp")
-                .apply { deleteOnExit() }
-
-            latchForVideoSaved = CountDownLatch(1)
-            latchForVideoRecording = CountDownLatch(5)
-
-            // Act.
-            completeVideoRecording(videoCapture, file)
-
-            // Verify.
-            verifyVideoResolution(
-                rotateSize(targetResolution, getRotationNeeded(videoCapture, cameraInfo)),
-                file
-            )
-
-            // Cleanup.
-            instrumentation.runOnMainSync {
-                cameraProvider.unbindAll()
-            }
-            file.delete()
-        }
-    }
-
-    @Test
     fun getCorrectResolution_when_setAspectRatio() {
         // Pre-arrange.
         assumeExtraCroppingQuirk()
@@ -428,8 +374,9 @@ class VideoRecordingTest(
         // Verify.
         val resolution = rectToSize(videoCapture.cropRect!!)
         verifyVideoResolution(
-            rotateSize(resolution, getRotationNeeded(videoCapture, cameraInfo)),
-            file
+            context,
+            file,
+            rotateSize(resolution, getRotationNeeded(videoCapture, cameraInfo))
         )
 
         // Cleanup.
@@ -1217,11 +1164,6 @@ class VideoRecordingTest(
         }
     }
 
-    private fun getRotationNeeded(
-        videoCapture: VideoCapture<Recorder>,
-        cameraInfo: CameraInfo
-    ) = cameraInfo.getSensorRotationDegrees(videoCapture.targetRotation)
-
     private fun getRotatedAspectRatio(aspectRatio: Int, rotation: Int): Rational {
         val needRotate = is90or270(rotation)
         return when (aspectRatio) {
@@ -1242,19 +1184,6 @@ class VideoRecordingTest(
                     "videoRotation: $videoRotation" +
                     ", expectedRotation: $expectedRotation"
             ).that(videoRotation).isEqualTo(expectedRotation)
-        }
-    }
-
-    private fun verifyVideoResolution(expectedResolution: Size, file: File) {
-        MediaMetadataRetriever().useAndRelease {
-            it.setDataSource(context, Uri.fromFile(file))
-            val resolution = it.getRotatedResolution()
-
-            assertWithMessage(
-                TAG + ", verifyVideoResolution failure:" +
-                    ", videoResolution: $resolution" +
-                    ", expectedResolution: $expectedResolution"
-            ).that(resolution).isEqualTo(expectedResolution)
         }
     }
 
