@@ -408,8 +408,14 @@ because all tip-of-tree dependencies will need to be released too.
 
 ### Can alpha work (ex. for the next Minor release) occur in the primary development branch during beta API lockdown?
 
-No. This is by design. Focus should be spent on improving the Beta version and
-adding documentation/samples/blog posts for usage!
+Generally, no. This is by design. Focus should be spent on improving the Beta
+version and adding documentation/samples/blog posts for usage!
+
+In limited cases, the
+[`@RequiresOptIn`](/docs/api_guidelines/index.md#experimental-api)
+meta-annotation may be used to extend development of a feature beyond the alpha
+cycle. When doing so, extreme care must be taken to avoid destabilizing the rest
+of the library.
 
 ### Is there an API freeze window between alpha and beta while API surface is reviewed and tests are added, but before the beta is released?
 

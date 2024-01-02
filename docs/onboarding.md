@@ -7,10 +7,9 @@ make simple changes in Android Studio, and upload commits to Gerrit for review.
 
 This page does **not** cover best practices for the content of changes. Please
 see [Life of a Jetpack Feature](/docs/loaf.md) for details on
-developing and releasing a library,
+creating and releasing a library or
 [API Guidelines](/docs/api_guidelines/index.md) for best
-practices regarding public APIs and an overview of the constraints placed on
-changes.
+practices regarding library development.
 
 ## Workstation setup {#setup}
 
@@ -475,7 +474,7 @@ locally.
 NOTE `./gradlew tasks` always has the canonical task information! When in doubt,
 run `./gradlew tasks`
 
-#### Generate Docs
+#### Generate docs
 
 To build API reference docs for both Java and Kotlin source code using Dackka,
 run the Gradle task:
@@ -1070,6 +1069,6 @@ android {
 
 as well as `androidTestImplementation(libs.multidex)` to the dependenices block.
 
-If you want it enabled for the application and not test apk, add
+If you want it enabled for the application and not test APK, add
 `implementation(libs.multidex)` to the dependencies block instead. Any prior
 failures may not re-occur now that the software is multi-dexed. Rerun the build.
