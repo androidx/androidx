@@ -51,7 +51,7 @@ public final class PackageIdentifierParcel extends AbstractSafeParcelable implem
 
     @Field(id = 1, getter = "getPackageName")
     private final String mPackageName;
-    @Field(id = 2, getter = "getShaCertificate")
+    @Field(id = 2, getter = "getSha256Certificate")
     private final byte[] mSha256Certificate;
 
     /**
