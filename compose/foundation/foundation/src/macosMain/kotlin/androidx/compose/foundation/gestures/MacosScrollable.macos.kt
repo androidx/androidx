@@ -21,13 +21,14 @@ package androidx.compose.foundation.gestures
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEvent
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
+import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import org.jetbrains.skiko.SkikoPointerEvent
 
-@Composable
-internal actual fun platformScrollConfig(): ScrollConfig = MacOsConfig
+internal actual fun CompositionLocalConsumerModifierNode.platformScrollConfig(): ScrollConfig = MacOsConfig
 
 private object MacOsConfig : ScrollConfig {
     // See https://developer.apple.com/documentation/appkit/nsevent/1535387-scrollingdeltay

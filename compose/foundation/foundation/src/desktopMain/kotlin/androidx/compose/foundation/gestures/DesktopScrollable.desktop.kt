@@ -23,6 +23,8 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.awt.awtEventOrNull
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEvent
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
+import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -42,8 +44,7 @@ internal val LocalScrollConfig = compositionLocalOf<ScrollConfig> {
     }
 }
 
-@Composable
-internal actual fun platformScrollConfig(): ScrollConfig = LocalScrollConfig.current
+internal actual fun CompositionLocalConsumerModifierNode.platformScrollConfig(): ScrollConfig = currentValueOf(LocalScrollConfig)
 
 internal abstract class DesktopScrollConfig : ScrollConfig {
     override var isSmoothScrollingEnabled = System.getProperty("compose.scrolling.smooth.enabled") != "false"
