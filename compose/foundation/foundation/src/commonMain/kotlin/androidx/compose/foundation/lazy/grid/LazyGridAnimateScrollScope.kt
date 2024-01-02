@@ -17,6 +17,7 @@
 package androidx.compose.foundation.lazy.grid
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateScrollScope
 import androidx.compose.ui.util.fastFirstOrNull
@@ -38,19 +39,21 @@ internal class LazyGridAnimateScrollScope(
     override val itemCount: Int get() = state.layoutInfo.totalItemsCount
 
     override val visibleItemsAverageSize: Int
-        get() = calculateLineAverageMainAxisSize(state.layoutInfo, state.isVertical)
+        get() = calculateLineAverageMainAxisSize(state.layoutInfo)
 
-    override fun getVisibleItemScrollOffset(index: Int): Int =
-        state.layoutInfo.visibleItemsInfo
+    override fun getVisibleItemScrollOffset(index: Int): Int {
+        val layoutInfo = state.layoutInfo
+        return layoutInfo.visibleItemsInfo
             .fastFirstOrNull {
                 it.index == index
             }?.let { item ->
-                if (state.isVertical) {
+                if (layoutInfo.orientation == Orientation.Vertical) {
                     item.offset.y
                 } else {
                     item.offset.x
                 }
             } ?: 0
+    }
 
     override fun ScrollScope.snapToItem(index: Int, scrollOffset: Int) {
         state.snapToItemIndexInternal(index, scrollOffset)
@@ -71,9 +74,9 @@ internal class LazyGridAnimateScrollScope(
     }
 
     private fun calculateLineAverageMainAxisSize(
-        layoutInfo: LazyGridLayoutInfo,
-        isVertical: Boolean
+        layoutInfo: LazyGridLayoutInfo
     ): Int {
+        val isVertical = layoutInfo.orientation == Orientation.Vertical
         val visibleItems = layoutInfo.visibleItemsInfo
         val lineOf: (Int) -> Int = {
             if (isVertical) visibleItems[it].row else visibleItems[it].column

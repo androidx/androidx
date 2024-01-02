@@ -16,9 +16,12 @@
 
 package androidx.compose.foundation.lazy.staggeredgrid
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.lazy.layout.MutableIntervalList
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEach
@@ -144,6 +147,9 @@ internal class LazyStaggeredGridMeasureResult(
     val isVertical: Boolean,
     /** True when extra remeasure is required. */
     val remeasureNeeded: Boolean,
+    val slots: LazyStaggeredGridSlots,
+    val spanProvider: LazyStaggeredGridSpanProvider,
+    val density: Density,
     override val totalItemsCount: Int,
     override val visibleItemsInfo: List<LazyStaggeredGridMeasuredItem>,
     override val viewportSize: IntSize,
@@ -223,9 +229,12 @@ internal class LazyStaggeredGridMeasureResult(
     }
 }
 
+private val EmptyArray = IntArray(0)
+
+@OptIn(ExperimentalFoundationApi::class)
 internal val EmptyLazyStaggeredGridLayoutInfo = LazyStaggeredGridMeasureResult(
-    firstVisibleItemIndices = IntArray(0),
-    firstVisibleItemScrollOffsets = IntArray(0),
+    firstVisibleItemIndices = EmptyArray,
+    firstVisibleItemScrollOffsets = EmptyArray,
     consumedScroll = 0f,
     measureResult = object : MeasureResult {
         override val width: Int = 0
@@ -244,5 +253,8 @@ internal val EmptyLazyStaggeredGridLayoutInfo = LazyStaggeredGridMeasureResult(
     viewportEndOffset = 0,
     beforeContentPadding = 0,
     afterContentPadding = 0,
-    mainAxisItemSpacing = 0
+    mainAxisItemSpacing = 0,
+    slots = LazyStaggeredGridSlots(EmptyArray, EmptyArray),
+    spanProvider = LazyStaggeredGridSpanProvider(MutableIntervalList()),
+    density = Density(1f)
 )

@@ -64,6 +64,7 @@ internal fun measureLazyGrid(
     pinnedItems: List<Int>,
     coroutineScope: CoroutineScope,
     placementScopeInvalidator: ObservableScopeInvalidator,
+    prefetchInfoRetriever: (line: Int) -> List<Pair<Int, Constraints>>,
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
 ): LazyGridMeasureResult {
     require(beforeContentPadding >= 0) { "negative beforeContentPadding" }
@@ -84,7 +85,10 @@ internal fun measureLazyGrid(
             orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal,
             afterContentPadding = afterContentPadding,
             mainAxisItemSpacing = spaceBetweenLines,
-            remeasureNeeded = false
+            remeasureNeeded = false,
+            density = density,
+            slotsPerLine = spanLayoutProvider.slotsPerLine,
+            prefetchInfoRetriever = prefetchInfoRetriever
         )
     } else {
         var currentFirstLineIndex = firstVisibleLineIndex
@@ -319,7 +323,10 @@ internal fun measureLazyGrid(
             orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal,
             afterContentPadding = afterContentPadding,
             mainAxisItemSpacing = spaceBetweenLines,
-            remeasureNeeded = remeasureNeeded
+            remeasureNeeded = remeasureNeeded,
+            density = density,
+            slotsPerLine = spanLayoutProvider.slotsPerLine,
+            prefetchInfoRetriever = prefetchInfoRetriever
         )
     }
 }

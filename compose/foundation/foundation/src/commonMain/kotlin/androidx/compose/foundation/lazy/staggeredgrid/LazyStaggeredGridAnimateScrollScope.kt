@@ -17,6 +17,7 @@
 package androidx.compose.foundation.lazy.staggeredgrid
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateScrollScope
 import androidx.compose.ui.util.fastSumBy
@@ -37,10 +38,11 @@ internal class LazyStaggeredGridAnimateScrollScope(
     override val itemCount: Int get() = state.layoutInfo.totalItemsCount
 
     override fun getVisibleItemScrollOffset(index: Int): Int {
-        val searchedIndex = state.layoutInfo.visibleItemsInfo.binarySearch { it.index - index }
-        val item = state.layoutInfo.visibleItemsInfo[searchedIndex]
+        val layoutInfo = state.layoutInfo
+        val searchedIndex = layoutInfo.visibleItemsInfo.binarySearch { it.index - index }
+        val item = layoutInfo.visibleItemsInfo[searchedIndex]
         return item.offset.let {
-            if (state.isVertical) it.y else it.x
+            if (layoutInfo.orientation == Orientation.Vertical) it.y else it.x
         }
     }
 
@@ -53,7 +55,8 @@ internal class LazyStaggeredGridAnimateScrollScope(
     override fun calculateDistanceTo(targetIndex: Int, targetItemOffset: Int): Float {
         val averageMainAxisItemSize = visibleItemsAverageSize
 
-        val lineDiff = targetIndex / state.laneCount - firstVisibleItemIndex / state.laneCount
+        val laneCount = state.laneCount
+        val lineDiff = targetIndex / laneCount - firstVisibleItemIndex / laneCount
         var coercedOffset = minOf(abs(targetItemOffset), averageMainAxisItemSize)
         if (targetItemOffset < 0) coercedOffset *= -1
         return averageMainAxisItemSize * lineDiff.toFloat() +
@@ -69,7 +72,11 @@ internal class LazyStaggeredGridAnimateScrollScope(
             val layoutInfo = state.layoutInfo
             val visibleItems = layoutInfo.visibleItemsInfo
             val itemSizeSum = visibleItems.fastSumBy {
-                if (state.isVertical) it.size.height else it.size.width
+                if (layoutInfo.orientation == Orientation.Vertical) {
+                    it.size.height
+                } else {
+                    it.size.width
+                }
             }
             return itemSizeSum / visibleItems.size + layoutInfo.mainAxisItemSpacing
         }
