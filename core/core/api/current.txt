@@ -269,9 +269,9 @@ package androidx.core.app {
     method public static String? getCategory(android.app.Notification);
     method public static String? getChannelId(android.app.Notification);
     method public static int getColor(android.app.Notification);
-    method @RequiresApi(19) public static CharSequence? getContentInfo(android.app.Notification);
-    method @RequiresApi(19) public static CharSequence? getContentText(android.app.Notification);
-    method @RequiresApi(19) public static CharSequence? getContentTitle(android.app.Notification);
+    method public static CharSequence? getContentInfo(android.app.Notification);
+    method public static CharSequence? getContentText(android.app.Notification);
+    method public static CharSequence? getContentTitle(android.app.Notification);
     method public static android.os.Bundle? getExtras(android.app.Notification);
     method public static String? getGroup(android.app.Notification);
     method public static int getGroupAlertBehavior(android.app.Notification);
@@ -284,11 +284,11 @@ package androidx.core.app {
     method public static android.app.Notification? getPublicVersion(android.app.Notification);
     method public static CharSequence? getSettingsText(android.app.Notification);
     method public static String? getShortcutId(android.app.Notification);
-    method @RequiresApi(19) public static boolean getShowWhen(android.app.Notification);
+    method public static boolean getShowWhen(android.app.Notification);
     method public static String? getSortKey(android.app.Notification);
-    method @RequiresApi(19) public static CharSequence? getSubText(android.app.Notification);
+    method public static CharSequence? getSubText(android.app.Notification);
     method public static long getTimeoutAfter(android.app.Notification);
-    method @RequiresApi(19) public static boolean getUsesChronometer(android.app.Notification);
+    method public static boolean getUsesChronometer(android.app.Notification);
     method public static int getVisibility(android.app.Notification);
     method public static boolean isGroupSummary(android.app.Notification);
     method public static android.graphics.Bitmap? reduceLargeIconSize(android.content.Context, android.graphics.Bitmap?);
@@ -527,7 +527,7 @@ package androidx.core.app {
 
   public static class NotificationCompat.Builder {
     ctor @Deprecated public NotificationCompat.Builder(android.content.Context);
-    ctor @RequiresApi(19) public NotificationCompat.Builder(android.content.Context, android.app.Notification);
+    ctor public NotificationCompat.Builder(android.content.Context, android.app.Notification);
     ctor public NotificationCompat.Builder(android.content.Context, String);
     method public androidx.core.app.NotificationCompat.Builder addAction(androidx.core.app.NotificationCompat.Action?);
     method public androidx.core.app.NotificationCompat.Builder addAction(int, CharSequence?, android.app.PendingIntent?);
@@ -1784,7 +1784,7 @@ package androidx.core.location {
     method @IntRange(from=0) public long getMinUpdateIntervalMillis();
     method public int getQuality();
     method @RequiresApi(31) public android.location.LocationRequest toLocationRequest();
-    method @RequiresApi(19) public android.location.LocationRequest? toLocationRequest(String);
+    method public android.location.LocationRequest? toLocationRequest(String);
     field public static final long PASSIVE_INTERVAL = 9223372036854775807L; // 0x7fffffffffffffffL
     field public static final int QUALITY_BALANCED_POWER_ACCURACY = 102; // 0x66
     field public static final int QUALITY_HIGH_ACCURACY = 100; // 0x64

@@ -31,7 +31,6 @@ import android.util.Log;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -42,7 +41,6 @@ import androidx.slice.core.R;
  * Dialog that grants slice permissions for an app.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@RequiresApi(19)
 @Deprecated
 public class SlicePermissionActivity extends AppCompatActivity implements OnClickListener,
         OnDismissListener {

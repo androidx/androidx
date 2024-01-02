@@ -42,7 +42,6 @@ import android.widget.Switch;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
@@ -55,7 +54,6 @@ import androidx.slice.view.R;
  */
 @SuppressWarnings("AppCompatCustomView")
 @RestrictTo(LIBRARY)
-@RequiresApi(19)
 @Deprecated
 public class SliceActionView extends FrameLayout implements View.OnClickListener,
         CompoundButton.OnCheckedChangeListener {

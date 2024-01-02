@@ -37,7 +37,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.collection.ArraySet;
@@ -1210,7 +1209,6 @@ public class EmojiCompat {
          *
          * @return EmojiSpan instance that can use TypefaceEmojiRasterizer to draw emoji.
          */
-        @RequiresApi(19)
         @NonNull
         EmojiSpan createSpan(@NonNull TypefaceEmojiRasterizer rasterizer);
     }
@@ -1229,7 +1227,6 @@ public class EmojiCompat {
          *
          * @return {@link TypefaceEmojiSpan}
          */
-        @RequiresApi(19)
         @NonNull
         @Override
         public EmojiSpan createSpan(@NonNull TypefaceEmojiRasterizer rasterizer) {

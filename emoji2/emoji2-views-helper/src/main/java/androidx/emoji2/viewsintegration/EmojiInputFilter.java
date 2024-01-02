@@ -26,7 +26,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.emoji2.text.EmojiCompat;
 import androidx.emoji2.text.EmojiCompat.InitCallback;
@@ -43,7 +42,6 @@ import java.lang.ref.WeakReference;
  *
  */
 @RestrictTo(LIBRARY)
-@RequiresApi(19)
 final class EmojiInputFilter implements android.text.InputFilter {
     private final TextView mTextView;
     private InitCallback mInitCallback;
@@ -100,7 +98,6 @@ final class EmojiInputFilter implements android.text.InputFilter {
     }
 
     @RestrictTo(LIBRARY)
-    @RequiresApi(19)
     static class InitCallbackImpl extends InitCallback implements Runnable  {
         private final Reference<TextView> mViewRef;
         private final Reference<EmojiInputFilter> mEmojiInputFilterReference;

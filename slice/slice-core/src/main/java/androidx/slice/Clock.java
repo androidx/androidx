@@ -18,13 +18,11 @@ package androidx.slice;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 /**
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
-@RequiresApi(19)
 @Deprecated
 public interface Clock {
     long currentTimeMillis();

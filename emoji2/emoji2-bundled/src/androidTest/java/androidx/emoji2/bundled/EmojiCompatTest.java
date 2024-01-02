@@ -44,7 +44,6 @@ import android.text.SpannableStringBuilder;
 import android.text.SpannedString;
 import android.view.inputmethod.EditorInfo;
 
-import androidx.annotation.RequiresApi;
 import androidx.emoji2.bundled.util.Emoji;
 import androidx.emoji2.bundled.util.EmojiMatcher;
 import androidx.emoji2.bundled.util.TestString;
@@ -889,12 +888,10 @@ public class EmojiCompatTest {
                 EmojiMatcher.hasEmojiAt(Emoji.DEFAULT_TEXT_STYLE, 0, 1));
     }
 
-    @RequiresApi(19)
     private void assertCodePointMatch(Emoji.EmojiMapping emoji) {
         assertCodePointMatch(emoji.id(), emoji.codepoints());
     }
 
-    @RequiresApi(19)
     private void assertCodePointMatch(int id, int[] codepoints) {
         TestString string = new TestString(codepoints);
         CharSequence charSequence = EmojiCompat.get().process(string.toString());
@@ -914,7 +911,6 @@ public class EmojiCompatTest {
                 EmojiMatcher.hasEmojiAt(id, string.emojiStartIndex(), string.emojiEndIndex()));
     }
 
-    @RequiresApi(19)
     private void assertCodePointDoesNotMatch(int[] codepoints) {
         TestString string = new TestString(codepoints);
         CharSequence charSequence = EmojiCompat.get().process(string.toString());

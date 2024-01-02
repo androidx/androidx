@@ -320,7 +320,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
     public void setPopupBackgroundDrawable(Drawable background) {
         if (mPopup != null) {
             mPopup.setBackgroundDrawable(background);
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+        } else {
             super.setPopupBackgroundDrawable(background);
         }
     }
@@ -334,17 +334,16 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
     public Drawable getPopupBackground() {
         if (mPopup != null) {
             return mPopup.getBackground();
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+        } else {
             return super.getPopupBackground();
         }
-        return null;
     }
 
     @Override
     public void setDropDownVerticalOffset(int pixels) {
         if (mPopup != null) {
             mPopup.setVerticalOffset(pixels);
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+        } else {
             super.setDropDownVerticalOffset(pixels);
         }
     }
@@ -353,10 +352,9 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
     public int getDropDownVerticalOffset() {
         if (mPopup != null) {
             return mPopup.getVerticalOffset();
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+        } else {
             return super.getDropDownVerticalOffset();
         }
-        return 0;
     }
 
     @Override
@@ -364,7 +362,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
         if (mPopup != null) {
             mPopup.setHorizontalOriginalOffset(pixels);
             mPopup.setHorizontalOffset(pixels);
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+        } else {
             super.setDropDownHorizontalOffset(pixels);
         }
     }
@@ -379,17 +377,16 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
     public int getDropDownHorizontalOffset() {
         if (mPopup != null) {
             return mPopup.getHorizontalOffset();
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+        } else {
             return super.getDropDownHorizontalOffset();
         }
-        return 0;
     }
 
     @Override
     public void setDropDownWidth(int pixels) {
         if (mPopup != null) {
             mDropDownWidth = pixels;
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+        } else {
             super.setDropDownWidth(pixels);
         }
     }
@@ -398,10 +395,9 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
     public int getDropDownWidth() {
         if (mPopup != null) {
             return mDropDownWidth;
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+        } else {
             return super.getDropDownWidth();
         }
-        return 0;
     }
 
     @Override

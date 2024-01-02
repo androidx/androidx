@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.slice {
 
-  @Deprecated @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface Clock {
+  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface Clock {
     method @Deprecated public long currentTimeMillis();
   }
 
@@ -9,7 +9,7 @@ package androidx.slice {
     ctor @Deprecated public CornerDrawable(android.graphics.drawable.Drawable?, float);
   }
 
-  @Deprecated @RequiresApi(19) @androidx.versionedparcelable.VersionedParcelize(allowSerialization=true, isCustom=true) public final class Slice extends androidx.versionedparcelable.CustomVersionedParcelable implements androidx.versionedparcelable.VersionedParcelable {
+  @Deprecated @androidx.versionedparcelable.VersionedParcelize(allowSerialization=true, isCustom=true) public final class Slice extends androidx.versionedparcelable.CustomVersionedParcelable implements androidx.versionedparcelable.VersionedParcelable {
     method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.slice.Slice? bindSlice(android.content.Context, android.net.Uri, java.util.Set<androidx.slice.SliceSpec!>?);
     method @Deprecated public java.util.List<java.lang.String!> getHints();
     method @Deprecated public java.util.List<androidx.slice.SliceItem!> getItems();
@@ -51,7 +51,7 @@ package androidx.slice {
     method @Deprecated public static androidx.slice.Slice? wrap(android.app.slice.Slice?, android.content.Context);
   }
 
-  @Deprecated @RequiresApi(19) @androidx.versionedparcelable.VersionedParcelize(allowSerialization=true, ignoreParcelables=true, isCustom=true) public final class SliceItem extends androidx.versionedparcelable.CustomVersionedParcelable {
+  @Deprecated @androidx.versionedparcelable.VersionedParcelize(allowSerialization=true, ignoreParcelables=true, isCustom=true) public final class SliceItem extends androidx.versionedparcelable.CustomVersionedParcelable {
     ctor @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public SliceItem();
     ctor @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public SliceItem(android.app.PendingIntent, androidx.slice.Slice?, String, String?, String![]);
     ctor @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public SliceItem(androidx.slice.SliceItem.ActionHandler, androidx.slice.Slice?, String, String?, String![]);
@@ -81,7 +81,7 @@ package androidx.slice {
     method @Deprecated public void onAction(androidx.slice.SliceItem, android.content.Context?, android.content.Intent?);
   }
 
-  @Deprecated @RequiresApi(19) public abstract class SliceManager {
+  @Deprecated public abstract class SliceManager {
     method @Deprecated @androidx.core.content.PermissionChecker.PermissionResult public abstract int checkSlicePermission(android.net.Uri, int, int);
     method @Deprecated public static androidx.slice.SliceManager getInstance(android.content.Context);
     method @Deprecated public abstract java.util.List<android.net.Uri!> getPinnedSlices();
@@ -116,21 +116,21 @@ package androidx.slice {
     method @Deprecated public final int update(android.net.Uri, android.content.ContentValues?, String?, String![]?);
   }
 
-  @Deprecated @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize(allowSerialization=true) public final class SliceSpec implements androidx.versionedparcelable.VersionedParcelable {
+  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize(allowSerialization=true) public final class SliceSpec implements androidx.versionedparcelable.VersionedParcelable {
     ctor @Deprecated public SliceSpec(String, int);
     method @Deprecated public boolean canRender(androidx.slice.SliceSpec);
     method @Deprecated public int getRevision();
     method @Deprecated public String getType();
   }
 
-  @Deprecated @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SliceSpecs {
+  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SliceSpecs {
     field @Deprecated public static final androidx.slice.SliceSpec! BASIC;
     field @Deprecated public static final androidx.slice.SliceSpec! LIST;
     field @Deprecated public static final androidx.slice.SliceSpec! LIST_V2;
     field @Deprecated public static final androidx.slice.SliceSpec! MESSAGING;
   }
 
-  @Deprecated @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SystemClock implements androidx.slice.Clock {
+  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SystemClock implements androidx.slice.Clock {
     ctor @Deprecated public SystemClock();
     method @Deprecated public long currentTimeMillis();
   }
@@ -139,7 +139,7 @@ package androidx.slice {
 
 package androidx.slice.compat {
 
-  @Deprecated @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class CompatPermissionManager {
+  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class CompatPermissionManager {
     ctor @Deprecated public CompatPermissionManager(android.content.Context, String, int, String![]);
     method @Deprecated public int checkSlicePermission(android.net.Uri, int, int);
     method @Deprecated public void grantSlicePermission(android.net.Uri, String);
@@ -200,7 +200,7 @@ package androidx.slice.compat {
 
 package androidx.slice.core {
 
-  @Deprecated @RequiresApi(19) public interface SliceAction {
+  @Deprecated public interface SliceAction {
     method @Deprecated public android.app.PendingIntent getAction();
     method @Deprecated public CharSequence? getContentDescription();
     method @Deprecated public androidx.core.graphics.drawable.IconCompat? getIcon();
@@ -218,7 +218,7 @@ package androidx.slice.core {
     method @Deprecated public androidx.slice.core.SliceAction setPriority(@IntRange(from=0) int);
   }
 
-  @Deprecated @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SliceActionImpl implements androidx.slice.core.SliceAction {
+  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SliceActionImpl implements androidx.slice.core.SliceAction {
     ctor @Deprecated public SliceActionImpl(android.app.PendingIntent, androidx.core.graphics.drawable.IconCompat, @androidx.slice.core.SliceHints.ImageMode int, CharSequence);
     ctor @Deprecated public SliceActionImpl(android.app.PendingIntent, androidx.core.graphics.drawable.IconCompat, CharSequence);
     ctor @Deprecated public SliceActionImpl(android.app.PendingIntent, androidx.core.graphics.drawable.IconCompat, CharSequence, boolean);
@@ -248,7 +248,7 @@ package androidx.slice.core {
     method @Deprecated public androidx.slice.core.SliceActionImpl setPriority(@IntRange(from=0) int);
   }
 
-  @Deprecated @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SliceHints {
+  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SliceHints {
     field @Deprecated public static final int ACTION_WITH_LABEL = 6; // 0x6
     field @Deprecated public static final int DETERMINATE_RANGE = 0; // 0x0
     field @Deprecated public static final String HINT_ACTIVITY = "activity";
@@ -282,7 +282,7 @@ package androidx.slice.core {
   @Deprecated @IntDef({androidx.slice.core.SliceHints.LARGE_IMAGE, androidx.slice.core.SliceHints.SMALL_IMAGE, androidx.slice.core.SliceHints.ICON_IMAGE, androidx.slice.core.SliceHints.RAW_IMAGE_SMALL, androidx.slice.core.SliceHints.RAW_IMAGE_LARGE, androidx.slice.core.SliceHints.UNKNOWN_IMAGE, androidx.slice.core.SliceHints.ACTION_WITH_LABEL}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface SliceHints.ImageMode {
   }
 
-  @Deprecated @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SliceQuery {
+  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SliceQuery {
     method @Deprecated public static androidx.slice.SliceItem? find(androidx.slice.Slice?, String?);
     method @Deprecated public static androidx.slice.SliceItem? find(androidx.slice.Slice?, String?, String?, String?);
     method @Deprecated public static androidx.slice.SliceItem? find(androidx.slice.Slice?, String?, String![]?, String![]?);

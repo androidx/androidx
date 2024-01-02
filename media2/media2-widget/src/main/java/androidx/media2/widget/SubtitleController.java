@@ -27,7 +27,6 @@ import android.view.accessibility.CaptioningManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.media2.widget.SubtitleTrack.RenderingWidget;
 
 import java.util.ArrayList;
@@ -46,9 +45,7 @@ class SubtitleController {
     private final Object mRenderersLock = new Object();
     private final Object mTracksLock = new Object();
     private SubtitleTrack mSelectedTrack;
-    @RequiresApi(19)
     private CaptioningManager mCaptioningManager;
-    @RequiresApi(19)
     private CaptioningManager.CaptioningChangeListener mCaptioningChangeListener;
 
     private Handler mHandler;

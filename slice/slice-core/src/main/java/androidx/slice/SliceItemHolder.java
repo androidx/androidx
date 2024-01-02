@@ -33,7 +33,6 @@ import android.text.Spanned;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.text.HtmlCompat;
 import androidx.core.util.Pair;
@@ -49,7 +48,6 @@ import java.util.ArrayList;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @VersionedParcelize(allowSerialization = true, ignoreParcelables = true,
         factory = SliceItemHolder.SliceItemPool.class)
-@RequiresApi(19)
 @Deprecated
 public class SliceItemHolder implements VersionedParcelable {
 

@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.slice {
 
-  @Deprecated @RequiresApi(19) public final class Slice implements androidx.versionedparcelable.VersionedParcelable {
+  @Deprecated public final class Slice implements androidx.versionedparcelable.VersionedParcelable {
     method @Deprecated public java.util.List<java.lang.String!> getHints();
     method @Deprecated public java.util.List<androidx.slice.SliceItem!> getItems();
     method @Deprecated public android.net.Uri getUri();
@@ -13,7 +13,7 @@ package androidx.slice {
     method @Deprecated public static androidx.slice.Slice? wrap(android.app.slice.Slice?, android.content.Context);
   }
 
-  @Deprecated @RequiresApi(19) public final class SliceItem implements androidx.versionedparcelable.VersionedParcelable {
+  @Deprecated public final class SliceItem implements androidx.versionedparcelable.VersionedParcelable {
     method @Deprecated public static android.text.ParcelableSpan createSensitiveSpan();
     method @Deprecated public void fireAction(android.content.Context?, android.content.Intent?) throws android.app.PendingIntent.CanceledException;
     method @Deprecated public android.app.PendingIntent? getAction();
@@ -31,7 +31,7 @@ package androidx.slice {
     method @Deprecated public void onPreParceling(boolean);
   }
 
-  @Deprecated @RequiresApi(19) public abstract class SliceManager {
+  @Deprecated public abstract class SliceManager {
     method @Deprecated public abstract int checkSlicePermission(android.net.Uri, int, int);
     method @Deprecated public static androidx.slice.SliceManager getInstance(android.content.Context);
     method @Deprecated public abstract java.util.List<android.net.Uri!> getPinnedSlices();
@@ -66,7 +66,7 @@ package androidx.slice {
 
 package androidx.slice.core {
 
-  @Deprecated @RequiresApi(19) public interface SliceAction {
+  @Deprecated public interface SliceAction {
     method @Deprecated public android.app.PendingIntent getAction();
     method @Deprecated public CharSequence? getContentDescription();
     method @Deprecated public androidx.core.graphics.drawable.IconCompat? getIcon();

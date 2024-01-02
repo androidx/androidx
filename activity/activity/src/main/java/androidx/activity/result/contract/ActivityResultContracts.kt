@@ -478,7 +478,6 @@ class ActivityResultContracts private constructor() {
      *
      * @see DocumentsContract
      */
-    @RequiresApi(19)
     open class OpenDocument : ActivityResultContract<Array<String>, Uri?>() {
         @CallSuper
         override fun createIntent(context: Context, input: Array<String>): Intent {
@@ -508,7 +507,6 @@ class ActivityResultContracts private constructor() {
      *
      * @see DocumentsContract
      */
-    @RequiresApi(19)
     open class OpenMultipleDocuments :
         ActivityResultContract<Array<String>, List<@JvmSuppressWildcards Uri>>() {
         @CallSuper
@@ -577,7 +575,6 @@ class ActivityResultContracts private constructor() {
      * This can be extended to override [createIntent] if you wish to pass additional
      * extras to the Intent created by `super.createIntent()`.
      */
-    @RequiresApi(19)
     open class CreateDocument(
         private val mimeType: String
     ) : ActivityResultContract<String, Uri?>() {
@@ -633,7 +630,6 @@ class ActivityResultContracts private constructor() {
      * This can be extended to override [createIntent] if you wish to pass additional
      * extras to the Intent created by `super.createIntent()`.
      */
-    @RequiresApi(19)
     open class PickVisualMedia : ActivityResultContract<PickVisualMediaRequest, Uri?>() {
         companion object {
             /**
@@ -869,7 +865,6 @@ class ActivityResultContracts private constructor() {
      * This can be extended to override [createIntent] if you wish to pass additional
      * extras to the Intent created by `super.createIntent()`.
      */
-    @RequiresApi(19)
     open class PickMultipleVisualMedia(
         private val maxItems: Int = getMaxItems()
     ) : ActivityResultContract<PickVisualMediaRequest, List<@JvmSuppressWildcards Uri>>() {
