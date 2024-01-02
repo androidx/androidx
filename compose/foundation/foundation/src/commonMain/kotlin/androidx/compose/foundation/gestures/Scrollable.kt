@@ -21,7 +21,6 @@ import androidx.compose.animation.core.AnimationState
 import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.animateDecay
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.FocusedBoundsObserverNode
@@ -35,7 +34,6 @@ import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.focus.FocusProperties
@@ -49,12 +47,9 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.Drag
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.Fling
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.Wheel
 import androidx.compose.ui.input.nestedscroll.nestedScrollModifierNode
-import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.PointerEvent
-import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerType
-import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
 import androidx.compose.ui.modifier.ModifierLocalMap
 import androidx.compose.ui.modifier.ModifierLocalModifierNode
 import androidx.compose.ui.modifier.modifierLocalMapOf
@@ -373,6 +368,8 @@ private class ScrollableNode(
         observeReads { currentValueOf(LocalDensity) } // monitor change in Density
     }
 
+    // TODO(https://youtrack.jetbrains.com/issue/COMPOSE-731/Scrollable-doesnt-react-on-density-changes)
+    //  it isn't called, because LocalDensity is staticCompositionLocalOf
     override fun onObservedReadsChanged() {
         // if density changes, update the default fling behavior.
         updateDefaultFlingBehavior()
@@ -540,8 +537,6 @@ private class ScrollableGesturesNode(
     val nestedScrollDispatcher: NestedScrollDispatcher,
     val interactionSource: MutableInteractionSource?
 ) : DelegatingNode() {
-    init { delegate(MouseWheelScrollNode(scrollLogic)) }
-
     val draggableState = ScrollDraggableState(scrollLogic)
     private val startDragImmediately = { scrollLogic.shouldScrollImmediately() }
     private val onDragStopped: suspend CoroutineScope.(velocity: Velocity) -> Unit = { velocity ->
@@ -564,6 +559,8 @@ private class ScrollableGesturesNode(
         )
     )
 
+    val mouseWheelScrollNode = delegate(MouseWheelScrollNode(scrollLogic, enabled))
+
     fun update(
         orientation: Orientation,
         enabled: Boolean,
@@ -582,6 +579,8 @@ private class ScrollableGesturesNode(
             onDragStopped = onDragStopped,
             canDrag = CanDragCalculation
         )
+
+        mouseWheelScrollNode.enabled = enabled
     }
 }
 
@@ -589,56 +588,6 @@ private val CanDragCalculation: (PointerInputChange) -> Boolean =
     { down -> down.type != PointerType.Mouse }
 
 private val NoOpOnDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit = {}
-
-private class MouseWheelScrollNode(
-    private val scrollingLogic: ScrollingLogic
-) : DelegatingNode(), CompositionLocalConsumerModifierNode {
-    // Need to wait until onAttach to read the scroll config. Currently this is static, so we
-    // don't need to worry about observation / updating this over time.
-    var scrollConfig: ScrollConfig? = null
-
-    override fun onAttach() {
-        scrollConfig = platformScrollConfig()
-    }
-
-    init {
-        delegate(SuspendingPointerInputModifierNode {
-            awaitPointerEventScope {
-                while (true) {
-                    val event = awaitScrollEvent()
-                    if (event.changes.fastAll { !it.isConsumed }) {
-                        with(scrollConfig!!) {
-                            val scrollAmount = calculateMouseWheelScroll(event, size)
-
-                            with(scrollingLogic) {
-                                // A coroutine is launched for every individual scroll event in the
-                                // larger scroll gesture. If we see degradation in the future (that is,
-                                // a fast scroll gesture on a slow device causes UI jank [not seen up to
-                                // this point), we can switch to a more efficient solution where we
-                                // lazily launch one coroutine (with the first event) and use a Channel
-                                // to communicate the scroll amount to the UI thread.
-                                coroutineScope.launch {
-                                    scrollableState.scroll(MutatePriority.UserInput) {
-                                        dispatchScroll(scrollAmount, Wheel)
-                                    }
-                                }
-                                event.changes.fastForEach { it.consume() }
-                            }
-                        }
-                    }
-                }
-            }
-        })
-    }
-}
-
-private suspend fun AwaitPointerEventScope.awaitScrollEvent(): PointerEvent {
-    var event: PointerEvent
-    do {
-        event = awaitPointerEvent()
-    } while (event.type != PointerEventType.Scroll)
-    return event
-}
 
 /**
  * Holds all scrolling related logic: controls nested scrolling, flinging, overscroll and delta
@@ -950,7 +899,7 @@ private class ModifierLocalScrollableContainerProvider(var enabled: Boolean) :
         }
 }
 
-private val UnityDensity = object : Density {
+internal val UnityDensity = object : Density {
     override val density: Float
         get() = 1f
     override val fontScale: Float
