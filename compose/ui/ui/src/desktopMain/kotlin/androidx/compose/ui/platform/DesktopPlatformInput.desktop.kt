@@ -177,7 +177,7 @@ internal class DesktopTextInputService(private val component: PlatformComponent)
                 return AttributedString(str).iterator
             }
 
-            override fun getTextLocation(offset: TextHitInfo): Rectangle? {
+            override fun getTextLocation(offset: TextHitInfo?): Rectangle? {
                 return input.focusedRect?.let {
                     val x = (it.right / component.density.density).toInt() +
                         component.locationOnScreen.x
