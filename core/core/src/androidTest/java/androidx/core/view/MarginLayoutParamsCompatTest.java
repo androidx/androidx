@@ -18,6 +18,7 @@ package androidx.core.view;
 import static org.junit.Assert.assertEquals;
 
 import android.os.Build;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -33,15 +34,15 @@ public class MarginLayoutParamsCompatTest {
     public void testLayoutDirection() {
         ViewGroup.MarginLayoutParams mlp = new ViewGroup.MarginLayoutParams(0, 0);
 
-        assertEquals("Default LTR layout direction", ViewCompat.LAYOUT_DIRECTION_LTR,
+        assertEquals("Default LTR layout direction", View.LAYOUT_DIRECTION_LTR,
                 MarginLayoutParamsCompat.getLayoutDirection(mlp));
 
-        MarginLayoutParamsCompat.setLayoutDirection(mlp, ViewCompat.LAYOUT_DIRECTION_RTL);
-        assertEquals("RTL layout direction", ViewCompat.LAYOUT_DIRECTION_RTL,
+        MarginLayoutParamsCompat.setLayoutDirection(mlp, View.LAYOUT_DIRECTION_RTL);
+        assertEquals("RTL layout direction", View.LAYOUT_DIRECTION_RTL,
                 MarginLayoutParamsCompat.getLayoutDirection(mlp));
 
-        MarginLayoutParamsCompat.setLayoutDirection(mlp, ViewCompat.LAYOUT_DIRECTION_LTR);
-        assertEquals("Back to LTR layout direction", ViewCompat.LAYOUT_DIRECTION_LTR,
+        MarginLayoutParamsCompat.setLayoutDirection(mlp, View.LAYOUT_DIRECTION_LTR);
+        assertEquals("Back to LTR layout direction", View.LAYOUT_DIRECTION_LTR,
                 MarginLayoutParamsCompat.getLayoutDirection(mlp));
     }
 
@@ -65,7 +66,7 @@ public class MarginLayoutParamsCompatTest {
         mlp.leftMargin = 50;
         mlp.rightMargin = 80;
 
-        MarginLayoutParamsCompat.setLayoutDirection(mlp, ViewCompat.LAYOUT_DIRECTION_RTL);
+        MarginLayoutParamsCompat.setLayoutDirection(mlp, View.LAYOUT_DIRECTION_RTL);
 
         if (Build.VERSION.SDK_INT >= 17) {
             assertEquals("Mapping right to start under RTL", 80,
@@ -107,7 +108,7 @@ public class MarginLayoutParamsCompatTest {
         // to do platform-specific checks, the checks in this test are platform-agnostic,
         // relying on the relevant MarginLayoutParamsCompat to do the right mapping internally.
 
-        MarginLayoutParamsCompat.setLayoutDirection(mlp, ViewCompat.LAYOUT_DIRECTION_RTL);
+        MarginLayoutParamsCompat.setLayoutDirection(mlp, View.LAYOUT_DIRECTION_RTL);
         MarginLayoutParamsCompat.setMarginStart(mlp, 50);
 
         assertEquals("Resolved start margin under RTL", 50,
@@ -129,7 +130,7 @@ public class MarginLayoutParamsCompatTest {
         ViewGroup.MarginLayoutParams mlp = new ViewGroup.MarginLayoutParams(0, 0);
 
         MarginLayoutParamsCompat.setMarginStart(mlp, 50);
-        MarginLayoutParamsCompat.resolveLayoutDirection(mlp, ViewCompat.LAYOUT_DIRECTION_LTR);
+        MarginLayoutParamsCompat.resolveLayoutDirection(mlp, View.LAYOUT_DIRECTION_LTR);
 
         // While there's no guarantee that left/right margin fields have been set / resolved
         // prior to the resolveLayoutDirection call, they should be now
@@ -137,7 +138,7 @@ public class MarginLayoutParamsCompatTest {
         assertEquals("Default right margin field under LTR", 0, mlp.rightMargin);
 
         MarginLayoutParamsCompat.setMarginEnd(mlp, 80);
-        MarginLayoutParamsCompat.resolveLayoutDirection(mlp, ViewCompat.LAYOUT_DIRECTION_LTR);
+        MarginLayoutParamsCompat.resolveLayoutDirection(mlp, View.LAYOUT_DIRECTION_LTR);
 
         assertEquals("Resolved right margin field under LTR", 80, mlp.rightMargin);
         assertEquals("Keeping left margin field under LTR", 50, mlp.leftMargin);
@@ -148,7 +149,7 @@ public class MarginLayoutParamsCompatTest {
         ViewGroup.MarginLayoutParams mlp = new ViewGroup.MarginLayoutParams(0, 0);
 
         MarginLayoutParamsCompat.setMarginStart(mlp, 50);
-        MarginLayoutParamsCompat.resolveLayoutDirection(mlp, ViewCompat.LAYOUT_DIRECTION_RTL);
+        MarginLayoutParamsCompat.resolveLayoutDirection(mlp, View.LAYOUT_DIRECTION_RTL);
 
         // While there's no guarantee that left/right margin fields have been set / resolved
         // prior to the resolveLayoutDirection call, they should be now
@@ -163,7 +164,7 @@ public class MarginLayoutParamsCompatTest {
         }
 
         MarginLayoutParamsCompat.setMarginEnd(mlp, 80);
-        MarginLayoutParamsCompat.resolveLayoutDirection(mlp, ViewCompat.LAYOUT_DIRECTION_RTL);
+        MarginLayoutParamsCompat.resolveLayoutDirection(mlp, View.LAYOUT_DIRECTION_RTL);
 
         if (Build.VERSION.SDK_INT >= 17) {
             assertEquals("Resolved left margin field under RTL", 80, mlp.leftMargin);

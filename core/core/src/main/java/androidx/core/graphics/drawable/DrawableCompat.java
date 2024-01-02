@@ -26,6 +26,7 @@ import android.graphics.drawable.InsetDrawable;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.View;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.DoNotInline;
@@ -416,9 +417,9 @@ public final class DrawableCompat {
                     sGetLayoutDirectionMethod = null;
                 }
             }
-            return ViewCompat.LAYOUT_DIRECTION_LTR;
+            return View.LAYOUT_DIRECTION_LTR;
         } else {
-            return ViewCompat.LAYOUT_DIRECTION_LTR;
+            return View.LAYOUT_DIRECTION_LTR;
         }
     }
 

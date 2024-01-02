@@ -42,7 +42,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.view.ViewCompat;
 import androidx.recyclerview.test.R;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.testutils.ActivityScenarioResetRule;
@@ -128,7 +127,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
             mActivityRule.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    ViewCompat.setHasTransientState(view, value);
+                    view.setHasTransientState(value);
                 }
             });
         } catch (Throwable throwable) {
@@ -710,7 +709,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
                     addView(view);
                 }
                 measureChildWithMargins(view, 0, 0);
-                if (getLayoutDirection() == ViewCompat.LAYOUT_DIRECTION_RTL) {
+                if (getLayoutDirection() == View.LAYOUT_DIRECTION_RTL) {
                     layoutDecorated(view, getWidth() - getDecoratedMeasuredWidth(view), top,
                             getWidth(), top + getDecoratedMeasuredHeight(view));
                 } else {

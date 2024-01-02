@@ -27,7 +27,6 @@ import android.view.View;
 
 import androidx.annotation.ChecksSdkIntAtLeast;
 import androidx.annotation.RestrictTo;
-import androidx.core.view.ViewCompat;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -61,7 +60,7 @@ public class ViewUtils {
     private ViewUtils() {}
 
     public static boolean isLayoutRtl(View view) {
-        return ViewCompat.getLayoutDirection(view) == ViewCompat.LAYOUT_DIRECTION_RTL;
+        return view.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
     }
 
     /**

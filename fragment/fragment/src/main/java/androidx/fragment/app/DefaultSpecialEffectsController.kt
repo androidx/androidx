@@ -726,7 +726,7 @@ internal class DefaultSpecialEffectsController(
         override fun onStart(container: ViewGroup) {
             // If the container has never been laid out, transitions will not start so
             // so lets instantly complete them.
-            if (!ViewCompat.isLaidOut(container)) {
+            if (!container.isLaidOut()) {
                 transitionInfos.forEach { transitionInfo: TransitionInfo ->
                     val operation: Operation = transitionInfo.operation
                     if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
@@ -801,7 +801,7 @@ internal class DefaultSpecialEffectsController(
         override fun onCommit(container: ViewGroup) {
             // If the container has never been laid out, transitions will not start so
             // so lets instantly complete them.
-            if (!ViewCompat.isLaidOut(container)) {
+            if (!container.isLaidOut()) {
                 transitionInfos.forEach { transitionInfo: TransitionInfo ->
                     val operation: Operation = transitionInfo.operation
                     if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {

@@ -37,7 +37,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleRes;
 import androidx.appcompat.R;
 import androidx.core.view.GravityCompat;
-import androidx.core.view.ViewCompat;
 
 /**
  * Presents a menu as a small, simple popup anchored to another view.
@@ -268,7 +267,7 @@ public class MenuPopupHelper implements MenuHelper {
             // edge will be aligned with the anchor view. Adjust by the anchor
             // width such that the top-right corner is at the X offset.
             final int hgrav = GravityCompat.getAbsoluteGravity(mDropDownGravity,
-                    ViewCompat.getLayoutDirection(mAnchorView)) & Gravity.HORIZONTAL_GRAVITY_MASK;
+                    mAnchorView.getLayoutDirection()) & Gravity.HORIZONTAL_GRAVITY_MASK;
             if (hgrav == Gravity.RIGHT) {
                 xOffset -= mAnchorView.getWidth();
             }

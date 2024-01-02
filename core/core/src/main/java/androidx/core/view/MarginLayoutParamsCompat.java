@@ -107,11 +107,11 @@ public final class MarginLayoutParamsCompat {
         int result;
         result = lp.getLayoutDirection();
 
-        if ((result != ViewCompat.LAYOUT_DIRECTION_LTR)
-                && (result != ViewCompat.LAYOUT_DIRECTION_RTL)) {
+        if ((result != View.LAYOUT_DIRECTION_LTR)
+                && (result != View.LAYOUT_DIRECTION_RTL)) {
             // This can happen on older platform releases where the default (unset) layout direction
             // is -1
-            result = ViewCompat.LAYOUT_DIRECTION_LTR;
+            result = View.LAYOUT_DIRECTION_LTR;
         }
         return result;
     }

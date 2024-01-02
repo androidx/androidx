@@ -912,10 +912,7 @@ internal class AndroidComposeView(
         androidViewsHandler.layoutNodeToHolder[layoutNode] = view
         // Fetching AccessibilityNodeInfo from a View which is not set to
         // IMPORTANT_FOR_ACCESSIBILITY_YES will return null.
-        ViewCompat.setImportantForAccessibility(
-            view,
-            ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES
-        )
+        view.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES)
         val thisView = this
         ViewCompat.setAccessibilityDelegate(
             view,
@@ -992,10 +989,7 @@ internal class AndroidComposeView(
             androidViewsHandler.layoutNodeToHolder.remove(
                 androidViewsHandler.holderToLayoutNode.remove(view)
             )
-            ViewCompat.setImportantForAccessibility(
-                view,
-                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO
-            )
+            view.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_AUTO)
         }
     }
 

@@ -1443,7 +1443,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     final boolean shouldAnimateActionModeView() {
         // We only to animate the action mode in if the sub decor has already been laid out.
         // If it hasn't been laid out, it hasn't been drawn to screen yet.
-        return mSubDecorInstalled && mSubDecor != null && ViewCompat.isLaidOut(mSubDecor);
+        return mSubDecorInstalled && mSubDecor != null && mSubDecor.isLaidOut();
     }
 
     @Override
@@ -1679,7 +1679,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 // added to the hierarchy at the end of the inflate() call.
                 return true;
             } else if (parent == windowDecor || !(parent instanceof View)
-                    || ViewCompat.isAttachedToWindow((View) parent)) {
+                    || ((View) parent).isAttachedToWindow()) {
                 // We have either hit the window's decor view, a parent which isn't a View
                 // (i.e. ViewRootImpl), or an attached view, so we know that the original parent
                 // is currently added to the view hierarchy. This means that it has not be

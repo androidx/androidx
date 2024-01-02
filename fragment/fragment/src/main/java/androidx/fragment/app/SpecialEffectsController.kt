@@ -20,7 +20,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.BackEventCompat
 import androidx.annotation.CallSuper
-import androidx.core.view.ViewCompat
 import androidx.fragment.R
 import androidx.fragment.app.SpecialEffectsController.Operation.State.Companion.asOperationState
 
@@ -203,7 +202,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
         }
         // If the container is not attached to the window, ignore the special effect
         // since none of the special effect systems will run them anyway.
-        if (!ViewCompat.isAttachedToWindow(container)) {
+        if (!container.isAttachedToWindow()) {
             forceCompleteAllOperations()
             operationDirectionIsPop = false
             return
@@ -314,7 +313,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                 "SpecialEffectsController: Forcing all operations to complete"
             )
         }
-        val attachedToWindow = ViewCompat.isAttachedToWindow(container)
+        val attachedToWindow = container.isAttachedToWindow()
         synchronized(pendingOperations) {
             updateFinalState()
             processStart(pendingOperations)

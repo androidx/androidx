@@ -523,50 +523,6 @@ public abstract void jvmInsert\(@org\.jetbrains\.annotations\.NotNull.*
 public abstract java\.util\.List<androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameEntity> jvmQuery\(\);
 public abstract androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameDao jvmDao\(\);
 \^
-ViewCompat\.setBackground\(view, new ColorDrawable\(color\)\);
-\$SUPPORT/transition/transition/src/androidTest/java/androidx/transition/ChangeClipBoundsTest\.java:[0-9]+: warning: \[deprecation\] getClipBounds\(View\) in ViewCompat has been deprecated
-assertNull\(ViewCompat\.getClipBounds\(redSquare\)\);
-\$SUPPORT/transition/transition/src/androidTest/java/androidx/transition/ChangeClipBoundsTest\.java:[0-9]+: warning: \[deprecation\] setClipBounds\(View,Rect\) in ViewCompat has been deprecated
-ViewCompat\.setClipBounds\(redSquare, newClip\);
-final Rect endRect = ViewCompat\.getClipBounds\(redSquare\);
-ViewCompat\.setClipBounds\(redSquare, null\);
-ViewCompat\.setHasTransientState\(view, true\);
-ViewCompat\.setHasTransientState\(view, false\);
-\$SUPPORT/transition/transition/src/main/java/androidx/transition/ChangeBounds\.java:[0-9]+: warning: \[deprecation\] isLaidOut\(View\) in ViewCompat has been deprecated
-if \(ViewCompat\.isLaidOut\(view\) \|\| view\.getWidth\(\) != [0-9]+ \|\| view\.getHeight\(\) != [0-9]+\) \{
-\$SUPPORT/transition/transition/src/main/java/androidx/transition/ChangeBounds\.java:[0-9]+: warning: \[deprecation\] getClipBounds\(View\) in ViewCompat has been deprecated
-values\.values\.put\(PROPNAME_CLIP, ViewCompat\.getClipBounds\(view\)\);
-\$SUPPORT/transition/transition/src/main/java/androidx/transition/ChangeBounds\.java:[0-9]+: warning: \[deprecation\] setClipBounds\(View,Rect\) in ViewCompat has been deprecated
-ViewCompat\.setClipBounds\(view, startClip\);
-ViewCompat\.setClipBounds\(mView, clip\);
-Rect pauseClip = ViewCompat\.getClipBounds\(mView\);
-ViewCompat\.setClipBounds\(mView, pauseClip\);
-\$SUPPORT/transition/transition/src/main/java/androidx/transition/ChangeClipBounds\.java:[0-9]+: warning: \[deprecation\] getClipBounds\(View\) in ViewCompat has been deprecated
-clip = ViewCompat\.getClipBounds\(view\);
-\$SUPPORT/transition/transition/src/main/java/androidx/transition/ChangeClipBounds\.java:[0-9]+: warning: \[deprecation\] setClipBounds\(View,Rect\) in ViewCompat has been deprecated
-ViewCompat\.setClipBounds\(endValues\.view, start\);
-Rect clipBounds = ViewCompat\.getClipBounds\(mView\);
-ViewCompat\.setClipBounds\(mView, mEnd\);
-ViewCompat\.setClipBounds\(mView, clipBounds\);
-ViewCompat\.setClipBounds\(mView, mStart\);
-\$SUPPORT/transition/transition/src/main/java/androidx/transition/GhostViewPort\.java:[0-9]+: warning: \[deprecation\] postInvalidateOnAnimation\(View\) in ViewCompat has been deprecated
-ViewCompat\.postInvalidateOnAnimation\(GhostViewPort\.this\);
-ViewCompat\.postInvalidateOnAnimation\(mStartParent\);
-\$SUPPORT/transition/transition/src/main/java/androidx/transition/SidePropagation\.java:[0-9]+: warning: \[deprecation\] getLayoutDirection\(View\) in ViewCompat has been deprecated
-final boolean isRtl = ViewCompat\.getLayoutDirection\(sceneRoot\)
-\$SUPPORT/transition/transition/src/main/java/androidx/transition/Slide\.java:[0-9]+: warning: \[deprecation\] getLayoutDirection\(View\) in ViewCompat has been deprecated
-\$SUPPORT/transition/transition/src/main/java/androidx/transition/TransitionManager\.java:[0-9]+: warning: \[deprecation\] isLaidOut\(View\) in ViewCompat has been deprecated
-if \(!ViewCompat\.isLaidOut\(sceneRoot\)
-if \(!sPendingTransitions\.contains\(sceneRoot\) \&\& ViewCompat\.isLaidOut\(sceneRoot\)\) \{
-if \(sPendingTransitions\.contains\(sceneRoot\) \|\| !ViewCompat\.isLaidOut\(sceneRoot\)
-\$SUPPORT/transition/transition/src/main/java/androidx/transition/ViewOverlayApi[0-9]+\.java:[0-9]+: warning: \[deprecation\] isAttachedToWindow\(View\) in ViewCompat has been deprecated
-\&\& ViewCompat\.isAttachedToWindow\(parent\)\) \{
-\$SUPPORT/transition/transition/src/main/java/androidx/transition/ViewUtils\.java:[0-9]+: warning: \[deprecation\] getClipBounds\(View\) in ViewCompat has been deprecated
-return ViewCompat\.getClipBounds\(view\);
-\$SUPPORT/transition/transition/src/main/java/androidx/transition/ViewUtils\.java:[0-9]+: warning: \[deprecation\] setClipBounds\(View,Rect\) in ViewCompat has been deprecated
-ViewCompat\.setClipBounds\(view, clipBounds\);
-\$SUPPORT/transition/transition/src/main/java/androidx/transition/Fade\.java:[0-9]+: warning: \[deprecation\] hasOverlappingRendering\(View\) in ViewCompat has been deprecated
-if \(ViewCompat\.hasOverlappingRendering\(mView\)
 \$SUPPORT/slice/slice\-benchmark/src/androidTest/java/androidx/slice/SliceViewMetrics\.java:[0-9]+: warning: \[deprecation\] SliceView in androidx\.slice\.widget has been deprecated
 import androidx\.slice\.widget\.SliceView;
 # b/296419682
@@ -638,37 +594,3 @@ docs-public:docs starting
 docs-public:docs completing
 docs-tip-of-tree:docs starting
 docs-tip-of-tree:docs completing
-# > Task :transition:transition:compileReleaseJavaWithJavac
-\$SUPPORT/transition/transition/src/main/java/androidx/transition/Transition\.java:[0-9]+: warning: \[deprecation\] setHasTransientState\(View,boolean\) in ViewCompat has been deprecated
-ViewCompat\.setHasTransientState\(alreadyMatched, false\);
-# > Task :transition:transition:compileDebugAndroidTestJavaWithJavac
-\$SUPPORT/transition/transition/src/androidTest/java/androidx/transition/GhostViewTest\.java:[0-9]+: warning: \[deprecation\] setBackground\(View,Drawable\) in ViewCompat has been deprecated
-ViewCompat\.setBackground\(rule\.getActivity\(\)\.getRoot\(\), new ColorDrawable\(Color\.WHITE\)\);
-# > Task :viewpager2:integration-tests:testapp:compileDebugAndroidTestKotlin
-w: file://\$SUPPORT/viewpager[0-9]+/integration\-tests/testapp/src/androidTest/java/androidx/viewpager[0-9]+/integration/testapp/test/util/ViewPagerActions\.kt:[0-9]+:[0-9]+ 'getLayoutDirection\(View\): Int' is deprecated\. Deprecated in Java
-# > Task :fragment:fragment:compileReleaseKotlin
-w: file://\$SUPPORT/fragment/fragment/src/main/java/androidx/fragment/app/DefaultSpecialEffectsController\.kt:[0-9]+:[0-9]+ 'isLaidOut\(View\): Boolean' is deprecated\. Deprecated in Java
-w: file://\$SUPPORT/fragment/fragment/src/main/java/androidx/fragment/app/SpecialEffectsController\.kt:[0-9]+:[0-9]+ 'isAttachedToWindow\(View\): Boolean' is deprecated\. Deprecated in Java
-# > Task :slidingpanelayout:slidingpanelayout:compileReleaseKotlin
-w: file://\$SUPPORT/slidingpanelayout/slidingpanelayout/src/main/java/androidx/slidingpanelayout/widget/SlidingPaneLayout\.kt:[0-9]+:[0-9]+ 'setImportantForAccessibility\(View, Int\): Unit' is deprecated\. Deprecated in Java
-w: file://\$SUPPORT/slidingpanelayout/slidingpanelayout/src/main/java/androidx/slidingpanelayout/widget/SlidingPaneLayout\.kt:[0-9]+:[0-9]+ 'IMPORTANT_FOR_ACCESSIBILITY_YES: Int' is deprecated\. Deprecated in Java
-w: file://\$SUPPORT/slidingpanelayout/slidingpanelayout/src/main/java/androidx/slidingpanelayout/widget/SlidingPaneLayout\.kt:[0-9]+:[0-9]+ 'getParentForAccessibility\(View\): ViewParent\?' is deprecated\. Deprecated in Java
-# > Task :compose:ui:ui:compileReleaseKotlinAndroid
-w: file://\$SUPPORT/compose/ui/ui/src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeView\.android\.kt:[0-9]+:[0-9]+ 'setImportantForAccessibility\(View, Int\): Unit' is deprecated\. Deprecated in Java
-w: file://\$SUPPORT/compose/ui/ui/src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeView\.android\.kt:[0-9]+:[0-9]+ 'IMPORTANT_FOR_ACCESSIBILITY_YES: Int' is deprecated\. Deprecated in Java
-w: file://\$SUPPORT/compose/ui/ui/src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeView\.android\.kt:[0-9]+:[0-9]+ 'IMPORTANT_FOR_ACCESSIBILITY_AUTO: Int' is deprecated\. Deprecated in Java
-w: file://\$SUPPORT/compose/ui/ui/src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeViewAccessibilityDelegateCompat\.android\.kt:[0-9]+:[0-9]+ 'getParentForAccessibility\(View\): ViewParent\?' is deprecated\. Deprecated in Java
-# > Task :fragment:fragment:compileDebugAndroidTestKotlin
-w: file://\$SUPPORT/fragment/fragment/src/androidTest/java/androidx/fragment/app/FragmentAnimationTest\.kt:[0-9]+:[0-9]+ 'isAttachedToWindow\(View\): Boolean' is deprecated\. Deprecated in Java
-w: file://\$SUPPORT/fragment/fragment/src/androidTest/java/androidx/fragment/app/FragmentAnimatorTest\.kt:[0-9]+:[0-9]+ 'isAttachedToWindow\(View\): Boolean' is deprecated\. Deprecated in Java
-w: file://\$SUPPORT/fragment/fragment/src/androidTest/java/androidx/fragment/app/FragmentLifecycleTest\.kt:[0-9]+:[0-9]+ 'isAttachedToWindow\(View\): Boolean' is deprecated\. Deprecated in Java
-# > Task :preference:preference:compileDebugAndroidTestKotlin
-w: file://\$SUPPORT/preference/preference/src/androidTest/java/androidx/preference/tests/SelectableTest\.kt:[0-9]+:[0-9]+ 'setBackground\(View, Drawable\?\): Unit' is deprecated\. Deprecated in Java
-# > Task :viewpager2:viewpager2:compileDebugAndroidTestKotlin
-w: file://\$SUPPORT/viewpager[0-9]+/viewpager[0-9]+/src/androidTest/java/androidx/viewpager[0-9]+/widget/AccessibilityTest\.kt:[0-9]+:[0-9]+ 'performAccessibilityAction\(View, Int, Bundle\?\): Boolean' is deprecated\. Deprecated in Java
-w: file://\$SUPPORT/viewpager[0-9]+/viewpager[0-9]+/src/androidTest/java/androidx/viewpager[0-9]+/widget/AccessibilityTest\.kt:[0-9]+:[0-9]+ 'onInitializeAccessibilityNodeInfo\(View, AccessibilityNodeInfoCompat\): Unit' is deprecated\. Deprecated in Java
-w: file://\$SUPPORT/viewpager[0-9]+/viewpager[0-9]+/src/androidTest/java/androidx/viewpager[0-9]+/widget/BaseTest\.kt:[0-9]+:[0-9]+ 'getLayoutDirection\(View\): Int' is deprecated\. Deprecated in Java
-w: file://\$SUPPORT/viewpager[0-9]+/viewpager[0-9]+/src/androidTest/java/androidx/viewpager[0-9]+/widget/FakeDragTest\.kt:[0-9]+:[0-9]+ 'performAccessibilityAction\(View, Int, Bundle\?\): Boolean' is deprecated\. Deprecated in Java
-w: file://\$SUPPORT/viewpager[0-9]+/viewpager[0-9]+/src/androidTest/java/androidx/viewpager[0-9]+/widget/HostFragmentBackStackTest\.kt:[0-9]+:[0-9]+ 'generateViewId\(\): Int' is deprecated\. Deprecated in Java
-# > Task :compose:ui:ui:compileDebugAndroidTestKotlinAndroid
-w: file://\$SUPPORT/compose/ui/ui/src/androidInstrumentedTest/kotlin/androidx/compose/ui/AndroidAccessibilityTest\.kt:[0-9]+:[0-9]+ 'IMPORTANT_FOR_ACCESSIBILITY_YES: Int' is deprecated\. Deprecated in Java

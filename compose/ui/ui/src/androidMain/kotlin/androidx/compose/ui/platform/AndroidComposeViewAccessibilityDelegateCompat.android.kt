@@ -98,7 +98,6 @@ import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastRoundToInt
 import androidx.core.util.keyIterator
 import androidx.core.view.AccessibilityDelegateCompat
-import androidx.core.view.ViewCompat
 import androidx.core.view.ViewCompat.ACCESSIBILITY_LIVE_REGION_ASSERTIVE
 import androidx.core.view.ViewCompat.ACCESSIBILITY_LIVE_REGION_POLITE
 import androidx.core.view.accessibility.AccessibilityEventCompat
@@ -495,7 +494,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         val semanticsNodeWithAdjustedBounds = currentSemanticsNodes[virtualViewId] ?: return null
         val semanticsNode: SemanticsNode = semanticsNodeWithAdjustedBounds.semanticsNode
         if (virtualViewId == AccessibilityNodeProviderCompat.HOST_VIEW_ID) {
-            info.setParent(ViewCompat.getParentForAccessibility(view) as? View)
+            info.setParent(view.getParentForAccessibility() as? View)
         } else {
             var parentId = checkNotNull(semanticsNode.parent?.id) {
                 "semanticsNode $virtualViewId has null parent"

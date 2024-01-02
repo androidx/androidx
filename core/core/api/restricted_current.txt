@@ -3588,10 +3588,10 @@ package androidx.core.view {
     field @Deprecated public static final int LAYER_TYPE_HARDWARE = 2; // 0x2
     field @Deprecated public static final int LAYER_TYPE_NONE = 0; // 0x0
     field @Deprecated public static final int LAYER_TYPE_SOFTWARE = 1; // 0x1
-    field public static final int LAYOUT_DIRECTION_INHERIT = 2; // 0x2
-    field public static final int LAYOUT_DIRECTION_LOCALE = 3; // 0x3
-    field public static final int LAYOUT_DIRECTION_LTR = 0; // 0x0
-    field public static final int LAYOUT_DIRECTION_RTL = 1; // 0x1
+    field @Deprecated public static final int LAYOUT_DIRECTION_INHERIT = 2; // 0x2
+    field @Deprecated public static final int LAYOUT_DIRECTION_LOCALE = 3; // 0x3
+    field @Deprecated public static final int LAYOUT_DIRECTION_LTR = 0; // 0x0
+    field @Deprecated public static final int LAYOUT_DIRECTION_RTL = 1; // 0x1
     field @Deprecated public static final int MEASURED_HEIGHT_STATE_SHIFT = 16; // 0x10
     field @Deprecated public static final int MEASURED_SIZE_MASK = 16777215; // 0xffffff
     field @Deprecated public static final int MEASURED_STATE_MASK = -16777216; // 0xff000000

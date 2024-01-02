@@ -22,7 +22,6 @@ import android.view.ViewConfiguration
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.Interpolator
 import android.view.animation.LinearInterpolator
-import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD
 import androidx.core.view.animation.PathInterpolatorCompat
 import androidx.test.filters.LargeTest
@@ -345,7 +344,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
     fun test_performA11yActionDuringFakeDrag() {
         startManualDragDuringFakeDrag(.9f, 1000, interpolator = fastDecelerateInterpolator) {
             test.runOnUiThreadSync {
-                ViewCompat.performAccessibilityAction(test.viewPager, getNextPageAction(), null)
+                test.viewPager.performAccessibilityAction(getNextPageAction(), null)
             }
         }
     }
