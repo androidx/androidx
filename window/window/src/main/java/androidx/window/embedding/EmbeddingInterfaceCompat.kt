@@ -83,4 +83,7 @@ internal interface EmbeddingInterfaceCompat {
 
     @RequiresWindowSdkExtension(5)
     fun clearOverlayAttributesCalculator()
+
+    @RequiresWindowSdkExtension(5)
+    fun updateOverlayAttributes(overlayTag: String, overlayAttributes: OverlayAttributes)
 }

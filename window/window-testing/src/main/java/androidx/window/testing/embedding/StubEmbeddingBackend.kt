@@ -220,6 +220,10 @@ internal class StubEmbeddingBackend : EmbeddingBackend {
         TODO("Not yet implemented")
     }
 
+    override fun updateOverlayAttributes(overlayTag: String, overlayAttributes: OverlayAttributes) {
+        TODO("Not yet implemented")
+    }
+
     private fun validateRules(rules: Set<EmbeddingRule>) {
         val tags = HashSet<String>()
         rules.forEach { rule ->

@@ -16,6 +16,7 @@
 
 package androidx.window.embedding
 
+import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.graphics.Rect
 import androidx.core.view.WindowInsetsCompat
@@ -40,19 +41,17 @@ class OverlayControllerImplTest {
     @get:Rule
     val testRule = WindowSdkExtensionsRule()
 
-    private lateinit var overlayController: OverlayControllerImpl
+    private lateinit var overlayController: TestableOverlayControllerImpl
 
     @Before
     fun setUp() {
         testRule.overrideExtensionVersion(5)
 
-        overlayController = OverlayControllerImpl(
-            mock<ActivityEmbeddingComponent>(),
-            EmbeddingAdapter(PredicateAdapter(ClassLoader.getSystemClassLoader())),
-        )
+        overlayController = TestableOverlayControllerImpl()
     }
 
     /** Verifies the behavior of [OverlayControllerImpl.calculateOverlayAttributes] */
+    @SuppressLint("NewApi")
     @Test
     fun testCalculateOverlayAttributes() {
         assertThat(overlayController.calculateOverlayAttributes(DEFAULT_OVERLAY_ATTRS))
@@ -63,6 +62,18 @@ class OverlayControllerImplTest {
         assertWithMessage("Calculated overlay attrs must be reported if calculator exists.")
             .that(overlayController.calculateOverlayAttributes(DEFAULT_OVERLAY_ATTRS))
             .isEqualTo(CALCULATED_OVERLAY_ATTRS)
+
+        overlayController.updateOverlayAttributes(TAG_TEST, UPDATED_OVERLAY_ATTRS)
+
+        assertWithMessage("Calculated overlay attrs must be reported if calculator exists.")
+            .that(overlayController.calculateOverlayAttributes(DEFAULT_OVERLAY_ATTRS))
+            .isEqualTo(CALCULATED_OVERLAY_ATTRS)
+
+        overlayController.overlayAttributesCalculator = null
+
+        assertWithMessage("#updateOverlayAttributes should also update the current overlay attrs.")
+            .that(overlayController.calculateOverlayAttributes(DEFAULT_OVERLAY_ATTRS))
+            .isEqualTo(UPDATED_OVERLAY_ATTRS)
     }
 
     private fun OverlayControllerImpl.calculateOverlayAttributes(
@@ -83,5 +94,28 @@ class OverlayControllerImplTest {
         private val CALCULATED_OVERLAY_ATTRS = OverlayAttributes.Builder()
             .setBounds(EmbeddingBounds.BOUNDS_HINGE_RIGHT)
             .build()
+
+        private val UPDATED_OVERLAY_ATTRS = OverlayAttributes.Builder()
+            .setBounds(EmbeddingBounds.BOUNDS_HINGE_BOTTOM)
+            .build()
+    }
+
+    private class TestableOverlayControllerImpl(
+        val mockExtension: ActivityEmbeddingComponent = mock<ActivityEmbeddingComponent>()
+    ) : OverlayControllerImpl(
+        mockExtension,
+        EmbeddingAdapter(PredicateAdapter(ClassLoader.getSystemClassLoader()))
+    ) {
+        val overlayTagToAttributesMap = HashMap<String, OverlayAttributes>()
+
+        override fun getUpdatedOverlayAttributes(overlayTag: String): OverlayAttributes? =
+            overlayTagToAttributesMap[overlayTag]
+
+        override fun updateOverlayAttributes(
+            overlayTag: String,
+            overlayAttributes: OverlayAttributes
+        ) {
+            overlayTagToAttributesMap[overlayTag] = overlayAttributes
+        }
     }
 }
