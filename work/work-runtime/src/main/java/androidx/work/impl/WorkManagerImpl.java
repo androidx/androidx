@@ -27,6 +27,7 @@ import static androidx.work.impl.model.RawWorkInfoDaoKt.getWorkInfoPojosFlow;
 import static androidx.work.impl.model.WorkSpecDaoKt.getWorkStatusPojoFlowDataForIds;
 import static androidx.work.impl.model.WorkSpecDaoKt.getWorkStatusPojoFlowForName;
 import static androidx.work.impl.model.WorkSpecDaoKt.getWorkStatusPojoFlowForTag;
+import static androidx.work.ListenableFutureKt.executeAsync;
 
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -68,7 +69,6 @@ import androidx.work.impl.utils.PruneWorkRunnableKt;
 import androidx.work.impl.utils.RawQueries;
 import androidx.work.impl.utils.StatusRunnable;
 import androidx.work.impl.utils.StopWorkRunnable;
-import androidx.work.impl.utils.futures.SettableFuture;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 import androidx.work.multiprocess.RemoteWorkManager;
 
@@ -440,20 +440,9 @@ public class WorkManagerImpl extends WorkManager {
 
     @Override
     public @NonNull ListenableFuture<Long> getLastCancelAllTimeMillis() {
-        final SettableFuture<Long> future = SettableFuture.create();
-        // Avoiding synthetic accessors.
         final PreferenceUtils preferenceUtils = mPreferenceUtils;
-        mWorkTaskExecutor.executeOnTaskThread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    future.set(preferenceUtils.getLastCancelAllTimeMillis());
-                } catch (Throwable throwable) {
-                    future.setException(throwable);
-                }
-            }
-        });
-        return future;
+        return executeAsync(mWorkTaskExecutor.getSerialTaskExecutor(),
+                "getLastCancelAllTimeMillis", preferenceUtils::getLastCancelAllTimeMillis);
     }
 
     @Override
