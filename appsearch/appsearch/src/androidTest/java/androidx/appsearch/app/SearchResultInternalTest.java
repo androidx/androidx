@@ -28,18 +28,34 @@ public class SearchResultInternalTest {
         SearchResult searchResult = new SearchResult.Builder("package", "database")
                 .setGenericDocument(document)
                 .setRankingSignal(1.23)
-                .addJoinedResult(new SearchResult.Builder("pkg", "db").setGenericDocument(
+                .addJoinedResult(new SearchResult.Builder("pkg1", "db1").setGenericDocument(
                         document).build())
-                .addMatchInfo(new SearchResult.MatchInfo.Builder("propertyPath").build())
+                .addJoinedResult(new SearchResult.Builder("pkg2", "db2").setGenericDocument(
+                        document).build())
+                .addMatchInfo(new SearchResult.MatchInfo.Builder("propertyPath1").build())
+                .addMatchInfo(new SearchResult.MatchInfo.Builder("propertyPath2").build())
+                .addMatchInfo(new SearchResult.MatchInfo.Builder("propertyPath3").build())
                 .build();
         SearchResult searchResultCopy = new SearchResult.Builder(searchResult).build();
         assertThat(searchResultCopy.getGenericDocument()).isEqualTo(
                 searchResult.getGenericDocument());
         assertThat(searchResultCopy.getRankingSignal()).isEqualTo(searchResult.getRankingSignal());
+        // Specifically test JoinedResults and MatchInfos with different sizes since briefly had
+        // a bug where we looped through joinedResults using matchInfos.size()
         assertThat(searchResultCopy.getJoinedResults().size()).isEqualTo(
                 searchResult.getJoinedResults().size());
+        assertThat(searchResultCopy.getJoinedResults().get(0).getPackageName()).isEqualTo("pkg1");
+        assertThat(searchResultCopy.getJoinedResults().get(0).getDatabaseName()).isEqualTo("db1");
+        assertThat(searchResultCopy.getJoinedResults().get(1).getPackageName()).isEqualTo("pkg2");
+        assertThat(searchResultCopy.getJoinedResults().get(1).getDatabaseName()).isEqualTo("db2");
         assertThat(searchResultCopy.getMatchInfos().size()).isEqualTo(
                 searchResult.getMatchInfos().size());
+        assertThat(searchResultCopy.getMatchInfos().get(0).getPropertyPath()).isEqualTo(
+                "propertyPath1");
+        assertThat(searchResultCopy.getMatchInfos().get(1).getPropertyPath()).isEqualTo(
+                "propertyPath2");
+        assertThat(searchResultCopy.getMatchInfos().get(2).getPropertyPath()).isEqualTo(
+                "propertyPath3");
     }
 
     @Test
