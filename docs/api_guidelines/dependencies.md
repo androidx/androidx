@@ -8,14 +8,17 @@ don't appear in their Maven publications (`pom` or `module` files).
 ### Versioned artifacts {#dependencies-versioned}
 
 One of the most difficult aspects of independently-versioned releases is
-maintaining compatibility with public artifacts. In a mono repo such as Google's
-repository or Android Git at `master` revision, it's easy for an artifact to
+maintaining compatibility with public artifacts. In a monorepo such as Google's
+repository or Android Git at `main` revision, it's easy for an artifact to
 accidentally gain a dependency on a feature that may not be released on the same
 schedule.
 
+To address this problem, library owners in AndroidX can choose from several
+types of dependencies:
+
 -   Project `project(":core:core")` uses the tip-of-tree sources for the
     `androidx.core:core` library and requires that they be loaded in the
-    workspace.
+    workspace and released at the same time.
 -   Playground `projectOrArtifact(":core:core")` is used for the
     [Playground](/docs/playground.md) workflow and will use
     tip-of-tree sources, if present in the workspace, or `SNAPSHOT` prebuilt
@@ -29,7 +32,8 @@ that include the APIs or behaviors required by the library, and should only use
 project or Playground specs in cases where tip-of-tree APIs or behaviors are
 required.
 
-**Do not** change a dependency version to increase adoption.
+**Do not** upgrade the version of a library's dependency to artificially boost
+adoption of that version.
 
 #### Pre-release dependencies {#dependencies-pre-release}
 
@@ -43,10 +47,9 @@ NOTE This does not apply to test dependencies: suffixes of test dependencies do
 #### Pinned versions {#dependencies-prebuilt}
 
 To avoid issues with dependency versioning, pin your dependencies to the oldest
-stable version of an artifact (available via local `maven_repo` or Google Maven)
-that includes the necessary APIs. This will ensure that the artifact's release
-schedule is not accidentally tied to that of another artifact and will allow
-developers to use older libraries if desired.
+stable version of an artifact that includes the necessary APIs. This will ensure
+that the artifact's release schedule is not accidentally tied to that of another
+artifact and will allow developers to use older libraries if desired.
 
 ```
 dependencies {
@@ -80,18 +83,17 @@ usages are subject to binary compatibility guarantees. See
 [`@RestrictTo` APIs](/docs/api_guidelines#restricted-api) for
 more details.
 
-NOTE Dependency versioning policies are enforced at build time in the
-`createArchive` task, which ensures that pre-release version suffixes are
-propagated appropriately. Cross-artifact API usage policies are enforced by the
-`checkApi` and `checkApiRelease` tasks.
+Dependency versioning policies are enforced at build time in the `createArchive`
+task, which ensures that pre-release version suffixes are propagated
+appropriately. Cross-artifact API usage policies are enforced by the `checkApi`
+and `checkApiRelease` tasks.
 
 ### Third-party libraries {#dependencies-3p}
 
 Artifacts may depend on libraries developed outside of AndroidX; however, they
 must conform to the following guidelines:
 
-*   Prebuilt **must** be checked into Android Git with both Maven and Make
-    artifacts
+*   Prebuilt **must** be checked into Android Git
     *   `prebuilts/maven_repo` is recommended if this dependency is only
         intended for use with AndroidX artifacts, otherwise please use
         `external`
