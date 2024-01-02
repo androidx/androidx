@@ -1105,6 +1105,15 @@ public class ComplicationDataTest {
                 .setContentDescription(ComplicationText(DynamicString.constant("Description")))
                 .build()
         ),
+        PLACEHOLDER(
+            ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
+                .setPlaceholder(
+                    ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
+                        .setRangedDynamicValue(DynamicFloat.constant(1f))
+                        .build()
+                )
+                .build()
+        ),
     }
 
     @Test
@@ -1116,7 +1125,14 @@ public class ComplicationDataTest {
 
     enum class HasDynamicValuesWithoutDynamicValueScenario(val data: ComplicationData) {
         NO_DATA(
-            ComplicationData.Builder(ComplicationData.TYPE_NO_DATA).setRangedValue(10f).build()
+            ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
+                .setRangedValue(10f)
+                .setPlaceholder(
+                    ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
+                        .setRangedValue(10f)
+                        .build()
+                )
+                .build()
         ),
         // Important to test because it doesn't allow any getters.
         EMPTY(ComplicationData.Builder(ComplicationData.TYPE_EMPTY).build()),

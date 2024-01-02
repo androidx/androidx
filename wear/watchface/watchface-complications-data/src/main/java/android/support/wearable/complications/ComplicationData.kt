@@ -1055,7 +1055,7 @@ class ComplicationData : Parcelable, Serializable {
         isFieldValidForType(FIELD_PLACEHOLDER_FIELDS, type) &&
             isFieldValidForType(FIELD_PLACEHOLDER_TYPE, type) &&
             hasParcelableField(FIELD_PLACEHOLDER_FIELDS) &&
-            hasParcelableField(FIELD_PLACEHOLDER_TYPE)
+            fields.containsKey(FIELD_PLACEHOLDER_TYPE)
 
     /** Returns the placeholder ComplicationData if there is one or `null`. */
     val placeholder: ComplicationData?
