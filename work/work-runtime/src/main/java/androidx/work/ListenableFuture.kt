@@ -19,10 +19,13 @@
 package androidx.work
 
 import androidx.annotation.RestrictTo
+import androidx.concurrent.futures.CallbackToFutureAdapter
 import androidx.work.impl.utils.futures.SettableFuture
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.CancellationException
 import java.util.concurrent.ExecutionException
+import java.util.concurrent.Executor
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.Job
@@ -88,3 +91,18 @@ internal class JobListenableFuture<R>(
         }
     }
 }
+
+internal fun <V> Executor.executeAsync(debugTag: String, block: () -> V): ListenableFuture<V> =
+    CallbackToFutureAdapter.getFuture { completer ->
+        val cancelled = AtomicBoolean(false)
+        completer.addCancellationListener({ cancelled.set(true) }, DirectExecutor.INSTANCE)
+        execute {
+            if (cancelled.get()) return@execute
+            try {
+                completer.set(block())
+            } catch (t: Throwable) {
+                completer.setException(t)
+            }
+        }
+        debugTag
+    }
