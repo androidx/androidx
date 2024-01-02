@@ -1198,7 +1198,6 @@ public class GenericDocument {
          * <p>Document IDs are unique within a namespace.
          *
          * <p>The number of namespaces per app should be kept small for efficiency reasons.
-         * <!--@exportToFramework:hide-->
          */
         @CanIgnoreReturnValue
         @NonNull
@@ -1213,7 +1212,6 @@ public class GenericDocument {
          * special values are reserved or understood by the infrastructure.
          *
          * <p>Document IDs are unique within a namespace.
-         * <!--@exportToFramework:hide-->
          */
         @CanIgnoreReturnValue
         @NonNull
@@ -1229,7 +1227,6 @@ public class GenericDocument {
          * <p>To successfully index a document, the schema type must match the name of an
          * {@link AppSearchSchema} object previously provided to
          * {@link AppSearchSession#setSchemaAsync}.
-         * <!--@exportToFramework:hide-->
          */
         @CanIgnoreReturnValue
         @NonNull
@@ -1467,7 +1464,6 @@ public class GenericDocument {
          * <p>Note that this method does not support property paths.
          *
          * @param name The name of the property to clear.
-         *             <!--@exportToFramework:hide-->
          */
         @CanIgnoreReturnValue
         @NonNull
