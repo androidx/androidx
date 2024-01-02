@@ -213,7 +213,7 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                     implementation(libs.mockitoKotlin)
                 }
             }
-            desktopTest.kotlin.srcDirs("src/test/kotlin", "src/desktopTest/kotlin")
+            desktopTest.kotlin.srcDirs("src/desktopTest/kotlin")
 
             nativeTest.dependsOn(jsNativeTest)
             jsTest.dependsOn(jsNativeTest)
