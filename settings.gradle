@@ -869,7 +869,7 @@ includeProject(":resourceinspection:resourceinspection-processor", [BuildType.MA
 includeProject(":room:integration-tests:room-incremental-annotation-processing", "room/integration-tests/incremental-annotation-processing", [BuildType.MAIN])
 includeProject(":room:integration-tests:room-testapp", "room/integration-tests/testapp", [BuildType.MAIN])
 includeProject(":room:integration-tests:room-testapp-autovalue", "room/integration-tests/autovaluetestapp", [BuildType.MAIN])
-includeProject(":room:integration-tests:room-testapp-kotlin", "room/integration-tests/kotlintestapp", [BuildType.MAIN])
+includeProject(":room:integration-tests:room-testapp-kotlin", "room/integration-tests/kotlintestapp", [BuildType.MAIN, BuildType.KMP])
 includeProject(":room:integration-tests:room-testapp-noappcompat", "room/integration-tests/noappcompattestapp", [BuildType.MAIN])
 includeProject(":room:room-benchmark", "room/benchmark", [BuildType.MAIN])
 includeProject(":room:room-common", [BuildType.MAIN, BuildType.COMPOSE, BuildType.KMP, BuildType.INFRAROGUE])
