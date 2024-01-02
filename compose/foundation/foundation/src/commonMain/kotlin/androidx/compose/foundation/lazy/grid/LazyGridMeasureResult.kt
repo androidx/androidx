@@ -19,6 +19,8 @@ package androidx.compose.foundation.lazy.grid
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.snapping.offsetOnMainAxis
 import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEach
 
@@ -39,6 +41,12 @@ internal class LazyGridMeasureResult(
     measureResult: MeasureResult,
     /** True when extra remeasure is required. */
     val remeasureNeeded: Boolean,
+    /** Density of the last measure. */
+    val density: Density,
+    /** Amount of slots we have in each line. */
+    val slotsPerLine: Int,
+    /** Finds items on a line and their measurement constraints. Used for prefetching. */
+    val prefetchInfoRetriever: (line: Int) -> List<Pair<Int, Constraints>>,
     // properties representing the info needed for LazyListLayoutInfo:
     /** see [LazyGridLayoutInfo.visibleItemsInfo] */
     override val visibleItemsInfo: List<LazyGridMeasuredItem>,

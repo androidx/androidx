@@ -65,11 +65,6 @@ internal fun rememberStaggeredGridMeasurePolicy(
         val isVertical = orientation == Orientation.Vertical
         val itemProvider = itemProviderLambda()
 
-        // setup information for prefetch
-        state.slots = resolvedSlots
-        state.isVertical = isVertical
-        state.spanProvider = itemProvider.spanProvider
-
         // setup measure
         val beforeContentPadding = contentPadding.beforePadding(
             orientation, reverseLayout, layoutDirection

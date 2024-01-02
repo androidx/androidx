@@ -91,8 +91,6 @@ internal fun LazyGrid(
         coroutineScope
     )
 
-    state.isVertical = isVertical
-
     val orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal
     LazyLayout(
         modifier = modifier
@@ -207,10 +205,6 @@ private fun rememberLazyGridMeasurePolicy(
         val slotsPerLine = resolvedSlots.sizes.size
         spanLayoutProvider.slotsPerLine = slotsPerLine
 
-        // Update the state's cached Density and slotsPerLine
-        state.density = this
-        state.slotsPerLine = slotsPerLine
-
         val spaceBetweenLinesDp = if (isVertical) {
             requireNotNull(verticalArrangement) {
                 "null verticalArrangement when isVertical == true"
@@ -291,7 +285,7 @@ private fun rememberLazyGridMeasurePolicy(
                 mainAxisSpacing = mainAxisSpacing,
             )
         }
-        state.prefetchInfoRetriever = { line ->
+        val prefetchInfoRetriever: (line: Int) -> List<Pair<Int, Constraints>> = { line ->
             val lineConfiguration = spanLayoutProvider.getLineConfiguration(line)
             var index = lineConfiguration.firstItemIndex
             var slot = 0
@@ -350,6 +344,7 @@ private fun rememberLazyGridMeasurePolicy(
             pinnedItems = pinnedItems,
             coroutineScope = coroutineScope,
             placementScopeInvalidator = state.placementScopeInvalidator,
+            prefetchInfoRetriever = prefetchInfoRetriever,
             layout = { width, height, placement ->
                 layout(
                     containerConstraints.constrainWidth(width + totalHorizontalPadding),
