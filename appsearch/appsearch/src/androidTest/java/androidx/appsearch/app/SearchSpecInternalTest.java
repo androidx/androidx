@@ -18,7 +18,11 @@ package androidx.appsearch.app;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.common.collect.ImmutableMap;
+
 import org.junit.Test;
+
+import java.util.Arrays;
 
 /** Tests for private APIs of {@link SearchSpec}. */
 public class SearchSpecInternalTest {
@@ -58,6 +62,61 @@ public class SearchSpecInternalTest {
         assertThat(searchSpec.getEnabledFeatures()).containsExactly(
                 Features.NUMERIC_SEARCH, Features.VERBATIM_SEARCH,
                 Features.LIST_FILTER_QUERY_LANGUAGE);
+    }
+
+    @Test
+    public void testSearchSpecBuilderCopyConstructor() {
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
+                .addFilterNamespaces("namespace1", "namespace2")
+                .addFilterSchemas("schemaTypes1", "schemaTypes2")
+                .addFilterPackageNames("package1", "package2")
+                .addFilterProperties("schemaTypes1", Arrays.asList("path1", "path2"))
+                .addProjection("schemaTypes1", Arrays.asList("path1", "path2"))
+                .setPropertyWeights("schemaTypes1", ImmutableMap.of("path1", 1.0, "path2", 2.0))
+                .setSnippetCount(5)
+                .setSnippetCountPerProperty(10)
+                .setMaxSnippetSize(15)
+                .setResultCountPerPage(42)
+                .setOrder(SearchSpec.ORDER_ASCENDING)
+                .setRankingStrategy("advancedExpression")
+                .setNumericSearchEnabled(true)
+                .setVerbatimSearchEnabled(true)
+                .setListFilterQueryLanguageEnabled(true)
+                .setResultGrouping(SearchSpec.GROUPING_TYPE_PER_PACKAGE, 10)
+                .setSearchSourceLogTag("searchSourceLogTag")
+                .build();
+
+        SearchSpec searchSpecCopy = new SearchSpec.Builder(searchSpec).build();
+        assertThat(searchSpecCopy.getTermMatch()).isEqualTo(searchSpec.getTermMatch());
+        assertThat(searchSpecCopy.getFilterNamespaces()).isEqualTo(
+                searchSpec.getFilterNamespaces());
+        assertThat(searchSpecCopy.getFilterSchemas()).isEqualTo(searchSpecCopy.getFilterSchemas());
+        assertThat(searchSpecCopy.getFilterPackageNames()).isEqualTo(
+                searchSpec.getFilterPackageNames());
+        assertThat(searchSpecCopy.getFilterProperties()).isEqualTo(
+                searchSpec.getFilterProperties());
+        assertThat(searchSpecCopy.getProjections()).isEqualTo(searchSpec.getProjections());
+        assertThat(searchSpecCopy.getPropertyWeights()).isEqualTo(searchSpec.getPropertyWeights());
+        assertThat(searchSpecCopy.getSnippetCount()).isEqualTo(searchSpec.getSnippetCount());
+        assertThat(searchSpecCopy.getSnippetCountPerProperty()).isEqualTo(
+                searchSpec.getSnippetCountPerProperty());
+        assertThat(searchSpecCopy.getMaxSnippetSize()).isEqualTo(searchSpec.getMaxSnippetSize());
+        assertThat(searchSpecCopy.getResultCountPerPage()).isEqualTo(
+                searchSpec.getResultCountPerPage());
+        assertThat(searchSpecCopy.getOrder()).isEqualTo(searchSpec.getOrder());
+        assertThat(searchSpecCopy.getRankingStrategy()).isEqualTo(searchSpec.getRankingStrategy());
+        assertThat(searchSpecCopy.getEnabledFeatures()).containsExactlyElementsIn(
+                searchSpec.getEnabledFeatures());
+        assertThat(searchSpecCopy.getResultGroupingTypeFlags()).isEqualTo(
+                searchSpec.getResultGroupingTypeFlags());
+        assertThat(searchSpecCopy.getResultGroupingLimit()).isEqualTo(
+                searchSpec.getResultGroupingLimit());
+        assertThat(searchSpecCopy.getJoinSpec()).isEqualTo(searchSpec.getJoinSpec());
+        assertThat(searchSpecCopy.getAdvancedRankingExpression()).isEqualTo(
+                searchSpec.getAdvancedRankingExpression());
+        assertThat(searchSpecCopy.getSearchSourceLogTag()).isEqualTo(
+                searchSpec.getSearchSourceLogTag());
     }
 
     // TODO(b/309826655): Flag guard this test.

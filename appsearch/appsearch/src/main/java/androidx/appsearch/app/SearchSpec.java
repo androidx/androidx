@@ -669,6 +669,43 @@ public final class SearchSpec extends AbstractSafeParcelable {
         @Nullable private String mSearchSourceLogTag;
         private boolean mBuilt = false;
 
+        /** Constructs a new builder for {@link SearchSpec} objects. */
+        public Builder() {
+        }
+
+        /** @exportToFramework:hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public Builder(@NonNull SearchSpec searchSpec) {
+            Objects.requireNonNull(searchSpec);
+            mSchemas = new ArrayList<>(searchSpec.getFilterSchemas());
+            mNamespaces = new ArrayList<>(searchSpec.getFilterNamespaces());
+            for (Map.Entry<String, List<String>> entry :
+                    searchSpec.getFilterProperties().entrySet()) {
+                addFilterProperties(entry.getKey(), entry.getValue());
+            }
+            mPackageNames = new ArrayList<>(searchSpec.getFilterPackageNames());
+            mEnabledFeatures = new ArraySet<>(searchSpec.getEnabledFeatures());
+            for (Map.Entry<String, List<String>> entry : searchSpec.getProjections().entrySet()) {
+                addProjection(entry.getKey(), entry.getValue());
+            }
+            for (Map.Entry<String, Map<String, Double>> entry :
+                    searchSpec.getPropertyWeights().entrySet()) {
+                setPropertyWeights(entry.getKey(), entry.getValue());
+            }
+            mResultCountPerPage = searchSpec.getResultCountPerPage();
+            mTermMatchType = searchSpec.getTermMatch();
+            mSnippetCount = searchSpec.getSnippetCount();
+            mSnippetCountPerProperty = searchSpec.getSnippetCountPerProperty();
+            mMaxSnippetSize = searchSpec.getMaxSnippetSize();
+            mRankingStrategy = searchSpec.getRankingStrategy();
+            mOrder = searchSpec.getOrder();
+            mGroupingTypeFlags = searchSpec.getResultGroupingTypeFlags();
+            mGroupingLimit = searchSpec.getResultGroupingLimit();
+            mJoinSpec = searchSpec.getJoinSpec();
+            mAdvancedRankingExpression = searchSpec.getAdvancedRankingExpression();
+            mSearchSourceLogTag = searchSpec.getSearchSourceLogTag();
+        }
+
         /**
          * Sets how the query terms should match {@code TermMatchCode} in the index.
          *

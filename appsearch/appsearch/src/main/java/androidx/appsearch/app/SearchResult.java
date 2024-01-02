@@ -264,6 +264,25 @@ public final class SearchResult {
             mDatabaseName = Preconditions.checkNotNull(databaseName);
         }
 
+        /** @exportToFramework:hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public Builder(@NonNull SearchResult searchResult) {
+            Preconditions.checkNotNull(searchResult);
+            mPackageName = searchResult.getPackageName();
+            mDatabaseName = searchResult.getDatabaseName();
+            List<MatchInfo> matchInfos = searchResult.getMatchInfos();
+            for (int i = 0; i < matchInfos.size(); i++) {
+                MatchInfo matchInfo = matchInfos.get(i);
+                addMatchInfo(new MatchInfo(matchInfo.mBundle, /*document=*/ null));
+            }
+            mGenericDocument = searchResult.getGenericDocument();
+            mRankingSignal = searchResult.getRankingSignal();
+            List<SearchResult> joinedResults = searchResult.getJoinedResults();
+            for (int i = 0; i < joinedResults.size(); i++) {
+                addJoinedResult(joinedResults.get(i));
+            }
+        }
+
 // @exportToFramework:startStrip()
         /**
          * Sets the document which matched.
@@ -324,6 +343,20 @@ public final class SearchResult {
         public Builder addJoinedResult(@NonNull SearchResult joinedResult) {
             resetIfBuilt();
             mJoinedResults.add(joinedResult.getBundle());
+            return this;
+        }
+
+        /**
+         * Clears the {@link SearchResult}s that were joined.
+         *
+         * @exportToFramework:hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @CanIgnoreReturnValue
+        @NonNull
+        public Builder clearJoinedResults() {
+            resetIfBuilt();
+            mJoinedResults.clear();
             return this;
         }
 
