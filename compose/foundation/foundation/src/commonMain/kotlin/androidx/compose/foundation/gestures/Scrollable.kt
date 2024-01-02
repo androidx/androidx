@@ -814,7 +814,7 @@ private class ScrollableNestedScrollConnection(
     ): Velocity {
         return if (enabled) {
             var velocityLeft: Velocity = available
-            with(scrollLogic) {
+            with(scrollingLogic) {
                 scrollableState.scroll {
                     velocityLeft = doFlingAnimation(available)
                 }
