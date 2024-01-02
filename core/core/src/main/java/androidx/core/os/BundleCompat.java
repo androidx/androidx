@@ -28,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -205,6 +206,37 @@ public final class BundleCompat {
         bundle.putBinder(key, binder);
     }
 
+    /**
+     * Returns the value associated with the given key or {@code null} if:
+     * <ul>
+     *     <li>No mapping of the desired type exists for the given key.
+     *     <li>A {@code null} value is explicitly associated with the key.
+     *     <li>The object is not of type {@code clazz}.
+     * </ul>
+     * Compatibility behavior:
+     * <ul>
+     *     <li>SDK 34 and above, this method matches platform behavior.
+     *     <li>SDK 33 and below, the object type is checked after deserialization.
+     * </ul>
+     *
+     *
+     * @param in The bundle to retrieve from.
+     * @param key a String, or {@code null}
+     * @param clazz The type of the object expected
+     * @return a Serializable value, or {@code null}
+     */
+    @SuppressWarnings({"deprecation", "unchecked"})
+    @Nullable
+    public static <T extends Serializable> T getSerializable(@NonNull Bundle in,
+            @Nullable String key, @NonNull Class<T> clazz) {
+        if (Build.VERSION.SDK_INT >= 34) {
+            return Api33Impl.getSerializable(in, key, clazz);
+        } else {
+            Serializable serializable = in.getSerializable(key);
+            return clazz.isInstance(serializable) ? (T) serializable : null;
+        }
+    }
+
     @RequiresApi(33)
     static class Api33Impl {
         private Api33Impl() {
@@ -233,6 +265,12 @@ public final class BundleCompat {
         static <T> SparseArray<T> getSparseParcelableArray(@NonNull Bundle in, @Nullable String key,
                 @NonNull Class<? extends T> clazz) {
             return in.getSparseParcelableArray(key, clazz);
+        }
+
+        @DoNotInline
+        static <T extends Serializable> T getSerializable(@NonNull Bundle in, @Nullable String key,
+                @NonNull Class<T> clazz) {
+            return in.getSerializable(key, clazz);
         }
     }
 }
