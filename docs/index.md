@@ -28,7 +28,7 @@ For information on library and API design, see the
 ### Filing an issue
 
 Have a bug or feature request? Please check our
-[public Issue Tracker component](http://issuetracker.google.com/issues/new?component=192731&template=842428)
+[public Issue Tracker component](http://issuetracker.google.com/issues?q=componentid:192731%2B)
 for duplicates first, then file against the appropriate sub-component according
 to the library package or infrastructure system. Learn more at
 [Issue tracking](/docs/onboarding.md#tracking-bugs).
