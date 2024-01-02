@@ -216,7 +216,6 @@ public final class AccessibilityManagerCompat {
         }
     }
 
-    @RequiresApi(19)
     private static final class TouchExplorationStateChangeListenerWrapper
             implements AccessibilityManager.TouchExplorationStateChangeListener {
         final TouchExplorationStateChangeListener mListener;

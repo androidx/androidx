@@ -285,7 +285,7 @@ open class ComponentActivity() : androidx.core.app.ComponentActivity(),
         })
         savedStateRegistryController.performAttach()
         enableSavedStateHandles()
-        if (Build.VERSION.SDK_INT in 19..23) {
+        if (Build.VERSION.SDK_INT <= 23) {
             @Suppress("LeakingThis")
             lifecycle.addObserver(ImmLeaksCleaner(this))
         }

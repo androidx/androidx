@@ -19,6 +19,7 @@ package androidx.appcompat.widget;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.os.Build;
 import android.util.Log;
@@ -46,16 +47,14 @@ public class ViewUtils {
     static final boolean SDK_LEVEL_SUPPORTS_AUTOSIZE = Build.VERSION.SDK_INT >= 27;
 
     static {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            try {
-                sComputeFitSystemWindowsMethod = View.class.getDeclaredMethod(
-                        "computeFitSystemWindows", Rect.class, Rect.class);
-                if (!sComputeFitSystemWindowsMethod.isAccessible()) {
-                    sComputeFitSystemWindowsMethod.setAccessible(true);
-                }
-            } catch (NoSuchMethodException e) {
-                Log.d(TAG, "Could not find method computeFitSystemWindows. Oh well.");
+        try {
+            sComputeFitSystemWindowsMethod = View.class.getDeclaredMethod(
+                    "computeFitSystemWindows", Rect.class, Rect.class);
+            if (!sComputeFitSystemWindowsMethod.isAccessible()) {
+                sComputeFitSystemWindowsMethod.setAccessible(true);
             }
+        } catch (NoSuchMethodException e) {
+            Log.d(TAG, "Could not find method computeFitSystemWindows. Oh well.");
         }
     }
 
@@ -69,6 +68,7 @@ public class ViewUtils {
      * Allow calling the hidden method {@code computeFitSystemWindows(Rect, Rect)} through
      * reflection on {@code view}.
      */
+    @SuppressLint("BanUncheckedReflection")
     public static void computeFitSystemWindows(View view, Rect inoutInsets, Rect outLocalInsets) {
         if (sComputeFitSystemWindowsMethod != null) {
             try {
@@ -83,23 +83,22 @@ public class ViewUtils {
      * Allow calling the hidden method {@code makeOptionalFitsSystem()} through reflection on
      * {@code view}.
      */
+    @SuppressLint("BanUncheckedReflection")
     public static void makeOptionalFitsSystemWindows(View view) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            try {
-                // We need to use getMethod() for makeOptionalFitsSystemWindows since both View
-                // and ViewGroup implement the method
-                Method method = view.getClass().getMethod("makeOptionalFitsSystemWindows");
-                if (!method.isAccessible()) {
-                    method.setAccessible(true);
-                }
-                method.invoke(view);
-            } catch (NoSuchMethodException e) {
-                Log.d(TAG, "Could not find method makeOptionalFitsSystemWindows. Oh well...");
-            } catch (InvocationTargetException e) {
-                Log.d(TAG, "Could not invoke makeOptionalFitsSystemWindows", e);
-            } catch (IllegalAccessException e) {
-                Log.d(TAG, "Could not invoke makeOptionalFitsSystemWindows", e);
+        try {
+            // We need to use getMethod() for makeOptionalFitsSystemWindows since both View
+            // and ViewGroup implement the method
+            Method method = view.getClass().getMethod("makeOptionalFitsSystemWindows");
+            if (!method.isAccessible()) {
+                method.setAccessible(true);
             }
+            method.invoke(view);
+        } catch (NoSuchMethodException e) {
+            Log.d(TAG, "Could not find method makeOptionalFitsSystemWindows. Oh well...");
+        } catch (InvocationTargetException e) {
+            Log.d(TAG, "Could not invoke makeOptionalFitsSystemWindows", e);
+        } catch (IllegalAccessException e) {
+            Log.d(TAG, "Could not invoke makeOptionalFitsSystemWindows", e);
         }
     }
 }

@@ -223,8 +223,8 @@ package androidx.appsearch.builtintypes {
   }
 
   @androidx.appsearch.annotation.Document(name="builtin:Stopwatch") public class Stopwatch extends androidx.appsearch.builtintypes.Thing {
-    method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) public long calculateBaseTimeMillis(android.content.Context);
-    method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) public long calculateCurrentAccumulatedDurationMillis(android.content.Context);
+    method public long calculateBaseTimeMillis(android.content.Context);
+    method public long calculateCurrentAccumulatedDurationMillis(android.content.Context);
     method public long getAccumulatedDurationMillis();
     method public long getBaseTimeMillis();
     method public long getBaseTimeMillisInElapsedRealtime();
@@ -247,7 +247,7 @@ package androidx.appsearch.builtintypes {
     method public androidx.appsearch.builtintypes.Stopwatch.Builder clearPotentialActions();
     method public androidx.appsearch.builtintypes.Stopwatch.Builder setAccumulatedDurationMillis(long);
     method public androidx.appsearch.builtintypes.Stopwatch.Builder setAlternateNames(java.util.List<java.lang.String!>?);
-    method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) public androidx.appsearch.builtintypes.Stopwatch.Builder setBaseTimeMillis(android.content.Context, long, long);
+    method public androidx.appsearch.builtintypes.Stopwatch.Builder setBaseTimeMillis(android.content.Context, long, long);
     method public androidx.appsearch.builtintypes.Stopwatch.Builder setBaseTimeMillis(long, long, int);
     method public androidx.appsearch.builtintypes.Stopwatch.Builder setCreationTimestampMillis(long);
     method public androidx.appsearch.builtintypes.Stopwatch.Builder setDescription(String?);
@@ -323,9 +323,9 @@ package androidx.appsearch.builtintypes {
   }
 
   @androidx.appsearch.annotation.Document(name="builtin:Timer") public class Timer extends androidx.appsearch.builtintypes.Thing {
-    method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) public long calculateBaseTimeMillis(android.content.Context);
-    method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) public long calculateCurrentRemainingDurationMillis(android.content.Context);
-    method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) public long calculateExpirationTimeMillis(android.content.Context);
+    method public long calculateBaseTimeMillis(android.content.Context);
+    method public long calculateCurrentRemainingDurationMillis(android.content.Context);
+    method public long calculateExpirationTimeMillis(android.content.Context);
     method public long getBaseTimeMillis();
     method public long getBaseTimeMillisInElapsedRealtime();
     method public int getBootCount();
@@ -353,7 +353,7 @@ package androidx.appsearch.builtintypes {
     method public androidx.appsearch.builtintypes.Timer.Builder clearAlternateNames();
     method public androidx.appsearch.builtintypes.Timer.Builder clearPotentialActions();
     method public androidx.appsearch.builtintypes.Timer.Builder setAlternateNames(java.util.List<java.lang.String!>?);
-    method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) public androidx.appsearch.builtintypes.Timer.Builder setBaseTimeMillis(android.content.Context, long, long);
+    method public androidx.appsearch.builtintypes.Timer.Builder setBaseTimeMillis(android.content.Context, long, long);
     method public androidx.appsearch.builtintypes.Timer.Builder setBaseTimeMillis(long, long, int);
     method public androidx.appsearch.builtintypes.Timer.Builder setCreationTimestampMillis(long);
     method public androidx.appsearch.builtintypes.Timer.Builder setDescription(String?);

@@ -26,7 +26,6 @@ import androidx.annotation.RestrictTo;
 /**
  */
 @RestrictTo(LIBRARY)
-@RequiresApi(19)
 @Deprecated
 public interface MessagingBuilder {
     /**

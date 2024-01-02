@@ -17,7 +17,6 @@
 package androidx.viewpager2.widget
 
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.test.filters.LargeTest
@@ -107,7 +106,6 @@ class AccessibilityTest(private val config: TestConfig) : BaseTest() {
         test_collectionInfo(0)
     }
 
-    @RequiresApi(19)
     private fun test_collectionInfo(numberOfItems: Int) {
         setUpTest(config.orientation).apply {
             setAdapterSync(viewAdapterProvider.provider(stringSequence(numberOfItems)))

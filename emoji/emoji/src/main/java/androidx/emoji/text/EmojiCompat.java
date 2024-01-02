@@ -36,7 +36,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.collection.ArraySet;
@@ -805,7 +804,6 @@ public class EmojiCompat {
      *
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    @RequiresApi(19)
     static class SpanFactory {
         /**
          * Create EmojiSpan instance.

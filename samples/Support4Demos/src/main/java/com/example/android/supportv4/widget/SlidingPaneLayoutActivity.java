@@ -18,7 +18,6 @@
 package com.example.android.supportv4.widget;
 
 import android.app.ActionBar;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -199,11 +198,7 @@ public class SlidingPaneLayoutActivity extends ComponentActivity {
         @Override
         public void onGlobalLayout() {
             mActionBar.onFirstLayout();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                mSlidingLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-            } else {
-                mSlidingLayout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-            }
+            mSlidingLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
         }
     }
 

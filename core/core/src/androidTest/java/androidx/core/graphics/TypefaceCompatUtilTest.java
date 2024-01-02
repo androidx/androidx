@@ -21,7 +21,6 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.net.Uri;
 
-import androidx.annotation.RequiresApi;
 import androidx.core.provider.MockFontProvider;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -40,7 +39,6 @@ public class TypefaceCompatUtilTest {
     }
 
     @Test
-    @RequiresApi(19)
     public void testMmapNullPfd() {
         final Uri uri = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT)
                 .authority(MockFontProvider.AUTHORITY).build();

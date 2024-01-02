@@ -321,9 +321,9 @@ package androidx.core.app {
     method public static String? getCategory(android.app.Notification);
     method public static String? getChannelId(android.app.Notification);
     method public static int getColor(android.app.Notification);
-    method @RequiresApi(19) public static CharSequence? getContentInfo(android.app.Notification);
-    method @RequiresApi(19) public static CharSequence? getContentText(android.app.Notification);
-    method @RequiresApi(19) public static CharSequence? getContentTitle(android.app.Notification);
+    method public static CharSequence? getContentInfo(android.app.Notification);
+    method public static CharSequence? getContentText(android.app.Notification);
+    method public static CharSequence? getContentTitle(android.app.Notification);
     method public static android.os.Bundle? getExtras(android.app.Notification);
     method public static String? getGroup(android.app.Notification);
     method @androidx.core.app.NotificationCompat.GroupAlertBehavior public static int getGroupAlertBehavior(android.app.Notification);
@@ -336,11 +336,11 @@ package androidx.core.app {
     method public static android.app.Notification? getPublicVersion(android.app.Notification);
     method public static CharSequence? getSettingsText(android.app.Notification);
     method public static String? getShortcutId(android.app.Notification);
-    method @RequiresApi(19) public static boolean getShowWhen(android.app.Notification);
+    method public static boolean getShowWhen(android.app.Notification);
     method public static String? getSortKey(android.app.Notification);
-    method @RequiresApi(19) public static CharSequence? getSubText(android.app.Notification);
+    method public static CharSequence? getSubText(android.app.Notification);
     method public static long getTimeoutAfter(android.app.Notification);
-    method @RequiresApi(19) public static boolean getUsesChronometer(android.app.Notification);
+    method public static boolean getUsesChronometer(android.app.Notification);
     method @androidx.core.app.NotificationCompat.NotificationVisibility public static int getVisibility(android.app.Notification);
     method public static boolean isGroupSummary(android.app.Notification);
     method public static android.graphics.Bitmap? reduceLargeIconSize(android.content.Context, android.graphics.Bitmap?);
@@ -496,7 +496,7 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.Action.Builder addRemoteInput(androidx.core.app.RemoteInput?);
     method public androidx.core.app.NotificationCompat.Action build();
     method public androidx.core.app.NotificationCompat.Action.Builder extend(androidx.core.app.NotificationCompat.Action.Extender);
-    method @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.app.NotificationCompat.Action.Builder fromAndroidAction(android.app.Notification.Action);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.app.NotificationCompat.Action.Builder fromAndroidAction(android.app.Notification.Action);
     method public android.os.Bundle getExtras();
     method public androidx.core.app.NotificationCompat.Action.Builder setAllowGeneratedReplies(boolean);
     method public androidx.core.app.NotificationCompat.Action.Builder setAuthenticationRequired(boolean);
@@ -586,7 +586,7 @@ package androidx.core.app {
 
   public static class NotificationCompat.Builder {
     ctor @Deprecated public NotificationCompat.Builder(android.content.Context);
-    ctor @RequiresApi(19) public NotificationCompat.Builder(android.content.Context, android.app.Notification);
+    ctor public NotificationCompat.Builder(android.content.Context, android.app.Notification);
     ctor public NotificationCompat.Builder(android.content.Context, String);
     method public androidx.core.app.NotificationCompat.Builder addAction(androidx.core.app.NotificationCompat.Action?);
     method public androidx.core.app.NotificationCompat.Builder addAction(int, CharSequence?, android.app.PendingIntent?);
@@ -1834,11 +1834,11 @@ package androidx.core.graphics {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class TypefaceCompatUtil {
     method public static void closeQuietly(java.io.Closeable?);
-    method @RequiresApi(19) public static java.nio.ByteBuffer? copyToDirectBuffer(android.content.Context, android.content.res.Resources, int);
+    method public static java.nio.ByteBuffer? copyToDirectBuffer(android.content.Context, android.content.res.Resources, int);
     method public static boolean copyToFile(java.io.File, android.content.res.Resources, int);
     method public static boolean copyToFile(java.io.File, java.io.InputStream);
     method public static java.io.File? getTempFile(android.content.Context);
-    method @RequiresApi(19) public static java.nio.ByteBuffer? mmap(android.content.Context, android.os.CancellationSignal?, android.net.Uri);
+    method public static java.nio.ByteBuffer? mmap(android.content.Context, android.os.CancellationSignal?, android.net.Uri);
   }
 
 }
@@ -2135,7 +2135,7 @@ package androidx.core.location {
     method @IntRange(from=0) public long getMinUpdateIntervalMillis();
     method public int getQuality();
     method @RequiresApi(31) public android.location.LocationRequest toLocationRequest();
-    method @RequiresApi(19) public android.location.LocationRequest? toLocationRequest(String);
+    method public android.location.LocationRequest? toLocationRequest(String);
     field public static final long PASSIVE_INTERVAL = 9223372036854775807L; // 0x7fffffffffffffffL
     field public static final int QUALITY_BALANCED_POWER_ACCURACY = 102; // 0x66
     field public static final int QUALITY_HIGH_ACCURACY = 100; // 0x64
@@ -2415,7 +2415,7 @@ package androidx.core.provider {
     method public static androidx.core.provider.FontsContractCompat.FontFamilyResult fetchFonts(android.content.Context, android.os.CancellationSignal?, androidx.core.provider.FontRequest) throws android.content.pm.PackageManager.NameNotFoundException;
     method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.graphics.Typeface! getFontSync(android.content.Context!, androidx.core.provider.FontRequest!, androidx.core.content.res.ResourcesCompat.FontCallback?, android.os.Handler?, boolean, int, int);
     method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @VisibleForTesting public static android.content.pm.ProviderInfo? getProvider(android.content.pm.PackageManager, androidx.core.provider.FontRequest, android.content.res.Resources?) throws android.content.pm.PackageManager.NameNotFoundException;
-    method @Deprecated @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static java.util.Map<android.net.Uri!,java.nio.ByteBuffer!>! prepareFontData(android.content.Context!, androidx.core.provider.FontsContractCompat.FontInfo![]!, android.os.CancellationSignal!);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static java.util.Map<android.net.Uri!,java.nio.ByteBuffer!>! prepareFontData(android.content.Context!, androidx.core.provider.FontsContractCompat.FontInfo![]!, android.os.CancellationSignal!);
     method public static void requestFont(android.content.Context, androidx.core.provider.FontRequest, androidx.core.provider.FontsContractCompat.FontRequestCallback, android.os.Handler);
     method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void resetCache();
     field @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final String PARCEL_FONT_RESULTS = "font_results";

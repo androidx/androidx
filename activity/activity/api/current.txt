@@ -304,7 +304,7 @@ package androidx.activity.result {
   public static final class IntentSenderRequest.Companion {
   }
 
-  @RequiresApi(19) public final class PickVisualMediaRequest {
+  public final class PickVisualMediaRequest {
     method public androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType getMediaType();
     property public final androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType mediaType;
   }
@@ -316,7 +316,7 @@ package androidx.activity.result {
   }
 
   public final class PickVisualMediaRequestKt {
-    method @RequiresApi(19) public static androidx.activity.result.PickVisualMediaRequest PickVisualMediaRequest(optional androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType mediaType);
+    method public static androidx.activity.result.PickVisualMediaRequest PickVisualMediaRequest(optional androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType mediaType);
   }
 
 }
@@ -346,7 +346,7 @@ package androidx.activity.result.contract {
     method public final Boolean parseResult(int resultCode, android.content.Intent? intent);
   }
 
-  @RequiresApi(19) public static class ActivityResultContracts.CreateDocument extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,android.net.Uri> {
+  public static class ActivityResultContracts.CreateDocument extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,android.net.Uri> {
     ctor @Deprecated public ActivityResultContracts.CreateDocument();
     ctor public ActivityResultContracts.CreateDocument(String mimeType);
     method @CallSuper public android.content.Intent createIntent(android.content.Context context, String input);
@@ -368,7 +368,7 @@ package androidx.activity.result.contract {
     method public final java.util.List<android.net.Uri> parseResult(int resultCode, android.content.Intent? intent);
   }
 
-  @RequiresApi(19) public static class ActivityResultContracts.OpenDocument extends androidx.activity.result.contract.ActivityResultContract<java.lang.String[],android.net.Uri> {
+  public static class ActivityResultContracts.OpenDocument extends androidx.activity.result.contract.ActivityResultContract<java.lang.String[],android.net.Uri> {
     ctor public ActivityResultContracts.OpenDocument();
     method @CallSuper public android.content.Intent createIntent(android.content.Context context, String[] input);
     method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<android.net.Uri?>? getSynchronousResult(android.content.Context context, String[] input);
@@ -382,7 +382,7 @@ package androidx.activity.result.contract {
     method public final android.net.Uri? parseResult(int resultCode, android.content.Intent? intent);
   }
 
-  @RequiresApi(19) public static class ActivityResultContracts.OpenMultipleDocuments extends androidx.activity.result.contract.ActivityResultContract<java.lang.String[],java.util.List<android.net.Uri>> {
+  public static class ActivityResultContracts.OpenMultipleDocuments extends androidx.activity.result.contract.ActivityResultContract<java.lang.String[],java.util.List<android.net.Uri>> {
     ctor public ActivityResultContracts.OpenMultipleDocuments();
     method @CallSuper public android.content.Intent createIntent(android.content.Context context, String[] input);
     method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<java.util.List<android.net.Uri>>? getSynchronousResult(android.content.Context context, String[] input);
@@ -395,14 +395,14 @@ package androidx.activity.result.contract {
     method public android.net.Uri? parseResult(int resultCode, android.content.Intent? intent);
   }
 
-  @RequiresApi(19) public static class ActivityResultContracts.PickMultipleVisualMedia extends androidx.activity.result.contract.ActivityResultContract<androidx.activity.result.PickVisualMediaRequest,java.util.List<android.net.Uri>> {
+  public static class ActivityResultContracts.PickMultipleVisualMedia extends androidx.activity.result.contract.ActivityResultContract<androidx.activity.result.PickVisualMediaRequest,java.util.List<android.net.Uri>> {
     ctor public ActivityResultContracts.PickMultipleVisualMedia(optional int maxItems);
     method @CallSuper public android.content.Intent createIntent(android.content.Context context, androidx.activity.result.PickVisualMediaRequest input);
     method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<java.util.List<android.net.Uri>>? getSynchronousResult(android.content.Context context, androidx.activity.result.PickVisualMediaRequest input);
     method public final java.util.List<android.net.Uri> parseResult(int resultCode, android.content.Intent? intent);
   }
 
-  @RequiresApi(19) public static class ActivityResultContracts.PickVisualMedia extends androidx.activity.result.contract.ActivityResultContract<androidx.activity.result.PickVisualMediaRequest,android.net.Uri> {
+  public static class ActivityResultContracts.PickVisualMedia extends androidx.activity.result.contract.ActivityResultContract<androidx.activity.result.PickVisualMediaRequest,android.net.Uri> {
     ctor public ActivityResultContracts.PickVisualMedia();
     method @CallSuper public android.content.Intent createIntent(android.content.Context context, androidx.activity.result.PickVisualMediaRequest input);
     method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<android.net.Uri?>? getSynchronousResult(android.content.Context context, androidx.activity.result.PickVisualMediaRequest input);

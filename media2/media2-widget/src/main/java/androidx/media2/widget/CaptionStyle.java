@@ -21,9 +21,7 @@ import android.graphics.Typeface;
 import android.os.Build.VERSION;
 import android.view.accessibility.CaptioningManager;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 /**
  * Specifies visual properties for video captions, including foreground and
@@ -102,12 +100,11 @@ final class CaptionStyle {
     /** Lazily-created typeface based on the raw typeface string. */
     private Typeface mParsedTypeface;
 
-    @RequiresApi(19)
     CaptionStyle(CaptioningManager.CaptionStyle captionStyle) {
         this(captionStyle.foregroundColor, captionStyle.backgroundColor, captionStyle.edgeType,
                 captionStyle.edgeColor,
                 VERSION.SDK_INT >= 21 ? captionStyle.windowColor : COLOR_NONE_OPAQUE,
-                Api19Impl.getTypeface(captionStyle));
+                captionStyle.getTypeface());
     }
 
     CaptionStyle(int foregroundColor, int backgroundColor, int edgeType, int edgeColor,
@@ -199,16 +196,5 @@ final class CaptionStyle {
     static {
         DEFAULT = new CaptionStyle(Color.WHITE, Color.BLACK, EDGE_TYPE_NONE,
                 Color.BLACK, COLOR_NONE_OPAQUE, null);
-    }
-
-    @RequiresApi(19)
-    static class Api19Impl {
-
-        @DoNotInline
-        static Typeface getTypeface(CaptioningManager.CaptionStyle captionStyle) {
-            return captionStyle.getTypeface();
-        }
-
-        private Api19Impl() {}
     }
 }

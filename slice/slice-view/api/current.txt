@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.slice {
 
-  @Deprecated @RequiresApi(19) public class SliceMetadata {
+  @Deprecated public class SliceMetadata {
     method @Deprecated public static androidx.slice.SliceMetadata from(android.content.Context?, androidx.slice.Slice);
     method @Deprecated public long getExpiry();
     method @Deprecated public int getHeaderType();
@@ -30,11 +30,11 @@ package androidx.slice {
     field @Deprecated public static final int LOADED_PARTIAL = 1; // 0x1
   }
 
-  @Deprecated @RequiresApi(19) public class SliceStructure {
+  @Deprecated public class SliceStructure {
     ctor @Deprecated public SliceStructure(androidx.slice.Slice!);
   }
 
-  @Deprecated @RequiresApi(19) public class SliceUtils {
+  @Deprecated public class SliceUtils {
     method @Deprecated public static androidx.slice.Slice parseSlice(android.content.Context, java.io.InputStream, String, androidx.slice.SliceUtils.SliceActionListener) throws java.io.IOException, androidx.slice.SliceUtils.SliceParseException;
     method @Deprecated public static void serializeSlice(androidx.slice.Slice, android.content.Context, java.io.OutputStream, androidx.slice.SliceUtils.SerializeOptions) throws java.lang.IllegalArgumentException;
     method @Deprecated public static androidx.slice.Slice stripSlice(androidx.slice.Slice, int, boolean);
@@ -59,7 +59,7 @@ package androidx.slice {
   @Deprecated public static class SliceUtils.SliceParseException extends java.lang.Exception {
   }
 
-  @Deprecated @RequiresApi(19) public abstract class SliceViewManager {
+  @Deprecated public abstract class SliceViewManager {
     method @Deprecated public abstract androidx.slice.Slice? bindSlice(android.content.Intent);
     method @Deprecated public abstract androidx.slice.Slice? bindSlice(android.net.Uri);
     method @Deprecated public static androidx.slice.SliceViewManager getInstance(android.content.Context);
@@ -80,7 +80,7 @@ package androidx.slice {
 
 package androidx.slice.widget {
 
-  @Deprecated @RequiresApi(19) public class EventInfo {
+  @Deprecated public class EventInfo {
     ctor @Deprecated public EventInfo(int, int, int, int);
     method @Deprecated public void setPosition(int, int, int);
     field @Deprecated public static final int ACTION_TYPE_BUTTON = 1; // 0x1
@@ -112,12 +112,12 @@ package androidx.slice.widget {
     field @Deprecated public int state;
   }
 
-  @Deprecated @RequiresApi(19) public class GridContent extends androidx.slice.widget.SliceContent {
+  @Deprecated public class GridContent extends androidx.slice.widget.SliceContent {
     method @Deprecated public android.graphics.Point getFirstImageSize(android.content.Context);
     method @Deprecated public boolean isValid();
   }
 
-  @Deprecated @RequiresApi(19) public class GridRowView extends androidx.slice.widget.SliceChildView implements android.view.View.OnClickListener android.view.View.OnTouchListener {
+  @Deprecated public class GridRowView extends androidx.slice.widget.SliceChildView implements android.view.View.OnClickListener android.view.View.OnTouchListener {
     ctor @Deprecated public GridRowView(android.content.Context);
     ctor @Deprecated public GridRowView(android.content.Context, android.util.AttributeSet?);
     method @Deprecated protected boolean addImageItem(androidx.slice.SliceItem, androidx.slice.SliceItem?, int, android.view.ViewGroup, boolean);
@@ -136,7 +136,7 @@ package androidx.slice.widget {
     method @Deprecated @StyleRes public int getRowStyleRes(androidx.slice.SliceItem);
   }
 
-  @Deprecated @RequiresApi(19) public class RowView extends androidx.slice.widget.SliceChildView implements android.widget.AdapterView.OnItemSelectedListener android.view.View.OnClickListener {
+  @Deprecated public class RowView extends androidx.slice.widget.SliceChildView implements android.widget.AdapterView.OnItemSelectedListener android.view.View.OnClickListener {
     ctor @Deprecated public RowView(android.content.Context);
     method @Deprecated protected java.util.List<java.lang.String!> getEndItemKeys();
     method @Deprecated protected androidx.slice.SliceItem? getPrimaryActionItem();
@@ -147,7 +147,7 @@ package androidx.slice.widget {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public void resetView();
   }
 
-  @Deprecated @RequiresApi(19) public class SliceAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter<androidx.slice.widget.SliceAdapter.SliceViewHolder> {
+  @Deprecated public class SliceAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter<androidx.slice.widget.SliceAdapter.SliceViewHolder> {
     ctor @Deprecated public SliceAdapter(android.content.Context);
     method @Deprecated public androidx.slice.widget.GridRowView getGridRowView();
     method @Deprecated public int getItemCount();
@@ -156,18 +156,18 @@ package androidx.slice.widget {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public androidx.slice.widget.SliceAdapter.SliceViewHolder onCreateViewHolder(android.view.ViewGroup, int);
   }
 
-  @Deprecated @RequiresApi(19) public abstract class SliceChildView extends android.widget.FrameLayout {
+  @Deprecated public abstract class SliceChildView extends android.widget.FrameLayout {
     ctor @Deprecated public SliceChildView(android.content.Context);
     ctor @Deprecated public SliceChildView(android.content.Context, android.util.AttributeSet?);
     method @Deprecated public abstract void resetView();
     method @Deprecated public void setSliceItem(androidx.slice.widget.SliceContent?, boolean, int, int, androidx.slice.widget.SliceView.OnSliceActionListener?);
   }
 
-  @Deprecated @RequiresApi(19) public class SliceContent {
+  @Deprecated public class SliceContent {
     ctor @Deprecated public SliceContent(androidx.slice.Slice?);
   }
 
-  @Deprecated @RequiresApi(19) public final class SliceLiveData {
+  @Deprecated public final class SliceLiveData {
     method @Deprecated public static androidx.slice.widget.SliceLiveData.CachedSliceLiveData fromCachedSlice(android.content.Context, java.io.InputStream, androidx.slice.widget.SliceLiveData.OnErrorListener!);
     method @Deprecated public static androidx.lifecycle.LiveData<androidx.slice.Slice!> fromIntent(android.content.Context, android.content.Intent);
     method @Deprecated public static androidx.lifecycle.LiveData<androidx.slice.Slice!> fromIntent(android.content.Context, android.content.Intent, androidx.slice.widget.SliceLiveData.OnErrorListener?);
@@ -192,7 +192,7 @@ package androidx.slice.widget {
   @Deprecated @IntDef({androidx.slice.widget.SliceLiveData.OnErrorListener.ERROR_UNKNOWN, androidx.slice.widget.SliceLiveData.OnErrorListener.ERROR_STRUCTURE_CHANGED, androidx.slice.widget.SliceLiveData.OnErrorListener.ERROR_SLICE_NO_LONGER_PRESENT, androidx.slice.widget.SliceLiveData.OnErrorListener.ERROR_INVALID_INPUT}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface SliceLiveData.OnErrorListener.ErrorType {
   }
 
-  @Deprecated @RequiresApi(19) public class SliceView extends android.view.ViewGroup implements androidx.lifecycle.Observer<androidx.slice.Slice> android.view.View.OnClickListener {
+  @Deprecated public class SliceView extends android.view.ViewGroup implements androidx.lifecycle.Observer<androidx.slice.Slice> android.view.View.OnClickListener {
     ctor @Deprecated public SliceView(android.content.Context!);
     ctor @Deprecated public SliceView(android.content.Context!, android.util.AttributeSet?);
     ctor @Deprecated public SliceView(android.content.Context!, android.util.AttributeSet?, int);
@@ -225,7 +225,7 @@ package androidx.slice.widget {
     method @Deprecated public void onSliceAction(androidx.slice.widget.EventInfo, androidx.slice.SliceItem);
   }
 
-  @Deprecated @RequiresApi(19) public class TemplateView extends androidx.slice.widget.SliceChildView {
+  @Deprecated public class TemplateView extends androidx.slice.widget.SliceChildView {
     ctor @Deprecated public TemplateView(android.content.Context);
     method @Deprecated public void onAttachedToWindow();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public void resetView();

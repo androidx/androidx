@@ -23,7 +23,6 @@ import android.view.ViewGroup;
 import android.view.accessibility.CaptioningManager;
 import android.view.accessibility.CaptioningManager.CaptioningChangeListener;
 
-import androidx.annotation.RequiresApi;
 import androidx.core.view.ViewCompat;
 
 /**
@@ -37,9 +36,7 @@ abstract class ClosedCaptionWidget extends ViewGroup implements SubtitleTrack.Re
     }
 
     /** Captioning manager, used to obtain and track caption properties. */
-    @RequiresApi(19)
     private CaptioningManager mManager;
-    @RequiresApi(19)
     private CaptioningChangeListener mCaptioningListener;
 
     /** Current caption style. */
