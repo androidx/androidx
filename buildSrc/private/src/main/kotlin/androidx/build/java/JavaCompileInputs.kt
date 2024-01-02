@@ -18,6 +18,7 @@ package androidx.build.java
 
 import androidx.build.getAndroidJar
 import androidx.build.multiplatformExtension
+import com.android.build.api.dsl.KotlinMultiplatformAndroidTarget
 import java.io.File
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
@@ -83,6 +84,41 @@ data class JavaCompileInputs(
                 dependencyClasspath =
                     jvmTarget.compilations[KotlinCompilation.MAIN_COMPILATION_NAME]
                         .compileDependencyFiles,
+                bootClasspath = project.getAndroidJar()
+            )
+        }
+
+        /**
+         * Returns the JavaCompileInputs for the `android` target of a KMP project.
+         *
+         * @param project The project whose main android target inputs will be returned.
+         */
+        fun fromKmpAndroidTarget(project: Project): JavaCompileInputs {
+            val kmpExtension =
+                checkNotNull(project.multiplatformExtension) {
+                    """
+                ${project.path} needs to have Kotlin Multiplatform Plugin applied to obtain its
+                android source sets.
+                """
+                        .trimIndent()
+                }
+            val target = kmpExtension.targets.withType(
+                KotlinMultiplatformAndroidTarget::class.java
+            ).single()
+            val sourceCollection =
+                project.files(
+                    project.provider {
+                        target.sourceFiles(
+                            compilationName = KotlinCompilation.MAIN_COMPILATION_NAME
+                        )
+                    }
+                )
+
+            return JavaCompileInputs(
+                sourcePaths = sourceCollection,
+                dependencyClasspath =
+                target.compilations[KotlinCompilation.MAIN_COMPILATION_NAME]
+                    .compileDependencyFiles,
                 bootClasspath = project.getAndroidJar()
             )
         }

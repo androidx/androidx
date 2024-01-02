@@ -41,6 +41,8 @@ object JavaApiTaskConfig : ApiTaskConfig()
 
 object KmpApiTaskConfig : ApiTaskConfig()
 
+object AndroidMultiplatformApiTaskConfig : ApiTaskConfig()
+
 fun AndroidXExtension.shouldConfigureApiTasks(): Boolean {
     if (!project.state.executed) {
         throw GradleException(
@@ -172,6 +174,10 @@ fun Project.configureProjectForApiTasks(config: ApiTaskConfig, extension: Androi
                         .getByName(variant.name)
                         .processManifestProvider
                         .get() as ProcessLibraryManifest
+            }
+            is AndroidMultiplatformApiTaskConfig -> {
+                javaInputs = JavaCompileInputs.fromKmpAndroidTarget(project)
+                processManifest = null
             }
             is KmpApiTaskConfig -> {
                 javaInputs = JavaCompileInputs.fromKmpJvmTarget(project)

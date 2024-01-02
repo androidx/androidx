@@ -305,14 +305,25 @@ private fun Project.configureMultiplatformPublication(componentFactory: Software
 }
 
 /**
- * KMP does not include a sources configuration (b/235486368), so we replace it with our own
- * publication that includes it. This uses internal API as a workaround while waiting for a fix on
- * the original bug.
+ * This was added because KMP did not include a sources configuration (b/235486368), so we replaced
+ * it with our own publication that includes it. This can be cleaned up now that the bug is fixed
+ * which is tracked here b/309641019
  */
 private fun Project.replaceBaseMultiplatformPublication(
     componentFactory: SoftwareComponentFactory
 ) {
     val kotlinComponent = components.findByName("kotlin") as SoftwareComponentInternal
+    // mark original publication as alias first without waiting for sources components to ensure we
+    // don't try to create build info for it before it's disabled
+    configure<PublishingExtension> {
+        publications { pubs ->
+            // mark original publication as an alias, so we do not try to publish it.
+            pubs.named("kotlinMultiplatform").configure {
+                it as MavenPublicationInternal
+                it.isAlias = true
+            }
+        }
+    }
     withSourcesComponents(
         componentFactory,
         setOf("androidxSourcesElements", "libraryVersionMetadata")
@@ -346,12 +357,6 @@ private fun Project.replaceBaseMultiplatformPublication(
                             }
                         }
                     )
-                }
-
-                // mark original publication as an alias, so we do not try to publish it.
-                pubs.named("kotlinMultiplatform").configure {
-                    it as MavenPublicationInternal
-                    it.isAlias = true
                 }
             }
 
