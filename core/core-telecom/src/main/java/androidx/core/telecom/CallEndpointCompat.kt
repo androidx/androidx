@@ -57,7 +57,7 @@ class CallEndpointCompat(val name: CharSequence, val type: Int, val identifier: 
     }
 
     companion object {
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(
             TYPE_UNKNOWN,

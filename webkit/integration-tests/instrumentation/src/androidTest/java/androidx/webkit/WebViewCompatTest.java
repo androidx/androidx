@@ -35,6 +35,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -49,8 +50,18 @@ import org.junit.runner.RunWith;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.HttpUrl;
+import okhttp3.mockwebserver.Dispatcher;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
@@ -95,7 +106,8 @@ public class WebViewCompatTest {
         WebkitUtils.checkFeature(WebViewFeature.VISUAL_STATE_CALLBACK);
         try {
             WebViewCompat.postVisualStateCallback(
-                    mWebViewOnUiThread.getWebViewOnCurrentThread(), 5, requestId -> {});
+                    mWebViewOnUiThread.getWebViewOnCurrentThread(), 5, requestId -> {
+                    });
         } catch (RuntimeException e) {
             return;
         }
@@ -351,4 +363,70 @@ public class WebViewCompatTest {
                             ApplicationProvider.getApplicationContext()));
         }
     }
+
+    /**
+     * Test that setting a {@code null} {@link WebViewClient} does not break WebView.
+     */
+    @Test
+    @MediumTest
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
+    public void testSetNullWebViewClient() throws Exception {
+        WebkitUtils.checkFeature(WebViewFeature.GET_WEB_VIEW_CLIENT);
+        WebkitUtils.checkFeature(WebViewFeature.WEB_MESSAGE_LISTENER);
+        // Silence the inspection that complains that we are passing null to a @NonNull method.
+        //noinspection DataFlowIssue
+        mWebViewOnUiThread.setWebViewClient(null);
+        mWebViewOnUiThread.getSettings().setJavaScriptEnabled(true);
+
+        final Future<String> future = ApiHelperForN.getCompletableFutureForN();
+        mWebViewOnUiThread.addWebMessageListener(
+                "completelistener", Collections.singleton("*"),
+                (view, message, sourceOrigin, isMainFrame, replyProxy) ->
+                        ApiHelperForN.completeFutureWithValue(future, message.getData()));
+
+        try (MockWebServer server = new MockWebServer()) {
+            server.start();
+            server.setDispatcher(new Dispatcher() {
+                @Override
+                public MockResponse dispatch(RecordedRequest request) {
+                    MockResponse response = new MockResponse();
+                    if ("/".equals(request.getPath())) {
+                        response.setResponseCode(200);
+                        response.setHeader("Content-Type", "text/html");
+                        response.setBody("<script>completelistener.postMessage('success');"
+                                + "</script>");
+                    } else {
+                        response.setResponseCode(404);
+                    }
+                    return response;
+                }
+            });
+            HttpUrl url = server.url("/");
+            mWebViewOnUiThread.loadUrl(url.toString());
+            String message = future.get(5, TimeUnit.SECONDS);
+
+            // Assert that the page has loaded successfully and can execute javascript.
+            Assert.assertEquals("success", message);
+        }
+    }
+
+
+    /**
+     * ApiHelper class to ensure that the CompletableFuture is not classloaded on API < N.
+     *
+     * @noinspection NewClassNamingConvention
+     */
+    @RequiresApi(Build.VERSION_CODES.N)
+    private static class ApiHelperForN {
+        static <T> Future<T> getCompletableFutureForN() {
+            return new CompletableFuture<>();
+        }
+
+        static <T> void completeFutureWithValue(Future<T> future, T value) {
+            if (future instanceof CompletableFuture) {
+                ((CompletableFuture<T>) future).complete(value);
+            }
+        }
+    }
+
 }

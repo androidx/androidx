@@ -18,6 +18,7 @@ package androidx.benchmark.perfetto
 
 import android.os.Build
 import android.util.JsonReader
+import androidx.annotation.CheckResult
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.Outputs
@@ -86,9 +87,15 @@ public class PerfettoCapture(
         helper.stopCollecting(destinationPath)
     }
 
-    /** Enables Perfetto SDK tracing in an app if present */
+    /**
+     * Enables Perfetto SDK tracing in the [PerfettoSdkConfig.targetPackage]
+     *
+     * @return a pair of [androidx.tracing.perfetto.handshake.protocol.ResultCode] and
+     * a user-friendly message explaining the code
+     */
     @RequiresApi(30) // TODO(234351579): Support API < 30
-    fun enableAndroidxTracingPerfetto(config: PerfettoSdkConfig): String? =
+    @CheckResult
+    fun enableAndroidxTracingPerfetto(config: PerfettoSdkConfig): Pair<Int, String> =
         enableAndroidxTracingPerfetto(
             targetPackage = config.targetPackage,
             provideBinariesIfMissing = config.provideBinariesIfMissing,
@@ -100,11 +107,18 @@ public class PerfettoCapture(
         )
 
     @RequiresApi(30) // TODO(234351579): Support API < 30
+    @CheckResult
+    /**
+     * Enables Perfetto SDK tracing in the [PerfettoSdkConfig.targetPackage]
+     *
+     * @return a pair of [androidx.tracing.perfetto.handshake.protocol.ResultCode] and
+     * a user-friendly message explaining the code
+     */
     private fun enableAndroidxTracingPerfetto(
         targetPackage: String,
         provideBinariesIfMissing: Boolean,
         isColdStartupTracing: Boolean
-    ): String? {
+    ): Pair<Int, String> {
         if (!isAbiSupported()) {
             throw IllegalStateException("Unsupported ABI (${Build.SUPPORTED_ABIS.joinToString()})")
         }
@@ -130,14 +144,14 @@ public class PerfettoCapture(
         )
 
         // try without supplying external Perfetto SDK tracing binaries
-        val responseFirstPass = if (isColdStartupTracing) {
+        val responseNoSideloading = if (isColdStartupTracing) {
             handshake.enableTracingColdStart()
         } else {
             handshake.enableTracingImmediate()
         }
 
         // if required, retry by supplying external Perfetto SDK tracing binaries
-        val response = if (responseFirstPass.resultCode == RESULT_CODE_ERROR_BINARY_MISSING &&
+        val response = if (responseNoSideloading.resultCode == RESULT_CODE_ERROR_BINARY_MISSING &&
             provideBinariesIfMissing
         ) {
             val librarySource = constructLibrarySource()
@@ -149,24 +163,18 @@ public class PerfettoCapture(
             }
         } else {
             // no retry
-            responseFirstPass
+            responseNoSideloading
         }
 
         // process the response
-        return when (response.resultCode) {
+        val message = when (response.resultCode) {
             0 -> "The broadcast to enable tracing was not received. This most likely means " +
                 "that the app does not contain the `androidx.tracing.tracing-perfetto` " +
                 "library as its dependency."
-            RESULT_CODE_SUCCESS -> null
+            RESULT_CODE_SUCCESS -> "Success"
             RESULT_CODE_ALREADY_ENABLED -> "Perfetto SDK already enabled."
             RESULT_CODE_ERROR_BINARY_MISSING ->
-                "Perfetto SDK binary dependencies missing. " +
-                    "Required version: ${response.requiredVersion}. " +
-                    "Error: ${response.message}.\n" +
-                    "To fix, declare the following dependency in your" +
-                    " *benchmark* project (i.e. not the app under benchmark): " +
-                    "\nandroidTestImplementation(" +
-                    "\"androidx.tracing:tracing-perfetto-binary:${response.requiredVersion}\")"
+                binaryMissingResponseString(response.requiredVersion, response.message)
             RESULT_CODE_ERROR_BINARY_VERSION_MISMATCH ->
                 "Perfetto SDK binary mismatch. " +
                     "Required version: ${response.requiredVersion}. " +
@@ -177,10 +185,28 @@ public class PerfettoCapture(
                     "Error: ${response.message}. " +
                     "If working with an unreleased snapshot, ensure all modules are built " +
                     "against the same snapshot (e.g. clear caches and rebuild)."
-            RESULT_CODE_ERROR_OTHER -> "Error: ${response.message}."
+            RESULT_CODE_ERROR_OTHER ->
+                if (responseNoSideloading.resultCode == RESULT_CODE_ERROR_BINARY_MISSING) {
+                    binaryMissingResponseString(
+                        responseNoSideloading.requiredVersion,
+                        response.message // note: we're using the error from the sideloading attempt
+                    )
+                } else {
+                    "Error: ${response.message}."
+                }
             else -> throw RuntimeException("Unrecognized result code: ${response.resultCode}.")
         }
+        return response.resultCode to message
     }
+
+    private fun binaryMissingResponseString(requiredVersion: String?, message: String?) =
+        "Perfetto SDK binary dependencies missing. " +
+            "Required version: $requiredVersion. " +
+            "Error: $message.\n" +
+            "To fix, declare the following dependency in your" +
+            " *benchmark* project (i.e. not the app under benchmark): " +
+            "\nandroidTestImplementation(" +
+            "\"androidx.tracing:tracing-perfetto-binary:$requiredVersion\")"
 
     private fun constructLibrarySource(): PerfettoSdkHandshake.LibrarySource {
         val baseApk = File(

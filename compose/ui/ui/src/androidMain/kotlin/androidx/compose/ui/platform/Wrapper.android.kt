@@ -15,13 +15,9 @@
  */
 package androidx.compose.ui.platform
 
-import android.os.Build
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.DoNotInline
 import androidx.annotation.MainThread
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionContext
@@ -30,6 +26,7 @@ import androidx.compose.runtime.CompositionServiceKey
 import androidx.compose.runtime.CompositionServices
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Recomposer
+import androidx.compose.runtime.ReusableComposition
 import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.tooling.CompositionData
 import androidx.compose.runtime.tooling.LocalInspectionTables
@@ -42,8 +39,6 @@ import androidx.lifecycle.LifecycleOwner
 import java.util.Collections
 import java.util.WeakHashMap
 
-private val TAG = "Wrapper"
-
 // TODO(chuckj): This is a temporary work-around until subframes exist so that
 // nextFrame() inside recompose() doesn't really start a new frame, but a new subframe
 // instead.
@@ -51,7 +46,7 @@ private val TAG = "Wrapper"
 internal actual fun createSubcomposition(
     container: LayoutNode,
     parent: CompositionContext
-): Composition = Composition(
+): ReusableComposition = ReusableComposition(
     UiApplier(container),
     parent
 )
@@ -90,12 +85,11 @@ private fun doSetContent(
     parent: CompositionContext,
     content: @Composable () -> Unit
 ): Composition {
-    if (inspectionWanted(owner)) {
+    if (isDebugInspectorInfoEnabled && owner.getTag(R.id.inspection_slot_table_set) == null) {
         owner.setTag(
             R.id.inspection_slot_table_set,
             Collections.newSetFromMap(WeakHashMap<CompositionData, Boolean>())
         )
-        enableDebugInspectorInfo()
     }
     val original = Composition(UiApplier(owner.root), parent)
     val wrapped = owner.view.getTag(R.id.wrapped_composition_tag)
@@ -105,21 +99,6 @@ private fun doSetContent(
         }
     wrapped.setContent(content)
     return wrapped
-}
-
-private fun enableDebugInspectorInfo() {
-    // Set isDebugInspectorInfoEnabled to true via reflection such that R8 cannot see the
-    // assignment. This allows the InspectorInfo lambdas to be stripped from release builds.
-    if (!isDebugInspectorInfoEnabled) {
-        try {
-            val packageClass = Class.forName("androidx.compose.ui.platform.InspectableValueKt")
-            val field = packageClass.getDeclaredField("isDebugInspectorInfoEnabled")
-            field.isAccessible = true
-            field.setBoolean(null, true)
-        } catch (ignored: Exception) {
-            Log.w(TAG, "Could not access isDebugInspectorInfoEnabled. Please set explicitly.")
-        }
-    }
 }
 
 private class WrappedComposition(
@@ -195,30 +174,3 @@ private val DefaultLayoutParams = ViewGroup.LayoutParams(
     ViewGroup.LayoutParams.WRAP_CONTENT,
     ViewGroup.LayoutParams.WRAP_CONTENT
 )
-
-/**
- * Determines if inspection is wanted for the Layout Inspector.
- *
- * When DEBUG_VIEW_ATTRIBUTES an/or DEBUG_VIEW_ATTRIBUTES_APPLICATION_PACKAGE is turned on for the
- * current application the Layout Inspector is inspecting. An application cannot directly access
- * these global settings, nor is the static field: View.sDebugViewAttributes available.
- *
- *
- * Instead check if the attributeSourceResourceMap is not empty.
- */
-private fun inspectionWanted(owner: AndroidComposeView): Boolean =
-    Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
-        WrapperVerificationHelperMethods.attributeSourceResourceMap(owner).isNotEmpty()
-
-/**
- * This class is here to ensure that the classes that use this API will get verified and can be
- * AOT compiled. It is expected that this class will soft-fail verification, but the classes
- * which use this method will pass.
- */
-@RequiresApi(Build.VERSION_CODES.Q)
-internal object WrapperVerificationHelperMethods {
-    @RequiresApi(Build.VERSION_CODES.Q)
-    @DoNotInline
-    fun attributeSourceResourceMap(view: View): Map<Int, Int> =
-        view.attributeSourceResourceMap
-}

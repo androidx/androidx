@@ -1,0 +1,51 @@
+//
+// Source
+// ------------------------------------------
+
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.NonRestartableComposable
+import androidx.compose.runtime.remember
+
+@NonRestartableComposable
+@Composable
+fun Example() {
+    val x = remember { Stable() }
+    val shouldMemoize = x::foo
+}
+
+//
+// Transformed IR
+// ------------------------------------------
+
+@NonRestartableComposable
+@Composable
+fun Example(%composer: Composer?, %changed: Int) {
+  %composer.startReplaceableGroup(<>)
+  sourceInformation(%composer, "C(Example)<rememb...>,<x::foo>:Test.kt")
+  if (isTraceInProgress()) {
+    traceEventStart(<>, %changed, -1, <>)
+  }
+  val x = <block>{
+    %composer.startReplaceableGroup(<>)
+    sourceInformation(%composer, "CC(remember):Test.kt#9igjgp")
+    val tmp0_group = %composer.cache(false) {
+      Stable()
+    }
+    %composer.endReplaceableGroup()
+    tmp0_group
+  }
+  val shouldMemoize = <block>{
+    val tmp0 = x
+    %composer.startReplaceableGroup(<>)
+    sourceInformation(%composer, "CC(remember):Test.kt#9igjgp")
+    val tmp1_group = %composer.cache(false) {
+      tmp0::foo
+    }
+    %composer.endReplaceableGroup()
+    tmp1_group
+  }
+  if (isTraceInProgress()) {
+    traceEventEnd()
+  }
+  %composer.endReplaceableGroup()
+}

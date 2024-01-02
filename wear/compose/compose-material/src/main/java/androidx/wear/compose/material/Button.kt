@@ -163,6 +163,7 @@ public fun Button(
         shape = shape,
         border = { border.borderStroke(enabled = it) },
         buttonSize = ButtonDefaults.DefaultButtonSize,
+        ripple = rippleOrFallbackImplementation(),
         content = provideScopeContent(
             colors.contentColor(enabled = enabled),
             MaterialTheme.typography.button,
@@ -345,6 +346,7 @@ public fun CompactButton(
         shape = shape,
         border = { border.borderStroke(it) },
         buttonSize = ButtonDefaults.ExtraSmallButtonSize,
+        ripple = rippleOrFallbackImplementation(),
         content = provideScopeContent(
             colors.contentColor(enabled = enabled),
             MaterialTheme.typography.button,

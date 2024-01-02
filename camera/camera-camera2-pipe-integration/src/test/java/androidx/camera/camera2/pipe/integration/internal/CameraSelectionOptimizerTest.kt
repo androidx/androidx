@@ -197,7 +197,8 @@ class CameraSelectionOptimizerTest {
             ApplicationProvider.getApplicationContext(), CameraThreadConfig.create(
                 CameraXExecutors.mainThreadExecutor(), Handler(Looper.getMainLooper())
             ),
-            cameraSelector
+            cameraSelector,
+            -1L
         )
 
         cameraFactory = Mockito.spy(actualCameraFactory)

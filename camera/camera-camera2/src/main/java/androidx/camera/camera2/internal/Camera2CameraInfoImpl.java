@@ -16,6 +16,9 @@
 
 package androidx.camera.camera2.internal;
 
+import static android.hardware.camera2.CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES;
+import static android.hardware.camera2.CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_ON;
+import static android.hardware.camera2.CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION;
 import static android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING;
 import static android.hardware.camera2.CameraMetadata.SENSOR_INFO_TIMESTAMP_SOURCE_REALTIME;
 import static android.hardware.camera2.CameraMetadata.SENSOR_INFO_TIMESTAMP_SOURCE_UNKNOWN;
@@ -56,6 +59,7 @@ import androidx.camera.core.Logger;
 import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraInfoInternal;
+import androidx.camera.core.impl.DynamicRanges;
 import androidx.camera.core.impl.EncoderProfilesProvider;
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.Quirks;
@@ -448,6 +452,14 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
         return dynamicRangesCompat.getSupportedDynamicRanges();
     }
 
+    @NonNull
+    @Override
+    public Set<DynamicRange> querySupportedDynamicRanges(
+            @NonNull Set<DynamicRange> candidateDynamicRanges) {
+        return DynamicRanges.findAllPossibleMatches(candidateDynamicRanges,
+                getSupportedDynamicRanges());
+    }
+
     @Override
     public void addSessionCaptureCallback(@NonNull Executor executor,
             @NonNull CameraCaptureCallback callback) {
@@ -505,12 +517,65 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
         }
     }
 
+    @Override
+    public boolean isVideoStabilizationSupported() {
+        int[] availableVideoStabilizationModes =
+                mCameraCharacteristicsCompat.get(
+                        CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES);
+        if (availableVideoStabilizationModes != null) {
+            for (int mode : availableVideoStabilizationModes) {
+                if (mode == CONTROL_VIDEO_STABILIZATION_MODE_ON) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isPreviewStabilizationSupported() {
+        int[] availableVideoStabilizationModes =
+                mCameraCharacteristicsCompat.get(
+                        CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES);
+        if (availableVideoStabilizationModes != null) {
+            for (int mode : availableVideoStabilizationModes) {
+                if (mode == CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     /**
      * Gets the implementation of {@link Camera2CameraInfo}.
      */
     @NonNull
     public Camera2CameraInfo getCamera2CameraInfo() {
         return mCamera2CameraInfo;
+    }
+
+    @NonNull
+    @Override
+    public Object getCameraCharacteristics() {
+        return mCameraCharacteristicsCompat.toCameraCharacteristics();
+    }
+
+    @Nullable
+    @Override
+    public Object getPhysicalCameraCharacteristics(@NonNull String physicalCameraId) {
+        try {
+            if (!mCameraCharacteristicsCompat.getPhysicalCameraIds().contains(physicalCameraId)) {
+                return null;
+            }
+            return mCameraManager.getCameraCharacteristicsCompat(physicalCameraId)
+                    .toCameraCharacteristics();
+        } catch (CameraAccessExceptionCompat e) {
+            Logger.e(TAG,
+                    "Failed to get CameraCharacteristics for cameraId " + physicalCameraId,
+                    e);
+        }
+        return null;
     }
 
     /**

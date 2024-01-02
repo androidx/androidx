@@ -65,4 +65,5 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2021"
     description = "Testing utilities for Android Wear Tiles."
+    metalavaK2UastEnabled = true
 }

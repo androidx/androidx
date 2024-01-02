@@ -19,7 +19,9 @@ package androidx.compose.ui.test
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.semantics.SemanticsNode
 
-internal actual fun SemanticsNodeInteraction.checkIsDisplayed(): Boolean {
+internal actual fun SemanticsNodeInteraction.checkIsDisplayed(
+    assertIsFullyVisible: Boolean
+): Boolean {
     TODO()
 }
 
@@ -27,6 +29,6 @@ internal actual fun SemanticsNode.clippedNodeBoundsInWindow(): Rect {
     TODO()
 }
 
-internal actual fun SemanticsNode.isInScreenBounds(): Boolean {
+internal actual fun SemanticsNode.isInScreenBounds(assertIsFullyVisible: Boolean): Boolean {
     TODO()
 }

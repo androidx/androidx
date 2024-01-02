@@ -18,6 +18,7 @@ package androidx.test.uiautomator.testapp;
 
 import static android.os.Build.VERSION.SDK_INT;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -32,6 +33,7 @@ import android.view.Display;
 import android.view.ViewConfiguration;
 import android.view.accessibility.AccessibilityEvent;
 
+import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.uiautomator.By;
@@ -45,6 +47,8 @@ import org.junit.Assume;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -511,6 +515,25 @@ public class UiObject2Test extends BaseTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 24)
+    public void testGetDrawingOrder() {
+        launchTestActivity(DrawingOrderTestActivity.class);
+        UiObject2 red = mDevice.findObject(By.res(TEST_APP, "red"));
+        UiObject2 green = mDevice.findObject(By.res(TEST_APP, "green"));
+        UiObject2 blue = mDevice.findObject(By.res(TEST_APP, "blue"));
+        UiObject2[] objects = new UiObject2[]{red, green, blue};
+
+        // Initial order is red (bottom), green, blue (top).
+        Arrays.sort(objects, Comparator.comparing(UiObject2::getDrawingOrder));
+        assertArrayEquals(new UiObject2[]{red, green, blue}, objects);
+
+        // Clicking moves green above blue.
+        red.click();
+        Arrays.sort(objects, Comparator.comparing(UiObject2::getDrawingOrder));
+        assertArrayEquals(new UiObject2[]{red, blue, green}, objects);
+    }
+
+    @Test
     public void testLongClick() {
         launchTestActivity(LongClickTestActivity.class);
 
@@ -715,6 +738,12 @@ public class UiObject2Test extends BaseTest {
                             return true;
                         }
                         return false;
+                    }
+
+                    @NonNull
+                    @Override
+                    public String toString() {
+                        return "EventCondition[LONG_CLICK]";
                     }
                 });
         assertNull(result);

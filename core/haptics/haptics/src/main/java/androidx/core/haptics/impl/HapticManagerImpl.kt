@@ -16,72 +16,101 @@
 
 package androidx.core.haptics.impl
 
-import android.content.Context
-import android.os.Build.VERSION
-import android.os.VibrationEffect
 import android.os.Vibrator
-import androidx.annotation.DoNotInline
-import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
-import androidx.core.content.ContextCompat
+import androidx.core.haptics.HapticAttributes
 import androidx.core.haptics.HapticManager
-import androidx.core.haptics.signal.PredefinedEffect
-import androidx.core.haptics.signal.PredefinedEffect.Companion.PredefinedClick
-import androidx.core.haptics.signal.PredefinedEffect.Companion.PredefinedDoubleClick
-import androidx.core.haptics.signal.PredefinedEffect.Companion.PredefinedHeavyClick
-import androidx.core.haptics.signal.PredefinedEffect.Companion.PredefinedTick
+import androidx.core.haptics.VibratorWrapper
+import androidx.core.haptics.device.HapticCompositionProfile
+import androidx.core.haptics.device.HapticDeviceProfile
+import androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom
+import androidx.core.haptics.signal.HapticSignal
+import androidx.core.haptics.signal.PredefinedEffectSignal
 
 /**
  * [HapticManager] implementation for the [Vibrator] service.
  */
 internal class HapticManagerImpl internal constructor(
-    private val vibrator: Vibrator
+    private val vibrator: VibratorWrapper
 ) : HapticManager {
 
-    internal constructor(context: Context) : this(
-        requireNotNull(ContextCompat.getSystemService(context, Vibrator::class.java)) {
-            "Vibrator service not found"
+    init {
+        require(vibrator.hasVibrator()) {
+            "Haptic manager cannot be created for a device without vibrator"
         }
-    )
+    }
+
+    private val deviceProfileDelegate = lazy {
+        val supportedPrimitiveTypes = getSupportedPrimitiveTypes()
+        HapticDeviceProfile(
+            vibrator.hasAmplitudeControl(),
+            getHardwareSupportedPredefinedEffects(),
+            HapticCompositionProfile(
+                supportedPrimitiveTypes,
+                getPrimitiveDurations(supportedPrimitiveTypes),
+            ),
+        )
+    }
+    override val deviceProfile: HapticDeviceProfile by deviceProfileDelegate
 
     @RequiresPermission(android.Manifest.permission.VIBRATE)
-    override fun play(effect: PredefinedEffect) {
-        if (VERSION.SDK_INT >= 29) {
-            Api29Impl.play(vibrator, effect)
-        } else {
-            ApiImpl.play(vibrator, effect)
+    override fun play(signal: HapticSignal, attrs: HapticAttributes) {
+        signal.toVibration()?.let { vibration ->
+            vibrator.vibrate(vibration, attrs.toAttributes())
         }
     }
 
-    /** Version-specific static inner class. */
-    @RequiresApi(29)
-    private object Api29Impl {
-
-        @JvmStatic
-        @DoNotInline
-        @RequiresPermission(android.Manifest.permission.VIBRATE)
-        fun play(vibrator: Vibrator, effect: PredefinedEffect) {
-            vibrator.vibrate(VibrationEffect.createPredefined(effect.effectId))
-        }
+    @RequiresPermission(android.Manifest.permission.VIBRATE)
+    override fun cancel() {
+        vibrator.cancel()
     }
 
-    /** Version-specific static inner class. */
-    private object ApiImpl {
-
-        private val predefinedEffectFallbackPatterns = mapOf(
-            PredefinedTick to longArrayOf(0, 10),
-            PredefinedClick to longArrayOf(0, 20),
-            PredefinedHeavyClick to longArrayOf(0, 30),
-            PredefinedDoubleClick to longArrayOf(0, 30, 100, 30)
+    private fun getHardwareSupportedPredefinedEffects(): Set<PredefinedEffectSignal> {
+        val predefinedEffects = PredefinedEffectSignal.getSdkAvailableEffects()
+        val effectSupportArray = vibrator.areEffectsSupported(
+            predefinedEffects.map { it.type }.toIntArray()
         )
 
-        @JvmStatic
-        @Suppress("DEPRECATION") // ApkVariant for compatibility
-        @RequiresPermission(android.Manifest.permission.VIBRATE)
-        fun play(vibrator: Vibrator, effect: PredefinedEffect) {
-            predefinedEffectFallbackPatterns[effect]?.let {
-                vibrator.vibrate(/* pattern= */ it, /* repeat= */ -1)
-            }
+        if (effectSupportArray == null) {
+            return emptySet()
         }
+
+        return effectSupportArray.mapIndexed { index, effectSupport ->
+            if (effectSupport == VibratorWrapper.EffectSupport.YES) {
+                predefinedEffects[index]
+            } else {
+                null
+            }
+        }.filterNotNull().toSet()
+    }
+
+    private fun getSupportedPrimitiveTypes(): Set<Int> {
+        val primitiveTypes = PrimitiveAtom.getSdkAvailablePrimitiveTypes()
+        val primitiveSupportArray = vibrator.arePrimitivesSupported(primitiveTypes.toIntArray())
+
+        if (primitiveSupportArray == null) {
+            return emptySet()
+        }
+
+        return primitiveSupportArray.mapIndexed { index, isSupported ->
+            if (isSupported) {
+                primitiveTypes[index]
+            } else {
+                null
+            }
+        }.filterNotNull().toSet()
+    }
+
+    private fun getPrimitiveDurations(supportedPrimitiveTypes: Set<Int>): Map<Int, Long>? {
+        val primitiveTypes = supportedPrimitiveTypes.toIntArray()
+        val primitiveDurationArray = vibrator.getPrimitivesDurations(primitiveTypes)
+
+        if (primitiveDurationArray == null) {
+            return null
+        }
+
+        return primitiveDurationArray.mapIndexed { index, durationMillis ->
+            primitiveTypes[index] to durationMillis.toLong()
+        }.toMap()
     }
 }

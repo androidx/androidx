@@ -20,6 +20,7 @@ import android.util.Range;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraState;
@@ -183,6 +184,13 @@ public class ForwardingCameraInfo implements CameraInfoInternal {
 
     @NonNull
     @Override
+    public Set<DynamicRange> querySupportedDynamicRanges(
+            @NonNull Set<DynamicRange> candidateDynamicRanges) {
+        return mCameraInfoInternal.querySupportedDynamicRanges(candidateDynamicRanges);
+    }
+
+    @NonNull
+    @Override
     public CameraInfoInternal getImplementation() {
         return mCameraInfoInternal.getImplementation();
     }
@@ -191,5 +199,27 @@ public class ForwardingCameraInfo implements CameraInfoInternal {
     @Override
     public CameraSelector getCameraSelector() {
         return mCameraInfoInternal.getCameraSelector();
+    }
+
+    @Override
+    public boolean isPreviewStabilizationSupported() {
+        return mCameraInfoInternal.isPreviewStabilizationSupported();
+    }
+
+    @Override
+    public boolean isVideoStabilizationSupported() {
+        return mCameraInfoInternal.isVideoStabilizationSupported();
+    }
+
+    @NonNull
+    @Override
+    public Object getCameraCharacteristics() {
+        return mCameraInfoInternal.getCameraCharacteristics();
+    }
+
+    @Nullable
+    @Override
+    public Object getPhysicalCameraCharacteristics(@NonNull String physicalCameraId) {
+        return mCameraInfoInternal.getPhysicalCameraCharacteristics(physicalCameraId);
     }
 }

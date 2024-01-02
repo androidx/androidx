@@ -103,11 +103,8 @@ class JankStats private constructor(
                 Build.VERSION.SDK_INT >= 22 -> {
                     JankStatsApi22Impl(this, decorView)
                 }
-                Build.VERSION.SDK_INT >= 16 -> {
-                    JankStatsApi16Impl(this, decorView)
-                }
                 else -> {
-                    JankStatsBaseImpl(this)
+                    JankStatsApi16Impl(this, decorView)
                 }
             }
         implementation.setupFrameTimer(true)

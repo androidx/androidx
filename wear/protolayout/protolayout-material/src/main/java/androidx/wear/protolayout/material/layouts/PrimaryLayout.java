@@ -20,12 +20,7 @@ import static androidx.annotation.Dimension.DP;
 import static androidx.wear.protolayout.DimensionBuilders.dp;
 import static androidx.wear.protolayout.DimensionBuilders.expand;
 import static androidx.wear.protolayout.DimensionBuilders.wrap;
-import static androidx.wear.protolayout.material.ChipDefaults.MIN_TAPPABLE_HEIGHT;
-import static androidx.wear.protolayout.material.Helper.checkNotNull;
-import static androidx.wear.protolayout.material.Helper.checkTag;
-import static androidx.wear.protolayout.material.Helper.getMetadataTagBytes;
-import static androidx.wear.protolayout.material.Helper.getTagBytes;
-import static androidx.wear.protolayout.material.Helper.isRoundDevice;
+import static androidx.wear.protolayout.material.ChipDefaults.MIN_TAPPABLE_SQUARE_LENGTH;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.DEFAULT_VERTICAL_SPACER_HEIGHT;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_CHIP_HORIZONTAL_PADDING_ROUND_DP;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_CHIP_HORIZONTAL_PADDING_SQUARE_DP;
@@ -37,6 +32,11 @@ import static androidx.wear.protolayout.material.layouts.LayoutDefaults.PRIMARY_
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_MARGIN_TOP_SQUARE_PERCENT;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_PRIMARY_LABEL_SPACER_HEIGHT_ROUND_DP;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_PRIMARY_LABEL_SPACER_HEIGHT_SQUARE_DP;
+import static androidx.wear.protolayout.materialcore.Helper.checkNotNull;
+import static androidx.wear.protolayout.materialcore.Helper.checkTag;
+import static androidx.wear.protolayout.materialcore.Helper.getMetadataTagBytes;
+import static androidx.wear.protolayout.materialcore.Helper.getTagBytes;
+import static androidx.wear.protolayout.materialcore.Helper.isRoundDevice;
 
 import android.annotation.SuppressLint;
 
@@ -258,7 +258,8 @@ public class PrimaryLayout implements LayoutElement {
             float horizontalPadding = getHorizontalPadding();
             float horizontalChipPadding = getChipHorizontalPadding();
 
-            float primaryChipHeight = mPrimaryChip != null ? MIN_TAPPABLE_HEIGHT.getValue() : 0;
+            float primaryChipHeight =
+                    mPrimaryChip != null ? MIN_TAPPABLE_SQUARE_LENGTH.getValue() : 0;
 
             DpProp mainContentHeight =
                     dp(

@@ -19,6 +19,7 @@ package androidx.camera.core;
 import static androidx.camera.core.CameraEffect.PREVIEW;
 import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY;
 import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
+import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_DYNAMIC_RANGE;
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_APP_TARGET_ROTATION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_CUSTOM_ORDERED_RESOLUTIONS;
@@ -38,9 +39,9 @@ import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_CLASS;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_NAME;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_ROTATION;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_USE_CASE_EVENT_CALLBACK;
-import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_TYPE;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_HIGH_RESOLUTION_DISABLED;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_PREVIEW_STABILIZATION_MODE;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_TARGET_FRAME_RATE;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
@@ -62,7 +63,6 @@ import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.TextureView;
 
-import androidx.annotation.IntRange;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -77,6 +77,7 @@ import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.DeferrableSurface;
+import androidx.camera.core.impl.ImageInputConfig;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
@@ -86,6 +87,8 @@ import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
+import androidx.camera.core.impl.capability.PreviewCapabilitiesImpl;
+import androidx.camera.core.impl.stabilization.StabilizationMode;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.ThreadConfig;
@@ -268,6 +271,7 @@ public final class Preview extends UseCase {
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config,
                 streamSpec.getResolution());
         sessionConfigBuilder.setExpectedFrameRateRange(streamSpec.getExpectedFrameRateRange());
+        sessionConfigBuilder.setPreviewStabilization(config.getPreviewStabilizationMode());
         if (streamSpec.getImplementationOptions() != null) {
             sessionConfigBuilder.addImplementationOptions(streamSpec.getImplementationOptions());
         }
@@ -282,20 +286,6 @@ public final class Preview extends UseCase {
         if (camera == getCamera()) {
             mCurrentSurfaceRequest = appEdge.createSurfaceRequest(camera);
             sendSurfaceRequest();
-        }
-    }
-
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    @IntRange(from = 0, to = 359)
-    protected int getRelativeRotation(@NonNull CameraInternal cameraInternal,
-            boolean requireMirroring) {
-        if (cameraInternal.getHasTransform()) {
-            return super.getRelativeRotation(cameraInternal, requireMirroring);
-        } else {
-            // If there is a virtual parent camera, the buffer is already rotated because
-            // SurfaceView cannot handle additional rotation.
-            return 0;
         }
     }
 
@@ -670,6 +660,54 @@ public final class Preview extends UseCase {
     }
 
     /**
+     * Returns the dynamic range.
+     *
+     * <p>The dynamic range is set by {@link Preview.Builder#setDynamicRange(DynamicRange)}.
+     * If the dynamic range set is not a fully defined dynamic range, such as
+     * {@link DynamicRange#HDR_UNSPECIFIED_10_BIT}, then it will be returned just as provided,
+     * and will not be returned as a fully defined dynamic range. The fully defined dynamic
+     * range, which is determined by resolving the combination of requested dynamic ranges from
+     * other use cases according to the device capabilities, will be
+     * communicated to the {@link Preview.SurfaceProvider} via
+     * {@link SurfaceRequest#getDynamicRange()}}.
+     *
+     * <p>If the dynamic range was not provided to
+     * {@link Preview.Builder#setDynamicRange(DynamicRange)}, this will return the default of
+     * {@link DynamicRange#UNSPECIFIED}
+     *
+     * @return the dynamic range set for this {@code Preview} use case.
+     *
+     * @see Preview.Builder#setDynamicRange(DynamicRange)
+     */
+    // Internal implementation note: this method should not be used to retrieve the dynamic range
+    // that will be sent to the SurfaceProvider. That should always be retrieved from the StreamSpec
+    // since that will be the final DynamicRange chosen by the camera based on other use case
+    // combinations.
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public DynamicRange getDynamicRange() {
+        return getCurrentConfig().hasDynamicRange() ? getCurrentConfig().getDynamicRange() :
+                Defaults.DEFAULT_DYNAMIC_RANGE;
+    }
+
+    /**
+     * Returns {@link PreviewCapabilities} to query preview stream related device capability.
+     *
+     * @return {@link PreviewCapabilities}
+     */
+    @NonNull
+    public static PreviewCapabilities getPreviewCapabilities(@NonNull CameraInfo cameraInfo) {
+        return PreviewCapabilitiesImpl.from(cameraInfo);
+    }
+
+    /**
+     * Returns whether video stabilization is enabled for preview stream.
+     */
+    public boolean isPreviewStabilizationEnabled() {
+        return getCurrentConfig().getPreviewStabilizationMode() == StabilizationMode.ON;
+    }
+
+    /**
      * A interface implemented by the application to provide a {@link Surface} for {@link Preview}.
      *
      * <p> This interface is implemented by the application to provide a {@link Surface}. This
@@ -756,12 +794,19 @@ public final class Preview extends UseCase {
 
         private static final PreviewConfig DEFAULT_CONFIG;
 
+        /**
+         * Preview uses an UNSPECIFIED dynamic range by default. This means the dynamic range can be
+         * inherited from other use cases during dynamic range resolution when the use case is
+         * bound.
+         */
+        private static final DynamicRange DEFAULT_DYNAMIC_RANGE = DynamicRange.UNSPECIFIED;
+
         static {
             Builder builder = new Builder()
                     .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY)
                     .setTargetAspectRatio(DEFAULT_ASPECT_RATIO)
                     .setResolutionSelector(DEFAULT_RESOLUTION_SELECTOR)
-                    .setCaptureType(UseCaseConfigFactory.CaptureType.PREVIEW);
+                    .setDynamicRange(DEFAULT_DYNAMIC_RANGE);
             DEFAULT_CONFIG = builder.getUseCaseConfig();
         }
 
@@ -777,6 +822,7 @@ public final class Preview extends UseCase {
     public static final class Builder
             implements UseCaseConfig.Builder<Preview, PreviewConfig, Builder>,
             ImageOutputConfig.Builder<Builder>,
+            ImageInputConfig.Builder<Builder>,
             ThreadConfig.Builder<Builder> {
 
         private final MutableOptionsBundle mMutableConfig;
@@ -799,6 +845,7 @@ public final class Preview extends UseCase {
                                 + oldConfigClass);
             }
 
+            setCaptureType(UseCaseConfigFactory.CaptureType.PREVIEW);
             setTargetClass(Preview.class);
             mutableConfig.insertOption(OPTION_MIRROR_MODE, Defaults.DEFAULT_MIRROR_MODE);
         }
@@ -1105,6 +1152,88 @@ public final class Preview extends UseCase {
             return this;
         }
 
+        // Implementations of ImageInputConfig.Builder default methods
+
+        /**
+         * Sets the {@link DynamicRange}.
+         *
+         * <p>Dynamic range specifies how the range of colors, highlights and shadows captured by
+         * the frame producer are represented on a display. Some dynamic ranges allow the preview
+         * surface to make full use of the extended range of brightness of the display.
+         *
+         * <p>The supported dynamic ranges for preview depend on the capabilities of the
+         * camera and the ability of the {@link Surface} provided by the
+         * {@link Preview.SurfaceProvider} to consume the dynamic range. The supported dynamic
+         * ranges of the camera can be queried using
+         * {@link CameraInfo#querySupportedDynamicRanges(Set)}.
+         *
+         * <p>As an example, if the {@link Surface} provided by {@link Preview.SurfaceProvider}
+         * comes from a {@link SurfaceView}, such as with
+         * {@link androidx.camera.viewfinder.CameraViewfinder CameraViewfinder} set to
+         * implementation mode
+         * {@link androidx.camera.viewfinder.CameraViewfinder.ImplementationMode#PERFORMANCE
+         * PERFORMANCE}, you may want to query the dynamic ranges supported by the display:
+         * <pre>
+         *   <code>
+         *
+         *        // Get supported HDR dynamic ranges from the display
+         *        Display display = requireContext().getDisplay();
+         *        List&lt;Integer&gt; displayHdrTypes =
+         *                display.getHdrCapabilities().getSupportedHdrTypes();
+         *        Set&lt;DynamicRange&gt; displayHighDynamicRanges =
+         *                // Simple map of Display.HdrCapabilities enums to CameraX DynamicRange
+         *                convertToDynamicRangeSet(displayHdrTypes);
+         *
+         *        // Query dynamic ranges supported by the camera from our
+         *        // dynamic ranges supported by the display.
+         *        mSupportedHighDynamicRanges =
+         *                mCameraInfo.querySupportedDynamicRanges(
+         *                        displayHighDynamicRanges);
+         *
+         *        // Update our UI picker for dynamic range.
+         *        ...
+         *
+         *
+         *        // Create the Preview use case from the dynamic range
+         *        // selected by the UI picker.
+         *        mPreview = new Preview.Builder()
+         *                .setDynamicRange(mSelectedDynamicRange)
+         *                .build();
+         *   </code>
+         * </pre>
+         *
+         * <p>If the dynamic range is not provided, the returned {@code Preview} use case will use
+         * a default of {@link DynamicRange#UNSPECIFIED}. When a {@code Preview} is bound with
+         * other use cases that specify a dynamic range, such as
+         * {@link androidx.camera.video.VideoCapture}, and the preview dynamic range is {@code
+         * UNSPECIFIED}, the resulting dynamic range of the preview will usually match the other
+         * use case's dynamic range. If no other use cases are bound with the preview, an
+         * {@code UNSPECIFIED} dynamic range will resolve to {@link DynamicRange#SDR}. When
+         * using a {@code Preview} with another use case, it is recommended to leave the dynamic
+         * range of the {@code Preview} as {@link DynamicRange#UNSPECIFIED}, so the camera can
+         * choose the best supported dynamic range that satisfies the requirements of both use
+         * cases.
+         *
+         * <p>If an unspecified dynamic range is used, the resolved fully-defined dynamic range of
+         * frames sent from the camera will be communicated to the
+         * {@link Preview.SurfaceProvider} via {@link SurfaceRequest#getDynamicRange()}, and the
+         * provided {@link Surface} should be configured to use that dynamic range.
+         *
+         * <p>It is possible to choose a high dynamic range (HDR) with unspecified encoding by
+         * providing {@link DynamicRange#HDR_UNSPECIFIED_10_BIT}.
+         *
+         * @return The current Builder.
+         * @see DynamicRange
+         * @see CameraInfo#querySupportedDynamicRanges(Set)
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public Builder setDynamicRange(@NonNull DynamicRange dynamicRange) {
+            getMutableConfig().insertOption(OPTION_INPUT_DYNAMIC_RANGE, dynamicRange);
+            return this;
+        }
+
         // Implementations of ThreadConfig.Builder default methods
 
         /**
@@ -1145,6 +1274,57 @@ public final class Preview extends UseCase {
         @NonNull
         public Builder setTargetFrameRate(@NonNull Range<Integer> targetFrameRate) {
             getMutableConfig().insertOption(OPTION_TARGET_FRAME_RATE, targetFrameRate);
+            return this;
+        }
+
+        /**
+         * Enable preview stabilization. It will enable stabilization for both the preview and
+         * video capture use cases.
+         *
+         * <p>Devices running Android 13 or higher can provide support for video stabilization.
+         * This feature lets apps provide a what you see is what you get (WYSIWYG) experience
+         * when comparing between the camera preview and the recording.
+         *
+         * <p>It is recommended to query the device capability via
+         * {@link PreviewCapabilities#isStabilizationSupported()} before enabling this feature,
+         * otherwise HAL error might be thrown.
+         *
+         * <p> If both preview stabilization and video stabilization are enabled or disabled, the
+         * final result will be
+         *
+         * <p>
+         * <table>
+         * <tr> <th id="rb">Preview</th> <th id="rb">VideoCapture</th>   <th id="rb">Result</th>
+         * </tr>
+         * <tr> <td>ON</td> <td>ON</td> <td>Both Preview and VideoCapture will be stabilized,
+         * VideoCapture quality might be worse than only VideoCapture stabilized</td>
+         * </tr>
+         * <tr> <td>ON</td> <td>OFF</td> <td>None of Preview and VideoCapture will be
+         * stabilized</td>  </tr>
+         * <tr> <td>ON</td> <td>NOT SPECIFIED</td> <td>Both Preview and VideoCapture will be
+         * stabilized</td>  </tr>
+         * <tr> <td>OFF</td> <td>ON</td> <td>None of Preview and VideoCapture will be
+         * stabilized</td>  </tr>
+         * <tr> <td>OFF</td> <td>OFF</td> <td>None of Preview and VideoCapture will be
+         * stabilized</td>  </tr>
+         * <tr> <td>OFF</td> <td>NOT SPECIFIED</td> <td>None of Preview and VideoCapture will be
+         * stabilized</td>  </tr>
+         * <tr> <td>NOT SPECIFIED</td> <td>ON</td> <td>Only VideoCapture will be stabilized,
+         * Preview might be stabilized depending on devices</td>
+         * </tr>
+         * <tr> <td>NOT SPECIFIED</td> <td>OFF</td> <td>None of Preview and VideoCapture will be
+         * stabilized</td>  </tr>
+         * </table><br>
+         *
+         * @param enabled True if enable, otherwise false.
+         * @return the current Builder.
+         *
+         * @see PreviewCapabilities#isStabilizationSupported()
+         */
+        @NonNull
+        public Builder setPreviewStabilizationEnabled(boolean enabled) {
+            getMutableConfig().insertOption(OPTION_PREVIEW_STABILIZATION_MODE,
+                    enabled ? StabilizationMode.ON : StabilizationMode.OFF);
             return this;
         }
 
@@ -1189,14 +1369,6 @@ public final class Preview extends UseCase {
         @NonNull
         public Builder setSurfaceOccupancyPriority(int priority) {
             getMutableConfig().insertOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, priority);
-            return this;
-        }
-
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @Override
-        @NonNull
-        public Builder setCameraSelector(@NonNull CameraSelector cameraSelector) {
-            getMutableConfig().insertOption(OPTION_CAMERA_SELECTOR, cameraSelector);
             return this;
         }
 

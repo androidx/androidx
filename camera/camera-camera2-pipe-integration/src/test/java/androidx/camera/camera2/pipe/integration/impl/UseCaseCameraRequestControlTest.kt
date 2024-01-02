@@ -86,10 +86,10 @@ class UseCaseCameraRequestControlTest {
     private val fakeUseCaseCameraState = UseCaseCameraState(
         useCaseGraphConfig = fakeUseCaseGraphConfig,
         threads = useCaseThreads,
+        sessionProcessorManager = null,
     )
     private val requestControl = UseCaseCameraRequestControlImpl(
         capturePipeline = FakeCapturePipeline(),
-        configAdapter = fakeConfigAdapter,
         state = fakeUseCaseCameraState,
         useCaseGraphConfig = fakeUseCaseGraphConfig,
     )

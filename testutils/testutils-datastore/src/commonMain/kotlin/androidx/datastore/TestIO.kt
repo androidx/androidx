@@ -97,6 +97,16 @@ abstract class TestIO<F : TestFile<F>, IOE : Throwable>(
 
 abstract class TestFile<T : TestFile<T>> {
     /**
+     * The name of the file, including the extension
+     */
+    abstract val name: String
+
+    /**
+     * Get the canonical path for the file.
+     */
+    abstract fun path(): String
+
+    /**
      * Deletes the file if it exists.
      * Will return `false` if the file does not exist or cannot be deleted. (similar to File.delete)
      */

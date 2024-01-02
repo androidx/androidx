@@ -29,15 +29,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.PrimaryPressedPointerButtons
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
+import androidx.compose.ui.draganddrop.DragAndDropManager
 import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.focus.FocusDirection.Companion.In
+import androidx.compose.ui.focus.FocusDirection.Companion.Enter
+import androidx.compose.ui.focus.FocusDirection.Companion.Exit
 import androidx.compose.ui.focus.FocusDirection.Companion.Next
-import androidx.compose.ui.focus.FocusDirection.Companion.Out
 import androidx.compose.ui.focus.FocusDirection.Companion.Previous
 import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.focus.FocusOwnerImpl
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.asComposeCanvas
 import androidx.compose.ui.input.InputMode.Companion.Keyboard
 import androidx.compose.ui.input.InputModeManager
@@ -61,6 +63,8 @@ import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.PositionCalculator
 import androidx.compose.ui.input.pointer.ProcessResult
 import androidx.compose.ui.input.pointer.TestPointerInputEventData
+import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.layout.PlacementScope
 import androidx.compose.ui.layout.RootMeasurePolicy
 import androidx.compose.ui.modifier.ModifierLocalManager
 import androidx.compose.ui.node.InternalCoreApi
@@ -72,7 +76,6 @@ import androidx.compose.ui.node.OwnerSnapshotObserver
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.semantics.EmptySemanticsElement
 import androidx.compose.ui.semantics.SemanticsOwner
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.text.platform.FontLoader
@@ -88,7 +91,6 @@ private typealias Command = () -> Unit
 
 @OptIn(
     ExperimentalComposeUiApi::class,
-    ExperimentalTextApi::class,
     InternalCoreApi::class,
     InternalComposeUiApi::class
 )
@@ -96,7 +98,7 @@ internal class SkiaBasedOwner(
     private val platformInputService: PlatformInput,
     private val component: PlatformComponent,
     density: Density = Density(1f, 1f),
-    coroutineContext: CoroutineContext,
+    override val coroutineContext: CoroutineContext,
     val isPopup: Boolean = false,
     val isFocusable: Boolean = true,
     val onDismissRequest: (() -> Unit)? = null,
@@ -122,12 +124,12 @@ internal class SkiaBasedOwner(
 
     private val semanticsModifier = EmptySemanticsElement
 
-    override val focusOwner: FocusOwner = FocusOwnerImpl {
-        registerOnEndApplyChangesListener(it)
-    }.apply {
-        // TODO(demin): support RTL [onRtlPropertiesChanged]
-        layoutDirection = LayoutDirection.Ltr
-    }
+    override val focusOwner: FocusOwner = FocusOwnerImpl(
+        onRequestApplyChangesListener = ::registerOnEndApplyChangesListener,
+        onRequestFocusForOwner = { _, _ -> true }, // TODO request focus from framework.
+        onClearFocusForOwner = {}, // TODO clear focus from framework.
+        layoutDirection = { layoutDirection } // TODO(demin): support RTL [onRtlPropertiesChanged].
+    )
 
     // TODO: Set the input mode. For now we don't support touch mode, (always in Key mode).
     private val _inputModeManager = InputModeManagerImpl(
@@ -184,8 +186,6 @@ internal class SkiaBasedOwner(
             .onKeyEvent(onKeyEvent)
     }
 
-    override val coroutineContext: CoroutineContext = coroutineContext
-
     override val rootForTest = this
 
     override val snapshotObserver = OwnerSnapshotObserver { command ->
@@ -200,7 +200,8 @@ internal class SkiaBasedOwner(
         snapshotObserver.startObserving()
         root.attach(this)
         focusOwner.focusTransactionManager.withNewTransaction {
-            focusOwner.takeFocus()
+            // TODO instead of taking focus here, call this when the owner gets focused.
+            focusOwner.takeFocus(Enter, previouslyFocusedRect = null)
         }
     }
 
@@ -210,6 +211,9 @@ internal class SkiaBasedOwner(
     }
 
     override val textInputService = TextInputService(platformInputService)
+
+    override val softwareKeyboardController: SoftwareKeyboardController =
+        DelegatingSoftwareKeyboardController(textInputService)
 
     @Deprecated(
         "fontLoader is deprecated, use fontFamilyResolver",
@@ -229,6 +233,8 @@ internal class SkiaBasedOwner(
 
     override val semanticsOwner: SemanticsOwner = SemanticsOwner(root)
 
+    override val dragAndDropManager: DragAndDropManager get() = TODO("Not yet implemented")
+
     override val autofillTree = AutofillTree()
 
     override val autofill: Autofill? get() = null
@@ -237,6 +243,11 @@ internal class SkiaBasedOwner(
 
     override fun sendKeyEvent(keyEvent: KeyEvent): Boolean =
         sendKeyEvent(platformInputService, focusOwner, keyEvent)
+
+    override fun forceAccessibilityForTesting() = TODO("Not yet implemented")
+
+    override fun setAccessibilityEventBatchIntervalMillis(accessibilityInterval: Long) =
+        TODO("Not yet implemented")
 
     override var showLayoutBounds = false
 
@@ -290,6 +301,8 @@ internal class SkiaBasedOwner(
 
     var contentSize = IntSize.Zero
         private set
+
+    override val placementScope: Placeable.PlacementScope = PlacementScope(this)
 
     override fun measureAndLayout(sendPointerUpdate: Boolean) {
         measureAndLayoutDelegate.updateRootConstraints(constraints)
@@ -380,8 +393,8 @@ internal class SkiaBasedOwner(
     override fun getFocusDirection(keyEvent: KeyEvent): FocusDirection? {
         return when (keyEvent.key) {
             Tab -> if (keyEvent.isShiftPressed) Previous else Next
-            DirectionCenter -> In
-            Back -> Out
+            DirectionCenter -> Enter
+            Back -> Exit
             else -> null
         }
     }
@@ -391,6 +404,8 @@ internal class SkiaBasedOwner(
     override fun calculateLocalPosition(positionInWindow: Offset): Offset = positionInWindow
 
     override fun localToScreen(localPosition: Offset): Offset = localPosition
+
+    override fun localToScreen(localTransform: Matrix) {}
 
     override fun screenToLocal(positionOnScreen: Offset): Offset = positionOnScreen
 

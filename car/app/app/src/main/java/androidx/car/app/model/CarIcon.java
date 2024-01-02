@@ -160,7 +160,7 @@ public final class CarIcon {
     public static final int TYPE_PAN = 7;
 
     /**
-     * A compose message icon.
+     * A message icon.
      *
      * @see #COMPOSE_MESSAGE
      */
@@ -199,7 +199,7 @@ public final class CarIcon {
     public static final CarIcon PAN = CarIcon.forStandardType(TYPE_PAN);
 
     /**
-     * An icon representing a compose action.
+     * An icon that represents the user's intent to send a message.
      */
     @RequiresCarApi(7)
     @NonNull

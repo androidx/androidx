@@ -61,6 +61,8 @@ class FrameBufferView(context: Context) : SurfaceView(context) {
 
         override fun onDrawFrame(
             eglManager: EGLManager,
+            width: Int,
+            height: Int,
             bufferInfo: BufferInfo,
             transform: FloatArray
         ) {

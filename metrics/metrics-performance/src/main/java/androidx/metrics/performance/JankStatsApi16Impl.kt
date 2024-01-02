@@ -21,7 +21,6 @@ import android.os.Message
 import android.view.Choreographer
 import android.view.View
 import android.view.ViewTreeObserver
-import androidx.annotation.RequiresApi
 import java.lang.ref.WeakReference
 import java.lang.reflect.Field
 
@@ -29,7 +28,6 @@ import java.lang.reflect.Field
  * Subclass of JankStatsBaseImpl records frame timing data for API 16 and later,
  * using Choreographer (which was introduced in API 16).
  */
-@RequiresApi(16)
 internal open class JankStatsApi16Impl(
     jankStats: JankStats,
     view: View
@@ -146,7 +144,6 @@ internal abstract class OnFrameListenerDelegate {
  * timing details. This listener delegates to a list of OnFrameListenerDelegate objects,
  * which do the work of sending that data to JankStats instance clients.
  */
-@RequiresApi(16)
 internal open class DelegatingOnPreDrawListener(
     decorView: View,
     val choreographer: Choreographer,

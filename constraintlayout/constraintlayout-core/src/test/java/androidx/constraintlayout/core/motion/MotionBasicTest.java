@@ -155,6 +155,28 @@ public class MotionBasicTest {
     }
 
     @Test
+    public void testOscillatorAtKeyframe() {
+        Oscillator o = new Oscillator();
+        o.setType(Oscillator.SIN_WAVE, null);
+        o.addPoint(0, 0);
+        o.addPoint(0.2, 2);
+        o.addPoint(0.5, 0);
+        o.addPoint(0.7, 3);
+        o.addPoint(1, 1);
+        o.normalize();
+
+        // Value expected at 20%
+        double expectedAt20 = -0.7818315892114756;
+        assertEquals(expectedAt20, o.getValue(0.2, 0), 0.00001);
+
+        // To prove that this value is continuous, we'll test it slightly before and after the
+        // keyframe
+        double error = 0.001;
+        assertTrue(Math.abs(expectedAt20 - o.getValue(0.19999, 0)) < error);
+        assertTrue(Math.abs(expectedAt20 - o.getValue(0.20001, 0)) < error);
+    }
+
+    @Test
     public void testStopLogic01() throws Exception {
         String[] results = {
                 "[0.4, 0.36, 0.42, 0.578, 0.778, 0.938, 0.999, 1, 1, 1]",

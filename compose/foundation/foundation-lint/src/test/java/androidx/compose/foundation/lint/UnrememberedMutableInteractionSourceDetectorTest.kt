@@ -32,7 +32,7 @@ class UnrememberedMutableInteractionSourceDetectorTest : LintDetectorTest() {
     private val InteractionSourceStub: TestFile = bytecodeStub(
         filename = "InteractionSource.kt",
         filepath = "androidx/compose/foundation/interaction",
-        checksum = 0x7b8a9d44,
+        checksum = 0xac2a176d,
         source = """
         package androidx.compose.foundation.interaction
 
@@ -46,54 +46,54 @@ class UnrememberedMutableInteractionSourceDetectorTest : LintDetectorTest() {
         """,
 """
         META-INF/main.kotlin_module:
-        H4sIAAAAAAAA/2NgYGBmYGBgBGIOBijgsuNST8xLKcrPTKnQS87PLcgvTtVL
-        yy/NS0ksyczP08vMK0ktSkwGsYWEPRGc4PzSouRU7xIuNS4JDP1FpXklmbmp
-        QlxBqbmpuUmpRUB1fFwsJanFJUJsIUDSu0SJQYsBAEnB5baQAAAA
+        H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgsuNST8xLKcrPTKnQS87PLcgvTtVL
+        yy/NS0ksyczP08vMK0ktSkwGsYWEPRGc4PzSouRU7xIubi6WktTiEiHmeO8S
+        JQYtBgD0QcfwZQAAAA==
         """,
         """
         androidx/compose/foundation/interaction/InteractionSource.class:
-        H4sIAAAAAAAA/52OP0/DMBDF3znQhPAvhVYqX4K0FQvqxIIUqQgJJJZMbuIi
-        N4mNYqfq2M/VAXXmQyGcdGBg4yw9/+5Ouve+vnefAO4wJNxzldda5ps409WH
-        NiJe6kbl3EqtYqmsqHnWcfLLr7qpM+GDCNGKr3lccvUePy9WIrM+PEJ/Xmhb
-        ShU/CcvdLT4jsGrtOVNqJWgFBCrcfCPbbuwonxCG+20QshELWeRoOdpvp2xM
-        7XJKmM3/ndYlcIaDP/PbwhLCAz/KUhBuXhplZSXepJGLUjwopW1nYHouBo5w
-        KIbrTq8wcP/EHT92r5fCS+AnCBKcIHSI0wRnOE9BBhe4TMEMIoP+DyYeb+yF
+        H4sIAAAAAAAA/52OP0/DMBDF3znQtOFfCq1UvgRuKxbUiQUpUhESSCyZ3MRF
+        bhIbxW7VsZ+LAXXmQyGcdGBg4yw9/+5Ouve+vj8+AdxiSLgTOq+Nyrc8M9W7
+        sZIvzVrnwimjudJO1iJrOfnlF7OuMxmCCPFKbAQvhX7jT4uVzFyIgNCfF8aV
+        SvNH6YS/JWYEVm0Cb0qN9BoBgQo/36qmG3vKJ4ThfteN2IhFLPa0HO13Uzam
+        ZjklzOb/TusTeMPBn/lN4QjRgR9UKQnXz2vtVCVflVWLUt5rbVxrYDs+Bo5w
+        KIarVi8x8P/EHz/2r5MiSBAm6CboIfKIkwSnOEtBFue4SMEsYov+D8H/p5CF
         AQAA
         """,
         """
         androidx/compose/foundation/interaction/InteractionSourceKt.class:
-        H4sIAAAAAAAA/61R30sbQRD+5qIXPW2NP5vE/s6Lvnim+GaRtkrhaJpCW4SS
-        p01uK5vc7crdXvAxf1LfBAXJc/8ocTYKPoSCYPdh5pvZb77Znfl7fXEFYA8N
-        wr7QcWZUfBb2THpqchn+NoWOhVVGh0pbmYneBEf3+Icpsp78YssgQqUvhiJM
-        hD4Jv3X7ssfZEqH6tbCim8ipKsLR1nbroU3/pbJPaLRMdhL2pe1mQuk8FFob
-        O1HIw7ax7SJJmHX02E5RepqUMUfw3yut7AGhtLV9vIgACwHmsUj48NgWZTwl
-        LLcGxiaKWdIKLhb8eC8dlnhP5MycMyDQwAGPL8+UQ7uM4iZhdTzyg/Eo8Kpe
-        3a+MR3Vvl9zVO8Kn/zHutankzsASZg5NzDtdaikt20XaldlPp0DY/F5oq1LW
-        Gqpccerj/X4Iwa3EZ+WotTvq8RQRTXiYwe3Pa5iFz/FLjhrs3Vm4xPyvczwZ
-        Y+nPhPSKrc+eB4bXd7jsBoY3E/sCb9k3OVthueUOShFWIqxGWMN6hA08i1BF
-        rQPKUcdmB16O2RzPbwCz5fAqMwMAAA==
+        H4sIAAAAAAAA/61R308TQRD+5gpXevwqAtoWRbAv8OJR4xvGqBCSi7UmakhM
+        n7a9lWx7t0vu9hoe+yf5ZqIJ6bN/lHG2kPDQkJDAPsx8M/vNN7szf//9vgTw
+        Gk3CodBxZlR8EfZNem5yGf4whY6FVUaHSluZif4URzf4qymyvvxoyyBCdSBG
+        IkyEPgs/9wayz9kSofapsKKXyJkqwvHefvuuTW9TOSQ02yY7CwfS9jKhdB4K
+        rY2dKuRhx9hOkSTMOr5vpyg9T8pYIPhvlFb2LaG0t3+6hACLASpYIry7b4sy
+        Vghr7aGxiWKWtIKLBT/eS0cl3hM5U3EGBBo64PHlhXLogFHcIqxPxn4wGQde
+        zWv41cm44R2Qu3pF+PAQ496YSb4cWsLckYl5p6ttpWWnSHsy++YUCFtfCm1V
+        ylojlStOvb/ZDyG4kjhRjlq/pp7OENGChzlc/byOefgcb3PUZO/O4h9Uvv/C
+        8gSrP6ek52x99sACdq5x2Q0Mu1P7DC/YtzhbZbm1LkoRHkVYj7CBzQiP8SRC
+        DfUuKEcDW114OeZzPP0PDZ9NFzMDAAA=
         """,
         """
         androidx/compose/foundation/interaction/MutableInteractionSource.class:
-        H4sIAAAAAAAA/6VQvU7DMBi8L4E2hL8WApSXIG3VBXUBBqRIRUggsXRyExe5
-        SWyUOFXHPhcD6sxDIb6UgYEOlRh8Pp/1ne/8+fX+AWCAC8KN0ElhVLIIY5O/
-        mVKGU1PpRFhldKi0lYWI1/yhsmKSyehXejZVEcsmiNCaibkIM6Ffw8fJTMa2
-        CZdwva33BtNdQnuUGpspflpawVNiSHDyucvRqQavBhAoZX2h6lOXWdIjBKul
-        5zsdp17etLNa9p0u1Xd9wt3ov5U5x3Brk03TwR/xKrUE/4ffq0wSLp8qbVUu
-        X1SpOMSt1sau3csGF8EOF2/U/ZmfrTHAOe891vn34I3hRtiL4EfYxwFTHEY4
-        wvEYVKKF9hhOiZMSp9/lIS6TDgIAAA==
+        H4sIAAAAAAAA/6VQvU7DMBi8L4E2DX8tBCgvQdqKBXUBBqRIRUggsWRyExe5
+        SW3UOFXHPhcD6sxDIb6EgYEOlRh8Pp/1ne/8+fX+AeAK54QbodO5UekyTMzs
+        zRQynJhSp8Iqo0OlrZyLpOYPpRXjXEa/0rMp54lsggjtqViIMBf6NXwcT2Vi
+        m3AJ19t6bzDdJXRGmbG54qelFTwlhgRntnA5OlXQqgAEylhfqurUY5b2CcF6
+        5flO16mWN+muVwOnR9XdgHA3+m9lzjHc2mTTdPBHvMwswf/h9yqXhIunUls1
+        ky+qUBziVmtja/eiwUWww8UbVX/mpzUGOOO9zzr/HrwYboRWBD/CHvaZ4iDC
+        IY5iUIE2OjGcAscFTr4BtDhpnA4CAAA=
         """,
         """
         androidx/compose/foundation/interaction/MutableInteractionSourceImpl.class:
-        H4sIAAAAAAAA/61Sy04bMRQ91yGPTgMESiG0PLa0i06KugNVvIQ0UgpSi7Jh
-        5cy4xWTGRjMexDLf0j/oColFFXXJR1VcTyp1wRIWPjrn3Ieur33/9+43gE/Y
-        JBxJk+RWJzdhbLMrW6jwuy1NIp22JtTGqVzGFf9SOjlMVfTf+mbLPFZRdpU2
-        QYTOpbyWYSrNj/B0eKli10SNsPfU/k3UCY1dbbT7TKhtvRu00UQrwAxeEGbc
-        hS4Ix/3nuMYOYaE/si7VnKec5HLJnsiua7wu8tDyAAKN2L/RXvWYJR8Jm5Nx
-        EIiuqM5k3BLdyXhb9Oig/udnQ3SET9smHDx5VB5p6ZH5YeR4G4c2UYT5vjbq
-        pMyGKj/zHQiLfRvLdCBz7fU/M5hWHmsvVr+WxulMDXShObpvjHXVSAV6ELxs
-        foTpzf32Gd+wCisN1N/fIvjFROAtY6MyA6wxtqcJeMnMx9crXMVG9QEJsxyb
-        O0ctwnyEToQFLDLFqwhLeH0OKrCMFY4XaBfoFmg9AJ+La3K9AgAA
+        H4sIAAAAAAAA/61Sy04bMRQ91yEPpqEEyiO0ULa0i06KugOhFhDSSGkrFZQN
+        K2fGUJMZG814EMt8S/+AFRILFLHsR6FeT5C66JIufHTOuQ9dX/v34909gE/Y
+        JBxKk+RWJ9dhbLNLW6jwzJYmkU5bE2rjVC7jin8tnRymKvprHdsyj1WUXaZN
+        EKFzIa9kmEpzHn4fXqjYNVEjfH5u/ybqhMauNtrtEWpb7wZtNNEKMINZwoz7
+        qQvCUf9/XGOHsNAfWZdqzlNOcrlkT2RXNV4XeZj1AAKN2L/WXvWYJR8Jm5Nx
+        EIiuqM5k3BLdyXhb9Gi//vCrITrCp20T9p89Ko+09I/5YeR4Gwc2UYT5vjbq
+        W5kNVX7iOxAW+zaW6UDm2usnM5hWHmkv1n6UxulMDXShOfrFGOuqkQr0IHjZ
+        /AjTm/vtM75mFVYaqL+/RXDDROANY6MyA6wztqcJeMHMxzcqXMPb6gMS5jj2
+        8hS1CPMROhEWsMgUryIsYfkUVGAFqxwv0C7QLdD6A/UGq929AgAA
         """
     )
 

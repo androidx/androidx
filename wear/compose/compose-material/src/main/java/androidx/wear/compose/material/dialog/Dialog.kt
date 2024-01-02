@@ -51,7 +51,7 @@ import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.Scaffold
 import androidx.wear.compose.material.ToggleChip
 import androidx.wear.compose.material.contentColorFor
-import androidx.wear.compose.material.isRoundDevice
+import androidx.wear.compose.materialcore.isRoundDevice
 import kotlinx.coroutines.delay
 
 /**

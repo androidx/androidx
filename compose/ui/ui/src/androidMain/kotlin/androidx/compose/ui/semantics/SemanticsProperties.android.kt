@@ -28,6 +28,7 @@ object SemanticsPropertiesAndroid {
     @ExperimentalComposeUiApi
     val TestTagsAsResourceId = SemanticsPropertyKey<Boolean>(
         name = "TestTagsAsResourceId",
+        isImportantForAccessibility = false,
         mergePolicy = { parentValue, _ -> parentValue }
     )
 }

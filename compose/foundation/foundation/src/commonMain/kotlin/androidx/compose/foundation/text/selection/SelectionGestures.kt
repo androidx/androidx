@@ -165,18 +165,16 @@ private suspend fun AwaitPointerEventScope.mouseSelection(
             observer.onDragDone()
         }
     } else {
-        val selectionMode = when (clicksCounter.clicks) {
-            // TODO(b/281585400) switch 1 to Character adjustment.
-            //     This will result in multi text bugs,
-            //     like a blank line selection resulting in a single char being selected.
+        val selectionAdjustment = when (clicksCounter.clicks) {
             1 -> SelectionAdjustment.None
             2 -> SelectionAdjustment.Word
             else -> SelectionAdjustment.Paragraph
         }
-        val started = observer.onStart(downChange.position, selectionMode)
+
+        val started = observer.onStart(downChange.position, selectionAdjustment)
         if (started) {
             val shouldConsumeUp = drag(downChange.id) {
-                if (observer.onDrag(it.position, selectionMode)) {
+                if (observer.onDrag(it.position, selectionAdjustment)) {
                     it.consume()
                 }
             }

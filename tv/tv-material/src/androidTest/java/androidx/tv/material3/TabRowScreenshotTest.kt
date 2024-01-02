@@ -203,10 +203,10 @@ class TabRowScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 TabRow(
                     selectedTabIndex = selectedTabIndex,
                     separator = { Spacer(modifier = Modifier.width(12.dp)) },
-                    indicator = { tabPositions, isisActivated ->
+                    indicator = { tabPositions, doesTabRowHaveFocus ->
                         TabRowDefaults.UnderlinedIndicator(
                             currentTabPosition = tabPositions[selectedTabIndex],
-                            isActivated = isisActivated,
+                            doesTabRowHaveFocus = doesTabRowHaveFocus,
                         )
                     }
                 ) {
@@ -247,10 +247,10 @@ class TabRowScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 TabRow(
                     selectedTabIndex = selectedTabIndex,
                     separator = { Spacer(modifier = Modifier.width(12.dp)) },
-                    indicator = { tabPositions, isActivated ->
+                    indicator = { tabPositions, doesTabRowHaveFocus ->
                         TabRowDefaults.UnderlinedIndicator(
                             currentTabPosition = tabPositions[selectedTabIndex],
-                            isActivated = isActivated,
+                            doesTabRowHaveFocus = doesTabRowHaveFocus,
                         )
                     }
                 ) {
@@ -297,10 +297,10 @@ class TabRowScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 TabRow(
                     selectedTabIndex = selectedTabIndex,
                     separator = { Spacer(modifier = Modifier.width(12.dp)) },
-                    indicator = { tabPositions, isActivated ->
+                    indicator = { tabPositions, doesTabRowHaveFocus ->
                         TabRowDefaults.UnderlinedIndicator(
                             currentTabPosition = tabPositions[selectedTabIndex],
-                            isActivated = isActivated,
+                            doesTabRowHaveFocus = doesTabRowHaveFocus,
                         )
                     },
                 ) {

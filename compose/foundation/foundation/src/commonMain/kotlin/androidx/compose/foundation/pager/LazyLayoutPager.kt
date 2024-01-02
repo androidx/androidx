@@ -19,14 +19,12 @@ package androidx.compose.foundation.pager
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.clipScrollableContainer
-import androidx.compose.foundation.gestures.BringIntoViewScroller
+import androidx.compose.foundation.gestures.BringIntoViewSpec
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
+import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.layout.IntervalList
 import androidx.compose.foundation.lazy.layout.LazyLayout
@@ -36,15 +34,18 @@ import androidx.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
 import androidx.compose.foundation.lazy.layout.LazyLayoutPinnableItem
 import androidx.compose.foundation.lazy.layout.MutableIntervalList
 import androidx.compose.foundation.lazy.layout.NearestRangeKeyIndexMap
+import androidx.compose.foundation.lazy.layout.lazyLayoutBeyondBoundsModifier
 import androidx.compose.foundation.lazy.layout.lazyLayoutSemantics
-import androidx.compose.foundation.overscroll
+import androidx.compose.foundation.scrollingContainer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.PointerEventPass
@@ -75,8 +76,8 @@ internal fun Pager(
     flingBehavior: SnapFlingBehavior,
     /** Whether scrolling via the user gestures is allowed. */
     userScrollEnabled: Boolean,
-    /** Number of pages to layout before and after the visible pages */
-    beyondBoundsPageCount: Int = 0,
+    /** Number of pages to compose and layout before and after the visible pages */
+    outOfBoundsPageCount: Int = PagerDefaults.OutOfBoundsPageCount,
     /** Space between pages */
     pageSpacing: Dp = 0.dp,
     /** Allows to change how to calculate the Page size */
@@ -89,15 +90,15 @@ internal fun Pager(
     horizontalAlignment: Alignment.Horizontal,
     /** The alignment to align pages vertically. Required when isVertical is false */
     verticalAlignment: Alignment.Vertical,
-    /** The content of the list */
+    /** The final positioning of [PagerState.currentPage] in this layout */
+    snapPosition: SnapPosition,
+    /** The content of the pager */
     pageContent: @Composable PagerScope.(page: Int) -> Unit
 ) {
-    require(beyondBoundsPageCount >= 0) {
-        "beyondBoundsPageCount should be greater than or equal to 0, " +
-            "you selected $beyondBoundsPageCount"
+    require(outOfBoundsPageCount >= 0) {
+        "outOfBoundsPageCount should be greater than or equal to 0, " +
+            "you selected $outOfBoundsPageCount"
     }
-
-    val overscrollEffect = ScrollableDefaults.overscrollEffect()
 
     val pagerItemProvider = rememberPagerItemProviderLambda(
         state = state,
@@ -110,13 +111,14 @@ internal fun Pager(
         contentPadding = contentPadding,
         reverseLayout = reverseLayout,
         orientation = orientation,
-        beyondBoundsPageCount = beyondBoundsPageCount,
+        outOfBoundsPageCount = outOfBoundsPageCount,
         pageSpacing = pageSpacing,
         pageSize = pageSize,
         horizontalAlignment = horizontalAlignment,
         verticalAlignment = verticalAlignment,
         itemProviderLambda = pagerItemProvider,
-        pageCount = { state.pageCount },
+        snapPosition = snapPosition,
+        pageCount = { state.pageCount }
     )
 
     val pagerFlingBehavior = remember(flingBehavior, state) {
@@ -129,7 +131,9 @@ internal fun Pager(
         orientation == Orientation.Vertical
     )
 
-    val pagerBringIntoViewScroller = remember(state) { PagerBringIntoViewScroller(state) }
+    val pagerBringIntoViewSpec = remember(state) { PagerBringIntoViewSpec(state) }
+
+    val coroutineScope = rememberCoroutineScope()
 
     LazyLayout(
         modifier = modifier
@@ -140,29 +144,28 @@ internal fun Pager(
                 state = semanticState,
                 orientation = orientation,
                 userScrollEnabled = userScrollEnabled,
-                reverseScrolling = reverseLayout
+                reverseScrolling = reverseLayout,
+                coroutineScope = coroutineScope
             )
-            .clipScrollableContainer(orientation)
-            .pagerBeyondBoundsModifier(
-                state,
-                beyondBoundsPageCount,
-                reverseLayout,
-                orientation
-            )
-            .overscroll(overscrollEffect)
-            .scrollable(
-                orientation = orientation,
-                reverseDirection = ScrollableDefaults.reverseDirection(
-                    LocalLayoutDirection.current,
-                    orientation,
-                    reverseLayout
+            .lazyLayoutBeyondBoundsModifier(
+                state = rememberPagerBeyondBoundsState(
+                    state = state,
+                    outOfBoundsPageCount = outOfBoundsPageCount
                 ),
-                interactionSource = state.internalInteractionSource,
-                flingBehavior = pagerFlingBehavior,
+                beyondBoundsInfo = state.beyondBoundsInfo,
+                reverseLayout = reverseLayout,
+                layoutDirection = LocalLayoutDirection.current,
+                orientation = orientation,
+                enabled = userScrollEnabled
+            )
+            .scrollingContainer(
                 state = state,
-                overscrollEffect = overscrollEffect,
+                orientation = orientation,
                 enabled = userScrollEnabled,
-                bringIntoViewScroller = pagerBringIntoViewScroller
+                reverseScrolling = reverseLayout,
+                flingBehavior = pagerFlingBehavior,
+                interactionSource = state.internalInteractionSource,
+                bringIntoViewSpec = pagerBringIntoViewSpec
             )
             .dragDirectionDetector(state)
             .nestedScroll(pageNestedScrollConnection),
@@ -268,6 +271,7 @@ private fun Modifier.dragDirectionDetector(state: PagerState) =
                 val downEvent =
                     awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
                 var upEventOrCancellation: PointerInputChange? = null
+                state.upDownDifference = Offset.Zero // Reset
                 while (upEventOrCancellation == null) {
                     val event = awaitPointerEvent(pass = PointerEventPass.Initial)
                     if (event.changes.fastAll { it.changedToUp() }) {
@@ -282,7 +286,7 @@ private fun Modifier.dragDirectionDetector(state: PagerState) =
     }
 
 @OptIn(ExperimentalFoundationApi::class)
-private class PagerBringIntoViewScroller(val pagerState: PagerState) : BringIntoViewScroller {
+private class PagerBringIntoViewSpec(val pagerState: PagerState) : BringIntoViewSpec {
 
     override val scrollAnimationSpec: AnimationSpec<Float> = spring()
 

@@ -63,27 +63,47 @@ class PositionIndicatorBenchmark(
                 startActivityAndWait(intent)
             }
         ) {
-            val buttonShow = device.findObject(By.desc(CHANGE_VISIBILITY))
-            val buttonIncrease = device.findObject(By.desc(INCREASE_POSITION))
-            val buttonDecrease = device.findObject(By.desc(DECREASE_POSITION))
+            val buttonVisibilityAutoHide = device.findObject(By.desc(CHANGE_VISIBILITY_AUTO_HIDE))
+            val buttonVisibilityHide = device.findObject(By.desc(CHANGE_VISIBILITY_HIDE))
+            val buttonVisibilityShow = device.findObject(By.desc(CHANGE_VISIBILITY_SHOW))
 
-            // Setting a gesture margin is important otherwise gesture nav is triggered.
-            repeat(10) {
-                buttonIncrease?.let { it.click() }
-                device.waitForIdle()
-                sleep(500)
-            }
+            buttonVisibilityShow?.click()
 
-            repeat(10) {
-                buttonDecrease?.let { it.click() }
-                device.waitForIdle()
-                sleep(500)
-            }
+            // By default indicator visibility is Show
+            // Increase and decrease indicator 10 times 1 direction and 10 times another
+            repeatIncrementAndDecrement(10, 200)
 
-            repeat(4) {
-                buttonShow?.let { it.click() }
-                sleep(3000)
-            }
+            // Switch from Show to AutoHide
+            buttonVisibilityAutoHide?.click()
+
+            // Increase and decrease indicator with delay shorter than hiding delay
+            repeatIncrementAndDecrement(10, 200)
+
+            // Increase and decrease indicator with delay longer than hiding delay
+            repeatIncrementAndDecrement(3, 2500)
+
+            // Switch from Autohide to Hide
+            buttonVisibilityHide?.click()
+
+            // Increase and decrease indicator 10 times 1 direction and 10 times another
+            repeatIncrementAndDecrement(10, 200)
+        }
+    }
+
+    private fun repeatIncrementAndDecrement(times: Int, delayBetweenClicks: Long) {
+        val buttonIncrease = device.findObject(By.desc(INCREASE_POSITION))
+        val buttonDecrease = device.findObject(By.desc(DECREASE_POSITION))
+
+        repeat(times) {
+            buttonIncrease?.click()
+            device.waitForIdle()
+            sleep(delayBetweenClicks)
+        }
+
+        repeat(times) {
+            buttonDecrease?.click()
+            device.waitForIdle()
+            sleep(delayBetweenClicks)
         }
     }
 
@@ -94,7 +114,9 @@ class PositionIndicatorBenchmark(
                 ".POSITION_INDICATOR_ACTIVITY"
         private const val INCREASE_POSITION = "PI_INCREASE_POSITION"
         private const val DECREASE_POSITION = "PI_DECREASE_POSITION"
-        private const val CHANGE_VISIBILITY = "PI_VISIBILITY"
+        private const val CHANGE_VISIBILITY_SHOW = "PI_VISIBILITY_SHOW"
+        private const val CHANGE_VISIBILITY_HIDE = "PI_VISIBILITY_HIDE"
+        private const val CHANGE_VISIBILITY_AUTO_HIDE = "PI_VISIBILITY_AUTO_HIDE"
 
         @Parameterized.Parameters(name = "compilation={0}")
         @JvmStatic

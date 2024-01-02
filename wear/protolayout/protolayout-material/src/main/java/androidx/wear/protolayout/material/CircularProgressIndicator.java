@@ -19,16 +19,16 @@ package androidx.wear.protolayout.material;
 import static androidx.annotation.Dimension.DP;
 import static androidx.wear.protolayout.DimensionBuilders.degrees;
 import static androidx.wear.protolayout.DimensionBuilders.dp;
-import static androidx.wear.protolayout.material.Helper.checkNotNull;
-import static androidx.wear.protolayout.material.Helper.checkTag;
-import static androidx.wear.protolayout.material.Helper.getMetadataTagName;
-import static androidx.wear.protolayout.material.Helper.getTagBytes;
-import static androidx.wear.protolayout.material.Helper.staticFloat;
 import static androidx.wear.protolayout.material.ProgressIndicatorDefaults.DEFAULT_COLORS;
 import static androidx.wear.protolayout.material.ProgressIndicatorDefaults.DEFAULT_END_ANGLE;
 import static androidx.wear.protolayout.material.ProgressIndicatorDefaults.DEFAULT_PADDING;
 import static androidx.wear.protolayout.material.ProgressIndicatorDefaults.DEFAULT_START_ANGLE;
 import static androidx.wear.protolayout.material.ProgressIndicatorDefaults.DEFAULT_STROKE_WIDTH;
+import static androidx.wear.protolayout.materialcore.Helper.checkNotNull;
+import static androidx.wear.protolayout.materialcore.Helper.checkTag;
+import static androidx.wear.protolayout.materialcore.Helper.getMetadataTagName;
+import static androidx.wear.protolayout.materialcore.Helper.getTagBytes;
+import static androidx.wear.protolayout.materialcore.Helper.staticFloat;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -60,8 +60,7 @@ import androidx.wear.protolayout.proto.LayoutElementProto;
 
 /**
  * ProtoLayout component {@link CircularProgressIndicator} that represents circular progress
- * indicator which supports a gap in the circular track between startAngle and endAngle. [Progress
- * Indicator doc] (https://developer.android.com/training/wearables/components/progress-indicator)
+ * indicator which supports a gap in the circular track between startAngle and endAngle.
  *
  * <p>The CircularProgressIndicator is a colored arc around the edge of the screen with the given
  * start and end angles, which can describe a full or partial circle. Behind it is an arc with

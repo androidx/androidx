@@ -1,28 +1,29 @@
 package foo.bar;
 
 import androidx.annotation.NonNull;
-import androidx.room.DatabaseConfiguration;
 import androidx.room.InvalidationTracker;
-import androidx.room.RoomDatabase;
-import androidx.room.RoomOpenHelper;
+import androidx.room.RoomOpenDelegate;
 import androidx.room.migration.AutoMigrationSpec;
 import androidx.room.migration.Migration;
 import androidx.room.util.DBUtil;
 import androidx.room.util.TableInfo;
 import androidx.room.util.ViewInfo;
+import androidx.sqlite.SQLiteConnection;
+import androidx.sqlite.SQLiteKt;
 import androidx.sqlite.db.SupportSQLiteDatabase;
-import androidx.sqlite.db.SupportSQLiteOpenHelper;
 import java.lang.Class;
 import java.lang.Override;
 import java.lang.String;
 import java.lang.SuppressWarnings;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.processing.Generated;
+import kotlin.collections.CollectionsKt;
+import kotlin.collections.MapsKt;
+import kotlin.collections.SetsKt;
 
 @Generated("androidx.room.RoomProcessor")
 @SuppressWarnings({"unchecked", "deprecation"})
@@ -31,67 +32,48 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
 
     @Override
     @NonNull
-    protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
-        final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(1923) {
+    protected RoomOpenDelegate createOpenDelegate() {
+        final RoomOpenDelegate _openDelegate = new RoomOpenDelegate(1923, "12b646c55443feeefb567521e2bece85") {
             @Override
-            public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
-                db.execSQL("CREATE TABLE IF NOT EXISTS `User` (`uid` INTEGER NOT NULL, `name` TEXT, `lastName` TEXT, `ageColumn` INTEGER NOT NULL, PRIMARY KEY(`uid`))");
-                db.execSQL("CREATE TABLE IF NOT EXISTS `Child1` (`id` INTEGER NOT NULL, `name` TEXT, `serial` INTEGER, `code` TEXT, PRIMARY KEY(`id`))");
-                db.execSQL("CREATE TABLE IF NOT EXISTS `Child2` (`id` INTEGER NOT NULL, `name` TEXT, `serial` INTEGER, `code` TEXT, PRIMARY KEY(`id`))");
-                db.execSQL("CREATE VIEW `UserSummary` AS SELECT uid, name FROM User");
-                db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-                db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '12b646c55443feeefb567521e2bece85')");
+            public void createAllTables(@NonNull final SQLiteConnection connection) {
+                SQLiteKt.execSQL(connection, "CREATE TABLE IF NOT EXISTS `User` (`uid` INTEGER NOT NULL, `name` TEXT, `lastName` TEXT, `ageColumn` INTEGER NOT NULL, PRIMARY KEY(`uid`))");
+                SQLiteKt.execSQL(connection, "CREATE TABLE IF NOT EXISTS `Child1` (`id` INTEGER NOT NULL, `name` TEXT, `serial` INTEGER, `code` TEXT, PRIMARY KEY(`id`))");
+                SQLiteKt.execSQL(connection, "CREATE TABLE IF NOT EXISTS `Child2` (`id` INTEGER NOT NULL, `name` TEXT, `serial` INTEGER, `code` TEXT, PRIMARY KEY(`id`))");
+                SQLiteKt.execSQL(connection, "CREATE VIEW `UserSummary` AS SELECT uid, name FROM User");
+                SQLiteKt.execSQL(connection, "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
+                SQLiteKt.execSQL(connection, "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '12b646c55443feeefb567521e2bece85')");
             }
 
             @Override
-            public void dropAllTables(@NonNull final SupportSQLiteDatabase db) {
-                db.execSQL("DROP TABLE IF EXISTS `User`");
-                db.execSQL("DROP TABLE IF EXISTS `Child1`");
-                db.execSQL("DROP TABLE IF EXISTS `Child2`");
-                db.execSQL("DROP VIEW IF EXISTS `UserSummary`");
-                final List<? extends RoomDatabase.Callback> _callbacks = mCallbacks;
-                if (_callbacks != null) {
-                    for (RoomDatabase.Callback _callback : _callbacks) {
-                        _callback.onDestructiveMigration(db);
-                    }
-                }
+            public void dropAllTables(@NonNull final SQLiteConnection connection) {
+                SQLiteKt.execSQL(connection, "DROP TABLE IF EXISTS `User`");
+                SQLiteKt.execSQL(connection, "DROP TABLE IF EXISTS `Child1`");
+                SQLiteKt.execSQL(connection, "DROP TABLE IF EXISTS `Child2`");
+                SQLiteKt.execSQL(connection, "DROP VIEW IF EXISTS `UserSummary`");
             }
 
             @Override
-            public void onCreate(@NonNull final SupportSQLiteDatabase db) {
-                final List<? extends RoomDatabase.Callback> _callbacks = mCallbacks;
-                if (_callbacks != null) {
-                    for (RoomDatabase.Callback _callback : _callbacks) {
-                        _callback.onCreate(db);
-                    }
-                }
+            public void onCreate(@NonNull final SQLiteConnection connection) {
             }
 
             @Override
-            public void onOpen(@NonNull final SupportSQLiteDatabase db) {
-                mDatabase = db;
-                internalInitInvalidationTracker(db);
-                final List<? extends RoomDatabase.Callback> _callbacks = mCallbacks;
-                if (_callbacks != null) {
-                    for (RoomDatabase.Callback _callback : _callbacks) {
-                        _callback.onOpen(db);
-                    }
-                }
+            public void onOpen(@NonNull final SQLiteConnection connection) {
+                internalInitInvalidationTracker(connection);
             }
 
             @Override
-            public void onPreMigrate(@NonNull final SupportSQLiteDatabase db) {
-                DBUtil.dropFtsSyncTriggers(db);
+            public void onPreMigrate(@NonNull final SQLiteConnection connection) {
+                DBUtil.dropFtsSyncTriggers(connection);
             }
 
             @Override
-            public void onPostMigrate(@NonNull final SupportSQLiteDatabase db) {
+            public void onPostMigrate(@NonNull final SQLiteConnection connection) {
             }
 
             @Override
             @NonNull
-            public RoomOpenHelper.ValidationResult onValidateSchema(
-                    @NonNull final SupportSQLiteDatabase db) {
+            public RoomOpenDelegate.ValidationResult onValidateSchema(
+                    @NonNull final SQLiteConnection connection) {
                 final HashMap<String, TableInfo.Column> _columnsUser = new HashMap<String, TableInfo.Column>(4);
                 _columnsUser.put("uid", new TableInfo.Column("uid", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
                 _columnsUser.put("name", new TableInfo.Column("name", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -100,9 +82,9 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
                 final HashSet<TableInfo.ForeignKey> _foreignKeysUser = new HashSet<TableInfo.ForeignKey>(0);
                 final HashSet<TableInfo.Index> _indicesUser = new HashSet<TableInfo.Index>(0);
                 final TableInfo _infoUser = new TableInfo("User", _columnsUser, _foreignKeysUser, _indicesUser);
-                final TableInfo _existingUser = TableInfo.read(db, "User");
+                final TableInfo _existingUser = TableInfo.read(connection, "User");
                 if (!_infoUser.equals(_existingUser)) {
-                    return new RoomOpenHelper.ValidationResult(false, "User(foo.bar.User).\n"
+                    return new RoomOpenDelegate.ValidationResult(false, "User(foo.bar.User).\n"
                             + " Expected:\n" + _infoUser + "\n"
                             + " Found:\n" + _existingUser);
                 }
@@ -114,9 +96,9 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
                 final HashSet<TableInfo.ForeignKey> _foreignKeysChild1 = new HashSet<TableInfo.ForeignKey>(0);
                 final HashSet<TableInfo.Index> _indicesChild1 = new HashSet<TableInfo.Index>(0);
                 final TableInfo _infoChild1 = new TableInfo("Child1", _columnsChild1, _foreignKeysChild1, _indicesChild1);
-                final TableInfo _existingChild1 = TableInfo.read(db, "Child1");
+                final TableInfo _existingChild1 = TableInfo.read(connection, "Child1");
                 if (!_infoChild1.equals(_existingChild1)) {
-                    return new RoomOpenHelper.ValidationResult(false, "Child1(foo.bar.Child1).\n"
+                    return new RoomOpenDelegate.ValidationResult(false, "Child1(foo.bar.Child1).\n"
                             + " Expected:\n" + _infoChild1 + "\n"
                             + " Found:\n" + _existingChild1);
                 }
@@ -128,25 +110,23 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
                 final HashSet<TableInfo.ForeignKey> _foreignKeysChild2 = new HashSet<TableInfo.ForeignKey>(0);
                 final HashSet<TableInfo.Index> _indicesChild2 = new HashSet<TableInfo.Index>(0);
                 final TableInfo _infoChild2 = new TableInfo("Child2", _columnsChild2, _foreignKeysChild2, _indicesChild2);
-                final TableInfo _existingChild2 = TableInfo.read(db, "Child2");
+                final TableInfo _existingChild2 = TableInfo.read(connection, "Child2");
                 if (!_infoChild2.equals(_existingChild2)) {
-                    return new RoomOpenHelper.ValidationResult(false, "Child2(foo.bar.Child2).\n"
+                    return new RoomOpenDelegate.ValidationResult(false, "Child2(foo.bar.Child2).\n"
                             + " Expected:\n" + _infoChild2 + "\n"
                             + " Found:\n" + _existingChild2);
                 }
                 final ViewInfo _infoUserSummary = new ViewInfo("UserSummary", "CREATE VIEW `UserSummary` AS SELECT uid, name FROM User");
-                final ViewInfo _existingUserSummary = ViewInfo.read(db, "UserSummary");
+                final ViewInfo _existingUserSummary = ViewInfo.read(connection, "UserSummary");
                 if (!_infoUserSummary.equals(_existingUserSummary)) {
-                    return new RoomOpenHelper.ValidationResult(false, "UserSummary(foo.bar.UserSummary).\n"
+                    return new RoomOpenDelegate.ValidationResult(false, "UserSummary(foo.bar.UserSummary).\n"
                             + " Expected:\n" + _infoUserSummary + "\n"
                             + " Found:\n" + _existingUserSummary);
                 }
-                return new RoomOpenHelper.ValidationResult(true, null);
+                return new RoomOpenDelegate.ValidationResult(true, null);
             }
-        }, "12b646c55443feeefb567521e2bece85", "2f1dbf49584f5d6c91cb44f8a6ecfee2");
-        final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
-        final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
-        return _helper;
+        };
+        return _openDelegate;
     }
 
     @Override
@@ -182,7 +162,7 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
     @Override
     @NonNull
     protected Map<Class<?>, List<Class<?>>> getRequiredTypeConverters() {
-        final HashMap<Class<?>, List<Class<?>>> _typeConvertersMap = new HashMap<Class<?>, List<Class<?>>>();
+        final Map<Class<?>, List<Class<?>>> _typeConvertersMap = MapsKt.mutableMapOf();
         _typeConvertersMap.put(ComplexDao.class, ComplexDao_Impl.getRequiredConverters());
         return _typeConvertersMap;
     }
@@ -190,7 +170,7 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
     @Override
     @NonNull
     public Set<Class<? extends AutoMigrationSpec>> getRequiredAutoMigrationSpecs() {
-        final HashSet<Class<? extends AutoMigrationSpec>> _autoMigrationSpecsSet = new HashSet<Class<? extends AutoMigrationSpec>>();
+        final Set<Class<? extends AutoMigrationSpec>> _autoMigrationSpecsSet = SetsKt.mutableSetOf();
         return _autoMigrationSpecsSet;
     }
 
@@ -198,7 +178,7 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
     @NonNull
     public List<Migration> getAutoMigrations(
             @NonNull final Map<Class<? extends AutoMigrationSpec>, AutoMigrationSpec> autoMigrationSpecs) {
-        final List<Migration> _autoMigrations = new ArrayList<Migration>();
+        final List<Migration> _autoMigrations = CollectionsKt.mutableListOf();
         return _autoMigrations;
     }
 

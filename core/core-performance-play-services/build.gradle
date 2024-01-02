@@ -30,11 +30,11 @@ dependencies {
     implementation(project(":core:core-performance"))
     implementation("androidx.datastore:datastore-preferences:1.0.0")
 
-    testImplementation(libs.testCore)
-    testImplementation(libs.kotlinStdlib)
-    testImplementation(libs.kotlinCoroutinesTest)
-    testImplementation(libs.junit)
-    testImplementation(libs.truth)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.kotlinCoroutinesTest)
 
 }
 
@@ -51,4 +51,5 @@ androidx {
     mavenVersion = LibraryVersions.CORE_PERFORMANCE
     inceptionYear = "2023"
     description = "Get media performance class data from Google."
+    metalavaK2UastEnabled = true
 }

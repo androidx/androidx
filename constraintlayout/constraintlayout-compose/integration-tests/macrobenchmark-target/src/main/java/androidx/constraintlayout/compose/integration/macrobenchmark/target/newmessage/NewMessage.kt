@@ -39,11 +39,11 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.Send
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -635,7 +635,7 @@ internal fun MessageWidgetCol(modifier: Modifier) {
                     Text(text = "Send")
                     Spacer(modifier = Modifier.width(8.dp))
                     Icon(
-                        imageVector = Icons.Default.Send,
+                        imageVector = Icons.AutoMirrored.Default.Send,
                         contentDescription = "Send Mail",
                     )
                 }
@@ -737,7 +737,7 @@ internal fun MessageWidget(
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 CheapText(text = "Send")
                 Icon(
-                    imageVector = Icons.Default.Send,
+                    imageVector = Icons.AutoMirrored.Default.Send,
                     contentDescription = "Send Mail",
                 )
             }

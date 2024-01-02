@@ -41,7 +41,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.wear.protolayout.renderer.common.SeekableAnimatedVectorDrawable;
+import androidx.vectordrawable.graphics.drawable.SeekableAnimatedVectorDrawable;
 import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.pipeline.FixedQuotaManagerImpl;
@@ -52,6 +52,7 @@ import androidx.wear.protolayout.expression.proto.AnimationParameterProto.Animat
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.RepeatMode;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.Repeatable;
 import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
+import androidx.wear.protolayout.expression.proto.DynamicProto;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableDynamicColor;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableDynamicFloat;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableFixedColor;
@@ -94,7 +95,6 @@ import com.google.common.collect.Range;
 import com.google.common.truth.Expect;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -687,6 +687,8 @@ public class ProtoLayoutDynamicDataPipelineTest {
                 .addResolvedAnimatedImage(drawableAvd, triggerTileVisibleOnce, TEST_POS_ID)
                 .commit(mRootContainer, /* isReattaching= */ false);
 
+        // OnVisible animations haven't started yet, so we should be able to trigger them manually.
+
         pipeline.playAvdAnimations(InnerCase.ON_LOAD_TRIGGER);
         expect.that(drawableAvd.started).isFalse();
 
@@ -716,10 +718,8 @@ public class ProtoLayoutDynamicDataPipelineTest {
                 .addResolvedAnimatedImage(drawableAvd, triggerTileLoad, TEST_POS_ID)
                 .commit(mRootContainer, /* isReattaching= */ false);
 
-        pipeline.playAvdAnimations(InnerCase.ON_VISIBLE_TRIGGER);
-        expect.that(drawableAvd.started).isFalse();
+        // In commit(), OnLoad animations are started.
 
-        pipeline.playAvdAnimations(InnerCase.ON_LOAD_TRIGGER);
         expect.that(drawableAvd.started).isTrue();
 
         pipeline.resetAvdAnimations(InnerCase.ON_LOAD_TRIGGER);
@@ -856,7 +856,12 @@ public class ProtoLayoutDynamicDataPipelineTest {
                         .build();
         DynamicInt32 dynamicInt32 =
                 DynamicInt32.newBuilder()
-                        .setFloatToInt(FloatToInt32Op.newBuilder().setInput(dynamicFloat).build())
+                        .setFloatToInt(
+                                FloatToInt32Op.newBuilder()
+                                        .setRoundMode(
+                                                DynamicProto.FloatToInt32RoundMode.ROUND_MODE_ROUND)
+                                        .setInput(dynamicFloat)
+                                        .build())
                         .build();
         DynamicString dynamicString =
                 DynamicString.newBuilder()
@@ -973,8 +978,8 @@ public class ProtoLayoutDynamicDataPipelineTest {
         makePipelineForDynamicBool(pipeline, expressionWith1Nodes, nodeInfo3);
 
         pipeline.initNewLayout();
-        // Now the pipeline will have a total expressionNodesCount of 6 = 5 + 1
-        // nodeInfo2 (failed to bound previously) and nodeInfo3(new) should be able to bound
+        // Now the pipeline will have a total expressionNodesCount of 6 = 5 + 1 nodeInfo2 (failed to
+        // bound previously) and nodeInfo3(new) should be able to bound
         expect.that(quotaManager.getRemainingQuota()).isEqualTo(2);
         expect.that(pipeline.mPositionIdTree.get(nodeInfo3).getFailedBindingRequest().size())
                 .isEqualTo(0);
@@ -1106,7 +1111,6 @@ public class ProtoLayoutDynamicDataPipelineTest {
     }
 
     @Test
-    @Ignore("b/286028644")
     public void resolvedSeekableAnimatedImage_canStoreAndRegisterWithAnimatableFixedFloat() {
         ProtoLayoutDynamicDataPipeline pipeline =
                 new ProtoLayoutDynamicDataPipeline(
@@ -1139,7 +1143,6 @@ public class ProtoLayoutDynamicDataPipelineTest {
     }
 
     @Test
-    @Ignore("b/286028644")
     public void resolvedSeekableAnimatedImage_canStoreAndRegisterWithAnimatableDynamicFloat() {
         ProtoLayoutDynamicDataPipeline pipeline =
                 new ProtoLayoutDynamicDataPipeline(
@@ -1185,7 +1188,6 @@ public class ProtoLayoutDynamicDataPipelineTest {
     }
 
     @Test
-    @Ignore("b/286028644")
     public void resolvedSeekableAnimatedImage_getSeekableAnimationTotalDurationMillis() {
         ProtoLayoutDynamicDataPipeline pipeline =
                 new ProtoLayoutDynamicDataPipeline(
@@ -1831,7 +1833,6 @@ public class ProtoLayoutDynamicDataPipelineTest {
         pipeline.newPipelineMaker()
                 .addPipelineFor(proto, TEST_POS_ID, receiver)
                 .commit(mRootContainer, /* isReattaching= */ false);
-        shadowOf(getMainLooper()).runOneTask();
         if (enableAnimations) {
             assertThat(pipeline.getRunningAnimationsCount()).isEqualTo(animationsNum);
         }

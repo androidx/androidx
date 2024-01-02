@@ -39,8 +39,8 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.getValue
@@ -66,7 +66,7 @@ import androidx.compose.ui.node.PointerInputModifierNode
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.PlatformTextInputModifierNode
-import androidx.compose.ui.platform.textInputSession
+import androidx.compose.ui.platform.establishTextInputSession
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.IntSize
@@ -105,14 +105,14 @@ fun PlatformTextInputAdapterDemo() {
                     .coerceIn(0, textFieldState.buffer.length)
                 textFieldState.selection = TextRange(newCursor)
             }) {
-                Image(Icons.Default.KeyboardArrowLeft, contentDescription = "left")
+                Image(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "backward")
             }
             IconButton(onClick = {
                 val newCursor = (textFieldState.selection.end + 1)
                     .coerceIn(0, textFieldState.buffer.length)
                 textFieldState.selection = TextRange(newCursor)
             }) {
-                Image(Icons.Default.KeyboardArrowRight, contentDescription = "right")
+                Image(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "forward")
             }
         }
     }
@@ -193,7 +193,7 @@ private class WackyTextFieldModifierNode(private val state: WackyTextState) : Mo
 
                 // In a real app, creating this session would be platform-specific code.
                 // This will cancel any previous request.
-                textInputSession {
+                establishTextInputSession {
                     val imm = view.context
                         .getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 

@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Укладка \"Спіс\""</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Укладка з доўгай назвай і змесцівам у выглядзе сеткі"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Укладка \"Пошук\""</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Ідзе загрузка ўкладкі"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Дэмаверсія загрузкі шаблона ўкладкі"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Дэмаверсія шаблона без укладак"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Відарысы нельга адлюстроўваць для невядомага хоста"</string>
@@ -364,4 +365,8 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"Параметры маршруту"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"Пазбягаць хуткасных шасэ"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Пазбягаць паромаў"</string>
+    <string name="map_demos_title" msgid="2169766615521476592">"Дэмаверсіі: карты"</string>
+    <string name="map_with_content_demo_title" msgid="1032610482145018739">"Дэмаверсіі: змесціва на картах"</string>
+    <string name="map_with_message_demo_title" msgid="7007078234918054436">"Дэмаверсія: карта з шаблонам паведамлення"</string>
+    <string name="map_with_grid_demo_title" msgid="688667167861193192">"Дэмаверсія: карта з шаблонам сеткі"</string>
 </resources>

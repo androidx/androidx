@@ -21,6 +21,7 @@ import android.graphics.Rect
 import android.hardware.camera2.CameraDevice
 import android.os.Build
 import android.os.Looper.getMainLooper
+import android.util.Size
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
 import androidx.camera.core.ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
@@ -95,6 +96,7 @@ class ImagePipelineTest {
             }
         builder.mutableConfig.insertOption(OPTION_IO_EXECUTOR, mainThreadExecutor())
         builder.mutableConfig.insertOption(ImageInputConfig.OPTION_INPUT_FORMAT, ImageFormat.JPEG)
+        builder.setSessionOptionUnpacker { _, _, _ -> }
         imageCaptureConfig = builder.useCaseConfig
         imagePipeline = ImagePipeline(imageCaptureConfig, SIZE)
     }
@@ -134,7 +136,8 @@ class ImagePipelineTest {
         // Arrange: close the pipeline and create a new one not expecting metadata.
         imagePipeline.close()
         imagePipeline =
-            ImagePipeline(imageCaptureConfig, SIZE, /*cameraEffect=*/null, /*isVirtualCamera=*/true)
+            ImagePipeline(imageCaptureConfig, SIZE,
+                /*cameraEffect=*/null, /*isVirtualCamera=*/true)
 
         // Act & assert: send and receive ImageProxy.
         sendInMemoryRequest_receivesImageProxy()
@@ -253,6 +256,59 @@ class ImagePipelineTest {
         ).isEqualTo(
             JPEG_QUALITY
         )
+    }
+
+    @Test
+    fun createSessionConfigBuilderWithYuvPostviewEnabled() {
+        // Arrange.
+        val postviewSize = Size(640, 480)
+        imagePipeline = ImagePipeline(imageCaptureConfig, SIZE, null, false,
+            postviewSize, ImageFormat.YUV_420_888)
+
+        // Act: create SessionConfig
+        val sessionConfig = imagePipeline.createSessionConfigBuilder(SIZE).build()
+
+        // Assert: SessionConfig contains the postview output config.
+        assertThat(sessionConfig.postviewOutputConfig).isNotNull()
+        assertThat(sessionConfig.postviewOutputConfig!!.surface.prescribedSize)
+            .isEqualTo(postviewSize)
+        assertThat(sessionConfig.postviewOutputConfig!!.surface.prescribedStreamFormat)
+            .isEqualTo(ImageFormat.YUV_420_888)
+    }
+
+    @Test
+    fun createSessionConfigBuilderWithJpegPostviewEnabled() {
+        // Arrange.
+        val postviewSize = Size(640, 480)
+        imagePipeline = ImagePipeline(imageCaptureConfig, SIZE, null, false,
+            postviewSize, ImageFormat.JPEG)
+
+        // Act: create SessionConfig
+        val sessionConfig = imagePipeline.createSessionConfigBuilder(SIZE).build()
+
+        // Assert: SessionConfig contains the postview output config.
+        assertThat(sessionConfig.postviewOutputConfig).isNotNull()
+        assertThat(sessionConfig.postviewOutputConfig!!.surface.prescribedSize)
+            .isEqualTo(postviewSize)
+        assertThat(sessionConfig.postviewOutputConfig!!.surface.prescribedStreamFormat)
+            .isEqualTo(ImageFormat.JPEG)
+    }
+
+    @Test
+    fun createCameraRequestWithPostviewEnabled() {
+        // Arrange.
+        val postviewSize = Size(640, 480)
+        imagePipeline = ImagePipeline(imageCaptureConfig, SIZE, null, false,
+            postviewSize, ImageFormat.YUV_420_888)
+
+        // Act: create requests
+        val result =
+            imagePipeline.createRequests(IN_MEMORY_REQUEST, CALLBACK, Futures.immediateFuture(null))
+
+        // Assert: isPostviewEnabled is true on CaptureConfig.
+        val cameraRequest = result.first!!
+        val captureConfig = cameraRequest.captureConfigs.single()
+        assertThat(captureConfig.isPostviewEnabled).isTrue()
     }
 
     private fun getCameraRequestJpegQuality(

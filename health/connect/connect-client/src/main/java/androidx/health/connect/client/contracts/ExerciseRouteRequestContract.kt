@@ -20,8 +20,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.activity.result.contract.ActivityResultContract
-import androidx.health.connect.client.permission.RequestExerciseRouteInternal
-import androidx.health.connect.client.permission.platform.RequestExerciseRouteUpsideDownCake
+import androidx.health.connect.client.permission.ExerciseRouteRequestAppContract
+import androidx.health.connect.client.permission.platform.ExerciseRouteRequestModuleContract
 import androidx.health.connect.client.records.ExerciseRoute
 
 /**
@@ -36,9 +36,9 @@ class ExerciseRouteRequestContract : ActivityResultContract<String, ExerciseRout
 
     private val delegate: ActivityResultContract<String, ExerciseRoute?> =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            RequestExerciseRouteUpsideDownCake()
+            ExerciseRouteRequestModuleContract()
         } else {
-            RequestExerciseRouteInternal()
+            ExerciseRouteRequestAppContract()
         }
 
     /**
@@ -52,6 +52,7 @@ class ExerciseRouteRequestContract : ActivityResultContract<String, ExerciseRout
      * @see ActivityResultContract.createIntent
      */
     override fun createIntent(context: Context, input: String): Intent {
+        require(input.isNotEmpty()) { "Session identifier can't be empty" }
         return delegate.createIntent(context, input)
     }
 

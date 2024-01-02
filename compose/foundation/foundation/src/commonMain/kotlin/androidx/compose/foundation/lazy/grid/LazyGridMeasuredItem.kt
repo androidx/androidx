@@ -90,6 +90,12 @@ internal class LazyGridMeasuredItem(
         private set
 
     /**
+     * True when this item is not supposed to react on scroll delta. for example items being
+     * animated away out of the bounds are non scrollable.
+     */
+    var nonScrollableItem: Boolean = false
+
+    /**
      * Calculates positions for the inner placeables at [mainAxisOffset], [crossAxisOffset].
      * [layoutWidth] and [layoutHeight] should be provided to not place placeables which are ended
      * up outside of the viewport (for example one item consist of 2 placeables, and the first one
@@ -121,6 +127,19 @@ internal class LazyGridMeasuredItem(
         this.column = column
         minMainAxisOffset = -beforeContentPadding
         maxMainAxisOffset = mainAxisLayoutSize + afterContentPadding
+    }
+
+    fun applyScrollDelta(delta: Int) {
+        if (nonScrollableItem) {
+            return
+        }
+        offset = offset.copy { it + delta }
+        repeat(placeablesCount) { index ->
+            val animation = animator.getAnimation(key, index)
+            if (animation != null) {
+                animation.rawOffset = animation.rawOffset.copy { mainAxis -> mainAxis + delta }
+            }
+        }
     }
 
     fun place(

@@ -25,6 +25,7 @@ import java.util.List;
  *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@Deprecated
 class DisplayedListItems {
     private final List<SliceContent> mDisplayedItems;
     private final int mHiddenItemCount;

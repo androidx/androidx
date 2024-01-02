@@ -93,7 +93,7 @@ class PreviewViewFragmentTest(
         if (scenario != null) {
             scenario!!.moveToState(Lifecycle.State.DESTROYED)
         }
-        ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS].shutdown()
+        ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS].shutdownAsync()
     }
 
     @Test

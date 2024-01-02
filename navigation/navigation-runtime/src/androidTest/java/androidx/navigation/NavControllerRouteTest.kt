@@ -44,7 +44,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.ext.truth.os.BundleSubject.assertThat
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
 import androidx.testutils.TestNavigator
 import androidx.testutils.test
 import com.google.common.truth.Truth.assertThat
@@ -373,6 +372,76 @@ class NavControllerRouteTest {
             NavController.KEY_DEEP_LINK_INTENT
         )
         assertThat(intent?.data).isEqualTo(deepLink)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithPopUpToFurthestRoute() {
+        val navController = createNavController()
+        navController.graph = nav_singleArg_graph
+
+        // series of alternate navigation between two destinations
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navController.currentDestination?.route).isEqualTo("start_test")
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        navController.navigate("second_test/arg1")
+        assertThat(navController.currentDestination?.route).isEqualTo("second_test/{arg}")
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        navController.navigate("start_test")
+        assertThat(navController.currentDestination?.route).isEqualTo("start_test")
+        assertThat(navigator.backStack.size).isEqualTo(3)
+
+        navController.navigate("second_test/arg2")
+        assertThat(navController.currentDestination?.route).isEqualTo("second_test/{arg}")
+        assertThat(navigator.backStack.size).isEqualTo(4)
+
+        // now popUpTo the first time we navigated to second_test with args
+        val navOptions = navOptions {
+            popUpTo("second_test/arg1") { inclusive = true }
+        }
+        navController.navigate("start_test", navOptions)
+        assertThat(navController.currentDestination?.route).isEqualTo("start_test")
+        assertThat(navigator.backStack.size).isEqualTo(2)
+        assertThat(navigator.backStack.map { it.destination.route }).containsExactly(
+            "start_test", "start_test"
+        )
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithPopUpToClosestRoute() {
+        val navController = createNavController()
+        navController.graph = nav_singleArg_graph
+
+        // series of alternate navigation between two destinations
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navController.currentDestination?.route).isEqualTo("start_test")
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        navController.navigate("second_test/arg1")
+        assertThat(navController.currentDestination?.route).isEqualTo("second_test/{arg}")
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        navController.navigate("start_test")
+        assertThat(navController.currentDestination?.route).isEqualTo("start_test")
+        assertThat(navigator.backStack.size).isEqualTo(3)
+
+        navController.navigate("second_test/arg2")
+        assertThat(navController.currentDestination?.route).isEqualTo("second_test/{arg}")
+        assertThat(navigator.backStack.size).isEqualTo(4)
+
+        // now popUpTo the second time we navigated to second_test with args
+        val navOptions = navOptions {
+            popUpTo("second_test/arg2") { inclusive = true }
+        }
+        navController.navigate("start_test", navOptions)
+        assertThat(navController.currentDestination?.route).isEqualTo("start_test")
+        assertThat(navigator.backStack.size).isEqualTo(4)
+        assertThat(navigator.backStack.map { it.destination.route }).containsExactly(
+            "start_test", "second_test/{arg}", "start_test", "start_test"
+        ).inOrder()
     }
 
     @UiThreadTest
@@ -1535,7 +1604,6 @@ class NavControllerRouteTest {
 
     @LargeTest
     @Test
-    @SdkSuppress(minSdkVersion = 17)
     fun testNavigateViaImplicitDeepLink() {
         val intent = Intent(
             Intent.ACTION_VIEW,

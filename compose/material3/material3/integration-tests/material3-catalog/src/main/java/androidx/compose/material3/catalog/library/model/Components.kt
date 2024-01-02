@@ -18,6 +18,7 @@ package androidx.compose.material3.catalog.library.model
 
 import androidx.annotation.DrawableRes
 import androidx.compose.material3.catalog.library.R
+import androidx.compose.material3.catalog.library.util.AdaptiveNavigationSuiteMaterial3SourceUrl
 import androidx.compose.material3.catalog.library.util.ComponentGuidelinesUrl
 import androidx.compose.material3.catalog.library.util.DocsUrl
 import androidx.compose.material3.catalog.library.util.Material3SourceUrl
@@ -102,6 +103,18 @@ private val Card = Component(
     docsUrl = "$PackageSummaryUrl#card",
     sourceUrl = "$Material3SourceUrl/Card.kt",
     examples = CardExamples
+)
+
+private val Carousel = Component(
+    id = nextId(),
+    name = "Carousel",
+    description = "Carousels are stylized versions of lists that provide a unique viewing and " +
+        "behavior that suit large imagery and other visually rich content.",
+    // No carousel icon
+    guidelinesUrl = "$StyleGuidelinesUrl/carousel",
+    docsUrl = "$PackageSummaryUrl#carousel",
+    sourceUrl = "$Material3SourceUrl/Carousel.kt",
+    examples = CarouselExamples
 )
 
 private val Checkboxes = Component(
@@ -243,6 +256,20 @@ private val NavigationRail = Component(
     examples = NavigationRailExamples
 )
 
+private val NavigationSuiteScaffold = Component(
+    id = nextId(),
+    name = "Navigation Suite Scaffold",
+    description = "The Navigation Suite Scaffold wraps the provided content and places the " +
+        "adequate provided navigation component on the screen according to the current " +
+        "NavigationSuiteType. \n\n" +
+        "Note: this sample is better experienced in a resizable emulator or foldable device.",
+    // No navigation suite scaffold icon
+    guidelinesUrl = "", // TODO: Add guidelines url when available
+    docsUrl = "", // TODO: Add docs url when available
+    sourceUrl = "$AdaptiveNavigationSuiteMaterial3SourceUrl/NavigationSuiteScaffold.kt",
+    examples = NavigationSuiteScaffoldExamples
+)
+
 private val ProgressIndicators = Component(
     id = nextId(),
     name = "Progress indicators",
@@ -253,6 +280,19 @@ private val ProgressIndicators = Component(
     docsUrl = "$DocsUrl#circularprogressindicator",
     sourceUrl = "$Material3SourceUrl/ProgressIndicator.kt",
     examples = ProgressIndicatorsExamples
+)
+
+private val PullToRefreshIndicators = Component(
+    id = nextId(),
+    name = "Pull-to-Refresh Indicator",
+    description = "Pull to refresh is a swipe gesture available at the beginning of lists, grid " +
+        "lists, and card collections where the most recent content appears ",
+    // No pull-to-refresh icon
+    // TODO: Request component guidelines documentation from design.
+    guidelinesUrl = "",
+    docsUrl = "$DocsUrl#pulltorefreshcontainer",
+    sourceUrl = "$Material3SourceUrl/PullToRefresh.kt",
+    examples = PullToRefreshExamples
 )
 
 private val RadioButtons = Component(
@@ -386,6 +426,7 @@ val Components = listOf(
     BottomSheets,
     Buttons,
     Card,
+    Carousel,
     Checkboxes,
     Chips,
     DatePickers,
@@ -398,7 +439,9 @@ val Components = listOf(
     NavigationBar,
     NavigationDrawer,
     NavigationRail,
+    NavigationSuiteScaffold,
     ProgressIndicators,
+    PullToRefreshIndicators,
     RadioButtons,
     SearchBars,
     SegmentedButtons,

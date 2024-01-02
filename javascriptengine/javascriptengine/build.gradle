@@ -49,6 +49,9 @@ android {
             version 1
         }
     }
+    aaptOptions {
+        noCompress 'js'
+    }
     namespace "androidx.javascriptengine"
 }
 
@@ -58,4 +61,5 @@ androidx {
     inceptionYear = "2022"
     description = "Javascript Engine is a static library you can add to your Android application in order to evaluate JavaScript."
     additionalDeviceTestApkKeys.add("chrome")
+    metalavaK2UastEnabled = true
 }

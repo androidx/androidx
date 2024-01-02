@@ -42,6 +42,7 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Android Lifecycle LiveData Core"
+    metalavaK2UastEnabled = true
 }
 
 android {

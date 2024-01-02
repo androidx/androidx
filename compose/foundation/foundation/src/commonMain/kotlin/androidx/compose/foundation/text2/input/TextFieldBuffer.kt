@@ -54,8 +54,7 @@ class TextFieldBuffer internal constructor(
      * applied to it.
      */
     private val sourceValue: TextFieldCharSequence = initialValue,
-) : CharSequence,
-    Appendable {
+) : Appendable {
 
     private val buffer = PartialGapBuffer(initialValue)
 
@@ -69,12 +68,12 @@ class TextFieldBuffer internal constructor(
      * The number of characters in the text field. This will be equal to or greater than
      * [codepointLength].
      */
-    override val length: Int get() = buffer.length
+    val length: Int get() = buffer.length
 
     /**
      * The number of codepoints in the text field. This will be equal to or less than [length].
      */
-    val codepointLength: Int get() = Character.codePointCount(this, 0, length)
+    val codepointLength: Int get() = Character.codePointCount(buffer, 0, length)
 
     /**
      * The [ChangeList] represents the changes made to this value and is inherently mutable. This
@@ -124,16 +123,52 @@ class TextFieldBuffer internal constructor(
      * @see insert
      * @see delete
      */
-    fun replace(start: Int, end: Int, text: String) {
-        onTextWillChange(TextRange(start, end), text.length)
-        buffer.replace(start, end, text)
+    fun replace(start: Int, end: Int, text: CharSequence) {
+        replace(start, end, text, 0, text.length)
+    }
+
+    /**
+     * Replaces the text between [start] (inclusive) and [end] (exclusive) in this value with
+     * [text], and records the change in [changes].
+     *
+     * @param start The character offset of the first character to replace.
+     * @param end The character offset of the first character after the text to replace.
+     * @param text The text to replace the range `[start, end)` with.
+     * @param textStart The character offset of the first character in [text] to copy.
+     * @param textEnd The character offset after the last character in [text] to copy.
+     *
+     * @see append
+     * @see insert
+     * @see delete
+     */
+    internal fun replace(
+        start: Int,
+        end: Int,
+        text: CharSequence,
+        textStart: Int = 0,
+        textEnd: Int = text.length
+    ) {
+        require(start <= end) { "Expected start=$start <= end=$end" }
+        require(textStart <= textEnd) { "Expected textStart=$textStart <= textEnd=$textEnd" }
+        onTextWillChange(start, end, textEnd - textStart)
+        buffer.replace(start, end, text, textStart, textEnd)
+    }
+
+    /**
+     * Similar to `replace(0, length, newText)` but only records a change if [newText] is actually
+     * different from the current buffer value.
+     */
+    internal fun setTextIfChanged(newText: CharSequence) {
+        findCommonPrefixAndSuffix(buffer, newText) { thisStart, thisEnd, newStart, newEnd ->
+            replace(thisStart, thisEnd, newText, newStart, newEnd)
+        }
     }
 
     // Doc inherited from Appendable.
     // This append overload should be first so it ends up being the target of links to this method.
     override fun append(text: CharSequence?): Appendable = apply {
         if (text != null) {
-            onTextWillChange(TextRange(length), text.length)
+            onTextWillChange(length, length, text.length)
             buffer.replace(buffer.length, buffer.length, text)
         }
     }
@@ -141,30 +176,31 @@ class TextFieldBuffer internal constructor(
     // Doc inherited from Appendable.
     override fun append(text: CharSequence?, start: Int, end: Int): Appendable = apply {
         if (text != null) {
-            onTextWillChange(TextRange(length), end - start)
+            onTextWillChange(length, length, end - start)
             buffer.replace(buffer.length, buffer.length, text.subSequence(start, end))
         }
     }
 
     // Doc inherited from Appendable.
     override fun append(char: Char): Appendable = apply {
-        onTextWillChange(TextRange(length), 1)
+        onTextWillChange(length, length, 1)
         buffer.replace(buffer.length, buffer.length, char.toString())
     }
 
     /**
      * Called just before the text contents are about to change.
      *
-     * @param rangeToBeReplaced The range in the current text that's about to be replaced.
+     * @param replaceStart The first offset to be replaced (inclusive).
+     * @param replaceEnd The last offset to be replaced (exclusive).
      * @param newLength The length of the replacement.
      */
-    private fun onTextWillChange(rangeToBeReplaced: TextRange, newLength: Int) {
+    private fun onTextWillChange(replaceStart: Int, replaceEnd: Int, newLength: Int) {
         (changeTracker ?: ChangeTracker().also { changeTracker = it })
-            .trackChange(rangeToBeReplaced, newLength)
+            .trackChange(replaceStart, replaceEnd, newLength)
 
         // Adjust selection.
-        val start = rangeToBeReplaced.min
-        val end = rangeToBeReplaced.max
+        val start = minOf(replaceStart, replaceEnd)
+        val end = maxOf(replaceStart, replaceEnd)
         var selStart = selectionInChars.min
         var selEnd = selectionInChars.max
 
@@ -202,12 +238,18 @@ class TextFieldBuffer internal constructor(
         selectionInChars = TextRange(selStart, selEnd)
     }
 
-    override operator fun get(index: Int): Char = buffer[index]
-
-    override fun subSequence(startIndex: Int, endIndex: Int): CharSequence =
-        buffer.toString().subSequence(startIndex, endIndex)
+    /**
+     * Returns the [Char] at [index] in this buffer.
+     */
+    fun charAt(index: Int): Char = buffer[index]
 
     override fun toString(): String = buffer.toString()
+
+    /**
+     * Returns a [CharSequence] backed by this buffer. Any subsequent changes to this buffer will
+     * be visible in the returned sequence as well.
+     */
+    fun asCharSequence(): CharSequence = buffer
 
     private fun clearChangeList() {
         changeTracker?.clearChanges()
@@ -407,7 +449,7 @@ class TextFieldBuffer internal constructor(
     /**
      * The ordered list of non-overlapping and discontinuous changes performed on a
      * [TextFieldBuffer] during the current [edit][TextFieldState.edit] or
-     * [filter][TextEditFilter.filter] operation. Changes are listed in the order they appear in the
+     * [filter][InputTransformation.transformInput] operation. Changes are listed in the order they appear in the
      * text, not the order in which they were made. Overlapping changes are represented as a single
      * change.
      */
@@ -528,6 +570,64 @@ inline fun ChangeList.forEachChangeReversed(
         block(getRange(i), getOriginalRange(i))
         i--
     }
+}
+
+/**
+ * Finds the common prefix and suffix between [a] and [b] and then reports the ranges of each that
+ * excludes those. The values are reported via an (inline) callback instead of a return value to
+ * avoid having to allocate something to hold them. If the [CharSequence]s are identical, the
+ * callback is not invoked.
+ *
+ * E.g. given `a="abcde"` and `b="abbbdefe"`, the middle diff for `a` is `"ab[cd]e"` and for `b` is
+ * `ab[bbdef]e`, so reports `aMiddle=TextRange(2, 4)` and `bMiddle=TextRange(2, 7)`.
+ */
+internal inline fun findCommonPrefixAndSuffix(
+    a: CharSequence,
+    b: CharSequence,
+    onFound: (aPrefixStart: Int, aSuffixStart: Int, bPrefixStart: Int, bSuffixStart: Int) -> Unit
+) {
+    var aStart = 0
+    var aEnd = a.length
+    var bStart = 0
+    var bEnd = b.length
+
+    // If either one is empty, the diff range is the entire non-empty one.
+    if (a.isNotEmpty() && b.isNotEmpty()) {
+        var prefixFound = false
+        var suffixFound = false
+
+        do {
+            if (!prefixFound) {
+                if (a[aStart] == b[bStart]) {
+                    aStart += 1
+                    bStart += 1
+                } else {
+                    prefixFound = true
+                }
+            }
+            if (!suffixFound) {
+                if (a[aEnd - 1] == b[bEnd - 1]) {
+                    aEnd -= 1
+                    bEnd -= 1
+                } else {
+                    suffixFound = true
+                }
+            }
+        } while (
+        // As soon as we've completely traversed one of the strings, if the other hasn't also
+        // finished being traversed then we've found the diff region.
+            aStart < aEnd && bStart < bEnd &&
+            // If we've found the end of the common prefix and the start of the common suffix we're
+            // done.
+            !(prefixFound && suffixFound)
+        )
+    }
+
+    if (aStart >= aEnd && bStart >= bEnd) {
+        return
+    }
+
+    onFound(aStart, aEnd, bStart, bEnd)
 }
 
 @OptIn(ExperimentalFoundationApi::class)

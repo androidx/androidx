@@ -68,4 +68,5 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2019"
     description = "Android Dynamic Feature Navigation Fragment"
+    metalavaK2UastEnabled = true
 }

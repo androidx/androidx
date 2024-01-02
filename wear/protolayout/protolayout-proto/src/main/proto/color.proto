@@ -3,7 +3,9 @@ syntax = "proto3";
 
 package androidx.wear.protolayout.proto;
 
+import "dimension.proto";
 import "dynamic.proto";
+import "types.proto";
 
 option java_package = "androidx.wear.protolayout.proto";
 option java_outer_classname = "ColorProto";
@@ -24,4 +26,67 @@ message ColorProp {
   // static value. If {@code dynamicValue} has an invalid result, the provided
   // static value will be used instead.
   androidx.wear.protolayout.expression.proto.DynamicColor dynamic_value = 2;
+}
+
+// A color and an offset, determining a color position in a gradient.
+message ColorStop {
+  // The color for this stop. Only opaque colors are supported. Any transparent
+  // colors will have their alpha component set to 0xFF (opaque).
+  //
+
+  ColorProp color = 1;
+
+  oneof optional_offset {
+    // The relative offset for this color, between 0 and 1. This determines
+    // where the color is positioned relative to a gradient space.
+    FloatProp offset = 2;
+  }
+}
+
+// A sweep gradient with the given colors dispersed around its center with
+// offsets defined in each color stop. The sweep begins at the parent's base
+// angle plus the given angular shift and continues clockwise until it reaches
+// the starting position again.
+//
+// The gradient center corresponds to center of the parent element.
+message SweepGradient {
+  // The color stops defining how the colors are distributed around the gradient
+  // center. The color sequence starts at the start angle and spans 360
+  // degrees clockwise, finishing at the same angle.
+  //
+  // A color stop is a pair of a color and its offset in the gradient.
+  // The offset is the relative position of the color, beginning with 0 from the
+  // start angle and ending with 1.0 at the end angle, spanning clockwise.
+  //
+  // There must be at least 2 colors and at most 10 colors.
+  //
+  // If offset values are not set, the colors are evenly distributed in the
+  // gradient.
+  repeated ColorStop color_stops = 1;
+
+  // The start angle of the gradient relative to the element's base angle. If
+  // not set, defaults to zero.
+  //
+  // For ArcLine, the base angle is the angle where the line starts. The value
+  // represents a relative position in the line's length span. Values greater
+  // than 360 degrees correspond to upper layers of the arc line as it wraps
+  // over itself.
+  DegreesProp start_angle = 2;
+
+  // The end angle of the gradient, relative to the element's base angle. If not
+  // set, defaults to 360 degrees.
+  //
+  // For ArcLine, the base angle is the angle where the line starts. The value
+  // represents a relative position in the line's length span. Values greater
+  // than 360 degrees correspond to upper layers of the arc line as it wraps
+  // over itself.
+  DegreesProp end_angle = 3;
+}
+
+// A Brush describes how something is drawn on screen.
+// It determines the color(s) that are drawn in the drawing area.
+message Brush {
+  oneof inner {
+    SweepGradient sweep_gradient = 1;
+  }
 }

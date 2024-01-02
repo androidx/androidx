@@ -89,6 +89,11 @@ const val PLAYGROUND_SNAPSHOT_BUILD_ID = "androidx.playground.snapshotBuildId"
 const val PLAYGROUND_METALAVA_BUILD_ID = "androidx.playground.metalavaBuildId"
 
 /**
+ * Specifies to prepend the current time to each Gradle log message
+ */
+const val PRINT_TIMESTAMPS = "androidx.printTimestamps"
+
+/**
  * Filepath to the java agent of YourKit for profiling If this value is set, profiling via YourKit
  * will automatically be enabled
  */
@@ -111,6 +116,11 @@ const val VERIFY_UP_TO_DATE = "androidx.verifyUpToDate"
  * are in AOSP, where not all KMP features are enabled.
  */
 const val KMP_GITHUB_BUILD = "androidx.github.build"
+
+/**
+ * Specifies to give as much memory to Gradle as in a typical CI run
+ */
+const val HIGH_MEMORY = "androidx.highMemory"
 
 /**
  * If true, don't require lint-checks project to exist. This should only be set in integration
@@ -152,6 +162,7 @@ val ALL_ANDROIDX_PROPERTIES =
         ENABLE_COMPOSE_COMPILER_REPORTS,
         DISPLAY_TEST_OUTPUT,
         ENABLE_DOCUMENTATION,
+        HIGH_MEMORY,
         STUDIO_TYPE,
         SUMMARIZE_STANDARD_ERROR,
         USE_MAX_DEP_VERSIONS,
@@ -163,6 +174,7 @@ val ALL_ANDROIDX_PROPERTIES =
         AffectedModuleDetector.BASE_COMMIT_ARG,
         PLAYGROUND_SNAPSHOT_BUILD_ID,
         PLAYGROUND_METALAVA_BUILD_ID,
+        PRINT_TIMESTAMPS,
         PROFILE_YOURKIT_AGENT_PATH,
         KMP_GITHUB_BUILD,
         ENABLED_KMP_TARGET_PLATFORMS,
@@ -262,6 +274,18 @@ fun Project.isDocumentationEnabled(): Boolean {
 fun Project.usingMaxDepVersions(): Boolean {
     return project.hasProperty(USE_MAX_DEP_VERSIONS)
 }
+
+/**
+ * Returns whether we export compose compiler metrics
+ */
+fun Project.enableComposeCompilerMetrics() =
+    findBooleanProperty(ENABLE_COMPOSE_COMPILER_METRICS) ?: false
+
+/**
+ * Returns whether we export compose compiler reports
+ */
+fun Project.enableComposeCompilerReports() =
+    findBooleanProperty(ENABLE_COMPOSE_COMPILER_REPORTS) ?: false
 
 /**
  * Returns whether this is an integration test that is allowing lint checks to be skipped to save

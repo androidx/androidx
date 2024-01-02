@@ -56,6 +56,5 @@ inline fun <reified T : Task> Project.maybeRegister(
     @Suppress("UNCHECKED_CAST")
     return LazyTaskRegistry.get(project).once(name) {
         tasks.register(name, T::class.java) { onConfigure(it) }.also(onRegister)
-    }
-        ?: tasks.named(name) as TaskProvider<T>
+    } ?: tasks.named(name) as TaskProvider<T>
 }

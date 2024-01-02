@@ -24,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.OrderWith
 import org.junit.runner.RunWith
@@ -69,11 +70,13 @@ class SnapshotStateAutoboxingBenchmark : ComposeBenchmarkBase() {
         benchmarkPrimitiveWrites(FramesInTenSecondHighRefreshAnimation)
     }
 
+    @Ignore("b/294259234")
     @Test
     fun benchmarkManyBoxedFloatValueWrites() {
         benchmarkBoxedWrites(ManyWritesCount)
     }
 
+    @Ignore("b/294259234")
     @Test
     fun benchmarkManyPrimitiveFloatValueWrites() {
         benchmarkPrimitiveWrites(ManyWritesCount)

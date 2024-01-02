@@ -1,19 +1,20 @@
-// Copyright 2023 The Android Open Source Project
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/*
+ * Copyright 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package androidx.appactions.builtintypes.types
 
-import androidx.appactions.builtintypes.properties.DisambiguatingDescription
 import androidx.appactions.builtintypes.properties.Name
 import androidx.appsearch.`annotation`.Document
 import java.util.Objects
@@ -28,7 +29,6 @@ import kotlin.collections.joinToString
 import kotlin.collections.map
 import kotlin.collections.mutableMapOf
 import kotlin.collections.plusAssign
-import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmStatic
 
 /**
@@ -49,19 +49,13 @@ import kotlin.jvm.JvmStatic
 )
 public interface CommonExecutionStatus : ExecutionStatus {
   /** Converts this [CommonExecutionStatus] to its builder with all the properties copied over. */
-  public override fun toBuilder(): Builder<*>
+  override fun toBuilder(): Builder<*>
 
   public companion object {
-    /**
-     * Returns a default implementation of [Builder].
-     *
-     * Has the specified [identifier] and [namespace] and no other properties set.
-     */
+    /** Returns a default implementation of [Builder]. */
     @JvmStatic
-    @JvmOverloads
     @Document.BuilderProducer
-    public fun Builder(identifier: String = "", namespace: String = ""): Builder<*> =
-      CommonExecutionStatusImpl.Builder().setIdentifier(identifier).setNamespace(namespace)
+    public fun Builder(): Builder<*> = CommonExecutionStatusImpl.Builder()
   }
 
   /**
@@ -72,7 +66,7 @@ public interface CommonExecutionStatus : ExecutionStatus {
    */
   public interface Builder<Self : Builder<Self>> : ExecutionStatus.Builder<Self> {
     /** Returns a built [CommonExecutionStatus]. */
-    public override fun build(): CommonExecutionStatus
+    override fun build(): CommonExecutionStatus
   }
 }
 
@@ -81,14 +75,20 @@ public interface CommonExecutionStatus : ExecutionStatus {
  *
  * Allows for extension like:
  * ```kt
+ * @Document(
+ *   name = "MyCommonExecutionStatus",
+ *   parent = [CommonExecutionStatus::class],
+ * )
  * class MyCommonExecutionStatus internal constructor(
  *   commonExecutionStatus: CommonExecutionStatus,
- *   val foo: String,
- *   val bars: List<Int>,
+ *   @Document.StringProperty val foo: String,
+ *   @Document.LongProperty val bars: List<Int>,
  * ) : AbstractCommonExecutionStatus<
  *   MyCommonExecutionStatus,
  *   MyCommonExecutionStatus.Builder
  * >(commonExecutionStatus) {
+ *
+ *   // No need to implement equals(), hashCode(), toString() or toBuilder()
  *
  *   override val selfTypeName =
  *     "MyCommonExecutionStatus"
@@ -102,6 +102,7 @@ public interface CommonExecutionStatus : ExecutionStatus {
  *       .addBars(bars)
  *   }
  *
+ *   @Document.BuilderProducer
  *   class Builder :
  *     AbstractCommonExecutionStatus.Builder<
  *       Builder,
@@ -114,12 +115,12 @@ public interface CommonExecutionStatus : ExecutionStatus {
 @Suppress("UNCHECKED_CAST")
 public abstract class AbstractCommonExecutionStatus<
   Self : AbstractCommonExecutionStatus<Self, Builder>,
-  Builder : AbstractCommonExecutionStatus.Builder<Builder, Self>>
+  Builder : AbstractCommonExecutionStatus.Builder<Builder, Self>
+>
 internal constructor(
-  public final override val namespace: String,
-  public final override val disambiguatingDescription: DisambiguatingDescription?,
-  public final override val identifier: String,
-  public final override val name: Name?,
+  final override val namespace: String,
+  final override val identifier: String,
+  final override val name: Name?,
 ) : CommonExecutionStatus {
   /**
    * Human readable name for the concrete [Self] class.
@@ -142,7 +143,6 @@ internal constructor(
     commonExecutionStatus: CommonExecutionStatus
   ) : this(
     commonExecutionStatus.namespace,
-    commonExecutionStatus.disambiguatingDescription,
     commonExecutionStatus.identifier,
     commonExecutionStatus.name
   )
@@ -153,36 +153,34 @@ internal constructor(
    */
   protected abstract fun toBuilderWithAdditionalPropertiesOnly(): Builder
 
-  public final override fun toBuilder(): Builder =
+  final override fun toBuilder(): Builder =
     toBuilderWithAdditionalPropertiesOnly()
       .setNamespace(namespace)
-      .setDisambiguatingDescription(disambiguatingDescription)
       .setIdentifier(identifier)
       .setName(name)
 
-  public final override fun equals(other: Any?): Boolean {
+  final override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other == null || this::class.java != other::class.java) return false
     other as Self
     if (namespace != other.namespace) return false
-    if (disambiguatingDescription != other.disambiguatingDescription) return false
     if (identifier != other.identifier) return false
     if (name != other.name) return false
     if (additionalProperties != other.additionalProperties) return false
     return true
   }
 
-  public final override fun hashCode(): Int =
-    Objects.hash(namespace, disambiguatingDescription, identifier, name, additionalProperties)
+  final override fun hashCode(): Int =
+    Objects.hash(namespace, identifier, name, additionalProperties)
 
-  public final override fun toString(): String {
+  final override fun toString(): String {
     val attributes = mutableMapOf<String, String>()
-    attributes["namespace"] = namespace
-    if (disambiguatingDescription != null) {
-      attributes["disambiguatingDescription"] =
-        disambiguatingDescription.toString(includeWrapperName = false)
+    if (namespace.isNotEmpty()) {
+      attributes["namespace"] = namespace
     }
-    attributes["identifier"] = identifier
+    if (identifier.isNotEmpty()) {
+      attributes["identifier"] = identifier
+    }
     if (name != null) {
       attributes["name"] = name.toString(includeWrapperName = false)
     }
@@ -196,16 +194,21 @@ internal constructor(
    *
    * Allows for extension like:
    * ```kt
+   * @Document(...)
    * class MyCommonExecutionStatus :
    *   : AbstractCommonExecutionStatus<
    *     MyCommonExecutionStatus,
    *     MyCommonExecutionStatus.Builder>(...) {
    *
+   *   @Document.BuilderProducer
    *   class Builder
-   *   : Builder<
+   *   : AbstractCommonExecutionStatus.Builder<
    *       Builder,
    *       MyCommonExecutionStatus
    *   >() {
+   *
+   *     // No need to implement equals(), hashCode(), toString() or build()
+   *
    *     private var foo: String? = null
    *     private val bars = mutableListOf<Int>()
    *
@@ -244,8 +247,9 @@ internal constructor(
    */
   @Suppress("StaticFinalBuilder")
   public abstract class Builder<
-    Self : Builder<Self, Built>, Built : AbstractCommonExecutionStatus<Built, Self>> :
-    CommonExecutionStatus.Builder<Self> {
+    Self : Builder<Self, Built>,
+    Built : AbstractCommonExecutionStatus<Built, Self>
+  > : CommonExecutionStatus.Builder<Self> {
     /**
      * Human readable name for the concrete [Self] class.
      *
@@ -261,8 +265,6 @@ internal constructor(
     @get:Suppress("GetterOnBuilder") protected abstract val additionalProperties: Map<String, Any?>
 
     private var namespace: String = ""
-
-    private var disambiguatingDescription: DisambiguatingDescription? = null
 
     private var identifier: String = ""
 
@@ -282,40 +284,30 @@ internal constructor(
       commonExecutionStatus: CommonExecutionStatus
     ): Built
 
-    public final override fun build(): Built =
-      buildFromCommonExecutionStatus(
-        CommonExecutionStatusImpl(namespace, disambiguatingDescription, identifier, name)
-      )
+    final override fun build(): Built =
+      buildFromCommonExecutionStatus(CommonExecutionStatusImpl(namespace, identifier, name))
 
-    public final override fun setNamespace(namespace: String): Self {
+    final override fun setNamespace(namespace: String): Self {
       this.namespace = namespace
       return this as Self
     }
 
-    public final override fun setDisambiguatingDescription(
-      disambiguatingDescription: DisambiguatingDescription?
-    ): Self {
-      this.disambiguatingDescription = disambiguatingDescription
-      return this as Self
-    }
-
-    public final override fun setIdentifier(text: String): Self {
+    final override fun setIdentifier(text: String): Self {
       this.identifier = text
       return this as Self
     }
 
-    public final override fun setName(name: Name?): Self {
+    final override fun setName(name: Name?): Self {
       this.name = name
       return this as Self
     }
 
     @Suppress("BuilderSetStyle")
-    public final override fun equals(other: Any?): Boolean {
+    final override fun equals(other: Any?): Boolean {
       if (this === other) return true
       if (other == null || this::class.java != other::class.java) return false
       other as Self
       if (namespace != other.namespace) return false
-      if (disambiguatingDescription != other.disambiguatingDescription) return false
       if (identifier != other.identifier) return false
       if (name != other.name) return false
       if (additionalProperties != other.additionalProperties) return false
@@ -323,18 +315,18 @@ internal constructor(
     }
 
     @Suppress("BuilderSetStyle")
-    public final override fun hashCode(): Int =
-      Objects.hash(namespace, disambiguatingDescription, identifier, name, additionalProperties)
+    final override fun hashCode(): Int =
+      Objects.hash(namespace, identifier, name, additionalProperties)
 
     @Suppress("BuilderSetStyle")
-    public final override fun toString(): String {
+    final override fun toString(): String {
       val attributes = mutableMapOf<String, String>()
-      attributes["namespace"] = namespace
-      if (disambiguatingDescription != null) {
-        attributes["disambiguatingDescription"] =
-          disambiguatingDescription!!.toString(includeWrapperName = false)
+      if (namespace.isNotEmpty()) {
+        attributes["namespace"] = namespace
       }
-      attributes["identifier"] = identifier
+      if (identifier.isNotEmpty()) {
+        attributes["identifier"] = identifier
+      }
       if (name != null) {
         attributes["name"] = name!!.toString(includeWrapperName = false)
       }
@@ -356,10 +348,9 @@ private class CommonExecutionStatusImpl :
 
   public constructor(
     namespace: String,
-    disambiguatingDescription: DisambiguatingDescription?,
     identifier: String,
     name: Name?,
-  ) : super(namespace, disambiguatingDescription, identifier, name)
+  ) : super(namespace, identifier, name)
 
   public constructor(commonExecutionStatus: CommonExecutionStatus) : super(commonExecutionStatus)
 

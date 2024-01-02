@@ -16,7 +16,6 @@
 
 package androidx.benchmark.macro
 
-import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -48,9 +47,10 @@ fun collect(
 ) {
     val scope = buildMacrobenchmarkScope(packageName)
     val startTime = System.nanoTime()
-    val killProcessBlock = scope.killProcessBlock()
+    // Ensure the device is awake
+    scope.device.wakeUp()
     // always kill the process at beginning of a collection.
-    killProcessBlock.invoke()
+    scope.killProcess()
 
     try {
         var stableCount = 1
@@ -67,9 +67,8 @@ fun collect(
                 if (iteration == 1) {
                     Log.d(TAG, "Resetting compiled state for $packageName for stable profiles.")
                     mode.resetAndCompile(
-                        packageName = packageName,
+                        scope,
                         allowCompilationSkipping = false,
-                        killProcessBlock = killProcessBlock
                     ) {
                         scope.iteration = iteration
                         profileBlock(scope)
@@ -77,11 +76,8 @@ fun collect(
                 } else {
                     // Don't reset for subsequent iterations
                     Log.d(TAG, "Killing package $packageName")
-                    killProcessBlock()
-                    mode.compileImpl(
-                        packageName = packageName,
-                        killProcessBlock = killProcessBlock
-                    ) {
+                    scope.killProcess()
+                    mode.compileImpl(scope) {
                         scope.iteration = iteration
                         Log.d(TAG, "Compile iteration (${scope.iteration}) for $packageName")
                         profileBlock(scope)
@@ -140,7 +136,7 @@ fun collect(
             includeInStartupProfile = includeInStartupProfile
         )
     } finally {
-        killProcessBlock.invoke()
+        scope.killProcess()
     }
 }
 
@@ -164,21 +160,6 @@ private fun buildMacrobenchmarkScope(packageName: String): MacrobenchmarkScope {
 }
 
 /**
- * Builds a function that can kill the target process using the provided [MacrobenchmarkScope].
- */
-@SuppressLint("BanThreadSleep")
-private fun MacrobenchmarkScope.killProcessBlock(): () -> Unit {
-    val killProcessBlock = {
-        // When generating baseline profiles we want to default to using
-        // killProcess if the session is rooted. This is so we can collect
-        // baseline profiles for System Apps.
-        this.killProcess(useKillAll = Shell.isSessionRooted())
-        Thread.sleep(Arguments.killProcessDelayMillis)
-    }
-    return killProcessBlock
-}
-
-/**
  * Reports the results after having collected baseline profiles.
  */
 private fun reportResults(
@@ -190,23 +171,21 @@ private fun reportResults(
     // Write a file with a timestamp to be able to disambiguate between runs with the same
     // unique name.
 
-    val (fileName, reportKey, tsFileName) =
+    val (fileName, tsFileName) =
         if (includeInStartupProfile && Arguments.enableStartupProfiles) {
             arrayOf(
                 "$uniqueFilePrefix-startup-prof.txt",
-                "startup-profile",
                 "$uniqueFilePrefix-startup-prof-${Outputs.dateToFileName()}.txt"
             )
         } else {
             arrayOf(
                 "$uniqueFilePrefix-baseline-prof.txt",
-                "baseline-profile",
                 "$uniqueFilePrefix-baseline-prof-${Outputs.dateToFileName()}.txt"
             )
         }
 
-    val absolutePath = Outputs.writeFile(fileName, reportKey) { it.writeText(profile) }
-    val tsAbsolutePath = Outputs.writeFile(tsFileName, "baseline-profile-ts") {
+    val absolutePath = Outputs.writeFile(fileName) { it.writeText(profile) }
+    val tsAbsolutePath = Outputs.writeFile(tsFileName) {
         Log.d(TAG, "Pull Baseline Profile with: `adb pull \"${it.absolutePath}\" .`")
         it.writeText(profile)
     }

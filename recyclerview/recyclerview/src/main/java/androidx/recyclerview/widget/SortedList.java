@@ -863,6 +863,7 @@ public class SortedList<T> {
          */
         abstract public void onChanged(int position, int count);
 
+        /** {@inheritDoc} */
         @Override
         @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public void onChanged(int position, int count, Object payload) {
@@ -957,47 +958,56 @@ public class SortedList<T> {
             mBatchingListUpdateCallback = new BatchingListUpdateCallback(mWrappedCallback);
         }
 
+        /** {@inheritDoc} */
         @Override
         public int compare(T2 o1, T2 o2) {
             return mWrappedCallback.compare(o1, o2);
         }
 
+        /** {@inheritDoc} */
         @Override
         public void onInserted(int position, int count) {
             mBatchingListUpdateCallback.onInserted(position, count);
         }
 
+        /** {@inheritDoc} */
         @Override
         public void onRemoved(int position, int count) {
             mBatchingListUpdateCallback.onRemoved(position, count);
         }
 
+        /** {@inheritDoc} */
         @Override
         public void onMoved(int fromPosition, int toPosition) {
             mBatchingListUpdateCallback.onMoved(fromPosition, toPosition);
         }
 
+        /** {@inheritDoc} */
         @Override
         public void onChanged(int position, int count) {
             mBatchingListUpdateCallback.onChanged(position, count, null);
         }
 
+        /** {@inheritDoc} */
         @Override
         @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public void onChanged(int position, int count, Object payload) {
             mBatchingListUpdateCallback.onChanged(position, count, payload);
         }
 
+        /** {@inheritDoc} */
         @Override
         public boolean areContentsTheSame(T2 oldItem, T2 newItem) {
             return mWrappedCallback.areContentsTheSame(oldItem, newItem);
         }
 
+        /** {@inheritDoc} */
         @Override
         public boolean areItemsTheSame(T2 item1, T2 item2) {
             return mWrappedCallback.areItemsTheSame(item1, item2);
         }
 
+        /** {@inheritDoc} */
         @Nullable
         @Override
         public Object getChangePayload(T2 item1, T2 item2) {

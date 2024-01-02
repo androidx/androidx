@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Lijsttabblad"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Rastertabblad met lange tabbladtitel"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Zoektabblad"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Tabblad laden"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Demo van laden van tabbladtemplate"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Demo van tabbladtemplate zonder tabbladen"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Afbeeldingen kunnen niet worden getoond voor een onbekende host"</string>
@@ -364,4 +365,8 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"Routeopties"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"Snelwegen vermijden"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Veerboten vermijden"</string>
+    <string name="map_demos_title" msgid="2169766615521476592">"Kaartdemo\'s"</string>
+    <string name="map_with_content_demo_title" msgid="1032610482145018739">"Kaart met contentdemo\'s"</string>
+    <string name="map_with_message_demo_title" msgid="7007078234918054436">"Kaart met demo berichtentemplate"</string>
+    <string name="map_with_grid_demo_title" msgid="688667167861193192">"Kaart met demo rastertemplate"</string>
 </resources>

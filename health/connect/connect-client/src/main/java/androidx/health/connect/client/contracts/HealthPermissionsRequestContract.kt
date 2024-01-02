@@ -21,8 +21,9 @@ import android.content.Intent
 import android.os.Build
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.health.connect.client.HealthConnectClient
-import androidx.health.connect.client.permission.HealthDataRequestPermissionsInternal
-import androidx.health.connect.client.permission.platform.HealthDataRequestPermissionsUpsideDownCake
+import androidx.health.connect.client.permission.HealthPermission
+import androidx.health.connect.client.permission.HealthPermissionsRequestAppContract
+import androidx.health.connect.client.permission.platform.HealthPermissionsRequestModuleContract
 
 /**
  * An [ActivityResultContract] to request Health permissions.
@@ -36,9 +37,9 @@ class HealthPermissionsRequestContract(
 
     private val delegate: ActivityResultContract<Set<String>, Set<String>> =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            HealthDataRequestPermissionsUpsideDownCake()
+            HealthPermissionsRequestModuleContract()
         } else {
-            HealthDataRequestPermissionsInternal(providerPackageName)
+            HealthPermissionsRequestAppContract(providerPackageName)
         }
 
     /**
@@ -50,6 +51,10 @@ class HealthPermissionsRequestContract(
      * @see ActivityResultContract.createIntent
      */
     override fun createIntent(context: Context, input: Set<String>): Intent {
+        require(input.all { it.startsWith(HealthPermission.PERMISSION_PREFIX) }) {
+            "Unsupported health connect permission"
+        }
+        require(input.isNotEmpty()) { "At least one permission is required!" }
         return delegate.createIntent(context, input)
     }
 

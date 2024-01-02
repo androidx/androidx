@@ -122,7 +122,7 @@
     <string name="push_stack" msgid="2433062141810168976">"ଷ୍ଟାକକୁ ଆହୁରି ପୁସ କରନ୍ତୁ"</string>
     <string name="pop_to_prefix" msgid="4288884615669751608">"ଏଥିରେ ପପ କରନ୍ତୁ"</string>
     <string name="pop_to_title" msgid="3924696281273379455">"ଡେମୋ ପପ କରନ୍ତୁ"</string>
-    <string name="package_not_found_error_msg" msgid="7525619456883627939">"ପ୍ୟାକେଜ ମିଳିଲା ନାହିଁ।"</string>
+    <string name="package_not_found_error_msg" msgid="7525619456883627939">"ପେକେଜ ମିଳିଲା ନାହିଁ।"</string>
     <string name="permissions_granted_msg" msgid="2348556088141992714">"ସମସ୍ତ ଅନୁମତି ଦିଆଯାଇଛି। ଦୟାକରି ସେଟିଂସରୁ ଅନୁମତିଗୁଡ଼ିକୁ ପ୍ରତ୍ୟାହାର କରନ୍ତୁ।"</string>
     <string name="needs_access_msg_prefix" msgid="2204136858798832382">"ଏହି ଆପ ନିମ୍ନୋକ୍ତ ଅନୁମତିଗୁଡ଼ିକୁ ଆକ୍ସେସ ଆବଶ୍ୟକ କରେ:\n"</string>
     <string name="phone_screen_permission_msg" msgid="3599815596923367256">"ଫୋନର ସ୍କ୍ରିନରେ ଅନୁମତି ଦିଅନ୍ତୁ"</string>
@@ -199,7 +199,7 @@
     <string name="low_energy" msgid="3462774027012877028">"କମ୍ ଏନର୍ଜି"</string>
     <string name="range" msgid="8744960568263400641">"ରେଞ୍ଜ"</string>
     <string name="fuel" msgid="4253578650127250651">"ଫୁଏଲ"</string>
-    <string name="battery" msgid="2183623637331546820">"ବ୍ୟାଟେରୀ"</string>
+    <string name="battery" msgid="2183623637331546820">"ବେଟେରୀ"</string>
     <string name="display_speed" msgid="9161318805331348165">"ସ୍ପିଡ ଡିସପ୍ଲେ କରନ୍ତୁ"</string>
     <string name="raw_speed" msgid="7295910214088983967">"ର ସ୍ପିଡ"</string>
     <string name="unit" msgid="7697521583928135171">"ୟୁନିଟ"</string>
@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"ଲିଷ୍ଟ ଟାବ"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"ଲମ୍ବା ଟାବ ଟାଇଟେଲ ସହ ଗ୍ରୀଡ ଟାବ"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"ସର୍ଚ୍ଚ ଟାବ"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"ଟାବ ଲୋଡ ହେଉଛି"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"ଟାବ ଟେମ୍ପଲେଟର ଲୋଡିଂ ଡେମୋ"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"ଟାବ ଟେମ୍ପଲେଟ କୌଣସି ଟାବ ବିନା ଡେମୋ"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"ଏକ ଅଜଣା ହୋଷ୍ଟ ପାଇଁ ଇମେଜଗୁଡ଼ିକୁ ଡିସପ୍ଲେ କରାଯାଇପାରିବ ନାହିଁ"</string>
@@ -364,4 +365,8 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"ମାର୍ଗର ବିକଳ୍ପଗୁଡ଼ିକ"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"ରାଜପଥଗୁଡ଼ିକୁ ଏଡ଼ାଇ ଯାଆନ୍ତୁ"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"ଫେରୀକୁ ଏଡ଼ାଇ ଯାଆନ୍ତୁ"</string>
+    <string name="map_demos_title" msgid="2169766615521476592">"ମେପ ଡେମୋ"</string>
+    <string name="map_with_content_demo_title" msgid="1032610482145018739">"ବିଷୟବସ୍ତୁ ଡେମୋ ଥିବା ମେପ"</string>
+    <string name="map_with_message_demo_title" msgid="7007078234918054436">"ମେସେଜ ଟେମ୍ପଲେଟ ଡେମୋ ଥିବା ମେପ"</string>
+    <string name="map_with_grid_demo_title" msgid="688667167861193192">"ଗ୍ରିଡ ଟେମ୍ପଲେଟ ଡେମୋ ଥିବା ମେପ"</string>
 </resources>

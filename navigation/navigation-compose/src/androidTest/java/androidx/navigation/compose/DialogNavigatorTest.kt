@@ -20,6 +20,8 @@ import androidx.compose.material.Text
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.testing.TestNavigatorState
@@ -108,5 +110,284 @@ class DialogNavigatorTest {
 
         rule.waitForIdle()
         assertThat(navController.currentDestination?.route).isEqualTo("first")
+    }
+
+    @Test
+    fun testDialogMarkedTransitionComplete() {
+        lateinit var navController: NavHostController
+
+        rule.setContent {
+            navController = rememberNavController()
+            NavHost(navController, "first") {
+                composable("first") { }
+                dialog("second") { }
+            }
+        }
+
+        rule.runOnIdle {
+            navController.navigate("second")
+            navController.navigate("second")
+        }
+
+        rule.waitForIdle()
+        val dialogNavigator = navController.navigatorProvider.getNavigator(
+            DialogNavigator::class.java
+        )
+        val bottomDialog = dialogNavigator.backStack.value[0]
+        val topDialog = dialogNavigator.backStack.value[1]
+
+        assertThat(bottomDialog.destination.route).isEqualTo("second")
+        assertThat(topDialog.destination.route).isEqualTo("second")
+        assertThat(topDialog).isNotEqualTo(bottomDialog)
+
+        assertThat(topDialog.lifecycle.currentState).isEqualTo(
+            Lifecycle.State.RESUMED
+        )
+        assertThat(bottomDialog.lifecycle.currentState).isEqualTo(
+            Lifecycle.State.STARTED
+        )
+
+        rule.runOnUiThread {
+            dialogNavigator.dismiss(topDialog)
+        }
+        rule.waitForIdle()
+
+        assertThat(topDialog.lifecycle.currentState).isEqualTo(
+            Lifecycle.State.DESTROYED
+        )
+        assertThat(bottomDialog.lifecycle.currentState).isEqualTo(
+            Lifecycle.State.RESUMED
+        )
+    }
+
+    @Test
+    fun testDialogMarkedTransitionCompleteInOrder() {
+        lateinit var navController: NavHostController
+
+        rule.setContent {
+            navController = rememberNavController()
+            NavHost(navController, "first") {
+                composable("first") { }
+                dialog("second") { }
+            }
+        }
+
+        rule.runOnIdle {
+            navController.navigate("second")
+            navController.navigate("second")
+            navController.navigate("second")
+        }
+
+        rule.waitForIdle()
+        val dialogNavigator = navController.navigatorProvider.getNavigator(
+            DialogNavigator::class.java
+        )
+        val bottomDialog = dialogNavigator.backStack.value[0]
+        val middleDialog = dialogNavigator.backStack.value[1]
+        val topDialog = dialogNavigator.backStack.value[2]
+
+        assertThat(topDialog.lifecycle.currentState).isEqualTo(
+            Lifecycle.State.RESUMED
+        )
+        assertThat(middleDialog.lifecycle.currentState).isEqualTo(
+            Lifecycle.State.STARTED
+        )
+        assertThat(bottomDialog.lifecycle.currentState).isEqualTo(
+            Lifecycle.State.STARTED
+        )
+
+        rule.runOnUiThread {
+            dialogNavigator.dismiss(topDialog)
+        }
+        rule.waitForIdle()
+
+        assertThat(topDialog.lifecycle.currentState).isEqualTo(
+            Lifecycle.State.DESTROYED
+        )
+        assertThat(middleDialog.lifecycle.currentState).isEqualTo(
+            Lifecycle.State.RESUMED
+        )
+        assertThat(bottomDialog.lifecycle.currentState).isEqualTo(
+            Lifecycle.State.STARTED
+        )
+
+        rule.runOnUiThread {
+            dialogNavigator.dismiss(middleDialog)
+        }
+        rule.waitForIdle()
+
+        assertThat(middleDialog.lifecycle.currentState).isEqualTo(
+            Lifecycle.State.DESTROYED
+        )
+        assertThat(bottomDialog.lifecycle.currentState).isEqualTo(
+            Lifecycle.State.RESUMED
+        )
+    }
+
+    @Test
+    fun testDialogNavigateConsecutively() {
+        lateinit var navController: NavHostController
+
+        rule.setContent {
+            navController = rememberNavController()
+            NavHost(navController, "first") {
+                composable("first") { }
+                dialog("second") { }
+            }
+        }
+
+        rule.runOnIdle {
+            navController.navigate("second")
+            navController.navigate("second")
+        }
+
+        rule.waitForIdle()
+        val dialogNavigator = navController.navigatorProvider.getNavigator(
+            DialogNavigator::class.java
+        )
+        val bottomDialog = dialogNavigator.backStack.value[0]
+        val topDialog = dialogNavigator.backStack.value[1]
+
+        assertThat(bottomDialog.lifecycle.currentState).isEqualTo(
+            Lifecycle.State.STARTED
+        )
+        assertThat(topDialog.lifecycle.currentState).isEqualTo(
+            Lifecycle.State.RESUMED
+        )
+    }
+
+    @Test
+    fun testDialogNavigatePopNavigate() {
+        lateinit var navController: NavHostController
+
+        rule.setContent {
+            navController = rememberNavController()
+            NavHost(navController, route = "graph", startDestination = "first") {
+                composable("first") { }
+                dialog("second") { }
+                dialog("third") { Text(defaultText) }
+            }
+        }
+
+        rule.runOnIdle {
+            navController.navigate("second")
+            navController.popBackStack()
+            navController.navigate("third")
+        }
+
+        rule.waitForIdle()
+        val dialogNavigator = navController.navigatorProvider.getNavigator(
+            DialogNavigator::class.java
+        )
+        val dialog = dialogNavigator.backStack.value[0]
+        assertThat(dialog.destination.route).isEqualTo("third")
+        assertThat(dialog.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        rule.onNodeWithText(defaultText).assertIsDisplayed()
+        assertThat(navController.visibleEntries.value.map { it.destination.route })
+            .containsExactly("first", "third")
+            .inOrder()
+    }
+
+    @Test
+    fun testDialogNavigatePopNavigateSameDialog() {
+        lateinit var navController: NavHostController
+
+        rule.setContent {
+            navController = rememberNavController()
+            NavHost(navController, route = "graph", startDestination = "first") {
+                composable("first") { }
+                dialog("second") { Text(defaultText) }
+            }
+        }
+
+        rule.runOnIdle {
+            navController.navigate("second")
+            navController.popBackStack()
+            navController.navigate("second")
+        }
+
+        rule.waitForIdle()
+        val dialogNavigator = navController.navigatorProvider.getNavigator(
+            DialogNavigator::class.java
+        )
+        val dialog = dialogNavigator.backStack.value[0]
+        assertThat(dialog.destination.route).isEqualTo("second")
+        assertThat(dialog.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        rule.onNodeWithText(defaultText).assertIsDisplayed()
+        assertThat(navController.visibleEntries.value.map { it.destination.route })
+            .containsExactly("first", "second")
+            .inOrder()
+    }
+
+    @Test
+    fun testDialogNavigatePopPopNavigate() {
+        lateinit var navController: NavHostController
+
+        rule.setContent {
+            navController = rememberNavController()
+            NavHost(navController, route = "graph", startDestination = "first") {
+                composable("first") { }
+                dialog("second") { }
+                dialog("third") { }
+                dialog("fourth") { Text(defaultText) }
+            }
+        }
+
+        rule.runOnIdle {
+            navController.navigate("second")
+            navController.navigate("third")
+            navController.popBackStack()
+            navController.popBackStack()
+            navController.navigate("fourth")
+        }
+
+        rule.waitForIdle()
+        val dialogNavigator = navController.navigatorProvider.getNavigator(
+            DialogNavigator::class.java
+        )
+        val dialog = dialogNavigator.backStack.value[0]
+        assertThat(dialog.destination.route).isEqualTo("fourth")
+        assertThat(dialog.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        rule.onNodeWithText(defaultText).assertIsDisplayed()
+        assertThat(navController.visibleEntries.value.map { it.destination.route })
+            .containsExactly("first", "fourth")
+            .inOrder()
+    }
+
+    @Test
+    fun testDialogObserveRemovedOnPopNavigate() {
+        lateinit var navController: NavHostController
+        rule.setContent {
+            navController = rememberNavController()
+            NavHost(navController, route = "graph", startDestination = "first") {
+                composable("first") { }
+                dialog("second") { }
+                dialog("third") { Text(defaultText) }
+            }
+        }
+
+        rule.runOnUiThread {
+            navController.navigate("second")
+        }
+
+        val secondEntry = navController.currentBackStackEntry
+        val entryLifecycle = secondEntry?.lifecycle as LifecycleRegistry
+
+        rule.runOnIdle {
+            assertThat(secondEntry.destination.route).isEqualTo("second")
+            // observers added
+            assertThat(entryLifecycle.observerCount).isEqualTo(2)
+
+            // now pop dialog and navigate to another dialog
+            navController.popBackStack()
+            navController.navigate("third")
+        }
+
+        rule.waitForIdle()
+        rule.onNodeWithText(defaultText).assertIsDisplayed()
+        rule.runOnUiThread {
+            // make sure when secondEntry was disposed, observer was removed
+            assertThat(entryLifecycle.observerCount).isEqualTo(0)
+        }
     }
 }

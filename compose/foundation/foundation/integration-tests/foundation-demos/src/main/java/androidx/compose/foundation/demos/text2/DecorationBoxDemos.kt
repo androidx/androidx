@@ -28,19 +28,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.LocalContentColor
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun DecorationBoxDemos() {
-    Column {
+    Column(Modifier.padding(16.dp)) {
         TagLine(tag = "Simple Decoration w/ Label")
         SimpleDecorationWithLabel()
 
@@ -56,7 +59,7 @@ fun SimpleDecorationWithLabel() {
         state = state,
         modifier = Modifier,
         textStyle = LocalTextStyle.current,
-        decorationBox = @Composable {
+        decorator = {
             Column(Modifier.padding(4.dp)) {
                 Text("Label", style = MaterialTheme.typography.caption)
                 Spacer(modifier = Modifier.height(4.dp))
@@ -69,11 +72,15 @@ fun SimpleDecorationWithLabel() {
 @Composable
 fun OutlinedBasicTextField2() {
     val state = remember { TextFieldState() }
+    val cursorColor by TextFieldDefaults
+        .outlinedTextFieldColors()
+        .cursorColor(isError = false)
     BasicTextField2(
         state = state,
         modifier = Modifier,
-        textStyle = LocalTextStyle.current,
-        decorationBox = @Composable {
+        textStyle = LocalTextStyle.current.copy(color = LocalContentColor.current),
+        cursorBrush = SolidColor(cursorColor),
+        decorator = {
             TextFieldDefaults.OutlinedTextFieldDecorationBox(
                 value = state.text.toString(),
                 visualTransformation = VisualTransformation.None,

@@ -197,42 +197,8 @@ MissingNullability: androidx.leanback.app.BaseSupportFragment#onCreate(android.o
     Missing nullability on parameter `savedInstanceState` in method `onCreate`
 MissingNullability: androidx.leanback.app.BaseSupportFragment#runEntranceTransition(Object) parameter #0:
     Missing nullability on parameter `entranceTransition` in method `runEntranceTransition`
-MissingNullability: androidx.leanback.app.BrandedFragment#getBadgeDrawable():
-    Missing nullability on method `getBadgeDrawable` return
-MissingNullability: androidx.leanback.app.BrandedFragment#getSearchAffordanceColors():
-    Missing nullability on method `getSearchAffordanceColors` return
-MissingNullability: androidx.leanback.app.BrandedFragment#getTitle():
-    Missing nullability on method `getTitle` return
-MissingNullability: androidx.leanback.app.BrandedFragment#getTitleView():
-    Missing nullability on method `getTitleView` return
-MissingNullability: androidx.leanback.app.BrandedFragment#getTitleViewAdapter():
-    Missing nullability on method `getTitleViewAdapter` return
-MissingNullability: androidx.leanback.app.BrandedFragment#installTitleView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #0:
-    Missing nullability on parameter `inflater` in method `installTitleView`
-MissingNullability: androidx.leanback.app.BrandedFragment#installTitleView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #1:
-    Missing nullability on parameter `parent` in method `installTitleView`
-MissingNullability: androidx.leanback.app.BrandedFragment#installTitleView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #2:
-    Missing nullability on parameter `savedInstanceState` in method `installTitleView`
-MissingNullability: androidx.leanback.app.BrandedFragment#onInflateTitleView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle):
-    Missing nullability on method `onInflateTitleView` return
-MissingNullability: androidx.leanback.app.BrandedFragment#onInflateTitleView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #0:
-    Missing nullability on parameter `inflater` in method `onInflateTitleView`
-MissingNullability: androidx.leanback.app.BrandedFragment#onInflateTitleView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #1:
-    Missing nullability on parameter `parent` in method `onInflateTitleView`
-MissingNullability: androidx.leanback.app.BrandedFragment#onInflateTitleView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #2:
-    Missing nullability on parameter `savedInstanceState` in method `onInflateTitleView`
 MissingNullability: androidx.leanback.app.BrandedFragment#onSaveInstanceState(android.os.Bundle) parameter #0:
     Missing nullability on parameter `outState` in method `onSaveInstanceState`
-MissingNullability: androidx.leanback.app.BrandedFragment#setBadgeDrawable(android.graphics.drawable.Drawable) parameter #0:
-    Missing nullability on parameter `drawable` in method `setBadgeDrawable`
-MissingNullability: androidx.leanback.app.BrandedFragment#setOnSearchClickedListener(android.view.View.OnClickListener) parameter #0:
-    Missing nullability on parameter `listener` in method `setOnSearchClickedListener`
-MissingNullability: androidx.leanback.app.BrandedFragment#setSearchAffordanceColors(androidx.leanback.widget.SearchOrbView.Colors) parameter #0:
-    Missing nullability on parameter `colors` in method `setSearchAffordanceColors`
-MissingNullability: androidx.leanback.app.BrandedFragment#setTitle(CharSequence) parameter #0:
-    Missing nullability on parameter `title` in method `setTitle`
-MissingNullability: androidx.leanback.app.BrandedFragment#setTitleView(android.view.View) parameter #0:
-    Missing nullability on parameter `titleView` in method `setTitleView`
 MissingNullability: androidx.leanback.app.BrowseFragment#createArgs(android.os.Bundle, String, int):
     Missing nullability on method `createArgs` return
 MissingNullability: androidx.leanback.app.BrowseFragment#createArgs(android.os.Bundle, String, int) parameter #0:
@@ -261,12 +227,8 @@ MissingNullability: androidx.leanback.app.BrowseFragment#onCreate(android.os.Bun
     Missing nullability on parameter `savedInstanceState` in method `onCreate`
 MissingNullability: androidx.leanback.app.BrowseFragment#onCreateHeadersFragment():
     Missing nullability on method `onCreateHeadersFragment` return
-MissingNullability: androidx.leanback.app.BrowseFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle):
-    Missing nullability on method `onCreateView` return
 MissingNullability: androidx.leanback.app.BrowseFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #0:
     Missing nullability on parameter `inflater` in method `onCreateView`
-MissingNullability: androidx.leanback.app.BrowseFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #1:
-    Missing nullability on parameter `container` in method `onCreateView`
 MissingNullability: androidx.leanback.app.BrowseFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #2:
     Missing nullability on parameter `savedInstanceState` in method `onCreateView`
 MissingNullability: androidx.leanback.app.BrowseFragment#onSaveInstanceState(android.os.Bundle) parameter #0:
@@ -347,14 +309,6 @@ MissingNullability: androidx.leanback.app.BrowseSupportFragment#onCreate(android
     Missing nullability on parameter `savedInstanceState` in method `onCreate`
 MissingNullability: androidx.leanback.app.BrowseSupportFragment#onCreateHeadersSupportFragment():
     Missing nullability on method `onCreateHeadersSupportFragment` return
-MissingNullability: androidx.leanback.app.BrowseSupportFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle):
-    Missing nullability on method `onCreateView` return
-MissingNullability: androidx.leanback.app.BrowseSupportFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #0:
-    Missing nullability on parameter `inflater` in method `onCreateView`
-MissingNullability: androidx.leanback.app.BrowseSupportFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #1:
-    Missing nullability on parameter `container` in method `onCreateView`
-MissingNullability: androidx.leanback.app.BrowseSupportFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #2:
-    Missing nullability on parameter `savedInstanceState` in method `onCreateView`
 MissingNullability: androidx.leanback.app.BrowseSupportFragment#runEntranceTransition(Object) parameter #0:
     Missing nullability on parameter `entranceTransition` in method `runEntranceTransition`
 MissingNullability: androidx.leanback.app.BrowseSupportFragment#setAdapter(androidx.leanback.widget.ObjectAdapter) parameter #0:
@@ -415,22 +369,10 @@ MissingNullability: androidx.leanback.app.DetailsFragment#getRowsFragment():
     Missing nullability on method `getRowsFragment` return
 MissingNullability: androidx.leanback.app.DetailsFragment#onCreate(android.os.Bundle) parameter #0:
     Missing nullability on parameter `savedInstanceState` in method `onCreate`
-MissingNullability: androidx.leanback.app.DetailsFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle):
-    Missing nullability on method `onCreateView` return
 MissingNullability: androidx.leanback.app.DetailsFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #0:
     Missing nullability on parameter `inflater` in method `onCreateView`
-MissingNullability: androidx.leanback.app.DetailsFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #1:
-    Missing nullability on parameter `container` in method `onCreateView`
 MissingNullability: androidx.leanback.app.DetailsFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #2:
     Missing nullability on parameter `savedInstanceState` in method `onCreateView`
-MissingNullability: androidx.leanback.app.DetailsFragment#onInflateTitleView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle):
-    Missing nullability on method `onInflateTitleView` return
-MissingNullability: androidx.leanback.app.DetailsFragment#onInflateTitleView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #0:
-    Missing nullability on parameter `inflater` in method `onInflateTitleView`
-MissingNullability: androidx.leanback.app.DetailsFragment#onInflateTitleView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #1:
-    Missing nullability on parameter `parent` in method `onInflateTitleView`
-MissingNullability: androidx.leanback.app.DetailsFragment#onInflateTitleView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #2:
-    Missing nullability on parameter `savedInstanceState` in method `onInflateTitleView`
 MissingNullability: androidx.leanback.app.DetailsFragment#onSetDetailsOverviewRowStatus(androidx.leanback.widget.FullWidthDetailsOverviewRowPresenter, androidx.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder, int, int, int) parameter #0:
     Missing nullability on parameter `presenter` in method `onSetDetailsOverviewRowStatus`
 MissingNullability: androidx.leanback.app.DetailsFragment#onSetDetailsOverviewRowStatus(androidx.leanback.widget.FullWidthDetailsOverviewRowPresenter, androidx.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder, int, int, int) parameter #1:
@@ -481,14 +423,6 @@ MissingNullability: androidx.leanback.app.DetailsSupportFragment#getRowsSupportF
     Missing nullability on method `getRowsSupportFragment` return
 MissingNullability: androidx.leanback.app.DetailsSupportFragment#onCreate(android.os.Bundle) parameter #0:
     Missing nullability on parameter `savedInstanceState` in method `onCreate`
-MissingNullability: androidx.leanback.app.DetailsSupportFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle):
-    Missing nullability on method `onCreateView` return
-MissingNullability: androidx.leanback.app.DetailsSupportFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #0:
-    Missing nullability on parameter `inflater` in method `onCreateView`
-MissingNullability: androidx.leanback.app.DetailsSupportFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #1:
-    Missing nullability on parameter `container` in method `onCreateView`
-MissingNullability: androidx.leanback.app.DetailsSupportFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #2:
-    Missing nullability on parameter `savedInstanceState` in method `onCreateView`
 MissingNullability: androidx.leanback.app.DetailsSupportFragment#onSetDetailsOverviewRowStatus(androidx.leanback.widget.FullWidthDetailsOverviewRowPresenter, androidx.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder, int, int, int) parameter #0:
     Missing nullability on parameter `presenter` in method `onSetDetailsOverviewRowStatus`
 MissingNullability: androidx.leanback.app.DetailsSupportFragment#onSetDetailsOverviewRowStatus(androidx.leanback.widget.FullWidthDetailsOverviewRowPresenter, androidx.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder, int, int, int) parameter #1:
@@ -527,126 +461,16 @@ MissingNullability: androidx.leanback.app.DetailsSupportFragmentBackgroundContro
     Missing nullability on method `onCreateVideoSupportFragment` return
 MissingNullability: androidx.leanback.app.DetailsSupportFragmentBackgroundController#setCoverBitmap(android.graphics.Bitmap) parameter #0:
     Missing nullability on parameter `bitmap` in method `setCoverBitmap`
-MissingNullability: androidx.leanback.app.ErrorFragment#getBackgroundDrawable():
-    Missing nullability on method `getBackgroundDrawable` return
-MissingNullability: androidx.leanback.app.ErrorFragment#getButtonClickListener():
-    Missing nullability on method `getButtonClickListener` return
-MissingNullability: androidx.leanback.app.ErrorFragment#getButtonText():
-    Missing nullability on method `getButtonText` return
-MissingNullability: androidx.leanback.app.ErrorFragment#getImageDrawable():
-    Missing nullability on method `getImageDrawable` return
-MissingNullability: androidx.leanback.app.ErrorFragment#getMessage():
-    Missing nullability on method `getMessage` return
-MissingNullability: androidx.leanback.app.ErrorFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle):
-    Missing nullability on method `onCreateView` return
 MissingNullability: androidx.leanback.app.ErrorFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #0:
     Missing nullability on parameter `inflater` in method `onCreateView`
-MissingNullability: androidx.leanback.app.ErrorFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #1:
-    Missing nullability on parameter `container` in method `onCreateView`
 MissingNullability: androidx.leanback.app.ErrorFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #2:
     Missing nullability on parameter `savedInstanceState` in method `onCreateView`
-MissingNullability: androidx.leanback.app.ErrorFragment#setBackgroundDrawable(android.graphics.drawable.Drawable) parameter #0:
-    Missing nullability on parameter `drawable` in method `setBackgroundDrawable`
-MissingNullability: androidx.leanback.app.ErrorFragment#setButtonClickListener(android.view.View.OnClickListener) parameter #0:
-    Missing nullability on parameter `clickListener` in method `setButtonClickListener`
-MissingNullability: androidx.leanback.app.ErrorFragment#setButtonText(String) parameter #0:
-    Missing nullability on parameter `text` in method `setButtonText`
-MissingNullability: androidx.leanback.app.ErrorFragment#setImageDrawable(android.graphics.drawable.Drawable) parameter #0:
-    Missing nullability on parameter `drawable` in method `setImageDrawable`
-MissingNullability: androidx.leanback.app.ErrorFragment#setMessage(CharSequence) parameter #0:
-    Missing nullability on parameter `message` in method `setMessage`
-MissingNullability: androidx.leanback.app.GuidedStepFragment#add(android.app.FragmentManager, androidx.leanback.app.GuidedStepFragment) parameter #0:
-    Missing nullability on parameter `fragmentManager` in method `add`
-MissingNullability: androidx.leanback.app.GuidedStepFragment#add(android.app.FragmentManager, androidx.leanback.app.GuidedStepFragment) parameter #1:
-    Missing nullability on parameter `fragment` in method `add`
-MissingNullability: androidx.leanback.app.GuidedStepFragment#add(android.app.FragmentManager, androidx.leanback.app.GuidedStepFragment, int) parameter #0:
-    Missing nullability on parameter `fragmentManager` in method `add`
-MissingNullability: androidx.leanback.app.GuidedStepFragment#add(android.app.FragmentManager, androidx.leanback.app.GuidedStepFragment, int) parameter #1:
-    Missing nullability on parameter `fragment` in method `add`
-MissingNullability: androidx.leanback.app.GuidedStepFragment#addAsRoot(android.app.Activity, androidx.leanback.app.GuidedStepFragment, int) parameter #0:
-    Missing nullability on parameter `activity` in method `addAsRoot`
-MissingNullability: androidx.leanback.app.GuidedStepFragment#addAsRoot(android.app.Activity, androidx.leanback.app.GuidedStepFragment, int) parameter #1:
-    Missing nullability on parameter `fragment` in method `addAsRoot`
-MissingNullability: androidx.leanback.app.GuidedStepFragment#expandAction(androidx.leanback.widget.GuidedAction, boolean) parameter #0:
-    Missing nullability on parameter `action` in method `expandAction`
-MissingNullability: androidx.leanback.app.GuidedStepFragment#expandSubActions(androidx.leanback.widget.GuidedAction) parameter #0:
-    Missing nullability on parameter `action` in method `expandSubActions`
-MissingNullability: androidx.leanback.app.GuidedStepFragment#findActionById(long):
-    Missing nullability on method `findActionById` return
-MissingNullability: androidx.leanback.app.GuidedStepFragment#findButtonActionById(long):
-    Missing nullability on method `findButtonActionById` return
-MissingNullability: androidx.leanback.app.GuidedStepFragment#getActionItemView(int):
-    Missing nullability on method `getActionItemView` return
-MissingNullability: androidx.leanback.app.GuidedStepFragment#getActions():
-    Missing nullability on method `getActions` return
-MissingNullability: androidx.leanback.app.GuidedStepFragment#getButtonActionItemView(int):
-    Missing nullability on method `getButtonActionItemView` return
-MissingNullability: androidx.leanback.app.GuidedStepFragment#getButtonActions():
-    Missing nullability on method `getButtonActions` return
-MissingNullability: androidx.leanback.app.GuidedStepFragment#getCurrentGuidedStepFragment(android.app.FragmentManager):
-    Missing nullability on method `getCurrentGuidedStepFragment` return
-MissingNullability: androidx.leanback.app.GuidedStepFragment#getCurrentGuidedStepFragment(android.app.FragmentManager) parameter #0:
-    Missing nullability on parameter `fm` in method `getCurrentGuidedStepFragment`
-MissingNullability: androidx.leanback.app.GuidedStepFragment#getGuidanceStylist():
-    Missing nullability on method `getGuidanceStylist` return
-MissingNullability: androidx.leanback.app.GuidedStepFragment#getGuidedActionsStylist():
-    Missing nullability on method `getGuidedActionsStylist` return
-MissingNullability: androidx.leanback.app.GuidedStepFragment#getGuidedButtonActionsStylist():
-    Missing nullability on method `getGuidedButtonActionsStylist` return
-MissingNullability: androidx.leanback.app.GuidedStepFragment#onAddSharedElementTransition(android.app.FragmentTransaction, androidx.leanback.app.GuidedStepFragment) parameter #0:
-    Missing nullability on parameter `ft` in method `onAddSharedElementTransition`
-MissingNullability: androidx.leanback.app.GuidedStepFragment#onAddSharedElementTransition(android.app.FragmentTransaction, androidx.leanback.app.GuidedStepFragment) parameter #1:
-    Missing nullability on parameter `disappearing` in method `onAddSharedElementTransition`
-MissingNullability: androidx.leanback.app.GuidedStepFragment#onCreate(android.os.Bundle) parameter #0:
-    Missing nullability on parameter `savedInstanceState` in method `onCreate`
-MissingNullability: androidx.leanback.app.GuidedStepFragment#onCreateActions(java.util.List<androidx.leanback.widget.GuidedAction>, android.os.Bundle) parameter #1:
-    Missing nullability on parameter `savedInstanceState` in method `onCreateActions`
-MissingNullability: androidx.leanback.app.GuidedStepFragment#onCreateActionsStylist():
-    Missing nullability on method `onCreateActionsStylist` return
-MissingNullability: androidx.leanback.app.GuidedStepFragment#onCreateBackgroundView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle):
-    Missing nullability on method `onCreateBackgroundView` return
-MissingNullability: androidx.leanback.app.GuidedStepFragment#onCreateBackgroundView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #0:
-    Missing nullability on parameter `inflater` in method `onCreateBackgroundView`
-MissingNullability: androidx.leanback.app.GuidedStepFragment#onCreateBackgroundView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #1:
-    Missing nullability on parameter `container` in method `onCreateBackgroundView`
-MissingNullability: androidx.leanback.app.GuidedStepFragment#onCreateBackgroundView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #2:
-    Missing nullability on parameter `savedInstanceState` in method `onCreateBackgroundView`
-MissingNullability: androidx.leanback.app.GuidedStepFragment#onCreateButtonActions(java.util.List<androidx.leanback.widget.GuidedAction>, android.os.Bundle) parameter #1:
-    Missing nullability on parameter `savedInstanceState` in method `onCreateButtonActions`
-MissingNullability: androidx.leanback.app.GuidedStepFragment#onCreateButtonActionsStylist():
-    Missing nullability on method `onCreateButtonActionsStylist` return
-MissingNullability: androidx.leanback.app.GuidedStepFragment#onCreateGuidance(android.os.Bundle) parameter #0:
-    Missing nullability on parameter `savedInstanceState` in method `onCreateGuidance`
-MissingNullability: androidx.leanback.app.GuidedStepFragment#onCreateGuidanceStylist():
-    Missing nullability on method `onCreateGuidanceStylist` return
-MissingNullability: androidx.leanback.app.GuidedStepFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle):
-    Missing nullability on method `onCreateView` return
 MissingNullability: androidx.leanback.app.GuidedStepFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #0:
     Missing nullability on parameter `inflater` in method `onCreateView`
-MissingNullability: androidx.leanback.app.GuidedStepFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #1:
-    Missing nullability on parameter `container` in method `onCreateView`
 MissingNullability: androidx.leanback.app.GuidedStepFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #2:
     Missing nullability on parameter `savedInstanceState` in method `onCreateView`
-MissingNullability: androidx.leanback.app.GuidedStepFragment#onGuidedActionClicked(androidx.leanback.widget.GuidedAction) parameter #0:
-    Missing nullability on parameter `action` in method `onGuidedActionClicked`
-MissingNullability: androidx.leanback.app.GuidedStepFragment#onGuidedActionEditCanceled(androidx.leanback.widget.GuidedAction) parameter #0:
-    Missing nullability on parameter `action` in method `onGuidedActionEditCanceled`
-MissingNullability: androidx.leanback.app.GuidedStepFragment#onGuidedActionEditedAndProceed(androidx.leanback.widget.GuidedAction) parameter #0:
-    Missing nullability on parameter `action` in method `onGuidedActionEditedAndProceed`
 MissingNullability: androidx.leanback.app.GuidedStepFragment#onSaveInstanceState(android.os.Bundle) parameter #0:
     Missing nullability on parameter `outState` in method `onSaveInstanceState`
-MissingNullability: androidx.leanback.app.GuidedStepFragment#onSubGuidedActionClicked(androidx.leanback.widget.GuidedAction) parameter #0:
-    Missing nullability on parameter `action` in method `onSubGuidedActionClicked`
-MissingNullability: androidx.leanback.app.GuidedStepFragment#openInEditMode(androidx.leanback.widget.GuidedAction) parameter #0:
-    Missing nullability on parameter `action` in method `openInEditMode`
-MissingNullability: androidx.leanback.app.GuidedStepFragment#popBackStackToGuidedStepFragment(Class<?>, int) parameter #0:
-    Missing nullability on parameter `guidedStepFragmentClass` in method `popBackStackToGuidedStepFragment`
-MissingNullability: androidx.leanback.app.GuidedStepFragment#setActions(java.util.List<androidx.leanback.widget.GuidedAction>) parameter #0:
-    Missing nullability on parameter `actions` in method `setActions`
-MissingNullability: androidx.leanback.app.GuidedStepFragment#setActionsDiffCallback(androidx.leanback.widget.DiffCallback<androidx.leanback.widget.GuidedAction>) parameter #0:
-    Missing nullability on parameter `diffCallback` in method `setActionsDiffCallback`
-MissingNullability: androidx.leanback.app.GuidedStepFragment#setButtonActions(java.util.List<androidx.leanback.widget.GuidedAction>) parameter #0:
-    Missing nullability on parameter `actions` in method `setButtonActions`
 MissingNullability: androidx.leanback.app.HeadersFragment#setOnHeaderClickedListener(androidx.leanback.app.HeadersFragment.OnHeaderClickedListener) parameter #0:
     Missing nullability on parameter `listener` in method `setOnHeaderClickedListener`
 MissingNullability: androidx.leanback.app.HeadersFragment#setOnHeaderViewSelectedListener(androidx.leanback.app.HeadersFragment.OnHeaderViewSelectedListener) parameter #0:
@@ -671,50 +495,20 @@ MissingNullability: androidx.leanback.app.HeadersSupportFragment.OnHeaderViewSel
     Missing nullability on parameter `viewHolder` in method `onHeaderSelected`
 MissingNullability: androidx.leanback.app.HeadersSupportFragment.OnHeaderViewSelectedListener#onHeaderSelected(androidx.leanback.widget.RowHeaderPresenter.ViewHolder, androidx.leanback.widget.Row) parameter #1:
     Missing nullability on parameter `row` in method `onHeaderSelected`
-MissingNullability: androidx.leanback.app.OnboardingFragment#getPageDescription(int):
-    Missing nullability on method `getPageDescription` return
-MissingNullability: androidx.leanback.app.OnboardingFragment#getPageTitle(int):
-    Missing nullability on method `getPageTitle` return
-MissingNullability: androidx.leanback.app.OnboardingFragment#getStartButtonText():
-    Missing nullability on method `getStartButtonText` return
-MissingNullability: androidx.leanback.app.OnboardingFragment#onCreateBackgroundView(android.view.LayoutInflater, android.view.ViewGroup) parameter #0:
-    Missing nullability on parameter `inflater` in method `onCreateBackgroundView`
-MissingNullability: androidx.leanback.app.OnboardingFragment#onCreateBackgroundView(android.view.LayoutInflater, android.view.ViewGroup) parameter #1:
-    Missing nullability on parameter `container` in method `onCreateBackgroundView`
-MissingNullability: androidx.leanback.app.OnboardingFragment#onCreateContentView(android.view.LayoutInflater, android.view.ViewGroup) parameter #0:
-    Missing nullability on parameter `inflater` in method `onCreateContentView`
-MissingNullability: androidx.leanback.app.OnboardingFragment#onCreateContentView(android.view.LayoutInflater, android.view.ViewGroup) parameter #1:
-    Missing nullability on parameter `container` in method `onCreateContentView`
-MissingNullability: androidx.leanback.app.OnboardingFragment#onCreateDescriptionAnimator():
-    Missing nullability on method `onCreateDescriptionAnimator` return
-MissingNullability: androidx.leanback.app.OnboardingFragment#onCreateForegroundView(android.view.LayoutInflater, android.view.ViewGroup) parameter #0:
-    Missing nullability on parameter `inflater` in method `onCreateForegroundView`
-MissingNullability: androidx.leanback.app.OnboardingFragment#onCreateForegroundView(android.view.LayoutInflater, android.view.ViewGroup) parameter #1:
-    Missing nullability on parameter `container` in method `onCreateForegroundView`
-MissingNullability: androidx.leanback.app.OnboardingFragment#onCreateTitleAnimator():
-    Missing nullability on method `onCreateTitleAnimator` return
 MissingNullability: androidx.leanback.app.OnboardingFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #0:
     Missing nullability on parameter `inflater` in method `onCreateView`
-MissingNullability: androidx.leanback.app.OnboardingFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #1:
-    Missing nullability on parameter `container` in method `onCreateView`
 MissingNullability: androidx.leanback.app.OnboardingFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #2:
     Missing nullability on parameter `savedInstanceState` in method `onCreateView`
 MissingNullability: androidx.leanback.app.OnboardingFragment#onSaveInstanceState(android.os.Bundle) parameter #0:
     Missing nullability on parameter `outState` in method `onSaveInstanceState`
-MissingNullability: androidx.leanback.app.OnboardingFragment#setStartButtonText(CharSequence) parameter #0:
-    Missing nullability on parameter `text` in method `setStartButtonText`
 MissingNullability: androidx.leanback.app.PlaybackFragment#getAdapter():
     Missing nullability on method `getAdapter` return
 MissingNullability: androidx.leanback.app.PlaybackFragment#getProgressBarManager():
     Missing nullability on method `getProgressBarManager` return
 MissingNullability: androidx.leanback.app.PlaybackFragment#onCreate(android.os.Bundle) parameter #0:
     Missing nullability on parameter `savedInstanceState` in method `onCreate`
-MissingNullability: androidx.leanback.app.PlaybackFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle):
-    Missing nullability on method `onCreateView` return
 MissingNullability: androidx.leanback.app.PlaybackFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #0:
     Missing nullability on parameter `inflater` in method `onCreateView`
-MissingNullability: androidx.leanback.app.PlaybackFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #1:
-    Missing nullability on parameter `container` in method `onCreateView`
 MissingNullability: androidx.leanback.app.PlaybackFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #2:
     Missing nullability on parameter `savedInstanceState` in method `onCreateView`
 MissingNullability: androidx.leanback.app.PlaybackFragment#onError(int, CharSequence) parameter #1:
@@ -759,14 +553,6 @@ MissingNullability: androidx.leanback.app.PlaybackSupportFragment#getProgressBar
     Missing nullability on method `getProgressBarManager` return
 MissingNullability: androidx.leanback.app.PlaybackSupportFragment#onCreate(android.os.Bundle) parameter #0:
     Missing nullability on parameter `savedInstanceState` in method `onCreate`
-MissingNullability: androidx.leanback.app.PlaybackSupportFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle):
-    Missing nullability on method `onCreateView` return
-MissingNullability: androidx.leanback.app.PlaybackSupportFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #0:
-    Missing nullability on parameter `inflater` in method `onCreateView`
-MissingNullability: androidx.leanback.app.PlaybackSupportFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #1:
-    Missing nullability on parameter `container` in method `onCreateView`
-MissingNullability: androidx.leanback.app.PlaybackSupportFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #2:
-    Missing nullability on parameter `savedInstanceState` in method `onCreateView`
 MissingNullability: androidx.leanback.app.PlaybackSupportFragment#onError(int, CharSequence) parameter #1:
     Missing nullability on parameter `errorMessage` in method `onError`
 MissingNullability: androidx.leanback.app.PlaybackSupportFragment#setAdapter(androidx.leanback.widget.ObjectAdapter) parameter #0:
@@ -911,12 +697,8 @@ MissingNullability: androidx.leanback.app.SearchFragment#newInstance(String) par
     Missing nullability on parameter `query` in method `newInstance`
 MissingNullability: androidx.leanback.app.SearchFragment#onCreate(android.os.Bundle) parameter #0:
     Missing nullability on parameter `savedInstanceState` in method `onCreate`
-MissingNullability: androidx.leanback.app.SearchFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle):
-    Missing nullability on method `onCreateView` return
 MissingNullability: androidx.leanback.app.SearchFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #0:
     Missing nullability on parameter `inflater` in method `onCreateView`
-MissingNullability: androidx.leanback.app.SearchFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #1:
-    Missing nullability on parameter `container` in method `onCreateView`
 MissingNullability: androidx.leanback.app.SearchFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #2:
     Missing nullability on parameter `savedInstanceState` in method `onCreateView`
 MissingNullability: androidx.leanback.app.SearchFragment#onRequestPermissionsResult(int, String[], int[]) parameter #1:
@@ -979,14 +761,6 @@ MissingNullability: androidx.leanback.app.SearchSupportFragment#newInstance(Stri
     Missing nullability on parameter `query` in method `newInstance`
 MissingNullability: androidx.leanback.app.SearchSupportFragment#onCreate(android.os.Bundle) parameter #0:
     Missing nullability on parameter `savedInstanceState` in method `onCreate`
-MissingNullability: androidx.leanback.app.SearchSupportFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle):
-    Missing nullability on method `onCreateView` return
-MissingNullability: androidx.leanback.app.SearchSupportFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #0:
-    Missing nullability on parameter `inflater` in method `onCreateView`
-MissingNullability: androidx.leanback.app.SearchSupportFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #1:
-    Missing nullability on parameter `container` in method `onCreateView`
-MissingNullability: androidx.leanback.app.SearchSupportFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #2:
-    Missing nullability on parameter `savedInstanceState` in method `onCreateView`
 MissingNullability: androidx.leanback.app.SearchSupportFragment#onRequestPermissionsResult(int, String[], int[]) parameter #1:
     Missing nullability on parameter `permissions` in method `onRequestPermissionsResult`
 MissingNullability: androidx.leanback.app.SearchSupportFragment#onRequestPermissionsResult(int, String[], int[]) parameter #2:
@@ -1015,40 +789,14 @@ MissingNullability: androidx.leanback.app.SearchSupportFragment.SearchResultProv
     Missing nullability on parameter `newQuery` in method `onQueryTextChange`
 MissingNullability: androidx.leanback.app.SearchSupportFragment.SearchResultProvider#onQueryTextSubmit(String) parameter #0:
     Missing nullability on parameter `query` in method `onQueryTextSubmit`
-MissingNullability: androidx.leanback.app.VerticalGridFragment#createEntranceTransition():
-    Missing nullability on method `createEntranceTransition` return
-MissingNullability: androidx.leanback.app.VerticalGridFragment#getAdapter():
-    Missing nullability on method `getAdapter` return
-MissingNullability: androidx.leanback.app.VerticalGridFragment#getGridPresenter():
-    Missing nullability on method `getGridPresenter` return
-MissingNullability: androidx.leanback.app.VerticalGridFragment#getOnItemViewClickedListener():
-    Missing nullability on method `getOnItemViewClickedListener` return
-MissingNullability: androidx.leanback.app.VerticalGridFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle):
-    Missing nullability on method `onCreateView` return
 MissingNullability: androidx.leanback.app.VerticalGridFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #0:
     Missing nullability on parameter `inflater` in method `onCreateView`
-MissingNullability: androidx.leanback.app.VerticalGridFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #1:
-    Missing nullability on parameter `container` in method `onCreateView`
 MissingNullability: androidx.leanback.app.VerticalGridFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #2:
     Missing nullability on parameter `savedInstanceState` in method `onCreateView`
-MissingNullability: androidx.leanback.app.VerticalGridFragment#runEntranceTransition(Object) parameter #0:
-    Missing nullability on parameter `entranceTransition` in method `runEntranceTransition`
-MissingNullability: androidx.leanback.app.VerticalGridFragment#setAdapter(androidx.leanback.widget.ObjectAdapter) parameter #0:
-    Missing nullability on parameter `adapter` in method `setAdapter`
-MissingNullability: androidx.leanback.app.VerticalGridFragment#setGridPresenter(androidx.leanback.widget.VerticalGridPresenter) parameter #0:
-    Missing nullability on parameter `gridPresenter` in method `setGridPresenter`
-MissingNullability: androidx.leanback.app.VerticalGridFragment#setOnItemViewClickedListener(androidx.leanback.widget.OnItemViewClickedListener) parameter #0:
-    Missing nullability on parameter `listener` in method `setOnItemViewClickedListener`
-MissingNullability: androidx.leanback.app.VerticalGridFragment#setOnItemViewSelectedListener(androidx.leanback.widget.OnItemViewSelectedListener) parameter #0:
-    Missing nullability on parameter `listener` in method `setOnItemViewSelectedListener`
 MissingNullability: androidx.leanback.app.VideoFragment#getSurfaceView():
     Missing nullability on method `getSurfaceView` return
-MissingNullability: androidx.leanback.app.VideoFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle):
-    Missing nullability on method `onCreateView` return
 MissingNullability: androidx.leanback.app.VideoFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #0:
     Missing nullability on parameter `inflater` in method `onCreateView`
-MissingNullability: androidx.leanback.app.VideoFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #1:
-    Missing nullability on parameter `container` in method `onCreateView`
 MissingNullability: androidx.leanback.app.VideoFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #2:
     Missing nullability on parameter `savedInstanceState` in method `onCreateView`
 MissingNullability: androidx.leanback.app.VideoFragment#setSurfaceHolderCallback(android.view.SurfaceHolder.Callback) parameter #0:
@@ -1059,14 +807,6 @@ MissingNullability: androidx.leanback.app.VideoFragmentGlueHost#setSurfaceHolder
     Missing nullability on parameter `callback` in method `setSurfaceHolderCallback`
 MissingNullability: androidx.leanback.app.VideoSupportFragment#getSurfaceView():
     Missing nullability on method `getSurfaceView` return
-MissingNullability: androidx.leanback.app.VideoSupportFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle):
-    Missing nullability on method `onCreateView` return
-MissingNullability: androidx.leanback.app.VideoSupportFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #0:
-    Missing nullability on parameter `inflater` in method `onCreateView`
-MissingNullability: androidx.leanback.app.VideoSupportFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #1:
-    Missing nullability on parameter `container` in method `onCreateView`
-MissingNullability: androidx.leanback.app.VideoSupportFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #2:
-    Missing nullability on parameter `savedInstanceState` in method `onCreateView`
 MissingNullability: androidx.leanback.app.VideoSupportFragment#setSurfaceHolderCallback(android.view.SurfaceHolder.Callback) parameter #0:
     Missing nullability on parameter `callback` in method `setSurfaceHolderCallback`
 MissingNullability: androidx.leanback.app.VideoSupportFragmentGlueHost#VideoSupportFragmentGlueHost(androidx.leanback.app.VideoSupportFragment) parameter #0:
@@ -1133,8 +873,6 @@ MissingNullability: androidx.leanback.graphics.CompositeDrawable.ChildDrawable#T
     Missing nullability on field `TOP_FRACTION` in class `class androidx.leanback.graphics.CompositeDrawable.ChildDrawable`
 MissingNullability: androidx.leanback.graphics.FitWidthBitmapDrawable#PROPERTY_VERTICAL_OFFSET:
     Missing nullability on field `PROPERTY_VERTICAL_OFFSET` in class `class androidx.leanback.graphics.FitWidthBitmapDrawable`
-MissingNullability: androidx.leanback.graphics.FitWidthBitmapDrawable#draw(android.graphics.Canvas) parameter #0:
-    Missing nullability on parameter `canvas` in method `draw`
 MissingNullability: androidx.leanback.graphics.FitWidthBitmapDrawable#getBitmap():
     Missing nullability on method `getBitmap` return
 MissingNullability: androidx.leanback.graphics.FitWidthBitmapDrawable#getConstantState():
@@ -2189,8 +1927,6 @@ MissingNullability: androidx.leanback.widget.ShadowOverlayContainer#ShadowOverla
     Missing nullability on parameter `context` in method `ShadowOverlayContainer`
 MissingNullability: androidx.leanback.widget.ShadowOverlayContainer#ShadowOverlayContainer(android.content.Context, android.util.AttributeSet, int) parameter #1:
     Missing nullability on parameter `attrs` in method `ShadowOverlayContainer`
-MissingNullability: androidx.leanback.widget.ShadowOverlayContainer#draw(android.graphics.Canvas) parameter #0:
-    Missing nullability on parameter `canvas` in method `draw`
 MissingNullability: androidx.leanback.widget.ShadowOverlayContainer#getWrappedView():
     Missing nullability on method `getWrappedView` return
 MissingNullability: androidx.leanback.widget.ShadowOverlayContainer#prepareParentForShadow(android.view.ViewGroup) parameter #0:
@@ -2359,6 +2095,14 @@ MutableBareField: androidx.leanback.widget.SearchOrbView.Colors#color:
     Bare field color must be marked final, or moved behind accessors if mutable
 MutableBareField: androidx.leanback.widget.SearchOrbView.Colors#iconColor:
     Bare field iconColor must be marked final, or moved behind accessors if mutable
+
+
+NotCloseable: androidx.leanback.app.BackgroundManager:
+    Classes that release resources (release()) should implement AutoCloseable and CloseGuard: class androidx.leanback.app.BackgroundManager
+NotCloseable: androidx.leanback.media.MediaPlayerAdapter:
+    Classes that release resources (release()) should implement AutoCloseable and CloseGuard: class androidx.leanback.media.MediaPlayerAdapter
+NotCloseable: androidx.leanback.widget.CursorObjectAdapter:
+    Classes that release resources (close()) should implement AutoCloseable and CloseGuard: class androidx.leanback.widget.CursorObjectAdapter
 
 
 RegistrationName: androidx.leanback.media.PlaybackGlue#addPlayerCallback(androidx.leanback.media.PlaybackGlue.PlayerCallback):

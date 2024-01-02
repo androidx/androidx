@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.compose.ui.text.input
 
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.text.AtomicReference
 import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.TextLayoutResult
@@ -31,6 +33,7 @@ import androidx.compose.ui.text.TextLayoutResult
  * close it with [stopInput].
  */
 // Open for testing purposes.
+@Deprecated("Use PlatformTextInputModifierNode instead.")
 open class TextInputService(private val platformTextInputService: PlatformTextInputService) {
     private val _currentInputSession: AtomicReference<TextInputSession?> =
         AtomicReference(null)
@@ -74,6 +77,8 @@ open class TextInputService(private val platformTextInputService: PlatformTextIn
     @InternalTextApi
     fun startInput() {
         platformTextInputService.startInput()
+        val nextSession = TextInputSession(this, platformTextInputService)
+        _currentInputSession.set(nextSession)
     }
 
     /**
@@ -111,7 +116,9 @@ open class TextInputService(private val platformTextInputService: PlatformTextIn
     )
     // TODO(b/183448615) @InternalTextApi
     fun showSoftwareKeyboard() {
-        platformTextInputService.showSoftwareKeyboard()
+        if (currentInputSession != null) {
+            platformTextInputService.showSoftwareKeyboard()
+        }
     }
 
     /**
@@ -132,6 +139,7 @@ open class TextInputService(private val platformTextInputService: PlatformTextIn
  * This session may be closed at any time by [TextInputService] or by calling [dispose], after
  * which [isOpen] will return false and all further calls will have no effect.
  */
+@Deprecated("Use PlatformTextInputModifierNode instead.")
 class TextInputSession(
     private val textInputService: TextInputService,
     private val platformTextInputService: PlatformTextInputService
@@ -195,7 +203,8 @@ class TextInputSession(
      * @param textFieldValue the text field's [TextFieldValue]
      * @param offsetMapping the offset mapping for the visual transformation
      * @param textLayoutResult the text field's [TextLayoutResult]
-     * @param textLayoutPositionInWindow position of the text field relative to the window
+     * @param textFieldToRootTransform function that modifies a matrix to be a transformation matrix
+     *   from local coordinates to the root composable coordinates
      * @param innerTextFieldBounds visible bounds of the text field in local coordinates, or an
      *   empty rectangle if the text field is not visible
      * @param decorationBoxBounds visible bounds of the decoration box in local coordinates, or an
@@ -205,7 +214,7 @@ class TextInputSession(
         textFieldValue: TextFieldValue,
         offsetMapping: OffsetMapping,
         textLayoutResult: TextLayoutResult,
-        textLayoutPositionInWindow: Offset,
+        textFieldToRootTransform: (Matrix) -> Unit,
         innerTextFieldBounds: Rect,
         decorationBoxBounds: Rect
     ) = ensureOpenSession {
@@ -213,7 +222,7 @@ class TextInputSession(
             textFieldValue,
             offsetMapping,
             textLayoutResult,
-            textLayoutPositionInWindow,
+            textFieldToRootTransform,
             innerTextFieldBounds,
             decorationBoxBounds
         )
@@ -255,6 +264,8 @@ class TextInputSession(
      *
      * @return false if this session expired and no action was performed
      */
+    // TODO(b/241399013) Deprecate when out of API freeze.
+    // @Deprecated("Use SoftwareKeyboardController.show() instead.")
     fun showSoftwareKeyboard(): Boolean = ensureOpenSession {
         platformTextInputService.showSoftwareKeyboard()
     }
@@ -270,6 +281,8 @@ class TextInputSession(
      *
      * @return false if this session expired and no action was performed
      */
+    // TODO(b/241399013) Deprecate when out of API freeze.
+    // @Deprecated("Use SoftwareKeyboardController.hide() instead.")
     fun hideSoftwareKeyboard(): Boolean = ensureOpenSession {
         platformTextInputService.hideSoftwareKeyboard()
     }
@@ -278,6 +291,7 @@ class TextInputSession(
 /**
  * Platform specific text input service.
  */
+@Deprecated("Use PlatformTextInputModifierNode instead.")
 interface PlatformTextInputService {
     /**
      * Start text input session for given client.
@@ -349,7 +363,7 @@ interface PlatformTextInputService {
         textFieldValue: TextFieldValue,
         offsetMapping: OffsetMapping,
         textLayoutResult: TextLayoutResult,
-        textLayoutPositionInWindow: Offset,
+        textFieldToRootTransform: (Matrix) -> Unit,
         innerTextFieldBounds: Rect,
         decorationBoxBounds: Rect
     ) {

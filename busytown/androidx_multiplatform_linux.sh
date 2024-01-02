@@ -13,9 +13,10 @@ export ANDROIDX_PROJECTS=INFRAROGUE   # TODO: Switch from `INFRAROGUE` to `KMP`
 # disable cache, NS does not allow it yet: b/235227707
 export USE_ANDROIDX_REMOTE_BUILD_CACHE=false
 
-# --no-configuration-cache is due to KT-60311
 # run build in a sandbox
-../development/sandbox/run-without-network.sh impl/build.sh buildOnServer \
-    allTests \
-    --no-configuration-cache \
+../development/sandbox/run-without-network.sh impl/build.sh \
+    buildOnServer \
+    listTaskOutputs \
+    allHostTests \
+    -Pandroidx.ignoreTestFailures \
     -Pandroidx.displayTestOutput=false

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
+<issues format="6" by="lint 8.2.0-alpha14" type="baseline" client="cli" dependencies="false" name="AGP (8.2.0-alpha14)" variant="all" version="8.2.0-alpha14">
 
     <issue
         id="BanThreadSleep"
@@ -8,24 +8,6 @@
         errorLine2="                       ~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/internal/compat/workaround/OnEnableDisableSessionDurationCheck.java"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="        Thread.sleep(duration)"
-        errorLine2="               ~~~~~">
-        <location
-            file="src/androidTest/java/androidx/camera/extensions/internal/compat/workaround/OnEnableDisableSessionDurationCheckTest.kt"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="        Thread.sleep(duration)"
-        errorLine2="               ~~~~~">
-        <location
-            file="src/androidTest/java/androidx/camera/extensions/internal/compat/workaround/OnEnableDisableSessionDurationCheckTest.kt"/>
     </issue>
 
 </issues>

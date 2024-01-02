@@ -114,8 +114,6 @@ val ALLOW_RERUNNING_TASKS =
         ":external:libyuv:buildCMakeRelWithDebInfo[arm64-v8a][yuv]",
         ":external:libyuv:buildCMakeRelWithDebInfo[x86][yuv]",
         ":external:libyuv:buildCMakeRelWithDebInfo[x86_64][yuv]",
-        ":hilt:hilt-navigation-compose:kaptGenerateStubsDebugKotlin",
-        ":hilt:hilt-navigation-compose:kaptGenerateStubsReleaseKotlin",
         ":lint-checks:integration-tests:copyDebugAndroidLintReports",
 
         // https://youtrack.jetbrains.com/issue/KT-49933
@@ -129,7 +127,10 @@ val ALLOW_RERUNNING_TASKS =
         ":privacysandbox:tools:tools-core:extractIncludeTestProto",
         ":test:screenshot:screenshot-proto:extractIncludeTestProto",
         ":wear:protolayout:protolayout-proto:extractIncludeTestProto",
-        ":wear:tiles:tiles-proto:extractIncludeTestProto"
+        ":wear:tiles:tiles-proto:extractIncludeTestProto",
+
+        // https://youtrack.jetbrains.com/issue/KT-61931
+        "checkKotlinGradlePluginConfigurationErrors"
     )
 
 // Additional tasks that are expected to be temporarily out-of-date after running once
@@ -253,18 +254,18 @@ abstract class TaskUpToDateValidator :
                 DONT_TRY_RERUNNING_TASK_TYPES.contains(task::class.qualifiedName))
         }
 
-        fun setup(rootProject: Project, registry: BuildEventsListenerRegistry) {
-            if (!shouldEnable(rootProject)) {
+        fun setup(project: Project, registry: BuildEventsListenerRegistry) {
+            if (!shouldEnable(project)) {
                 return
             }
             val validate =
-                rootProject.providers
+                project.providers
                     .environmentVariable(DISALLOW_TASK_EXECUTION_VAR_NAME)
                     .map { true }
                     .orElse(false)
             // create listener for validating that any task that reran was expected to rerun
             val validatorProvider =
-                rootProject.gradle.sharedServices.registerIfAbsent(
+                project.gradle.sharedServices.registerIfAbsent(
                     "TaskUpToDateValidator",
                     TaskUpToDateValidator::class.java
                 ) { spec ->
@@ -273,10 +274,8 @@ abstract class TaskUpToDateValidator :
             registry.onTaskCompletion(validatorProvider)
 
             // skip rerunning tasks that are known to be unnecessary to rerun
-            rootProject.allprojects { subproject ->
-                subproject.tasks.configureEach { task ->
-                    task.onlyIf { shouldTryRerunningTask(task) || !validate.get() }
-                }
+            project.tasks.configureEach { task ->
+                task.onlyIf { shouldTryRerunningTask(task) || !validate.get() }
             }
         }
     }

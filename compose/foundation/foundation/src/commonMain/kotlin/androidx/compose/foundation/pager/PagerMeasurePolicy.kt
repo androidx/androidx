@@ -19,6 +19,7 @@ package androidx.compose.foundation.pager
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.checkScrollableContainerConstraints
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -35,7 +36,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.offset
-import kotlin.math.roundToInt
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -45,22 +45,23 @@ internal fun rememberPagerMeasurePolicy(
     contentPadding: PaddingValues,
     reverseLayout: Boolean,
     orientation: Orientation,
-    beyondBoundsPageCount: Int,
+    outOfBoundsPageCount: Int,
     pageSpacing: Dp,
     pageSize: PageSize,
     horizontalAlignment: Alignment.Horizontal?,
     verticalAlignment: Alignment.Vertical?,
+    snapPosition: SnapPosition,
     pageCount: () -> Int,
 ) = remember<LazyLayoutMeasureScope.(Constraints) -> MeasureResult>(
-    contentPadding,
-    pageSpacing,
-    pageSize,
     state,
     contentPadding,
     reverseLayout,
     orientation,
     horizontalAlignment,
     verticalAlignment,
+    pageSpacing,
+    pageSize,
+    snapPosition,
     pageCount,
 ) {
     { containerConstraints ->
@@ -138,19 +139,24 @@ internal fun rememberPagerMeasurePolicy(
                 pageAvailableSize
             }
         )
+        val itemProvider = itemProviderLambda()
 
-        val firstVisiblePage: Int
-        val firstVisiblePageOffset: Int
+        val currentPage: Int
+        val currentPageOffset: Int
+
         Snapshot.withoutReadObservation {
-            firstVisiblePage = state.firstVisiblePage
-            firstVisiblePageOffset = if (state.layoutInfo == EmptyLayoutInfo) {
-                (state.initialPageOffsetFraction * pageAvailableSize).roundToInt()
-            } else {
-                state.firstVisiblePageOffset
-            }
+            currentPage = state.matchScrollPositionWithKey(itemProvider, state.currentPage)
+            currentPageOffset = snapPosition.currentPageOffset(
+                mainAxisAvailableSize,
+                pageAvailableSize,
+                spaceBetweenPages,
+                beforeContentPadding,
+                afterContentPadding,
+                state.currentPage,
+                state.currentPageOffsetFraction
+            )
         }
 
-        val itemProvider = itemProviderLambda()
         val pinnedPages = itemProvider.calculateLazyLayoutPinnedIndices(
             pinnedItemList = state.pinnedPages,
             beyondBoundsInfo = state.beyondBoundsInfo
@@ -165,16 +171,17 @@ internal fun rememberPagerMeasurePolicy(
             mainAxisAvailableSize = mainAxisAvailableSize,
             visualPageOffset = visualItemOffset,
             pageAvailableSize = pageAvailableSize,
-            beyondBoundsPageCount = beyondBoundsPageCount,
+            outOfBoundsPageCount = outOfBoundsPageCount,
             orientation = orientation,
-            firstVisiblePage = firstVisiblePage,
-            firstVisiblePageOffset = firstVisiblePageOffset,
+            currentPage = currentPage,
+            currentPageOffset = currentPageOffset,
             horizontalAlignment = horizontalAlignment,
             verticalAlignment = verticalAlignment,
             pagerItemProvider = itemProvider,
             reverseLayout = reverseLayout,
-            scrollToBeConsumed = state.scrollToBeConsumed,
             pinnedPages = pinnedPages,
+            snapPosition = snapPosition,
+            placementScopeInvalidator = state.placementScopeInvalidator,
             layout = { width, height, placement ->
                 layout(
                     containerConstraints.constrainWidth(width + totalHorizontalPadding),
@@ -186,5 +193,11 @@ internal fun rememberPagerMeasurePolicy(
         ).also {
             state.applyMeasureResult(it)
         }
+    }
+}
+
+private inline fun debugLog(generateMsg: () -> String) {
+    if (PagerDebugConfig.MeasurePolicy) {
+        println("PagerMeasurePolicy: ${generateMsg()}")
     }
 }

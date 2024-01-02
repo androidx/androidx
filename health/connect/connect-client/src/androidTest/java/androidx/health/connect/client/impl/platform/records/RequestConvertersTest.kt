@@ -45,6 +45,7 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.Month
 import java.time.Period
+import java.time.ZoneOffset
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -202,15 +203,81 @@ class RequestConvertersTest {
         val sdkRequest =
             AggregateGroupByPeriodRequest(
                 setOf(HeartRateRecord.BPM_MAX, HeartRateRecord.BPM_MIN, HeartRateRecord.BPM_AVG),
-                TimeRangeFilter.between(Instant.ofEpochMilli(123L), Instant.ofEpochMilli(456L)),
+                TimeRangeFilter.between(
+                    LocalDateTime.parse("2023-09-19T08:30"),
+                    LocalDateTime.parse("2023-09-19T10:30")
+                ),
                 Period.ofDays(1),
                 setOf(DataOrigin("package1"), DataOrigin("package2"), DataOrigin("package3"))
             )
 
         with(sdkRequest.toPlatformRequest()) {
-            with(timeRangeFilter as TimeInstantRangeFilter) {
-                assertThat(startTime).isEqualTo(Instant.ofEpochMilli(123L))
-                assertThat(endTime).isEqualTo(Instant.ofEpochMilli(456L))
+            with(timeRangeFilter as LocalTimeRangeFilter) {
+                assertThat(startTime).isEqualTo(LocalDateTime.parse("2023-09-19T08:30"))
+                assertThat(endTime).isEqualTo(LocalDateTime.parse("2023-09-19T10:30"))
+            }
+            assertThat(aggregationTypes)
+                .containsExactly(
+                    PlatformHeartRateRecord.BPM_MAX,
+                    PlatformHeartRateRecord.BPM_MIN,
+                    PlatformHeartRateRecord.BPM_AVG
+                )
+            assertThat(dataOriginsFilters)
+                .containsExactly(
+                    PlatformDataOrigin.Builder().setPackageName("package1").build(),
+                    PlatformDataOrigin.Builder().setPackageName("package2").build(),
+                    PlatformDataOrigin.Builder().setPackageName("package3").build()
+                )
+        }
+    }
+
+    @Test
+    fun aggregateGroupByPeriodRequest_fromSdkToPlatform_instantTime() {
+        val sdkRequest =
+            AggregateGroupByPeriodRequest(
+                setOf(HeartRateRecord.BPM_MAX, HeartRateRecord.BPM_MIN, HeartRateRecord.BPM_AVG),
+                TimeRangeFilter.between(
+                    LocalDateTime.parse("2023-09-19T08:30").toInstant(ZoneOffset.UTC),
+                    LocalDateTime.parse("2023-09-19T10:30").toInstant(ZoneOffset.UTC)
+                ),
+                Period.ofDays(1),
+                setOf(DataOrigin("package1"), DataOrigin("package2"), DataOrigin("package3"))
+            )
+
+        with(sdkRequest.toPlatformRequest()) {
+            with(timeRangeFilter as LocalTimeRangeFilter) {
+                assertThat(startTime).isEqualTo(LocalDateTime.parse("2023-09-19T08:30"))
+                assertThat(endTime).isEqualTo(LocalDateTime.parse("2023-09-19T10:30"))
+            }
+            assertThat(aggregationTypes)
+                .containsExactly(
+                    PlatformHeartRateRecord.BPM_MAX,
+                    PlatformHeartRateRecord.BPM_MIN,
+                    PlatformHeartRateRecord.BPM_AVG
+                )
+            assertThat(dataOriginsFilters)
+                .containsExactly(
+                    PlatformDataOrigin.Builder().setPackageName("package1").build(),
+                    PlatformDataOrigin.Builder().setPackageName("package2").build(),
+                    PlatformDataOrigin.Builder().setPackageName("package3").build()
+                )
+        }
+    }
+
+    @Test
+    fun aggregateGroupByPeriodRequest_fromSdkToPlatform_noTimeSet() {
+        val sdkRequest =
+            AggregateGroupByPeriodRequest(
+                setOf(HeartRateRecord.BPM_MAX, HeartRateRecord.BPM_MIN, HeartRateRecord.BPM_AVG),
+                TimeRangeFilter.none(),
+                Period.ofDays(1),
+                setOf(DataOrigin("package1"), DataOrigin("package2"), DataOrigin("package3"))
+            )
+
+        with(sdkRequest.toPlatformRequest()) {
+            with(timeRangeFilter as LocalTimeRangeFilter) {
+                assertThat(startTime)
+                    .isEqualTo(LocalDateTime.ofInstant(Instant.EPOCH, ZoneOffset.UTC))
             }
             assertThat(aggregationTypes)
                 .containsExactly(

@@ -34,6 +34,7 @@ androidXMultiplatform {
                 implementation(project(":compose:foundation:foundation"))
                 implementation(project(":compose:foundation:foundation-layout"))
                 implementation(project(":constraintlayout:constraintlayout-core"))
+                implementation(project(":collection:collection"))
             }
         }
 
@@ -62,7 +63,7 @@ androidXMultiplatform {
             }
         }
 
-        androidAndroidTest {
+        androidInstrumentedTest {
             dependsOn(jvmTest)
             dependencies {
                 implementation(libs.kotlinTest)
@@ -78,14 +79,10 @@ androidXMultiplatform {
             }
         }
 
-
-        // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
-        //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
-        //  level dependencies block instead:
-        //  `dependencies { testImplementation(libs.robolectric) }`
-        androidTest {
+        androidUnitTest {
             dependsOn(jvmTest)
             dependencies {
+                implementation(libs.kotlinTest)
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
                 implementation(libs.junit)

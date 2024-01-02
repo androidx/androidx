@@ -19,6 +19,7 @@ package androidx.test.uiautomator;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
@@ -229,5 +230,11 @@ public class UiDeviceTest {
         assertNotNull(screenshot);
         assertEquals(mDevice.getDisplayWidth() / 2, screenshot.getWidth());
         assertEquals(mDevice.getDisplayHeight() / 2, screenshot.getHeight());
+    }
+
+    @Test
+    public void testInaccessibleDisplay() {
+        assertThrows(IllegalArgumentException.class, () -> mDevice.getDisplayRotation(1000));
+        assertThrows(IllegalArgumentException.class, () -> mDevice.getDisplaySize(1000));
     }
 }

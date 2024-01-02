@@ -16,7 +16,10 @@
 
 package androidx.wear.protolayout.renderer.impl;
 
+import static android.widget.FrameLayout.LayoutParams.UNSPECIFIED_GRAVITY;
+
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
+import static androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer.ROOT_NODE_ID;
 import static androidx.wear.protolayout.renderer.helper.TestDsl.arc;
 import static androidx.wear.protolayout.renderer.helper.TestDsl.arcAdapter;
 import static androidx.wear.protolayout.renderer.helper.TestDsl.box;
@@ -37,10 +40,14 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
+import androidx.annotation.NonNull;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.expression.pipeline.StateStore;
 import androidx.wear.protolayout.proto.LayoutElementProto.Layout;
@@ -217,7 +224,7 @@ public class ProtoLayoutViewInstanceTest {
     }
 
     @Test
-    public void adaptiveUpdateRatesEnabled_ongoingRendering_skipsNewLayout() throws Exception {
+    public void adaptiveUpdateRatesEnabled_ongoingRendering_skipsPreviousLayout() {
         FrameLayout container = new FrameLayout(mApplicationContext);
         setupInstance(/* adaptiveUpdateRatesEnabled= */ true);
         ListenableFuture<Void> result1 =
@@ -230,11 +237,11 @@ public class ProtoLayoutViewInstanceTest {
                         layout(column(text(TEXT1), text(TEXT3))), RESOURCES, container);
         shadowOf(Looper.getMainLooper()).idle();
 
-        assertNoException(result1);
-        assertThat(result2.isCancelled()).isTrue();
-        // Assert that only the modified text is reinflated.
-        assertThat(findViewsWithText(container, TEXT2)).hasSize(1);
-        assertThat(findViewsWithText(container, TEXT3)).isEmpty();
+        assertThat(result1.isCancelled()).isTrue();
+        assertThat(result2.isDone()).isTrue();
+        // Assert that the most recent layout is reinflated.
+        assertThat(findViewsWithText(container, TEXT2)).isEmpty();
+        assertThat(findViewsWithText(container, TEXT3)).hasSize(1);
     }
 
     @Test
@@ -384,6 +391,106 @@ public class ProtoLayoutViewInstanceTest {
     }
 
     @Test
+    public void resourceVersionChange_sameLayout_causesFullInflation() throws Exception {
+        Layout layout1 = layout(text(TEXT1));
+        Resources resources1 = Resources.newBuilder().setVersion("1").build();
+        Layout layout2 = layout(text(TEXT1));
+        Resources resources2 = Resources.newBuilder().setVersion("2").build();
+        setupInstance(/* adaptiveUpdateRatesEnabled= */ true);
+        ListenableFuture<Void> result =
+                mInstanceUnderTest.renderAndAttach(layout1, resources1, mRootContainer);
+        shadowOf(Looper.getMainLooper()).idle();
+        assertNoException(result);
+        assertThat(findViewsWithText(mRootContainer, TEXT1)).hasSize(1);
+        View view1 = findViewsWithText(mRootContainer, TEXT1).get(0);
+
+        result = mInstanceUnderTest.renderAndAttach(layout2, resources2, mRootContainer);
+        shadowOf(Looper.getMainLooper()).idle();
+
+        assertNoException(result);
+        assertThat(findViewsWithText(mRootContainer, TEXT1)).hasSize(1);
+        View view2 = findViewsWithText(mRootContainer, TEXT1).get(0);
+        assertThat(view1).isNotSameInstanceAs(view2);
+    }
+
+    @Test
+    public void invalidateCache_sameResourceVersion_fullInflation() throws Exception {
+        Layout layout1 = layout(text(TEXT1));
+        Resources resources1 = Resources.newBuilder().setVersion("1").build();
+        Layout layout2 = layout(text(TEXT1));
+        Resources resources2 = Resources.newBuilder().setVersion("1").build();
+        setupInstance(/* adaptiveUpdateRatesEnabled= */ true);
+        ListenableFuture<Void> result =
+                mInstanceUnderTest.renderAndAttach(layout1, resources1, mRootContainer);
+        shadowOf(Looper.getMainLooper()).idle();
+        assertNoException(result);
+        assertThat(findViewsWithText(mRootContainer, TEXT1)).hasSize(1);
+        View view1 = findViewsWithText(mRootContainer, TEXT1).get(0);
+
+        mInstanceUnderTest.invalidateCache();
+        result = mInstanceUnderTest.renderAndAttach(layout2, resources2, mRootContainer);
+        shadowOf(Looper.getMainLooper()).idle();
+
+        assertNoException(result);
+        assertThat(findViewsWithText(mRootContainer, TEXT1)).hasSize(1);
+        View view2 = findViewsWithText(mRootContainer, TEXT1).get(0);
+        assertThat(view1).isNotSameInstanceAs(view2);
+    }
+
+    @Test
+    public void adaptiveUpdateRatesEnabled_rootElementdiff_keepsElementCentered() throws Exception {
+        int dimension = 50;
+        setupInstance(/* adaptiveUpdateRatesEnabled= */ true);
+
+        // Full inflation.
+        ListenableFuture<Void> result =
+                mInstanceUnderTest.renderAndAttach(
+                        layout(
+                                column(
+                                        props -> {
+                                            props.heightDp = dimension;
+                                            props.widthDp = dimension;
+                                        })),
+                        RESOURCES,
+                        mRootContainer);
+        shadowOf(Looper.getMainLooper()).idle();
+
+        assertNoException(result);
+
+        View root = mRootContainer.findViewWithTag(ROOT_NODE_ID);
+
+        assertThat(root).isInstanceOf(ViewGroup.class);
+        ViewGroup columnBeforeMutation = (ViewGroup) root;
+        assertThat(columnBeforeMutation.getChildCount()).isEqualTo(0);
+        assertThat(getGravity(columnBeforeMutation.getLayoutParams())).isEqualTo(Gravity.CENTER);
+
+        // Diff update only for the root element.
+        result =
+                mInstanceUnderTest.renderAndAttach(
+                        layout(
+                                column(
+                                        props -> {
+                                            props.heightDp = dimension + 10;
+                                            props.widthDp = dimension + 10;
+                                        })),
+                        RESOURCES,
+                        mRootContainer);
+
+        shadowOf(Looper.getMainLooper()).idle();
+
+        assertNoException(result);
+
+        root = mRootContainer.findViewWithTag(ROOT_NODE_ID);
+
+        assertThat(root).isInstanceOf(ViewGroup.class);
+        ViewGroup columnAfterMutation = (ViewGroup) root;
+        assertThat(columnAfterMutation.getChildCount()).isEqualTo(0);
+
+        // Make sure that the root has stayed centered within the container.
+        assertThat(getGravity(columnAfterMutation.getLayoutParams())).isEqualTo(Gravity.CENTER);
+    }
+
+    @Test
     public void close_clearsHostView() throws Exception {
         Layout layout = layout(text(TEXT1));
         setupInstance(/* adaptiveUpdateRatesEnabled= */ true);
@@ -500,26 +607,29 @@ public class ProtoLayoutViewInstanceTest {
     }
 
     private void setupInstance(boolean adaptiveUpdateRatesEnabled) {
+        Config config = createInstanceConfig(adaptiveUpdateRatesEnabled).build();
+        mInstanceUnderTest = new ProtoLayoutViewInstance(config);
+    }
+
+    @NonNull
+    private Config.Builder createInstanceConfig(boolean adaptiveUpdateRatesEnabled) {
         FakeExecutorService uiThreadExecutor =
                 new FakeExecutorService(new Handler(Looper.getMainLooper()));
         ListeningExecutorService listeningExecutorService =
                 MoreExecutors.listeningDecorator(uiThreadExecutor);
 
-        ProtoLayoutViewInstance.Config config =
-                new Config.Builder(
-                                mApplicationContext,
-                                listeningExecutorService,
-                                listeningExecutorService,
-                                /* clickableIdExtra= */ "CLICKABLE_ID_EXTRA")
-                        .setStateStore(new StateStore(ImmutableMap.of()))
-                        .setLoadActionListener(nextState -> {})
-                        .setAnimationEnabled(true)
-                        .setRunningAnimationsLimit(Integer.MAX_VALUE)
-                        .setUpdatesEnabled(true)
-                        .setAdaptiveUpdateRatesEnabled(adaptiveUpdateRatesEnabled)
-                        .setIsViewFullyVisible(false)
-                        .build();
-        mInstanceUnderTest = new ProtoLayoutViewInstance(config);
+        return new Config.Builder(
+                        mApplicationContext,
+                        listeningExecutorService,
+                        listeningExecutorService,
+                        /* clickableIdExtra= */ "CLICKABLE_ID_EXTRA")
+                .setStateStore(new StateStore(ImmutableMap.of()))
+                .setLoadActionListener(nextState -> {})
+                .setAnimationEnabled(true)
+                .setRunningAnimationsLimit(Integer.MAX_VALUE)
+                .setUpdatesEnabled(true)
+                .setAdaptiveUpdateRatesEnabled(adaptiveUpdateRatesEnabled)
+                .setIsViewFullyVisible(false);
     }
 
     private List<View> findViewsWithText(ViewGroup root, String text) {
@@ -531,6 +641,18 @@ public class ProtoLayoutViewInstanceTest {
     private static void assertNoException(ListenableFuture<Void> result) throws Exception {
         // Assert that result hasn't thrown exception.
         result.get();
+    }
+
+    private static int getGravity(LayoutParams params) {
+        if (params instanceof FrameLayout.LayoutParams) {
+            return ((FrameLayout.LayoutParams) params).gravity;
+        }
+
+        if (params instanceof LinearLayout.LayoutParams) {
+            return ((LinearLayout.LayoutParams) params).gravity;
+        }
+
+        return UNSPECIFIED_GRAVITY;
     }
 
     static class FakeExecutorService extends AbstractExecutorService {

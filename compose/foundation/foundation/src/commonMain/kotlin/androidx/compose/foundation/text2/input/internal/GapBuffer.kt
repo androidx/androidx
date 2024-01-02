@@ -153,19 +153,28 @@ private class GapBuffer(initBuffer: CharArray, initGapStart: Int, initGapEnd: In
     }
 
     /**
-     * Replace the certain region of text with given text
+     * Replace a region of this buffer with given text.
      *
-     * @param start an inclusive start offset for replacement.
-     * @param end an exclusive end offset for replacement
-     * @param text a text to replace
+     * @param start The index of the first character in this buffer to replace.
+     * @param end The index after the last character in this buffer to replace.
+     * @param text The new text to insert into the buffer.
+     * @param textStart The index of the first character in [text] to copy.
+     * @param textEnd The index after the last character in [text] to copy.
      */
-    fun replace(start: Int, end: Int, text: CharSequence) {
-        makeSureAvailableSpace(text.length - (end - start))
+    fun replace(
+        start: Int,
+        end: Int,
+        text: CharSequence,
+        textStart: Int = 0,
+        textEnd: Int = text.length
+    ) {
+        val textLength = textEnd - textStart
+        makeSureAvailableSpace(textLength - (end - start))
 
         delete(start, end)
 
-        text.toCharArray(buffer, gapStart)
-        gapStart += text.length
+        text.toCharArray(buffer, gapStart, textStart, textEnd)
+        gapStart += textLength
     }
 
     /**
@@ -196,9 +205,8 @@ private class GapBuffer(initBuffer: CharArray, initGapStart: Int, initGapEnd: In
  * is requested, this class flush the buffer and create new String, then start new gap buffer.
  *
  * @param text The initial text
- * @suppress
  */
-internal class PartialGapBuffer(text: CharSequence) {
+internal class PartialGapBuffer(text: CharSequence) : CharSequence {
     internal companion object {
         const val BUF_SIZE = 255
         const val SURROUNDING_SIZE = 64
@@ -213,30 +221,37 @@ internal class PartialGapBuffer(text: CharSequence) {
     /**
      * The text length
      */
-    val length: Int
+    override val length: Int
         get() {
             val buffer = buffer ?: return text.length
             return text.length - (bufEnd - bufStart) + buffer.length()
         }
 
     /**
-     * Replace the certain region of text with given text
+     * Replace a region of this buffer with given text.
      *
-     * @param start an inclusive start offset for replacement.
-     * @param end an exclusive end offset for replacement
-     * @param text a text to replace
+     * @param start The index of the first character in this buffer to replace.
+     * @param end The index after the last character in this buffer to replace.
+     * @param text The new text to insert into the buffer.
+     * @param textStart The index of the first character in [text] to copy.
+     * @param textEnd The index after the last character in [text] to copy.
      */
-    fun replace(start: Int, end: Int, text: CharSequence) {
-        require(start <= end) {
-            "start index must be less than or equal to end index: $start > $end"
-        }
-        require(start >= 0) {
-            "start must be non-negative, but was $start"
-        }
+    fun replace(
+        start: Int,
+        end: Int,
+        text: CharSequence,
+        textStart: Int = 0,
+        textEnd: Int = text.length
+    ) {
+        require(start <= end) { "start=$start > end=$end" }
+        require(textStart <= textEnd) { "textStart=$textStart > textEnd=$textEnd" }
+        require(start >= 0) { "start must be non-negative, but was $start" }
+        require(textStart >= 0) { "textStart must be non-negative, but was $textStart" }
 
         val buffer = buffer
+        val textLength = textEnd - textStart
         if (buffer == null) { // First time to create gap buffer
-            val charArray = CharArray(maxOf(BUF_SIZE, text.length + 2 * SURROUNDING_SIZE))
+            val charArray = CharArray(maxOf(BUF_SIZE, textLength + 2 * SURROUNDING_SIZE))
 
             // Convert surrounding text into buffer.
             val leftCopyCount = minOf(start, SURROUNDING_SIZE)
@@ -254,11 +269,11 @@ internal class PartialGapBuffer(text: CharSequence) {
             )
 
             // Copy given text into buffer
-            text.toCharArray(charArray, leftCopyCount)
+            text.toCharArray(charArray, leftCopyCount, textStart, textEnd)
 
             this.buffer = GapBuffer(
                 charArray,
-                initGapStart = leftCopyCount + text.length,
+                initGapStart = leftCopyCount + textLength,
                 initGapEnd = charArray.size - rightCopyCount
             )
             bufStart = start - leftCopyCount
@@ -276,16 +291,16 @@ internal class PartialGapBuffer(text: CharSequence) {
             this.buffer = null
             bufStart = NOWHERE
             bufEnd = NOWHERE
-            return replace(start, end, text)
+            return replace(start, end, text, textStart, textEnd)
         }
 
-        buffer.replace(bufferStart, bufferEnd, text)
+        buffer.replace(bufferStart, bufferEnd, text, textStart, textEnd)
     }
 
     /**
      * [] operator for the character at the index.
      */
-    operator fun get(index: Int): Char {
+    override operator fun get(index: Int): Char {
         val buffer = buffer ?: return text[index]
         if (index < bufStart) {
             return text[index]
@@ -297,6 +312,9 @@ internal class PartialGapBuffer(text: CharSequence) {
         return text[index - (gapBufLength - bufEnd + bufStart)]
     }
 
+    override fun subSequence(startIndex: Int, endIndex: Int): CharSequence =
+        toString().subSequence(startIndex, endIndex)
+
     override fun toString(): String {
         val b = buffer ?: return text.toString()
         val sb = StringBuilder()
@@ -304,5 +322,12 @@ internal class PartialGapBuffer(text: CharSequence) {
         b.append(sb)
         sb.append(text, bufEnd, text.length)
         return sb.toString()
+    }
+
+    /**
+     * Compares the contents of this buffer with the contents of [other].
+     */
+    fun contentEquals(other: CharSequence): Boolean {
+        return toString() == other.toString()
     }
 }

@@ -38,7 +38,7 @@ android {
     externalNativeBuild {
         cmake {
             version libs.versions.cmake.get()
-            path "${yuvSourceDir}/files/CMakeLists.txt"
+            path "${yuvSourceDir}/CMakeLists.txt"
         }
     }
 
@@ -48,10 +48,10 @@ android {
     }
 
     // Include the "libyuv" module from the native build system in the AAR,
-    // and export the headers in files/include to its consumers
+    // and export the headers in include to its consumers
     prefab {
         libyuv {
-            headers "${yuvSourceDir}/files/include"
+            headers "${yuvSourceDir}/include"
             name "yuv"
         }
     }

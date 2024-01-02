@@ -782,7 +782,7 @@ public class WebViewCompat {
      * origin matches {@code allowedOriginRules} when the document begins to load.
      *
      * <p>Note that the script will run before any of the page's JavaScript code and the DOM tree
-     * might not be ready at this moment. It will block the loadng of the page until it's finished,
+     * might not be ready at this moment. It will block the loading of the page until it's finished,
      * so should be kept as short as possible.
      *
      * <p>The injected object from {@link #addWebMessageListener(WebView, String, Set,
@@ -809,13 +809,10 @@ public class WebViewCompat {
      * @throws IllegalArgumentException If one of the {@code allowedOriginRules} is invalid.
      * @see #addWebMessageListener(WebView, String, Set, WebMessageListener)
      * @see ScriptHandler
-     * @deprecated unreleased API will be removed in 1.9.0
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(
             name = WebViewFeature.DOCUMENT_START_SCRIPT,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    @Deprecated
     public static @NonNull ScriptHandler addDocumentStartJavaScript(
             @NonNull WebView webview,
             @NonNull String script,
@@ -1070,6 +1067,64 @@ public class WebViewCompat {
         final ApiFeature.NoFramework feature = WebViewFeatureInternal.GET_VARIATIONS_HEADER;
         if (feature.isSupportedByWebView()) {
             return getFactory().getStatics().getVariationsHeader();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Sets the Profile with its name as the current Profile for this WebView.
+     * <ul>
+     * <li> This should be called before doing anything else with WebView other than attaching it to
+     * the view hierarchy.
+     * <li> This should be only called if WebView is to use a Profile other than the default.
+     * <li> This method will create the profile if it doesn't exist.
+     * </ul>
+     *
+     * @param webView the WebView to modify.
+     * @param profileName the name of the profile to use in the passed {@code webView}.
+     * @throws IllegalStateException if the WebView has been destroyed.
+     * @throws IllegalStateException if the previous profile has been accessed via a call to
+     * {@link WebViewCompat#getProfile(WebView)}.
+     * @throws IllegalStateException if the profile has already been set previously via this method.
+     * @throws IllegalStateException if {@link WebView#evaluateJavascript(String, ValueCallback)} is
+     * called on the WebView before this method.
+     * @throws IllegalStateException if the WebView has previously navigated to a web page.
+     */
+    @UiThread
+    @RequiresFeature(
+            name = WebViewFeature.MULTI_PROFILE,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static void setProfile(@NonNull WebView webView,
+            @NonNull String profileName) {
+        final ApiFeature.NoFramework feature = WebViewFeatureInternal.MULTI_PROFILE;
+        if (feature.isSupportedByWebView()) {
+            getProvider(webView).setProfileWithName(profileName);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Gets the Profile associated with this WebView.
+     * <p>
+     * Gets the profile object set on this WebView using
+     * {@link WebViewCompat#setProfile(WebView, String)}, or the default profile if it has not
+     * been changed.
+     *
+     * @param webView the WebView to get the profile object associated with.
+     * @return the profile object set to this WebView.
+     * @throws IllegalStateException if the WebView has been destroyed.
+     */
+    @UiThread
+    @NonNull
+    @RequiresFeature(
+            name = WebViewFeature.MULTI_PROFILE,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static Profile getProfile(@NonNull WebView webView) {
+        final ApiFeature.NoFramework feature = WebViewFeatureInternal.MULTI_PROFILE;
+        if (feature.isSupportedByWebView()) {
+            return getProvider(webView).getProfile();
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }

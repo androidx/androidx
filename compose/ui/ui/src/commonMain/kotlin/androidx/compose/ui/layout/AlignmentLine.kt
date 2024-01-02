@@ -97,11 +97,13 @@ class VerticalAlignmentLine(merger: (Int, Int) -> Int) : AlignmentLine(merger)
 class HorizontalAlignmentLine(merger: (Int, Int) -> Int) : AlignmentLine(merger)
 
 /**
- * [AlignmentLine] defined by the baseline of a first line of a [androidx.foundation.text.CoreText]
+ * [AlignmentLine] defined by the baseline of a first line of a
+ * [androidx.compose.foundation.text.BasicText]
  */
 val FirstBaseline = HorizontalAlignmentLine(::min)
 
 /**
- * [AlignmentLine] defined by the baseline of the last line of a [androidx.foundation.text.CoreText]
+ * [AlignmentLine] defined by the baseline of the last line of a
+ * [androidx.compose.foundation.text.BasicText]
  */
 val LastBaseline = HorizontalAlignmentLine(::max)

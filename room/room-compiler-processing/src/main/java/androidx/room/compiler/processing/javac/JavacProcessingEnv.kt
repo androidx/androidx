@@ -94,6 +94,10 @@ internal class JavacProcessingEnv(
             .map { wrapTypeElement(it) }
     }
 
+    override fun getElementsFromPackage(packageName: String): List<XElement> {
+        return getTypeElementsFromPackage(packageName)
+    }
+
     override fun findType(qName: String): XType? {
         // check for primitives first
         PRIMITIVE_TYPES[qName]?.let {
@@ -312,10 +316,7 @@ internal class JavacProcessingEnv(
                 wrapExecutableElement(element)
             }
             is PackageElement -> {
-                error(
-                    "Cannot get elements with annotation $annotationName. Package " +
-                        "elements are not supported by XProcessing."
-                )
+                JavacPackageElement(this, element)
             }
             else -> error("Unsupported element $element with annotation $annotationName")
         }

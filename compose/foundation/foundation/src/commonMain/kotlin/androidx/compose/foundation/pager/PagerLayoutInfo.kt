@@ -18,6 +18,7 @@ package androidx.compose.foundation.pager
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.ui.unit.IntSize
 
 /**
@@ -91,6 +92,18 @@ sealed interface PagerLayoutInfo {
     @Suppress("GetterSetterNames")
     @get:Suppress("GetterSetterNames")
     val reverseLayout: Boolean
+
+    /**
+     * Pages to compose and layout before and after the list of visible pages. This does not include
+     * the pages automatically composed and laid out by the pre-fetcher in the direction of the
+     * scroll during scroll events.
+     */
+    val outOfBoundsPageCount: Int
+
+    /**
+     * The calculation of how this Pager performs snapping of pages.
+     */
+    val snapPosition: SnapPosition
 }
 
 @ExperimentalFoundationApi

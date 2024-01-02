@@ -612,8 +612,12 @@ object Shell {
 
     @RequiresApi(21)
     fun disablePackages(appPackages: List<String>) {
+        // Additionally use `am force-stop` to force JobScheduler to drop all jobs.
         val command = appPackages.joinToString(separator = "\n") { appPackage ->
-            "pm disable-user $appPackage"
+            """
+                am force-stop $appPackage
+                pm disable-user $appPackage
+            """".trimIndent()
         }
         executeScriptCaptureStdoutStderr(command)
     }

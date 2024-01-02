@@ -1,25 +1,27 @@
-// Copyright 2023 The Android Open Source Project
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/*
+ * Copyright 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package androidx.appactions.builtintypes.types
 
-import androidx.appactions.builtintypes.properties.DisambiguatingDescription
 import androidx.appactions.builtintypes.properties.Name
 import androidx.appsearch.`annotation`.Document
 import java.util.Objects
 import kotlin.Any
 import kotlin.Boolean
 import kotlin.Int
+import kotlin.NotImplementedError
 import kotlin.String
 import kotlin.Suppress
 import kotlin.collections.Map
@@ -28,7 +30,6 @@ import kotlin.collections.joinToString
 import kotlin.collections.map
 import kotlin.collections.mutableMapOf
 import kotlin.collections.plusAssign
-import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmStatic
 
 /**
@@ -42,16 +43,9 @@ import kotlin.jvm.JvmStatic
 @Document(name = "bit:Thing")
 public interface Thing {
   /** Represents the AppSearch document's namespace. */
-  @get:Document.Namespace public val namespace: String
-
-  /**
-   * A sub property of description. A short description of the item used to disambiguate from other,
-   * similar items. Information from other properties (in particular, name) may be necessary for the
-   * description to be useful for disambiguation.
-   *
-   * See https://schema.org/disambiguatingDescription for more context.
-   */
-  @get:Document.DocumentProperty public val disambiguatingDescription: DisambiguatingDescription?
+  @get:Document.Namespace
+  public val namespace: String
+    get() = ""
 
   /**
    * The identifier property represents any kind of identifier for any kind of Thing, such as ISBNs,
@@ -59,29 +53,25 @@ public interface Thing {
    *
    * See https://schema.org/identifier for more context.
    */
-  @get:Document.Id public val identifier: String
+  @get:Document.Id
+  public val identifier: String
+    get() = ""
 
   /**
    * The name of the item.
    *
    * See https://schema.org/name for more context.
    */
-  @get:Document.DocumentProperty public val name: Name?
+  @get:Document.DocumentProperty
+  public val name: Name?
+    get() = null
 
   /** Converts this [Thing] to its builder with all the properties copied over. */
   public fun toBuilder(): Builder<*>
 
   public companion object {
-    /**
-     * Returns a default implementation of [Builder].
-     *
-     * Has the specified [identifier] and [namespace] and no other properties set.
-     */
-    @JvmStatic
-    @JvmOverloads
-    @Document.BuilderProducer
-    public fun Builder(identifier: String = "", namespace: String = ""): Builder<*> =
-      ThingImpl.Builder().setIdentifier(identifier).setNamespace(namespace)
+    /** Returns a default implementation of [Builder]. */
+    @JvmStatic @Document.BuilderProducer public fun Builder(): Builder<*> = ThingImpl.Builder()
   }
 
   /**
@@ -96,25 +86,19 @@ public interface Thing {
     public fun build(): Thing
 
     /** Sets the `namespace`. */
-    public fun setNamespace(namespace: String): Self
-
-    /** Sets the `disambiguatingDescription` to [String]. */
-    public fun setDisambiguatingDescription(text: String): Self =
-      setDisambiguatingDescription(DisambiguatingDescription(text))
-
-    /** Sets the `disambiguatingDescription`. */
-    public fun setDisambiguatingDescription(
-      disambiguatingDescription: DisambiguatingDescription?
-    ): Self
+    @Suppress("DocumentExceptions")
+    public fun setNamespace(namespace: String): Self = throw NotImplementedError()
 
     /** Sets the `identifier`. */
-    public fun setIdentifier(text: String): Self
+    @Suppress("DocumentExceptions")
+    public fun setIdentifier(text: String): Self = throw NotImplementedError()
 
     /** Sets the `name` to [String]. */
     public fun setName(text: String): Self = setName(Name(text))
 
     /** Sets the `name`. */
-    public fun setName(name: Name?): Self
+    @Suppress("DocumentExceptions")
+    public fun setName(name: Name?): Self = throw NotImplementedError()
   }
 }
 
@@ -123,14 +107,20 @@ public interface Thing {
  *
  * Allows for extension like:
  * ```kt
+ * @Document(
+ *   name = "MyThing",
+ *   parent = [Thing::class],
+ * )
  * class MyThing internal constructor(
  *   thing: Thing,
- *   val foo: String,
- *   val bars: List<Int>,
+ *   @Document.StringProperty val foo: String,
+ *   @Document.LongProperty val bars: List<Int>,
  * ) : AbstractThing<
  *   MyThing,
  *   MyThing.Builder
  * >(thing) {
+ *
+ *   // No need to implement equals(), hashCode(), toString() or toBuilder()
  *
  *   override val selfTypeName =
  *     "MyThing"
@@ -144,6 +134,7 @@ public interface Thing {
  *       .addBars(bars)
  *   }
  *
+ *   @Document.BuilderProducer
  *   class Builder :
  *     AbstractThing.Builder<
  *       Builder,
@@ -155,12 +146,13 @@ public interface Thing {
  */
 @Suppress("UNCHECKED_CAST")
 public abstract class AbstractThing<
-  Self : AbstractThing<Self, Builder>, Builder : AbstractThing.Builder<Builder, Self>>
+  Self : AbstractThing<Self, Builder>,
+  Builder : AbstractThing.Builder<Builder, Self>
+>
 internal constructor(
-  public final override val namespace: String,
-  public final override val disambiguatingDescription: DisambiguatingDescription?,
-  public final override val identifier: String,
-  public final override val name: Name?,
+  final override val namespace: String,
+  final override val identifier: String,
+  final override val name: Name?,
 ) : Thing {
   /**
    * Human readable name for the concrete [Self] class.
@@ -177,43 +169,39 @@ internal constructor(
   protected abstract val additionalProperties: Map<String, Any?>
 
   /** A copy-constructor that copies over properties from another [Thing] instance. */
-  public constructor(
-    thing: Thing
-  ) : this(thing.namespace, thing.disambiguatingDescription, thing.identifier, thing.name)
+  public constructor(thing: Thing) : this(thing.namespace, thing.identifier, thing.name)
 
   /** Returns a concrete [Builder] with the additional, non-[Thing] properties copied over. */
   protected abstract fun toBuilderWithAdditionalPropertiesOnly(): Builder
 
-  public final override fun toBuilder(): Builder =
+  final override fun toBuilder(): Builder =
     toBuilderWithAdditionalPropertiesOnly()
       .setNamespace(namespace)
-      .setDisambiguatingDescription(disambiguatingDescription)
       .setIdentifier(identifier)
       .setName(name)
 
-  public final override fun equals(other: Any?): Boolean {
+  final override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other == null || this::class.java != other::class.java) return false
     other as Self
     if (namespace != other.namespace) return false
-    if (disambiguatingDescription != other.disambiguatingDescription) return false
     if (identifier != other.identifier) return false
     if (name != other.name) return false
     if (additionalProperties != other.additionalProperties) return false
     return true
   }
 
-  public final override fun hashCode(): Int =
-    Objects.hash(namespace, disambiguatingDescription, identifier, name, additionalProperties)
+  final override fun hashCode(): Int =
+    Objects.hash(namespace, identifier, name, additionalProperties)
 
-  public final override fun toString(): String {
+  final override fun toString(): String {
     val attributes = mutableMapOf<String, String>()
-    attributes["namespace"] = namespace
-    if (disambiguatingDescription != null) {
-      attributes["disambiguatingDescription"] =
-        disambiguatingDescription.toString(includeWrapperName = false)
+    if (namespace.isNotEmpty()) {
+      attributes["namespace"] = namespace
     }
-    attributes["identifier"] = identifier
+    if (identifier.isNotEmpty()) {
+      attributes["identifier"] = identifier
+    }
     if (name != null) {
       attributes["name"] = name.toString(includeWrapperName = false)
     }
@@ -227,16 +215,21 @@ internal constructor(
    *
    * Allows for extension like:
    * ```kt
+   * @Document(...)
    * class MyThing :
    *   : AbstractThing<
    *     MyThing,
    *     MyThing.Builder>(...) {
    *
+   *   @Document.BuilderProducer
    *   class Builder
-   *   : Builder<
+   *   : AbstractThing.Builder<
    *       Builder,
    *       MyThing
    *   >() {
+   *
+   *     // No need to implement equals(), hashCode(), toString() or build()
+   *
    *     private var foo: String? = null
    *     private val bars = mutableListOf<Int>()
    *
@@ -292,8 +285,6 @@ internal constructor(
 
     private var namespace: String = ""
 
-    private var disambiguatingDescription: DisambiguatingDescription? = null
-
     private var identifier: String = ""
 
     private var name: Name? = null
@@ -308,38 +299,29 @@ internal constructor(
      */
     @Suppress("BuilderSetStyle") protected abstract fun buildFromThing(thing: Thing): Built
 
-    public final override fun build(): Built =
-      buildFromThing(ThingImpl(namespace, disambiguatingDescription, identifier, name))
+    final override fun build(): Built = buildFromThing(ThingImpl(namespace, identifier, name))
 
-    public final override fun setNamespace(namespace: String): Self {
+    final override fun setNamespace(namespace: String): Self {
       this.namespace = namespace
       return this as Self
     }
 
-    public final override fun setDisambiguatingDescription(
-      disambiguatingDescription: DisambiguatingDescription?
-    ): Self {
-      this.disambiguatingDescription = disambiguatingDescription
-      return this as Self
-    }
-
-    public final override fun setIdentifier(text: String): Self {
+    final override fun setIdentifier(text: String): Self {
       this.identifier = text
       return this as Self
     }
 
-    public final override fun setName(name: Name?): Self {
+    final override fun setName(name: Name?): Self {
       this.name = name
       return this as Self
     }
 
     @Suppress("BuilderSetStyle")
-    public final override fun equals(other: Any?): Boolean {
+    final override fun equals(other: Any?): Boolean {
       if (this === other) return true
       if (other == null || this::class.java != other::class.java) return false
       other as Self
       if (namespace != other.namespace) return false
-      if (disambiguatingDescription != other.disambiguatingDescription) return false
       if (identifier != other.identifier) return false
       if (name != other.name) return false
       if (additionalProperties != other.additionalProperties) return false
@@ -347,18 +329,18 @@ internal constructor(
     }
 
     @Suppress("BuilderSetStyle")
-    public final override fun hashCode(): Int =
-      Objects.hash(namespace, disambiguatingDescription, identifier, name, additionalProperties)
+    final override fun hashCode(): Int =
+      Objects.hash(namespace, identifier, name, additionalProperties)
 
     @Suppress("BuilderSetStyle")
-    public final override fun toString(): String {
+    final override fun toString(): String {
       val attributes = mutableMapOf<String, String>()
-      attributes["namespace"] = namespace
-      if (disambiguatingDescription != null) {
-        attributes["disambiguatingDescription"] =
-          disambiguatingDescription!!.toString(includeWrapperName = false)
+      if (namespace.isNotEmpty()) {
+        attributes["namespace"] = namespace
       }
-      attributes["identifier"] = identifier
+      if (identifier.isNotEmpty()) {
+        attributes["identifier"] = identifier
+      }
       if (name != null) {
         attributes["name"] = name!!.toString(includeWrapperName = false)
       }
@@ -379,10 +361,9 @@ private class ThingImpl : AbstractThing<ThingImpl, ThingImpl.Builder> {
 
   public constructor(
     namespace: String,
-    disambiguatingDescription: DisambiguatingDescription?,
     identifier: String,
     name: Name?,
-  ) : super(namespace, disambiguatingDescription, identifier, name)
+  ) : super(namespace, identifier, name)
 
   public constructor(thing: Thing) : super(thing)
 

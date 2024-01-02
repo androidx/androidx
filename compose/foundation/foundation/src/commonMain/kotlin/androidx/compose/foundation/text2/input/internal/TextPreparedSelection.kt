@@ -21,7 +21,6 @@ import androidx.compose.foundation.text.findFollowingBreak
 import androidx.compose.foundation.text.findParagraphEnd
 import androidx.compose.foundation.text.findParagraphStart
 import androidx.compose.foundation.text.findPrecedingBreak
-import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.TextLayoutResult
@@ -41,13 +40,13 @@ internal class TextFieldPreparedSelectionState {
      * it's set at the start of vertical navigation and used as the preferred value to set a new
      * cursor position.
      */
-    var cachedX: Float? = null
+    var cachedX: Float = Float.NaN
 
     /**
      * Remove and forget the cached X used for vertical navigation.
      */
     fun resetCachedX() {
-        cachedX = null
+        cachedX = Float.NaN
     }
 }
 
@@ -62,12 +61,21 @@ internal class TextFieldPreparedSelectionState {
  * [moveCursorRight] will move the left side of the selection, but after [moveCursorRightByWord]
  * the right one.
  *
- * To use it in scope of text fields see [TextFieldPreparedSelection]
+ * @param state Transformed version of TextFieldState that helps to manipulate underlying buffer
+ * through transformed coordinates.
+ * @param textLayoutResult Visual representation of text inside [state]. Used to calculate line
+ * and paragraph metrics.
+ * @param visibleTextLayoutHeight Height of the visible area of text inside TextField to decide
+ * where cursor needs to move when page up/down is requested.
+ * @param textPreparedSelectionState An object that holds any context that needs to be long lived
+ * between successive [TextFieldPreparedSelection]s, e.g. original X position of the cursor while
+ * moving the cursor up/down.
  */
 @OptIn(ExperimentalFoundationApi::class)
 internal class TextFieldPreparedSelection(
-    private val state: TextFieldState,
-    private val textLayoutState: TextLayoutState,
+    private val state: TransformedTextFieldState,
+    private val textLayoutResult: TextLayoutResult,
+    private val visibleTextLayoutHeight: Float,
     private val textPreparedSelectionState: TextFieldPreparedSelectionState
 ) {
     /**
@@ -76,7 +84,7 @@ internal class TextFieldPreparedSelection(
      * [TextFieldPreparedSelection]. It is also used to make comparison between the initial state
      * and the modified state of selection and content.
      */
-    val initialValue = Snapshot.withoutReadObservation { state.text }
+    val initialValue = Snapshot.withoutReadObservation { state.visualText }
 
     /**
      * Current active selection in the context of this [TextFieldPreparedSelection]
@@ -89,18 +97,14 @@ internal class TextFieldPreparedSelection(
     private val text: String = initialValue.toString()
 
     /**
-     * If there is a non-collapsed selection, delete its contents. Or execute the given [or] block.
-     * Either way this function returns list of [EditCommand]s that should be applied on
-     * [TextFieldState].
+     * Deletes selected region from [state] if [selection] is not collapsed. Otherwise, deletes the
+     * range returned by [block]. If returned TextRange is null, this function does nothing.
      */
-    fun deleteIfSelectedOr(or: TextFieldPreparedSelection.() -> EditCommand?): List<EditCommand>? {
-        return if (selection.collapsed) {
-            or(this)?.let { editCommand -> listOf(editCommand) }
+    inline fun deleteIfSelectedOr(block: () -> TextRange?) {
+        if (!selection.collapsed) {
+            state.replaceText("", selection)
         } else {
-            listOf(
-                CommitTextCommand("", 0),
-                SetSelectionCommand(selection.min, selection.min)
-            )
+            block()?.let { state.replaceText("", it) }
         }
     }
 
@@ -108,14 +112,14 @@ internal class TextFieldPreparedSelection(
      * Executes PageUp key
      */
     fun moveCursorUpByPage() = applyIfNotEmpty(false) {
-        setCursor(textLayoutState.jumpByPagesOffset(-1))
+        setCursor(jumpByPagesOffset(-1))
     }
 
     /**
      * Executes PageDown key
      */
     fun moveCursorDownByPage() = applyIfNotEmpty(false) {
-        setCursor(textLayoutState.jumpByPagesOffset(1))
+        setCursor(jumpByPagesOffset(1))
     }
 
     /**
@@ -124,26 +128,22 @@ internal class TextFieldPreparedSelection(
      * calculated by the coordinates of decoration box around the TextField. If text layout has not
      * been measured yet, this function returns the current offset.
      */
-    private fun TextLayoutState.jumpByPagesOffset(pagesAmount: Int): Int {
+    private fun jumpByPagesOffset(pagesAmount: Int): Int {
         val currentOffset = initialValue.selectionInChars.end
-        val visibleInnerTextFieldRect = innerTextFieldCoordinates?.let { inner ->
-            decorationBoxCoordinates?.localBoundingBoxOf(inner)
-        } ?: return currentOffset
-        val value = layoutResult ?: return currentOffset
-        val currentPos = value.getCursorRect(currentOffset)
+        val currentPos = textLayoutResult.getCursorRect(currentOffset)
         val newPos = currentPos.translate(
             translateX = 0f,
-            translateY = visibleInnerTextFieldRect.size.height * pagesAmount
+            translateY = visibleTextLayoutHeight * pagesAmount
         )
         // which line does the new cursor position belong?
-        val topLine = value.getLineForVerticalPosition(newPos.top)
-        val lineSeparator = value.getLineBottom(topLine)
+        val topLine = textLayoutResult.getLineForVerticalPosition(newPos.top)
+        val lineSeparator = textLayoutResult.getLineBottom(topLine)
         return if (abs(newPos.top - lineSeparator) > abs(newPos.bottom - lineSeparator)) {
             // most of new cursor is on top line
-            value.getOffsetForPosition(newPos.topLeft)
+            textLayoutResult.getOffsetForPosition(newPos.topLeft)
         } else {
             // most of new cursor is on bottom line
-            value.getOffsetForPosition(newPos.bottomLeft)
+            textLayoutResult.getOffsetForPosition(newPos.bottomLeft)
         }
     }
 
@@ -152,7 +152,7 @@ internal class TextFieldPreparedSelection(
      *
      * @param resetCachedX Whether to reset the cachedX parameter in [TextFieldPreparedSelectionState].
      */
-    inline fun applyIfNotEmpty(
+    private inline fun applyIfNotEmpty(
         resetCachedX: Boolean = true,
         block: TextFieldPreparedSelection.() -> Unit
     ): TextFieldPreparedSelection {
@@ -271,16 +271,16 @@ internal class TextFieldPreparedSelection(
         }
     }
 
-    fun getNextWordOffset(): Int? = textLayoutState.layoutResult?.getNextWordOffsetForLayout()
+    fun getNextWordOffset(): Int = textLayoutResult.getNextWordOffsetForLayout()
 
     private fun moveCursorNextByWord() = applyIfNotEmpty {
-        getNextWordOffset()?.let { setCursor(it) }
+        setCursor(getNextWordOffset())
     }
 
-    fun getPreviousWordOffset(): Int? = textLayoutState.layoutResult?.getPrevWordOffset()
+    fun getPreviousWordOffset(): Int = textLayoutResult.getPrevWordOffsetForLayout()
 
     private fun moveCursorPrevByWord() = applyIfNotEmpty {
-        getPreviousWordOffset()?.let { setCursor(it) }
+        setCursor(getPreviousWordOffset())
     }
 
     fun moveCursorPrevByParagraph() = applyIfNotEmpty {
@@ -300,23 +300,23 @@ internal class TextFieldPreparedSelection(
     }
 
     fun moveCursorUpByLine() = applyIfNotEmpty(false) {
-        textLayoutState.layoutResult?.jumpByLinesOffset(-1)?.let { setCursor(it) }
+        setCursor(textLayoutResult.jumpByLinesOffset(-1))
     }
 
     fun moveCursorDownByLine() = applyIfNotEmpty(false) {
-        textLayoutState.layoutResult?.jumpByLinesOffset(1)?.let { setCursor(it) }
+        setCursor(textLayoutResult.jumpByLinesOffset(1))
     }
 
-    fun getLineStartByOffset(): Int? = textLayoutState.layoutResult?.getLineStartByOffsetForLayout()
+    fun getLineStartByOffset(): Int = textLayoutResult.getLineStartByOffsetForLayout()
 
     fun moveCursorToLineStart() = applyIfNotEmpty {
-        getLineStartByOffset()?.let { setCursor(it) }
+        setCursor(getLineStartByOffset())
     }
 
-    fun getLineEndByOffset(): Int? = textLayoutState.layoutResult?.getLineEndByOffsetForLayout()
+    fun getLineEndByOffset(): Int = textLayoutResult.getLineEndByOffsetForLayout()
 
     fun moveCursorToLineEnd() = applyIfNotEmpty {
-        getLineEndByOffset()?.let { setCursor(it) }
+        setCursor(getLineEndByOffset())
     }
 
     fun moveCursorToLineLeftSide() = applyIfNotEmpty {
@@ -335,14 +335,14 @@ internal class TextFieldPreparedSelection(
         }
     }
 
-    // it selects a text from the original selection start to a current selection end
-    fun selectMovement() = applyIfNotEmpty(false) {
+    /** Selects a text from the original selection start to a current selection end. */
+    fun selectMovement() = applyIfNotEmpty(resetCachedX = false) {
         selection = TextRange(initialValue.selectionInChars.start, selection.end)
     }
 
     private fun isLtr(): Boolean {
-        val direction = textLayoutState.layoutResult?.getParagraphDirection(selection.end)
-        return direction != ResolvedTextDirection.Rtl
+        val direction = textLayoutResult.getParagraphDirection(selection.end)
+        return direction == ResolvedTextDirection.Ltr
     }
 
     private tailrec fun TextLayoutResult.getNextWordOffsetForLayout(
@@ -359,7 +359,7 @@ internal class TextFieldPreparedSelection(
         }
     }
 
-    private tailrec fun TextLayoutResult.getPrevWordOffset(
+    private tailrec fun TextLayoutResult.getPrevWordOffsetForLayout(
         currentOffset: Int = selection.end
     ): Int {
         if (currentOffset <= 0) {
@@ -367,7 +367,7 @@ internal class TextFieldPreparedSelection(
         }
         val currentWord = getWordBoundary(charOffset(currentOffset))
         return if (currentWord.start >= currentOffset) {
-            getPrevWordOffset(currentOffset - 1)
+            getPrevWordOffsetForLayout(currentOffset - 1)
         } else {
             currentWord.start
         }
@@ -390,7 +390,7 @@ internal class TextFieldPreparedSelection(
     private fun TextLayoutResult.jumpByLinesOffset(linesAmount: Int): Int {
         val currentOffset = selection.end
 
-        if (textPreparedSelectionState.cachedX == null) {
+        if (textPreparedSelectionState.cachedX.isNaN()) {
             textPreparedSelectionState.cachedX = getCursorRect(currentOffset).left
         }
 
@@ -406,7 +406,7 @@ internal class TextFieldPreparedSelection(
         }
 
         val y = getLineBottom(targetLine) - 1
-        val x = textPreparedSelectionState.cachedX!!.also {
+        val x = textPreparedSelectionState.cachedX.also {
             if ((isLtr() && it >= getLineRight(targetLine)) ||
                 (!isLtr() && it <= getLineLeft(targetLine))
             ) {

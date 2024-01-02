@@ -118,6 +118,7 @@ package androidx.compose.foundation.layout {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Immutable public interface FlowColumnScope extends androidx.compose.foundation.layout.ColumnScope {
+    method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.ui.Modifier fillMaxColumnWidth(androidx.compose.ui.Modifier, optional @FloatRange(from=0.0, to=1.0) float fraction);
   }
 
   public final class FlowLayoutKt {
@@ -128,6 +129,7 @@ package androidx.compose.foundation.layout {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Immutable public interface FlowRowScope extends androidx.compose.foundation.layout.RowScope {
+    method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.ui.Modifier fillMaxRowHeight(androidx.compose.ui.Modifier, optional @FloatRange(from=0.0, to=1.0) float fraction);
   }
 
   public final class IntrinsicKt {
@@ -264,13 +266,10 @@ package androidx.compose.foundation.layout {
   }
 
   public final class WindowInsetsPaddingKt {
-    method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier consumeWindowInsets(androidx.compose.ui.Modifier, androidx.compose.foundation.layout.PaddingValues paddingValues);
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier consumeWindowInsets(androidx.compose.ui.Modifier, androidx.compose.foundation.layout.PaddingValues paddingValues);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier consumeWindowInsets(androidx.compose.ui.Modifier, androidx.compose.foundation.layout.WindowInsets insets);
-    method @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier consumedWindowInsets(androidx.compose.ui.Modifier, androidx.compose.foundation.layout.PaddingValues paddingValues);
-    method @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier consumedWindowInsets(androidx.compose.ui.Modifier, androidx.compose.foundation.layout.WindowInsets insets);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier onConsumedWindowInsetsChanged(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.WindowInsets,kotlin.Unit> block);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier windowInsetsPadding(androidx.compose.ui.Modifier, androidx.compose.foundation.layout.WindowInsets insets);
-    method @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier withConsumedWindowInsets(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.WindowInsets,kotlin.Unit> block);
   }
 
   public final class WindowInsetsPadding_androidKt {

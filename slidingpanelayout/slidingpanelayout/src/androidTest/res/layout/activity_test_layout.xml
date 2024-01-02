@@ -23,14 +23,12 @@
         android:id="@+id/list_pane"
         android:layout_width="100dp"
         android:layout_height="match_parent"
-        android:layout_gravity="left"
         android:text="List" />
 
     <TextView
         android:id="@+id/detail_pane"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="right"
         android:layout_weight="1"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"

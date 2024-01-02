@@ -68,7 +68,6 @@ public class Device(
 
     /**
      * List of supported device types on Health Platform.
-     * @suppress
      */
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(

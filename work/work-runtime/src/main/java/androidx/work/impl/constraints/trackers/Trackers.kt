@@ -27,7 +27,7 @@ import androidx.work.impl.utils.taskexecutor.TaskExecutor
 class Trackers
 @JvmOverloads
 constructor(
-    context: Context,
+    val context: Context,
     taskExecutor: TaskExecutor,
     /**
      * The tracker used to track the battery charging status.

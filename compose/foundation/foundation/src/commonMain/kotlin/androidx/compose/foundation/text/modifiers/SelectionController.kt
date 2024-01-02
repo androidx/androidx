@@ -49,7 +49,9 @@ internal open class StaticTextSelectionParams(
     }
 
     open val shouldClip: Boolean
-        get() = textLayoutResult?.layoutInput?.overflow == TextOverflow.Visible
+        get() = textLayoutResult?.let {
+            it.layoutInput.overflow != TextOverflow.Visible && it.hasVisualOverflow
+        } ?: false
 
     // if this copy shows up in traces, this class may become mutable
     fun copy(
@@ -68,13 +70,13 @@ internal open class StaticTextSelectionParams(
  */
 // This is _basically_ a Modifier.Node but moved into remember because we need to do pointerInput
 internal class SelectionController(
+    private val selectableId: Long,
     private val selectionRegistrar: SelectionRegistrar,
     private val backgroundSelectionColor: Color,
     // TODO: Move these into Modifer.element eventually
     private var params: StaticTextSelectionParams = StaticTextSelectionParams.Empty
 ) : RememberObserver {
     private var selectable: Selectable? = null
-    private val selectableId = selectionRegistrar.nextSelectableId()
 
     val modifier: Modifier = selectionRegistrar
         .makeSelectionModifier(
@@ -115,6 +117,7 @@ internal class SelectionController(
 
     fun updateGlobalPosition(coordinates: LayoutCoordinates) {
         params = params.copy(layoutCoordinates = coordinates)
+        selectionRegistrar.notifyPositionChange(selectableId)
     }
 
     fun draw(drawScope: DrawScope) {

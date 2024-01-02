@@ -9,6 +9,7 @@ export class StatService {
     }
 
     const series: Series[] = [];
+    const standard = metrics.standard;
     const sampled = metrics.sampled;
     if (sampled) {
       for (let i = 0; i < sampled.length; i += 1) {
@@ -22,10 +23,13 @@ export class StatService {
             const reference = comparables[0];
             for (let j = 1; j < comparables.length; j += 1) {
               const target = comparables[j];
+              if (!(reference && target)) {
+                continue;
+              }
               const [delta, distribution] = this.buildDistribution(reference, target);
-              const [points, pPlots, p] = histogramPoints([distribution], 20, delta);
+              const [points, pPlots, p] = histogramPoints([distribution], /* buckets */ 100, /* target */ delta);
               series.push({
-                label: `${name} { ${metric.label} } - Likelihood`,
+                descriptiveLabel: `${name} { ${metric.label} } - Likelihood`,
                 type: "line",
                 data: points,
                 options: {
@@ -34,7 +38,47 @@ export class StatService {
               });
               if (pPlots && pPlots.length > 0) {
                 series.push({
-                  label: `${name} { ${metric.label} } - { P = ${p} }`,
+                  descriptiveLabel: `${name} { ${metric.label} } - { P = ${p} }`,
+                  type: "bar",
+                  data: pPlots,
+                  options: {
+                    tension: 0.01
+                  }
+                });
+              }
+            }
+          }
+        }
+      }
+    }
+    if (standard) {
+      for (let i = 0; i < standard.length; i += 1) {
+        const metric = standard[i];
+        const name = datasetName(metric);
+        if (activeDatasets.has(name)) {
+          const data: Record<string, ChartData<number>> = metric.data;
+          const entries = Object.entries(data);
+          const comparables: ChartData<number>[] = entries.map(entry => entry[1]);
+          if (comparables.length > 1) {
+            const reference = comparables[0];
+            for (let j = 1; j < comparables.length; j += 1) {
+              const target = comparables[j];
+              if (!(reference && target)) {
+                continue;
+              }
+              const [delta, distribution] = this.buildStandardDistribution(reference, target);
+              const [points, pPlots, p] = histogramPoints([distribution], /* buckets */ 100, /* target */ delta);
+              series.push({
+                descriptiveLabel: `${name} { ${metric.label} } - Likelihood`,
+                type: "line",
+                data: points,
+                options: {
+                  tension: 0.3
+                }
+              });
+              if (pPlots && pPlots.length > 0) {
+                series.push({
+                  descriptiveLabel: `${name} { ${metric.label} } - { P = ${p} }`,
                   type: "bar",
                   data: pPlots,
                   options: {
@@ -50,6 +94,30 @@ export class StatService {
     return series;
   }
 
+  private buildStandardDistribution(
+    reference: ChartData<number>,
+    target: ChartData<number>,
+    N: number = 100_000): [number, number[]] {
+    // Compute delta mean
+    const referenceData = reference.values;
+    const targetData = target.values;
+    const referenceMean = this.mean(referenceData);
+    const targetMean = this.mean(targetData);
+    const deltaMean = referenceMean - targetMean;
+    // Simulate
+    const rs = referenceData.length;
+    const ts = targetData.length;
+    const combined: number[] = [...referenceData, ...targetData];
+    const means: number[] = [];
+    for (let i = 0; i < N; i += 1) {
+      const [r, t] = this.shuffleSplit(combined, [rs, ts]);
+      const mr = this.mean(r);
+      const mt = this.mean(t);
+      means.push(mr - mt);
+    }
+    return [deltaMean, means];
+  }
+
   private buildDistribution(
     reference: ChartData<number[]>,
     target: ChartData<number[]>,
@@ -60,17 +128,17 @@ export class StatService {
     const targetData = target.values;
     const referenceMedian = this.arrayMedian(referenceData);
     const targetMedian = this.arrayMedian(targetData);
-    const deltaMedian = Math.abs(referenceMedian - targetMedian);
+    const deltaMedian = referenceMedian - targetMedian;
     // Simulate
     const rs = referenceData.length;
     const ts = targetData.length;
     const combined: number[][] = [...referenceData, ...targetData];
-    const medians = [];
+    const medians: number[] = [];
     for (let i = 0; i < N; i += 1) {
       const [r, t] = this.shuffleSplit(combined, [rs, ts]);
       const mr = this.arrayMedian(r);
       const mt = this.arrayMedian(t);
-      medians.push(Math.abs(mr - mt));
+      medians.push(mr - mt);
     }
     return [deltaMedian, medians];
   }
@@ -99,6 +167,15 @@ export class StatService {
     // This is because while individual runs are correlated
     // we can still look at the actual metrics in aggregate.
     return this.median(data.flat());
+  }
+
+  private mean(data: number[]): number {
+    if (data.length <= 0) return 0;
+    let sum = 0;
+    for (let i = 0; i < data.length; i += 1) {
+      sum += data[i];
+    }
+    return (sum / data.length);
   }
 
   private median(data: number[]): number {

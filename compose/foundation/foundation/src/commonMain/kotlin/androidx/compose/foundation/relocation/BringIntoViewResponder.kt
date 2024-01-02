@@ -48,6 +48,9 @@ import kotlinx.coroutines.launch
  * @sample androidx.compose.foundation.samples.BringPartOfComposableIntoViewSample
  *
  * @see BringIntoViewRequester
+ *
+ * Note: this API is experimental while we optimise the performance and find the right API shape
+ * for it
  */
 @ExperimentalFoundationApi
 interface BringIntoViewResponder {
@@ -94,6 +97,9 @@ interface BringIntoViewResponder {
  * @sample androidx.compose.foundation.samples.BringIntoViewSample
  *
  * @see BringIntoViewRequester
+ *
+ * Note: this API is experimental while we optimise the performance and find the right API shape
+ * for it
  */
 @Suppress("ModifierInspectorInfo")
 @ExperimentalFoundationApi

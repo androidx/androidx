@@ -195,11 +195,7 @@ public final class AccessibilityServiceInfoCompat {
     @Nullable
     public static String loadDescription(
             @NonNull AccessibilityServiceInfo info, @NonNull PackageManager packageManager) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return info.loadDescription(packageManager);
-        } else {
-            return info.getDescription();
-        }
+        return info.loadDescription(packageManager);
     }
 
     /**
@@ -284,14 +280,7 @@ public final class AccessibilityServiceInfoCompat {
      */
     @SuppressWarnings("deprecation")
     public static int getCapabilities(@NonNull AccessibilityServiceInfo info) {
-        if (Build.VERSION.SDK_INT >= 18) {
-            return info.getCapabilities();
-        } else {
-            if (info.getCanRetrieveWindowContent()) {
-                return CAPABILITY_CAN_RETRIEVE_WINDOW_CONTENT;
-            }
-            return 0;
-        }
+        return info.getCapabilities();
     }
 
     /**

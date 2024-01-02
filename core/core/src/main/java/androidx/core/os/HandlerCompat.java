@@ -113,6 +113,7 @@ public final class HandlerCompat {
      * </ul>
      *
      * @param looper the Looper that the new Handler should be bound to
+     * @param callback callback to send events to
      * @return a new async Handler instance
      * @see Handler#createAsync(Looper, Handler.Callback)
      */
@@ -162,6 +163,7 @@ public final class HandlerCompat {
      * <b>The time-base is {@link android.os.SystemClock#uptimeMillis}.</b>
      * Time spent in deep sleep will add an additional delay to execution.
      *
+     * @param handler handler to use for posting the runnable.
      * @param r The Runnable that will be executed.
      * @param token An instance which can be used to cancel {@code r} via
      *         {@link Handler#removeCallbacksAndMessages}.
@@ -206,13 +208,12 @@ public final class HandlerCompat {
      * @return {@code true} if the callback is in the message queue
      * @see Handler#hasCallbacks(Runnable)
      */
-    @RequiresApi(16)
     public static boolean hasCallbacks(@NonNull Handler handler, @NonNull Runnable r) {
         Exception wrappedException = null;
 
         if (Build.VERSION.SDK_INT >= 29) {
             return Api29Impl.hasCallbacks(handler, r);
-        } else if (Build.VERSION.SDK_INT >= 16) {
+        } else {
             // The method signature didn't change when it was made public in SDK 29, but use
             // reflection so that we don't cause a verification error or NotFound exception if an
             // OEM changed something.

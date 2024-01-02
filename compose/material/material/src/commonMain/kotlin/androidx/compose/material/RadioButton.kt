@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
@@ -63,10 +62,10 @@ import androidx.compose.ui.unit.dp
  * @param modifier Modifier to be applied to the radio button
  * @param enabled Controls the enabled state of the [RadioButton]. When `false`, this button will
  * not be selectable and appears disabled
- * @param interactionSource the [MutableInteractionSource] representing the stream of
- * [Interaction]s for this RadioButton. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this RadioButton in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this radio button. You can use this to change the radio button's
+ * appearance or preview the radio button in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param colors [RadioButtonColors] that will be used to resolve the color used for this
  * RadioButton in different states. See [RadioButtonDefaults.colors].
  */
@@ -76,7 +75,7 @@ fun RadioButton(
     onClick: (() -> Unit)?,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     colors: RadioButtonColors = RadioButtonDefaults.colors()
 ) {
     val dotRadius = animateDpAsState(
@@ -92,7 +91,7 @@ fun RadioButton(
                 enabled = enabled,
                 role = Role.RadioButton,
                 interactionSource = interactionSource,
-                indication = rememberRipple(
+                indication = rippleOrFallbackImplementation(
                     bounded = false,
                     radius = RadioButtonRippleRadius
                 )

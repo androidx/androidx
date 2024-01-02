@@ -47,6 +47,11 @@ dependencies {
     implementation("androidx.annotation:annotation:1.2.0")
     implementation(libs.playServicesBasement)
     implementation(libs.playServicesWearable, { exclude group: "androidx.core"})
+
+    // Includes the wear-sdk jar
+    compileOnly files("../../wear/wear_sdk/wear-sdk.jar")
+    testImplementation(files("../../wear/wear_sdk/wear-sdk.jar"))
+    samples(project(":wear:wear-remote-interactions-samples"))
 }
 
 android {
@@ -65,4 +70,5 @@ androidx {
     mavenVersion = LibraryVersions.WEAR_REMOTE_INTERACTIONS
     inceptionYear = "2020"
     description = "Android Wear Remote Interactions"
+    metalavaK2UastEnabled = true
 }

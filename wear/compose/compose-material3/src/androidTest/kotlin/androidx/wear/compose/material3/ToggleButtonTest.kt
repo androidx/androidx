@@ -48,6 +48,10 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.material3.samples.SplitToggleButtonWithCheckbox
+import androidx.wear.compose.material3.samples.SplitToggleButtonWithSwitch
+import androidx.wear.compose.material3.samples.ToggleButtonWithCheckbox
+import androidx.wear.compose.material3.samples.ToggleButtonWithSwitch
 import org.junit.Rule
 import org.junit.Test
 
@@ -75,6 +79,22 @@ class ToggleButtonTest {
         }
 
         rule.onNodeWithTag(TEST_TAG).assertExists()
+    }
+
+    @Test
+    fun toggle_button_samples_build() {
+        rule.setContentWithTheme {
+            ToggleButtonWithCheckbox()
+            ToggleButtonWithSwitch()
+        }
+    }
+
+    @Test
+    fun split_toggle_button_samples_build() {
+        rule.setContentWithTheme {
+            SplitToggleButtonWithCheckbox()
+            SplitToggleButtonWithSwitch()
+        }
     }
 
     @Test
@@ -371,23 +391,6 @@ class ToggleButtonTest {
     }
 
     @Test
-    fun has_role_checkbox() {
-        rule.setContentWithTheme {
-            ToggleButtonWithDefaults(
-                modifier = Modifier.testTag(TEST_TAG)
-            )
-        }
-
-        rule.onNodeWithTag(TEST_TAG)
-            .assert(
-                SemanticsMatcher.expectValue(
-                    SemanticsProperties.Role,
-                    Role.Checkbox
-                )
-            )
-    }
-
-    @Test
     fun can_override_role() {
         rule.setContentWithTheme {
             ToggleButtonWithDefaults(
@@ -409,26 +412,20 @@ class ToggleButtonTest {
     }
 
     @Test
-    fun split_button_has_roles_button_and_checkbox() {
+    fun split_button_clickable_has_role_button() {
         rule.setContentWithTheme {
             SplitToggleButtonWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG)
             )
         }
 
+        // NB The toggle control (Checkbox or Switch) provides its own role,
+        // but the main clickable section is a Button.
         rule.onNodeWithTag(TEST_TAG).onChildAt(0)
             .assert(
                 SemanticsMatcher.expectValue(
                     SemanticsProperties.Role,
                     Role.Button
-                )
-            )
-
-        rule.onNodeWithTag(TEST_TAG).onChildAt(1)
-            .assert(
-                SemanticsMatcher.expectValue(
-                    SemanticsProperties.Role,
-                    Role.Checkbox
                 )
             )
     }
@@ -494,7 +491,7 @@ class ToggleButtonTest {
         val minHeight: Dp = 53.dp
 
         rule.setContentWithThemeForSizeAssertions {
-            ToggleButtonWithDefaults(
+            SplitToggleButtonWithDefaults(
                 label = {
                     Text(
                         text = "Primary label with 3 lines of text."
@@ -594,7 +591,7 @@ class ToggleButtonTest {
         rule.setContentWithTheme {
             SplitToggleButtonWithDefaults(
                 checked = checked,
-                colors = ToggleButtonDefaults.toggleButtonColors(
+                colors = ToggleButtonDefaults.splitToggleButtonColors(
                     checkedContainerColor = CHECKED_COLOR,
                     uncheckedContainerColor = UNCHECKED_COLOR
                 ),
@@ -622,7 +619,7 @@ private fun ToggleButtonWithDefaults(
     },
     secondaryLabel: @Composable (RowScope.() -> Unit)? = null,
     icon: @Composable (BoxScope.() -> Unit)? = null,
-    selectionControl: @Composable () -> Unit = {}
+    toggleControl: @Composable ToggleControlScope.() -> Unit = { Checkbox() }
 ) =
     ToggleButton(
         modifier = modifier,
@@ -633,7 +630,7 @@ private fun ToggleButtonWithDefaults(
         label = label,
         secondaryLabel = secondaryLabel,
         icon = icon,
-        selectionControl = selectionControl
+        toggleControl = toggleControl
     )
 
 @Composable
@@ -641,14 +638,14 @@ private fun SplitToggleButtonWithDefaults(
     modifier: Modifier = Modifier,
     checked: Boolean = true,
     enabled: Boolean = true,
-    colors: ToggleButtonColors = ToggleButtonDefaults.toggleButtonColors(),
+    colors: SplitToggleButtonColors = ToggleButtonDefaults.splitToggleButtonColors(),
     onCheckedChange: (Boolean) -> Unit = {},
     onClick: () -> Unit = {},
     label: @Composable RowScope.() -> Unit = {
         Text("Primary")
     },
     secondaryLabel: @Composable (RowScope.() -> Unit)? = null,
-    selectionControl: @Composable BoxScope.() -> Unit = {}
+    toggleControl: @Composable ToggleControlScope.() -> Unit = { Checkbox() }
 ) = SplitToggleButton(
     modifier = modifier,
     colors = colors,
@@ -658,7 +655,7 @@ private fun SplitToggleButtonWithDefaults(
     label = label,
     secondaryLabel = secondaryLabel,
     onClick = onClick,
-    selectionControl = selectionControl,
+    toggleControl = toggleControl,
 )
 
 private val CHECKED_COLOR = Color(0xFFA020F0)

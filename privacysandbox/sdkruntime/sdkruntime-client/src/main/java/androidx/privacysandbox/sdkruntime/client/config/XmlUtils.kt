@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-@file:RestrictTo(RestrictTo.Scope.LIBRARY)
-
 package androidx.privacysandbox.sdkruntime.client.config
 
-import androidx.annotation.RestrictTo
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParser.END_TAG
 import org.xmlpull.v1.XmlPullParser.START_TAG
@@ -26,7 +23,6 @@ import org.xmlpull.v1.XmlPullParser.START_TAG
 /**
  * Skip current tag (including inner tags)
  *
- * @suppress
  */
 internal fun XmlPullParser.skipCurrentTag() {
     require(START_TAG, null, null)

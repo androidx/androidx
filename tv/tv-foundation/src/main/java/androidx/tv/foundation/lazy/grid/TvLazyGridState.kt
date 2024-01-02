@@ -35,14 +35,16 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.layout.Remeasurement
 import androidx.compose.ui.layout.RemeasurementModifier
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEach
+import androidx.tv.foundation.lazy.layout.AwaitFirstLayoutModifier
+import androidx.tv.foundation.lazy.layout.LazyLayoutBeyondBoundsInfo
 import androidx.tv.foundation.lazy.layout.animateScrollToItem
-import androidx.tv.foundation.lazy.list.AwaitFirstLayoutModifier
 import kotlin.math.abs
 
 /**
@@ -95,7 +97,7 @@ class TvLazyGridState constructor(
      * Note that this property is observable and if you use it in the composable function it will
      * be recomposed on every change causing potential performance issues.
      */
-    val firstVisibleItemIndex: Int get() = scrollPosition.index.value
+    val firstVisibleItemIndex: Int get() = scrollPosition.index
 
     /**
      * The scroll offset of the first visible item. Scrolling forward is positive - i.e., the
@@ -141,12 +143,12 @@ class TvLazyGridState constructor(
     /**
      * Needed for [animateScrollToItem]. Updated on every measure.
      */
-    internal var density: Density by mutableStateOf(Density(1f, 1f))
+    internal var density: Density = Density(1f, 1f)
 
     /**
      * Needed for [notifyPrefetch].
      */
-    internal var isVertical: Boolean by mutableStateOf(true)
+    internal var isVertical: Boolean = true
 
     /**
      * The ScrollableController instance. We keep it as we need to call stopAnimation on it once
@@ -188,7 +190,7 @@ class TvLazyGridState constructor(
      * The [Remeasurement] object associated with our layout. It allows us to remeasure
      * synchronously during scroll.
      */
-    private var remeasurement: Remeasurement? by mutableStateOf(null)
+    internal var remeasurement: Remeasurement? = null
 
     /**
      * The modifier which provides [remeasurement].
@@ -208,10 +210,12 @@ class TvLazyGridState constructor(
     /**
      * Finds items on a line and their measurement constraints. Used for prefetching.
      */
-    internal var prefetchInfoRetriever: (line: LineIndex) -> List<Pair<Int, Constraints>> by
+    internal var prefetchInfoRetriever: (line: Int) -> List<Pair<Int, Constraints>> by
     mutableStateOf({ emptyList() })
 
-    internal var placementAnimator by mutableStateOf<LazyGridItemPlacementAnimator?>(null)
+    internal val placementAnimator = LazyGridItemPlacementAnimator()
+
+    internal val beyondBoundsInfo = LazyLayoutBeyondBoundsInfo()
 
     private val animateScrollScope = LazyGridAnimateScrollScope(this)
 
@@ -219,6 +223,8 @@ class TvLazyGridState constructor(
      * Stores currently pinned items which are always composed.
      */
     internal val pinnedItems = LazyLayoutPinnedItemList()
+
+    internal val nearestRange: IntRange by scrollPosition.nearestRangeState
 
     /**
      * Instantly brings the item at [index] to the top of the viewport, offset by [scrollOffset]
@@ -240,9 +246,9 @@ class TvLazyGridState constructor(
     }
 
     internal fun snapToItemIndexInternal(index: Int, scrollOffset: Int) {
-        scrollPosition.requestPosition(ItemIndex(index), scrollOffset)
+        scrollPosition.requestPosition(index, scrollOffset)
         // placement animation is not needed because we snap into a new position.
-        placementAnimator?.reset()
+        placementAnimator.reset()
         remeasurement?.forceRemeasure()
     }
 
@@ -344,7 +350,7 @@ class TvLazyGridState constructor(
                 this.wasScrollingForward = scrollingForward
                 this.lineToPrefetch = lineToPrefetch
                 currentLinePrefetchHandles.clear()
-                prefetchInfoRetriever(LineIndex(lineToPrefetch)).fastForEach {
+                prefetchInfoRetriever(lineToPrefetch).fastForEach {
                     currentLinePrefetchHandles.add(
                         prefetchState.schedulePrefetch(it.first, it.second)
                     )
@@ -399,8 +405,8 @@ class TvLazyGridState constructor(
         layoutInfoState.value = result
 
         canScrollForward = result.canScrollForward
-        canScrollBackward = (result.firstVisibleLine?.index?.value ?: 0) != 0 ||
-            result.firstVisibleLineScrollOffset != 0
+        canScrollBackward =
+            (result.firstVisibleLine?.index ?: 0) != 0 || result.firstVisibleLineScrollOffset != 0
 
         numMeasurePasses++
 
@@ -412,9 +418,10 @@ class TvLazyGridState constructor(
      * items added or removed before our current first visible item and keep this item
      * as the first visible one even given that its index has been changed.
      */
-    internal fun updateScrollPositionIfTheFirstItemWasMoved(itemProvider: LazyGridItemProvider) {
-        scrollPosition.updateScrollPositionIfTheFirstItemWasMoved(itemProvider)
-    }
+    internal fun updateScrollPositionIfTheFirstItemWasMoved(
+        itemProvider: LazyGridItemProvider,
+        firstItemIndex: Int = Snapshot.withoutReadObservation { scrollPosition.index }
+    ): Int = scrollPosition.updateScrollPositionIfTheFirstItemWasMoved(itemProvider, firstItemIndex)
 
     companion object {
         /**

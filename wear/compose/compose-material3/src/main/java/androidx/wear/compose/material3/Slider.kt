@@ -31,7 +31,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
@@ -99,10 +98,10 @@ import kotlin.math.roundToInt
  * @param colors [InlineSliderColors] that will be used to resolve the background and content color
  * for this slider in different states.
  */
+@ExperimentalWearMaterial3Api
 @Composable
 fun InlineSlider(
     value: Float,
-    @Suppress("PrimitiveInLambda")
     onValueChange: (Float) -> Unit,
     steps: Int,
     decreaseIcon: @Composable () -> Unit,
@@ -127,7 +126,6 @@ fun InlineSlider(
     ) {
         val visibleSegments = if (segmented) steps + 1 else 1
 
-        @Suppress("PrimitiveInLambda")
         val updateValue: (Int) -> Unit = { stepDiff ->
             val newValue = calculateCurrentStepValue(currentStep + stepDiff, steps, valueRange)
             if (newValue != value) onValueChange(newValue)
@@ -137,7 +135,10 @@ fun InlineSlider(
         val containerColor = colors.containerColor(enabled)
         val barSeparatorColor = colors.barSeparatorColor(enabled)
         CompositionLocalProvider(
-            LocalIndication provides rememberRipple(bounded = false, radius = this.maxWidth / 2)
+            LocalIndication provides rippleOrFallbackImplementation(
+                bounded = false,
+                radius = this.maxWidth / 2
+            )
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -254,10 +255,10 @@ fun InlineSlider(
  * @param colors [InlineSliderColors] that will be used to resolve the background and content color
  * for this slider in different states.
  */
+@ExperimentalWearMaterial3Api
 @Composable
 fun InlineSlider(
     value: Int,
-    @Suppress("PrimitiveInLambda")
     onValueChange: (Int) -> Unit,
     valueProgression: IntProgression,
     decreaseIcon: @Composable () -> Unit,
@@ -282,6 +283,7 @@ fun InlineSlider(
 }
 
 /** Defaults used by slider. */
+@ExperimentalWearMaterial3Api
 object InlineSliderDefaults {
     /**
      * Default slider measurements.
@@ -374,6 +376,7 @@ object InlineSliderDefaults {
  * @param disabledUnselectedBarColor The background color of the progress bar when disabled.
  * @param disabledBarSeparatorColor The color of separator between visible segments when disabled.
  */
+@ExperimentalWearMaterial3Api
 @Immutable
 class InlineSliderColors constructor(
     val containerColor: Color,
@@ -453,6 +456,7 @@ class InlineSliderColors constructor(
     }
 }
 
+@OptIn(ExperimentalWearMaterial3Api::class)
 internal fun DrawScope.drawSelectedProgressBar(
     color: Color,
     valueRatio: Float,
@@ -470,6 +474,7 @@ internal fun DrawScope.drawSelectedProgressBar(
     )
 }
 
+@OptIn(ExperimentalWearMaterial3Api::class)
 internal fun DrawScope.drawUnselectedProgressBar(
     color: Color,
     valueRatio: Float,
@@ -486,6 +491,7 @@ internal fun DrawScope.drawUnselectedProgressBar(
     )
 }
 
+@OptIn(ExperimentalWearMaterial3Api::class)
 internal fun DrawScope.drawProgressBarSeparator(color: Color, position: Float) {
     drawCircle(
         color = color,
@@ -502,8 +508,5 @@ private fun InlineSliderButtonContent(
     content: @Composable () -> Unit
 ) = CompositionLocalProvider(
     LocalContentColor provides buttonIconColor(enabled).value,
-    LocalContentAlpha provides if (enabled) {
-        LocalContentAlpha.current
-    } else ContentAlpha.disabled,
     content = content
 )

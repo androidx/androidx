@@ -60,7 +60,7 @@ package androidx.fragment.app {
     method public Object? getSharedElementEnterTransition();
     method public Object? getSharedElementReturnTransition();
     method public final String getString(@StringRes int);
-    method public final String getString(@StringRes int, java.lang.Object!...);
+    method public final String getString(@StringRes int, java.lang.Object!...?);
     method public final String? getTag();
     method @Deprecated public final androidx.fragment.app.Fragment? getTargetFragment();
     method @Deprecated public final int getTargetRequestCode();
@@ -251,7 +251,7 @@ package androidx.fragment.app {
   public class FragmentFactory {
     ctor public FragmentFactory();
     method public androidx.fragment.app.Fragment instantiate(ClassLoader, String);
-    method public static Class<? extends androidx.fragment.app.Fragment> loadFragmentClass(ClassLoader, String);
+    method public static Class<? extends androidx.fragment.app.Fragment!> loadFragmentClass(ClassLoader, String);
   }
 
   public abstract class FragmentHostCallback<E> extends androidx.fragment.app.FragmentContainer {
@@ -402,9 +402,9 @@ package androidx.fragment.app {
     method public androidx.fragment.app.FragmentTransaction add(androidx.fragment.app.Fragment, String?);
     method public androidx.fragment.app.FragmentTransaction add(@IdRes int, androidx.fragment.app.Fragment);
     method public androidx.fragment.app.FragmentTransaction add(@IdRes int, androidx.fragment.app.Fragment, String?);
-    method public final androidx.fragment.app.FragmentTransaction add(@IdRes int, Class<? extends androidx.fragment.app.Fragment>, android.os.Bundle?);
-    method public final androidx.fragment.app.FragmentTransaction add(@IdRes int, Class<? extends androidx.fragment.app.Fragment>, android.os.Bundle?, String?);
-    method public final androidx.fragment.app.FragmentTransaction add(Class<? extends androidx.fragment.app.Fragment>, android.os.Bundle?, String?);
+    method public final androidx.fragment.app.FragmentTransaction add(@IdRes int, Class<? extends androidx.fragment.app.Fragment!>, android.os.Bundle?);
+    method public final androidx.fragment.app.FragmentTransaction add(@IdRes int, Class<? extends androidx.fragment.app.Fragment!>, android.os.Bundle?, String?);
+    method public final androidx.fragment.app.FragmentTransaction add(Class<? extends androidx.fragment.app.Fragment!>, android.os.Bundle?, String?);
     method public androidx.fragment.app.FragmentTransaction addSharedElement(android.view.View, String);
     method public androidx.fragment.app.FragmentTransaction addToBackStack(String?);
     method public androidx.fragment.app.FragmentTransaction attach(androidx.fragment.app.Fragment);
@@ -420,8 +420,8 @@ package androidx.fragment.app {
     method public androidx.fragment.app.FragmentTransaction remove(androidx.fragment.app.Fragment);
     method public androidx.fragment.app.FragmentTransaction replace(@IdRes int, androidx.fragment.app.Fragment);
     method public androidx.fragment.app.FragmentTransaction replace(@IdRes int, androidx.fragment.app.Fragment, String?);
-    method public final androidx.fragment.app.FragmentTransaction replace(@IdRes int, Class<? extends androidx.fragment.app.Fragment>, android.os.Bundle?);
-    method public final androidx.fragment.app.FragmentTransaction replace(@IdRes int, Class<? extends androidx.fragment.app.Fragment>, android.os.Bundle?, String?);
+    method public final androidx.fragment.app.FragmentTransaction replace(@IdRes int, Class<? extends androidx.fragment.app.Fragment!>, android.os.Bundle?);
+    method public final androidx.fragment.app.FragmentTransaction replace(@IdRes int, Class<? extends androidx.fragment.app.Fragment!>, android.os.Bundle?, String?);
     method public androidx.fragment.app.FragmentTransaction runOnCommit(Runnable);
     method @Deprecated public androidx.fragment.app.FragmentTransaction setAllowOptimization(boolean);
     method @Deprecated public androidx.fragment.app.FragmentTransaction setBreadCrumbShortTitle(@StringRes int);
@@ -451,21 +451,28 @@ package androidx.fragment.app {
     ctor public FragmentTransitionImpl();
     method public abstract void addTarget(Object, android.view.View);
     method public abstract void addTargets(Object, java.util.ArrayList<android.view.View!>);
+    method public void animateToEnd(Object);
+    method public void animateToStart(Object, Runnable);
     method public abstract void beginDelayedTransition(android.view.ViewGroup, Object?);
     method protected static void bfsAddViewChildren(java.util.List<android.view.View!>!, android.view.View!);
     method public abstract boolean canHandle(Object);
     method public abstract Object! cloneTransition(Object?);
+    method public Object? controlDelayedTransition(android.view.ViewGroup, Object);
     method protected void getBoundsOnScreen(android.view.View!, android.graphics.Rect!);
     method protected static boolean isNullOrEmpty(java.util.List!);
+    method public boolean isSeekingSupported();
+    method public boolean isSeekingSupported(Object);
     method public abstract Object! mergeTransitionsInSequence(Object?, Object?, Object?);
     method public abstract Object! mergeTransitionsTogether(Object?, Object?, Object?);
     method public abstract void removeTarget(Object, android.view.View);
     method public abstract void replaceTargets(Object, java.util.ArrayList<android.view.View!>!, java.util.ArrayList<android.view.View!>!);
     method public abstract void scheduleHideFragmentView(Object, android.view.View, java.util.ArrayList<android.view.View!>);
     method public abstract void scheduleRemoveTargets(Object, Object?, java.util.ArrayList<android.view.View!>?, Object?, java.util.ArrayList<android.view.View!>?, Object?, java.util.ArrayList<android.view.View!>?);
+    method public void setCurrentPlayTime(Object, float);
     method public abstract void setEpicenter(Object, android.graphics.Rect);
     method public abstract void setEpicenter(Object, android.view.View?);
     method public void setListenerForTransitionEnd(androidx.fragment.app.Fragment, Object, androidx.core.os.CancellationSignal, Runnable);
+    method public void setListenerForTransitionEnd(androidx.fragment.app.Fragment, Object, androidx.core.os.CancellationSignal, Runnable?, Runnable);
     method public abstract void setSharedElementTargets(Object, android.view.View, java.util.ArrayList<android.view.View!>);
     method public abstract void swapSharedElementTargets(Object?, java.util.ArrayList<android.view.View!>?, java.util.ArrayList<android.view.View!>?);
     method public abstract Object! wrapTransitionInSet(Object?);

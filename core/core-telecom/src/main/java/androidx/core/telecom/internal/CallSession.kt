@@ -21,11 +21,16 @@ import android.os.OutcomeReceiver
 import android.os.ParcelUuid
 import android.telecom.CallException
 import android.telecom.DisconnectCause
+import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.core.telecom.CallControlCallback
+import androidx.core.telecom.CallControlResult
 import androidx.core.telecom.CallControlScope
 import androidx.core.telecom.CallEndpointCompat
+import androidx.core.telecom.CallsManager
+import androidx.core.telecom.extensions.Capability
+import androidx.core.telecom.extensions.voip.VoipExtensionManager
 import androidx.core.telecom.internal.utils.EndpointUtils
+import androidx.core.telecom.util.ExperimentalAppActions
 import java.util.function.Consumer
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CompletableDeferred
@@ -37,10 +42,16 @@ import kotlinx.coroutines.launch
 @RequiresApi(34)
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 @Suppress("ClassVerificationFailure")
-internal class CallSession(coroutineContext: CoroutineContext) {
+internal class CallSession(
+    coroutineContext: CoroutineContext,
+    val onAnswerCallback: suspend (callType: Int) -> Unit,
+    val onDisconnectCallback: suspend (disconnectCause: DisconnectCause) -> Unit,
+    val onSetActiveCallback: suspend () -> Unit,
+    val onSetInactiveCallback: suspend () -> Unit,
+    private val blockingSessionExecution: CompletableDeferred<Unit>
+) {
     private val mCoroutineContext = coroutineContext
     private var mPlatformInterface: android.telecom.CallControl? = null
-    private var mClientInterface: CallControlCallback? = null
 
     class CallControlCallbackImpl(private val callSession: CallSession) :
         android.telecom.CallControlCallback {
@@ -68,8 +79,18 @@ internal class CallSession(coroutineContext: CoroutineContext) {
         }
     }
 
-    class CallEventCallbackImpl(private val callChannels: CallChannels) :
+    class CallEventCallbackImpl(
+        private val callChannels: CallChannels,
+        private val coroutineContext: CoroutineContext,
+        private val voipExtensionManager: VoipExtensionManager
+    ) :
         android.telecom.CallEventCallback {
+        private val CALL_EVENT_CALLBACK_TAG = CallEventCallbackImpl::class.simpleName
+        /**
+         * Stubbed supported capabilities for v2 connections.
+         */
+        @ExperimentalAppActions
+        private val supportedCapabilities = mutableListOf(Capability())
         override fun onCallEndpointChanged(
             endpoint: android.telecom.CallEndpoint
         ) {
@@ -94,8 +115,19 @@ internal class CallSession(coroutineContext: CoroutineContext) {
             TODO("Implement with the CallStreaming code")
         }
 
+        @ExperimentalAppActions
         override fun onEvent(event: String, extras: Bundle) {
-            TODO("Implement when events are agreed upon by ICS and package")
+            // Call events are sent via Call#sendCallEvent(event, extras). Begin initial capability
+            // exchange procedure once we know that the ICS supports it.
+            if (event == CallsManager.EVENT_JETPACK_CAPABILITY_EXCHANGE) {
+                Log.i(CALL_EVENT_CALLBACK_TAG, "onEvent: EVENT_JETPACK_CAPABILITY_EXCHANGE: " +
+                        "beginning capability exchange.")
+                // Launch a new coroutine from the context of the current coroutine
+                CoroutineScope(coroutineContext).launch {
+                        voipExtensionManager.initiateVoipAppCapabilityExchange(
+                            extras, supportedCapabilities, CALL_EVENT_CALLBACK_TAG)
+                }
+            }
         }
     }
 
@@ -108,30 +140,19 @@ internal class CallSession(coroutineContext: CoroutineContext) {
     }
 
     /**
-     * pass in the clients callback implementation for CallControlCallback that is set in the
-     * CallsManager#addCall scope.
-     */
-    fun setCallControlCallback(clientCallbackImpl: CallControlCallback) {
-        mClientInterface = clientCallbackImpl
-    }
-
-    fun hasClientSetCallbacks(): Boolean {
-        return mClientInterface != null
-    }
-
-    /**
      * Custom OutcomeReceiver that handles the Platform responses to a CallControl API call
      */
-    inner class CallControlReceiver(deferred: CompletableDeferred<Boolean>) :
+    inner class CallControlReceiver(deferred: CompletableDeferred<CallControlResult>) :
         OutcomeReceiver<Void, CallException> {
-        private val mResultDeferred: CompletableDeferred<Boolean> = deferred
+        private val mResultDeferred: CompletableDeferred<CallControlResult> = deferred
 
         override fun onResult(r: Void?) {
-            mResultDeferred.complete(true)
+            mResultDeferred.complete(CallControlResult.Success())
         }
 
         override fun onError(error: CallException) {
-            mResultDeferred.complete(false)
+            mResultDeferred.complete(CallControlResult.Error(
+                androidx.core.telecom.CallException.fromTelecomCode(error.code)))
         }
     }
 
@@ -139,29 +160,29 @@ internal class CallSession(coroutineContext: CoroutineContext) {
         return mPlatformInterface!!.callId
     }
 
-    suspend fun setActive(): Boolean {
-        val result: CompletableDeferred<Boolean> = CompletableDeferred()
+    suspend fun setActive(): CallControlResult {
+        val result: CompletableDeferred<CallControlResult> = CompletableDeferred()
         mPlatformInterface?.setActive(Runnable::run, CallControlReceiver(result))
         result.await()
         return result.getCompleted()
     }
 
-    suspend fun setInactive(): Boolean {
-        val result: CompletableDeferred<Boolean> = CompletableDeferred()
+    suspend fun setInactive(): CallControlResult {
+        val result: CompletableDeferred<CallControlResult> = CompletableDeferred()
         mPlatformInterface?.setInactive(Runnable::run, CallControlReceiver(result))
         result.await()
         return result.getCompleted()
     }
 
-    suspend fun answer(videoState: Int): Boolean {
-        val result: CompletableDeferred<Boolean> = CompletableDeferred()
+    suspend fun answer(videoState: Int): CallControlResult {
+        val result: CompletableDeferred<CallControlResult> = CompletableDeferred()
         mPlatformInterface?.answer(videoState, Runnable::run, CallControlReceiver(result))
         result.await()
         return result.getCompleted()
     }
 
-    suspend fun requestEndpointChange(endpoint: android.telecom.CallEndpoint): Boolean {
-        val result: CompletableDeferred<Boolean> = CompletableDeferred()
+    suspend fun requestEndpointChange(endpoint: android.telecom.CallEndpoint): CallControlResult {
+        val result: CompletableDeferred<CallControlResult> = CompletableDeferred()
         mPlatformInterface?.requestCallEndpointChange(
             endpoint,
             Runnable::run, CallControlReceiver(result)
@@ -170,8 +191,8 @@ internal class CallSession(coroutineContext: CoroutineContext) {
         return result.getCompleted()
     }
 
-    suspend fun disconnect(disconnectCause: DisconnectCause): Boolean {
-        val result: CompletableDeferred<Boolean> = CompletableDeferred()
+    suspend fun disconnect(disconnectCause: DisconnectCause): CallControlResult {
+        val result: CompletableDeferred<CallControlResult> = CompletableDeferred()
         mPlatformInterface?.disconnect(
             disconnectCause,
             Runnable::run,
@@ -186,30 +207,55 @@ internal class CallSession(coroutineContext: CoroutineContext) {
      */
     fun onSetActive(wasCompleted: Consumer<Boolean>) {
         CoroutineScope(mCoroutineContext).launch {
-            val clientResponse: Boolean = mClientInterface!!.onSetActive()
-            wasCompleted.accept(clientResponse)
+            try {
+                onSetActiveCallback()
+                wasCompleted.accept(true)
+            } catch (e: Exception) {
+                handleCallbackFailure(wasCompleted, e)
+            }
         }
     }
 
     fun onSetInactive(wasCompleted: Consumer<Boolean>) {
         CoroutineScope(mCoroutineContext).launch {
-            val clientResponse: Boolean = mClientInterface!!.onSetInactive()
-            wasCompleted.accept(clientResponse)
+            try {
+                onSetInactiveCallback()
+                wasCompleted.accept(true)
+            } catch (e: Exception) {
+                handleCallbackFailure(wasCompleted, e)
+            }
         }
     }
 
     fun onAnswer(videoState: Int, wasCompleted: Consumer<Boolean>) {
         CoroutineScope(mCoroutineContext).launch {
-            val clientResponse: Boolean = mClientInterface!!.onAnswer(videoState)
-            wasCompleted.accept(clientResponse)
+            try {
+                onAnswerCallback(videoState)
+                wasCompleted.accept(true)
+            } catch (e: Exception) {
+                handleCallbackFailure(wasCompleted, e)
+            }
         }
     }
 
     fun onDisconnect(cause: DisconnectCause, wasCompleted: Consumer<Boolean>) {
         CoroutineScope(mCoroutineContext).launch {
-            val clientResponse: Boolean = mClientInterface!!.onDisconnect(cause)
-            wasCompleted.accept(clientResponse)
+            try {
+                onDisconnectCallback(cause)
+                wasCompleted.accept(true)
+            } catch (e: Exception) {
+                wasCompleted.accept(false)
+                throw e
+            } finally {
+                blockingSessionExecution.complete(Unit)
+            }
         }
+    }
+
+    private fun handleCallbackFailure(wasCompleted: Consumer<Boolean>, e: Exception) {
+        wasCompleted.accept(false)
+        blockingSessionExecution.complete(Unit)
+        throw e
     }
 
     /**
@@ -220,46 +266,37 @@ internal class CallSession(coroutineContext: CoroutineContext) {
     class CallControlScopeImpl(
         private val session: CallSession,
         callChannels: CallChannels,
+        private val blockingSessionExecution: CompletableDeferred<Unit>,
         override val coroutineContext: CoroutineContext
     ) : CallControlScope {
-        //  handle actionable/handshake events that originate in the platform
-        //  and require a response from the client
-        override fun setCallback(callControlCallback: CallControlCallback) {
-            session.setCallControlCallback(callControlCallback)
-        }
-
         // handle requests that originate from the client and propagate into platform
         //  return the platforms response which indicates success of the request.
         override fun getCallId(): ParcelUuid {
             CoroutineScope(session.mCoroutineContext).launch {
-                verifySessionCallbacks()
             }
             return session.getCallId()
         }
 
-        override suspend fun setActive(): Boolean {
-            verifySessionCallbacks()
+        override suspend fun setActive(): CallControlResult {
             return session.setActive()
         }
 
-        override suspend fun setInactive(): Boolean {
-            verifySessionCallbacks()
+        override suspend fun setInactive(): CallControlResult {
             return session.setInactive()
         }
 
-        override suspend fun answer(callType: Int): Boolean {
-            verifySessionCallbacks()
+        override suspend fun answer(callType: Int): CallControlResult {
             return session.answer(callType)
         }
 
-        override suspend fun disconnect(disconnectCause: DisconnectCause): Boolean {
-            verifySessionCallbacks()
-            return session.disconnect(disconnectCause)
+        override suspend fun disconnect(disconnectCause: DisconnectCause): CallControlResult {
+            val response = session.disconnect(disconnectCause)
+            blockingSessionExecution.complete(Unit)
+            return response
         }
 
         override suspend fun requestEndpointChange(endpoint: CallEndpointCompat):
-            Boolean {
-            verifySessionCallbacks()
+            CallControlResult {
             return session.requestEndpointChange(
                 EndpointUtils.Api34PlusImpl.toCallEndpoint(endpoint)
             )
@@ -274,17 +311,5 @@ internal class CallSession(coroutineContext: CoroutineContext) {
 
         override val isMuted: Flow<Boolean> =
             callChannels.isMutedChannel.receiveAsFlow()
-
-        private suspend fun verifySessionCallbacks() {
-            CoroutineScope(session.mCoroutineContext).launch {
-                if (!session.hasClientSetCallbacks()) {
-                    // Always send disconnect signal so that we don't end up with stuck calls.
-                    session.disconnect(DisconnectCause(DisconnectCause.LOCAL))
-                    throw androidx.core.telecom.CallException(
-                        androidx.core.telecom.CallException.ERROR_CALLBACKS_CODE
-                    )
-                }
-            }
-        }
     }
 }

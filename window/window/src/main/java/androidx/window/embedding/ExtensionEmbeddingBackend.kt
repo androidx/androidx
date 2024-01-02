@@ -29,6 +29,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.collection.ArraySet
 import androidx.core.util.Consumer
+import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowProperties
 import androidx.window.core.BuildConfig
 import androidx.window.core.ConsumerAdapter
@@ -336,6 +337,7 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         return embeddingExtension?.isActivityEmbedded(activity) ?: false
     }
 
+    @RequiresWindowSdkExtension(2)
     override fun setSplitAttributesCalculator(
         calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
     ) {
@@ -344,14 +346,12 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         }
     }
 
+    @RequiresWindowSdkExtension(2)
     override fun clearSplitAttributesCalculator() {
         globalLock.withLock {
             embeddingExtension?.clearSplitAttributesCalculator()
         }
     }
-
-    override fun isSplitAttributesCalculatorSupported(): Boolean =
-        embeddingExtension?.isSplitAttributesCalculatorSupported() ?: false
 
     override fun getActivityStack(activity: Activity): ActivityStack? {
         globalLock.withLock {
@@ -371,22 +371,18 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         }
     }
 
+    @RequiresWindowSdkExtension(3)
     override fun setLaunchingActivityStack(
         options: ActivityOptions,
         token: IBinder
     ): ActivityOptions = embeddingExtension?.setLaunchingActivityStack(options, token) ?: options
 
-    override fun finishActivityStacks(activityStacks: Set<ActivityStack>) {
-        embeddingExtension?.finishActivityStacks(activityStacks)
-    }
-
-    override fun isFinishActivityStacksSupported(): Boolean =
-        embeddingExtension?.isFinishActivityStacksSupported() ?: false
-
+    @RequiresWindowSdkExtension(3)
     override fun invalidateTopVisibleSplitAttributes() {
         embeddingExtension?.invalidateTopVisibleSplitAttributes()
     }
 
+    @RequiresWindowSdkExtension(3)
     override fun updateSplitAttributes(
         splitInfo: SplitInfo,
         splitAttributes: SplitAttributes
@@ -394,8 +390,6 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         embeddingExtension?.updateSplitAttributes(splitInfo, splitAttributes)
     }
 
-    override fun areSplitAttributesUpdatesSupported(): Boolean =
-        embeddingExtension?.areSplitAttributesUpdatesSupported() ?: false
     @RequiresApi(31)
     private object Api31Impl {
         @DoNotInline

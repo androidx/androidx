@@ -18,11 +18,9 @@ package androidx.compose.foundation.lazy.grid
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.checkScrollableContainerConstraints
-import androidx.compose.foundation.clipScrollableContainer
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollableDefaults
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -30,8 +28,9 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.lazy.layout.LazyLayout
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
 import androidx.compose.foundation.lazy.layout.calculateLazyLayoutPinnedIndices
+import androidx.compose.foundation.lazy.layout.lazyLayoutBeyondBoundsModifier
 import androidx.compose.foundation.lazy.layout.lazyLayoutSemantics
-import androidx.compose.foundation.overscroll
+import androidx.compose.foundation.scrollingContainer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -41,7 +40,6 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
@@ -58,7 +56,7 @@ internal fun LazyGrid(
     /** State controlling the scroll position */
     state: LazyGridState,
     /** Prefix sums of cross axis sizes of slots per line, e.g. the columns for vertical grid. */
-    slots: Density.(Constraints) -> LazyGridSlots,
+    slots: LazyGridSlotsProvider,
     /** The inner padding to be added for the whole content (not for each individual item) */
     contentPadding: PaddingValues = PaddingValues(0.dp),
     /** reverse the direction of scrolling and layout */
@@ -76,8 +74,6 @@ internal fun LazyGrid(
     /** The content of the grid */
     content: LazyGridScope.() -> Unit
 ) {
-    val overscrollEffect = ScrollableDefaults.overscrollEffect()
-
     val itemProviderLambda = rememberLazyGridItemProviderLambda(state, content)
 
     val semanticState = rememberLazyGridSemanticState(state, reverseLayout)
@@ -97,8 +93,6 @@ internal fun LazyGrid(
 
     state.isVertical = isVertical
 
-    ScrollPositionUpdater(itemProviderLambda, state)
-
     val orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal
     LazyLayout(
         modifier = modifier
@@ -109,45 +103,29 @@ internal fun LazyGrid(
                 state = semanticState,
                 orientation = orientation,
                 userScrollEnabled = userScrollEnabled,
-                reverseScrolling = reverseLayout
+                reverseScrolling = reverseLayout,
+                coroutineScope = coroutineScope
             )
-            .clipScrollableContainer(orientation)
-            .lazyGridBeyondBoundsModifier(
-                state,
-                reverseLayout,
-                orientation
-            )
-            .overscroll(overscrollEffect)
-            .scrollable(
+            .lazyLayoutBeyondBoundsModifier(
+                state = rememberLazyGridBeyondBoundsState(state = state),
+                beyondBoundsInfo = state.beyondBoundsInfo,
+                reverseLayout = reverseLayout,
+                layoutDirection = LocalLayoutDirection.current,
                 orientation = orientation,
-                reverseDirection = ScrollableDefaults.reverseDirection(
-                    LocalLayoutDirection.current,
-                    orientation,
-                    reverseLayout
-                ),
-                interactionSource = state.internalInteractionSource,
-                flingBehavior = flingBehavior,
-                state = state,
-                overscrollEffect = overscrollEffect,
                 enabled = userScrollEnabled
+            )
+            .scrollingContainer(
+                state = state,
+                orientation = orientation,
+                enabled = userScrollEnabled,
+                reverseScrolling = reverseLayout,
+                flingBehavior = flingBehavior,
+                interactionSource = state.internalInteractionSource
             ),
         prefetchState = state.prefetchState,
         measurePolicy = measurePolicy,
         itemProvider = itemProviderLambda
     )
-}
-
-/** Extracted to minimize the recomposition scope */
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun ScrollPositionUpdater(
-    itemProviderLambda: () -> LazyGridItemProvider,
-    state: LazyGridState
-) {
-    val itemProvider = itemProviderLambda()
-    if (itemProvider.itemCount > 0) {
-        state.updateScrollPositionIfTheFirstItemWasMoved(itemProvider)
-    }
 }
 
 /** lazy grid slots configuration */
@@ -164,7 +142,7 @@ private fun rememberLazyGridMeasurePolicy(
     /** The state of the list. */
     state: LazyGridState,
     /** Prefix sums of cross axis sizes of slots of the grid. */
-    slots: Density.(Constraints) -> LazyGridSlots,
+    slots: LazyGridSlotsProvider,
     /** The inner padding to be added for the whole content(nor for each individual item) */
     contentPadding: PaddingValues,
     /** reverse the direction of scrolling and layout */
@@ -225,7 +203,7 @@ private fun rememberLazyGridMeasurePolicy(
 
         val itemProvider = itemProviderLambda()
         val spanLayoutProvider = itemProvider.spanLayoutProvider
-        val resolvedSlots = slots(containerConstraints)
+        val resolvedSlots = slots.invoke(density = this, constraints = containerConstraints)
         val slotsPerLine = resolvedSlots.sizes.size
         spanLayoutProvider.slotsPerLine = slotsPerLine
 
@@ -371,6 +349,7 @@ private fun rememberLazyGridMeasurePolicy(
             spanLayoutProvider = spanLayoutProvider,
             pinnedItems = pinnedItems,
             coroutineScope = coroutineScope,
+            placementScopeInvalidator = state.placementScopeInvalidator,
             layout = { width, height, placement ->
                 layout(
                     containerConstraints.constrainWidth(width + totalHorizontalPadding),

@@ -28,6 +28,12 @@ import androidx.annotation.RequiresApi;
 public abstract class CameraCaptureCallback {
 
     /**
+     * This method is called when a capture request starts to be processed.
+     */
+    public void onCaptureStarted() {
+    }
+
+    /**
      * This method is called when an image capture has fully completed and all the result metadata
      * is available.
      *
@@ -52,5 +58,12 @@ public abstract class CameraCaptureCallback {
      * onCaptureCancelled is called, other methods won't be called.
      */
     public void onCaptureCancelled() {
+    }
+
+    /**
+     * This method is called to notify the client of the progress in the processing stage.
+     */
+    public void onCaptureProcessProgressed(int progress) {
+
     }
 }

@@ -19,7 +19,6 @@ package androidx.core.telecom.test
 import android.telecom.DisconnectCause
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.core.telecom.CallControlCallback
 import androidx.core.telecom.CallControlScope
 import androidx.core.telecom.CallEndpointCompat
 
@@ -34,23 +33,24 @@ class VoipCall {
     var mIsMuted = false
     var mTelecomCallId: String = ""
 
-    val mCallControlCallbackImpl = object : CallControlCallback {
-        override suspend fun onSetActive(): Boolean {
-            mAdapter?.updateCallState(mTelecomCallId, "Active")
-            return true
-        }
-        override suspend fun onSetInactive(): Boolean {
-            mAdapter?.updateCallState(mTelecomCallId, "Inactive")
-            return true
-        }
-        override suspend fun onAnswer(callType: Int): Boolean {
-            mAdapter?.updateCallState(mTelecomCallId, "Answered")
-            return true
-        }
-        override suspend fun onDisconnect(disconnectCause: DisconnectCause): Boolean {
-            mAdapter?.updateCallState(mTelecomCallId, "Disconnected")
-            return true
-        }
+    val mOnSetActiveLambda: suspend () -> Unit = {
+        Log.i(TAG, "onSetActive: completing")
+        mAdapter?.updateCallState(mTelecomCallId, "Active")
+    }
+
+    val mOnSetInActiveLambda: suspend () -> Unit = {
+        Log.i(TAG, "onSetInactive: completing")
+        mAdapter?.updateCallState(mTelecomCallId, "Inactive")
+    }
+
+    val mOnAnswerLambda: suspend (type: Int) -> Unit = {
+        Log.i(TAG, "onAnswer: callType=[$it]")
+        mAdapter?.updateCallState(mTelecomCallId, "Answered")
+    }
+
+    val mOnDisconnectLambda: suspend (cause: DisconnectCause) -> Unit = {
+        Log.i(TAG, "onDisconnect: disconnectCause=[$it]")
+        mAdapter?.updateCallState(mTelecomCallId, "Disconnected")
     }
 
     fun setCallControl(callControl: CallControlScope) {

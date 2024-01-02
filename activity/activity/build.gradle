@@ -18,7 +18,7 @@ dependencies {
 
     api("androidx.annotation:annotation:1.1.0")
     implementation("androidx.collection:collection:1.0.0")
-    api("androidx.core:core:1.8.0")
+    api(projectOrArtifact(":core:core"))
     api("androidx.lifecycle:lifecycle-runtime:2.6.1")
     api("androidx.lifecycle:lifecycle-viewmodel:2.6.1")
     api("androidx.savedstate:savedstate:1.2.1")
@@ -53,6 +53,7 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Provides the base Activity subclass and the relevant hooks to build a composable structure on top."
+    metalavaK2UastEnabled = true
 }
 
 baselineProfile {

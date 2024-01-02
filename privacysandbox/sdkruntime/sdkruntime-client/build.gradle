@@ -92,12 +92,12 @@ configurations {
 dependencies {
     api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesCore)
-    implementation("androidx.core:core-ktx:1.12.0-alpha05")
+    implementation("androidx.core:core-ktx:1.12.0")
 
     api project(path: ':privacysandbox:sdkruntime:sdkruntime-core')
 
-    implementation("androidx.core:core:1.12.0-alpha05")
-    implementation("androidx.activity:activity:1.8.0-alpha06")
+    implementation("androidx.core:core:1.12.0")
+    implementation("androidx.activity:activity:1.8.0")
 
     testImplementation(libs.junit)
     testImplementation(libs.truth)
@@ -110,6 +110,7 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.multidex)
     androidTestImplementation(project(':internal-testutils-runtime'))
     androidTestImplementation(project(":internal-testutils-truth")) // for assertThrows
 
@@ -117,9 +118,16 @@ dependencies {
     androidTestImplementation(libs.dexmakerMockitoInline, excludes.bytebuddy) // DexMaker has it"s own MockMaker
 
     androidTestBundleDex(project(":privacysandbox:sdkruntime:test-sdks:current"))
+    androidTestBundleDex(project(":privacysandbox:sdkruntime:test-sdks:v1"))
+    androidTestBundleDex(project(":privacysandbox:sdkruntime:test-sdks:v2"))
+    // V3 was released as V4 (original release postponed)
+    androidTestBundleDex(project(":privacysandbox:sdkruntime:test-sdks:v4"))
 }
 
 android {
+    defaultConfig {
+        multiDexEnabled = true
+    }
     sourceSets {
         androidTest {
             assets {
@@ -129,11 +137,13 @@ android {
     }
 
     namespace "androidx.privacysandbox.sdkruntime.client"
+    compileSdkVersion = "android-34-ext8"
 }
 
 androidx {
-    name = "androidx.privacysandbox.sdkruntime:sdkruntime-client"
+    name = "SdkRuntime Client"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Provides components for SdkRuntime aware Applications"
+    metalavaK2UastEnabled = true
 }

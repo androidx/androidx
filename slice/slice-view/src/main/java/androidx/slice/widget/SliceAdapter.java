@@ -31,7 +31,6 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
 import androidx.recyclerview.widget.RecyclerView;
@@ -47,9 +46,13 @@ import java.util.Set;
 
 /**
  * RecyclerView.Adapter for the Slice components.
+ *
+ * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+ * forward. If you are looking for a framework that handles communication across apps,
+ * consider using {@link android.app.appsearch.AppSearchManager}.
  */
 @SuppressWarnings("HiddenSuperclass")
-@RequiresApi(19)
+@Deprecated
 public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHolder>
         implements SliceActionView.SliceActionLoadingListener {
 

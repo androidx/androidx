@@ -128,7 +128,7 @@ class PreviewViewDeviceTest(
             surfaceRequest.deferrableSurface.close()
         }
         if (cameraProvider != null) {
-            cameraProvider!!.shutdown()[10000, TimeUnit.MILLISECONDS]
+            cameraProvider!!.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
         }
     }
 

@@ -27,9 +27,9 @@ plugins {
 dependencies {
     implementation(libs.kotlinStdlib)
 
-    compileOnly projectOrArtifact(":annotation:annotation-sampled")
+    compileOnly project(":annotation:annotation-sampled")
     implementation project(":health:connect:connect-client")
-    implementation ("androidx.appcompat:appcompat:1.6.0-rc01")
+    implementation ("androidx.appcompat:appcompat:1.6.0")
     implementation ("androidx.activity:activity:1.6.0")
 }
 

@@ -16,6 +16,7 @@
 package androidx.recyclerview.widget;
 
 import android.annotation.SuppressLint;
+import android.os.Trace;
 import android.view.View;
 
 import androidx.annotation.Nullable;
@@ -36,14 +37,14 @@ final class GapWorker implements Runnable {
     long mFrameIntervalNs;
 
     static class Task {
-        public boolean immediate;
+        public boolean neededNextFrame;
         public int viewVelocity;
         public int distanceToItem;
         public RecyclerView view;
         public int position;
 
         public void clear() {
-            immediate = false;
+            neededNextFrame = false;
             viewVelocity = 0;
             distanceToItem = 0;
             view = null;
@@ -56,7 +57,7 @@ final class GapWorker implements Runnable {
      * are pooled in the ArrayList, and never removed to avoid allocations, but always cleared
      * in between calls.
      */
-    private ArrayList<Task> mTasks = new ArrayList<>();
+    private final ArrayList<Task> mTasks = new ArrayList<>();
 
     /**
      * Prefetch information associated with a specific RecyclerView.
@@ -195,9 +196,9 @@ final class GapWorker implements Runnable {
                 return lhs.view == null ? 1 : -1;
             }
 
-            // then prioritize immediate
-            if (lhs.immediate != rhs.immediate) {
-                return lhs.immediate ? -1 : 1;
+            // then prioritize those (we think) are needed for next frame
+            if (lhs.neededNextFrame != rhs.neededNextFrame) {
+                return lhs.neededNextFrame ? -1 : 1;
             }
 
             // then prioritize _highest_ view velocity
@@ -247,7 +248,7 @@ final class GapWorker implements Runnable {
                 }
                 final int distanceToItem = prefetchRegistry.mPrefetchArray[j + 1];
 
-                task.immediate = distanceToItem <= viewVelocity;
+                task.neededNextFrame = distanceToItem <= viewVelocity;
                 task.viewVelocity = viewVelocity;
                 task.distanceToItem = distanceToItem;
                 task.view = view;
@@ -284,6 +285,11 @@ final class GapWorker implements Runnable {
         RecyclerView.Recycler recycler = view.mRecycler;
         RecyclerView.ViewHolder holder;
         try {
+            // FOREVER_NS is used as a deadline to force the work to occur now,
+            // since it's needed next frame, even if it won't fit in gap
+            if (deadlineNs == RecyclerView.FOREVER_NS && TraceCompat.isEnabled()) {
+                Trace.beginSection("RV Prefetch forced - needed next frame");
+            }
             view.onEnterLayoutOrScroll();
             holder = recycler.tryGetViewHolderForPositionByDeadline(
                     position, false, deadlineNs);
@@ -303,6 +309,7 @@ final class GapWorker implements Runnable {
             }
         } finally {
             view.onExitLayoutOrScroll(false);
+            Trace.endSection();
         }
         return holder;
     }
@@ -326,7 +333,9 @@ final class GapWorker implements Runnable {
 
         if (innerPrefetchRegistry.mCount != 0) {
             try {
-                TraceCompat.beginSection(RecyclerView.TRACE_NESTED_PREFETCH_TAG);
+                Trace.beginSection(deadlineNs == RecyclerView.FOREVER_NS
+                        ? "RV Nested Prefetch"
+                        : "RV Nested Prefetch forced - needed next frame");
                 innerView.mState.prepareForNestedPrefetch(innerView.mAdapter);
                 for (int i = 0; i < innerPrefetchRegistry.mCount * 2; i += 2) {
                     // Note that we ignore immediate flag for inner items because
@@ -335,13 +344,13 @@ final class GapWorker implements Runnable {
                     prefetchPositionWithDeadline(innerView, innerPosition, deadlineNs);
                 }
             } finally {
-                TraceCompat.endSection();
+                Trace.endSection();
             }
         }
     }
 
     private void flushTaskWithDeadline(Task task, long deadlineNs) {
-        long taskDeadlineNs = task.immediate ? RecyclerView.FOREVER_NS : deadlineNs;
+        long taskDeadlineNs = task.neededNextFrame ? RecyclerView.FOREVER_NS : deadlineNs;
         RecyclerView.ViewHolder holder = prefetchPositionWithDeadline(task.view,
                 task.position, taskDeadlineNs);
         if (holder != null
@@ -371,7 +380,7 @@ final class GapWorker implements Runnable {
     @Override
     public void run() {
         try {
-            TraceCompat.beginSection(RecyclerView.TRACE_PREFETCH_TAG);
+            Trace.beginSection(RecyclerView.TRACE_PREFETCH_TAG);
 
             if (mRecyclerViews.isEmpty()) {
                 // abort - no work to do
@@ -401,7 +410,7 @@ final class GapWorker implements Runnable {
             // TODO: consider rescheduling self, if there's more work to do
         } finally {
             mPostTimeNs = 0;
-            TraceCompat.endSection();
+            Trace.endSection();
         }
     }
 }

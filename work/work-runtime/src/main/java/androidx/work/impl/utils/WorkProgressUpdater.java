@@ -16,6 +16,8 @@
 
 package androidx.work.impl.utils;
 
+import static androidx.work.ListenableFutureKt.executeAsync;
+
 import android.content.Context;
 
 import androidx.annotation.NonNull;
@@ -28,7 +30,6 @@ import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.model.WorkProgress;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
-import androidx.work.impl.utils.futures.SettableFuture;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -37,7 +38,6 @@ import java.util.UUID;
 
 /**
  * Persists {@link androidx.work.ListenableWorker} progress in a {@link WorkDatabase}.
- *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WorkProgressUpdater implements ProgressUpdater {
@@ -67,45 +67,40 @@ public class WorkProgressUpdater implements ProgressUpdater {
             @NonNull final Context context,
             @NonNull final UUID id,
             @NonNull final Data data) {
-        final SettableFuture<Void> future = SettableFuture.create();
-        mTaskExecutor.executeOnTaskThread(new Runnable() {
-            @Override
-            public void run() {
-                String workSpecId = id.toString();
-                Logger.get().debug(TAG, "Updating progress for " + id + " (" + data + ")");
-                mWorkDatabase.beginTransaction();
-                try {
-                    WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
-                    WorkSpec workSpec = workSpecDao.getWorkSpec(workSpecId);
-                    if (workSpec != null) {
-                        State state = workSpec.state;
-                        // Update Progress
-                        if (state == State.RUNNING) {
-                            WorkProgress progress = new WorkProgress(workSpecId, data);
-                            mWorkDatabase.workProgressDao().insert(progress);
-                        } else {
-                            Logger.get().warning(TAG,
-                                    "Ignoring setProgressAsync(...). WorkSpec (" +
-                                            workSpecId +
-                                            ") is not in a RUNNING state.");
-                        }
+        return executeAsync(mTaskExecutor.getSerialTaskExecutor(), "updateProgress", () -> {
+            String workSpecId = id.toString();
+            Logger.get().debug(TAG, "Updating progress for " + id + " (" + data + ")");
+            mWorkDatabase.beginTransaction();
+            try {
+                WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
+                WorkSpec workSpec = workSpecDao.getWorkSpec(workSpecId);
+                if (workSpec != null) {
+                    State state = workSpec.state;
+                    // Update Progress
+                    if (state == State.RUNNING) {
+                        WorkProgress progress = new WorkProgress(workSpecId, data);
+                        mWorkDatabase.workProgressDao().insert(progress);
                     } else {
-                        String message =
-                                "Calls to setProgressAsync() must complete before a "
-                                        + "ListenableWorker signals completion of work by "
-                                        + "returning an instance of Result.";
-                        throw new IllegalStateException(message);
+                        Logger.get().warning(TAG,
+                                "Ignoring setProgressAsync(...). WorkSpec ("
+                                        + workSpecId + ") is not in a RUNNING state.");
                     }
-                    future.set(null);
-                    mWorkDatabase.setTransactionSuccessful();
-                } catch (Throwable throwable) {
-                    Logger.get().error(TAG, "Error updating Worker progress", throwable);
-                    future.setException(throwable);
-                } finally {
-                    mWorkDatabase.endTransaction();
+                } else {
+                    String message =
+                            "Calls to setProgressAsync() must complete before a "
+                                    + "ListenableWorker signals completion of work by "
+                                    + "returning an instance of Result.";
+                    throw new IllegalStateException(message);
                 }
+                mWorkDatabase.setTransactionSuccessful();
+            } catch (Throwable throwable) {
+                Logger.get().error(TAG, "Error updating Worker progress", throwable);
+                throw throwable;
+            } finally {
+                mWorkDatabase.endTransaction();
             }
+            return null;
         });
-        return future;
+
     }
 }

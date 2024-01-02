@@ -16,11 +16,16 @@
 
 package androidx.camera.video.internal.encoder;
 
+import static androidx.camera.video.internal.utils.CodecUtil.findCodecAndGetCodecInfo;
+
 import android.media.MediaCodecInfo;
 import android.util.Range;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.arch.core.util.Function;
+import androidx.camera.core.Logger;
+import androidx.camera.video.internal.workaround.VideoEncoderInfoWrapper;
 
 import java.util.Objects;
 
@@ -33,6 +38,23 @@ import java.util.Objects;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class VideoEncoderInfoImpl extends EncoderInfoImpl implements VideoEncoderInfo {
+    private static final String TAG = "VideoEncoderInfoImpl";
+
+    /**
+     * A default implementation of the VideoEncoderInfoImpl finder.
+     *
+     * <p>The function will return {@code null} if it can't find a VideoEncoderInfoImpl.
+     */
+    @NonNull
+    public static final Function<VideoEncoderConfig, VideoEncoderInfo> FINDER =
+            videoEncoderConfig -> {
+                try {
+                    return VideoEncoderInfoWrapper.from(from(videoEncoderConfig), null);
+                } catch (InvalidConfigException e) {
+                    Logger.w(TAG, "Unable to find a VideoEncoderInfoImpl", e);
+                    return null;
+                }
+            };
 
     private final MediaCodecInfo.VideoCapabilities mVideoCapabilities;
     /**
@@ -53,6 +75,21 @@ public class VideoEncoderInfoImpl extends EncoderInfoImpl implements VideoEncode
             throws InvalidConfigException {
         super(codecInfo, mime);
         mVideoCapabilities = Objects.requireNonNull(mCodecCapabilities.getVideoCapabilities());
+    }
+
+    @Override
+    public boolean canSwapWidthHeight() {
+        /*
+         * The capability to swap width and height is saved in media_codecs.xml with key
+         * "can-swap-width-height". But currently there is no API to query it. See
+         * b/314694668#comment4.
+         * By experimentation, most default codecs found by MediaCodec.createEncoderByType(), allow
+         * swapping width and height.
+         * SupportedQualitiesVerificationTest#qualityOptionCanRecordVideo_enableSurfaceProcessor
+         * should verify it to an extent. We leave it returns true until we have a way to know the
+         * capability. If we get a "false" case, we may have to add a quirk for now.
+         */
+        return true;
     }
 
     @Override

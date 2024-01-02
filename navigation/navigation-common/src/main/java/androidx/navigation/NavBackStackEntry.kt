@@ -150,7 +150,6 @@ public class NavBackStackEntry private constructor(
     override val lifecycle: Lifecycle
         get() = _lifecycle
 
-    /** @suppress */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var maxLifecycle: Lifecycle.State = Lifecycle.State.INITIALIZED
@@ -159,7 +158,6 @@ public class NavBackStackEntry private constructor(
             updateState()
         }
 
-    /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun handleLifecycleEvent(event: Lifecycle.Event) {
         hostLifecycleState = event.targetState
@@ -168,7 +166,6 @@ public class NavBackStackEntry private constructor(
 
     /**
      * Update the state to be the lower of the two constraints:
-     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun updateState() {
@@ -233,7 +230,6 @@ public class NavBackStackEntry private constructor(
     override val savedStateRegistry: SavedStateRegistry
         get() = savedStateRegistryController.savedStateRegistry
 
-    /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun saveState(outBundle: Bundle) {
         savedStateRegistryController.performSave(outBundle)

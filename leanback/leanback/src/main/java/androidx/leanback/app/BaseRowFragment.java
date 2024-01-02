@@ -67,8 +67,8 @@ abstract class BaseRowFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+    @Nullable
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(getLayoutResourceId(), container, false);
         mVerticalGridView = findGridViewFromRoot(view);
         if (mPendingTransitionPrepare) {

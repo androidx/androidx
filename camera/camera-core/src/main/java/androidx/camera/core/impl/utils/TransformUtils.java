@@ -434,4 +434,20 @@ public class TransformUtils {
 
         return matrix;
     }
+
+    /**
+     * Returns the rotation degrees of the matrix.
+     *
+     * <p>The returned degrees will be an integer between 0 and 359.
+     */
+    public static int getRotationDegrees(@NonNull Matrix matrix) {
+        float[] values = new float[9];
+        matrix.getValues(values);
+
+        // Calculate the degrees of rotation using the sin and cosine values from the matrix
+        float scaleX = values[Matrix.MSCALE_X];
+        float skewY = values[Matrix.MSKEW_Y];
+
+        return within360((int) Math.round(Math.atan2(skewY, scaleX) * (180 / Math.PI)));
+    }
 }

@@ -16,6 +16,9 @@
 
 package androidx.kruth
 
+import androidx.kruth.Fact.Companion.fact
+import androidx.kruth.Fact.Companion.simpleFact
+
 private val NEG_ZERO_BITS: Long = (-0.0).toRawBits()
 
 /**
@@ -78,8 +81,10 @@ class DoubleSubject internal constructor(
                 requireNonNull(actual) { "Expected $actual, but was null" }
                 checkTolerance(tolerance)
                 if (!equalWithinTolerance(actual, expected, tolerance)) {
-                    failWithActual(
-                        "Expected $expected, but was outside tolerance $tolerance"
+                    failWithoutActual(
+                        fact("Expected", expected),
+                        fact("but was", actual),
+                        fact("outside tolerance", tolerance),
                     )
                 }
             }
@@ -92,8 +97,10 @@ class DoubleSubject internal constructor(
                 requireNonNull(actual) { "Expected $actual, but was null" }
                 checkTolerance(tolerance)
                 if (!notEqualWithinTolerance(actual, expected, tolerance)) {
-                    failWithActual(
-                        "Expected not to be $expected, but was within tolerance $tolerance"
+                    failWithoutActual(
+                        fact("Expected not to be", expected),
+                        fact("but was", actual),
+                        fact("within tolerance", tolerance),
                     )
                 }
             }
@@ -103,7 +110,7 @@ class DoubleSubject internal constructor(
     /** Asserts that the subject is zero (i.e. it is either `0.0` or `-0.0`).  */
     fun isZero() {
         if (actual != 0.0) {
-            failWithActual("Expected zero")
+            failWithoutActual(simpleFact("Expected zero"))
         }
     }
 
@@ -113,9 +120,9 @@ class DoubleSubject internal constructor(
      */
     fun isNonZero() {
         if (actual == null) {
-            failWithActual("Expected a double other than zero")
+            failWithoutActual(simpleFact("Expected a double other than zero"))
         } else if (actual == 0.0) {
-            failWithActual("Expected not to be zero")
+            failWithoutActual(simpleFact("Expected not to be zero"))
         }
     }
 
@@ -139,7 +146,7 @@ class DoubleSubject internal constructor(
      */
     fun isFinite() {
         if (actual?.isFinite() != true) {
-            failWithActual("Expected to be finite")
+            failWithoutActual(simpleFact("Expected to be finite"))
         }
     }
 
@@ -149,7 +156,7 @@ class DoubleSubject internal constructor(
      */
     fun isNotNaN() {
         if (actual == null) {
-            failWithActual("Expected a double other than NaN")
+            failWithoutActual(simpleFact("Expected a double other than NaN"))
         } else {
             isNotEqualTo(Double.NaN)
         }

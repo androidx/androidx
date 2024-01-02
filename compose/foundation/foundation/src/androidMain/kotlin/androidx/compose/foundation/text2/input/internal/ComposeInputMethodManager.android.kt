@@ -21,6 +21,7 @@ import android.os.Build
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.BaseInputConnection
+import android.view.inputmethod.CursorAnchorInfo
 import android.view.inputmethod.ExtractedText
 import android.view.inputmethod.InputMethodManager
 import androidx.annotation.RequiresApi
@@ -55,6 +56,8 @@ internal interface ComposeInputMethodManager {
         compositionStart: Int,
         compositionEnd: Int
     )
+
+    fun updateCursorAnchorInfo(info: CursorAnchorInfo)
 
     /**
      * Sends a [KeyEvent] originated from an InputMethod to the Window. This is a necessary
@@ -137,6 +140,10 @@ private abstract class ComposeInputMethodManagerImpl(protected val view: View) :
             compositionStart,
             compositionEnd
         )
+    }
+
+    override fun updateCursorAnchorInfo(info: CursorAnchorInfo) {
+        requireImm().updateCursorAnchorInfo(view, info)
     }
 
     protected fun requireImm(): InputMethodManager = imm ?: createImm().also { imm = it }

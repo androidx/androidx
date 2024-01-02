@@ -24,16 +24,26 @@ package androidx.compose.ui.tooling.preview {
     field public static final String PIXEL_3A_XL = "id:pixel_3a_xl";
     field public static final String PIXEL_3_XL = "id:pixel_3_xl";
     field public static final String PIXEL_4 = "id:pixel_4";
+    field public static final String PIXEL_4A = "id:pixel_4a";
     field public static final String PIXEL_4_XL = "id:pixel_4_xl";
+    field public static final String PIXEL_5 = "id:pixel_5";
+    field public static final String PIXEL_6 = "id:pixel_6";
+    field public static final String PIXEL_6A = "id:pixel_6a";
+    field public static final String PIXEL_6_PRO = "id:pixel_6_pro";
+    field public static final String PIXEL_7 = "id:pixel_7";
+    field public static final String PIXEL_7A = "id:pixel_7a";
+    field public static final String PIXEL_7_PRO = "id:pixel_7_pro";
     field public static final String PIXEL_C = "id:pixel_c";
+    field public static final String PIXEL_FOLD = "id:pixel_fold";
+    field public static final String PIXEL_TABLET = "id:pixel_tablet";
     field public static final String PIXEL_XL = "id:pixel_xl";
     field public static final String TABLET = "spec:id=reference_tablet,shape=Normal,width=1280,height=800,unit=dp,dpi=240";
     field public static final String TV_1080p = "spec:shape=Normal,width=1920,height=1080,unit=dp,dpi=420";
     field public static final String TV_720p = "spec:shape=Normal,width=1280,height=720,unit=dp,dpi=420";
-    field public static final String WEAR_OS_LARGE_ROUND = "id:wearos_large_round";
-    field public static final String WEAR_OS_RECT = "id:wearos_rect";
-    field public static final String WEAR_OS_SMALL_ROUND = "id:wearos_small_round";
-    field public static final String WEAR_OS_SQUARE = "id:wearos_square";
+    field @Deprecated public static final String WEAR_OS_LARGE_ROUND = "id:wearos_large_round";
+    field @Deprecated public static final String WEAR_OS_RECT = "id:wearos_rect";
+    field @Deprecated public static final String WEAR_OS_SMALL_ROUND = "id:wearos_small_round";
+    field @Deprecated public static final String WEAR_OS_SQUARE = "id:wearos_square";
   }
 
   @kotlin.annotation.MustBeDocumented @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface Preview {
@@ -92,7 +102,7 @@ package androidx.compose.ui.tooling.preview {
     property public abstract kotlin.sequences.Sequence<T> values;
   }
 
-  @androidx.compose.ui.tooling.preview.Preview(name="Phone", device=androidx.compose.ui.tooling.preview.Devices.PHONE) @androidx.compose.ui.tooling.preview.Preview(name="Phone - Landscape", device="spec:width = 411dp, height = 891dp, orientation = landscape, dpi = 420") @androidx.compose.ui.tooling.preview.Preview(name="Unfolded Foldable", device=androidx.compose.ui.tooling.preview.Devices.FOLDABLE) @androidx.compose.ui.tooling.preview.Preview(name="Tablet", device=androidx.compose.ui.tooling.preview.Devices.TABLET) @androidx.compose.ui.tooling.preview.Preview(name="Desktop", device=androidx.compose.ui.tooling.preview.Devices.DESKTOP) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface PreviewScreenSizes {
+  @androidx.compose.ui.tooling.preview.Preview(name="Phone", device=androidx.compose.ui.tooling.preview.Devices.PHONE, showSystemUi=true) @androidx.compose.ui.tooling.preview.Preview(name="Phone - Landscape", device="spec:width = 411dp, height = 891dp, orientation = landscape, dpi = 420", showSystemUi=true) @androidx.compose.ui.tooling.preview.Preview(name="Unfolded Foldable", device=androidx.compose.ui.tooling.preview.Devices.FOLDABLE, showSystemUi=true) @androidx.compose.ui.tooling.preview.Preview(name="Tablet", device=androidx.compose.ui.tooling.preview.Devices.TABLET, showSystemUi=true) @androidx.compose.ui.tooling.preview.Preview(name="Desktop", device=androidx.compose.ui.tooling.preview.Devices.DESKTOP, showSystemUi=true) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface PreviewScreenSizes {
   }
 
   public final class Wallpapers {
@@ -114,7 +124,7 @@ package androidx.compose.ui.tooling.preview.datasource {
     property public kotlin.sequences.Sequence<T> values;
   }
 
-  public final class LoremIpsum implements androidx.compose.ui.tooling.preview.PreviewParameterProvider<java.lang.String> {
+  public class LoremIpsum implements androidx.compose.ui.tooling.preview.PreviewParameterProvider<java.lang.String> {
     ctor public LoremIpsum();
     ctor public LoremIpsum(int words);
     method public kotlin.sequences.Sequence<java.lang.String> getValues();

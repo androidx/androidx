@@ -18,8 +18,6 @@ package androidx.window.embedding
 
 import android.app.Activity
 import android.os.Binder
-import android.os.IBinder
-import androidx.window.embedding.EmbeddingAdapter.Companion.INVALID_ACTIVITY_STACK_TOKEN
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -98,6 +96,5 @@ class SplitInfoTest {
     private fun createTestActivityStack(
         activitiesInProcess: List<Activity>,
         isEmpty: Boolean = false,
-        token: IBinder = INVALID_ACTIVITY_STACK_TOKEN,
-    ): ActivityStack = ActivityStack(activitiesInProcess, isEmpty, token)
+    ): ActivityStack = ActivityStack(activitiesInProcess, isEmpty)
 }

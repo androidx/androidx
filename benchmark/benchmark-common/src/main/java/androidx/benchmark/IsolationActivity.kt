@@ -57,7 +57,6 @@ public class IsolationActivity : android.app.Activity() {
 
         if (firstInit) {
             if (!CpuInfo.locked && isSustainedPerformanceModeSupported()) {
-                @Suppress("SyntheticAccessor")
                 sustainedPerformanceModeInUse = true
             }
             application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
@@ -96,13 +95,11 @@ public class IsolationActivity : android.app.Activity() {
 
     override fun onResume() {
         super.onResume()
-        @Suppress("SyntheticAccessor")
         resumed = true
     }
 
     override fun onPause() {
         super.onPause()
-        @Suppress("SyntheticAccessor")
         resumed = false
     }
 

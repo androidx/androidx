@@ -108,7 +108,7 @@ class AdvancedExtenderValidation(
         }
         withContext(Dispatchers.Main) {
             extensionsManager.shutdown()[10000, TimeUnit.MILLISECONDS]
-            cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
+            cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
         }
     }
 

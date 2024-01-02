@@ -438,6 +438,10 @@ class QualitySelectorTest {
             override fun isQualitySupported(quality: Quality, dynamicRange: DynamicRange): Boolean {
                 throw UnsupportedOperationException("Not supported.")
             }
+
+            override fun isStabilizationSupported(): Boolean {
+                return false
+            }
         }
     }
 }

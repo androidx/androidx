@@ -18,9 +18,9 @@ export interface Data {
  * Used by a Mapper for data transformations.
  */
 export interface Series {
-  label: string;
+  descriptiveLabel: string;
   type: ChartType;
-  data: Array<Point>;
+  data: Point[];
   // Additional series options
   // For e.g. https://www.chartjs.org/docs/latest/charts/line.html
   options: object;

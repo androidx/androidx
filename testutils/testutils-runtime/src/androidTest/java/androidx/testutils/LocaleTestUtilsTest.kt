@@ -18,7 +18,6 @@ package androidx.testutils
 
 import android.content.Context
 import android.content.res.Configuration
-import android.os.Build
 import androidx.core.os.ConfigurationCompat
 import androidx.core.view.ViewCompat.LAYOUT_DIRECTION_LTR
 import androidx.core.view.ViewCompat.LAYOUT_DIRECTION_RTL
@@ -115,13 +114,11 @@ class LocaleTestUtilsTest {
             configuration.language,
             CoreMatchers.equalTo(lang)
         )
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            assertThat(
-                "Layout direction should be ${if (expectRtl) "RTL" else "LTR"}",
-                configuration.layoutDirection,
-                CoreMatchers.equalTo(if (expectRtl) LAYOUT_DIRECTION_RTL else LAYOUT_DIRECTION_LTR)
-            )
-        }
+        assertThat(
+            "Layout direction should be ${if (expectRtl) "RTL" else "LTR"}",
+            configuration.layoutDirection,
+            CoreMatchers.equalTo(if (expectRtl) LAYOUT_DIRECTION_RTL else LAYOUT_DIRECTION_LTR)
+        )
     }
 
     private fun determineDefaultLayoutDirection() {
@@ -130,8 +127,6 @@ class LocaleTestUtilsTest {
             configuration.language,
             CoreMatchers.equalTo(DEFAULT_LANGUAGE)
         )
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            expectRtlInDefaultLanguage = configuration.layoutDirection == LAYOUT_DIRECTION_RTL
-        }
+        expectRtlInDefaultLanguage = configuration.layoutDirection == LAYOUT_DIRECTION_RTL
     }
 }

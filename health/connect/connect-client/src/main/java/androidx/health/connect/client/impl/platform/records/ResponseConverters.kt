@@ -34,6 +34,7 @@ import androidx.health.connect.client.aggregate.AggregationResultGroupedByDurati
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
 import androidx.health.connect.client.units.Energy
 import androidx.health.connect.client.units.Mass
+import java.time.LocalDateTime
 import java.time.ZoneOffset
 
 fun AggregateRecordsResponse<Any>.toSdkResponse(metrics: Set<AggregateMetric<Any>>) =
@@ -56,6 +57,17 @@ fun AggregateRecordsGroupedByDurationResponse<Any>.toSdkResponse(
 
 fun AggregateRecordsGroupedByPeriodResponse<Any>.toSdkResponse(metrics: Set<AggregateMetric<Any>>) =
     AggregationResultGroupedByPeriod(buildAggregationResult(metrics, ::get), startTime, endTime)
+
+fun AggregateRecordsGroupedByPeriodResponse<Any>.toSdkResponse(
+    metrics: Set<AggregateMetric<Any>>,
+    bucketStartTime: LocalDateTime,
+    bucketEndTime: LocalDateTime
+) =
+    AggregationResultGroupedByPeriod(
+        buildAggregationResult(metrics, ::get),
+        bucketStartTime,
+        bucketEndTime
+    )
 
 @VisibleForTesting
 internal fun buildAggregationResult(

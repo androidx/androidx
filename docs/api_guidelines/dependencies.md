@@ -1,7 +1,9 @@
 ## Dependencies {#dependencies}
 
 Artifacts may depend on other artifacts within AndroidX as well as sanctioned
-third-party libraries.
+third-party libraries. Additionally, artifacts may have toolchain dependencies
+that are not explicitly specified in their `dependencies` build configuration or
+don't appear in their Maven publications (`pom` or `module` files).
 
 ### Versioned artifacts {#dependencies-versioned}
 
@@ -15,7 +17,7 @@ schedule.
     `androidx.core:core` library and requires that they be loaded in the
     workspace.
 -   Playground `projectOrArtifact(":core:core")` is used for the
-    [Playground](/company/teams/androidx/playground.md) workflow and will use
+    [Playground](/docs/playground.md) workflow and will use
     tip-of-tree sources, if present in the workspace, or `SNAPSHOT` prebuilt
     artifacts from [androidx.dev](http://androidx.dev) otherwise.
 -   Pinned `"androidx.core:core:1.4.0"` uses the prebuilt AAR and requires that
@@ -75,7 +77,7 @@ dependencies {
 Artifacts may depend on non-public or restricted APIs exposed within their own
 artifact or another artifact in the same `groupId`; however, cross-artifact
 usages are subject to binary compatibility guarantees. See
-[`@RestrictTo` APIs](/company/teams/androidx/api_guidelines#restricted-api) for
+[`@RestrictTo` APIs](/docs/api_guidelines#restricted-api) for
 more details.
 
 NOTE Dependency versioning policies are enforced at build time in the
@@ -98,7 +100,7 @@ must conform to the following guidelines:
 *   Library **must** be approved by legal
 
 Please see Jetpack's
-[open-source policy page](/company/teams/androidx/open_source.md) for more
+[open-source policy page](/docs/open_source.md) for more
 details on using third-party libraries.
 
 ### Platform extension (sidecar JAR) dependencies {#dependencies-sidecar}
@@ -107,9 +109,16 @@ Platform extension or "sidecar JAR" libraries ship as part of the Android system
 image and are made available to developers through the `<uses-library>` manifest
 tag.
 
-Examples include Wear OS extensions (`com.google.android.wearable`), Camera OEM
-extensions (`androidx.camera.extensions.impl`), and Window OEM extensions
-(`androix.window.extensions`).
+Examples include Camera OEM extensions (`androidx.camera.extensions.impl`) and
+Window OEM extensions (`androidx.window.extensions`).
+
+Extension libraries may be defined in AndroidX library projects (see
+`androidx.window.extensions`) or externally, ex. in AOSP alongside the platform.
+In either case, we recommend that libraries use extensions as pinned, rather
+than project-type, dependencies to facilitate versioning across repositories.
+
+*Do not* ship extension interfaces to Google Maven. Teams may choose to ship
+stub JARs publicly, but that is not covered by AndroidX workflows.
 
 Project dependencies on extension libraries **must** use `compileOnly`:
 
@@ -146,7 +155,7 @@ dependencies {
 }
 ```
 
-See [Packaging and naming](/company/teams/androidx/api_guidelines#module-naming)
+See [Packaging and naming](/docs/api_guidelines#module-naming)
 for details about defining extension interfaces in Jetpack projects.
 
 ### Types of dependencies {#dependencies-types}
@@ -261,7 +270,7 @@ possible aspects of migration, so some manual work will be required.
 The Kotlin coroutines library adds around 100kB post-shrinking. New libraries
 that are written in Kotlin should prefer coroutines over `ListenableFuture`, but
 existing libraries must consider the size impact on their clients. See
-[Asynchronous work with return values](/company/teams/androidx/api_guidelines#async-return)
+[Asynchronous work with return values](/docs/api_guidelines#async-return)
 for more details on using Kotlin coroutines in Jetpack libraries.
 
 ```
@@ -283,7 +292,7 @@ Guava.
 
 Libraries that only need `ListenableFuture` may instead depend on the standalone
 `com.google.guava:listenablefuture` artifact. See
-[Asynchronous work with return values](/company/teams/androidx/api_guidelines#async-return)
+[Asynchronous work with return values](/docs/api_guidelines#async-return)
 for more details on using `ListenableFuture` in Jetpack libraries.
 
 #### Protobuf {#dependencies-protobuf}
@@ -306,7 +315,7 @@ classes, e.g. the Java `Builder` pattern.
 
 ### Open-source compatibility {#dependencies-aosp}
 
-Jetpack's [open-source](/company/teams/androidx/open_source.md) guidelines
+Jetpack's [open-source](/docs/open_source.md) guidelines
 require that libraries consider the open-source compatibility implications of
 their dependencies, including:
 
@@ -339,3 +348,76 @@ Some examples of safely depending on closed-source components include:
 Note that in all cases, the developer is not *required* to use GCM or Play
 Services and may instead use another compatible service implementing the same
 publicly-defined protocols.
+
+### Toolchain dependencies
+
+Toolchain dependencies are typically specified by the AndroidX build system and
+are often limited, if any, configuration on behalf of library owners.
+
+#### Kotlin language
+
+Several projects within AndroidX depend on aspects of the Kotlin compiler that
+do not guarantee binary compatibility, which means (1) Kotlin updates within
+AndroidX may be more complicated and (2) Kotlin updates may be more complicated
+for external clients.
+
+For this reason, we try to separate (1) and (2) by pinning the Kotlin language
+and API versions until the new compiler has been in use in AndroidX for at least
+three months.
+
+Library owners *may* in limited cases update their Kotlin language version early
+by specifying the `kotlinVersion` DSL property:
+
+```
+androidx {
+    kotlinVersion KOTLIN_1_9
+}
+```
+
+Note that this propagates the version requirement to all dependencies and is not
+appropriate for low-level libraries.
+
+#### Java language
+
+The Java language level determines the minimum version of the Java runtime
+required for lint checks and other host-side libraries like compilers.
+
+To avoid causing issues for clients, we try to separate Java compiler or runtime
+updates from language level by pinning the Java language level to the second
+most-recent stable LTS version. In extreme cases, however, we may be required to
+move to a more recent version because of a dependency like AGP or Gradle.
+
+Library owners *may*, in cases where clients are unable to update their Java
+version, temporarily pin their Java language version to a lower value by
+specifying the compatibility DSL properties:
+
+```
+javaExtension.apply {
+    // TODO(b/12345678) Remove this once clients are able to update.
+    sourceCompatibility = VERSION_17
+    targetCompatibility = VERSION_17
+}
+```
+
+When doing so, library owners **must** file a bug and establish a timeline to
+un-pin and rejoin the rest of AndroidX.
+
+#### Desugaring and R8/D8
+
+Currently, the highest Java language level supported for Android libraries is
+Java 1.8 (`VERSION_1_8``) via D8/R8 desugaring. See Use Java 8 language features
+and APIs for more details.
+
+AndroidX **does not** currently support library API desugaring, so the use of
+Java 8 APIs requires increasing the library's `minSdk`.
+
+#### Android SDK
+
+The AndroidX Core & Tooling team automatically updates the `compileSdk` value
+following the first public release of a stable SDK, e.g. following SDK
+finalization during the Beta stage of platform SDK development.
+
+Library owners **must not** attempt to pin their `compileSdk` to a lower value.
+
+Libraries that are developed against extension SDKs *may* pin their `compileSdk`
+to a higher value, e.g. `34-ext5` when the rest of AndroidX is using `34`.

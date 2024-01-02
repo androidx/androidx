@@ -22,6 +22,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Matrix
+import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.node.LookaheadDelegate
 import androidx.compose.ui.node.NodeCoordinator
 import androidx.compose.ui.unit.IntSize
@@ -40,14 +41,14 @@ internal class LookaheadLayoutCoordinates(val lookaheadDelegate: LookaheadDelega
 
     override val parentLayoutCoordinates: LayoutCoordinates?
         get() {
-            check(isAttached) { NodeCoordinator.ExpectAttachedLayoutCoordinates }
+            checkPrecondition(isAttached) { NodeCoordinator.ExpectAttachedLayoutCoordinates }
             return coordinator.layoutNode.outerCoordinator.wrappedBy?.let {
                 it.lookaheadDelegate?.coordinates
             }
         }
     override val parentCoordinates: LayoutCoordinates?
         get() {
-            check(isAttached) { NodeCoordinator.ExpectAttachedLayoutCoordinates }
+            checkPrecondition(isAttached) { NodeCoordinator.ExpectAttachedLayoutCoordinates }
             return coordinator.wrappedBy?.lookaheadDelegate?.coordinates
         }
 
@@ -59,6 +60,12 @@ internal class LookaheadLayoutCoordinates(val lookaheadDelegate: LookaheadDelega
             localPositionOf(it.coordinates, Offset.Zero) -
                 coordinator.localPositionOf(it.coordinator, Offset.Zero)
         }
+
+    override fun screenToLocal(relativeToScreen: Offset): Offset =
+        coordinator.screenToLocal(relativeToScreen) + lookaheadOffset
+
+    override fun localToScreen(relativeToLocal: Offset): Offset =
+        coordinator.localToScreen(relativeToLocal + lookaheadOffset)
 
     override fun windowToLocal(relativeToWindow: Offset): Offset =
         coordinator.windowToLocal(relativeToWindow) + lookaheadOffset
@@ -113,6 +120,10 @@ internal class LookaheadLayoutCoordinates(val lookaheadDelegate: LookaheadDelega
 
     override fun transformFrom(sourceCoordinates: LayoutCoordinates, matrix: Matrix) {
         coordinator.transformFrom(sourceCoordinates, matrix)
+    }
+
+    override fun transformToScreen(matrix: Matrix) {
+        coordinator.transformToScreen(matrix)
     }
 
     override fun get(alignmentLine: AlignmentLine): Int = lookaheadDelegate.get(alignmentLine)

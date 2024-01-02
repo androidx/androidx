@@ -70,8 +70,7 @@ fun setupAppApkCopy(project: Project, buildType: String) {
                 }
             project.addToBuildOnServer(apkCopy)
         }
-    }
-        ?: throw Exception("Unable to set up app APK copying")
+    } ?: throw Exception("Unable to set up app APK copying")
 }
 
 fun setupTestApkCopy(project: Project) {

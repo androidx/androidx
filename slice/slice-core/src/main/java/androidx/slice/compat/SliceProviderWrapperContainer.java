@@ -43,6 +43,7 @@ import java.util.Set;
 /**
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@Deprecated
 public class SliceProviderWrapperContainer {
 
     /**

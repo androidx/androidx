@@ -20,9 +20,7 @@ import androidx.annotation.RestrictTo
 import com.google.gson.annotations.SerializedName
 
 /**
- * Data class that holds the schema information about a
- * {@link androidx.room.DatabaseView DatabaseView}.
- *
+ * Data class that holds the schema information about a [androidx.room.DatabaseView].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public open class DatabaseViewBundle(

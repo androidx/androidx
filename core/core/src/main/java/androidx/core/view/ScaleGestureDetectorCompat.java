@@ -16,12 +16,9 @@
 
 package androidx.core.view;
 
-import android.os.Build;
 import android.view.ScaleGestureDetector;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 /**
  * Helper for accessing features in {@link ScaleGestureDetector}.
@@ -34,6 +31,7 @@ public final class ScaleGestureDetectorCompat {
      * receive onScale callbacks when the user performs a doubleTap followed by a swipe. Note that
      * this is enabled by default if the app targets API 19 and newer.
      *
+     * @param scaleGestureDetector detector for which to set the scaling mode.
      * @param enabled true to enable quick scaling, false to disable
      *
      * @deprecated Use {@link #setQuickScaleEnabled(ScaleGestureDetector, boolean)} that takes
@@ -50,13 +48,12 @@ public final class ScaleGestureDetectorCompat {
      * receive onScale callbacks when the user performs a doubleTap followed by a swipe. Note that
      * this is enabled by default if the app targets API 19 and newer.
      *
+     * @param scaleGestureDetector detector for which to set the scaling mode.
      * @param enabled true to enable quick scaling, false to disable
      */
     public static void setQuickScaleEnabled(
             @NonNull ScaleGestureDetector scaleGestureDetector, boolean enabled) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            Api19Impl.setQuickScaleEnabled(scaleGestureDetector, enabled);
-        }
+        scaleGestureDetector.setQuickScaleEnabled(enabled);
     }
 
     /**
@@ -79,28 +76,6 @@ public final class ScaleGestureDetectorCompat {
      * {@link #setQuickScaleEnabled(ScaleGestureDetector, boolean)}.
      */
     public static boolean isQuickScaleEnabled(@NonNull ScaleGestureDetector scaleGestureDetector) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            return Api19Impl.isQuickScaleEnabled(scaleGestureDetector);
-        } else {
-            return false;
-        }
-    }
-
-    @RequiresApi(19)
-    static class Api19Impl {
-        private Api19Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static void setQuickScaleEnabled(ScaleGestureDetector scaleGestureDetector,
-                boolean scales) {
-            scaleGestureDetector.setQuickScaleEnabled(scales);
-        }
-
-        @DoNotInline
-        static boolean isQuickScaleEnabled(ScaleGestureDetector scaleGestureDetector) {
-            return scaleGestureDetector.isQuickScaleEnabled();
-        }
+        return scaleGestureDetector.isQuickScaleEnabled();
     }
 }

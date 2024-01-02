@@ -641,6 +641,7 @@ class ComplicationDataSourceServiceTest {
     }
 
     @Test
+    @Config(sdk = [Build.VERSION_CODES.TIRAMISU])
     fun testImmediateRequest_invalidTimelineData() {
         mService.respondWithTimeline = true
         mService.responseDataTimeline = ComplicationDataTimeline(INVALID_DATA, listOf())
@@ -679,6 +680,44 @@ class ComplicationDataSourceServiceTest {
         }
     }
 
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.R])
+    fun testImmediateRequest_invalidTimelineData_preT() {
+        mService.respondWithTimeline = true
+        mService.responseDataTimeline = ComplicationDataTimeline(INVALID_DATA, listOf())
+        val thread = HandlerThread("testThread")
+
+        try {
+            thread.start()
+            val threadHandler = Handler(thread.looper)
+            val response = AtomicReference<WireComplicationData>()
+            val exception = AtomicReference<Throwable>()
+            val exceptionLatch = CountDownLatch(1)
+
+            mPretendMainThread.uncaughtExceptionHandler =
+                Thread.UncaughtExceptionHandler { _, throwable ->
+                    exception.set(throwable)
+                    exceptionLatch.countDown()
+                }
+            threadHandler.post {
+                try {
+                    response.set(
+                        mProvider.onSynchronousComplicationRequest(
+                            123,
+                            INVALID_DATA.type.toWireComplicationType()
+                        )
+                    )
+                } catch (e: RemoteException) {
+                    // Should not happen
+                }
+            }
+
+            assertThat(exceptionLatch.await(1000, TimeUnit.MILLISECONDS)).isFalse()
+        } finally {
+            thread.quitSafely()
+        }
+    }
+
     private fun runUiThreadTasksWhileAwaitingDataLatch(timeout: Long) {
         // Allowing UI thread to execute while we wait for the data latch.
         var attempts: Long = 0
@@ -700,6 +739,7 @@ class ComplicationDataSourceServiceTest {
                 )
                 .setText(ComplicationText.EMPTY)
                 .build()
-        private val INVALID_DATA_ERROR_MESSAGE = "value must be between min and max"
+        private val INVALID_DATA_ERROR_MESSAGE =
+            "From T API onwards, value must be between min and max"
     }
 }

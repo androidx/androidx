@@ -21,7 +21,7 @@ plugins {
     id("com.android.library")
     id("AndroidXComposePlugin")
     id("org.jetbrains.kotlin.android")
-    id("kotlin-kapt")
+    id("com.google.devtools.ksp")
 }
 
 dependencies {
@@ -36,7 +36,7 @@ dependencies {
     implementation(projectOrArtifact(":paging:paging-compose"))
     implementation(projectOrArtifact(":paging:paging-compose:paging-compose-samples"))
 
-    kapt(projectOrArtifact(":room:room-compiler"))
+    ksp(projectOrArtifact(":room:room-compiler"))
     implementation(projectOrArtifact(":room:room-ktx"))
     implementation(projectOrArtifact(":room:room-paging"))
 }

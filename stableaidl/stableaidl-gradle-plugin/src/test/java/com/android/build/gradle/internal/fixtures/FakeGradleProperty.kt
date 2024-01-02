@@ -20,6 +20,7 @@ import java.util.function.BiFunction
 import org.gradle.api.Transformer
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
+import org.gradle.api.specs.Spec
 
 class FakeGradleProperty<T>(private var value: T? = null) : Property<T> {
 
@@ -46,6 +47,9 @@ class FakeGradleProperty<T>(private var value: T? = null) : Property<T> {
         value ?: valueProvider?.get() ?: convention ?: throw IllegalStateException("Value not set")
 
     override fun getOrNull() = value ?: valueProvider?.get() ?: convention
+    override fun filter(spec: Spec<in T>): Provider<T> {
+        throw NotImplementedError()
+    }
 
     override fun value(value: T?): Property<T> {
         this.value = value

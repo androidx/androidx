@@ -22,13 +22,18 @@ import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.processor.Context
 import loadTestSource
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestName
+import writeTestSource
 
 class DatabaseKotlinCodeGenTest {
 
+    @get:Rule
+    val testName = TestName()
+
     @Test
     fun database_simple() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDatabase.kt",
             """
@@ -54,13 +59,12 @@ class DatabaseKotlinCodeGenTest {
         )
         runTest(
             sources = listOf(src),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun database_withFtsAndView() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDatabase.kt",
             """
@@ -121,13 +125,12 @@ class DatabaseKotlinCodeGenTest {
         )
         runTest(
             sources = listOf(src),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun database_internalVisibility() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDatabase.kt",
             """
@@ -153,7 +156,7 @@ class DatabaseKotlinCodeGenTest {
         )
         runTest(
             sources = listOf(src),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
@@ -177,12 +180,21 @@ class DatabaseKotlinCodeGenTest {
                 it.roundEnv.isProcessingOver
             )
             it.assertCompilationResult {
-                this.generatedSource(
-                    loadTestSource(
-                        expectedFilePath,
-                        "MyDatabase_Impl"
-                    )
+                val expectedSrc = loadTestSource(
+                    expectedFilePath,
+                    "MyDatabase_Impl"
                 )
+                // Set ROOM_TEST_WRITE_SRCS env variable to make tests write expected sources,
+                // handy for big sweeping code gen changes. ;)
+                if (System.getenv("ROOM_TEST_WRITE_SRCS") != null) {
+                    writeTestSource(
+                        checkNotNull(this.findGeneratedSource(expectedSrc.relativePath)) {
+                            "Couldn't find gen src: $expectedSrc"
+                        },
+                        expectedFilePath
+                    )
+                }
+                this.generatedSource(expectedSrc)
                 this.hasNoWarnings()
             }
             handler.invoke(it)

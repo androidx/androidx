@@ -215,7 +215,7 @@ public class GhostViewTest extends BaseTest {
             @Override
             public void run() {
                 GhostViewUtils.addGhost(greenView, parent2, new Matrix());
-                ViewGroupUtils.getOverlay(parent2).add(blueView);
+                parent2.getOverlay().add(blueView);
                 GhostViewUtils.addGhost(redView, parent2, new Matrix());
                 GhostViewUtils.removeGhost(redView);
             }

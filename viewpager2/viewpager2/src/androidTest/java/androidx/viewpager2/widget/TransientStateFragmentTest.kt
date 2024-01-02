@@ -22,7 +22,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import java.util.concurrent.TimeUnit.MILLISECONDS
 import org.junit.Test
@@ -41,7 +40,6 @@ class TransientStateFragmentTest : BaseTest() {
     private val timeoutMs = 3000L
 
     @Test
-    @SdkSuppress(minSdkVersion = 16) /** [View.setHasTransientState] was introduced in API 16 */
     fun test_swipeBetweenPages() {
         setUpTest(orientation).apply {
             val expectedValues = stringSequence(totalPages)
@@ -67,7 +65,6 @@ class TransientStateFragmentTest : BaseTest() {
 
     private fun createTransientStateCallback(): FragmentManager.FragmentLifecycleCallbacks {
         return object : FragmentManager.FragmentLifecycleCallbacks() {
-            @SdkSuppress(minSdkVersion = 16)
             override fun onFragmentViewCreated(
                 fm: FragmentManager,
                 f: Fragment,

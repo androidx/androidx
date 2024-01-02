@@ -21,7 +21,6 @@ import static androidx.wear.protolayout.LayoutElementBuilders.FONT_WEIGHT_BOLD;
 import static androidx.wear.protolayout.LayoutElementBuilders.FONT_WEIGHT_MEDIUM;
 import static androidx.wear.protolayout.LayoutElementBuilders.FONT_WEIGHT_NORMAL;
 import static androidx.wear.protolayout.LayoutElementBuilders.TEXT_ALIGN_END;
-import static androidx.wear.protolayout.LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE_END;
 import static androidx.wear.protolayout.material.Typography.TYPOGRAPHY_BODY1;
 import static androidx.wear.protolayout.material.Typography.TYPOGRAPHY_CAPTION2;
 import static androidx.wear.protolayout.material.Typography.TYPOGRAPHY_TITLE1;
@@ -130,6 +129,7 @@ public class TextTest {
 
     @Test
     @ProtoLayoutExperimental
+    @SuppressWarnings("deprecation")
     public void testText() {
         String textContent = "Testing text.";
         Modifiers modifiers =
@@ -145,10 +145,9 @@ public class TextTest {
                         .setUnderline(true)
                         .setMaxLines(2)
                         .setModifiers(modifiers)
-                        .setOverflow(TEXT_OVERFLOW_ELLIPSIZE_END)
+                        .setOverflow(LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE_END)
                         .setMultilineAlignment(TEXT_ALIGN_END)
                         .setWeight(FONT_WEIGHT_BOLD)
-                        .setExcludeFontPadding(true)
                         .build();
 
         FontStyle expectedFontStyle =
@@ -201,6 +200,7 @@ public class TextTest {
     }
 
     @ProtoLayoutExperimental
+    @SuppressWarnings("deprecation")
     private void assertTextIsEqual(
             Text actualText,
             String expectedTextContent,
@@ -210,12 +210,12 @@ public class TextTest {
         assertThat(actualText.getFontStyle().toProto()).isEqualTo(expectedFontStyle.toProto());
         assertThat(actualText.getText().getValue()).isEqualTo(expectedTextContent);
         assertThat(actualText.getColor().getArgb()).isEqualTo(expectedColor);
-        assertThat(actualText.getOverflow()).isEqualTo(TEXT_OVERFLOW_ELLIPSIZE_END);
+        assertThat(actualText.getOverflow())
+                .isEqualTo(LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE_END);
         assertThat(actualText.getMultilineAlignment()).isEqualTo(TEXT_ALIGN_END);
         assertThat(actualText.getMaxLines()).isEqualTo(2);
         assertThat(actualText.getLineHeight())
                 .isEqualTo(getLineHeightForTypography(TYPOGRAPHY_TITLE1).getValue());
-        assertThat(actualText.hasExcludeFontPadding()).isTrue();
     }
 
     private void assertFontStyle(

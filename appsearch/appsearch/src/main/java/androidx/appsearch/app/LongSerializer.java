@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
  *
  * @param <T> The custom type that can be serialized to a long.
  */
+// @exportToFramework:skipFile()
 public interface LongSerializer<T> {
     /**
      * Serializes a {@link T} to a long.

@@ -20,11 +20,13 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollScope
+import androidx.compose.testutils.ComposeExecutionControl
 import androidx.compose.testutils.ComposeTestCase
-import androidx.compose.testutils.assertNoPendingChanges
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.doFramesUntilNoChangesPending
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.ViewRootForTest
 
 internal object NoFlingBehavior : FlingBehavior {
     override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
@@ -92,38 +94,65 @@ internal fun ComposeBenchmarkRule.toggleStateBenchmark(
     caseFactory: () -> LazyBenchmarkTestCase
 ) {
     runBenchmarkFor(caseFactory) {
-        doFramesUntilNoChangesPending()
+        runOnUiThread {
+            doFramesUntilNoChangesPending()
+        }
 
-        measureRepeated {
+        measureRepeatedOnUiThread {
             runWithTimingDisabled {
-                assertNoPendingChanges()
+                assertNoPendingRecompositionMeasureOrLayout()
                 getTestCase().beforeToggle()
-                if (hasPendingChanges()) {
+                if (hasPendingChanges() || hasPendingMeasureOrLayout()) {
                     doFrame()
                 }
-                assertNoPendingChanges()
+                assertNoPendingRecompositionMeasureOrLayout()
             }
-            getTestCase().toggle()
-            if (hasPendingChanges()) {
-                doFrame()
-            }
+            performToggle(getTestCase())
             runWithTimingDisabled {
-                assertNoPendingChanges()
+                assertNoPendingRecompositionMeasureOrLayout()
                 getTestCase().afterToggle()
-                assertNoPendingChanges()
+                assertNoPendingRecompositionMeasureOrLayout()
             }
         }
     }
 }
+
+// we extract this function so it is easier to differentiate this work  in the traces from the work
+// we are not measuring, like beforeToggle() and afterToggle().
+@OptIn(ExperimentalComposeUiApi::class)
+private fun ComposeExecutionControl.performToggle(testCase: LazyBenchmarkTestCase) {
+    testCase.toggle()
+    if (hasPendingChanges()) {
+        recompose()
+    }
+    if (hasPendingMeasureOrLayout()) {
+        getViewRoot().measureAndLayoutForTest()
+    }
+}
+
+private fun ComposeExecutionControl.assertNoPendingRecompositionMeasureOrLayout() {
+    if (hasPendingChanges() || hasPendingMeasureOrLayout()) {
+        throw AssertionError("Expected no pending changes but there were some.")
+    }
+}
+
+private fun ComposeExecutionControl.hasPendingMeasureOrLayout(): Boolean {
+    return getViewRoot().hasPendingMeasureOrLayout
+}
+
+private fun ComposeExecutionControl.getViewRoot(): ViewRootForTest =
+    getHostView() as ViewRootForTest
 
 // TODO(b/169852102 use existing public constructs instead)
 internal fun ComposeBenchmarkRule.toggleStateBenchmarkDraw(
     caseFactory: () -> LazyBenchmarkTestCase
 ) {
     runBenchmarkFor(caseFactory) {
-        doFrame()
+        runOnUiThread {
+            doFrame()
+        }
 
-        measureRepeated {
+        measureRepeatedOnUiThread {
             runWithTimingDisabled {
                 // reset the state and draw
                 getTestCase().beforeToggle()

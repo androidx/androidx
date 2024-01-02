@@ -19,6 +19,7 @@ package androidx.compose.ui.awt
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ComposeScene
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.SessionMutex
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.KeyEvent as ComposeKeyEvent
@@ -101,6 +102,7 @@ internal class ComposeLayer {
         }
     }
 
+    @OptIn(InternalComposeUiApi::class)
     private inner class ComponentImpl :
         SkiaLayer(externalAccessibleFactory = ::makeAccessible), Accessible, PlatformComponent {
         var currentInputMethodRequests: InputMethodRequests? = null

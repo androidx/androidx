@@ -418,8 +418,8 @@ class NullPaddedListDiffWithRecyclerViewTest {
         repeat(RANDOM_TEST_REPEAT_SIZE) {
             val pre = randomNullPaddedStorage(0)
             val post = randomNullPaddedStorage(
-                startId = if (pre.storageCount > 0) {
-                    pre.getFromStorage(rand.nextInt(pre.storageCount)).id
+                startId = if (pre.dataCount > 0) {
+                    pre.getFromStorage(rand.nextInt(pre.dataCount)).id
                 } else {
                     0
                 }
@@ -626,7 +626,7 @@ class NullPaddedListDiffWithRecyclerViewTest {
         override val size: Int
             get() = placeholdersBefore + data.size + placeholdersAfter
 
-        override val storageCount: Int
+        override val dataCount: Int
             get() = data.size
 
         override fun toString() = stringRepresentation
@@ -821,7 +821,7 @@ class NullPaddedListDiffWithRecyclerViewTest {
 private fun <T> NullPaddedList<T>.get(index: Int): T? {
     if (index < placeholdersBefore) return null
     val storageIndex = index - placeholdersBefore
-    if (storageIndex >= storageCount) return null
+    if (storageIndex >= dataCount) return null
     return getFromStorage(storageIndex)
 }
 

@@ -79,16 +79,9 @@ internal fun <T> PersistentCompositionLocalMap.contains(key: CompositionLocal<T>
     this.containsKey(key as CompositionLocal<Any?>)
 
 @Suppress("UNCHECKED_CAST")
-internal fun <T> PersistentCompositionLocalMap.getValueOf(key: CompositionLocal<T>) =
-    this[key as CompositionLocal<Any?>]?.value as T
-
 internal fun <T> PersistentCompositionLocalMap.read(
     key: CompositionLocal<T>
-): T = if (contains(key)) {
-    getValueOf(key)
-} else {
-    key.defaultValueHolder.value
-}
+): T = getOrElse(key as CompositionLocal<Any?>) { key.defaultValueHolder }.value as T
 
 internal fun updateCompositionMap(
     values: Array<out ProvidedValue<*>>,

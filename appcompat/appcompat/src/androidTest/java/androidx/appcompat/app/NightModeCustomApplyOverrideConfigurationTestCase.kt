@@ -16,7 +16,6 @@
 
 package androidx.appcompat.app
 
-import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.appcompat.app.NightModeCustomApplyOverrideConfigurationActivity.CUSTOM_FONT_SCALE
 import androidx.appcompat.app.NightModeCustomApplyOverrideConfigurationActivity.CUSTOM_LOCALE
@@ -24,7 +23,6 @@ import androidx.appcompat.testutils.NightModeActivityTestRule
 import androidx.appcompat.testutils.NightModeUtils.NightSetMode
 import androidx.appcompat.testutils.NightModeUtils.setNightModeAndWaitForRecreate
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -36,7 +34,6 @@ import org.junit.runners.Parameterized
  *
  * The ContextThemeWrapper.applyOverrideConfiguration method only exists on API level 17 and up.
  */
-@SdkSuppress(minSdkVersion = 17)
 @LargeTest
 @RunWith(Parameterized::class)
 class NightModeCustomApplyOverrideConfigurationTestCase(private val setMode: NightSetMode) {
@@ -85,10 +82,6 @@ class NightModeCustomApplyOverrideConfigurationTestCase(private val setMode: Nig
     companion object {
         @JvmStatic
         @Parameterized.Parameters
-        fun data() = if (Build.VERSION.SDK_INT >= 17) {
-            listOf(NightSetMode.DEFAULT, NightSetMode.LOCAL)
-        } else {
-            listOf(NightSetMode.DEFAULT)
-        }
+        fun data() = listOf(NightSetMode.DEFAULT, NightSetMode.LOCAL)
     }
 }

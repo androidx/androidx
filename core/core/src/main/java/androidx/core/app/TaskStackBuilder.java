@@ -22,14 +22,11 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
@@ -341,11 +338,7 @@ public final class TaskStackBuilder implements Iterable<Intent> {
         intents[0] = new Intent(intents[0]).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                 | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME);
 
-        if (Build.VERSION.SDK_INT >= 16) {
-            return Api16Impl.getActivities(mSourceContext, requestCode, intents, flags, options);
-        } else {
-            return PendingIntent.getActivities(mSourceContext, requestCode, intents, flags);
-        }
+        return PendingIntent.getActivities(mSourceContext, requestCode, intents, flags, options);
     }
 
     /**
@@ -366,18 +359,5 @@ public final class TaskStackBuilder implements Iterable<Intent> {
             intents[i] = new Intent(mIntents.get(i));
         }
         return intents;
-    }
-
-    @RequiresApi(16)
-    static class Api16Impl {
-        private Api16Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static PendingIntent getActivities(Context context, int requestCode, Intent[] intents,
-                int flags, Bundle options) {
-            return PendingIntent.getActivities(context, requestCode, intents, flags, options);
-        }
     }
 }

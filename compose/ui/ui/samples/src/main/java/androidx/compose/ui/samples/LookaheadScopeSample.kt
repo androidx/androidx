@@ -127,10 +127,11 @@ fun LookaheadLayoutCoordinatesSample() {
     // given LookaheadScope, whenever the relative position changes.
     fun Modifier.animatePlacementInScope(lookaheadScope: LookaheadScope) = composed {
         // Creates an offset animation
-        var offsetAnimation: Animatable<IntOffset, AnimationVector2D>? by mutableStateOf(
-            null
-        )
-        var targetOffset: IntOffset? by mutableStateOf(null)
+        var offsetAnimation: Animatable<IntOffset, AnimationVector2D>? by remember {
+            mutableStateOf(
+                null
+            )
+        }
 
         this.intermediateLayout { measurable, constraints ->
             val placeable = measurable.measure(constraints)
@@ -142,7 +143,7 @@ fun LookaheadLayoutCoordinatesSample() {
                     val target = with(lookaheadScope) {
                         lookaheadScopeCoordinates
                             .localLookaheadPositionOf(coordinates)
-                            .round().also { targetOffset = it }
+                            .round()
                     }
 
                     // Uses the target offset to start an offset animation

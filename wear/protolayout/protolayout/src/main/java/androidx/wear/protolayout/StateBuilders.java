@@ -29,6 +29,7 @@ import androidx.wear.protolayout.expression.DynamicBuilders.DynamicType;
 import androidx.wear.protolayout.expression.DynamicDataBuilders;
 import androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue;
 import androidx.wear.protolayout.expression.Fingerprint;
+import androidx.wear.protolayout.expression.RequiresSchemaVersion;
 import androidx.wear.protolayout.expression.proto.DynamicDataProto;
 import androidx.wear.protolayout.proto.StateProto;
 
@@ -41,11 +42,8 @@ import java.util.Map.Entry;
 public final class StateBuilders {
     private StateBuilders() {}
 
-    /**
-     * {@link State} information.
-     *
-     * @since 1.0
-     */
+    /** {@link State} information. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class State {
         private final StateProto.State mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -68,21 +66,14 @@ public final class StateBuilders {
         public static int getMaxStateEntryCount() {
             return MAX_STATE_ENTRY_COUNT;
         }
-        /**
-         * Gets the ID of the clickable that was last clicked.
-         *
-         * @since 1.0
-         */
+
+        /** Gets the ID of the clickable that was last clicked. */
         @NonNull
         public String getLastClickableId() {
             return mImpl.getLastClickableId();
         }
 
-        /**
-         * Gets any shared state between the provider and renderer.
-         *
-         * @since 1.2
-         */
+        /** Gets any shared state between the provider and renderer. */
         @NonNull
         public Map<AppDataKey<?>, DynamicDataValue<?>> getKeyToValueMapping() {
             Map<AppDataKey<?>, DynamicDataValue<?>> map = new HashMap<>();
@@ -143,6 +134,7 @@ public final class StateBuilders {
             private final StateProto.State.Builder mImpl = StateProto.State.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-688813584);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -150,8 +142,8 @@ public final class StateBuilders {
              *
              * @throws IllegalStateException if adding the new key/value will make the state larger
              *     than the allowed limit ({@link #getMaxStateEntryCount()}).
-             * @since 1.2
              */
+            @RequiresSchemaVersion(major = 1, minor = 200)
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public <T extends DynamicType> Builder addKeyToValueMapping(

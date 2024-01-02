@@ -17,6 +17,7 @@
 package androidx.camera.camera2.internal
 
 import android.content.Context
+import android.graphics.ImageFormat
 import android.graphics.ImageFormat.JPEG
 import android.graphics.ImageFormat.PRIVATE
 import android.graphics.ImageFormat.YUV_420_888
@@ -133,7 +134,7 @@ class ProcessingCaptureSessionTest(
 
     private lateinit var cameraDeviceHolder: CameraDeviceHolder
     private lateinit var captureSessionRepository: CaptureSessionRepository
-    private lateinit var captureSessionOpenerBuilder: SynchronizedCaptureSessionOpener.Builder
+    private lateinit var captureSessionOpenerBuilder: SynchronizedCaptureSession.OpenerBuilder
     private lateinit var sessionProcessor: FakeSessionProcessor
     private lateinit var executor: Executor
     private lateinit var handler: Handler
@@ -160,7 +161,7 @@ class ProcessingCaptureSessionTest(
         val cameraId = CameraUtil.getCameraIdWithLensFacing(lensFacing)!!
         camera2CameraInfo = Camera2CameraInfoImpl(cameraId, cameraManagerCompat)
         captureSessionRepository = CaptureSessionRepository(executor)
-        captureSessionOpenerBuilder = SynchronizedCaptureSessionOpener.Builder(
+        captureSessionOpenerBuilder = SynchronizedCaptureSession.OpenerBuilder(
             executor,
             executor as ScheduledExecutorService,
             handler,
@@ -320,6 +321,36 @@ class ProcessingCaptureSessionTest(
             }
         }
         return true
+    }
+
+    @Test
+    fun canConfigurePostviewSurfaceAndEnablePostviewInStillCapture():
+        Unit = runBlocking(Dispatchers.Main) {
+        // 1.Arrange
+        val cameraDevice = cameraDeviceHolder.get()!!
+        val captureSession = createProcessingCaptureSession()
+
+        // 2. Act
+        // This will set postview surface to the SessionConfig for opening and enable the postview
+        // in the CaptureConfig for still capture.
+        sessionConfigParameters.enablePostview()
+        captureSession.open(
+            sessionConfigParameters.getSessionConfigForOpen(), cameraDevice,
+            captureSessionOpenerBuilder.build()
+        ).awaitWithTimeout(3000)
+
+        captureSession.sessionConfig =
+            sessionConfigParameters.getActiveSessionConfigForRepeating()
+
+        captureSession.issueCaptureRequests(
+            listOf(sessionConfigParameters.getStillCaptureCaptureConfig())
+        )
+
+        // 3. Assert
+        assertThat(sessionProcessor.awaitInitSessionOutputSurfaceConfiguration()
+            .postviewOutputSurface!!.surface)
+            .isSameInstanceAs(sessionConfigParameters.getPostviewSurface())
+        sessionProcessor.assertStartCapturePostviewEnabled()
     }
 
     @Test
@@ -756,10 +787,12 @@ class ProcessingCaptureSessionTest(
     private inner class SessionConfigParameters {
         private var previewOutputDeferrableSurface: DeferrableSurface
         private var captureOutputDeferrableSurface: DeferrableSurface
+        private var postviewOutputDeferrableSurface: DeferrableSurface? = null
         // Use SurfaceTexture for preview if PRIVATE format, use ImageReader if YUV format.
         private var previewSurfaceTexture: SurfaceTexture? = null
         private var previewImageReader: ImageReader? = null
         private var captureImageReader: ImageReader
+        private var postviewImageReader: ImageReader? = null
         private val sessionConfigured = CompletableDeferred<Unit>()
         private val repeatingRequestCompletedWithTags = CompletableDeferred<Unit>()
         private val previewImageReady = CompletableDeferred<Unit>()
@@ -829,11 +862,23 @@ class ProcessingCaptureSessionTest(
             )
         }
 
+        fun enablePostview() {
+            postviewImageReader = ImageReader.newInstance(640, 480, ImageFormat.JPEG, 2);
+            postviewOutputDeferrableSurface = ImmediateSurface(postviewImageReader!!.surface)
+        }
+
+        fun getPostviewSurface() = postviewImageReader!!.surface
+
+        fun isPostviewEnabled() = postviewImageReader != null
+
         fun getSessionConfigForOpen(): SessionConfig {
             val sessionBuilder = SessionConfig.Builder()
             sessionBuilder.addSurface(captureOutputDeferrableSurface)
             sessionBuilder.addSurface(previewOutputDeferrableSurface)
             sessionBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
+            postviewOutputDeferrableSurface?.let {
+                sessionBuilder.setPostviewSurface(it)
+            }
             sessionBuilder.addSessionStateCallback(
                 object : CameraCaptureSession.StateCallback() {
                     override fun onConfigured(session: CameraCaptureSession) {
@@ -888,6 +933,7 @@ class ProcessingCaptureSessionTest(
         fun getStillCaptureCaptureConfig(): CaptureConfig {
             return CaptureConfig.Builder().apply {
                 templateType = CameraDevice.TEMPLATE_STILL_CAPTURE
+                setPostviewEnabled(isPostviewEnabled())
                 implementationOptions = CaptureRequestOptions.Builder().apply {
                     setCaptureRequestOption(CaptureRequest.JPEG_ORIENTATION, JPEG_ORIENTATION_VALUE)
                     setCaptureRequestOption(CaptureRequest.JPEG_QUALITY, JPEG_QUALITY_VALUE)
@@ -920,12 +966,14 @@ class ProcessingCaptureSessionTest(
         fun closeOutputSurfaces() {
             previewOutputDeferrableSurface.close()
             captureOutputDeferrableSurface.close()
+            postviewOutputDeferrableSurface?.close()
         }
 
         fun releaseSurfaces() {
             captureImageReader.close()
             previewImageReader?.close()
             previewSurfaceTexture?.release()
+            postviewImageReader?.close();
         }
 
         suspend fun assertSessionOnConfigured() {

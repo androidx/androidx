@@ -16,16 +16,21 @@
 
 package androidx.appsearch.compiler;
 
+import static androidx.appsearch.compiler.IntrospectionHelper.DOCUMENT_CLASS_FACTORY_CLASS;
+import static androidx.appsearch.compiler.IntrospectionHelper.RESTRICT_TO_ANNOTATION_CLASS;
+import static androidx.appsearch.compiler.IntrospectionHelper.RESTRICT_TO_SCOPE_CLASS;
+import static androidx.appsearch.compiler.IntrospectionHelper.getDocumentClassFactoryForClass;
+
 import androidx.annotation.NonNull;
 
 import com.google.auto.common.GeneratedAnnotationSpecs;
+import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
-import java.io.File;
 import java.io.IOException;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -37,59 +42,50 @@ import javax.lang.model.element.Modifier;
  */
 class CodeGenerator {
     private final ProcessingEnvironment mEnv;
-    private final IntrospectionHelper mHelper;
     private final DocumentModel mModel;
-
+    private final boolean mRestrictGeneratedCodeToLib;
     private final String mOutputPackage;
-    private final TypeSpec mOutputClass;
 
-    public static CodeGenerator generate(
-            @NonNull ProcessingEnvironment env, @NonNull DocumentModel model)
-            throws ProcessingException {
-        return new CodeGenerator(env, model);
-    }
-
-    private CodeGenerator(
-            @NonNull ProcessingEnvironment env, @NonNull DocumentModel model)
-            throws ProcessingException {
-        // Prepare constants needed for processing
+    /**
+     * Constructs a {@link CodeGenerator}.
+     *
+     * @param restrictGeneratedCodeToLib Whether to annotate the generated classes with
+     *                                   {@code RestrictTo(LIBRARY)}.
+     */
+    CodeGenerator(
+            @NonNull ProcessingEnvironment env,
+            @NonNull DocumentModel model,
+            boolean restrictGeneratedCodeToLib) {
         mEnv = env;
-        mHelper = new IntrospectionHelper(env);
         mModel = model;
-
-        // Perform the actual work of generating code
+        mRestrictGeneratedCodeToLib = restrictGeneratedCodeToLib;
         mOutputPackage = mEnv.getElementUtils().getPackageOf(mModel.getClassElement()).toString();
-        mOutputClass = createClass();
     }
 
-    public void writeToFiler() throws IOException {
-        JavaFile.builder(mOutputPackage, mOutputClass).build().writeTo(mEnv.getFiler());
-    }
-
-    public void writeToFolder(@NonNull File folder) throws IOException {
-        JavaFile.builder(mOutputPackage, mOutputClass).build().writeTo(folder);
+    public JavaFile createJavaFile() throws IOException, ProcessingException {
+        TypeSpec outputClass = createClass();
+        return JavaFile.builder(mOutputPackage, outputClass).build();
     }
 
     /**
      * Creates factory class for any class annotated with
      * {@link androidx.appsearch.annotation.Document}
      * <p>Class Example 1:
-     *   For a class Foo annotated with @Document, we will generated a
-     *   $$__AppSearch__Foo.class under the output package.
+     * For a class Foo annotated with @Document, we will generated a
+     * $$__AppSearch__Foo.class under the output package.
      * <p>Class Example 2:
-     *   For an inner class Foo.Bar annotated with @Document, we will generated a
-     *   $$__AppSearch__Foo$$__Bar.class under the output package.
+     * For an inner class Foo.Bar annotated with @Document, we will generated a
+     * $$__AppSearch__Foo$$__Bar.class under the output package.
      */
     private TypeSpec createClass() throws ProcessingException {
         // Gets the full name of target class.
         String qualifiedName = mModel.getQualifiedDocumentClassName();
         String className = qualifiedName.substring(mOutputPackage.length() + 1);
-        ClassName genClassName = mHelper.getDocumentClassFactoryForClass(mOutputPackage, className);
+        ClassName genClassName = getDocumentClassFactoryForClass(mOutputPackage, className);
 
         TypeName genClassType = TypeName.get(mModel.getClassElement().asType());
-        TypeName factoryType = ParameterizedTypeName.get(
-                mHelper.getAppSearchClass("DocumentClassFactory"),
-                genClassType);
+        TypeName factoryType =
+                ParameterizedTypeName.get(DOCUMENT_CLASS_FACTORY_CLASS, genClassType);
 
         TypeSpec.Builder genClass = TypeSpec
                 .classBuilder(genClassName)
@@ -103,6 +99,14 @@ class CodeGenerator {
                 mEnv.getSourceVersion(),
                 AppSearchCompiler.class
         ).ifPresent(genClass::addAnnotation);
+
+        if (mRestrictGeneratedCodeToLib) {
+            // Add @RestrictTo(LIBRARY_GROUP) to the generated class
+            genClass.addAnnotation(
+                    AnnotationSpec.builder(RESTRICT_TO_ANNOTATION_CLASS)
+                            .addMember(/* name= */"value", "$T.LIBRARY", RESTRICT_TO_SCOPE_CLASS)
+                            .build());
+        }
 
         SchemaCodeGenerator.generate(mEnv, mModel, genClass);
         ToGenericDocumentCodeGenerator.generate(mEnv, mModel, genClass);

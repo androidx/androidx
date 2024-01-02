@@ -294,6 +294,7 @@ public class TestAppAuthenticatorBuilderTest {
     public void callingAppIdentity_packageNotInstalled_returnsUnknownPackage() throws Exception {
         // The TestAppAuthenticator can be configured to treat a package as uninstalled to verify
         // scenarios where the package being queried is not available on the device.
+        final int packageUid = 10001;
         AppAuthenticator appAuthenticatorFromResource =
                 mBuilderFromResource.setPackageNotInstalled(
                         DECLARED_PACKAGE1).setPackageNotInstalled(
@@ -305,20 +306,20 @@ public class TestAppAuthenticatorBuilderTest {
 
         assertEquals(AppAuthenticator.PERMISSION_DENIED_UNKNOWN_PACKAGE,
                 appAuthenticatorFromResource.checkCallingAppIdentity(
-                        DECLARED_PACKAGE1, TEST_PERMISSION));
+                        DECLARED_PACKAGE1, TEST_PERMISSION, packageUid));
         assertEquals(AppAuthenticator.PERMISSION_DENIED_UNKNOWN_PACKAGE,
                 appAuthenticatorFromInputStream.checkCallingAppIdentity(
-                        DECLARED_PACKAGE1, TEST_PERMISSION));
+                        DECLARED_PACKAGE1, TEST_PERMISSION, packageUid));
         assertEquals(AppAuthenticator.SIGNATURE_NO_MATCH,
                 appAuthenticatorFromResource.checkAppIdentity(EXPECTED_IDENTITY_PACKAGE));
         assertEquals(AppAuthenticator.SIGNATURE_NO_MATCH,
                 appAuthenticatorFromInputStream.checkAppIdentity(EXPECTED_IDENTITY_PACKAGE));
         assertThrows(SecurityException.class, () ->
                 appAuthenticatorFromResource.enforceCallingAppIdentity(
-                        DECLARED_PACKAGE1, TEST_PERMISSION));
+                        DECLARED_PACKAGE1, TEST_PERMISSION, packageUid));
         assertThrows(SecurityException.class, () ->
                 appAuthenticatorFromInputStream.enforceCallingAppIdentity(
-                        DECLARED_PACKAGE1, TEST_PERMISSION));
+                        DECLARED_PACKAGE1, TEST_PERMISSION, packageUid));
         assertThrows(SecurityException.class, () ->
                 appAuthenticatorFromResource.enforceAppIdentity(EXPECTED_IDENTITY_PACKAGE));
         assertThrows(SecurityException.class, () ->

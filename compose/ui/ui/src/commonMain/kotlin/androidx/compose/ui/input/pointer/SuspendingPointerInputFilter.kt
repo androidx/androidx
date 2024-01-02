@@ -18,7 +18,6 @@ package androidx.compose.ui.input.pointer
 
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.fastMapNotNull
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 import androidx.compose.ui.node.ModifierNodeElement
@@ -31,6 +30,7 @@ import androidx.compose.ui.platform.synchronized
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastAll
+import androidx.compose.ui.util.fastMapNotNull
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
@@ -222,6 +222,11 @@ fun Modifier.pointerInput(
  * that is accessed by [block]:
  *
  * @sample androidx.compose.ui.samples.rememberedUpdatedParameterPointerInputModifier
+ *
+ * ***Note*** Any removal operations on Android Views from `pointerInput` should wrap the `block`
+ * in a `post { }` block to guarantee the event dispatch completes before executing the removal.
+ * (You do not need to do this when removing a composable because Compose guarantees it completes
+ * via the snapshot state system.)
  */
 fun Modifier.pointerInput(
     key1: Any?,
@@ -256,6 +261,11 @@ fun Modifier.pointerInput(
  * that is accessed by [block]:
  *
  * @sample androidx.compose.ui.samples.rememberedUpdatedParameterPointerInputModifier
+ *
+ * ***Note*** Any removal operations on Android Views from `pointerInput` should wrap the `block`
+ * in a `post { }` block to guarantee the event dispatch completes before executing the removal.
+ * (You do not need to do this when removing a composable because Compose guarantees it completes
+ * via the snapshot state system.)
  */
 fun Modifier.pointerInput(
     key1: Any?,
@@ -291,6 +301,11 @@ fun Modifier.pointerInput(
  * that is accessed by [block]:
  *
  * @sample androidx.compose.ui.samples.rememberedUpdatedParameterPointerInputModifier
+ *
+ * ***Note*** Any removal operations on Android Views from `pointerInput` should wrap the `block`
+ * in a `post { }` block to guarantee the event dispatch completes before executing the removal.
+ * (You do not need to do this when removing a composable because Compose guarantees it completes
+ * via the snapshot state system.)
  */
 fun Modifier.pointerInput(
     vararg keys: Any?,

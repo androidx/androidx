@@ -35,12 +35,6 @@ class ExerciseRoute constructor(val route: List<Location>) {
         }
     }
 
-    internal fun isWithin(startTime: Instant, endTime: Instant): Boolean {
-        val minTime = route.minBy { it.time }.time
-        val maxTime = route.maxBy { it.time }.time
-        return !minTime.isBefore(startTime) && maxTime.isBefore(endTime)
-    }
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ExerciseRoute) return false

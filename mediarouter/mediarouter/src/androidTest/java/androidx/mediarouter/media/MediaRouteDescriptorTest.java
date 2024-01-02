@@ -111,6 +111,27 @@ public class MediaRouteDescriptorTest {
 
     @Test
     @SmallTest
+    public void testDefaultIsSystemRouteReturnsFalse() {
+        MediaRouteDescriptor routeDescriptor =
+                new MediaRouteDescriptor.Builder(FAKE_MEDIA_ROUTE_ID_1, FAKE_MEDIA_ROUTE_NAME)
+                        .build();
+
+        assertFalse(routeDescriptor.isSystemRoute());
+    }
+
+    @Test
+    @SmallTest
+    public void testSetIsSystemRoute() {
+        MediaRouteDescriptor routeDescriptor =
+                new MediaRouteDescriptor.Builder(FAKE_MEDIA_ROUTE_ID_1, FAKE_MEDIA_ROUTE_NAME)
+                        .setIsSystemRoute(true)
+                        .build();
+
+        assertTrue(routeDescriptor.isSystemRoute());
+    }
+
+    @Test
+    @SmallTest
     public void testDefaultVisibilityIsPublic() {
         MediaRouteDescriptor routeDescriptor = new MediaRouteDescriptor.Builder(
                 FAKE_MEDIA_ROUTE_ID_1, FAKE_MEDIA_ROUTE_NAME)

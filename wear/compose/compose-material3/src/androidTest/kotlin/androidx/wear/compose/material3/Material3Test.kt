@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.testutils.assertContainsColor
 import androidx.compose.ui.Alignment
@@ -40,16 +41,20 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertTouchHeightIsEqualTo
 import androidx.compose.ui.test.assertTouchWidthIsEqualTo
+import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.isUnspecified
@@ -148,6 +153,20 @@ internal fun ComposeContentTestRule.verifyTapSize(
         .assertTouchWidthIsEqualTo(expectedSize)
 }
 
+internal fun ComposeContentTestRule.verifyActualSize(
+    expectedSize: Dp,
+    content: @Composable (modifier: Modifier) -> Unit
+) {
+    setContentWithTheme {
+        content(Modifier.testTag(TEST_TAG))
+    }
+    waitForIdle()
+
+    onNodeWithTag(TEST_TAG)
+        .assertHeightIsEqualTo(expectedSize)
+        .assertWidthIsEqualTo(expectedSize)
+}
+
 @RequiresApi(Build.VERSION_CODES.O)
 internal fun ComposeContentTestRule.verifyColors(
     status: Status,
@@ -165,13 +184,13 @@ internal fun ComposeContentTestRule.verifyColors(
             if (status.enabled() || !applyAlphaForDisabled) {
                 expectedContainerColor()
             } else {
-                expectedContainerColor().copy(ContentAlpha.disabled)
+                expectedContainerColor().copy(DisabledContentAlpha)
             }.compositeOver(testBackgroundColor)
         finalExpectedContent =
             if (status.enabled() || !applyAlphaForDisabled) {
                 expectedContentColor()
             } else {
-                expectedContentColor().copy(ContentAlpha.disabled)
+                expectedContentColor().copy(DisabledContentAlpha)
             }
         Box(
             Modifier
@@ -286,15 +305,18 @@ internal fun ComposeContentTestRule.verifyScreenshot(
     methodName: String,
     screenshotRule: AndroidXScreenshotTestRule,
     testTag: String = TEST_TAG,
+    layoutDirection: LayoutDirection = LayoutDirection.Ltr,
     content: @Composable () -> Unit
 ) {
     setContentWithTheme {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-        ) {
-            content()
+        CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+            ) {
+                content()
+            }
         }
     }
 

@@ -44,8 +44,10 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var mSandboxedSdkView1: SandboxedSdkView
     private lateinit var mSandboxedSdkView2: SandboxedSdkView
-    private lateinit var mSandboxedSdkView3: SandboxedSdkView
+    private lateinit var resizableSandboxedSdkView: SandboxedSdkView
     private lateinit var mNewAdButton: Button
+    private lateinit var mResizeButton: Button
+    private lateinit var mResizeSdkButton: Button
 
     // TODO(b/257429573): Remove this line once fixed.
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
@@ -76,28 +78,59 @@ class MainActivity : AppCompatActivity() {
         mSandboxedSdkView1 = findViewById(R.id.rendered_view)
         mSandboxedSdkView1.addStateChangedListener(StateChangeListener(mSandboxedSdkView1))
         mSandboxedSdkView1.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
-            sdkApi.loadAd(/*isWebView=*/ true, "")
+            sdkApi.loadAd(/*isWebView=*/ true, /*text=*/ "", /*withSlowDraw*/ false)
         ))
 
         mSandboxedSdkView2 = SandboxedSdkView(this@MainActivity)
         mSandboxedSdkView2.addStateChangedListener(StateChangeListener(mSandboxedSdkView2))
-        mSandboxedSdkView2.layoutParams = ViewGroup.LayoutParams(400, 400)
+        mSandboxedSdkView2.layoutParams = findViewById<LinearLayout>(
+            R.id.bottom_banner_container).layoutParams
         runOnUiThread {
-            findViewById<LinearLayout>(R.id.ad_layout).addView(mSandboxedSdkView2)
+            findViewById<LinearLayout>(R.id.bottom_banner_container).addView(mSandboxedSdkView2)
         }
         mSandboxedSdkView2.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
-            sdkApi.loadAd(/*isWebView=*/ false, "Hey!")
+            sdkApi.loadAd(/*isWebView=*/ false, /*text=*/ "Hey!", /*withSlowDraw*/ false)
         ))
 
-        mSandboxedSdkView3 = findViewById(R.id.new_ad_view)
-        mSandboxedSdkView3.addStateChangedListener(StateChangeListener(mSandboxedSdkView3))
+        resizableSandboxedSdkView = findViewById(R.id.new_ad_view)
+        resizableSandboxedSdkView.addStateChangedListener(
+            StateChangeListener(resizableSandboxedSdkView))
 
         mNewAdButton = findViewById(R.id.new_ad_button)
+
+        resizableSandboxedSdkView.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
+            sdkApi.loadAd(/*isWebView=*/ false, /*text=*/ "Resize view",
+                /*withSlowDraw*/ true)))
+
         var count = 1
         mNewAdButton.setOnClickListener {
-            mSandboxedSdkView3.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
-                sdkApi.loadAd(/*isWebView=*/ false, "Hey #$count")))
+            resizableSandboxedSdkView.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
+                sdkApi.loadAd(/*isWebView=*/ false, /*text=*/ "Ad #$count",
+                    /*withSlowDraw*/ true)))
             count++
+        }
+
+        val maxWidthPixels = 1000
+        val maxHeightPixels = 1000
+        val newSize = { currentSize: Int, maxSize: Int ->
+            (currentSize + (100..200).random()) % maxSize
+        }
+
+        mResizeButton = findViewById(R.id.resize_button)
+        mResizeButton.setOnClickListener {
+            val newWidth = newSize(resizableSandboxedSdkView.width, maxWidthPixels)
+            val newHeight = newSize(resizableSandboxedSdkView.height, maxHeightPixels)
+            resizableSandboxedSdkView.layoutParams = resizableSandboxedSdkView.layoutParams.apply {
+                width = newWidth
+                height = newHeight
+            }
+        }
+
+        mResizeSdkButton = findViewById(R.id.resize_sdk_button)
+        mResizeSdkButton.setOnClickListener {
+            val newWidth = newSize(resizableSandboxedSdkView.width, maxWidthPixels)
+            val newHeight = newSize(resizableSandboxedSdkView.height, maxHeightPixels)
+            sdkApi.requestResize(newWidth, newHeight)
         }
     }
 

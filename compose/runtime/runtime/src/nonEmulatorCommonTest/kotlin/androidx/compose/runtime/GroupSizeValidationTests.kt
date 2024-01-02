@@ -76,7 +76,7 @@ class GroupSizeValidationTests {
         slotExpect(
             name = "CheckboxLike",
             noMoreGroupsThan = 12,
-            noMoreSlotsThan = 21
+            noMoreSlotsThan = 17
         ) {
             CheckboxLike(checked = false, onCheckedChange = { })
         }

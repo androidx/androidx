@@ -17,8 +17,11 @@
 package androidx.compose.compiler.plugins.kotlin
 
 import org.jetbrains.kotlin.ir.declarations.IrAnnotationContainer
+import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 import org.jetbrains.kotlin.ir.types.IrType
+import org.jetbrains.kotlin.ir.util.constructedClass
 import org.jetbrains.kotlin.ir.util.hasAnnotation
+import org.jetbrains.kotlin.ir.util.hasEqualFqName
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
@@ -89,6 +92,7 @@ object ComposeFqNames {
     private fun internalFqNameFor(cname: String) = FqName("$internalRoot.$cname")
     private fun composablesFqNameFor(cname: String) = fqNameFor("ComposablesKt.$cname")
 
+    val InternalPackage = internalRootFqName
     val Composable = ComposeClassIds.Composable.asSingleFqName()
     val ComposableTarget = ComposeClassIds.ComposableTarget.asSingleFqName()
     val ComposableTargetMarker = fqNameFor("ComposableTargetMarker")
@@ -104,6 +108,8 @@ object ComposeFqNames {
     val ReadOnlyComposable = ComposeClassIds.ReadOnlyComposable.asSingleFqName()
     val ExplicitGroupsComposable = fqNameFor("ExplicitGroupsComposable")
     val NonRestartableComposable = fqNameFor("NonRestartableComposable")
+    val NonSkippableComposable = fqNameFor("NonSkippableComposable")
+    val DontMemoize = fqNameFor("DontMemoize")
     val composableLambdaType = ComposeClassIds.ComposableLambda.asSingleFqName()
     val composableLambda = ComposeCallableIds.composableLambda.asSingleFqName()
     val composableLambdaFullName =
@@ -123,3 +129,6 @@ fun IrType.hasComposableAnnotation(): Boolean =
 
 fun IrAnnotationContainer.hasComposableAnnotation(): Boolean =
     hasAnnotation(ComposeFqNames.Composable)
+
+fun IrConstructorCall.isComposableAnnotation() =
+    symbol.owner.constructedClass.hasEqualFqName(ComposeFqNames.Composable)

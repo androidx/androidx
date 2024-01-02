@@ -33,8 +33,6 @@ constructor(
     public val supportedMilestones: Map<AggregateDataType<*, *>, Set<ComparisonType>>,
     /** Returns `true` if the given exercise supports auto pause and resume. */
     public val supportsAutoPauseAndResume: Boolean,
-    /** Supported [ExerciseEvent]s for a given exercise. */
-    public val supportedExerciseEvents: Set<ExerciseEventType<*>> = emptySet(),
     /** Map from [ExerciseEventType]s to their [ExerciseEventCapabilities]. */
     internal val exerciseEventCapabilities: Map<ExerciseEventType<*>, ExerciseEventCapabilities> =
     emptyMap(),
@@ -69,11 +67,6 @@ constructor(
             }
             .toMap(),
         supportsAutoPauseAndResume = proto.isAutoPauseAndResumeSupported,
-        supportedExerciseEvents =
-            proto.supportedExerciseEventsList
-                .filter { ExerciseEventCapabilities.fromProto(it) != null }
-                .map { ExerciseEventType.fromProto(it.exerciseEventType) }
-                .toSet(),
         exerciseEventCapabilities = proto.supportedExerciseEventsList
             .filter { ExerciseEventCapabilities.fromProto(it) != null }.associate { entry ->
                 ExerciseEventType.fromProto(entry.exerciseEventType) to
@@ -107,6 +100,10 @@ constructor(
             .setIsAutoPauseAndResumeSupported(supportsAutoPauseAndResume)
             .addAllSupportedExerciseEvents(exerciseEventCapabilities.map { it.value.toProto() })
             .build()
+
+    /** Returns the set of supported [ExerciseEventType]s on this device. */
+    public val supportedExerciseEvents: Set<ExerciseEventType<*>>
+        get() = this.exerciseEventCapabilities.keys
 
     /** Returns the [ExerciseEventCapabilities] for a requested [ExerciseEventType]. */
     public fun <C : ExerciseEventCapabilities> getExerciseEventCapabilityDetails(

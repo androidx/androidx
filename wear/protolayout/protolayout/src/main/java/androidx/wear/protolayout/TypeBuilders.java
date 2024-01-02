@@ -25,8 +25,11 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.expression.DynamicBuilders;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString;
 import androidx.wear.protolayout.expression.Fingerprint;
+import androidx.wear.protolayout.expression.RequiresSchemaVersion;
 import androidx.wear.protolayout.proto.AlignmentProto;
 import androidx.wear.protolayout.proto.TypesProto;
 
@@ -37,9 +40,8 @@ public final class TypeBuilders {
     /**
      * A type for specifying layout constraints when using {@link StringProp} on a data bindable
      * layout element.
-     *
-     * @since 1.2
      */
+    @RequiresSchemaVersion(major = 1, minor = 200)
     public static final class StringLayoutConstraint {
         private final TypesProto.StringProp mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -52,19 +54,13 @@ public final class TypeBuilders {
         /**
          * Gets the text string to use as the pattern for the largest text that can be laid out.
          * Used to ensure that the layout is of a known size during the layout pass.
-         *
-         * @since 1.2
          */
         @NonNull
         public String getPatternForLayout() {
             return mImpl.getValueForLayout();
         }
 
-        /**
-         * Gets angular alignment of the actual content within the space reserved by value.
-         *
-         * @since 1.2
-         */
+        /** Gets angular alignment of the actual content within the space reserved by value. */
         @LayoutElementBuilders.TextAlignment
         public int getAlignment() {
             return mImpl.getTextAlignmentForLayoutValue();
@@ -98,8 +94,8 @@ public final class TypeBuilders {
              * @param patternForLayout Sets the text string to use as the pattern for the largest
              *     text that can be laid out. Used to ensure that the layout is of a known size
              *     during the layout pass.
-             * @since 1.2
              */
+            @RequiresSchemaVersion(major = 1, minor = 200)
             public Builder(@NonNull String patternForLayout) {
                 setValue(patternForLayout);
             }
@@ -107,9 +103,8 @@ public final class TypeBuilders {
             /**
              * Sets the text string to use as the pattern for the largest text that can be laid out.
              * Used to ensure that the layout is of a known size during the layout pass.
-             *
-             * @since 1.2
              */
+            @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             private Builder setValue(@NonNull String patternForLayout) {
                 mImpl.setValueForLayout(patternForLayout);
@@ -120,9 +115,8 @@ public final class TypeBuilders {
             /**
              * Sets alignment of the actual text within the space reserved by patternForLayout. If
              * not specified, defaults to center alignment.
-             *
-             * @since 1.2
              */
+            @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             public Builder setAlignment(@LayoutElementBuilders.TextAlignment int alignment) {
                 mImpl.setTextAlignmentForLayout(AlignmentProto.TextAlignment.forNumber(alignment));
@@ -138,11 +132,8 @@ public final class TypeBuilders {
         }
     }
 
-    /**
-     * An int32 type.
-     *
-     * @since 1.0
-     */
+    /** An int32 type. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class Int32Prop {
         private final TypesProto.Int32Prop mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -152,11 +143,7 @@ public final class TypeBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /**
-         * Gets the static value.
-         *
-         * @since 1.0
-         */
+        /** Gets the static value. */
         public int getValue() {
             return mImpl.getValue();
         }
@@ -199,13 +186,11 @@ public final class TypeBuilders {
             private final TypesProto.Int32Prop.Builder mImpl = TypesProto.Int32Prop.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-1360212989);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
-            /**
-             * Sets the static value.
-             *
-             * @since 1.0
-             */
+            /** Sets the static value. */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setValue(int value) {
                 mImpl.setValue(value);
@@ -221,11 +206,8 @@ public final class TypeBuilders {
         }
     }
 
-    /**
-     * A string type.
-     *
-     * @since 1.0
-     */
+    /** A string type. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class StringProp {
         private final TypesProto.StringProp mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -236,9 +218,9 @@ public final class TypeBuilders {
         }
 
         /**
-         * Gets the static value.
-         *
-         * @since 1.0
+         * Gets the static value. If a dynamic value is also set and the renderer supports dynamic
+         * values for the corresponding field, this static value will be ignored. If the static
+         * value is not specified, {@code null} will be used instead.
          */
         @NonNull
         public String getValue() {
@@ -246,12 +228,12 @@ public final class TypeBuilders {
         }
 
         /**
-         * Gets the dynamic value.
-         *
-         * @since 1.2
+         * Gets the dynamic value. Note that when setting this value, the static value is still
+         * required to be set to support older renderers that only read the static value. If {@code
+         * dynamicValue} has an invalid result, the provided static value will be used instead.
          */
         @Nullable
-        public DynamicBuilders.DynamicString getDynamicValue() {
+        public DynamicString getDynamicValue() {
             if (mImpl.hasDynamicValue()) {
                 return DynamicBuilders.dynamicStringFromProto(mImpl.getDynamicValue());
             } else {
@@ -303,6 +285,14 @@ public final class TypeBuilders {
             private final Fingerprint mFingerprint = new Fingerprint(327834307);
 
             /**
+             * Creates an instance of {@link Builder} from the given static value. {@link
+             * #setDynamicValue(DynamicString)} can be used to provide a dynamic value.
+             */
+            public Builder(@NonNull String staticValue) {
+                setValue(staticValue);
+            }
+
+            /**
              * Creates an instance of {@link Builder}.
              *
              * @deprecated use {@link #Builder(String)}
@@ -311,21 +301,11 @@ public final class TypeBuilders {
             public Builder() {}
 
             /**
-             * Creates an instance of {@link Builder}.
-             *
-             * @param staticValue the static value.
-             */
-            public Builder(@NonNull String staticValue) {
-                setValue(staticValue);
-            }
-
-            /**
              * Sets the static value. If a dynamic value is also set and the renderer supports
              * dynamic values for the corresponding field, this static value will be ignored. If the
              * static value is not specified, {@code null} will be used instead.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setValue(@NonNull String value) {
                 mImpl.setValue(value);
@@ -338,11 +318,10 @@ public final class TypeBuilders {
              * required to be set to support older renderers that only read the static value. If
              * {@code dynamicValue} has an invalid result, the provided static value will be used
              * instead.
-             *
-             * @since 1.2
              */
+            @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
-            public Builder setDynamicValue(@NonNull DynamicBuilders.DynamicString dynamicValue) {
+            public Builder setDynamicValue(@NonNull DynamicString dynamicValue) {
                 mImpl.setDynamicValue(dynamicValue.toDynamicStringProto());
                 mFingerprint.recordPropertyUpdate(
                         2, checkNotNull(dynamicValue.getFingerprint()).aggregateValueAsInt());
@@ -353,9 +332,8 @@ public final class TypeBuilders {
              * Builds an instance from accumulated values.
              *
              * @throws IllegalStateException if a dynamic value is set using {@link
-             *     #setDynamicValue(DynamicBuilders.DynamicString)} but neither {@link
-             *     #Builder(String)} nor {@link #setValue(String)} is used to provide a static
-             *     value.
+             *     #setDynamicValue(DynamicString)} but neither {@link #Builder(String)} nor {@link
+             *     #setValue(String)} is used to provide a static value.
              */
             @NonNull
             public StringProp build() {
@@ -367,11 +345,8 @@ public final class TypeBuilders {
         }
     }
 
-    /**
-     * A float type.
-     *
-     * @since 1.0
-     */
+    /** A float type. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class FloatProp {
         private final TypesProto.FloatProp mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -382,18 +357,18 @@ public final class TypeBuilders {
         }
 
         /**
-         * Gets the value.
-         *
-         * @since 1.0
+         * Gets the static value. If a dynamic value is also set and the renderer supports dynamic
+         * values for the corresponding field, this static value will be ignored. If the static
+         * value is not specified, zero will be used instead.
          */
         public float getValue() {
             return mImpl.getValue();
         }
 
         /**
-         * Gets the dynamic value.
-         *
-         * @since 1.2
+         * Gets the dynamic value. Note that when setting this value, the static value is still
+         * required to be set to support older renderers that only read the static value. If {@code
+         * dynamicValue} has an invalid result, the provided static value will be used instead.
          */
         @Nullable
         public DynamicFloat getDynamicValue() {
@@ -448,6 +423,14 @@ public final class TypeBuilders {
             private final Fingerprint mFingerprint = new Fingerprint(-641088370);
 
             /**
+             * Creates an instance of {@link Builder} from the given static value. {@link
+             * #setDynamicValue(DynamicFloat)} can be used to provide a dynamic value.
+             */
+            public Builder(float staticValue) {
+                setValue(staticValue);
+            }
+
+            /**
              * Creates an instance of {@link Builder}.
              *
              * @deprecated use {@link #Builder(float)}
@@ -456,21 +439,11 @@ public final class TypeBuilders {
             public Builder() {}
 
             /**
-             * Creates an instance of {@link Builder}.
-             *
-             * @param staticValue the static value.
-             */
-            public Builder(float staticValue) {
-                setValue(staticValue);
-            }
-
-            /**
              * Sets the static value. If a dynamic value is also set and the renderer supports
              * dynamic values for the corresponding field, this static value will be ignored. If the
              * static value is not specified, zero will be used instead.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setValue(float value) {
                 mImpl.setValue(value);
@@ -483,9 +456,8 @@ public final class TypeBuilders {
              * required to be set (with either {@link #Builder(float)} or {@link #setValue(float)})
              * to support older renderers that only read the static value. If {@code dynamicValue }
              * has an invalid result, the provided static value will be used instead.
-             *
-             * @since 1.2
              */
+            @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             public Builder setDynamicValue(@NonNull DynamicFloat dynamicValue) {
                 mImpl.setDynamicValue(dynamicValue.toDynamicFloatProto());
@@ -511,11 +483,8 @@ public final class TypeBuilders {
         }
     }
 
-    /**
-     * A boolean type.
-     *
-     * @since 1.0
-     */
+    /** A boolean type. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class BoolProp {
         private final TypesProto.BoolProp mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -526,12 +495,26 @@ public final class TypeBuilders {
         }
 
         /**
-         * Gets the static value.
-         *
-         * @since 1.0
+         * Gets the static value. If a dynamic value is also set and the renderer supports dynamic
+         * values for the corresponding field, this static value will be ignored. If the static
+         * value is not specified, false will be used instead.
          */
         public boolean getValue() {
             return mImpl.getValue();
+        }
+
+        /**
+         * Gets the dynamic value. Note that when setting this value, the static value is still
+         * required to be set to support older renderers that only read the static value. If {@code
+         * dynamicValue} has an invalid result, the provided static value will be used instead.
+         */
+        @Nullable
+        public DynamicBool getDynamicValue() {
+            if (mImpl.hasDynamicValue()) {
+                return DynamicBuilders.dynamicBoolFromProto(mImpl.getDynamicValue());
+            } else {
+                return null;
+            }
         }
 
         /** Get the fingerprint for this object, or null if unknown. */
@@ -564,7 +547,12 @@ public final class TypeBuilders {
         @Override
         @NonNull
         public String toString() {
-            return "BoolProp{" + "value=" + getValue() + "}";
+            return "BoolProp{"
+                    + "value="
+                    + getValue()
+                    + ", dynamicValue="
+                    + getDynamicValue()
+                    + "}";
         }
 
         /** Builder for {@link BoolProp} */
@@ -572,13 +560,28 @@ public final class TypeBuilders {
             private final TypesProto.BoolProp.Builder mImpl = TypesProto.BoolProp.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(1691257528);
 
+            /**
+             * Creates an instance of {@link Builder} from the given static value. {@link
+             * #setDynamicValue(DynamicBool)} can be used to provide a dynamic value.
+             */
+            public Builder(boolean staticValue) {
+                setValue(staticValue);
+            }
+
+            /**
+             * Creates an instance of {@link Builder}.
+             *
+             * @deprecated use {@link #Builder(boolean)}
+             */
+            @Deprecated
             public Builder() {}
 
             /**
-             * Sets the static value.
-             *
-             * @since 1.0
+             * Sets the static value. If a dynamic value is also set and the renderer supports
+             * dynamic values for the corresponding field, this static value will be ignored. If the
+             * static value is not specified, false will be used instead.
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setValue(boolean value) {
@@ -587,9 +590,33 @@ public final class TypeBuilders {
                 return this;
             }
 
-            /** Builds an instance from accumulated values. */
+            /**
+             * Sets the dynamic value. Note that when setting this value, the static value is still
+             * required to be set to support older renderers that only read the static value. If
+             * {@code dynamicValue} has an invalid result, the provided static value will be used
+             * instead.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 200)
+            @NonNull
+            public Builder setDynamicValue(@NonNull DynamicBool dynamicValue) {
+                mImpl.setDynamicValue(dynamicValue.toDynamicBoolProto());
+                mFingerprint.recordPropertyUpdate(
+                        2, checkNotNull(dynamicValue.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Builds an instance from accumulated values.
+             *
+             * @throws IllegalStateException if a dynamic value is set using {@link
+             *     #setDynamicValue(DynamicBool)} but neither {@link #Builder(boolean)} nor {@link
+             *     #setValue(boolean)} is used to provide a static value.
+             */
             @NonNull
             public BoolProp build() {
+                if (mImpl.hasDynamicValue() && !mImpl.hasValue()) {
+                    throw new IllegalStateException("Static value is missing.");
+                }
                 return new BoolProp(mImpl.build(), mFingerprint);
             }
         }

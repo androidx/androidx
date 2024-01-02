@@ -174,7 +174,6 @@ class PrepareGetCredentialResponse private constructor(
         /**
          * Builds a [PrepareGetCredentialResponse].
          */
-        @SuppressLint("SyntheticAccessor")
         fun build(): androidx.credentials.PrepareGetCredentialResponse {
             return androidx.credentials.PrepareGetCredentialResponse(
                 pendingGetCredentialHandle,
@@ -217,7 +216,6 @@ class PrepareGetCredentialResponse private constructor(
         /**
          * Builds a [PrepareGetCredentialResponse].
          */
-        @SuppressLint("SyntheticAccessor")
         fun build(): androidx.credentials.PrepareGetCredentialResponse {
             return androidx.credentials.PrepareGetCredentialResponse(
                 null,

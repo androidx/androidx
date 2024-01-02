@@ -571,23 +571,6 @@ class ToggleButtonTest {
     }
 
     @Test
-    fun toggle_button_has_role_checkbox() {
-        rule.setContent {
-            ToggleButtonWithDefaults(
-                modifier = Modifier.testTag(TEST_TAG)
-            )
-        }
-
-        rule.onNodeWithTag(TEST_TAG)
-            .assert(
-                SemanticsMatcher.expectValue(
-                    SemanticsProperties.Role,
-                    Role.Checkbox
-                )
-            )
-    }
-
-    @Test
     fun toggle_button_displays_label_content() {
         val textContent = "abc"
 
@@ -807,7 +790,7 @@ class ToggleButtonTest {
     }
 
     @Test
-    fun split_button_has_roles_button_and_checkbox() {
+    fun split_button_clickable_has_role_button() {
         rule.setContent {
             SplitToggleButtonWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG)
@@ -819,14 +802,6 @@ class ToggleButtonTest {
                 SemanticsMatcher.expectValue(
                     SemanticsProperties.Role,
                     Role.Button
-                )
-            )
-
-        rule.onNodeWithTag(TEST_TAG).onChildAt(1)
-            .assert(
-                SemanticsMatcher.expectValue(
-                    SemanticsProperties.Role,
-                    Role.Checkbox
                 )
             )
     }
@@ -1047,6 +1022,7 @@ private fun RoundToggleButtonWithDefaults(
         toggleButtonSize = toggleButtonSize,
         interactionSource = interactionSource,
         shape = shape,
+        ripple = EmptyIndication,
         content = content
     )
 }
@@ -1082,7 +1058,7 @@ private fun ToggleButtonWithDefaults(
     checked = checked,
     onCheckedChange = onCheckedChange,
     label = label,
-    selectionControl = selectionControl,
+    toggleControl = selectionControl,
     modifier = modifier,
     icon = icon,
     secondaryLabel = secondaryLabel,
@@ -1091,8 +1067,9 @@ private fun ToggleButtonWithDefaults(
     interactionSource = interactionSource,
     contentPadding = contentPadding,
     shape = shape,
-    selectionControlWidth = selectionControlWidth,
-    selectionControlHeight = selectionControlHeight
+    toggleControlWidth = selectionControlWidth,
+    toggleControlHeight = selectionControlHeight,
+    ripple = EmptyIndication,
 )
 
 @Composable
@@ -1130,7 +1107,7 @@ private fun SplitToggleButtonWithDefaults(
     onCheckedChange = onCheckedChange,
     label = label,
     onClick = onClick,
-    selectionControl = selectionControl,
+    toggleControl = selectionControl,
     modifier = modifier,
     secondaryLabel = secondaryLabel,
     backgroundColor = backgroundColor,
@@ -1139,7 +1116,8 @@ private fun SplitToggleButtonWithDefaults(
     checkedInteractionSource = checkedInteractionSource,
     clickInteractionSource = clickInteractionSource,
     contentPadding = contentPadding,
-    shape = shape
+    shape = shape,
+    ripple = EmptyIndication,
 )
 
 private val CHIP_HORIZONTAL_PADDING = 14.dp

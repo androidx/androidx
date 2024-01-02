@@ -18,7 +18,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="abc_slice_more_content" msgid="7841223363798860154">"他 <xliff:g id="NUMBER">%1$d</xliff:g> 件"</string>
-    <string name="abc_slice_more" msgid="4299234410808450900">"その他"</string>
+    <string name="abc_slice_more" msgid="4299234410808450900">"続きを見る"</string>
     <string name="abc_slice_show_more" msgid="1112789899890391107">"もっと見る"</string>
     <string name="abc_slice_updated" msgid="7932359091871934205">"<xliff:g id="TIME">%1$s</xliff:g>に更新"</string>
     <plurals name="abc_slice_duration_min" formatted="false" msgid="7664017844210142826">

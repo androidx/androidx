@@ -22,14 +22,12 @@ import android.os.Bundle
 import androidx.annotation.RestrictTo
 import androidx.glance.ExperimentalGlanceApi
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface StartActivityAction : Action {
     val parameters: ActionParameters
     val activityOptions: Bundle?
 }
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class StartActivityComponentAction(
     val componentName: ComponentName,
@@ -37,7 +35,6 @@ class StartActivityComponentAction(
     override val activityOptions: Bundle?,
 ) : StartActivityAction
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class StartActivityClassAction(
     val activityClass: Class<out Activity>,

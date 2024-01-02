@@ -31,6 +31,11 @@ interface XTypeElement : XHasModifiers, XParameterizable, XElement, XMemberConta
     val packageName: String
 
     /**
+     * The package that contains this element.
+     */
+    val packageElement: XPackageElement
+
+    /**
      * The type represented by this [XTypeElement].
      */
     override val type: XType
@@ -137,6 +142,11 @@ interface XTypeElement : XHasModifiers, XParameterizable, XElement, XMemberConta
      * Returns `true` if this [XTypeElement] is declared as a Kotlin `companion object`
      */
     fun isCompanionObject(): Boolean
+
+    /**
+     * Returns `true` if this [XTypeElement] is a Java record class (i.e. [java.lang.Record]).
+     */
+    fun isRecordClass(): Boolean
 
     /**
      * Fields declared in this type

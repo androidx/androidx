@@ -63,6 +63,7 @@ import kotlin.math.roundToInt
  * that defaults to [contentColor], unless specifically overridden.
  * @param content Content body for the Stepper.
  */
+@ExperimentalWearMaterial3Api
 @Composable
 fun Stepper(
     value: Float,
@@ -88,12 +89,11 @@ fun Stepper(
         backgroundColor = backgroundColor,
         enabledButtonProviderValues = arrayOf(
             LocalContentColor provides iconColor,
-            LocalContentAlpha provides iconColor.alpha
         ),
         disabledButtonProviderValues = arrayOf(
-            LocalContentColor provides iconColor.copy(alpha = ContentAlpha.disabled),
-            LocalContentAlpha provides iconColor.copy(alpha = ContentAlpha.disabled).alpha
-        )
+            LocalContentColor provides iconColor.copy(alpha = DisabledContentAlpha),
+        ),
+        buttonRipple = rippleOrFallbackImplementation(bounded = false)
     ) {
         CompositionLocalProvider(
             LocalContentColor provides contentColor
@@ -143,6 +143,7 @@ fun Stepper(
  * that defaults to [contentColor], unless specifically overridden.
  * @param content Content body for the Stepper.
  */
+@ExperimentalWearMaterial3Api
 @Composable
 fun Stepper(
     value: Int,
@@ -174,14 +175,15 @@ fun Stepper(
 /**
  * Defaults used by stepper.
  */
-public object StepperDefaults {
+@ExperimentalWearMaterial3Api
+object StepperDefaults {
     /**
      * Decrease [ImageVector].
      */
-    public val Decrease = androidx.wear.compose.materialcore.RangeIcons.Minus
+    val Decrease = androidx.wear.compose.materialcore.RangeIcons.Minus
 
     /**
      * Increase [ImageVector].
      */
-    public val Increase = Icons.Filled.Add
+    val Increase = Icons.Filled.Add
 }

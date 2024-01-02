@@ -16,8 +16,8 @@
 
 package androidx.build
 
-import androidx.build.buildInfo.CreateLibraryBuildInfoFileTask.Companion.getFrameworksSupportCommitShaAtHead
 import androidx.build.checkapi.shouldConfigureApiTasks
+import androidx.build.gitclient.getHeadShaProvider
 import androidx.build.transform.configureAarAsJarForConfiguration
 import groovy.lang.Closure
 import java.io.File
@@ -75,6 +75,8 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
         libraryGroupsByGroupId = versionService.libraryGroupsByGroupId
         overrideLibraryGroupsByProjectPath = versionService.overrideLibraryGroupsByProjectPath
 
+        // Always set a known default based on project path. see: b/302183954
+        setDefaultGroupFromProjectPath()
         mavenGroup = chooseLibraryGroup()
         chooseProjectVersion()
 
@@ -89,6 +91,7 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
             }
 
         kotlinTarget.set(KotlinTarget.DEFAULT)
+        kotlinTestTarget.set(kotlinTarget)
     }
 
     var name: Property<String?> = project.objects.property(String::class.java)
@@ -196,6 +199,21 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
             "Library group (in libraryversions.toml) having group=\"$groupIdText\" is $result"
         )
         return result
+    }
+
+    /**
+     * Sets a group for the project based on its path.
+     * This ensures we always use a known value for the project group instead of what Gradle assigns
+     * by default. Furthermore, it also helps make them consistent between the main build and
+     * the playground builds.
+     */
+    private fun setDefaultGroupFromProjectPath() {
+        project.group = project.path
+            .split(":")
+            .filter {
+                it.isNotEmpty()
+            }.dropLast(1)
+            .joinToString(separator = ".", prefix = "androidx.")
     }
 
     private fun chooseProjectVersion() {
@@ -367,6 +385,8 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
 
     val additionalDeviceTestTags: MutableList<String> by lazy {
         when {
+            project.path.startsWith(":privacysandbox:ads:") ->
+                mutableListOf("privacysandbox", "privacysandbox_ads")
             project.path.startsWith(":privacysandbox:") -> mutableListOf("privacysandbox")
             project.path.startsWith(":wear:") -> mutableListOf("wear")
             else -> mutableListOf()
@@ -391,9 +411,7 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
         configureAarAsJarForConfiguration(project, name)
     }
 
-    fun getReferenceSha(): Provider<String> {
-        return project.providers.provider { project.getFrameworksSupportCommitShaAtHead() }
-    }
+    fun getReferenceSha(): Provider<String> = getHeadShaProvider(project)
 
     /**
      * Specify the version for Kotlin API compatibility mode used during Kotlin compilation.
@@ -411,8 +429,20 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
         get() = kotlinTarget.map { project.getVersionByName(it.catalogVersion) }
 
     /**
-     * Whether to validate the androidx configuration block using validateProjectParser. This
-     * should always be set to true unless we are temporarily working around a bug.
+     * Specify the version for Kotlin API compatibility mode used during Kotlin compilation of
+     * tests.
+     */
+    abstract val kotlinTestTarget: Property<KotlinTarget>
+
+    override val kotlinTestApiVersion: Provider<KotlinVersion>
+        get() = kotlinTestTarget.map { it.apiVersion }
+
+    override val kotlinTestBomVersion: Provider<String>
+        get() = kotlinTestTarget.map { project.getVersionByName(it.catalogVersion) }
+
+    /**
+     * Whether to validate the androidx configuration block using validateProjectParser. This should
+     * always be set to true unless we are temporarily working around a bug.
      */
     var runProjectParser: Boolean = true
 
@@ -440,4 +470,10 @@ abstract class DeviceTests {
     var enabled = true
     var targetAppProject: Project? = null
     var targetAppVariant = "debug"
+
+    /**
+     * Whether to extract and include APKs from PrivacySandbox SDKs dependencies.
+     * TODO (b/309610890): Replace for dependency on AGP artifact.
+     */
+    var includePrivacySandboxSdks = false
 }

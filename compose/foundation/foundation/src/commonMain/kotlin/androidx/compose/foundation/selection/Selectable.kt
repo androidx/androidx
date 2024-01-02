@@ -17,6 +17,7 @@
 package androidx.compose.foundation.selection
 
 import androidx.compose.foundation.Indication
+import androidx.compose.foundation.IndicationNodeFactory
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -39,9 +40,13 @@ import androidx.compose.ui.semantics.semantics
  * If you want to make an item support on/off capabilities without being part of a set, consider
  * using [Modifier.toggleable]
  *
- * This version has no [MutableInteractionSource] or [Indication] parameters, default
- * indication from [LocalIndication] will be used. To specify [MutableInteractionSource] or
- * [Indication], use another overload.
+ * This version has no [MutableInteractionSource] or [Indication] parameters, the default indication
+ * from [LocalIndication] will be used. To specify [MutableInteractionSource] or [Indication], use
+ * the other overload.
+ *
+ * If you are only creating this selectable modifier inside composition, consider using the other
+ * overload and explicitly passing `LocalIndication.current` for improved performance. For more
+ * information see the documentation on the other overload.
  *
  * @sample androidx.compose.foundation.samples.SelectableSample
  *
@@ -66,12 +71,21 @@ fun Modifier.selectable(
         properties["onClick"] = onClick
     }
 ) {
+    val localIndication = LocalIndication.current
+    val interactionSource = if (localIndication is IndicationNodeFactory) {
+        // We can fast path here as it will be created inside clickable lazily
+        null
+    } else {
+        // We need an interaction source to pass between the indication modifier and clickable, so
+        // by creating here we avoid another composed down the line
+        remember { MutableInteractionSource() }
+    }
     Modifier.selectable(
         selected = selected,
+        interactionSource = interactionSource,
+        indication = localIndication,
         enabled = enabled,
         role = role,
-        interactionSource = remember { MutableInteractionSource() },
-        indication = LocalIndication.current,
         onClick = onClick
     )
 }
@@ -86,14 +100,26 @@ fun Modifier.selectable(
  * If you want to make an item support on/off capabilities without being part of a set, consider
  * using [Modifier.toggleable]
  *
- * This version requires both [MutableInteractionSource] and [Indication] to work properly. Use another
- * overload if you don't need these parameters.
+ * If [interactionSource] is `null`, and [indication] is an [IndicationNodeFactory], an
+ * internal [MutableInteractionSource] will be lazily created along with the [indication] only when
+ * needed. This reduces the performance cost of selectable during composition, as creating the
+ * [indication] can be delayed until there is an incoming
+ * [androidx.compose.foundation.interaction.Interaction]. If you are only passing a remembered
+ * [MutableInteractionSource] and you are never using it outside of selectable, it is recommended to
+ * instead provide `null` to enable lazy creation. If you need [indication] to be created eagerly,
+ * provide a remembered [MutableInteractionSource].
+ *
+ * If [indication] is _not_ an [IndicationNodeFactory], and instead implements the deprecated
+ * [Indication.rememberUpdatedInstance] method, you should explicitly pass a remembered
+ * [MutableInteractionSource] as a parameter for [interactionSource] instead of `null`, as this
+ * cannot be lazily created inside selectable.
  *
  * @sample androidx.compose.foundation.samples.SelectableSample
  *
  * @param selected whether or not this item is selected in a mutually exclusion set
- * @param interactionSource [MutableInteractionSource] that will be used to emit
- * press events when this selectable is being pressed.
+ * @param interactionSource [MutableInteractionSource] that will be used to dispatch
+ * PressInteraction.Press when this selectable is pressed. If `null`, an internal
+ * [MutableInteractionSource] will be created if needed.
  * @param indication indication to be shown when the modified element is pressed. By default,
  * the indication from [LocalIndication] will be used. Set to `null` to show no indication, or
  * current value from [LocalIndication] to show theme default
@@ -105,7 +131,7 @@ fun Modifier.selectable(
  */
 fun Modifier.selectable(
     selected: Boolean,
-    interactionSource: MutableInteractionSource,
+    interactionSource: MutableInteractionSource?,
     indication: Indication?,
     enabled: Boolean = true,
     role: Role? = null,
@@ -122,10 +148,10 @@ fun Modifier.selectable(
     },
     factory = {
         Modifier.clickable(
-            enabled = enabled,
-            role = role,
             interactionSource = interactionSource,
             indication = indication,
+            enabled = enabled,
+            role = role,
             onClick = onClick
         ).semantics {
             this.selected = selected

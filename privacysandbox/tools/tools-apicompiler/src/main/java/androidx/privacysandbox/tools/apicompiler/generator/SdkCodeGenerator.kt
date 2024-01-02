@@ -90,7 +90,11 @@ internal class SdkCodeGenerator(
                         source.interfaceName,
                         extensionName = "java"
                     )
-                    source.file.inputStream().copyTo(kspGeneratedFile)
+                    kspGeneratedFile.use { outputStream ->
+                        source.file.inputStream().use { inputStream ->
+                            inputStream.copyTo(outputStream)
+                        }
+                    }
                 }
         } finally {
             workingDir.toFile().deleteRecursively()

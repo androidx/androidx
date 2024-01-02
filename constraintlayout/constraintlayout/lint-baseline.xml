@@ -1,41 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0)" variant="all" version="8.1.0">
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `android.view.ViewGroup.MarginLayoutParams#setMarginStart`"
-        errorLine1="                mParams.setMarginStart(mParams.UNSET);"
-        errorLine2="                        ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `android.view.ViewGroup.MarginLayoutParams#setMarginEnd`"
-        errorLine1="                mParams.setMarginEnd(mParams.UNSET);"
-        errorLine2="                        ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `android.view.ViewGroup.MarginLayoutParams#setMarginStart`"
-        errorLine1="                mParams.setMarginStart(value);"
-        errorLine2="                        ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `android.view.ViewGroup.MarginLayoutParams#setMarginEnd`"
-        errorLine1="                mParams.setMarginEnd(value);"
-        errorLine2="                        ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
-    </issue>
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
         id="BanTargetApiAnnotation"
@@ -327,96 +291,6 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintLayout is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            int paddingStart = Math.max(0, getPaddingStart());"
-        errorLine2="                                           ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintLayout is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            int paddingEnd = Math.max(0, getPaddingEnd());"
-        errorLine2="                                         ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintLayout is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return isRtlSupported &amp;&amp; (View.LAYOUT_DIRECTION_RTL == getLayoutDirection());"
-        errorLine2="                                                                   ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintLayout is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            rtlPadding = Math.max(0, getPaddingStart()) + Math.max(0, getPaddingEnd());"
-        errorLine2="                                     ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintLayout is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            rtlPadding = Math.max(0, getPaddingStart()) + Math.max(0, getPaddingEnd());"
-        errorLine2="                                                                      ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintLayout.LayoutParams is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                isRtl = (View.LAYOUT_DIRECTION_RTL == getLayoutDirection());"
-        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintProperties is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mParams.setMarginStart(mParams.UNSET);"
-        errorLine2="                        ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintProperties is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mParams.setMarginEnd(mParams.UNSET);"
-        errorLine2="                        ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintProperties is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mParams.setMarginStart(value);"
-        errorLine2="                        ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintProperties is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mParams.setMarginEnd(value);"
-        errorLine2="                        ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 21; however, the containing class androidx.constraintlayout.widget.ConstraintProperties is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mView.setElevation(elevation);"
         errorLine2="                  ~~~~~~~~~~~~">
@@ -435,24 +309,6 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintProperties is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    mParams.setMarginStart(margin);"
-        errorLine2="                            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintProperties is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    mParams.setMarginEnd(margin);"
-        errorLine2="                            ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 21; however, the containing class androidx.constraintlayout.widget.ConstraintSet is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        constraint.transform.translationZ = view.getTranslationZ();"
         errorLine2="                                                                 ~~~~~~~~~~~~~~~">
@@ -465,42 +321,6 @@
         message="This call references a method added in API level 21; however, the containing class androidx.constraintlayout.widget.ConstraintSet is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                            constraint.transform.elevation = view.getElevation();"
         errorLine2="                                                                  ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintSet.Constraint is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                layout.endMargin = param.getMarginEnd();"
-        errorLine2="                                         ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintSet.Constraint is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                layout.startMargin = param.getMarginStart();"
-        errorLine2="                                           ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintSet.Constraint is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                param.setMarginStart(layout.startMargin);"
-        errorLine2="                      ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintSet.Constraint is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                param.setMarginEnd(layout.endMargin);"
-        errorLine2="                      ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
     </issue>
@@ -539,15 +359,6 @@
         errorLine2="                                 ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.helper.widget.Grid is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            v.setId(View.generateViewId());"
-        errorLine2="                         ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/helper/widget/Grid.java"/>
     </issue>
 
     <issue
@@ -957,33 +768,6 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.motion.widget.MotionLayout is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                            Display display = getDisplay();"
-        errorLine2="                                              ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.motion.widget.MotionLayout is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        int currentRotation = getDisplay().getRotation();"
-        errorLine2="                              ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.motion.widget.MotionLayout.Model is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    layoutParams.resolveLayoutDirection(getLayoutDirection());"
-        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 21; however, the containing class androidx.constraintlayout.motion.widget.MotionLayout is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    target.setNestedScrollingEnabled(false);"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -996,15 +780,6 @@
         message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                            target.setNestedScrollingEnabled(true);"
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.motion.widget.MotionLayout is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            Display display = getDisplay();"
-        errorLine2="                              ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
     </issue>
@@ -1115,6 +890,285 @@
         errorLine2="             ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/motion/widget/TransitionBuilder.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is never &lt; 19"
+        errorLine1="        if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/widget/Barrier.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 17"
+        errorLine1="    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/helper/widget/Carousel.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is never &lt; 19"
+        errorLine1="            if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is never &lt; 19"
+        errorLine1="            if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 17"
+        errorLine1="        @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                        if (Build.VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                        if (Build.VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                    if (Build.VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                    if (Build.VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                    if (Build.VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                    if (Build.VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/helper/widget/Flow.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/helper/widget/Flow.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/helper/widget/Grid.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is never &lt; 19"
+        errorLine1="                if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.KITKAT || isAttachedToWindow()) {"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 17"
+        errorLine1="    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
     </issue>
 
     <issue

@@ -22,8 +22,11 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.annotation.VisibleForTesting
+import androidx.benchmark.Arguments
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.Outputs
+import androidx.benchmark.Outputs.dateToFileName
 import androidx.benchmark.Shell
 import androidx.benchmark.macro.MacrobenchmarkScope.Companion.Api24ContextHelper.createDeviceProtectedStorageContextCompat
 import androidx.benchmark.macro.perfetto.forceTrace
@@ -60,6 +63,26 @@ public class MacrobenchmarkScope(
      * via `Arguments.methodTracingOptions`.
      */
     internal var launchWithMethodTracing: Boolean = false
+
+    /**
+     * Only use this for testing. This forces `--start-profiler` without the check for process
+     * live ness.
+     */
+    @VisibleForTesting
+    internal var methodTracingForTests: Boolean = false
+
+    /**
+     * This is `true` iff method tracing is currently active.
+     */
+    internal var isMethodTracing: Boolean = false
+
+    /**
+     * When `true`, the app will be forced to flush its ART profiles
+     * to disk before being killed. This allows them to be later collected e.g.
+     * by a `BaselineProfile` capture, or immediate compilation by `CompilationMode.Partial`
+     * with warmupIterations.
+     */
+    internal var flushArtProfiles: Boolean = false
 
     /**
      * Current Macrobenchmark measurement iteration, or null if measurement is not yet enabled.
@@ -133,9 +156,16 @@ public class MacrobenchmarkScope(
             getFrameStats().map { it.uniqueName }
         }
         val preLaunchTimestampNs = System.nanoTime()
-        val profileArgs = if (launchWithMethodTracing) {
-            val tracePath = methodTracePath(packageName, iteration ?: 0)
-            "--start-profiler \"$tracePath\""
+        // Only use --start-profiler is the package is not alive. Otherwise re-use the existing
+        // profiling session.
+        val profileArgs =
+            if (launchWithMethodTracing && (methodTracingForTests || !Shell.isPackageAlive(
+                    packageName
+                ))
+            ) {
+            isMethodTracing = true
+            val tracePath = methodTraceRecordPath(packageName)
+            "--start-profiler \"$tracePath\" --streaming"
         } else {
             ""
         }
@@ -236,13 +266,24 @@ public class MacrobenchmarkScope(
      *
      *@param useKillAll should be set to `true` for System apps or pre-installed apps.
      */
-    @JvmOverloads
+    @Deprecated(
+        "Use the parameter-less killProcess() API instead",
+        replaceWith = ReplaceWith("killProcess()")
+    )
+    @Suppress("UNUSED_PARAMETER")
     public fun killProcess(useKillAll: Boolean = false) {
-        Log.d(TAG, "Killing process $packageName")
-        if (useKillAll) {
-            device.executeShellCommand("killall $packageName")
+        killProcess()
+    }
+
+    /**
+     * Force-stop the process being measured.
+     */
+    public fun killProcess() {
+        if (flushArtProfiles && Build.VERSION.SDK_INT >= 24) {
+            // Flushing ART profiles will also kill the process at the end.
+            killProcessAndFlushArtProfiles()
         } else {
-            device.executeShellCommand("am force-stop $packageName")
+            killProcessImpl()
         }
     }
 
@@ -290,14 +331,13 @@ public class MacrobenchmarkScope(
      *
      * @return a [Pair] representing the label, and the absolute path of the method trace.
      */
-    @SuppressLint("BanThreadSleep") // Need to sleep to wait for the traces to be flushed.
-    internal fun stopMethodTracing(): Pair<String, String> {
+    internal fun stopMethodTracing(uniqueLabel: String): Pair<String, String> {
         Shell.executeScriptSilent("am profile stop $packageName")
         // Wait for the profiles to get dumped :(
         // ART Method tracing has a buffer size of 8M, so 1 second should be enough
         // to dump the contents of the buffer.
-        val currentIteration = iteration ?: 0
-        val tracePath = methodTracePath(packageName, currentIteration)
+
+        val tracePath = methodTraceRecordPath(packageName)
         // Using 50 ms as a poll duration for a max of 20 iterations. This is because
         // we don't want to wait for longer than 1s. Also, anecdotally when polling from the
         // shell I found a stable iteration count of 3 to be sufficient.
@@ -307,19 +347,23 @@ public class MacrobenchmarkScope(
             stableIterations = 3,
             pollDurationMs = 50L
         )
-        val fileName = methodTraceName(packageName, currentIteration)
+        // unique label so source is clear, dateToFileName so each run of test is unique on host
+        val outputFileName = "$uniqueLabel-methodTracing-${dateToFileName()}.trace"
         val stagingFile = File.createTempFile("methodTrace", null, Outputs.dirUsableByAppAndShell)
         // Staging location before we write it again using Outputs.writeFile(...)
+        // NOTE: staging copy may be unnecessary if we just use a single `cp`
         Shell.executeScriptSilent("cp '$tracePath' '$stagingFile'")
-        // Report(
-        val outputPath = Outputs.writeFile(fileName, fileName) {
+
+        // Report file
+        val outputPath = Outputs.writeFile(outputFileName) {
             Log.d(TAG, "Writing method traces to ${it.absolutePath}")
             stagingFile.copyTo(it, overwrite = true)
+
             // Cleanup
             stagingFile.delete()
             Shell.executeScriptSilent("rm \"$tracePath\"")
         }
-        return fileName to outputPath
+        return "MethodTrace iteration ${this.iteration ?: 0}" to outputPath
     }
 
     /**
@@ -349,6 +393,53 @@ public class MacrobenchmarkScope(
         throw IllegalStateException(
             "Unable to drop caches: Did not observe perf.drop_caches reset automatically"
         )
+    }
+
+    @RequiresApi(24)
+    internal fun killProcessAndFlushArtProfiles() {
+        Log.d(TAG, "Flushing ART profiles for $packageName")
+        // For speed profile compilation, ART team recommended to wait for 5 secs when app
+        // is in the foreground, dump the profile, wait for an additional second before
+        // speed-profile compilation.
+        @Suppress("BanThreadSleep")
+        Thread.sleep(5000)
+        val saveResult = ProfileInstallBroadcast.saveProfile(packageName)
+        if (saveResult == null) {
+            killProcessImpl()
+        } else {
+            if (Shell.isSessionRooted()) {
+                // fallback on `killall -s SIGUSR1`, if available with root
+                Log.d(
+                    TAG,
+                    "Unable to saveProfile with profileinstaller ($saveResult), trying kill"
+                )
+                val response = Shell.executeScriptCaptureStdoutStderr(
+                    "killall -s SIGUSR1 $packageName"
+                )
+                check(response.isBlank()) {
+                    "Failed to dump profile for $packageName ($response),\n" +
+                        " and failed to save profile with broadcast: $saveResult"
+                }
+            } else {
+                throw RuntimeException(saveResult)
+            }
+        }
+    }
+
+    /**
+     * Force-stop the process being measured.
+     */
+    private fun killProcessImpl() {
+        val useKillAll = Shell.isSessionRooted()
+        Log.d(TAG, "Killing process $packageName")
+        if (useKillAll) {
+            device.executeShellCommand("killall $packageName")
+        } else {
+            device.executeShellCommand("am force-stop $packageName")
+        }
+        // System Apps need an additional Thread.sleep() to ensure that the process is killed.
+        @Suppress("BanThreadSleep")
+        Thread.sleep(Arguments.killProcessDelayMillis)
     }
 
     /**
@@ -396,12 +487,11 @@ public class MacrobenchmarkScope(
             return shaderDirectory.absolutePath.replace(context.packageName, packageName)
         }
 
-        fun methodTracePath(packageName: String, iteration: Int): String {
-            return "/data/local/tmp/${methodTraceName(packageName, iteration)}"
-        }
-
-        fun methodTraceName(packageName: String, iteration: Int): String {
-            return "$packageName-$iteration-method.trace"
+        /**
+         * Path for method trace during record, before fully flushed/stopped, move to outputs
+         */
+        fun methodTraceRecordPath(packageName: String): String {
+            return "/data/local/tmp/$packageName-method.trace"
         }
 
         @RequiresApi(Build.VERSION_CODES.N)

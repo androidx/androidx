@@ -46,9 +46,11 @@ import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.RequestMetadata
+import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.core.Log.info
+import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.pipe.integration.compat.workaround.UseTorchAsFlash
 import androidx.camera.camera2.pipe.integration.compat.workaround.isFlashAvailable
 import androidx.camera.camera2.pipe.integration.compat.workaround.shouldStopRepeatingBeforeCapture
@@ -65,6 +67,8 @@ import androidx.camera.core.ImageCapture.FlashMode
 import androidx.camera.core.ImageCapture.FlashType
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.TorchState
+import androidx.camera.core.impl.CaptureConfig
+import androidx.camera.core.impl.Config
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
@@ -81,7 +85,9 @@ interface CapturePipeline {
     var template: Int
 
     suspend fun submitStillCaptures(
-        requests: List<Request>,
+        configs: List<CaptureConfig>,
+        requestTemplate: RequestTemplate,
+        sessionConfigOptions: Config,
         captureMode: Int,
         flashType: Int,
         flashMode: Int,
@@ -93,6 +99,7 @@ interface CapturePipeline {
  */
 @UseCaseCameraScope
 class CapturePipelineImpl @Inject constructor(
+    private val configAdapter: CaptureConfigAdapter,
     private val torchControl: TorchControl,
     private val threads: UseCaseThreads,
     private val requestListener: ComboRequestListener,
@@ -109,31 +116,43 @@ class CapturePipelineImpl @Inject constructor(
     override var template = CameraDevice.TEMPLATE_PREVIEW
 
     override suspend fun submitStillCaptures(
-        requests: List<Request>,
+        configs: List<CaptureConfig>,
+        requestTemplate: RequestTemplate,
+        sessionConfigOptions: Config,
         captureMode: Int,
         flashType: Int,
         flashMode: Int,
     ): List<Deferred<Void?>> = if (isTorchAsFlash(flashType)) {
-        torchAsFlashCapture(requests, captureMode, flashMode)
+        torchAsFlashCapture(configs, requestTemplate, sessionConfigOptions, captureMode, flashMode)
     } else {
-        defaultCapture(requests, captureMode, flashMode)
+        defaultCapture(configs, requestTemplate, sessionConfigOptions, captureMode, flashMode)
     }
 
     private suspend fun torchAsFlashCapture(
-        requests: List<Request>,
+        configs: List<CaptureConfig>,
+        requestTemplate: RequestTemplate,
+        sessionConfigOptions: Config,
         captureMode: Int,
         flashMode: Int,
     ): List<Deferred<Void?>> {
         debug { "CapturePipeline#torchAsFlashCapture" }
         return if (hasFlashUnit && isFlashRequired(flashMode)) {
-            torchApplyCapture(requests, captureMode, CHECK_3A_WITH_FLASH_TIMEOUT_IN_NS)
+            torchApplyCapture(
+                configs,
+                requestTemplate,
+                sessionConfigOptions,
+                captureMode,
+                CHECK_3A_WITH_FLASH_TIMEOUT_IN_NS
+            )
         } else {
-            defaultNoFlashCapture(requests, captureMode)
+            defaultNoFlashCapture(configs, requestTemplate, sessionConfigOptions, captureMode)
         }
     }
 
     private suspend fun defaultCapture(
-        requests: List<Request>,
+        configs: List<CaptureConfig>,
+        requestTemplate: RequestTemplate,
+        sessionConfigOptions: Config,
         captureMode: Int,
         flashMode: Int,
     ): List<Deferred<Void?>> {
@@ -143,17 +162,19 @@ class CapturePipelineImpl @Inject constructor(
                 if (isFlashRequired) CHECK_3A_WITH_FLASH_TIMEOUT_IN_NS else CHECK_3A_TIMEOUT_IN_NS
 
             if (isFlashRequired || captureMode == CAPTURE_MODE_MAXIMIZE_QUALITY) {
-                aePreCaptureApplyCapture(requests, timeout)
+                aePreCaptureApplyCapture(configs, requestTemplate, sessionConfigOptions, timeout)
             } else {
-                defaultNoFlashCapture(requests, captureMode)
+                defaultNoFlashCapture(configs, requestTemplate, sessionConfigOptions, captureMode)
             }
         } else {
-            defaultNoFlashCapture(requests, captureMode)
+            defaultNoFlashCapture(configs, requestTemplate, sessionConfigOptions, captureMode)
         }
     }
 
     private suspend fun defaultNoFlashCapture(
-        requests: List<Request>,
+        configs: List<CaptureConfig>,
+        requestTemplate: RequestTemplate,
+        sessionConfigOptions: Config,
         captureMode: Int
     ): List<Deferred<Void?>> {
         debug { "CapturePipeline#defaultNoFlashCapture" }
@@ -163,7 +184,11 @@ class CapturePipelineImpl @Inject constructor(
             lock3A(CHECK_3A_TIMEOUT_IN_NS)
             debug { "CapturePipeline#defaultNoFlashCapture: Locking 3A done" }
         }
-        return submitRequestInternal(requests).also { captureSignal ->
+        return submitRequestInternal(
+            configs,
+            requestTemplate,
+            sessionConfigOptions
+        ).also { captureSignal ->
             if (lock3ARequired) {
                 threads.sequentialScope.launch {
                     debug { "CapturePipeline#defaultNoFlashCapture: Waiting for capture signal" }
@@ -180,7 +205,9 @@ class CapturePipelineImpl @Inject constructor(
     }
 
     private suspend fun torchApplyCapture(
-        requests: List<Request>,
+        configs: List<CaptureConfig>,
+        requestTemplate: RequestTemplate,
+        sessionConfigOptions: Config,
         captureMode: Int,
         timeLimitNs: Long,
     ): List<Deferred<Void?>> {
@@ -199,7 +226,11 @@ class CapturePipelineImpl @Inject constructor(
             debug { "CapturePipeline#torchApplyCapture: Locking 3A done" }
         }
 
-        return submitRequestInternal(requests).also { captureSignal ->
+        return submitRequestInternal(
+            configs,
+            requestTemplate,
+            sessionConfigOptions
+        ).also { captureSignal ->
             if (torchOnRequired) {
                 threads.sequentialScope.launch {
                     debug { "CapturePipeline#torchApplyCapture: Waiting for capture signal" }
@@ -223,7 +254,9 @@ class CapturePipelineImpl @Inject constructor(
     }
 
     private suspend fun aePreCaptureApplyCapture(
-        requests: List<Request>,
+        configs: List<CaptureConfig>,
+        requestTemplate: RequestTemplate,
+        sessionConfigOptions: Config,
         timeLimitNs: Long,
     ): List<Deferred<Void?>> {
         debug { "CapturePipeline#aePreCaptureApplyCapture" }
@@ -234,7 +267,11 @@ class CapturePipelineImpl @Inject constructor(
             debug { "CapturePipeline#aePreCaptureApplyCapture: Locking 3A for capture done" }
         }
 
-        return submitRequestInternal(requests).also { captureSignal ->
+        return submitRequestInternal(
+            configs,
+            requestTemplate,
+            sessionConfigOptions
+        ).also { captureSignal ->
             threads.sequentialScope.launch {
                 debug { "CapturePipeline#aePreCaptureApplyCapture: Waiting for capture signal" }
                 captureSignal.joinAll()
@@ -272,48 +309,52 @@ class CapturePipelineImpl @Inject constructor(
         )
     }.await()
 
-    private fun submitRequestInternal(requests: List<Request>): List<Deferred<Void?>> {
+    private fun submitRequestInternal(
+        configs: List<CaptureConfig>,
+        requestTemplate: RequestTemplate,
+        sessionConfigOptions: Config
+    ): List<Deferred<Void?>> {
         val deferredList = mutableListOf<CompletableDeferred<Void?>>()
-        val requestsToSubmit = requests.map { request ->
-            request.copy(listeners = request.listeners.toMutableList().also { newRequestListeners ->
-                deferredList.add(CompletableDeferred<Void?>().also { completeSignal ->
-                    newRequestListeners.add(object : Request.Listener {
-                        override fun onAborted(request: Request) {
-                            completeSignal.completeExceptionally(
-                                ImageCaptureException(
-                                    ERROR_CAMERA_CLOSED,
-                                    "Capture request is cancelled because camera is closed",
-                                    null
-                                )
+        val requests = configs.map {
+            val completeSignal = CompletableDeferred<Void?>().also { deferredList.add(it) }
+            configAdapter.mapToRequest(
+                it, requestTemplate, sessionConfigOptions,
+                listOf(object : Request.Listener {
+                    override fun onAborted(request: Request) {
+                        completeSignal.completeExceptionally(
+                            ImageCaptureException(
+                                ERROR_CAMERA_CLOSED,
+                                "Capture request is cancelled because camera is closed",
+                                null
                             )
-                        }
+                        )
+                    }
 
-                        override fun onTotalCaptureResult(
-                            requestMetadata: RequestMetadata,
-                            frameNumber: FrameNumber,
-                            totalCaptureResult: FrameInfo,
-                        ) {
-                            completeSignal.complete(null)
-                        }
+                    override fun onTotalCaptureResult(
+                        requestMetadata: RequestMetadata,
+                        frameNumber: FrameNumber,
+                        totalCaptureResult: FrameInfo,
+                    ) {
+                        completeSignal.complete(null)
+                    }
 
-                        @SuppressLint("ClassVerificationFailure")
-                        override fun onFailed(
-                            requestMetadata: RequestMetadata,
-                            frameNumber: FrameNumber,
-                            requestFailure: RequestFailure
-                        ) {
-                            completeSignal.completeExceptionally(
-                                ImageCaptureException(
-                                    ERROR_CAPTURE_FAILED,
-                                    "Capture request failed with reason " +
-                                        requestFailure.reason,
-                                    null
-                                )
+                    @SuppressLint("ClassVerificationFailure")
+                    override fun onFailed(
+                        requestMetadata: RequestMetadata,
+                        frameNumber: FrameNumber,
+                        requestFailure: RequestFailure
+                    ) {
+                        completeSignal.completeExceptionally(
+                            ImageCaptureException(
+                                ERROR_CAPTURE_FAILED,
+                                "Capture request failed with reason " +
+                                    requestFailure.reason,
+                                null
                             )
-                        }
-                    })
+                        )
+                    }
                 })
-            })
+            )
         }
 
         threads.sequentialScope.launch {
@@ -343,13 +384,13 @@ class CapturePipelineImpl @Inject constructor(
             }
 
             cameraGraphSession?.use {
-                val requiresStopRepeating = requestsToSubmit.shouldStopRepeatingBeforeCapture()
+                val requiresStopRepeating = requests.shouldStopRepeatingBeforeCapture()
                 if (requiresStopRepeating) {
                     it.stopRepeating()
                 }
 
-                debug { "CapturePipeline#submitRequestInternal: Submitting $requestsToSubmit" }
-                it.submit(requestsToSubmit)
+                debug { "CapturePipeline#submitRequestInternal: Submitting $requests" }
+                it.submit(requests)
 
                 if (requiresStopRepeating) {
                     deferredList.joinAll()

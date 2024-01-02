@@ -76,20 +76,22 @@ class Cbor {
       }
 
       var keysList = ArrayList<ByteArray>(byteMap.keys)
-      keysList.sortedWith(Comparator<ByteArray> { a, b ->
-        // If two keys have different lengths, the shorter one sorts earlier;
-        // If two keys have the same length, the one with the lower value in (byte-wise)
-        // lexical order sorts earlier.
-         var aBytes = byteMap.get(a)!!
-         var bBytes = byteMap.get(b)!!
+      keysList.sortedWith(
+        Comparator<ByteArray> { a, b ->
+          // If two keys have different lengths, the shorter one sorts earlier;
+          // If two keys have the same length, the one with the lower value in (byte-wise)
+          // lexical order sorts earlier.
+          var aBytes = byteMap.get(a)!!
+          var bBytes = byteMap.get(b)!!
           when {
-              a.size > b.size -> 1
-              a.size < b.size -> -1
-              aBytes.size > bBytes.size -> 1
-              aBytes.size < bBytes.size -> -1
-              else -> 0
+            a.size > b.size -> 1
+            a.size < b.size -> -1
+            aBytes.size > bBytes.size -> 1
+            aBytes.size < bBytes.size -> -1
+            else -> 0
           }
-      })
+        }
+      )
 
       for (key in keysList) {
         ret += key

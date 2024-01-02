@@ -48,7 +48,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import org.junit.runners.Parameterized.Parameters
 
-private const val tracingPerfettoVersion = "1.0.0-beta01" // TODO(224510255): get by 'reflection'
+private const val tracingPerfettoVersion = "1.0.0" // TODO(224510255): get by 'reflection'
 private const val minSupportedSdk = Build.VERSION_CODES.R // TODO(234351579): Support API < 30
 
 @RunWith(Parameterized::class)
@@ -360,6 +360,22 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
         assertThat(enableWarmTracingResponse.resultCode).isEqualTo(RESULT_CODE_SUCCESS)
     }
 
+    @Test
+    fun test_handshake_framework_cold_start_app_terminated_on_error() {
+        assumeTrue(isAbiSupported())
+        assumeTrue(Build.VERSION.SDK_INT >= minSupportedSdk)
+        assumeTrue(testConfig.sdkDelivery == MISSING)
+
+        // perform a handshake setting up cold start tracing
+        val handshake = constructPerfettoHandshake()
+        val enableColdTracingResponse = handshake.enableTracingColdStart()
+        assertThat(enableColdTracingResponse.resultCode).isEqualTo(RESULT_CODE_ERROR_BINARY_MISSING)
+
+        // verify that the app process has been terminated
+        // in the non-error case we already have these verifications in other tests
+        assertPackageAlive(false)
+    }
+
     private fun killProcess() {
         scope.killProcess()
         assertPackageAlive(false)
@@ -551,5 +567,9 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
             if (isColdStartupTracing) InitialProcessState.NotAlive else InitialProcessState.Alive,
             provideBinariesIfMissing
         )
-    )
+    ).let { (resultCode, message) ->
+        // Maps the response into the old contract of [enableAndroidxTracingPerfetto], where for
+        // success we get a [null] response; otherwise an error message
+        if (resultCode == RESULT_CODE_SUCCESS) null else message
+    }
 }

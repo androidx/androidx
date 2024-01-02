@@ -29,6 +29,9 @@ dependencies {
     implementation(project(path: ":wear:protolayout:protolayout-proto", configuration: "shadow"))
     api(project(":wear:protolayout:protolayout-expression"))
 
+    lintChecks(project(":wear:protolayout:protolayout-lint"))
+    lintPublish(project(":wear:protolayout:protolayout-lint"))
+
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testExtTruth)
     testImplementation(libs.testRunner)
@@ -51,4 +54,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Create layouts that can be rendered by a remote host."
+    metalavaK2UastEnabled = true
 }

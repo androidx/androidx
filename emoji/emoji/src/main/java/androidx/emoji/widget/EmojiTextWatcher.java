@@ -21,10 +21,8 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.Selection;
-import android.text.Spannable;
 import android.widget.EditText;
 
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.emoji.text.EmojiCompat;
 import androidx.emoji.text.EmojiCompat.InitCallback;
@@ -37,11 +35,13 @@ import java.lang.ref.WeakReference;
  *
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
-@RequiresApi(19)
 final class EmojiTextWatcher implements android.text.TextWatcher {
     private final EditText mEditText;
     private InitCallback mInitCallback;
     private int mMaxEmojiCount = EditTextAttributeHelper.MAX_EMOJI_COUNT;
+    private int mStart = 0;
+    private int mLength = 0;
+
     @EmojiCompat.ReplaceStrategy
     private int mEmojiReplaceStrategy = EmojiCompat.REPLACE_STRATEGY_DEFAULT;
 
@@ -68,16 +68,34 @@ final class EmojiTextWatcher implements android.text.TextWatcher {
     @Override
     public void onTextChanged(CharSequence charSequence, final int start, final int before,
             final int after) {
+        // do nothing
+        mStart = start;
+        if (before <= after) {
+            mLength = after;
+        } else {
+            mLength = 0;
+        }
+    }
+
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        // do nothing
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
         if (mEditText.isInEditMode()) {
             return;
         }
 
+        int start = mStart;
+        int length = mLength;
+
         //before > after --> a deletion occured
-        if (before <= after && charSequence instanceof Spannable) {
+        if (length > 0) {
             switch (EmojiCompat.get().getLoadState()){
                 case EmojiCompat.LOAD_STATE_SUCCEEDED:
-                    final Spannable s = (Spannable) charSequence;
-                    EmojiCompat.get().process(s, start, start + after, mMaxEmojiCount,
+                    EmojiCompat.get().process(s, start, start + length, mMaxEmojiCount,
                             mEmojiReplaceStrategy);
                     break;
                 case EmojiCompat.LOAD_STATE_LOADING:
@@ -89,16 +107,6 @@ final class EmojiTextWatcher implements android.text.TextWatcher {
                     break;
             }
         }
-    }
-
-    @Override
-    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        // do nothing
-    }
-
-    @Override
-    public void afterTextChanged(Editable s) {
-        // do nothing
     }
 
     @RestrictTo(LIBRARY)

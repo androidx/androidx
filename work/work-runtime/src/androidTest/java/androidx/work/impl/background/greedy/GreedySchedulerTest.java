@@ -167,7 +167,7 @@ public class GreedySchedulerTest extends WorkManagerTest {
         mGreedyScheduler.onConstraintsStateChanged(work.getWorkSpec(), getConstraintsNotMet());
         ArgumentCaptor<StartStopToken> captorToken = ArgumentCaptor.forClass(StartStopToken.class);
         verify(mWorkLauncher)
-                .stopWorkWithReason(captorToken.capture(), eq(getConstraintsNotMet().reasonInt()));
+                .stopWorkWithReason(captorToken.capture(), eq(getConstraintsNotMet().getReason()));
         assertThat(captorToken.getValue().getId().getWorkSpecId()).isEqualTo(work.getWorkSpec().id);
         // doing this check because java vs inline classes
     }

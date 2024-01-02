@@ -18,7 +18,6 @@ package androidx.wear.tiles.material;
 
 import static androidx.annotation.Dimension.DP;
 import static androidx.annotation.Dimension.SP;
-import static androidx.wear.tiles.material.Helper.checkNotNull;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -115,6 +114,7 @@ public class Typography {
         TYPOGRAPHY_TO_LINE_HEIGHT_SP.put(TYPOGRAPHY_CAPTION2, 16f);
         TYPOGRAPHY_TO_LINE_HEIGHT_SP.put(TYPOGRAPHY_CAPTION3, 14f);
     }
+
     /**
      * Returns the {@link androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder} for the given
      * androidx.wear.tiles.LayoutElementBuilders.FontStyle code with the recommended size, weight
@@ -179,7 +179,9 @@ public class Typography {
             throw new IllegalArgumentException("Typography " + typography + " doesn't exist.");
         }
         return androidx.wear.tiles.DimensionBuilders.sp(
-                checkNotNull(TYPOGRAPHY_TO_LINE_HEIGHT_SP.get(typography)).intValue());
+                androidx.wear.tiles.material.Helper.checkNotNull(
+                                TYPOGRAPHY_TO_LINE_HEIGHT_SP.get(typography))
+                        .intValue());
     }
 
     @NonNull

@@ -23,7 +23,6 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -36,9 +35,13 @@ import java.util.Set;
 
 /**
  * Slice template containing all view components.
+ *
+ * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+ * forward. If you are looking for a framework that handles communication across apps,
+ * consider using {@link android.app.appsearch.AppSearchManager}.
  */
 @SuppressWarnings("HiddenSuperclass")
-@RequiresApi(19)
+@Deprecated
 public class TemplateView extends SliceChildView implements
         SliceViewPolicy.PolicyChangeListener {
 

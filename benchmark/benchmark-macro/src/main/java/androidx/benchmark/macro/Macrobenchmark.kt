@@ -150,7 +150,7 @@ internal fun checkErrors(packageName: String): ConfigurationError.SuppressionSta
                 """.trimIndent()
             ),
             conditionalError(
-                hasError = Arguments.methodTracingEnabled(),
+                hasError = Arguments.macrobenchMethodTracingEnabled(),
                 id = "METHOD-TRACING-ENABLED",
                 summary = "Method tracing is enabled during a Macrobenchmark",
                 message = """
@@ -207,7 +207,7 @@ private fun macrobenchmark(
 
     val startTime = System.nanoTime()
     // Ensure method tracing is explicitly enabled and that we are not running in dry run mode.
-    val launchWithMethodTracing = Arguments.methodTracingEnabled()
+    val launchWithMethodTracing = Arguments.macrobenchMethodTracingEnabled()
     val scope = MacrobenchmarkScope(
         packageName,
         launchWithClearTask = launchWithClearTask
@@ -220,7 +220,7 @@ private fun macrobenchmark(
     scope.killProcess()
 
     inMemoryTrace("compile $packageName") {
-        compilationMode.resetAndCompile(packageName, killProcessBlock = scope::killProcess) {
+        compilationMode.resetAndCompile(scope) {
             setupBlock(scope)
             measureBlock(scope)
         }
@@ -233,7 +233,7 @@ private fun macrobenchmark(
     // output, and give it different (test-wide) lifecycle
     val perfettoCollector = PerfettoCaptureWrapper()
     val tracePaths = mutableListOf<String>()
-    val resultFiles = mutableListOf<Profiler.ResultFile>()
+    val methodTracingResultFiles = mutableListOf<Profiler.ResultFile>()
     try {
         metrics.forEach {
             it.configure(packageName)
@@ -247,6 +247,7 @@ private fun macrobenchmark(
                 }
 
                 scope.iteration = iteration
+
                 inMemoryTrace("setupBlock") {
                     setupBlock(scope)
                 }
@@ -290,13 +291,14 @@ private fun macrobenchmark(
                             metrics.forEach {
                                 it.stop()
                             }
-                            if (launchWithMethodTracing) {
-                                val (label, tracePath) = scope.stopMethodTracing()
+                            if (launchWithMethodTracing && scope.isMethodTracing) {
+                                val (label, tracePath) = scope.stopMethodTracing(fileLabel)
                                 val resultFile = Profiler.ResultFile(
                                     label = label,
                                     absolutePath = tracePath
                                 )
-                                resultFiles += resultFile
+                                methodTracingResultFiles += resultFile
+                                scope.isMethodTracing = false
                             }
                         }
                     }
@@ -347,12 +349,18 @@ private fun macrobenchmark(
             """.trimIndent()
         }
         InstrumentationResults.instrumentationReport {
+            if (launchWithMethodTracing && methodTracingResultFiles.size < iterations) {
+                warningMessage += "\nNOTE: Method traces cannot be captured during iterations" +
+                    " that start while the target process is already running (including HOT/WARM" +
+                    " launches)."
+            }
+
             reportSummaryToIde(
                 warningMessage = warningMessage,
                 testName = uniqueName,
                 measurements = measurements,
                 iterationTracePaths = tracePaths,
-                profilerResults = resultFiles
+                profilerResults = methodTracingResultFiles
             )
 
             warningMessage = "" // warning only printed once
@@ -364,6 +372,7 @@ private fun macrobenchmark(
             }
         }
 
+        @Suppress("NewApi") // Suppress spurious NewApi lint checks when using the `is` operator.
         val warmupIterations = when (compilationMode) {
             is CompilationMode.Partial -> compilationMode.warmupIterations
             else -> 0

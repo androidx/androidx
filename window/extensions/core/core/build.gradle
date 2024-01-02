@@ -51,4 +51,5 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE // Only to generate per-project-zips
     inceptionYear = "2022"
     description = "The Core APIs for Window Manager Library Extensions"
+    metalavaK2UastEnabled = true
 }

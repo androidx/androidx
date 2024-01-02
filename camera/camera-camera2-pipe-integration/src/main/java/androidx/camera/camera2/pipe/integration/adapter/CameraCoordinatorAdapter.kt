@@ -20,7 +20,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraId
-import androidx.camera.camera2.pipe.integration.internal.CameraGraphCreator
+import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.CameraInfo
@@ -32,15 +32,26 @@ import androidx.camera.core.impl.CameraInternal
 
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class CameraCoordinatorAdapter(
+    private var cameraPipe: CameraPipe?,
     cameraDevices: CameraDevices,
-    private val cameraGraphCreator: CameraGraphCreator
 ) : CameraCoordinator {
-    @VisibleForTesting val cameraInternalMap = mutableMapOf<CameraId, CameraInternalAdapter>()
-    @VisibleForTesting var concurrentCameraIdsSet = mutableSetOf<Set<CameraId>>()
-    @VisibleForTesting var concurrentCameraIdMap = mutableMapOf<String, MutableList<String>>()
-    @VisibleForTesting var activeConcurrentCameraInfosList = mutableListOf<CameraInfo>()
-    @VisibleForTesting var concurrentMode: Int = CAMERA_OPERATING_MODE_UNSPECIFIED
-    @VisibleForTesting var concurrentModeOn = false
+    @VisibleForTesting
+    val cameraInternalMap = mutableMapOf<CameraId, CameraInternalAdapter>()
+
+    @VisibleForTesting
+    var concurrentCameraIdsSet = mutableSetOf<Set<CameraId>>()
+
+    @VisibleForTesting
+    var concurrentCameraIdMap = mutableMapOf<String, MutableList<String>>()
+
+    @VisibleForTesting
+    var activeConcurrentCameraInfosList = mutableListOf<CameraInfo>()
+
+    @VisibleForTesting
+    var concurrentMode: Int = CAMERA_OPERATING_MODE_UNSPECIFIED
+
+    @VisibleForTesting
+    var concurrentModeOn = false
 
     init {
         concurrentCameraIdsSet = cameraDevices.awaitConcurrentCameraIds()!!.toMutableSet()
@@ -85,8 +96,16 @@ class CameraCoordinatorAdapter(
 
     override fun setActiveConcurrentCameraInfos(cameraInfos: MutableList<CameraInfo>) {
         activeConcurrentCameraInfosList = cameraInfos
-        for (cameraInternalAdapter in cameraInternalMap.values) {
-            cameraInternalAdapter.resumeRefresh()
+        val graphConfigs = cameraInternalMap.values.map {
+            checkNotNull(it.getDeferredCameraGraphConfig()) {
+                "Every CameraInternal instance is expected to have a deferred CameraGraph config " +
+                    "when the active concurrent CameraInfos are set!"
+            }
+        }
+        val cameraGraphs = checkNotNull(cameraPipe).createCameraGraphs(graphConfigs)
+        check(cameraGraphs.size == cameraInternalMap.size)
+        for ((cameraInternalAdapter, cameraGraph) in cameraInternalMap.values.zip(cameraGraphs)) {
+            cameraInternalAdapter.resumeDeferredCameraGraphCreation(cameraGraph)
         }
     }
 
@@ -114,12 +133,11 @@ class CameraCoordinatorAdapter(
     override fun setCameraOperatingMode(@CameraOperatingMode cameraOperatingMode: Int) {
         concurrentMode = cameraOperatingMode
         concurrentModeOn = cameraOperatingMode == CameraCoordinator.CAMERA_OPERATING_MODE_CONCURRENT
-        cameraGraphCreator.setConcurrentModeOn(concurrentModeOn)
         for (cameraInternalAdapter in cameraInternalMap.values) {
             if (cameraOperatingMode == CameraCoordinator.CAMERA_OPERATING_MODE_CONCURRENT) {
-                cameraInternalAdapter.pauseRefresh()
+                cameraInternalAdapter.setCameraGraphCreationMode(createImmediately = false)
             } else if (cameraOperatingMode == CameraCoordinator.CAMERA_OPERATING_MODE_SINGLE) {
-                cameraInternalAdapter.resumeRefresh()
+                cameraInternalAdapter.setCameraGraphCreationMode(createImmediately = true)
             }
         }
     }
@@ -131,6 +149,7 @@ class CameraCoordinatorAdapter(
     }
 
     override fun shutdown() {
+        cameraPipe = null
         cameraInternalMap.clear()
         concurrentCameraIdsSet.clear()
         concurrentCameraIdMap.clear()

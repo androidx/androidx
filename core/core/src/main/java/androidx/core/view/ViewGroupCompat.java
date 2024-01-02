@@ -113,10 +113,7 @@ public final class ViewGroupCompat {
      * @see #setLayoutMode(ViewGroup, int)
      */
     public static int getLayoutMode(@NonNull ViewGroup group) {
-        if (Build.VERSION.SDK_INT >= 18) {
-            return Api18Impl.getLayoutMode(group);
-        }
-        return LAYOUT_MODE_CLIP_BOUNDS;
+        return group.getLayoutMode();
     }
 
     /**
@@ -124,19 +121,19 @@ public final class ViewGroupCompat {
      * Valid values are either {@link #LAYOUT_MODE_CLIP_BOUNDS} or
      * {@link #LAYOUT_MODE_OPTICAL_BOUNDS}.
      *
+     * @param group ViewGroup for which to set the mode.
      * @param mode the layout mode to use during layout operations
      *
      * @see #getLayoutMode(ViewGroup)
      */
     public static void setLayoutMode(@NonNull ViewGroup group, int mode) {
-        if (Build.VERSION.SDK_INT >= 18) {
-            Api18Impl.setLayoutMode(group, mode);
-        }
+        group.setLayoutMode(mode);
     }
 
     /**
      * Changes whether or not this ViewGroup should be treated as a single entity during
      * Activity Transitions.
+     * @param group ViewGroup for which to set the mode.
      * @param isTransitionGroup Whether or not the ViewGroup should be treated as a unit
      *                          in Activity transitions. If false, the ViewGroup won't transition,
      *                          only its children. If true, the entire ViewGroup will transition
@@ -187,23 +184,6 @@ public final class ViewGroupCompat {
             return ((NestedScrollingParent) group).getNestedScrollAxes();
         }
         return ViewCompat.SCROLL_AXIS_NONE;
-    }
-
-    @RequiresApi(18)
-    static class Api18Impl {
-        private Api18Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static int getLayoutMode(ViewGroup viewGroup) {
-            return viewGroup.getLayoutMode();
-        }
-
-        @DoNotInline
-        static void setLayoutMode(ViewGroup viewGroup, int layoutMode) {
-            viewGroup.setLayoutMode(layoutMode);
-        }
     }
 
     @RequiresApi(21)

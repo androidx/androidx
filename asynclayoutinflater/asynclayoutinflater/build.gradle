@@ -23,6 +23,7 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Provides support for inflating layouts off the UI thread."
+    metalavaK2UastEnabled = true
 }
 
 android {

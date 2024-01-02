@@ -19,6 +19,9 @@ package androidx.webkit.internal;
 import android.webkit.WebSettings;
 
 import androidx.annotation.NonNull;
+import androidx.webkit.UserAgentMetadata;
+import androidx.webkit.WebViewMediaIntegrityApiStatusConfig;
+
 
 import org.chromium.support_lib_boundary.WebSettingsBoundaryInterface;
 
@@ -76,20 +79,6 @@ public class WebSettingsAdapter {
      */
     public int getDisabledActionModeMenuItems() {
         return mBoundaryInterface.getDisabledActionModeMenuItems();
-    }
-
-    /**
-     * Adapter method for {@link androidx.webkit.WebSettingsCompat#setWillSuppressErrorPage}.
-     */
-    public void setWillSuppressErrorPage(boolean suppressed) {
-        mBoundaryInterface.setWillSuppressErrorPage(suppressed);
-    }
-
-    /**
-     * Adapter method for {@link androidx.webkit.WebSettingsCompat#willSuppressErrorPage}.
-     */
-    public boolean willSuppressErrorPage() {
-        return mBoundaryInterface.getWillSuppressErrorPage();
     }
 
     /**
@@ -167,4 +156,63 @@ public class WebSettingsAdapter {
     public void setRequestedWithHeaderOriginAllowList(@NonNull Set<String> allowList) {
         mBoundaryInterface.setRequestedWithHeaderOriginAllowList(allowList);
     }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#getUserAgentMetadata(WebSettings)}.
+     */
+    @NonNull
+    public UserAgentMetadata getUserAgentMetadata() {
+        return UserAgentMetadataInternal.getUserAgentMetadataFromMap(
+                mBoundaryInterface.getUserAgentMetadataMap());
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#setUserAgentMetadata(
+     * WebSettings, UserAgentMetadata)}.
+     */
+    public void setUserAgentMetadata(@NonNull UserAgentMetadata uaMetadata) {
+        mBoundaryInterface.setUserAgentMetadataFromMap(
+                UserAgentMetadataInternal.convertUserAgentMetadataToMap(uaMetadata));
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#getAttributionRegistrationBehavior(WebSettings)}
+     */
+    public int getAttributionRegistrationBehavior() {
+        return mBoundaryInterface.getAttributionBehavior();
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#setAttributionRegistrationBehavior(WebSettings, int)}
+     */
+    public void setAttributionRegistrationBehavior(int behavior) {
+        mBoundaryInterface.setAttributionBehavior(behavior);
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#setWebViewMediaIntegrityApiStatus(WebSettings, WebViewMediaIntegrityApiStatusConfig)}
+     */
+    public void setWebViewMediaIntegrityApiStatus(
+            @NonNull WebViewMediaIntegrityApiStatusConfig permissionConfig) {
+        mBoundaryInterface.setWebViewMediaIntegrityApiStatus(permissionConfig.getDefaultStatus(),
+                permissionConfig.getOverrideRules());
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#getWebViewMediaIntegrityApiStatus(WebSettings)}
+     */
+    @NonNull
+    public WebViewMediaIntegrityApiStatusConfig getWebViewMediaIntegrityApiStatus() {
+        return new WebViewMediaIntegrityApiStatusConfig
+                .Builder(mBoundaryInterface.getWebViewMediaIntegrityApiDefaultStatus())
+                .setOverrideRules(mBoundaryInterface.getWebViewMediaIntegrityApiOverrideRules())
+                .build();
+    }
+
 }

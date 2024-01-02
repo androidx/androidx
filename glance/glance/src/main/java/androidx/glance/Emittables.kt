@@ -20,14 +20,12 @@ import androidx.annotation.RestrictTo
 import androidx.glance.layout.Alignment
 import androidx.glance.text.TextStyle
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface Emittable {
     var modifier: GlanceModifier
     fun copy(): Emittable
 }
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 abstract class EmittableWithChildren(
     internal var maxDepth: Int = Int.MAX_VALUE,
@@ -39,13 +37,21 @@ abstract class EmittableWithChildren(
         children.joinToString(",\n").prependIndent("  ")
 }
 
-/** @suppress */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+fun EmittableWithChildren.addChild(e: Emittable) {
+    this.children += e
+}
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+fun EmittableWithChildren.addChildIfNotNull(e: Emittable?) {
+    if (e != null) this.children += e
+}
+
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 abstract class EmittableLazyItemWithChildren : EmittableWithChildren() {
     var alignment: Alignment = Alignment.CenterStart
 }
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 abstract class EmittableWithText : Emittable {
     var text: String = ""
@@ -53,7 +59,6 @@ abstract class EmittableWithText : Emittable {
     var maxLines: Int = Int.MAX_VALUE
 }
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 abstract class EmittableCheckable : EmittableWithText() {
     var checked: Boolean = false

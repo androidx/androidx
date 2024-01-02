@@ -38,7 +38,7 @@ import kotlinx.coroutines.launch
 
 internal class LazyLayoutAnimation(
     val coroutineScope: CoroutineScope
-) : (GraphicsLayerScope) -> Unit {
+) {
 
     var appearanceSpec: FiniteAnimationSpec<Float>? = null
     var placementSpec: FiniteAnimationSpec<IntOffset>? = null
@@ -78,6 +78,10 @@ internal class LazyLayoutAnimation(
 
     var visibility by mutableFloatStateOf(1f)
         private set
+
+    val layerBlock: GraphicsLayerScope.() -> Unit = {
+        alpha = visibility
+    }
 
     /**
      * Cancels the ongoing placement animation if there is one.
@@ -174,10 +178,6 @@ internal class LazyLayoutAnimation(
         placementDelta = IntOffset.Zero
         rawOffset = NotInitialized
         visibility = 1f
-    }
-
-    override fun invoke(scope: GraphicsLayerScope) {
-        scope.alpha = visibility
     }
 
     companion object {

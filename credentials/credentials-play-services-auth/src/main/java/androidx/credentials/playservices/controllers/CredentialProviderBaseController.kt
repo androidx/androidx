@@ -40,7 +40,6 @@ internal open class CredentialProviderBaseController(private val context: Contex
         // Common retryable status codes from the play modules found
         // https://developers.google.com/android/reference/com/google/android/gms/common/api/CommonStatusCodes
         val retryables: Set<Int> = setOf(
-            CommonStatusCodes.INTERNAL_ERROR,
             CommonStatusCodes.NETWORK_ERROR,
             CommonStatusCodes.CONNECTION_SUSPENDED_DURING_CALL
         )
@@ -66,6 +65,9 @@ internal open class CredentialProviderBaseController(private val context: Contex
 
         // Value for the specific begin sign in type
         const val BEGIN_SIGN_IN_TAG = "BEGIN_SIGN_IN"
+
+        // Key for the Sign-in Intent flow
+        const val SIGN_IN_INTENT_TAG = "SIGN_IN_INTENT"
 
         // Value for the specific create password type
         const val CREATE_PASSWORD_TAG = "CREATE_PASSWORD"

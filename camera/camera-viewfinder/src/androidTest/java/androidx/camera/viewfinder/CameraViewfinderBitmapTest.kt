@@ -21,9 +21,9 @@ import android.graphics.Bitmap
 import android.hardware.camera2.CameraManager
 import android.util.Size
 import android.view.Surface
+import androidx.camera.impl.utils.futures.FutureCallback
+import androidx.camera.impl.utils.futures.Futures
 import androidx.camera.viewfinder.CameraViewfinder.ScaleType.FILL_CENTER
-import androidx.camera.viewfinder.internal.utils.futures.FutureCallback
-import androidx.camera.viewfinder.internal.utils.futures.Futures
 import androidx.camera.viewfinder.utils.CoreAppTestUtil
 import androidx.camera.viewfinder.utils.FakeActivity
 import androidx.core.content.ContextCompat
@@ -94,13 +94,13 @@ class CameraViewfinderBitmapTest {
 
         // assert
         runOnMainThread(Runnable {
-            val surfaceListenableFuture: ListenableFuture<Surface> =
+            val surfaceListenableFuture: ListenableFuture<Surface?> =
                 viewfinder.requestSurfaceAsync(mSurfaceRequest)
 
             Futures.addCallback<Surface?>(
                 surfaceListenableFuture,
                 object : FutureCallback<Surface?> {
-                    override fun onSuccess(surface: Surface?) {
+                    override fun onSuccess(result: Surface?) {
                         val bitmap: Bitmap? = viewfinder.getBitmap()
                         Truth.assertThat(bitmap).isNotNull()
                         Truth.assertThat(bitmap?.width).isNotEqualTo(0)
@@ -123,13 +123,13 @@ class CameraViewfinderBitmapTest {
 
         // assert
         runOnMainThread(Runnable {
-            val surfaceListenableFuture: ListenableFuture<Surface> =
+            val surfaceListenableFuture: ListenableFuture<Surface?> =
                 viewfinder.requestSurfaceAsync(mSurfaceRequest)
 
             Futures.addCallback<Surface?>(
                 surfaceListenableFuture,
                 object : FutureCallback<Surface?> {
-                    override fun onSuccess(surface: Surface?) {
+                    override fun onSuccess(result: Surface?) {
                         val bitmap: Bitmap? = viewfinder.getBitmap()
                         Truth.assertThat(bitmap).isNotNull()
                         Truth.assertThat(bitmap?.width).isNotEqualTo(0)

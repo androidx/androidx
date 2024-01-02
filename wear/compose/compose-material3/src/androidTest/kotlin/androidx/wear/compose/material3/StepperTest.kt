@@ -49,12 +49,13 @@ import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
-public class StepperTest {
+@OptIn(ExperimentalWearMaterial3Api::class)
+class StepperTest {
     @get:Rule
-    public val rule = createComposeRule()
+    val rule = createComposeRule()
 
     @Test
-    public fun supports_testtag() {
+    fun supports_testtag() {
         rule.setContentWithTheme {
             Stepper(
                 value = 1f,
@@ -70,7 +71,7 @@ public class StepperTest {
     }
 
     @Test
-    public fun coerces_value_top_limit() = rule.setNewValueAndCheck(
+    fun coerces_value_top_limit() = rule.setNewValueAndCheck(
         range = 0f..10f,
         steps = 4,
         initialValue = 4f,
@@ -79,7 +80,7 @@ public class StepperTest {
     )
 
     @Test
-    public fun coerces_value_lower_limit() = rule.setNewValueAndCheck(
+    fun coerces_value_lower_limit() = rule.setNewValueAndCheck(
         range = 0f..10f,
         steps = 4,
         initialValue = 4f,
@@ -88,7 +89,7 @@ public class StepperTest {
     )
 
     @Test(expected = IllegalArgumentException::class)
-    public fun throws_when_steps_negative() {
+    fun throws_when_steps_negative() {
         rule.setContent {
             Stepper(
                 value = 0f,
@@ -101,7 +102,7 @@ public class StepperTest {
     }
 
     @Test
-    public fun coerce_value_exactly() = rule.setNewValueAndCheck(
+    fun coerce_value_exactly() = rule.setNewValueAndCheck(
         range = 0f..1f,
         steps = 4,
         initialValue = 0f,
@@ -111,7 +112,7 @@ public class StepperTest {
     )
 
     @Test
-    public fun coerce_value_to_previous() = rule.setNewValueAndCheck(
+    fun coerce_value_to_previous() = rule.setNewValueAndCheck(
         range = 0f..1f,
         steps = 4,
         initialValue = 0f,
@@ -121,7 +122,7 @@ public class StepperTest {
     )
 
     @Test
-    public fun coerce_value_to_next() = rule.setNewValueAndCheck(
+    fun coerce_value_to_next() = rule.setNewValueAndCheck(
         range = 0f..1f,
         steps = 4,
         initialValue = 0f,
@@ -131,7 +132,7 @@ public class StepperTest {
     )
 
     @Test
-    public fun decreases_value_by_clicking_bottom() {
+    fun decreases_value_by_clicking_bottom() {
         val state = mutableStateOf(2f)
         val range = 1f..4f
 
@@ -148,7 +149,7 @@ public class StepperTest {
     }
 
     @Test
-    public fun increases_value_by_clicking_top() {
+    fun increases_value_by_clicking_top() {
         val state = mutableStateOf(2f)
         val range = 1f..4f
 
@@ -163,7 +164,7 @@ public class StepperTest {
     }
 
     @Test
-    public fun reaches_min_clicking_bottom() {
+    fun reaches_min_clicking_bottom() {
         // Start one step above the minimum.
         val state = mutableStateOf(2f)
         val range = 1f..4f
@@ -179,7 +180,7 @@ public class StepperTest {
     }
 
     @Test
-    public fun reaches_max_clicking_top() {
+    fun reaches_max_clicking_top() {
         // Start one step below the maximum.
         val state = mutableStateOf(3f)
         val range = 1f..4f
@@ -195,7 +196,7 @@ public class StepperTest {
     }
 
     @Test
-    public fun disables_decrease_when_minimum_value_reached() {
+    fun disables_decrease_when_minimum_value_reached() {
         val state = mutableStateOf(1f)
         val range = 1f..4f
 
@@ -205,7 +206,7 @@ public class StepperTest {
     }
 
     @Test
-    public fun disables_increase_when_maximum_value_reached() {
+    fun disables_increase_when_maximum_value_reached() {
         val state = mutableStateOf(4f)
         val range = 1f..4f
 
@@ -215,15 +216,15 @@ public class StepperTest {
     }
 
     @Test
-    public fun colors_decrease_icon_with_disabled_alpha() =
+    fun colors_decrease_icon_with_disabled_alpha() =
         verifyDisabledColors(increase = false, value = 1f)
 
     @Test
-    public fun colors_increase_icon_with_disabled_alpha() =
+    fun colors_increase_icon_with_disabled_alpha() =
         verifyDisabledColors(increase = true, value = 4f)
 
     @Test
-    public fun sets_custom_decrease_icon() {
+    fun sets_custom_decrease_icon() {
         val iconTag = "iconTag_test"
 
         rule.setContentWithTheme {
@@ -254,7 +255,7 @@ public class StepperTest {
     }
 
     @Test
-    public fun sets_custom_increase_icon() {
+    fun sets_custom_increase_icon() {
         val iconTag = "iconTag_test"
 
         rule.setContentWithTheme {
@@ -280,7 +281,7 @@ public class StepperTest {
     }
 
     @Test
-    public fun sets_content() {
+    fun sets_content() {
         val contentTag = "contentTag_test"
 
         rule.setContentWithTheme {
@@ -311,7 +312,7 @@ public class StepperTest {
     }
 
     @Test
-    public fun sets_custom_description_for_increase_icon() {
+    fun sets_custom_description_for_increase_icon() {
         val testContentDescription = "testContentDescription"
 
         rule.setContentWithTheme {
@@ -334,7 +335,7 @@ public class StepperTest {
     }
 
     @Test
-    public fun sets_custom_description_for_decrease_icon() {
+    fun sets_custom_description_for_decrease_icon() {
         val testContentDescription = "testContentDescription"
 
         rule.setContentWithTheme {
@@ -411,14 +412,11 @@ public class StepperTest {
         val state = mutableStateOf(value)
         var expectedIconColor = Color.Transparent
         var actualIconColor = Color.Transparent
-        var expectedAlpha = 0f
-        var actualAlpha = 0f
 
         rule.setContentWithTheme {
             expectedIconColor = MaterialTheme.colorScheme.primary.copy(
-                alpha = ContentAlpha.disabled
+                alpha = DisabledContentAlpha
             )
-            expectedAlpha = expectedIconColor.alpha
             Stepper(
                 value = state.value,
                 onValueChange = { state.value = it },
@@ -428,13 +426,11 @@ public class StepperTest {
                 increaseIcon = {
                     if (increase) {
                         actualIconColor = LocalContentColor.current
-                        actualAlpha = LocalContentAlpha.current
                     }
                 },
                 decreaseIcon = {
                     if (!increase) {
                         actualIconColor = LocalContentColor.current
-                        actualAlpha = LocalContentAlpha.current
                     }
                 },
                 modifier = Modifier.testTag(TEST_TAG)
@@ -442,7 +438,6 @@ public class StepperTest {
         }
 
         assertEquals(expectedIconColor, actualIconColor)
-        assertEquals(expectedAlpha, actualAlpha)
     }
 
     private val BorderVerticalMargin = 22.dp
@@ -451,12 +446,13 @@ public class StepperTest {
     private val DefaultIconHeight = 24.dp
 }
 
-public class IntegerStepperTest {
+@OptIn(ExperimentalWearMaterial3Api::class)
+class IntegerStepperTest {
     @get:Rule
-    public val rule = createComposeRule()
+    val rule = createComposeRule()
 
     @Test
-    public fun supports_testtag() {
+    fun supports_testtag() {
         rule.setContentWithTheme {
             Stepper(
                 value = 1,
@@ -472,7 +468,7 @@ public class IntegerStepperTest {
     }
 
     @Test
-    public fun coerces_value_top_limit() = rule.setNewValueAndCheck(
+    fun coerces_value_top_limit() = rule.setNewValueAndCheck(
         progression = 0..10,
         initialValue = 4,
         newValue = 20,
@@ -480,7 +476,7 @@ public class IntegerStepperTest {
     )
 
     @Test
-    public fun coerces_value_lower_limit() = rule.setNewValueAndCheck(
+    fun coerces_value_lower_limit() = rule.setNewValueAndCheck(
         progression = 0..10,
         initialValue = 4,
         newValue = -20,
@@ -488,7 +484,7 @@ public class IntegerStepperTest {
     )
 
     @Test
-    public fun coerce_value_exactly() = rule.setNewValueAndCheck(
+    fun coerce_value_exactly() = rule.setNewValueAndCheck(
         progression = IntProgression.fromClosedRange(0, 12, 3),
         initialValue = 0,
         newValue = 3,
@@ -496,7 +492,7 @@ public class IntegerStepperTest {
     )
 
     @Test
-    public fun coerce_value_to_previous() = rule.setNewValueAndCheck(
+    fun coerce_value_to_previous() = rule.setNewValueAndCheck(
         progression = IntProgression.fromClosedRange(0, 12, 3),
         initialValue = 0,
         newValue = 4,
@@ -504,7 +500,7 @@ public class IntegerStepperTest {
     )
 
     @Test
-    public fun coerce_value_to_next() = rule.setNewValueAndCheck(
+    fun coerce_value_to_next() = rule.setNewValueAndCheck(
         progression = IntProgression.fromClosedRange(0, 12, 3),
         initialValue = 0,
         newValue = 5,
@@ -539,7 +535,7 @@ public class IntegerStepperTest {
             )
     }
 
-    @Test()
+    @Test
     fun enable_stepper_semantics_using_modifier() {
         val value = 1
         val valueProgression = 0..10
@@ -596,6 +592,7 @@ private fun ComposeContentTestRule.setNewValueAndCheck(
     assertEquals(newValue, state.value)
 }
 
+@OptIn(ExperimentalWearMaterial3Api::class)
 private fun ComposeContentTestRule.initDefaultStepper(
     state: MutableState<Float>,
     valueRange: ClosedFloatingPointRange<Float>,
@@ -644,6 +641,7 @@ private fun ComposeContentTestRule.setNewValueAndCheck(
     assertEquals(newValue, state.value)
 }
 
+@OptIn(ExperimentalWearMaterial3Api::class)
 private fun ComposeContentTestRule.initDefaultStepper(
     state: MutableState<Int>,
     valueProgression: IntProgression,

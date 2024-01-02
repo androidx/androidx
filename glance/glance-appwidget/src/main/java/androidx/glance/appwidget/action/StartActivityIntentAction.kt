@@ -19,13 +19,15 @@ package androidx.glance.appwidget.action
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import androidx.annotation.RestrictTo
 import androidx.glance.ExperimentalGlanceApi
 import androidx.glance.action.Action
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.StartActivityAction
 import androidx.glance.action.actionParametersOf
 
-internal class StartActivityIntentAction(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class StartActivityIntentAction(
     val intent: Intent,
     override val parameters: ActionParameters = actionParametersOf(),
     override val activityOptions: Bundle?,

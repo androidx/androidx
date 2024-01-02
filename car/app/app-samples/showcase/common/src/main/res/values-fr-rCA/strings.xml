@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Onglet Liste"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Onglet de grille avec un titre d\'onglet long"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Onglet Recherche"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Chargement de l\'onglet en cours…"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Démo du chargement du modèle d\'onglet"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Démo sans onglets du modèle d\'onglet"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Impossible d\'afficher les images pour un hôte inconnu"</string>
@@ -364,4 +365,8 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"Options d\'itinéraire"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"Éviter les autoroutes"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Éviter le traversier"</string>
+    <string name="map_demos_title" msgid="2169766615521476592">"Démos de cartes"</string>
+    <string name="map_with_content_demo_title" msgid="1032610482145018739">"Démos de cartes avec du contenu"</string>
+    <string name="map_with_message_demo_title" msgid="7007078234918054436">"Démo d\'une carte avec message"</string>
+    <string name="map_with_grid_demo_title" msgid="688667167861193192">"Démo du modèle de carte avec grille"</string>
 </resources>

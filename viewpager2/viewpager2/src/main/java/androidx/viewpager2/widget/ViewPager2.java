@@ -553,7 +553,7 @@ public final class ViewPager2 extends ViewGroup {
         int snapPosition = mLayoutManager.getPosition(snapView);
 
         if (snapPosition != mCurrentItem && getScrollState() == SCROLL_STATE_IDLE) {
-            /** TODO: revisit if push to {@link ScrollEventAdapter} / separate component */
+            /* TODO: revisit if push to {@link ScrollEventAdapter} / separate component */
             mPageChangeEventDispatcher.onPageSelected(snapPosition);
         }
 
@@ -945,7 +945,6 @@ public final class ViewPager2 extends ViewGroup {
     }
 
     @Override
-    @RequiresApi(17)
     public void setLayoutDirection(int layoutDirection) {
         super.setLayoutDirection(layoutDirection);
         mAccessibilityProvider.onSetLayoutDirection();
@@ -957,7 +956,6 @@ public final class ViewPager2 extends ViewGroup {
         mAccessibilityProvider.onInitializeAccessibilityNodeInfo(info);
     }
 
-    @RequiresApi(16)
     @Override
     public boolean performAccessibilityAction(int action, @Nullable Bundle arguments) {
         if (mAccessibilityProvider.handlesPerformAccessibilityAction(action, arguments)) {
@@ -1449,9 +1447,7 @@ public final class ViewPager2 extends ViewGroup {
         public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
             AccessibilityNodeInfoCompat infoCompat = AccessibilityNodeInfoCompat.wrap(info);
             addCollectionInfo(infoCompat);
-            if (Build.VERSION.SDK_INT >= 16) {
-                addScrollActions(infoCompat);
-            }
+            addScrollActions(infoCompat);
         }
 
         @Override

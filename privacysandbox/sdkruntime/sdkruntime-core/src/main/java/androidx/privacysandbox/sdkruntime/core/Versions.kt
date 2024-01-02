@@ -24,7 +24,6 @@ import org.jetbrains.annotations.TestOnly
  * Store internal API version (for Client-Core communication).
  * Methods invoked via reflection.
  *
- * @suppress
  */
 @Suppress("unused")
 @Keep

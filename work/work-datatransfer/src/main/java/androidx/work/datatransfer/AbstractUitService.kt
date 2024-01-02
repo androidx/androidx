@@ -23,6 +23,7 @@ import android.content.Intent
 /**
  * App developers should migrate their existing foreground service implementation to this new
  * base class instead of [Service].
+ *
  * App developers are not supposed to call [Service.stopForeground] (or even [Service.stopService])
  * on their own, otherwise this library will crash unexpectedly.
  */
@@ -43,7 +44,8 @@ abstract class AbstractUitService : Service() {
     /**
      * Optional method that can be overridden by apps. Apps can implement their own policy for
      * how multiplexing for task notifications will behave.
-     * The default notification policy is FIFO.
+     *
+     * **The default notification policy is FIFO.**
      */
     open fun handleTaskNotification(id: Int, notification: Notification) {
         TODO()

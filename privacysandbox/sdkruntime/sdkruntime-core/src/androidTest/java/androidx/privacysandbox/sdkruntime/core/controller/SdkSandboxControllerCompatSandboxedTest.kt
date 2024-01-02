@@ -23,83 +23,58 @@ import android.app.sdksandbox.sdkprovider.SdkSandboxActivityHandler
 import android.app.sdksandbox.sdkprovider.SdkSandboxController
 import android.content.Context
 import android.os.Binder
-import android.os.Build
 import android.os.Bundle
-import android.os.ext.SdkExtensions
 import android.window.OnBackInvokedDispatcher
-import androidx.annotation.RequiresExtension
 import androidx.lifecycle.Lifecycle
-import androidx.privacysandbox.sdkruntime.core.AdServicesInfo
+import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.activity.ActivityHolder
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import androidx.test.internal.runner.junit4.statement.UiThreadStatement
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert
-import org.junit.Assume.assumeFalse
-import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.doReturn
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.spy
 import org.mockito.Mockito.verify
-import org.mockito.Mockito.verifyZeroInteractions
 import org.mockito.Mockito.`when`
 
 // TODO(b/249982507) Rewrite test to use real SDK in sandbox instead of mocking controller
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
 class SdkSandboxControllerCompatSandboxedTest {
 
     @Test
-    fun controllerAPIs_whenApiNotAvailable_notDelegateToSandbox() {
-        assumeFalse(
-            "Requires SandboxController API not available",
-            isSandboxControllerAvailable()
-        )
-
-        val context = spy(ApplicationProvider.getApplicationContext<Context>())
-        val controllerCompat = SdkSandboxControllerCompat.from(context)
-
-        controllerCompat.getSandboxedSdks()
-        val handlerCompat = object : SdkSandboxActivityHandlerCompat {
-            override fun onActivityCreated(activityHolder: ActivityHolder) {}
-        }
-        Assert.assertThrows(UnsupportedOperationException::class.java) {
-            controllerCompat.registerSdkSandboxActivityHandler(handlerCompat)
-        }
-        Assert.assertThrows(UnsupportedOperationException::class.java) {
-            controllerCompat.unregisterSdkSandboxActivityHandler(handlerCompat)
-        }
-        verifyZeroInteractions(context)
-    }
-
-    @Test
-    fun getSandboxedSdks_whenApiNotAvailable_returnsEmptyList() {
-        assumeFalse(
-            "Requires SandboxController API not available",
-            isSandboxControllerAvailable()
-        )
-
+    @SdkSuppress(maxSdkVersion = 33)
+    fun from_whenApiBelow34_throwUnsupportedOperationException() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val controllerCompat = SdkSandboxControllerCompat.from(context)
-
-        val sandboxedSdks = controllerCompat.getSandboxedSdks()
-
-        assertThat(sandboxedSdks).isEmpty()
+        Assert.assertThrows(UnsupportedOperationException::class.java) {
+            SdkSandboxControllerCompat.from(context)
+        }
     }
 
     @Test
-    // TODO(b/262577044) Remove RequiresExtension after extensions support in @SdkSuppress
-    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
-    fun getSandboxedSdks_whenApiAvailable_returnsListFromPlatformApi() {
-        assumeTrue(
-            "Requires SandboxController API available",
-            isSandboxControllerAvailable()
-        )
+    @SdkSuppress(minSdkVersion = 34)
+    fun loadSdk_withoutLocalImpl_throwsLoadSdkCompatException() {
+        val context = spy(ApplicationProvider.getApplicationContext<Context>())
+        val sdkSandboxController = mock(SdkSandboxController::class.java)
+        doReturn(sdkSandboxController)
+            .`when`(context).getSystemService(SdkSandboxController::class.java)
 
+        val controllerCompat = SdkSandboxControllerCompat.from(context)
+
+        Assert.assertThrows(LoadSdkCompatException::class.java) {
+            runBlocking {
+                controllerCompat.loadSdk("SDK", Bundle())
+            }
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 34)
+    fun getSandboxedSdks_withoutLocalImpl_returnsListFromPlatformApi() {
         val context = spy(ApplicationProvider.getApplicationContext<Context>())
         val sdkSandboxController = mock(SdkSandboxController::class.java)
         doReturn(sdkSandboxController)
@@ -118,10 +93,8 @@ class SdkSandboxControllerCompatSandboxedTest {
     }
 
     @Test
-    // TODO(b/262577044) Remove RequiresExtension after extensions support in @SdkSuppress
-    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
-    fun registerSdkSandboxHandlerCompat_whenApiAvailable_registerItToPlatform() {
+    @SdkSuppress(minSdkVersion = 34)
+    fun registerSdkSandboxHandlerCompat_withoutLocalImpl_registerItToPlatform() {
         val context = spy(ApplicationProvider.getApplicationContext<Context>())
         val sdkSandboxController = mock(SdkSandboxController::class.java)
         doReturn(sdkSandboxController)
@@ -164,42 +137,36 @@ class SdkSandboxControllerCompatSandboxedTest {
         UiThreadStatement.runOnUiThread {
             assertThat(activityHolderCaptor.value.lifecycle.currentState).isEqualTo(
                 Lifecycle.State.INITIALIZED)
-            activityLifecycleCallbackCaptor.value.onActivityCreated(activityMock, bundleMock)
+
+            activityLifecycleCallbackCaptor.value.onActivityPostCreated(activityMock, bundleMock)
             assertThat(activityHolderCaptor.value.lifecycle.currentState).isEqualTo(
                 Lifecycle.State.CREATED)
 
-            activityLifecycleCallbackCaptor.value.onActivityStarted(activityMock)
+            activityLifecycleCallbackCaptor.value.onActivityPostStarted(activityMock)
             assertThat(activityHolderCaptor.value.lifecycle.currentState).isEqualTo(
                 Lifecycle.State.STARTED)
 
-            activityLifecycleCallbackCaptor.value.onActivityResumed(activityMock)
+            activityLifecycleCallbackCaptor.value.onActivityPostResumed(activityMock)
             assertThat(activityHolderCaptor.value.lifecycle.currentState).isEqualTo(
                 Lifecycle.State.RESUMED)
 
-            activityLifecycleCallbackCaptor.value.onActivityPaused(activityMock)
+            activityLifecycleCallbackCaptor.value.onActivityPrePaused(activityMock)
             assertThat(activityHolderCaptor.value.lifecycle.currentState).isEqualTo(
                 Lifecycle.State.STARTED)
 
-            activityLifecycleCallbackCaptor.value.onActivityStopped(activityMock)
+            activityLifecycleCallbackCaptor.value.onActivityPreStopped(activityMock)
             assertThat(activityHolderCaptor.value.lifecycle.currentState).isEqualTo(
                 Lifecycle.State.CREATED)
 
-            activityLifecycleCallbackCaptor.value.onActivityDestroyed(activityMock)
+            activityLifecycleCallbackCaptor.value.onActivityPreDestroyed(activityMock)
             assertThat(activityHolderCaptor.value.lifecycle.currentState).isEqualTo(
                 Lifecycle.State.DESTROYED)
-
-            val currentState = activityHolderCaptor.value.lifecycle.currentState
-            activityLifecycleCallbackCaptor.value.onActivitySaveInstanceState(
-                activityMock, bundleMock)
-            assertThat(activityHolderCaptor.value.lifecycle.currentState).isEqualTo(currentState)
         }
     }
 
     @Test
-    // TODO(b/262577044) Remove RequiresExtension after extensions support in @SdkSuppress
-    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
-    fun unregisterSdkSandboxHandlerCompat_whenApiAvailable_unregisterItToPlatform() {
+    @SdkSuppress(minSdkVersion = 34)
+    fun unregisterSdkSandboxHandlerCompat_withoutLocalImpl_unregisterItToPlatform() {
         val context = spy(ApplicationProvider.getApplicationContext<Context>())
         val sdkSandboxController = mock(SdkSandboxController::class.java)
         doReturn(sdkSandboxController)
@@ -226,9 +193,6 @@ class SdkSandboxControllerCompatSandboxedTest {
 
         assertThat(unregisteredHandlerCaptor.value).isEqualTo(registeredHandlerCaptor.value)
     }
-
-    private fun isSandboxControllerAvailable() =
-        AdServicesInfo.isAtLeastV5()
 
     // To capture non null arguments.
 

@@ -16,9 +16,8 @@
 
 package androidx.compose.foundation.samples
 
+import android.os.Build
 import androidx.annotation.Sampled
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.MagnifierStyle
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.magnifier
@@ -35,7 +34,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 
-@OptIn(ExperimentalFoundationApi::class)
 @Sampled
 @Composable
 fun MagnifierSample() {
@@ -43,7 +41,7 @@ fun MagnifierSample() {
     // Hide the magnifier until a drag starts.
     var magnifierCenter by remember { mutableStateOf(Offset.Unspecified) }
 
-    if (!MagnifierStyle.Default.isSupported) {
+    if (Build.VERSION.SDK_INT < 28) {
         Text("Magnifier is not supported on this platform.")
     } else {
         Box(

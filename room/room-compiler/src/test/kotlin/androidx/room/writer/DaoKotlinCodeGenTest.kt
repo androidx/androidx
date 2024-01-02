@@ -22,11 +22,16 @@ import androidx.room.compiler.processing.util.compileFiles
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import org.jetbrains.kotlin.config.JvmDefaultMode
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestName
 import org.junit.runner.RunWith
 
 @RunWith(TestParameterInjector::class)
 class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
+
+    @get:Rule
+    val testName = TestName()
 
     val databaseSrc = Source.kotlin(
         "MyDatabase.kt",
@@ -42,7 +47,6 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun pojoRowAdapter_variableProperty() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -70,13 +74,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src, databaseSrc),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun pojoRowAdapter_variableProperty_java() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -119,14 +122,13 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src, javaEntity, databaseSrc),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     // b/274760383
     @Test
     fun pojoRowAdapter_otherModule() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val lib = compileFiles(
             sources = listOf(
                 Source.kotlin(
@@ -171,14 +173,13 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src, databaseSrc),
-            expectedFilePath = getTestGoldenPath(testName),
+            expectedFilePath = getTestGoldenPath(testName.methodName),
             compiledFiles = lib
         )
     }
 
     @Test
     fun pojoRowAdapter_internalVisibility() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -207,13 +208,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src, databaseSrc),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun pojoRowAdapter_primitives() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -243,13 +243,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src, databaseSrc),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun pojoRowAdapter_primitives_nullable() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -279,13 +278,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src, databaseSrc),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun pojoRowAdapter_boolean() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -311,13 +309,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src, databaseSrc),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun pojoRowAdapter_string() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -342,13 +339,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src, databaseSrc),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun pojoRowAdapter_byteArray() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -374,13 +370,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src, databaseSrc),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun pojoRowAdapter_enum() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -411,13 +406,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src, databaseSrc),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun pojoRowAdapter_uuid() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -449,13 +443,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src, databaseSrc),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun pojoRowAdapter_embedded() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -488,13 +481,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src, databaseSrc),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun pojoRowAdapter_customTypeConverter() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -529,13 +521,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src, databaseSrc),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun pojoRowAdapter_customTypeConverter_provided() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -571,13 +562,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src, databaseSrc),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun pojoRowAdapter_customTypeConverter_composite() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -618,13 +608,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src, databaseSrc),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun pojoRowAdapter_customTypeConverter_nullAware() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -666,13 +655,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src, databaseSrc),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun pojoRowAdapter_customTypeConverter_internalVisibility() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -707,13 +695,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src, databaseSrc),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun coroutineResultBinder() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -735,13 +722,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src, databaseSrc, COMMON.COROUTINES_ROOM),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun multiTypedPagingSourceResultBinder() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -784,13 +770,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 COMMON.LIMIT_OFFSET_LISTENABLE_FUTURE_PAGING_SOURCE,
                 COMMON.LISTENABLE_FUTURE_PAGING_SOURCE
             ),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun basicParameterAdapter_string() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -814,13 +799,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src, databaseSrc),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun collectionParameterAdapter_string() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -850,13 +834,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src, databaseSrc),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun arrayParameterAdapter() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -895,13 +878,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src, databaseSrc),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun preparedQueryAdapter() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -938,13 +920,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src, databaseSrc),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun rawQuery() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -961,12 +942,14 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
             data class MyEntity(
                 @PrimaryKey
                 val pk: Long,
+                val doubleColumn: Double,
+                val floatColumn: Float,
             )
             """.trimIndent()
         )
         runTest(
             sources = listOf(src, databaseSrc),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
@@ -975,6 +958,7 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         @TestParameter("DISABLE", "ALL_COMPATIBILITY", "ALL_INCOMPATIBLE")
         jvmDefaultMode: JvmDefaultMode
     ) {
+        // For parametrized tests, use method name from reflection
         val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
@@ -1008,7 +992,6 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun delegatingFunctions_boxedPrimitiveBridge() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -1039,7 +1022,7 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src, databaseSrc),
-            expectedFilePath = getTestGoldenPath(testName),
+            expectedFilePath = getTestGoldenPath(testName.methodName),
         )
     }
 
@@ -1048,6 +1031,7 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         @TestParameter("DISABLE", "ALL_COMPATIBILITY", "ALL_INCOMPATIBLE")
         jvmDefaultMode: JvmDefaultMode
     ) {
+        // For parametrized tests, use method name from reflection
         val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
@@ -1116,7 +1100,6 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun transactionMethodAdapter_abstractClass() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -1165,13 +1148,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src, databaseSrc, COMMON.COROUTINES_ROOM, COMMON.ROOM_DATABASE_KTX),
-            expectedFilePath = getTestGoldenPath(testName),
+            expectedFilePath = getTestGoldenPath(testName.methodName),
         )
     }
 
     @Test
     fun deleteOrUpdateMethodAdapter() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -1202,13 +1184,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src, databaseSrc),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun insertOrUpsertMethodAdapter() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -1251,13 +1232,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src, databaseSrc),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun queryResultAdapter_list() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val dbSource = Source.kotlin(
             "MyDatabase.kt",
             """
@@ -1297,13 +1277,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src, dbSource),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun queryResultAdapter_array() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val dbSource = Source.kotlin(
             "MyDatabase.kt",
             """
@@ -1346,13 +1325,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src, dbSource),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun abstractClassWithParam() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -1373,13 +1351,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src, databaseSrc),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun queryResultAdapter_optional() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -1401,13 +1378,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src, databaseSrc),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun queryResultAdapter_guavaOptional() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -1429,13 +1405,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src, databaseSrc),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun queryResultAdapter_immutable_list() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -1458,13 +1433,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src, databaseSrc),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun queryResultAdapter_map() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -1515,13 +1489,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun queryResultAdapter_nestedMap() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -1588,13 +1561,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun queryResultAdapter_guavaImmutableMultimap() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -1630,13 +1602,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun queryResultAdapter_guavaImmutableMap() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -1669,13 +1640,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun queryResultAdapter_map_ambiguousIndexAdapter() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -1718,13 +1688,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun queryResultAdapter_nestedMap_ambiguousIndexAdapter() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -1772,13 +1741,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun entityRowAdapter() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -1813,13 +1781,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src, databaseSrc),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun paging_dataSource() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -1847,13 +1814,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 COMMON.DATA_SOURCE_FACTORY,
                 COMMON.POSITIONAL_DATA_SOURCE
             ),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun callableQuery_rx2() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -1907,13 +1873,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 COMMON.PUBLISHER,
                 COMMON.RX2_EMPTY_RESULT_SET_EXCEPTION
             ),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun callableQuery_rx3() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -1967,13 +1932,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 COMMON.PUBLISHER,
                 COMMON.RX3_EMPTY_RESULT_SET_EXCEPTION
             ),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun preparedCallableQuery_rx2() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -2013,13 +1977,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 COMMON.PUBLISHER,
                 COMMON.RX2_EMPTY_RESULT_SET_EXCEPTION
             ),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun preparedCallableQuery_rx3() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -2059,13 +2022,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 COMMON.PUBLISHER,
                 COMMON.RX3_EMPTY_RESULT_SET_EXCEPTION
             ),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun coroutines() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -2099,13 +2061,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 COMMON.FLOW,
                 COMMON.COROUTINES_ROOM
             ),
-            expectedFilePath = getTestGoldenPath(testName),
+            expectedFilePath = getTestGoldenPath(testName.methodName),
         )
     }
 
     @Test
     fun shortcutMethods_rx2() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -2155,13 +2116,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 COMMON.RX2_COMPLETABLE,
                 COMMON.RX2_EMPTY_RESULT_SET_EXCEPTION,
             ),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun shortcutMethods_rx3() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -2211,13 +2171,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 COMMON.RX3_COMPLETABLE,
                 COMMON.RX3_EMPTY_RESULT_SET_EXCEPTION
             ),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun guavaCallable() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -2260,13 +2219,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 COMMON.LISTENABLE_FUTURE,
                 COMMON.GUAVA_ROOM,
             ),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun liveDataCallable() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -2296,14 +2254,13 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 databaseSrc,
                 COMMON.COROUTINES_ROOM
             ),
-            expectedFilePath = getTestGoldenPath(testName),
+            expectedFilePath = getTestGoldenPath(testName.methodName),
             compiledFiles = compileFiles(listOf(COMMON.LIVE_DATA))
         )
     }
 
     @Test
     fun shortcutMethods_suspend() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -2338,13 +2295,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 databaseSrc,
                 COMMON.COROUTINES_ROOM
             ),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun pojoRowAdapter_valueClassConverter() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDao.kt",
             """
@@ -2386,7 +2342,7 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
         runTest(
             sources = listOf(src, databaseSrc),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 }

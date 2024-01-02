@@ -96,7 +96,6 @@ import android.widget.TimePicker;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.graphics.drawable.IconCompat;
@@ -119,8 +118,12 @@ import java.util.Set;
 /**
  * Row item is in small template format and can be used to construct list items for use
  * with {@link TemplateView}.
+ *
+ * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+ * forward. If you are looking for a framework that handles communication across apps,
+ * consider using {@link android.app.appsearch.AppSearchManager}.
  */
-@RequiresApi(19)
+@Deprecated
 public class RowView extends SliceChildView implements View.OnClickListener,
         AdapterView.OnItemSelectedListener {
 

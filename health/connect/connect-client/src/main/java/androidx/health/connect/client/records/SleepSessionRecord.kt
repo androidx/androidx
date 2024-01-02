@@ -24,32 +24,26 @@ import java.time.Instant
 import java.time.ZoneOffset
 
 /**
- * Captures the user's length and type of sleep. Each record represents a time interval for a stage
- * of sleep.
+ * Captures the user's sleep length and its stages. Each record represents a time interval for a
+ * full sleep session.
  *
- * The start time of the record represents the start of the sleep stage and always needs to be
- * included. The timestamp represents the end of the sleep stage. Time intervals don't need to be
- * continuous but shouldn't overlap.
+ * All sleep stage time intervals should fall within the sleep session interval. Time intervals for
+ * stages don't need to be continuous but shouldn't overlap.
  *
- * Example code demonstrate how to read sleep session with stages:
+ * Example code demonstrate how to read sleep session:
  *
  * @sample androidx.health.connect.client.samples.ReadSleepSessions
- *
- * When deleting a session, associated sleep stage records need to be deleted separately:
- *
- * @sample androidx.health.connect.client.samples.DeleteSleepSession
- * @see SleepStageRecord
  */
-public class SleepSessionRecord(
+class SleepSessionRecord(
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
     override val endZoneOffset: ZoneOffset?,
     /** Title of the session. Optional field. */
-    public val title: String? = null,
+    val title: String? = null,
     /** Additional notes for the session. Optional field. */
-    public val notes: String? = null,
-    public val stages: List<Stage> = emptyList(),
+    val notes: String? = null,
+    val stages: List<Stage> = emptyList(),
     override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
 
@@ -150,11 +144,7 @@ public class SleepSessionRecord(
             STAGE_TYPE_STRING_TO_INT_MAP.entries.associateBy({ it.value }, { it.key })
     }
 
-    /**
-     * Type of sleep stage.
-     *
-     * @suppress
-     */
+    /** Type of sleep stage. */
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(
         value =
@@ -177,7 +167,7 @@ public class SleepSessionRecord(
      *
      * @see SleepSessionRecord
      */
-    public class Stage(
+    class Stage(
         val startTime: Instant,
         val endTime: Instant,
         @property:StageTypes val stage: Int,

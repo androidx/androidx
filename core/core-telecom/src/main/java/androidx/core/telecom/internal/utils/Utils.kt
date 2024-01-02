@@ -26,7 +26,6 @@ import android.util.Log
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
-import androidx.core.telecom.CallException
 import androidx.core.telecom.CallsManager
 
 internal class Utils {
@@ -72,10 +71,13 @@ internal class Utils {
 
         fun verifyBuildVersion() {
             if (mBuildVersion.hasInvalidBuildVersion()) {
-                throw UnsupportedOperationException(CallException.ERROR_BUILD_VERSION)
+                throw UnsupportedOperationException("Core-Telecom only supports builds from" +
+                    " Oreo (Android 8) and above.  In order to utilize Core-Telecom, your device" +
+                    " must be updated.")
             }
         }
 
+        @RequiresApi(VERSION_CODES.O)
         fun remapJetpackCapabilitiesToPlatformCapabilities(
             @CallsManager.Companion.Capability clientBitmapSelection: Int
         ): Int {
@@ -99,10 +101,12 @@ internal class Utils {
             return (bitMap.and(targetCapability)) == targetCapability
         }
 
+        @RequiresApi(VERSION_CODES.O)
         private fun hasJetpackVideoCallingCapability(bitMap: Int): Boolean {
             return hasCapability(CallsManager.CAPABILITY_SUPPORTS_VIDEO_CALLING, bitMap)
         }
 
+        @RequiresApi(VERSION_CODES.O)
         private fun hasJetpackSteamingCapability(bitMap: Int): Boolean {
             return hasCapability(CallsManager.CAPABILITY_SUPPORTS_CALL_STREAMING, bitMap)
         }

@@ -811,13 +811,11 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void horizontalAccessibilitySpanIndices() throws Throwable {
         accessibilitySpanIndicesTest(HORIZONTAL);
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void verticalAccessibilitySpanIndices() throws Throwable {
         accessibilitySpanIndicesTest(VERTICAL);
     }

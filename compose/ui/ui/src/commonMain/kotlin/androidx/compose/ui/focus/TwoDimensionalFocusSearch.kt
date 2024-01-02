@@ -30,13 +30,12 @@ import androidx.compose.ui.focus.FocusStateImpl.Inactive
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.Nodes
+import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.node.visitChildren
 import kotlin.math.absoluteValue
 import kotlin.math.max
 
-@Suppress("ConstPropertyName")
 private const val InvalidFocusDirection = "This function should only be used for 2-D focus search"
-@Suppress("ConstPropertyName")
 private const val NoActiveChild = "ActiveParent must have a focusedChild"
 
 /**
@@ -52,10 +51,17 @@ private const val NoActiveChild = "ActiveParent must have a focusedChild"
  */
 internal fun FocusTargetNode.twoDimensionalFocusSearch(
     direction: FocusDirection,
+    previouslyFocusedRect: Rect?,
     onFound: (FocusTargetNode) -> Boolean
 ): Boolean? {
     when (focusState) {
-        Inactive -> return if (fetchFocusProperties().canFocus) onFound.invoke(this) else false
+        Inactive -> return if (fetchFocusProperties().canFocus) {
+            onFound.invoke(this)
+        } else if (previouslyFocusedRect == null) {
+            findChildCorrespondingToFocusEnter(direction, onFound)
+        } else {
+            searchChildren(previouslyFocusedRect, direction, onFound)
+        }
         ActiveParent -> {
             val focusedChild = activeChild ?: error(NoActiveChild)
             // For 2D focus search we only search among siblings. You have to use DPad Center or
@@ -67,15 +73,20 @@ internal fun FocusTargetNode.twoDimensionalFocusSearch(
 
                 ActiveParent -> {
                     // If the focusedChild is an intermediate parent, we search among its children.
-                    val found = focusedChild.twoDimensionalFocusSearch(direction, onFound)
+                    val found = focusedChild
+                        .twoDimensionalFocusSearch(direction, previouslyFocusedRect, onFound)
                     if (found != false) return found
 
                     // We search among the siblings of the parent.
-                    return generateAndSearchChildren(focusedChild.activeNode(), direction, onFound)
+                    return generateAndSearchChildren(
+                        focusedChild.activeNode().focusRect(),
+                        direction,
+                        onFound
+                    )
                 }
                 // Search for the next eligible sibling.
                 Active, Captured ->
-                    return generateAndSearchChildren(focusedChild, direction, onFound)
+                    return generateAndSearchChildren(focusedChild.focusRect(), direction, onFound)
                 Inactive -> error(NoActiveChild)
             }
         }
@@ -133,7 +144,7 @@ internal fun FocusTargetNode.findChildCorrespondingToFocusEnter(
 // Search among your children for the next child.
 // If the next child is not found, generate more children by requesting a beyondBoundsLayout.
 private fun FocusTargetNode.generateAndSearchChildren(
-    focusedItem: FocusTargetNode,
+    focusedItem: Rect,
     direction: FocusDirection,
     onFound: (FocusTargetNode) -> Boolean
 ): Boolean {
@@ -153,7 +164,7 @@ private fun FocusTargetNode.generateAndSearchChildren(
 }
 
 private fun FocusTargetNode.searchChildren(
-    focusedItem: FocusTargetNode,
+    focusedItem: Rect,
     direction: FocusDirection,
     onFound: (FocusTargetNode) -> Boolean
 ): Boolean {
@@ -163,7 +174,7 @@ private fun FocusTargetNode.searchChildren(
         }
     }
     while (children.isNotEmpty()) {
-        val nextItem = children.findBestCandidate(focusedItem.focusRect(), direction)
+        val nextItem = children.findBestCandidate(focusedItem, direction)
             ?: return false
 
         // If the result is not deactivated, this is a valid next item.
@@ -189,7 +200,7 @@ private fun DelegatableNode.collectAccessibleChildren(
 ) {
     visitChildren(Nodes.FocusTarget) {
         // TODO(b/278765590): Find the root issue why visitChildren returns unattached nodes.
-        if (!it.isAttached) return@visitChildren
+        if (!it.isAttached || it.requireLayoutNode().isDeactivated) return@visitChildren
 
         if (it.fetchFocusProperties().canFocus) {
             accessibleChildren.add(it)

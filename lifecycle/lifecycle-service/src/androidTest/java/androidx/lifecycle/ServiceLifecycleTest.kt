@@ -29,8 +29,8 @@ import androidx.lifecycle.Lifecycle.Event.ON_DESTROY
 import androidx.lifecycle.Lifecycle.Event.ON_START
 import androidx.lifecycle.Lifecycle.Event.ON_STOP
 import androidx.lifecycle.service.TestService
-import androidx.lifecycle.service.TestService.ACTION_LOG_EVENT
-import androidx.lifecycle.service.TestService.EXTRA_KEY_EVENT
+import androidx.lifecycle.service.TestService.Companion.ACTION_LOG_EVENT
+import androidx.lifecycle.service.TestService.Companion.EXTRA_KEY_EVENT
 import androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.ext.junit.runners.AndroidJUnit4

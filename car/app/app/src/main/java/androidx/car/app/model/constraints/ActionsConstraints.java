@@ -170,7 +170,7 @@ public final class ActionsConstraints {
     @NonNull
     public static final ActionsConstraints ACTIONS_CONSTRAINTS_FAB =
             new ActionsConstraints.Builder()
-                    .setMaxActions(1)
+                    .setMaxActions(2)
                     .addAllowedActionType(Action.TYPE_CUSTOM)
                     .addAllowedActionType(Action.TYPE_COMPOSE_MESSAGE)
                     .setRequireActionIcons(true)

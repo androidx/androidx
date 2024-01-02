@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text2.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.MultiLine
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.SingleLine
 import androidx.compose.runtime.Immutable
@@ -45,6 +46,9 @@ sealed interface TextFieldLineLimits {
      * [maxHeightInLines] tall and then start scrolling vertically.
      *
      * It is required that 1 ≤ [minHeightInLines] ≤ [maxHeightInLines].
+     *
+     * To specify the minimum and/or maximum height of the field in non-text units, such as dps, use
+     * the [heightIn] modifier.
      */
     @Immutable
     class MultiLine(

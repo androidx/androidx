@@ -19,12 +19,8 @@ package androidx.compose.ui.node
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.Matrix
-import androidx.compose.ui.graphics.RenderEffect
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.ReusableGraphicsLayerScope
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -39,25 +35,9 @@ internal interface OwnedLayer {
      * Applies the new layer properties and causing this layer to be redrawn.
      */
     fun updateLayerProperties(
-        scaleX: Float,
-        scaleY: Float,
-        alpha: Float,
-        translationX: Float,
-        translationY: Float,
-        shadowElevation: Float,
-        rotationX: Float,
-        rotationY: Float,
-        rotationZ: Float,
-        cameraDistance: Float,
-        transformOrigin: TransformOrigin,
-        shape: Shape,
-        clip: Boolean,
-        renderEffect: RenderEffect?,
-        ambientShadowColor: Color,
-        spotShadowColor: Color,
-        compositingStrategy: CompositingStrategy,
+        scope: ReusableGraphicsLayerScope,
         layoutDirection: LayoutDirection,
-        density: Density
+        density: Density,
     )
 
     /**

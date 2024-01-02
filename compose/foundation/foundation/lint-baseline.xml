@@ -1,13 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-beta05" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta05)" variant="all" version="8.1.0-beta05">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="            Thread.sleep(5)"
-        errorLine2="                   ~~~~~">
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="class TextDelegate("
+        errorLine2="      ~~~~~~~~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/foundation/lazy/grid/LazyScrollTest.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/TextDelegate.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="        fun applyCompositionDecoration("
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/TextFieldDelegate.kt"/>
     </issue>
 
     <issue
@@ -16,7 +25,7 @@
         errorLine1="            Thread.sleep(5)"
         errorLine2="                   ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/foundation/lazy/list/LazyScrollTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/lazy/grid/LazyScrollTest.kt"/>
     </issue>
 
     <issue
@@ -25,2176 +34,647 @@
         errorLine1="            Thread.sleep(5)"
         errorLine2="                   ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridAnimatedScrollTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/lazy/list/LazyScrollTest.kt"/>
     </issue>
 
     <issue
-        id="ExperimentalPropertyAnnotation"
-        message="This property does not have all required annotations to correctly mark it as experimental."
-        errorLine1="        @ExperimentalFoundationApi"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(5)"
+        errorLine2="                   ~~~~~">
         <location
-            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridAnimatedScrollTest.kt"/>
     </issue>
 
     <issue
-        id="ExperimentalPropertyAnnotation"
-        message="This property does not have all required annotations to correctly mark it as experimental."
-        errorLine1="        @ExperimentalFoundationApi"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor AnchoredDraggableState has parameter &apos;positionalThreshold&apos; with type Function1&lt;? super Float, Float>."
-        errorLine1="    internal val positionalThreshold: (totalDistance: Float) -> Float,"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="field anchors with type Map&lt;T, Float>: replace with ObjectFloatMap"
+        errorLine1="    internal val anchors = mutableMapOf&lt;T, Float>()"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/gestures/AnchoredDraggable.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;Float, Float> of &apos;getPositionalThreshold$lint_module&apos;."
-        errorLine1="    internal val positionalThreshold: (totalDistance: Float) -> Float,"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="return type Map&lt;T, Float> of getAnchors$lint_module: replace with ObjectFloatMap"
+        errorLine1="    internal val anchors = mutableMapOf&lt;T, Float>()"
+        errorLine2="                 ~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/gestures/AnchoredDraggable.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor AnchoredDraggableState has parameter &apos;velocityThreshold&apos; with type Function0&lt;Float>."
-        errorLine1="    internal val velocityThreshold: () -> Float,"
-        errorLine2="                                    ~~~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="constructor MapDraggableAnchors has parameter anchors with type Map&lt;T, Float>: replace with ObjectFloatMap"
+        errorLine1="private class MapDraggableAnchors&lt;T>(private val anchors: Map&lt;T, Float>) : DraggableAnchors&lt;T> {"
+        errorLine2="                                                          ~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/gestures/AnchoredDraggable.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function0&lt;Float> of &apos;getVelocityThreshold$lint_module&apos;."
-        errorLine1="    internal val velocityThreshold: () -> Float,"
-        errorLine2="                                    ~~~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="field anchors with type Map&lt;T, Float>: replace with ObjectFloatMap"
+        errorLine1="private class MapDraggableAnchors&lt;T>(private val anchors: Map&lt;T, Float>) : DraggableAnchors&lt;T> {"
+        errorLine2="                                                          ~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/gestures/AnchoredDraggable.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor AnchoredDraggableState has parameter &apos;positionalThreshold&apos; with type Function1&lt;? super Float, Float>."
-        errorLine1="        positionalThreshold: (totalDistance: Float) -> Float,"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="method genericClickableWithoutGesture has parameter currentKeyPressInteractions with type Map&lt;Key, Press>: replace with LongObjectMap"
+        errorLine1="    currentKeyPressInteractions: MutableMap&lt;Key, PressInteraction.Press>,"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/AnchoredDraggable.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor AnchoredDraggableState has parameter &apos;velocityThreshold&apos; with type Function0&lt;Float>."
-        errorLine1="        velocityThreshold: () -> Float,"
-        errorLine2="                           ~~~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="field currentKeyPressInteractions with type Map&lt;Key, Press>: replace with LongObjectMap"
+        errorLine1="        val currentKeyPressInteractions = mutableMapOf&lt;Key, PressInteraction.Press>()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/AnchoredDraggable.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method Saver has parameter &apos;positionalThreshold&apos; with type Function1&lt;? super Float, Float>."
-        errorLine1="            positionalThreshold: (distance: Float) -> Float,"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="return type Map&lt;Key, Press> of getCurrentKeyPressInteractions: replace with LongObjectMap"
+        errorLine1="        val currentKeyPressInteractions = mutableMapOf&lt;Key, PressInteraction.Press>()"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/AnchoredDraggable.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method Saver has parameter &apos;velocityThreshold&apos; with type Function0&lt;Float>."
-        errorLine1="            velocityThreshold: () -> Float,"
-        errorLine2="                               ~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/AnchoredDraggable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method platformSpecificTextInputSession has parameter &apos;onImeAction&apos; with type Function1&lt;? super ImeAction, Unit>."
-        errorLine1="    onImeAction: ((ImeAction) -> Unit)?"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/foundation/text2/input/internal/AndroidTextInputSession.android.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method BasicSecureTextField has parameter &apos;onSubmit&apos; with type Function1&lt;? super ImeAction, Boolean>."
-        errorLine1="    onSubmit: ((ImeAction) -> Boolean)? = null,"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text2/BasicSecureTextField.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method KeyboardActions has parameter &apos;onSubmit&apos; with type Function1&lt;? super ImeAction, Boolean>."
-        errorLine1="private fun KeyboardActions(onSubmit: (ImeAction) -> Boolean) = KeyboardActions("
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text2/BasicSecureTextField.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method ClickableText has parameter &apos;onClick&apos; with type Function1&lt;? super Integer, Unit>."
-        errorLine1="    onClick: (Int) -> Unit"
-        errorLine2="             ~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/ClickableText.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method ClickableText has parameter &apos;onHover&apos; with type Function1&lt;? super Integer, Unit>."
-        errorLine1="    onHover: ((Int?) -> Unit),"
-        errorLine2="             ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/ClickableText.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method ClickableText has parameter &apos;onClick&apos; with type Function1&lt;? super Integer, Unit>."
-        errorLine1="    onClick: (Int) -> Unit"
-        errorLine2="             ~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/ClickableText.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;getOffset&apos; with type Function1&lt;? super Offset, ? extends Integer>."
-        errorLine1="    fun getOffset(positionOffset: Offset): Int? = layoutResult.value"
-        errorLine2="    ^">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/ClickableText.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;ImeAction, Unit> of &apos;getOnImeActionPerformed&apos;."
-        errorLine1="    val onImeActionPerformed: (ImeAction) -> Unit = { imeAction ->"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/CoreTextField.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method awaitTouchSlopOrCancellation has parameter &apos;onTouchSlopReached&apos; with type Function2&lt;? super PointerInputChange, ? super Offset, Unit>."
-        errorLine1="    onTouchSlopReached: (change: PointerInputChange, overSlop: Offset) -> Unit"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/DragGestureDetector.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method detectDragGestures has parameter &apos;onDragStart&apos; with type Function1&lt;? super Offset, Unit>."
-        errorLine1="    onDragStart: (Offset) -> Unit = { },"
-        errorLine2="                 ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/DragGestureDetector.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method detectDragGestures has parameter &apos;onDrag&apos; with type Function2&lt;? super PointerInputChange, ? super Offset, Unit>."
-        errorLine1="    onDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/DragGestureDetector.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method detectDragGesturesAfterLongPress has parameter &apos;onDragStart&apos; with type Function1&lt;? super Offset, Unit>."
-        errorLine1="    onDragStart: (Offset) -> Unit = { },"
-        errorLine2="                 ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/DragGestureDetector.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method detectDragGesturesAfterLongPress has parameter &apos;onDrag&apos; with type Function2&lt;? super PointerInputChange, ? super Offset, Unit>."
-        errorLine1="    onDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/DragGestureDetector.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method awaitVerticalTouchSlopOrCancellation has parameter &apos;onTouchSlopReached&apos; with type Function2&lt;? super PointerInputChange, ? super Float, Unit>."
-        errorLine1="    onTouchSlopReached: (change: PointerInputChange, overSlop: Float) -> Unit"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/DragGestureDetector.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method awaitVerticalPointerSlopOrCancellation has parameter &apos;onTouchSlopReached&apos; with type Function2&lt;? super PointerInputChange, ? super Float, Unit>."
-        errorLine1="    onTouchSlopReached: (change: PointerInputChange, overSlop: Float) -> Unit"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/DragGestureDetector.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method detectVerticalDragGestures has parameter &apos;onDragStart&apos; with type Function1&lt;? super Offset, Unit>."
-        errorLine1="    onDragStart: (Offset) -> Unit = { },"
-        errorLine2="                 ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/DragGestureDetector.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method detectVerticalDragGestures has parameter &apos;onVerticalDrag&apos; with type Function2&lt;? super PointerInputChange, ? super Float, Unit>."
-        errorLine1="    onVerticalDrag: (change: PointerInputChange, dragAmount: Float) -> Unit"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/DragGestureDetector.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method awaitHorizontalTouchSlopOrCancellation has parameter &apos;onTouchSlopReached&apos; with type Function2&lt;? super PointerInputChange, ? super Float, Unit>."
-        errorLine1="    onTouchSlopReached: (change: PointerInputChange, overSlop: Float) -> Unit"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/DragGestureDetector.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method awaitHorizontalPointerSlopOrCancellation has parameter &apos;onPointerSlopReached&apos; with type Function2&lt;? super PointerInputChange, ? super Float, Unit>."
-        errorLine1="    onPointerSlopReached: (change: PointerInputChange, overSlop: Float) -> Unit"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/DragGestureDetector.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method detectHorizontalDragGestures has parameter &apos;onDragStart&apos; with type Function1&lt;? super Offset, Unit>."
-        errorLine1="    onDragStart: (Offset) -> Unit = { },"
-        errorLine2="                 ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/DragGestureDetector.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method detectHorizontalDragGestures has parameter &apos;onHorizontalDrag&apos; with type Function2&lt;? super PointerInputChange, ? super Float, Unit>."
-        errorLine1="    onHorizontalDrag: (change: PointerInputChange, dragAmount: Float) -> Unit"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/DragGestureDetector.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method DraggableState has parameter &apos;onDelta&apos; with type Function1&lt;? super Float, Unit>."
-        errorLine1="fun DraggableState(onDelta: (Float) -> Unit): DraggableState ="
-        errorLine2="                            ~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/Draggable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method rememberDraggableState has parameter &apos;onDelta&apos; with type Function1&lt;? super Float, Unit>."
-        errorLine1="fun rememberDraggableState(onDelta: (Float) -> Unit): DraggableState {"
-        errorLine2="                                    ~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/Draggable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method draggable has parameter &apos;onDragStarted&apos; with type Function3&lt;? super CoroutineScope, ? super Offset, ? super Continuation&lt;? super Unit>, ? extends Object>."
-        errorLine1="    onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit = {},"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/Draggable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method draggable has parameter &apos;onDragStopped&apos; with type Function3&lt;? super CoroutineScope, ? super Float, ? super Continuation&lt;? super Unit>, ? extends Object>."
-        errorLine1="    onDragStopped: suspend CoroutineScope.(velocity: Float) -> Unit = {},"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/Draggable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor DraggableElement has parameter &apos;onDragStarted&apos; with type Function3&lt;? super CoroutineScope, ? super Offset, ? super Continuation&lt;? super Unit>, ? extends Object>."
-        errorLine1="    private val onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit,"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/Draggable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor DraggableElement has parameter &apos;onDragStopped&apos; with type Function3&lt;? super CoroutineScope, ? super Velocity, ? super Continuation&lt;? super Unit>, ? extends Object>."
-        errorLine1="    private val onDragStopped: suspend CoroutineScope.(velocity: Velocity) -> Unit,"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/Draggable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor DraggableNode has parameter &apos;onDragStarted&apos; with type Function3&lt;? super CoroutineScope, ? super Offset, ? super Continuation&lt;? super Unit>, ? extends Object>."
-        errorLine1="    private var onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit,"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/Draggable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor DraggableNode has parameter &apos;onDragStopped&apos; with type Function3&lt;? super CoroutineScope, ? super Velocity, ? super Continuation&lt;? super Unit>, ? extends Object>."
-        errorLine1="    private var onDragStopped: suspend CoroutineScope.(velocity: Velocity) -> Unit,"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/Draggable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method update has parameter &apos;onDragStarted&apos; with type Function3&lt;? super CoroutineScope, ? super Offset, ? super Continuation&lt;? super Unit>, ? extends Object>."
-        errorLine1="        onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit,"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/Draggable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method update has parameter &apos;onDragStopped&apos; with type Function3&lt;? super CoroutineScope, ? super Velocity, ? super Continuation&lt;? super Unit>, ? extends Object>."
-        errorLine1="        onDragStopped: suspend CoroutineScope.(velocity: Velocity) -> Unit,"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/Draggable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;postPointerSlop&apos; with type Function2&lt;? super PointerInputChange, ? super Offset, ? extends Unit>."
-        errorLine1="        val postPointerSlop = { event: PointerInputChange, offset: Offset ->"
+        id="PrimitiveInCollection"
+        message="variable pinnedItems with type List&lt;? extends Integer>: replace with IntList"
+        errorLine1="        val pinnedItems = itemProvider.calculateLazyLayoutPinnedIndices("
         errorLine2="        ^">
         <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/Draggable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;motionFromChange&apos; with type Function1&lt;? super PointerInputChange, ? extends Float>."
-        errorLine1="    val motionFromChange: (PointerInputChange) -> Float = if (orientation == Orientation.Vertical) {"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/Draggable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor DefaultDraggableState has parameter &apos;onDelta&apos; with type Function1&lt;? super Float, Unit>."
-        errorLine1="private class DefaultDraggableState(val onDelta: (Float) -> Unit) : DraggableState {"
-        errorLine2="                                                 ~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/Draggable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;Float, Unit> of &apos;getOnDelta&apos;."
-        errorLine1="private class DefaultDraggableState(val onDelta: (Float) -> Unit) : DraggableState {"
-        errorLine2="                                                 ~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/Draggable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor GenericShape has parameter &apos;builder&apos; with type Function3&lt;? super Path, ? super Size, ? super LayoutDirection, Unit>."
-        errorLine1="    private val builder: Path.(size: Size, layoutDirection: LayoutDirection) -> Unit"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/shape/GenericShape.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;key&apos; with type Function1&lt;? super Integer, ? extends Object>."
-        errorLine1="        key: ((index: Int) -> Any)? = null,"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyDsl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;contentType&apos; with type Function1&lt;? super Integer, ? extends Object>."
-        errorLine1="        contentType: (index: Int) -> Any? = { null },"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyDsl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;itemContent&apos; with type Function2&lt;? super LazyItemScope, ? super Integer, Unit>."
-        errorLine1="        itemContent: @Composable LazyItemScope.(index: Int) -> Unit"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyDsl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;key&apos; with type Function1&lt;? super Integer, ? extends Object>."
-        errorLine1="        key: ((index: Int) -> Any)? = null,"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyDsl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;itemContent&apos; with type Function2&lt;? super LazyItemScope, ? super Integer, ? extends Unit>."
-        errorLine1="        itemContent: @Composable LazyItemScope.(index: Int) -> Unit"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyDsl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method itemsIndexed has parameter &apos;key&apos; with type Function2&lt;? super Integer, ? super T, ? extends Object>."
-        errorLine1="    noinline key: ((index: Int, item: T) -> Any)? = null,"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyDsl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method itemsIndexed has parameter &apos;key&apos; with type Function2&lt;? super Integer, ? super T, ? extends Object>."
-        errorLine1="    noinline key: ((index: Int, item: T) -> Any)? = null,"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyDsl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method itemsIndexed has parameter &apos;key&apos; with type Function2&lt;? super Integer, ? super T, ? extends Object>."
-        errorLine1="    noinline key: ((index: Int, item: T) -> Any)? = null,"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyDsl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method itemsIndexed has parameter &apos;key&apos; with type Function2&lt;? super Integer, ? super T, ? extends Object>."
-        errorLine1="    noinline key: ((index: Int, item: T) -> Any)? = null,"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyDsl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method LazyGrid has parameter &apos;slots&apos; with type Function2&lt;? super Density, ? super Constraints, LazyGridSlots>."
-        errorLine1="    slots: Density.(Constraints) -> LazyGridSlots,"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
             file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGrid.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;measurePolicy&apos; with type Function2&lt;? super LazyLayoutMeasureScope, ? super Constraints, ? extends MeasureResult>."
-        errorLine1="    val measurePolicy = rememberLazyGridMeasurePolicy("
-        errorLine2="    ^">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGrid.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;LazyLayoutMeasureScope, Constraints, MeasureResult> of &apos;rememberLazyGridMeasurePolicy&apos;."
-        errorLine1="private fun rememberLazyGridMeasurePolicy("
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGrid.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method rememberLazyGridMeasurePolicy has parameter &apos;slots&apos; with type Function2&lt;? super Density, ? super Constraints, LazyGridSlots>."
-        errorLine1="    slots: Density.(Constraints) -> LazyGridSlots,"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGrid.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;lineOf&apos; with type Function1&lt;? super Integer, ? extends Integer>."
-        errorLine1="        val lineOf: (Int) -> Int = {"
-        errorLine2="                    ~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridAnimateScrollScope.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;Density, Constraints, LazyGridSlots> of &apos;rememberColumnWidthSums&apos;."
-        errorLine1="private fun rememberColumnWidthSums("
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="return type List&lt;Integer> of calculateCrossAxisCellSizes: replace with IntList"
+        errorLine1="    fun Density.calculateCrossAxisCellSizes(availableSize: Int, spacing: Int): List&lt;Int>"
+        errorLine2="                                                                               ~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridDsl.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;Density, Constraints, LazyGridSlots> of &apos;rememberRowHeightSums&apos;."
-        errorLine1="private fun rememberRowHeightSums("
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="return type List&lt;Integer> of calculateCellsCrossAxisSizeImpl: replace with IntList"
+        errorLine1="): List&lt;Int> {"
+        errorLine2="   ~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridDsl.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor GridSlotCache has parameter &apos;calculation&apos; with type Function2&lt;? super Density, ? super Constraints, LazyGridSlots>."
-        errorLine1="    private val calculation: Density.(Constraints) -> LazyGridSlots"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridDsl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method item has parameter &apos;span&apos; with type Function1&lt;? super LazyGridItemSpanScope, GridItemSpan>."
-        errorLine1="        span: (LazyGridItemSpanScope.() -> GridItemSpan)? = null,"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridDsl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;key&apos; with type Function1&lt;? super Integer, ? extends Object>."
-        errorLine1="        key: ((index: Int) -> Any)? = null,"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridDsl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;span&apos; with type Function2&lt;? super LazyGridItemSpanScope, ? super Integer, GridItemSpan>."
-        errorLine1="        span: (LazyGridItemSpanScope.(index: Int) -> GridItemSpan)? = null,"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridDsl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;contentType&apos; with type Function1&lt;? super Integer, ? extends Object>."
-        errorLine1="        contentType: (index: Int) -> Any? = { null },"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridDsl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;itemContent&apos; with type Function2&lt;? super LazyGridItemScope, ? super Integer, Unit>."
-        errorLine1="        itemContent: @Composable LazyGridItemScope.(index: Int) -> Unit"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridDsl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;span&apos; with type Function2&lt;? super LazyGridItemSpanScope, ? super T, GridItemSpan>."
-        errorLine1="    noinline span: (LazyGridItemSpanScope.(item: T) -> GridItemSpan)? = null,"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridDsl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method itemsIndexed has parameter &apos;key&apos; with type Function2&lt;? super Integer, ? super T, ? extends Object>."
-        errorLine1="    noinline key: ((index: Int, item: T) -> Any)? = null,"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridDsl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method itemsIndexed has parameter &apos;span&apos; with type Function3&lt;? super LazyGridItemSpanScope, ? super Integer, ? super T, GridItemSpan>."
-        errorLine1="    noinline span: (LazyGridItemSpanScope.(index: Int, item: T) -> GridItemSpan)? = null,"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridDsl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;span&apos; with type Function2&lt;? super LazyGridItemSpanScope, ? super T, GridItemSpan>."
-        errorLine1="    noinline span: (LazyGridItemSpanScope.(item: T) -> GridItemSpan)? = null,"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridDsl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method itemsIndexed has parameter &apos;key&apos; with type Function2&lt;? super Integer, ? super T, ? extends Object>."
-        errorLine1="    noinline key: ((index: Int, item: T) -> Any)? = null,"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridDsl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method itemsIndexed has parameter &apos;span&apos; with type Function3&lt;? super LazyGridItemSpanScope, ? super Integer, ? super T, GridItemSpan>."
-        errorLine1="    noinline span: (LazyGridItemSpanScope.(index: Int, item: T) -> GridItemSpan)? = null,"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridDsl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;var872790a8&apos; with type Function2&lt;? super LazyGridItemSpanScope, ? super Integer, ? extends GridItemSpan>."
-        errorLine1="                span = span?.let { { span() } } ?: DefaultSpan,"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridIntervalContent.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;varb56803de&apos; with type Function2&lt;? super LazyGridItemSpanScope, ? super Integer, ? extends GridItemSpan>."
-        errorLine1="                span = span ?: DefaultSpan,"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridIntervalContent.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;LazyGridItemSpanScope, Integer, GridItemSpan> of &apos;getDefaultSpan&apos;."
-        errorLine1="        val DefaultSpan: LazyGridItemSpanScope.(Int) -> GridItemSpan = { GridItemSpan(1) }"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridIntervalContent.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor LazyGridInterval has parameter &apos;key&apos; with type Function1&lt;? super Integer, ? extends Object>."
-        errorLine1="    override val key: ((index: Int) -> Any)?,"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridIntervalContent.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor LazyGridInterval has parameter &apos;span&apos; with type Function2&lt;? super LazyGridItemSpanScope, ? super Integer, GridItemSpan>."
-        errorLine1="    val span: LazyGridItemSpanScope.(Int) -> GridItemSpan,"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridIntervalContent.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;LazyGridItemSpanScope, Integer, GridItemSpan> of &apos;getSpan&apos;."
-        errorLine1="    val span: LazyGridItemSpanScope.(Int) -> GridItemSpan,"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridIntervalContent.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor LazyGridInterval has parameter &apos;type&apos; with type Function1&lt;? super Integer, ? extends Object>."
-        errorLine1="    override val type: ((index: Int) -> Any?),"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridIntervalContent.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor LazyGridInterval has parameter &apos;item&apos; with type Function2&lt;? super LazyGridItemScope, ? super Integer, Unit>."
-        errorLine1="    val item: @Composable LazyGridItemScope.(Int) -> Unit"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridIntervalContent.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;LazyGridItemScope, Integer, Unit> of &apos;getItem&apos;."
-        errorLine1="    val item: @Composable LazyGridItemScope.(Int) -> Unit"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridIntervalContent.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method measureLazyGrid has parameter &apos;layout&apos; with type Function3&lt;? super Integer, ? super Integer, ? super Function1&lt;? super PlacementScope, Unit>, ? extends MeasureResult>."
-        errorLine1="    layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="method measureLazyGrid has parameter pinnedItems with type List&lt;Integer>: replace with IntList"
+        errorLine1="    pinnedItems: List&lt;Int>,"
+        errorLine2="                 ~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridMeasure.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;reverseAware&apos; with type Function1&lt;? super Integer, ? extends Integer>."
-        errorLine1="        fun Int.reverseAware() ="
-        errorLine2="        ^">
+        id="PrimitiveInCollection"
+        message="method calculateExtraItems has parameter pinnedItems with type List&lt;Integer>: replace with IntList"
+        errorLine1="    pinnedItems: List&lt;Int>,"
+        errorLine2="                 ~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridMeasure.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method setPrefetchInfoRetriever$lint_module has parameter &apos;&lt;set-?>&apos; with type Function1&lt;? super Integer, ? extends List&lt;Pair&lt;Integer, Constraints>>>."
+        id="PrimitiveInCollection"
+        message="constructor LazyGridMeasuredLine has parameter spans with type List&lt;GridItemSpan>: replace with LongList"
+        errorLine1="    private val spans: List&lt;GridItemSpan>,"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridMeasuredLine.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field spans with type List&lt;GridItemSpan>: replace with LongList"
+        errorLine1="    private val spans: List&lt;GridItemSpan>,"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridMeasuredLine.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method createLine has parameter spans with type List&lt;GridItemSpan>: replace with LongList"
+        errorLine1="        spans: List&lt;GridItemSpan>,"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridMeasuredLineProvider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor LineConfiguration has parameter spans with type List&lt;GridItemSpan>: replace with LongList"
+        errorLine1="    class LineConfiguration(val firstItemIndex: Int, val spans: List&lt;GridItemSpan>)"
+        errorLine2="                                                                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridSpanLayoutProvider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field spans with type List&lt;GridItemSpan>: replace with LongList"
+        errorLine1="    class LineConfiguration(val firstItemIndex: Int, val spans: List&lt;GridItemSpan>)"
+        errorLine2="                                                                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridSpanLayoutProvider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;GridItemSpan> of getSpans: replace with LongList"
+        errorLine1="    class LineConfiguration(val firstItemIndex: Int, val spans: List&lt;GridItemSpan>)"
+        errorLine2="                                                                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridSpanLayoutProvider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field cachedBucket with type List&lt;Integer>: replace with IntList"
         errorLine1="    /**"
         errorLine2="    ^">
         <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridState.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridSpanLayoutProvider.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;Integer, List&lt;Pair&lt;Integer, Constraints>>> of &apos;getPrefetchInfoRetriever$lint_module&apos;."
-        errorLine1="    internal var prefetchInfoRetriever: (line: Int) -> List&lt;Pair&lt;Int, Constraints>> by"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="field previousDefaultSpans with type List&lt;GridItemSpan>: replace with LongList"
+        errorLine1="    /**"
+        errorLine2="    ^">
         <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridState.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridSpanLayoutProvider.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method LazyLayout has parameter &apos;measurePolicy&apos; with type Function2&lt;? super LazyLayoutMeasureScope, ? super Constraints, ? extends MeasureResult>."
-        errorLine1="    measurePolicy: LazyLayoutMeasureScope.(Constraints) -> MeasureResult"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="return type List&lt;GridItemSpan> of getDefaultSpans: replace with LongList"
+        errorLine1="    private fun getDefaultSpans(currentSlotsPerLine: Int) ="
+        errorLine2="                ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridSpanLayoutProvider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable spans with type List&lt;GridItemSpan>: replace with LongList"
+        errorLine1="        val spans = mutableListOf&lt;GridItemSpan>()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridSpanLayoutProvider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field countPerType with type Map&lt;Object, Integer>: replace with ObjectIntMap"
+        errorLine1="    private val countPerType = mutableMapOf&lt;Any?, Int>()"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/lazy/layout/LazyLayout.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method LazyLayout has parameter &apos;measurePolicy&apos; with type Function2&lt;? super LazyLayoutMeasureScope, ? super Constraints, ? extends MeasureResult>."
-        errorLine1="    measurePolicy: LazyLayoutMeasureScope.(Constraints) -> MeasureResult"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="return type List&lt;Integer> of calculateLazyLayoutPinnedIndices: replace with IntList"
+        errorLine1="): List&lt;Int> {"
+        errorLine2="   ~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/layout/LazyLayout.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/layout/LazyLayoutBeyondBoundsState.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;Integer, Object> of &apos;getKey&apos;."
-        errorLine1="        val key: ((index: Int) -> Any)? get() = null"
-        errorLine2="            ~~~">
+        id="PrimitiveInCollection"
+        message="variable pinnedItems with type List&lt;Integer>: replace with IntList"
+        errorLine1="        val pinnedItems = mutableListOf&lt;Int>()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/layout/LazyLayoutIntervalContent.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/layout/LazyLayoutBeyondBoundsState.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;Integer, Object> of &apos;getType&apos;."
-        errorLine1="        val type: ((index: Int) -> Any?) get() = { null }"
-        errorLine2="            ~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/layout/LazyLayoutIntervalContent.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;keyFactory&apos; with type Function1&lt;? super Integer, ? extends Object>."
-        errorLine1="                    val keyFactory = it.value.key"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="field map with type Map&lt;Object, Integer>: replace with ObjectIntMap"
+        errorLine1="    private val map: Map&lt;Any, Int>"
+        errorLine2="                     ~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/lazy/layout/LazyLayoutKeyIndexMap.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method Pager has parameter &apos;key&apos; with type Function1&lt;? super Integer, ? extends Object>."
-        errorLine1="    key: ((index: Int) -> Any)?,"
-        errorLine2="         ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/LazyLayoutPager.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method Pager has parameter &apos;pageContent&apos; with type Function2&lt;? super PagerScope, ? super Integer, Unit>."
-        errorLine1="    pageContent: @Composable PagerScope.(page: Int) -> Unit"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/LazyLayoutPager.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;measurePolicy&apos; with type Function2&lt;? super LazyLayoutMeasureScope, ? super Constraints, ? extends MeasureResult>."
-        errorLine1="    val measurePolicy = rememberPagerMeasurePolicy("
+        id="PrimitiveInCollection"
+        message="field placeablesCache with type HashMap&lt;Integer, List&lt;Placeable>>: replace with IntObjectMap"
+        errorLine1="    /**"
         errorLine2="    ^">
         <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/LazyLayoutPager.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/layout/LazyLayoutMeasureScope.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor PagerLayoutIntervalContent has parameter &apos;pageContent&apos; with type Function2&lt;? super PagerScope, ? super Integer, Unit>."
-        errorLine1="    val pageContent: @Composable PagerScope.(page: Int) -> Unit,"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/LazyLayoutPager.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;PagerScope, Integer, Unit> of &apos;getPageContent&apos;."
-        errorLine1="    val pageContent: @Composable PagerScope.(page: Int) -> Unit,"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/LazyLayoutPager.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor PagerLayoutIntervalContent has parameter &apos;key&apos; with type Function1&lt;? super Integer, ? extends Object>."
-        errorLine1="    val key: ((index: Int) -> Any)?,"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/LazyLayoutPager.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;Integer, Object> of &apos;getKey&apos;."
-        errorLine1="    val key: ((index: Int) -> Any)?,"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/LazyLayoutPager.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor PagerIntervalContent has parameter &apos;key&apos; with type Function1&lt;? super Integer, ? extends Object>."
-        errorLine1="    override val key: ((page: Int) -> Any)?,"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/LazyLayoutPager.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor PagerIntervalContent has parameter &apos;item&apos; with type Function2&lt;? super PagerScope, ? super Integer, Unit>."
-        errorLine1="    val item: @Composable PagerScope.(page: Int) -> Unit"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/LazyLayoutPager.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;PagerScope, Integer, Unit> of &apos;getItem&apos;."
-        errorLine1="    val item: @Composable PagerScope.(page: Int) -> Unit"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/LazyLayoutPager.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method rememberPagerItemProviderLambda has parameter &apos;pageContent&apos; with type Function2&lt;? super PagerScope, ? super Integer, Unit>."
-        errorLine1="    pageContent: @Composable PagerScope.(page: Int) -> Unit,"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/LazyLayoutPager.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method rememberPagerItemProviderLambda has parameter &apos;key&apos; with type Function1&lt;? super Integer, ? extends Object>."
-        errorLine1="    key: ((index: Int) -> Any)?,"
-        errorLine2="         ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/LazyLayoutPager.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method rememberPagerItemProviderLambda has parameter &apos;pageCount&apos; with type Function0&lt;Integer>."
-        errorLine1="    pageCount: () -> Int"
-        errorLine2="               ~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/LazyLayoutPager.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;indexForKeyMapping&apos; with type Function1&lt;? super Object, ? extends Integer>."
-        errorLine1="            val indexForKeyMapping: (Any) -> Int = { needle ->"
-        errorLine2="                                    ~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/layout/LazyLayoutSemantics.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;scrollByAction&apos; with type Function2&lt;? super Float, ? super Float, ? extends Boolean>."
-        errorLine1="            val scrollByAction: ((x: Float, y: Float) -> Boolean)? = if (userScrollEnabled) {"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/layout/LazyLayoutSemantics.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;scrollToIndexAction&apos; with type Function1&lt;? super Integer, ? extends Boolean>."
-        errorLine1="            val scrollToIndexAction: ((Int) -> Boolean)? = if (userScrollEnabled) {"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/layout/LazyLayoutSemantics.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;measurePolicy&apos; with type Function2&lt;? super LazyLayoutMeasureScope, ? super Constraints, ? extends MeasureResult>."
-        errorLine1="    val measurePolicy = rememberLazyListMeasurePolicy("
-        errorLine2="    ^">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyList.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;LazyLayoutMeasureScope, Constraints, MeasureResult> of &apos;rememberLazyListMeasurePolicy&apos;."
-        errorLine1="private fun rememberLazyListMeasurePolicy("
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyList.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor LazyListInterval has parameter &apos;key&apos; with type Function1&lt;? super Integer, ? extends Object>."
-        errorLine1="    override val key: ((index: Int) -> Any)?,"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListIntervalContent.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor LazyListInterval has parameter &apos;type&apos; with type Function1&lt;? super Integer, ? extends Object>."
-        errorLine1="    override val type: ((index: Int) -> Any?),"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListIntervalContent.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor LazyListInterval has parameter &apos;item&apos; with type Function2&lt;? super LazyItemScope, ? super Integer, Unit>."
-        errorLine1="    val item: @Composable LazyItemScope.(index: Int) -> Unit"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListIntervalContent.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;LazyItemScope, Integer, Unit> of &apos;getItem&apos;."
-        errorLine1="    val item: @Composable LazyItemScope.(index: Int) -> Unit"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListIntervalContent.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;reverseAware&apos; with type Function1&lt;? super Integer, ? extends Integer>."
-        errorLine1="        fun Int.reverseAware() ="
+        id="PrimitiveInCollection"
+        message="variable pinnedItems with type List&lt;? extends Integer>: replace with IntList"
+        errorLine1="        val pinnedItems = itemProvider.calculateLazyLayoutPinnedIndices("
         errorLine2="        ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyList.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method findOrComposeLazyListHeader has parameter headerIndexes with type List&lt;Integer>: replace with IntList"
+        errorLine1="    headerIndexes: List&lt;Int>,"
+        errorLine2="                   ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListHeaders.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field _headerIndexes with type List&lt;Integer>: replace with IntList"
+        errorLine1="    private var _headerIndexes: MutableList&lt;Int>? = null"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListIntervalContent.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;Integer> of getHeaderIndexes: replace with IntList"
+        errorLine1="    val headerIndexes: List&lt;Int> get() = _headerIndexes ?: emptyList()"
+        errorLine2="        ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListIntervalContent.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable varb332e573 with type List&lt;Integer>: replace with IntList"
+        errorLine1="    val headerIndexes: List&lt;Int> get() = _headerIndexes ?: emptyList()"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListIntervalContent.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable headersIndexes with type List&lt;Integer>: replace with IntList"
+        errorLine1="        val headersIndexes = _headerIndexes ?: mutableListOf&lt;Int>().also {"
+        errorLine2="        ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListIntervalContent.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable varb3338ae4 with type List&lt;Integer>: replace with IntList"
+        errorLine1="        val headersIndexes = _headerIndexes ?: mutableListOf&lt;Int>().also {"
+        errorLine2="                             ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListIntervalContent.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;Integer> of getHeaderIndexes: replace with IntList"
+        errorLine1="    val headerIndexes: List&lt;Int>"
+        errorLine2="                       ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListItemProvider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method measureLazyList has parameter headerIndexes with type List&lt;Integer>: replace with IntList"
+        errorLine1="    headerIndexes: List&lt;Int>,"
+        errorLine2="                   ~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListMeasure.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method LazyStaggeredGrid has parameter &apos;slots&apos; with type Function2&lt;? super Density, ? super Constraints, LazyStaggeredGridSlots>."
-        errorLine1="    slots: Density.(Constraints) -> LazyStaggeredGridSlots,"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="method measureLazyList has parameter pinnedItems with type List&lt;Integer>: replace with IntList"
+        errorLine1="    pinnedItems: List&lt;Int>,"
+        errorLine2="                 ~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGrid.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListMeasure.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;measurePolicy&apos; with type Function2&lt;? super LazyLayoutMeasureScope, ? super Constraints, ? extends LazyStaggeredGridMeasureResult>."
-        errorLine1="    val measurePolicy = rememberStaggeredGridMeasurePolicy("
-        errorLine2="    ^">
+        id="PrimitiveInCollection"
+        message="method createItemsAfterList has parameter pinnedItems with type List&lt;Integer>: replace with IntList"
+        errorLine1="    pinnedItems: List&lt;Int>,"
+        errorLine2="                 ~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGrid.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListMeasure.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;Density, Constraints, LazyStaggeredGridSlots> of &apos;rememberColumnSlots&apos;."
-        errorLine1="private fun rememberColumnSlots("
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="method createItemsBeforeList has parameter pinnedItems with type List&lt;Integer>: replace with IntList"
+        errorLine1="    pinnedItems: List&lt;Int>"
+        errorLine2="                 ~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridDsl.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListMeasure.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;Density, Constraints, LazyStaggeredGridSlots> of &apos;rememberRowSlots&apos;."
-        errorLine1="private fun rememberRowSlots("
-        errorLine2="            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridDsl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor LazyStaggeredGridSlotCache has parameter &apos;calculation&apos; with type Function2&lt;? super Density, ? super Constraints, LazyStaggeredGridSlots>."
-        errorLine1="    private val calculation: Density.(Constraints) -> LazyStaggeredGridSlots"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridDsl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;key&apos; with type Function1&lt;? super Integer, ? extends Object>."
-        errorLine1="        key: ((index: Int) -> Any)? = null,"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridDsl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;contentType&apos; with type Function1&lt;? super Integer, ? extends Object>."
-        errorLine1="        contentType: (index: Int) -> Any? = { null },"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridDsl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;span&apos; with type Function1&lt;? super Integer, StaggeredGridItemSpan>."
-        errorLine1="        span: ((index: Int) -> StaggeredGridItemSpan)? = null,"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridDsl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;itemContent&apos; with type Function2&lt;? super LazyStaggeredGridItemScope, ? super Integer, Unit>."
-        errorLine1="        itemContent: @Composable LazyStaggeredGridItemScope.(index: Int) -> Unit"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridDsl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method itemsIndexed has parameter &apos;key&apos; with type Function2&lt;? super Integer, ? super T, ? extends Object>."
-        errorLine1="    noinline key: ((index: Int, item: T) -> Any)? = null,"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridDsl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method itemsIndexed has parameter &apos;span&apos; with type Function2&lt;? super Integer, ? super T, StaggeredGridItemSpan>."
-        errorLine1="    noinline span: ((index: Int, item: T) -> StaggeredGridItemSpan)? = null,"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridDsl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method itemsIndexed has parameter &apos;key&apos; with type Function2&lt;? super Integer, ? super T, ? extends Object>."
-        errorLine1="    noinline key: ((index: Int, item: T) -> Any)? = null,"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridDsl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method itemsIndexed has parameter &apos;span&apos; with type Function2&lt;? super Integer, ? super T, StaggeredGridItemSpan>."
-        errorLine1="    noinline span: ((index: Int, item: T) -> StaggeredGridItemSpan)? = null,"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridDsl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor LazyStaggeredGridInterval has parameter &apos;key&apos; with type Function1&lt;? super Integer, ? extends Object>."
-        errorLine1="    override val key: ((index: Int) -> Any)?,"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridIntervalContent.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor LazyStaggeredGridInterval has parameter &apos;type&apos; with type Function1&lt;? super Integer, ? extends Object>."
-        errorLine1="    override val type: ((index: Int) -> Any?),"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridIntervalContent.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor LazyStaggeredGridInterval has parameter &apos;span&apos; with type Function1&lt;? super Integer, StaggeredGridItemSpan>."
-        errorLine1="    val span: ((index: Int) -> StaggeredGridItemSpan)?,"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridIntervalContent.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;Integer, StaggeredGridItemSpan> of &apos;getSpan&apos;."
-        errorLine1="    val span: ((index: Int) -> StaggeredGridItemSpan)?,"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridIntervalContent.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor LazyStaggeredGridInterval has parameter &apos;item&apos; with type Function2&lt;? super LazyStaggeredGridItemScope, ? super Integer, Unit>."
-        errorLine1="    val item: @Composable LazyStaggeredGridItemScope.(Int) -> Unit"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridIntervalContent.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;LazyStaggeredGridItemScope, Integer, Unit> of &apos;getItem&apos;."
-        errorLine1="    val item: @Composable LazyStaggeredGridItemScope.(Int) -> Unit"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridIntervalContent.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;misalignedStart&apos; with type Function1&lt;? super Integer, ? extends Boolean>."
-        errorLine1="        fun misalignedStart(referenceLane: Int): Boolean {"
-        errorLine2="        ^">
+        id="PrimitiveInCollection"
+        message="method measureStaggeredGrid has parameter pinnedItems with type List&lt;Integer>: replace with IntList"
+        errorLine1="    pinnedItems: List&lt;Int>,"
+        errorLine2="                 ~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridMeasure.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method rememberStaggeredGridMeasurePolicy has parameter &apos;slots&apos; with type Function2&lt;? super Density, ? super Constraints, LazyStaggeredGridSlots>."
-        errorLine1="    slots: Density.(Constraints) -> LazyStaggeredGridSlots"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="constructor LazyStaggeredGridMeasureContext has parameter pinnedItems with type List&lt;Integer>: replace with IntList"
+        errorLine1="    val pinnedItems: List&lt;Int>,"
+        errorLine2="                     ~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridMeasurePolicy.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridMeasure.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;LazyLayoutMeasureScope, Constraints, LazyStaggeredGridMeasureResult> of &apos;rememberStaggeredGridMeasurePolicy&apos;."
-        errorLine1="): LazyLayoutMeasureScope.(Constraints) -> LazyStaggeredGridMeasureResult = remember("
-        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="field pinnedItems with type List&lt;Integer>: replace with IntList"
+        errorLine1="    val pinnedItems: List&lt;Int>,"
+        errorLine2="                     ~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridMeasurePolicy.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridMeasure.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor LazyStaggeredGridScrollPosition has parameter &apos;fillIndices&apos; with type Function2&lt;? super Integer, ? super Integer, int[]&gt;."
-        errorLine1="    private val fillIndices: (targetIndex: Int, laneCount: Int) -> IntArray"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="return type List&lt;Integer> of getPinnedItems: replace with IntList"
+        errorLine1="    val pinnedItems: List&lt;Int>,"
+        errorLine2="                     ~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridScrollPosition.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridMeasure.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;span&apos; with type Function1&lt;? super Integer, ? extends StaggeredGridItemSpan>."
-        errorLine1="            val span = value.span"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridSpan.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type SemanticsPropertyKey&lt;Function0&lt;Offset>> of &apos;getMagnifierPositionInRoot&apos;."
-        errorLine1="internal val MagnifierPositionInRoot ="
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method magnifier has parameter &apos;sourceCenter&apos; with type Function1&lt;? super Density, Offset>."
-        errorLine1="    sourceCenter: Density.() -> Offset,"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method magnifier has parameter &apos;magnifierCenter&apos; with type Function1&lt;? super Density, Offset>."
-        errorLine1="    magnifierCenter: Density.() -> Offset = { Offset.Unspecified },"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method magnifier has parameter &apos;onSizeChanged&apos; with type Function1&lt;? super DpSize, Unit>."
-        errorLine1="    onSizeChanged: ((DpSize) -> Unit)? = null"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method magnifier has parameter &apos;sourceCenter&apos; with type Function1&lt;? super Density, Offset>."
-        errorLine1="    sourceCenter: Density.() -> Offset,"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method magnifier has parameter &apos;magnifierCenter&apos; with type Function1&lt;? super Density, Offset>."
-        errorLine1="    magnifierCenter: Density.() -> Offset = { Offset.Unspecified },"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method magnifier has parameter &apos;onSizeChanged&apos; with type Function1&lt;? super DpSize, Unit>."
-        errorLine1="    onSizeChanged: ((DpSize) -> Unit)? = null,"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor MagnifierElement has parameter &apos;sourceCenter&apos; with type Function1&lt;? super Density, Offset>."
-        errorLine1="    private val sourceCenter: Density.() -> Offset,"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor MagnifierElement has parameter &apos;magnifierCenter&apos; with type Function1&lt;? super Density, Offset>."
-        errorLine1="    private val magnifierCenter: Density.() -> Offset = { Offset.Unspecified },"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor MagnifierElement has parameter &apos;onSizeChanged&apos; with type Function1&lt;? super DpSize, Unit>."
-        errorLine1="    private val onSizeChanged: ((DpSize) -> Unit)? = null,"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor MagnifierNode has parameter &apos;sourceCenter&apos; with type Function1&lt;? super Density, Offset>."
-        errorLine1="    var sourceCenter: Density.() -> Offset,"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method setSourceCenter has parameter &apos;&lt;set-?>&apos; with type Function1&lt;? super Density, Offset>."
-        errorLine1="    var sourceCenter: Density.() -> Offset,"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;Density, Offset> of &apos;getSourceCenter&apos;."
-        errorLine1="    var sourceCenter: Density.() -> Offset,"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor MagnifierNode has parameter &apos;magnifierCenter&apos; with type Function1&lt;? super Density, Offset>."
-        errorLine1="    var magnifierCenter: Density.() -> Offset = { Offset.Unspecified },"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method setMagnifierCenter has parameter &apos;&lt;set-?>&apos; with type Function1&lt;? super Density, Offset>."
-        errorLine1="    var magnifierCenter: Density.() -> Offset = { Offset.Unspecified },"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;Density, Offset> of &apos;getMagnifierCenter&apos;."
-        errorLine1="    var magnifierCenter: Density.() -> Offset = { Offset.Unspecified },"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor MagnifierNode has parameter &apos;onSizeChanged&apos; with type Function1&lt;? super DpSize, Unit>."
-        errorLine1="    var onSizeChanged: ((DpSize) -> Unit)? = null,"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method setOnSizeChanged has parameter &apos;&lt;set-?>&apos; with type Function1&lt;? super DpSize, Unit>."
-        errorLine1="    var onSizeChanged: ((DpSize) -> Unit)? = null,"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;DpSize, Unit> of &apos;getOnSizeChanged&apos;."
-        errorLine1="    var onSizeChanged: ((DpSize) -> Unit)? = null,"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method update has parameter &apos;sourceCenter&apos; with type Function1&lt;? super Density, Offset>."
-        errorLine1="        sourceCenter: Density.() -> Offset,"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method update has parameter &apos;magnifierCenter&apos; with type Function1&lt;? super Density, Offset>."
-        errorLine1="        magnifierCenter: Density.() -> Offset,"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method update has parameter &apos;onSizeChanged&apos; with type Function1&lt;? super DpSize, Unit>."
-        errorLine1="        onSizeChanged: ((DpSize) -> Unit)?,"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method applyToScroll has parameter &apos;performScroll&apos; with type Function1&lt;? super Offset, Offset>."
-        errorLine1="        performScroll: (Offset) -> Offset"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/Overscroll.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method applyToFling has parameter &apos;performFling&apos; with type Function2&lt;? super Velocity, ? super Continuation&lt;? super Velocity>, ? extends Object>."
-        errorLine1="    suspend fun applyToFling(velocity: Velocity, performFling: suspend (Velocity) -> Velocity)"
-        errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/Overscroll.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method HorizontalPager has parameter &apos;key&apos; with type Function1&lt;? super Integer, ? extends Object>."
-        errorLine1="    key: ((index: Int) -> Any)? = null,"
-        errorLine2="         ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/Pager.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method HorizontalPager has parameter &apos;pageContent&apos; with type Function2&lt;? super PagerScope, ? super Integer, Unit>."
-        errorLine1="    pageContent: @Composable PagerScope.(page: Int) -> Unit"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/Pager.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method HorizontalPager has parameter &apos;key&apos; with type Function1&lt;? super Integer, ? extends Object>."
-        errorLine1="    key: ((index: Int) -> Any)? = null,"
-        errorLine2="         ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/Pager.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method HorizontalPager has parameter &apos;pageContent&apos; with type Function2&lt;? super PagerScope, ? super Integer, Unit>."
-        errorLine1="    pageContent: @Composable PagerScope.(page: Int) -> Unit"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/Pager.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method VerticalPager has parameter &apos;key&apos; with type Function1&lt;? super Integer, ? extends Object>."
-        errorLine1="    key: ((index: Int) -> Any)? = null,"
-        errorLine2="         ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/Pager.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method VerticalPager has parameter &apos;pageContent&apos; with type Function2&lt;? super PagerScope, ? super Integer, Unit>."
-        errorLine1="    pageContent: @Composable PagerScope.(page: Int) -> Unit"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/Pager.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method VerticalPager has parameter &apos;key&apos; with type Function1&lt;? super Integer, ? extends Object>."
-        errorLine1="    key: ((index: Int) -> Any)? = null,"
-        errorLine2="         ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/Pager.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method VerticalPager has parameter &apos;pageContent&apos; with type Function2&lt;? super PagerScope, ? super Integer, Unit>."
-        errorLine1="    pageContent: @Composable PagerScope.(page: Int) -> Unit"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/Pager.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method measurePager has parameter &apos;layout&apos; with type Function3&lt;? super Integer, ? super Integer, ? super Function1&lt;? super PlacementScope, Unit>, ? extends MeasureResult>."
-        errorLine1="    layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/PagerMeasure.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method createPagesAfterList has parameter &apos;getAndMeasure&apos; with type Function1&lt;? super Integer, MeasuredPage>."
-        errorLine1="    getAndMeasure: (Int) -> MeasuredPage"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/PagerMeasure.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method createPagesBeforeList has parameter &apos;getAndMeasure&apos; with type Function1&lt;? super Integer, MeasuredPage>."
-        errorLine1="    getAndMeasure: (Int) -> MeasuredPage"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/PagerMeasure.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;reverseAware&apos; with type Function1&lt;? super Integer, ? extends Integer>."
-        errorLine1="        fun Int.reverseAware() ="
+        id="PrimitiveInCollection"
+        message="variable pinnedItems with type List&lt;? extends Integer>: replace with IntList"
+        errorLine1="        val pinnedItems = itemProvider.calculateLazyLayoutPinnedIndices("
         errorLine2="        ^">
         <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridMeasurePolicy.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field currentItemPrefetchHandles with type Map&lt;Integer, PrefetchHandle>: replace with IntObjectMap"
+        errorLine1="    private val currentItemPrefetchHandles = mutableMapOf&lt;Int, PrefetchHandle>()"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridState.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable prefetchHandlesUsed with type Set&lt;Integer>: replace with IntSet"
+        errorLine1="            val prefetchHandlesUsed = mutableSetOf&lt;Int>()"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridState.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method clearLeftoverPrefetchHandles has parameter prefetchHandlesUsed with type Set&lt;Integer>: replace with IntSet"
+        errorLine1="    private fun clearLeftoverPrefetchHandles(prefetchHandlesUsed: Set&lt;Int>) {"
+        errorLine2="                                                                  ~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridState.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method measurePager has parameter pinnedPages with type List&lt;Integer>: replace with IntList"
+        errorLine1="    pinnedPages: List&lt;Int>,"
+        errorLine2="                 ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/pager/PagerMeasure.kt"/>
+    </issue>
+
+    <!-- TODO(soboleva) temporary change, remove when stable link annotations merged -->
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="@OptIn(ExperimentalTextApi::class)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/BasicText.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="@OptIn(ExperimentalTextApi::class)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/modifiers/TextAnnotatedStringNode.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="@OptIn(ExperimentalTextApi::class)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/TextLinkScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method createPagesAfterList has parameter pinnedPages with type List&lt;Integer>: replace with IntList"
+        errorLine1="    pinnedPages: List&lt;Int>,"
+        errorLine2="                 ~~~~~~~~~">
+        <location
             file="src/commonMain/kotlin/androidx/compose/foundation/pager/PagerMeasure.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;LazyLayoutMeasureScope, Constraints, MeasureResult> of &apos;rememberPagerMeasurePolicy&apos;."
-        errorLine1="internal fun rememberPagerMeasurePolicy("
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="method createPagesBeforeList has parameter pinnedPages with type List&lt;Integer>: replace with IntList"
+        errorLine1="    pinnedPages: List&lt;Int>,"
+        errorLine2="                 ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/pager/PagerMeasure.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable pinnedPages with type List&lt;? extends Integer>: replace with IntList"
+        errorLine1="        val pinnedPages = itemProvider.calculateLazyLayoutPinnedIndices("
+        errorLine2="        ^">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/pager/PagerMeasurePolicy.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method rememberPagerMeasurePolicy has parameter &apos;pageCount&apos; with type Function0&lt;Integer>."
-        errorLine1="    pageCount: () -> Int,"
-        errorLine2="               ~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="return type Map&lt;Long, Selection> of createSubSelections: replace with LongObjectMap"
+        errorLine1="    fun createSubSelections(selection: Selection): Map&lt;Long, Selection>"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/PagerMeasurePolicy.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionLayout.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method rememberPagerState has parameter &apos;pageCount&apos; with type Function0&lt;Integer>."
-        errorLine1="    pageCount: () -> Int"
-        errorLine2="               ~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="constructor MultiSelectionLayout has parameter selectableIdToInfoListIndex with type Map&lt;Long, Integer>: replace with LongIntMap"
+        errorLine1="    val selectableIdToInfoListIndex: Map&lt;Long, Int>,"
+        errorLine2="                                     ~~~~~~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/PagerState.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionLayout.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor PagerStateImpl has parameter &apos;updatedPageCount&apos; with type Function0&lt;Integer>."
-        errorLine1="    updatedPageCount: () -> Int"
-        errorLine2="                      ~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="field selectableIdToInfoListIndex with type Map&lt;Long, Integer>: replace with LongIntMap"
+        errorLine1="    val selectableIdToInfoListIndex: Map&lt;Long, Int>,"
+        errorLine2="                                     ~~~~~~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/PagerState.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionLayout.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method setPageCountState has parameter &apos;&lt;set-?>&apos; with type MutableState&lt;Function0&lt;Integer>>."
-        errorLine1="    var pageCountState = mutableStateOf(updatedPageCount)"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="return type Map&lt;Long, Integer> of getSelectableIdToInfoListIndex: replace with LongIntMap"
+        errorLine1="    val selectableIdToInfoListIndex: Map&lt;Long, Int>,"
+        errorLine2="                                     ~~~~~~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/PagerState.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionLayout.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type MutableState&lt;Function0&lt;Integer>> of &apos;getPageCountState&apos;."
-        errorLine1="    var pageCountState = mutableStateOf(updatedPageCount)"
-        errorLine2="        ~~~~~~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="method createAndPutSubSelection has parameter $this$createAndPutSubSelection with type Map&lt;Long, Selection>: replace with LongObjectMap"
+        errorLine1="    private fun MutableMap&lt;Long, Selection>.createAndPutSubSelection("
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/PagerState.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionLayout.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method detectMoves has parameter &apos;onMove&apos; with type Function1&lt;? super Offset, Unit>."
-        errorLine1="    onMove: (Offset) -> Unit"
-        errorLine2="            ~~~~~~~~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="field selectableIdToInfoListIndex with type Map&lt;Long, Integer>: replace with LongIntMap"
+        errorLine1="    private val selectableIdToInfoListIndex: MutableMap&lt;Long, Int> = mutableMapOf()"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/PointerMoveDetector.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionLayout.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;performScroll&apos; with type Function1&lt;? super Offset, ? extends Offset>."
-        errorLine1="        val performScroll: (Offset) -> Offset = { delta ->"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/Scrollable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;performFling&apos; with type Function2&lt;? super Velocity, ? super Continuation&lt;? super Velocity>, ? extends Object>."
-        errorLine1="        val performFling: suspend (Velocity) -> Velocity = { velocity ->"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/Scrollable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;outerScopeScroll&apos; with type Function1&lt;? super Offset, ? extends Offset>."
-        errorLine1="            val outerScopeScroll: (Offset) -> Offset = { delta ->"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/Scrollable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method ScrollableState has parameter &apos;consumeScrollDelta&apos; with type Function1&lt;? super Float, Float>."
-        errorLine1="fun ScrollableState(consumeScrollDelta: (Float) -> Float): ScrollableState {"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/ScrollableState.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method rememberScrollableState has parameter &apos;consumeScrollDelta&apos; with type Function1&lt;? super Float, Float>."
-        errorLine1="fun rememberScrollableState(consumeScrollDelta: (Float) -> Float): ScrollableState {"
-        errorLine2="                                                ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/ScrollableState.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor DefaultScrollableState has parameter &apos;onDelta&apos; with type Function1&lt;? super Float, Float>."
-        errorLine1="private class DefaultScrollableState(val onDelta: (Float) -> Float) : ScrollableState {"
-        errorLine2="                                                  ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/ScrollableState.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;Float, Float> of &apos;getOnDelta&apos;."
-        errorLine1="private class DefaultScrollableState(val onDelta: (Float) -> Float) : ScrollableState {"
-        errorLine2="                                                  ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/ScrollableState.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method adjustByBoundary has parameter &apos;boundaryFun&apos; with type Function1&lt;? super Integer, TextRange>."
-        errorLine1="            boundaryFun: (Int) -> TextRange"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionAdjustment.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method animatedSelectionMagnifier has parameter &apos;magnifierCenter&apos; with type Function0&lt;Offset>."
-        errorLine1="    magnifierCenter: () -> Offset,"
-        errorLine2="                     ~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionMagnifier.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method rememberAnimatedMagnifierPosition has parameter &apos;targetCalculation&apos; with type Function0&lt;Offset>."
-        errorLine1="    targetCalculation: () -> Offset,"
-        errorLine2="                       ~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionMagnifier.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method detectNonConsumingTap has parameter &apos;onTap&apos; with type Function1&lt;? super Offset, Unit>."
-        errorLine1="    private suspend fun PointerInputScope.detectNonConsumingTap(onTap: (Offset) -> Unit) {"
-        errorLine2="                                                                       ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionManager.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;getMagnifierCenter&apos; with type Function2&lt;? super AnchorInfo, ? super Boolean, ? extends Offset>."
-        errorLine1="    fun getMagnifierCenter(anchor: AnchorInfo, isStartHandle: Boolean): Offset {"
-        errorLine2="    ^">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionManager.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method setOnPositionChangeCallback$lint_module has parameter &apos;&lt;set-?>&apos; with type Function1&lt;? super Long, Unit>."
-        errorLine1="    /**"
-        errorLine2="    ^">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionRegistrarImpl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;Long, Unit> of &apos;getOnPositionChangeCallback$lint_module&apos;."
-        errorLine1="    internal var onPositionChangeCallback: ((Long) -> Unit)? = null"
-        errorLine2="                                           ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionRegistrarImpl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method setOnSelectionUpdateStartCallback$lint_module has parameter &apos;&lt;set-?>&apos; with type Function4&lt;? super Boolean, ? super LayoutCoordinates, ? super Offset, ? super SelectionAdjustment, Unit>."
-        errorLine1="    /**"
-        errorLine2="    ^">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionRegistrarImpl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function4&lt;Boolean, LayoutCoordinates, Offset, SelectionAdjustment, Unit> of &apos;getOnSelectionUpdateStartCallback$lint_module&apos;."
-        errorLine1="        ((Boolean, LayoutCoordinates, Offset, SelectionAdjustment) -> Unit)? = null"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionRegistrarImpl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method setOnSelectionUpdateSelectAll$lint_module has parameter &apos;&lt;set-?>&apos; with type Function2&lt;? super Boolean, ? super Long, Unit>."
-        errorLine1="    /**"
-        errorLine2="    ^">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionRegistrarImpl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;Boolean, Long, Unit> of &apos;getOnSelectionUpdateSelectAll$lint_module&apos;."
-        errorLine1="    internal var onSelectionUpdateSelectAll: ("
-        errorLine2="                                             ^">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionRegistrarImpl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method setOnSelectionUpdateCallback$lint_module has parameter &apos;&lt;set-?>&apos; with type Function6&lt;? super Boolean, ? super LayoutCoordinates, ? super Offset, ? super Offset, ? super Boolean, ? super SelectionAdjustment, Boolean>."
-        errorLine1="    /**"
-        errorLine2="    ^">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionRegistrarImpl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function6&lt;Boolean, LayoutCoordinates, Offset, Offset, Boolean, SelectionAdjustment, Boolean> of &apos;getOnSelectionUpdateCallback$lint_module&apos;."
-        errorLine1="        ((Boolean, LayoutCoordinates, Offset, Offset, Boolean, SelectionAdjustment) -> Boolean)? ="
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionRegistrarImpl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method setOnSelectableChangeCallback$lint_module has parameter &apos;&lt;set-?>&apos; with type Function1&lt;? super Long, Unit>."
-        errorLine1="    /**"
-        errorLine2="    ^">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionRegistrarImpl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;Long, Unit> of &apos;getOnSelectableChangeCallback$lint_module&apos;."
-        errorLine1="    internal var onSelectableChangeCallback: ((Long) -> Unit)? = null"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionRegistrarImpl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method setAfterSelectableUnsubscribe$lint_module has parameter &apos;&lt;set-?>&apos; with type Function1&lt;? super Long, Unit>."
-        errorLine1="    /**"
-        errorLine2="    ^">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionRegistrarImpl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;Long, Unit> of &apos;getAfterSelectableUnsubscribe$lint_module&apos;."
-        errorLine1="    internal var afterSelectableUnsubscribe: ((Long) -> Unit)? = null"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionRegistrarImpl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method performFling has parameter &apos;onSettlingDistanceUpdated&apos; with type Function1&lt;? super Float, Unit>."
-        errorLine1="        onSettlingDistanceUpdated: (Float) -> Unit"
+        id="PrimitiveInCollection"
+        message="variable newSubselection with type Map&lt;Long, ? extends Selection>: replace with LongObjectMap"
+        errorLine1="                val (newSelection, newSubselection) = selectAll("
         errorLine2="                                   ~~~~~~~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/snapping/SnapFlingBehavior.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionManager.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method fling has parameter &apos;onRemainingScrollOffsetUpdate&apos; with type Function1&lt;? super Float, Unit>."
-        errorLine1="        onRemainingScrollOffsetUpdate: (Float) -> Unit"
-        errorLine2="                                       ~~~~~~~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="variable subselections with type Map&lt;Long, Selection>: replace with LongObjectMap"
+        errorLine1="        val subselections = mutableMapOf&lt;Long, Selection>()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/snapping/SnapFlingBehavior.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionManager.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method shortSnap has parameter &apos;onRemainingScrollOffsetUpdate&apos; with type Function1&lt;? super Float, Unit>."
-        errorLine1="        onRemainingScrollOffsetUpdate: (Float) -> Unit"
-        errorLine2="                                       ~~~~~~~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="variable idToIndexMap with type Map&lt;Long, Integer>: replace with LongIntMap"
+        errorLine1="        val idToIndexMap = mutableMapOf&lt;Long, Int>()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/snapping/SnapFlingBehavior.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionManager.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method longSnap has parameter &apos;onAnimationStep&apos; with type Function1&lt;? super Float, Unit>."
-        errorLine1="        onAnimationStep: (remainingScrollOffset: Float) -> Unit"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="return type Map&lt;Long, Selection> of getSubselections: replace with LongObjectMap"
+        errorLine1="    val subselections: Map&lt;Long, Selection>"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/snapping/SnapFlingBehavior.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionRegistrar.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method runApproach has parameter &apos;onAnimationStep&apos; with type Function1&lt;? super Float, Unit>."
-        errorLine1="        onAnimationStep: (delta: Float) -> Unit"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="field _selectableMap with type Map&lt;Long, Selectable>: replace with LongObjectMap"
+        errorLine1="    private val _selectableMap = mutableMapOf&lt;Long, Selectable>()"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/snapping/SnapFlingBehavior.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionRegistrarImpl.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method approach has parameter &apos;onAnimationStep&apos; with type Function1&lt;? super Float, Unit>."
-        errorLine1="    onAnimationStep: (delta: Float) -> Unit"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="return type Map&lt;Long, Selectable> of getSelectableMap$lint_module: replace with LongObjectMap"
+        errorLine1="    internal val selectableMap: Map&lt;Long, Selectable>"
+        errorLine2="                 ~~~~~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/snapping/SnapFlingBehavior.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionRegistrarImpl.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method animateDecay has parameter &apos;onAnimationStep&apos; with type Function1&lt;? super Float, Unit>."
-        errorLine1="    onAnimationStep: (delta: Float) -> Unit"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="method setSubselections has parameter &lt;set-?> with type Map&lt;Long, Selection>: replace with LongObjectMap"
+        errorLine1="    override var subselections: Map&lt;Long, Selection> by mutableStateOf(emptyMap())"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/snapping/SnapFlingBehavior.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionRegistrarImpl.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;consumeDelta&apos; with type Function2&lt;? super AnimationScope&lt;Float, AnimationVector1D>, ? super Float, ? extends Unit>."
-        errorLine1="    fun AnimationScope&lt;Float, AnimationVector1D>.consumeDelta(delta: Float) {"
-        errorLine2="    ^">
+        id="PrimitiveInCollection"
+        message="field baselineCache with type Map&lt;AlignmentLine, Integer>: replace with ObjectIntMap"
+        errorLine1="    private var baselineCache: Map&lt;AlignmentLine, Int>? = null"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/snapping/SnapFlingBehavior.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/modifiers/TextAnnotatedStringNode.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method animateSnap has parameter &apos;onAnimationStep&apos; with type Function1&lt;? super Float, Unit>."
-        errorLine1="    onAnimationStep: (delta: Float) -> Unit"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="field baselineCache with type Map&lt;AlignmentLine, Integer>: replace with ObjectIntMap"
+        errorLine1="    private var baselineCache: MutableMap&lt;AlignmentLine, Int>? = null"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/snapping/SnapFlingBehavior.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/modifiers/TextStringSimpleNode.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method approachAnimation has parameter &apos;onAnimationStep&apos; with type Function1&lt;? super Float, Unit>."
-        errorLine1="        onAnimationStep: (delta: Float) -> Unit"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="variable cache with type Map&lt;AlignmentLine, Integer>: replace with ObjectIntMap"
+        errorLine1="            var cache = baselineCache"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/snapping/SnapFlingBehavior.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method approachAnimation has parameter &apos;onAnimationStep&apos; with type Function1&lt;? super Float, Unit>."
-        errorLine1="        onAnimationStep: (delta: Float) -> Unit"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/snapping/SnapFlingBehavior.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;isValidDistance&apos; with type Function1&lt;? super Float, ? extends Boolean>."
-        errorLine1="    fun Float.isValidDistance(): Boolean {"
-        errorLine2="    ^">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/snapping/SnapFlingBehavior.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method detectTapGestures has parameter &apos;onDoubleTap&apos; with type Function1&lt;? super Offset, Unit>."
-        errorLine1="    onDoubleTap: ((Offset) -> Unit)? = null,"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/TapGestureDetector.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method detectTapGestures has parameter &apos;onLongPress&apos; with type Function1&lt;? super Offset, Unit>."
-        errorLine1="    onLongPress: ((Offset) -> Unit)? = null,"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/TapGestureDetector.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method detectTapGestures has parameter &apos;onPress&apos; with type Function3&lt;? super PressGestureScope, ? super Offset, ? super Continuation&lt;? super Unit>, ? extends Object>."
-        errorLine1="    onPress: suspend PressGestureScope.(Offset) -> Unit = NoPressGesture,"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/TapGestureDetector.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method detectTapGestures has parameter &apos;onTap&apos; with type Function1&lt;? super Offset, Unit>."
-        errorLine1="    onTap: ((Offset) -> Unit)? = null"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/TapGestureDetector.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method detectTapAndPress has parameter &apos;onPress&apos; with type Function3&lt;? super PressGestureScope, ? super Offset, ? super Continuation&lt;? super Unit>, ? extends Object>."
-        errorLine1="    onPress: suspend PressGestureScope.(Offset) -> Unit = NoPressGesture,"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/TapGestureDetector.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method detectTapAndPress has parameter &apos;onTap&apos; with type Function1&lt;? super Offset, Unit>."
-        errorLine1="    onTap: ((Offset) -> Unit)? = null"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/TapGestureDetector.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method platformSpecificTextInputSession has parameter &apos;onImeAction&apos; with type Function1&lt;? super ImeAction, ? extends Unit>."
-        errorLine1="    onImeAction: ((ImeAction) -> Unit)?"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text2/input/internal/TextFieldDecoratorModifier.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method restartInput$lint_module has parameter &apos;onImeActionPerformed&apos; with type Function1&lt;? super ImeAction, Unit>."
-        errorLine1="            onImeActionPerformed: (ImeAction) -> Unit"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/TextFieldDelegate.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method restartInput$lint_module has parameter &apos;onImeActionPerformed&apos; with type Function1&lt;? super ImeAction, Unit>."
-        errorLine1="            onImeActionPerformed: (ImeAction) -> Unit"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/TextFieldDelegate.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method onFocus$lint_module has parameter &apos;onImeActionPerformed&apos; with type Function1&lt;? super ImeAction, Unit>."
-        errorLine1="            onImeActionPerformed: (ImeAction) -> Unit"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/TextFieldDelegate.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method onFocus$lint_module has parameter &apos;onImeActionPerformed&apos; with type Function1&lt;? super ImeAction, Unit>."
-        errorLine1="            onImeActionPerformed: (ImeAction) -> Unit"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/TextFieldDelegate.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method tapPressTextFieldModifier has parameter &apos;onTap&apos; with type Function1&lt;? super Offset, Unit>."
-        errorLine1="    onTap: (Offset) -> Unit"
-        errorLine2="           ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/TextFieldPressGestureFilter.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method detectTransformGestures has parameter &apos;onGesture&apos; with type Function4&lt;? super Offset, ? super Offset, ? super Float, ? super Float, Unit>."
-        errorLine1="    onGesture: (centroid: Offset, pan: Offset, zoom: Float, rotation: Float) -> Unit"
-        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/TransformGestureDetector.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method transformable has parameter &apos;canPan&apos; with type Function1&lt;? super Offset, Boolean>."
-        errorLine1="    canPan: (Offset) -> Boolean,"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/Transformable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor TransformableElement has parameter &apos;canPan&apos; with type Function1&lt;? super Offset, Boolean>."
-        errorLine1="    private val canPan: (Offset) -> Boolean,"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/Transformable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor TransformableNode has parameter &apos;canPan&apos; with type Function1&lt;? super Offset, Boolean>."
-        errorLine1="    private var canPan: (Offset) -> Boolean,"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/Transformable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method update has parameter &apos;canPan&apos; with type Function1&lt;? super Offset, Boolean>."
-        errorLine1="        canPan: (Offset) -> Boolean,"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/Transformable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method detectZoom has parameter &apos;canPan&apos; with type Function1&lt;? super Offset, Boolean>."
-        errorLine1="    canPan: (Offset) -> Boolean"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/Transformable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method TransformableState has parameter &apos;onTransformation&apos; with type Function3&lt;? super Float, ? super Offset, ? super Float, Unit>."
-        errorLine1="    onTransformation: (zoomChange: Float, panChange: Offset, rotationChange: Float) -> Unit"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/TransformableState.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method rememberTransformableState has parameter &apos;onTransformation&apos; with type Function3&lt;? super Float, ? super Offset, ? super Float, Unit>."
-        errorLine1="    onTransformation: (zoomChange: Float, panChange: Offset, rotationChange: Float) -> Unit"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/TransformableState.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor DefaultTransformableState has parameter &apos;onTransformation&apos; with type Function3&lt;? super Float, ? super Offset, ? super Float, Unit>."
-        errorLine1="    val onTransformation: (zoomChange: Float, panChange: Offset, rotationChange: Float) -> Unit"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/TransformableState.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function3&lt;Float, Offset, Float, Unit> of &apos;getOnTransformation&apos;."
-        errorLine1="    val onTransformation: (zoomChange: Float, panChange: Offset, rotationChange: Float) -> Unit"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/TransformableState.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method animateToZero has parameter &apos;beforeFrame&apos; with type Function1&lt;? super Float, Unit>."
-        errorLine1="        beforeFrame: (valueDelta: Float) -> Unit,"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/UpdatableAnimationState.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/modifiers/TextStringSimpleNode.kt"/>
     </issue>
 
 </issues>

@@ -9,6 +9,7 @@ import java.lang.Override;
 import java.lang.String;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.processing.Generated;
 
 @Generated("androidx.appsearch.compiler.AppSearchCompiler")
@@ -59,18 +60,19 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   }
 
   @Override
-  public Gift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
+  public Gift fromGenericDocument(GenericDocument genericDoc,
+      Map<String, List<String>> documentClassMap) throws AppSearchException {
     String idConv = genericDoc.getId();
     String namespaceConv = genericDoc.getNamespace();
     GenericDocument middleContentACopy = genericDoc.getPropertyDocument("middleContentA");
     Middle middleContentAConv = null;
     if (middleContentACopy != null) {
-      middleContentAConv = middleContentACopy.toDocumentClass(Middle.class);
+      middleContentAConv = middleContentACopy.toDocumentClass(Middle.class, documentClassMap);
     }
     GenericDocument middleContentBCopy = genericDoc.getPropertyDocument("middleContentB");
     Middle middleContentBConv = null;
     if (middleContentBCopy != null) {
-      middleContentBConv = middleContentBCopy.toDocumentClass(Middle.class);
+      middleContentBConv = middleContentBCopy.toDocumentClass(Middle.class, documentClassMap);
     }
     Gift document = new Gift();
     document.id = idConv;

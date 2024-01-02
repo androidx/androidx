@@ -17,9 +17,9 @@
 package androidx.wear.protolayout.material;
 
 import static androidx.wear.protolayout.DimensionBuilders.dp;
-import static androidx.wear.protolayout.material.Chip.METADATA_TAG_ICON;
-import static androidx.wear.protolayout.material.Chip.METADATA_TAG_TEXT;
 import static androidx.wear.protolayout.material.Utils.areChipColorsEqual;
+import static androidx.wear.protolayout.materialcore.Chip.METADATA_TAG_ICON;
+import static androidx.wear.protolayout.materialcore.Chip.METADATA_TAG_TEXT;
 
 import static com.google.common.truth.Truth.assertThat;
 

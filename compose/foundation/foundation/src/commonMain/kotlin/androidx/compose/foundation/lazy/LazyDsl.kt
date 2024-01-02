@@ -109,6 +109,9 @@ interface LazyListScope {
      * type could be reused more efficiently. Note that null is a valid type and items of such
      * type will be considered compatible.
      * @param content the content of the header
+     *
+     * Note: More investigations needed to make sure sticky headers API is suitable for various
+     * more generic usecases, e.g. in grids. This API is experimental until the answer is found.
      */
     @ExperimentalFoundationApi
     fun stickyHeader(

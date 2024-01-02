@@ -27,7 +27,7 @@ import androidx.room.vo.FtsEntity
 import java.util.Locale
 
 class FtsTableInfoValidationWriter(val entity: FtsEntity) : ValidationWriter() {
-    override fun write(dbParamName: String, scope: CountingCodeGenScope) {
+    override fun write(connectionParamName: String, scope: CountingCodeGenScope) {
         val suffix = entity.tableName.stripNonJava().capitalize(Locale.US)
         val expectedInfoVar = scope.getTmpVar("_info$suffix")
         scope.builder.apply {
@@ -64,7 +64,7 @@ class FtsTableInfoValidationWriter(val entity: FtsEntity) : ValidationWriter() {
                 existingVar,
                 RoomTypeNames.FTS_TABLE_INFO,
                 "%M(%L, %S)",
-                RoomMemberNames.FTS_TABLE_INFO_READ, dbParamName, entity.tableName
+                RoomMemberNames.FTS_TABLE_INFO_READ, connectionParamName, entity.tableName
             )
 
             beginControlFlow("if (!%L.equals(%L))", expectedInfoVar, existingVar).apply {
@@ -72,7 +72,7 @@ class FtsTableInfoValidationWriter(val entity: FtsEntity) : ValidationWriter() {
                     "return %L",
                     XCodeBlock.ofNewInstance(
                         language,
-                        RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT,
+                        RoomTypeNames.ROOM_OPEN_DELEGATE_VALIDATION_RESULT,
                         "false, %S + %L + %S + %L",
                         "${entity.tableName}(${entity.element.qualifiedName}).\n Expected:\n",
                         expectedInfoVar,

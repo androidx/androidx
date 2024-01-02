@@ -95,6 +95,30 @@ val WearMaterialDemos = DemoCategory(
     "Material",
     listOf(
         DemoCategory(
+            "Page Indicator",
+            listOf(
+                DemoCategory(
+                    "Samples",
+                    listOf(
+                        ComposableDemo("Sample with InlineSlider") {
+                            Centralize { HorizontalPageIndicatorSample() }
+                        },
+                    )
+                ),
+                DemoCategory(
+                    "Demos",
+                    listOf(
+                        ComposableDemo("Customized PageIndicator") {
+                            CustomizedHorizontalPageIndicator()
+                        },
+                        ComposableDemo("Pager with Indicator") { params ->
+                            PagerWithIndicator(params.swipeToDismissBoxState)
+                        }
+                    )
+                )
+            )
+        ),
+        DemoCategory(
             "ScrollAway",
             listOf(
                 ComposableDemo("Column") { ScrollAwayColumnDemo() },
@@ -505,27 +529,6 @@ val WearMaterialDemos = DemoCategory(
             )
         ),
         DemoCategory(
-            "Page Indicator",
-            listOf(
-                DemoCategory(
-                    "Samples",
-                    listOf(
-                        ComposableDemo("Sample with InlineSlider") {
-                            Centralize { HorizontalPageIndicatorSample() }
-                        },
-                    )
-                ),
-                DemoCategory(
-                    "Demos",
-                    listOf(
-                        ComposableDemo("Customized PageIndicator") {
-                            CustomizedHorizontalPageIndicator()
-                        },
-                    )
-                )
-            )
-        ),
-        DemoCategory(
             "Progress Indicator",
             listOf(
                 DemoCategory(
@@ -642,8 +645,11 @@ val WearMaterialDemos = DemoCategory(
             "Position Indicator",
             listOf(
                 ComposableDemo("Hide when no scrollable") { HideWhenFullDemo() },
-                ComposableDemo("Hide when no scrollable on ScalingLazyColumn") {
+                ComposableDemo("Hide when no scrollable SLC") {
                     HideWhenFullSLCDemo()
+                },
+                ComposableDemo("SLC with PositionIndicator") {
+                    SLCWithPositionIndicatorDemo()
                 },
                 ComposableDemo("Controllable PI") { ControllablePositionIndicator() },
                 ComposableDemo("Shared PI") { SharedPositionIndicator() }
@@ -668,5 +674,6 @@ val WearMaterialDemos = DemoCategory(
                 ComposableDemo("Colors") { ThemeColors() },
             )
         ),
+        ComposableDemo("Settings Demo") { SettingsDemo() },
     ),
 )

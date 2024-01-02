@@ -18,6 +18,9 @@ package androidx.compose.foundation.text2.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.appendCodePointX
+import androidx.compose.foundation.text2.input.internal.OffsetMappingCalculator
+import androidx.compose.foundation.text2.input.internal.charCount
+import androidx.compose.foundation.text2.input.internal.codePointAt
 import androidx.compose.runtime.Stable
 
 /**
@@ -28,6 +31,7 @@ import androidx.compose.runtime.Stable
  * of input needs to remain but rendered content should look different, e.g. password obscuring.
  */
 @ExperimentalFoundationApi
+@Stable
 fun interface CodepointTransformation {
 
     /**
@@ -39,41 +43,21 @@ fun interface CodepointTransformation {
     // TODO: add more codepoint explanation or doc referral
     fun transform(codepointIndex: Int, codepoint: Int): Int
 
-    companion object {
-
-        @Stable
-        val None = CodepointTransformation { _, codepoint -> codepoint }
-    }
+    companion object
 }
 
 /**
  * Creates a masking [CodepointTransformation] that maps all codepoints to a specific [character].
  */
 @ExperimentalFoundationApi
+@Stable
 fun CodepointTransformation.Companion.mask(character: Char): CodepointTransformation =
     MaskCodepointTransformation(character)
 
 @OptIn(ExperimentalFoundationApi::class)
-private class MaskCodepointTransformation(val character: Char) : CodepointTransformation {
+private data class MaskCodepointTransformation(val character: Char) : CodepointTransformation {
     override fun transform(codepointIndex: Int, codepoint: Int): Int {
         return character.code
-    }
-
-    override fun toString(): String {
-        return "MaskCodepointTransformation(character=$character)"
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is MaskCodepointTransformation) return false
-
-        if (character != other.character) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        return character.hashCode()
     }
 }
 
@@ -103,17 +87,36 @@ internal object SingleLineCodepointTransformation : CodepointTransformation {
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-internal fun CharSequence.toVisualText(
-    codepointTransformation: CodepointTransformation?
+internal fun TextFieldCharSequence.toVisualText(
+    codepointTransformation: CodepointTransformation,
+    offsetMappingCalculator: OffsetMappingCalculator
 ): CharSequence {
-    codepointTransformation ?: return this
     val text = this
-    return buildString {
-        (0 until Character.codePointCount(text, 0, text.length)).forEach { codepointIndex ->
-            val codepoint = codepointTransformation.transform(
-                codepointIndex, Character.codePointAt(text, codepointIndex)
-            )
-            appendCodePointX(codepoint)
+    var changed = false
+    val newText = buildString {
+        var charOffset = 0
+        var codePointOffset = 0
+        while (charOffset < text.length) {
+            val codePoint = text.codePointAt(charOffset)
+            val newCodePoint = codepointTransformation.transform(codePointOffset, codePoint)
+            val charCount = charCount(codePoint)
+            if (newCodePoint != codePoint) {
+                changed = true
+                val newCharCount = charCount(newCodePoint)
+                offsetMappingCalculator.recordEditOperation(
+                    sourceStart = length,
+                    sourceEnd = length + charCount,
+                    newLength = newCharCount
+                )
+            }
+            appendCodePointX(newCodePoint)
+
+            charOffset += charCount
+            codePointOffset += 1
         }
     }
+
+    // Return the same instance if nothing changed, which signals to the caller that nothing changed
+    // and allows the new string to be GC'd earlier.
+    return if (changed) newText else this
 }

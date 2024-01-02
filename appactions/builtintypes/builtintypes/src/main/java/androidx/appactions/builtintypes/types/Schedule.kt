@@ -1,20 +1,21 @@
-// Copyright 2023 The Android Open Source Project
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/*
+ * Copyright 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package androidx.appactions.builtintypes.types
 
 import androidx.appactions.builtintypes.properties.ByDay
-import androidx.appactions.builtintypes.properties.DisambiguatingDescription
 import androidx.appactions.builtintypes.properties.EndDate
 import androidx.appactions.builtintypes.properties.EndTime
 import androidx.appactions.builtintypes.properties.ExceptDate
@@ -33,12 +34,14 @@ import kotlin.Any
 import kotlin.Boolean
 import kotlin.Int
 import kotlin.Long
+import kotlin.NotImplementedError
 import kotlin.String
 import kotlin.Suppress
 import kotlin.collections.Iterable
 import kotlin.collections.List
 import kotlin.collections.Map
 import kotlin.collections.MutableList
+import kotlin.collections.emptyList
 import kotlin.collections.emptyMap
 import kotlin.collections.isNotEmpty
 import kotlin.collections.joinToString
@@ -47,7 +50,6 @@ import kotlin.collections.mutableListOf
 import kotlin.collections.mutableMapOf
 import kotlin.collections.plusAssign
 import kotlin.collections.toList
-import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmStatic
 
 /**
@@ -73,7 +75,9 @@ public interface Schedule : Intangible {
    *
    * See https://schema.org/byDay for more context.
    */
-  @get:Document.DocumentProperty(name = "byDay") public val byDays: List<ByDay>
+  @get:Document.DocumentProperty
+  public val byDays: List<ByDay>
+    get() = emptyList()
 
   /**
    * Defines the month(s) of the year on which a recurring Event takes place. Specified as an
@@ -81,7 +85,9 @@ public interface Schedule : Intangible {
    *
    * See https://schema.org/byMonth for more context.
    */
-  @get:Document.LongProperty(name = "byMonth") public val byMonths: List<Long>
+  @get:Document.LongProperty
+  public val byMonths: List<Long>
+    get() = emptyList()
 
   /**
    * Defines the day(s) of the month on which a recurring Event takes place. Specified as an Integer
@@ -89,7 +95,9 @@ public interface Schedule : Intangible {
    *
    * See https://schema.org/byMonthDay for more context.
    */
-  @get:Document.LongProperty(name = "byMonthDay") public val byMonthDays: List<Long>
+  @get:Document.LongProperty
+  public val byMonthDays: List<Long>
+    get() = emptyList()
 
   /**
    * Defines the week(s) of the month on which a recurring Event takes place. Specified as an
@@ -98,14 +106,18 @@ public interface Schedule : Intangible {
    *
    * See https://schema.org/byMonthWeek for more context.
    */
-  @get:Document.LongProperty(name = "byMonthWeek") public val byMonthWeeks: List<Long>
+  @get:Document.LongProperty
+  public val byMonthWeeks: List<Long>
+    get() = emptyList()
 
   /**
    * The end date and time of the item.
    *
    * See https://schema.org/endDate for more context.
    */
-  @get:Document.DocumentProperty public val endDate: EndDate?
+  @get:Document.DocumentProperty
+  public val endDate: EndDate?
+    get() = null
 
   /**
    * The endTime of something.
@@ -117,7 +129,9 @@ public interface Schedule : Intangible {
    *
    * See https://schema.org/endTime for more context.
    */
-  @get:Document.DocumentProperty public val endTime: EndTime?
+  @get:Document.DocumentProperty
+  public val endTime: EndTime?
+    get() = null
 
   /**
    * Defines a `Date` or `DateTime` during which a scheduled `Event` will not take place. The
@@ -129,14 +143,19 @@ public interface Schedule : Intangible {
    *
    * See https://schema.org/exceptDate for more context.
    */
-  @get:Document.DocumentProperty public val exceptDate: ExceptDate?
+  @get:Document.DocumentProperty
+  public val exceptDate: ExceptDate?
+    get() = null
 
   /**
    * Defines the number of times a recurring `Event` will take place.
    *
    * See https://schema.org/repeatCount for more context.
    */
-  @get:Document.LongProperty @get:Suppress("AutoBoxing") public val repeatCount: Long?
+  @get:Document.LongProperty
+  @get:Suppress("AutoBoxing")
+  public val repeatCount: Long?
+    get() = null
 
   /**
    * Defines the frequency at which `Event`s will occur according to a schedule `Schedule`. The
@@ -144,7 +163,9 @@ public interface Schedule : Intangible {
    *
    * See https://schema.org/repeatFrequency for more context.
    */
-  @get:Document.DocumentProperty public val repeatFrequency: RepeatFrequency?
+  @get:Document.DocumentProperty
+  public val repeatFrequency: RepeatFrequency?
+    get() = null
 
   /**
    * Indicates the timezone for which the time(s) indicated in the `Schedule` are given. The value
@@ -152,14 +173,18 @@ public interface Schedule : Intangible {
    *
    * See https://schema.org/scheduleTimezone for more context.
    */
-  @get:Document.StringProperty public val scheduleTimezone: String?
+  @get:Document.StringProperty
+  public val scheduleTimezone: String?
+    get() = null
 
   /**
    * The start date and time of the item.
    *
    * See https://schema.org/startDate for more context.
    */
-  @get:Document.DocumentProperty public val startDate: StartDate?
+  @get:Document.DocumentProperty
+  public val startDate: StartDate?
+    get() = null
 
   /**
    * The startTime of something.
@@ -171,22 +196,16 @@ public interface Schedule : Intangible {
    *
    * See https://schema.org/startTime for more context.
    */
-  @get:Document.DocumentProperty public val startTime: StartTime?
+  @get:Document.DocumentProperty
+  public val startTime: StartTime?
+    get() = null
 
   /** Converts this [Schedule] to its builder with all the properties copied over. */
-  public override fun toBuilder(): Builder<*>
+  override fun toBuilder(): Builder<*>
 
   public companion object {
-    /**
-     * Returns a default implementation of [Builder].
-     *
-     * Has the specified [identifier] and [namespace] and no other properties set.
-     */
-    @JvmStatic
-    @JvmOverloads
-    @Document.BuilderProducer
-    public fun Builder(identifier: String = "", namespace: String = ""): Builder<*> =
-      ScheduleImpl.Builder().setIdentifier(identifier).setNamespace(namespace)
+    /** Returns a default implementation of [Builder]. */
+    @JvmStatic @Document.BuilderProducer public fun Builder(): Builder<*> = ScheduleImpl.Builder()
   }
 
   /**
@@ -197,73 +216,70 @@ public interface Schedule : Intangible {
    */
   public interface Builder<Self : Builder<Self>> : Intangible.Builder<Self> {
     /** Returns a built [Schedule]. */
-    public override fun build(): Schedule
-
-    /** Appends [String] as a value to `byDays`. */
-    public fun addByDay(text: String): Self = addByDay(ByDay(text))
+    override fun build(): Schedule
 
     /** Appends [DayOfWeek] as a value to `byDays`. */
     public fun addByDay(dayOfWeek: DayOfWeek): Self = addByDay(ByDay(dayOfWeek))
 
     /** Appends a value to `byDays`. */
-    public fun addByDay(byDay: ByDay): Self
+    @Suppress("DocumentExceptions")
+    public fun addByDay(byDay: ByDay): Self = throw NotImplementedError()
 
     /** Appends multiple values to `byDays`. */
-    public fun addByDays(values: Iterable<ByDay>): Self
+    @Suppress("DocumentExceptions")
+    public fun addByDays(values: Iterable<ByDay>): Self = throw NotImplementedError()
 
     /** Clears `byDays`. */
-    public fun clearByDays(): Self
+    @Suppress("DocumentExceptions") public fun clearByDays(): Self = throw NotImplementedError()
 
     /** Appends a value to `byMonths`. */
-    public fun addByMonth(integer: Long): Self
+    @Suppress("DocumentExceptions")
+    public fun addByMonth(integer: Long): Self = throw NotImplementedError()
 
     /** Appends multiple values to `byMonths`. */
-    public fun addByMonths(values: Iterable<Long>): Self
+    @Suppress("DocumentExceptions")
+    public fun addByMonths(values: Iterable<Long>): Self = throw NotImplementedError()
 
     /** Clears `byMonths`. */
-    public fun clearByMonths(): Self
+    @Suppress("DocumentExceptions") public fun clearByMonths(): Self = throw NotImplementedError()
 
     /** Appends a value to `byMonthDays`. */
-    public fun addByMonthDay(integer: Long): Self
+    @Suppress("DocumentExceptions")
+    public fun addByMonthDay(integer: Long): Self = throw NotImplementedError()
 
     /** Appends multiple values to `byMonthDays`. */
-    public fun addByMonthDays(values: Iterable<Long>): Self
+    @Suppress("DocumentExceptions")
+    public fun addByMonthDays(values: Iterable<Long>): Self = throw NotImplementedError()
 
     /** Clears `byMonthDays`. */
-    public fun clearByMonthDays(): Self
+    @Suppress("DocumentExceptions")
+    public fun clearByMonthDays(): Self = throw NotImplementedError()
 
     /** Appends a value to `byMonthWeeks`. */
-    public fun addByMonthWeek(integer: Long): Self
+    @Suppress("DocumentExceptions")
+    public fun addByMonthWeek(integer: Long): Self = throw NotImplementedError()
 
     /** Appends multiple values to `byMonthWeeks`. */
-    public fun addByMonthWeeks(values: Iterable<Long>): Self
+    @Suppress("DocumentExceptions")
+    public fun addByMonthWeeks(values: Iterable<Long>): Self = throw NotImplementedError()
 
     /** Clears `byMonthWeeks`. */
-    public fun clearByMonthWeeks(): Self
+    @Suppress("DocumentExceptions")
+    public fun clearByMonthWeeks(): Self = throw NotImplementedError()
 
     /** Sets the `endDate` to [LocalDate]. */
     public fun setEndDate(date: LocalDate): Self = setEndDate(EndDate(date))
 
-    /** Sets the `endDate` to [LocalDateTime]. */
-    public fun setEndDate(localDateTime: LocalDateTime): Self = setEndDate(EndDate(localDateTime))
-
-    /** Sets the `endDate` to [Instant]. */
-    public fun setEndDate(instant: Instant): Self = setEndDate(EndDate(instant))
-
     /** Sets the `endDate`. */
-    public fun setEndDate(endDate: EndDate?): Self
+    @Suppress("DocumentExceptions")
+    public fun setEndDate(endDate: EndDate?): Self = throw NotImplementedError()
 
     /** Sets the `endTime` to [LocalTime]. */
     public fun setEndTime(time: LocalTime): Self = setEndTime(EndTime(time))
 
-    /** Sets the `endTime` to [LocalDateTime]. */
-    public fun setEndTime(localDateTime: LocalDateTime): Self = setEndTime(EndTime(localDateTime))
-
-    /** Sets the `endTime` to [Instant]. */
-    public fun setEndTime(instant: Instant): Self = setEndTime(EndTime(instant))
-
     /** Sets the `endTime`. */
-    public fun setEndTime(endTime: EndTime?): Self
+    @Suppress("DocumentExceptions")
+    public fun setEndTime(endTime: EndTime?): Self = throw NotImplementedError()
 
     /** Sets the `exceptDate` to [LocalDate]. */
     public fun setExceptDate(date: LocalDate): Self = setExceptDate(ExceptDate(date))
@@ -276,49 +292,40 @@ public interface Schedule : Intangible {
     public fun setExceptDate(instant: Instant): Self = setExceptDate(ExceptDate(instant))
 
     /** Sets the `exceptDate`. */
-    public fun setExceptDate(exceptDate: ExceptDate?): Self
+    @Suppress("DocumentExceptions")
+    public fun setExceptDate(exceptDate: ExceptDate?): Self = throw NotImplementedError()
 
     /** Sets the `repeatCount`. */
-    public fun setRepeatCount(@Suppress("AutoBoxing") integer: Long?): Self
+    @Suppress("DocumentExceptions")
+    public fun setRepeatCount(@Suppress("AutoBoxing") integer: Long?): Self =
+      throw NotImplementedError()
 
     /** Sets the `repeatFrequency` to [Duration]. */
     public fun setRepeatFrequency(duration: Duration): Self =
       setRepeatFrequency(RepeatFrequency(duration))
 
-    /** Sets the `repeatFrequency` to [String]. */
-    public fun setRepeatFrequency(text: String): Self = setRepeatFrequency(RepeatFrequency(text))
-
     /** Sets the `repeatFrequency`. */
-    public fun setRepeatFrequency(repeatFrequency: RepeatFrequency?): Self
+    @Suppress("DocumentExceptions")
+    public fun setRepeatFrequency(repeatFrequency: RepeatFrequency?): Self =
+      throw NotImplementedError()
 
     /** Sets the `scheduleTimezone`. */
-    public fun setScheduleTimezone(text: String?): Self
+    @Suppress("DocumentExceptions")
+    public fun setScheduleTimezone(text: String?): Self = throw NotImplementedError()
 
     /** Sets the `startDate` to [LocalDate]. */
     public fun setStartDate(date: LocalDate): Self = setStartDate(StartDate(date))
 
-    /** Sets the `startDate` to [LocalDateTime]. */
-    public fun setStartDate(localDateTime: LocalDateTime): Self =
-      setStartDate(StartDate(localDateTime))
-
-    /** Sets the `startDate` to [Instant]. */
-    public fun setStartDate(instant: Instant): Self = setStartDate(StartDate(instant))
-
     /** Sets the `startDate`. */
-    public fun setStartDate(startDate: StartDate?): Self
+    @Suppress("DocumentExceptions")
+    public fun setStartDate(startDate: StartDate?): Self = throw NotImplementedError()
 
     /** Sets the `startTime` to [LocalTime]. */
     public fun setStartTime(time: LocalTime): Self = setStartTime(StartTime(time))
 
-    /** Sets the `startTime` to [LocalDateTime]. */
-    public fun setStartTime(localDateTime: LocalDateTime): Self =
-      setStartTime(StartTime(localDateTime))
-
-    /** Sets the `startTime` to [Instant]. */
-    public fun setStartTime(instant: Instant): Self = setStartTime(StartTime(instant))
-
     /** Sets the `startTime`. */
-    public fun setStartTime(startTime: StartTime?): Self
+    @Suppress("DocumentExceptions")
+    public fun setStartTime(startTime: StartTime?): Self = throw NotImplementedError()
   }
 }
 
@@ -327,14 +334,20 @@ public interface Schedule : Intangible {
  *
  * Allows for extension like:
  * ```kt
+ * @Document(
+ *   name = "MySchedule",
+ *   parent = [Schedule::class],
+ * )
  * class MySchedule internal constructor(
  *   schedule: Schedule,
- *   val foo: String,
- *   val bars: List<Int>,
+ *   @Document.StringProperty val foo: String,
+ *   @Document.LongProperty val bars: List<Int>,
  * ) : AbstractSchedule<
  *   MySchedule,
  *   MySchedule.Builder
  * >(schedule) {
+ *
+ *   // No need to implement equals(), hashCode(), toString() or toBuilder()
  *
  *   override val selfTypeName =
  *     "MySchedule"
@@ -348,6 +361,7 @@ public interface Schedule : Intangible {
  *       .addBars(bars)
  *   }
  *
+ *   @Document.BuilderProducer
  *   class Builder :
  *     AbstractSchedule.Builder<
  *       Builder,
@@ -359,24 +373,25 @@ public interface Schedule : Intangible {
  */
 @Suppress("UNCHECKED_CAST")
 public abstract class AbstractSchedule<
-  Self : AbstractSchedule<Self, Builder>, Builder : AbstractSchedule.Builder<Builder, Self>>
+  Self : AbstractSchedule<Self, Builder>,
+  Builder : AbstractSchedule.Builder<Builder, Self>
+>
 internal constructor(
-  public final override val namespace: String,
-  public final override val byDays: List<ByDay>,
-  public final override val byMonths: List<Long>,
-  public final override val byMonthDays: List<Long>,
-  public final override val byMonthWeeks: List<Long>,
-  public final override val endDate: EndDate?,
-  public final override val endTime: EndTime?,
-  public final override val exceptDate: ExceptDate?,
-  @get:Suppress("AutoBoxing") public final override val repeatCount: Long?,
-  public final override val repeatFrequency: RepeatFrequency?,
-  public final override val scheduleTimezone: String?,
-  public final override val startDate: StartDate?,
-  public final override val startTime: StartTime?,
-  public final override val disambiguatingDescription: DisambiguatingDescription?,
-  public final override val identifier: String,
-  public final override val name: Name?,
+  final override val namespace: String,
+  final override val byDays: List<ByDay>,
+  final override val byMonths: List<Long>,
+  final override val byMonthDays: List<Long>,
+  final override val byMonthWeeks: List<Long>,
+  final override val endDate: EndDate?,
+  final override val endTime: EndTime?,
+  final override val exceptDate: ExceptDate?,
+  @get:Suppress("AutoBoxing") final override val repeatCount: Long?,
+  final override val repeatFrequency: RepeatFrequency?,
+  final override val scheduleTimezone: String?,
+  final override val startDate: StartDate?,
+  final override val startTime: StartTime?,
+  final override val identifier: String,
+  final override val name: Name?,
 ) : Schedule {
   /**
    * Human readable name for the concrete [Self] class.
@@ -409,7 +424,6 @@ internal constructor(
     schedule.scheduleTimezone,
     schedule.startDate,
     schedule.startTime,
-    schedule.disambiguatingDescription,
     schedule.identifier,
     schedule.name
   )
@@ -417,7 +431,7 @@ internal constructor(
   /** Returns a concrete [Builder] with the additional, non-[Schedule] properties copied over. */
   protected abstract fun toBuilderWithAdditionalPropertiesOnly(): Builder
 
-  public final override fun toBuilder(): Builder =
+  final override fun toBuilder(): Builder =
     toBuilderWithAdditionalPropertiesOnly()
       .setNamespace(namespace)
       .addByDays(byDays)
@@ -432,11 +446,10 @@ internal constructor(
       .setScheduleTimezone(scheduleTimezone)
       .setStartDate(startDate)
       .setStartTime(startTime)
-      .setDisambiguatingDescription(disambiguatingDescription)
       .setIdentifier(identifier)
       .setName(name)
 
-  public final override fun equals(other: Any?): Boolean {
+  final override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other == null || this::class.java != other::class.java) return false
     other as Self
@@ -453,14 +466,13 @@ internal constructor(
     if (scheduleTimezone != other.scheduleTimezone) return false
     if (startDate != other.startDate) return false
     if (startTime != other.startTime) return false
-    if (disambiguatingDescription != other.disambiguatingDescription) return false
     if (identifier != other.identifier) return false
     if (name != other.name) return false
     if (additionalProperties != other.additionalProperties) return false
     return true
   }
 
-  public final override fun hashCode(): Int =
+  final override fun hashCode(): Int =
     Objects.hash(
       namespace,
       byDays,
@@ -475,15 +487,16 @@ internal constructor(
       scheduleTimezone,
       startDate,
       startTime,
-      disambiguatingDescription,
       identifier,
       name,
       additionalProperties
     )
 
-  public final override fun toString(): String {
+  final override fun toString(): String {
     val attributes = mutableMapOf<String, String>()
-    attributes["namespace"] = namespace
+    if (namespace.isNotEmpty()) {
+      attributes["namespace"] = namespace
+    }
     if (byDays.isNotEmpty()) {
       attributes["byDays"] = byDays.map { it.toString(includeWrapperName = false) }.toString()
     }
@@ -520,11 +533,9 @@ internal constructor(
     if (startTime != null) {
       attributes["startTime"] = startTime.toString(includeWrapperName = false)
     }
-    if (disambiguatingDescription != null) {
-      attributes["disambiguatingDescription"] =
-        disambiguatingDescription.toString(includeWrapperName = false)
+    if (identifier.isNotEmpty()) {
+      attributes["identifier"] = identifier
     }
-    attributes["identifier"] = identifier
     if (name != null) {
       attributes["name"] = name.toString(includeWrapperName = false)
     }
@@ -538,16 +549,21 @@ internal constructor(
    *
    * Allows for extension like:
    * ```kt
+   * @Document(...)
    * class MySchedule :
    *   : AbstractSchedule<
    *     MySchedule,
    *     MySchedule.Builder>(...) {
    *
+   *   @Document.BuilderProducer
    *   class Builder
-   *   : Builder<
+   *   : AbstractSchedule.Builder<
    *       Builder,
    *       MySchedule
    *   >() {
+   *
+   *     // No need to implement equals(), hashCode(), toString() or build()
+   *
    *     private var foo: String? = null
    *     private val bars = mutableListOf<Int>()
    *
@@ -586,7 +602,9 @@ internal constructor(
    */
   @Suppress("StaticFinalBuilder")
   public abstract class Builder<
-    Self : Builder<Self, Built>, Built : AbstractSchedule<Built, Self>> : Schedule.Builder<Self> {
+    Self : Builder<Self, Built>,
+    Built : AbstractSchedule<Built, Self>
+  > : Schedule.Builder<Self> {
     /**
      * Human readable name for the concrete [Self] class.
      *
@@ -627,8 +645,6 @@ internal constructor(
 
     private var startTime: StartTime? = null
 
-    private var disambiguatingDescription: DisambiguatingDescription? = null
-
     private var identifier: String = ""
 
     private var name: Name? = null
@@ -643,7 +659,7 @@ internal constructor(
      */
     @Suppress("BuilderSetStyle") protected abstract fun buildFromSchedule(schedule: Schedule): Built
 
-    public final override fun build(): Built =
+    final override fun build(): Built =
       buildFromSchedule(
         ScheduleImpl(
           namespace,
@@ -659,136 +675,128 @@ internal constructor(
           scheduleTimezone,
           startDate,
           startTime,
-          disambiguatingDescription,
           identifier,
           name
         )
       )
 
-    public final override fun setNamespace(namespace: String): Self {
+    final override fun setNamespace(namespace: String): Self {
       this.namespace = namespace
       return this as Self
     }
 
-    public final override fun addByDay(byDay: ByDay): Self {
+    final override fun addByDay(byDay: ByDay): Self {
       byDays += byDay
       return this as Self
     }
 
-    public final override fun addByDays(values: Iterable<ByDay>): Self {
+    final override fun addByDays(values: Iterable<ByDay>): Self {
       byDays += values
       return this as Self
     }
 
-    public final override fun clearByDays(): Self {
+    final override fun clearByDays(): Self {
       byDays.clear()
       return this as Self
     }
 
-    public final override fun addByMonth(integer: Long): Self {
+    final override fun addByMonth(integer: Long): Self {
       byMonths += integer
       return this as Self
     }
 
-    public final override fun addByMonths(values: Iterable<Long>): Self {
+    final override fun addByMonths(values: Iterable<Long>): Self {
       byMonths += values
       return this as Self
     }
 
-    public final override fun clearByMonths(): Self {
+    final override fun clearByMonths(): Self {
       byMonths.clear()
       return this as Self
     }
 
-    public final override fun addByMonthDay(integer: Long): Self {
+    final override fun addByMonthDay(integer: Long): Self {
       byMonthDays += integer
       return this as Self
     }
 
-    public final override fun addByMonthDays(values: Iterable<Long>): Self {
+    final override fun addByMonthDays(values: Iterable<Long>): Self {
       byMonthDays += values
       return this as Self
     }
 
-    public final override fun clearByMonthDays(): Self {
+    final override fun clearByMonthDays(): Self {
       byMonthDays.clear()
       return this as Self
     }
 
-    public final override fun addByMonthWeek(integer: Long): Self {
+    final override fun addByMonthWeek(integer: Long): Self {
       byMonthWeeks += integer
       return this as Self
     }
 
-    public final override fun addByMonthWeeks(values: Iterable<Long>): Self {
+    final override fun addByMonthWeeks(values: Iterable<Long>): Self {
       byMonthWeeks += values
       return this as Self
     }
 
-    public final override fun clearByMonthWeeks(): Self {
+    final override fun clearByMonthWeeks(): Self {
       byMonthWeeks.clear()
       return this as Self
     }
 
-    public final override fun setEndDate(endDate: EndDate?): Self {
+    final override fun setEndDate(endDate: EndDate?): Self {
       this.endDate = endDate
       return this as Self
     }
 
-    public final override fun setEndTime(endTime: EndTime?): Self {
+    final override fun setEndTime(endTime: EndTime?): Self {
       this.endTime = endTime
       return this as Self
     }
 
-    public final override fun setExceptDate(exceptDate: ExceptDate?): Self {
+    final override fun setExceptDate(exceptDate: ExceptDate?): Self {
       this.exceptDate = exceptDate
       return this as Self
     }
 
-    public final override fun setRepeatCount(@Suppress("AutoBoxing") integer: Long?): Self {
+    final override fun setRepeatCount(@Suppress("AutoBoxing") integer: Long?): Self {
       this.repeatCount = integer
       return this as Self
     }
 
-    public final override fun setRepeatFrequency(repeatFrequency: RepeatFrequency?): Self {
+    final override fun setRepeatFrequency(repeatFrequency: RepeatFrequency?): Self {
       this.repeatFrequency = repeatFrequency
       return this as Self
     }
 
-    public final override fun setScheduleTimezone(text: String?): Self {
+    final override fun setScheduleTimezone(text: String?): Self {
       this.scheduleTimezone = text
       return this as Self
     }
 
-    public final override fun setStartDate(startDate: StartDate?): Self {
+    final override fun setStartDate(startDate: StartDate?): Self {
       this.startDate = startDate
       return this as Self
     }
 
-    public final override fun setStartTime(startTime: StartTime?): Self {
+    final override fun setStartTime(startTime: StartTime?): Self {
       this.startTime = startTime
       return this as Self
     }
 
-    public final override fun setDisambiguatingDescription(
-      disambiguatingDescription: DisambiguatingDescription?
-    ): Self {
-      this.disambiguatingDescription = disambiguatingDescription
-      return this as Self
-    }
-
-    public final override fun setIdentifier(text: String): Self {
+    final override fun setIdentifier(text: String): Self {
       this.identifier = text
       return this as Self
     }
 
-    public final override fun setName(name: Name?): Self {
+    final override fun setName(name: Name?): Self {
       this.name = name
       return this as Self
     }
 
     @Suppress("BuilderSetStyle")
-    public final override fun equals(other: Any?): Boolean {
+    final override fun equals(other: Any?): Boolean {
       if (this === other) return true
       if (other == null || this::class.java != other::class.java) return false
       other as Self
@@ -805,7 +813,6 @@ internal constructor(
       if (scheduleTimezone != other.scheduleTimezone) return false
       if (startDate != other.startDate) return false
       if (startTime != other.startTime) return false
-      if (disambiguatingDescription != other.disambiguatingDescription) return false
       if (identifier != other.identifier) return false
       if (name != other.name) return false
       if (additionalProperties != other.additionalProperties) return false
@@ -813,7 +820,7 @@ internal constructor(
     }
 
     @Suppress("BuilderSetStyle")
-    public final override fun hashCode(): Int =
+    final override fun hashCode(): Int =
       Objects.hash(
         namespace,
         byDays,
@@ -828,16 +835,17 @@ internal constructor(
         scheduleTimezone,
         startDate,
         startTime,
-        disambiguatingDescription,
         identifier,
         name,
         additionalProperties
       )
 
     @Suppress("BuilderSetStyle")
-    public final override fun toString(): String {
+    final override fun toString(): String {
       val attributes = mutableMapOf<String, String>()
-      attributes["namespace"] = namespace
+      if (namespace.isNotEmpty()) {
+        attributes["namespace"] = namespace
+      }
       if (byDays.isNotEmpty()) {
         attributes["byDays"] = byDays.map { it.toString(includeWrapperName = false) }.toString()
       }
@@ -874,11 +882,9 @@ internal constructor(
       if (startTime != null) {
         attributes["startTime"] = startTime!!.toString(includeWrapperName = false)
       }
-      if (disambiguatingDescription != null) {
-        attributes["disambiguatingDescription"] =
-          disambiguatingDescription!!.toString(includeWrapperName = false)
+      if (identifier.isNotEmpty()) {
+        attributes["identifier"] = identifier
       }
-      attributes["identifier"] = identifier
       if (name != null) {
         attributes["name"] = name!!.toString(includeWrapperName = false)
       }
@@ -911,7 +917,6 @@ private class ScheduleImpl : AbstractSchedule<ScheduleImpl, ScheduleImpl.Builder
     scheduleTimezone: String?,
     startDate: StartDate?,
     startTime: StartTime?,
-    disambiguatingDescription: DisambiguatingDescription?,
     identifier: String,
     name: Name?,
   ) : super(
@@ -928,7 +933,6 @@ private class ScheduleImpl : AbstractSchedule<ScheduleImpl, ScheduleImpl.Builder
     scheduleTimezone,
     startDate,
     startTime,
-    disambiguatingDescription,
     identifier,
     name
   )

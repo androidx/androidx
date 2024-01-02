@@ -19,14 +19,19 @@ package androidx.core.performance.testapp
 import android.app.Application
 import androidx.core.performance.DefaultDevicePerformance
 import androidx.core.performance.DevicePerformance
+import androidx.core.performance.testlib.HasDevicePerformance
 
-/** Sample Media Performance Class Application */
-class MpcApp : Application() {
+/** Sample Media Performance Class Application backed by [DefaultDevicePerformance]. */
+class MpcApp : Application(), HasDevicePerformance {
 
-    lateinit var devicePerformance: DevicePerformance
+    private lateinit var devicePerformance: DevicePerformance
 
     override fun onCreate() {
         super.onCreate()
         devicePerformance = DefaultDevicePerformance()
+    }
+
+    override fun getDevicePerformance(): DevicePerformance {
+        return devicePerformance
     }
 }

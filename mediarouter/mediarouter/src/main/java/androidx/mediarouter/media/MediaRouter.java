@@ -82,7 +82,8 @@ import java.util.Map;
  */
 // TODO: Add the javadoc for manifest requirements about 'Package visibility' in Android 11
 public final class MediaRouter {
-    static final String TAG = "MediaRouter";
+    // The "Ax" prefix disambiguates from the platform's MediaRouter.
+    static final String TAG = "AxMediaRouter";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     @IntDef({
@@ -893,8 +894,11 @@ public final class MediaRouter {
      * <p>Must be called on the main thread.
      *
      * @param remoteControlClient The {@link android.media.RemoteControlClient} to unregister.
+     * @deprecated Call {@link #setMediaSessionCompat(MediaSessionCompat)} instead of
+     * {@link #addRemoteControlClient(Object)} so that there is no need to call this method.
      */
     @MainThread
+    @Deprecated
     public void removeRemoteControlClient(@NonNull Object remoteControlClient) {
         if (remoteControlClient == null) {
             throw new IllegalArgumentException("remoteControlClient must not be null");
@@ -1075,6 +1079,7 @@ public final class MediaRouter {
         private String mDescription;
         private Uri mIconUri;
         boolean mEnabled;
+        private final boolean mIsSystemRoute;
         private @ConnectionState int mConnectionState;
         private boolean mCanDisconnect;
         private final ArrayList<IntentFilter> mControlFilters = new ArrayList<>();
@@ -1157,6 +1162,7 @@ public final class MediaRouter {
             DEVICE_TYPE_GAME_CONSOLE,
             DEVICE_TYPE_CAR,
             DEVICE_TYPE_SMARTWATCH,
+            DEVICE_TYPE_SMARTPHONE,
             DEVICE_TYPE_GROUP
         })
         @Retention(RetentionPolicy.SOURCE)
@@ -1246,6 +1252,13 @@ public final class MediaRouter {
         public static final int DEVICE_TYPE_SMARTWATCH = 10;
         /**
          * A receiver device type indicating that the presentation of the media is happening on a
+         * smartphone.
+         *
+         * @see #getDeviceType
+         */
+        public static final int DEVICE_TYPE_SMARTPHONE = 11;
+        /**
+         * A receiver device type indicating that the presentation of the media is happening on a
          * group of devices.
          *
          * @see #getDeviceType
@@ -1288,10 +1301,19 @@ public final class MediaRouter {
         // Should match to SystemMediaRouteProvider.PACKAGE_NAME.
         static final String SYSTEM_MEDIA_ROUTE_PROVIDER_PACKAGE_NAME = "android";
 
-        RouteInfo(ProviderInfo provider, String descriptorId, String uniqueId) {
+        /* package */ RouteInfo(ProviderInfo provider, String descriptorId, String uniqueId) {
+            this(provider, descriptorId, uniqueId, /* isSystemRoute */ false);
+        }
+
+        /* package */ RouteInfo(
+                ProviderInfo provider,
+                String descriptorId,
+                String uniqueId,
+                boolean isSystemRoute) {
             mProvider = provider;
             mDescriptorId = descriptorId;
             mUniqueId = uniqueId;
+            mIsSystemRoute = isSystemRoute;
         }
 
         /**
@@ -1366,6 +1388,20 @@ public final class MediaRouter {
          */
         public boolean isEnabled() {
             return mEnabled;
+        }
+
+        /**
+         * Returns {@code true} if this route is a system route.
+         *
+         * <p>System routes are routes controlled by the system, like the device's built-in
+         * speakers, wired headsets, and bluetooth devices.
+         *
+         * <p>To use system routes, your application should write media sample data to a media
+         * framework API, typically via <a
+         * href="https://developer.android.com/reference/androidx/media3/exoplayer/ExoPlayer">Exoplayer</a>.
+         */
+        public boolean isSystemRoute() {
+            return mIsSystemRoute;
         }
 
         /**
@@ -1889,6 +1925,7 @@ public final class MediaRouter {
                     .append(", description=").append(mDescription)
                     .append(", iconUri=").append(mIconUri)
                     .append(", enabled=").append(mEnabled)
+                    .append(", isSystemRoute=").append(mIsSystemRoute)
                     .append(", connectionState=").append(mConnectionState)
                     .append(", canDisconnect=").append(mCanDisconnect)
                     .append(", playbackType=").append(mPlaybackType)

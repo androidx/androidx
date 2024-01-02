@@ -18,8 +18,8 @@ package androidx.tv.material3
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
-import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -38,26 +38,22 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.NativeKeyEvent
 import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.onLongClick
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.tv.material3.tokens.Elevation
-import androidx.tv.material3.tokens.ShapeTokens
 import kotlinx.coroutines.launch
 
 /**
@@ -72,7 +68,8 @@ import kotlinx.coroutines.launch
  * @param colors Defines the background & content color to be used in this Surface.
  * See [NonInteractiveSurfaceDefaults.colors].
  * @param border Defines a border around the Surface.
- * @param glow Diffused shadow to be shown behind the Surface.
+ * @param glow Diffused shadow to be shown behind the Surface. Note that glow is disabled for API
+ * levels below 28 as it is not supported by the underlying OS
  * @param content defines the [Composable] content inside the surface
  */
 @ExperimentalTvMaterial3Api
@@ -114,7 +111,9 @@ fun Surface(
  * @param modifier Modifier to be applied to the layout corresponding to the surface
  * @param onLongClick callback to be called when the surface is long clicked (long-pressed).
  * @param enabled Controls the enabled state of the surface. When `false`, this Surface will not be
- * clickable or focusable.
+ * clickable. A disabled surface will still be focusable (reason:
+ * https://issuetracker.google.com/302955429). If you still want it to not be focusable, consider
+ * using the Non-interactive variant of the Surface.
  * @param tonalElevation When [color] is [ColorScheme.surface], a higher the elevation will result
  * in a darker color in light theme and lighter color in dark theme.
  * @param shape Defines the surface's shape.
@@ -122,7 +121,8 @@ fun Surface(
  * interaction states. See [ClickableSurfaceDefaults.colors].
  * @param scale Defines size of the Surface relative to its original size.
  * @param border Defines a border around the Surface.
- * @param glow Diffused shadow to be shown behind the Surface.
+ * @param glow Diffused shadow to be shown behind the Surface. Note that glow is disabled for API
+ * levels below 28 as it is not supported by the underlying OS
  * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
  * for this Surface. You can create and pass in your own remembered [MutableInteractionSource] if
  * you want to observe [Interaction]s and customize the appearance / behavior of this Surface in
@@ -218,7 +218,9 @@ fun Surface(
  * @param onLongClick callback to be called when the toggleable surface is long clicked
  * (long-pressed).
  * @param enabled Controls the enabled state of the surface. When `false`, this Surface will not be
- * clickable or focusable.
+ * clickable. A disabled surface will still be focusable (reason:
+ * https://issuetracker.google.com/302955429). If you still want it to not be focusable, consider
+ * using the Non-interactive variant of the Surface.
  * @param tonalElevation When [color] is [ColorScheme.surface], a higher the elevation will result
  * in a darker color in light theme and lighter color in dark theme.
  * @param shape Defines the surface's shape.
@@ -226,7 +228,8 @@ fun Surface(
  * interaction states. See [ToggleableSurfaceDefaults.colors].
  * @param scale Defines size of the Surface relative to its original size.
  * @param border Defines a border around the Surface.
- * @param glow Diffused shadow to be shown behind the Surface.
+ * @param glow Diffused shadow to be shown behind the Surface. Note that glow is disabled for API
+ * levels below 28 as it is not supported by the underlying OS
  * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
  * for this Surface. You can create and pass in your own remembered [MutableInteractionSource] if
  * you want to observe [Interaction]s and customize the appearance / behavior of this Surface in
@@ -359,55 +362,17 @@ private fun SurfaceImpl(
 
         Box(
             modifier = modifier
-                .indication(
+                .tvSurfaceScale(
+                    scale = scale,
                     interactionSource = interactionSource,
-                    indication = remember(scale) { ScaleIndication(scale = scale) }
                 )
-                .indication(
-                    interactionSource = interactionSource,
-                    indication = rememberGlowIndication(
-                        color = surfaceColorAtElevation(
-                            color = glow.elevationColor,
-                            elevation = glow.elevation
-                        ),
-                        shape = shape,
-                        glowBlurRadius = glow.elevation
-                    )
-                )
+                .ifElse(API_28_OR_ABOVE, Modifier.tvSurfaceGlow(shape, glow))
                 // Increasing the zIndex of this Surface when it is in the focused state to
                 // avoid the glowIndication from being overlapped by subsequent items if
                 // this Surface is inside a list composable (like a Row/Column).
-                .layout { measurable, constraints ->
-                    val placeable = measurable.measure(constraints)
-                    layout(placeable.width, placeable.height) {
-                        placeable.place(0, 0, zIndex = zIndex)
-                    }
-                }
-                .then(
-                    if (border != Border.None) {
-                        Modifier.indication(
-                            interactionSource = interactionSource,
-                            indication = remember(border, shape) {
-                                val borderShape =
-                                    if (border.shape == ShapeTokens.BorderDefaultShape) shape
-                                    else border.shape
-                                BorderIndication(border = border.copy(shape = borderShape))
-                            }
-                        )
-                    } else Modifier
-                )
-                .drawWithCache {
-                    onDrawBehind {
-                        drawOutline(
-                            outline = shape.createOutline(
-                                size = size,
-                                layoutDirection = layoutDirection,
-                                density = Density(density, fontScale)
-                            ),
-                            color = backgroundColorByState
-                        )
-                    }
-                }
+                .zIndex(zIndex)
+                .ifElse(border != Border.None, Modifier.tvSurfaceBorder(shape, border))
+                .background(backgroundColorByState, shape)
                 .graphicsLayer {
                     this.alpha = surfaceAlpha
                     this.shape = shape
@@ -597,7 +562,7 @@ private fun Modifier.handleDPadEnter(
 
 @Composable
 @ExperimentalTvMaterial3Api
-private fun surfaceColorAtElevation(color: Color, elevation: Dp): Color {
+internal fun surfaceColorAtElevation(color: Color, elevation: Dp): Color {
     return if (color == MaterialTheme.colorScheme.surface) {
         MaterialTheme.colorScheme.surfaceColorAtElevation(elevation)
     } else {

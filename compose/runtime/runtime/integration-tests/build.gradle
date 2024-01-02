@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.KmpPlatformsKt
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -23,11 +22,9 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
-def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
-
 androidXMultiplatform {
     android()
-    if (desktopEnabled) desktop()
+    desktop()
 
     sourceSets {
         commonMain {
@@ -52,7 +49,6 @@ androidXMultiplatform {
             }
         }
 
-
         androidMain {
             dependsOn(jvmMain)
             dependencies {
@@ -63,27 +59,26 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            desktopMain {
-                dependsOn(jvmMain)
-                dependencies {
-                    api(libs.kotlinCoroutinesSwing)
-                }
+        desktopMain {
+            dependsOn(jvmMain)
+            dependencies {
+                api(libs.kotlinCoroutinesSwing)
             }
         }
 
         jvmTest {
+            dependsOn(commonTest)
             dependencies {
             }
         }
 
-        androidAndroidTest {
+        androidInstrumentedTest {
             dependsOn(jvmTest)
             dependencies {
                 implementation(projectOrArtifact(":compose:ui:ui"))
                 implementation(projectOrArtifact(":compose:material:material"))
                 implementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
-                implementation(projectOrArtifact(":compose:test-utils"))
+                implementation(project(":compose:test-utils"))
                 implementation(projectOrArtifact(":activity:activity-compose"))
                 implementation(libs.testExtJunit)
                 implementation(libs.testRules)
@@ -92,14 +87,12 @@ androidXMultiplatform {
             }
         }
 
-        androidTest {
+        androidUnitTest {
             dependsOn(jvmTest)
         }
 
-        if (desktopEnabled) {
-            desktopTest {
-                dependsOn(jvmTest)
-            }
+        desktopTest {
+            dependsOn(jvmTest)
         }
     }
 }

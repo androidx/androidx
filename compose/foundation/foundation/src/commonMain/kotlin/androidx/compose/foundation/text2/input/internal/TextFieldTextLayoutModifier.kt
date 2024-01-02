@@ -16,11 +16,7 @@
 
 package androidx.compose.foundation.text2.input.internal
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text2.input.CodepointTransformation
-import androidx.compose.foundation.text2.input.SingleLineCodepointTransformation
-import androidx.compose.foundation.text2.input.TextFieldState
-import androidx.compose.foundation.text2.input.toVisualText
+import androidx.compose.foundation.text.ceilToIntPx
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.LastBaseline
@@ -34,14 +30,13 @@ import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.platform.InspectorInfo
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFontFamilyResolver
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
-import kotlin.math.roundToInt
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastRoundToInt
 
 /**
  * This ModifierNodeElement is only responsible for laying out text and reporting its global
@@ -50,19 +45,16 @@ import kotlin.math.roundToInt
  * coordinates of [TextLayoutResult] to make it relatively easier to calculate the offset between
  * exact touch coordinates and where they map on the [TextLayoutResult].
  */
-@OptIn(ExperimentalFoundationApi::class)
 internal data class TextFieldTextLayoutModifier(
     private val textLayoutState: TextLayoutState,
-    private val textFieldState: TextFieldState,
-    private val codepointTransformation: CodepointTransformation?,
+    private val textFieldState: TransformedTextFieldState,
     private val textStyle: TextStyle,
     private val singleLine: Boolean,
-    private val onTextLayout: Density.(TextLayoutResult) -> Unit
+    private val onTextLayout: (Density.(getResult: () -> TextLayoutResult?) -> Unit)?
 ) : ModifierNodeElement<TextFieldTextLayoutModifierNode>() {
     override fun create(): TextFieldTextLayoutModifierNode = TextFieldTextLayoutModifierNode(
         textLayoutState = textLayoutState,
         textFieldState = textFieldState,
-        codepointTransformation = codepointTransformation,
         textStyle = textStyle,
         singleLine = singleLine,
         onTextLayout = onTextLayout
@@ -72,7 +64,6 @@ internal data class TextFieldTextLayoutModifier(
         node.updateNode(
             textLayoutState = textLayoutState,
             textFieldState = textFieldState,
-            codepointTransformation = codepointTransformation,
             textStyle = textStyle,
             singleLine = singleLine,
             onTextLayout = onTextLayout
@@ -84,79 +75,83 @@ internal data class TextFieldTextLayoutModifier(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 internal class TextFieldTextLayoutModifierNode(
     private var textLayoutState: TextLayoutState,
-    private var textFieldState: TextFieldState,
-    private var codepointTransformation: CodepointTransformation?,
-    private var textStyle: TextStyle,
+    textFieldState: TransformedTextFieldState,
+    textStyle: TextStyle,
     private var singleLine: Boolean,
-    private var onTextLayout: Density.(TextLayoutResult) -> Unit
+    onTextLayout: (Density.(getResult: () -> TextLayoutResult?) -> Unit)?
 ) : Modifier.Node(),
     LayoutModifierNode,
     GlobalPositionAwareModifierNode,
     CompositionLocalConsumerModifierNode {
+
+    init {
+        textLayoutState.onTextLayout = onTextLayout
+        textLayoutState.updateNonMeasureInputs(
+            textFieldState = textFieldState,
+            textStyle = textStyle,
+            singleLine = singleLine,
+            softWrap = !singleLine
+        )
+    }
+
     /**
      * Updates all the related properties and invalidates internal state based on the changes.
      */
     fun updateNode(
         textLayoutState: TextLayoutState,
-        textFieldState: TextFieldState,
-        codepointTransformation: CodepointTransformation?,
+        textFieldState: TransformedTextFieldState,
         textStyle: TextStyle,
         singleLine: Boolean,
-        onTextLayout: Density.(TextLayoutResult) -> Unit
+        onTextLayout: (Density.(getResult: () -> TextLayoutResult?) -> Unit)?
     ) {
         this.textLayoutState = textLayoutState
-        this.textFieldState = textFieldState
-        this.codepointTransformation = codepointTransformation
-        this.textStyle = textStyle
+        this.textLayoutState.onTextLayout = onTextLayout
         this.singleLine = singleLine
-        this.onTextLayout = onTextLayout
+        this.textLayoutState.updateNonMeasureInputs(
+            textFieldState = textFieldState,
+            textStyle = textStyle,
+            singleLine = singleLine,
+            softWrap = !singleLine
+        )
     }
 
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
-        this.textLayoutState.innerTextFieldCoordinates = coordinates
+        this.textLayoutState.textLayoutNodeCoordinates = coordinates
     }
 
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints
     ): MeasureResult {
-        val result = with(textLayoutState) {
-            // First prefer provided codepointTransformation if not null, e.g.
-            // BasicSecureTextField would send Password Transformation.
-            // Second, apply a SingleLineCodepointTransformation if text field is configured
-            // to be single line.
-            // Else, don't apply any visual transformation.
-            val appliedCodepointTransformation = codepointTransformation
-                ?: SingleLineCodepointTransformation.takeIf { singleLine }
-
-            val visualText = textFieldState.text.toVisualText(appliedCodepointTransformation)
-            // Composition Local reads are automatically tracked here because we are in layout
-            layout(
-                text = AnnotatedString(visualText.toString()),
-                textStyle = textStyle,
-                softWrap = !singleLine,
-                density = currentValueOf(LocalDensity),
-                fontFamilyResolver = currentValueOf(LocalFontFamilyResolver),
-                constraints = constraints,
-                onTextLayout = onTextLayout
-            )
-        }
+        val result = textLayoutState.layoutWithNewMeasureInputs(
+            density = this,
+            layoutDirection = layoutDirection,
+            fontFamilyResolver = currentValueOf(LocalFontFamilyResolver),
+            constraints = constraints,
+        )
 
         val placeable = measurable.measure(
             Constraints.fixed(result.size.width, result.size.height)
         )
 
-        // TODO: min height
+        // calculate the min height for single line text to prevent text cuts.
+        // for single line text maxLines puts in max height constraint based on
+        // constant characters therefore if the user enters a character that is
+        // longer (i.e. emoji or a tall script) the text is cut
+        textLayoutState.minHeightForSingleLineField = if (singleLine) {
+            result.getLineBottom(0).ceilToIntPx().toDp()
+        } else {
+            0.dp
+        }
 
         return layout(
             width = result.size.width,
             height = result.size.height,
             alignmentLines = mapOf(
-                FirstBaseline to result.firstBaseline.roundToInt(),
-                LastBaseline to result.lastBaseline.roundToInt()
+                FirstBaseline to result.firstBaseline.fastRoundToInt(),
+                LastBaseline to result.lastBaseline.fastRoundToInt()
             )
         ) {
             placeable.place(0, 0)

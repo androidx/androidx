@@ -32,6 +32,9 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.util.fastFirstOrNull
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMap
 import kotlin.math.roundToInt
 
 /**
@@ -554,14 +557,14 @@ class ScalingLazyListState constructor(
         // we have more than enough content before it to make sure it can be scrolled to the center
         // of the viewport
         val initialCenterItem =
-            visibleItems.find { it.index == itemIndexToFind }
+            visibleItems.fastFirstOrNull { it.index == itemIndexToFind }
 
         // Determine how much space we actually need
         var spaceNeeded = spaceNeeded(initialCenterItem)
 
         if (spaceNeeded > 0f) {
             // Now see how much content we already have
-            visibleItems.map {
+            visibleItems.fastMap {
                 if (it.index < itemIndexToFind) {
                     // Reduce the space needed
                     spaceNeeded = spaceNeeded - gapBetweenItemsPx.value!! - it.unadjustedSize
@@ -593,14 +596,14 @@ class ScalingLazyListState constructor(
         // we have more than enough content before it to make sure it can be scrolled to the center
         // of the viewport
         val initialCenterItem =
-            visibleItems.find { it.index == itemIndexToFind }
+            visibleItems.fastFirstOrNull { it.index == itemIndexToFind }
 
         // Determine how much space we actually need
         var spaceNeeded = spaceNeeded(initialCenterItem)
 
         if (spaceNeeded > 0f) {
             // Now see how much content we already have
-            visibleItems.map {
+            visibleItems.fastMap {
                 if (it.index != 0 && it.index < itemIndexToFind) {
                     // Reduce the space needed
                     spaceNeeded = spaceNeeded - gapBetweenItemsPx.value!! - it.size
@@ -679,7 +682,7 @@ class ScalingLazyListState constructor(
 }
 
 private fun LazyListLayoutInfo.findItemInfoWithIndex(index: Int): LazyListItemInfo? {
-    return this.visibleItemsInfo.find { it.index == index }
+    return this.visibleItemsInfo.fastFirstOrNull { it.index == index }
 }
 
 private suspend fun LazyListState.scrollToItem(animated: Boolean, index: Int, offset: Int) {
@@ -688,7 +691,7 @@ private suspend fun LazyListState.scrollToItem(animated: Boolean, index: Int, of
 
 private fun ScalingLazyListLayoutInfo.averageUnadjustedItemSize(): Int {
     var totalSize = 0
-    visibleItemsInfo.forEach { totalSize += it.unadjustedSize }
+    visibleItemsInfo.fastForEach { totalSize += it.unadjustedSize }
     return if (visibleItemsInfo.isNotEmpty())
         (totalSize.toFloat() / visibleItemsInfo.size).roundToInt()
     else 0

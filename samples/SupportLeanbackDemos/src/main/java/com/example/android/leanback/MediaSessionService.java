@@ -265,7 +265,7 @@ public class MediaSessionService extends Service {
         }
         mMediaItemList.addAll(mediaItemList);
 
-        /**
+        /*
          * Points to the first media item in play list.
          */
         mCurrentIndex = 0;

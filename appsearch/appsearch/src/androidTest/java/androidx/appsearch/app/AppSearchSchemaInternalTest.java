@@ -18,8 +18,6 @@ package androidx.appsearch.app;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertThrows;
-
 import androidx.appsearch.testutil.AppSearchEmail;
 
 import org.junit.Test;
@@ -267,30 +265,5 @@ public class AppSearchSchemaInternalTest {
                         ((AppSearchSchema.StringPropertyConfig) properties.get(9))
                                 .getJoinableValueType())
                 .isEqualTo(AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID);
-    }
-
-    // TODO(b/291122592): move to CTS once the APIs it uses are public
-    @Test
-    public void testInvalidDocumentPropertyConfig_indexableNestedProperties() {
-        // Adding indexableNestedProperties with shouldIndexNestedProperties=true should fail.
-        AppSearchSchema.DocumentPropertyConfig.Builder builder =
-                new AppSearchSchema.DocumentPropertyConfig.Builder("prop1", "Schema1")
-                        .setShouldIndexNestedProperties(true)
-                        .addIndexableNestedProperties("prop1");
-        IllegalArgumentException e =
-                assertThrows(IllegalArgumentException.class, () -> builder.build());
-        assertThat(e)
-                .hasMessageThat()
-                .contains(
-                        "DocumentIndexingConfig#shouldIndexNestedProperties is required to be false"
-                            + " when one or more indexableNestedProperties are provided.");
-
-        builder.addIndexableNestedPropertyPaths(new PropertyPath("prop1.prop2"));
-        e = assertThrows(IllegalArgumentException.class, () -> builder.build());
-        assertThat(e)
-                .hasMessageThat()
-                .contains(
-                        "DocumentIndexingConfig#shouldIndexNestedProperties is required to be false"
-                            + " when one or more indexableNestedProperties are provided.");
     }
 }

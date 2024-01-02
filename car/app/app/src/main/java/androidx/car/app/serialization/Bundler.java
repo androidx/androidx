@@ -32,6 +32,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.core.app.Person;
 import androidx.core.graphics.drawable.IconCompat;
 
 import java.lang.reflect.Constructor;
@@ -108,6 +109,7 @@ public final class Bundler {
     private static final int ENUM = 7;
     private static final int CLASS = 8;
     private static final int IBINDER = 9;
+    private static final int PERSON = 10;
 
     /**
      * Serializes an object into a {@link Bundle} for sending over IPC.
@@ -162,6 +164,8 @@ public final class Bundler {
                 throw new TracedBundlerException(
                         "Object serializing contains an array, use a list or a set instead",
                         trace);
+            } else if (obj instanceof Person) {
+                return serializePerson((Person) obj);
             } else {
                 return serializeObject(obj, trace);
             }
@@ -215,6 +219,8 @@ public final class Bundler {
                     return deserializeList(bundle, trace);
                 case IMAGE:
                     return deserializeImage(bundle, trace);
+                case PERSON:
+                    return deserializePerson(bundle);
                 case OBJECT:
                     return deserializeObject(bundle, trace);
                 case ENUM:
@@ -361,6 +367,12 @@ public final class Bundler {
         Bundle bundle = new Bundle(2);
         bundle.putInt(TAG_CLASS_TYPE, IMAGE);
         bundle.putBundle(TAG_VALUE, image.toBundle());
+        return bundle;
+    }
+
+    private static Bundle serializePerson(Person person) {
+        Bundle bundle = person.toBundle();
+        bundle.putInt(TAG_CLASS_TYPE, PERSON);
         return bundle;
     }
 
@@ -553,6 +565,10 @@ public final class Bundler {
             throw new TracedBundlerException("Failed to create IconCompat from bundle", trace);
         }
         return iconCompat;
+    }
+
+    private static Object deserializePerson(Bundle bundle) {
+        return Person.fromBundle(bundle);
     }
 
     @SuppressWarnings("deprecation")

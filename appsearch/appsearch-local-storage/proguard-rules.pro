@@ -19,12 +19,10 @@
   <fields>;
 }
 -keep class com.google.android.icing.BreakIteratorBatcher { *; }
+
+# This prevents the obfuscation or removal of fields referenced in native.
+-keep class com.google.android.icing.IcingSearchEngineImpl
 -keepclassmembers public class com.google.android.icing.IcingSearchEngineImpl {
   private long nativePointer;
-}
-
-# This prevents the names of native methods from being obfuscated and prevents
-# UnsatisfiedLinkErrors.
--keepclasseswithmembernames,includedescriptorclasses class * {
   native <methods>;
 }

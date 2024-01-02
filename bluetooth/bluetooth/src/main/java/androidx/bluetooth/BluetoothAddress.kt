@@ -16,18 +16,19 @@
 
 package androidx.bluetooth
 
-import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothAdapter as FwkBluetoothAdapter
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
+import java.util.Objects
 
 /**
  * Represents a Bluetooth address for a remote device.
  *
- * @property address valid Bluetooth MAC address
- * @property addressType valid address type
- *
+ * @property address a valid Bluetooth MAC address
+ * @property addressType a valid address type
  */
-class BluetoothAddress(val address: String, @AddressType var addressType: Int) {
+class BluetoothAddress(val address: String, @AddressType val addressType: Int) {
+
     companion object {
         /** Address type is public and registered with the IEEE. */
         const val ADDRESS_TYPE_PUBLIC: Int = 0
@@ -44,6 +45,13 @@ class BluetoothAddress(val address: String, @AddressType var addressType: Int) {
         /** Address type is unknown. */
         const val ADDRESS_TYPE_UNKNOWN: Int = 0xFFFF
     }
+
+    @Target(
+        AnnotationTarget.PROPERTY,
+        AnnotationTarget.LOCAL_VARIABLE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.TYPE
+    )
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(
@@ -56,16 +64,28 @@ class BluetoothAddress(val address: String, @AddressType var addressType: Int) {
     annotation class AddressType
 
     init {
-        if (!BluetoothAdapter.checkBluetoothAddress(address)) {
+        if (!FwkBluetoothAdapter.checkBluetoothAddress(address)) {
             throw IllegalArgumentException("$address is not a valid Bluetooth address")
         }
 
-        addressType = when (addressType) {
+        when (addressType) {
             ADDRESS_TYPE_PUBLIC,
             ADDRESS_TYPE_RANDOM_STATIC,
             ADDRESS_TYPE_RANDOM_RESOLVABLE,
-            ADDRESS_TYPE_RANDOM_NON_RESOLVABLE -> addressType
-            else -> ADDRESS_TYPE_UNKNOWN
+            ADDRESS_TYPE_RANDOM_NON_RESOLVABLE,
+            ADDRESS_TYPE_UNKNOWN -> Unit
+
+            else -> throw IllegalArgumentException("$addressType is not a valid address type")
         }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return other is BluetoothAddress &&
+            address == other.address &&
+            addressType == other.addressType
+    }
+
+    override fun hashCode(): Int {
+        return Objects.hash(address, addressType)
     }
 }

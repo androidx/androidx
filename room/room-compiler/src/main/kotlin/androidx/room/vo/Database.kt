@@ -22,8 +22,10 @@ import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.migration.bundle.DatabaseBundle
 import androidx.room.migration.bundle.SchemaBundle
-import java.io.File
+import androidx.room.util.SchemaFileResolver
+import java.io.IOException
 import java.io.OutputStream
+import java.nio.file.Path
 import org.apache.commons.codec.digest.DigestUtils
 
 /**
@@ -101,12 +103,17 @@ data class Database(
         DigestUtils.md5Hex(input)
     }
 
-    // Writes scheme file to output file, using the input file to check if the schema has changed
+    // Writes schema file to output path, using the input path to check if the schema has changed
     // otherwise it is not written.
-    fun exportSchema(inputFile: File, outputFile: File) {
+    fun exportSchema(inputPath: Path, outputPath: Path) {
         val schemaBundle = SchemaBundle(SchemaBundle.LATEST_FORMAT, bundle)
-        if (inputFile.exists()) {
-            val existing = inputFile.inputStream().use {
+        val inputStream = try {
+            SchemaFileResolver.RESOLVER.readPath(inputPath)
+        } catch (e: IOException) {
+            null
+        }
+        if (inputStream != null) {
+            val existing = inputStream.use {
                 SchemaBundle.deserialize(it)
             }
             // If existing schema file is the same as the current schema then do not write the file
@@ -116,12 +123,18 @@ data class Database(
                 return
             }
         }
-        SchemaBundle.serialize(schemaBundle, outputFile)
+        val outputStream = try {
+            SchemaFileResolver.RESOLVER.writePath(outputPath)
+        } catch (e: IOException) {
+            throw IllegalStateException("Couldn't write schema file!", e)
+        }
+        SchemaBundle.serialize(schemaBundle, outputStream)
     }
 
-    // Writes scheme file to output stream, the stream should be for a resource otherwise use the
-    // file version of `exportSchema`.
-    fun exportSchema(outputStream: OutputStream) {
+    // Writes scheme file to output stream, the stream should be for a resource which disregards
+    // existing schema equality, otherwise use the version of `exportSchema` that takes input and
+    // output paths.
+    fun exportSchemaOnly(outputStream: OutputStream) {
         val schemaBundle = SchemaBundle(SchemaBundle.LATEST_FORMAT, bundle)
         SchemaBundle.serialize(schemaBundle, outputStream)
     }

@@ -25,11 +25,9 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
-def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
-
 androidXMultiplatform {
     android()
-    if (desktopEnabled) desktop()
+    desktop()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -40,6 +38,7 @@ androidXMultiplatform {
                 implementation(project(":compose:ui:ui"))
                 implementation(project(":compose:ui:ui-unit"))
                 implementation(project(":compose:ui:ui-util"))
+                implementation(project(":collection:collection"))
                 implementation(libs.kotlinStdlibCommon)
                 api(libs.kotlinCoroutinesCore)
             }
@@ -67,16 +66,14 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            desktopMain {
-                dependsOn(jvmMain)
-                dependencies {
-                    implementation(libs.kotlinStdlib)
-                    implementation(project(":compose:runtime:runtime"))
-                    implementation(project(":compose:ui:ui"))
-                    implementation(project(":compose:ui:ui-unit"))
-                    implementation(project(":compose:ui:ui-util"))
-                }
+        desktopMain {
+            dependsOn(jvmMain)
+            dependencies {
+                implementation(libs.kotlinStdlib)
+                implementation(project(":compose:runtime:runtime"))
+                implementation(project(":compose:ui:ui"))
+                implementation(project(":compose:ui:ui-unit"))
+                implementation(project(":compose:ui:ui-util"))
             }
         }
 
@@ -85,24 +82,21 @@ androidXMultiplatform {
             }
         }
 
-        androidAndroidTest {
+        androidInstrumentedTest {
             dependsOn(jvmTest)
             dependencies {
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
                 implementation(libs.testCore)
                 implementation(libs.junit)
+                implementation(libs.truth)
                 implementation(project(":compose:animation:animation"))
                 implementation("androidx.compose.ui:ui-test-junit4:1.2.1")
                 implementation(project(":compose:test-utils"))
             }
         }
 
-        // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
-        //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
-        //  level dependencies block instead:
-        //  `dependencies { testImplementation(libs.robolectric) }`
-        androidTest {
+        androidUnitTest {
             dependsOn(jvmTest)
             dependencies {
                 implementation(libs.testRules)
@@ -113,10 +107,8 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            desktopTest {
-                dependsOn(jvmTest)
-            }
+        desktopTest {
+            dependsOn(jvmTest)
         }
     }
 }

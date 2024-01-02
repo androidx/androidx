@@ -87,6 +87,9 @@
         <receiver android:name="androidx.mediarouter.media.MediaTransferReceiver"
             android:exported="true" />
 
+        <receiver android:name="androidx.mediarouter.media.SystemRoutingUsingMediaRouter2Receiver"
+            android:exported="false" />
+
         <service
             android:name=".services.SampleMediaRouteProviderService"
             android:exported="true"

@@ -46,13 +46,14 @@ class DisablePackages(
     }
 
     companion object {
-        // A list of packages to disable + "com.google.android.gms"
+        // A list of packages to disable
+        // google3/configs/wireless/android/testing/atp/prod/android-crystalball-eng/health/microbench/power/modifications.gcl
         // https://source.corp.google.com/piper///depot/google3/java/com/google/android/libraries/swpower/fixture/DisableModule.java
         internal val DEFAULT_PACKAGES_TO_DISABLE = listOf(
             "com.android.chrome",
-            "com.android.phone",
             "com.android.ramdump",
             "com.android.vending",
+            "com.google.android.GoogleCamera",
             "com.google.android.apps.docs",
             "com.google.android.apps.gcs",
             "com.google.android.apps.internal.betterbug",
@@ -60,23 +61,27 @@ class DisablePackages(
             "com.google.android.apps.messaging",
             "com.google.android.apps.nbu.files",
             "com.google.android.apps.photos",
+            "com.google.android.apps.pixelmigrate",
             "com.google.android.apps.scone",
+            "com.google.android.apps.speechservices",
+            "com.google.android.apps.tachyon",
             "com.google.android.apps.tips",
             "com.google.android.apps.turbo",
             "com.google.android.apps.tycho",
+            "com.google.android.apps.wellbeing",
             "com.google.android.apps.work.clouddpc",
             "com.google.android.apps.youtube.music",
             "com.google.android.as",
             "com.google.android.calculator",
             "com.google.android.calendar",
+            "com.google.android.carrier",
             "com.google.android.configupdater",
             "com.google.android.contacts",
             "com.google.android.deskclock",
             "com.google.android.dialer",
-            "com.google.android.googlequicksearchbox",
             "com.google.android.gm",
             "com.google.android.gms",
-            "com.google.android.GoogleCamera",
+            "com.google.android.googlequicksearchbox",
             "com.google.android.ims",
             "com.google.android.inputmethod.latin",
             "com.google.android.marvin.talkback",
@@ -84,9 +89,8 @@ class DisablePackages(
             "com.google.android.settings.intelligence",
             "com.google.android.tts",
             "com.google.android.videos",
-            "com.google.android.youtube",
-            "com.google.android.videos",
-            "com.google.android.volta"
+            "com.google.android.volta",
+            "com.google.android.youtube"
         )
     }
 }

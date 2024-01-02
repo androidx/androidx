@@ -205,6 +205,7 @@ class WithPackageBlock internal constructor(private val packageName: String) {
     }
 
     fun start(activityName: String) {
+        turnOnScreen()
         val error = executeCommand("am start -n $packageName/$activityName")
             .any { it.startsWith("Error") }
         assertThat(error).isFalse()
@@ -261,6 +262,13 @@ class WithPackageBlock internal constructor(private val packageName: String) {
         block(AssertUiBlock(lines))
     }
 
+    fun turnOnScreen() {
+        if (!uiDevice.isScreenOn()) {
+            uiDevice.wakeUp()
+        }
+        executeCommand("wm dismiss-keyguard")
+    }
+
     companion object {
         private const val TAG = "TestManager"
         private const val TEMP_DIR = "/data/local/tmp"
@@ -275,7 +283,7 @@ class WithPackageBlock internal constructor(private val packageName: String) {
         fun profileInstalled(vararg resultCodes: Int) =
             assertWithMessage("Unexpected profile verification result code")
                 .that(lines[0].toInt())
-                .isIn(resultCodes.asIterable())
+                .isIn(resultCodes.toList())
 
         fun hasReferenceProfile(value: Boolean) =
             assertWithMessage("Unexpected hasReferenceProfile value")
@@ -285,6 +293,11 @@ class WithPackageBlock internal constructor(private val packageName: String) {
         fun hasCurrentProfile(value: Boolean) =
             assertWithMessage("Unexpected hasCurrentProfile value")
                 .that(lines[2].toBoolean())
+                .isEqualTo(value)
+
+        fun hasEmbeddedProfile(value: Boolean) =
+            assertWithMessage("Unexpected hasEmbeddedProfile value")
+                .that(lines[3].toBoolean())
                 .isEqualTo(value)
     }
 

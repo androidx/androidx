@@ -21,6 +21,7 @@ import android.os.Build
 import android.telecom.DisconnectCause
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.core.telecom.CallControlResult
 import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.test.utils.BaseTelecomTest
 import androidx.core.telecom.test.utils.TestUtils
@@ -28,7 +29,6 @@ import androidx.core.telecom.test.utils.TestUtils.getAudioModeName
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -117,8 +117,7 @@ class InCallAudioTest : BaseTelecomTest() {
      */
     private fun runBlocking_addCall_assertAudioModeInCommunication() {
         runBlocking {
-            val deferred = CompletableDeferred<Unit>()
-            assertWithinTimeout_addCall(deferred, TestUtils.OUTGOING_CALL_ATTRIBUTES) {
+            assertWithinTimeout_addCall(TestUtils.OUTGOING_CALL_ATTRIBUTES) {
                 launch {
                     Log.i(LOG_TAG, "runBlocking_addCall_assertAudioModeInCommunication: " +
                         "initial AudioManager mode = ${getAudioModeName(mAudioManager.mode)}")
@@ -129,8 +128,8 @@ class InCallAudioTest : BaseTelecomTest() {
                         yield() // mechanism to stop the while loop if the coroutine is dead
                         delay(1) // sleep x millisecond(s) instead of spamming check
                     }
-                    Assert.assertTrue(disconnect(DisconnectCause(DisconnectCause.LOCAL)))
-                    deferred.complete(Unit) // completed all asserts. cancel timeout!
+                    Assert.assertEquals(CallControlResult.Success(),
+                        disconnect(DisconnectCause(DisconnectCause.LOCAL)))
                 }
             }
         }

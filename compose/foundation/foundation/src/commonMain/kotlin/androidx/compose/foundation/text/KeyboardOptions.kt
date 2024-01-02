@@ -44,15 +44,19 @@ import androidx.compose.ui.text.input.PlatformImeOptions
  * When [ImeOptions.singleLine] is false, the keyboard might show return key rather than the action
  * requested here.
  * @param platformImeOptions defines the platform specific IME options.
+ * @param shouldShowKeyboardOnFocus when true, software keyboard will show on focus gain. When
+ * false, the user must interact (e.g. tap) before the keyboard is shown.
  */
 @Immutable
-class KeyboardOptions constructor(
+class KeyboardOptions(
     val capitalization: KeyboardCapitalization = KeyboardCapitalization.None,
     val autoCorrect: Boolean = true,
     val keyboardType: KeyboardType = KeyboardType.Text,
     val imeAction: ImeAction = ImeAction.Default,
-    val platformImeOptions: PlatformImeOptions? = null
+    val platformImeOptions: PlatformImeOptions? = null,
+    val shouldShowKeyboardOnFocus: Boolean = true
 ) {
+
     companion object {
         /**
          * Default [KeyboardOptions]. Please see parameter descriptions for default values.
@@ -78,6 +82,22 @@ class KeyboardOptions constructor(
         platformImeOptions = null
     )
 
+    @Deprecated("Maintained for binary compat", level = DeprecationLevel.HIDDEN)
+    constructor(
+        capitalization: KeyboardCapitalization = KeyboardCapitalization.None,
+        autoCorrect: Boolean = true,
+        keyboardType: KeyboardType = KeyboardType.Text,
+        imeAction: ImeAction = ImeAction.Default,
+        platformImeOptions: PlatformImeOptions? = null
+    ) : this(
+        capitalization,
+        autoCorrect,
+        keyboardType,
+        imeAction,
+        platformImeOptions,
+        true
+    )
+
     /**
      * Returns a new [ImeOptions] with the values that are in this [KeyboardOptions] and provided
      * params.
@@ -93,6 +113,28 @@ class KeyboardOptions constructor(
         platformImeOptions = platformImeOptions
     )
 
+    fun copy(
+        capitalization: KeyboardCapitalization = this.capitalization,
+        autoCorrect: Boolean = this.autoCorrect,
+        keyboardType: KeyboardType = this.keyboardType,
+        imeAction: ImeAction = this.imeAction,
+        platformImeOptions: PlatformImeOptions? = this.platformImeOptions,
+        showKeyboardOnFocus: Boolean = this.shouldShowKeyboardOnFocus
+    ): KeyboardOptions {
+        return KeyboardOptions(
+            capitalization = capitalization,
+            autoCorrect = autoCorrect,
+            keyboardType = keyboardType,
+            imeAction = imeAction,
+            platformImeOptions = platformImeOptions,
+            shouldShowKeyboardOnFocus = showKeyboardOnFocus
+        )
+    }
+
+    @Deprecated(
+        "Maintained for binary compatibility",
+        level = DeprecationLevel.HIDDEN
+    )
     fun copy(
         capitalization: KeyboardCapitalization = this.capitalization,
         autoCorrect: Boolean = this.autoCorrect,
@@ -137,6 +179,7 @@ class KeyboardOptions constructor(
         if (keyboardType != other.keyboardType) return false
         if (imeAction != other.imeAction) return false
         if (platformImeOptions != other.platformImeOptions) return false
+        if (shouldShowKeyboardOnFocus != other.shouldShowKeyboardOnFocus) return false
 
         return true
     }
@@ -147,12 +190,14 @@ class KeyboardOptions constructor(
         result = 31 * result + keyboardType.hashCode()
         result = 31 * result + imeAction.hashCode()
         result = 31 * result + platformImeOptions.hashCode()
+        result = 31 * result + shouldShowKeyboardOnFocus.hashCode()
         return result
     }
 
     override fun toString(): String {
         return "KeyboardOptions(capitalization=$capitalization, autoCorrect=$autoCorrect, " +
             "keyboardType=$keyboardType, imeAction=$imeAction, " +
-            "platformImeOptions=$platformImeOptions)"
+            "platformImeOptions=$platformImeOptions, " +
+            "showKeyboardOnFocus=$shouldShowKeyboardOnFocus)"
     }
 }

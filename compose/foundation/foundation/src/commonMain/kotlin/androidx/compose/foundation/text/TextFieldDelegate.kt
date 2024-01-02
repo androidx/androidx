@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.compose.foundation.text
 
 import androidx.compose.foundation.text.selection.visibleBounds
@@ -23,7 +25,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Paragraph
 import androidx.compose.ui.text.SpanStyle
@@ -47,6 +49,8 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import kotlin.jvm.JvmStatic
+import kotlin.math.max
+import kotlin.math.min
 
 // visible for testing
 internal const val DefaultWidthCharCount = 10 // min width for TextField is 10 chars long
@@ -201,7 +205,10 @@ internal class TextFieldDelegate {
                         textFieldValue,
                         offsetMapping,
                         textLayoutResult.value,
-                        innerTextFieldCoordinates.positionInWindow(),
+                        { matrix ->
+                            innerTextFieldCoordinates.findRootCoordinates()
+                                .transformFrom(innerTextFieldCoordinates, matrix)
+                        },
                         innerTextFieldCoordinates.visibleBounds(),
                         innerTextFieldCoordinates.localBoundingBoxOf(
                             decorationBoxCoordinates,
@@ -353,16 +360,27 @@ internal class TextFieldDelegate {
         fun applyCompositionDecoration(
             compositionRange: TextRange,
             transformed: TransformedText
-        ): TransformedText =
-            TransformedText(
+        ): TransformedText {
+            val startPositionTransformed = transformed.offsetMapping.originalToTransformed(
+                compositionRange.start
+            )
+            val endPositionTransformed = transformed.offsetMapping.originalToTransformed(
+                compositionRange.end
+            )
+
+            // coerce into a valid range with start <= end
+            val start = min(startPositionTransformed, endPositionTransformed)
+            val coercedEnd = max(startPositionTransformed, endPositionTransformed)
+            return TransformedText(
                 AnnotatedString.Builder(transformed.text).apply {
                     addStyle(
                         SpanStyle(textDecoration = TextDecoration.Underline),
-                        transformed.offsetMapping.originalToTransformed(compositionRange.start),
-                        transformed.offsetMapping.originalToTransformed(compositionRange.end)
+                        start,
+                        coercedEnd
                     )
                 }.toAnnotatedString(),
                 transformed.offsetMapping
             )
+        }
     }
 }

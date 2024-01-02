@@ -226,13 +226,22 @@ internal abstract class AgpPlugin(
 
     private fun checkAgpVersion(min: AndroidPluginVersion, max: AndroidPluginVersion) {
         val agpVersion = project.agpVersion()
-        if (agpVersion < min || agpVersion > max) {
+        if (agpVersion < min) {
             throw GradleException(
                 """
-        This version of the Baseline Profile Gradle Plugin only works with Android Gradle plugin
-        between versions $MIN_AGP_VERSION_REQUIRED and $MAX_AGP_VERSION_REQUIRED. Current version
-        is $agpVersion."
+        This version of the Baseline Profile Gradle Plugin requires the Android Gradle Plugin to be
+        at least version $MIN_AGP_VERSION_REQUIRED. The current version is $agpVersion.
+        Please update your project.
             """.trimIndent()
+            )
+        }
+        if (agpVersion > max) {
+            logger.warn(
+                """
+        This version of the Baseline Profile Gradle Plugin was tested at most with the Android
+        Gradle Plugin version $MAX_AGP_VERSION_REQUIRED and it may not work as intended.
+        Current version is $agpVersion.
+                """.trimIndent()
             )
         }
     }

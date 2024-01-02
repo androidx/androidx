@@ -17,11 +17,11 @@
 package androidx.compose.material3.windowsizeclass
 
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEach
 
 /**
  * Window size classes are a set of opinionated viewport breakpoints to design, develop, and test
@@ -43,44 +43,30 @@ class WindowSizeClass private constructor(
 ) {
     companion object {
         /**
-         * Calculates [WindowSizeClass] for a given [size]. Should be used for testing purposes only
-         * - to calculate a [WindowSizeClass] for the Activity's current window see
-         * [calculateWindowSizeClass].
+         * Calculates the best matched [WindowSizeClass] for a given [size] according to
+         * the provided [supportedWidthSizeClasses] and [supportedHeightSizeClasses].
          *
          * @param size of the window
-         * @return [WindowSizeClass] corresponding to the given width and height
-         */
-        @ExperimentalMaterial3WindowSizeClassApi
-        @TestOnly
-        fun calculateFromSize(size: DpSize): WindowSizeClass {
-            val windowWidthSizeClass = WindowWidthSizeClass.fromWidth(size.width)
-            val windowHeightSizeClass = WindowHeightSizeClass.fromHeight(size.height)
-            return WindowSizeClass(windowWidthSizeClass, windowHeightSizeClass)
-        }
-
-        /**
-         * Calculates the best matched [WindowSizeClass] for a given [size] and [Density] according
-         * to the provided [supportedWidthSizeClasses] and [supportedHeightSizeClasses].
-         *
-         * @param size of the window
-         * @param density of the window
          * @param supportedWidthSizeClasses the set of width size classes that are supported
          * @param supportedHeightSizeClasses the set of height size classes that are supported
          * @return [WindowSizeClass] corresponding to the given width and height
          */
         @ExperimentalMaterial3WindowSizeClassApi
         fun calculateFromSize(
-            size: Size,
-            density: Density,
+            size: DpSize,
             supportedWidthSizeClasses: Set<WindowWidthSizeClass> =
                 WindowWidthSizeClass.DefaultSizeClasses,
             supportedHeightSizeClasses: Set<WindowHeightSizeClass> =
                 WindowHeightSizeClass.DefaultSizeClasses
         ): WindowSizeClass {
-            val windowWidthSizeClass =
-                WindowWidthSizeClass.fromWidth(size.width, density, supportedWidthSizeClasses)
-            val windowHeightSizeClass =
-                WindowHeightSizeClass.fromHeight(size.height, density, supportedHeightSizeClasses)
+            val windowWidthSizeClass = WindowWidthSizeClass.fromWidth(
+                size.width,
+                supportedWidthSizeClasses
+            )
+            val windowHeightSizeClass = WindowHeightSizeClass.fromHeight(
+                size.height,
+                supportedHeightSizeClasses
+            )
             return WindowSizeClass(windowWidthSizeClass, windowHeightSizeClass)
         }
     }
@@ -152,24 +138,28 @@ value class WindowWidthSizeClass private constructor(private val value: Int) :
          * The default set of size classes that includes [Compact], [Medium], and [Expanded] size
          * classes. Should never expand to ensure behavioral consistency.
          */
+        @Suppress("PrimitiveInCollection")
         val DefaultSizeClasses = setOf(Compact, Medium, Expanded)
 
+        @Suppress("PrimitiveInCollection")
+        private val AllSizeClassList = listOf(Expanded, Medium, Compact)
+
         /**
-         * The standard set of size classes. It's supposed to include all size classes and will be
-         * expanded whenever a new size class is defined. By default
-         * [WindowSizeClass.calculateFromSize] will only return size classes in [DefaultSizeClasses]
-         * in order to avoid behaviral changes when new size classes are added. You can opt in to
-         * support all available size classes by doing:
+         * The set of all size classes. It's supposed to be expanded whenever a new size class is
+         * defined. By default [WindowSizeClass.calculateFromSize] will only return size classes in
+         * [DefaultSizeClasses] in order to avoid behavioral changes when new size classes are
+         * added. You can opt in to support all available size classes by doing:
          * ```
          * WindowSizeClass.calculateFromSize(
          *     size = size,
          *     density = density,
-         *     supportedWidthSizeClasses = WindowWidthSizeClass.StandardSizeClasses,
-         *     supportedHeightSizeClasses = WindowHeightSizeClass.StandardSizeClasses
+         *     supportedWidthSizeClasses = WindowWidthSizeClass.AllSizeClasses,
+         *     supportedHeightSizeClasses = WindowHeightSizeClass.AllSizeClasses
          * )
          * ```
          */
-        val StandardSizeClasses get() = DefaultSizeClasses
+        @Suppress("ListIterator", "PrimitiveInCollection")
+        val AllSizeClasses = AllSizeClassList.toSet()
 
         private fun WindowWidthSizeClass.breakpoint(): Dp {
             return when {
@@ -179,33 +169,28 @@ value class WindowWidthSizeClass private constructor(private val value: Int) :
             }
         }
 
-        /** Calculates the [WindowWidthSizeClass] for a given [width] */
-        internal fun fromWidth(width: Dp): WindowWidthSizeClass {
-            return fromWidth(
-                with(defaultDensity) { width.toPx() }, defaultDensity, DefaultSizeClasses
-            )
-        }
-
         /**
          * Calculates the best matched [WindowWidthSizeClass] for a given [width] in Pixels and
          * a given [Density] from [supportedSizeClasses].
          */
         internal fun fromWidth(
-            width: Float,
-            density: Density,
+            width: Dp,
             supportedSizeClasses: Set<WindowWidthSizeClass>
         ): WindowWidthSizeClass {
-            require(width >= 0) { "Width must not be negative" }
+            require(width >= 0.dp) { "Width must not be negative" }
             require(supportedSizeClasses.isNotEmpty()) { "Must support at least one size class" }
-            val sortedSizeClasses = supportedSizeClasses.sortedDescending()
-            // Find the largest supported size class that matches the width
-            sortedSizeClasses.forEach {
-                if (width >= with(density) { it.breakpoint().toPx() }) {
-                    return it
+            var smallestSupportedSizeClass = Compact
+            AllSizeClassList.fastForEach {
+                if (it in supportedSizeClasses) {
+                    if (width >= it.breakpoint()) {
+                        return it
+                    }
+                    smallestSupportedSizeClass = it
                 }
             }
-            // If none of the size classes matches, return the smallest one.
-            return sortedSizeClasses.last()
+
+            // If none of the size classes matches, return the largest one.
+            return smallestSupportedSizeClass
         }
     }
 }
@@ -250,24 +235,28 @@ value class WindowHeightSizeClass private constructor(private val value: Int) :
          * The default set of size classes that includes [Compact], [Medium], and [Expanded] size
          * classes. Should never expand to ensure behavioral consistency.
          */
+        @Suppress("PrimitiveInCollection")
         val DefaultSizeClasses = setOf(Compact, Medium, Expanded)
 
+        @Suppress("PrimitiveInCollection")
+        private val AllSizeClassList = listOf(Expanded, Medium, Compact)
+
         /**
-         * The standard set of size classes. It's supposed to include all size classes and will be
-         * expanded whenever a new size class is defined. By default
-         * [WindowSizeClass.calculateFromSize] will only return size classes in [DefaultSizeClasses]
-         * in order to avoid behavioral changes when new size classes are added. You can opt in to
-         * support all available size classes by doing:
+         * The set of all size classes. It's supposed to be expanded whenever a new size class is
+         * defined. By default [WindowSizeClass.calculateFromSize] will only return size classes in
+         * [DefaultSizeClasses] in order to avoid behavioral changes when new size classes are
+         * added. You can opt in to support all available size classes by doing:
          * ```
          * WindowSizeClass.calculateFromSize(
          *     size = size,
          *     density = density,
-         *     supportedWidthSizeClasses = WindowWidthSizeClass.StandardSizeClasses,
-         *     supportedHeightSizeClasses = WindowHeightSizeClass.StandardSizeClasses
+         *     supportedWidthSizeClasses = WindowWidthSizeClass.AllSizeClasses,
+         *     supportedHeightSizeClasses = WindowHeightSizeClass.AllSizeClasses
          * )
          * ```
          */
-        val StandardSizeClasses get() = DefaultSizeClasses
+        @Suppress("ListIterator", "PrimitiveInCollection")
+        val AllSizeClasses = AllSizeClassList.toSet()
 
         private fun WindowHeightSizeClass.breakpoint(): Dp {
             return when {
@@ -277,35 +266,28 @@ value class WindowHeightSizeClass private constructor(private val value: Int) :
             }
         }
 
-        /** Calculates the [WindowHeightSizeClass] for a given [height] */
-        internal fun fromHeight(height: Dp): WindowHeightSizeClass {
-            return fromHeight(
-                with(defaultDensity) { height.toPx() }, defaultDensity, DefaultSizeClasses
-            )
-        }
-
         /**
          * Calculates the best matched [WindowHeightSizeClass] for a given [height] in Pixels and
          * a given [Density] from [supportedSizeClasses].
          */
         internal fun fromHeight(
-            height: Float,
-            density: Density,
+            height: Dp,
             supportedSizeClasses: Set<WindowHeightSizeClass>
         ): WindowHeightSizeClass {
-            require(height >= 0) { "Width must not be negative" }
+            require(height >= 0.dp) { "Width must not be negative" }
             require(supportedSizeClasses.isNotEmpty()) { "Must support at least one size class" }
-            val sortedSizeClasses = supportedSizeClasses.sortedDescending()
-            // Find the largest supported size class that matches the width
-            sortedSizeClasses.forEach {
-                if (height >= with(density) { it.breakpoint().toPx() }) {
-                    return it
+            var smallestSupportedSizeClass = Expanded
+            AllSizeClassList.fastForEach {
+                if (it in supportedSizeClasses) {
+                    if (height >= it.breakpoint()) {
+                        return it
+                    }
+                    smallestSupportedSizeClass = it
                 }
             }
-            // If none of the size classes matches, return the smallest one.
-            return sortedSizeClasses.last()
+
+            // If none of the size classes matches, return the largest one.
+            return smallestSupportedSizeClass
         }
     }
 }
-
-private val defaultDensity = Density(1F, 1F)

@@ -21,10 +21,8 @@ import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
@@ -48,10 +46,10 @@ import androidx.compose.ui.unit.dp
  * @param modifier optional [Modifier] for this IconButton
  * @param enabled whether or not this IconButton will handle input events and appear enabled for
  * semantics purposes
- * @param interactionSource the [MutableInteractionSource] representing the stream of
- * [Interaction]s for this IconButton. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this IconButton in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this IconButton. You can use this to change the IconButton's
+ * appearance or preview the IconButton in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param content the content (icon) to be drawn inside the IconButton. This is typically an
  * [Icon].
  */
@@ -60,7 +58,7 @@ fun IconButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit
 ) {
     Box(
@@ -71,7 +69,7 @@ fun IconButton(
                 enabled = enabled,
                 role = Role.Button,
                 interactionSource = interactionSource,
-                indication = rememberRipple(bounded = false, radius = RippleRadius)
+                indication = rippleOrFallbackImplementation(bounded = false, radius = RippleRadius)
             ),
         contentAlignment = Alignment.Center
     ) {
@@ -91,10 +89,10 @@ fun IconButton(
  * @param modifier optional [Modifier] for this IconToggleButton
  * @param enabled enabled whether or not this [IconToggleButton] will handle input events and appear
  * enabled for semantics purposes
- * @param interactionSource the [MutableInteractionSource] representing the stream of
- * [Interaction]s for this IconToggleButton. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this IconToggleButton in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this IconButton. You can use this to change the IconButton's
+ * appearance or preview the IconButton in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param content the content (icon) to be drawn inside the IconToggleButton. This is typically an
  * [Icon].
  */
@@ -104,7 +102,7 @@ fun IconToggleButton(
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit
 ) {
     Box(
@@ -116,7 +114,7 @@ fun IconToggleButton(
             enabled = enabled,
             role = Role.Checkbox,
             interactionSource = interactionSource,
-            indication = rememberRipple(bounded = false, radius = RippleRadius)
+            indication = rippleOrFallbackImplementation(bounded = false, radius = RippleRadius)
         ),
         contentAlignment = Alignment.Center
     ) {

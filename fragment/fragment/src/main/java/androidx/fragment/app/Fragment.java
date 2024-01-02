@@ -30,7 +30,6 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -67,7 +66,6 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringRes;
 import androidx.annotation.UiThread;
@@ -1796,24 +1794,24 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * <p>Here is a typical implementation of a fragment that can take parameters
      * both through attributes supplied here as well from {@link #getArguments()}:</p>
      *
-     * {@sample frameworks/support/samples/Support4Demos/src/main/java/com/example/android/supportv4/app/FragmentArgumentsSupport.java
+     * {@sample samples/Support4Demos/src/main/java/com/example/android/supportv4/app/FragmentArgumentsSupport.java
      *      fragment}
      *
      * <p>Note that parsing the XML attributes uses a "styleable" resource.  The
      * declaration for the styleable used here is:</p>
      *
-     * {@sample frameworks/support/samples/Support4Demos/src/main/res/values/attrs.xml fragment_arguments}
+     * {@sample samples/Support4Demos/src/main/res/values/attrs.xml fragment_arguments}
      *
      * <p>The fragment can then be declared within its activity's content layout
      * through a tag like this:</p>
      *
-     * {@sample frameworks/support/samples/Support4Demos/src/main/res/layout/fragment_arguments_support.xml from_attributes}
+     * {@sample samples/Support4Demos/src/main/res/layout/fragment_arguments_support.xml from_attributes}
      *
      * <p>This fragment can also be created dynamically from arguments given
      * at runtime in the arguments Bundle; here is an example of doing so at
      * creation of the containing activity:</p>
      *
-     * {@sample frameworks/support/samples/Support4Demos/src/main/java/com/example/android/supportv4/app/FragmentArgumentsSupport.java
+     * {@sample samples/Support4Demos/src/main/java/com/example/android/supportv4/app/FragmentArgumentsSupport.java
      *      create}
      *
      * @param context The Activity that is inflating this fragment.
@@ -2922,7 +2920,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                 mHost.getHandler().post(new Runnable() {
                     @Override
                     public void run() {
-                        controller.executePendingOperations();
+                        if (controller.isPendingExecute()) {
+                            controller.executePendingOperations();
+                        }
                     }
                 });
             } else {
@@ -3081,19 +3081,17 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         mChildFragmentManager.noteStateNotSaved();
         mState = CREATED;
         mCalled = false;
-        if (Build.VERSION.SDK_INT >= 19) {
-            mLifecycleRegistry.addObserver(new LifecycleEventObserver() {
-                @Override
-                public void onStateChanged(@NonNull LifecycleOwner source,
-                        @NonNull Lifecycle.Event event) {
-                    if (event == Lifecycle.Event.ON_STOP) {
-                        if (mView != null) {
-                            Api19Impl.cancelPendingInputEvents(mView);
-                        }
+        mLifecycleRegistry.addObserver(new LifecycleEventObserver() {
+            @Override
+            public void onStateChanged(@NonNull LifecycleOwner source,
+                    @NonNull Lifecycle.Event event) {
+                if (event == Lifecycle.Event.ON_STOP) {
+                    if (mView != null) {
+                        mView.cancelPendingInputEvents();
                     }
                 }
-            });
-        }
+            }
+        });
         onCreate(savedInstanceState);
         mIsCreated = true;
         if (!mCalled) {
@@ -3710,14 +3708,5 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         // True when postponeEnterTransition has been called and startPostponeEnterTransition
         // hasn't been called yet.
         boolean mEnterTransitionPostponed;
-    }
-
-    @RequiresApi(19)
-    static class Api19Impl {
-        private Api19Impl() { }
-
-        static void cancelPendingInputEvents(@NonNull View view) {
-            view.cancelPendingInputEvents();
-        }
     }
 }

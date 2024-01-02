@@ -81,7 +81,7 @@ class AuthenticatorAttestationResponse(
     return ret
   }
 
-  private fun defaultAttestationObject(): ByteArray {
+  internal fun defaultAttestationObject(): ByteArray {
     val ao = mutableMapOf<String, Any>()
     ao.put("fmt", "none")
     ao.put("attStmt", emptyMap<Any, Any>())

@@ -171,7 +171,8 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
             @CameraMode.Mode int cameraMode,
             @NonNull String cameraId,
             @NonNull List<AttachedSurfaceInfo> existingSurfaces,
-            @NonNull Map<UseCaseConfig<?>, List<Size>> newUseCaseConfigsSupportedSizeMap) {
+            @NonNull Map<UseCaseConfig<?>, List<Size>> newUseCaseConfigsSupportedSizeMap,
+            boolean isPreviewStabilizationOn) {
         Preconditions.checkArgument(!newUseCaseConfigsSupportedSizeMap.isEmpty(),
                 "No new use cases to be bound.");
 
@@ -186,6 +187,7 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
         return supportedSurfaceCombination.getSuggestedStreamSpecifications(
                 cameraMode,
                 existingSurfaces,
-                newUseCaseConfigsSupportedSizeMap);
+                newUseCaseConfigsSupportedSizeMap,
+                isPreviewStabilizationOn);
     }
 }

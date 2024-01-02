@@ -17,9 +17,9 @@
 package androidx.glance.appwidget
 
 import android.app.Activity
-import android.os.Build
 import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.Button
 import android.widget.FrameLayout
@@ -46,9 +46,9 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertIs
+import kotlin.test.assertNotNull
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -63,7 +63,6 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @MediumTest
 @SdkSuppress(minSdkVersion = 29)
 class LazyColumnTest {
@@ -644,15 +643,12 @@ fun <T> Flow<T>.debounce(timeout: Duration): Flow<T> = channelFlow {
 }.buffer(0)
 
 internal inline fun <reified T : View> ListView.getUnboxedListItem(position: Int): T {
-    // RemoteViewsAdapter$RemoteViewsFrameLayout
+    // Get adapter item at position
     val remoteViewFrame = assertIs<FrameLayout>(getChildAt(position))
 
-    // Android S- have a RemoteViewsAdapter$RemoteViewsFrameLayout first, Android T+ do not.
-    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.S) {
-        return remoteViewFrame.getChildAt(0).getTargetView()
-    }
+    // Find Glance's root view for each item
+    val rootView = assertNotNull(remoteViewFrame.findViewById(R.id.rootView)) as ViewGroup
     // The RemoteViews created in translateComposition for holding an item
-    val rootView = assertIs<FrameLayout>(remoteViewFrame.getChildAt(0))
     return rootView.getChildAt(0).getTargetView()
 }
 

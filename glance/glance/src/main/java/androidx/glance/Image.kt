@@ -36,20 +36,17 @@ import androidx.glance.unit.ColorProvider
 interface ImageProvider
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-/** @suppress */
 class AndroidResourceImageProvider(@DrawableRes val resId: Int) : ImageProvider {
     override fun toString() = "AndroidResourceImageProvider(resId=$resId)"
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-/** @suppress */
 class BitmapImageProvider(val bitmap: Bitmap) : ImageProvider {
     override fun toString() =
         "BitmapImageProvider(bitmap=Bitmap(${bitmap.width}px x ${bitmap.height}px))"
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-/** @suppress */
 class IconImageProvider(val icon: Icon) : ImageProvider {
     override fun toString() = "IconImageProvider(icon=$icon)"
 }
@@ -78,11 +75,9 @@ fun ImageProvider(bitmap: Bitmap): ImageProvider = BitmapImageProvider(bitmap)
 fun ImageProvider(icon: Icon): ImageProvider = IconImageProvider(icon)
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-/** @suppress */
 interface ColorFilterParams
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-/** @suppress */
 class TintColorFilterParams(val colorProvider: ColorProvider) : ColorFilterParams {
     override fun toString() =
         "TintColorFilterParams(colorProvider=$colorProvider))"
@@ -91,7 +86,9 @@ class TintColorFilterParams(val colorProvider: ColorProvider) : ColorFilterParam
 /**
  * Effects used to modify the color of an image.
  */
-class ColorFilter internal constructor(internal val colorFilterParams: ColorFilterParams) {
+class ColorFilter internal constructor(
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val colorFilterParams: ColorFilterParams
+) {
     companion object {
         /**
          * Set a tinting option for the image using the platform-specific default blending mode.
@@ -104,7 +101,6 @@ class ColorFilter internal constructor(internal val colorFilterParams: ColorFilt
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-/** @suppress */
 class EmittableImage : Emittable {
     override var modifier: GlanceModifier = GlanceModifier
     var provider: ImageProvider? = null
@@ -127,7 +123,6 @@ class EmittableImage : Emittable {
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-/** @suppress */
 fun EmittableImage.isDecorative(): Boolean {
     val semanticsConfiguration = modifier.findModifier<SemanticsModifier>()?.configuration
     return semanticsConfiguration?.getOrNull(SemanticsProperties.ContentDescription)?.get(0)

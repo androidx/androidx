@@ -20,6 +20,8 @@ import androidx.baselineprofile.gradle.utils.INTERMEDIATES_BASE_FOLDER
 import androidx.baselineprofile.gradle.utils.TASK_NAME_SUFFIX
 import androidx.baselineprofile.gradle.utils.camelCase
 import com.android.build.api.variant.TestVariant
+import com.android.build.gradle.internal.tasks.BuildAnalyzer
+import com.android.buildanalyzer.common.TaskCategory
 import com.google.testing.platform.proto.api.core.TestSuiteResultProto
 import java.io.File
 import org.gradle.api.DefaultTask
@@ -42,6 +44,7 @@ import org.gradle.work.DisableCachingByDefault
  * the ui tests.
  */
 @DisableCachingByDefault(because = "Not worth caching.")
+@BuildAnalyzer(primaryTaskCategory = TaskCategory.OPTIMIZATION)
 abstract class CollectBaselineProfileTask : DefaultTask() {
 
     companion object {
@@ -155,6 +158,9 @@ abstract class CollectBaselineProfileTask : DefaultTask() {
                         }
                         .map { File(it.sourcePath.path) }
                         .filter {
+                            // NOTE: If the below logic must be changed, be sure to update
+                            // OutputsTest#sanitizeFilename_baselineProfileGradlePlugin
+                            // as that covers library -> plugin file handoff testing
                             it.extension == "txt" &&
                                 ("-baseline-prof-" in it.name || "-startup-prof-" in it.name)
                         }

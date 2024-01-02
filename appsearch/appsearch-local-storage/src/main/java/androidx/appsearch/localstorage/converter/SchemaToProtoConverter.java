@@ -101,7 +101,11 @@ public final class SchemaToProtoConverter {
                         .setValueType(
                                 convertJoinableValueTypeToProto(
                                         stringProperty.getJoinableValueType()))
+                        // @exportToFramework:startStrip()
+                        // Do not call this in framework as it will populate the proto field and
+                        // fail comparison tests.
                         .setPropagateDelete(stringProperty.getDeletionPropagation())
+                        // @exportToFramework:endStrip()
                         .build();
                 builder.setJoinableConfig(joinableConfig);
             }
@@ -219,11 +223,8 @@ public final class SchemaToProtoConverter {
                         .setCardinality(proto.getCardinality().getNumber())
                         .setShouldIndexNestedProperties(
                                 proto.getDocumentIndexingConfig().getIndexNestedProperties());
-        List<String> indexableNestedPropertiesList =
-                proto.getDocumentIndexingConfig().getIndexableNestedPropertiesListList();
-        for (int i = 0; i < indexableNestedPropertiesList.size(); i++) {
-            builder.addIndexableNestedProperties(indexableNestedPropertiesList.get(i));
-        }
+        builder.addIndexableNestedProperties(
+                proto.getDocumentIndexingConfig().getIndexableNestedPropertiesListList());
         return builder.build();
     }
 

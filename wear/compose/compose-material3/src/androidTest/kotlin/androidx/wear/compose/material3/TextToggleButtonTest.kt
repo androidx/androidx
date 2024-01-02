@@ -331,20 +331,6 @@ class TextToggleButtonTest {
         }
 
     @Test
-    fun gives_extraSmall_correct_tapSize() =
-        rule.verifyTapSize(48.dp) {
-            TextToggleButton(
-                enabled = true,
-                checked = true,
-                onCheckedChange = { },
-                content = { },
-                modifier = Modifier
-                    .testTag(TEST_TAG)
-                    .touchTargetAwareSize(TextButtonDefaults.ExtraSmallButtonSize)
-            )
-        }
-
-    @Test
     fun gives_large_correct_tapSize() =
         rule.verifyTapSize(60.dp) {
             TextToggleButton(
@@ -383,20 +369,6 @@ class TextToggleButtonTest {
                 modifier = Modifier
                     .testTag(TEST_TAG)
                     .touchTargetAwareSize(TextButtonDefaults.SmallButtonSize)
-            )
-        }
-
-    @Test
-    fun gives_extraSmall_correct_size() =
-        rule.verifyActualSize(48.dp) {
-            TextToggleButton(
-                enabled = true,
-                checked = true,
-                onCheckedChange = { },
-                content = { },
-                modifier = Modifier
-                    .testTag(TEST_TAG)
-                    .touchTargetAwareSize(TextButtonDefaults.ExtraSmallButtonSize)
             )
         }
 
@@ -443,8 +415,8 @@ class TextToggleButtonTest {
             status = Status.Disabled,
             checked = false,
             colors = { TextButtonDefaults.textToggleButtonColors() },
-            containerColor = { MaterialTheme.colorScheme.surface },
-            contentColor = { MaterialTheme.colorScheme.onSurfaceVariant }
+            containerColor = { MaterialTheme.colorScheme.surface.toDisabledColor() },
+            contentColor = { MaterialTheme.colorScheme.onSurfaceVariant.toDisabledColor() }
         )
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -454,8 +426,8 @@ class TextToggleButtonTest {
             status = Status.Disabled,
             checked = true,
             colors = { TextButtonDefaults.textToggleButtonColors() },
-            containerColor = { MaterialTheme.colorScheme.primary },
-            contentColor = { MaterialTheme.colorScheme.onPrimary },
+            containerColor = { MaterialTheme.colorScheme.primary.toDisabledColor() },
+            contentColor = { MaterialTheme.colorScheme.onPrimary.toDisabledColor() },
         )
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -537,15 +509,17 @@ class TextToggleButtonTest {
 
         rule.verifyTextToggleButtonColors(
             status = Status.Disabled,
+            applyAlphaForDisabled = false,
             checked = true,
             colors = {
                 TextButtonDefaults.textToggleButtonColors(
-                    // Apply the content color override for the content alpha to be applied
-                    checkedContainerColor = override
+                    disabledCheckedContainerColor = override
                 )
             },
             containerColor = { override },
-            contentColor = { MaterialTheme.colorScheme.onPrimary }
+            contentColor = {
+                MaterialTheme.colorScheme.onPrimary.toDisabledColor()
+            }
         )
     }
 
@@ -556,14 +530,17 @@ class TextToggleButtonTest {
 
         rule.verifyTextToggleButtonColors(
             status = Status.Disabled,
+            applyAlphaForDisabled = false,
             checked = true,
             colors = {
                 TextButtonDefaults.textToggleButtonColors(
                     // Apply the content color override for the content alpha to be applied
-                    checkedContentColor = override
+                    disabledCheckedContentColor = override
                 )
             },
-            containerColor = { MaterialTheme.colorScheme.primary },
+            containerColor = {
+                MaterialTheme.colorScheme.primary.toDisabledColor()
+            },
             contentColor = { override }
         )
     }
@@ -575,15 +552,18 @@ class TextToggleButtonTest {
 
         rule.verifyTextToggleButtonColors(
             status = Status.Disabled,
+            applyAlphaForDisabled = false,
             checked = false,
             colors = {
                 TextButtonDefaults.textToggleButtonColors(
                     // Apply the content color override for the content alpha to be applied
-                    uncheckedContainerColor = override
+                    disabledUncheckedContainerColor = override
                 )
             },
             containerColor = { override },
-            contentColor = { MaterialTheme.colorScheme.onSurfaceVariant }
+            contentColor = {
+                MaterialTheme.colorScheme.onSurfaceVariant.toDisabledColor()
+            }
         )
     }
 
@@ -594,15 +574,18 @@ class TextToggleButtonTest {
 
         rule.verifyTextToggleButtonColors(
             status = Status.Disabled,
+            applyAlphaForDisabled = false,
             checked = false,
             colors = {
                 TextButtonDefaults.textToggleButtonColors(
                     // Apply the content color override for the content alpha to be applied
-                    uncheckedContentColor = override
+                    disabledUncheckedContentColor = override
                 )
             },
             contentColor = { override },
-            containerColor = { MaterialTheme.colorScheme.surface }
+            containerColor = {
+                MaterialTheme.colorScheme.surface.toDisabledColor()
+            }
         )
     }
 
@@ -637,7 +620,9 @@ class TextToggleButtonTest {
                 onCheckedChange = {},
                 enabled = true,
                 content = { Text("ABC") },
-                modifier = Modifier.testTag(TEST_TAG).semantics { role = overrideRole }
+                modifier = Modifier
+                    .testTag(TEST_TAG)
+                    .semantics { role = overrideRole }
             )
         }
 
@@ -660,6 +645,7 @@ class TextToggleButtonTest {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun ComposeContentTestRule.verifyTextToggleButtonColors(
         status: Status,
+        applyAlphaForDisabled: Boolean = true,
         checked: Boolean,
         colors: @Composable () -> ToggleButtonColors,
         containerColor: @Composable () -> Color,
@@ -667,6 +653,7 @@ class TextToggleButtonTest {
     ) {
         verifyColors(
             status = status,
+            applyAlphaForDisabled = applyAlphaForDisabled,
             expectedContainerColor = containerColor,
             expectedContentColor = contentColor,
             content = {
@@ -738,13 +725,13 @@ class TextToggleButtonTest {
                 if (status.enabled() || !applyAlphaForDisabled) {
                     expectedContainerColor()
                 } else {
-                    expectedContainerColor().copy(ContentAlpha.disabled)
+                    expectedContainerColor().copy(DisabledContentAlpha)
                 }.compositeOver(testBackgroundColor)
             finalExpectedContent =
                 if (status.enabled() || !applyAlphaForDisabled) {
                     expectedContentColor()
                 } else {
-                    expectedContentColor().copy(ContentAlpha.disabled)
+                    expectedContentColor().copy(DisabledContentAlpha)
                 }
             Box(
                 Modifier

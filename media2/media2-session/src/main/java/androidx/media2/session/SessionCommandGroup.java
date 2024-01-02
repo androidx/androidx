@@ -38,7 +38,11 @@ import java.util.Set;
 
 /**
  * A set of {@link SessionCommand} which represents a command group.
+ *
+ * @deprecated androidx.media2 is deprecated. Please migrate to <a
+ *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
  */
+@Deprecated
 @VersionedParcelize
 public final class SessionCommandGroup implements VersionedParcelable {
     private static final String TAG = "SessionCommandGroup";
@@ -121,7 +125,11 @@ public final class SessionCommandGroup implements VersionedParcelable {
 
     /**
      * Builds a {@link SessionCommandGroup} object.
+     *
+     * @deprecated androidx.media2 is deprecated. Please migrate to <a
+     *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
      */
+    @Deprecated
     public static final class Builder {
         private Set<SessionCommand> mCommands;
 

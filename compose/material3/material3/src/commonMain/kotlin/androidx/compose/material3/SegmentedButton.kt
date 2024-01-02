@@ -32,6 +32,7 @@ import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -61,25 +62,32 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.layout.MultiContentMeasurePolicy
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMaxBy
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 /**
@@ -100,11 +108,11 @@ import kotlinx.coroutines.launch
  * @param checked whether this button is checked or not
  * @param onCheckedChange callback to be invoked when the button is clicked.
  * therefore the change of checked state in requested.
+ * @param shape the shape for this button
  * @param modifier the [Modifier] to be applied to this button
  * @param enabled controls the enabled state of this button. When `false`, this component will not
  * respond to user input, and it will appear visually disabled and disabled to accessibility
  * services.
- * @param shape the shape for this button
  * @param colors [SegmentedButtonColors] that will be used to resolve the colors used for this
  * @param border the border for this button, see [SegmentedButtonColors]
  * Button in different states
@@ -114,32 +122,32 @@ import kotlinx.coroutines.launch
  * @param icon the icon slot for this button, you can pass null in unchecked, in which case
  * the content will displace to show the checked icon, or pass different icon lambdas for
  * unchecked and checked in which case the icons will crossfade.
- * @param content content to be rendered inside this button
+ * @param label content to be rendered inside this button
  */
 @Composable
 @ExperimentalMaterial3Api
 fun MultiChoiceSegmentedButtonRowScope.SegmentedButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
+    shape: Shape,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    shape: Shape = RectangleShape,
     colors: SegmentedButtonColors = SegmentedButtonDefaults.colors(),
-    border: SegmentedButtonBorder = SegmentedButtonDefaults.Border,
+    border: BorderStroke = SegmentedButtonDefaults.borderStroke(
+        colors.borderColor(enabled, checked)
+    ),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    icon: @Composable () -> Unit = { SegmentedButtonDefaults.SegmentedButtonIcon(checked) },
-    content: @Composable () -> Unit,
+    icon: @Composable () -> Unit = { SegmentedButtonDefaults.Icon(checked) },
+    label: @Composable () -> Unit,
 ) {
-
     val containerColor = colors.containerColor(enabled, checked)
     val contentColor = colors.contentColor(enabled, checked)
-    val checkedState by rememberUpdatedState(checked)
-    val interactionCount by interactionSource.interactionCountAsState()
+    val interactionCount = interactionSource.interactionCountAsState()
 
     Surface(
         modifier = modifier
             .weight(1f)
-            .interactionZIndex(checkedState, interactionCount)
+            .interactionZIndex(checked, interactionCount)
             .defaultMinSize(
                 minWidth = ButtonDefaults.MinWidth,
                 minHeight = ButtonDefaults.MinHeight
@@ -150,10 +158,10 @@ fun MultiChoiceSegmentedButtonRowScope.SegmentedButton(
         shape = shape,
         color = containerColor,
         contentColor = contentColor,
-        border = border.borderStroke(enabled, checked, colors),
+        border = border,
         interactionSource = interactionSource
     ) {
-        SegmentedButtonContent(icon, content)
+        SegmentedButtonContent(icon, label)
     }
 }
 
@@ -175,11 +183,11 @@ fun MultiChoiceSegmentedButtonRowScope.SegmentedButton(
  * @param selected whether this button is selected or not
  * @param onClick callback to be invoked when the button is clicked.
  * therefore the change of checked state in requested.
+ * @param shape the shape for this button
  * @param modifier the [Modifier] to be applied to this button
  * @param enabled controls the enabled state of this button. When `false`, this component will not
  * respond to user input, and it will appear visually disabled and disabled to accessibility
  * services.
- * @param shape the shape for this button
  * @param colors [SegmentedButtonColors] that will be used to resolve the colors used for this
  * @param border the border for this button, see [SegmentedButtonColors]
  * Button in different states
@@ -189,45 +197,47 @@ fun MultiChoiceSegmentedButtonRowScope.SegmentedButton(
  * @param icon the icon slot for this button, you can pass null in unchecked, in which case
  * the content will displace to show the checked icon, or pass different icon lambdas for
  * unchecked and checked in which case the icons will crossfade.
- * @param content content to be rendered inside this button
+ * @param label content to be rendered inside this button
  */
 @Composable
 @ExperimentalMaterial3Api
 fun SingleChoiceSegmentedButtonRowScope.SegmentedButton(
     selected: Boolean,
     onClick: () -> Unit,
+    shape: Shape,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    shape: Shape = RectangleShape,
     colors: SegmentedButtonColors = SegmentedButtonDefaults.colors(),
-    border: SegmentedButtonBorder = SegmentedButtonDefaults.Border,
+    border: BorderStroke = SegmentedButtonDefaults.borderStroke(
+        colors.borderColor(enabled, selected)
+    ),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    icon: @Composable () -> Unit = { SegmentedButtonDefaults.SegmentedButtonIcon(selected) },
-    content: @Composable () -> Unit,
+    icon: @Composable () -> Unit = { SegmentedButtonDefaults.Icon(selected) },
+    label: @Composable () -> Unit,
 ) {
     val containerColor = colors.containerColor(enabled, selected)
     val contentColor = colors.contentColor(enabled, selected)
-    val checkedState by rememberUpdatedState(selected)
-    val interactionCount by interactionSource.interactionCountAsState()
+    val interactionCount = interactionSource.interactionCountAsState()
 
     Surface(
         modifier = modifier
             .weight(1f)
-            .interactionZIndex(checkedState, interactionCount)
+            .interactionZIndex(selected, interactionCount)
             .defaultMinSize(
                 minWidth = ButtonDefaults.MinWidth,
                 minHeight = ButtonDefaults.MinHeight
-            ),
+            )
+            .semantics { role = Role.RadioButton },
         selected = selected,
         onClick = onClick,
         enabled = enabled,
         shape = shape,
         color = containerColor,
         contentColor = contentColor,
-        border = border.borderStroke(enabled, selected, colors),
+        border = border,
         interactionSource = interactionSource
     ) {
-        SegmentedButtonContent(icon, content)
+        SegmentedButtonContent(icon, label)
     }
 }
 
@@ -251,13 +261,13 @@ fun SingleChoiceSegmentedButtonRowScope.SegmentedButton(
 @ExperimentalMaterial3Api
 fun SingleChoiceSegmentedButtonRow(
     modifier: Modifier = Modifier,
-    space: Dp = SegmentedButtonDefaults.Border.width,
+    space: Dp = SegmentedButtonDefaults.BorderWidth,
     content: @Composable SingleChoiceSegmentedButtonRowScope.() -> Unit
 ) {
     Row(
         modifier = modifier
             .selectableGroup()
-            .height(OutlinedSegmentedButtonTokens.ContainerHeight)
+            .defaultMinSize(minHeight = OutlinedSegmentedButtonTokens.ContainerHeight)
             .width(IntrinsicSize.Min),
         horizontalArrangement = Arrangement.spacedBy(-space),
         verticalAlignment = Alignment.CenterVertically
@@ -289,12 +299,12 @@ fun SingleChoiceSegmentedButtonRow(
 @ExperimentalMaterial3Api
 fun MultiChoiceSegmentedButtonRow(
     modifier: Modifier = Modifier,
-    space: Dp = SegmentedButtonDefaults.Border.width,
+    space: Dp = SegmentedButtonDefaults.BorderWidth,
     content: @Composable MultiChoiceSegmentedButtonRowScope.() -> Unit
 ) {
     Row(
         modifier = modifier
-            .height(OutlinedSegmentedButtonTokens.ContainerHeight)
+            .defaultMinSize(minHeight = OutlinedSegmentedButtonTokens.ContainerHeight)
             .width(IntrinsicSize.Min),
         horizontalArrangement = Arrangement.spacedBy(-space),
         verticalAlignment = Alignment.CenterVertically
@@ -310,57 +320,76 @@ private fun SegmentedButtonContent(
     icon: @Composable () -> Unit,
     content: @Composable () -> Unit,
 ) {
-    Row(
-        modifier = Modifier.padding(ButtonDefaults.TextButtonContentPadding),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.padding(ButtonDefaults.TextButtonContentPadding)
     ) {
-        ProvideTextStyle(value = MaterialTheme.typography.labelLarge) {
-            var animatable by remember {
-                mutableStateOf<Animatable<Int, AnimationVector1D>?>(null)
+        val typography =
+            MaterialTheme.typography.fromToken(OutlinedSegmentedButtonTokens.LabelTextFont)
+        ProvideTextStyle(typography) {
+            val scope = rememberCoroutineScope()
+            val measurePolicy = remember { SegmentedButtonContentMeasurePolicy(scope) }
+
+            Layout(
+                modifier = Modifier.height(IntrinsicSize.Min),
+                contents = listOf(icon, content),
+                measurePolicy = measurePolicy
+            )
+        }
+    }
+}
+
+internal class SegmentedButtonContentMeasurePolicy(
+    val scope: CoroutineScope
+) : MultiContentMeasurePolicy {
+    var animatable: Animatable<Int, AnimationVector1D>? = null
+    private var initialOffset: Int? = null
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    override fun MeasureScope.measure(
+        measurables: List<List<Measurable>>,
+        constraints: Constraints
+    ): MeasureResult {
+        val (iconMeasurables, contentMeasurables) = measurables
+        val iconPlaceables = iconMeasurables.fastMap { it.measure(constraints) }
+        val iconWidth = iconPlaceables.fastMaxBy { it.width }?.width ?: 0
+        val contentPlaceables = contentMeasurables.fastMap { it.measure(constraints) }
+        val contentWidth = contentPlaceables.fastMaxBy { it.width }?.width
+        val height = contentPlaceables.fastMaxBy { it.height }?.height ?: 0
+        val width = maxOf(SegmentedButtonDefaults.IconSize.roundToPx(), iconWidth) +
+            IconSpacing.roundToPx() +
+            (contentWidth ?: 0)
+        val offsetX = if (iconWidth == 0) {
+            -(SegmentedButtonDefaults.IconSize.roundToPx() + IconSpacing.roundToPx()) / 2
+        } else {
+            0
+        }
+
+        if (initialOffset == null) {
+            initialOffset = offsetX
+        } else {
+            val anim = animatable ?: Animatable(initialOffset!!, Int.VectorConverter)
+                .also { animatable = it }
+            if (anim.targetValue != offsetX) {
+                scope.launch {
+                    anim.animateTo(offsetX, tween(MotionTokens.DurationMedium3.toInt()))
+                }
+            }
+        }
+
+        return layout(width, height) {
+            iconPlaceables.fastForEach {
+                it.place(0, (height - it.height) / 2)
             }
 
-            val scope = rememberCoroutineScope()
+            val contentOffsetX = SegmentedButtonDefaults.IconSize.roundToPx() +
+                IconSpacing.roundToPx() + (animatable?.value ?: offsetX)
 
-            Layout(listOf(icon, content)) { (iconMeasurables, contentMeasurables), constraints ->
-                val iconPlaceables = iconMeasurables.map { it.measure(constraints) }
-                val iconDesiredWidth = iconMeasurables.fold(0) { acc, it ->
-                    maxOf(acc, it.maxIntrinsicWidth(Constraints.Infinity))
-                }
-                val iconWidth = iconPlaceables.fastMaxBy { it.width }?.width ?: 0
-                val contentPlaceables = contentMeasurables.map { it.measure(constraints) }
-                val contentWidth = contentPlaceables.fastMaxBy { it.width }?.width
-                val width = maxOf(SegmentedButtonDefaults.IconSize.roundToPx(), iconDesiredWidth) +
-                    IconSpacing.roundToPx() +
-                    (contentWidth ?: 0)
-
-                val offsetX = if (iconWidth == 0) {
-                    -(SegmentedButtonDefaults.IconSize.roundToPx() + IconSpacing.roundToPx()) / 2
-                } else {
-                    iconDesiredWidth - SegmentedButtonDefaults.IconSize.roundToPx()
-                }
-
-                val anim = animatable ?: Animatable(offsetX, Int.VectorConverter)
-                    .also { animatable = it }
-
-                if (anim.targetValue != offsetX) {
-                    scope.launch {
-                        anim.animateTo(offsetX, tween(MotionTokens.DurationMedium3.toInt()))
-                    }
-                }
-
-                layout(width, constraints.maxHeight) {
-                    iconPlaceables.forEach {
-                        it.place(0, (constraints.maxHeight - it.height) / 2)
-                    }
-
-                    val contentOffsetX = SegmentedButtonDefaults.IconSize.roundToPx() +
-                        IconSpacing.roundToPx() + anim.value
-
-                    contentPlaceables.forEach {
-                        it.place(contentOffsetX, (constraints.maxHeight - it.height) / 2)
-                    }
-                }
+            contentPlaceables.fastForEach {
+                it.place(
+                    contentOffsetX,
+                    (height - it.height) / 2
+                )
             }
         }
     }
@@ -401,6 +430,14 @@ interface MultiChoiceSegmentedButtonRowScope : RowScope
 @ExperimentalMaterial3Api
 @Stable
 object SegmentedButtonDefaults {
+
+    /**
+     * Creates a [SegmentedButtonColors] that represents the different colors
+     * used in a [SegmentedButton] in different states.
+     */
+    @Composable
+    fun colors() = MaterialTheme.colorScheme.defaultSegmentedButtonColors
+
     /**
      * Creates a [SegmentedButtonColors] that represents the different colors
      * used in a [SegmentedButton] in different states.
@@ -423,21 +460,19 @@ object SegmentedButtonDefaults {
      */
     @Composable
     fun colors(
-        activeContainerColor: Color = SelectedContainerColor.value,
-        activeContentColor: Color = SelectedLabelTextColor.value,
-        activeBorderColor: Color = OutlineColor.value,
-        inactiveContainerColor: Color = MaterialTheme.colorScheme.surface,
-        inactiveContentColor: Color = UnselectedLabelTextColor.value,
-        inactiveBorderColor: Color = activeBorderColor,
-        disabledActiveContainerColor: Color = activeContainerColor,
-        disabledActiveContentColor: Color = DisabledLabelTextColor.value
-            .copy(alpha = DisabledLabelTextOpacity),
-        disabledActiveBorderColor: Color = OutlineColor.value
-            .copy(alpha = DisabledOutlineOpacity),
-        disabledInactiveContainerColor: Color = inactiveContainerColor,
-        disabledInactiveContentColor: Color = disabledActiveContentColor,
-        disabledInactiveBorderColor: Color = activeBorderColor,
-    ): SegmentedButtonColors = SegmentedButtonColors(
+        activeContainerColor: Color = Color.Unspecified,
+        activeContentColor: Color = Color.Unspecified,
+        activeBorderColor: Color = Color.Unspecified,
+        inactiveContainerColor: Color = Color.Unspecified,
+        inactiveContentColor: Color = Color.Unspecified,
+        inactiveBorderColor: Color = Color.Unspecified,
+        disabledActiveContainerColor: Color = Color.Unspecified,
+        disabledActiveContentColor: Color = Color.Unspecified,
+        disabledActiveBorderColor: Color = Color.Unspecified,
+        disabledInactiveContainerColor: Color = Color.Unspecified,
+        disabledInactiveContentColor: Color = Color.Unspecified,
+        disabledInactiveBorderColor: Color = Color.Unspecified,
+    ): SegmentedButtonColors = MaterialTheme.colorScheme.defaultSegmentedButtonColors.copy(
         activeContainerColor = activeContainerColor,
         activeContentColor = activeContentColor,
         activeBorderColor = activeBorderColor,
@@ -452,29 +487,59 @@ object SegmentedButtonDefaults {
         disabledInactiveBorderColor = disabledInactiveBorderColor
     )
 
-    /** The default [BorderStroke] factory used by [SegmentedButton]. */
-    val Border = SegmentedButtonBorder(width = OutlinedSegmentedButtonTokens.OutlineWidth)
+    internal val ColorScheme.defaultSegmentedButtonColors: SegmentedButtonColors
+        get() {
+            return defaultSegmentedButtonColorsCached ?: SegmentedButtonColors(
+                activeContainerColor = fromToken(SelectedContainerColor),
+                activeContentColor = fromToken(SelectedLabelTextColor),
+                activeBorderColor = fromToken(OutlineColor),
+                inactiveContainerColor = surface,
+                inactiveContentColor = fromToken(UnselectedLabelTextColor),
+                inactiveBorderColor = fromToken(OutlineColor),
+                disabledActiveContainerColor = fromToken(SelectedContainerColor),
+                disabledActiveContentColor = fromToken(DisabledLabelTextColor)
+                    .copy(alpha = DisabledLabelTextOpacity),
+                disabledActiveBorderColor = fromToken(OutlineColor)
+                    .copy(alpha = DisabledOutlineOpacity),
+                disabledInactiveContainerColor = surface,
+                disabledInactiveContentColor = fromToken(DisabledLabelTextColor),
+                disabledInactiveBorderColor = fromToken(OutlineColor),
+            ).also {
+                defaultSegmentedButtonColorsCached = it
+            }
+        }
 
-    /** The default [Shape] for [SegmentedButton]. */
-    val Shape: CornerBasedShape
+    /**
+     * The shape of the segmented button container, for correct behavior this should or the desired
+     * [CornerBasedShape] should be used with [itemShape] and passed to each segmented button.
+     */
+    val baseShape: CornerBasedShape
         @Composable
         @ReadOnlyComposable
         get() = OutlinedSegmentedButtonTokens.Shape.value as CornerBasedShape
 
+    /** Default border width used in segmented button */
+    val BorderWidth: Dp = OutlinedSegmentedButtonTokens.OutlineWidth
+
     /**
-     * A shape constructor that the button in [position] should have when there are [count] buttons
+     * A shape constructor that the button in [index] should have when there are [count] buttons in
+     * the container.
      *
-     * @param position the position for this button in the row
+     * @param index the index for this button in the row
      * @param count the count of buttons in this row
-     * @param shape the [CornerBasedShape] the base shape that should be used in buttons that are
-     * not in the start or the end.
+     * @param baseShape the [CornerBasedShape] the base shape that should be used in buttons that
+     * are not in the start or the end.
      */
     @Composable
     @ReadOnlyComposable
-    fun shape(position: Int, count: Int, shape: CornerBasedShape = this.Shape): Shape {
-        return when (position) {
-            0 -> shape.start()
-            count - 1 -> shape.end()
+    fun itemShape(index: Int, count: Int, baseShape: CornerBasedShape = this.baseShape): Shape {
+        if (count == 1) {
+            return baseShape
+        }
+
+        return when (index) {
+            0 -> baseShape.start()
+            count - 1 -> baseShape.end()
             else -> RectangleShape
         }
     }
@@ -503,7 +568,7 @@ object SegmentedButtonDefaults {
      * checked.
      */
     @Composable
-    fun SegmentedButtonIcon(
+    fun Icon(
         active: Boolean,
         activeContent: @Composable () -> Unit = { ActiveIcon() },
         inactiveContent: (@Composable () -> Unit)? = null
@@ -526,25 +591,16 @@ object SegmentedButtonDefaults {
             }
         }
     }
-}
 
-/**
- * Class to create border stroke for segmented button, see [SegmentedButtonColors], for
- * customization of colors.
- */
-@ExperimentalMaterial3Api
-@Immutable
-class SegmentedButtonBorder(val width: Dp) {
-
-    /** The default [BorderStroke] used by [SegmentedButton]. */
+    /**
+     * Default factory for Segmented Button [BorderStroke] can be customized through [width],
+     * and [color]. When using a width different than default make sure to also update
+     * [MultiChoiceSegmentedButtonRow] or [SingleChoiceSegmentedButtonRow] space param.
+     */
     fun borderStroke(
-        enabled: Boolean,
-        checked: Boolean,
-        colors: SegmentedButtonColors
-    ): BorderStroke = BorderStroke(
-        width = width,
-        color = colors.borderColor(enabled, checked)
-    )
+        color: Color,
+        width: Dp = BorderWidth,
+    ): BorderStroke = BorderStroke(width = width, color = color)
 }
 
 /**
@@ -569,7 +625,7 @@ class SegmentedButtonBorder(val width: Dp) {
  */
 @Immutable
 @ExperimentalMaterial3Api
-class SegmentedButtonColors constructor(
+class SegmentedButtonColors(
     // enabled & active
     val activeContainerColor: Color,
     val activeContentColor: Color,
@@ -588,18 +644,51 @@ class SegmentedButtonColors constructor(
     val disabledInactiveBorderColor: Color
 ) {
     /**
+     * Returns a copy of this ChipColors, optionally overriding some of the ues.
+     * This uses the Color.Unspecified to mean “use the value from the source”
+     */
+    fun copy(
+        activeContainerColor: Color = this.activeContainerColor,
+        activeContentColor: Color = this.activeContentColor,
+        activeBorderColor: Color = this.activeBorderColor,
+        inactiveContainerColor: Color = this.inactiveContainerColor,
+        inactiveContentColor: Color = this.inactiveContentColor,
+        inactiveBorderColor: Color = this.inactiveBorderColor,
+        disabledActiveContainerColor: Color = this.disabledActiveContainerColor,
+        disabledActiveContentColor: Color = this.disabledActiveContentColor,
+        disabledActiveBorderColor: Color = this.disabledActiveBorderColor,
+        disabledInactiveContainerColor: Color = this.disabledInactiveContainerColor,
+        disabledInactiveContentColor: Color = this.disabledInactiveContentColor,
+        disabledInactiveBorderColor: Color = this.disabledInactiveBorderColor
+    ) = SegmentedButtonColors(
+        activeContainerColor.takeOrElse { this.activeContainerColor },
+        activeContentColor.takeOrElse { this.activeContentColor },
+        activeBorderColor.takeOrElse { this.activeBorderColor },
+        inactiveContainerColor.takeOrElse { this.inactiveContainerColor },
+        inactiveContentColor.takeOrElse { this.inactiveContentColor },
+        inactiveBorderColor.takeOrElse { this.inactiveBorderColor },
+        disabledActiveContainerColor.takeOrElse { this.disabledActiveContainerColor },
+        disabledActiveContentColor.takeOrElse { this.disabledActiveContentColor },
+        disabledActiveBorderColor.takeOrElse { this.disabledActiveBorderColor },
+        disabledInactiveContainerColor.takeOrElse { this.disabledInactiveContainerColor },
+        disabledInactiveContentColor.takeOrElse { this.disabledInactiveContentColor },
+        disabledInactiveBorderColor.takeOrElse { this.disabledInactiveBorderColor }
+    )
+
+    /**
      * Represents the color used for the SegmentedButton's border,
      * depending on [enabled] and [active].
      *
      * @param enabled whether the [SegmentedButton] is enabled or not
      * @param active whether the [SegmentedButton] item is checked or not
      */
+    @Stable
     internal fun borderColor(enabled: Boolean, active: Boolean): Color {
         return when {
             enabled && active -> activeBorderColor
             enabled && !active -> inactiveBorderColor
-            !enabled && active -> disabledActiveContentColor
-            else -> disabledInactiveContentColor
+            !enabled && active -> disabledActiveBorderColor
+            else -> disabledInactiveBorderColor
         }
     }
 
@@ -609,6 +698,7 @@ class SegmentedButtonColors constructor(
      * @param enabled whether the [SegmentedButton] is enabled or not
      * @param checked whether the [SegmentedButton] item is checked or not
      */
+    @Stable
     internal fun contentColor(enabled: Boolean, checked: Boolean): Color {
         return when {
             enabled && checked -> activeContentColor
@@ -624,6 +714,7 @@ class SegmentedButtonColors constructor(
      * @param enabled whether the [SegmentedButton] is enabled or not
      * @param active whether the [SegmentedButton] item is active or not
      */
+    @Stable
     internal fun containerColor(enabled: Boolean, active: Boolean): Color {
         return when {
             enabled && active -> activeContainerColor
@@ -673,11 +764,11 @@ class SegmentedButtonColors constructor(
     }
 }
 
-private fun Modifier.interactionZIndex(checked: Boolean, interactionCount: Int) =
+private fun Modifier.interactionZIndex(checked: Boolean, interactionCount: State<Int>) =
     this.layout { measurable, constraints ->
         val placeable = measurable.measure(constraints)
         layout(placeable.width, placeable.height) {
-            val zIndex = interactionCount + if (checked) CheckedZIndexFactor else 0f
+            val zIndex = interactionCount.value + if (checked) CheckedZIndexFactor else 0f
             placeable.place(0, 0, zIndex)
         }
     }

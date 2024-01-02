@@ -43,7 +43,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
-import androidx.wear.compose.foundation.SwipeToDismissBox
 import androidx.wear.compose.foundation.SwipeToDismissBoxState
 import androidx.wear.compose.foundation.SwipeToDismissKeys
 import androidx.wear.compose.foundation.SwipeToDismissValue
@@ -66,6 +65,7 @@ import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.LocalTextStyle
 import androidx.wear.compose.material.MaterialTheme
+import androidx.wear.compose.material.SwipeToDismissBox
 import androidx.wear.compose.material.Text
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
@@ -79,9 +79,11 @@ fun DemoApp(
     parentDemo: Demo?,
     onNavigateTo: (Demo) -> Unit,
     onNavigateBack: () -> Unit,
+    scrollStates: MutableList<ScalingLazyListState>,
 ) {
     val swipeToDismissState = swipeDismissStateWithNavigation(onNavigateBack)
-    DisplayDemo(swipeToDismissState, currentDemo, parentDemo, onNavigateTo, onNavigateBack)
+    DisplayDemo(
+        swipeToDismissState, currentDemo, parentDemo, onNavigateTo, onNavigateBack, scrollStates)
 }
 
 @Composable
@@ -90,15 +92,23 @@ private fun DisplayDemo(
     currentDemo: Demo,
     parentDemo: Demo?,
     onNavigateTo: (Demo) -> Unit,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    scrollStates: MutableList<ScalingLazyListState>,
 ) {
     SwipeToDismissBox(
         state = state,
-        userSwipeEnabled = parentDemo != null,
+        hasBackground = parentDemo != null,
         backgroundKey = parentDemo?.title ?: SwipeToDismissKeys.Background,
         contentKey = currentDemo.title,
     ) { isBackground ->
-        BoxDemo(state, if (isBackground) parentDemo else currentDemo, onNavigateTo, onNavigateBack)
+        BoxDemo(
+            state,
+            if (isBackground) parentDemo else currentDemo,
+            onNavigateTo,
+            onNavigateBack,
+            scrollStates.lastIndex - (if (isBackground) 1 else 0),
+            scrollStates,
+        )
     }
 }
 
@@ -107,7 +117,9 @@ private fun BoxScope.BoxDemo(
     state: SwipeToDismissBoxState,
     demo: Demo?,
     onNavigateTo: (Demo) -> Unit,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    scrollStateIndex: Int,
+    scrollStates: MutableList<ScalingLazyListState>,
 ) {
     when (demo) {
         is ActivityDemo<*> -> {
@@ -119,7 +131,7 @@ private fun BoxScope.BoxDemo(
         }
 
         is DemoCategory -> {
-            DisplayDemoList(demo, onNavigateTo)
+            DisplayDemoList(demo, onNavigateTo, scrollStateIndex, scrollStates)
         }
 
         else -> {
@@ -131,12 +143,19 @@ private fun BoxScope.BoxDemo(
 internal fun BoxScope.DisplayDemoList(
     category: DemoCategory,
     onNavigateTo: (Demo) -> Unit,
+    scrollStateIndex: Int,
+    scrollStates: MutableList<ScalingLazyListState>,
 ) {
+    val state = rememberScalingLazyListState()
+
     ScalingLazyColumnWithRSB(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
             .testTag(DemoListTag),
+        state = scrollStates[scrollStateIndex],
+        snap = false,
+        autoCentering = AutoCenteringParams(itemIndex = if (category.demos.size >= 2) 2 else 1),
     ) {
         item {
             ListHeader {
@@ -153,7 +172,10 @@ internal fun BoxScope.DisplayDemoList(
         category.demos.forEach { demo ->
             item {
                 Chip(
-                    onClick = { onNavigateTo(demo) },
+                    onClick = {
+                        scrollStates.add(state)
+                        onNavigateTo(demo)
+                    },
                     colors = ChipDefaults.secondaryChipColors(),
                     label = {
                         Text(
@@ -286,7 +308,7 @@ fun ScalingLazyColumnWithRSB(
         space = 4.dp,
         alignment = if (!reverseLayout) Alignment.Top else Alignment.Bottom
     ),
-    autoCentering: AutoCenteringParams? = null,
+    autoCentering: AutoCenteringParams? = AutoCenteringParams(),
     content: ScalingLazyListScope.() -> Unit
 ) {
     val flingBehavior = if (snap) ScalingLazyColumnDefaults.snapFlingBehavior(

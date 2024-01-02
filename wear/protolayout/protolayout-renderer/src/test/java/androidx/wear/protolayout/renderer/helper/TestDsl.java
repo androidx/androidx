@@ -124,7 +124,7 @@ public class TestDsl {
 
         private LayoutElementProto.FontStyle toProto() {
             return LayoutElementProto.FontStyle.newBuilder()
-                    .setSize(sp(sizeSp))
+                    .addSize(sp(sizeSp))
                     .setItalic(bool(italic))
                     .setColor(color(colorArgb))
                     .build();
@@ -348,11 +348,20 @@ public class TestDsl {
     }
 
     public static LayoutNode dynamicFixedText(String fixedText) {
-        return dynamicFixedText(/* propsConsumer= */ null, fixedText);
+        return dynamicFixedText(/* propsConsumer= */ null, fixedText, /* valueForLayout= */ null);
+    }
+
+    public static LayoutNode dynamicFixedText(String fixedText, @Nullable String valueForLayout) {
+        return dynamicFixedText(/* propsConsumer= */ null, fixedText, valueForLayout);
     }
 
     public static LayoutNode dynamicFixedText(Consumer<TextProps> propsConsumer, String fixedText) {
-        return textInternal(propsConsumer, dynamicStr(fixedText));
+        return textInternal(propsConsumer, dynamicStr(fixedText, /* valueForLayout= */ null));
+    }
+
+    public static LayoutNode dynamicFixedText(
+            Consumer<TextProps> propsConsumer, String fixedText, @Nullable String valueForLayout) {
+        return textInternal(propsConsumer, dynamicStr(fixedText, valueForLayout));
     }
 
     public static LayoutNode text(String text) {
@@ -578,11 +587,15 @@ public class TestDsl {
         return StringProp.newBuilder().setValue(value).build();
     }
 
-    private static StringProp dynamicStr(String fixedValue) {
-        return StringProp.newBuilder()
-                .setDynamicValue(
-                        DynamicString.newBuilder()
-                                .setFixed(FixedString.newBuilder().setValue(fixedValue)))
-                .build();
+    private static StringProp dynamicStr(String fixedValue, @Nullable String valueForLayout) {
+        StringProp.Builder builder =
+                StringProp.newBuilder()
+                        .setDynamicValue(
+                                DynamicString.newBuilder()
+                                        .setFixed(FixedString.newBuilder().setValue(fixedValue)));
+        if (valueForLayout != null) {
+            builder.setValueForLayout(valueForLayout);
+        }
+        return builder.build();
     }
 }

@@ -28,6 +28,7 @@ import androidx.collection.ArraySet
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.window.WindowSdkExtensions
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.demo.R
 import androidx.window.demo.databinding.ActivitySplitAttributesTogglePrimaryActivityBinding
@@ -70,7 +71,7 @@ open class SplitAttributesToggleMainActivity : SplitAttributesToggleActivityBase
 
         activityEmbeddingController = ActivityEmbeddingController.getInstance(this)
 
-        if (!splitController.isSplitAttributesCalculatorSupported()) {
+        if (WindowSdkExtensions.getInstance().extensionVersion < 2) {
             placeholderFoldingAwareAttrsRadioButton.isEnabled = false
             viewBinding.placeholderUseCustomizedSplitAttributes.isEnabled = false
             splitRuleFoldingAwareAttrsRadioButton.isEnabled = false
@@ -212,18 +213,14 @@ open class SplitAttributesToggleMainActivity : SplitAttributesToggleActivityBase
 
     private suspend fun updateWarningMessages() {
         val warningMessages = StringBuilder().apply {
-            if (!splitController.isSplitAttributesCalculatorSupported()) {
+            val apiLevel = WindowSdkExtensions.getInstance().extensionVersion
+
+            if (apiLevel < 2) {
                 append(resources.getString(R.string.split_attributes_calculator_not_supported))
                 append("\n")
             }
-            if (!activityEmbeddingController.isFinishingActivityStacksSupported()) {
+            if (apiLevel < 3) {
                 append("Finishing secondary activities is not supported on this device!\n")
-            }
-            if (viewBinding.finishSecondaryActivitiesButton.isEnabled &&
-                getSplitRule<SplitPlaceholderRule>() != null
-            ) {
-                append(resources.getString(R.string.show_placeholder_warning))
-                append("\n")
             }
         }
         withContext(Dispatchers.Main) {

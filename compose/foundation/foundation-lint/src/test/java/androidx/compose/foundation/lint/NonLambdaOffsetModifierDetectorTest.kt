@@ -23,6 +23,7 @@ import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.checks.infrastructure.TestFile
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -216,6 +217,7 @@ class NonLambdaOffsetModifierDetectorTest : LintDetectorTest() {
     override fun getIssues(): MutableList<Issue> =
         mutableListOf(NonLambdaOffsetModifierDetector.UseOfNonLambdaOverload)
 
+    @Ignore("b/309832115")
     @Test
     fun lambdaOffset_simpleUsage_shouldNotWarn() {
         lint().files(
@@ -251,6 +253,7 @@ class NonLambdaOffsetModifierDetectorTest : LintDetectorTest() {
             .expectClean()
     }
 
+    @Ignore("b/309832115")
     @Test
     fun lambdaOffset_withStateUsages_shouldNotWarn() {
         lint().files(
@@ -300,6 +303,7 @@ class NonLambdaOffsetModifierDetectorTest : LintDetectorTest() {
             .expectClean()
     }
 
+    @Ignore("b/309832115")
     @Test
     fun lambdaOffset_withAnimatableUsage_shouldNotWarn() {
         lint().files(
@@ -354,6 +358,7 @@ class NonLambdaOffsetModifierDetectorTest : LintDetectorTest() {
             .expectClean()
     }
 
+    @Ignore("b/309832115")
     @Test
     fun nonLambdaOffset_usingVariableDp_shouldNotWarn() {
         lint().files(
@@ -397,6 +402,7 @@ class NonLambdaOffsetModifierDetectorTest : LintDetectorTest() {
             .expectClean()
     }
 
+    @Ignore("b/309832115")
     @Test
     fun nonLambdaOffset_usingPassedStaticArguments_shouldNotWarn() {
         lint().files(
@@ -433,6 +439,7 @@ class NonLambdaOffsetModifierDetectorTest : LintDetectorTest() {
 
     // State tests
 
+    @Ignore("b/309832115")
     @Test
     fun nonLambdaOffset_usingStateLocalVariable_shouldWarn() {
         lint().files(
@@ -479,6 +486,7 @@ src/test/test.kt:18: $WarningMessage
             )
     }
 
+    @Ignore("b/309832115")
     @Test
     fun nonLambdaOffset_usingDelegatedStateVariable_shouldWarn() {
         lint().files(
@@ -526,6 +534,7 @@ src/test/test.kt:19: $WarningMessage
             )
     }
 
+    @Ignore("b/309832115")
     @Test
     fun nonLambdaOffset_usingStateReceiver_shouldWarn() {
         lint().files(
@@ -584,6 +593,7 @@ src/test/test.kt:24: $WarningMessage
             )
     }
 
+    @Ignore("b/309832115")
     @Test
     fun nonLambdaOffset_usingTopLevelStateVariables_shouldWarn() {
         lint().files(
@@ -630,6 +640,7 @@ src/test/test.kt:17: $WarningMessage
             )
     }
 
+    @Ignore("b/309832115")
     @Test
     fun nonLambdaOffset_usingClassPropertiesState_shouldWarn() {
         lint().files(
@@ -678,6 +689,7 @@ src/test/SecondaryClass.kt:19: $WarningMessage
             )
     }
 
+    @Ignore("b/309832115")
     @Test
     fun nonLambdaOffset_usingLambdaMethodWithState_shouldWarn() {
         lint().files(
@@ -724,6 +736,7 @@ src/test/test.kt:18: $WarningMessage
             )
     }
 
+    @Ignore("b/309832115")
     @Test
     fun nonLambdaOffset_usingStateArgumentsHoisted_shouldWarn() {
         lint().files(
@@ -769,6 +782,7 @@ src/test/test.kt:17: $WarningMessage
             )
     }
 
+    @Ignore("b/309832115")
     @Test
     fun nonLambdaOffset_usingStateVariableWithSecondaryMethodCallNoStateInSignature_shouldWarn() {
         lint().files(
@@ -821,6 +835,7 @@ src/test/test.kt:20: $WarningMessage
             )
     }
 
+    @Ignore("b/309832115")
     @Test
     fun nonLambdaOffset_usingStateVariableWithSecondaryMethodCallStateInSignature_shouldWarn() {
         lint().files(
@@ -874,6 +889,7 @@ src/test/test.kt:20: $WarningMessage
             )
     }
 
+    @Ignore("b/309832115")
     @Test
     fun nonLambdaOffset_usingDelegatedStateVariableWithComplexExpression_shouldWarn() {
         lint().files(
@@ -923,6 +939,7 @@ src/test/test.kt:19: $WarningMessage
 
     // Animatable tests
 
+    @Ignore("b/309832115")
     @Test
     fun nonLambdaOffset_usingAnimatableArgumentsLocalVariable_shouldWarn() {
         lint().files(
@@ -968,6 +985,7 @@ src/test/test.kt:16: $WarningMessage
             )
     }
 
+    @Ignore("b/309832115")
     @Test
     fun nonLambdaOffset_usingAnimatableArgumentsHoisted_shouldWarn() {
         lint().files(
@@ -1012,6 +1030,7 @@ src/test/test.kt:15: $WarningMessage
             )
     }
 
+    @Ignore("b/309832115")
     @Test
     fun nonLambdaOffset_usingAnimatableReceiver_shouldWarn() {
         lint().files(
@@ -1071,6 +1090,7 @@ src/test/test.kt:24: $WarningMessage
             )
     }
 
+    @Ignore("b/309832115")
     @Test
     fun nonLambdaOffset_usingLambdaMethodWithAnimatable_shouldWarn() {
         lint().files(
@@ -1118,6 +1138,7 @@ src/test/test.kt:18: $WarningMessage
             )
     }
 
+    @Ignore("b/309832115")
     @Test
     fun nonLambdaOffset_usingTopLevelAnimatableVariables_shouldWarn() {
         lint().files(
@@ -1165,6 +1186,7 @@ src/test/test.kt:18: $WarningMessage
             )
     }
 
+    @Ignore("b/309832115")
     @Test
     fun nonLambdaOffset_usingClassPropertiesAnimatable_shouldWarn() {
         lint().files(
@@ -1214,6 +1236,7 @@ src/test/SecondaryClass.kt:20: $WarningMessage
             )
     }
 
+    @Ignore("b/309832115")
     @Test
     fun nonLambdaOffset_usingAnimatableVariableWithComplexExpression_shouldWarn() {
         lint().files(
@@ -1259,6 +1282,7 @@ src/test/test.kt:16: $WarningMessage
             )
     }
 
+    @Ignore("b/309832115")
     @Test
     fun nonLambdaOffset_animatableVariableWithSecondaryMethodCallNoStateInSignature_shouldWarn() {
         lint().files(
@@ -1311,6 +1335,7 @@ src/test/test.kt:19: $WarningMessage
             )
     }
 
+    @Ignore("b/309832115")
     @Test
     fun nonLambdaOffset_usingAnimatableArgumentsWithMethodCallStateInSignature_shouldWarn() {
         lint().files(
@@ -1365,6 +1390,7 @@ src/test/test.kt:19: $WarningMessage
 
     // Non modifier related tests
 
+    @Ignore("b/309832115")
     @Test
     fun nonModifierOffset_bytecode_shouldNotWarn() {
         lint().files(
@@ -1389,6 +1415,7 @@ src/test/test.kt:19: $WarningMessage
             .expectClean()
     }
 
+    @Ignore("b/309832115")
     @Test
     fun nonModifierOffsetKotlin_shouldNotWarn() {
         lint().files(

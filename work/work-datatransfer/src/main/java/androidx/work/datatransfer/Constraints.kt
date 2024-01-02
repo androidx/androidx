@@ -27,7 +27,8 @@ import android.net.NetworkRequest
 class Constraints constructor(
     /**
      * The network request required for the work to run.
-     * The default value assumes a requirement of any internet.
+     *
+     * **The default value assumes a requirement of any internet.**
      */
     private val requiredNetwork: NetworkRequest = getDefaultNetworkRequest()
 ) {

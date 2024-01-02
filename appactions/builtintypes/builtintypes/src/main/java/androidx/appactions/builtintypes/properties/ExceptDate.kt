@@ -1,18 +1,23 @@
-// Copyright 2023 The Android Open Source Project
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/*
+ * Copyright 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package androidx.appactions.builtintypes.properties
 
+import androidx.appactions.builtintypes.serializers.InstantAsEpochMilliSerializer
+import androidx.appactions.builtintypes.serializers.LocalDateAsEpochDaySerializer
+import androidx.appactions.builtintypes.serializers.LocalDateTimeAsUtcEpochSecondSerializer
 import androidx.appsearch.`annotation`.Document
 import java.time.Instant
 import java.time.LocalDate
@@ -22,7 +27,6 @@ import kotlin.Any
 import kotlin.Boolean
 import kotlin.Int
 import kotlin.String
-import kotlin.Suppress
 import kotlin.error
 import kotlin.jvm.JvmName
 
@@ -47,24 +51,22 @@ import kotlin.jvm.JvmName
 public class ExceptDate
 internal constructor(
   /** The [LocalDate] variant, or null if constructed using a different variant. */
-  @get:JvmName("asDate") public val asDate: LocalDate? = null,
+  @get:JvmName("asDate")
+  @get:Document.LongProperty(serializer = LocalDateAsEpochDaySerializer::class)
+  public val asDate: LocalDate? = null,
   /** The [LocalDateTime] variant, or null if constructed using a different variant. */
-  @get:JvmName("asLocalDateTime") public val asLocalDateTime: LocalDateTime? = null,
+  @get:JvmName("asLocalDateTime")
+  @get:Document.LongProperty(serializer = LocalDateTimeAsUtcEpochSecondSerializer::class)
+  public val asLocalDateTime: LocalDateTime? = null,
   /** The [Instant] variant, or null if constructed using a different variant. */
-  @get:JvmName("asInstant") public val asInstant: Instant? = null,
+  @get:JvmName("asInstant")
+  @get:Document.LongProperty(serializer = InstantAsEpochMilliSerializer::class)
+  public val asInstant: Instant? = null,
   /** Required ctor param for the AppSearch compiler. */
-  @Suppress("UNUSED_PARAMETER") identifier: String = "",
+  @get:Document.Id @get:JvmName("getIdentifier") internal val identifier: String = "",
   /** Required ctor param for the AppSearch compiler. */
-  @Suppress("UNUSED_PARAMETER") namespace: String = "",
+  @get:Document.Namespace @get:JvmName("getNamespace") internal val namespace: String = "",
 ) {
-  @get:Document.Id
-  internal val identifier: String
-    get() = ""
-
-  @get:Document.Namespace
-  internal val namespace: String
-    get() = ""
-
   /** Constructor for the [LocalDate] variant. */
   public constructor(date: LocalDate) : this(asDate = date)
 
@@ -90,7 +92,7 @@ internal constructor(
       else -> error("No variant present in ExceptDate")
     }
 
-  public override fun toString(): String = toString(includeWrapperName = true)
+  override fun toString(): String = toString(includeWrapperName = true)
 
   internal fun toString(includeWrapperName: Boolean): String =
     when {
@@ -115,7 +117,7 @@ internal constructor(
       else -> error("No variant present in ExceptDate")
     }
 
-  public override fun equals(other: Any?): Boolean {
+  override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is ExceptDate) return false
     if (asDate != other.asDate) return false
@@ -124,7 +126,7 @@ internal constructor(
     return true
   }
 
-  public override fun hashCode(): Int = Objects.hash(asDate, asLocalDateTime, asInstant)
+  override fun hashCode(): Int = Objects.hash(asDate, asLocalDateTime, asInstant)
 
   /** Maps each of the possible variants of [ExceptDate] to some [R]. */
   public interface Mapper<R> {

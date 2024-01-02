@@ -18,10 +18,12 @@ package androidx.compose.ui.text
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.ui.text.AnnotatedString.Builder
 import androidx.compose.ui.text.AnnotatedString.Range
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.util.fastAny
+import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 
@@ -647,6 +649,13 @@ class AnnotatedString internal constructor(
                     .ifEmpty { null }
             )
         }
+    }
+
+    companion object {
+        /**
+         * The default [Saver] implementation for [AnnotatedString].
+         */
+        val Saver: Saver<AnnotatedString, *> = AnnotatedStringSaver
     }
 }
 

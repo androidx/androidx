@@ -16,50 +16,111 @@
 
 package androidx.bluetooth
 
-import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt.GATT_READ_NOT_PERMITTED
 import android.bluetooth.BluetoothGatt.GATT_SUCCESS
 import android.bluetooth.BluetoothGatt.GATT_WRITE_NOT_PERMITTED
-import androidx.annotation.RestrictTo
+import java.util.concurrent.atomic.AtomicBoolean
 
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-interface GattServerRequest {
-    class ReadCharacteristicRequest internal constructor(
-        private val server: GattServer,
-        internal val device: BluetoothDevice,
-        private val requestId: Int,
-        val offset: Int,
-        val characteristic: GattCharacteristic
-    ) : GattServerRequest {
-        fun sendResponse(success: Boolean, value: ByteArray?) {
-            server.sendResponse(
-                device,
-                requestId,
-                if (success) GATT_SUCCESS else GATT_READ_NOT_PERMITTED,
-                offset,
-                value
-            )
+/**
+ * Represents a request to be handled as a GATT server role.
+ *
+ * @see GattServerConnectRequest.accept
+ */
+open class GattServerRequest private constructor() {
+    private val handled = AtomicBoolean(false)
+
+    internal inline fun handleRequest(block: () -> Unit) {
+        if (handled.compareAndSet(false, true)) {
+            block()
+        } else {
+            throw IllegalStateException("Request is already handled")
         }
     }
 
-    class WriteCharacteristicRequest internal constructor(
-        private val server: GattServer,
-        internal val device: BluetoothDevice,
+    /**
+     * Represents a read characteristic request.
+     *
+     * @property characteristic a characteristic to read
+     */
+    class ReadCharacteristic internal constructor(
+        private val session: GattServer.Session,
         private val requestId: Int,
-        val characteristic: GattCharacteristic,
-        val isPreparedWrite: Boolean,
-        val shouldResponse: Boolean,
-        val offset: Int,
-        val value: ByteArray?
-    ) : GattServerRequest {
-        fun sendResponse(success: Boolean) {
-            server.sendResponse(
-                device,
-                requestId,
-                if (success) GATT_SUCCESS else GATT_WRITE_NOT_PERMITTED,
-                offset,
-                value
-            )
+        private val offset: Int,
+        val characteristic: GattCharacteristic
+    ) : GattServerRequest() {
+        /**
+         * Sends the result for the read request.
+         *
+         * @param value a value of the characteristic
+         */
+        fun sendResponse(value: ByteArray) {
+            handleRequest {
+                val resValue: ByteArray = if (offset == 0) value
+                else if (value.size > offset) value.copyOfRange(offset, value.size - 1)
+                else if (value.size == offset) byteArrayOf()
+                else byteArrayOf()
+                session.sendResponse(requestId, GATT_SUCCESS, offset, resValue)
+            }
         }
+
+        /**
+         * Notifies the failure for the read request.
+         */
+        fun sendFailure() {
+            handleRequest {
+                session.sendResponse(requestId, GATT_READ_NOT_PERMITTED, offset, null)
+            }
+        }
+    }
+
+    /**
+     * Represents a request to write characteristics.
+     *
+     * If two or more writes are requested, they are expected to be written in order.
+     *
+     * @property parts a list of write request parts
+     */
+    class WriteCharacteristics internal constructor(
+        private val session: GattServer.Session,
+        private val requestId: Int,
+        val parts: List<Part>
+    ) : GattServerRequest() {
+        /**
+         * Notifies the success of the write request.
+         */
+        fun sendResponse() {
+            handleRequest {
+                session.sendResponse(requestId, GATT_SUCCESS, 0, null)
+            }
+        }
+
+        /**
+         * Notifies the failure of the write request.
+         */
+        fun sendFailure() {
+            handleRequest {
+                session.sendResponse(requestId, GATT_WRITE_NOT_PERMITTED, 0, null)
+            }
+        }
+
+        /**
+         * A part of write requests.
+         *
+         * It represents a partial write request such that
+         * [value] is to be written to a part of [characteristic] based on [offset].
+         * <p>
+         * For example, if the [offset] is 2, the first byte of [value] should be written to
+         * the third byte of the [characteristic], and the second byte of [value] should be
+         * written to the fourth byte of the [characteristic] and so on.
+         *
+         * @property characteristic a characteristic to write
+         * @property offset an offset of the first octet to be written
+         * @property value a value to be written
+         */
+        class Part internal constructor(
+            val characteristic: GattCharacteristic,
+            val offset: Int,
+            val value: ByteArray
+        )
     }
 }

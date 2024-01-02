@@ -62,15 +62,15 @@ androidXMultiplatform {
             }
         }
 
-        androidTest {
+        androidInstrumentedTest {
             dependsOn(commonTest)
             dependencies {
-                implementation("androidx.benchmark:benchmark-junit4:1.1.1")
+                implementation(projectOrArtifact(":benchmark:benchmark-junit4"))
                 implementation(libs.junit)
-                implementation("androidx.test.ext:junit:1.1.5")
-                implementation("androidx.test:core:1.5.0")
-                implementation("androidx.test:runner:1.5.2")
-                implementation("androidx.test:rules:1.5.0")
+                implementation(libs.testExtJunit)
+                implementation(libs.testCore)
+                implementation(libs.testRunner)
+                implementation(libs.testRules)
             }
         }
 
@@ -83,7 +83,7 @@ androidXMultiplatform {
             }
         }
 
-        targets.all { target ->
+        targets.configureEach { target ->
             if (target.platformType == KotlinPlatformType.native) {
                 target.compilations["main"].defaultSourceSet {
                     def konanTargetFamily = target.konanTarget.family
@@ -92,6 +92,9 @@ androidXMultiplatform {
                     } else {
                         throw new GradleException("unknown native target ${target}")
                     }
+                }
+                target.compilations.configureEach {
+                    compilerOptions.options.optIn.add("kotlinx.cinterop.ExperimentalForeignApi")
                 }
             }
         }
@@ -116,11 +119,14 @@ darwinBenchmark {
     )
     xcodeProjectName = "collection-benchmark-ios"
     scheme = "testapp-ios"
-    // ios 13, 15.2
+    // To run locally switch to iOS 17.0 simulators
     destination = "platform=iOS Simulator,name=iPhone 13,OS=15.2"
     referenceSha.set(androidx.getReferenceSha())
 }
 
 android {
     namespace "androidx.collection.benchmark"
+    defaultConfig {
+        minSdkVersion 22 // b/294570164
+    }
 }

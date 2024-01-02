@@ -330,7 +330,7 @@ public class ChangeTransform extends Transition {
                 handleParentChange, mUseOverlay);
 
         animator.addListener(listener);
-        AnimatorUtils.addPauseListener(animator, listener);
+        animator.addPauseListener(listener);
         return animator;
     }
 
@@ -551,8 +551,7 @@ public class ChangeTransform extends Transition {
         }
     }
 
-    private static class Listener extends AnimatorListenerAdapter implements
-            AnimatorUtils.AnimatorPauseListenerCompat {
+    private static class Listener extends AnimatorListenerAdapter {
         private boolean mIsCanceled;
         private final Matrix mTempMatrix = new Matrix();
         private final boolean mHandleParentChange;

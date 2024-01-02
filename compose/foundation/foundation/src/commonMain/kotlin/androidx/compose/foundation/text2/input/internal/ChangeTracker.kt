@@ -64,15 +64,17 @@ internal class ChangeTracker(initialChanges: ChangeTracker? = null) : ChangeList
      *     for the new text.
      *  3. Offset all remaining changes are to account for the new text.
      */
-    fun trackChange(preRange: TextRange, postLength: Int) {
-        if (preRange.collapsed && postLength == 0) {
+    fun trackChange(preStart: Int, preEnd: Int, postLength: Int) {
+        if (preStart == preEnd && postLength == 0) {
             // Ignore noop changes.
             return
         }
+        val preMin = minOf(preStart, preEnd)
+        val preMax = maxOf(preStart, preEnd)
 
         var i = 0
         var recordedNewChange = false
-        val postDelta = postLength - preRange.length
+        val postDelta = postLength - (preMax - preMin)
 
         var mergedOverlappingChange: Change? = null
         while (i < _changes.size) {
@@ -80,8 +82,8 @@ internal class ChangeTracker(initialChanges: ChangeTracker? = null) : ChangeList
 
             // Merge adjacent and overlapping changes as we go.
             if (
-                change.preStart in preRange.min..preRange.max ||
-                change.preEnd in preRange.min..preRange.max
+                change.preStart in preMin..preMax ||
+                change.preEnd in preMin..preMax
             ) {
                 if (mergedOverlappingChange == null) {
                     mergedOverlappingChange = change
@@ -94,10 +96,10 @@ internal class ChangeTracker(initialChanges: ChangeTracker? = null) : ChangeList
                 continue
             }
 
-            if (change.preStart > preRange.max && !recordedNewChange) {
+            if (change.preStart > preMax && !recordedNewChange) {
                 // First non-overlapping change after the new one – record the change before
                 // proceeding.
-                appendNewChange(mergedOverlappingChange, preRange, postDelta)
+                appendNewChange(mergedOverlappingChange, preMin, preMax, postDelta)
                 recordedNewChange = true
             }
 
@@ -112,7 +114,7 @@ internal class ChangeTracker(initialChanges: ChangeTracker? = null) : ChangeList
         if (!recordedNewChange) {
             // The new change is after or overlapping all previous changes so it hasn't been
             // appended yet.
-            appendNewChange(mergedOverlappingChange, preRange, postDelta)
+            appendNewChange(mergedOverlappingChange, preMin, preMax, postDelta)
         }
 
         // Swap the lists.
@@ -146,7 +148,8 @@ internal class ChangeTracker(initialChanges: ChangeTracker? = null) : ChangeList
 
     private fun appendNewChange(
         mergedOverlappingChange: Change?,
-        preRange: TextRange,
+        preMin: Int,
+        preMax: Int,
         postDelta: Int
     ) {
         var originalDelta = if (_changesTemp.isEmpty()) 0 else {
@@ -155,11 +158,11 @@ internal class ChangeTracker(initialChanges: ChangeTracker? = null) : ChangeList
         val newChange: Change
         if (mergedOverlappingChange == null) {
             // There were no overlapping changes, so allocate a new one.
-            val originalStart = preRange.min - originalDelta
-            val originalEnd = originalStart + preRange.length
+            val originalStart = preMin - originalDelta
+            val originalEnd = originalStart + (preMax - preMin)
             newChange = Change(
-                preStart = preRange.min,
-                preEnd = preRange.max + postDelta,
+                preStart = preMin,
+                preEnd = preMax + postDelta,
                 originalStart = originalStart,
                 originalEnd = originalEnd
             )
@@ -167,16 +170,16 @@ internal class ChangeTracker(initialChanges: ChangeTracker? = null) : ChangeList
             newChange = mergedOverlappingChange
             // Convert the merged overlapping changes to the `post` space.
             // Merge the new changed with the merged overlapping changes.
-            if (newChange.preStart > preRange.min) {
+            if (newChange.preStart > preMin) {
                 // The new change starts before the merged overlapping set.
-                newChange.preStart = preRange.min
-                newChange.originalStart = preRange.min
+                newChange.preStart = preMin
+                newChange.originalStart = preMin
             }
-            if (preRange.max > newChange.preEnd) {
+            if (preMax > newChange.preEnd) {
                 // The new change ends after the merged overlapping set.
                 originalDelta = newChange.preEnd - newChange.originalEnd
-                newChange.preEnd = preRange.max
-                newChange.originalEnd = preRange.max - originalDelta
+                newChange.preEnd = preMax
+                newChange.originalEnd = preMax - originalDelta
             }
             newChange.preEnd += postDelta
         }

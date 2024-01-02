@@ -16,14 +16,16 @@
 
 package androidx.datastore.core
 
+import androidx.annotation.RestrictTo
 import kotlinx.coroutines.flow.Flow
 
 /**
  * InterProcessCoordinator provides functionalities that support DataStore instances to coordinate
  * the concurrent work running on multiple threads and multiple processes to guarantee its data
  * consistency. Typically users should use default coordinators provided by the library, including
- * [SingleProcessCoordinator] for use cases where DataStore is only used in a single process, and
- * [MultiProcessCoordinator] for a DataStore that needs to be accessed in multiple processes.
+ * [createSingleProcessCoordinator] for use cases where DataStore is only used in a single
+ * process, and [createMultiProcessCoordinator] for a DataStore that needs to be accessed in
+ * multiple processes.
  */
 interface InterProcessCoordinator {
 
@@ -75,5 +77,9 @@ interface InterProcessCoordinator {
 
 /**
  * Create a coordinator for single process use cases.
+ *
+ * @param filePath The canonical file path of the file managed by [SingleProcessCoordinator]
  */
-fun createSingleProcessCoordinator(): InterProcessCoordinator = SingleProcessCoordinator()
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+fun createSingleProcessCoordinator(filePath: String): InterProcessCoordinator =
+    SingleProcessCoordinator(filePath)

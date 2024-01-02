@@ -34,6 +34,7 @@ import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
+import com.google.common.truth.Expect
 import com.google.common.truth.Truth.assertThat
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
@@ -43,7 +44,9 @@ import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.time.Instant
 import kotlin.test.assertFailsWith
+import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.shadows.ShadowLog
@@ -2121,6 +2124,142 @@ public class FromWireComplicationDataTest {
 }
 
 @RunWith(SharedRobolectricTestRunner::class)
+@SuppressLint("NewApi")
+class GetContentDescriptionTest {
+    @get:Rule val expect = Expect.create()
+
+    enum class Case(val data: ComplicationData, val contentDescription: String?) {
+        EMPTY_RETURNS_NULL(EmptyComplicationData(), contentDescription = null),
+        NOT_CONFIGURED_RETURNS_NULL(NotConfiguredComplicationData(), contentDescription = null),
+        // NoDataComplicationData
+        NO_DATA_WITH_NO_PLACEHOLDER_RETURNS_DEFAULT_TEXT(
+            NoDataComplicationData(),
+            contentDescription = "No data"
+        ),
+        NO_DATA_WITH_PLACEHOLDER_WITH_NULL_DESCRIPTION_RETURNS_DEFAULT_TEXT(
+            NoDataComplicationData(EmptyComplicationData() /* getContentDescription() = null */),
+            contentDescription = "No data"
+        ),
+        NO_DATA_WITH_PLACEHOLDER_WITH_EMPTY_DESCRIPTION_RETURNS_DEFAULT_TEXT(
+            NoDataComplicationData(
+                ShortTextComplicationData.Builder(
+                        text = ComplicationText.EMPTY,
+                        contentDescription = ComplicationText.EMPTY,
+                    )
+                    .build()
+            ),
+            contentDescription = "No data"
+        ),
+        NO_DATA_WITH_PLACEHOLDER_WITH_DESCRIPTION_RETURNS_PLACEHOLDER_DESCRIPTION(
+            NoDataComplicationData(
+                ShortTextComplicationData.Builder(
+                        text = ComplicationText.EMPTY,
+                        contentDescription = "Placeholder description".complicationText,
+                    )
+                    .build()
+            ),
+            contentDescription = "Placeholder description"
+        ),
+        // Complications with text and title, including:
+        // - ShortTextComplicationData
+        // - LongTextComplicationData
+        // - RangedValueComplicationData
+        // - NoPermissionComplicationData
+        // - WeightedElementsComplicationData
+        TEXT_AND_TITLE_WITH_NON_EMPTY_DESCRIPTION_RETURNS_DESCRIPTION(
+            ShortTextComplicationData.Builder(
+                    text = "Text".complicationText,
+                    contentDescription = "Description".complicationText,
+                )
+                .build(),
+            contentDescription = "Description",
+        ),
+        TEXT_AND_TITLE_WITH_EMPTY_DESCRIPTION_RETURNS_TEXT(
+            ShortTextComplicationData.Builder(
+                    text = "Text".complicationText,
+                    contentDescription = ComplicationText.EMPTY,
+                )
+                .build(),
+            contentDescription = "Text",
+        ),
+        TEXT_AND_TITLE_WITH_EMPTY_DESCRIPTION_AND_TEXT_RETURNS_NULL(
+            ShortTextComplicationData.Builder(
+                    text = ComplicationText.EMPTY,
+                    contentDescription = ComplicationText.EMPTY,
+                )
+                .build(),
+            contentDescription = null,
+        ),
+        TEXT_AND_TITLE_WITH_EMPTY_DESCRIPTION_WITH_TITLE_RETURNS_TEXT_AND_TITLE(
+            ShortTextComplicationData.Builder(
+                    text = "Text".complicationText,
+                    contentDescription = ComplicationText.EMPTY,
+                )
+                .setTitle("Title".complicationText)
+                .build(),
+            contentDescription = "Text Title",
+        ),
+        TEXT_AND_TITLE_WITH_EMPTY_DESCRIPTION_AND_TEXT_WITH_TITLE_RETURNS_TITLE(
+            ShortTextComplicationData.Builder(
+                    text = ComplicationText.EMPTY,
+                    contentDescription = ComplicationText.EMPTY,
+                )
+                .setTitle("Title".complicationText)
+                .build(),
+            contentDescription = "Title",
+        ),
+        // NoPermissionComplicationData
+        NO_PERMISSION_WITH_TEXT_AND_TITLE_RETURNS_TEXT_AND_TITLE_AND_DEFAULT_TEXT(
+            NoPermissionComplicationData.Builder()
+                .setText("Text".complicationText)
+                .setTitle("Title".complicationText)
+                .build(),
+            contentDescription = "Text Title No permission to access data"
+        ),
+        NO_PERMISSION_WITH_EMPTY_TEXT_AND_TITLE_RETURNS_DEFAULT_TEXT(
+            NoPermissionComplicationData.Builder().build(),
+            contentDescription = "No permission to access data"
+        ),
+        // RangedValueComplicationData
+        RANGED_VALUE_WITH_EMPTY_DESCRIPTION_AND_TEXT_RETURNS_DEFAULT_TEXT(
+            RangedValueComplicationData.Builder(
+                    value = 2f,
+                    min = 0f,
+                    max = 10f,
+                    contentDescription = ComplicationText.EMPTY,
+                )
+                .build(),
+            contentDescription = "2.000000 of 10.000000"
+        ),
+        // GoalProgressComplicationData
+        GOAL_PROGRESS_WITH_EMPTY_DESCRIPTION_AND_TEXT_RETURNS_DEFAULT_TEXT(
+            GoalProgressComplicationData.Builder(
+                    value = 2f,
+                    targetValue = 10f,
+                    contentDescription = ComplicationText.EMPTY,
+                )
+                .build(),
+            contentDescription = "2.000000 of 10.000000"
+        ),
+    }
+
+    @Test
+    fun test() {
+        val context: Context = ApplicationProvider.getApplicationContext()
+        for (case in Case.values()) {
+            expect
+                .withMessage(case.name)
+                .that(
+                    case.data
+                        .getContentDescription(context)
+                        ?.getTextAt(context.resources, /* dateTimeMillis = */ 0)
+                )
+                .isEqualTo(case.contentDescription)
+        }
+    }
+}
+
+@RunWith(SharedRobolectricTestRunner::class)
 public class TapActionTest {
     private val mPendingIntent =
         PendingIntent.getBroadcast(ApplicationProvider.getApplicationContext(), 0, Intent(), 0)
@@ -3022,6 +3161,7 @@ class ValidationTest {
 
     @Test
     fun rangedValue_invalid(@TestParameter scenario: RangedValueInvalidScenario) {
+        assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
         assertFailsWith<IllegalArgumentException> { scenario.build().validate() }
     }
 

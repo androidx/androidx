@@ -68,7 +68,7 @@ fun AppCardWithIconSample() {
         appImage = {
             Icon(
                 painter = painterResource(id = android.R.drawable.star_big_off),
-                contentDescription = "favourites",
+                contentDescription = "Star icon",
                 modifier = Modifier
                     .size(CardDefaults.AppImageSize)
                     .wrapContentSize(align = Alignment.Center),
@@ -91,6 +91,17 @@ fun TitleCardSample() {
     ) {
         Text("Card content")
     }
+}
+
+@Sampled
+@Composable
+fun TitleCardWithSubtitleAndTimeSample() {
+    TitleCard(
+        onClick = { /* Do something */ },
+        time = { Text("now") },
+        title = { Text("Title card") },
+        subtitle = { Text("Subtitle") }
+    )
 }
 
 @Sampled
@@ -132,7 +143,7 @@ fun OutlinedAppCardSample() {
         appImage = {
             Icon(
                 Icons.Filled.Favorite,
-                contentDescription = "favourites",
+                contentDescription = "Favorite icon",
                 modifier = Modifier.size(CardDefaults.AppImageSize)
             )
         },

@@ -22,7 +22,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import android.app.UiAutomation;
 import android.graphics.Point;
 import android.view.KeyEvent;
 import android.view.Surface;
@@ -33,7 +32,6 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.BySelector;
-import androidx.test.uiautomator.Orientation;
 import androidx.test.uiautomator.UiDevice;
 import androidx.test.uiautomator.UiObject2;
 import androidx.test.uiautomator.Until;
@@ -142,7 +140,7 @@ public class UiDeviceTest extends BaseTest {
 
         UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "text_view"));
         mDevice.pressMenu();
-        assertEquals("keycode menu pressed", textView.getText());
+        assertTrue(textView.wait(Until.textEquals("keycode menu pressed"), TIMEOUT_MS));
     }
 
     @Test
@@ -151,7 +149,7 @@ public class UiDeviceTest extends BaseTest {
 
         UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "text_view"));
         mDevice.pressBack();
-        assertEquals("keycode back pressed", textView.getText());
+        assertTrue(textView.wait(Until.textEquals("keycode back pressed"), TIMEOUT_MS));
     }
 
     @Test
@@ -160,7 +158,7 @@ public class UiDeviceTest extends BaseTest {
 
         UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "text_view"));
         mDevice.pressSearch();
-        assertEquals("keycode search pressed", textView.getText());
+        assertTrue(textView.wait(Until.textEquals("keycode search pressed"), TIMEOUT_MS));
     }
 
     @Test
@@ -169,7 +167,7 @@ public class UiDeviceTest extends BaseTest {
 
         UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "text_view"));
         mDevice.pressDPadCenter();
-        assertEquals("keycode dpad center pressed", textView.getText());
+        assertTrue(textView.wait(Until.textEquals("keycode dpad center pressed"), TIMEOUT_MS));
     }
 
     @Test
@@ -178,7 +176,7 @@ public class UiDeviceTest extends BaseTest {
 
         UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "text_view"));
         mDevice.pressDPadDown();
-        assertEquals("keycode dpad down pressed", textView.getText());
+        assertTrue(textView.wait(Until.textEquals("keycode dpad down pressed"), TIMEOUT_MS));
     }
 
     @Test
@@ -187,7 +185,7 @@ public class UiDeviceTest extends BaseTest {
 
         UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "text_view"));
         mDevice.pressDPadUp();
-        assertEquals("keycode dpad up pressed", textView.getText());
+        assertTrue(textView.wait(Until.textEquals("keycode dpad up pressed"), TIMEOUT_MS));
     }
 
     @Test
@@ -196,7 +194,7 @@ public class UiDeviceTest extends BaseTest {
 
         UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "text_view"));
         mDevice.pressDPadLeft();
-        assertEquals("keycode dpad left pressed", textView.getText());
+        assertTrue(textView.wait(Until.textEquals("keycode dpad left pressed"), TIMEOUT_MS));
     }
 
     @Test
@@ -205,7 +203,7 @@ public class UiDeviceTest extends BaseTest {
 
         UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "text_view"));
         mDevice.pressDPadRight();
-        assertEquals("keycode dpad right pressed", textView.getText());
+        assertTrue(textView.wait(Until.textEquals("keycode dpad right pressed"), TIMEOUT_MS));
     }
 
     @Test
@@ -214,7 +212,7 @@ public class UiDeviceTest extends BaseTest {
 
         UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "text_view"));
         mDevice.pressDelete();
-        assertEquals("keycode delete pressed", textView.getText());
+        assertTrue(textView.wait(Until.textEquals("keycode delete pressed"), TIMEOUT_MS));
     }
 
     @Test
@@ -223,7 +221,7 @@ public class UiDeviceTest extends BaseTest {
 
         UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "text_view"));
         mDevice.pressEnter();
-        assertEquals("keycode enter pressed", textView.getText());
+        assertTrue(textView.wait(Until.textEquals("keycode enter pressed"), TIMEOUT_MS));
     }
 
     @Test
@@ -232,7 +230,7 @@ public class UiDeviceTest extends BaseTest {
 
         UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "text_view"));
         mDevice.pressKeyCode(KeyEvent.KEYCODE_0);
-        assertEquals("keycode 0 pressed", textView.getText());
+        assertTrue(textView.wait(Until.textEquals("keycode 0 pressed"), TIMEOUT_MS));
     }
 
     @Test
@@ -242,7 +240,8 @@ public class UiDeviceTest extends BaseTest {
         UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "text_view"));
         mDevice.pressKeyCode(KeyEvent.KEYCODE_Z,
                 KeyEvent.META_SHIFT_LEFT_ON | KeyEvent.META_SHIFT_ON);
-        assertEquals("keycode Z pressed with meta shift left on", textView.getText());
+        assertTrue(textView.wait(Until.textEquals("keycode Z pressed with meta shift left on"),
+                TIMEOUT_MS));
     }
 
     @Test
@@ -262,7 +261,8 @@ public class UiDeviceTest extends BaseTest {
 
         UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "text_view"));
         mDevice.pressKeyCodes(new int[]{KeyEvent.KEYCODE_A, KeyEvent.KEYCODE_B});
-        assertEquals("keycode A and keycode B are pressed", textView.getText());
+        assertTrue(textView.wait(Until.textEquals("keycode A and keycode B are pressed"),
+                TIMEOUT_MS));
     }
 
     @Test
@@ -356,59 +356,26 @@ public class UiDeviceTest extends BaseTest {
     }
 
     @Test
-    public void testSetOrientationLeft() throws Exception {
+    public void testSetOrientations() throws Exception {
         launchTestActivity(KeycodeTestActivity.class);
+
         try {
-            assertTrue(mDevice.isNaturalOrientation());
-            assertEquals(UiAutomation.ROTATION_FREEZE_0, mDevice.getDisplayRotation());
-
-            mDevice.setOrientationLeft();
-            assertFalse(mDevice.isNaturalOrientation());
-            assertEquals(UiAutomation.ROTATION_FREEZE_90, mDevice.getDisplayRotation());
-
             mDevice.setOrientationNatural();
-            assertTrue(mDevice.isNaturalOrientation());
-        } finally {
-            mDevice.unfreezeRotation();
-        }
-    }
-
-    @Test
-    public void testSetOrientationRight() throws Exception {
-        launchTestActivity(KeycodeTestActivity.class);
-        try {
-            assertTrue(mDevice.isNaturalOrientation());
-            assertEquals(UiAutomation.ROTATION_FREEZE_0, mDevice.getDisplayRotation());
-
-            mDevice.setOrientationRight();
-            assertFalse(mDevice.isNaturalOrientation());
-            assertEquals(UiAutomation.ROTATION_FREEZE_270, mDevice.getDisplayRotation());
-
-            mDevice.setOrientationNatural();
-            assertTrue(mDevice.isNaturalOrientation());
-        } finally {
-            mDevice.unfreezeRotation();
-        }
-    }
-
-    @Test
-    public void testSetOrientation() {
-        launchTestActivity(KeycodeTestActivity.class);
-
-        try {
-            mDevice.setOrientation(Orientation.ROTATION_0);
             assertEquals(Surface.ROTATION_0, mDevice.getDisplayRotation());
 
-            mDevice.setOrientation(Orientation.ROTATION_90);
+            mDevice.setOrientationLeft();
             assertEquals(Surface.ROTATION_90, mDevice.getDisplayRotation());
 
-            mDevice.setOrientation(Orientation.PORTRAIT);
+            mDevice.setOrientationRight();
+            assertEquals(Surface.ROTATION_270, mDevice.getDisplayRotation());
+
+            mDevice.setOrientationPortrait();
             assertTrue(mDevice.getDisplayHeight() >= mDevice.getDisplayWidth());
 
-            mDevice.setOrientation(Orientation.LANDSCAPE);
+            mDevice.setOrientationLandscape();
             assertTrue(mDevice.getDisplayHeight() <= mDevice.getDisplayWidth());
         } finally {
-            mDevice.setOrientation(Orientation.ROTATION_0);
+            mDevice.setOrientationNatural();
         }
     }
 

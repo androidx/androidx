@@ -30,6 +30,7 @@ import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.asJClassName
 import androidx.room.compiler.processing.util.compileFiles
+import androidx.room.compiler.processing.util.getDeclaredField
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.getParameter
@@ -1026,6 +1027,185 @@ class XElementTest {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    @Test
+    fun isFromJavaOrKotlin() {
+        val javaSource = Source.java(
+            "foo.bar.Foo",
+            """
+            package foo.bar;
+            class Foo {
+                void f(String a) {}
+                static class Nested {}
+            }
+            """.trimIndent()
+        )
+        val kotlinSource = Source.kotlin(
+            "Bar.kt",
+            """
+            package foo.bar
+            fun tlf(a: String) = "hello"
+            class Bar {
+                var p: String = "hello"
+                fun f(a: String) {}
+                suspend fun sf(a: String) {}
+                class Nested
+            }
+            fun Bar.ef(a: String) {}
+            """.trimIndent()
+        )
+        runProcessorTestHelper(
+            listOf(javaSource, kotlinSource)
+        ) { invocation, _ ->
+            // Java
+            invocation.processingEnv.requireTypeElement("foo.bar.Foo").let {
+                assertThat(it.closestMemberContainer.isFromJava()).isTrue()
+                assertThat(it.closestMemberContainer.isFromKotlin()).isFalse()
+                it.getMethodByJvmName("f").let {
+                    assertThat(it.closestMemberContainer.isFromJava()).isTrue()
+                    assertThat(it.closestMemberContainer.isFromKotlin()).isFalse()
+                }
+            }
+            invocation.processingEnv.requireTypeElement("foo.bar.Foo.Nested").let {
+                assertThat(it.closestMemberContainer.isFromJava()).isTrue()
+                assertThat(it.closestMemberContainer.isFromKotlin()).isFalse()
+            }
+
+            // Kotlin
+            invocation.processingEnv.requireTypeElement("foo.bar.Bar").let {
+                assertThat(it.isFromJava()).isFalse()
+                assertThat(it.isFromKotlin()).isTrue()
+                it.getDeclaredField("p").let {
+                    assertThat(it.closestMemberContainer.isFromJava()).isFalse()
+                    assertThat(it.closestMemberContainer.isFromKotlin()).isTrue()
+                    it.setter!!.let {
+                        assertThat(it.closestMemberContainer.isFromJava()).isFalse()
+                        assertThat(it.closestMemberContainer.isFromKotlin()).isTrue()
+                    }
+                    it.getter!!.let {
+                        assertThat(it.closestMemberContainer.isFromJava()).isFalse()
+                        assertThat(it.closestMemberContainer.isFromKotlin()).isTrue()
+                    }
+                }
+                it.getMethodByJvmName("f").let {
+                    assertThat(it.closestMemberContainer.isFromJava()).isFalse()
+                    assertThat(it.closestMemberContainer.isFromKotlin()).isTrue()
+
+                    it.parameters.single().let {
+                        assertThat(it.closestMemberContainer.isFromJava()).isFalse()
+                        assertThat(it.closestMemberContainer.isFromKotlin()).isTrue()
+                    }
+                }
+                it.getMethodByJvmName("sf").let {
+                    assertThat(it.closestMemberContainer.isFromJava()).isFalse()
+                    assertThat(it.closestMemberContainer.isFromKotlin()).isTrue()
+
+                    it.parameters.forEach {
+                        assertThat(it.closestMemberContainer.isFromJava()).isFalse()
+                        assertThat(it.closestMemberContainer.isFromKotlin()).isTrue()
+                    }
+                }
+            }
+            invocation.processingEnv.requireTypeElement("foo.bar.Bar.Nested").let {
+                assertThat(it.closestMemberContainer.isFromJava()).isFalse()
+                assertThat(it.closestMemberContainer.isFromKotlin()).isTrue()
+            }
+
+            // Kotlin top-level elements
+            if (invocation.isKsp) {
+                val topLevelElements = invocation.processingEnv.getElementsFromPackage("foo.bar")
+                topLevelElements.single {
+                    it.name == "tlf"
+                }.let {
+                    assertThat(it.closestMemberContainer.isFromJava()).isFalse()
+                    assertThat(it.closestMemberContainer.isFromKotlin()).isTrue()
+                }
+                topLevelElements.single {
+                    it.name == "ef"
+                }.let {
+                    assertThat(it.closestMemberContainer.isFromJava()).isFalse()
+                    assertThat(it.closestMemberContainer.isFromKotlin()).isTrue()
+                    (it as XMethodElement).parameters.forEach {
+                        assertThat(it.closestMemberContainer.isFromJava()).isFalse()
+                        assertThat(it.closestMemberContainer.isFromKotlin()).isTrue()
+                    }
+                }
+            } else {
+                invocation.processingEnv.requireTypeElement("foo.bar.BarKt").let {
+                    assertThat(it.closestMemberContainer.isFromJava()).isFalse()
+                    assertThat(it.closestMemberContainer.isFromKotlin()).isTrue()
+
+                    it.getMethodByJvmName("tlf").let {
+                        assertThat(it.closestMemberContainer.isFromJava()).isFalse()
+                        assertThat(it.closestMemberContainer.isFromKotlin()).isTrue()
+
+                        it.parameters.single().let {
+                            assertThat(it.closestMemberContainer.isFromJava()).isFalse()
+                            assertThat(it.closestMemberContainer.isFromKotlin()).isTrue()
+                        }
+                    }
+
+                    it.getMethodByJvmName("ef").let {
+                        assertThat(it.closestMemberContainer.isFromJava()).isFalse()
+                        assertThat(it.closestMemberContainer.isFromKotlin()).isTrue()
+
+                        it.parameters.forEach {
+                            assertThat(it.closestMemberContainer.isFromJava()).isFalse()
+                            assertThat(it.closestMemberContainer.isFromKotlin()).isTrue()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun isFromJavaOrKotlinErrorTypes() {
+        val javaSource = Source.java(
+            "foo.bar.Foo",
+            """
+            package foo.bar;
+            class Foo {
+                DoNotExist ep;
+            }
+            """.trimIndent()
+        )
+        val kotlinSource = Source.kotlin(
+            "Bar.kt",
+            """
+            package foo.bar
+            class Bar {
+                val ep: DoNotExist = TODO()
+            }
+            """.trimIndent()
+        )
+        // Can't use runProcessorTestHelper() as we can't compile the files referencing an
+        // error type
+        runProcessorTest(
+            listOf(javaSource, kotlinSource)
+        ) { invocation ->
+            // Java
+            invocation.processingEnv.requireTypeElement("foo.bar.Foo").let {
+                it.getField("ep").type.typeElement!!.let {
+                    assertThat(it.closestMemberContainer.isFromJava()).isFalse()
+                    assertThat(it.closestMemberContainer.isFromKotlin()).isFalse()
+                }
+            }
+
+            // Kotlin
+            invocation.processingEnv.requireTypeElement("foo.bar.Bar").let {
+                it.getField("ep").type.typeElement!!.let {
+                    if (invocation.isKsp) {
+                        assertThat(it.closestMemberContainer.isFromJava()).isFalse()
+                        assertThat(it.closestMemberContainer.isFromKotlin()).isFalse()
+                    }
+                }
+            }
+            invocation.assertCompilationResult {
+                compilationDidFail()
             }
         }
     }

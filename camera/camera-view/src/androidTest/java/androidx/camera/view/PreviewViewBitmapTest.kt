@@ -86,7 +86,7 @@ class PreviewViewBitmapTest(
     @After
     fun tearDown() {
         if (cameraProvider != null) {
-            cameraProvider!!.shutdown()[10000, TimeUnit.MILLISECONDS]
+            cameraProvider!!.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
             cameraProvider = null
         }
     }

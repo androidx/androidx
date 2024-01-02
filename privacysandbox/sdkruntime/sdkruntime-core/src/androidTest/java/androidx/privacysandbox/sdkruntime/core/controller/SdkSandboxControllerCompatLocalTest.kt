@@ -18,8 +18,10 @@ package androidx.privacysandbox.sdkruntime.core.controller
 
 import android.content.Context
 import android.os.Binder
+import android.os.Bundle
 import android.os.IBinder
 import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
+import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.Versions
 import androidx.privacysandbox.sdkruntime.core.activity.ActivityHolder
@@ -28,6 +30,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
@@ -53,6 +56,29 @@ class SdkSandboxControllerCompatLocalTest {
         // Reset version back to avoid failing non-compat tests
         Versions.resetClientVersion()
         SdkSandboxControllerCompat.resetLocalImpl()
+    }
+
+    @Test
+    fun loadSdk_withoutLocalImpl_throwsLoadSdkCompatException() {
+        val controllerCompat = SdkSandboxControllerCompat.from(context)
+
+        Assert.assertThrows(LoadSdkCompatException::class.java) {
+            runBlocking {
+                controllerCompat.loadSdk("SDK", Bundle())
+            }
+        }
+    }
+
+    @Test
+    fun loadSdk_withLocalImpl_throwsLoadSdkCompatException() {
+        SdkSandboxControllerCompat.injectLocalImpl(TestStubImpl())
+        val controllerCompat = SdkSandboxControllerCompat.from(context)
+
+        Assert.assertThrows(LoadSdkCompatException::class.java) {
+            runBlocking {
+                controllerCompat.loadSdk("SDK", Bundle())
+            }
+        }
     }
 
     @Test
@@ -193,6 +219,11 @@ class SdkSandboxControllerCompatLocalTest {
         private val appOwnedSdks: List<AppOwnedSdkSandboxInterfaceCompat> = emptyList()
     ) : SdkSandboxControllerCompat.SandboxControllerImpl {
         var token: IBinder? = null
+
+        override suspend fun loadSdk(sdkName: String, params: Bundle): SandboxedSdkCompat {
+            throw UnsupportedOperationException("Shouldn't be called")
+        }
+
         override fun getSandboxedSdks() = sandboxedSdks
         override fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> =
             appOwnedSdks

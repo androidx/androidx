@@ -1,9 +1,27 @@
 // Baseline format: 1.0
-ParameterNameChange: androidx.room.BuiltInTypeConverters.State#valueOf(String) parameter #0:
-    Attempted to change parameter name from name to value in method androidx.room.BuiltInTypeConverters.State.valueOf
-ParameterNameChange: androidx.room.FtsOptions.MatchInfo#valueOf(String) parameter #0:
-    Attempted to change parameter name from name to value in method androidx.room.FtsOptions.MatchInfo.valueOf
-ParameterNameChange: androidx.room.FtsOptions.Order#valueOf(String) parameter #0:
-    Attempted to change parameter name from name to value in method androidx.room.FtsOptions.Order.valueOf
-ParameterNameChange: androidx.room.Index.Order#valueOf(String) parameter #0:
-    Attempted to change parameter name from name to value in method androidx.room.Index.Order.valueOf
+ChangedType: androidx.room.AutoMigration#spec():
+    Method androidx.room.AutoMigration.spec has changed return type from kotlin.reflect.KClass<?> to Class<?>
+ChangedType: androidx.room.Database#entities():
+    Method androidx.room.Database.entities has changed return type from kotlin.reflect.KClass<?>[] to Class<?>[]
+ChangedType: androidx.room.Database#views():
+    Method androidx.room.Database.views has changed return type from kotlin.reflect.KClass<?>[] to Class<?>[]
+ChangedType: androidx.room.Delete#entity():
+    Method androidx.room.Delete.entity has changed return type from kotlin.reflect.KClass<?> to Class<?>
+ChangedType: androidx.room.ForeignKey#entity():
+    Method androidx.room.ForeignKey.entity has changed return type from kotlin.reflect.KClass<?> to Class<?>
+ChangedType: androidx.room.Fts4#contentEntity():
+    Method androidx.room.Fts4.contentEntity has changed return type from kotlin.reflect.KClass<?> to Class<?>
+ChangedType: androidx.room.Insert#entity():
+    Method androidx.room.Insert.entity has changed return type from kotlin.reflect.KClass<?> to Class<?>
+ChangedType: androidx.room.Junction#value():
+    Method androidx.room.Junction.value has changed return type from kotlin.reflect.KClass<?> to Class<?>
+ChangedType: androidx.room.RawQuery#observedEntities():
+    Method androidx.room.RawQuery.observedEntities has changed return type from kotlin.reflect.KClass<?>[] to Class<?>[]
+ChangedType: androidx.room.Relation#entity():
+    Method androidx.room.Relation.entity has changed return type from kotlin.reflect.KClass<?> to Class<?>
+ChangedType: androidx.room.TypeConverters#value():
+    Method androidx.room.TypeConverters.value has changed return type from kotlin.reflect.KClass<?>[] to Class<?>[]
+ChangedType: androidx.room.Update#entity():
+    Method androidx.room.Update.entity has changed return type from kotlin.reflect.KClass<?> to Class<?>
+ChangedType: androidx.room.Upsert#entity():
+    Method androidx.room.Upsert.entity has changed return type from kotlin.reflect.KClass<?> to Class<?>

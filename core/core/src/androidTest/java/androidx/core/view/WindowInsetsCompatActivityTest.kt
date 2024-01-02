@@ -22,7 +22,6 @@ import android.os.Build
 import android.view.View
 import android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN
 import android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
-import androidx.annotation.RequiresApi
 import androidx.core.graphics.Insets
 import androidx.core.test.R
 import androidx.core.view.WindowInsetsCompat.Type
@@ -57,8 +56,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 @Suppress("DEPRECATION") // Testing deprecated methods
-@SdkSuppress(minSdkVersion = 16)
-@RequiresApi(16) // View.setSystemUiVisibility
 @LargeTest
 @RunWith(Parameterized::class)
 public class WindowInsetsCompatActivityTest(

@@ -32,6 +32,7 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Android WorkManager Kotlin Extensions"
+    metalavaK2UastEnabled = true
 }
 
 android {

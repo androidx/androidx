@@ -126,7 +126,7 @@ class SwitchCameraStressTest(private val extensionMode: Int) {
     fun tearDown() {
         val cameraProvider =
             ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
-        cameraProvider.shutdown()
+        cameraProvider.shutdownAsync()
 
         val extensionsManager = ExtensionsManager.getInstanceAsync(
             context,

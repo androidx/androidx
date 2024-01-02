@@ -23,26 +23,45 @@ import android.app.sdksandbox.sdkprovider.SdkSandboxController
 import android.content.Context
 import android.os.Bundle
 import android.os.IBinder
-import android.os.ext.SdkExtensions
 import androidx.activity.OnBackPressedDispatcher
 import androidx.annotation.RequiresApi
-import androidx.annotation.RequiresExtension
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleRegistry
+import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
+import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
+import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.activity.ActivityHolder
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
+import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
 
 /**
  * Implementation that delegates to platform [SdkSandboxController] for Android U.
  */
-@RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
 @RequiresApi(34)
 internal class PlatformUDCImpl(
     private val controller: SdkSandboxController
-) : PlatformImpl(controller) {
+) : SdkSandboxControllerCompat.SandboxControllerImpl {
+
+    private val appOwnedSdkProvider = AppOwnedSdkProvider.create(controller)
 
     private val compatToPlatformMap =
         hashMapOf<SdkSandboxActivityHandlerCompat, SdkSandboxActivityHandler>()
+
+    override suspend fun loadSdk(sdkName: String, params: Bundle): SandboxedSdkCompat {
+        throw LoadSdkCompatException(
+            LoadSdkCompatException.LOAD_SDK_NOT_FOUND,
+            "Loading SDK not supported on this device"
+        )
+    }
+
+    override fun getSandboxedSdks(): List<SandboxedSdkCompat> {
+        return controller
+            .sandboxedSdks
+            .map { platformSdk -> SandboxedSdkCompat(platformSdk) }
+    }
+
+    override fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> =
+        appOwnedSdkProvider.getAppOwnedSdkSandboxInterfaces()
 
     override fun registerSdkSandboxActivityHandler(
         handlerCompat: SdkSandboxActivityHandlerCompat
@@ -96,40 +115,53 @@ internal class PlatformUDCImpl(
 
         private fun proxyLifeCycleEvents() {
             val callback = object : Application.ActivityLifecycleCallbacks {
-                override fun onActivityCreated(p0: Activity, p1: Bundle?) {
-                    lifecycleRegistry.currentState = Lifecycle.State.CREATED
+                override fun onActivityCreated(activity: Activity, bundle: Bundle?) {}
+
+                override fun onActivityPostCreated(
+                    activity: Activity,
+                    savedInstanceState: Bundle?
+                ) {
+                    lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
                 }
 
-                override fun onActivityStarted(p0: Activity) {
-                    lifecycleRegistry.currentState = Lifecycle.State.STARTED
+                override fun onActivityStarted(activity: Activity) {}
+
+                override fun onActivityPostStarted(activity: Activity) {
+                    lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
                 }
 
-                override fun onActivityResumed(p0: Activity) {
-                    lifecycleRegistry.currentState = Lifecycle.State.RESUMED
+                override fun onActivityResumed(activity: Activity) {}
+
+                override fun onActivityPostResumed(activity: Activity) {
+                    lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
                 }
 
-                override fun onActivityPaused(p0: Activity) {
-                    lifecycleRegistry.currentState = Lifecycle.State.STARTED
+                override fun onActivityPrePaused(activity: Activity) {
+                    lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
                 }
 
-                override fun onActivityStopped(p0: Activity) {
-                    lifecycleRegistry.currentState = Lifecycle.State.CREATED
+                override fun onActivityPaused(activity: Activity) {}
+
+                override fun onActivityPreStopped(activity: Activity) {
+                    lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
                 }
 
-                override fun onActivityDestroyed(p0: Activity) {
-                    lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
+                override fun onActivityStopped(activity: Activity) {}
+
+                override fun onActivitySaveInstanceState(activity: Activity, bundle: Bundle) {}
+
+                override fun onActivityPreDestroyed(activity: Activity) {
+                    lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
                 }
 
-                override fun onActivitySaveInstanceState(p0: Activity, p1: Bundle) {
-                    // No need for proxying
-                }
+                override fun onActivityDestroyed(activity: Activity) {}
             }
             platformActivity.registerActivityLifecycleCallbacks(callback)
         }
     }
 
     companion object {
-        fun from(context: Context): PlatformImpl {
+        fun from(context: Context): PlatformUDCImpl {
             val sdkSandboxController = context.getSystemService(SdkSandboxController::class.java)
             return PlatformUDCImpl(sdkSandboxController)
         }

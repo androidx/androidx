@@ -568,6 +568,11 @@ class ColorTest {
         assertEquals(50f / 255f, srgbGreen.blue, 0.01f)
     }
 
+    @Test fun unspecifiedConstantValue() {
+        // See comments in Color.kt, we want to make sure Color.Unspecified doesn't change encoding
+        assertEquals(0x10UL, Color.Unspecified.value)
+    }
+
     companion object {
         fun Int.toHexString() = "0x${toUInt().toString(16).padStart(8, '0')}"
     }

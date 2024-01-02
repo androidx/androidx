@@ -171,7 +171,7 @@
     <string name="continue_route" msgid="5172258139245088080">"ወደ አቅጣጫ ቀጥል"</string>
     <string name="routes_title" msgid="7799772149932075357">"መንገዶች"</string>
     <string name="place_list_nav_template_demo_title" msgid="8019588508812955290">"የዝርዝር አሰሳ ቅንብር ደንብ ቅንጭብ ማሳያን ይመድቡ"</string>
-    <string name="route_preview_template_demo_title" msgid="7878704357953167555">"የመንገድ ቅድመ እይታ ቅንብር ደንብ ቅንጭብ ማሳያ"</string>
+    <string name="route_preview_template_demo_title" msgid="7878704357953167555">"የመንገድ ቅድመ ዕይታ ቅንብር ደንብ ቅንጭብ ማሳያ"</string>
     <string name="notification_template_demo_title" msgid="5076051497316030274">"የማሳወቂያ ቅንብር ደንብ ቅንጭብ ማሳያ"</string>
     <string name="nav_map_template_demo_title" msgid="344985380763975398">"የአሰሳ ቅንብር ደንብ በካርታ ብቻ ማሳያ"</string>
     <string name="nav_demos_title" msgid="72781206086461004">"የአሰሳ ቅንጭብ ማሳያዎች"</string>
@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"የዝርዝር ትር"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"የፍርግርግ ትር ከረጅም ትር ርዕስ ጋር"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"የፍለጋ ትር"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"የመጫኛ ትር"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"የትር ቅንብር ደንብ መጫኛ ቅንጭብ ማሳያ"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"የትር ቅንብር ደንብ ቁጥር ትሮች ቅንጭብ ማሳያ"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"ምስሎች ለማይታወቅ አስተናጋጅ ሊታዩ አይችሉም"</string>
@@ -364,4 +365,8 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"የአቅጣጫ አማራጮች"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"አውራ ጎዳናዎችን ያስወግዱ"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"ጀልባን ያስወግዱ"</string>
+    <string name="map_demos_title" msgid="2169766615521476592">"የካርታ ቅንጭብ ማሳያ"</string>
+    <string name="map_with_content_demo_title" msgid="1032610482145018739">"ካርታ ከይዘት ቅንጭብ ማሳያዎች ጋር"</string>
+    <string name="map_with_message_demo_title" msgid="7007078234918054436">"ካርታ በመልዕክት ቅንብር ደንብ ቅንጭብ ማሳያ ጋር"</string>
+    <string name="map_with_grid_demo_title" msgid="688667167861193192">"ካርታ ከGrid ቅንብር ደንብ ጋር"</string>
 </resources>

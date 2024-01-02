@@ -33,7 +33,7 @@ internal fun ComposeBenchmarkRule.benchmarkDrawUntilStable(
     maxSteps: Int = 10,
 ) {
     runBenchmarkFor(LayeredCaseAdapter.of(caseFactory)) {
-        measureRepeated {
+        measureRepeatedOnUiThread {
             runWithTimingDisabled {
                 doFramesUntilNoChangesPending(maxSteps)
                 // Add the content to benchmark
@@ -75,7 +75,7 @@ internal fun ComposeBenchmarkRule.benchmarkMeasureUntilStable(
     maxSteps: Int = MaxSteps,
 ) {
     runBenchmarkFor(LayeredCaseAdapter.of(caseFactory)) {
-        measureRepeated {
+        measureRepeatedOnUiThread {
             runWithTimingDisabled {
                 doFramesUntilNoChangesPending(maxSteps)
                 // Add the content to benchmark
@@ -117,7 +117,7 @@ internal fun ComposeBenchmarkRule.benchmarkLayoutUntilStable(
     maxSteps: Int = MaxSteps,
 ) {
     runBenchmarkFor(LayeredCaseAdapter.of(caseFactory)) {
-        measureRepeated {
+        measureRepeatedOnUiThread {
             runWithTimingDisabled {
                 doFramesUntilNoChangesPending(maxSteps)
                 // Add the content to benchmark
@@ -144,6 +144,45 @@ internal fun ComposeBenchmarkRule.benchmarkLayoutUntilStable(
 
             if (loopCount == 1) {
                 throw AssertionError("Use benchmarkFirstLayout instead")
+            }
+
+            runWithTimingDisabled {
+                assertNoPendingChanges()
+                disposeContent()
+            }
+        }
+    }
+}
+
+internal fun ComposeBenchmarkRule.benchmarkFirstRenderUntilStable(
+    caseFactory: () -> LayeredComposeTestCase,
+    maxSteps: Int = MaxSteps,
+) {
+    runBenchmarkFor(LayeredCaseAdapter.of(caseFactory)) {
+        measureRepeatedOnUiThread {
+            runWithTimingDisabled {
+                doFramesUntilNoChangesPending(maxSteps)
+                // Add the content to benchmark
+                getTestCase().addMeasuredContent()
+            }
+
+            var loopCount = 0
+            while (hasPendingChanges()) {
+                loopCount++
+                recomposeUntilNoChangesPending()
+                requestLayout()
+                measure()
+                layout()
+                drawPrepare()
+                draw()
+
+                runWithTimingDisabled {
+                    drawFinish()
+                }
+            }
+
+            if (loopCount == 1) {
+                throw AssertionError("Use benchmarkToFirstPixel instead")
             }
 
             runWithTimingDisabled {

@@ -24,6 +24,8 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.v4.app.INotificationSideChannel;
 
+import androidx.annotation.DeprecatedSinceApi;
+
 /**
  * Abstract service to receive side channel notifications sent from
  * {@link androidx.core.app.NotificationManagerCompat}.
@@ -44,6 +46,7 @@ import android.support.v4.app.INotificationSideChannel;
  */
 public abstract class NotificationCompatSideChannelService extends Service {
     @Override
+    @DeprecatedSinceApi(api = 19, message = "SDKs past 19 have no need for side channeling.")
     public IBinder onBind(Intent intent) {
         if (intent.getAction().equals(NotificationManagerCompat.ACTION_BIND_SIDE_CHANNEL)) {
             // Block side channel service connections if the current sdk has no need for
