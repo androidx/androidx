@@ -18,35 +18,18 @@
 
 #include <jni.h>
 
-#include <sys/system_properties.h>
+#include <android/api-level.h>
 
-#include <mutex>
+#include <cstdlib>
+#include <new>
 
 #define JNI_CLASS_NAME "androidx/graphics/path/PathIteratorPreApi34Impl"
 #define JNI_CLASS_NAME_CONVERTER "androidx/graphics/path/ConicConverter"
-
-#if !defined(NDEBUG)
-#include <android/log.h>
-#define ANDROID_LOG_TAG "PathIterator"
-#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, ANDROID_LOG_TAG, __VA_ARGS__)
-#endif
 
 struct {
     jclass jniClass;
     jfieldID nativePath;
 } sPath{};
-
-uint32_t sApiLevel = 0;
-std::once_flag sApiLevelOnceFlag;
-
-static uint32_t api_level() {
-    std::call_once(sApiLevelOnceFlag, []() {
-        char sdkVersion[PROP_VALUE_MAX];
-        __system_property_get("ro.build.version.sdk", sdkVersion);
-        sApiLevel = atoi(sdkVersion); // NOLINT(cert-err34-c)
-    });
-    return sApiLevel;
-}
 
 static jlong createPathIterator(JNIEnv* env, jobject,
         jobject path_, jint conicEvaluation_, jfloat tolerance_) {
@@ -60,7 +43,7 @@ static jlong createPathIterator(JNIEnv* env, jobject,
     int count;
     PathIterator::VerbDirection direction;
 
-    const uint32_t apiLevel = api_level();
+    const uint32_t apiLevel = android_get_device_api_level();
     if (apiLevel >= 30) {
         auto* ref = reinterpret_cast<PathRef30*>(path->pathRef);
         points = ref->points;
@@ -91,11 +74,17 @@ static jlong createPathIterator(JNIEnv* env, jobject,
         direction = PathIterator::VerbDirection::Backward;
     }
 
-    return jlong(new PathIterator(points, verbs, conicWeights, count, direction));
+    PathIterator* iterator = static_cast<PathIterator*>(malloc(sizeof(PathIterator)));
+    return jlong(new(iterator) PathIterator(
+            points, verbs, conicWeights, count, direction,
+            PathIterator::ConicEvaluation(conicEvaluation_), tolerance_
+    ));
 }
 
 static void destroyPathIterator(JNIEnv*, jobject, jlong pathIterator_) {
-    delete reinterpret_cast<PathIterator*>(pathIterator_);
+    PathIterator* iterator = reinterpret_cast<PathIterator*>(pathIterator_);
+    iterator->~PathIterator();
+    free(iterator);
 }
 
 static jboolean pathIteratorHasNext(JNIEnv*, jobject, jlong pathIterator_) {
@@ -103,19 +92,19 @@ static jboolean pathIteratorHasNext(JNIEnv*, jobject, jlong pathIterator_) {
 }
 
 static jint conicToQuadraticsWrapper(JNIEnv* env, jobject,
-                                      jfloatArray conicPoints, jfloatArray quadraticPoints,
-                                      jfloat weight, jfloat tolerance, jint offset) {
-    float *conicData1 = env->GetFloatArrayElements(conicPoints, JNI_FALSE);
-    float *quadData1 = env->GetFloatArrayElements(quadraticPoints, JNI_FALSE);
-    int quadDataSize = env->GetArrayLength(quadraticPoints);
+                                      jfloatArray conicPoints, jint offset,
+                                      jfloatArray quadraticPoints,
+                                      jfloat weight, jfloat tolerance) {
+    float *conicData = env->GetFloatArrayElements(conicPoints, JNI_FALSE);
+    float *quadData = env->GetFloatArrayElements(quadraticPoints, JNI_FALSE);
 
-    int count = conicToQuadratics(reinterpret_cast<Point *>(conicData1 + offset),
-                                  reinterpret_cast<Point *>(quadData1),
+    int count = conicToQuadratics(reinterpret_cast<const Point*>(conicData + offset),
+                                  reinterpret_cast<Point*>(quadData),
                                   env->GetArrayLength(quadraticPoints),
                                   weight, tolerance);
 
-    env->ReleaseFloatArrayElements(conicPoints, conicData1, 0);
-    env->ReleaseFloatArrayElements(quadraticPoints, quadData1, 0);
+    env->ReleaseFloatArrayElements(conicPoints, conicData, JNI_ABORT);
+    env->ReleaseFloatArrayElements(quadraticPoints, quadData, 0);
 
     return count;
 }
@@ -163,41 +152,41 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void*) {
         if (pathsClass == nullptr) return JNI_ERR;
 
         static const JNINativeMethod methods[] = {
-                {
-                    (char*) "createInternalPathIterator",
-                    (char*) "(Landroid/graphics/Path;IF)J",
-                    reinterpret_cast<void*>(createPathIterator)
-                },
-                {
-                    (char*) "destroyInternalPathIterator",
-                    (char*) "(J)V",
-                    reinterpret_cast<void*>(destroyPathIterator)
-                },
-                {
-                    (char*) "internalPathIteratorHasNext",
-                    (char*) "(J)Z",
-                    reinterpret_cast<void*>(pathIteratorHasNext)
-                },
-                {
-                    (char*) "internalPathIteratorNext",
-                    (char*) "(J[FI)I",
-                    reinterpret_cast<void*>(pathIteratorNext)
-                },
-                {
-                    (char*) "internalPathIteratorPeek",
-                    (char*) "(J)I",
-                    reinterpret_cast<void*>(pathIteratorPeek)
-                },
-                {
-                    (char*) "internalPathIteratorRawSize",
-                    (char*) "(J)I",
-                    reinterpret_cast<void*>(pathIteratorRawSize)
-                },
-                {
-                    (char*) "internalPathIteratorSize",
-                    (char*) "(J)I",
-                    reinterpret_cast<void*>(pathIteratorSize)
-                },
+            {
+                (char*) "createInternalPathIterator",
+                (char*) "(Landroid/graphics/Path;IF)J",
+                reinterpret_cast<void*>(createPathIterator)
+            },
+            {
+                (char*) "destroyInternalPathIterator",
+                (char*) "(J)V",
+                reinterpret_cast<void*>(destroyPathIterator)
+            },
+            {
+                (char*) "internalPathIteratorHasNext",
+                (char*) "(J)Z",
+                reinterpret_cast<void*>(pathIteratorHasNext)
+            },
+            {
+                (char*) "internalPathIteratorNext",
+                (char*) "(J[FI)I",
+                reinterpret_cast<void*>(pathIteratorNext)
+            },
+            {
+                (char*) "internalPathIteratorPeek",
+                (char*) "(J)I",
+                reinterpret_cast<void*>(pathIteratorPeek)
+            },
+            {
+                (char*) "internalPathIteratorRawSize",
+                (char*) "(J)I",
+                reinterpret_cast<void*>(pathIteratorRawSize)
+            },
+            {
+                (char*) "internalPathIteratorSize",
+                (char*) "(J)I",
+                reinterpret_cast<void*>(pathIteratorSize)
+            },
         };
 
         int result = env->RegisterNatives(
@@ -210,15 +199,15 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void*) {
         jclass converterClass = env->FindClass(JNI_CLASS_NAME_CONVERTER);
         if (converterClass == nullptr) return JNI_ERR;
         static const JNINativeMethod methods2[] = {
-                {
-                    (char *) "internalConicToQuadratics",
-                    (char *) "([F[FFFI)I",
-                    reinterpret_cast<void *>(conicToQuadraticsWrapper)
-                },
+            {
+                (char*) "internalConicToQuadratics",
+                (char*) "([FI[FFF)I",
+                reinterpret_cast<void*>(conicToQuadraticsWrapper)
+            },
         };
 
         result = env->RegisterNatives(
-                converterClass, methods2, sizeof(methods2) / sizeof(JNINativeMethod)
+            converterClass, methods2, sizeof(methods2) / sizeof(JNINativeMethod)
         );
         if (result != JNI_OK) return result;
 

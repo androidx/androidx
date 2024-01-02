@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Loendi vaheleht"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Ruudustiku vaheleht pika nimega"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Otsingu vaheleht"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Vahekaardi laadimine"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Vahelehemalli laadimise demo"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Vahelehemalli vahelehtedeta demo"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Tundmatu hosti puhul ei saa pilte kuvada"</string>
@@ -364,4 +365,8 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"Marsruudivalikud"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"Väldi kiirteid"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Väldi praami"</string>
+    <string name="map_demos_title" msgid="2169766615521476592">"Kaardi demod"</string>
+    <string name="map_with_content_demo_title" msgid="1032610482145018739">"Kaart sisu demodega"</string>
+    <string name="map_with_message_demo_title" msgid="7007078234918054436">"Kaart sõnumimalli demoga"</string>
+    <string name="map_with_grid_demo_title" msgid="688667167861193192">"Kaart ruudustikumalli demoga"</string>
 </resources>

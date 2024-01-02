@@ -37,6 +37,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInteropFilter
+import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.Measurable
@@ -56,6 +57,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Velocity
+import androidx.compose.ui.util.fastRoundToInt
 import androidx.core.view.NestedScrollingParent3
 import androidx.core.view.NestedScrollingParentHelper
 import androidx.core.view.ViewCompat
@@ -63,7 +65,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
-import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 
 /**
@@ -169,21 +170,17 @@ internal open class AndroidViewHolder(
      */
     private val snapshotObserver: OwnerSnapshotObserver
         get() {
-            check(isAttachedToWindow) {
+            checkPrecondition(isAttachedToWindow) {
                 "Expected AndroidViewHolder to be attached when observing reads."
             }
             return owner.snapshotObserver
         }
 
-    private val onCommitAffectingUpdate: (AndroidViewHolder) -> Unit = {
-        handler.post(runUpdate)
-    }
-
     private val runUpdate: () -> Unit = {
         // If we're not attached, the observer isn't started, so don't bother running it.
         // onAttachedToWindow will run an update the next time the view is attached.
         if (hasUpdateBlock && isAttachedToWindow) {
-            snapshotObserver.observeReads(this, onCommitAffectingUpdate, update)
+            snapshotObserver.observeReads(this, OnCommitAffectingUpdate, update)
         }
     }
 
@@ -205,6 +202,10 @@ internal open class AndroidViewHolder(
 
     override val isValidOwnerScope: Boolean
         get() = isAttachedToWindow
+
+    override fun getAccessibilityClassName(): CharSequence {
+        return javaClass.name
+    }
 
     override fun onReuse() {
         // We reset at the same time we remove the view. So if the view was removed, we can just
@@ -583,12 +584,18 @@ internal open class AndroidViewHolder(
     override fun isNestedScrollingEnabled(): Boolean {
         return view.isNestedScrollingEnabled
     }
+
+    companion object {
+        private val OnCommitAffectingUpdate: (AndroidViewHolder) -> Unit = {
+            it.handler.post(it.runUpdate)
+        }
+    }
 }
 
 private fun View.layoutAccordingTo(layoutNode: LayoutNode) {
     val position = layoutNode.coordinates.positionInRoot()
-    val x = position.x.roundToInt()
-    val y = position.y.roundToInt()
+    val x = position.x.fastRoundToInt()
+    val y = position.y.fastRoundToInt()
     layout(x, y, x + measuredWidth, y + measuredHeight)
 }
 

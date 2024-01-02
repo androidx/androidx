@@ -10,7 +10,7 @@ dependencies {
     api("androidx.annotation:annotation:1.2.0")
     api(project(":core:core"))
     implementation("androidx.collection:collection:1.1.0")
-    compileOnly("androidx.fragment:fragment:1.2.5")
+    compileOnly(projectOrArtifact(":fragment:fragment"))
     compileOnly("androidx.appcompat:appcompat:1.0.1")
     implementation("androidx.dynamicanimation:dynamicanimation:1.0.0")
 
@@ -50,4 +50,5 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2016"
     description = "Android Transition Support Library"
+    metalavaK2UastEnabled = true
 }

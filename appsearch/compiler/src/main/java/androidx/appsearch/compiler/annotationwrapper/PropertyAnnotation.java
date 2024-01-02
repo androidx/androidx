@@ -16,9 +16,12 @@
 
 package androidx.appsearch.compiler.annotationwrapper;
 
-import static androidx.appsearch.compiler.IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS;
-
 import androidx.annotation.NonNull;
+import androidx.appsearch.compiler.IntrospectionHelper;
+
+import com.squareup.javapoet.ClassName;
+
+import javax.lang.model.type.TypeMirror;
 
 /**
  * An instance of an AppSearch property annotation.
@@ -30,22 +33,47 @@ import androidx.annotation.NonNull;
  * </ul>
  */
 public interface PropertyAnnotation {
-    /**
-     * The annotation class' simple name.
-     *
-     * <p>For example, {@code StringProperty} for a {@link StringPropertyAnnotation}.
-     */
-    @NonNull
-    String getSimpleClassName();
+    enum Kind {
+        METADATA_PROPERTY, DATA_PROPERTY
+    }
 
     /**
-     * The annotation class' qualified name
+     * The annotation class' name.
      *
-     * <p>{@code androidx.appsearch.annotation.Document.StringProperty} for a
+     * <p>For example, {@code androidx.appsearch.annotation.Document.StringProperty} for a
      * {@link StringPropertyAnnotation}.
      */
     @NonNull
-    default String getQualifiedClassName() {
-        return DOCUMENT_ANNOTATION_CLASS + "." + getSimpleClassName();
-    }
+    ClassName getClassName();
+
+    /**
+     * The {@link Kind} of {@link PropertyAnnotation}.
+     */
+    @NonNull
+    Kind getPropertyKind();
+
+    /**
+     * The underlying type that the property is stored as within a
+     * {@link androidx.appsearch.app.GenericDocument}.
+     *
+     * <p>For example, {@link String} for {@link StringPropertyAnnotation}.
+     */
+    @NonNull
+    TypeMirror getUnderlyingTypeWithinGenericDoc(@NonNull IntrospectionHelper helper);
+
+    /**
+     * The corresponding getter within {@link androidx.appsearch.app.GenericDocument}.
+     *
+     * <p>For example, {@code getPropertyString} for a {@link StringPropertyAnnotation}.
+     */
+    @NonNull
+    String getGenericDocGetterName();
+
+    /**
+     * The corresponding setter within {@link androidx.appsearch.app.GenericDocument.Builder}.
+     *
+     * <p>For example, {@code setPropertyString} for a {@link StringPropertyAnnotation}.
+     */
+    @NonNull
+    String getGenericDocSetterName();
 }

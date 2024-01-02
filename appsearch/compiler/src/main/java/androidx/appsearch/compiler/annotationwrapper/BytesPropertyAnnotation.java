@@ -16,24 +16,37 @@
 
 package androidx.appsearch.compiler.annotationwrapper;
 
+import static androidx.appsearch.compiler.IntrospectionHelper.APPSEARCH_SCHEMA_CLASS;
 import static androidx.appsearch.compiler.IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS;
 
 import androidx.annotation.NonNull;
+import androidx.appsearch.compiler.IntrospectionHelper;
 
 import com.google.auto.value.AutoValue;
+import com.squareup.javapoet.ClassName;
 
 import java.util.Map;
+
+import javax.lang.model.type.TypeMirror;
 
 /**
  * An instance of the {@code @Document.BytesProperty} annotation.
  */
 @AutoValue
 public abstract class BytesPropertyAnnotation extends DataPropertyAnnotation {
-    public static final String SIMPLE_CLASS_NAME = "BytesProperty";
-    public static final String CLASS_NAME = DOCUMENT_ANNOTATION_CLASS + "." + SIMPLE_CLASS_NAME;
+    public static final ClassName CLASS_NAME =
+            DOCUMENT_ANNOTATION_CLASS.nestedClass("BytesProperty");
+
+    public static final ClassName CONFIG_CLASS =
+            APPSEARCH_SCHEMA_CLASS.nestedClass("BytesPropertyConfig");
 
     public BytesPropertyAnnotation() {
-        super(SIMPLE_CLASS_NAME);
+        super(
+                CLASS_NAME,
+                CONFIG_CLASS,
+                /* genericDocGetterName= */"getPropertyBytes",
+                /* genericDocArrayGetterName= */"getPropertyBytesArray",
+                /* genericDocSetterName= */"setPropertyBytes");
     }
 
     /**
@@ -46,5 +59,17 @@ public abstract class BytesPropertyAnnotation extends DataPropertyAnnotation {
         String name = (String) annotationParams.get("name");
         return new AutoValue_BytesPropertyAnnotation(
                 name.isEmpty() ? defaultName : name, (boolean) annotationParams.get("required"));
+    }
+
+    @NonNull
+    @Override
+    public final Kind getDataPropertyKind() {
+        return Kind.BYTES_PROPERTY;
+    }
+
+    @NonNull
+    @Override
+    public TypeMirror getUnderlyingTypeWithinGenericDoc(@NonNull IntrospectionHelper helper) {
+        return helper.mBytePrimitiveArrayType;
     }
 }

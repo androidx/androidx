@@ -80,6 +80,16 @@ class ViewModelTest {
     }
 
     @Test
+    fun testAddCloseableAlreadyClearedVM() {
+        val vm = ViewModel()
+        vm.clear()
+        val impl = CloseableImpl()
+        // This shouldn't crash, even though vm already cleared
+        vm.addCloseable(impl)
+        assertTrue(impl.wasClosed)
+    }
+
+    @Test
     fun testConstructorCloseable() {
         val impl = CloseableImpl()
         val vm = ConstructorArgViewModel(impl)

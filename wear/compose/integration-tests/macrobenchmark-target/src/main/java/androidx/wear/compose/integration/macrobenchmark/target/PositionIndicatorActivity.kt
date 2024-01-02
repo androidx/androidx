@@ -19,27 +19,25 @@ package androidx.wear.compose.integration.macrobenchmark.target
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.runtime.getValue
+import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.PositionIndicatorState
 import androidx.wear.compose.material.PositionIndicatorVisibility
 import androidx.wear.compose.material.Scaffold
-import androidx.wear.compose.material.Text
 
 class PositionIndicatorActivity : ComponentActivity() {
 
@@ -47,18 +45,18 @@ class PositionIndicatorActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            var fraction by remember {
+            val fraction = remember {
                 mutableFloatStateOf(0f)
             }
-            var sizeFraction by remember {
+            val sizeFraction = remember {
                 mutableFloatStateOf(.25f)
             }
 
-            var visibility by remember {
+            val visibility = remember {
                 mutableStateOf(PositionIndicatorVisibility.Show)
             }
 
-            val pIState = CustomState(fraction, sizeFraction, visibility)
+            val pIState = remember { CustomState(fraction, sizeFraction, visibility) }
 
             Scaffold(modifier = Modifier.fillMaxSize(), positionIndicator = {
                 PositionIndicator(
@@ -69,71 +67,102 @@ class PositionIndicatorActivity : ComponentActivity() {
                 )
             }) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .fillMaxWidth(.8f),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Button(
-                        modifier = Modifier.semantics {
-                            contentDescription = CHANGE_VISIBILITY
-                        }, onClick = {
-                            visibility = when (visibility) {
-                                PositionIndicatorVisibility.AutoHide ->
-                                    PositionIndicatorVisibility.Hide
-                                PositionIndicatorVisibility.Hide ->
-                                    PositionIndicatorVisibility.Show
+                    Box(modifier = Modifier
+                        .size(30.dp)
+                        .clickable {
+                            visibility.value = when (visibility.value) {
                                 PositionIndicatorVisibility.Show ->
                                     PositionIndicatorVisibility.AutoHide
+
+                                PositionIndicatorVisibility.AutoHide ->
+                                    PositionIndicatorVisibility.Hide
+
+                                PositionIndicatorVisibility.Hide ->
+                                    PositionIndicatorVisibility.Show
+
                                 else -> throw IllegalArgumentException("Invalid visibility type")
                             }
-                        }) {
-                        val text = when (visibility) {
-                            PositionIndicatorVisibility.Show -> "Show"
-                            PositionIndicatorVisibility.AutoHide -> "Auto Hide"
-                            else -> "Hide"
                         }
-                        Text(text = text)
-                    }
+                        .semantics {
+                            contentDescription = CHANGE_VISIBILITY
+                        }
+                    )
 
-                    Button(
-                        modifier = Modifier.semantics {
+                    Box(modifier = Modifier
+                        .size(30.dp)
+                        .clickable {
+                            visibility.value = PositionIndicatorVisibility.Hide
+                        }
+                        .semantics {
+                            contentDescription = CHANGE_VISIBILITY_HIDE
+                        }
+                    )
+
+                    Box(modifier = Modifier
+                        .size(30.dp)
+                        .clickable {
+                            visibility.value = PositionIndicatorVisibility.Show
+                        }
+                        .semantics {
+                            contentDescription = CHANGE_VISIBILITY_SHOW
+                        }
+                    )
+
+                    Box(modifier = Modifier
+                        .size(30.dp)
+                        .clickable {
+                            visibility.value = PositionIndicatorVisibility.AutoHide
+                        }
+                        .semantics {
+                            contentDescription = CHANGE_VISIBILITY_AUTO_HIDE
+                        }
+                    )
+
+                    Box(modifier = Modifier
+                        .size(30.dp)
+                        .clickable {
+                            fraction.floatValue += 0.05f
+                        }
+                        .semantics {
                             contentDescription = INCREASE_POSITION
-                        }, onClick = {
-                            fraction += 0.05f
-                        }) {
-                        Text(text = "Increase position fraction")
-                    }
+                        }
+                    )
 
-                    Button(
-                        modifier = Modifier.semantics {
+                    Box(modifier = Modifier
+                        .size(30.dp)
+                        .clickable {
+                            fraction.floatValue -= 0.05f
+                        }
+                        .semantics {
                             contentDescription = DECREASE_POSITION
-                        }, onClick = {
-                            fraction -= 0.05f
-                        }) {
-                        Text(text = "Decrease position fraction")
-                    }
+                        }
+                    )
                 }
             }
         }
     }
 
     private class CustomState(
-        private val fraction: Float,
-        private val sizeFraction: Float,
-        private val visibility: PositionIndicatorVisibility
+        private val fraction: State<Float>,
+        private val sizeFraction: State<Float>,
+        private val visibility: State<PositionIndicatorVisibility>
     ) : PositionIndicatorState {
         override val positionFraction: Float
-            get() = fraction
+            get() = fraction.value
 
-        override fun sizeFraction(scrollableContainerSizePx: Float): Float = sizeFraction
+        override fun sizeFraction(scrollableContainerSizePx: Float): Float = sizeFraction.value
 
         override fun visibility(scrollableContainerSizePx: Float): PositionIndicatorVisibility =
-            visibility
+            visibility.value
     }
 }
 
 private const val INCREASE_POSITION = "PI_INCREASE_POSITION"
 private const val DECREASE_POSITION = "PI_DECREASE_POSITION"
 private const val CHANGE_VISIBILITY = "PI_VISIBILITY"
+private const val CHANGE_VISIBILITY_SHOW = "PI_VISIBILITY_SHOW"
+private const val CHANGE_VISIBILITY_HIDE = "PI_VISIBILITY_HIDE"
+private const val CHANGE_VISIBILITY_AUTO_HIDE = "PI_VISIBILITY_AUTO_HIDE"

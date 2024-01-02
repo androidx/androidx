@@ -20,6 +20,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -37,6 +38,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.integration.demos.common.ComposableDemo
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,25 +46,75 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+@OptIn(ExperimentalFoundationApi::class)
 val Carrousel = listOf(
     ComposableDemo("Horizontal") { HorizontalCarrouselDemo() },
     ComposableDemo("Vertical") { VerticalCarrouselDemo() },
     ComposableDemo("3 pages per viewport") { HorizontalCustomPageSizeDemo() },
     ComposableDemo("Max Scroll = 3 pages") {
         HorizontalCustomPageSizeWithCustomMaxScrollDemo()
-    },
+    }
+)
+
+@OptIn(ExperimentalFoundationApi::class)
+val SnapPositionDemos = listOf(
+    ComposableDemo("Snap Position - Start") { HorizontalCarrouselDemo(SnapPosition.Start) },
+    ComposableDemo("Snap Position - Center") { HorizontalCarrouselDemo(SnapPosition.Center) },
+    ComposableDemo("Snap Position - End") { HorizontalCarrouselDemo(SnapPosition.End) },
+    ComposableDemo("Snap Position - Custom") { HorizontalCarrouselDemoWithCustomSnapPosition() },
 )
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun HorizontalCarrouselDemo() {
+private fun HorizontalCarrouselDemoWithCustomSnapPosition() {
+    val pagerState = rememberPagerState { PagesCount }
+
+    val snapPosition = remember {
+        SnapPosition { layoutSize, itemSize, beforeContentPadding, afterContentPadding, pageIndex ->
+            val availableLayoutSpace = layoutSize - beforeContentPadding - afterContentPadding
+            when (pageIndex) {
+                0 -> 0
+                PagesCount - 2 -> availableLayoutSpace - itemSize
+                else -> availableLayoutSpace / 2 - itemSize / 2
+            }
+        }
+    }
+
+    val pageSize = remember {
+        object : PageSize {
+            override fun Density.calculateMainAxisPageSize(
+                availableSpace: Int,
+                pageSpacing: Int
+            ): Int {
+                return (availableSpace + pageSpacing) / 2
+            }
+        }
+    }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        HorizontalPager(
+            modifier = Modifier,
+            state = pagerState,
+            pageSize = pageSize,
+            snapPosition = snapPosition
+        ) {
+            CarrouselItem(it, Orientation.Vertical)
+        }
+        PagerControls(Modifier.weight(0.1f), pagerState)
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun HorizontalCarrouselDemo(snapPosition: SnapPosition = SnapPosition.Start) {
     val pagerState = rememberPagerState { PagesCount }
 
     Column(modifier = Modifier.fillMaxSize()) {
         HorizontalPager(
             modifier = Modifier,
             state = pagerState,
-            pageSize = PageSize.Fixed(200.dp)
+            pageSize = PageSize.Fixed(100.dp),
+            snapPosition = snapPosition
         ) {
             CarrouselItem(it, Orientation.Vertical)
         }

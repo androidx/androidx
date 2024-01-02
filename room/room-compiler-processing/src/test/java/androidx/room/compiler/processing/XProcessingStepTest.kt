@@ -948,6 +948,63 @@ class XProcessingStepTest {
     }
 
     @Test
+    fun kspProcessingStepLogsError() {
+        val main = Source.kotlin(
+            "Classes.kt",
+            """
+            package foo.bar
+            import androidx.room.compiler.processing.testcode.*
+            @MainAnnotation(
+                typeList = [],
+                singleType = Any::class,
+                intMethod = 3,
+                singleOtherAnnotation = OtherAnnotation("y")
+            )
+            class Main {
+            }
+            @OtherAnnotation("y")
+            class Other {
+            }
+            """.trimIndent()
+        )
+
+        var executedLastRound = false
+        val processorProvider = object : SymbolProcessorProvider {
+            override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
+                return object : KspBasicAnnotationProcessor(environment) {
+                    override fun processingSteps() = listOf(
+                        object : XProcessingStep {
+                            override fun annotations() =
+                              setOf(MainAnnotation::class.qualifiedName!!)
+                            override fun process(
+                                env: XProcessingEnv,
+                                elementsByAnnotation: Map<String, Set<XElement>>,
+                                isLastRound: Boolean
+                            ): Set<XElement> {
+                                if (isLastRound) {
+                                    executedLastRound = true
+                                }
+                                environment.logger.error("logs error")
+                                return emptySet()
+                            }
+                        }
+                    )
+                }
+            }
+        }
+
+        compile(
+            workingDir = temporaryFolder.root,
+            arguments = TestCompilationArguments(
+                sources = listOf(main),
+                symbolProcessorProviders = listOf(processorProvider)
+            )
+        )
+
+        assertThat(executedLastRound).isTrue()
+    }
+
+    @Test
     fun kspAnnotatedElementsByStep() {
         val main = Source.kotlin(
             "Classes.kt",
@@ -1532,5 +1589,66 @@ class XProcessingStepTest {
                 XProcessingEnv.Backend.KSP to 3,
             )
         )
+    }
+
+    @Test
+    fun validateElement() {
+        var round = 0
+        val processedElementNamesByRound = mutableMapOf<Int, Set<String>>()
+        val processingStep = object : XProcessingStep {
+            override fun process(
+                env: XProcessingEnv,
+                elementsByAnnotation: Map<String, Set<XElement>>,
+                isLastRound: Boolean
+            ): Set<XTypeElement> {
+              processedElementNamesByRound[round++] =
+                  elementsByAnnotation.values.flatten().map { it.name }.toSet()
+              return emptySet()
+            }
+            override fun annotations(): Set<String> {
+                return setOf("foo.bar.SomeAnnotation")
+            }
+        }
+        val someAnnotation = JavaFileObjects.forSourceString(
+            "foo.bar.SomeAnnotation",
+            """
+            package foo.bar;
+
+            import java.lang.annotation.ElementType;
+            import java.lang.annotation.Retention;
+            import java.lang.annotation.RetentionPolicy;
+            import java.lang.annotation.Target;
+
+            @Target(ElementType.METHOD)
+            @Retention(RetentionPolicy.RUNTIME)
+            public @interface SomeAnnotation {}
+            """.trimIndent()
+        )
+        val main = JavaFileObjects.forSourceString(
+            "foo.bar.Main",
+            """
+            package foo.bar;
+            class Main {
+              @SomeAnnotation
+              SomeType invalidMethod() { return null; }
+              @SomeAnnotation
+              void validMethod() {}
+            }
+            """.trimIndent()
+        )
+
+        assertAbout(
+            JavaSourcesSubjectFactory.javaSources()
+        ).that(
+            listOf(main, someAnnotation)
+        ).processedWith(
+            object : JavacBasicAnnotationProcessor() {
+                override fun processingSteps() = listOf(processingStep)
+            }
+        ).failsToCompile()
+
+        assertThat(processedElementNamesByRound).hasSize(1)
+        assertThat(processedElementNamesByRound.values.single())
+            .containsExactly("validMethod", "invalidMethod")
     }
 }

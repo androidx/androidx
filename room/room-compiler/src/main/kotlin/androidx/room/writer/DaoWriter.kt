@@ -202,7 +202,10 @@ class DaoWriter(
             } else {
                 val placeholders = requiredTypeConverters.joinToString(",") { "%L" }
                 val requiredTypeConvertersLiterals = requiredTypeConverters.map {
-                    XCodeBlock.ofJavaClassLiteral(language, it)
+                    when (language) {
+                        CodeLanguage.JAVA -> XCodeBlock.ofJavaClassLiteral(language, it)
+                        CodeLanguage.KOTLIN -> XCodeBlock.ofKotlinClassLiteral(language, it)
+                    }
                 }.toTypedArray()
                 when (language) {
                     CodeLanguage.JAVA ->
@@ -232,7 +235,10 @@ class DaoWriter(
         ).apply {
             returns(
                 CommonTypeNames.LIST.parametrizedBy(
-                    CommonTypeNames.JAVA_CLASS.parametrizedBy(XTypeName.ANY_WILDCARD)
+                    when (language) {
+                        CodeLanguage.JAVA -> CommonTypeNames.JAVA_CLASS
+                        CodeLanguage.KOTLIN -> CommonTypeNames.KOTLIN_CLASS
+                    }.parametrizedBy(XTypeName.ANY_WILDCARD)
                 )
             )
             addCode(body)

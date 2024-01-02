@@ -16,6 +16,7 @@
 package androidx.appsearch.app;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 /**
  * A class that encapsulates all features that are only supported in certain cases (e.g. only on
@@ -27,7 +28,7 @@ import androidx.annotation.NonNull;
  * Android API level, on that device.
  */
 
-// @exportToFramework:copyToPath(testing/testutils/src/android/app/appsearch/testutil/external/Features.java)
+// @exportToFramework:copyToPath(../../../cts/tests/appsearch/testutils/src/android/app/appsearch/testutil/external/Features.java)
 public interface Features {
 
     /**
@@ -110,10 +111,19 @@ public interface Features {
      */
     String SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA = "SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA";
 
-    /** Feature for {@link #isFeatureSupported(String)}. This feature covers
+    /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers
      * {@link SearchSpec.Builder#setPropertyWeights}.
      */
     String SEARCH_SPEC_PROPERTY_WEIGHTS = "SEARCH_SPEC_PROPERTY_WEIGHTS";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * {@link SearchSpec.Builder#addFilterProperties}.
+     * @exportToFramework:hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    String SEARCH_SPEC_ADD_FILTER_PROPERTIES = "SEARCH_SPEC_ADD_FILTER_PROPERTIES";
 
     /**
      * Feature for {@link #isFeatureSupported(String)}. This feature covers
@@ -172,4 +182,12 @@ public interface Features {
      * backend.
      */
     boolean isFeatureSupported(@NonNull String feature);
+
+    /**
+     * Returns the maximum amount of properties that can be indexed in a Document
+     * given the Android API level and AppSearch backend.
+     *
+     * <p>A property is defined as all values that are present at a particular path.
+     */
+    int getMaxIndexedProperties();
 }

@@ -29,11 +29,17 @@ import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCo
 internal class SdkLoader internal constructor(
     private val classLoaderFactory: ClassLoaderFactory,
     private val appContext: Context,
-    private val controller: SdkSandboxControllerCompat.SandboxControllerImpl
+    private val controllerFactory: ControllerFactory
 ) {
 
     internal interface ClassLoaderFactory {
         fun createClassLoaderFor(sdkConfig: LocalSdkConfig, parent: ClassLoader): ClassLoader
+    }
+
+    internal interface ControllerFactory {
+        fun createControllerFor(
+            sdkConfig: LocalSdkConfig
+        ): SdkSandboxControllerCompat.SandboxControllerImpl
     }
 
     /**
@@ -94,6 +100,7 @@ internal class SdkLoader internal constructor(
         sdkVersion: Int,
         sdkConfig: LocalSdkConfig
     ): LocalSdkProvider {
+        val controller = controllerFactory.createControllerFor(sdkConfig)
         SandboxControllerInjector.inject(sdkClassLoader, sdkVersion, controller)
         return SdkProviderV1.create(sdkClassLoader, sdkConfig, appContext)
     }
@@ -120,7 +127,7 @@ internal class SdkLoader internal constructor(
          */
         fun create(
             context: Context,
-            controller: SdkSandboxControllerCompat.SandboxControllerImpl,
+            controllerFactory: ControllerFactory,
             lowSpaceThreshold: Long = 100 * 1024 * 1024
         ): SdkLoader {
             val cachedLocalSdkStorage = CachedLocalSdkStorage.create(
@@ -134,7 +141,7 @@ internal class SdkLoader internal constructor(
                     fallback = InMemorySdkClassLoaderFactory.create(context)
                 )
             )
-            return SdkLoader(classLoaderFactory, context, controller)
+            return SdkLoader(classLoaderFactory, context, controllerFactory)
         }
     }
 }

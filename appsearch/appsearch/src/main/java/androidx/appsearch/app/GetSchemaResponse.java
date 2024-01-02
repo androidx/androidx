@@ -121,6 +121,10 @@ public final class GetSchemaResponse {
     /**
      * Returns all the schema types that are opted out of being displayed and visible on any
      * system UI surface.
+     * <!--@exportToFramework:ifJetpack()-->
+     * @throws UnsupportedOperationException if {@link Builder#setVisibilitySettingSupported} was
+     * called with false.
+     * <!--@exportToFramework:else()-->
      */
     // @exportToFramework:startStrip()
     @RequiresFeature(
@@ -142,6 +146,10 @@ public final class GetSchemaResponse {
     /**
      * Returns a mapping of schema types to the set of packages that have access
      * to that schema type.
+     * <!--@exportToFramework:ifJetpack()-->
+     * @throws UnsupportedOperationException if {@link Builder#setVisibilitySettingSupported} was
+     * called with false.
+     * <!--@exportToFramework:else()-->
      */
     // @exportToFramework:startStrip()
     @RequiresFeature(
@@ -195,6 +203,10 @@ public final class GetSchemaResponse {
      *         {@link SetSchemaRequest#READ_EXTERNAL_STORAGE},
      *         {@link SetSchemaRequest#READ_HOME_APP_SEARCH_DATA} and
      *         {@link SetSchemaRequest#READ_ASSISTANT_APP_SEARCH_DATA}.
+     * <!--@exportToFramework:ifJetpack()-->
+     * @throws UnsupportedOperationException if {@link Builder#setVisibilitySettingSupported} was
+     * called with false.
+     * <!--@exportToFramework:else()-->
      */
     // @exportToFramework:startStrip()
     @RequiresFeature(
@@ -229,8 +241,8 @@ public final class GetSchemaResponse {
 
     private void checkGetVisibilitySettingSupported() {
         if (!mBundle.containsKey(SCHEMAS_VISIBLE_TO_PACKAGES_FIELD)) {
-            throw new UnsupportedOperationException("Get visibility setting is not supported with"
-                    + " this backend/Android API level combination.");
+            throw new UnsupportedOperationException("Get visibility setting is not supported with "
+                    + "this backend/Android API level combination.");
         }
     }
 
@@ -250,26 +262,7 @@ public final class GetSchemaResponse {
 
         /** Create a {@link Builder} object} */
         public Builder() {
-            this(/*getVisibilitySettingSupported=*/true);
-        }
-
-        /**
-         * Create a {@link Builder} object}.
-         *
-         * <p>This constructor should only be used in Android API below than T.
-         *
-         * @param getVisibilitySettingSupported whether supported
-         * {@link Features#ADD_PERMISSIONS_AND_GET_VISIBILITY} by this
-         *                                      backend/Android API level.
-         * @exportToFramework:hide
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public Builder(boolean getVisibilitySettingSupported) {
-            if (getVisibilitySettingSupported) {
-                mSchemasNotDisplayedBySystem = new ArrayList<>();
-                mSchemasVisibleToPackages = new Bundle();
-                mSchemasVisibleToPermissions = new Bundle();
-            }
+            setVisibilitySettingSupported(true);
         }
 
         /**
@@ -406,6 +399,35 @@ public final class GetSchemaResponse {
             }
             mSchemasVisibleToPermissions.putParcelableArrayList(schemaType,
                     visibleToPermissionsBundle);
+            return this;
+        }
+
+        /**
+         * Method to set visibility setting. If this is called with false,
+         * {@link #getRequiredPermissionsForSchemaTypeVisibility()},
+         * {@link #getSchemaTypesNotDisplayedBySystem()}}, and
+         * {@link #getSchemaTypesVisibleToPackages()} calls will throw an
+         * {@link UnsupportedOperationException}. If called with true, visibility information for
+         * all schemas will be cleared.
+         *
+         * @param visibilitySettingSupported whether supported
+         * {@link Features#ADD_PERMISSIONS_AND_GET_VISIBILITY} by this
+         *                                      backend/Android API level.
+         * @exportToFramework:hide
+         */
+         // Visibility setting is determined by SDK version, so it won't be needed in framework
+        @SuppressLint("MissingGetterMatchingBuilder")
+        @NonNull
+        public Builder setVisibilitySettingSupported(boolean visibilitySettingSupported) {
+            if (visibilitySettingSupported) {
+                mSchemasNotDisplayedBySystem = new ArrayList<>();
+                mSchemasVisibleToPackages = new Bundle();
+                mSchemasVisibleToPermissions = new Bundle();
+            } else {
+                mSchemasNotDisplayedBySystem = null;
+                mSchemasVisibleToPackages = null;
+                mSchemasVisibleToPermissions = null;
+            }
             return this;
         }
 

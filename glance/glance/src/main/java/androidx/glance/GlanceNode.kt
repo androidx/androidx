@@ -24,7 +24,6 @@ import androidx.compose.runtime.ComposeNode
 import androidx.compose.runtime.DisallowComposableCalls
 import androidx.compose.runtime.Updater
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 inline fun <T : Emittable> GlanceNode(
@@ -34,7 +33,6 @@ inline fun <T : Emittable> GlanceNode(
     ComposeNode<T, Applier>(factory, update)
 }
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 inline fun <T : Emittable> GlanceNode(

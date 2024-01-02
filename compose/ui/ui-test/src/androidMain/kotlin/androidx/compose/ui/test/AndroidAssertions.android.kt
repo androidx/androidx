@@ -23,10 +23,21 @@ import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.test.espresso.matcher.ViewMatchers
 
-internal actual fun SemanticsNodeInteraction.checkIsDisplayed(): Boolean {
-    // hierarchy check - check layout nodes are visible
-    val errorMessageOnFail = "Failed to perform isDisplayed check."
-    val node = fetchSemanticsNode(errorMessageOnFail)
+internal actual fun SemanticsNodeInteraction.checkIsDisplayed(
+    assertIsFullyVisible: Boolean
+): Boolean {
+    val nodes = fetchSemanticsNodes(atLeastOneRootRequired = true)
+    if (nodes.selectedNodes.isEmpty()) {
+        // If the node doesn't exist, it's not displayed.
+        return false
+    }
+    if (nodes.selectedNodes.size > 1) {
+        throw AssertionError(
+            "Failed to perform checkIsDisplayed check: Expected at most 1 node but found " +
+                "${nodes.selectedNodes.size} nodes that satisfy (${selector.description})"
+        )
+    }
+    val node = nodes.selectedNodes.single()
 
     fun isNotPlaced(node: LayoutInfo): Boolean {
         return !node.isPlaced
@@ -45,7 +56,7 @@ internal actual fun SemanticsNodeInteraction.checkIsDisplayed(): Boolean {
 
     // check node doesn't clip unintentionally (e.g. row too small for content)
     val globalRect = node.boundsInWindow
-    if (!node.isInScreenBounds()) {
+    if (!node.isInScreenBounds(assertIsFullyVisible)) {
         return false
     }
 
@@ -61,7 +72,7 @@ internal actual fun SemanticsNode.clippedNodeBoundsInWindow(): Rect {
     return boundsInRoot.translate(rootLocationInWindow)
 }
 
-internal actual fun SemanticsNode.isInScreenBounds(): Boolean {
+internal actual fun SemanticsNode.isInScreenBounds(assertIsFullyVisible: Boolean): Boolean {
     val composeView = (root as ViewRootForTest).view
 
     // Window relative bounds of our node
@@ -76,10 +87,23 @@ internal actual fun SemanticsNode.isInScreenBounds(): Boolean {
         return false
     }
 
-    return nodeBoundsInWindow.top >= globalRootRect.top &&
-        nodeBoundsInWindow.left >= globalRootRect.left &&
-        nodeBoundsInWindow.right <= globalRootRect.right &&
-        nodeBoundsInWindow.bottom <= globalRootRect.bottom
+    return if (assertIsFullyVisible) {
+        // assertIsNotDisplayed only throws if the element is fully onscreen
+        return nodeBoundsInWindow.top >= globalRootRect.top &&
+            nodeBoundsInWindow.left >= globalRootRect.left &&
+            nodeBoundsInWindow.right <= globalRootRect.right &&
+            nodeBoundsInWindow.bottom <= globalRootRect.bottom
+    } else {
+        // assertIsDisplayed only throws if the element is fully offscreen
+        !nodeBoundsInWindow.intersect(
+            Rect(
+                globalRootRect.left.toFloat(),
+                globalRootRect.top.toFloat(),
+                globalRootRect.right.toFloat(),
+                globalRootRect.bottom.toFloat()
+            )
+        ).isEmpty
+    }
 }
 
 /**

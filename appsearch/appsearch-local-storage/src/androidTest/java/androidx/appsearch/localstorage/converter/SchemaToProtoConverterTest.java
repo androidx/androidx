@@ -29,6 +29,8 @@ import com.google.android.icing.proto.TermMatchType;
 
 import org.junit.Test;
 
+import java.util.Arrays;
+
 public class SchemaToProtoConverterTest {
     @Test
     public void testGetProto_Email() {
@@ -178,18 +180,10 @@ public class SchemaToProtoConverterTest {
                 .addParentTypes("Email")
                 .addParentTypes("Message")
                 .build();
-        SchemaTypeConfigProto alternativeExpectedSchemaProto = SchemaTypeConfigProto.newBuilder()
-                .setSchemaType("EmailMessage")
-                .setVersion(12345)
-                .addParentTypes("Message")
-                .addParentTypes("Email")
-                .build();
 
         assertThat(SchemaToProtoConverter.toSchemaTypeConfigProto(schema, /*version=*/12345))
-                .isAnyOf(expectedSchemaProto, alternativeExpectedSchemaProto);
+                .isEqualTo(expectedSchemaProto);
         assertThat(SchemaToProtoConverter.toAppSearchSchema(expectedSchemaProto))
-                .isEqualTo(schema);
-        assertThat(SchemaToProtoConverter.toAppSearchSchema(alternativeExpectedSchemaProto))
                 .isEqualTo(schema);
     }
 
@@ -206,7 +200,7 @@ public class SchemaToProtoConverterTest {
                         "Organization")
                         .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
                         .setShouldIndexNestedProperties(false)
-                        .addIndexableNestedProperties("orgName", "notes")
+                        .addIndexableNestedProperties(Arrays.asList("orgName", "notes"))
                         .build())
                 .build();
 

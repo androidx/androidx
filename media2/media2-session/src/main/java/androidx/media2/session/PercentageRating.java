@@ -23,7 +23,11 @@ import androidx.versionedparcelable.VersionedParcelize;
 
 /**
  * A class for rating expressed as a percentage.
+ *
+ * @deprecated androidx.media2 is deprecated. Please migrate to <a
+ *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
  */
+@Deprecated
 @VersionedParcelize
 public final class PercentageRating implements Rating {
     private static final float RATING_NOT_RATED = -1.0f;

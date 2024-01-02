@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
+import androidx.compose.ui.util.fastFirstOrNull
 import androidx.wear.compose.foundation.lazy.CombinedPaddingValues
 import androidx.wear.compose.foundation.lazy.verticalNegativePadding
 
@@ -673,7 +674,7 @@ private fun ScalingLazyColumnItemWrapper(
             val reverseLayout = state.reverseLayout.value!!
             val anchorType = state.anchorType.value!!
             val items = state.layoutInfo.internalVisibleItemInfo()
-            val currentItem = items.find { it.index == index }
+            val currentItem = items.fastFirstOrNull { it.index == index }
             if (currentItem != null) {
                 alpha = currentItem.alpha
                 scaleX = currentItem.scale

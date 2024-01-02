@@ -17,16 +17,17 @@
 package androidx.compose.runtime
 
 /**
- * Remember the value produced by [calculation]. [calculation] will only be evaluated during the composition.
- * Recomposition will always return the value produced by composition.
+ * Remember the value produced by [calculation]. [calculation] will only be evaluated during the
+ * composition. Recomposition will always return the value produced by composition.
  */
 @Composable
 inline fun <T> remember(crossinline calculation: @DisallowComposableCalls () -> T): T =
     currentComposer.cache(false, calculation)
 
 /**
- * Remember the value returned by [calculation] if [key1] is equal to the previous composition,
- * otherwise produce and remember a new value by calling [calculation].
+ * Remember the value returned by [calculation] if [key1] compares equal (`==`) to the value it
+ * had in the previous composition, otherwise produce and remember a new value by calling
+ * [calculation].
  */
 @Composable
 inline fun <T> remember(
@@ -37,8 +38,9 @@ inline fun <T> remember(
 }
 
 /**
- * Remember the value returned by [calculation] if [key1] and [key2] are equal to the previous
- * composition, otherwise produce and remember a new value by calling [calculation].
+ * Remember the value returned by [calculation] if [key1] and [key2] are equal (`==`) to the
+ * values they had in the previous composition, otherwise produce and remember a new value by
+ * calling [calculation].
  */
 @Composable
 inline fun <T> remember(
@@ -53,8 +55,9 @@ inline fun <T> remember(
 }
 
 /**
- * Remember the value returned by [calculation] if [key1], [key2] and [key3] are equal to the
- * previous composition, otherwise produce and remember a new value by calling [calculation].
+ * Remember the value returned by [calculation] if [key1], [key2] and [key3] are equal (`==`) to
+ * values they had in the previous composition, otherwise produce and remember a new value by
+ * calling [calculation].
  */
 @Composable
 inline fun <T> remember(
@@ -72,8 +75,9 @@ inline fun <T> remember(
 }
 
 /**
- * Remember the value returned by [calculation] if all values of [keys] are equal to the previous
- * composition, otherwise produce and remember a new value by calling [calculation].
+ * Remember the value returned by [calculation] if all values of [keys] are equal (`==`) to the
+ * values they had in the previous composition, otherwise produce and remember a new value by
+ * calling [calculation].
  */
 @Composable
 inline fun <T> remember(

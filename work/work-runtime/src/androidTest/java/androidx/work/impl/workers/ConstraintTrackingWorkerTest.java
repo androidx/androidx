@@ -28,7 +28,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.content.Context;
-import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 
@@ -45,6 +44,7 @@ import androidx.work.Configuration;
 import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.DatabaseTest;
+import androidx.work.DefaultWorkerFactory;
 import androidx.work.ForegroundUpdater;
 import androidx.work.ListenableWorker;
 import androidx.work.OneTimeWorkRequest;
@@ -154,9 +154,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
 
     @After
     public void tearDown() {
-        if (Build.VERSION.SDK_INT >= 18) {
-            mHandlerThread.quitSafely();
-        }
+        mHandlerThread.quitSafely();
     }
 
     @Test
@@ -350,7 +348,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
         private final WorkerFactory mDefaultFactory;
 
         SpyingWorkerFactory() {
-            mDefaultFactory = WorkerFactory.getDefaultWorkerFactory();
+            mDefaultFactory = DefaultWorkerFactory.INSTANCE;
         }
 
         @Nullable

@@ -18,17 +18,15 @@ package androidx.compose.foundation.text.selection
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.style.ResolvedTextDirection
 
 @Composable
 internal actual fun SelectionHandle(
-    position: Offset,
+    offsetProvider: OffsetProvider,
     isStartHandle: Boolean,
     direction: ResolvedTextDirection,
     handlesCrossed: Boolean,
     modifier: Modifier,
-    content: (@Composable () -> Unit)?
 ) {
     // TODO
 }

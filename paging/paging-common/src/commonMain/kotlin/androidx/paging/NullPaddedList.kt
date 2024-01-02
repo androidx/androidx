@@ -22,8 +22,6 @@ import androidx.annotation.RestrictTo
  * Interface to partially-loaded, paged data (generally an immutable snapshot).
  *
  * Used for diffing in paging-runtime.
- *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface NullPaddedList<T> {
@@ -31,5 +29,5 @@ public interface NullPaddedList<T> {
     public fun getFromStorage(localIndex: Int): T
     public val placeholdersAfter: Int
     public val size: Int
-    public val storageCount: Int
+    public val dataCount: Int
 }

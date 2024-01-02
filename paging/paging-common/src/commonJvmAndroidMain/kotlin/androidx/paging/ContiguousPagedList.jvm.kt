@@ -29,9 +29,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-/**
- * @suppress
- */
 @Suppress("DEPRECATION")
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public open class ContiguousPagedList<K : Any, V : Any>(
@@ -342,7 +339,7 @@ public open class ContiguousPagedList<K : Any, V : Any>(
         val appendItems = getAppendItemsRequested(
             config.prefetchDistance,
             index,
-            storage.placeholdersBefore + storage.storageCount
+            storage.placeholdersBefore + storage.dataCount
         )
 
         prependItemsRequested = maxOf(prependItems, prependItemsRequested)

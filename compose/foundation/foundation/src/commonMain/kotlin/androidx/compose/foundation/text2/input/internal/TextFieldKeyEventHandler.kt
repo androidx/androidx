@@ -20,35 +20,58 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.DeadKeyCombiner
 import androidx.compose.foundation.text.KeyCommand
 import androidx.compose.foundation.text.appendCodePointX
+import androidx.compose.foundation.text.cancelsTextSelection
 import androidx.compose.foundation.text.isTypedEvent
 import androidx.compose.foundation.text.platformDefaultKeyMapping
 import androidx.compose.foundation.text.showCharacterPalette
-import androidx.compose.foundation.text2.input.TextEditFilter
-import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.internal.TextFieldPreparedSelection.Companion.NoCharacterFound
+import androidx.compose.foundation.text2.input.internal.selection.TextFieldSelectionState
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.text.TextRange
 
 /**
- * Handles KeyEvents coming to a BasicTextField. This is mostly to support hardware keyboard but
+ * Factory function to create a platform specific [TextFieldKeyEventHandler].
+ */
+internal expect fun createTextFieldKeyEventHandler(): TextFieldKeyEventHandler
+
+/**
+ * Handles KeyEvents coming to a BasicTextField2. This is mostly to support hardware keyboard but
  * any KeyEvent can also be sent by the IME or other platform systems.
+ *
+ * This class is left abstract to make sure that each platform extends from it. Platforms can
+ * decide to extend or completely override KeyEvent actions defined here.
  */
 @OptIn(ExperimentalFoundationApi::class)
-internal class TextFieldKeyEventHandler {
+internal abstract class TextFieldKeyEventHandler {
     private val preparedSelectionState = TextFieldPreparedSelectionState()
     private val deadKeyCombiner = DeadKeyCombiner()
     private val keyMapping = platformDefaultKeyMapping
-    private var filter: TextEditFilter? = null
 
-    fun setFilter(filter: TextEditFilter?) {
-        this.filter = filter
+    open fun onPreKeyEvent(
+        event: KeyEvent,
+        textFieldState: TransformedTextFieldState,
+        textFieldSelectionState: TextFieldSelectionState,
+        focusManager: FocusManager,
+        keyboardController: SoftwareKeyboardController
+    ): Boolean {
+        val selection = textFieldState.visualText.selectionInChars
+        return if (!selection.collapsed && event.cancelsTextSelection()) {
+            textFieldSelectionState.deselect()
+            true
+        } else {
+            false
+        }
     }
 
-    fun onKeyEvent(
+    open fun onKeyEvent(
         event: KeyEvent,
-        state: TextFieldState,
+        textFieldState: TransformedTextFieldState,
         textLayoutState: TextLayoutState,
+        textFieldSelectionState: TextFieldSelectionState,
         editable: Boolean,
         singleLine: Boolean,
         onSubmit: () -> Unit
@@ -56,28 +79,34 @@ internal class TextFieldKeyEventHandler {
         if (event.type != KeyEventType.KeyDown) {
             return false
         }
-        val editCommand = event.toTypedEditCommand()
-        if (editCommand != null) {
-            return if (editable) {
-                editCommand.applyOnto(state)
-                preparedSelectionState.resetCachedX()
-                true
-            } else {
-                false
+
+        if (event.isTypedEvent) {
+            val codePoint = deadKeyCombiner.consume(event)
+            if (codePoint != null) {
+                val text = StringBuilder(2).appendCodePointX(codePoint).toString()
+                return if (editable) {
+                    textFieldState.editUntransformedTextAsUser {
+                        commitComposition()
+                        commitText(text, 1)
+                    }
+                    preparedSelectionState.resetCachedX()
+                    true
+                } else {
+                    false
+                }
             }
         }
+
         val command = keyMapping.map(event)
         if (command == null || (command.editsText && !editable)) {
             return false
         }
         var consumed = true
-        preparedSelectionContext(state, textLayoutState) {
+        preparedSelectionContext(textFieldState, textLayoutState) {
             when (command) {
-                // TODO(halilibo): implement after selection is supported.
-                KeyCommand.COPY, // -> selectionManager.copy(false)
-                    // TODO(siyamed): cut & paste will cause a reset input
-                KeyCommand.PASTE, // -> selectionManager.paste()
-                KeyCommand.CUT -> moveCursorRight() // selectionManager.cut()
+                KeyCommand.COPY -> textFieldSelectionState.copy(false)
+                KeyCommand.PASTE -> textFieldSelectionState.paste()
+                KeyCommand.CUT -> textFieldSelectionState.cut()
                 KeyCommand.LEFT_CHAR -> collapseLeftOr { moveCursorLeft() }
                 KeyCommand.RIGHT_CHAR -> collapseRightOr { moveCursorRight() }
                 KeyCommand.LEFT_WORD -> moveCursorLeftByWord()
@@ -94,70 +123,69 @@ internal class TextFieldKeyEventHandler {
                 KeyCommand.LINE_RIGHT -> moveCursorToLineRightSide()
                 KeyCommand.HOME -> moveCursorToHome()
                 KeyCommand.END -> moveCursorToEnd()
-                KeyCommand.DELETE_PREV_CHAR ->
+                KeyCommand.DELETE_PREV_CHAR -> {
                     deleteIfSelectedOr {
-                        DeleteSurroundingTextCommand(
-                            selection.end - getPrecedingCharacterIndex(),
-                            0
-                        )
-                    }?.applyOnto(state)
-
-                KeyCommand.DELETE_NEXT_CHAR -> {
-                    // Note that some software keyboards, such as Samsungs, go through this code
-                    // path instead of making calls on the InputConnection directly.
-                    deleteIfSelectedOr {
-                        val nextCharacterIndex = getNextCharacterIndex()
-                        // If there's no next character, it means the cursor is at the end of the
-                        // text, and this should be a no-op. See b/199919707.
-                        if (nextCharacterIndex != NoCharacterFound) {
-                            DeleteSurroundingTextCommand(0, nextCharacterIndex - selection.end)
-                        } else {
-                            null
+                        getPrecedingCharacterIndex().takeIf { it != NoCharacterFound }?.let {
+                            TextRange(it, selection.end)
                         }
-                    }?.applyOnto(state)
+                    }
                 }
 
-                KeyCommand.DELETE_PREV_WORD ->
+                KeyCommand.DELETE_NEXT_CHAR -> {
+                    // Note that some software keyboards, such as Samsung, go through this code
+                    // path instead of making calls on the InputConnection directly.
                     deleteIfSelectedOr {
-                        getPreviousWordOffset()?.let {
-                            DeleteSurroundingTextCommand(selection.end - it, 0)
+                        getNextCharacterIndex().takeIf { it != NoCharacterFound }?.let {
+                            TextRange(selection.start, it)
                         }
-                    }?.applyOnto(state)
+                    }
+                }
 
-                KeyCommand.DELETE_NEXT_WORD ->
+                KeyCommand.DELETE_PREV_WORD -> {
                     deleteIfSelectedOr {
-                        getNextWordOffset()?.let {
-                            DeleteSurroundingTextCommand(0, it - selection.end)
-                        }
-                    }?.applyOnto(state)
+                        TextRange(getPreviousWordOffset(), selection.end)
+                    }
+                }
 
-                KeyCommand.DELETE_FROM_LINE_START ->
+                KeyCommand.DELETE_NEXT_WORD -> {
                     deleteIfSelectedOr {
-                        getLineStartByOffset()?.let {
-                            DeleteSurroundingTextCommand(selection.end - it, 0)
-                        }
-                    }?.applyOnto(state)
+                        TextRange(selection.start, getNextWordOffset())
+                    }
+                }
 
-                KeyCommand.DELETE_TO_LINE_END ->
+                KeyCommand.DELETE_FROM_LINE_START -> {
                     deleteIfSelectedOr {
-                        getLineEndByOffset()?.let {
-                            DeleteSurroundingTextCommand(0, it - selection.end)
-                        }
-                    }?.applyOnto(state)
+                        TextRange(getLineStartByOffset(), selection.end)
+                    }
+                }
 
-                KeyCommand.NEW_LINE ->
+                KeyCommand.DELETE_TO_LINE_END -> {
+                    deleteIfSelectedOr {
+                        TextRange(selection.start, getLineEndByOffset())
+                    }
+                }
+
+                KeyCommand.NEW_LINE -> {
                     if (!singleLine) {
-                        CommitTextCommand("\n", 1).applyOnto(state)
+                        textFieldState.editUntransformedTextAsUser {
+                            commitComposition()
+                            commitText("\n", 1)
+                        }
                     } else {
                         onSubmit()
                     }
+                }
 
-                KeyCommand.TAB ->
+                KeyCommand.TAB -> {
                     if (!singleLine) {
-                        CommitTextCommand("\t", 1).applyOnto(state)
+                        textFieldState.editUntransformedTextAsUser {
+                            commitComposition()
+                            commitText("\t", 1)
+                        }
                     } else {
                         consumed = false // let propagate to focus system
                     }
+                }
 
                 KeyCommand.SELECT_ALL -> selectAll()
                 KeyCommand.SELECT_LEFT_CHAR -> moveCursorLeft().selectMovement()
@@ -178,12 +206,11 @@ internal class TextFieldKeyEventHandler {
                 KeyCommand.SELECT_END -> moveCursorToEnd().selectMovement()
                 KeyCommand.DESELECT -> deselect()
                 KeyCommand.UNDO -> {
-                    // undoManager?.makeSnapshot(value)
-                    // undoManager?.undo()?.let { this@TextFieldKeyInput.onValueChange(it) }
+                    textFieldState.undo()
                 }
 
                 KeyCommand.REDO -> {
-                    // undoManager?.redo()?.let { this@TextFieldKeyInput.onValueChange(it) }
+                    textFieldState.redo()
                 }
 
                 KeyCommand.CHARACTER_PALETTE -> {
@@ -191,53 +218,38 @@ internal class TextFieldKeyEventHandler {
                 }
             }
         }
-        // undoManager?.forceNextSnapshot()
         return consumed
     }
 
-    private fun KeyEvent.toTypedEditCommand(): CommitTextCommand? {
-        if (!isTypedEvent) {
-            return null
-        }
-
-        val codePoint = deadKeyCombiner.consume(this) ?: return null
-        val text = StringBuilder(2).appendCodePointX(codePoint).toString()
-        return CommitTextCommand(text, 1)
-    }
-
     private inline fun preparedSelectionContext(
-        state: TextFieldState,
+        state: TransformedTextFieldState,
         textLayoutState: TextLayoutState,
         block: TextFieldPreparedSelection.() -> Unit
     ) {
+        val layoutResult = textLayoutState.layoutResult ?: return
+        val visibleTextLayoutHeight = textLayoutState.getVisibleTextLayoutHeight() ?: return
         val preparedSelection = TextFieldPreparedSelection(
             state = state,
-            textLayoutState = textLayoutState,
+            textLayoutResult = layoutResult,
+            visibleTextLayoutHeight = visibleTextLayoutHeight,
             textPreparedSelectionState = preparedSelectionState
         )
         preparedSelection.block()
         if (preparedSelection.selection != preparedSelection.initialValue.selectionInChars) {
-            // update the editProcessor with the latest selection state.
-            // this has to be a reset because EditCommands do not inform IME.
-            state.edit {
-                selectCharsIn(preparedSelection.selection)
-            }
+            // selection changes are applied atomically at the end of context evaluation
+            state.selectCharsIn(preparedSelection.selection)
         }
     }
 
     /**
-     * Helper function to apply a list of EditCommands in the scope of [TextFieldPreparedSelection]
+     * Returns the current viewport height of TextField to help calculate where cursor should travel
+     * when page down and up events are received.
      */
-    private fun List<EditCommand>.applyOnto(state: TextFieldState) {
-        state.editProcessor.update(
-            this.toMutableList().apply {
-                add(0, FinishComposingTextCommand)
-            },
-            filter
-        )
-    }
-
-    private fun EditCommand.applyOnto(state: TextFieldState) {
-        state.editProcessor.update(listOf(FinishComposingTextCommand, this), filter)
+    private fun TextLayoutState.getVisibleTextLayoutHeight(): Float? {
+        return textLayoutNodeCoordinates?.takeIf { it.isAttached }?.let { textLayoutCoordinates ->
+            decoratorNodeCoordinates?.takeIf { it.isAttached }?.let { decoratorCoordinates ->
+                decoratorCoordinates.localBoundingBoxOf(textLayoutCoordinates)
+            }
+        }?.size?.height
     }
 }

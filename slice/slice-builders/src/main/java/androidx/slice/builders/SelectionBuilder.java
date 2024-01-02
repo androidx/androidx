@@ -22,7 +22,6 @@ import android.app.PendingIntent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArraySet;
 import androidx.core.util.Pair;
@@ -38,8 +37,12 @@ import java.util.Set;
  *
  * A selection presents a list of options to the user and allows the user to select exactly one
  * option.
+ *
+ * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+ * forward. If you are looking for a framework that handles communication across apps,
+ * consider using {@link android.app.appsearch.AppSearchManager}.
  */
-@RequiresApi(19)
+@Deprecated
 public class SelectionBuilder {
     private final List<Pair<String, CharSequence>> mOptions;
     private final Set<String> mOptionKeys;

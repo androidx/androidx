@@ -64,6 +64,26 @@ class TransformationsTest {
     }
 
     @Test
+    fun testMap_initialValueIsSet() {
+        val initialValue = "value"
+        val source = MutableLiveData(initialValue)
+        val mapped = source.map { it }
+        assertThat(mapped.isInitialized, `is`(true))
+        assertThat(source.value, `is`(initialValue))
+        assertThat(mapped.value, `is`(initialValue))
+    }
+
+    @Test
+    fun testMap_initialValueNull() {
+        val source = MutableLiveData<String?>(null)
+        val output = "testOutput"
+        val mapped: LiveData<String?> = source.map { output }
+        assertThat(mapped.isInitialized, `is`(true))
+        assertThat(source.value, nullValue())
+        assertThat(mapped.value, `is`(output))
+    }
+
+    @Test
     fun testSwitchMap() {
         val trigger: LiveData<Int> = MutableLiveData()
         val first: LiveData<String> = MutableLiveData()
@@ -120,6 +140,50 @@ class TransformationsTest {
         reset(observer)
         first.value = "failure"
         verify(observer, never()).onChanged(anyString())
+    }
+
+    @Test
+    fun testSwitchMap_initialValueSet() {
+        val initialValue1 = "value1"
+        val original = MutableLiveData(true)
+        val source1 = MutableLiveData(initialValue1)
+
+        val switched = original.switchMap { source1 }
+        assertThat(switched.isInitialized, `is`(true))
+        assertThat(source1.value, `is`(initialValue1))
+        assertThat(switched.value, `is`(initialValue1))
+    }
+
+    @Test
+    fun testSwitchMap_noInitialValue_notInitialized() {
+        val original = MutableLiveData(true)
+        val source = MutableLiveData<String>()
+
+        val switched = original.switchMap { source }
+        assertThat(switched.isInitialized, `is`(false))
+    }
+
+    @Test
+    fun testSwitchMap_initialValueNull() {
+        val original = MutableLiveData<String?>(null)
+        val source = MutableLiveData<String?>()
+
+        val switched = original.switchMap { source }
+        assertThat(switched.isInitialized, `is`(false))
+    }
+
+    @Test
+    fun testSwitchMap_sameLiveData() {
+        val initialValue = "value"
+        val modifiedValue = "modifiedValue"
+        val observer = mock(Observer::class.java) as Observer<in String?>
+        val original = MutableLiveData(true)
+        val source = MutableLiveData(initialValue)
+        val switchMapLiveData = original.switchMap { source }
+        switchMapLiveData.observe(owner, observer)
+        source.value = modifiedValue
+        verify(observer).onChanged(modifiedValue)
+        assertThat(switchMapLiveData.value, `is`(modifiedValue))
     }
 
     @Test

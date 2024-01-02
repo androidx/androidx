@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
  *
  * @param <T> The custom type that can be serialized to a String.
  */
+// @exportToFramework:skipFile()
 public interface StringSerializer<T> {
     /**
      * Serializes a {@link T} to a String.

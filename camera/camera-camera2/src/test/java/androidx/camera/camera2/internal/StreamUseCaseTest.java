@@ -17,12 +17,10 @@
 package androidx.camera.camera2.internal;
 
 import static android.os.Build.VERSION.SDK_INT;
-
 import static androidx.camera.camera2.internal.StreamUseCaseUtil.STREAM_USE_CASE_STREAM_SPEC_OPTION;
 import static androidx.camera.core.DynamicRange.BIT_DEPTH_10_BIT;
 import static androidx.camera.core.ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY;
 import static androidx.camera.core.ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG;
-
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 
@@ -198,14 +196,16 @@ public class StreamUseCaseTest {
     public void shouldUseStreamUseCase_cameraModeNotSupported() {
         assertFalse(StreamUseCaseUtil.shouldUseStreamUseCase(
                 SupportedSurfaceCombination.FeatureSettings.of(CameraMode.CONCURRENT_CAMERA,
-                        DynamicRange.BIT_DEPTH_8_BIT)));
+                        DynamicRange.BIT_DEPTH_8_BIT,
+                        false)));
     }
 
     @Test
     public void shouldUseStreamUseCase_bitDepthNotSupported() {
         assertFalse(StreamUseCaseUtil.shouldUseStreamUseCase(
                 SupportedSurfaceCombination.FeatureSettings.of(CameraMode.DEFAULT,
-                        BIT_DEPTH_10_BIT)));
+                        BIT_DEPTH_10_BIT,
+                        false)));
     }
 
     @Test

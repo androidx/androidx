@@ -18,6 +18,7 @@ package androidx.core.view.accessibility;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
@@ -371,6 +372,7 @@ public final class AccessibilityEventCompat {
      * Appends an {@link AccessibilityRecord} to the end of
      * event records.
      *
+     * @param event event for which to append the record.
      * @param record The record to append.
      *
      * @throws IllegalStateException If called from an AccessibilityService.
@@ -386,6 +388,7 @@ public final class AccessibilityEventCompat {
     /**
      * Gets the record at a given index.
      *
+     * @param event event for which to get the record.
      * @param index The index.
      * @return The record at the specified index.
      *
@@ -422,15 +425,14 @@ public final class AccessibilityEventCompat {
      * Sets the bit mask of node tree changes signaled by an
      * {@link #TYPE_WINDOW_CONTENT_CHANGED} event.
      *
+     * @param event event for which to set the types.
      * @param changeTypes The bit mask of change types.
      * @throws IllegalStateException If called from an AccessibilityService.
      * @see #getContentChangeTypes(AccessibilityEvent)
      */
     public static void setContentChangeTypes(@NonNull AccessibilityEvent event,
             @ContentChangeType int changeTypes) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            Api19Impl.setContentChangeTypes(event, changeTypes);
-        }
+        event.setContentChangeTypes(changeTypes);
     }
 
     /**
@@ -447,26 +449,22 @@ public final class AccessibilityEventCompat {
      *         <li>{@link AccessibilityEvent#CONTENT_CHANGE_TYPE_UNDEFINED}
      *         </ul>
      */
+    @SuppressLint("WrongConstant")
     @ContentChangeType
     public static int getContentChangeTypes(@NonNull AccessibilityEvent event) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            return Api19Impl.getContentChangeTypes(event);
-        } else {
-            return 0;
-        }
+        return event.getContentChangeTypes();
     }
 
     /**
      * Sets the movement granularity that was traversed.
      *
+     * @param event event for which to set the granularity.
      * @param granularity The granularity.
      *
      * @throws IllegalStateException If called from an AccessibilityService.
      */
     public static void setMovementGranularity(@NonNull AccessibilityEvent event, int granularity) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            Api16Impl.setMovementGranularity(event, granularity);
-        }
+        event.setMovementGranularity(granularity);
     }
 
     /**
@@ -475,11 +473,7 @@ public final class AccessibilityEventCompat {
      * @return The granularity.
      */
     public static int getMovementGranularity(@NonNull AccessibilityEvent event) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return Api16Impl.getMovementGranularity(event);
-        } else {
-            return 0;
-        }
+        return event.getMovementGranularity();
     }
 
     /**
@@ -495,14 +489,13 @@ public final class AccessibilityEventCompat {
      * <li>etc.
      * </ul>
      *
+     * @param event event for which to set the action.
      * @param action The action.
      * @throws IllegalStateException If called from an AccessibilityService.
      * @see AccessibilityNodeInfoCompat#performAction(int)
      */
     public static void setAction(@NonNull AccessibilityEvent event, int action) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            Api16Impl.setAction(event, action);
-        }
+        event.setAction(action);
     }
 
     /**
@@ -511,11 +504,7 @@ public final class AccessibilityEventCompat {
      * @return The action.
      */
     public static int getAction(@NonNull AccessibilityEvent event) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return Api16Impl.getAction(event);
-        } else {
-            return 0;
-        }
+        return event.getAction();
     }
 
     /**
@@ -582,49 +571,6 @@ public final class AccessibilityEventCompat {
         static void setAccessibilityDataSensitive(AccessibilityEvent event,
                 boolean accessibilityDataSensitive) {
             event.setAccessibilityDataSensitive(accessibilityDataSensitive);
-        }
-    }
-    @RequiresApi(19)
-    static class Api19Impl {
-        private Api19Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static void setContentChangeTypes(AccessibilityEvent accessibilityEvent, int changeTypes) {
-            accessibilityEvent.setContentChangeTypes(changeTypes);
-        }
-
-        @DoNotInline
-        static int getContentChangeTypes(AccessibilityEvent accessibilityEvent) {
-            return accessibilityEvent.getContentChangeTypes();
-        }
-    }
-
-    @RequiresApi(16)
-    static class Api16Impl {
-        private Api16Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static void setMovementGranularity(AccessibilityEvent accessibilityEvent, int granularity) {
-            accessibilityEvent.setMovementGranularity(granularity);
-        }
-
-        @DoNotInline
-        static int getMovementGranularity(AccessibilityEvent accessibilityEvent) {
-            return accessibilityEvent.getMovementGranularity();
-        }
-
-        @DoNotInline
-        static void setAction(AccessibilityEvent accessibilityEvent, int action) {
-            accessibilityEvent.setAction(action);
-        }
-
-        @DoNotInline
-        static int getAction(AccessibilityEvent accessibilityEvent) {
-            return accessibilityEvent.getAction();
         }
     }
 }

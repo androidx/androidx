@@ -18,9 +18,15 @@ package androidx.wear.protolayout.expression;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.wear.protolayout.expression.VersionBuilders.VersionInfo;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 @RunWith(RobolectricTestRunner.class)
 public final class VersionInfoTest {
@@ -29,10 +35,22 @@ public final class VersionInfoTest {
         int major = 10;
         int minor = 20;
 
-        VersionBuilders.VersionInfo versionInfo =
-                new VersionBuilders.VersionInfo.Builder().setMajor(major).setMinor(minor).build();
+        VersionInfo versionInfo = new VersionInfo.Builder().setMajor(major).setMinor(minor).build();
 
         assertThat(versionInfo.toProto().getMajor()).isEqualTo(major);
         assertThat(versionInfo.toProto().getMinor()).isEqualTo(minor);
+    }
+
+    @Test
+    public void versionInfoComparison() {
+        VersionInfo v1_0 = new VersionInfo.Builder().setMajor(1).setMinor(0).build();
+        VersionInfo v1_1 = new VersionInfo.Builder().setMajor(1).setMinor(1).build();
+        VersionInfo v2_0 = new VersionInfo.Builder().setMajor(2).setMinor(0).build();
+        VersionInfo v2_1 = new VersionInfo.Builder().setMajor(2).setMinor(1).build();
+        List<VersionInfo> versions = Arrays.asList(v2_1, v2_0, v1_1, v2_0, v1_0);
+
+        Collections.sort(versions);
+
+        assertThat(versions).containsExactly(v1_0, v1_1, v2_0, v2_0, v2_1).inOrder();
     }
 }

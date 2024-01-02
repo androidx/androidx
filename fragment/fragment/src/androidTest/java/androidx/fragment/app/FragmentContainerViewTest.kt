@@ -85,7 +85,24 @@ class FragmentContainerViewTest {
         layoutInflater.inflate(R.layout.inflated_fragment_container_view_with_class, null)
     }
 
-    @SdkSuppress(minSdkVersion = 18) // androidx.transition needs setLayoutTransition for API < 18
+    @Test
+    fun inflatedNestedFragmentWithStates() {
+        val activity = activityRule.activity
+        val fm = activity.supportFragmentManager
+        val fragmentParent = StrictViewFragment(
+            contentLayoutId = R.layout.inflated_fragment_container_view_strict_view
+        )
+
+        fm.beginTransaction()
+            .add(R.id.fragment_container_view, fragmentParent)
+            .commit()
+        activityRule.runOnUiThread { fm.executePendingTransactions() }
+
+        // child frag should inflate properly with correct states
+        val childFrag = fragmentParent.childFragmentManager.findFragmentByTag("childFragment")
+        assertThat(childFrag).isNotNull()
+    }
+
     @Test
     fun setLayoutTransitionUnsupported() {
         val activity = activityRule.activity
@@ -102,20 +119,6 @@ class FragmentContainerViewTest {
                         "animateLayoutChanges=\"true\"."
                 )
         }
-    }
-
-    @SdkSuppress(maxSdkVersion = 17) // androidx.transition needs setLayoutTransition for API < 18
-    @Test
-    fun setLayoutTransitionAllowed() {
-        val emptyLayoutTransition = LayoutTransition()
-        emptyLayoutTransition.setAnimator(LayoutTransition.APPEARING, null)
-        emptyLayoutTransition.setAnimator(LayoutTransition.CHANGE_APPEARING, null)
-        emptyLayoutTransition.setAnimator(LayoutTransition.CHANGE_DISAPPEARING, null)
-        emptyLayoutTransition.setAnimator(LayoutTransition.DISAPPEARING, null)
-        emptyLayoutTransition.setAnimator(4 /*LayoutTransition.Changing*/, null)
-
-        val containerView = FragmentContainerView(context)
-        containerView.layoutTransition = emptyLayoutTransition
     }
 
     // If view sets animateLayoutChanges to true, throw UnsupportedOperationException

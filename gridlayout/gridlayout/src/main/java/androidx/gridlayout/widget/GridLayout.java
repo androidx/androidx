@@ -919,8 +919,8 @@ public class GridLayout extends ViewGroup {
     protected void onMeasure(int widthSpec, int heightSpec) {
         consistencyCheck();
 
-        /** If we have been called by {@link View#measure(int, int)}, one of width or height
-         *  is  likely to have changed. We must invalidate if so. */
+        /* If we have been called by {@link View#measure(int, int)}, one of width or height
+           is  likely to have changed. We must invalidate if so. */
         invalidateValues();
 
         int hPadding = getPaddingLeft() + getPaddingRight();

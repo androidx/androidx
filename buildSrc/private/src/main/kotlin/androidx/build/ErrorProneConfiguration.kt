@@ -35,6 +35,7 @@ import org.gradle.kotlin.dsl.exclude
 import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.getByName
 import org.gradle.process.CommandLineArgumentProvider
+import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 
 const val ERROR_PRONE_TASK = "runErrorProne"
 
@@ -49,9 +50,14 @@ fun Project.configureErrorProneForJava() {
             errorProneConfiguration
         )
     }
+    val kmpExtension = project.multiplatformExtension
+    if (kmpExtension?.targets?.any { it is KotlinJvmTarget && it.withJavaEnabled } == false) {
+        // only configure error prone when Kotlin adds compileJava task
+        return
+    }
+
     val javaCompileProvider = project.tasks.named(COMPILE_JAVA_TASK_NAME, JavaCompile::class.java)
     log.info("Configuring error-prone for ${project.path}")
-    val kmpExtension = project.multiplatformExtension
     if (kmpExtension != null) {
         val jvmJarProvider = tasks.named(kmpExtension.jvm().artifactsTaskName, Jar::class.java)
         makeKmpErrorProneTask(
@@ -112,7 +118,7 @@ private fun Project.createErrorProneConfiguration(): Configuration {
             it.isCanBeResolved = true
             it.exclude(group = "com.google.errorprone", module = "javac")
         }
-    dependencies.add(ERROR_PRONE_CONFIGURATION, ERROR_PRONE_VERSION)
+    dependencies.add(ERROR_PRONE_CONFIGURATION, getLibraryByName("errorProne"))
     return errorProneConfiguration
 }
 
@@ -172,6 +178,12 @@ private fun JavaCompile.configureWithErrorProne() {
                     "-Xep:DoNotClaimAnnotations:OFF",
                     "-Xep:AlreadyChecked:OFF",
                     "-Xep:StringSplitter:OFF",
+                    "-Xep:NonApiType:OFF",
+                    "-Xep:StringCaseLocaleUsage:OFF",
+                    "-Xep:LabelledBreakTarget:OFF",
+                    "-Xep:Finalize:OFF",
+                    "-Xep:AddressSelection:OFF",
+                    "-Xep:StringCharset:OFF",
 
                     // We allow inter library RestrictTo usage.
                     "-Xep:RestrictTo:OFF",

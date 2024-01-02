@@ -1,49 +1,49 @@
 // Signature format: 4.0
 package androidx.slice.builders {
 
-  public final class CellBuilderDsl extends androidx.slice.builders.GridRowBuilder.CellBuilder {
-    ctor public CellBuilderDsl();
+  @Deprecated public final class CellBuilderDsl extends androidx.slice.builders.GridRowBuilder.CellBuilder {
+    ctor @Deprecated public CellBuilderDsl();
   }
 
-  public final class GridRowBuilderDsl extends androidx.slice.builders.GridRowBuilder {
-    ctor public GridRowBuilderDsl();
+  @Deprecated public final class GridRowBuilderDsl extends androidx.slice.builders.GridRowBuilder {
+    ctor @Deprecated public GridRowBuilderDsl();
   }
 
   public final class GridRowBuilderKt {
-    method public static inline androidx.slice.builders.GridRowBuilder cell(androidx.slice.builders.GridRowBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.CellBuilderDsl,kotlin.Unit> buildCell);
-    method public static inline androidx.slice.builders.GridRowBuilder seeMoreCell(androidx.slice.builders.GridRowBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.CellBuilderDsl,kotlin.Unit> buildCell);
+    method @Deprecated public static inline androidx.slice.builders.GridRowBuilder cell(androidx.slice.builders.GridRowBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.CellBuilderDsl,kotlin.Unit> buildCell);
+    method @Deprecated public static inline androidx.slice.builders.GridRowBuilder seeMoreCell(androidx.slice.builders.GridRowBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.CellBuilderDsl,kotlin.Unit> buildCell);
   }
 
-  public final class HeaderBuilderDsl extends androidx.slice.builders.ListBuilder.HeaderBuilder {
-    ctor public HeaderBuilderDsl();
+  @Deprecated public final class HeaderBuilderDsl extends androidx.slice.builders.ListBuilder.HeaderBuilder {
+    ctor @Deprecated public HeaderBuilderDsl();
   }
 
-  public final class InputRangeBuilderDsl extends androidx.slice.builders.ListBuilder.InputRangeBuilder {
-    ctor public InputRangeBuilderDsl();
+  @Deprecated public final class InputRangeBuilderDsl extends androidx.slice.builders.ListBuilder.InputRangeBuilder {
+    ctor @Deprecated public InputRangeBuilderDsl();
   }
 
-  public final class ListBuilderDsl extends androidx.slice.builders.ListBuilder {
-    ctor public ListBuilderDsl(android.content.Context context, android.net.Uri uri, long ttl);
+  @Deprecated public final class ListBuilderDsl extends androidx.slice.builders.ListBuilder {
+    ctor @Deprecated public ListBuilderDsl(android.content.Context context, android.net.Uri uri, long ttl);
   }
 
   public final class ListBuilderKt {
-    method public static inline androidx.slice.builders.ListBuilder gridRow(androidx.slice.builders.ListBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.GridRowBuilderDsl,kotlin.Unit> buildGrid);
-    method public static inline androidx.slice.builders.ListBuilder header(androidx.slice.builders.ListBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.HeaderBuilderDsl,kotlin.Unit> buildHeader);
-    method public static inline androidx.slice.builders.ListBuilder inputRange(androidx.slice.builders.ListBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.InputRangeBuilderDsl,kotlin.Unit> buildInputRange);
-    method public static inline androidx.slice.Slice list(android.content.Context context, android.net.Uri uri, long ttl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.ListBuilderDsl,kotlin.Unit> addRows);
-    method public static inline androidx.slice.builders.ListBuilder range(androidx.slice.builders.ListBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.RangeBuilderDsl,kotlin.Unit> buildRange);
-    method public static inline androidx.slice.builders.ListBuilder row(androidx.slice.builders.ListBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.RowBuilderDsl,kotlin.Unit> buildRow);
-    method public static inline androidx.slice.builders.ListBuilder seeMoreRow(androidx.slice.builders.ListBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.RowBuilderDsl,kotlin.Unit> buildRow);
-    method public static androidx.slice.builders.SliceAction tapSliceAction(android.app.PendingIntent pendingIntent, androidx.core.graphics.drawable.IconCompat icon, optional int imageMode, CharSequence title);
-    method public static androidx.slice.builders.SliceAction toggleSliceAction(android.app.PendingIntent pendingIntent, optional androidx.core.graphics.drawable.IconCompat? icon, CharSequence title, boolean isChecked);
+    method @Deprecated public static inline androidx.slice.builders.ListBuilder gridRow(androidx.slice.builders.ListBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.GridRowBuilderDsl,kotlin.Unit> buildGrid);
+    method @Deprecated public static inline androidx.slice.builders.ListBuilder header(androidx.slice.builders.ListBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.HeaderBuilderDsl,kotlin.Unit> buildHeader);
+    method @Deprecated public static inline androidx.slice.builders.ListBuilder inputRange(androidx.slice.builders.ListBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.InputRangeBuilderDsl,kotlin.Unit> buildInputRange);
+    method @Deprecated public static inline androidx.slice.Slice list(android.content.Context context, android.net.Uri uri, long ttl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.ListBuilderDsl,kotlin.Unit> addRows);
+    method @Deprecated public static inline androidx.slice.builders.ListBuilder range(androidx.slice.builders.ListBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.RangeBuilderDsl,kotlin.Unit> buildRange);
+    method @Deprecated public static inline androidx.slice.builders.ListBuilder row(androidx.slice.builders.ListBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.RowBuilderDsl,kotlin.Unit> buildRow);
+    method @Deprecated public static inline androidx.slice.builders.ListBuilder seeMoreRow(androidx.slice.builders.ListBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.RowBuilderDsl,kotlin.Unit> buildRow);
+    method @Deprecated public static androidx.slice.builders.SliceAction tapSliceAction(android.app.PendingIntent pendingIntent, androidx.core.graphics.drawable.IconCompat icon, optional int imageMode, CharSequence title);
+    method @Deprecated public static androidx.slice.builders.SliceAction toggleSliceAction(android.app.PendingIntent pendingIntent, optional androidx.core.graphics.drawable.IconCompat? icon, CharSequence title, boolean isChecked);
   }
 
-  public final class RangeBuilderDsl extends androidx.slice.builders.ListBuilder.RangeBuilder {
-    ctor public RangeBuilderDsl();
+  @Deprecated public final class RangeBuilderDsl extends androidx.slice.builders.ListBuilder.RangeBuilder {
+    ctor @Deprecated public RangeBuilderDsl();
   }
 
-  public final class RowBuilderDsl extends androidx.slice.builders.ListBuilder.RowBuilder {
-    ctor public RowBuilderDsl();
+  @Deprecated public final class RowBuilderDsl extends androidx.slice.builders.ListBuilder.RowBuilder {
+    ctor @Deprecated public RowBuilderDsl();
   }
 
 }

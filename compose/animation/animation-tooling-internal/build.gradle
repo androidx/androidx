@@ -32,4 +32,5 @@ androidx {
     description = "Compose Animation APIs for tooling support. Internal use only."
     publish = Publish.SNAPSHOT_AND_RELEASE
     runApiTasks = new RunApiTasks.Yes()
+    metalavaK2UastEnabled = true
 }

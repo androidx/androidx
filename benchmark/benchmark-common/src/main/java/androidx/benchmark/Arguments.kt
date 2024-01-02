@@ -70,23 +70,35 @@ object Arguments {
     internal val startupMode: Boolean
     internal val iterations: Int?
     internal val profiler: Profiler?
+    internal val profilerDefault: Boolean
     internal val profilerSampleFrequency: Int
     internal val profilerSampleDurationSeconds: Long
     internal val thermalThrottleSleepDurationSeconds: Long
     private val cpuEventCounterEnable: Boolean
     internal val cpuEventCounterMask: Int
+    val runOnMainDeadlineSeconds: Long // non-internal, used in BenchmarkRule
 
     internal var error: String? = null
     internal val additionalTestOutputDir: String?
+
+    private val targetPackageName: String?
 
     private const val prefix = "androidx.benchmark."
 
     private fun Bundle.getBenchmarkArgument(key: String, defaultValue: String? = null) =
         getString(prefix + key, defaultValue)
 
-    private fun Bundle.getProfiler(outputIsEnabled: Boolean): Profiler? {
+    private fun Bundle.getProfiler(outputIsEnabled: Boolean): Pair<Profiler?, Boolean> {
         val argumentName = "profiling.mode"
-        val argumentValue = getBenchmarkArgument(argumentName, "")
+        val argumentValue = getBenchmarkArgument(argumentName, "DEFAULT_VAL")
+        if (argumentValue == "DEFAULT_VAL") {
+            // NOTE: Method tracing currently off by default, as it is unsafe in many OS versions
+            // API 21 (b/300658578) Can corrupt the stack
+            // API 29/30 (b/313868903) causes regressions in subsequent benchmark runs, but no jit
+            // API 31+ (b/303686344) can causes regressions with jit depending on mainline version
+            return null to true
+        }
+
         val profiler = Profiler.getByName(argumentValue)
         if (profiler == null &&
             argumentValue.isNotEmpty() &&
@@ -95,13 +107,13 @@ object Arguments {
             argumentValue.trim().lowercase() != "none"
         ) {
             error = "Could not parse $prefix$argumentName=$argumentValue"
-            return null
+            return null to false
         }
         if (profiler?.requiresLibraryOutputDir == true && !outputIsEnabled) {
             error = "Output is not enabled, so cannot profile with mode $argumentValue"
-            return null
+            return null to false
         }
-        return profiler
+        return profiler to false
     }
 
     // note: initialization may happen at any time
@@ -118,6 +130,9 @@ object Arguments {
 
         iterations =
             arguments.getBenchmarkArgument("iterations")?.toInt()
+
+        targetPackageName =
+            arguments.getBenchmarkArgument("targetPackageName", defaultValue = null)
 
         _perfettoSdkTracingEnable =
             arguments.getBenchmarkArgument("perfettoSdkTracing.enable")?.toBoolean()
@@ -165,7 +180,9 @@ object Arguments {
         enableCompilation =
             arguments.getBenchmarkArgument("compilation.enabled")?.toBoolean() ?: !dryRunMode
 
-        profiler = arguments.getProfiler(outputEnable)
+        val profilerState = arguments.getProfiler(outputEnable)
+        profiler = profilerState.first
+        profilerDefault = profilerState.second
         profilerSampleFrequency =
             arguments.getBenchmarkArgument("profiling.sampleFrequency")?.ifBlank { null }
                 ?.toInt()
@@ -211,13 +228,19 @@ object Arguments {
 
         enableStartupProfiles =
             arguments.getBenchmarkArgument("startupProfiles.enable")?.toBoolean() ?: true
+
+        // very relaxed default to start, ideally this would be less than 5 (ANR timeout),
+        // but configurability should help experimenting / narrowing over time
+        runOnMainDeadlineSeconds =
+            arguments.getBenchmarkArgument("runOnMainDeadlineSeconds")?.toLong() ?: 30
+        Log.d(BenchmarkState.TAG, "runOnMainDeadlineSeconds $runOnMainDeadlineSeconds")
     }
 
-    fun methodTracingEnabled(): Boolean {
+    fun macrobenchMethodTracingEnabled(): Boolean {
         return when {
             dryRunMode -> false
-            profiler == MethodTracing -> true
-            else -> false
+            profilerDefault -> false // don't enable tracing by default in macrobench
+            else -> profiler == MethodTracing
         }
     }
 
@@ -226,4 +249,18 @@ object Arguments {
             throw AssertionError(error)
         }
     }
+
+    /**
+     * Retrieves the target app package name from the instrumentation runner arguments.
+     * Note that this is supported only when MacrobenchmarkRule and BaselineProfileRule are used
+     * with the baseline profile gradle plugin. This feature requires AGP 8.3.0-alpha10 as minimum
+     * version.
+     */
+    fun getTargetPackageNameOrThrow(): String = targetPackageName
+            ?: throw IllegalArgumentException("""
+        Can't retrieve the target package name from instrumentation arguments.
+        This feature requires the baseline profile gradle plugin with minimum version 1.3.0-alpha01
+        and the Android Gradle Plugin minimum version 8.3.0-alpha10.
+        Please ensure your project has the correct versions in order to use this feature.
+    """.trimIndent())
 }

@@ -1,32 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 16 (current min is 14): `android.view.View#getMinimumWidth`"
-        errorLine1="                            getMinimumWidth()),"
-        errorLine2="                            ~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/recyclerview/widget/TestedFrameLayout.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 16 (current min is 14): `android.view.View#getMinimumHeight`"
-        errorLine1="                            getMinimumHeight()));"
-        errorLine2="                            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/recyclerview/widget/TestedFrameLayout.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 19 (current min is 14): `new android.widget.FrameLayout.LayoutParams`"
-        errorLine1="            super(source);"
-        errorLine2="            ~~~~~">
-        <location
-            file="src/androidTest/java/androidx/recyclerview/widget/TestedFrameLayout.java"/>
-    </issue>
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
         id="BanThreadSleep"

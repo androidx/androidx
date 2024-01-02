@@ -45,9 +45,7 @@ import org.gradle.process.JavaExecSpec
 val bundlingAttribute: Attribute<String> =
     Attribute.of("org.gradle.dependency.bundling", String::class.java)
 
-/**
- * JVM Args needed to run it on JVM 17+
- */
+/** JVM Args needed to run it on JVM 17+ */
 private fun JavaExecSpec.addKtlintJvmArgs() {
     this.jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")
 }
@@ -60,6 +58,7 @@ private fun Project.getKtlintConfiguration(): ConfigurableFileCollection {
                 val dependency = dependencies.create("com.pinterest:ktlint:$version")
                 it.dependencies.add(dependency)
                 it.attributes.attribute(bundlingAttribute, "external")
+                it.isCanBeConsumed = false
             }
     )
 }
@@ -179,8 +178,7 @@ abstract class BaseKtlintTask : DefaultTask() {
             val subdirectories = overrideSubdirectories
             if (subdirectories.isNullOrEmpty()) return@let
             subdirectories.map { arguments.add("$it/$InputDir/$IncludedFiles") }
-        }
-            ?: arguments.add("$InputDir/$IncludedFiles")
+        } ?: arguments.add("$InputDir/$IncludedFiles")
 
         ExcludedDirectoryGlobs.mapTo(arguments) { "!$InputDir/$it" }
         return arguments
@@ -288,7 +286,11 @@ abstract class KtlintCheckFileTask : DefaultTask() {
             execOperations.javaexec { javaExecSpec ->
                 javaExecSpec.mainClass.set(MainClass)
                 javaExecSpec.classpath = ktlintClasspath
-                val args = mutableListOf("--android", "--disabled_rules", DisabledRules)
+                val args = mutableListOf(
+                    "--code-style=android_studio",
+                    "--disabled_rules",
+                    DisabledRules
+                )
                 args.addAll(kotlinFiles)
                 if (format) args.add("-F")
 
@@ -302,7 +304,7 @@ abstract class KtlintCheckFileTask : DefaultTask() {
 
                 ********************************************************************************
                 ${TERMINAL_RED}You can attempt to automatically fix these issues with:
-                ./gradlew :ktlintCheckFile --format ${kotlinFiles.joinToString { "--file $it" }}$TERMINAL_RESET
+                ./gradlew :ktlintCheckFile --format ${kotlinFiles.joinToString(separator = " "){ "--file $it" }}$TERMINAL_RESET
                 ********************************************************************************
                 """
                     .trimIndent()

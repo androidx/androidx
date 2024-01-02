@@ -43,7 +43,7 @@ class InkCanvasView(context: Context) : SurfaceView(context) {
             with(mLinesDrawable) {
                 setBounds(0, 0, bufferWidth, bufferHeight)
                 setLines(param)
-                setColor(Color.MAGENTA)
+                setColor(Color.CYAN)
                 alpha = 128
                 draw(canvas)
             }
@@ -58,7 +58,7 @@ class InkCanvasView(context: Context) : SurfaceView(context) {
             mSceneParams.addAll(params)
             with(mLinesDrawable) {
                 setBounds(0, 0, bufferWidth, bufferHeight)
-                setColor(Color.MAGENTA)
+                setColor(Color.CYAN)
                 alpha = 128
                 for (param in mSceneParams) {
                     setLines(param)

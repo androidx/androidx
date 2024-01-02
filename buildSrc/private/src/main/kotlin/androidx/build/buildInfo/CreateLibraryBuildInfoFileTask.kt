@@ -18,12 +18,11 @@ package androidx.build.buildInfo
 
 import androidx.build.AndroidXExtension
 import androidx.build.LibraryGroup
-import androidx.build.buildInfo.CreateLibraryBuildInfoFileTask.Companion.getFrameworksSupportCommitShaAtHead
 import androidx.build.getBuildInfoDirectory
 import androidx.build.getGroupZipPath
 import androidx.build.getProjectZipPath
 import androidx.build.getSupportRootFolder
-import androidx.build.gitclient.GitClient
+import androidx.build.gitclient.getHeadShaProvider
 import androidx.build.jetpad.LibraryBuildInfoFile
 import com.google.common.annotations.VisibleForTesting
 import com.google.gson.GsonBuilder
@@ -235,15 +234,10 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
                 .sortedWith(compareBy({ it.groupId }, { it.artifactId }, { it.version }))
 
         private fun String?.isAndroidXDependency() =
-            this != null && startsWith("androidx.") && !startsWith("androidx.test")
-
-        /* For androidx release notes, the most common use case is to track and publish the last sha
-         * of the build that is released.  Thus, we use frameworks/support to get the sha
-         */
-        fun Project.getFrameworksSupportCommitShaAtHead(): String {
-            val gitClient = GitClient.forProject(project)
-            return gitClient.getHeadSha()
-        }
+            this != null &&
+                startsWith("androidx.") &&
+                !startsWith("androidx.test") &&
+                !startsWith("androidx.databinding")
     }
 }
 
@@ -279,7 +273,7 @@ private fun Project.createTaskForComponent(
             pub,
             libraryGroup,
             artifactId,
-            project.provider { project.getFrameworksSupportCommitShaAtHead() }
+            getHeadShaProvider(project)
         )
     rootProject.tasks.named(CreateLibraryBuildInfoFileTask.TASK_NAME).configure {
         it.dependsOn(task)
@@ -299,7 +293,7 @@ private fun Project.createBuildInfoTask(
         variant =
             VariantPublishPlan(
                 artifactId = artifactId,
-                taskSuffix = computeTaskSuffix(artifactId),
+                taskSuffix = computeTaskSuffix(name, artifactId),
                 dependencies =
                     pub.component.map { component ->
                         val usageDependencies =
@@ -328,7 +322,10 @@ class BuildInfoVariantDependency(group: String, name: String, version: String) :
 
 // For examples, see CreateLibraryBuildInfoFileTaskTest
 @VisibleForTesting
-fun computeTaskSuffix(artifactId: String) =
-    artifactId.split("-").drop(1).joinToString("") { word ->
+fun computeTaskSuffix(
+    projectName: String,
+    artifactId: String
+) =
+    artifactId.substringAfter(projectName).split("-").joinToString("") { word ->
         word.replaceFirstChar { it.uppercase() }
     }

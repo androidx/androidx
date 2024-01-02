@@ -37,8 +37,8 @@ import androidx.compose.ui.text.style.TextForegroundStyle.Unspecified
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.modulate
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.util.fastRoundToInt
 import kotlin.math.ceil
-import kotlin.math.roundToInt
 
 object TextPainter {
 
@@ -375,9 +375,9 @@ private fun DrawScope.textLayoutConstraints(
     val isWidthNaN = size.isUnspecified || size.width.isNaN()
     if (isWidthNaN) {
         minWidth = 0
-        maxWidth = ceil(this.size.width - topLeft.x).roundToInt()
+        maxWidth = ceil(this.size.width - topLeft.x).fastRoundToInt()
     } else {
-        val fixedWidth = ceil(size.width).roundToInt()
+        val fixedWidth = ceil(size.width).fastRoundToInt()
         minWidth = fixedWidth
         maxWidth = fixedWidth
     }
@@ -387,9 +387,9 @@ private fun DrawScope.textLayoutConstraints(
     val isHeightNaN = size.isUnspecified || size.height.isNaN()
     if (isHeightNaN) {
         minHeight = 0
-        maxHeight = ceil(this.size.height - topLeft.y).roundToInt()
+        maxHeight = ceil(this.size.height - topLeft.y).fastRoundToInt()
     } else {
-        val fixedHeight = ceil(size.height).roundToInt()
+        val fixedHeight = ceil(size.height).fastRoundToInt()
         minHeight = fixedHeight
         maxHeight = fixedHeight
     }

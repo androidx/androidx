@@ -9,6 +9,8 @@ package androidx.health.connect.client {
     method public suspend Object? deleteRecords(kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record> recordType, java.util.List<java.lang.String> recordIdsList, java.util.List<java.lang.String> clientRecordIdsList, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? getChanges(String changesToken, kotlin.coroutines.Continuation<? super androidx.health.connect.client.response.ChangesResponse>);
     method public suspend Object? getChangesToken(androidx.health.connect.client.request.ChangesTokenRequest request, kotlin.coroutines.Continuation<? super java.lang.String>);
+    method public static android.content.Intent getHealthConnectManageDataIntent(android.content.Context context);
+    method public static android.content.Intent getHealthConnectManageDataIntent(android.content.Context context, optional String providerPackageName);
     method public static String getHealthConnectSettingsAction();
     method public static androidx.health.connect.client.HealthConnectClient getOrCreate(android.content.Context context);
     method public static androidx.health.connect.client.HealthConnectClient getOrCreate(android.content.Context context, optional String providerPackageName);
@@ -28,6 +30,8 @@ package androidx.health.connect.client {
   }
 
   public static final class HealthConnectClient.Companion {
+    method public android.content.Intent getHealthConnectManageDataIntent(android.content.Context context);
+    method public android.content.Intent getHealthConnectManageDataIntent(android.content.Context context, optional String providerPackageName);
     method public String getHealthConnectSettingsAction();
     method public androidx.health.connect.client.HealthConnectClient getOrCreate(android.content.Context context);
     method public androidx.health.connect.client.HealthConnectClient getOrCreate(android.content.Context context, optional String providerPackageName);
@@ -37,6 +41,12 @@ package androidx.health.connect.client {
     field public static final int SDK_AVAILABLE = 3; // 0x3
     field public static final int SDK_UNAVAILABLE = 1; // 0x1
     field public static final int SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED = 2; // 0x2
+  }
+
+  public final class HealthConnectClientExt {
+    method public static suspend inline <reified T extends androidx.health.connect.client.records.Record> void deleteRecords(androidx.health.connect.client.HealthConnectClient, androidx.health.connect.client.time.TimeRangeFilter timeRangeFilter);
+    method public static suspend inline <reified T extends androidx.health.connect.client.records.Record> void deleteRecords(androidx.health.connect.client.HealthConnectClient, java.util.List<java.lang.String> recordIdsList, java.util.List<java.lang.String> clientRecordIdsList);
+    method public static suspend inline <reified T extends androidx.health.connect.client.records.Record> androidx.health.connect.client.response.ReadRecordResponse<T> readRecord(androidx.health.connect.client.HealthConnectClient, String recordId);
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface PermissionController {
@@ -63,8 +73,6 @@ package androidx.health.connect.client.aggregate {
     method public operator boolean contains(androidx.health.connect.client.aggregate.AggregateMetric<?> metric);
     method public operator <T> T? get(androidx.health.connect.client.aggregate.AggregateMetric<? extends T> metric);
     method public java.util.Set<androidx.health.connect.client.records.metadata.DataOrigin> getDataOrigins();
-    method @Deprecated public <T> T? getMetric(androidx.health.connect.client.aggregate.AggregateMetric<? extends T> metric);
-    method @Deprecated public boolean hasMetric(androidx.health.connect.client.aggregate.AggregateMetric<?> metric);
     property public final java.util.Set<androidx.health.connect.client.records.metadata.DataOrigin> dataOrigins;
   }
 
@@ -1363,10 +1371,14 @@ package androidx.health.connect.client.records.metadata {
     property public final String id;
     property public final java.time.Instant lastModifiedTime;
     property public final int recordingMethod;
+    field public static final androidx.health.connect.client.records.metadata.Metadata.Companion Companion;
     field public static final int RECORDING_METHOD_ACTIVELY_RECORDED = 1; // 0x1
     field public static final int RECORDING_METHOD_AUTOMATICALLY_RECORDED = 2; // 0x2
     field public static final int RECORDING_METHOD_MANUAL_ENTRY = 3; // 0x3
     field public static final int RECORDING_METHOD_UNKNOWN = 0; // 0x0
+  }
+
+  public static final class Metadata.Companion {
   }
 
 }
@@ -1393,6 +1405,10 @@ package androidx.health.connect.client.request {
     ctor public ReadRecordsRequest(kotlin.reflect.KClass<T> recordType, androidx.health.connect.client.time.TimeRangeFilter timeRangeFilter, optional java.util.Set<androidx.health.connect.client.records.metadata.DataOrigin> dataOriginFilter, optional boolean ascendingOrder, optional int pageSize, optional String? pageToken);
   }
 
+  public final class ReadRecordsRequestKt {
+    method public static inline <reified T extends androidx.health.connect.client.records.Record> androidx.health.connect.client.request.ReadRecordsRequest<T> ReadRecordsRequest(androidx.health.connect.client.time.TimeRangeFilter timeRangeFilter, optional java.util.Set<androidx.health.connect.client.records.metadata.DataOrigin> dataOriginFilter, optional boolean ascendingOrder, optional int pageSize, optional String? pageToken);
+  }
+
 }
 
 package androidx.health.connect.client.response {
@@ -1400,8 +1416,8 @@ package androidx.health.connect.client.response {
   public final class ChangesResponse {
     method public java.util.List<androidx.health.connect.client.changes.Change> getChanges();
     method public boolean getChangesTokenExpired();
-    method public boolean getHasMore();
     method public String getNextChangesToken();
+    method public boolean hasMore();
     property public final java.util.List<androidx.health.connect.client.changes.Change> changes;
     property public final boolean changesTokenExpired;
     property public final boolean hasMore;

@@ -69,6 +69,12 @@ MissingGetterMatchingBuilder: androidx.webkit.WebViewAssetLoader.Builder#setHttp
     androidx.webkit.WebViewAssetLoader does not declare a `isHttpAllowed()` method matching method androidx.webkit.WebViewAssetLoader.Builder.setHttpAllowed(boolean)
 
 
+NotCloseable: androidx.webkit.TracingController:
+    Classes that release resources (stop()) should implement AutoCloseable and CloseGuard: class androidx.webkit.TracingController
+NotCloseable: androidx.webkit.WebMessagePortCompat:
+    Classes that release resources (close()) should implement AutoCloseable and CloseGuard: class androidx.webkit.WebMessagePortCompat
+
+
 NullableCollection: androidx.webkit.WebMessageCompat#getPorts():
     Return type of method androidx.webkit.WebMessageCompat.getPorts() is a nullable collection (`androidx.webkit.WebMessagePortCompat[]`); must be non-null
 

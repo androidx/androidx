@@ -117,6 +117,7 @@ public class TrustedWebActivityIntentBuilder {
      *
      * @deprecated Use {@link #setDefaultColorSchemeParams} instead.
      */
+    @Deprecated
     @NonNull
     public TrustedWebActivityIntentBuilder setToolbarColor(@ColorInt int color) {
         mIntentBuilder.setToolbarColor(color);
@@ -128,6 +129,7 @@ public class TrustedWebActivityIntentBuilder {
      *
      * @deprecated Use {@link #setDefaultColorSchemeParams} instead.
      */
+    @Deprecated
     @NonNull
     public TrustedWebActivityIntentBuilder setNavigationBarColor(@ColorInt int color) {
         mIntentBuilder.setNavigationBarColor(color);
@@ -140,6 +142,7 @@ public class TrustedWebActivityIntentBuilder {
      *
      * @deprecated Use {@link #setDefaultColorSchemeParams} instead.
      */
+    @Deprecated
     @NonNull
     public TrustedWebActivityIntentBuilder setNavigationBarDividerColor(@ColorInt int color) {
         mIntentBuilder.setNavigationBarDividerColor(color);

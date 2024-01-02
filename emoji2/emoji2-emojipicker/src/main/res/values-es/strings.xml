@@ -17,7 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="emoji_category_recent" msgid="7142376595414250279">"USADO RECIENTEMENTE"</string>
+    <string name="emoji_category_recent" msgid="7142376595414250279">"USADOS RECIENTEMENTE"</string>
     <string name="emoji_category_emotions" msgid="1570830970240985537">"EMOTICONOS Y EMOCIONES"</string>
     <string name="emoji_category_people" msgid="7968173366822927025">"PERSONAS"</string>
     <string name="emoji_category_animals_nature" msgid="4640771324837307541">"ANIMALES Y NATURALEZA"</string>

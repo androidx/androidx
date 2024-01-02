@@ -16,24 +16,43 @@
 
 package androidx.appsearch.compiler.annotationwrapper;
 
-import static java.util.Objects.requireNonNull;
+import static androidx.appsearch.compiler.IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appsearch.compiler.IntrospectionHelper;
+
+import com.squareup.javapoet.ClassName;
 
 import java.util.Arrays;
 
 import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.type.TypeMirror;
 
 /**
  * An annotation for a metadata property e.g. {@code @Document.Id}.
  */
 public enum MetadataPropertyAnnotation implements PropertyAnnotation {
-    ID(/* simpleClassName= */"Id"),
-    NAMESPACE(/* simpleClassName= */"Namespace"),
-    CREATION_TIMESTAMP_MILLIS(/* simpleClassName= */"CreationTimestampMillis"),
-    TTL_MILLIS(/* simpleClassName= */"TtlMillis"),
-    SCORE(/* simpleClassName= */"Score");
+    ID(
+            /* simpleClassName= */"Id",
+            /* genericDocGetterName= */ "getId",
+            /* genericDocSetterName= */"setId"),
+    NAMESPACE(
+            /* simpleClassName= */"Namespace",
+            /* genericDocGetterName= */ "getNamespace",
+            /* genericDocSetterName= */"setNamespace"),
+    CREATION_TIMESTAMP_MILLIS(
+            /* simpleClassName= */"CreationTimestampMillis",
+            /* genericDocGetterName= */ "getCreationTimestampMillis",
+            /* genericDocSetterName= */"setCreationTimestampMillis"),
+    TTL_MILLIS(
+            /* simpleClassName= */"TtlMillis",
+            /* genericDocGetterName= */ "getTtlMillis",
+            /* genericDocSetterName= */"setTtlMillis"),
+    SCORE(
+            /* simpleClassName= */"Score",
+            /* genericDocGetterName= */ "getScore",
+            /* genericDocSetterName= */"setScore");
 
     /**
      * Attempts to parse an {@link AnnotationMirror} into a {@link MetadataPropertyAnnotation},
@@ -43,22 +62,71 @@ public enum MetadataPropertyAnnotation implements PropertyAnnotation {
     public static MetadataPropertyAnnotation tryParse(@NonNull AnnotationMirror annotation) {
         String qualifiedClassName = annotation.getAnnotationType().toString();
         return Arrays.stream(values())
-                .filter(val -> val.getQualifiedClassName().equals(qualifiedClassName))
+                .filter(val -> val.getClassName().canonicalName().equals(qualifiedClassName))
                 .findFirst()
                 .orElse(null);
     }
 
     @NonNull
-    private final String mSimpleClassName;
+    @SuppressWarnings("ImmutableEnumChecker") // ClassName is an immutable third-party type
+    private final ClassName mClassName;
 
-    MetadataPropertyAnnotation(@NonNull String simpleClassName) {
-        mSimpleClassName = requireNonNull(simpleClassName);
+    @NonNull
+    private final String mGenericDocGetterName;
+
+    @NonNull
+    private final String mGenericDocSetterName;
+
+    MetadataPropertyAnnotation(
+            @NonNull String simpleClassName,
+            @NonNull String genericDocGetterName,
+            @NonNull String genericDocSetterName) {
+        mClassName = DOCUMENT_ANNOTATION_CLASS.nestedClass(simpleClassName);
+        mGenericDocGetterName = genericDocGetterName;
+        mGenericDocSetterName = genericDocSetterName;
     }
 
     @Override
     @NonNull
-    public String getSimpleClassName() {
-        return mSimpleClassName;
+    public ClassName getClassName() {
+        return mClassName;
+    }
+
+
+    @Override
+    @NonNull
+    public PropertyAnnotation.Kind getPropertyKind() {
+        return Kind.METADATA_PROPERTY;
+    }
+
+    @NonNull
+    @Override
+    public TypeMirror getUnderlyingTypeWithinGenericDoc(@NonNull IntrospectionHelper helper) {
+        switch (this) {
+            case ID: // fall-through
+            case NAMESPACE:
+                return helper.mStringType;
+            case CREATION_TIMESTAMP_MILLIS: // fall-through
+            case TTL_MILLIS:
+                return helper.mLongPrimitiveType;
+            case SCORE:
+                return helper.mIntPrimitiveType;
+            default:
+                throw new IllegalStateException("Unhandled metadata property annotation: " + this);
+        }
+    }
+
+    @NonNull
+    @Override
+    public String getGenericDocGetterName() {
+        return mGenericDocGetterName;
+    }
+
+
+    @NonNull
+    @Override
+    public String getGenericDocSetterName() {
+        return mGenericDocSetterName;
     }
 }
 

@@ -31,38 +31,38 @@ private inline fun buildThreePaneScaffoldValue(
 
 /**
  * Calculates the current adapted value of [ThreePaneScaffold] according to the given
- * [maxHorizontalPartitions], [adaptStrategies] and [currentFocus]. The returned value can be used
- * as a unique representation of the current layout structure.
+ * [maxHorizontalPartitions], [adaptStrategies] and [currentDestination]. The returned value can be
+ * used as a unique representation of the current layout structure.
  *
- * The function will treat the current focus as the highest priority and then adapt the rest
+ * The function will treat the current destination as the highest priority and then adapt the rest
  * panes according to the order of [ThreePaneScaffoldRole.Primary],
- * [ThreePaneScaffoldRole.Secondary] and [ThreePaneScaffoldRole.Tertiary]. If there are still
- * remaining partitions to put the pane, the pane will be set as [PaneAdaptedValue.Expanded],
- * otherwise it will be adapted according to its associated [AdaptStrategy].
+ * [ThreePaneScaffoldRole.Secondary] and [ThreePaneScaffoldRole.Tertiary]. If there
+ * are still remaining partitions to put the pane, the pane will be set as
+ * [PaneAdaptedValue.Expanded], otherwise it will be adapted according to its associated
+ * [AdaptStrategy].
  *
  * @param maxHorizontalPartitions The maximum allowed partitions along the horizontal axis, i.e.
- *                                how many expanded panes can be shown at the same time.
+ *        how many expanded panes can be shown at the same time.
  * @param adaptStrategies The adapt strategies of each pane role that [ThreePaneScaffold] supports,
- *                        the default value will be
- *                        [ThreePaneScaffoldDefaults.threePaneScaffoldAdaptStrategies].
- * @param currentFocus The current focused pane, which will be treated as the highest priority, can
- *                     be `null`.
+ *        the default value will be [ThreePaneScaffoldDefaults.threePaneScaffoldAdaptStrategies].
+ * @param currentDestination The current pane destination, which will be treated as having
+ *        the highest priority, can be `null`.
  */
 @ExperimentalMaterial3AdaptiveApi
 fun calculateThreePaneScaffoldValue(
     maxHorizontalPartitions: Int,
-    adaptStrategies: ThreePaneScaffoldAdaptStrategies =
-        ThreePaneScaffoldDefaults.threePaneScaffoldAdaptStrategies(),
-    currentFocus: ThreePaneScaffoldRole? = null,
+    adaptStrategies: ThreePaneScaffoldAdaptStrategies = ThreePaneScaffoldDefaults.adaptStrategies(),
+    currentDestination: ThreePaneScaffoldRole? = null,
 ): ThreePaneScaffoldValue {
-    var expandedCount = if (currentFocus != null) 1 else 0
+    var expandedCount = if (currentDestination != null) 1 else 0
     return buildThreePaneScaffoldValue { role ->
         when {
-            role == currentFocus -> PaneAdaptedValue.Expanded
+            role == currentDestination -> PaneAdaptedValue.Expanded
             expandedCount < maxHorizontalPartitions -> {
                 expandedCount++
                 PaneAdaptedValue.Expanded
             }
+
             else -> adaptStrategies[role].adapt()
         }
     }
@@ -105,6 +105,12 @@ class ThreePaneScaffoldValue(
         result = 31 * result + secondary.hashCode()
         result = 31 * result + tertiary.hashCode()
         return result
+    }
+
+    override fun toString(): String {
+        return "ThreePaneScaffoldValue(primary=$primary, " +
+            "secondary=$secondary, " +
+            "tertiary=$tertiary)"
     }
 
     operator fun get(role: ThreePaneScaffoldRole): PaneAdaptedValue =

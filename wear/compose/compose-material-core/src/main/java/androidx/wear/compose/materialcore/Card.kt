@@ -19,6 +19,7 @@ package androidx.wear.compose.materialcore
 import androidx.annotation.RestrictTo
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.Indication
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.Interaction
@@ -34,7 +35,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -79,6 +79,7 @@ import androidx.compose.ui.unit.dp
  * appearance / behavior of this card in different [Interaction]s.
  * @param role The type of user interface element. Accessibility services might use this
  * to describe the element or do customizations
+ * @param ripple Ripple used for this card
  * @param content A main slot for a content of this card
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -93,6 +94,7 @@ public fun Card(
     shape: Shape,
     interactionSource: MutableInteractionSource,
     role: Role?,
+    ripple: Indication,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Column(
@@ -108,7 +110,7 @@ public fun Card(
                 enabled = enabled,
                 onClick = onClick,
                 role = role,
-                indication = rememberRipple(),
+                indication = ripple,
                 interactionSource = interactionSource,
             )
             .then(
@@ -161,6 +163,7 @@ public fun Card(
  * appearance / behavior of this card in different [Interaction]s.
  * @param shape Defines the card's shape. It is strongly recommended to use the default as this
  * shape is a key characteristic of the Wear Material Theme
+ * @param ripple Ripple used for this card
  * @param appImage A slot for a small [Image] associated with the application.
  * @param appName A slot for displaying the application name, expected to be a single line of start
  * aligned text.
@@ -181,6 +184,7 @@ public fun AppCard(
     containerPainter: Painter,
     interactionSource: MutableInteractionSource,
     shape: Shape,
+    ripple: Indication,
     appImage: @Composable (RowScope.() -> Unit)?,
     appName: @Composable RowScope.() -> Unit,
     time: @Composable (RowScope.() -> Unit)?,
@@ -196,7 +200,8 @@ public fun AppCard(
         contentPadding = contentPadding,
         interactionSource = interactionSource,
         role = null,
-        shape = shape
+        shape = shape,
+        ripple = ripple
     ) {
         Column {
             Row(
@@ -220,92 +225,6 @@ public fun AppCard(
                 verticalAlignment = Alignment.CenterVertically,
                 content = title
             )
-            content()
-        }
-    }
-}
-
-/**
- * Opinionated Wear Material [Card] that offers a specific 3 slot layout to show interactive
- * information about an application, e.g. a message. TitleCards are designed for use within an
- * application.
- *
- * The first row of the layout has two slots. 1. a start aligned title. The title text is
- * expected to be a maximum of 2 lines of text.
- * 2. An optional time that the application activity has occurred shown at the
- * end of the row, expected to be an end aligned [Text] composable showing a time relevant to the
- * contents of the [Card].
- *
- * The rest of the [Card] contains the content which is expected to be [Text] or a contained
- * [Image].
- *
- * If the content is text it can be single or multiple line and is expected to be Top and Start
- * aligned.
- *
- * Overall the [title] and [content] text should be no more than 5 rows of text combined.
- *
- * If more than one composable is provided in the content slot it is the responsibility of the
- * caller to determine how to layout the contents, e.g. provide either a row or a column.
- *
- * @param onClick Will be called when the user clicks the card
- * @param modifier Modifier to be applied to the card
- * @param enabled Controls the enabled state of the card. When false, this card will not
- * be clickable and there will be no ripple effect on click. Wear cards do not have any specific
- * elevation or alpha differences when not enabled - they are simply not clickable.
- * @param border A BorderStroke object which is used for the outline drawing.
- * Can be null - then outline will not be drawn
- * @param contentPadding The spacing values to apply internally between the container and the
- * content
- * @param containerPainter A Painter which is used for background drawing.
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this card. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this card in different [Interaction]s.
- * @param shape Defines the card's shape. It is strongly recommended to use the default as this
- * shape is a key characteristic of the Wear Material Theme
- * @param title A slot for displaying the title of the card, expected to be one or two
- * lines of text.
- * @param time An optional slot for displaying the time relevant to the contents of the card,
- * expected to be a short piece of end aligned text.
- * @param content A main slot for a content of this card.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Composable
-public fun TitleCard(
-    onClick: () -> Unit,
-    modifier: Modifier,
-    enabled: Boolean,
-    border: BorderStroke?,
-    contentPadding: PaddingValues,
-    containerPainter: Painter,
-    interactionSource: MutableInteractionSource,
-    shape: Shape,
-    title: @Composable RowScope.() -> Unit,
-    time: @Composable (RowScope.() -> Unit)?,
-    content: @Composable ColumnScope.() -> Unit,
-) {
-    Card(
-        onClick = onClick,
-        modifier = modifier,
-        enabled = enabled,
-        containerPainter = containerPainter,
-        border = border,
-        contentPadding = contentPadding,
-        interactionSource = interactionSource,
-        role = null,
-        shape = shape
-    ) {
-        Column {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                title()
-                time?.let {
-                    Spacer(modifier = Modifier.weight(1.0f))
-                    time()
-                }
-            }
             content()
         }
     }

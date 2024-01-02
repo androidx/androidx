@@ -18,9 +18,9 @@ package androidx.work.impl.testutils
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
-import androidx.work.StopReason
+import androidx.work.WorkInfo.Companion.STOP_REASON_PREEMPT
 import androidx.work.impl.constraints.ConstraintsState
-import androidx.work.impl.constraints.controllers.ConstraintController
+import androidx.work.impl.constraints.controllers.BaseConstraintController
 import androidx.work.impl.constraints.trackers.ConstraintTracker
 import androidx.work.impl.model.WorkSpec
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor
@@ -56,13 +56,11 @@ class TestConstraintTracker(
 class TestConstraintController(
     tracker: ConstraintTracker<Boolean>,
     private val constrainedIds: List<String>
-) : ConstraintController<Boolean>(tracker) {
-    override val reason = StopReason.ConstraintTest
+) : BaseConstraintController<Boolean>(tracker) {
+    // using obscure stop reason for test purposes
+    override val reason = STOP_REASON_PREEMPT
     override fun hasConstraint(workSpec: WorkSpec) = workSpec.id in constrainedIds
     override fun isConstrained(value: Boolean) = !value
 }
 
-val ConstraintsNotMet = ConstraintsState.ConstraintsNotMet(StopReason.ConstraintTest)
-
-val StopReason.Companion.ConstraintTest
-    get() = StopReason(234234234)
+val ConstraintsNotMet = ConstraintsState.ConstraintsNotMet(STOP_REASON_PREEMPT)

@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.graphics.BlendMode
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.ColorSpace
 import android.graphics.RenderNode
 import android.hardware.HardwareBuffer
 import android.os.Build
@@ -28,12 +29,16 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
-import androidx.graphics.MultiBufferedCanvasRenderer
+import androidx.graphics.CanvasBufferedRenderer
 import androidx.graphics.surface.SurfaceControlCompat
+import androidx.graphics.utils.HandlerThreadExecutor
+import androidx.hardware.HardwareBufferFormat
 import androidx.hardware.SyncFenceCompat
 import java.util.Collections
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
+import kotlin.math.max
 
 /**
  * Class responsible for supporting a "front buffered" rendering system. This allows for lower
@@ -53,29 +58,36 @@ import java.util.concurrent.Executors
  *  [Callback.onDrawFrontBufferedLayer] and [Callback.onDrawMultiBufferedLayer] and are provided
  *  by the [CanvasFrontBufferedRenderer.renderFrontBufferedLayer] and
  *  [CanvasFrontBufferedRenderer.renderMultiBufferedLayer] methods.
+ *  @param bufferFormat format of the underlying buffers being rendered into by
+ *  [CanvasFrontBufferedRenderer]. The particular valid combinations for a given Android version
+ *  and implementation should be documented by that version.
+ *  [HardwareBuffer.RGBA_8888] and [HardwareBuffer.RGBX_8888] are guaranteed to be supported.
+ *  However, consumers are recommended to query the desired HardwareBuffer configuration using
+ *  [HardwareBuffer.isSupported]. The default is [HardwareBuffer.RGBA_8888].
  */
 @RequiresApi(Build.VERSION_CODES.Q)
-class CanvasFrontBufferedRenderer<T>(
+class CanvasFrontBufferedRenderer<T> @JvmOverloads constructor(
     private val surfaceView: SurfaceView,
     private val callback: Callback<T>,
+    @HardwareBufferFormat val bufferFormat: Int = HardwareBuffer.RGBA_8888
 ) {
 
     /**
      * Executor used to deliver callbacks for rendering as well as issuing surface control
      * transactions
      */
-    private val mExecutor = Executors.newSingleThreadExecutor()
+    private val mHandlerThread = HandlerThreadExecutor("CanvasRenderThread")
 
     /**
-     * RenderNode used to draw the entire multi buffered scene
+     * RenderNode used to render multi buffered content
      */
-    private var mMultiBufferNode: RenderNode? = null
+    private var mMultiBufferedRenderNode: RenderNode? = null
 
     /**
-     * Renderer used to draw [mMultiBufferNode] into a [HardwareBuffer] that is used to configure
+     * Renderer used to draw [RenderNode] into a [HardwareBuffer] that is used to configure
      * the parent SurfaceControl that represents the multi-buffered scene
      */
-    private var mMultiBufferedCanvasRenderer: MultiBufferedCanvasRenderer? = null
+    private var mMultiBufferedCanvasRenderer: CanvasBufferedRenderer? = null
 
     /**
      * Renderer used to draw the front buffer content into a HardwareBuffer instance that is
@@ -98,7 +110,7 @@ class CanvasFrontBufferedRenderer<T>(
      * provided in [renderFrontBufferedLayer]. When [commit] is invoked the collection is used
      * to render the multi-buffered scene and is subsequently cleared
      */
-    private var mParams = ArrayList<T>()
+    private var mParams = ParamQueue<T>()
 
     /**
      * Flag to determine if the [CanvasFrontBufferedRenderer] has previously been released. If this
@@ -109,9 +121,9 @@ class CanvasFrontBufferedRenderer<T>(
 
     /**
      * Flag to determine if a request to clear the front buffer content is pending. This should
-     * only be accessed on the GLThread
+     * only be accessed on the background thread
      */
-    private var mPendingClear = true
+    private val mPendingClear = AtomicBoolean(true)
 
     /**
      * Runnable executed on the GLThread to update [FrontBufferSyncStrategy.isVisible] as well
@@ -126,9 +138,11 @@ class CanvasFrontBufferedRenderer<T>(
         }
     }
 
-    private var inverse = BufferTransformHintResolver.UNKNOWN_TRANSFORM
-    private val mBufferTransform = BufferTransformer()
-    private val mParentLayerTransform = android.graphics.Matrix()
+    @Volatile
+    private var mFrontBufferReleaseFence: SyncFenceCompat? = null
+    private val mCommitCount = AtomicInteger(0)
+    private var mColorSpace: ColorSpace = CanvasBufferedRenderer.DefaultColorSpace
+    private var mInverse = BufferTransformHintResolver.UNKNOWN_TRANSFORM
     private var mWidth = -1
     private var mHeight = -1
     private var mTransform = BufferTransformHintResolver.UNKNOWN_TRANSFORM
@@ -181,59 +195,13 @@ class CanvasFrontBufferedRenderer<T>(
     internal fun update(surfaceView: SurfaceView, width: Int, height: Int) {
         val transformHint = mTransformResolver.getBufferTransformHint(surfaceView)
         if ((mTransform != transformHint || mWidth != width || mHeight != height) && isValid()) {
-            mTransform = transformHint
-            mWidth = width
-            mHeight = height
             releaseInternal(true)
 
-            inverse = mBufferTransform.invertBufferTransform(transformHint)
-            mBufferTransform.computeTransform(width, height, inverse)
-            updateMatrixTransform(width.toFloat(), height.toFloat(), inverse)
-
-            mPersistedCanvasRenderer = SingleBufferedCanvasRenderer.create<T>(
-                width,
-                height,
-                mBufferTransform,
-                mExecutor,
-                object : SingleBufferedCanvasRenderer.RenderCallbacks<T> {
-
-                    override fun render(canvas: Canvas, width: Int, height: Int, param: T) {
-                        if (mPendingClear) {
-                            canvas.drawColor(Color.BLACK, BlendMode.CLEAR)
-                            mPendingClear = false
-                        }
-                        callback.onDrawFrontBufferedLayer(canvas, width, height, param)
-                    }
-
-                    @SuppressLint("WrongConstant")
-                    override fun onBufferReady(
-                        hardwareBuffer: HardwareBuffer,
-                        syncFenceCompat: SyncFenceCompat?
-                    ) {
-                        mPersistedCanvasRenderer?.isVisible = true
-                        mFrontBufferSurfaceControl?.let { frontBufferSurfaceControl ->
-                            val transaction = SurfaceControlCompat.Transaction()
-                                .setLayer(frontBufferSurfaceControl, Integer.MAX_VALUE)
-                                .setBuffer(
-                                    frontBufferSurfaceControl,
-                                    hardwareBuffer,
-                                    syncFenceCompat
-                                )
-                                .setVisibility(frontBufferSurfaceControl, true)
-                                .reparent(frontBufferSurfaceControl, mParentSurfaceControl)
-                            if (inverse != BufferTransformHintResolver.UNKNOWN_TRANSFORM) {
-                                transaction.setBufferTransform(
-                                    frontBufferSurfaceControl,
-                                    inverse
-                                )
-                            }
-                            callback.onFrontBufferedLayerRenderComplete(
-                                frontBufferSurfaceControl, transaction)
-                            transaction.commit()
-                            syncFenceCompat?.close()
-                        }
-                    }
-                })
+            val bufferTransform = BufferTransformer()
+            val inverse = bufferTransform.invertBufferTransform(transformHint)
+            bufferTransform.computeTransform(width, height, inverse)
+            val bufferWidth = bufferTransform.bufferWidth
+            val bufferHeight = bufferTransform.bufferHeight
 
             val parentSurfaceControl = SurfaceControlCompat.Builder()
                 .setParent(surfaceView)
@@ -247,32 +215,105 @@ class CanvasFrontBufferedRenderer<T>(
                         .commit()
                 }
 
-            val multiBufferNode = RenderNode("MultiBufferNode").apply {
-                setPosition(0, 0, mBufferTransform.glWidth, mBufferTransform.glHeight)
-                mMultiBufferNode = this
-            }
-            mMultiBufferedCanvasRenderer = MultiBufferedCanvasRenderer(
-                multiBufferNode,
-                mBufferTransform.glWidth,
-                mBufferTransform.glHeight,
-                usage = FrontBufferUtils.BaseFlags
-            ).apply { preserveContents = false }
-
-            mFrontBufferSurfaceControl = SurfaceControlCompat.Builder()
+            val frontBufferSurfaceControl = SurfaceControlCompat.Builder()
                 .setParent(parentSurfaceControl)
                 .setName("FrontBufferedLayer")
                 .build()
 
+            FrontBufferUtils.configureFrontBufferLayerFrameRate(frontBufferSurfaceControl)?.commit()
+
+            var singleBufferedCanvasRenderer: SingleBufferedCanvasRenderer<T>? = null
+            singleBufferedCanvasRenderer = SingleBufferedCanvasRenderer(
+                width,
+                height,
+                bufferWidth,
+                bufferHeight,
+                bufferFormat,
+                inverse,
+                mHandlerThread,
+                object : SingleBufferedCanvasRenderer.RenderCallbacks<T> {
+
+                    override fun render(canvas: Canvas, width: Int, height: Int, param: T) {
+                        if (mPendingClear.compareAndSet(true, false)) {
+                            mFrontBufferReleaseFence?.let { fence ->
+                                fence.awaitForever()
+                                fence.close()
+                                mFrontBufferReleaseFence = null
+                            }
+                            canvas.drawColor(Color.BLACK, BlendMode.CLEAR)
+                        }
+                        callback.onDrawFrontBufferedLayer(canvas, width, height, param)
+                    }
+
+                    @SuppressLint("WrongConstant")
+                    override fun onBufferReady(
+                        hardwareBuffer: HardwareBuffer,
+                        syncFenceCompat: SyncFenceCompat?
+                    ) {
+                        val transaction = SurfaceControlCompat.Transaction()
+                            .setLayer(frontBufferSurfaceControl, Integer.MAX_VALUE)
+                            .setBuffer(
+                                frontBufferSurfaceControl,
+                                hardwareBuffer,
+                                if (singleBufferedCanvasRenderer?.isVisible == true) {
+                                    null
+                                } else {
+                                    syncFenceCompat
+                                }
+                            ) { releaseFence ->
+                                mFrontBufferReleaseFence?.close()
+                                mFrontBufferReleaseFence = releaseFence
+                            }
+                            .setVisibility(frontBufferSurfaceControl, true)
+                            .reparent(frontBufferSurfaceControl, parentSurfaceControl)
+                        if (transformHint != BufferTransformHintResolver.UNKNOWN_TRANSFORM) {
+                            transaction.setBufferTransform(
+                                frontBufferSurfaceControl,
+                                transformHint
+                            )
+                        }
+                        callback.onFrontBufferedLayerRenderComplete(
+                            frontBufferSurfaceControl, transaction)
+                        transaction.commit()
+                        syncFenceCompat?.close()
+                        singleBufferedCanvasRenderer?.isVisible = true
+                    }
+                }).apply {
+                    colorSpace = mColorSpace
+                }
+
+            val renderNode = RenderNode("node").apply {
+                setPosition(0, 0, width, height)
+            }
+
+            mMultiBufferedCanvasRenderer = CanvasBufferedRenderer.Builder(bufferWidth, bufferHeight)
+                .setUsageFlags(FrontBufferUtils.BaseFlags)
+                .setBufferFormat(bufferFormat)
+                .build()
+                .apply { setContentRoot(renderNode) }
+
+            mMultiBufferedRenderNode = renderNode
+            mFrontBufferSurfaceControl = frontBufferSurfaceControl
+            mPersistedCanvasRenderer = singleBufferedCanvasRenderer
             mParentSurfaceControl = parentSurfaceControl
+            mTransform = transformHint
+            mWidth = width
+            mHeight = height
+            mInverse = inverse
         }
     }
 
-    private inline fun RenderNode.record(block: (canvas: Canvas) -> Unit): RenderNode {
-        val canvas = beginRecording()
-        block(canvas)
-        endRecording()
-        return this
-    }
+    /**
+     * Configures the [ColorSpace] that the content should be rendered with for the front and
+     * multi buffered layers. This parameter is only consumed on Android U and above. For older API
+     * levels this is ignored.
+     */
+    var colorSpace: ColorSpace
+        get() = mColorSpace
+        set(value) {
+            mColorSpace = value
+            mPersistedCanvasRenderer?.colorSpace = value
+        }
 
     /**
      * Render content to the front buffered layer providing optional parameters to be consumed in
@@ -290,12 +331,20 @@ class CanvasFrontBufferedRenderer<T>(
     fun renderFrontBufferedLayer(param: T) {
         if (isValid()) {
             mParams.add(param)
-            mPersistedCanvasRenderer?.render(param)
+            if (!isCommitting()) {
+                flushPendingFrontBufferRenders()
+            }
         } else {
             Log.w(TAG, "Attempt to render to front buffered layer when " +
                     "CanvasFrontBufferedRenderer has been released"
             )
         }
+    }
+
+    private fun isCommitting() = mCommitCount.get() != 0
+
+    private fun flushPendingFrontBufferRenders() {
+        mParams.flush { p -> mPersistedCanvasRenderer?.render(p) }
     }
 
     /**
@@ -349,11 +398,18 @@ class CanvasFrontBufferedRenderer<T>(
     fun isValid() = !mIsReleased
 
     @SuppressLint("WrongConstant")
-    internal fun setParentSurfaceControlBuffer(buffer: HardwareBuffer, fence: SyncFenceCompat?) {
-        val frontBufferSurfaceControl = mFrontBufferSurfaceControl
-        val parentSurfaceControl = mParentSurfaceControl
-        if (frontBufferSurfaceControl != null && parentSurfaceControl != null) {
-            mPersistedCanvasRenderer?.isVisible = false
+    internal fun setParentSurfaceControlBuffer(
+        frontBufferSurfaceControl: SurfaceControlCompat?,
+        parentSurfaceControl: SurfaceControlCompat?,
+        persistedCanvasRenderer: SingleBufferedCanvasRenderer<T>?,
+        multiBufferedCanvasRenderer: CanvasBufferedRenderer,
+        transform: Int,
+        buffer: HardwareBuffer,
+        fence: SyncFenceCompat?
+    ) {
+        if (frontBufferSurfaceControl != null && frontBufferSurfaceControl.isValid() &&
+            parentSurfaceControl != null && parentSurfaceControl.isValid()) {
+            persistedCanvasRenderer?.isVisible = false
             val transaction = SurfaceControlCompat.Transaction()
                 .setVisibility(frontBufferSurfaceControl, false)
                 // Set a null buffer here so that the original front buffer's release callback
@@ -361,15 +417,76 @@ class CanvasFrontBufferedRenderer<T>(
                 .setBuffer(frontBufferSurfaceControl, null)
                 .setVisibility(parentSurfaceControl, true)
                 .setBuffer(parentSurfaceControl, buffer, fence) { releaseFence ->
-                    mMultiBufferedCanvasRenderer?.releaseBuffer(buffer, releaseFence)
+                    mPendingClear.set(true)
+                    val result = mCommitCount.updateAndGet { value -> max(value - 1, 0) }
+                    if (result != 0) {
+                        surfaceView.post { commitInternal() }
+                    } else {
+                        flushPendingFrontBufferRenders()
+                    }
+                    multiBufferedCanvasRenderer.releaseBuffer(buffer, releaseFence)
                 }
 
-            if (inverse != BufferTransformHintResolver.UNKNOWN_TRANSFORM) {
-                transaction.setBufferTransform(parentSurfaceControl, inverse)
+            if (transform != BufferTransformHintResolver.UNKNOWN_TRANSFORM) {
+                transaction.setBufferTransform(parentSurfaceControl, transform)
             }
             callback.onMultiBufferedLayerRenderComplete(
-                frontBufferSurfaceControl, transaction)
+                frontBufferSurfaceControl, parentSurfaceControl, transaction)
             transaction.commit()
+        }
+    }
+
+    /**
+     * Clears the contents of both the front and multi buffered layers. This triggers a call to
+     * [Callback.onMultiBufferedLayerRenderComplete] and hides the front buffered layer.
+     */
+    @SuppressWarnings("WrongConstant")
+    fun clear() {
+        if (isValid()) {
+            mParams.clear()
+            val persistedCanvasRenderer = mPersistedCanvasRenderer?.apply {
+                cancelPending()
+                clear()
+            }
+            val transform = mTransform
+            val inverse = mInverse
+            val frontBufferSurfaceControl = mFrontBufferSurfaceControl
+            val parentSurfaceControl = mParentSurfaceControl
+            val multiBufferedCanvasRenderer = mMultiBufferedCanvasRenderer
+            val targetColorSpace = mColorSpace
+            mHandlerThread.execute {
+                multiBufferedCanvasRenderer?.let { multiBufferRenderer ->
+                    with(multiBufferRenderer) {
+                        mMultiBufferedRenderNode?.let { renderNode ->
+                            val canvas = renderNode.beginRecording()
+                            canvas.drawColor(Color.BLACK, BlendMode.CLEAR)
+                            renderNode.endRecording()
+                        }
+
+                        obtainRenderRequest()
+                            .apply {
+                                if (inverse != BufferTransformHintResolver.UNKNOWN_TRANSFORM) {
+                                    setBufferTransform(inverse)
+                                }
+                            }
+                            .setColorSpace(targetColorSpace)
+                            .drawAsync(mHandlerThread) { result ->
+                                setParentSurfaceControlBuffer(
+                                    frontBufferSurfaceControl,
+                                    parentSurfaceControl,
+                                    persistedCanvasRenderer,
+                                    multiBufferRenderer,
+                                    transform,
+                                    result.hardwareBuffer,
+                                    result.fence
+                                )
+                            }
+                    }
+                }
+            }
+        } else {
+            Log.w(TAG, "Attempt to clear front buffer after CanvasFrontBufferRenderer " +
+                "has been released")
         }
     }
 
@@ -385,60 +502,66 @@ class CanvasFrontBufferedRenderer<T>(
      * this call is ignored.
      */
     fun commit() {
-        commitInternal()
+        if (mCommitCount.getAndIncrement() == 0) {
+            commitInternal()
+        }
     }
 
     /**
      * Helper method to commit contents to the multi buffered layer, invoking an optional
      * callback on completion
      */
+    @SuppressWarnings("WrongConstant")
     private fun commitInternal(onComplete: Runnable? = null) {
         if (isValid()) {
-            mPersistedCanvasRenderer?.cancelPending()
-            val params = mParams
-            mParams = ArrayList<T>()
-            val width = surfaceView.width
-            val height = surfaceView.height
-            mExecutor.execute {
-                mPendingClear = true
-                mMultiBufferNode?.record { canvas ->
-                    canvas.save()
-                    canvas.setMatrix(mParentLayerTransform)
-                    callback.onDrawMultiBufferedLayer(canvas, width, height, params)
-                    canvas.restore()
-                }
-                params.clear()
-                mMultiBufferedCanvasRenderer?.renderFrame(mExecutor) { buffer, fence ->
-                    setParentSurfaceControlBuffer(buffer, fence)
-                    onComplete?.run()
+            val persistedCanvasRenderer = mPersistedCanvasRenderer?.apply {
+                cancelPending()
+            }
+            val params = mParams.release()
+            val width = mWidth
+            val height = mHeight
+            val frontBufferSurfaceControl = mFrontBufferSurfaceControl
+            val parentSurfaceControl = mParentSurfaceControl
+            val multiBufferedCanvasRenderer = mMultiBufferedCanvasRenderer
+            val inverse = mInverse
+            val transform = mTransform
+            val targetColorSpace = mColorSpace
+            mHandlerThread.execute {
+                multiBufferedCanvasRenderer?.let { multiBufferedRenderer ->
+                    with(multiBufferedRenderer) {
+                        mMultiBufferedRenderNode?.let { renderNode ->
+                            val canvas = renderNode.beginRecording()
+                            callback.onDrawMultiBufferedLayer(canvas, width, height, params)
+                            renderNode.endRecording()
+                        }
+
+                        params.clear()
+                        obtainRenderRequest()
+                            .apply {
+                                if (inverse != BufferTransformHintResolver.UNKNOWN_TRANSFORM) {
+                                    setBufferTransform(inverse)
+                                }
+                            }
+                            .setColorSpace(targetColorSpace)
+                            .drawAsync(mHandlerThread) { result ->
+                                setParentSurfaceControlBuffer(
+                                    frontBufferSurfaceControl,
+                                    parentSurfaceControl,
+                                    persistedCanvasRenderer,
+                                    multiBufferedCanvasRenderer,
+                                    transform,
+                                    result.hardwareBuffer,
+                                    result.fence
+                                )
+                                onComplete?.run()
+                            }
+                    }
                 }
             }
         } else {
             Log.w(TAG, "Attempt to render to the multi buffered layer when " +
                 "CanvasFrontBufferedRenderer has been released"
             )
-        }
-    }
-
-    internal fun updateMatrixTransform(width: Float, height: Float, transform: Int) {
-        mParentLayerTransform.apply {
-            when (transform) {
-                SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90 -> {
-                    setRotate(270f)
-                    postTranslate(0f, width)
-                }
-                SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_180 -> {
-                    setRotate(180f)
-                    postTranslate(width, height)
-                }
-                SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_270 -> {
-                    setRotate(90f)
-                    postTranslate(height, 0f)
-                }
-                else -> {
-                    reset()
-                }
-            }
         }
     }
 
@@ -455,8 +578,9 @@ class CanvasFrontBufferedRenderer<T>(
      */
     fun cancel() {
         if (isValid()) {
+            mParams.clear()
             mPersistedCanvasRenderer?.cancelPending()
-            mExecutor.execute(mCancelRunnable)
+            mHandlerThread.execute(mCancelRunnable)
             mPersistedCanvasRenderer?.clear()
         } else {
             Log.w(TAG, "Attempt to cancel rendering to front buffer after " +
@@ -465,21 +589,34 @@ class CanvasFrontBufferedRenderer<T>(
     }
 
     internal fun releaseInternal(cancelPending: Boolean, releaseCallback: (() -> Unit)? = null) {
-        mPersistedCanvasRenderer?.release(cancelPending) {
-            mMultiBufferNode?.discardDisplayList()
-            mFrontBufferSurfaceControl?.release()
-            mParentSurfaceControl?.release()
-            mMultiBufferedCanvasRenderer?.release()
+        val renderer = mPersistedCanvasRenderer
+        if (renderer != null) {
+            // Store a local copy of the corresponding SurfaceControls and renderers to make sure
+            // the release callback is not invoked on potentially newly created dependencies
+            // if we are in the middle of a render request and we get a surface changed event
+            val frontBufferSurfaceControl = mFrontBufferSurfaceControl
+            val parentSurfaceControl = mParentSurfaceControl
+            val multiBufferRenderer = mMultiBufferedCanvasRenderer
+            val renderNode = mMultiBufferedRenderNode
 
-            mMultiBufferNode = null
             mFrontBufferSurfaceControl = null
             mParentSurfaceControl = null
             mPersistedCanvasRenderer = null
             mMultiBufferedCanvasRenderer = null
+            mMultiBufferedRenderNode = null
             mWidth = -1
             mHeight = -1
             mTransform = BufferTransformHintResolver.UNKNOWN_TRANSFORM
-            releaseCallback?.invoke()
+
+            renderer.release(cancelPending) {
+                frontBufferSurfaceControl?.release()
+                parentSurfaceControl?.release()
+                multiBufferRenderer?.close()
+                renderNode?.discardDisplayList()
+                releaseCallback?.invoke()
+            }
+        } else if (releaseCallback != null) {
+            mHandlerThread.execute(releaseCallback)
         }
     }
 
@@ -494,7 +631,7 @@ class CanvasFrontBufferedRenderer<T>(
             surfaceView.holder.removeCallback(mHolderCallback)
             releaseInternal(cancelPending) {
                 onReleaseComplete?.invoke()
-                mExecutor.shutdown()
+                mHandlerThread.quit()
             }
             mIsReleased = true
         }
@@ -580,12 +717,17 @@ class CanvasFrontBufferedRenderer<T>(
          * front buffered layer content is drawn. This can be used to configure various properties
          * of the [SurfaceControlCompat] like z-ordering or visibility with the corresponding
          * [SurfaceControlCompat.Transaction].
+         * @param multiBufferedLayerSurfaceControl Handle to the [SurfaceControlCompat] where the
+         * multi-buffered layer content is drawn. This can be used to configure various properties
+         * of the [SurfaceControlCompat] like z-ordering or visibility with the corresponding
+         * [SurfaceControlCompat.Transaction].
          * @param transaction Current [SurfaceControlCompat.Transaction] to apply updated buffered
          * content to the multi buffered layer.
          */
         @WorkerThread
         fun onMultiBufferedLayerRenderComplete(
             frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+            multiBufferedLayerSurfaceControl: SurfaceControlCompat,
             transaction: SurfaceControlCompat.Transaction
         ) {
             // Default implementation is a no-op

@@ -16,8 +16,6 @@
 
 package androidx.wear.tiles.material;
 
-import static androidx.wear.tiles.material.Utils.areChipColorsEqual;
-
 import static com.google.common.truth.Truth.assertThat;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -286,7 +284,7 @@ public class ChipTest {
                 .isEqualTo(EXPECTED_WIDTH.toContainerDimensionProto());
         assertThat(actualChip.getHeight().toContainerDimensionProto())
                 .isEqualTo(ChipDefaults.DEFAULT_HEIGHT.toContainerDimensionProto());
-        assertThat(areChipColorsEqual(actualChip.getChipColors(), colors)).isTrue();
+        assertThat(Utils.areChipColorsEqual(actualChip.getChipColors(), colors)).isTrue();
         assertThat(actualChip.getHorizontalAlignment()).isEqualTo(hAlign);
 
         if (expectedContDesc == null) {

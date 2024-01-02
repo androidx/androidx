@@ -853,7 +853,6 @@ internal fun resolveSpanStyleDefaults(style: SpanStyle) = SpanStyle(
     drawStyle = style.drawStyle ?: Fill
 )
 
-@OptIn(ExperimentalTextApi::class)
 internal fun SpanStyle.fastMerge(
     color: Color,
     brush: Brush?,

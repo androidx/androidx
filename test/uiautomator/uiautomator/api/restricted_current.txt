@@ -132,17 +132,6 @@ package androidx.test.uiautomator {
     method public void sendStatus(int, android.os.Bundle);
   }
 
-  public enum Orientation {
-    enum_constant public static final androidx.test.uiautomator.Orientation FROZEN;
-    enum_constant public static final androidx.test.uiautomator.Orientation LANDSCAPE;
-    enum_constant public static final androidx.test.uiautomator.Orientation PORTRAIT;
-    enum_constant public static final androidx.test.uiautomator.Orientation ROTATION_0;
-    enum_constant public static final androidx.test.uiautomator.Orientation ROTATION_180;
-    enum_constant public static final androidx.test.uiautomator.Orientation ROTATION_270;
-    enum_constant public static final androidx.test.uiautomator.Orientation ROTATION_90;
-    enum_constant public static final androidx.test.uiautomator.Orientation UNFROZEN;
-  }
-
   public abstract class SearchCondition<U> implements androidx.test.uiautomator.Condition<androidx.test.uiautomator.Searchable,U> {
     ctor public SearchCondition();
   }
@@ -185,6 +174,7 @@ package androidx.test.uiautomator {
     method public androidx.test.uiautomator.UiObject findObject(androidx.test.uiautomator.UiSelector);
     method public java.util.List<androidx.test.uiautomator.UiObject2!> findObjects(androidx.test.uiautomator.BySelector);
     method public void freezeRotation() throws android.os.RemoteException;
+    method @RequiresApi(30) public void freezeRotation(int);
     method @Deprecated public String! getCurrentActivityName();
     method public String! getCurrentPackageName();
     method @Px public int getDisplayHeight();
@@ -229,18 +219,24 @@ package androidx.test.uiautomator {
     method public void runWatchers();
     method @Deprecated public void setCompressedLayoutHeirarchy(boolean);
     method public void setCompressedLayoutHierarchy(boolean);
-    method public void setOrientation(androidx.test.uiautomator.Orientation);
-    method @RequiresApi(30) public void setOrientation(androidx.test.uiautomator.Orientation, int);
+    method public void setOrientationLandscape() throws android.os.RemoteException;
+    method @RequiresApi(30) public void setOrientationLandscape(int);
     method public void setOrientationLeft() throws android.os.RemoteException;
+    method @RequiresApi(30) public void setOrientationLeft(int);
     method public void setOrientationNatural() throws android.os.RemoteException;
+    method @RequiresApi(30) public void setOrientationNatural(int);
+    method public void setOrientationPortrait() throws android.os.RemoteException;
+    method @RequiresApi(30) public void setOrientationPortrait(int);
     method public void setOrientationRight() throws android.os.RemoteException;
+    method @RequiresApi(30) public void setOrientationRight(int);
     method public void sleep() throws android.os.RemoteException;
     method public boolean swipe(android.graphics.Point![], int);
     method public boolean swipe(int, int, int, int, int);
     method public boolean takeScreenshot(java.io.File);
     method public boolean takeScreenshot(java.io.File, float, int);
     method public void unfreezeRotation() throws android.os.RemoteException;
-    method public <U> U! wait(androidx.test.uiautomator.Condition<? super androidx.test.uiautomator.UiDevice,U!>, long);
+    method @RequiresApi(30) public void unfreezeRotation(int);
+    method public <U> U! wait(androidx.test.uiautomator.Condition<? super androidx.test.uiautomator.UiDevice!,U!>, long);
     method public <U> U! wait(androidx.test.uiautomator.SearchCondition<U!>, long);
     method public void waitForIdle();
     method public void waitForIdle(long);
@@ -321,6 +317,7 @@ package androidx.test.uiautomator {
     method public String! getClassName();
     method public String! getContentDescription();
     method public int getDisplayId();
+    method @RequiresApi(24) public int getDrawingOrder();
     method @RequiresApi(26) public String? getHint();
     method public androidx.test.uiautomator.UiObject2! getParent();
     method public String! getResourceName();
@@ -345,16 +342,16 @@ package androidx.test.uiautomator {
     method public void recycle();
     method public boolean scroll(androidx.test.uiautomator.Direction, float);
     method public boolean scroll(androidx.test.uiautomator.Direction, float, int);
-    method public <U> U! scrollUntil(androidx.test.uiautomator.Direction, androidx.test.uiautomator.Condition<? super androidx.test.uiautomator.UiObject2,U!>);
+    method public <U> U! scrollUntil(androidx.test.uiautomator.Direction, androidx.test.uiautomator.Condition<? super androidx.test.uiautomator.UiObject2!,U!>);
     method public <U> U! scrollUntil(androidx.test.uiautomator.Direction, androidx.test.uiautomator.EventCondition<U!>);
     method public void setGestureMargin(int);
-    method public void setGestureMarginPercent(@FloatRange(from=0.0f, to=0.5f) float);
-    method public void setGestureMarginPercent(@FloatRange(from=0.0f, to=1.0f) float, @FloatRange(from=0.0f, to=1.0f) float, @FloatRange(from=0.0f, to=1.0f) float, @FloatRange(from=0.0f, to=1.0f) float);
+    method public void setGestureMarginPercentage(@FloatRange(from=0.0f, to=0.5f) float);
     method public void setGestureMargins(int, int, int, int);
+    method public void setGestureMarginsPercentage(@FloatRange(from=0.0f, to=1.0f) float, @FloatRange(from=0.0f, to=1.0f) float, @FloatRange(from=0.0f, to=1.0f) float, @FloatRange(from=0.0f, to=1.0f) float);
     method public void setText(String?);
     method public void swipe(androidx.test.uiautomator.Direction, float);
     method public void swipe(androidx.test.uiautomator.Direction, float, int);
-    method public <U> U! wait(androidx.test.uiautomator.Condition<? super androidx.test.uiautomator.UiObject2,U!>, long);
+    method public <U> U! wait(androidx.test.uiautomator.Condition<? super androidx.test.uiautomator.UiObject2!,U!>, long);
     method public <U> U! wait(androidx.test.uiautomator.SearchCondition<U!>, long);
     method public <U> U! wait(androidx.test.uiautomator.UiObject2Condition<U!>, long);
   }

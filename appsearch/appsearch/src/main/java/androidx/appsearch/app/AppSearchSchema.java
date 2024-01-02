@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -187,7 +188,7 @@ public final class AppSearchSchema {
     public static final class Builder {
         private final String mSchemaType;
         private ArrayList<Bundle> mPropertyBundles = new ArrayList<>();
-        private ArraySet<String> mParentTypes = new ArraySet<>();
+        private LinkedHashSet<String> mParentTypes = new LinkedHashSet<>();
         private final Set<String> mPropertyNames = new ArraySet<>();
         private boolean mBuilt = false;
 
@@ -269,11 +270,6 @@ public final class AppSearchSchema {
          * of its parents based on the above rules. For example, if LocalBusiness is defined as a
          * subtype of both Place and Organization, then the compatibility of LocalBusiness with
          * Place and the compatibility of LocalBusiness with Organization will both be checked.
-         *
-         * <!--@exportToFramework:ifJetpack()--><!--@exportToFramework:else()
-         * @exportToFramework:hide TODO(b/291122592): Unhide in Mainline when API updates via
-         *   Mainline are possible.
-         * -->
          */
         @CanIgnoreReturnValue
         @NonNull
@@ -304,7 +300,7 @@ public final class AppSearchSchema {
         private void resetIfBuilt() {
             if (mBuilt) {
                 mPropertyBundles = new ArrayList<>(mPropertyBundles);
-                mParentTypes = new ArraySet<>(mParentTypes);
+                mParentTypes = new LinkedHashSet<>(mParentTypes);
                 mBuilt = false;
             }
         }
@@ -1215,7 +1211,7 @@ public final class AppSearchSchema {
          * <p>If false, the nested document's properties are not indexed regardless of its own
          * schema.
          *
-         * @see DocumentPropertyConfig.Builder#addIndexableNestedProperties(String...) for
+         * @see DocumentPropertyConfig.Builder#addIndexableNestedProperties(Collection) for
          * indexing a subset of properties from the nested document.
          */
         public boolean shouldIndexNestedProperties() {
@@ -1287,7 +1283,7 @@ public final class AppSearchSchema {
              * schema.
              *
              * <p>To index a subset of properties from the nested document, set this to false and
-             * use {@link #addIndexableNestedProperties(String...)}.
+             * use {@link #addIndexableNestedProperties(Collection)}.
              */
             @CanIgnoreReturnValue
             @NonNull
@@ -1295,6 +1291,53 @@ public final class AppSearchSchema {
                     boolean indexNestedProperties) {
                 mShouldIndexNestedProperties = indexNestedProperties;
                 return this;
+            }
+
+            /**
+             * Adds one or more properties for indexing from the nested document property.
+             *
+             * @see #addIndexableNestedProperties(Collection)
+             *
+             * <!--@exportToFramework:ifJetpack()--><!--@exportToFramework:else()
+             * @exportToFramework:hide TODO(b/291122592): Unhide in Mainline when API updates via
+             *   Mainline are possible.
+             * -->
+             */
+            @CanIgnoreReturnValue
+            @NonNull
+            // @exportToFramework:startStrip()
+            @RequiresFeature(
+                    enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                    name = Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES)
+            // @exportToFramework:endStrip()
+            public DocumentPropertyConfig.Builder addIndexableNestedProperties(
+                    @NonNull String... indexableNestedProperties) {
+                Preconditions.checkNotNull(indexableNestedProperties);
+                return addIndexableNestedProperties(Arrays.asList(indexableNestedProperties));
+            }
+
+            /**
+             * Adds one or more property paths for indexing from the nested document property.
+             *
+             * @see #addIndexableNestedProperties(Collection)
+             *
+             * <!--@exportToFramework:ifJetpack()--><!--@exportToFramework:else()
+             * @exportToFramework:hide TODO(b/291122592): Unhide in Mainline when API updates via
+             *   Mainline are possible.
+             * -->
+             */
+            @CanIgnoreReturnValue
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            // @exportToFramework:startStrip()
+            @RequiresFeature(
+                    enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                    name = Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES)
+            // @exportToFramework:endStrip()
+            public DocumentPropertyConfig.Builder addIndexableNestedPropertyPaths(
+                    @NonNull PropertyPath... indexableNestedPropertyPaths) {
+                Preconditions.checkNotNull(indexableNestedPropertyPaths);
+                return addIndexableNestedPropertyPaths(Arrays.asList(indexableNestedPropertyPaths));
             }
 
             /**
@@ -1325,58 +1368,6 @@ public final class AppSearchSchema {
              * required to be false if any indexable nested property is added this way for the
              * document property. Attempting to build a DocumentPropertyConfig when this is not
              * true throws {@link IllegalArgumentException}.
-             *
-             * <!--@exportToFramework:ifJetpack()--><!--@exportToFramework:else()
-             * @exportToFramework:hide TODO(b/291122592): Unhide in Mainline when API updates via
-             *   Mainline are possible.
-             * -->
-             */
-            @CanIgnoreReturnValue
-            @NonNull
-            // @exportToFramework:startStrip()
-            @RequiresFeature(
-                    enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
-                    name = Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES)
-            // @exportToFramework:endStrip()
-            public DocumentPropertyConfig.Builder addIndexableNestedProperties(
-                    @NonNull String... indexableNestedProperties) {
-                Preconditions.checkNotNull(indexableNestedProperties);
-                return addIndexableNestedProperties(Arrays.asList(indexableNestedProperties));
-            }
-
-            /**
-             * Adds one or more property paths for indexing from the nested document property.
-             *
-             * @see #addIndexableNestedProperties(String...)
-             *
-             * <!--@exportToFramework:ifJetpack()--><!--@exportToFramework:else()
-             * @exportToFramework:hide TODO(b/291122592): Unhide in Mainline when API updates via
-             *   Mainline are possible.
-             * -->
-             */
-            @CanIgnoreReturnValue
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            // @exportToFramework:startStrip()
-            @RequiresFeature(
-                    enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
-                    name = Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES)
-            // @exportToFramework:endStrip()
-            public DocumentPropertyConfig.Builder addIndexableNestedPropertyPaths(
-                    @NonNull PropertyPath... indexableNestedPropertyPaths) {
-                Preconditions.checkNotNull(indexableNestedPropertyPaths);
-                return addIndexableNestedPropertyPaths(Arrays.asList(indexableNestedPropertyPaths));
-            }
-
-            /**
-             * Adds one or more properties for indexing from the nested document property.
-             *
-             * @see #addIndexableNestedProperties(String...)
-             *
-             * <!--@exportToFramework:ifJetpack()--><!--@exportToFramework:else()
-             * @exportToFramework:hide TODO(b/291122592): Unhide in Mainline when API updates via
-             *   Mainline are possible.
-             * -->
              */
             @CanIgnoreReturnValue
             @NonNull
@@ -1395,7 +1386,7 @@ public final class AppSearchSchema {
             /**
              * Adds one or more property paths for indexing from the nested document property.
              *
-             * @see #addIndexableNestedProperties(String...)
+             * @see #addIndexableNestedProperties(Collection)
              *
              * <!--@exportToFramework:ifJetpack()--><!--@exportToFramework:else()
              * @exportToFramework:hide TODO(b/291122592): Unhide in Mainline when API updates via
@@ -1425,7 +1416,7 @@ public final class AppSearchSchema {
              *
              * @throws IllegalArgumentException if the provided PropertyConfig sets
              * {@link #shouldIndexNestedProperties()} to true and has one or more properties
-             * defined for {@link #getIndexableNestedProperties()}.
+             * defined using {@link #addIndexableNestedProperties(Collection)}.
              */
             @NonNull
             public DocumentPropertyConfig build() {

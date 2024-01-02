@@ -26,24 +26,29 @@ package androidx.core.telecom {
   public static final class CallAttributesCompat.Companion {
   }
 
-  public interface CallControlCallback {
-    method public suspend Object? onAnswer(int callType, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
-    method public suspend Object? onDisconnect(android.telecom.DisconnectCause disconnectCause, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
-    method public suspend Object? onSetActive(kotlin.coroutines.Continuation<? super java.lang.Boolean>);
-    method public suspend Object? onSetInactive(kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+  public abstract sealed class CallControlResult {
+  }
+
+  public static final class CallControlResult.Error extends androidx.core.telecom.CallControlResult {
+    ctor public CallControlResult.Error(int errorCode);
+    method public int getErrorCode();
+    property public final int errorCode;
+  }
+
+  public static final class CallControlResult.Success extends androidx.core.telecom.CallControlResult {
+    ctor public CallControlResult.Success();
   }
 
   public interface CallControlScope extends kotlinx.coroutines.CoroutineScope {
-    method public suspend Object? answer(int callType, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
-    method public suspend Object? disconnect(android.telecom.DisconnectCause disconnectCause, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    method public suspend Object? answer(int callType, kotlin.coroutines.Continuation<? super androidx.core.telecom.CallControlResult>);
+    method public suspend Object? disconnect(android.telecom.DisconnectCause disconnectCause, kotlin.coroutines.Continuation<? super androidx.core.telecom.CallControlResult>);
     method public kotlinx.coroutines.flow.Flow<java.util.List<androidx.core.telecom.CallEndpointCompat>> getAvailableEndpoints();
     method public android.os.ParcelUuid getCallId();
     method public kotlinx.coroutines.flow.Flow<androidx.core.telecom.CallEndpointCompat> getCurrentCallEndpoint();
     method public kotlinx.coroutines.flow.Flow<java.lang.Boolean> isMuted();
-    method public suspend Object? requestEndpointChange(androidx.core.telecom.CallEndpointCompat endpoint, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
-    method public suspend Object? setActive(kotlin.coroutines.Continuation<? super java.lang.Boolean>);
-    method public void setCallback(androidx.core.telecom.CallControlCallback callControlCallback);
-    method public suspend Object? setInactive(kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    method public suspend Object? requestEndpointChange(androidx.core.telecom.CallEndpointCompat endpoint, kotlin.coroutines.Continuation<? super androidx.core.telecom.CallControlResult>);
+    method public suspend Object? setActive(kotlin.coroutines.Continuation<? super androidx.core.telecom.CallControlResult>);
+    method public suspend Object? setInactive(kotlin.coroutines.Continuation<? super androidx.core.telecom.CallControlResult>);
     property public abstract kotlinx.coroutines.flow.Flow<java.util.List<androidx.core.telecom.CallEndpointCompat>> availableEndpoints;
     property public abstract kotlinx.coroutines.flow.Flow<androidx.core.telecom.CallEndpointCompat> currentCallEndpoint;
     property public abstract kotlinx.coroutines.flow.Flow<java.lang.Boolean> isMuted;
@@ -70,12 +75,18 @@ package androidx.core.telecom {
   }
 
   public final class CallException extends java.lang.RuntimeException {
-    ctor public CallException(optional int code, optional String? message);
+    ctor public CallException(optional int code);
     method public int getCode();
     property public final int code;
     field public static final androidx.core.telecom.CallException.Companion Companion;
-    field public static final int ERROR_CALLBACKS_CODE = 2; // 0x2
-    field public static final int ERROR_UNKNOWN_CODE = 1; // 0x1
+    field public static final int ERROR_BLUETOOTH_DEVICE_IS_NULL = 8; // 0x8
+    field public static final int ERROR_CALL_CANNOT_BE_SET_TO_ACTIVE = 4; // 0x4
+    field public static final int ERROR_CALL_DOES_NOT_SUPPORT_HOLD = 7; // 0x7
+    field public static final int ERROR_CALL_IS_NOT_BEING_TRACKED = 3; // 0x3
+    field public static final int ERROR_CALL_NOT_PERMITTED_AT_PRESENT_TIME = 5; // 0x5
+    field public static final int ERROR_CANNOT_HOLD_CURRENT_ACTIVE_CALL = 2; // 0x2
+    field public static final int ERROR_OPERATION_TIMED_OUT = 6; // 0x6
+    field public static final int ERROR_UNKNOWN = 1; // 0x1
   }
 
   public static final class CallException.Companion {
@@ -83,7 +94,7 @@ package androidx.core.telecom {
 
   @RequiresApi(android.os.Build.VERSION_CODES.O) public final class CallsManager {
     ctor public CallsManager(android.content.Context context);
-    method @RequiresPermission("android.permission.MANAGE_OWN_CALLS") public suspend Object? addCall(androidx.core.telecom.CallAttributesCompat callAttributes, kotlin.jvm.functions.Function1<? super androidx.core.telecom.CallControlScope,kotlin.Unit> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @RequiresPermission("android.permission.MANAGE_OWN_CALLS") public suspend Object? addCall(androidx.core.telecom.CallAttributesCompat callAttributes, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> onAnswer, kotlin.jvm.functions.Function2<? super android.telecom.DisconnectCause,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> onDisconnect, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> onSetActive, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> onSetInactive, kotlin.jvm.functions.Function1<? super androidx.core.telecom.CallControlScope,kotlin.Unit> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @RequiresPermission("android.permission.MANAGE_OWN_CALLS") public void registerAppWithTelecom(int capabilities);
     field public static final int CAPABILITY_BASELINE = 1; // 0x1
     field public static final int CAPABILITY_SUPPORTS_CALL_STREAMING = 4; // 0x4
@@ -92,6 +103,13 @@ package androidx.core.telecom {
   }
 
   public static final class CallsManager.Companion {
+  }
+
+}
+
+package androidx.core.telecom.util {
+
+  @SuppressCompatibility @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalAppActions {
   }
 
 }

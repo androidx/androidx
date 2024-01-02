@@ -93,15 +93,15 @@ class BinderAdapterDelegateTest {
     }
 
     @Test
-    fun touchFocusTransferredForSwipeLeft() {
+    fun touchFocusNotTransferredForSwipeLeft() {
         onView(withId(R.id.surface_view)).perform(swipeLeft())
-        assertThat(transferTouchFocusLatch.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(transferTouchFocusLatch.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)).isFalse()
     }
 
     @Test
-    fun touchFocusTransferredForSlowSwipeLeft() {
+    fun touchFocusNotTransferredForSlowSwipeLeft() {
         onView(withId(R.id.surface_view)).perform(slowSwipeLeft())
-        assertThat(transferTouchFocusLatch.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(transferTouchFocusLatch.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)).isFalse()
     }
 
     @Test

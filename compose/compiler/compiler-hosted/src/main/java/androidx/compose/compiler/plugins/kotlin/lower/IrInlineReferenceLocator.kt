@@ -18,6 +18,7 @@
 package androidx.compose.compiler.plugins.kotlin.lower
 
 import androidx.compose.compiler.plugins.kotlin.ComposeFqNames
+import androidx.compose.compiler.plugins.kotlin.ComposeFqNames.InternalPackage
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.declarations.IrConstructor
@@ -31,22 +32,27 @@ import org.jetbrains.kotlin.ir.expressions.IrFunctionReference
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.symbols.IrFunctionSymbol
 import org.jetbrains.kotlin.ir.types.IrType
-import org.jetbrains.kotlin.ir.types.classFqName
+import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.types.isNullable
 import org.jetbrains.kotlin.ir.util.constructedClass
 import org.jetbrains.kotlin.ir.util.hasAnnotation
 import org.jetbrains.kotlin.ir.util.isFunction
 import org.jetbrains.kotlin.ir.util.isLambda
 import org.jetbrains.kotlin.ir.util.isSuspendFunction
+import org.jetbrains.kotlin.ir.util.packageFqName
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 import org.jetbrains.kotlin.ir.visitors.acceptVoid
 
 class ComposeInlineLambdaLocator(private val context: IrPluginContext) {
     private val inlineLambdaToParameter = mutableMapOf<IrFunctionSymbol, IrValueParameter>()
+    private val inlineFunctionExpressions = mutableSetOf<IrExpression>()
 
     fun isInlineLambda(irFunction: IrFunction): Boolean =
         irFunction.symbol in inlineLambdaToParameter.keys
+
+    fun isInlineFunctionExpression(expression: IrExpression): Boolean =
+        expression in inlineFunctionExpressions
 
     fun preservesComposableScope(irFunction: IrFunction): Boolean =
         inlineLambdaToParameter[irFunction.symbol]?.let {
@@ -64,7 +70,7 @@ class ComposeInlineLambdaLocator(private val context: IrPluginContext) {
                 declaration.acceptChildrenVoid(this)
                 val parent = declaration.parent as? IrFunction
                 if (parent?.isInlineFunctionCall(context) == true &&
-                    declaration.isInlineParameter()) {
+                    declaration.isInlinedFunction()) {
                     declaration.defaultValue?.expression?.unwrapLambda()?.let {
                         inlineLambdaToParameter[it] = declaration
                     }
@@ -76,8 +82,9 @@ class ComposeInlineLambdaLocator(private val context: IrPluginContext) {
                 val function = expression.symbol.owner
                 if (function.isInlineFunctionCall(context)) {
                     for (parameter in function.valueParameters) {
-                        if (parameter.isInlineParameter()) {
+                        if (parameter.isInlinedFunction()) {
                             expression.getValueArgument(parameter.index)
+                                ?.also { inlineFunctionExpressions += it }
                                 ?.unwrapLambda()
                                 ?.let { inlineLambdaToParameter[it] = parameter }
                         }
@@ -117,7 +124,7 @@ private val IrStatementOrigin?.isLambdaBlockOrigin: Boolean
 
 // This is copied from JvmIrInlineUtils.kt in the Kotlin compiler, since we
 // need to check for synthetic composable functions.
-private fun IrValueParameter.isInlineParameter(): Boolean =
+private fun IrValueParameter.isInlinedFunction(): Boolean =
     index >= 0 && !isNoinline && (type.isFunction() || type.isSuspendFunction() ||
         type.isSyntheticComposableFunction()) &&
         // Parameters with default values are always nullable, so check the expression too.
@@ -126,6 +133,7 @@ private fun IrValueParameter.isInlineParameter(): Boolean =
         (!type.isNullable() || defaultValue?.expression?.type?.isNullable() == false)
 
 fun IrType.isSyntheticComposableFunction() =
-    classFqName?.asString()?.startsWith(
-        "androidx.compose.runtime.internal.ComposableFunction"
-    ) == true
+    classOrNull?.owner?.let {
+        it.name.asString().startsWith("ComposableFunction") &&
+            it.packageFqName == InternalPackage
+    } ?: false

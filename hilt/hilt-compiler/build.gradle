@@ -21,18 +21,13 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("AndroidXPlugin")
     id("kotlin")
-    id("kotlin-kapt")
 }
 
 androidx.configureAarAsJarForConfiguration("testImplementation")
 
 dependencies {
     implementation(libs.kotlinStdlib)
-    compileOnly(libs.autoServiceAnnotations)
-    kapt(libs.autoService)
-    compileOnly(libs.gradleIncapHelper)
-    kapt(libs.gradleIncapHelperProcessor)
-    implementation(project(":room:room-compiler-processing"))
+    implementation("androidx.room:room-compiler-processing:2.6.0")
     implementation(libs.javapoet)
     implementation(libs.kspApi)
 

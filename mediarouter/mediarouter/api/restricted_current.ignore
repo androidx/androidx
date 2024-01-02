@@ -1,11 +1,3 @@
 // Baseline format: 1.0
-AddedMethod: androidx.mediarouter.media.RouteListingPreference#isSystemOrderingEnabled():
-    Added method androidx.mediarouter.media.RouteListingPreference.isSystemOrderingEnabled()
-AddedMethod: androidx.mediarouter.media.RouteListingPreference.Builder#setSystemOrderingEnabled(boolean):
-    Added method androidx.mediarouter.media.RouteListingPreference.Builder.setSystemOrderingEnabled(boolean)
-
-
-RemovedMethod: androidx.mediarouter.media.RouteListingPreference#getUseSystemOrdering():
-    Removed method androidx.mediarouter.media.RouteListingPreference.getUseSystemOrdering()
-RemovedMethod: androidx.mediarouter.media.RouteListingPreference.Builder#setUseSystemOrdering(boolean):
-    Removed method androidx.mediarouter.media.RouteListingPreference.Builder.setUseSystemOrdering(boolean)
+ChangedSuperclass: androidx.mediarouter.app.MediaRouteButton:
+    Class androidx.mediarouter.app.MediaRouteButton superclass changed from android.view.View to androidx.appcompat.widget.AppCompatImageView

@@ -20,15 +20,18 @@ package androidx.camera.camera2.pipe.integration.adapter
 
 import android.annotation.SuppressLint
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_ON
+import android.hardware.camera2.CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
 import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.params.DynamicRangeProfiles
-import android.os.Build
 import android.util.Range
 import android.util.Size
 import android.view.Surface
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.integration.compat.DynamicRangeProfilesCompat
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.camera2.pipe.integration.compat.workaround.isFlashAvailable
@@ -38,6 +41,7 @@ import androidx.camera.camera2.pipe.integration.impl.CameraCallbackMap
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.impl.DeviceInfoLogger
 import androidx.camera.camera2.pipe.integration.impl.FocusMeteringControl
+import androidx.camera.camera2.pipe.integration.internal.CameraFovInfo
 import androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.CameraInfo
@@ -55,6 +59,7 @@ import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ZoomState
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraInfoInternal
+import androidx.camera.core.impl.DynamicRanges
 import androidx.camera.core.impl.EncoderProfilesProvider
 import androidx.camera.core.impl.Quirks
 import androidx.camera.core.impl.Timebase
@@ -80,8 +85,11 @@ class CameraInfoAdapter @Inject constructor(
     private val cameraQuirks: CameraQuirks,
     private val encoderProfilesProviderAdapter: EncoderProfilesProviderAdapter,
     private val streamConfigurationMapCompat: StreamConfigurationMapCompat,
+    private val cameraFovInfo: CameraFovInfo,
 ) : CameraInfoInternal {
-    init { DeviceInfoLogger.logDeviceInfo(cameraProperties) }
+    init {
+        DeviceInfoLogger.logDeviceInfo(cameraProperties)
+    }
 
     private val isLegacyDevice by lazy {
         cameraProperties.metadata[
@@ -97,6 +105,19 @@ class CameraInfoAdapter @Inject constructor(
     override fun getCameraId(): String = cameraConfig.cameraId.value
     override fun getLensFacing(): Int =
         getCameraSelectorLensFacing(cameraProperties.metadata[CameraCharacteristics.LENS_FACING]!!)
+
+    override fun getCameraCharacteristics() =
+        cameraProperties.metadata.unwrapAs(CameraCharacteristics::class)!!
+
+    override fun getPhysicalCameraCharacteristics(physicalCameraId: String): Any? {
+        val cameraId = CameraId.fromCamera2Id(physicalCameraId)
+        if (!cameraProperties.metadata.physicalCameraIds.contains(cameraId)) {
+            return null
+        }
+        return cameraProperties.metadata.awaitPhysicalMetadata(cameraId).unwrapAs(
+            CameraCharacteristics::class
+        )
+    }
 
     @CameraSelector.LensFacing
     private fun getCameraSelectorLensFacing(lensFacingInt: Int): Int {
@@ -197,17 +218,47 @@ class CameraInfoAdapter @Inject constructor(
         return false
     }
 
-    @SuppressLint("ClassVerificationFailure")
     override fun getSupportedDynamicRanges(): Set<DynamicRange> {
-        // TODO: use DynamicRangesCompat instead after it is migrates from camera-camera2.
-        if (Build.VERSION.SDK_INT >= 33) {
-            val availableProfiles = cameraProperties.metadata[
-                CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES]
-            if (availableProfiles != null) {
-                return profileSetToDynamicRangeSet(availableProfiles.supportedProfiles)
-            }
+        return DynamicRangeProfilesCompat
+            .fromCameraMetaData(cameraProperties.metadata)
+            .supportedDynamicRanges
+    }
+
+    override fun querySupportedDynamicRanges(
+        candidateDynamicRanges: Set<DynamicRange>
+    ): Set<DynamicRange> {
+        return DynamicRanges.findAllPossibleMatches(candidateDynamicRanges, supportedDynamicRanges)
+    }
+
+    override fun isPreviewStabilizationSupported(): Boolean {
+        val availableVideoStabilizationModes = cameraProperties.metadata[
+            CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES]
+        return availableVideoStabilizationModes != null &&
+            availableVideoStabilizationModes.contains(
+                CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
+            )
+    }
+
+    override fun isVideoStabilizationSupported(): Boolean {
+        val availableVideoStabilizationModes = cameraProperties.metadata[
+            CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES]
+        return availableVideoStabilizationModes != null &&
+            availableVideoStabilizationModes.contains(
+                CONTROL_VIDEO_STABILIZATION_MODE_ON
+            )
+    }
+
+    override fun getIntrinsicZoomRatio(): Float {
+        var intrinsicZoomRatio = CameraInfo.INTRINSIC_ZOOM_RATIO_UNKNOWN
+        try {
+            intrinsicZoomRatio =
+                cameraFovInfo.getDefaultCameraDefaultViewAngleDegrees().toFloat() /
+                    cameraFovInfo.getDefaultViewAngleDegrees().toFloat()
+        } catch (e: Exception) {
+            Log.error(e) { "Failed to get the intrinsic zoom ratio" }
         }
-        return setOf(SDR)
+
+        return intrinsicZoomRatio
     }
 
     private fun profileSetToDynamicRangeSet(profileSet: Set<Long>): Set<DynamicRange> {

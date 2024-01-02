@@ -18,7 +18,9 @@ package androidx.wear.compose.materialcore
 
 import android.os.Build
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.IndicationNodeFactory
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -36,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -415,6 +418,16 @@ class ButtonTest {
         shape = shape,
         border = border,
         buttonSize = 52.dp,
+        ripple = EmptyIndication,
         content = content
     )
+}
+
+internal object EmptyIndication : IndicationNodeFactory {
+    override fun create(interactionSource: InteractionSource): DelegatableNode =
+        object : Modifier.Node() {}
+
+    override fun equals(other: Any?): Boolean = other === this
+
+    override fun hashCode(): Int = -1
 }

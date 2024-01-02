@@ -17,6 +17,7 @@
 package androidx.compose.foundation.selection
 
 import androidx.compose.foundation.Indication
+import androidx.compose.foundation.IndicationNodeFactory
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -34,9 +35,13 @@ import androidx.compose.ui.state.ToggleableState
 /**
  * Configure component to make it toggleable via input and accessibility events
  *
- * This version has no [MutableInteractionSource] or [Indication] parameters, default indication from
- * [LocalIndication] will be used. To specify [MutableInteractionSource] or [Indication], use another
- * overload.
+ * This version has no [MutableInteractionSource] or [Indication] parameters, the default indication
+ * from [LocalIndication] will be used. To specify [MutableInteractionSource] or [Indication], use
+ * the other overload.
+ *
+ * If you are only creating this toggleable modifier inside composition, consider using the other
+ * overload and explicitly passing `LocalIndication.current` for improved performance. For more
+ * information see the documentation on the other overload.
  *
  * @sample androidx.compose.foundation.samples.ToggleableSample
  *
@@ -64,10 +69,19 @@ fun Modifier.toggleable(
         properties["onValueChange"] = onValueChange
     }
 ) {
+    val localIndication = LocalIndication.current
+    val interactionSource = if (localIndication is IndicationNodeFactory) {
+        // We can fast path here as it will be created inside clickable lazily
+        null
+    } else {
+        // We need an interaction source to pass between the indication modifier and clickable, so
+        // by creating here we avoid another composed down the line
+        remember { MutableInteractionSource() }
+    }
     Modifier.toggleable(
         value = value,
-        interactionSource = remember { MutableInteractionSource() },
-        indication = LocalIndication.current,
+        interactionSource = interactionSource,
+        indication = localIndication,
         enabled = enabled,
         role = role,
         onValueChange = onValueChange
@@ -77,16 +91,28 @@ fun Modifier.toggleable(
 /**
  * Configure component to make it toggleable via input and accessibility events.
  *
- * This version requires both [MutableInteractionSource] and [Indication] to work properly. Use another
- * overload if you don't need these parameters.
+ * If [interactionSource] is `null`, and [indication] is an [IndicationNodeFactory], an
+ * internal [MutableInteractionSource] will be lazily created along with the [indication] only when
+ * needed. This reduces the performance cost of toggleable during composition, as creating the
+ * [indication] can be delayed until there is an incoming
+ * [androidx.compose.foundation.interaction.Interaction]. If you are only passing a remembered
+ * [MutableInteractionSource] and you are never using it outside of toggleable, it is recommended to
+ * instead provide `null` to enable lazy creation. If you need [indication] to be created eagerly,
+ * provide a remembered [MutableInteractionSource].
+ *
+ * If [indication] is _not_ an [IndicationNodeFactory], and instead implements the deprecated
+ * [Indication.rememberUpdatedInstance] method, you should explicitly pass a remembered
+ * [MutableInteractionSource] as a parameter for [interactionSource] instead of `null`, as this
+ * cannot be lazily created inside toggleable.
  *
  * @sample androidx.compose.foundation.samples.ToggleableSample
  *
  * @see [Modifier.triStateToggleable] if you require support for an indeterminate state.
  *
  * @param value whether Toggleable is on or off
- * @param interactionSource [MutableInteractionSource] that will be used to emit
- * [PressInteraction.Press] when this toggleable is being pressed.
+ * @param interactionSource [MutableInteractionSource] that will be used to dispatch
+ * [PressInteraction.Press] when this toggleable is pressed. If `null`, an internal
+ * [MutableInteractionSource] will be created if needed.
  * @param indication indication to be shown when modified element is pressed. Be default,
  * indication from [LocalIndication] will be used. Pass `null` to show no indication, or
  * current value from [LocalIndication] to show theme default
@@ -99,7 +125,7 @@ fun Modifier.toggleable(
  */
 fun Modifier.toggleable(
     value: Boolean,
-    interactionSource: MutableInteractionSource,
+    interactionSource: MutableInteractionSource?,
     indication: Indication?,
     enabled: Boolean = true,
     role: Role? = null,
@@ -117,9 +143,9 @@ fun Modifier.toggleable(
 ) {
     Modifier.triStateToggleable(
         state = ToggleableState(value),
-        enabled = enabled,
         interactionSource = interactionSource,
         indication = indication,
+        enabled = enabled,
         role = role,
         onClick = { onValueChange(!value) }
     )
@@ -132,9 +158,13 @@ fun Modifier.toggleable(
  * TriStateToggleable should be used when there are dependent Toggleables associated to this
  * component and those can have different values.
  *
- * This version has no [MutableInteractionSource] or [Indication] parameters, default indication
- * from [LocalIndication] will be used. To specify [MutableInteractionSource] or [Indication],
- * use another overload.
+ * This version has no [MutableInteractionSource] or [Indication] parameters, the default indication
+ * from [LocalIndication] will be used. To specify [MutableInteractionSource] or [Indication], use
+ * the other overload.
+ *
+ * If you are only creating this triStateToggleable modifier inside composition, consider using the
+ * other overload and explicitly passing `LocalIndication.current` for improved performance. For
+ * more information see the documentation on the other overload.
  *
  * @sample androidx.compose.foundation.samples.TriStateToggleableSample
  *
@@ -161,10 +191,19 @@ fun Modifier.triStateToggleable(
         properties["onClick"] = onClick
     }
 ) {
+    val localIndication = LocalIndication.current
+    val interactionSource = if (localIndication is IndicationNodeFactory) {
+        // We can fast path here as it will be created inside clickable lazily
+        null
+    } else {
+        // We need an interaction source to pass between the indication modifier and clickable, so
+        // by creating here we avoid another composed down the line
+        remember { MutableInteractionSource() }
+    }
     Modifier.triStateToggleable(
         state = state,
-        interactionSource = remember { MutableInteractionSource() },
-        indication = LocalIndication.current,
+        interactionSource = interactionSource,
+        indication = localIndication,
         enabled = enabled,
         role = role,
         onClick = onClick
@@ -178,16 +217,28 @@ fun Modifier.triStateToggleable(
  * TriStateToggleable should be used when there are dependent Toggleables associated to this
  * component and those can have different values.
  *
- * This version requires both [MutableInteractionSource] and [Indication] to work properly. Use another
- * overload if you don't need these parameters.
+ * If [interactionSource] is `null`, and [indication] is an [IndicationNodeFactory], an
+ * internal [MutableInteractionSource] will be lazily created along with the [indication] only when
+ * needed. This reduces the performance cost of triStateToggleable during composition, as creating
+ * the [indication] can be delayed until there is an incoming
+ * [androidx.compose.foundation.interaction.Interaction]. If you are only passing a remembered
+ * [MutableInteractionSource] and you are never using it outside of triStateToggleable, it is
+ * recommended to instead provide `null` to enable lazy creation. If you need [indication] to be
+ * created eagerly, provide a remembered [MutableInteractionSource].
+ *
+ * If [indication] is _not_ an [IndicationNodeFactory], and instead implements the deprecated
+ * [Indication.rememberUpdatedInstance] method, you should explicitly pass a remembered
+ * [MutableInteractionSource] as a parameter for [interactionSource] instead of `null`, as this
+ * cannot be lazily created inside triStateToggleable.
  *
  * @sample androidx.compose.foundation.samples.TriStateToggleableSample
  *
  * @see [Modifier.toggleable] if you want to support only two states: on and off
  *
  * @param state current value for the component
- * @param interactionSource [MutableInteractionSource] that will be used to emit
- * [PressInteraction.Press] when this triStateToggleable is being pressed.
+ * @param interactionSource [MutableInteractionSource] that will be used to dispatch
+ * [PressInteraction.Press] when this triStateToggleable is pressed. If `null`, an internal
+ * [MutableInteractionSource] will be created if needed.
  * @param indication indication to be shown when modified element is pressed. Be default,
  * indication from [LocalIndication] will be used. Pass `null` to show no indication, or
  * current value from [LocalIndication] to show theme default
@@ -199,7 +250,7 @@ fun Modifier.triStateToggleable(
  */
 fun Modifier.triStateToggleable(
     state: ToggleableState,
-    interactionSource: MutableInteractionSource,
+    interactionSource: MutableInteractionSource?,
     indication: Indication?,
     enabled: Boolean = true,
     role: Role? = null,
@@ -208,10 +259,10 @@ fun Modifier.triStateToggleable(
     inspectorInfo = debugInspectorInfo {
         name = "triStateToggleable"
         properties["state"] = state
-        properties["enabled"] = enabled
-        properties["role"] = role
         properties["interactionSource"] = interactionSource
         properties["indication"] = indication
+        properties["enabled"] = enabled
+        properties["role"] = role
         properties["onClick"] = onClick
     }
 ) {

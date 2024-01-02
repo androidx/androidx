@@ -82,11 +82,6 @@ fun Modifier.consumeWindowInsets(insets: WindowInsets): Modifier = composed(
     remember(insets) { UnionInsetsConsumingModifier(insets) }
 }
 
-@ExperimentalLayoutApi
-@Deprecated("Use consumeWindowInsets", ReplaceWith("this.consumeWindowInsets(insets)"))
-@Stable
-fun Modifier.consumedWindowInsets(insets: WindowInsets): Modifier = consumeWindowInsets(insets)
-
 /**
  * Consume [paddingValues] as insets as if the padding was added irrespective of insets.
  * Layouts further down the hierarchy that use [windowInsetsPadding], [safeContentPadding],
@@ -101,7 +96,6 @@ fun Modifier.consumedWindowInsets(insets: WindowInsets): Modifier = consumeWindo
  *
  * @sample androidx.compose.foundation.layout.samples.consumedInsetsPaddingSample
  */
-@ExperimentalLayoutApi
 @Stable
 fun Modifier.consumeWindowInsets(paddingValues: PaddingValues): Modifier = composed(
     debugInspectorInfo {
@@ -113,12 +107,6 @@ fun Modifier.consumeWindowInsets(paddingValues: PaddingValues): Modifier = compo
         PaddingValuesConsumingModifier(paddingValues)
     }
 }
-
-@ExperimentalLayoutApi
-@Deprecated("Use consumeWindowInsets", ReplaceWith("this.consumeWindowInsets(paddingValues)"))
-@Stable
-fun Modifier.consumedWindowInsets(paddingValues: PaddingValues): Modifier =
-    consumeWindowInsets(paddingValues)
 
 /**
  * Calls [block] with the [WindowInsets] that have been consumed, either by [consumeWindowInsets]
@@ -139,16 +127,6 @@ fun Modifier.onConsumedWindowInsetsChanged(
         ConsumedInsetsModifier(block)
     }
 }
-
-@ExperimentalLayoutApi
-@Deprecated(
-    "Use onConsumedWindowInsetsChanged",
-    replaceWith = ReplaceWith("onConsumedWindowInsetsChanged(block)")
-)
-@Stable
-fun Modifier.withConsumedWindowInsets(
-    block: (consumedWindowInsets: WindowInsets) -> Unit
-) = onConsumedWindowInsetsChanged(block)
 
 internal val ModifierLocalConsumedWindowInsets = modifierLocalOf {
     WindowInsets(0, 0, 0, 0)

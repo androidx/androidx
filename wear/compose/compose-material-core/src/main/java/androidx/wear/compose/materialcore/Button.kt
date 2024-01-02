@@ -17,6 +17,7 @@ package androidx.wear.compose.materialcore
 
 import androidx.annotation.RestrictTo
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Indication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -25,7 +26,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
@@ -59,6 +59,7 @@ import androidx.compose.ui.unit.Dp
  * @param shape Defines the button's shape.
  * @param border Resolves the border for this button in different states.
  * @param buttonSize The default size of the button unless overridden by Modifier.size.
+ * @param ripple Ripple used for this button.
  * @param content The content displayed on the [Button] such as text, icon or image.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -72,29 +73,22 @@ fun Button(
     shape: Shape,
     border: @Composable (enabled: Boolean) -> State<BorderStroke?>?,
     buttonSize: Dp,
+    ripple: Indication,
     content: @Composable BoxScope.() -> Unit,
 ) {
     val borderStroke = border(enabled)?.value
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier
+        modifier = modifier
+            .semantics { role = Role.Button }
+            .size(buttonSize)
             .clip(shape) // Clip for the touch area (e.g. for Ripple).
             .clickable(
                 onClick = onClick,
                 enabled = enabled,
-                role = null, // provide the role via Modifier.semantics
                 interactionSource = interactionSource,
-                indication = rememberRipple(),
+                indication = ripple,
             )
-            .then(
-                // Make sure modifier ordering is clip > clickable > padding > size,
-                // so that the ripple applies to the entire button shape and size.
-                // Then, apply semantics to apply the default semantic role (can be overridden)
-                modifier
-                    .semantics { role = Role.Button }
-            )
-            .size(buttonSize)
-            .clip(shape) // Clip for the painted background area after size has been applied.
             .then(
                 if (borderStroke != null) Modifier.border(border = borderStroke, shape = shape)
                 else Modifier

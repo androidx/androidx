@@ -55,15 +55,9 @@ class TransactionMethodProcessor(
         }
 
         val callType = when {
-            executableElement.isJavaDefault() ->
-                if (containingElement.isInterface()) {
-                    // if the dao is an interface, call via the Dao interface
-                    TransactionMethod.CallType.DEFAULT_JAVA8
-                } else {
-                    // if the dao is an abstract class, call via the class itself
-                    TransactionMethod.CallType.INHERITED_DEFAULT_JAVA8
-                }
-            hasKotlinDefaultImpl ->
+            containingElement.isInterface() && executableElement.isJavaDefault() ->
+                TransactionMethod.CallType.DEFAULT_JAVA8
+            containingElement.isInterface() && hasKotlinDefaultImpl ->
                 TransactionMethod.CallType.DEFAULT_KOTLIN
             else ->
                 TransactionMethod.CallType.CONCRETE

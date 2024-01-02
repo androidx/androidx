@@ -17,6 +17,7 @@
 package androidx.wear.protolayout;
 
 import static androidx.wear.protolayout.DimensionBuilders.dp;
+import static androidx.wear.protolayout.DimensionBuilders.weight;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -85,17 +86,14 @@ public class DimensionBuildersTest {
 
     @Test
     public void expandedLayoutWeight() {
-        TypeBuilders.FloatProp layoutWeight = new TypeBuilders.FloatProp.Builder(3.14f).build();
-        DimensionBuilders.ContainerDimension dimensionProp =
-                new DimensionBuilders.ExpandedDimensionProp.Builder()
-                        .setLayoutWeight(layoutWeight)
-                        .build();
+        float layoutWeight = 3.14f;
+        DimensionBuilders.ContainerDimension dimensionProp = weight(layoutWeight);
 
         DimensionProto.ContainerDimension dimensionProto =
                 dimensionProp.toContainerDimensionProto();
         assertThat(dimensionProto.getExpandedDimension().getLayoutWeight().getValue())
                 .isWithin(.001f)
-                .of(layoutWeight.getValue());
+                .of(layoutWeight);
     }
 
     @Test

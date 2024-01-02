@@ -44,7 +44,7 @@ class InitializationTest {
             ProcessCameraProvider.getInstance(ApplicationProvider.getApplicationContext()).await()
         assertThat(cameraProvider).isNotNull()
         // Ensure retrieved provider is shut down
-        cameraProvider.shutdown().await()
+        cameraProvider.shutdownAsync().await()
         return@runBlocking
     }
 }

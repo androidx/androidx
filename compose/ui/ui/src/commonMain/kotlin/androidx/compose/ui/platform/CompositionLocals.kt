@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.compose.ui.platform
 
+import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocal
 import androidx.compose.runtime.CompositionLocalProvider
@@ -91,13 +94,12 @@ val LocalFocusManager = staticCompositionLocalOf<FocusManager> {
 
 /**
  * The CompositionLocal to provide platform font loading methods.
- *
- * @suppress
  */
 @Suppress("DEPRECATION")
 @Deprecated("LocalFontLoader is replaced with LocalFontFamilyResolver",
     replaceWith = ReplaceWith("LocalFontFamilyResolver")
 )
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 val LocalFontLoader = staticCompositionLocalOf<Font.ResourceLoader> {
     noLocalProvidedFor("LocalFontLoader")
 }
@@ -134,6 +136,7 @@ val LocalLayoutDirection = staticCompositionLocalOf<LayoutDirection> {
 /**
  * The CompositionLocal to provide communication with platform text input service.
  */
+@Deprecated("Use PlatformTextInputModifierNode instead.")
 val LocalTextInputService = staticCompositionLocalOf<TextInputService?> { null }
 
 /**

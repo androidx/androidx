@@ -16,8 +16,6 @@
 
 package androidx.compose.ui.platform
 
-import androidx.compose.ui.text.input.PlatformTextInputMethodRequest
-
 actual interface PlatformTextInputSession {
     actual suspend fun startInputMethod(request: PlatformTextInputMethodRequest): Nothing
 }

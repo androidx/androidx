@@ -27,7 +27,6 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -40,7 +39,6 @@ class NightModeLocalOnlyTestCase {
     val rule = NightModeActivityTestRule(NightModeActivity::class.java)
 
     @Test
-    @SdkSuppress(minSdkVersion = 17)
     fun testLocalDayNightModeRecreatesActivity() {
         // Verify first that we're in day mode
         onView(withId(R.id.text_night_mode)).check(matches(withText(STRING_DAY)))

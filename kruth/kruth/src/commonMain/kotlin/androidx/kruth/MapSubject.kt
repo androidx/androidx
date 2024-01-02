@@ -16,6 +16,9 @@
 
 package androidx.kruth
 
+import androidx.kruth.Fact.Companion.fact
+import androidx.kruth.Fact.Companion.simpleFact
+
 class MapSubject<K, V> internal constructor(
     actual: Map<K, V>?,
     metadata: FailureMetadata = FailureMetadata(),
@@ -26,7 +29,7 @@ class MapSubject<K, V> internal constructor(
         requireNonNull(actual) { "Expected to be empty, but was null" }
 
         if (actual.isNotEmpty()) {
-            asserter.fail("Expected to be empty, but was $actual")
+            metadata.fail("Expected to be empty, but was $actual")
         }
     }
 
@@ -35,7 +38,7 @@ class MapSubject<K, V> internal constructor(
         requireNonNull(actual) { "Expected to be not empty, but was null" }
 
         if (actual.isEmpty()) {
-            asserter.fail("Expected to be not empty, but was $actual")
+            metadata.fail("Expected to be not empty, but was $actual")
         }
     }
 
@@ -43,7 +46,7 @@ class MapSubject<K, V> internal constructor(
     fun hasSize(expectedSize: Int) {
         require(expectedSize >= 0) { "expectedSize must be >= 0, but was $expectedSize" }
         requireNonNull(actual) { "Expected to be empty, but was null" }
-        asserter.assertEquals(expectedSize, actual.size)
+        metadata.assertEquals(expectedSize, actual.size)
     }
 
     /** Fails if the map does not contain the given key. */
@@ -51,8 +54,99 @@ class MapSubject<K, V> internal constructor(
         requireNonNull(actual) { "Expected to contain $key, but was null" }
 
         if (!actual.containsKey(key)) {
-            asserter.fail("Expected to contain $key, but was ${actual.keys}")
+            metadata.fail("Expected to contain $key, but was ${actual.keys}")
         }
+    }
+
+    /** Fails if the map contains the given key.  */
+    fun doesNotContainKey(key: Any?) {
+        requireNonNull(actual) { "Expected not to contain $key, but was null" }
+        if (key in actual) {
+            failWithoutActual(fact("Expected not to contain", key), fact("but was", actual.keys))
+        }
+    }
+
+    /** Fails if the map does not contain the given entry.  */
+    fun containsEntry(key: K, value: V) {
+        val entry = key to value
+
+        requireNonNull(actual) { "Expected to contain $entry, but was null" }
+
+        if (actual.entries.any { (k, v) -> (k == key) && (v == value) }) {
+            return
+        }
+
+        val keyList = listOf(key)
+        val valueList = listOf(value)
+
+        if (key in actual) {
+            val actualValue = actual[key]
+            /*
+             * In the case of a null expected or actual value, clarify that the key *is* present
+             * and *is* expected to be present. That is, get() isn't returning null to indicate
+             * that the key is missing, and the user isn't making an assertion that the key is
+             * missing.
+             */
+            if ((value == null) || (actualValue == null)) {
+                failWithActual(
+                    fact("Expected to contain entry", entry),
+                    fact("key is present but with a different value"),
+                )
+            } else {
+                failWithActual(fact("Expected to contain entry", entry))
+            }
+        } else if (actual.keys.hasMatchingToStringPair(keyList)) {
+            failWithActual(
+                fact("Expected to contain entry", entry),
+                fact("an instance of", entry.typeName()),
+                simpleFact("but did not"),
+                fact(
+                    "though it did contain keys",
+                    actual.keys.retainMatchingToString(keyList).countDuplicatesAndAddTypeInfo(),
+                ),
+            )
+        } else if (actual.containsValue(value)) {
+            val keys = actual.filterValues { it == value }.keys
+            failWithActual(
+                fact("Expected to contain entry", entry),
+                simpleFact("but did not"),
+                fact("though it did contain keys with that value", keys),
+            )
+        } else if (actual.values.hasMatchingToStringPair(valueList)) {
+            failWithActual(
+                fact("Expected to contain entry", entry),
+                fact("an instance of", entry.typeName()),
+                simpleFact("but did not"),
+                fact(
+                    "though it did contain values",
+                    actual.values.retainMatchingToString(valueList)
+                        .countDuplicatesAndAddTypeInfo(),
+                ),
+            )
+        } else {
+            failWithActual(fact("Expected to contain entry", entry))
+        }
+    }
+
+    /** Fails if the map does not contain the given entry.  */
+    fun containsEntry(entry: Pair<K, V>) {
+        containsEntry(key = entry.first, value = entry.second)
+    }
+
+    /** Fails if the map contains the given entry. */
+    fun doesNotContainEntry(key: K, value: V) {
+        val entry = key to value
+
+        requireNonNull(actual) { "Expected not to contain $entry, but was null" }
+
+        if (actual.entries.any { (k, v) -> (k == key) && (v == value) }) {
+            failWithActual(fact("Expected not to contain", entry))
+        }
+    }
+
+    /** Fails if the map contains the given entry. */
+    fun doesNotContainEntry(entry: Pair<K, V>) {
+        doesNotContainEntry(key = entry.first, value = entry.second)
     }
 
     /**
@@ -116,16 +210,13 @@ class MapSubject<K, V> internal constructor(
         val actualSet = actual.mapTo(HashSet()) { (key, value) -> key to value }
 
         if (allowUnexpected) {
-            asserter(withActual = true).assertTrue(
-                actual = actualSet.containsAll(expectedSet),
-                message = "Expected to contain at least: $expectedMap",
-            )
+            if (!actualSet.containsAll(expectedSet)) {
+                failWithActual("Expected to contain at least", expectedSet)
+            }
         } else {
-            asserter(withActual = true).assertEquals(
-                expected = expectedSet,
-                actual = actualSet,
-                message = "Expected: $expectedMap",
-            )
+            if (expectedSet != actualSet) {
+                failWithActual("Expected", expectedMap)
+            }
         }
     }
 
@@ -157,9 +248,7 @@ class MapSubject<K, V> internal constructor(
             val commonFromExpected = expectedMap.keys.intersect(actual.keys).toList()
             val commonFromActual = actual.keys.intersect(expectedMap.keys).toList()
 
-            asserter.assertEquals(
-                commonFromExpected,
-                commonFromActual,
+            metadata.assertEquals(commonFromExpected, commonFromActual) {
                 buildString {
                     appendLine(
                         if (allowUnexpected) {
@@ -179,7 +268,7 @@ class MapSubject<K, V> internal constructor(
 
                     appendLine("Actual: $actual.")
                 }
-            )
+            }
         }
     }
 }

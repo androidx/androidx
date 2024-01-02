@@ -40,7 +40,7 @@ import androidx.window.embedding.ActivityStack
 fun TestActivityStack(
     activitiesInProcess: List<Activity> = emptyList(),
     isEmpty: Boolean = false,
-): ActivityStack = ActivityStack(activitiesInProcess, isEmpty, TEST_ACTIVITY_STACK_TOKEN)
+): ActivityStack = ActivityStack(activitiesInProcess, isEmpty)
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @VisibleForTesting

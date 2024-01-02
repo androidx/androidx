@@ -20,6 +20,7 @@ import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.paging.DiffingChangePayload.ITEM_TO_PLACEHOLDER
 import androidx.paging.ListUpdateEvent.Changed
 import androidx.paging.ListUpdateEvent.Inserted
+import androidx.paging.ListUpdateEvent.Removed
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadState.NotLoading
 import androidx.recyclerview.widget.DiffUtil
@@ -260,8 +261,11 @@ class AsyncPagingDataDifferTest {
             )
 
             // Load REFRESH [51, 52]
-            // Load PREPEND [50] to fulfill prefetch distance of transformed index
             currentPagedSource!!.invalidate()
+            advanceUntilIdle()
+
+            // UI access refreshed items. Load PREPEND [50] to fulfill prefetch distance
+            differ.getItem(51)
             advanceUntilIdle()
 
             assertEvents(
@@ -481,9 +485,7 @@ class AsyncPagingDataDifferTest {
             pager2.flow.collectLatest(differ::submitData)
         }
         advanceUntilIdle()
-        // This prepends an extra page due to transformedAnchorPosition re-sending an Access at the
-        // first position, we therefore load 19 + 7 items.
-        assertEquals(26, differ.itemCount)
+        assertEquals(19, differ.itemCount)
 
         // now if pager1 gets an invalidation, it overrides pager2
         source1.invalidate()
@@ -710,5 +712,177 @@ class AsyncPagingDataDifferTest {
             assertEquals(secondList, onInsertedSnapshot)
             assertEquals(secondList, onRemovedSnapshot)
         }
+    }
+
+    @Test
+    fun insertPageEmpty() = verifyPrependAppendCallback(
+        initialItems = 2,
+        initialNulls = 0,
+        newItems = 0,
+        newNulls = 0,
+        prependEvents = emptyList(),
+        appendEvents = emptyList()
+    )
+
+    @Test
+    fun insertPageSimple() = verifyPrependAppendCallback(
+        initialItems = 2,
+        initialNulls = 0,
+        newItems = 2,
+        newNulls = 0,
+        prependEvents = listOf(
+            Inserted(0, 2)
+        ),
+        appendEvents = listOf(
+            Inserted(2, 2)
+        )
+    )
+
+    @Test
+    fun insertPageSimplePlaceholders() = verifyPrependAppendCallback(
+        initialItems = 2,
+        initialNulls = 4,
+        newItems = 2,
+        newNulls = 2,
+        prependEvents = listOf(
+            Changed(2, 2, null)
+        ),
+        appendEvents = listOf(
+            Changed(2, 2, null)
+        )
+    )
+
+    @Test
+    fun insertPageInitPlaceholders() = verifyPrependAppendCallback(
+        initialItems = 2,
+        initialNulls = 0,
+        newItems = 2,
+        newNulls = 3,
+        prependEvents = listOf(
+            Inserted(0, 2),
+            Inserted(0, 3)
+        ),
+        appendEvents = listOf(
+            // NOTE: theoretically these could be combined
+            Inserted(2, 2),
+            Inserted(4, 3)
+        )
+    )
+
+    @Test
+    fun insertPageInitJustPlaceholders() = verifyPrependAppendCallback(
+        initialItems = 2,
+        initialNulls = 0,
+        newItems = 0,
+        newNulls = 3,
+        prependEvents = listOf(
+            Inserted(0, 3)
+        ),
+        appendEvents = listOf(
+            Inserted(2, 3)
+        )
+    )
+
+    @Test
+    fun insertPageInsertNulls() = verifyPrependAppendCallback(
+        initialItems = 2,
+        initialNulls = 3,
+        newItems = 2,
+        newNulls = 2,
+        prependEvents = listOf(
+            Changed(1, 2, null),
+            Inserted(0, 1)
+        ),
+        appendEvents = listOf(
+            Changed(2, 2, null),
+            Inserted(5, 1)
+        )
+    )
+
+    @Test
+    fun insertPageRemoveNulls() = verifyPrependAppendCallback(
+        initialItems = 2,
+        initialNulls = 7,
+        newItems = 2,
+        newNulls = 0,
+        prependEvents = listOf(
+            Changed(5, 2, null),
+            Removed(0, 5)
+        ),
+        appendEvents = listOf(
+            Changed(2, 2, null),
+            Removed(4, 5)
+        )
+    )
+
+    @Test
+    fun insertPageReduceNulls() = verifyPrependAppendCallback(
+        initialItems = 2,
+        initialNulls = 10,
+        newItems = 3,
+        newNulls = 4,
+        prependEvents = listOf(
+            Changed(7, 3, null),
+            Removed(0, 3)
+        ),
+        appendEvents = listOf(
+            Changed(2, 3, null),
+            Removed(9, 3)
+        )
+    )
+
+    private fun verifyPrependAppendCallback(
+        initialItems: Int,
+        initialNulls: Int,
+        newItems: Int,
+        newNulls: Int,
+        prependEvents: List<ListUpdateEvent>,
+        appendEvents: List<ListUpdateEvent>
+    ) {
+        runTest {
+            verifyPrepend(initialItems, initialNulls, newItems, newNulls, prependEvents)
+            verifyAppend(initialItems, initialNulls, newItems, newNulls, appendEvents)
+        }
+    }
+
+    private suspend fun verifyPrepend(
+        initialItems: Int,
+        initialNulls: Int,
+        newItems: Int,
+        newNulls: Int,
+        events: List<ListUpdateEvent>
+    ) {
+        // send event to UI
+        differ.presenter.presentPagingDataEvent(
+            PagingDataEvent.Prepend(
+                inserted = List(newItems) { it + initialItems },
+                newPlaceholdersBefore = newNulls,
+                oldPlaceholdersBefore = initialNulls
+            )
+        )
+
+        // ... then assert events
+        assertEquals(events, listUpdateCapture.newEvents())
+    }
+
+    private suspend fun verifyAppend(
+        initialItems: Int,
+        initialNulls: Int,
+        newItems: Int,
+        newNulls: Int = PagingSource.LoadResult.Page.COUNT_UNDEFINED,
+        events: List<ListUpdateEvent>
+    ) {
+        // send event to UI
+        differ.presenter.presentPagingDataEvent(
+            PagingDataEvent.Append(
+                inserted = List(newItems) { it + initialItems },
+                startIndex = initialItems,
+                newPlaceholdersAfter = newNulls,
+                oldPlaceholdersAfter = initialNulls
+            )
+        )
+
+        // ... then assert events
+        assertEquals(events, listUpdateCapture.newEvents())
     }
 }

@@ -23,10 +23,12 @@ import android.os.IBinder
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -36,7 +38,7 @@ class UserInitiatedTaskRequestTest {
 
     @Test
     fun testDefaultNetworkConstraints() {
-        val request = UserInitiatedTaskRequest(MyTask::class.java, MyFgs::class.java)
+        val request = UserInitiatedTaskRequest(MyTask::class.java)
         val networkRequest = NetworkRequest.Builder()
                                 .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
                                 .build()
@@ -50,7 +52,7 @@ class UserInitiatedTaskRequestTest {
 
     @Test
     fun testCustomNetworkConstraints() {
-        val request = UserInitiatedTaskRequest(MyTask::class.java, MyFgs::class.java,
+        val request = UserInitiatedTaskRequest(MyTask::class.java,
             _constraints = Constraints(NetworkRequest.Builder()
                 .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
                 .build()
@@ -70,16 +72,16 @@ class UserInitiatedTaskRequestTest {
     @Test
     fun testTags() {
         val taskClassName = "androidx.work.datatransfer.UserInitiatedTaskRequestTest\$MyTask"
-        var request = UserInitiatedTaskRequest(MyTask::class.java, MyFgs::class.java)
+        var request = UserInitiatedTaskRequest(MyTask::class.java)
         assertEquals(1, request.tags.size)
         assertEquals(taskClassName, request.tags.get(0))
 
-        request = UserInitiatedTaskRequest(MyTask::class.java, MyFgs::class.java,
+        request = UserInitiatedTaskRequest(MyTask::class.java,
                                            _tags = mutableListOf("test"))
         assertEquals(2, request.tags.size)
         assertTrue(request.tags.contains("test"))
 
-        request = UserInitiatedTaskRequest(MyTask::class.java, MyFgs::class.java,
+        request = UserInitiatedTaskRequest(MyTask::class.java,
                                            _tags = mutableListOf("test", "test2"))
         assertEquals(3, request.tags.size)
         assertTrue(request.tags.contains(taskClassName))
@@ -89,27 +91,50 @@ class UserInitiatedTaskRequestTest {
 
     @Test
     fun testDefaultTransferInfo() {
-        val request = UserInitiatedTaskRequest(MyTask::class.java, MyFgs::class.java)
+        val request = UserInitiatedTaskRequest(MyTask::class.java)
         assertNull(request.transferInfo)
     }
 
     @Test
     fun testCustomTransferInfo() {
-        var request = UserInitiatedTaskRequest(MyTask::class.java, MyFgs::class.java,
+        var request = UserInitiatedTaskRequest(MyTask::class.java,
             _transferInfo = TransferInfo(estimatedDownloadBytes = 1000L))
         val transferInfo = TransferInfo(0L, 1000L)
         assertEquals(request.transferInfo, transferInfo)
 
-        request = UserInitiatedTaskRequest(MyTask::class.java, MyFgs::class.java,
+        request = UserInitiatedTaskRequest(MyTask::class.java,
             _transferInfo = TransferInfo(estimatedUploadBytes = 1000L))
         val transferInfo2 = TransferInfo(1000L, 0L)
         assertEquals(request.transferInfo, transferInfo2)
         assertNotEquals(request.transferInfo, transferInfo)
 
-        request = UserInitiatedTaskRequest(MyTask::class.java, MyFgs::class.java,
+        request = UserInitiatedTaskRequest(MyTask::class.java,
             _transferInfo = TransferInfo(2000L, 20L))
         val transferInfo3 = TransferInfo(2000L, 20L)
         assertEquals(request.transferInfo, transferInfo3)
+    }
+
+    @Test
+    fun testDefaultFallbackPolicy(): Unit = runBlocking {
+        // Default policy FALLBACK_NONE should allow enqueue
+        val request = UserInitiatedTaskRequest(MyTask::class.java)
+        request.enqueue(ApplicationProvider.getApplicationContext())
+    }
+
+    @Test
+    fun testCustomFallbackPolicy(): Unit = runBlocking {
+        val request = UserInitiatedTaskRequest(MyTask::class.java,
+            fallbackPolicy = UserInitiatedTaskRequest.FallbackPolicy.FALLBACK_TO_FOREGROUND_SERVICE)
+        try {
+            request.enqueue(ApplicationProvider.getApplicationContext())
+            fail("Expected enqueue to fail without setting a foreground service")
+        } catch (_: IllegalArgumentException) {
+            // expected
+        }
+
+        request.setForegroundService(MyFgs::class.java,
+            UserInitiatedTaskRequest.ForegroundServiceOnTaskFinishPolicy.FOREGROUND_SERVICE_DETACH)
+        request.enqueue(ApplicationProvider.getApplicationContext())
     }
 
     private class MyTask : UserInitiatedTask(

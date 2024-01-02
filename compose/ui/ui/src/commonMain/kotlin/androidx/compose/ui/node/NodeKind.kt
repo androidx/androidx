@@ -30,6 +30,7 @@ import androidx.compose.ui.input.key.KeyInputModifierNode
 import androidx.compose.ui.input.key.SoftKeyboardInterceptionModifierNode
 import androidx.compose.ui.input.pointer.PointerInputModifier
 import androidx.compose.ui.input.rotary.RotaryInputModifierNode
+import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.layout.IntermediateLayoutModifierNode
 import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.OnGloballyPositionedModifier
@@ -102,6 +103,8 @@ internal object Nodes {
     @JvmStatic
     inline val SoftKeyboardKeyInput
         get() = NodeKind<SoftKeyboardInterceptionModifierNode>(0b1 shl 17)
+    @JvmStatic
+    inline val Traversable get() = NodeKind<TraversableNode>(0b1 shl 18)
     // ...
 }
 
@@ -203,6 +206,9 @@ internal fun calculateNodeKindSetFrom(node: Modifier.Node): Int {
     if (node is SoftKeyboardInterceptionModifierNode) {
         mask = mask or Nodes.SoftKeyboardKeyInput
     }
+    if (node is TraversableNode) {
+        mask = mask or Nodes.Traversable
+    }
     return mask
 }
 
@@ -214,17 +220,17 @@ private const val Inserted = 1
 private const val Removed = 2
 
 internal fun autoInvalidateRemovedNode(node: Modifier.Node) {
-    check(node.isAttached) { "autoInvalidateRemovedNode called on unattached node" }
+    checkPrecondition(node.isAttached) { "autoInvalidateRemovedNode called on unattached node" }
     autoInvalidateNodeIncludingDelegates(node, 0.inv(), Removed)
 }
 
 internal fun autoInvalidateInsertedNode(node: Modifier.Node) {
-    check(node.isAttached) { "autoInvalidateInsertedNode called on unattached node" }
+    checkPrecondition(node.isAttached) { "autoInvalidateInsertedNode called on unattached node" }
     autoInvalidateNodeIncludingDelegates(node, 0.inv(), Inserted)
 }
 
 internal fun autoInvalidateUpdatedNode(node: Modifier.Node) {
-    check(node.isAttached) { "autoInvalidateUpdatedNode called on unattached node" }
+    checkPrecondition(node.isAttached) { "autoInvalidateUpdatedNode called on unattached node" }
     autoInvalidateNodeIncludingDelegates(node, 0.inv(), Updated)
 }
 

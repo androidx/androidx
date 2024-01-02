@@ -106,5 +106,21 @@ internal class Camera2Quirks @Inject constructor(
                 Build.MANUFACTURER]?.contains(Build.DEVICE) == true &&
                 Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE
         }
+
+        /**
+         * A quirk that calls CameraExtensionCharacteristics before opening an Extension session.
+         * This is an issue in the Android camera framework where Camera2 has a global variable
+         * recording if advanced extensions are supported or not, and the variable is updated
+         * the first time CameraExtensionCharacteristics are queried. If CameraExtensionCharacteristics
+         * are not queried and therefore the variable is not set, Camera2 will fall back to basic
+         * extensions, even if they are not supported, causing the session creation to fail.
+         *
+         * - Bug(s): b/293473614
+         * - Device(s): All devices that support advanced extensions
+         * - API levels: Before 34 (U)
+         */
+        internal fun shouldGetExtensionCharacteristicsBeforeSession(): Boolean {
+            return Build.VERSION.SDK_INT <= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+        }
     }
 }

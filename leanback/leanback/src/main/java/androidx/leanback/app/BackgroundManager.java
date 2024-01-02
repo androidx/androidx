@@ -42,7 +42,6 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.interpolator.view.animation.FastOutLinearInInterpolator;
 import androidx.leanback.R;
-import androidx.leanback.widget.BackgroundHelper;
 
 import java.lang.ref.WeakReference;
 
@@ -354,8 +353,7 @@ public final class BackgroundManager {
                 // For each child drawable, we multiple Wrapper's alpha and LayerDrawable's alpha
                 // temporarily using mSuspendInvalidation to suppress invalidate event.
                 if (mWrapper[i] != null && (d = mWrapper[i].getDrawable()) != null) {
-                    int alpha = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT
-                            ? DrawableCompat.getAlpha(d) : FULL_ALPHA;
+                    int alpha = DrawableCompat.getAlpha(d);
                     final int savedAlpha = alpha;
                     int multiple = 0;
                     if (mAlpha < FULL_ALPHA) {
@@ -791,7 +789,10 @@ public final class BackgroundManager {
         mLayerDrawable = createTranslucentLayerDrawable(layerDrawable);
         mImageInWrapperIndex = mLayerDrawable.findWrapperIndexById(R.id.background_imagein);
         mImageOutWrapperIndex = mLayerDrawable.findWrapperIndexById(R.id.background_imageout);
-        BackgroundHelper.setBackgroundPreservingAlpha(mBgView, mLayerDrawable);
+        if (mBgView.getBackground() != null) {
+            ((Drawable) mLayerDrawable).setAlpha(mBgView.getBackground().getAlpha());
+        }
+        mBgView.setBackground(mLayerDrawable);
     }
 
     private void updateImmediate() {

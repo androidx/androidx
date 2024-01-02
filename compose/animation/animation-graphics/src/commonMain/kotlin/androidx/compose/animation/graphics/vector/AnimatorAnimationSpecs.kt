@@ -24,6 +24,7 @@ import androidx.compose.animation.core.AnimationVector4D
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.TwoWayConverter
 import androidx.compose.animation.core.VectorizedFiniteAnimationSpec
+import androidx.compose.ui.util.fastMap
 
 private const val MillisToNanos = 1_000_000L
 
@@ -101,7 +102,7 @@ private class CombinedSpec<T>(
         converter: TwoWayConverter<T, V>
     ): VectorizedFiniteAnimationSpec<V> {
         return VectorizedCombinedSpec(
-            specs.map { (timeMillis, spec) ->
+            specs.fastMap { (timeMillis, spec) ->
                 timeMillis * MillisToNanos to spec.vectorize(converter)
             }
         )

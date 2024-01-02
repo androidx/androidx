@@ -93,17 +93,24 @@
         tools:ignore="ButtonStyle">
 
         <Button
-            android:id="@+id/button_read_characteristic"
+            android:id="@+id/button_read"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/read" />
 
         <Button
-            android:id="@+id/button_write_characteristic"
+            android:id="@+id/button_write"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:text="@string/write" />
+
+        <Button
+            android:id="@+id/button_subscribe"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="@string/subscribe" />
 
     </LinearLayout>
 

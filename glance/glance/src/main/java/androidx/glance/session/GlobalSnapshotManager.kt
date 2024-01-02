@@ -17,6 +17,7 @@
 package androidx.glance.session
 
 import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope
 import androidx.compose.runtime.snapshots.Snapshot
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.CoroutineScope
@@ -32,22 +33,25 @@ import kotlinx.coroutines.launch
  * notifications (which are necessary in order for recompositions to be scheduled in response to
  * state changes). These will be sent on Dispatchers.Default.
  * This is based on [androidx.compose.ui.platform.GlobalSnapshotManager].
- * @suppress
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(Scope.LIBRARY_GROUP)
 object GlobalSnapshotManager {
     private val started = AtomicBoolean(false)
+    private val sent = AtomicBoolean(false)
 
     fun ensureStarted() {
         if (started.compareAndSet(false, true)) {
-            val channel = Channel<Unit>(Channel.CONFLATED)
+            val channel = Channel<Unit>(1)
             CoroutineScope(Dispatchers.Default).launch {
                 channel.consumeEach {
+                    sent.set(false)
                     Snapshot.sendApplyNotifications()
                 }
             }
             Snapshot.registerGlobalWriteObserver {
-                channel.trySend(Unit)
+                if (sent.compareAndSet(false, true)) {
+                    channel.trySend(Unit)
+                }
             }
         }
     }
@@ -56,13 +60,18 @@ object GlobalSnapshotManager {
 /**
  * Monitors global snapshot state writes and sends apply notifications.
  */
-internal suspend fun globalSnapshotMonitor() {
-    val channel = Channel<Unit>(Channel.CONFLATED)
+@RestrictTo(Scope.LIBRARY_GROUP)
+suspend fun globalSnapshotMonitor() {
+    val channel = Channel<Unit>(1)
+    val sent = AtomicBoolean(false)
     val observerHandle = Snapshot.registerGlobalWriteObserver {
-        channel.trySend(Unit)
+        if (sent.compareAndSet(false, true)) {
+            channel.trySend(Unit)
+        }
     }
     try {
         channel.consumeEach {
+            sent.set(false)
             Snapshot.sendApplyNotifications()
         }
     } finally {

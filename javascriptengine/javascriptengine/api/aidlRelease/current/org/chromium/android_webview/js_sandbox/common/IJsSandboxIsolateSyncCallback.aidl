@@ -38,4 +38,5 @@ interface IJsSandboxIsolateSyncCallback {
   void reportErrorWithFd(int errorType, in android.content.res.AssetFileDescriptor afd) = 3;
   const int JS_EVALUATION_ERROR = 0;
   const int MEMORY_LIMIT_EXCEEDED = 1;
+  const int FILE_DESCRIPTOR_IO_ERROR = 2;
 }

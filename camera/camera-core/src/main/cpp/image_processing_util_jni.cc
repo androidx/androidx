@@ -592,9 +592,9 @@ JNIEXPORT jint Java_androidx_camera_core_ImageProcessingUtil_nativeRotateYUV(
         align_buffer_64(plane_uv, halfwidth * 2 * halfheight);
         uint8_t* dst_uv = plane_uv;
         for (int y = 0; y < halfheight; y++) {
-            weave_pixels(src_v_ptr, src_u_ptr, src_pixel_stride_uv, dst_uv, halfwidth);
-            src_u += src_stride_u;
-            src_v += src_stride_v;
+            weave_pixels(src_u_ptr, src_v_ptr, src_pixel_stride_uv, dst_uv, halfwidth);
+            src_u_ptr += src_stride_u;
+            src_v_ptr += src_stride_v;
             dst_uv += halfwidth * 2;
         }
 

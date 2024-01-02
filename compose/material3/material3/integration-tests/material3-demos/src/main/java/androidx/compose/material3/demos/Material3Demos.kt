@@ -23,6 +23,7 @@ val Material3Demos = DemoCategory(
     "Material 3",
     listOf(
         ComposableDemo("Color Scheme") { ColorSchemeDemo() },
+        ComposableDemo("Pull To Refresh") { PullToRefreshDemo() },
         ComposableDemo("Shape") { ShapeDemo() },
         ComposableDemo("Swipe To Dismiss") { SwipeToDismissDemo() },
         ComposableDemo("Tooltip") { TooltipDemo() }

@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
@@ -41,6 +42,7 @@ import java.util.Objects;
  * for the list of supported content templates.
  */
 @CarProtocol
+@KeepFields
 @ExperimentalCarApi
 @RequiresCarApi(7)
 public final class MapWithContentTemplate implements Template {

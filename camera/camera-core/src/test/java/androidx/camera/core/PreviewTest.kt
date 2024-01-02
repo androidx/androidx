@@ -40,12 +40,9 @@ import androidx.camera.core.SurfaceRequest.TransformationInfo
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraThreadConfig
 import androidx.camera.core.impl.MutableOptionsBundle
-import androidx.camera.core.impl.OptionsBundle
-import androidx.camera.core.impl.PreviewConfig
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.UseCaseConfig
-import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
@@ -131,7 +128,8 @@ class PreviewTest {
         frontCamera = FakeCamera("front", null, FakeCameraInfoInternal(0, LENS_FACING_FRONT))
 
         val cameraFactoryProvider =
-            CameraFactory.Provider { _: Context?, _: CameraThreadConfig?, _: CameraSelector? ->
+            CameraFactory.Provider { _: Context?, _: CameraThreadConfig?,
+                _: CameraSelector?, _: Long? ->
                 val cameraFactory = FakeCameraFactory()
                 cameraFactory.insertDefaultBackCamera(
                     backCamera.cameraInfoInternal.cameraId
@@ -507,19 +505,6 @@ class PreviewTest {
     }
 
     @Test
-    fun noCameraTransform_rotationDegreesIsZero() {
-        // Act: create preview with hasCameraTransform == false
-        frontCamera.hasTransform = false
-        val preview = createPreview(
-            effect,
-            frontCamera,
-            targetRotation = ROTATION_90
-        )
-        // Assert: rotationDegrees is 0.
-        assertThat(preview.cameraEdge.rotationDegrees).isEqualTo(0)
-    }
-
-    @Test
     fun setNoCameraTransform_propagatesToCameraEdge() {
         // Act: create preview with hasCameraTransform == false
         frontCamera.hasTransform = false
@@ -782,6 +767,28 @@ class PreviewTest {
         assertThat(preview.targetFrameRate).isEqualTo(Range(15, 30))
     }
 
+    @Test
+    fun canSetPreviewStabilization() {
+        val preview = Preview.Builder().setPreviewStabilizationEnabled(true)
+            .build()
+        assertThat(preview.isPreviewStabilizationEnabled).isTrue()
+    }
+
+    @Test
+    fun canSetDynamicRange() {
+        // Use an unspecified dynamic range that isn't the default, UNSPECIFIED.
+        val preview = Preview.Builder().setDynamicRange(DynamicRange.HDR_UNSPECIFIED_10_BIT).build()
+
+        assertThat(preview.dynamicRange).isEqualTo(DynamicRange.HDR_UNSPECIFIED_10_BIT)
+    }
+
+    @Test
+    fun defaultDynamicRange_isUnspecified() {
+        val preview = Preview.Builder().build()
+
+        assertThat(preview.dynamicRange).isEqualTo(DynamicRange.UNSPECIFIED)
+    }
+
     private fun bindToLifecycleAndGetSurfaceRequest(): SurfaceRequest {
         return bindToLifecycleAndGetResult(null).first
     }
@@ -833,13 +840,12 @@ class PreviewTest {
             .build()
         previewToDetach.effect = effect
         previewToDetach.setSurfaceProvider(directExecutor(), surfaceProvider)
-        val previewConfig = PreviewConfig(
-            cameraXConfig.getUseCaseConfigFactoryProvider(null)!!.newInstance(context).getConfig(
-                UseCaseConfigFactory.CaptureType.PREVIEW,
-                ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
-            )!! as OptionsBundle
+        previewToDetach.bindToCamera(
+            camera, null, previewToDetach.getDefaultConfig(
+                true,
+                cameraXConfig.getUseCaseConfigFactoryProvider(null)!!.newInstance(context)
+            )
         )
-        previewToDetach.bindToCamera(camera, null, previewConfig)
 
         val streamSpecOptions = MutableOptionsBundle.create()
         streamSpecOptions.insertOption(testImplementationOption, testImplementationOptionValue)

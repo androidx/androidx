@@ -20,13 +20,10 @@ import androidx.compose.material3.tokens.ColorDarkTokens
 import androidx.compose.material3.tokens.ColorLightTokens
 import androidx.compose.material3.tokens.ColorSchemeKeyTokens
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.takeOrElse
@@ -112,44 +109,44 @@ import kotlin.math.ln
  * [surfaceContainerLow]. Use this role for content which requires less emphasis than
  * [surfaceContainerLow].
  */
-@Stable
+@Immutable
 class ColorScheme(
-    primary: Color,
-    onPrimary: Color,
-    primaryContainer: Color,
-    onPrimaryContainer: Color,
-    inversePrimary: Color,
-    secondary: Color,
-    onSecondary: Color,
-    secondaryContainer: Color,
-    onSecondaryContainer: Color,
-    tertiary: Color,
-    onTertiary: Color,
-    tertiaryContainer: Color,
-    onTertiaryContainer: Color,
-    background: Color,
-    onBackground: Color,
-    surface: Color,
-    onSurface: Color,
-    surfaceVariant: Color,
-    onSurfaceVariant: Color,
-    surfaceTint: Color,
-    inverseSurface: Color,
-    inverseOnSurface: Color,
-    error: Color,
-    onError: Color,
-    errorContainer: Color,
-    onErrorContainer: Color,
-    outline: Color,
-    outlineVariant: Color,
-    scrim: Color,
-    surfaceBright: Color,
-    surfaceDim: Color,
-    surfaceContainer: Color,
-    surfaceContainerHigh: Color,
-    surfaceContainerHighest: Color,
-    surfaceContainerLow: Color,
-    surfaceContainerLowest: Color,
+    val primary: Color,
+    val onPrimary: Color,
+    val primaryContainer: Color,
+    val onPrimaryContainer: Color,
+    val inversePrimary: Color,
+    val secondary: Color,
+    val onSecondary: Color,
+    val secondaryContainer: Color,
+    val onSecondaryContainer: Color,
+    val tertiary: Color,
+    val onTertiary: Color,
+    val tertiaryContainer: Color,
+    val onTertiaryContainer: Color,
+    val background: Color,
+    val onBackground: Color,
+    val surface: Color,
+    val onSurface: Color,
+    val surfaceVariant: Color,
+    val onSurfaceVariant: Color,
+    val surfaceTint: Color,
+    val inverseSurface: Color,
+    val inverseOnSurface: Color,
+    val error: Color,
+    val onError: Color,
+    val errorContainer: Color,
+    val onErrorContainer: Color,
+    val outline: Color,
+    val outlineVariant: Color,
+    val scrim: Color,
+    val surfaceBright: Color,
+    val surfaceDim: Color,
+    val surfaceContainer: Color,
+    val surfaceContainerHigh: Color,
+    val surfaceContainerHighest: Color,
+    val surfaceContainerLow: Color,
+    val surfaceContainerLowest: Color,
 ) {
     constructor(
         primary: Color,
@@ -219,79 +216,6 @@ class ColorScheme(
         surfaceContainerLow = Color.Unspecified,
         surfaceContainerLowest = Color.Unspecified,
     )
-    var primary by mutableStateOf(primary, structuralEqualityPolicy())
-        internal set
-    var onPrimary by mutableStateOf(onPrimary, structuralEqualityPolicy())
-        internal set
-    var primaryContainer by mutableStateOf(primaryContainer, structuralEqualityPolicy())
-        internal set
-    var onPrimaryContainer by mutableStateOf(onPrimaryContainer, structuralEqualityPolicy())
-        internal set
-    var inversePrimary by mutableStateOf(inversePrimary, structuralEqualityPolicy())
-        internal set
-    var secondary by mutableStateOf(secondary, structuralEqualityPolicy())
-        internal set
-    var onSecondary by mutableStateOf(onSecondary, structuralEqualityPolicy())
-        internal set
-    var secondaryContainer by mutableStateOf(secondaryContainer, structuralEqualityPolicy())
-        internal set
-    var onSecondaryContainer by mutableStateOf(onSecondaryContainer, structuralEqualityPolicy())
-        internal set
-    var tertiary by mutableStateOf(tertiary, structuralEqualityPolicy())
-        internal set
-    var onTertiary by mutableStateOf(onTertiary, structuralEqualityPolicy())
-        internal set
-    var tertiaryContainer by mutableStateOf(tertiaryContainer, structuralEqualityPolicy())
-        internal set
-    var onTertiaryContainer by mutableStateOf(onTertiaryContainer, structuralEqualityPolicy())
-        internal set
-    var background by mutableStateOf(background, structuralEqualityPolicy())
-        internal set
-    var onBackground by mutableStateOf(onBackground, structuralEqualityPolicy())
-        internal set
-    var surface by mutableStateOf(surface, structuralEqualityPolicy())
-        internal set
-    var onSurface by mutableStateOf(onSurface, structuralEqualityPolicy())
-        internal set
-    var surfaceVariant by mutableStateOf(surfaceVariant, structuralEqualityPolicy())
-        internal set
-    var onSurfaceVariant by mutableStateOf(onSurfaceVariant, structuralEqualityPolicy())
-        internal set
-    var surfaceTint by mutableStateOf(surfaceTint, structuralEqualityPolicy())
-        internal set
-    var inverseSurface by mutableStateOf(inverseSurface, structuralEqualityPolicy())
-        internal set
-    var inverseOnSurface by mutableStateOf(inverseOnSurface, structuralEqualityPolicy())
-        internal set
-    var error by mutableStateOf(error, structuralEqualityPolicy())
-        internal set
-    var onError by mutableStateOf(onError, structuralEqualityPolicy())
-        internal set
-    var errorContainer by mutableStateOf(errorContainer, structuralEqualityPolicy())
-        internal set
-    var onErrorContainer by mutableStateOf(onErrorContainer, structuralEqualityPolicy())
-        internal set
-    var outline by mutableStateOf(outline, structuralEqualityPolicy())
-        internal set
-    var outlineVariant by mutableStateOf(outlineVariant, structuralEqualityPolicy())
-        internal set
-    var scrim by mutableStateOf(scrim, structuralEqualityPolicy())
-        internal set
-    var surfaceBright by mutableStateOf(surfaceBright, structuralEqualityPolicy())
-        internal set
-    var surfaceDim by mutableStateOf(surfaceDim, structuralEqualityPolicy())
-        internal set
-    var surfaceContainer by mutableStateOf(surfaceContainer, structuralEqualityPolicy())
-        internal set
-    var surfaceContainerHigh by mutableStateOf(surfaceContainerHigh, structuralEqualityPolicy())
-        internal set
-    var surfaceContainerHighest by mutableStateOf(
-        surfaceContainerHighest, structuralEqualityPolicy())
-        internal set
-    var surfaceContainerLow by mutableStateOf(surfaceContainerLow, structuralEqualityPolicy())
-        internal set
-    var surfaceContainerLowest by mutableStateOf(surfaceContainerLowest, structuralEqualityPolicy())
-        internal set
 
     /** Returns a copy of this ColorScheme, optionally overriding some of the values. */
     fun copy(
@@ -480,6 +404,64 @@ class ColorScheme(
             "surfaceContainerLowest=$surfaceContainerLowest" +
             ")"
     }
+
+    internal var defaultButtonColorsCached: ButtonColors? = null
+    internal var defaultElevatedButtonColorsCached: ButtonColors? = null
+    internal var defaultFilledTonalButtonColorsCached: ButtonColors? = null
+    internal var defaultOutlinedButtonColorsCached: ButtonColors? = null
+    internal var defaultTextButtonColorsCached: ButtonColors? = null
+
+    internal var defaultCardColorsCached: CardColors? = null
+    internal var defaultElevatedCardColorsCached: CardColors? = null
+    internal var defaultOutlinedCardColorsCached: CardColors? = null
+
+    internal var defaultAssistChipColorsCached: ChipColors? = null
+    internal var defaultElevatedAssistChipColorsCached: ChipColors? = null
+    internal var defaultSuggestionChipColorsCached: ChipColors? = null
+    internal var defaultElevatedSuggestionChipColorsCached: ChipColors? = null
+    internal var defaultFilterChipColorsCached: SelectableChipColors? = null
+    internal var defaultElevatedFilterChipColorsCached: SelectableChipColors? = null
+    internal var defaultInputChipColorsCached: SelectableChipColors? = null
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    internal var defaultTopAppBarColorsCached: TopAppBarColors? = null
+    @OptIn(ExperimentalMaterial3Api::class)
+    internal var defaultCenterAlignedTopAppBarColorsCached: TopAppBarColors? = null
+    @OptIn(ExperimentalMaterial3Api::class)
+    internal var defaultMediumTopAppBarColorsCached: TopAppBarColors? = null
+    @OptIn(ExperimentalMaterial3Api::class)
+    internal var defaultLargeTopAppBarColorsCached: TopAppBarColors? = null
+
+    internal var defaultCheckboxColorsCached: CheckboxColors? = null
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    internal var defaultDatePickerColorsCached: DatePickerColors? = null
+
+    internal var defaultIconButtonColorsCached: IconButtonColors? = null
+
+    internal var defaultMenuItemColorsCached: MenuItemColors? = null
+
+    internal var defaultNavigationBarItemColorsCached: NavigationBarItemColors? = null
+
+    internal var defaultNavigationRailItemColorsCached: NavigationRailItemColors? = null
+
+    internal var defaultRadioButtonColorsCached: RadioButtonColors? = null
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    internal var defaultSegmentedButtonColorsCached: SegmentedButtonColors? = null
+
+    internal var defaultSliderColorsCached: SliderColors? = null
+
+    internal var defaultSwitchColorsCached: SwitchColors? = null
+
+    internal var defaultOutlinedTextFieldColorsCached: TextFieldColors? = null
+    internal var defaultTextFieldColorsCached: TextFieldColors? = null
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    internal var defaultTimePickerColorsCached: TimePickerColors? = null
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    internal var defaultRichTooltipColorsCached: RichTooltipColors? = null
 }
 
 /**
@@ -666,7 +648,7 @@ fun darkColorScheme(
     surfaceBright: Color = ColorDarkTokens.SurfaceBright,
     surfaceContainer: Color = ColorDarkTokens.SurfaceContainer,
     surfaceContainerHigh: Color = ColorDarkTokens.SurfaceContainerHigh,
-    surfaceContainerHighest: Color = ColorLightTokens.SurfaceContainerHighest,
+    surfaceContainerHighest: Color = ColorDarkTokens.SurfaceContainerHighest,
     surfaceContainerLow: Color = ColorDarkTokens.SurfaceContainerLow,
     surfaceContainerLowest: Color = ColorDarkTokens.SurfaceContainerLowest,
     surfaceDim: Color = ColorDarkTokens.SurfaceDim,
@@ -795,6 +777,7 @@ fun darkColorScheme(
  *
  * @see contentColorFor
  */
+@Stable
 fun ColorScheme.contentColorFor(backgroundColor: Color): Color =
     when (backgroundColor) {
         primary -> onPrimary
@@ -873,6 +856,7 @@ internal fun ColorScheme.applyTonalElevation(backgroundColor: Color, elevation: 
  * @return the [ColorScheme.surface] color with an alpha of the [ColorScheme.surfaceTint] color
  * overlaid on top of it.
  */
+@Stable
 fun ColorScheme.surfaceColorAtElevation(
     elevation: Dp,
 ): Color {
@@ -882,63 +866,11 @@ fun ColorScheme.surfaceColorAtElevation(
 }
 
 /**
- * Updates the internal values of a given [ColorScheme] with values from the [other]
- * [ColorScheme].
- * This allows efficiently updating a subset of [ColorScheme], without recomposing every
- * composable that consumes values from [LocalColorScheme].
- *
- * Because [ColorScheme] is very wide-reaching, and used by many expensive composables in the
- * hierarchy, providing a new value to [LocalColorScheme] causes every composable consuming
- * [LocalColorScheme] to recompose, which is prohibitively expensive in cases such as animating one
- * color in the theme. Instead, [ColorScheme] is internally backed by [mutableStateOf], and this
- * function mutates the internal state of [this] to match values in [other]. This means that any
- * changes will mutate the internal state of [this], and only cause composables that are reading the
- * specific changed value to recompose.
- */
-internal fun ColorScheme.updateColorSchemeFrom(other: ColorScheme) {
-    primary = other.primary
-    onPrimary = other.onPrimary
-    primaryContainer = other.primaryContainer
-    onPrimaryContainer = other.onPrimaryContainer
-    inversePrimary = other.inversePrimary
-    secondary = other.secondary
-    onSecondary = other.onSecondary
-    secondaryContainer = other.secondaryContainer
-    onSecondaryContainer = other.onSecondaryContainer
-    tertiary = other.tertiary
-    onTertiary = other.onTertiary
-    tertiaryContainer = other.tertiaryContainer
-    onTertiaryContainer = other.onTertiaryContainer
-    background = other.background
-    onBackground = other.onBackground
-    surface = other.surface
-    onSurface = other.onSurface
-    surfaceVariant = other.surfaceVariant
-    onSurfaceVariant = other.onSurfaceVariant
-    surfaceTint = other.surfaceTint
-    inverseSurface = other.inverseSurface
-    inverseOnSurface = other.inverseOnSurface
-    error = other.error
-    onError = other.onError
-    errorContainer = other.errorContainer
-    onErrorContainer = other.onErrorContainer
-    outline = other.outline
-    outlineVariant = other.outlineVariant
-    scrim = other.scrim
-    surfaceBright = other.surfaceBright
-    surfaceDim = other.surfaceDim
-    surfaceContainer = other.surfaceContainer
-    surfaceContainerHigh = other.surfaceContainerHigh
-    surfaceContainerHighest = other.surfaceContainerHighest
-    surfaceContainerLow = other.surfaceContainerLow
-    surfaceContainerLowest = other.surfaceContainerLowest
-}
-
-/**
  * Helper function for component color tokens. Here is an example on how to use component color
  * tokens:
  * ``MaterialTheme.colorScheme.fromToken(ExtendedFabBranded.BrandedContainerColor)``
  */
+@Stable
 internal fun ColorScheme.fromToken(value: ColorSchemeKeyTokens): Color {
     return when (value) {
         ColorSchemeKeyTokens.Background -> background
@@ -984,9 +916,8 @@ internal fun ColorScheme.fromToken(value: ColorSchemeKeyTokens): Color {
 /**
  * CompositionLocal used to pass [ColorScheme] down the tree.
  *
- * Setting the value here is typically done as part of [MaterialTheme], which will automatically
- * handle efficiently updating any changed colors without causing unnecessary recompositions, using
- * [ColorScheme.updateColorSchemeFrom]. To retrieve the current value of this CompositionLocal, use
+ * Setting the value here is typically done as part of [MaterialTheme].
+ * To retrieve the current value of this CompositionLocal, use
  * [MaterialTheme.colorScheme].
  */
 internal val LocalColorScheme = staticCompositionLocalOf { lightColorScheme() }

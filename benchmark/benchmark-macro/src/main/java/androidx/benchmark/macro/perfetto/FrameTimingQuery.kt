@@ -35,7 +35,8 @@ internal object FrameTimingQuery {
             INNER JOIN thread USING(utid)
             INNER JOIN process USING(upid)
         WHERE (
-            ( slice.name LIKE "Choreographer#doFrame%" AND process.pid LIKE thread.tid ) OR
+            ---- parent_stack_id = 0 to filter to top of trace stack
+            ( slice.name LIKE "Choreographer#doFrame%" AND process.pid LIKE thread.tid AND slice.parent_stack_id = 0) OR
             ( slice.name LIKE "DrawFrame%" AND thread.name like "RenderThread" )
         ) AND ${processNameLikePkg(packageName)}
         ------ Add in actual frame slices (prepended with "actual " to differentiate)
@@ -158,6 +159,7 @@ internal object FrameTimingQuery {
 
         val groupedData = slices
             .filter { it.dur > 0 } // drop non-terminated slices
+            .filter { !it.name.contains("resynced") } // drop "#doFrame - resynced to" slices
             .groupBy {
                 when {
                     // note: we use "startsWith" as starting in S, all of these will end
@@ -179,14 +181,19 @@ internal object FrameTimingQuery {
             return emptyList()
         }
 
-        // check data looks reasonable
-        val newSlicesShouldBeEmpty = captureApiLevel < 31
-        require(actualSlices.isEmpty() == newSlicesShouldBeEmpty)
-        require(expectedSlices.isEmpty() == newSlicesShouldBeEmpty)
+        check(rtSlices.isNotEmpty()) {
+            "Observed no renderthread slices in trace - verify that your benchmark is redrawing" +
+                " and is hardware accelerated (which is the default)."
+        }
 
         return if (captureApiLevel >= 31) {
-            // No slice should be missing a frameId
-            require(slices.none { it.frameId == null })
+            check(actualSlices.isNotEmpty() && expectedSlices.isNotEmpty()) {
+                "Observed no expect/actual slices in trace," +
+                    " please report bug and attach perfetto trace."
+            }
+            check(slices.none { it.frameId == null }) {
+                "Observed frame in trace missing id, please report bug and attach perfetto trace."
+            }
 
             val actualSlicesPool = actualSlices.toMutableList()
             rtSlices.mapNotNull { rtSlice ->
@@ -220,7 +227,8 @@ internal object FrameTimingQuery {
                 }
             }
         } else {
-            require(slices.none { it.frameId != null })
+            // note that we expect no frame ids on API < 31, and don't observe them
+            // on most devices, but it has been observed, so we just ignore them
             rtSlices.mapNotNull { rtSlice ->
                 FrameData.tryCreateBasic(
                     uiSlice = uiSlices.firstOrNull { it.contains(rtSlice.ts) },

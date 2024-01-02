@@ -24,9 +24,9 @@ package androidx.tv.foundation.lazy.grid {
     method @androidx.compose.runtime.Composable public static void TvLazyHorizontalGrid(androidx.tv.foundation.lazy.grid.TvGridCells rows, optional androidx.compose.ui.Modifier modifier, optional androidx.tv.foundation.lazy.grid.TvLazyGridState state, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional boolean reverseLayout, optional androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional boolean userScrollEnabled, optional androidx.tv.foundation.PivotOffsets pivotOffsets, kotlin.jvm.functions.Function1<? super androidx.tv.foundation.lazy.grid.TvLazyGridScope,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public static void TvLazyVerticalGrid(androidx.tv.foundation.lazy.grid.TvGridCells columns, optional androidx.compose.ui.Modifier modifier, optional androidx.tv.foundation.lazy.grid.TvLazyGridState state, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional boolean reverseLayout, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement, optional boolean userScrollEnabled, optional androidx.tv.foundation.PivotOffsets pivotOffsets, kotlin.jvm.functions.Function1<? super androidx.tv.foundation.lazy.grid.TvLazyGridScope,kotlin.Unit> content);
     method public static inline <T> void items(androidx.tv.foundation.lazy.grid.TvLazyGridScope, java.util.List<? extends T> items, optional kotlin.jvm.functions.Function1<? super T,?>? key, optional kotlin.jvm.functions.Function2<? super androidx.tv.foundation.lazy.grid.TvLazyGridItemSpanScope,? super T,androidx.tv.foundation.lazy.grid.TvGridItemSpan>? span, optional kotlin.jvm.functions.Function1<? super T,?> contentType, kotlin.jvm.functions.Function2<? super androidx.tv.foundation.lazy.grid.TvLazyGridItemScope,? super T,kotlin.Unit> itemContent);
-    method public static inline <T> void items(androidx.tv.foundation.lazy.grid.TvLazyGridScope, T![] items, optional kotlin.jvm.functions.Function1<? super T,?>? key, optional kotlin.jvm.functions.Function2<? super androidx.tv.foundation.lazy.grid.TvLazyGridItemSpanScope,? super T,androidx.tv.foundation.lazy.grid.TvGridItemSpan>? span, optional kotlin.jvm.functions.Function1<? super T,?> contentType, kotlin.jvm.functions.Function2<? super androidx.tv.foundation.lazy.grid.TvLazyGridItemScope,? super T,kotlin.Unit> itemContent);
+    method public static inline <T> void items(androidx.tv.foundation.lazy.grid.TvLazyGridScope, T[] items, optional kotlin.jvm.functions.Function1<? super T,?>? key, optional kotlin.jvm.functions.Function2<? super androidx.tv.foundation.lazy.grid.TvLazyGridItemSpanScope,? super T,androidx.tv.foundation.lazy.grid.TvGridItemSpan>? span, optional kotlin.jvm.functions.Function1<? super T,?> contentType, kotlin.jvm.functions.Function2<? super androidx.tv.foundation.lazy.grid.TvLazyGridItemScope,? super T,kotlin.Unit> itemContent);
     method public static inline <T> void itemsIndexed(androidx.tv.foundation.lazy.grid.TvLazyGridScope, java.util.List<? extends T> items, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?>? key, optional kotlin.jvm.functions.Function3<? super androidx.tv.foundation.lazy.grid.TvLazyGridItemSpanScope,? super java.lang.Integer,? super T,androidx.tv.foundation.lazy.grid.TvGridItemSpan>? span, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?> contentType, kotlin.jvm.functions.Function3<? super androidx.tv.foundation.lazy.grid.TvLazyGridItemScope,? super java.lang.Integer,? super T,kotlin.Unit> itemContent);
-    method public static inline <T> void itemsIndexed(androidx.tv.foundation.lazy.grid.TvLazyGridScope, T![] items, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?>? key, optional kotlin.jvm.functions.Function3<? super androidx.tv.foundation.lazy.grid.TvLazyGridItemSpanScope,? super java.lang.Integer,? super T,androidx.tv.foundation.lazy.grid.TvGridItemSpan>? span, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?> contentType, kotlin.jvm.functions.Function3<? super androidx.tv.foundation.lazy.grid.TvLazyGridItemScope,? super java.lang.Integer,? super T,kotlin.Unit> itemContent);
+    method public static inline <T> void itemsIndexed(androidx.tv.foundation.lazy.grid.TvLazyGridScope, T[] items, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?>? key, optional kotlin.jvm.functions.Function3<? super androidx.tv.foundation.lazy.grid.TvLazyGridItemSpanScope,? super java.lang.Integer,? super T,androidx.tv.foundation.lazy.grid.TvGridItemSpan>? span, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?> contentType, kotlin.jvm.functions.Function3<? super androidx.tv.foundation.lazy.grid.TvLazyGridItemScope,? super java.lang.Integer,? super T,kotlin.Unit> itemContent);
   }
 
   public final class LazyGridSpanKt {
@@ -47,6 +47,11 @@ package androidx.tv.foundation.lazy.grid {
     method public java.util.List<java.lang.Integer> calculateCrossAxisCellSizes(androidx.compose.ui.unit.Density, int availableSize, int spacing);
   }
 
+  public static final class TvGridCells.FixedSize implements androidx.tv.foundation.lazy.grid.TvGridCells {
+    ctor public TvGridCells.FixedSize(float size);
+    method public java.util.List<java.lang.Integer> calculateCrossAxisCellSizes(androidx.compose.ui.unit.Density, int availableSize, int spacing);
+  }
+
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class TvGridItemSpan {
     method public int getCurrentLineSpan();
     property @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final int currentLineSpan;
@@ -54,12 +59,14 @@ package androidx.tv.foundation.lazy.grid {
 
   public sealed interface TvLazyGridItemInfo {
     method public int getColumn();
+    method public Object? getContentType();
     method public int getIndex();
     method public Object getKey();
     method public long getOffset();
     method public int getRow();
     method public long getSize();
     property public abstract int column;
+    property public abstract Object? contentType;
     property public abstract int index;
     property public abstract Object key;
     property public abstract long offset;
@@ -119,7 +126,7 @@ package androidx.tv.foundation.lazy.grid {
 
   @androidx.compose.runtime.Stable public final class TvLazyGridState implements androidx.compose.foundation.gestures.ScrollableState {
     ctor public TvLazyGridState(optional int firstVisibleItemIndex, optional int firstVisibleItemScrollOffset);
-    method public suspend Object? animateScrollToItem(int index, optional int scrollOffset, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? animateScrollToItem(int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public float dispatchRawDelta(float delta);
     method public int getFirstVisibleItemIndex();
     method public int getFirstVisibleItemScrollOffset();
@@ -127,7 +134,7 @@ package androidx.tv.foundation.lazy.grid {
     method public androidx.tv.foundation.lazy.grid.TvLazyGridLayoutInfo getLayoutInfo();
     method public boolean isScrollInProgress();
     method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public suspend Object? scrollToItem(int index, optional int scrollOffset, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? scrollToItem(int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public boolean canScrollBackward;
     property public boolean canScrollForward;
     property public final int firstVisibleItemIndex;
@@ -155,20 +162,22 @@ package androidx.tv.foundation.lazy.list {
     method @androidx.compose.runtime.Composable public static void TvLazyColumn(optional androidx.compose.ui.Modifier modifier, optional androidx.tv.foundation.lazy.list.TvLazyListState state, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional boolean reverseLayout, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.ui.Alignment.Horizontal horizontalAlignment, optional boolean userScrollEnabled, optional androidx.tv.foundation.PivotOffsets pivotOffsets, kotlin.jvm.functions.Function1<? super androidx.tv.foundation.lazy.list.TvLazyListScope,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public static void TvLazyRow(optional androidx.compose.ui.Modifier modifier, optional androidx.tv.foundation.lazy.list.TvLazyListState state, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional boolean reverseLayout, optional androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement, optional androidx.compose.ui.Alignment.Vertical verticalAlignment, optional boolean userScrollEnabled, optional androidx.tv.foundation.PivotOffsets pivotOffsets, kotlin.jvm.functions.Function1<? super androidx.tv.foundation.lazy.list.TvLazyListScope,kotlin.Unit> content);
     method public static inline <T> void items(androidx.tv.foundation.lazy.list.TvLazyListScope, java.util.List<? extends T> items, optional kotlin.jvm.functions.Function1<? super T,?>? key, optional kotlin.jvm.functions.Function1<? super T,?> contentType, kotlin.jvm.functions.Function2<? super androidx.tv.foundation.lazy.list.TvLazyListItemScope,? super T,kotlin.Unit> itemContent);
-    method public static inline <T> void items(androidx.tv.foundation.lazy.list.TvLazyListScope, T![] items, optional kotlin.jvm.functions.Function1<? super T,?>? key, optional kotlin.jvm.functions.Function1<? super T,?> contentType, kotlin.jvm.functions.Function2<? super androidx.tv.foundation.lazy.list.TvLazyListItemScope,? super T,kotlin.Unit> itemContent);
+    method public static inline <T> void items(androidx.tv.foundation.lazy.list.TvLazyListScope, T[] items, optional kotlin.jvm.functions.Function1<? super T,?>? key, optional kotlin.jvm.functions.Function1<? super T,?> contentType, kotlin.jvm.functions.Function2<? super androidx.tv.foundation.lazy.list.TvLazyListItemScope,? super T,kotlin.Unit> itemContent);
     method public static inline <T> void itemsIndexed(androidx.tv.foundation.lazy.list.TvLazyListScope, java.util.List<? extends T> items, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?>? key, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?> contentType, kotlin.jvm.functions.Function3<? super androidx.tv.foundation.lazy.list.TvLazyListItemScope,? super java.lang.Integer,? super T,kotlin.Unit> itemContent);
-    method public static inline <T> void itemsIndexed(androidx.tv.foundation.lazy.list.TvLazyListScope, T![] items, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?>? key, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?> contentType, kotlin.jvm.functions.Function3<? super androidx.tv.foundation.lazy.list.TvLazyListItemScope,? super java.lang.Integer,? super T,kotlin.Unit> itemContent);
+    method public static inline <T> void itemsIndexed(androidx.tv.foundation.lazy.list.TvLazyListScope, T[] items, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?>? key, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?> contentType, kotlin.jvm.functions.Function3<? super androidx.tv.foundation.lazy.list.TvLazyListItemScope,? super java.lang.Integer,? super T,kotlin.Unit> itemContent);
   }
 
   public final class LazyListStateKt {
     method @androidx.compose.runtime.Composable public static androidx.tv.foundation.lazy.list.TvLazyListState rememberTvLazyListState(optional int initialFirstVisibleItemIndex, optional int initialFirstVisibleItemScrollOffset);
   }
 
-  public interface TvLazyListItemInfo {
+  public sealed interface TvLazyListItemInfo {
+    method public Object? getContentType();
     method public int getIndex();
     method public Object getKey();
     method public int getOffset();
     method public int getSize();
+    property public abstract Object? contentType;
     property public abstract int index;
     property public abstract Object key;
     property public abstract int offset;
@@ -216,7 +225,7 @@ package androidx.tv.foundation.lazy.list {
 
   @androidx.compose.runtime.Stable public final class TvLazyListState implements androidx.compose.foundation.gestures.ScrollableState {
     ctor public TvLazyListState(optional int firstVisibleItemIndex, optional int firstVisibleItemScrollOffset);
-    method public suspend Object? animateScrollToItem(int index, optional int scrollOffset, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? animateScrollToItem(int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public float dispatchRawDelta(float delta);
     method public int getFirstVisibleItemIndex();
     method public int getFirstVisibleItemScrollOffset();
@@ -224,7 +233,7 @@ package androidx.tv.foundation.lazy.list {
     method public androidx.tv.foundation.lazy.list.TvLazyListLayoutInfo getLayoutInfo();
     method public boolean isScrollInProgress();
     method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public suspend Object? scrollToItem(int index, optional int scrollOffset, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? scrollToItem(int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public boolean canScrollBackward;
     property public boolean canScrollForward;
     property public final int firstVisibleItemIndex;
@@ -245,15 +254,15 @@ package androidx.tv.foundation.lazy.list {
 package androidx.tv.foundation.text {
 
   public final class TvImeOptionsKt {
-    method @SuppressCompatibility @androidx.tv.foundation.ExperimentalTvFoundationApi public static androidx.compose.ui.text.input.AndroidImeOptions AndroidImeOptions(androidx.tv.foundation.text.TvKeyboardAlignment horizontalAlignment);
-    method @SuppressCompatibility @androidx.tv.foundation.ExperimentalTvFoundationApi public static androidx.compose.ui.text.input.AndroidImeOptions keyboardAlignment(androidx.compose.ui.text.input.AndroidImeOptions, androidx.tv.foundation.text.TvKeyboardAlignment horizontalAlignment);
+    method @SuppressCompatibility @androidx.tv.foundation.ExperimentalTvFoundationApi public static androidx.compose.ui.text.input.PlatformImeOptions PlatformImeOptions(androidx.tv.foundation.text.TvKeyboardAlignment horizontalAlignment);
+    method @SuppressCompatibility @androidx.tv.foundation.ExperimentalTvFoundationApi public static androidx.compose.ui.text.input.PlatformImeOptions keyboardAlignment(androidx.compose.ui.text.input.PlatformImeOptions, androidx.tv.foundation.text.TvKeyboardAlignment horizontalAlignment);
   }
 
   @SuppressCompatibility @androidx.tv.foundation.ExperimentalTvFoundationApi public enum TvKeyboardAlignment {
-    method public final String! getOption();
+    method public final String? getOption();
     method public static androidx.tv.foundation.text.TvKeyboardAlignment valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.tv.foundation.text.TvKeyboardAlignment[] values();
-    property public final String! option;
+    property public final String? option;
     enum_constant public static final androidx.tv.foundation.text.TvKeyboardAlignment Center;
     enum_constant public static final androidx.tv.foundation.text.TvKeyboardAlignment Fullscreen;
     enum_constant public static final androidx.tv.foundation.text.TvKeyboardAlignment Left;

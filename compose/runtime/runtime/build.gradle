@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 
@@ -24,11 +23,9 @@ plugins {
     id("com.android.library")
 }
 
-def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
-
 androidXMultiplatform {
     android()
-    if (desktopEnabled) desktop()
+    desktop()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -37,37 +34,51 @@ androidXMultiplatform {
             dependencies {
                 implementation(libs.kotlinStdlibCommon)
                 implementation(libs.kotlinCoroutinesCore)
+                implementation(project(":collection:collection"))
             }
         }
 
         commonTest {
             dependencies {
-                implementation kotlin("test")
+                implementation kotlin("test-junit")
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(libs.kotlinReflect)
             }
         }
 
+        nonEmulatorCommonMain {
+            dependsOn(commonMain)
+        }
+
+        nonEmulatorCommonTest {
+            dependsOn(commonTest)
+        }
+
+        nonEmulatorJvmMain {
+            dependsOn(nonEmulatorCommonMain)
+        }
+
+        nonEmulatorJvmTest {
+            dependsOn(nonEmulatorCommonTest)
+        }
+
         jvmMain {
+            dependsOn(nonEmulatorJvmMain)
             dependencies {
                 implementation(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
             }
         }
 
-
         androidMain {
             dependsOn(jvmMain)
             dependencies {
                 api(libs.kotlinCoroutinesAndroid)
-                api("androidx.annotation:annotation:1.1.0")
             }
         }
 
-        if (desktopEnabled) {
-            desktopMain {
-                dependsOn(jvmMain)
-            }
+        desktopMain {
+            dependsOn(jvmMain)
         }
 
         jvmTest {
@@ -76,19 +87,7 @@ androidXMultiplatform {
             }
         }
 
-        nonEmulatorCommonTest {
-            dependsOn(commonTest)
-            dependencies {
-            }
-        }
-
-        nonEmulatorJvmTest {
-            dependsOn(nonEmulatorCommonTest)
-            dependencies {
-            }
-        }
-
-        androidAndroidTest {
+        androidInstrumentedTest {
             dependsOn(jvmTest)
             dependencies {
                 implementation(libs.testExtJunit)
@@ -98,16 +97,14 @@ androidXMultiplatform {
             }
         }
 
-        androidTest {
+        androidUnitTest {
             dependsOn(jvmTest)
             dependsOn(nonEmulatorJvmTest)
         }
 
-        if (desktopEnabled) {
-            desktopTest {
-                dependsOn(jvmTest)
-                dependsOn(nonEmulatorJvmTest)
-            }
+        desktopTest {
+            dependsOn(jvmTest)
+            dependsOn(nonEmulatorJvmTest)
         }
     }
 }

@@ -22,7 +22,33 @@
         android:allowBackup="false"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@android:style/Theme.DeviceDefault"
-        tools:ignore="MissingApplicationIcon" />
+        tools:ignore="MissingApplicationIcon,MissingTvBanner">
+
+        <!-- Profileable to enable macrobenchmark profiling -->
+        <profileable android:shell="true" />
+
+        <!-- Activities need to be exported so the macrobenchmark can discover them. -->
+        <activity
+            android:name=".StartupActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.tv.integration.macrobenchmark.target.STARTUP_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+    </application>
+
+    <uses-feature
+        android:name="android.software.leanback"
+        android:required="true" />
+
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false" />
 
 </manifest>

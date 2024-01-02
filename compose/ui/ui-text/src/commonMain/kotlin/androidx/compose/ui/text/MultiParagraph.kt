@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.text
 
+import androidx.annotation.IntRange
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.BlendMode
@@ -34,6 +35,7 @@ import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.util.fastFlatMap
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import kotlin.math.max
@@ -536,7 +538,7 @@ class MultiParagraph(
     fun fillBoundingBoxes(
         range: TextRange,
         array: FloatArray,
-        arrayStart: Int
+        @IntRange(from = 0) arrayStart: Int
     ): FloatArray {
         requireIndexInRange(range.min)
         requireIndexInRangeInclusiveEnd(range.max)

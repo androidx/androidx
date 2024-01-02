@@ -26,6 +26,7 @@ message LayoutNode {
   bool hasAction = 9;
   repeated LayoutNode children = 7;
   bool has_image_description = 10;
+  bool has_image_color_filter = 11;
 }
 
 enum ContentScale {

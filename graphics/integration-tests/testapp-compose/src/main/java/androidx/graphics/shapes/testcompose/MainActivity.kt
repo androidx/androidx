@@ -16,9 +16,7 @@
 
 package androidx.graphics.shapes.testcompose
 
-import android.graphics.Matrix
-import android.graphics.PointF
-import android.graphics.RectF
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.compose.animation.core.Animatable
@@ -36,14 +34,15 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Slider
-import androidx.compose.material.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -52,12 +51,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asComposePath
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
+import androidx.graphics.shapes.Cubic
 import androidx.graphics.shapes.Morph
 import androidx.graphics.shapes.RoundedPolygon
-import kotlin.math.abs
+import androidx.graphics.shapes.TransformResult
 import kotlin.math.min
 import kotlinx.coroutines.launch
 
@@ -67,56 +67,15 @@ fun PolygonComposable(polygon: RoundedPolygon, modifier: Modifier = Modifier) =
 
 @Composable
 private fun MorphComposable(
-    sizedMorph: SizedMorph,
+    morph: Morph,
     progress: Float,
     modifier: Modifier = Modifier,
     isDebug: Boolean = false
-) = MorphComposableImpl(sizedMorph, modifier, isDebug, progress)
-
-internal fun calculateMatrix(bounds: RectF, width: Float, height: Float): Matrix {
-    val originalWidth = bounds.right - bounds.left
-    val originalHeight = bounds.bottom - bounds.top
-    val scale = min(width / originalWidth, height / originalHeight)
-    val newLeft = bounds.left - (width / scale - originalWidth) / 2
-    val newTop = bounds.top - (height / scale - originalHeight) / 2
-    val matrix = Matrix()
-    matrix.setTranslate(-newLeft, -newTop)
-    matrix.postScale(scale, scale)
-    return matrix
-}
-
-internal fun PointF.transform(
-    matrix: Matrix,
-    dst: PointF = PointF(),
-    floatArray: FloatArray = FloatArray(2)
-): PointF {
-    floatArray[0] = x
-    floatArray[1] = y
-    matrix.mapPoints(floatArray)
-    dst.x = floatArray[0]
-    dst.y = floatArray[1]
-    return dst
-}
-
-private val TheBounds = RectF(0f, 0f, 1f, 1f)
-
-private class SizedMorph(val morph: Morph) {
-    var width = 1f
-    var height = 1f
-
-    fun resizeMaybe(newWidth: Float, newHeight: Float) {
-        if (abs(width - newWidth) > 1e-4 || abs(height - newHeight) > 1e-4) {
-            val matrix = calculateMatrix(RectF(0f, 0f, width, height), newWidth, newHeight)
-            morph.transform(matrix)
-            width = newWidth
-            height = newHeight
-        }
-    }
-}
+) = MorphComposableImpl(morph, modifier, isDebug, progress)
 
 @Composable
 private fun MorphComposableImpl(
-    sizedMorph: SizedMorph,
+    morph: Morph,
     modifier: Modifier = Modifier,
     isDebug: Boolean = false,
     progress: Float
@@ -126,45 +85,60 @@ private fun MorphComposableImpl(
             .fillMaxSize()
             .drawWithContent {
                 drawContent()
-                sizedMorph.resizeMaybe(size.width, size.height)
+                val scale = min(size.width, size.height)
+                val path = morph.toPath(progress, scale)
                 if (isDebug) {
-                    debugDraw(sizedMorph.morph, progress = progress)
+                    drawPath(path, Color.Green, style = Stroke(2f))
+                    morph.forEachCubic(progress) { cubic ->
+                        cubic.transform { x, y -> TransformResult(x * scale, y * scale) }
+                        debugDraw(cubic)
+                    }
                 } else {
-                    drawPath(sizedMorph.morph.asPath(progress).asComposePath(), Color.White)
+                    drawPath(path, Color.White)
                 }
             })
 }
 
 @Composable
 internal fun PolygonComposableImpl(
-    shape: RoundedPolygon,
+    polygon: RoundedPolygon,
     modifier: Modifier = Modifier,
     debug: Boolean = false
 ) {
-    val sizedPolygonCache = remember(shape) {
-        mutableMapOf<Size, RoundedPolygon>()
-    }
+    @Suppress("PrimitiveInCollection")
+    val sizedShapes = remember(polygon) { mutableMapOf<Size, List<Cubic>>() }
     Box(
         modifier
             .fillMaxSize()
             .drawWithContent {
+                // TODO: Can we use drawWithCache to simplify this?
                 drawContent()
-                val sizedPolygon = sizedPolygonCache.getOrPut(size) {
-                    val matrix = calculateMatrix(TheBounds, size.width, size.height)
-                    RoundedPolygon(shape).apply { transform(matrix) }
-                }
+                val scale = min(size.width, size.height)
+                val shape = sizedShapes.getOrPut(size) { polygon.cubics.scaled(scale) }
                 if (debug) {
-                    debugDraw(sizedPolygon.toCubicShape())
+                    shape.forEach { cubic -> debugDraw(cubic) }
                 } else {
-                    drawPath(sizedPolygon.toPath().asComposePath(), Color.White)
+                    drawPath(shape.toPath(), Color.White)
                 }
             })
 }
 
+fun outputShapeInfo(activity: FragmentActivity, info: String) {
+    // Output to logcat and also share intent
+    println(info)
+    val sendIntent: Intent = Intent().apply {
+        action = Intent.ACTION_SEND
+        putExtra(Intent.EXTRA_TEXT, info)
+        type = "text/plain"
+    }
+    val shareIntent = Intent.createChooser(sendIntent, null)
+    activity.startActivity(shareIntent)
+}
+
 @Composable
-fun MainScreen() {
+fun MainScreen(activity: MainActivity) {
     var editing by remember { mutableStateOf<ShapeParameters?>(null) }
-    var selectedShape = remember { mutableStateOf(0) }
+    var selectedShape = remember { mutableIntStateOf(0) }
     val shapes = remember {
         listOf(
             // LINE 1
@@ -172,7 +146,7 @@ fun MainScreen() {
             ShapeParameters(
                 sides = 8,
                 roundness = 1f,
-                shapeId = ShapeParameters.ShapeId.Circle
+                shapeId = ShapeParameters.ShapeId.Circle,
             ),
             //
             ShapeParameters(
@@ -276,26 +250,24 @@ fun MainScreen() {
         )
     }
     editing?.let {
-        ShapeEditor(it) { editing = null }
-    } ?: MorphScreen(shapes, selectedShape) { editing = shapes[selectedShape.value] }
+        ShapeEditor(it, output = { outputString -> outputShapeInfo(activity, outputString) }) {
+            editing = null
+        }
+    } ?: MorphScreen(shapes, selectedShape) { editing = shapes[selectedShape.intValue] }
 }
 
 @Composable
 fun MorphScreen(
     shapeParams: List<ShapeParameters>,
-    selectedShape: MutableState<Int>,
+    selectedShape: MutableIntState,
     onEditClicked: () -> Unit
 ) {
     val shapes = remember {
         shapeParams.map { sp ->
-            sp.genShape().also { poly ->
-                val matrix = calculateMatrix(poly.bounds, 1f, 1f)
-                poly.transform(matrix)
-            }
+            sp.genShape().let { poly -> poly.normalized() }
         }
     }
-
-    var currShape by remember { mutableStateOf(selectedShape.value) }
+    var currShape by remember { mutableIntStateOf(selectedShape.intValue) }
     val progress = remember { Animatable(0f) }
 
     var debug by remember { mutableStateOf(false) }
@@ -304,11 +276,9 @@ fun MorphScreen(
         derivedStateOf {
             // NOTE: We need to access this variable to ensure we recalculate the morph !
             debugLog("Re-computing morph / $debug")
-            SizedMorph(
-                Morph(
-                    shapes[currShape],
-                    shapes[selectedShape.value]
-                )
+            Morph(
+                shapes[currShape],
+                shapes[selectedShape.intValue]
             )
         }
     }
@@ -317,8 +287,8 @@ fun MorphScreen(
     val clickFn: (Int) -> Unit = remember {
             { shapeIx ->
             scope.launch {
-                currShape = selectedShape.value
-                selectedShape.value = shapeIx
+                currShape = selectedShape.intValue
+                selectedShape.intValue = shapeIx
                 doAnimation(progress)
             }
         }
@@ -333,7 +303,7 @@ fun MorphScreen(
                 repeat(5) { columnIx ->
                     val shapeIx = rowIx * 5 + columnIx
                     val borderAlpha = (
-                        (if (shapeIx == selectedShape.value) progress.value else 0f) +
+                        (if (shapeIx == selectedShape.intValue) progress.value else 0f) +
                         (if (shapeIx == currShape) 1 - progress.value else 0f)
                     ).coerceIn(0f, 1f)
                     Box(
@@ -390,7 +360,7 @@ class MainActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         setContent(parent = null) {
             MaterialTheme {
-                MainScreen()
+                MainScreen(this)
             }
         }
     }

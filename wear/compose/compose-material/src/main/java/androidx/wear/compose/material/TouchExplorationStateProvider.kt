@@ -23,7 +23,6 @@ import android.view.accessibility.AccessibilityManager.TouchExplorationStateChan
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -62,20 +61,24 @@ internal class DefaultTouchExplorationStateProvider : TouchExplorationStateProvi
             context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
         }
 
-        val listener = remember { Listener() }
+        val listener = remember { Listener(accessibilityManager) }
 
         LocalLifecycleOwner.current.lifecycle.ObserveState(
             handleEvent = { event ->
                 if (event == Lifecycle.Event.ON_RESUME) {
-                    listener.register(accessibilityManager)
+                    listener.register()
+                } else if (event == Lifecycle.Event.ON_PAUSE) {
+                    listener.unregister()
                 }
             },
             onDispose = {
-                listener.unregister(accessibilityManager)
+                // Unregister the listener in case the PAUSE lifecycle event never came through
+                // Unregistering multiple times is safe
+                listener.unregister()
             }
         )
 
-        return remember { derivedStateOf { listener.isEnabled() } }
+        return listener
     }
 
     @Composable
@@ -95,11 +98,17 @@ internal class DefaultTouchExplorationStateProvider : TouchExplorationStateProvi
         }
     }
 
-    private class Listener : AccessibilityStateChangeListener, TouchExplorationStateChangeListener {
-        private var accessibilityEnabled by mutableStateOf(false)
-        private var touchExplorationEnabled by mutableStateOf(false)
+    private class Listener constructor(
+        private val accessibilityManager: AccessibilityManager,
+    ) : AccessibilityStateChangeListener, TouchExplorationStateChangeListener, State<Boolean> {
 
-        fun isEnabled() = accessibilityEnabled && touchExplorationEnabled
+        private var accessibilityEnabled by mutableStateOf(accessibilityManager.isEnabled)
+        private var touchExplorationEnabled by mutableStateOf(
+            accessibilityManager.isTouchExplorationEnabled
+        )
+
+        override val value: Boolean
+            get() = accessibilityEnabled && touchExplorationEnabled
 
         override fun onAccessibilityStateChanged(it: Boolean) {
             accessibilityEnabled = it
@@ -109,17 +118,17 @@ internal class DefaultTouchExplorationStateProvider : TouchExplorationStateProvi
             touchExplorationEnabled = it
         }
 
-        fun register(am: AccessibilityManager) {
-            accessibilityEnabled = am.isEnabled
-            touchExplorationEnabled = am.isTouchExplorationEnabled
+        fun register() {
+            accessibilityEnabled = accessibilityManager.isEnabled
+            touchExplorationEnabled = accessibilityManager.isTouchExplorationEnabled
 
-            am.addTouchExplorationStateChangeListener(this)
-            am.addAccessibilityStateChangeListener(this)
+            accessibilityManager.addTouchExplorationStateChangeListener(this)
+            accessibilityManager.addAccessibilityStateChangeListener(this)
         }
 
-        fun unregister(am: AccessibilityManager) {
-            am.removeTouchExplorationStateChangeListener(this)
-            am.removeAccessibilityStateChangeListener(this)
+        fun unregister() {
+            accessibilityManager.removeTouchExplorationStateChangeListener(this)
+            accessibilityManager.removeAccessibilityStateChangeListener(this)
         }
     }
 }

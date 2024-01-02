@@ -280,6 +280,7 @@ public abstract class ListenableWorker {
      * <p>
      * If a worker hasn't been stopped, {@link WorkInfo#STOP_REASON_NOT_STOPPED} is returned.
      */
+    @StopReason
     @RequiresApi(31)
     public final int getStopReason() {
         return mStopReason;

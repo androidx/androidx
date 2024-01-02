@@ -105,17 +105,15 @@ public class TypefaceCompat {
      */
     private static String createResourceUid(final Resources resources, int id, String path,
             int cookie, int style) {
-        return new StringBuilder(
-                resources.getResourcePackageName(id))
-                .append('-')
-                .append(path)
-                .append('-')
-                .append(cookie)
-                .append('-')
-                .append(id)
-                .append('-')
-                .append(style)
-                .toString();
+        return resources.getResourcePackageName(id)
+                + '-'
+                + path
+                + '-'
+                + cookie
+                + '-'
+                + id
+                + '-'
+                + style;
     }
 
     /**
@@ -315,6 +313,7 @@ public class TypefaceCompat {
      * This method is thread safe.
      * </p>
      *
+     * @param context context to use for the creation.
      * @param family An existing {@link Typeface} object. In case of {@code null}, the default
      *               typeface is used instead.
      * @param weight The desired weight to be drawn.

@@ -23,7 +23,7 @@ plugins {
 dependencies {
     api(libs.kotlinStdlib)
     implementation(project(":core:core-performance"))
-    implementation libs.constraintLayout
+    implementation(project(":core:core-performance:integration-tests:testlib"))
 }
 
 android {

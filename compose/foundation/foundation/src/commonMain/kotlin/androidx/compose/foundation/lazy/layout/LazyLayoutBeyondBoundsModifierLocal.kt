@@ -18,6 +18,9 @@ package androidx.compose.foundation.lazy.layout
 
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.lazy.layout.LazyLayoutBeyondBoundsInfo.Interval
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.BeyondBoundsLayout
 import androidx.compose.ui.layout.BeyondBoundsLayout.BeyondBoundsScope
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Above
@@ -33,6 +36,33 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.LayoutDirection.Ltr
 import androidx.compose.ui.unit.LayoutDirection.Rtl
 
+/**
+ * This modifier is used to measure and place additional items when the lazy layout receives a
+ * request to layout items beyond the visible bounds.
+ */
+@Suppress("ComposableModifierFactory")
+@Composable
+internal fun Modifier.lazyLayoutBeyondBoundsModifier(
+    state: LazyLayoutBeyondBoundsState,
+    beyondBoundsInfo: LazyLayoutBeyondBoundsInfo,
+    reverseLayout: Boolean,
+    layoutDirection: LayoutDirection,
+    orientation: Orientation,
+    enabled: Boolean
+): Modifier = if (!enabled) {
+    this
+} else {
+    this then remember(state, beyondBoundsInfo, reverseLayout, layoutDirection, orientation) {
+        LazyLayoutBeyondBoundsModifierLocal(
+            state,
+            beyondBoundsInfo,
+            reverseLayout,
+            layoutDirection,
+            orientation
+        )
+    }
+}
+
 internal class LazyLayoutBeyondBoundsModifierLocal(
     private val state: LazyLayoutBeyondBoundsState,
     private val beyondBoundsInfo: LazyLayoutBeyondBoundsInfo,
@@ -44,6 +74,7 @@ internal class LazyLayoutBeyondBoundsModifierLocal(
         get() = ModifierLocalBeyondBoundsLayout
     override val value: BeyondBoundsLayout
         get() = this
+
     companion object {
         private val emptyBeyondBoundsScope = object : BeyondBoundsScope {
             override val hasMoreContent = false
@@ -101,10 +132,12 @@ internal class LazyLayoutBeyondBoundsModifierLocal(
                 Ltr -> reverseLayout
                 Rtl -> !reverseLayout
             }
+
             Right -> when (layoutDirection) {
                 Ltr -> !reverseLayout
                 Rtl -> reverseLayout
             }
+
             else -> unsupportedDirection()
         }
 

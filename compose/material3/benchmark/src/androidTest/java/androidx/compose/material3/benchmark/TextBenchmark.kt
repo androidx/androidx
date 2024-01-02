@@ -25,8 +25,10 @@ import androidx.compose.testutils.benchmark.benchmarkFirstCompose
 import androidx.compose.testutils.benchmark.benchmarkFirstDraw
 import androidx.compose.testutils.benchmark.benchmarkFirstLayout
 import androidx.compose.testutils.benchmark.benchmarkFirstMeasure
+import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,24 +42,33 @@ class TextBenchmark {
 
     private val textTestCaseFactory = { TextTestCase() }
 
+    @Ignore
     @Test
     fun first_compose() {
         benchmarkRule.benchmarkFirstCompose(textTestCaseFactory)
     }
 
+    @Ignore
     @Test
     fun text_measure() {
         benchmarkRule.benchmarkFirstMeasure(textTestCaseFactory)
     }
 
+    @Ignore
     @Test
     fun text_layout() {
         benchmarkRule.benchmarkFirstLayout(textTestCaseFactory)
     }
 
+    @Ignore
     @Test
     fun text_draw() {
         benchmarkRule.benchmarkFirstDraw(textTestCaseFactory)
+    }
+
+    @Test
+    fun text_firstPixel() {
+        benchmarkRule.benchmarkToFirstPixel(textTestCaseFactory)
     }
 }
 

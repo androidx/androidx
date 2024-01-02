@@ -16,6 +16,8 @@
 
 package androidx.glance.appwidget
 
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope
 import androidx.glance.Emittable
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceModifier
@@ -24,7 +26,8 @@ import androidx.glance.GlanceModifier
  * Root view, with a maximum depth. No default value is specified, as the exact value depends on
  * specific circumstances.
  */
-internal class RemoteViewsRoot(private val maxDepth: Int) : EmittableWithChildren(maxDepth) {
+@RestrictTo(Scope.LIBRARY_GROUP)
+ class RemoteViewsRoot(private val maxDepth: Int) : EmittableWithChildren(maxDepth) {
     override var modifier: GlanceModifier = GlanceModifier
     override fun copy(): Emittable = RemoteViewsRoot(maxDepth).also {
         it.modifier = modifier

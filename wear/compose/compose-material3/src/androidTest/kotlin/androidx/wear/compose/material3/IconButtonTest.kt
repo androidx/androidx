@@ -263,6 +263,50 @@ class IconButtonTest {
         }
     }
 
+    @Test
+    fun gives_default_correct_size() =
+        rule.verifyActualSize(DefaultButtonSize) {
+            IconButton(
+                onClick = {},
+                modifier = it.touchTargetAwareSize(DefaultButtonSize)
+            ) {
+                TestImage()
+            }
+        }
+
+    @Test
+    fun gives_small_correct_size() =
+        rule.verifyActualSize(SmallButtonSize) {
+            IconButton(
+                onClick = {},
+                modifier = it.touchTargetAwareSize(SmallButtonSize)
+            ) {
+                TestImage()
+            }
+        }
+
+    @Test
+    fun gives_extraSmall_correct_size() =
+        rule.verifyActualSize(ExtraSmallButtonSize) {
+            IconButton(
+                onClick = {},
+                modifier = it.touchTargetAwareSize(ExtraSmallButtonSize)
+            ) {
+                TestImage()
+            }
+        }
+
+    @Test
+    fun gives_large_correct_size() =
+        rule.verifyActualSize(LargeButtonSize) {
+            IconButton(
+                onClick = {},
+                modifier = it.touchTargetAwareSize(LargeButtonSize)
+            ) {
+                TestImage()
+            }
+        }
+
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
     fun default_shape_is_circular() {
@@ -317,7 +361,7 @@ class IconButtonTest {
             colors = { IconButtonDefaults.iconButtonColors() },
             expectedContainerColor = { Color.Transparent },
             expectedContentColor = { MaterialTheme.colorScheme.onSurface.copy(
-                alpha = ContentAlpha.disabled
+                alpha = DisabledContentAlpha
             ) }
         )
     }
@@ -343,7 +387,7 @@ class IconButtonTest {
                 alpha = DisabledContainerAlpha
             ) },
             expectedContentColor = { MaterialTheme.colorScheme.onSurface.copy(
-                alpha = ContentAlpha.disabled
+                alpha = DisabledContentAlpha
             ) }
         )
     }
@@ -369,7 +413,7 @@ class IconButtonTest {
                 alpha = DisabledContainerAlpha
             ) },
             expectedContentColor = { MaterialTheme.colorScheme.onSurface.copy(
-                alpha = ContentAlpha.disabled
+                alpha = DisabledContentAlpha
             ) }
         )
     }
@@ -393,7 +437,7 @@ class IconButtonTest {
             colors = { IconButtonDefaults.outlinedIconButtonColors() },
             expectedContainerColor = { Color.Transparent },
             expectedContentColor = { MaterialTheme.colorScheme.onSurface.copy(
-                alpha = ContentAlpha.disabled
+                alpha = DisabledContentAlpha
             ) }
         )
     }

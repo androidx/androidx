@@ -16,385 +16,133 @@
 
 package androidx.build.gitclient
 
-import androidx.build.getCheckoutRoot
-import androidx.build.releasenotes.getBuganizerLink
-import androidx.build.releasenotes.getChangeIdAOSPLink
+import androidx.build.gitclient.GitHeadShaSource.Parameters
+import java.io.ByteArrayOutputStream
 import java.io.File
-import java.util.concurrent.ConcurrentHashMap
+import java.nio.charset.Charset
+import javax.inject.Inject
 import org.gradle.api.GradleException
 import org.gradle.api.Project
-import org.gradle.api.logging.Logger
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
+import org.gradle.api.provider.ValueSource
+import org.gradle.api.provider.ValueSourceParameters
+import org.gradle.process.ExecOperations
 
-interface GitClient {
-    fun findChangedFilesSince(
-        sha: String,
-        top: String = "HEAD",
-        includeUncommitted: Boolean = false
-    ): List<String>
-
-    fun findPreviousSubmittedChange(): String?
-
-    fun getGitLog(
-        gitCommitRange: GitCommitRange,
-        keepMerges: Boolean,
-        projectDir: File?
-    ): List<Commit>
-
-    /** Returns the full commit sha for the HEAD of the git repository */
-    fun getHeadSha(): String {
-        val projectDir = null
-        val commitList: List<Commit> =
-            getGitLog(
-                GitCommitRange(fromExclusive = "", untilInclusive = "HEAD", n = 1),
-                keepMerges = true,
-                projectDir = projectDir
-            )
-        if (commitList.isEmpty()) {
-            throw RuntimeException("Failed to find git commit for HEAD!")
-        }
-        return commitList.first().sha
-    }
-
-    /** Abstraction for running execution commands for testability */
-    interface CommandRunner {
-        /** Executes the given shell command and returns the stdout as a string. */
-        fun execute(command: String): String
-        /** Executes the given shell command and returns the stdout by lines. */
-        fun executeAndParse(command: String): List<String>
-    }
-
-    companion object {
-        fun getChangeInfoPath(project: Project): Provider<String> {
-            return project.providers.environmentVariable("CHANGE_INFO").orElse("")
-        }
-
-        fun getManifestPath(project: Project): Provider<String> {
-            return project.providers.environmentVariable("MANIFEST").orElse("")
-        }
-
-        fun forProject(project: Project): GitClient {
-            return create(
-                project.projectDir,
-                project.getCheckoutRoot(),
-                project.logger,
-                GitClient.getChangeInfoPath(project).get(),
-                GitClient.getManifestPath(project).get()
-            )
-        }
-
-        fun create(
-            projectDir: File,
-            checkoutRoot: File,
-            logger: Logger,
-            changeInfoPath: String,
-            manifestPath: String
-        ): GitClient {
-            if (changeInfoPath != "") {
-                if (manifestPath == "") {
-                    throw GradleException("Setting CHANGE_INFO requires also setting MANIFEST")
-                }
-                val changeInfoFile = File(changeInfoPath)
-                val manifestFile = File(manifestPath)
-                if (!changeInfoFile.exists()) {
-                    throw GradleException("changeinfo file $changeInfoFile does not exist")
-                }
-                if (!manifestFile.exists()) {
-                    throw GradleException("manifest $manifestFile does not exist")
-                }
-                val changeInfoText = changeInfoFile.readText()
-                val manifestText = manifestFile.readText()
-                val projectDirRelativeToRoot = projectDir.relativeTo(checkoutRoot).toString()
-                logger.info(
-                    "Using ChangeInfoGitClient with change info path $changeInfoPath, " +
-                        "manifest $manifestPath project dir $projectDirRelativeToRoot"
-                )
-                return ChangeInfoGitClient(changeInfoText, manifestText, projectDirRelativeToRoot)
-            }
-            val gitRoot = findGitDirInParentFilepath(projectDir)
-            check(gitRoot != null) { "Could not find .git dir for $projectDir" }
-            logger.info("UsingGitRunnerGitClient")
-            return GitRunnerGitClient(gitRoot, logger)
-        }
-    }
-}
-
-data class MultiGitClient(
-    val checkoutRoot: File,
-    val logger: Logger,
-    val changeInfoPath: String,
-    val manifestPath: String
-) {
-    // Map from the root of the git repository to a GitClient for that repository
-    // In AndroidX this directory could be frameworks/support, external/noto-fonts, or others
-    @Transient // We don't want Gradle to persist GitClient in the configuration cache
-    var cache: MutableMap<File, GitClient>? = null
-
-    fun getGitClient(projectDir: File): GitClient {
-        // If this object was restored from the Configuration cache, this value will be null
-        // So, if it is null we have to reinitialize it
-        var cache = this.cache
-        if (cache == null) {
-            cache = ConcurrentHashMap()
-            this.cache = cache
-        }
-        return cache.getOrPut(key = projectDir) {
-            GitClient.create(projectDir, checkoutRoot, logger, changeInfoPath, manifestPath)
-        }
-    }
-
-    companion object {
-        fun create(project: Project): MultiGitClient {
-            return MultiGitClient(
-                project.getCheckoutRoot(),
-                project.logger,
-                GitClient.getChangeInfoPath(project).get(),
-                GitClient.getManifestPath(project).get()
-            )
-        }
-    }
-}
-
-enum class CommitType {
-    NEW_FEATURE,
-    API_CHANGE,
-    BUG_FIX,
-    EXTERNAL_CONTRIBUTION;
-
-    companion object {
-        fun getTitle(commitType: CommitType): String {
-            return when (commitType) {
-                NEW_FEATURE -> "New Features"
-                API_CHANGE -> "API Changes"
-                BUG_FIX -> "Bug Fixes"
-                EXTERNAL_CONTRIBUTION -> "External Contribution"
-            }
+/**
+ * @return provider that has the changes files since the last merge commit. It will use CHANGE_INFO
+ * and MANIFEST to resolve the files if these environmental variables are set, otherwise it will
+ * default to using git.
+ *
+ * @param baseCommitOverride optional value to use to override last merge commit
+ */
+fun Project.getChangedFilesProvider(
+    baseCommitOverride: String?,
+): Provider<List<String>> {
+    val changeInfoPath = System.getenv("CHANGE_INFO")
+    val manifestPath = System.getenv("MANIFEST")
+    return if (changeInfoPath != null && manifestPath != null) {
+        if (baseCommitOverride != null) throw GradleException(
+            "Overriding base commit is not supported when using CHANGE_INFO and MANIFEST"
+        )
+        getChangedFilesFromChangeInfoProvider(manifestPath, changeInfoPath)
+    } else if (changeInfoPath != null) {
+        throw GradleException("Setting CHANGE_INFO requires also setting MANIFEST")
+    } else if (manifestPath != null) {
+        throw GradleException("Setting MANIFEST requires also setting CHANGE_INFO")
+    } else {
+        providers.of(GitChangedFilesSource::class.java) {
+            it.parameters.workingDir.set(rootProject.layout.projectDirectory)
+            it.parameters.baseCommitOverride.set(baseCommitOverride)
         }
     }
 }
 
 /**
- * Defines the parameters for a git log command
- *
- * @property fromExclusive the oldest SHA at which the git log starts. Set to an empty string to use
- *   [n]
- * @property untilInclusive the latest SHA included in the git log. Defaults to HEAD
- * @property n a count of how many commits to go back to. Only used when [fromExclusive] is an empty
- *   string
+ * @return provider of HEAD SHA. It will use MANIFEST to get the SHA if the environmental variable
+ * is set, otherwise it will default to using git.
  */
-data class GitCommitRange(
-    val fromExclusive: String = "",
-    val untilInclusive: String = "HEAD",
-    val n: Int = 0
-)
+fun getHeadShaProvider(project: Project): Provider<String> {
+    val manifestPath = System.getenv("MANIFEST")
+    return if (manifestPath != null) { // using manifest xml file for HEAD SHA
+        project.getHeadShaFromManifestProvider(manifestPath)
+    } else { // using git for HEAD SHA
+        project.providers.of(GitHeadShaSource::class.java) {
+            it.parameters.workingDir.set(project.layout.projectDirectory)
+        }
+    }
+}
 
 /**
- * Class implementation of a git commit. It uses the input delimiters to parse the commit
- *
- * @property formattedCommitText a string representation of a git commit
- * @property projectDir the project directory for which to parse file paths from a commit
- * @property commitSHADelimiter the term to use to search for the commit SHA
- * @property subjectDelimiter the term to use to search for the subject (aka commit summary)
- * @property changeIdDelimiter the term to use to search for the change-id in the body of the commit
- *   message
- * @property authorEmailDelimiter the term to use to search for the author email
+ * Provides HEAD SHA by calling git in [Parameters.workingDir].
  */
-data class Commit(
-    val formattedCommitText: String,
-    val projectDir: String,
-    private val commitSHADelimiter: String = "_CommitSHA:",
-    private val subjectDelimiter: String = "_Subject:",
-    private val authorEmailDelimiter: String = "_Author:"
-) {
-    private val changeIdDelimiter: String = "Change-Id:"
-    var bugs: MutableList<Int> = mutableListOf()
-    var files: MutableList<String> = mutableListOf()
-    var sha: String = ""
-    var authorEmail: String = ""
-    var changeId: String = ""
-    var summary: String = ""
-    var type: CommitType = CommitType.BUG_FIX
-    var releaseNote: String = ""
-    private val releaseNoteDelimiters: List<String> = listOf("Relnote:")
-
-    init {
-        val listedCommit: List<String> = formattedCommitText.split('\n')
-        listedCommit
-            .filter { line -> line.trim() != "" }
-            .forEach { line -> processCommitLine(line) }
+internal abstract class GitHeadShaSource : ValueSource<String, GitHeadShaSource.Parameters> {
+    interface Parameters : ValueSourceParameters {
+        val workingDir: DirectoryProperty
     }
 
-    private fun processCommitLine(line: String) {
-        if (commitSHADelimiter in line) {
-            getSHAFromGitLine(line)
-            return
+    @get:Inject
+    abstract val execOperations: ExecOperations
+
+    override fun obtain(): String {
+        val output = ByteArrayOutputStream()
+        execOperations.exec {
+            it.commandLine("git", "rev-parse", "HEAD")
+            it.standardOutput = output
+            it.workingDir = findGitDirInParentFilepath(parameters.workingDir.get().asFile)
         }
-        if (subjectDelimiter in line) {
-            getSummary(line)
-            return
-        }
-        if (changeIdDelimiter in line) {
-            getChangeIdFromGitLine(line)
-            return
-        }
-        if (authorEmailDelimiter in line) {
-            getAuthorEmailFromGitLine(line)
-            return
-        }
-        if (
-            "Bug:" in line ||
-                "b/" in line ||
-                "bug:" in line ||
-                "Fixes:" in line ||
-                "fixes b/" in line
-        ) {
-            getBugsFromGitLine(line)
-            return
-        }
-        releaseNoteDelimiters.forEach { delimiter ->
-            if (delimiter in line) {
-                getReleaseNotesFromGitLine(line, formattedCommitText)
-                return
-            }
-        }
-        if (projectDir.trim('/') in line) {
-            getFileFromGitLine(line)
-            return
-        }
+        return String(output.toByteArray(), Charset.defaultCharset()).trim()
+    }
+}
+
+/**
+ * Provides changed files since the last merge by calling git in [Parameters.workingDir].
+ */
+internal abstract class GitChangedFilesSource :
+    ValueSource<List<String>, GitChangedFilesSource.Parameters> {
+    interface Parameters : ValueSourceParameters {
+        val workingDir: DirectoryProperty
+        val baseCommitOverride: Property<String?>
     }
 
-    private fun isExternalAuthorEmail(authorEmail: String): Boolean {
-        return !(authorEmail.contains("@google.com"))
-    }
+    @get:Inject
+    abstract val execOperations: ExecOperations
 
-    /**
-     * Parses SHAs from git commit line, with the format: [Commit.commitSHADelimiter] <commitSHA>
-     */
-    private fun getSHAFromGitLine(line: String) {
-        sha = line.substringAfter(commitSHADelimiter).trim()
-    }
-
-    /**
-     * Parses subject from git commit line, with the format: [Commit.subjectDelimiter]<commit
-     * subject>
-     */
-    private fun getSummary(line: String) {
-        summary = line.substringAfter(subjectDelimiter).trim()
-    }
-
-    /** Parses commit Change-Id lines, with the format: `commit.changeIdDelimiter` <changeId> */
-    private fun getChangeIdFromGitLine(line: String) {
-        changeId = line.substringAfter(changeIdDelimiter).trim()
-    }
-
-    /**
-     * Parses commit author lines, with the format: [Commit.authorEmailDelimiter]email@google.com
-     */
-    private fun getAuthorEmailFromGitLine(line: String) {
-        authorEmail = line.substringAfter(authorEmailDelimiter).trim()
-        if (isExternalAuthorEmail(authorEmail)) {
-            type = CommitType.EXTERNAL_CONTRIBUTION
-        }
-    }
-
-    /**
-     * Parses filepath to get changed files from commit, with the format:
-     * {project_directory}/{filepath}
-     */
-    private fun getFileFromGitLine(filepath: String) {
-        files.add(filepath.trim())
-        if (filepath.contains("current.txt") && type != CommitType.EXTERNAL_CONTRIBUTION) {
-            type = CommitType.API_CHANGE
-        }
-    }
-
-    /** Parses bugs from a git commit message line */
-    private fun getBugsFromGitLine(line: String) {
-        var formattedLine = line.replace("b/", " ")
-        formattedLine = formattedLine.replace(":", " ")
-        formattedLine = formattedLine.replace(",", " ")
-        var words: List<String> = formattedLine.split(' ')
-        words.forEach { word ->
-            var possibleBug: Int? = word.toIntOrNull()
-            if (possibleBug != null && possibleBug > 1000) {
-                bugs.add(possibleBug)
-            }
-        }
-    }
-
-    /**
-     * Reads in the release notes field from the git commit message line
-     *
-     * They can have a couple valid formats:
-     *
-     * `Release notes: This is a one-line release note` `Release Notes: "This is a multi-line
-     * release note. This accounts for the use case where the commit cannot be explained in one
-     * line" `release notes: "This is a one-line release note. The quotes can be used this way too"`
-     */
-    private fun getReleaseNotesFromGitLine(line: String, formattedCommitText: String) {
-        /* Account for the use of quotes in a release note line
-         * No quotes in the Release Note line means it's a one-line release note
-         * If there are quotes, assume it's a multi-line release note
-         */
-        var quoteCountInRelNoteLine: Int = 0
-        line.forEach { character ->
-            if (character == '"') {
-                quoteCountInRelNoteLine++
-            }
-        }
-        if (quoteCountInRelNoteLine == 0) {
-            getOneLineReleaseNotesFromGitLine(line)
+    override fun obtain(): List<String> {
+        val output = ByteArrayOutputStream()
+        val gitDirInParentFilepath = findGitDirInParentFilepath(parameters.workingDir.get().asFile)
+        val baseCommit = if (parameters.baseCommitOverride.isPresent) {
+            parameters.baseCommitOverride.get()
         } else {
-            releaseNoteDelimiters.forEach { delimiter ->
-                if (delimiter in line) {
-                    // Find the starting quote of the release notes quote block
-                    var releaseNoteStartIndex = formattedCommitText.lastIndexOf(delimiter)
-                    +delimiter.length
-                    releaseNoteStartIndex = formattedCommitText.indexOf('"', releaseNoteStartIndex)
-                    // Move to the character after the first quote
-                    if (formattedCommitText[releaseNoteStartIndex] == '"') {
-                        releaseNoteStartIndex++
-                    }
-                    // Find the ending quote of the release notes quote block
-                    var releaseNoteEndIndex = releaseNoteStartIndex + 1
-                    releaseNoteEndIndex = formattedCommitText.indexOf('"', releaseNoteEndIndex)
-                    // If there is no closing quote, just use the first line
-                    if (releaseNoteEndIndex < 0) {
-                        getOneLineReleaseNotesFromGitLine(line)
-                        return
-                    }
-                    releaseNote =
-                        formattedCommitText
-                            .substring(
-                                startIndex = releaseNoteStartIndex,
-                                endIndex = releaseNoteEndIndex
-                            )
-                            .trim()
-                }
+            // Call git to get the last merge commit
+            execOperations.exec {
+                it.commandLine("git", "log", "-1", "--merges", "--oneline", "--pretty=format:%H")
+                it.standardOutput = output
+                it.workingDir = gitDirInParentFilepath
             }
+            String(output.toByteArray(), Charset.defaultCharset()).trim()
         }
-    }
-
-    private fun getOneLineReleaseNotesFromGitLine(line: String) {
-        releaseNoteDelimiters.forEach { delimiter ->
-            if (delimiter in line) {
-                releaseNote = line.substringAfter(delimiter).trim(' ', '"')
-                return
-            }
+        // Get the list of changed files since the last git merge commit
+        execOperations.exec {
+            it.commandLine("git", "diff", "--name-only", "HEAD", baseCommit)
+            it.standardOutput = output
+            it.workingDir = gitDirInParentFilepath
         }
+        return String(output.toByteArray(), Charset.defaultCharset()).split(
+            System.lineSeparator()
+        ).filterNot { it.isEmpty() }
     }
+}
 
-    fun getReleaseNoteString(): String {
-        var releaseNoteString: String = releaseNote
-        releaseNoteString += " ${getChangeIdAOSPLink(changeId)}"
-        bugs.forEach { bug -> releaseNoteString += " ${getBuganizerLink(bug)}" }
-        return releaseNoteString
+/** Finds the git directory containing the given File by checking parent directories */
+private fun findGitDirInParentFilepath(filepath: File): File? {
+    var curDirectory: File = filepath
+    while (curDirectory.path != "/") {
+        if (File("$curDirectory/.git").exists()) {
+            return curDirectory
+        }
+        curDirectory = curDirectory.parentFile
     }
-
-    override fun toString(): String {
-        var commitString: String = summary
-        commitString += " ${getChangeIdAOSPLink(changeId)}"
-        bugs.forEach { bug -> commitString += " ${getBuganizerLink(bug)}" }
-        return commitString
-    }
+    return null
 }

@@ -163,7 +163,4 @@ class Camera2ImplConfigTest {
             true
         }
     }
-
-    // TODO: After porting CameraEventCallback (used for extension) to CameraUseCaseAdapter,
-    //  also porting canExtendWithCameraEventCallback
 }

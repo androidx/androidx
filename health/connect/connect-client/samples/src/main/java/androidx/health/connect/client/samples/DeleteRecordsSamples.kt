@@ -20,8 +20,7 @@ package androidx.health.connect.client.samples
 
 import androidx.annotation.Sampled
 import androidx.health.connect.client.HealthConnectClient
-import androidx.health.connect.client.records.SleepSessionRecord
-import androidx.health.connect.client.records.SleepStageRecord
+import androidx.health.connect.client.deleteRecords
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.time.TimeRangeFilter
 import java.time.Instant
@@ -32,8 +31,7 @@ suspend fun DeleteByUniqueIdentifier(
     uid1: String,
     uid2: String
 ) {
-    healthConnectClient.deleteRecords(
-        StepsRecord::class,
+    healthConnectClient.deleteRecords<StepsRecord>(
         recordIdsList = listOf(uid1, uid2),
         clientRecordIdsList = emptyList()
     )
@@ -45,18 +43,7 @@ suspend fun DeleteByTimeRange(
     startTime: Instant,
     endTime: Instant
 ) {
-    healthConnectClient.deleteRecords(
-        StepsRecord::class,
+    healthConnectClient.deleteRecords<StepsRecord>(
         timeRangeFilter = TimeRangeFilter.between(startTime, endTime)
     )
-}
-
-@Sampled
-suspend fun DeleteSleepSession(
-    healthConnectClient: HealthConnectClient,
-    sleepRecord: SleepSessionRecord,
-) {
-    val timeRangeFilter = TimeRangeFilter.between(sleepRecord.startTime, sleepRecord.endTime)
-    healthConnectClient.deleteRecords(SleepSessionRecord::class, timeRangeFilter)
-    healthConnectClient.deleteRecords(SleepStageRecord::class, timeRangeFilter)
 }

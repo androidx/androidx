@@ -66,16 +66,17 @@ public class VideoTimebaseConverter {
     public long convertToUptimeUs(long timestampUs) {
         if (mInputTimebase == null) {
             if (isCloseToRealtime(timestampUs)) {
-                Logger.w(TAG, "Detected video buffer timestamp is close to realtime.");
                 mInputTimebase = Timebase.REALTIME;
             } else {
                 mInputTimebase = Timebase.UPTIME;
             }
+            Logger.d(TAG, "Detect input timebase = " + mInputTimebase);
         }
         switch (mInputTimebase) {
             case REALTIME:
                 if (mUptimeToRealtimeOffsetUs == -1) {
                     mUptimeToRealtimeOffsetUs = calculateUptimeToRealtimeOffsetUs();
+                    Logger.d(TAG, "mUptimeToRealtimeOffsetUs = " + mUptimeToRealtimeOffsetUs);
                 }
                 return timestampUs - mUptimeToRealtimeOffsetUs;
             case UPTIME:

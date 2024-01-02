@@ -37,10 +37,6 @@
         android:title="@string/effects"
         app:showAsAction="never" />
     <item
-        android:id="@+id/stream_sharing"
-        android:title="@string/stream_sharing"
-        app:showAsAction="never" />
-    <item
         android:id="@+id/mlkit"
         android:title="@string/mlkit"
         app:showAsAction="never" />

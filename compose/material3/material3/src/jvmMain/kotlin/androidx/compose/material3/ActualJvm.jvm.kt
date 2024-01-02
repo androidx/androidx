@@ -19,10 +19,13 @@
 package androidx.compose.material3
 
 import java.text.NumberFormat
+import java.util.Locale
+import java.util.WeakHashMap
 
 /* Copy of androidx.compose.material.ActualJvm, mirrored from Foundation. This is used for the
    M2/M3-internal copy of MutatorMutex.
  */
+@Suppress("ACTUAL_WITHOUT_EXPECT") // https://youtrack.jetbrains.com/issue/KT-37316
 internal actual typealias InternalAtomicReference<V> =
     java.util.concurrent.atomic.AtomicReference<V>
 
@@ -30,7 +33,7 @@ internal actual typealias InternalAtomicReference<V> =
  * Represents a Locale for the calendar. This locale will be used when formatting dates, determining
  * the input format, and more.
  */
-actual typealias CalendarLocale = java.util.Locale
+actual typealias CalendarLocale = Locale
 
 /**
  * Returns a string representation of an integer for the current Locale.
@@ -40,9 +43,27 @@ internal actual fun Int.toLocalString(
     maxDigits: Int,
     isGroupingUsed: Boolean
 ): String {
-    val formatter = NumberFormat.getIntegerInstance()
-    formatter.isGroupingUsed = isGroupingUsed
-    formatter.minimumIntegerDigits = minDigits
-    formatter.maximumIntegerDigits = maxDigits
-    return formatter.format(this)
+    return getCachedDateTimeFormatter(
+        minDigits = minDigits,
+        maxDigits = maxDigits,
+        isGroupingUsed = isGroupingUsed
+    ).format(this)
+}
+
+private val cachedFormatters = WeakHashMap<String, NumberFormat>()
+private fun getCachedDateTimeFormatter(
+    minDigits: Int,
+    maxDigits: Int,
+    isGroupingUsed: Boolean
+): NumberFormat {
+    // Note: Using Locale.getDefault() as a best effort to obtain a unique key and keeping this
+    // function non-composable.
+    val key = "$minDigits.$maxDigits.$isGroupingUsed.${Locale.getDefault().toLanguageTag()}"
+    return cachedFormatters.getOrPut(key) {
+        NumberFormat.getIntegerInstance().apply {
+            this.isGroupingUsed = isGroupingUsed
+            this.minimumIntegerDigits = minDigits
+            this.maximumIntegerDigits = maxDigits
+        }
+    }
 }

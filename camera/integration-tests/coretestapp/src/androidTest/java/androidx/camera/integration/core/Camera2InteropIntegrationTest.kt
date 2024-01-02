@@ -101,7 +101,7 @@ class Camera2InteropIntegrationTest(
     @After
     fun tearDown(): Unit = runBlocking {
         processCameraProvider?.apply {
-            shutdown().await()
+            shutdownAsync().await()
         }
     }
 

@@ -169,7 +169,6 @@ class ConcatAdapterTest {
 
     @UiThreadTest
     @Test
-    @SdkSuppress(minSdkVersion = 16)
     fun failedToRecycleTest() {
         val adapter1 = NestedTestAdapter(10)
         val adapter2 = NestedTestAdapter(5)
@@ -393,7 +392,6 @@ class ConcatAdapterTest {
 
     @UiThreadTest
     @Test
-    @SdkSuppress(minSdkVersion = 16)
     public fun recycledViewPositions_failedRecycle() {
         val adapter1 = NestedTestAdapter(
             count = 5,

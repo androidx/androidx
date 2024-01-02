@@ -71,9 +71,43 @@ final class FeaturesImpl implements Features {
             case Features.LIST_FILTER_QUERY_LANGUAGE:
                 // TODO(b/208654892) : Update to reflect support in Android U+ once this feature is
                 //  synced over into service-appsearch.
+                // fall through
+            case Features.SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA:
+                // TODO(b/258715421) : Update to reflect support in Android U+ once this feature is
+                //  synced over into service-appsearch.
+                // fall through
+            case Features.SEARCH_SUGGESTION:
+                // TODO(b/227356108) : Update to reflect support in Android U+ once this feature is
+                //  synced over into service-appsearch.
+                // fall through
+            case Features.SCHEMA_SET_DELETION_PROPAGATION:
+                // TODO(b/268521214) : Update to reflect support in Android U+ once this feature is
+                //  synced over into service-appsearch.
+                // fall through
+            case Features.SET_SCHEMA_CIRCULAR_REFERENCES:
+                // TODO(b/280698121) : Update to reflect support in Android U+ once this feature is
+                //  synced over into service-appsearch.
+                // fall through
+            case Features.SCHEMA_ADD_PARENT_TYPE:
+                // TODO(b/269295094) : Update to reflect support in Android U+ once this feature is
+                //  synced over into service-appsearch.
+                // fall through
+            case Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES:
+                // TODO(b/289150947) : Update to reflect support in Android U+ once this feature is
+                //  synced over into service-appsearch.
+                // fall through
+            case Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES:
+                // TODO(b/296088047) : Update to reflect support in Android U+ once this feature is
+                //  synced over into service-appsearch.
                 return false;
             default:
                 return false; // AppSearch features in U+, absent in GMSCore AppSearch.
         }
+    }
+    @Override
+    public int getMaxIndexedProperties() {
+        // TODO(b/241310816): Update to reflect support in Android U+ once 64 indexable properties
+        //  are possible in service-appsearch.
+        return 16;
     }
 }

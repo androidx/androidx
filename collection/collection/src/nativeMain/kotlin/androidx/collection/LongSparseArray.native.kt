@@ -49,7 +49,8 @@ import androidx.collection.internal.idealLongArraySize
  * requiring any additional array allocations.
  */
 public actual open class LongSparseArray<E>
-public actual constructor(initialCapacity: Int) {
+// JvmOverloads is required on constructor to match expect declaration
+@kotlin.jvm.JvmOverloads public actual constructor(initialCapacity: Int) {
     internal actual var garbage = false
     internal actual var keys: LongArray
     internal actual var values: Array<Any?>

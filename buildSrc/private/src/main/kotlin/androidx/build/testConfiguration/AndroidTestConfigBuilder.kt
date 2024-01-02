@@ -24,6 +24,7 @@ class ConfigBuilder {
     var appApkSha256: String? = null
     lateinit var applicationId: String
     var isMicrobenchmark: Boolean = false
+    var isMacrobenchmark: Boolean = false
     var isPostsubmit: Boolean = true
     lateinit var minSdk: String
     val tags = mutableListOf<String>()
@@ -31,6 +32,7 @@ class ConfigBuilder {
     lateinit var testApkSha256: String
     lateinit var testRunner: String
     val additionalApkKeys = mutableListOf<String>()
+    val initialSetupApks = mutableListOf<String>()
 
     fun configName(configName: String) = apply { this.configName = configName }
 
@@ -40,8 +42,13 @@ class ConfigBuilder {
 
     fun applicationId(applicationId: String) = apply { this.applicationId = applicationId }
 
-    fun isMicrobenchmark(isMicrobenchmark: Boolean) =
-        apply { this.isMicrobenchmark = isMicrobenchmark }
+    fun isMicrobenchmark(isMicrobenchmark: Boolean) = apply {
+        this.isMicrobenchmark = isMicrobenchmark
+    }
+
+    fun isMacrobenchmark(isMacrobenchmark: Boolean) = apply {
+        this.isMacrobenchmark = isMacrobenchmark
+    }
 
     fun isPostsubmit(isPostsubmit: Boolean) = apply { this.isPostsubmit = isPostsubmit }
 
@@ -50,6 +57,8 @@ class ConfigBuilder {
     fun tag(tag: String) = apply { this.tags.add(tag) }
 
     fun additionalApkKeys(keys: List<String>) = apply { additionalApkKeys.addAll(keys) }
+
+    fun initialSetupApks(apks: List<String>) = apply { initialSetupApks.addAll(apks) }
 
     fun testApkName(testApkName: String) = apply { this.testApkName = testApkName }
 
@@ -99,9 +108,15 @@ class ConfigBuilder {
                 sb.append(MICROBENCHMARK_PRESUBMIT_OPTION)
             }
         }
+        if (isMacrobenchmark) {
+            sb.append(MACROBENCHMARK_POSTSUBMIT_OPTIONS)
+        }
         sb.append(SETUP_INCLUDE)
             .append(TARGET_PREPARER_OPEN.replace("CLEANUP_APKS", "true"))
-            .append(APK_INSTALL_OPTION.replace("APK_NAME", testApkName))
+        initialSetupApks.forEach { apk ->
+            sb.append(APK_INSTALL_OPTION.replace("APK_NAME", apk))
+        }
+        sb.append(APK_INSTALL_OPTION.replace("APK_NAME", testApkName))
         if (!appApkName.isNullOrEmpty())
             sb.append(APK_INSTALL_OPTION.replace("APK_NAME", appApkName!!))
         sb.append(TARGET_PREPARER_CLOSE)
@@ -245,7 +260,8 @@ private fun benchmarkPostInstallCommandOption(packageName: String) =
     <option name="run-command-timeout" value="240000" />
     </target_preparer>
 
-""".trimIndent()
+"""
+        .trimIndent()
 
 private fun benchmarkPostInstallCommand(packageName: String): String {
     return "cmd package compile -f -m speed $packageName"
@@ -325,6 +341,14 @@ private val MICROBENCHMARK_POSTSUBMIT_OPTIONS =
     """
     <option name="instrumentation-arg" key="listener" value="androidx.benchmark.junit4.InstrumentationResultsRunListener" />
     <option name="instrumentation-arg" key="listener" value="androidx.benchmark.junit4.SideEffectRunListener" />
+
+"""
+        .trimIndent()
+
+private val MACROBENCHMARK_POSTSUBMIT_OPTIONS =
+    """
+    <option name="instrumentation-arg" key="listener" value="androidx.benchmark.junit4.InstrumentationResultsRunListener" />
+    <option name="instrumentation-arg" key="listener" value="androidx.benchmark.macro.junit4.SideEffectRunListener" />
 
 """
         .trimIndent()

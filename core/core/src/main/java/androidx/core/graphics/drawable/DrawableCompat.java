@@ -77,9 +77,7 @@ public final class DrawableCompat {
      *            not.
      */
     public static void setAutoMirrored(@NonNull Drawable drawable, boolean mirrored) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            Api19Impl.setAutoMirrored(drawable, mirrored);
-        }
+        drawable.setAutoMirrored(mirrored);
     }
 
     /**
@@ -94,11 +92,7 @@ public final class DrawableCompat {
      *         mirrored.
      */
     public static boolean isAutoMirrored(@NonNull Drawable drawable) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            return Api19Impl.isAutoMirrored(drawable);
-        } else {
-            return false;
-        }
+        return drawable.isAutoMirrored();
     }
 
     /**
@@ -119,6 +113,10 @@ public final class DrawableCompat {
      * different from the drawable bounds.
      *
      * @param drawable The Drawable against which to invoke the method.
+     * @param left position in pixels of the left bound
+     * @param top position in pixels of the top bound
+     * @param right position in pixels of the right bound
+     * @param bottom position in pixels of the bottom bound
      */
     public static void setHotspotBounds(@NonNull Drawable drawable, int left, int top,
             int right, int bottom) {
@@ -177,11 +175,7 @@ public final class DrawableCompat {
      */
     @SuppressWarnings("unused")
     public static int getAlpha(@NonNull Drawable drawable) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            return Api19Impl.getAlpha(drawable);
-        } else {
-            return 0;
-        }
+        return drawable.getAlpha();
     }
 
     /**
@@ -237,7 +231,7 @@ public final class DrawableCompat {
             // to find any DrawableContainers, and then unwrap those to clear the filter on its
             // children manually
             if (drawable instanceof InsetDrawable) {
-                clearColorFilter(Api19Impl.getDrawable((InsetDrawable) drawable));
+                clearColorFilter(((InsetDrawable) drawable).getDrawable());
             } else if (drawable instanceof WrappedDrawable) {
                 clearColorFilter(((WrappedDrawable) drawable).getWrappedDrawable());
             } else if (drawable instanceof DrawableContainer) {
@@ -247,7 +241,7 @@ public final class DrawableCompat {
                 if (state != null) {
                     Drawable child;
                     for (int i = 0, count = state.getChildCount(); i < count; i++) {
-                        child = Api19Impl.getChild(state, i);
+                        child = state.getChild(i);
                         if (child != null) {
                             clearColorFilter(child);
                         }
@@ -262,6 +256,7 @@ public final class DrawableCompat {
     /**
      * Inflate this Drawable from an XML resource optionally styled by a theme.
      *
+     * @param drawable drawable to inflate.
      * @param res Resources used to resolve attribute values
      * @param parser XML parser from which to inflate this Drawable
      * @param attrs Base set of attribute values
@@ -351,6 +346,7 @@ public final class DrawableCompat {
      * layout direction, as the Drawable has no capacity to do the resolution on
      * its own.
      *
+     * @param drawable drawable for which to set the layout direction.
      * @param layoutDirection the resolved layout direction for the drawable,
      *                        either {@link ViewCompat#LAYOUT_DIRECTION_LTR}
      *                        or {@link ViewCompat#LAYOUT_DIRECTION_RTL}
@@ -427,39 +423,6 @@ public final class DrawableCompat {
     }
 
     private DrawableCompat() {
-    }
-
-    @RequiresApi(19)
-    static class Api19Impl {
-        private Api19Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static void setAutoMirrored(Drawable drawable, boolean mirrored) {
-            drawable.setAutoMirrored(mirrored);
-        }
-
-        @DoNotInline
-        static boolean isAutoMirrored(Drawable drawable) {
-            return drawable.isAutoMirrored();
-        }
-
-        @DoNotInline
-        static int getAlpha(Drawable drawable) {
-            return drawable.getAlpha();
-        }
-
-        @DoNotInline
-        static Drawable getChild(DrawableContainer.DrawableContainerState drawableContainerState,
-                int index) {
-            return drawableContainerState.getChild(index);
-        }
-
-        @DoNotInline
-        static Drawable getDrawable(InsetDrawable drawable) {
-            return drawable.getDrawable();
-        }
     }
 
     @RequiresApi(21)

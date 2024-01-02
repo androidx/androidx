@@ -17,6 +17,7 @@
 package androidx.build.docs
 
 import androidx.build.PROJECT_STRUCTURE_METADATA_FILENAME
+import androidx.build.configureTaskTimeouts
 import androidx.build.dackka.DackkaTask
 import androidx.build.dackka.GenerateMetadataTask
 import androidx.build.defaultAndroidConfig
@@ -165,8 +166,11 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
             dependencyClasspath,
             buildOnServer,
             docsSourcesConfiguration,
+            multiplatformDocsSourcesConfiguration,
             mergedProjectMetadata
         )
+
+        project.configureTaskTimeouts()
     }
 
     /**
@@ -288,8 +292,9 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                 it.isCanBeResolved = false
                 it.isCanBeConsumed = false
             }
-        val apiSinceDocsConfiguration =
-            project.configurations.create("apiSinceDocs") {
+        // This exists for libraries that are deprecated or not hosted in the AndroidX repo
+        val docsWithoutApiSinceConfiguration =
+            project.configurations.create("docsWithoutApiSince") {
                 it.isCanBeResolved = false
                 it.isCanBeConsumed = false
             }
@@ -334,7 +339,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
         docsSourcesConfiguration =
             project.configurations.create("docs-sources") {
                 it.setResolveSources()
-                it.extendsFrom(docsConfiguration, apiSinceDocsConfiguration)
+                it.extendsFrom(docsConfiguration, docsWithoutApiSinceConfiguration)
             }
         multiplatformDocsSourcesConfiguration =
             project.configurations.create("multiplatform-docs-sources") { configuration ->
@@ -378,7 +383,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                     project.objects.named<Bundling>(Bundling.EXTERNAL)
                 )
 
-                it.extendsFrom(apiSinceDocsConfiguration)
+                it.extendsFrom(docsConfiguration, multiplatformDocsConfiguration)
             }
 
         fun Configuration.setResolveClasspathForUsage(usage: String) {
@@ -398,7 +403,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                 docsConfiguration,
                 samplesConfiguration,
                 stubsConfiguration,
-                apiSinceDocsConfiguration
+                docsWithoutApiSinceConfiguration
             )
         }
 
@@ -453,13 +458,15 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
         dependencyClasspath: FileCollection,
         buildOnServer: TaskProvider<*>,
         docsConfiguration: Configuration,
+        multiplatformDocsConfiguration: Configuration,
         mergedProjectMetadata: Provider<RegularFile>
     ) {
         val generatedDocsDir = project.layout.buildDirectory.dir("docs")
 
         val dackkaConfiguration =
-            project.configurations.create("dackka").apply {
-                dependencies.add(project.dependencies.create(project.getLibraryByName("dackka")))
+            project.configurations.create("dackka") {
+                it.dependencies.add(project.dependencies.create(project.getLibraryByName("dackka")))
+                it.isCanBeConsumed = false
             }
 
         val generateMetadataTask =
@@ -467,6 +474,14 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                 val artifacts = docsConfiguration.incoming.artifacts.resolvedArtifacts
                 task.getArtifactIds().set(artifacts.map { result -> result.map { it.id } })
                 task.getArtifactFiles().set(artifacts.map { result -> result.map { it.file } })
+                val multiplatformArtifacts =
+                    multiplatformDocsConfiguration.incoming.artifacts.resolvedArtifacts
+                task
+                    .getMultiplatformArtifactIds()
+                    .set(multiplatformArtifacts.map { result -> result.map { it.id } })
+                task
+                    .getMultiplatformArtifactFiles()
+                    .set(multiplatformArtifacts.map { result -> result.map { it.file } })
                 task.destinationFile.set(getMetadataRegularFile(project))
             }
 
@@ -476,6 +491,11 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
         val dackkaTask =
             project.tasks.register("docs", DackkaTask::class.java) { task ->
                 var taskStartTime: LocalDateTime? = null
+                task.argsJsonFile =
+                    File(
+                        project.rootProject.getDistributionDirectory(),
+                        "dackkaArgs-${project.name}.json"
+                    )
                 task.apply {
                     dependsOn(unzipJvmSourcesTask)
                     dependsOn(unzipSamplesTask)
@@ -508,6 +528,8 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                     annotationsNotToDisplay = hiddenAnnotations
                     annotationsNotToDisplayJava = hiddenAnnotationsJava
                     annotationsNotToDisplayKotlin = hiddenAnnotationsKotlin
+                    hidingAnnotations = annotationsToHideApis
+                    nullabilityAnnotations = validNullabilityAnnotations
                     versionMetadataFiles =
                         versionMetadataConfiguration.incoming.artifacts.resolvedArtifacts.map {
                             it.map { it.file }
@@ -683,11 +705,21 @@ private val hiddenAnnotations: List<String> =
         "java.lang.Override"
     )
 
+val validNullabilityAnnotations = listOf(
+    "androidx.annotation.Nullable", "android.annotation.Nullable",
+    "androidx.annotation.NonNull", "android.annotation.NonNull",
+    // Required by media3
+    "org.checkerframework.checker.nullness.qual.Nullable",
+)
+
 // Annotations which should not be displayed in the Kotlin docs, in addition to hiddenAnnotations
 private val hiddenAnnotationsKotlin: List<String> = listOf("kotlin.ExtensionFunctionType")
 
 // Annotations which should not be displayed in the Java docs, in addition to hiddenAnnotations
 private val hiddenAnnotationsJava: List<String> = emptyList()
+
+// Annotations which mean the elements they are applied to should be hidden from the docs
+private val annotationsToHideApis: List<String> = listOf("androidx.annotation.RestrictTo")
 
 /** Data class that matches JSON structure of kotlin source set metadata */
 data class ProjectStructureMetadata(var sourceSets: List<SourceSetMetadata>)

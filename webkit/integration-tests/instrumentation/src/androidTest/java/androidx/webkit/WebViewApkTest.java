@@ -24,7 +24,6 @@ import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Assert;
-import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -44,21 +43,30 @@ public class WebViewApkTest {
      * version of the WebView APK we intend to install. This test ensures the version passed as an
      * instrumentation argument matches the WebView implementation on the device (to ensure the
      * WebView APK was indeed installed correctly).
+     * <p>
+     * On AOSP test runners, the string {@code factory} will be passed instead to indicate that
+     * the tests should expect the factory version of webview to be installed.
+     * The test fails if <em>no</em> argument is passed, which would indicate a test infra failure.
      */
     @Test
     public void testWebViewVersionMatchesInstrumentationArgs() {
         // WebView version: e.g. 46.0.2490.14, or 67.0.3396.17.
         String expectedWebViewVersionString =
                 InstrumentationRegistry.getArguments().getString("webview-version");
-        // Use assumeTrue instead of using assumeNotNull so that we can provide a more descriptive
-        // message.
-        Assume.assumeTrue("Did not receive a WebView version as an instrumentation argument",
-                expectedWebViewVersionString != null);
-        // Convert to a WebViewVersion to ensure these are well-formed
-        // Chromium-style version strings.
-        WebViewVersion expectedWebViewVersion = new WebViewVersion(expectedWebViewVersionString);
-        WebViewVersion actualWebViewVersion =
-                WebViewVersion.getInstalledWebViewVersionFromPackage();
-        Assert.assertEquals(expectedWebViewVersion, actualWebViewVersion);
+        Assert.assertNotNull("Did not receive a WebView version as an instrumentation argument"
+                        + ". If you are running this test locally, add `-Pandroid"
+                        + ".testInstrumentationRunnerArguments.webview-version=factory` "
+                        + "to the test command or run `webkit/run_instrumentation_tests.sh`",
+                expectedWebViewVersionString);
+
+        if (!"factory".equals(expectedWebViewVersionString)) {
+            // Convert to a WebViewVersion to ensure these are well-formed
+            // Chromium-style version strings.
+            WebViewVersion expectedWebViewVersion = new WebViewVersion(
+                    expectedWebViewVersionString);
+            WebViewVersion actualWebViewVersion =
+                    WebViewVersion.getInstalledWebViewVersionFromPackage();
+            Assert.assertEquals(expectedWebViewVersion, actualWebViewVersion);
+        }
     }
 }

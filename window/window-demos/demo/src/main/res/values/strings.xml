@@ -23,6 +23,8 @@
     <string name="green_droid">Green droid</string>
     <string name="display_features_config_change">Display features handle config change</string>
     <string name="display_features_no_config_change">Display features no config change</string>
+    <string name="display_features_slim_portrait">Display features slim portrait</string>
+    <string name="display_features_slim_landscape">Display features slim landscape</string>
     <string name="split_layout">Split layout</string>
     <string name="presentation">Presentation</string>
     <string name="start_presentation">Start presentation</string>
@@ -39,6 +41,8 @@
     <string name="test_activity">Test activity</string>
     <string name="show_all_display_features_config_change_description">Show all display features of the device on the screen and handle config changes</string>
     <string name="show_all_display_features_no_config_change_description">Show all display features of the device on the screen and do not handle config changes.  The activity is recreated instead on rotation or resize</string>
+    <string name="show_all_display_features_portrait_slim">Show all display features of the device on the screen with slim portrait window.</string>
+    <string name="show_all_display_features_landscape_slim">Show all display features of the device on the screen with slim landscape window.</string>
     <string name="split_layout_demo_description">Demo of a layout that splits the content to sides of a fold or a hinge. If not present or minimal size requirements are not meant, it behave like a FrameLayout.</string>
     <string name="presentation_demo_description">Demo of using Presentation API to show content on secondary display.</string>
     <string name="window_metrics">Window metrics</string>

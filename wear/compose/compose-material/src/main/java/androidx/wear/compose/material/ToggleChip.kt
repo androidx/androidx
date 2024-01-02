@@ -118,7 +118,7 @@ public fun ToggleChip(
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     contentPadding: PaddingValues = ToggleChipDefaults.ContentPadding,
-    shape: Shape = MaterialTheme.shapes.small,
+    shape: Shape = MaterialTheme.shapes.large,
 ) = androidx.wear.compose.materialcore.ToggleButton(
     checked = checked,
     onCheckedChange = onCheckedChange,
@@ -127,7 +127,7 @@ public fun ToggleChip(
         textStyle = MaterialTheme.typography.button,
         content = label
     ),
-    selectionControl = provideContent(
+    toggleControl = provideContent(
         contentColor = colors.toggleControlColor(enabled, checked),
         content = toggleControl
     ),
@@ -155,8 +155,9 @@ public fun ToggleChip(
     interactionSource = interactionSource,
     contentPadding = contentPadding,
     shape = shape,
-    selectionControlHeight = TOGGLE_CONTROL_HEIGHT,
-    selectionControlWidth = TOGGLE_CONTROL_WIDTH
+    toggleControlHeight = TOGGLE_CONTROL_HEIGHT,
+    toggleControlWidth = TOGGLE_CONTROL_WIDTH,
+    ripple = rippleOrFallbackImplementation()
 )
 
 /**
@@ -242,7 +243,7 @@ public fun SplitToggleChip(
     checkedInteractionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     clickInteractionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     contentPadding: PaddingValues = ToggleChipDefaults.ContentPadding,
-    shape: Shape = MaterialTheme.shapes.small,
+    shape: Shape = MaterialTheme.shapes.large,
 ) = androidx.wear.compose.materialcore.SplitToggleButton(
     checked = checked,
     onCheckedChange = onCheckedChange,
@@ -252,7 +253,7 @@ public fun SplitToggleChip(
         content = label
     ),
     onClick = onClick,
-    selectionControl = provideScopeContent(
+    toggleControl = provideScopeContent(
         contentColor = colors.toggleControlColor(enabled = enabled, checked = checked),
         content = toggleControl
     ),
@@ -275,7 +276,8 @@ public fun SplitToggleChip(
     checkedInteractionSource = checkedInteractionSource,
     clickInteractionSource = clickInteractionSource,
     contentPadding = contentPadding,
-    shape = shape
+    shape = shape,
+    ripple = rippleOrFallbackImplementation()
 )
 
 /**

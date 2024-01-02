@@ -69,4 +69,5 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2015"
     description = "AndroidX Preference"
+    metalavaK2UastEnabled = true
 }

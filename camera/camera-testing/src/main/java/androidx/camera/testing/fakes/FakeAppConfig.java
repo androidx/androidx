@@ -55,7 +55,8 @@ public final class FakeAppConfig {
      */
     @NonNull
     public static CameraXConfig create(@Nullable CameraSelector availableCamerasSelector) {
-        final CameraFactory.Provider cameraFactoryProvider = (ignored1, ignored2, ignored3) -> {
+        final CameraFactory.Provider cameraFactoryProvider =
+                (ignored1, ignored2, ignored3, ignore4) -> {
             final FakeCameraFactory cameraFactory = new FakeCameraFactory(availableCamerasSelector);
             cameraFactory.insertCamera(CameraSelector.LENS_FACING_BACK, CAMERA_ID_0,
                     () -> new FakeCamera(CAMERA_ID_0, null,

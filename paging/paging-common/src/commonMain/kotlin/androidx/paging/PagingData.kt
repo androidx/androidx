@@ -52,9 +52,9 @@ public class PagingData<T : Any> internal constructor(
         }
 
         /**
-         * Create a [PagingData] that immediately displays an empty list of items without
-         * dispatching any load state updates when submitted to a presenter. E.g.,
-         * [AsyncPagingDataAdapter][androidx.paging.AsyncPagingDataAdapter].
+         * Create a [PagingData] that immediately displays an empty list of items when submitted to
+         * a presenter. E.g., [AsyncPagingDataAdapter][androidx.paging.AsyncPagingDataAdapter] and
+         * dispatches [LoadState.NotLoading] on all LoadStates to the presenter.
          */
         @Suppress("UNCHECKED_CAST")
         @JvmStatic // Convenience for Java developers.
@@ -68,6 +68,20 @@ public class PagingData<T : Any> internal constructor(
             ),
             uiReceiver = NOOP_UI_RECEIVER,
             hintReceiver = NOOP_HINT_RECEIVER,
+            cachedPageEvent = {
+                PageEvent.Insert.Refresh(
+                    pages = listOf(
+                        TransformablePage(
+                            originalPageOffset = 0,
+                            data = listOf(),
+                        )
+                    ),
+                    placeholdersBefore = 0,
+                    placeholdersAfter = 0,
+                    sourceLoadStates = LoadStates.IDLE,
+                    mediatorLoadStates = null
+                )
+            }
         )
 
         /**
@@ -95,12 +109,26 @@ public class PagingData<T : Any> internal constructor(
             ),
             uiReceiver = NOOP_UI_RECEIVER,
             hintReceiver = NOOP_HINT_RECEIVER,
+            cachedPageEvent = {
+                PageEvent.Insert.Refresh(
+                    pages = listOf(
+                        TransformablePage(
+                            originalPageOffset = 0,
+                            data = listOf(),
+                        )
+                    ),
+                    placeholdersBefore = 0,
+                    placeholdersAfter = 0,
+                    sourceLoadStates = sourceLoadStates,
+                    mediatorLoadStates = mediatorLoadStates
+                )
+            }
         )
 
         /**
-         * Create a [PagingData] that immediately displays a static list of items without
-         * dispatching any load state updates when submitted to a presenter. E.g.,
-         * [AsyncPagingDataAdapter][androidx.paging.AsyncPagingDataAdapter].
+         * Create a [PagingData] that immediately displays a static list of items when submitted
+         * to a presenter. E.g., [AsyncPagingDataAdapter][androidx.paging.AsyncPagingDataAdapter]
+         * and dispatches [LoadState.NotLoading] on all LoadStates to the presenter.
          *
          * @param data Static list of [T] to display.
          */

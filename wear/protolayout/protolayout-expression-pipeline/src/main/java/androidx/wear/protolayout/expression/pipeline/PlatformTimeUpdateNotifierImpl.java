@@ -43,6 +43,10 @@ public class PlatformTimeUpdateNotifierImpl implements PlatformTimeUpdateNotifie
     private boolean mUpdatesEnabled = true;
     @Nullable private Executor mRegisteredExecutor;
 
+    /**
+     * Sets the callback to be called whenever platform time needs to be reevaluated. Note that this
+     * doesn't call the callback immediately.
+     */
     @Override
     public void setReceiver(@NonNull Executor executor, @NonNull Runnable tick) {
         if (mRegisteredReceiver != null) {
@@ -56,7 +60,6 @@ public class PlatformTimeUpdateNotifierImpl implements PlatformTimeUpdateNotifie
             // Send first update and schedule next.
             mLastScheduleTimeMillis = SystemClock.uptimeMillis();
             scheduleNextSecond();
-            runReceiver();
         }
     }
 

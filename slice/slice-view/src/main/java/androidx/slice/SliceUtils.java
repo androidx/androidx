@@ -41,7 +41,6 @@ import android.net.Uri;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.core.SliceAction;
@@ -63,8 +62,12 @@ import java.util.List;
 
 /**
  * Utilities for dealing with slices.
+ *
+ * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+ * forward. If you are looking for a framework that handles communication across apps,
+ * consider using {@link android.app.appsearch.AppSearchManager}.
  */
-@RequiresApi(19)
+@Deprecated
 public class SliceUtils {
 
     private SliceUtils() {

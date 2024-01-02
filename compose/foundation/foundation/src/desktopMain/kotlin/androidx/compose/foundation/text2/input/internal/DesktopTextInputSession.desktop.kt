@@ -14,13 +14,8 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalFoundationApi::class)
-
 package androidx.compose.foundation.text2.input.internal
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text2.input.TextEditFilter
-import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.ui.platform.PlatformTextInputSession
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
@@ -30,9 +25,9 @@ import kotlinx.coroutines.awaitCancellation
  * Runs desktop-specific text input session logic.
  */
 internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
-    state: TextFieldState,
+    state: TransformedTextFieldState,
+    layoutState: TextLayoutState,
     imeOptions: ImeOptions,
-    filter: TextEditFilter?,
     onImeAction: ((ImeAction) -> Unit)?
 ): Nothing {
     // TODO(b/267235947) Wire up desktop.

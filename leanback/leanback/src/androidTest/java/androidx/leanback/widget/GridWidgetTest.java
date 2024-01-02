@@ -2214,7 +2214,6 @@ public class GridWidgetTest {
         }
     }
 
-    @Ignore // wait b/292114537 to be fixed *and* update the recyclerview version in build.gradle.
     @Test
     @AnimationTest
     @SuppressWarnings("unchecked")
@@ -2521,6 +2520,7 @@ public class GridWidgetTest {
         verifyBeginAligned();
     }
 
+    @Ignore("b/283480313")
     @Test
     public void testSetSelectedPositionDetached() throws Throwable {
 

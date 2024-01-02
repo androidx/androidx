@@ -31,6 +31,7 @@ import org.gradle.api.attributes.Usage
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
@@ -97,6 +98,12 @@ fun Project.configureSourceJarForAndroid(extension: LibraryExtension) {
             }
         }
     }
+
+    val disableNames =
+        setOf(
+            "releaseSourcesJar",
+        )
+    disableUnusedSourceJarTasks(disableNames)
 }
 
 /** Sets up a source jar task for a Java library project. */
@@ -128,6 +135,12 @@ fun Project.configureSourceJarForJava() {
             }
         }
     registerSourcesVariant(sourceJar)
+
+    val disableNames =
+        setOf(
+            "kotlinSourcesJar",
+        )
+    disableUnusedSourceJarTasks(disableNames)
 }
 
 fun Project.configureSourceJarForMultiplatform() {
@@ -140,7 +153,7 @@ fun Project.configureSourceJarForMultiplatform() {
     val multiplatformMetadataTask =
         tasks.register("createMultiplatformMetadata", CreateMultiplatformMetadata::class.java) {
             it.metadataFile.set(metadataFile)
-            it.sourceSetJson = createSourceSetMetadata(extension)
+            it.sourceSetMetadata = project.provider { createSourceSetMetadata(extension) }
         }
     val sourceJar =
         tasks.register("multiplatformSourceJar", Jar::class.java) { task ->
@@ -161,6 +174,19 @@ fun Project.configureSourceJarForMultiplatform() {
             task.metaInf.from(metadataFile)
         }
     registerMultiplatformSourcesVariant(sourceJar)
+    val disableNames =
+        setOf(
+            "kotlinSourcesJar",
+        )
+    disableUnusedSourceJarTasks(disableNames)
+}
+
+fun Project.disableUnusedSourceJarTasks(disableNames: Set<String>) {
+    project.tasks.configureEach({ task ->
+        if (disableNames.contains(task.name)) {
+            task.enabled = false
+        }
+    })
 }
 
 internal val Project.multiplatformUsage
@@ -215,7 +241,7 @@ private fun KotlinTarget.mainCompilation() =
  */
 @CacheableTask
 abstract class CreateMultiplatformMetadata : DefaultTask() {
-    @Input lateinit var sourceSetJson: String
+    @Input lateinit var sourceSetMetadata: Provider<Map<String, Any>>
 
     @get:OutputFile abstract val metadataFile: RegularFileProperty
 
@@ -224,19 +250,20 @@ abstract class CreateMultiplatformMetadata : DefaultTask() {
         metadataFile.get().asFile.apply {
             parentFile.mkdirs()
             createNewFile()
-            writeText(sourceSetJson)
+            val gson = GsonBuilder().setPrettyPrinting().create()
+            writeText(gson.toJson(sourceSetMetadata.get()))
         }
     }
 }
 
-fun createSourceSetMetadata(extension: KotlinMultiplatformExtension): String {
+fun createSourceSetMetadata(extension: KotlinMultiplatformExtension): Map<String, Any> {
     val commonMain = extension.sourceSets.getByName("commonMain")
     val sourceSetsByName =
         mutableMapOf(
             "commonMain" to
                 mapOf(
                     "name" to commonMain.name,
-                    "dependencies" to commonMain.dependsOn.map { it.name },
+                    "dependencies" to commonMain.dependsOn.map { it.name }.sorted(),
                     "analysisPlatform" to DokkaAnalysisPlatform.COMMON.jsonName
                 )
         )
@@ -245,15 +272,13 @@ fun createSourceSetMetadata(extension: KotlinMultiplatformExtension): String {
             sourceSetsByName.getOrPut(it.name) {
                 mapOf(
                     "name" to it.name,
-                    "dependencies" to it.dependsOn.map { it.name },
+                    "dependencies" to it.dependsOn.map { it.name }.sorted(),
                     "analysisPlatform" to target.docsPlatform().jsonName
                 )
             }
         }
     }
-    val sourceSetMetadata = mutableMapOf("sourceSets" to sourceSetsByName.values)
-    val gson = GsonBuilder().setPrettyPrinting().create()
-    return gson.toJson(sourceSetMetadata)
+    return mapOf("sourceSets" to sourceSetsByName.keys.sorted().map { sourceSetsByName[it] })
 }
 
 internal const val PROJECT_STRUCTURE_METADATA_FILENAME = "kotlin-project-structure-metadata.json"

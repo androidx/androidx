@@ -16,8 +16,6 @@
 
 package androidx.paging.integration.testapp.custom;
 
-import android.annotation.SuppressLint;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
@@ -36,7 +34,6 @@ public class PagedListItemViewModel extends ViewModel {
 
     private final Function0<PagingSource<Integer, Item>> mFactory =
             new Function0<PagingSource<Integer, Item>>() {
-                @SuppressLint("SyntheticAccessor")
                 @NonNull
                 @Override
                 public PagingSource<Integer, Item> invoke() {

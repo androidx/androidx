@@ -80,7 +80,7 @@ class CameraXInitTest(private val implName: String, private val cameraXConfig: C
     @After
     fun tearDown() {
         if (::cameraProvider.isInitialized) {
-            cameraProvider.shutdown()[10, TimeUnit.SECONDS]
+            cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
         }
     }
 

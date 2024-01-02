@@ -27,7 +27,7 @@ import androidx.annotation.VisibleForTesting;
 public class ClientVersion {
     // Current version of vendor library implementation that the CameraX extension supports. This
     // needs to be increased along with the version of vendor library interface.
-    private static ClientVersion sCurrent = new ClientVersion("1.3.0");
+    private static ClientVersion sCurrent = new ClientVersion("1.4.0");
 
     @NonNull
     public static ClientVersion getCurrentVersion() {
@@ -67,6 +67,22 @@ public class ClientVersion {
     public static boolean isMinimumCompatibleVersion(@NonNull Version version) {
         return ClientVersion.getCurrentVersion().mVersion
                 .compareTo(version.getMajor(), version.getMinor()) >= 0;
+    }
+
+    /**
+     * Check if the client version meets the maximum compatible version requirement. This implies
+     * that the client version is equal to or older than the version.
+     *
+     * <p> The compatible version is comprised of the major and minor version numbers. The patch
+     * number is ignored.
+     *
+     * @param version The minimum compatible version required
+     * @return True if the client version meets the maximum version requirement and False
+     * otherwise.
+     */
+    public static boolean isMaximumCompatibleVersion(@NonNull Version version) {
+        return ClientVersion.getCurrentVersion().mVersion
+                .compareTo(version.getMajor(), version.getMinor()) <= 0;
     }
 
     /**

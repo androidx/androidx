@@ -27,6 +27,7 @@ import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig
 import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig.InitialProcessState
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import junit.framework.TestCase.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -49,7 +50,10 @@ class TrivialPerfettoSdkBenchmark(private val composableName: String) {
     @Test
     fun test_composable_names_present_in_trace() {
         val metrics = listOf(
-            TraceSectionMetric("%$PACKAGE_NAME.$composableName %$FILE_NAME:%")
+            TraceSectionMetric(
+                "%$PACKAGE_NAME.$composableName %$FILE_NAME:%",
+                mode = TraceSectionMetric.Mode.First
+            )
         )
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
@@ -58,7 +62,12 @@ class TrivialPerfettoSdkBenchmark(private val composableName: String) {
             setupBlock = {
                 PerfettoCapture().enableAndroidxTracingPerfetto(
                     PerfettoSdkConfig(PACKAGE_NAME, InitialProcessState.Alive)
-                )
+                ).let { (resultCode, _) ->
+                    assertTrue(
+                        "Ensuring Perfetto SDK is enabled",
+                        resultCode in arrayOf(1, 2) // 1 = success, 2 = already enabled
+                    )
+                }
             }
         ) {
             startActivityAndWait(Intent(ACTION))

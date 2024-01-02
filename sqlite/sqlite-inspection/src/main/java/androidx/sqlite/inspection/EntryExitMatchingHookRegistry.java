@@ -16,8 +16,6 @@
 
 package androidx.sqlite.inspection;
 
-import android.annotation.SuppressLint;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.inspection.ArtTooling.EntryHook;
@@ -58,7 +56,6 @@ final class EntryExitMatchingHookRegistry {
             final OnExitCallback onExitCallback) {
         mEnvironment.artTooling().registerEntryHook(originClass, originMethod,
                 new EntryHook() {
-                    @SuppressLint("SyntheticAccessor")
                     @Override
                     public void onEntry(@Nullable Object thisObject,
                             @NonNull List<Object> args) {
@@ -68,7 +65,6 @@ final class EntryExitMatchingHookRegistry {
 
         mEnvironment.artTooling().registerExitHook(originClass, originMethod,
                 new ExitHook<Object>() {
-                    @SuppressLint("SyntheticAccessor")
                     @Override
                     public Object onExit(Object result) {
                         Frame entryFrame = getFrameStack().pollLast();
@@ -85,7 +81,7 @@ final class EntryExitMatchingHookRegistry {
     }
 
     private @NonNull Deque<Frame> getFrameStack() {
-        /** It won't be null because of overridden {@link ThreadLocal#initialValue} */
+        /* It won't be null because of overridden {@link ThreadLocal#initialValue} */
         //noinspection ConstantConditions
         return mFrameStack.get();
     }

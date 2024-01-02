@@ -17,12 +17,16 @@
 package androidx.wear.compose.material3
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -35,6 +39,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.material3.tokens.ListHeaderTokens
+import androidx.wear.compose.material3.tokens.ListSubHeaderTokens
 
 /**
  * A slot based composable for creating a list header item. [ListHeader]s are typically expected
@@ -57,13 +63,15 @@ import androidx.compose.ui.unit.dp
 fun ListHeader(
     modifier: Modifier = Modifier,
     backgroundColor: Color = Color.Transparent,
-    contentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    contentColor: Color = ListHeaderTokens.ContentColor.value,
     contentPadding: PaddingValues = ListHeaderDefaults.HeaderContentPadding,
     content: @Composable RowScope.() -> Unit
 ) {
     Row(
+        horizontalArrangement = Arrangement.Center,
         modifier = modifier
-            .height(48.dp)
+            .defaultMinSize(minHeight = ListHeaderTokens.Height)
+            .height(IntrinsicSize.Min)
             .wrapContentSize()
             .background(backgroundColor)
             .padding(contentPadding)
@@ -71,7 +79,7 @@ fun ListHeader(
     ) {
         CompositionLocalProvider(
             LocalContentColor provides contentColor,
-            LocalTextStyle provides MaterialTheme.typography.labelMedium,
+            LocalTextStyle provides ListHeaderTokens.ContentTypography.value,
         ) {
             content()
         }
@@ -103,28 +111,30 @@ fun ListHeader(
 fun ListSubheader(
     modifier: Modifier = Modifier,
     backgroundColor: Color = Color.Transparent,
-    contentColor: Color = MaterialTheme.colorScheme.onBackground,
+    contentColor: Color = ListSubHeaderTokens.ContentColor.value,
     contentPadding: PaddingValues = ListHeaderDefaults.SubheaderContentPadding,
     icon: (@Composable BoxScope.() -> Unit)? = null,
     label: @Composable RowScope.() -> Unit,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start,
         modifier = modifier
-            .height(48.dp)
-            .wrapContentSize()
+            .defaultMinSize(minHeight = ListSubHeaderTokens.Height)
+            .height(IntrinsicSize.Min)
+            .fillMaxWidth()
+            .wrapContentSize(align = Alignment.CenterStart)
             .background(backgroundColor)
             .padding(contentPadding)
             .semantics(mergeDescendants = true) { heading() }
     ) {
         CompositionLocalProvider(
             LocalContentColor provides contentColor,
-            LocalTextStyle provides MaterialTheme.typography.labelSmall,
+            LocalTextStyle provides ListSubHeaderTokens.ContentTypography.value
         ) {
             if (icon != null) {
                 Box(
-                    modifier = Modifier
-                        .wrapContentSize(align = Alignment.CenterStart),
+                    modifier = Modifier.wrapContentSize(align = Alignment.CenterStart),
                     content = icon
                 )
                 Spacer(modifier = Modifier.width(6.dp))
@@ -135,21 +145,21 @@ fun ListSubheader(
 }
 
 object ListHeaderDefaults {
-    private val TOP_PADDING = 16.dp
-    private val SUBHEADER_BOTTOM_PADDING = 8.dp
-    private val HEADER_BOTTOM_PADDING = 12.dp
-    private val HORIZONTAL_PADDING = 14.dp
+    private val TopPadding = 16.dp
+    private val SubheaderBottomPadding = 8.dp
+    private val HeaderBottomPadding = 12.dp
+    private val HorizontalPadding = 14.dp
 
     val HeaderContentPadding = PaddingValues(
-        HORIZONTAL_PADDING,
-        TOP_PADDING,
-        HORIZONTAL_PADDING,
-        HEADER_BOTTOM_PADDING
+        HorizontalPadding,
+        TopPadding,
+        HorizontalPadding,
+        HeaderBottomPadding
     )
     val SubheaderContentPadding = PaddingValues(
-        HORIZONTAL_PADDING,
-        TOP_PADDING,
-        HORIZONTAL_PADDING,
-        SUBHEADER_BOTTOM_PADDING
+        HorizontalPadding,
+        TopPadding,
+        HorizontalPadding,
+        SubheaderBottomPadding
     )
 }

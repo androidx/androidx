@@ -28,9 +28,8 @@ internal class JavacFieldElement(
     env: JavacProcessingEnv,
     element: VariableElement
 ) : JavacVariableElement(env, element), XFieldElement {
-
     override val name: String
-        get() = (kotlinMetadata?.name ?: super.name)
+        get() = kotlinMetadata?.name ?: element.simpleName.toString()
 
     override fun getAllAnnotations(): List<XAnnotation> {
         return buildList {

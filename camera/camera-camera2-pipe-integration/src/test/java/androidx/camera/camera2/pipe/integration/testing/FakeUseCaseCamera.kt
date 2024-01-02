@@ -33,6 +33,7 @@ import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraComponent
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraConfig
+import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraRequestControl
 import androidx.camera.core.UseCase
@@ -52,8 +53,10 @@ class FakeUseCaseCameraComponentBuilder : UseCaseCameraComponent.Builder {
     private var streamConfigMap = mutableMapOf<CameraStream.Config, DeferrableSurface>()
 
     private var config: UseCaseCameraConfig =
-        UseCaseCameraConfig(emptyList(), sessionConfigAdapter, CameraStateAdapter(), cameraGraph,
-            streamConfigMap)
+        UseCaseCameraConfig(
+            emptyList(), sessionConfigAdapter, CameraStateAdapter(), cameraGraph,
+            streamConfigMap, sessionProcessorManager = null
+        )
 
     override fun config(config: UseCaseCameraConfig): UseCaseCameraComponent.Builder {
         this.config = config
@@ -68,9 +71,16 @@ class FakeUseCaseCameraComponentBuilder : UseCaseCameraComponent.Builder {
 
 class FakeUseCaseCameraComponent(useCases: List<UseCase>) : UseCaseCameraComponent {
     private val fakeUseCaseCamera = FakeUseCaseCamera(useCases.toSet())
+    private val cameraGraph = FakeCameraGraph()
+    private val cameraStateAdapter = CameraStateAdapter()
 
     override fun getUseCaseCamera(): UseCaseCamera {
         return fakeUseCaseCamera
+    }
+
+    override fun getUseCaseGraphConfig(): UseCaseGraphConfig {
+        // TODO: Implement this properly once we need to use it with SessionProcessor enabled.
+        return UseCaseGraphConfig(cameraGraph, emptyMap(), cameraStateAdapter)
     }
 }
 

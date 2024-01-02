@@ -23,6 +23,7 @@ import android.telecom.ConnectionService
 import android.telecom.PhoneAccountHandle
 import android.telecom.TelecomManager
 import android.telecom.VideoProfile
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.internal.utils.Utils
@@ -39,6 +40,7 @@ import kotlinx.coroutines.CompletableDeferred
  */
 @RequiresApi(Build.VERSION_CODES.Q)
 class ManagedConnectionService : ConnectionService() {
+    val TAG = ManagedConnectionService::class.simpleName;
     data class PendingConnectionRequest(
         val callAttributes: CallAttributesCompat,
         val completableDeferred: CompletableDeferred<ManagedConnection>?
@@ -53,6 +55,8 @@ class ManagedConnectionService : ConnectionService() {
         phoneAccountHandle: PhoneAccountHandle,
         pendingConnectionRequest: PendingConnectionRequest,
     ) {
+        Log.i(TAG, "createConnectionRequest: request=[$pendingConnectionRequest]," +
+            " handle=[$phoneAccountHandle]")
         pendingConnectionRequest.callAttributes.mHandle = phoneAccountHandle
 
         // add request to list
@@ -95,6 +99,7 @@ class ManagedConnectionService : ConnectionService() {
         connectionManagerPhoneAccount: PhoneAccountHandle,
         request: ConnectionRequest
     ) {
+        Log.i(TAG, "onCreateOutgoingConnectionFailed: request=[$request]")
         val pendingRequest: PendingConnectionRequest? = findTargetPendingConnectionRequest(
             request, CallAttributesCompat.DIRECTION_OUTGOING
         )
@@ -119,6 +124,7 @@ class ManagedConnectionService : ConnectionService() {
         connectionManagerPhoneAccount: PhoneAccountHandle,
         request: ConnectionRequest
     ) {
+        Log.i(TAG, "onCreateIncomingConnectionFailed: request=[$request]")
         val pendingRequest: PendingConnectionRequest? = findTargetPendingConnectionRequest(
             request, CallAttributesCompat.DIRECTION_INCOMING
         )
@@ -130,6 +136,7 @@ class ManagedConnectionService : ConnectionService() {
         request: ConnectionRequest,
         direction: Int
     ): Connection? {
+        Log.i(TAG, "createSelfManagedConnection: request=[$request], direction=[$direction]")
         val targetRequest: PendingConnectionRequest =
             findTargetPendingConnectionRequest(request, direction) ?: return null
 
@@ -164,7 +171,7 @@ class ManagedConnectionService : ConnectionService() {
             jetpackConnection.connectionCapabilities =
                 Connection.CAPABILITY_HOLD or Connection.CAPABILITY_SUPPORT_HOLD
         }
-
+        Log.i(TAG, "createSelfManagedConnection: targetRequest=[$targetRequest]")
         targetRequest.completableDeferred?.complete(jetpackConnection)
         mPendingConnectionRequests.remove(targetRequest)
 

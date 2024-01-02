@@ -23,14 +23,17 @@ import androidx.versionedparcelable.ParcelUtils;
 
 /**
  * Structure for media item descriptor for {@link DataSourceCallback}.
- * <p>
- * Users should use {@link Builder} to create {@link CallbackMediaItem}.
- * <p>
- * You cannot directly send this object across the process through {@link ParcelUtils}. See
+ *
+ * <p>Users should use {@link Builder} to create {@link CallbackMediaItem}.
+ *
+ * <p>You cannot directly send this object across the process through {@link ParcelUtils}. See
  * {@link MediaItem} for detail.
  *
  * @see MediaItem
+ * @deprecated androidx.media2 is deprecated. Please migrate to <a
+ *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
  */
+@Deprecated
 public class CallbackMediaItem extends MediaItem {
     private final DataSourceCallback mDataSourceCallback;
 
@@ -52,7 +55,11 @@ public class CallbackMediaItem extends MediaItem {
 
     /**
      * This Builder class simplifies the creation of a {@link CallbackMediaItem} object.
+     *
+     * @deprecated androidx.media2 is deprecated. Please migrate to <a
+     *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
      */
+    @Deprecated
     public static final class Builder extends MediaItem.Builder {
 
         @SuppressWarnings("WeakerAccess") /* synthetic access */

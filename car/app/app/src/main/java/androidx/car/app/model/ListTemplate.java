@@ -391,7 +391,8 @@ public final class ListTemplate implements Template {
          * @throws IllegalArgumentException if {@code action} contains unsupported Action types,
          *                                  or does not contain a valid {@link CarIcon} and
          *                                  background {@link CarColor}, or if exceeds the
-         *                                  maximum number of allowed actions (1) for the template.
+         *                                  maximum number of allowed actions for the template.
+         * @see ActionsConstraints#ACTIONS_CONSTRAINTS_FAB
          */
         @NonNull
         @RequiresCarApi(6)
@@ -544,10 +545,15 @@ public final class ListTemplate implements Template {
                     new ConversationItem.Builder(conversationItem);
             int maxMessagesAllowed =
                     Math.min(limit.decrement(), MAX_MESSAGES_PER_CONVERSATION);
+            int originalMessagesSize = conversationItem.getMessages().size();
             int messagesToAdd =
-                    Math.min(conversationItem.getMessages().size(), maxMessagesAllowed);
+                    Math.min(originalMessagesSize, maxMessagesAllowed);
+            // Messages are ordered oldest to the newest in a ConversationItem. Truncation should
+            // remove the oldest messages from the beginning of the list.
             List<CarMessage> truncatedMessagesList =
-                    conversationItem.getMessages().subList(0, messagesToAdd);
+                    conversationItem.getMessages().subList(
+                            originalMessagesSize - messagesToAdd,
+                            originalMessagesSize);
             conversationBuilder.setMessages(truncatedMessagesList);
 
             builder.addItem(conversationBuilder.build());

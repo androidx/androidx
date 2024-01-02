@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.compose.ui.text.input
 
 import androidx.compose.ui.text.TextRange
@@ -55,6 +57,7 @@ class EditProcessor {
      * This method updates the internal editing buffer with the given editor model.
      * This method may tell the IME about the selection offset changes or extracted text changes.
      */
+    @Suppress("ReferencesDeprecated")
     fun reset(
         value: TextFieldValue,
         textInputSession: TextInputSession?,

@@ -20,6 +20,7 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -39,9 +40,11 @@ import androidx.testutils.withActivity
 import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Assert.assertThrows
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
 
 @LargeTest
@@ -49,17 +52,12 @@ import org.junit.runner.RunWith
 class DialogFragmentTest {
 
     @Suppress("DEPRECATION")
-    @get:Rule
     val activityTestRule =
         androidx.test.rule.ActivityTestRule(EmptyFragmentTestActivity::class.java)
 
-    // TODO(b/270722758): Add back in leak detection rule chain once leak addressed by platform
-    // Detect leaks BEFORE and AFTER activity is destroyed
-    /*
     @get:Rule
     val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
         .around(activityTestRule)
-     */
 
     @Test
     fun testDialogFragmentShows() {
@@ -536,6 +534,12 @@ class DialogFragmentTest {
 
     @Test
     fun testRequireDialog() {
+        // There is a leak in API 30 InputMethodManager that causes this test to be flaky.
+        // Once https://github.com/square/leakcanary/issues/2592 is addressed we can upgrade
+        // leak canary and remove this.
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.R) {
+            return
+        }
         val dialogFragment = TestDialogFragment()
         val fm = activityTestRule.activity.supportFragmentManager
 

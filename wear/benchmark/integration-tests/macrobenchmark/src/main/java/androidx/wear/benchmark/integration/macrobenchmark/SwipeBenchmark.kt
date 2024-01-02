@@ -27,6 +27,7 @@ import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.UiDevice
 import androidx.testutils.createCompilationParams
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -34,6 +35,7 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
+@Ignore("b/315170517")
 class SwipeBenchmark(
     private val compilationMode: CompilationMode
 ) {

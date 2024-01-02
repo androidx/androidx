@@ -162,10 +162,12 @@ class BenchmarkStateTest {
         val report = state.getReport()
 
         // '50' assumes we're not running in a special mode
-        // that affects repeat count (dry run, profiling)
+        // that affects repeat count (dry run)
         val expectedRepeatCount = 50 +
-            if (!simplifiedTimingOnlyMode) BenchmarkState.REPEAT_COUNT_ALLOCATION else 0
-        val expectedCount = report.warmupIterations + report.repeatIterations * expectedRepeatCount
+            if (simplifiedTimingOnlyMode) 0 else BenchmarkState.REPEAT_COUNT_ALLOCATION
+        val expectedCount = report.warmupIterations +
+            report.repeatIterations * expectedRepeatCount +
+            if (Arguments.profiler == MethodTracing && !simplifiedTimingOnlyMode) 1 else 0
         assertEquals(expectedCount, total)
 
         if (Arguments.iterations != null) {

@@ -18,7 +18,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    id("kotlin-kapt")
+    id("com.google.devtools.ksp")
 }
 
 dependencies {
@@ -32,7 +32,7 @@ dependencies {
     androidTestImplementation(project(":sqlite:sqlite-inspection"))
     androidTestImplementation(project(":inspection:inspection-testing"))
     androidTestImplementation(libs.protobufLite)
-    kaptAndroidTest(project(":room:room-compiler"))
+    kspAndroidTest(project(":room:room-compiler"))
 
 }
 

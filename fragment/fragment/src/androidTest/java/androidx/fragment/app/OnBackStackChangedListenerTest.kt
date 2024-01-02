@@ -29,7 +29,6 @@ import androidx.test.filters.SdkSuppress
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import leakcanary.DetectLeaksAfterTestSuccess
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -296,7 +295,6 @@ class OnBackStackChangedListenerTest {
         }
     }
 
-    @Ignore("b/277763818")
     @Test
     fun testOnBackChangeCommittedReplacePop() {
         with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
@@ -329,12 +327,14 @@ class OnBackStackChangedListenerTest {
 
             val fragment2 = StrictFragment()
 
-            fragmentManager.beginTransaction()
-                .setReorderingAllowed(true)
-                .replace(R.id.content, fragment2)
-                .addToBackStack(null)
-                .commit()
-            fragmentManager.popBackStack()
+            withActivity {
+                fragmentManager.beginTransaction()
+                    .setReorderingAllowed(true)
+                    .replace(R.id.content, fragment2)
+                    .addToBackStack(null)
+                    .commit()
+                fragmentManager.popBackStack()
+            }
             executePendingTransactions()
 
             assertThat(incomingFragments).containsExactlyElementsIn(listOf(fragment1, fragment2))

@@ -56,7 +56,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="50dp"
                             android:layout_weight="1"
-                            android:ems="10"
                             android:hint="@string/duration_label"
                             android:inputType="number" />
                     </LinearLayout>
@@ -79,7 +78,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="50dp"
                             android:layout_weight="1"
-                            android:ems="10"
                             android:hint="@string/switch_time_label"
                             android:inputType="number" />
                     </LinearLayout>

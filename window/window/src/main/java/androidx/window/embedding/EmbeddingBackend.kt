@@ -22,10 +22,10 @@ import android.content.Context
 import android.os.IBinder
 import androidx.annotation.RestrictTo
 import androidx.core.util.Consumer
+import androidx.window.RequiresWindowSdkExtension
 import java.util.concurrent.Executor
 
 /**
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface EmbeddingBackend {
@@ -51,27 +51,24 @@ interface EmbeddingBackend {
 
     fun isActivityEmbedded(activity: Activity): Boolean
 
+    @RequiresWindowSdkExtension(2)
     fun setSplitAttributesCalculator(
         calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
     )
 
+    @RequiresWindowSdkExtension(2)
     fun clearSplitAttributesCalculator()
-
-    fun isSplitAttributesCalculatorSupported(): Boolean
 
     fun getActivityStack(activity: Activity): ActivityStack?
 
+    @RequiresWindowSdkExtension(3)
     fun setLaunchingActivityStack(options: ActivityOptions, token: IBinder): ActivityOptions
 
-    fun finishActivityStacks(activityStacks: Set<ActivityStack>)
-
-    fun isFinishActivityStacksSupported(): Boolean
-
+    @RequiresWindowSdkExtension(3)
     fun invalidateTopVisibleSplitAttributes()
 
+    @RequiresWindowSdkExtension(3)
     fun updateSplitAttributes(splitInfo: SplitInfo, splitAttributes: SplitAttributes)
-
-    fun areSplitAttributesUpdatesSupported(): Boolean
 
     companion object {
 

@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.benchmark.input.pointer
 
+import android.view.View
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -95,12 +96,17 @@ class ComposePreciseFingerTapIntegrationBenchmark {
         val yUp = yMove + MOVE_AMOUNT_PX
 
         benchmarkRule.runBenchmarkFor({ ComposeTapTestCase() }) {
-            doFramesUntilNoChangesPending()
+            lateinit var case: ComposeTapTestCase
+            lateinit var rootView: View
 
-            val case = getTestCase()
-            case.expectedLabel = expectedLabel
+            benchmarkRule.runOnUiThread {
+                doFramesUntilNoChangesPending()
 
-            val rootView = getHostView()
+                case = getTestCase()
+                case.expectedLabel = expectedLabel
+
+                rootView = getHostView()
+            }
 
             // Precise Touch/Finger MotionEvents (Down, Move, Up)
             // Based on real MotionEvents pulled from a device.
@@ -182,8 +188,7 @@ class ComposePreciseFingerTapIntegrationBenchmark {
                 0x2 // Motion Event Flags value of 2
             )
 
-            benchmarkRule.measureRepeated {
-
+            benchmarkRule.measureRepeatedOnUiThread {
                 rootView.dispatchTouchEvent(fingerDownMotionEvent)
                 rootView.dispatchTouchEvent(fingerMoveMotionEvent)
                 rootView.dispatchTouchEvent(fingerUpMotionEvent)

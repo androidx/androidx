@@ -21,13 +21,16 @@ import android.app.PendingIntent;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.core.graphics.drawable.IconCompat;
 
 /**
  * Interface for a slice action, supports tappable icons, custom toggle icons, and default toggles.
+ *
+ * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+ * forward. If you are looking for a framework that handles communication across apps,
+ * consider using {@link android.app.appsearch.AppSearchManager}.
  */
-@RequiresApi(19)
+@Deprecated
 public interface SliceAction {
 
     /**

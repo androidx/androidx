@@ -47,11 +47,12 @@ class RoomIncrementalAnnotationProcessingTest(
         )
 
         private const val SRC_DIR = "src/main/java"
-        private val GEN_RES_DIR = "schemas"
-        private val CLASS_DIR = "build/intermediates/javac/debug/classes"
+        private const val GEN_RES_DIR = "schemas"
+        private const val COMPILE_TASK_NAME = "compileDebugJavaWithJavac"
+        private const val CLASS_DIR = "build/intermediates/javac/debug/$COMPILE_TASK_NAME/classes"
 
         private const val CLEAN_TASK = ":clean"
-        private val COMPILE_TASK = ":compileDebugJavaWithJavac"
+        private const val COMPILE_TASK = ":$COMPILE_TASK_NAME"
     }
 
     @get:Rule
@@ -146,7 +147,9 @@ class RoomIncrementalAnnotationProcessingTest(
                 apply plugin: "com.google.devtools.ksp"
             """
         } else {
-            ""
+            """
+                apply plugin: "kotlin-android"
+            """
         }
         val processorConfiguration = if (useKsp) {
             "ksp"

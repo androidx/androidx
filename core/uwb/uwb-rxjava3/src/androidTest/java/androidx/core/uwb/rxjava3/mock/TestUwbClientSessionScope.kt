@@ -23,6 +23,7 @@ import androidx.core.uwb.RangingResult
 import androidx.core.uwb.UwbAddress
 import androidx.core.uwb.UwbClientSessionScope
 import androidx.core.uwb.UwbDevice.Companion.createForAddress
+import androidx.core.uwb.UwbRangeDataNtfConfig
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.nearby.uwb.RangingPosition
 import com.google.android.gms.nearby.uwb.RangingSessionCallback
@@ -47,7 +48,10 @@ class TestUwbClientSessionScope(
         null,
         null,
         ImmutableList.of(uwbDevice),
-        RangingParameters.RANGING_UPDATE_RATE_AUTOMATIC
+        RangingParameters.RANGING_UPDATE_RATE_AUTOMATIC,
+        UwbRangeDataNtfConfig(1, 1, 100),
+        2,
+        false
     )
 
     override fun prepareSession(parameters: RangingParameters) = callbackFlow {
@@ -114,5 +118,13 @@ class TestUwbClientSessionScope(
                 // do nothing
             }
         }
+    }
+
+    override suspend fun reconfigureRangeDataNtf(
+        configType: Int,
+        proximityNear: Int,
+        proximityFar: Int
+    ) {
+        TODO("Not yet implemented")
     }
 }

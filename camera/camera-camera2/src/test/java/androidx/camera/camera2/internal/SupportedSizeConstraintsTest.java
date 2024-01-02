@@ -221,7 +221,7 @@ public class SupportedSizeConstraintsTest {
         CameraXConfig cameraXConfig = CameraXConfig.Builder.fromConfig(
                 Camera2Config.defaultConfig())
                 .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
-                .setCameraFactoryProvider((ignored0, ignored1, ignored2) -> cameraFactory)
+                .setCameraFactoryProvider((ignored0, ignored1, ignored2, ignored3) -> cameraFactory)
                 .build();
         CameraXUtil.initialize(mContext, cameraXConfig);
     }

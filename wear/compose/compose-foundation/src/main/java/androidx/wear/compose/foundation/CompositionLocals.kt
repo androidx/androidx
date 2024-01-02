@@ -53,19 +53,19 @@ val LocalReduceMotion: ProvidableCompositionLocal<ReduceMotion> = staticComposit
 }
 
 /**
- * CompositionLocal containing the background scrim color of [SwipeToDismissBox].
+ * CompositionLocal containing the background scrim color of [BasicSwipeToDismissBox].
  *
  * Defaults to [Color.Black] if not explicitly set.
  */
-public val LocalSwipeToDismissBackgroundScrimColor: ProvidableCompositionLocal<Color> =
+val LocalSwipeToDismissBackgroundScrimColor: ProvidableCompositionLocal<Color> =
     compositionLocalOf { Color.Black }
 
 /**
- * CompositionLocal containing the content scrim color of [SwipeToDismissBox].
+ * CompositionLocal containing the content scrim color of [BasicSwipeToDismissBox].
  *
  * Defaults to [Color.Black] if not explicitly set.
  */
-public val LocalSwipeToDismissContentScrimColor: ProvidableCompositionLocal<Color> =
+val LocalSwipeToDismissContentScrimColor: ProvidableCompositionLocal<Color> =
     compositionLocalOf { Color.Black }
 
 /**

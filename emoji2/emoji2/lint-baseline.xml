@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="            } else if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji2/text/DefaultEmojiCompatConfig.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji2/text/DefaultEmojiCompatConfig.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is never &lt; 19"
+        errorLine1="        mHelper = Build.VERSION.SDK_INT &lt; 19 ? new CompatInternal(this) : new CompatInternal19("
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji2/text/EmojiCompat.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji2/text/EmojiCompat.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji2/text/EmojiCompat.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        @RequiresApi(19)"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji2/text/EmojiCompat.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        @RequiresApi(19)"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji2/text/EmojiCompat.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji2/text/EmojiCompat.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji2/text/EmojiCompatInitializer.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji2/text/EmojiCompatInitializer.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji2/text/EmojiCompatInitializer.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji2/text/EmojiCompatInitializer.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji2/text/EmojiCompatInitializer.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji2/text/EmojiProcessor.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji2/text/EmojiProcessor.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji2/text/EmojiSpan.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        @RequiresApi(19)"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji2/text/FontRequestEmojiCompatConfig.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        @RequiresApi(19)"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji2/text/FontRequestEmojiCompatConfig.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        @RequiresApi(19)"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji2/text/FontRequestEmojiCompatConfig.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        @RequiresApi(19)"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji2/text/FontRequestEmojiCompatConfig.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji2/text/MetadataListReader.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji2/text/MetadataRepo.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji2/text/TypefaceEmojiRasterizer.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji2/text/TypefaceEmojiSpan.java"/>
+    </issue>
+
+</issues>

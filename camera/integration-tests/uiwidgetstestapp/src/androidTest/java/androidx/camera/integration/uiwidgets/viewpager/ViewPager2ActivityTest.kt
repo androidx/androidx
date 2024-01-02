@@ -134,7 +134,7 @@ class ViewPager2ActivityTest(
     fun tearDown() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
-        cameraProvider.shutdown()[10, TimeUnit.SECONDS]
+        cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
         mDevice.unfreezeRotation()
     }
 

@@ -17,16 +17,20 @@
 package androidx.core.telecom.internal
 
 import androidx.core.telecom.CallEndpointCompat
+import androidx.core.telecom.extensions.voip.VoipParticipantActionRequest
 import kotlinx.coroutines.channels.Channel
 
 internal class CallChannels(
     val currentEndpointChannel: Channel<CallEndpointCompat> = Channel(Channel.UNLIMITED),
     val availableEndpointChannel: Channel<List<CallEndpointCompat>> = Channel(Channel.UNLIMITED),
-    val isMutedChannel: Channel<Boolean> = Channel(Channel.UNLIMITED)
+    val isMutedChannel: Channel<Boolean> = Channel(Channel.UNLIMITED),
+    val voipParticipantActionRequestsChannel: Channel<VoipParticipantActionRequest> =
+        Channel(Channel.UNLIMITED)
 ) {
     fun closeAllChannels() {
         currentEndpointChannel.close()
         availableEndpointChannel.close()
         isMutedChannel.close()
+        voipParticipantActionRequestsChannel.close()
     }
 }

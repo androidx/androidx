@@ -16,7 +16,7 @@
 
 package androidx.tv.foundation.text
 
-import androidx.compose.ui.text.input.AndroidImeOptions
+import androidx.compose.ui.text.input.PlatformImeOptions
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.tv.foundation.ExperimentalTvFoundationApi
@@ -32,7 +32,7 @@ class TvImeOptionsTest {
     fun privateImeOptions_keyboardAlignment() {
         val privateImeOptions = "testOptions"
         val keyboardAlignment = TvKeyboardAlignment.Left
-        val imeOptions = AndroidImeOptions(privateImeOptions).keyboardAlignment(keyboardAlignment)
+        val imeOptions = PlatformImeOptions(privateImeOptions).keyboardAlignment(keyboardAlignment)
 
         assertThat(
             imeOptions.privateImeOptions == "$privateImeOptions,${keyboardAlignment.option}"

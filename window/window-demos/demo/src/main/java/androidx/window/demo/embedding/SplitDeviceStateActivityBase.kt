@@ -28,6 +28,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.window.WindowSdkExtensions
 import androidx.window.demo.R
 import androidx.window.demo.databinding.ActivitySplitDeviceStateLayoutBinding
 import androidx.window.embedding.EmbeddingRule
@@ -62,6 +63,8 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
 
     /** The last selected split rule id. */
     private var lastCheckedRuleId = 0
+
+    private val isCallbackSupported = WindowSdkExtensions.getInstance().extensionVersion >= 2
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -103,7 +106,6 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
         viewBinding.swapPrimarySecondaryPositionCheckBox.setOnCheckedChangeListener(this)
         viewBinding.launchActivityToSide.setOnClickListener(this)
 
-        val isCallbackSupported = splitController.isSplitAttributesCalculatorSupported()
         if (!isCallbackSupported) {
             // Disable the radioButtons that use SplitAttributesCalculator
             viewBinding.showFullscreenInPortraitRadioButton.isEnabled = false
@@ -295,7 +297,7 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
             .setSplitType(SPLIT_TYPE_EXPAND)
             .build()
         var suggestToFinishItself = false
-        val isCallbackSupported = splitController.isSplitAttributesCalculatorSupported()
+
         // Traverse SplitInfos from the end because last SplitInfo has the highest z-order.
         for (info in newSplitInfos.reversed()) {
             if (info.contains(this@SplitDeviceStateActivityBase)) {

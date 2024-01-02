@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Karta listy"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Wersja demonstracyjna szablonu kart korzystająca z długich kart"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Karta wyszukiwania"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Ładowanie karty"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Ładowanie wersji demonstracyjnej szablonu kart"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Wersja demonstracyjna szablonu kart bez kart"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Nie można wyświetlać grafiki z nieznanego serwera"</string>
@@ -364,4 +365,8 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"Opcje trasy"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"Unikaj autostrad"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Unikaj promów"</string>
+    <string name="map_demos_title" msgid="2169766615521476592">"Mapa w wersji demonstracyjnej"</string>
+    <string name="map_with_content_demo_title" msgid="1032610482145018739">"Mapa z zawartością w wersji demonstracyjnej"</string>
+    <string name="map_with_message_demo_title" msgid="7007078234918054436">"Mapa z szablonem wiadomości w wersji demonstracyjnej"</string>
+    <string name="map_with_grid_demo_title" msgid="688667167861193192">"Mapa z szablonem siatki w wersji demonstracyjnej"</string>
 </resources>

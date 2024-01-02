@@ -65,15 +65,16 @@ private class HoverableElement(
     override fun InspectorInfo.inspectableProperties() {
         name = "hoverable"
         properties["interactionSource"] = interactionSource
+        properties["enabled"] = true
     }
 }
 
-private class HoverableNode(
-    private var interactionSource: MutableInteractionSource
+internal class HoverableNode(
+    private var interactionSource: MutableInteractionSource?
 ) : PointerInputModifierNode, Modifier.Node() {
     private var hoverInteraction: HoverInteraction.Enter? = null
 
-    fun updateInteractionSource(interactionSource: MutableInteractionSource) {
+    fun updateInteractionSource(interactionSource: MutableInteractionSource?) {
         if (this.interactionSource != interactionSource) {
             tryEmitExit()
             // b/273699888 TODO: Define behavior if there is an ongoing hover
@@ -102,26 +103,34 @@ private class HoverableNode(
         tryEmitExit()
     }
 
-    suspend fun emitEnter() {
+     private fun emitEnter() {
         if (hoverInteraction == null) {
             val interaction = HoverInteraction.Enter()
-            interactionSource.emit(interaction)
+            interactionSource?.let { interactionSource ->
+                coroutineScope.launch {
+                    interactionSource.emit(interaction)
+                }
+            }
             hoverInteraction = interaction
         }
     }
 
-    suspend fun emitExit() {
+    private fun emitExit() {
         hoverInteraction?.let { oldValue ->
             val interaction = HoverInteraction.Exit(oldValue)
-            interactionSource.emit(interaction)
+            interactionSource?.let { interactionSource ->
+                coroutineScope.launch {
+                    interactionSource.emit(interaction)
+                }
+            }
             hoverInteraction = null
         }
     }
 
-    fun tryEmitExit() {
+    private fun tryEmitExit() {
         hoverInteraction?.let { oldValue ->
             val interaction = HoverInteraction.Exit(oldValue)
-            interactionSource.tryEmit(interaction)
+            interactionSource?.tryEmit(interaction)
             hoverInteraction = null
         }
     }

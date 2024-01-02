@@ -41,4 +41,8 @@ interface ICustomTabsCallback {
   oneway void onRelationshipValidationResult(int relation, in android.net.Uri origin, boolean result, in android.os.Bundle extras) = 5;
   android.os.Bundle extraCallbackWithResult(String callbackName, in android.os.Bundle args) = 6;
   oneway void onActivityResized(int height, int width, in android.os.Bundle extras) = 7;
+  oneway void onWarmupCompleted(in android.os.Bundle extras) = 8;
+  oneway void onActivityLayout(int left, int top, int right, int bottom, int state, in android.os.Bundle extras) = 9;
+  oneway void onMinimized(in android.os.Bundle extras) = 10;
+  oneway void onUnminimized(in android.os.Bundle extras) = 11;
 }

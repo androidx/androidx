@@ -17,11 +17,14 @@
 @file:OptIn(InternalComposeApi::class)
 package androidx.compose.runtime
 
+import androidx.collection.MutableScatterSet
 import androidx.compose.runtime.changelist.ChangeList
 import androidx.compose.runtime.collection.IdentityArrayMap
 import androidx.compose.runtime.collection.IdentityArraySet
-import androidx.compose.runtime.collection.IdentityScopeMap
+import androidx.compose.runtime.collection.ScopeMap
 import androidx.compose.runtime.collection.fastForEach
+import androidx.compose.runtime.snapshots.ReaderKind
+import androidx.compose.runtime.snapshots.StateObjectImpl
 import androidx.compose.runtime.snapshots.fastAll
 import androidx.compose.runtime.snapshots.fastAny
 import androidx.compose.runtime.snapshots.fastForEach
@@ -76,6 +79,38 @@ interface Composition {
      * @exception IllegalStateException thrown in the composition has been [dispose]d.
      */
     fun setContent(content: @Composable () -> Unit)
+}
+
+/**
+ * A [ReusableComposition] is a [Composition] that can be reused for different composable content.
+ *
+ * This interface is used by components that have to synchronize lifecycle of parent and child
+ * compositions and efficiently reuse the nodes emitted by [ReusableComposeNode].
+ */
+sealed interface ReusableComposition : Composition {
+    /**
+     * Update the composition with the content described by the [content] composable.
+     * After this has been called the changes to produce the initial composition has been calculated
+     * and applied to the composition.
+     *
+     * This method forces this composition into "reusing" state before setting content. In reusing
+     * state, all remembered content is discarded, and nodes emitted by [ReusableComposeNode] are
+     * re-used for the new content. The nodes are only reused if the group structure containing
+     * the node matches new content.
+     *
+     * Will throw an [IllegalStateException] if the composition has been disposed.
+     *
+     * @param content A composable function that describes the content of the composition.
+     * @exception IllegalStateException thrown in the composition has been [dispose]d.
+     */
+    fun setContentWithReuse(content: @Composable () -> Unit)
+
+    /**
+     * Deactivate all observation scopes in composition and remove all remembered slots while
+     * preserving nodes in place.
+     * The composition can be re-activated by calling [setContent] with a new content.
+     */
+    fun deactivate()
 }
 
 /**
@@ -234,6 +269,12 @@ sealed interface ControlledComposition : Composition {
     fun changesApplied()
 
     /**
+     * Abandon current changes and reset composition state. Called when recomposer cannot proceed
+     * with current recomposition loop and needs to reset composition.
+     */
+    fun abandonChanges()
+
+    /**
      * Invalidate all invalidation scopes. This is called, for example, by [Recomposer] when the
      * Recomposer becomes active after a previous period of inactivity, potentially missing more
      * granular invalidations.
@@ -276,12 +317,12 @@ val ControlledComposition.recomposeCoroutineContext: CoroutineContext
     get() = (this as? CompositionImpl)?.recomposeContext ?: EmptyCoroutineContext
 
 /**
- * This method is the way to initiate a composition. Optionally, a [parent]
- * [CompositionContext] can be provided to make the composition behave as a sub-composition of
- * the parent or a [Recomposer] can be provided.
+ * This method is the way to initiate a composition. [parent] [CompositionContext] can be
+ *  * provided to make the composition behave as a sub-composition of the parent. If composition does
+ *  * not have a parent, [Recomposer] instance should be provided.
  *
- * It is important to call [Composition.dispose] this composer is no longer needed in order to
- * release resources.
+ * It is important to call [Composition.dispose] when composition is no longer needed in order
+ * to release resources.
  *
  * @sample androidx.compose.runtime.samples.CustomTreeComposition
  *
@@ -300,6 +341,27 @@ fun Composition(
         parent,
         applier
     )
+
+/**
+ * This method is the way to initiate a reusable composition. [parent] [CompositionContext] can be
+ * provided to make the composition behave as a sub-composition of the parent. If composition does
+ * not have a parent, [Recomposer] instance should be provided.
+ *
+ * It is important to call [Composition.dispose] when composition is no longer needed in order
+ * to release resources.
+ *
+ * @param applier The [Applier] instance to be used in the composition.
+ * @param parent The parent [CompositionContext].
+ *
+ * @see Applier
+ * @see ReusableComposition
+ * @see rememberCompositionContext
+ */
+fun ReusableComposition(
+    applier: Applier<*>,
+    parent: CompositionContext
+): ReusableComposition =
+    CompositionImpl(parent, applier)
 
 /**
  * This method is a way to initiate a composition. Optionally, a [parent]
@@ -387,7 +449,7 @@ internal class CompositionImpl(
     private val applier: Applier<*>,
 
     recomposeContext: CoroutineContext? = null
-) : ControlledComposition, RecomposeScopeOwner, CompositionServices {
+) : ControlledComposition, ReusableComposition, RecomposeScopeOwner, CompositionServices {
     /**
      * `null` if a composition isn't pending to apply.
      * `Set<Any>` or `Array<Set<Any>>` if there are modifications to record
@@ -407,7 +469,8 @@ internal class CompositionImpl(
      * is dispatched. If any are left in this when exiting [applyChanges] they have been
      * abandoned and are sent an [RememberObserver.onAbandoned] notification.
      */
-    private val abandonSet = HashSet<RememberObserver>()
+    @Suppress("AsCollectionCall") // Requires iterator API when dispatching abandons
+    private val abandonSet = MutableScatterSet<RememberObserver>().asMutableSet()
 
     /**
      * The slot table is used to store the composition information required for recomposition.
@@ -419,12 +482,13 @@ internal class CompositionImpl(
      * A map of observable objects to the [RecomposeScope]s that observe the object. If the key
      * object is modified the associated scopes should be invalidated.
      */
-    private val observations = IdentityScopeMap<RecomposeScopeImpl>()
+    private val observations = ScopeMap<RecomposeScopeImpl>()
 
     /**
      * Used for testing. Returns the objects that are observed
      */
-    internal val observedObjects get() = observations.values.filterNotNull()
+    internal val observedObjects
+        @TestOnly @Suppress("AsCollectionCall") get() = observations.map.asMap().keys
 
     /**
      * A set of scopes that were invalidated conditionally (that is they were invalidated by a
@@ -432,23 +496,25 @@ internal class CompositionImpl(
      * [observations] map until invalidations are drained for composition as a later call to
      * [recordModificationsOf] might later cause them to be unconditionally invalidated.
      */
-    private val conditionallyInvalidatedScopes = HashSet<RecomposeScopeImpl>()
+    private val conditionallyInvalidatedScopes = MutableScatterSet<RecomposeScopeImpl>()
 
     /**
      * A map of object read during derived states to the corresponding derived state.
      */
-    private val derivedStates = IdentityScopeMap<DerivedState<*>>()
+    private val derivedStates = ScopeMap<DerivedState<*>>()
 
     /**
      * Used for testing. Returns dependencies of derived states that are currently observed.
      */
-    internal val derivedStateDependencies get() = derivedStates.values.filterNotNull()
+    internal val derivedStateDependencies
+        @TestOnly @Suppress("AsCollectionCall") get() = derivedStates.map.asMap().keys
 
     /**
      * Used for testing. Returns the conditional scopes being tracked by the composer
      */
-    internal val conditionalScopes: List<RecomposeScopeImpl> get() =
-        conditionallyInvalidatedScopes.toList()
+    internal val conditionalScopes: List<RecomposeScopeImpl>
+        @TestOnly @Suppress("AsCollectionCall")
+        get() = conditionallyInvalidatedScopes.asSet().toList()
 
     /**
      * A list of changes calculated by [Composer] to be applied to the [Applier] and the
@@ -474,7 +540,7 @@ internal class CompositionImpl(
      * scopes that were already dismissed by composition and should be ignored in the next call
      * to [recordModificationsOf].
      */
-    private val observationsProcessed = IdentityScopeMap<RecomposeScopeImpl>()
+    private val observationsProcessed = ScopeMap<RecomposeScopeImpl>()
 
     /**
      * A map of the invalid [RecomposeScope]s. If this map is non-empty the current state of
@@ -557,6 +623,18 @@ internal class CompositionImpl(
         get() = synchronized(lock) { composer.hasPendingChanges }
 
     override fun setContent(content: @Composable () -> Unit) {
+        composeInitial(content)
+    }
+
+    override fun setContentWithReuse(content: @Composable () -> Unit) {
+        composer.startReuseFromRoot()
+
+        composeInitial(content)
+
+        composer.endReuseFromRoot()
+    }
+
+    private fun composeInitial(content: @Composable () -> Unit) {
         check(!disposed) { "The composition is disposed" }
         this.composable = content
         parent.composeInitial(this, composable)
@@ -750,10 +828,10 @@ internal class CompositionImpl(
 
     override fun prepareCompose(block: () -> Unit) = composer.prepareCompose(block)
 
-    private fun HashSet<RecomposeScopeImpl>?.addPendingInvalidationsLocked(
+    private fun MutableScatterSet<RecomposeScopeImpl>?.addPendingInvalidationsLocked(
         value: Any,
         forgetConditionalScopes: Boolean
-    ): HashSet<RecomposeScopeImpl>? {
+    ): MutableScatterSet<RecomposeScopeImpl>? {
         var set = this
         observations.forEachScopeOf(value) { scope ->
             if (
@@ -763,7 +841,7 @@ internal class CompositionImpl(
                 if (scope.isConditional && !forgetConditionalScopes) {
                     conditionallyInvalidatedScopes.add(scope)
                 } else {
-                    if (set == null) set = HashSet()
+                    if (set == null) set = MutableScatterSet()
                     set?.add(scope)
                 }
             }
@@ -772,7 +850,7 @@ internal class CompositionImpl(
     }
 
     private fun addPendingInvalidationsLocked(values: Set<Any>, forgetConditionalScopes: Boolean) {
-        var invalidated: HashSet<RecomposeScopeImpl>? = null
+        var invalidated: MutableScatterSet<RecomposeScopeImpl>? = null
 
         values.fastForEach { value ->
             if (value is RecomposeScopeImpl) {
@@ -788,23 +866,23 @@ internal class CompositionImpl(
         }
 
         if (forgetConditionalScopes && conditionallyInvalidatedScopes.isNotEmpty()) {
-            observations.removeValueIf { scope ->
+            observations.removeScopeIf { scope ->
                 scope in conditionallyInvalidatedScopes || invalidated?.let { scope in it } == true
             }
             conditionallyInvalidatedScopes.clear()
             cleanUpDerivedStateObservations()
         } else {
             invalidated?.let {
-                observations.removeValueIf { scope -> scope in it }
+                observations.removeScopeIf { scope -> scope in it }
                 cleanUpDerivedStateObservations()
             }
         }
     }
 
     private fun cleanUpDerivedStateObservations() {
-        derivedStates.removeValueIf { derivedState -> derivedState !in observations }
+        derivedStates.removeScopeIf { derivedState -> derivedState !in observations }
         if (conditionallyInvalidatedScopes.isNotEmpty()) {
-            conditionallyInvalidatedScopes.removeValueIf { scope -> !scope.isConditional }
+            conditionallyInvalidatedScopes.removeIf { scope -> !scope.isConditional }
         }
     }
 
@@ -815,14 +893,19 @@ internal class CompositionImpl(
                 it.used = true
                 val alreadyRead = it.recordRead(value)
                 if (!alreadyRead) {
+                    if (value is StateObjectImpl) {
+                        value.recordReadIn(ReaderKind.Composition)
+                    }
+
                     observations.add(value, it)
 
                     // Record derived state dependency mapping
                     if (value is DerivedState<*>) {
                         derivedStates.removeScope(value)
-                        for (dependency in value.currentRecord.dependencies) {
-                            // skip over empty objects from dependency array
-                            if (dependency == null) break
+                        value.currentRecord.dependencies.forEachKey { dependency ->
+                            if (dependency is StateObjectImpl) {
+                                dependency.recordReadIn(ReaderKind.Composition)
+                            }
                             derivedStates.add(dependency, value)
                         }
                     }
@@ -911,7 +994,7 @@ internal class CompositionImpl(
             if (pendingInvalidScopes) {
                 trace("Compose:unobserve") {
                     pendingInvalidScopes = false
-                    observations.removeValueIf { scope -> !scope.valid }
+                    observations.removeScopeIf { scope -> !scope.valid }
                     cleanUpDerivedStateObservations()
                 }
             }
@@ -975,11 +1058,14 @@ internal class CompositionImpl(
             throw e
         }
 
-    private fun abandonChanges() {
+    override fun abandonChanges() {
         pendingModifications.set(null)
         changes.clear()
         lateChanges.clear()
-        abandonSet.clear()
+
+        if (abandonSet.isNotEmpty()) {
+            RememberEventDispatcher(abandonSet).dispatchAbandons()
+        }
     }
 
     override fun invalidateAll() {
@@ -1153,6 +1239,29 @@ internal class CompositionImpl(
         }
     }
 
+    override fun deactivate() {
+        val nonEmptySlotTable = slotTable.groupsSize > 0
+        if (nonEmptySlotTable || abandonSet.isNotEmpty()) {
+            trace("Compose:deactivate") {
+                val manager = RememberEventDispatcher(abandonSet)
+                if (nonEmptySlotTable) {
+                    applier.onBeginChanges()
+                    slotTable.write { writer ->
+                        writer.deactivateCurrentGroup(manager)
+                    }
+                    applier.onEndChanges()
+                    manager.dispatchRememberObservers()
+                }
+                manager.dispatchAbandons()
+            }
+        }
+        observations.clear()
+        derivedStates.clear()
+        invalidations.clear()
+        changes.clear()
+        composer.deactivate()
+    }
+
     /**
      * Helper for collecting remember observers for later strictly ordered dispatch.
      */
@@ -1160,9 +1269,8 @@ internal class CompositionImpl(
         private val abandoning: MutableSet<RememberObserver>
     ) : RememberManager {
         private val remembering = mutableListOf<RememberObserver>()
-        private val forgetting = mutableListOf<RememberObserver>()
+        private val forgetting = mutableListOf<Any>()
         private val sideEffects = mutableListOf<() -> Unit>()
-        private var deactivating: MutableList<ComposeNodeLifecycleCallback>? = null
         private var releasing: MutableList<ComposeNodeLifecycleCallback>? = null
 
         override fun remembering(instance: RememberObserver) {
@@ -1178,9 +1286,7 @@ internal class CompositionImpl(
         }
 
         override fun deactivating(instance: ComposeNodeLifecycleCallback) {
-            (deactivating ?: mutableListOf<ComposeNodeLifecycleCallback>().also {
-                deactivating = it
-            }) += instance
+            forgetting += instance
         }
 
         override fun releasing(instance: ComposeNodeLifecycleCallback) {
@@ -1190,24 +1296,19 @@ internal class CompositionImpl(
         }
 
         fun dispatchRememberObservers() {
-            // Send node deactivations
-            val deactivating = deactivating
-            if (!deactivating.isNullOrEmpty()) {
-                trace("Compose:deactivations") {
-                    for (i in deactivating.size - 1 downTo 0) {
-                        val instance = deactivating[i]
-                        instance.onDeactivate()
-                    }
-                }
-            }
-
-            // Send forgets
+            // Send forgets and node deactivations
             if (forgetting.isNotEmpty()) {
                 trace("Compose:onForgotten") {
                     for (i in forgetting.size - 1 downTo 0) {
                         val instance = forgetting[i]
-                        abandoning.remove(instance)
-                        instance.onForgotten()
+                        if (instance is RememberObserver) {
+                            abandoning.remove(instance)
+                            instance.onForgotten()
+                        }
+                        if (instance is ComposeNodeLifecycleCallback) {
+                            // deactivations are in the same queue as forgets to ensure ordering
+                            instance.onDeactivate()
+                        }
                     }
                 }
             }
@@ -1225,8 +1326,6 @@ internal class CompositionImpl(
             // Send node releases
             val releasing = releasing
             if (!releasing.isNullOrEmpty()) {
-                // note that in contrast with objects from `forgetting` we will invoke the callback
-                // even for objects being abandoned.
                 trace("Compose:releases") {
                     for (i in releasing.size - 1 downTo 0) {
                         val instance = releasing[i]
@@ -1264,77 +1363,6 @@ internal class CompositionImpl(
     }
 }
 
-/**
- * Apply Code Changes will invoke the two functions before and after a code swap.
- *
- * This forces the whole view hierarchy to be redrawn to invoke any code change that was
- * introduce in the code swap.
- *
- * All these are private as within JVMTI / JNI accessibility is mostly a formality.
- */
-private class HotReloader {
-    companion object {
-        // Called before Dex Code Swap
-        @Suppress("UNUSED_PARAMETER")
-        private fun saveStateAndDispose(context: Any): Any {
-            return Recomposer.saveStateAndDisposeForHotReload()
-        }
-
-        // Called after Dex Code Swap
-        private fun loadStateAndCompose(token: Any) {
-            Recomposer.loadStateAndComposeForHotReload(token)
-        }
-
-        @TestOnly
-        internal fun simulateHotReload(context: Any) {
-            loadStateAndCompose(saveStateAndDispose(context))
-        }
-
-        @TestOnly
-        internal fun invalidateGroupsWithKey(key: Int) {
-            return Recomposer.invalidateGroupsWithKey(key)
-        }
-
-        @TestOnly
-        internal fun getCurrentErrors(): List<RecomposerErrorInfo> {
-            return Recomposer.getCurrentErrors()
-        }
-
-        @TestOnly
-        internal fun clearErrors() {
-            return Recomposer.clearErrors()
-        }
-    }
-}
-
-/**
- * @suppress
- */
-@TestOnly
-fun simulateHotReload(context: Any) = HotReloader.simulateHotReload(context)
-
-/**
- * @suppress
- */
-@TestOnly
-fun invalidateGroupsWithKey(key: Int) = HotReloader.invalidateGroupsWithKey(key)
-
-/**
- * @suppress
- */
-// suppressing for test-only api
-@Suppress("ListIterator")
-@TestOnly
-fun currentCompositionErrors(): List<Pair<Exception, Boolean>> =
-    HotReloader.getCurrentErrors()
-        .map { it.cause to it.recoverable }
-
-/**
- * @suppress
- */
-@TestOnly
-fun clearCompositionErrors() = HotReloader.clearErrors()
-
 private fun <K : Any, V : Any> IdentityArrayMap<K, IdentityArraySet<V>?>.addValue(
     key: K,
     value: V
@@ -1343,19 +1371,6 @@ private fun <K : Any, V : Any> IdentityArrayMap<K, IdentityArraySet<V>?>.addValu
         this[key]?.add(value)
     } else {
         this[key] = IdentityArraySet<V>().also { it.add(value) }
-    }
-}
-
-/**
- * This is provided natively in API 26 and this should be removed if 26 is made the lowest API
- * level supported
- */
-private inline fun <E> HashSet<E>.removeValueIf(predicate: (E) -> Boolean) {
-    val iter = iterator()
-    while (iter.hasNext()) {
-        if (predicate(iter.next())) {
-            iter.remove()
-        }
     }
 }
 

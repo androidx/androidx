@@ -18,7 +18,7 @@
 
     <application>
         <activity android:name=".ShapeActivity"
-            android:label="Graphics Shapes Test"
+            android:label="Graphics Shapes Test - Views"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

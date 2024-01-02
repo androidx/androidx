@@ -75,7 +75,7 @@ fun NestedMenuDemo() {
                 if (initialState < targetState) {
                     // Going from parent menu to child menu, slide towards left
                     slideIntoContainer(towards = SlideDirection.Left) togetherWith
-                        ExitTransition.Hold
+                        ExitTransition.KeepUntilTransitionsFinished
                 } else {
                     // Going from child menu to parent menu, slide towards right
                     slideIntoContainer(

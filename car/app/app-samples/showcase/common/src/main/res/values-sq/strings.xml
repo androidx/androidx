@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Skeda e listës"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Skeda e rrjetës me titull të gjatë skede"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Skeda e \"Kërko\""</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Skeda po ngarkohet"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Demonstrimi i ngarkimit të shabllonit të skedës"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Demonstrimi i shabllonit të skedës pa skeda"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Imazhet nuk mund të shfaqen për një organizator të panjohur"</string>
@@ -364,4 +365,8 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"Opsionet e itinerarit"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"Shmang autostradat"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Shmang tragetet"</string>
+    <string name="map_demos_title" msgid="2169766615521476592">"Demonstrimet e hartës"</string>
+    <string name="map_with_content_demo_title" msgid="1032610482145018739">"Demonstrimet e hartës me përmbajtje"</string>
+    <string name="map_with_message_demo_title" msgid="7007078234918054436">"Demonstrimi i shabllonit të hartës me mesazhe"</string>
+    <string name="map_with_grid_demo_title" msgid="688667167861193192">"Demonstrimi i shabllonit të hartës me rrjetë"</string>
 </resources>

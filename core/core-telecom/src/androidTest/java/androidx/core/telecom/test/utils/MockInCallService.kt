@@ -20,13 +20,13 @@ import android.content.Intent
 import android.os.Build
 import android.os.IBinder
 import android.telecom.Call
-import android.telecom.InCallService
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.core.telecom.internal.InCallServiceCompat
 import java.util.Collections
 
-@RequiresApi(Build.VERSION_CODES.M)
-class MockInCallService : InCallService() {
+@RequiresApi(Build.VERSION_CODES.O)
+internal class MockInCallService : InCallServiceCompat() {
     companion object {
         val LOG_TAG = "MockInCallService"
         val mCalls = Collections.synchronizedList(ArrayList<Call>())
@@ -63,6 +63,10 @@ class MockInCallService : InCallService() {
         fun setMute(muted: Boolean) {
             mService?.setMuted(muted)
         }
+
+        fun getService(): MockInCallService? {
+            return mService
+        }
     }
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -71,6 +75,7 @@ class MockInCallService : InCallService() {
         if (mService == null) {
             mService = this
         }
+        mContext = applicationContext
         return super.onBind(intent)
     }
 

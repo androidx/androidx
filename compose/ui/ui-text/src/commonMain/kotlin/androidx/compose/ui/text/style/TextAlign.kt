@@ -30,6 +30,7 @@ value class TextAlign internal constructor(internal val value: Int) {
             Justify -> "Justify"
             Start -> "Start"
             End -> "End"
+            Unspecified -> "Unspecified"
             else -> "Invalid"
         }
     }
@@ -74,5 +75,11 @@ value class TextAlign internal constructor(internal val value: Int) {
          * Return a list containing all possible values of TextAlign.
          */
         fun values(): List<TextAlign> = listOf(Left, Right, Center, Justify, Start, End)
+
+        /**
+         * This represents an unset value, a usual replacement for "null" when a primitive value
+         * is desired.
+         */
+        val Unspecified = TextAlign(Int.MIN_VALUE)
     }
 }

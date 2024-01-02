@@ -54,6 +54,9 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastCoerceIn
+import androidx.compose.ui.util.fastMaxBy
+import androidx.compose.ui.util.fastMinByOrNull
 import androidx.compose.ui.util.lerp
 import kotlin.math.PI
 import kotlin.math.abs
@@ -706,7 +709,7 @@ class ResistanceConfig(
     fun computeResistance(overflow: Float): Float {
         val factor = if (overflow < 0) factorAtMin else factorAtMax
         if (factor == 0f) return 0f
-        val progress = (overflow / basis).coerceIn(-1f, 1f)
+        val progress = (overflow / basis).fastCoerceIn(-1f, 1f)
         return basis / factor * sin(progress * PI.toFloat() / 2)
     }
 
@@ -747,8 +750,8 @@ private fun findBounds(
     anchors: Set<Float>
 ): List<Float> {
     // Find the anchors the target lies between with a little bit of rounding error.
-    val a = anchors.filter { it <= offset + 0.001 }.maxOrNull()
-    val b = anchors.filter { it >= offset - 0.001 }.minOrNull()
+    val a = anchors.filter { it <= offset + 0.001 }.fastMaxBy { it }
+    val b = anchors.filter { it >= offset - 0.001 }.fastMinByOrNull { it }
 
     return when {
         a == null ->

@@ -26,6 +26,7 @@ import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XMemberContainer
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XNullability
+import androidx.room.compiler.processing.XPackageElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.XTypeParameterElement
@@ -48,7 +49,9 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.Modifier
+import com.google.devtools.ksp.symbol.Origin.JAVA
 import com.google.devtools.ksp.symbol.Origin.JAVA_LIB
+import com.google.devtools.ksp.symbol.Origin.KOTLIN
 import com.google.devtools.ksp.symbol.Origin.KOTLIN_LIB
 import com.squareup.javapoet.ClassName
 import com.squareup.kotlinpoet.javapoet.JClassName
@@ -68,7 +71,11 @@ internal sealed class KspTypeElement(
     }
 
     override val packageName: String by lazy {
-        declaration.getNormalizedPackageName()
+        packageElement.qualifiedName
+    }
+
+    override val packageElement: XPackageElement by lazy {
+        KspPackageElement(env, declaration.packageName.asString())
     }
 
     override val enclosingTypeElement: XTypeElement? by lazy {
@@ -103,7 +110,8 @@ internal sealed class KspTypeElement(
         } else {
             declaration.superTypes
                 .singleOrNull {
-                    (it.resolve().declaration as? KSClassDeclaration)?.classKind == ClassKind.CLASS
+                    val declaration = it.resolve().declaration.replaceTypeAliases()
+                    declaration is KSClassDeclaration && declaration.classKind == ClassKind.CLASS
                 }?.let { env.wrap(it) }
                 ?: env.commonTypes.anyType
         }
@@ -112,7 +120,8 @@ internal sealed class KspTypeElement(
     override val superInterfaces by lazy {
         declaration.superTypes.asSequence()
             .filter {
-                (it.resolve().declaration as? KSClassDeclaration)?.classKind == ClassKind.INTERFACE
+                val declaration = it.resolve().declaration.replaceTypeAliases()
+                declaration is KSClassDeclaration && declaration.classKind == ClassKind.INTERFACE
             }.mapTo(mutableListOf()) { env.wrap(it) }
     }
 
@@ -242,6 +251,12 @@ internal sealed class KspTypeElement(
     override fun isFinal(): Boolean {
         // workaround for https://github.com/android/kotlin/issues/128
         return !isInterface() && !declaration.isOpen()
+    }
+
+    override fun isRecordClass(): Boolean {
+        // Need to also check super type since @JvmRecord is @Retention(SOURCE)
+        return hasAnnotation(JvmRecord::class) ||
+            superClass?.isTypeOf(java.lang.Record::class) == true
     }
 
     override fun getDeclaredFields(): List<XFieldElement> {
@@ -376,19 +391,27 @@ internal sealed class KspTypeElement(
         return if (isPreCompiled) constructorEnumeration.reversed() else constructorEnumeration
     }
 
-    override fun getSuperInterfaceElements(): List<XTypeElement> {
-        return declaration.superTypes
-            .mapNotNull { it.resolve().declaration }
-            .filterIsInstance<KSClassDeclaration>()
-            .filter { it.classKind == ClassKind.INTERFACE }
-            .mapTo(mutableListOf()) { env.wrapClassDeclaration(it) }
-    }
+    override fun getSuperInterfaceElements() = superInterfaces.mapNotNull { it.typeElement }
 
     override fun getEnclosedTypeElements(): List<XTypeElement> {
         return declaration.declarations.filterIsInstance<KSClassDeclaration>()
             .filterNot { it.classKind == ClassKind.ENUM_ENTRY }
             .map { env.wrapClassDeclaration(it) }
             .toList()
+    }
+
+    override fun isFromJava(): Boolean {
+        return when (declaration.origin) {
+            JAVA, JAVA_LIB -> true
+            else -> false
+        }
+    }
+
+    override fun isFromKotlin(): Boolean {
+        return when (declaration.origin) {
+            KOTLIN, KOTLIN_LIB -> true
+            else -> false
+        }
     }
 
     private class DefaultKspTypeElement(

@@ -548,6 +548,7 @@ public final class MotionEventCompat {
 
     /**
      * Determines whether the event is from the given source.
+     * @param event motion event for which to check the source.
      * @param source The input source to check against.
      * @return Whether the event is from the given source.
      */
@@ -559,6 +560,7 @@ public final class MotionEventCompat {
      * Get axis value for the first pointer index (may be an
      * arbitrary pointer identifier).
      *
+     * @param event motion event for which to get the value.
      * @param axis The axis identifier for the axis value to retrieve.
      *
      * @see #AXIS_X
@@ -576,6 +578,7 @@ public final class MotionEventCompat {
      * Returns the value of the requested axis for the given pointer <em>index</em>
      * (use {@link #getPointerId(MotionEvent, int)} to find the pointer identifier for this index).
      *
+     * @param event motion event for which to get the value.
      * @param axis The axis identifier for the axis value to retrieve.
      * @param pointerIndex Raw index of pointer to retrieve.  Value may be from 0
      * (the first pointer that is down) to {@link #getPointerCount(MotionEvent)}-1.

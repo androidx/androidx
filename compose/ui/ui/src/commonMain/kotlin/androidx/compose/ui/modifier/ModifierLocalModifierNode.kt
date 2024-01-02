@@ -20,6 +20,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.internal.checkPrecondition
+import androidx.compose.ui.internal.requirePrecondition
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.visitAncestors
@@ -45,13 +47,13 @@ internal class SingleLocalMap(
 
     override operator fun <T> set(key: ModifierLocal<T>, value: T) {
         @Suppress("ExceptionMessage")
-        check(key === this.key)
+        checkPrecondition(key === this.key)
         this.value = value
     }
 
     @Suppress("UNCHECKED_CAST", "ExceptionMessage")
     override operator fun <T> get(key: ModifierLocal<T>): T? {
-        check(key === this.key)
+        checkPrecondition(key === this.key)
         return value as? T?
     }
 
@@ -67,7 +69,7 @@ internal class BackwardsCompatLocalMap(
 
     @Suppress("UNCHECKED_CAST", "ExceptionMessage")
     override operator fun <T> get(key: ModifierLocal<T>): T? {
-        check(key === element.key)
+        checkPrecondition(key === element.key)
         return element.value as T
     }
 
@@ -143,10 +145,10 @@ interface ModifierLocalModifierNode : ModifierLocalReadScope, DelegatableNode {
      * notified that a new value was provided.
      */
     fun <T> provide(key: ModifierLocal<T>, value: T) {
-        require(providedValues !== EmptyMap) {
+        requirePrecondition(providedValues !== EmptyMap) {
             "In order to provide locals you must override providedValues: ModifierLocalMap"
         }
-        require(providedValues.contains(key)) {
+        requirePrecondition(providedValues.contains(key)) {
             "Any provided key must be initially provided in the overridden providedValues: " +
                 "ModifierLocalMap property. Key $key was not found."
         }
@@ -159,7 +161,9 @@ interface ModifierLocalModifierNode : ModifierLocalReadScope, DelegatableNode {
      */
     override val <T> ModifierLocal<T>.current: T
         get() {
-            require(node.isAttached) { "ModifierLocal accessed from an unattached node" }
+            requirePrecondition(node.isAttached) {
+                "ModifierLocal accessed from an unattached node"
+            }
             val key = this
             visitAncestors(Nodes.Locals) {
                 if (it.providedValues.contains(key)) {

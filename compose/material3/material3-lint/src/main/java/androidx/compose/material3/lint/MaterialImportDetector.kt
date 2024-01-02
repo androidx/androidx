@@ -53,6 +53,7 @@ class MaterialImportDetector : Detector(), SourceCodeScanner {
             ) {
                 // Ignore explicitly allowed imports
                 if (AllowlistedSubpackages.any { importString.contains(it) }) return
+                if (AllowlistedImports.any { importString == it }) return
 
                 context.report(
                     UsingMaterialAndMaterial3Libraries,
@@ -93,4 +94,9 @@ private val AllowlistedSubpackages = listOf(
     // pullrefresh currently only exists in m2, so there is no alternative for m3, so temporarily
     // ignore
     "$MaterialPackage.pullrefresh"
+)
+
+// TODO: b/261760718 - remove this when pullrefresh is added to m3
+private val AllowlistedImports = listOf(
+    "$MaterialPackage.ExperimentalMaterialApi"
 )

@@ -16,7 +16,9 @@
 
 package androidx.benchmark.vmtrace
 
+import androidx.annotation.VisibleForTesting
 import java.io.File
+import java.io.OutputStream
 import java.util.UUID
 import perfetto.protos.EventName
 import perfetto.protos.InternedData
@@ -37,25 +39,39 @@ internal class ArtTrace(
     },
     private val pid: Int = android.os.Process.myPid(),
 ) {
+    private fun convertToPerfetto(
+        flushEvents: (List<TracePacket>) -> Unit
+    ) {
+        val parser = PerfettoVmTraceParser(
+            clockId = clockId,
+            uuidProvider = uuidProvider,
+            pid = pid,
+            flushEvents
+        )
+        VmTraceParser(artTrace, parser).parse()
+        parser.flushEndEvents()
+    }
+
+    fun writeAsPerfettoTrace(output: OutputStream) {
+        convertToPerfetto { eventsToFlush ->
+            Trace(eventsToFlush).encode(output)
+        }
+    }
+
+    @VisibleForTesting // simple, but consumes significant memory
     fun toPerfettoTrace(): Trace {
-        val events = mutableListOf<TracePacket>().also {
-            val parser = PerfettoVmTraceParser(
-                events = it,
-                clockId = clockId,
-                uuidProvider = uuidProvider,
-                pid = pid,
-            )
-            VmTraceParser(artTrace, parser).parse()
-            parser.flushEndEvents()
+        val events = mutableListOf<TracePacket>()
+        convertToPerfetto { eventsToFlush ->
+            events.addAll(eventsToFlush)
         }
         return Trace(events)
     }
 
     private class PerfettoVmTraceParser(
-        private val events: MutableList<TracePacket>,
         private val clockId: Int,
         private val uuidProvider: UuidProvider,
         private val pid: Int,
+        private val flushEvents: (List<TracePacket>) -> Unit
     ) : VmTraceHandler {
 
         private data class ThreadTrack(
@@ -66,9 +82,9 @@ internal class ArtTrace(
             var isDefault: Boolean = false
         )
 
-        private val props: MutableMap<String, String> = mutableMapOf()
-        private val threads: MutableMap<Int, ThreadTrack> = mutableMapOf()
-        private val methods: MutableMap<Long, MethodInfo> = mutableMapOf()
+        private val events = mutableListOf<TracePacket>()
+        private val threads = mutableMapOf<Int, ThreadTrack>()
+        private val eventNames = mutableListOf<EventName>()
         private var version: Int = -1
         private var startTimeUs: Long = 0L
         private var maxTimeNs: Long = 0L
@@ -84,9 +100,11 @@ internal class ArtTrace(
                 null
             } else {
                 hasEmittedInternedData = true
-                InternedData(methods.values.map {
-                    EventName(it.id + internOffset, it.fullName)
-                })
+                InternedData(eventNames.toList()).also {
+                    // clear out existing name list to save memory
+                    // (as interned data may be flushed / dropped)
+                    eventNames.clear()
+                }
             }
         }
 
@@ -95,11 +113,13 @@ internal class ArtTrace(
         }
 
         override fun setProperty(key: String, value: String) {
-            this.props[key] = value
+            // these are not currently used, but include useful metadata such as:
+            // pid, runtime name, clock
         }
 
         override fun addMethod(id: Long, info: MethodInfo) {
-            this.methods[id] = info
+            // store same format as interned data to reduce memory cost
+            eventNames.add(EventName(id + internOffset, info.fullName))
         }
 
         override fun setStartTimeUs(startTimeUs: Long) {
@@ -186,6 +206,11 @@ internal class ArtTrace(
                         }
                     )
                 )
+                if (internedData != null || events.size > eventsBetweenFlush) {
+                    // flush if we have the method name list interned (to prune memory usage),
+                    // or when many events haven't flushed yet
+                    flushEventsInternal()
+                }
             }
         }
 
@@ -204,12 +229,19 @@ internal class ArtTrace(
                     )
                 }
             }
+            flushEventsInternal()
+        }
+
+        private fun flushEventsInternal() {
+            flushEvents(events)
+            events.clear()
         }
     }
 
     companion object {
         private const val clockId = 3
         private const val trustedPacketSequenceId: Int = 1_234_565_432
+        private const val eventsBetweenFlush = 10_000
 
         private val SequenceDataInitial =
             TracePacket.SequenceFlags.SEQ_INCREMENTAL_STATE_CLEARED.value.or(

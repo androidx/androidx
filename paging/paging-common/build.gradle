@@ -18,13 +18,16 @@ import androidx.build.KmpPlatformsKt
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import androidx.build.Publish
+import org.jetbrains.kotlin.konan.target.Family
+
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
 }
 
-def enableNative = KmpPlatformsKt.enableNative(project)
+def macEnabled = KmpPlatformsKt.enableMac(project)
+def linuxEnabled = KmpPlatformsKt.enableLinux(project)
 
 androidXMultiplatform {
     jvm()
@@ -36,14 +39,11 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.JVM)
 
     sourceSets {
-
         commonMain {
             dependencies {
                 api(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
-                api("androidx.annotation:annotation:1.7.0-alpha02")
-                implementation(libs.statelyConcurrency)
-                implementation(libs.statelyConcurrentCollections)
+                api("androidx.annotation:annotation:1.7.0")
             }
         }
 
@@ -76,8 +76,8 @@ androidXMultiplatform {
             dependsOn(commonTest)
             dependencies {
                 implementation(libs.junit)
-                implementation(libs.mockitoCore4)
-                implementation(libs.mockitoKotlin4)
+                implementation(libs.mockitoCore)
+                implementation(libs.mockitoKotlin)
                 implementation(project(":internal-testutils-common"))
                 implementation(project(":internal-testutils-ktx"))
             }
@@ -87,27 +87,49 @@ androidXMultiplatform {
             dependsOn(commonJvmAndroidTest)
         }
 
-        androidAndroidTest {
+        androidInstrumentedTest {
             dependsOn(commonJvmAndroidTest)
             dependencies {
                 implementation(libs.testRunner)
-                implementation(libs.mockitoAndroid)
+                implementation(libs.mockitoAndroid5)
+                implementation(libs.multidex)
             }
         }
 
-        if (enableNative) {
+        if (macEnabled || linuxEnabled) {
             nativeMain {
                 dependsOn(commonMain)
+                dependencies {
+                    implementation(libs.atomicFu)
+                }
             }
             nativeTest {
                 dependsOn(commonTest)
+            }
+        }
+        if (macEnabled) {
+            darwinMain {
+                dependsOn(nativeMain)
+            }
+        }
+
+        if (linuxEnabled) {
+            linuxMain {
+                dependsOn(nativeMain)
             }
         }
 
         targets.all { target ->
             if (target.platformType == KotlinPlatformType.native) {
                 target.compilations["main"].defaultSourceSet {
-                    dependsOn(nativeMain)
+                    def konanTargetFamily = target.konanTarget.family
+                    if (konanTargetFamily == Family.OSX || konanTargetFamily == Family.IOS) {
+                        dependsOn(darwinMain)
+                    } else if (konanTargetFamily == Family.LINUX) {
+                        dependsOn(linuxMain)
+                    } else {
+                        throw new GradleException("unknown native target ${target}")
+                    }
                 }
                 target.compilations["test"].defaultSourceSet {
                     dependsOn(nativeTest)
@@ -132,4 +154,8 @@ androidx {
 
 android {
     namespace "androidx.paging.common"
+
+    defaultConfig {
+        multiDexEnabled = true
+    }
 }

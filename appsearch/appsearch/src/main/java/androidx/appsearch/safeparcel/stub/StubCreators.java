@@ -16,6 +16,9 @@
 package androidx.appsearch.safeparcel.stub;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.safeparcel.GenericDocumentParcel;
+import androidx.appsearch.safeparcel.PropertyConfigParcel;
+import androidx.appsearch.safeparcel.PropertyParcel;
 
 /**
  * Stub creators for any classes extending
@@ -30,5 +33,57 @@ import androidx.annotation.RestrictTo;
 public class StubCreators {
     /** Stub creator for {@link androidx.appsearch.app.StorageInfo}. */
     public static class StorageInfoCreator extends AbstractCreator {
+    }
+
+    /** Stub creator for {@link PropertyParcel}. */
+    public static class PropertyParcelCreator extends AbstractCreator {
+    }
+
+    /** Stub creator for {@link PropertyConfigParcel}. */
+    public static class PropertyConfigParcelCreator extends AbstractCreator {
+    }
+
+    /**
+     * Stub creator for
+     * {@link PropertyConfigParcel.JoinableConfigParcel}.
+     */
+    public static class JoinableConfigParcelCreator extends AbstractCreator {
+    }
+
+    /**
+     * Stub creator for
+     * {@link PropertyConfigParcel.StringIndexingConfigParcel}.
+     */
+    public static class StringIndexingConfigParcelCreator extends AbstractCreator {
+    }
+
+    /**
+     * Stub creator for
+     * {@link PropertyConfigParcel.IntegerIndexingConfigParcel}.
+     */
+    public static class IntegerIndexingConfigParcelCreator extends AbstractCreator {
+    }
+
+    /**
+     * Stub creator for
+     * {@link PropertyConfigParcel.DocumentIndexingConfigParcel}.
+     */
+    public static class DocumentIndexingConfigParcelCreator extends AbstractCreator {
+    }
+
+    /** Stub creator for {@link GenericDocumentParcel}. */
+    public static class GenericDocumentParcelCreator extends AbstractCreator {
+    }
+
+    /** Stub creator for {@link androidx.appsearch.app.VisibilityPermissionDocument}. */
+    public static class VisibilityPermissionDocumentCreator extends AbstractCreator {
+    }
+
+    /** Stub creator for {@link androidx.appsearch.app.VisibilityDocument}. */
+    public static class VisibilityDocumentCreator extends AbstractCreator {
+    }
+
+    /** Stub creator for {@link androidx.appsearch.stats.SchemaMigrationStats}. */
+    public static class SchemaMigrationStatsCreator extends AbstractCreator {
     }
 }

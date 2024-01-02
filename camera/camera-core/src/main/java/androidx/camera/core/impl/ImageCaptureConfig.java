@@ -27,6 +27,7 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.CaptureMode;
 import androidx.camera.core.ImageReaderProxyProvider;
 import androidx.camera.core.internal.IoConfig;
+import androidx.camera.core.resolutionselector.ResolutionSelector;
 
 import java.util.concurrent.Executor;
 
@@ -60,6 +61,16 @@ public final class ImageCaptureConfig implements UseCaseConfig<ImageCapture>, Im
             Option.create("camerax.core.imageCapture.flashType", int.class);
     public static final Option<Integer> OPTION_JPEG_COMPRESSION_QUALITY =
             Option.create("camerax.core.imageCapture.jpegCompressionQuality", int.class);
+    public static final Option<ImageCapture.ScreenFlash> OPTION_SCREEN_FLASH =
+            Option.create("camerax.core.imageCapture.screenFlash", ImageCapture.ScreenFlash.class);
+    public static final Option<ResolutionSelector> OPTION_POSTVIEW_RESOLUTION_SELECTOR =
+            Option.create("camerax.core.useCase.postviewResolutionSelector",
+                    ResolutionSelector.class);
+
+    public static final Option<Boolean> OPTION_POSTVIEW_ENABLED =
+            Option.create("camerax.core.useCase.isPostviewEnabled",
+                    Boolean.class);
+
     // *********************************************************************************************
 
     private final OptionsBundle mConfig;
@@ -258,6 +269,29 @@ public final class ImageCaptureConfig implements UseCaseConfig<ImageCapture>, Im
     @IntRange(from = 1, to = 100)
     public int getJpegQuality() {
         return retrieveOption(OPTION_JPEG_COMPRESSION_QUALITY);
+    }
+
+    /**
+     * Gets the caller provided {@link ImageCapture.ScreenFlash} instance.
+     */
+    @Nullable
+    public ImageCapture.ScreenFlash getScreenFlash() {
+        return retrieveOption(OPTION_SCREEN_FLASH, null);
+    }
+
+    /**
+     * @return the {@link ResolutionSelector} used to determine the size of the postview.
+     */
+    @Nullable
+    public ResolutionSelector getPostviewResolutionSelector() {
+        return retrieveOption(OPTION_POSTVIEW_RESOLUTION_SELECTOR, null);
+    }
+
+    /**
+     * @return if postview is enabled.
+     */
+    public boolean isPostviewEnabled() {
+        return retrieveOption(OPTION_POSTVIEW_ENABLED, false);
     }
 
     // Implementations of IO default methods

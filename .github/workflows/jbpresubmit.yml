@@ -123,7 +123,6 @@ jobs:
         uses: gradle/gradle-command-action@v1
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
-          JAVA_TOOLS_JAR: ${{ steps.setup-tools-jar.outputs.toolsJar }}
         with:
           arguments: tasks -PandroidXUnusedParameter=compose-jb # add project name to cache key
           build-root-directory: activity

@@ -1,0 +1,744 @@
+/*
+ * Copyright 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package androidx.collection
+
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
+import kotlin.test.assertTrue
+
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// DO NOT MAKE CHANGES to the kotlin source file.
+//
+// This file was generated from a template in the template directory.
+// Make a change to the original template and run the generateCollections.sh script
+// to ensure the change is available on all versions of the map.
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+class PKeyListTest {
+    private val list: MutablePKeyList = mutablePKeyListOf(1KeySuffix, 2KeySuffix, 3KeySuffix, 4KeySuffix, 5KeySuffix)
+
+    @Test
+    fun emptyConstruction() {
+        val l = mutablePKeyListOf()
+        assertEquals(0, l.size)
+        assertEquals(16, l.capacity)
+    }
+
+    @Test
+    fun sizeConstruction() {
+        val l = MutablePKeyList(4)
+        assertEquals(4, l.capacity)
+    }
+
+    @Test
+    fun contentConstruction() {
+        val l = mutablePKeyListOf(1KeySuffix, 2KeySuffix, 3KeySuffix)
+        assertEquals(3, l.size)
+        assertEquals(1KeySuffix, l[0])
+        assertEquals(2KeySuffix, l[1])
+        assertEquals(3KeySuffix, l[2])
+        assertEquals(3, l.capacity)
+        repeat(2) {
+            val l2 = mutablePKeyListOf(1KeySuffix, 2KeySuffix, 3KeySuffix, 4KeySuffix, 5KeySuffix)
+            assertEquals(list, l2)
+            l2.removeAt(0)
+        }
+    }
+
+    @Test
+    fun hashCodeTest() {
+        val l2 = mutablePKeyListOf(1KeySuffix, 2KeySuffix, 3KeySuffix, 4KeySuffix, 5KeySuffix)
+        assertEquals(list.hashCode(), l2.hashCode())
+        l2.removeAt(4)
+        assertNotEquals(list.hashCode(), l2.hashCode())
+        l2.add(5KeySuffix)
+        assertEquals(list.hashCode(), l2.hashCode())
+        l2.clear()
+        assertNotEquals(list.hashCode(), l2.hashCode())
+    }
+
+    @Test
+    fun equalsTest() {
+        val l2 = mutablePKeyListOf(1KeySuffix, 2KeySuffix, 3KeySuffix, 4KeySuffix, 5KeySuffix)
+        assertEquals(list, l2)
+        assertNotEquals(list, mutablePKeyListOf())
+        l2.removeAt(4)
+        assertNotEquals(list, l2)
+        l2.add(5KeySuffix)
+        assertEquals(list, l2)
+        l2.clear()
+        assertNotEquals(list, l2)
+    }
+
+    @Test
+    fun string() {
+        assertEquals("[${1KeySuffix}, ${2KeySuffix}, ${3KeySuffix}, ${4KeySuffix}, ${5KeySuffix}]", list.toString())
+        assertEquals("[]", mutablePKeyListOf().toString())
+    }
+
+    @Test
+    fun joinToString() {
+        assertEquals("${1KeySuffix}, ${2KeySuffix}, ${3KeySuffix}, ${4KeySuffix}, ${5KeySuffix}", list.joinToString())
+        assertEquals(
+            "x${1KeySuffix}, ${2KeySuffix}, ${3KeySuffix}...",
+            list.joinToString(prefix = "x", postfix = "y", limit = 3)
+        )
+        assertEquals(
+            ">${1KeySuffix}-${2KeySuffix}-${3KeySuffix}-${4KeySuffix}-${5KeySuffix}<",
+            list.joinToString(separator = "-", prefix = ">", postfix = "<")
+        )
+        assertEquals("one, two, three...", list.joinToString(limit = 3) {
+            when (it.toInt()) {
+                1 -> "one"
+                2 -> "two"
+                3 -> "three"
+                else -> "whoops"
+            }
+        })
+    }
+
+    @Test
+    fun size() {
+        assertEquals(5, list.size)
+        assertEquals(5, list.count())
+        val l2 = mutablePKeyListOf()
+        assertEquals(0, l2.size)
+        assertEquals(0, l2.count())
+        l2 += 1KeySuffix
+        assertEquals(1, l2.size)
+        assertEquals(1, l2.count())
+    }
+
+    @Test
+    fun get() {
+        assertEquals(1KeySuffix, list[0])
+        assertEquals(5KeySuffix, list[4])
+        assertEquals(1KeySuffix, list.elementAt(0))
+        assertEquals(5KeySuffix, list.elementAt(4))
+    }
+
+    @Test
+    fun getOutOfBounds() {
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            list[5]
+        }
+    }
+
+    @Test
+    fun getOutOfBoundsNegative() {
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            list[-1]
+        }
+    }
+
+    @Test
+    fun elementAtOfBounds() {
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            list.elementAt(5)
+        }
+    }
+
+    @Test
+    fun elementAtOfBoundsNegative() {
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            list.elementAt(-1)
+        }
+    }
+
+    @Test
+    fun elementAtOrElse() {
+        assertEquals(1KeySuffix, list.elementAtOrElse(0) {
+            assertEquals(0, it)
+            0KeySuffix
+        })
+        assertEquals(0KeySuffix, list.elementAtOrElse(-1) {
+            assertEquals(-1, it)
+            0KeySuffix
+        })
+        assertEquals(0KeySuffix, list.elementAtOrElse(5) {
+            assertEquals(5, it)
+            0KeySuffix
+        })
+    }
+
+    @Test
+    fun count() {
+        assertEquals(1, list.count { it < 2KeySuffix })
+        assertEquals(0, list.count { it < 0KeySuffix })
+        assertEquals(5, list.count { it < 10KeySuffix })
+    }
+
+    @Test
+    fun isEmpty() {
+        assertFalse(list.isEmpty())
+        assertFalse(list.none())
+        assertTrue(mutablePKeyListOf().isEmpty())
+        assertTrue(mutablePKeyListOf().none())
+    }
+
+    @Test
+    fun isNotEmpty() {
+        assertTrue(list.isNotEmpty())
+        assertTrue(list.any())
+        assertFalse(mutablePKeyListOf().isNotEmpty())
+    }
+
+    @Test
+    fun indices() {
+        assertEquals(IntRange(0, 4), list.indices)
+        assertEquals(IntRange(0, -1), mutablePKeyListOf().indices)
+    }
+
+    @Test
+    fun any() {
+        assertTrue(list.any { it == 5KeySuffix })
+        assertTrue(list.any { it == 1KeySuffix })
+        assertFalse(list.any { it == 0KeySuffix })
+    }
+
+    @Test
+    fun reversedAny() {
+        val reversedList = mutablePKeyListOf()
+        assertFalse(
+            list.reversedAny {
+                reversedList.add(it)
+                false
+            }
+        )
+        val reversedContent = mutablePKeyListOf(5KeySuffix, 4KeySuffix, 3KeySuffix, 2KeySuffix, 1KeySuffix)
+        assertEquals(reversedContent, reversedList)
+
+        val reversedSublist = mutablePKeyListOf()
+        assertTrue(
+            list.reversedAny {
+                reversedSublist.add(it)
+                reversedSublist.size == 2
+            }
+        )
+        assertEquals(reversedSublist, mutablePKeyListOf(5KeySuffix, 4KeySuffix))
+    }
+
+    @Test
+    fun forEach() {
+        val copy = mutablePKeyListOf()
+        list.forEach { copy += it }
+        assertEquals(list, copy)
+    }
+
+    @Test
+    fun forEachReversed() {
+        val copy = mutablePKeyListOf()
+        list.forEachReversed { copy += it }
+        assertEquals(copy, mutablePKeyListOf(5KeySuffix, 4KeySuffix, 3KeySuffix, 2KeySuffix, 1KeySuffix))
+    }
+
+    @Test
+    fun forEachIndexed() {
+        val copy = mutablePKeyListOf()
+        val indices = mutablePKeyListOf()
+        list.forEachIndexed { index, item ->
+            copy += item
+            indices += index.toPKey()
+        }
+        assertEquals(list, copy)
+        assertEquals(indices, mutablePKeyListOf(0KeySuffix, 1KeySuffix, 2KeySuffix, 3KeySuffix, 4KeySuffix))
+    }
+
+    @Test
+    fun forEachReversedIndexed() {
+        val copy = mutablePKeyListOf()
+        val indices = mutablePKeyListOf()
+        list.forEachReversedIndexed { index, item ->
+            copy += item
+            indices += index.toPKey()
+        }
+        assertEquals(copy, mutablePKeyListOf(5KeySuffix, 4KeySuffix, 3KeySuffix, 2KeySuffix, 1KeySuffix))
+        assertEquals(indices, mutablePKeyListOf(4KeySuffix, 3KeySuffix, 2KeySuffix, 1KeySuffix, 0KeySuffix))
+    }
+
+    @Test
+    fun indexOfFirst() {
+        assertEquals(0, list.indexOfFirst { it == 1KeySuffix })
+        assertEquals(4, list.indexOfFirst { it == 5KeySuffix })
+        assertEquals(-1, list.indexOfFirst { it == 0KeySuffix })
+        assertEquals(0, mutablePKeyListOf(8KeySuffix, 8KeySuffix).indexOfFirst { it == 8KeySuffix })
+    }
+
+    @Test
+    fun indexOfLast() {
+        assertEquals(0, list.indexOfLast { it == 1KeySuffix })
+        assertEquals(4, list.indexOfLast { it == 5KeySuffix })
+        assertEquals(-1, list.indexOfLast { it == 0KeySuffix })
+        assertEquals(1, mutablePKeyListOf(8KeySuffix, 8KeySuffix).indexOfLast { it == 8KeySuffix })
+    }
+
+    @Test
+    fun contains() {
+        assertTrue(list.contains(5KeySuffix))
+        assertTrue(list.contains(1KeySuffix))
+        assertFalse(list.contains(0KeySuffix))
+    }
+
+    @Test
+    fun containsAllList() {
+        assertTrue(list.containsAll(mutablePKeyListOf(2KeySuffix, 3KeySuffix, 1KeySuffix)))
+        assertFalse(list.containsAll(mutablePKeyListOf(2KeySuffix, 3KeySuffix, 6KeySuffix)))
+    }
+
+    @Test
+    fun lastIndexOf() {
+        assertEquals(4, list.lastIndexOf(5KeySuffix))
+        assertEquals(1, list.lastIndexOf(2KeySuffix))
+        val copy = mutablePKeyListOf()
+        copy.addAll(list)
+        copy.addAll(list)
+        assertEquals(5, copy.lastIndexOf(1KeySuffix))
+    }
+
+    @Test
+    fun first() {
+        assertEquals(1KeySuffix, list.first())
+    }
+
+    @Test
+    fun firstException() {
+        assertFailsWith(NoSuchElementException::class) {
+            mutablePKeyListOf().first()
+        }
+    }
+
+    @Test
+    fun firstWithPredicate() {
+        assertEquals(5KeySuffix, list.first { it == 5KeySuffix })
+        assertEquals(1KeySuffix, mutablePKeyListOf(1KeySuffix, 5KeySuffix).first { it != 0KeySuffix })
+    }
+
+    @Test
+    fun firstWithPredicateException() {
+        assertFailsWith(NoSuchElementException::class) {
+            mutablePKeyListOf().first { it == 8KeySuffix }
+        }
+    }
+
+    @Test
+    fun last() {
+        assertEquals(5KeySuffix, list.last())
+    }
+
+    @Test
+    fun lastException() {
+        assertFailsWith(NoSuchElementException::class) {
+            mutablePKeyListOf().last()
+        }
+    }
+
+    @Test
+    fun lastWithPredicate() {
+        assertEquals(1KeySuffix, list.last { it == 1KeySuffix })
+        assertEquals(5KeySuffix, mutablePKeyListOf(1KeySuffix, 5KeySuffix).last { it != 0KeySuffix })
+    }
+
+    @Test
+    fun lastWithPredicateException() {
+        assertFailsWith(NoSuchElementException::class) {
+            mutablePKeyListOf().last { it == 8KeySuffix }
+        }
+    }
+
+    @Test
+    fun fold() {
+        assertEquals("12345", list.fold("") { acc, i -> acc + i.toInt().toString() })
+    }
+
+    @Test
+    fun foldIndexed() {
+        assertEquals(
+            "01-12-23-34-45-",
+            list.foldIndexed("") { index, acc, i ->
+                "$acc$index${i.toInt()}-"
+            }
+        )
+    }
+
+    @Test
+    fun foldRight() {
+        assertEquals("54321", list.foldRight("") { i, acc -> acc + i.toInt().toString() })
+    }
+
+    @Test
+    fun foldRightIndexed() {
+        assertEquals(
+            "45-34-23-12-01-",
+            list.foldRightIndexed("") { index, i, acc ->
+                "$acc$index${i.toInt()}-"
+            }
+        )
+    }
+
+    @Test
+    fun add() {
+        val l = mutablePKeyListOf(1KeySuffix, 2KeySuffix, 3KeySuffix)
+        l += 4KeySuffix
+        l.add(5KeySuffix)
+        assertEquals(list, l)
+    }
+
+    @Test
+    fun addAtIndex() {
+        val l = mutablePKeyListOf(2KeySuffix, 4KeySuffix)
+        l.add(2, 5KeySuffix)
+        l.add(0, 1KeySuffix)
+        l.add(2, 3KeySuffix)
+        assertEquals(list, l)
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            l.add(-1, 2KeySuffix)
+        }
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            l.add(6, 2KeySuffix)
+        }
+    }
+
+    @Test
+    fun addAllListAtIndex() {
+        val l = mutablePKeyListOf(4KeySuffix)
+        val l2 = mutablePKeyListOf(1KeySuffix, 2KeySuffix)
+        val l3 = mutablePKeyListOf(5KeySuffix)
+        val l4 = mutablePKeyListOf(3KeySuffix)
+        assertTrue(l4.addAll(1, l3))
+        assertTrue(l4.addAll(0, l2))
+        assertTrue(l4.addAll(3, l))
+        assertFalse(l4.addAll(0, mutablePKeyListOf()))
+        assertEquals(list, l4)
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            l4.addAll(6, mutablePKeyListOf())
+        }
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            l4.addAll(-1, mutablePKeyListOf())
+        }
+    }
+
+    @Test
+    fun addAllList() {
+        val l = MutablePKeyList()
+        l.add(3KeySuffix)
+        l.add(4KeySuffix)
+        l.add(5KeySuffix)
+        val l2 = mutablePKeyListOf(1KeySuffix, 2KeySuffix)
+        assertTrue(l2.addAll(l))
+        assertEquals(list, l2)
+        assertFalse(l2.addAll(mutablePKeyListOf()))
+    }
+
+    @Test
+    fun plusAssignList() {
+        val l = MutablePKeyList()
+        l.add(3KeySuffix)
+        l.add(4KeySuffix)
+        l.add(5KeySuffix)
+        val l2 = mutablePKeyListOf(1KeySuffix, 2KeySuffix)
+        l2 += l
+        assertEquals(list, l2)
+    }
+
+    @Test
+    fun addAllArrayAtIndex() {
+        val a1 = pKeyArrayOf(4KeySuffix)
+        val a2 = pKeyArrayOf(1KeySuffix, 2KeySuffix)
+        val a3 = pKeyArrayOf(5KeySuffix)
+        val l = mutablePKeyListOf(3KeySuffix)
+        assertTrue(l.addAll(1, a3))
+        assertTrue(l.addAll(0, a2))
+        assertTrue(l.addAll(3, a1))
+        assertFalse(l.addAll(0, pKeyArrayOf()))
+        assertEquals(list, l)
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            l.addAll(6, pKeyArrayOf())
+        }
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            l.addAll(-1, pKeyArrayOf())
+        }
+    }
+
+    @Test
+    fun addAllArray() {
+        val a = pKeyArrayOf(3KeySuffix, 4KeySuffix, 5KeySuffix)
+        val v = mutablePKeyListOf(1KeySuffix, 2KeySuffix)
+        v.addAll(a)
+        assertEquals(5, v.size)
+        assertEquals(3KeySuffix, v[2])
+        assertEquals(4KeySuffix, v[3])
+        assertEquals(5KeySuffix, v[4])
+    }
+
+    @Test
+    fun plusAssignArray() {
+        val a = pKeyArrayOf(3KeySuffix, 4KeySuffix, 5KeySuffix)
+        val v = mutablePKeyListOf(1KeySuffix, 2KeySuffix)
+        v += a
+        assertEquals(list, v)
+    }
+
+    @Test
+    fun clear() {
+        val l = mutablePKeyListOf()
+        l.addAll(list)
+        assertTrue(l.isNotEmpty())
+        l.clear()
+        assertTrue(l.isEmpty())
+    }
+
+    @Test
+    fun trim() {
+        val l = mutablePKeyListOf(1KeySuffix)
+        l.trim()
+        assertEquals(1, l.capacity)
+        l += pKeyArrayOf(1KeySuffix, 2KeySuffix, 3KeySuffix, 4KeySuffix, 5KeySuffix)
+        l.trim()
+        assertEquals(6, l.capacity)
+        assertEquals(6, l.size)
+        l.clear()
+        l.trim()
+        assertEquals(0, l.capacity)
+        l.trim(100)
+        assertEquals(0, l.capacity)
+        l += pKeyArrayOf(1KeySuffix, 2KeySuffix, 3KeySuffix, 4KeySuffix, 5KeySuffix)
+        l -= 5KeySuffix
+        l.trim(5)
+        assertEquals(5, l.capacity)
+        l.trim(4)
+        assertEquals(4, l.capacity)
+        l.trim(3)
+        assertEquals(4, l.capacity)
+    }
+
+    @Test
+    fun remove() {
+        val l = mutablePKeyListOf(1KeySuffix, 2KeySuffix, 3KeySuffix, 4KeySuffix, 5KeySuffix)
+        l.remove(3KeySuffix)
+        assertEquals(mutablePKeyListOf(1KeySuffix, 2KeySuffix, 4KeySuffix, 5KeySuffix), l)
+    }
+
+    @Test
+    fun removeAt() {
+        val l = mutablePKeyListOf(1KeySuffix, 2KeySuffix, 3KeySuffix, 4KeySuffix, 5KeySuffix)
+        l.removeAt(2)
+        assertEquals(mutablePKeyListOf(1KeySuffix, 2KeySuffix, 4KeySuffix, 5KeySuffix), l)
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            l.removeAt(6)
+        }
+        assertFailsWith(IndexOutOfBoundsException::class) {
+            l.removeAt(-1)
+        }
+    }
+
+    @Test
+    fun set() {
+        val l = mutablePKeyListOf(0KeySuffix, 0KeySuffix, 0KeySuffix, 0KeySuffix, 0KeySuffix)
+        l[0] = 1KeySuffix
+        l[4] = 5KeySuffix
+        l[2] = 3KeySuffix
+        l[1] = 2KeySuffix
+        l[3] = 4KeySuffix
+        assertEquals(list, l)
+        assertFailsWith<IndexOutOfBoundsException> {
+            l.set(-1, 1KeySuffix)
+        }
+        assertFailsWith<IndexOutOfBoundsException> {
+            l.set(6, 1KeySuffix)
+        }
+        assertEquals(4KeySuffix, l.set(3, 1KeySuffix));
+    }
+
+    @Test
+    fun ensureCapacity() {
+        val l = mutablePKeyListOf(1KeySuffix)
+        assertEquals(1, l.capacity)
+        l.ensureCapacity(5)
+        assertEquals(5, l.capacity)
+    }
+
+    @Test
+    fun removeAllList() {
+        assertFalse(list.removeAll(mutablePKeyListOf(0KeySuffix, 10KeySuffix, 15KeySuffix)))
+        val l = mutablePKeyListOf(0KeySuffix, 1KeySuffix, 15KeySuffix, 10KeySuffix, 2KeySuffix, 3KeySuffix, 4KeySuffix, 5KeySuffix, 20KeySuffix, 5KeySuffix)
+        assertTrue(l.removeAll(mutablePKeyListOf(20KeySuffix, 0KeySuffix, 15KeySuffix, 10KeySuffix, 5KeySuffix)))
+        assertEquals(list, l)
+    }
+
+    @Test
+    fun removeAllPKeyArray() {
+        assertFalse(list.removeAll(pKeyArrayOf(0KeySuffix, 10KeySuffix, 15KeySuffix)))
+        val l = mutablePKeyListOf(0KeySuffix, 1KeySuffix, 15KeySuffix, 10KeySuffix, 2KeySuffix, 3KeySuffix, 4KeySuffix, 5KeySuffix, 20KeySuffix, 5KeySuffix)
+        assertTrue(l.removeAll(pKeyArrayOf(20KeySuffix, 0KeySuffix, 15KeySuffix, 10KeySuffix, 5KeySuffix)))
+        assertEquals(list, l)
+    }
+
+    @Test
+    fun minusAssignList() {
+        val l = mutablePKeyListOf().also { it += list }
+        l -= mutablePKeyListOf(0KeySuffix, 10KeySuffix, 15KeySuffix)
+        assertEquals(list, l)
+        val l2 = mutablePKeyListOf(0KeySuffix, 1KeySuffix, 15KeySuffix, 10KeySuffix, 2KeySuffix, 3KeySuffix, 4KeySuffix, 5KeySuffix, 20KeySuffix, 5KeySuffix)
+        l2 -= mutablePKeyListOf(20KeySuffix, 0KeySuffix, 15KeySuffix, 10KeySuffix, 5KeySuffix)
+        assertEquals(list, l2)
+    }
+
+    @Test
+    fun minusAssignPKeyArray() {
+        val l = mutablePKeyListOf().also { it += list }
+        l -= pKeyArrayOf(0KeySuffix, 10KeySuffix, 15KeySuffix)
+        assertEquals(list, l)
+        val l2 = mutablePKeyListOf(0KeySuffix, 1KeySuffix, 15KeySuffix, 10KeySuffix, 2KeySuffix, 3KeySuffix, 4KeySuffix, 5KeySuffix, 20KeySuffix, 5KeySuffix)
+        l2 -= pKeyArrayOf(20KeySuffix, 0KeySuffix, 15KeySuffix, 10KeySuffix, 5KeySuffix)
+        assertEquals(list, l2)
+    }
+
+    @Test
+    fun retainAll() {
+        assertFalse(list.retainAll(mutablePKeyListOf(1KeySuffix, 2KeySuffix, 3KeySuffix, 4KeySuffix, 5KeySuffix, 6KeySuffix)))
+        val l = mutablePKeyListOf(0KeySuffix, 1KeySuffix, 15KeySuffix, 10KeySuffix, 2KeySuffix, 3KeySuffix, 4KeySuffix, 5KeySuffix, 20KeySuffix)
+        assertTrue(l.retainAll(mutablePKeyListOf(1KeySuffix, 2KeySuffix, 3KeySuffix, 4KeySuffix, 5KeySuffix, 6KeySuffix)))
+        assertEquals(list, l)
+    }
+
+    @Test
+    fun retainAllPKeyArray() {
+        assertFalse(list.retainAll(pKeyArrayOf(1KeySuffix, 2KeySuffix, 3KeySuffix, 4KeySuffix, 5KeySuffix, 6KeySuffix)))
+        val l = mutablePKeyListOf(0KeySuffix, 1KeySuffix, 15KeySuffix, 10KeySuffix, 2KeySuffix, 3KeySuffix, 4KeySuffix, 5KeySuffix, 20KeySuffix)
+        assertTrue(l.retainAll(pKeyArrayOf(1KeySuffix, 2KeySuffix, 3KeySuffix, 4KeySuffix, 5KeySuffix, 6KeySuffix)))
+        assertEquals(list, l)
+    }
+
+    @Test
+    fun removeRange() {
+        val l = mutablePKeyListOf(1KeySuffix, 9KeySuffix, 7KeySuffix, 6KeySuffix, 2KeySuffix, 3KeySuffix, 4KeySuffix, 5KeySuffix)
+        l.removeRange(1, 4)
+        assertEquals(list, l)
+        assertFailsWith<IndexOutOfBoundsException> {
+            l.removeRange(6, 6)
+        }
+        assertFailsWith<IndexOutOfBoundsException> {
+            l.removeRange(100, 200)
+        }
+        assertFailsWith<IndexOutOfBoundsException> {
+            l.removeRange(-1, 0)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            l.removeRange(3, 2)
+        }
+    }
+
+    @Test
+    fun sort() {
+        val l = mutablePKeyListOf(1KeySuffix, 4KeySuffix, 2KeySuffix, 5KeySuffix, 3KeySuffix)
+        l.sort()
+        assertEquals(list, l)
+    }
+
+    @Test
+    fun sortDescending() {
+        val l = mutablePKeyListOf(1KeySuffix, 4KeySuffix, 2KeySuffix, 5KeySuffix, 3KeySuffix)
+        l.sortDescending()
+        assertEquals(mutablePKeyListOf(5KeySuffix, 4KeySuffix, 3KeySuffix, 2KeySuffix, 1KeySuffix), l)
+    }
+
+    @Test
+    fun testEmptyPKeyList() {
+        val l = emptyPKeyList()
+        assertEquals(0, l.size)
+    }
+
+    @Test
+    fun pKeyListOfEmpty() {
+        val l = pKeyListOf()
+        assertEquals(0, l.size)
+    }
+
+    @Test
+    fun pKeyListOfOneValue() {
+        val l = pKeyListOf(2KeySuffix)
+        assertEquals(1, l.size)
+        assertEquals(2KeySuffix, l[0])
+    }
+
+    @Test
+    fun pKeyListOfTwoValues() {
+        val l = pKeyListOf(2KeySuffix, 1KeySuffix)
+        assertEquals(2, l.size)
+        assertEquals(2KeySuffix, l[0])
+        assertEquals(1KeySuffix, l[1])
+    }
+
+    @Test
+    fun pKeyListOfThreeValues() {
+        val l = pKeyListOf(2KeySuffix, 10KeySuffix, -1KeySuffix)
+        assertEquals(3, l.size)
+        assertEquals(2KeySuffix, l[0])
+        assertEquals(10KeySuffix, l[1])
+        assertEquals(-1KeySuffix, l[2])
+    }
+
+    @Test
+    fun pKeyListOfFourValues() {
+        val l = pKeyListOf(2KeySuffix, 10KeySuffix, -1KeySuffix, 10KeySuffix)
+        assertEquals(4, l.size)
+        assertEquals(2KeySuffix, l[0])
+        assertEquals(10KeySuffix, l[1])
+        assertEquals(-1KeySuffix, l[2])
+        assertEquals(10KeySuffix, l[3])
+    }
+
+    @Test
+    fun mutablePKeyListOfOneValue() {
+        val l = mutablePKeyListOf(2KeySuffix)
+        assertEquals(1, l.size)
+        assertEquals(1, l.capacity)
+        assertEquals(2KeySuffix, l[0])
+    }
+
+    @Test
+    fun mutablePKeyListOfTwoValues() {
+        val l = mutablePKeyListOf(2KeySuffix, 1KeySuffix)
+        assertEquals(2, l.size)
+        assertEquals(2, l.capacity)
+        assertEquals(2KeySuffix, l[0])
+        assertEquals(1KeySuffix, l[1])
+    }
+
+    @Test
+    fun mutablePKeyListOfThreeValues() {
+        val l = mutablePKeyListOf(2KeySuffix, 10KeySuffix, -1KeySuffix)
+        assertEquals(3, l.size)
+        assertEquals(3, l.capacity)
+        assertEquals(2KeySuffix, l[0])
+        assertEquals(10KeySuffix, l[1])
+        assertEquals(-1KeySuffix, l[2])
+    }
+
+    @Test
+    fun mutablePKeyListOfFourValues() {
+        val l = mutablePKeyListOf(2KeySuffix, 10KeySuffix, -1KeySuffix, 10KeySuffix)
+        assertEquals(4, l.size)
+        assertEquals(4, l.capacity)
+        assertEquals(2KeySuffix, l[0])
+        assertEquals(10KeySuffix, l[1])
+        assertEquals(-1KeySuffix, l[2])
+        assertEquals(10KeySuffix, l[3])
+    }
+}

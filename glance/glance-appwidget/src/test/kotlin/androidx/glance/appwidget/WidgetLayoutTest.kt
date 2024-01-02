@@ -21,7 +21,9 @@ import android.content.Context
 import android.os.Build
 import androidx.compose.ui.unit.dp
 import androidx.glance.Button
+import androidx.glance.ColorFilter
 import androidx.glance.GlanceModifier
+import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.action.actionStartActivity
@@ -198,6 +200,33 @@ class WidgetLayoutTest {
         val root2 = runTestingComposition {
             Column {
                 Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
+            }
+        }
+
+        val layoutConfig = LayoutConfiguration.create(context, appId)
+        assertThat(layoutConfig.addLayout(root)).isEqualTo(0)
+        assertThat(layoutConfig.addLayout(root2)).isEqualTo(1)
+    }
+
+    @Test
+    fun testChange_imageColorFilter() = fakeCoroutineScope.runTest {
+        val appId = 999
+        val root = runTestingComposition {
+            Column {
+                Image(
+                    ImageProvider(R.drawable.oval),
+                    colorFilter = ColorFilter.tint(GlanceTheme.colors.onSurface),
+                    contentDescription = null
+                )
+            }
+        }
+        val root2 = runTestingComposition {
+            Column {
+                Image(
+                    ImageProvider(R.drawable.oval),
+                    colorFilter = null,
+                    contentDescription = null
+                )
             }
         }
 

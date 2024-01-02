@@ -16,8 +16,8 @@
 
 package androidx.compose.runtime
 
-import androidx.compose.runtime.collection.IdentityArrayIntMap
-import androidx.compose.runtime.collection.IdentityArrayMap
+import androidx.collection.MutableObjectIntMap
+import androidx.collection.MutableScatterMap
 import androidx.compose.runtime.collection.IdentityArraySet
 import androidx.compose.runtime.snapshots.fastAny
 import androidx.compose.runtime.snapshots.fastForEach
@@ -60,6 +60,7 @@ private const val DefaultsInvalidFlag = 0x04
 private const val RequiresRecomposeFlag = 0x08
 private const val SkippedFlag = 0x10
 private const val RereadingFlag = 0x20
+private const val ForcedRecomposeFlag = 0x40
 
 internal interface RecomposeScopeOwner {
     fun invalidate(scope: RecomposeScopeImpl, instance: Any?): InvalidationResult
@@ -177,7 +178,6 @@ internal class RecomposeScopeImpl(
      */
     @OptIn(ExperimentalComposeRuntimeApi::class)
     fun compose(composer: Composer) {
-        @Suppress("PrimitiveInLambda")
         val block = block
         val observer = observer
         if (observer != null && block != null) {
@@ -253,8 +253,8 @@ internal class RecomposeScopeImpl(
     override fun updateScope(block: (Composer, Int) -> Unit) { this.block = block }
 
     private var currentToken = 0
-    private var trackedInstances: IdentityArrayIntMap? = null
-    private var trackedDependencies: IdentityArrayMap<DerivedState<*>, Any?>? = null
+    private var trackedInstances: MutableObjectIntMap<Any>? = null
+    private var trackedDependencies: MutableScatterMap<DerivedState<*>, Any?>? = null
     private var rereading: Boolean
         get() = flags and RereadingFlag != 0
         set(value) {
@@ -262,6 +262,21 @@ internal class RecomposeScopeImpl(
                 flags = flags or RereadingFlag
             } else {
                 flags = flags and RereadingFlag.inv()
+            }
+        }
+
+    /**
+     * Used to explicitly force recomposition. This is used during live edit to force a
+     * recompose scope that doesn't have a restart callback to recompose as its parent (or
+     * some parent above it) was invalidated and the path to this scope has also been forced.
+     */
+    var forcedRecompose: Boolean
+        get() = flags and ForcedRecomposeFlag != 0
+        set(value) {
+            if (value) {
+                flags = flags or ForcedRecomposeFlag
+            } else {
+                flags = flags and ForcedRecomposeFlag.inv()
             }
         }
 
@@ -299,15 +314,15 @@ internal class RecomposeScopeImpl(
     fun recordRead(instance: Any): Boolean {
         if (rereading) return false // Re-reading should force composition to update its tracking
 
-        val token = (trackedInstances ?: IdentityArrayIntMap().also { trackedInstances = it })
-            .add(instance, currentToken)
+        val token = (trackedInstances ?: MutableObjectIntMap<Any>().also { trackedInstances = it })
+            .put(instance, currentToken, default = -1)
 
         if (token == currentToken) {
             return true
         }
 
         if (instance is DerivedState<*>) {
-            val tracked = trackedDependencies ?: IdentityArrayMap<DerivedState<*>, Any?>().also {
+            val tracked = trackedDependencies ?: MutableScatterMap<DerivedState<*>, Any?>().also {
                 trackedDependencies = it
             }
             tracked[instance] = instance.currentRecord.currentValue
@@ -382,7 +397,7 @@ internal class RecomposeScopeImpl(
                     currentToken == token && instances == trackedInstances &&
                     composition is CompositionImpl
                 ) {
-                    instances.removeValueIf { instance, instanceToken ->
+                    instances.removeIf { instance, instanceToken ->
                         (instanceToken != token).also { remove ->
                             if (remove) {
                                 composition.removeObservation(instance, this)

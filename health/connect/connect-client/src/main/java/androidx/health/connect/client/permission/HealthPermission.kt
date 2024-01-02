@@ -48,7 +48,6 @@ import androidx.health.connect.client.records.RespiratoryRateRecord
 import androidx.health.connect.client.records.RestingHeartRateRecord
 import androidx.health.connect.client.records.SexualActivityRecord
 import androidx.health.connect.client.records.SleepSessionRecord
-import androidx.health.connect.client.records.SleepStageRecord
 import androidx.health.connect.client.records.SpeedRecord
 import androidx.health.connect.client.records.StepsCadenceRecord
 import androidx.health.connect.client.records.StepsRecord
@@ -145,6 +144,18 @@ internal constructor(
          * @sample androidx.health.connect.client.samples.InsertExerciseRoute
          */
         const val PERMISSION_WRITE_EXERCISE_ROUTE = PERMISSION_PREFIX + "WRITE_EXERCISE_ROUTE"
+
+        /**
+         * A permission to read data in background.
+         *
+         * An attempt to read data in background without this permission may result in an error.
+         *
+         * @sample androidx.health.connect.client.samples.RequestBackgroundReadPermission
+         * @sample androidx.health.connect.client.samples.ReadRecordsInBackground
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY) // Hidden for now
+        const val PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND =
+            PERMISSION_PREFIX + "READ_HEALTH_DATA_IN_BACKGROUND"
 
         // Read permissions for ACTIVITY.
         internal const val READ_ACTIVE_CALORIES_BURNED =
@@ -327,7 +338,6 @@ internal constructor(
                 SexualActivityRecord::class to
                     READ_SEXUAL_ACTIVITY.substringAfter(READ_PERMISSION_PREFIX),
                 SleepSessionRecord::class to READ_SLEEP.substringAfter(READ_PERMISSION_PREFIX),
-                SleepStageRecord::class to READ_SLEEP.substringAfter(READ_PERMISSION_PREFIX),
                 SpeedRecord::class to READ_SPEED.substringAfter(READ_PERMISSION_PREFIX),
                 StepsCadenceRecord::class to READ_STEPS.substringAfter(READ_PERMISSION_PREFIX),
                 StepsRecord::class to READ_STEPS.substringAfter(READ_PERMISSION_PREFIX),

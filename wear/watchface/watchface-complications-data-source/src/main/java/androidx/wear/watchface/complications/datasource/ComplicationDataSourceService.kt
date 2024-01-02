@@ -312,7 +312,6 @@ public abstract class ComplicationDataSourceService : Service() {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     open fun createMainThreadHandler() = Handler(Looper.getMainLooper())
 
-    @SuppressLint("SyntheticAccessor")
     final override fun onBind(intent: Intent): IBinder? {
         if (ACTION_COMPLICATION_UPDATE_REQUEST == intent.action) {
             if (wrapper == null) {
@@ -452,13 +451,11 @@ public abstract class ComplicationDataSourceService : Service() {
     @MainThread public open fun onComplicationDeactivated(complicationInstanceId: Int) {}
 
     private inner class IComplicationProviderWrapper : IComplicationProvider.Stub() {
-        @SuppressLint("SyntheticAccessor")
         override fun onUpdate(complicationInstanceId: Int, type: Int, manager: IBinder): Unit =
             aidlMethod(TAG, "onUpdate") {
                 onUpdate2(complicationInstanceId, type, manager, bundle = null)
             }
 
-        @SuppressLint("SyntheticAccessor")
         override fun onUpdate2(
             complicationInstanceId: Int,
             type: Int,
@@ -588,7 +585,6 @@ public abstract class ComplicationDataSourceService : Service() {
                 }
             }
 
-        @SuppressLint("SyntheticAccessor")
         override fun onComplicationDeactivated(complicationInstanceId: Int): Unit =
             aidlMethod(TAG, "onComplicationDeactivated") {
                 mainThreadHandler.post {
@@ -598,7 +594,6 @@ public abstract class ComplicationDataSourceService : Service() {
                 }
             }
 
-        @SuppressLint("SyntheticAccessor")
         override fun onComplicationActivated(
             complicationInstanceId: Int,
             type: Int,
@@ -618,7 +613,6 @@ public abstract class ComplicationDataSourceService : Service() {
                 return API_VERSION
             }
 
-        @SuppressLint("SyntheticAccessor")
         override fun getComplicationPreviewData(type: Int): WireComplicationData? =
             aidlMethod(TAG, "getComplicationPreviewData") {
                 val expectedDataType = fromWireType(type)

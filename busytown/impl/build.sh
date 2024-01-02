@@ -20,9 +20,9 @@ mkdir -p "$DIST_DIR"
 export DIST_DIR="$DIST_DIR"
 if [ "$CHANGE_INFO" != "" ]; then
   cp "$CHANGE_INFO" "$DIST_DIR/"
-fi
-if [ "$MANIFEST" == "" ]; then
-  export MANIFEST="$DIST_DIR/manifest_${BUILD_NUMBER}.xml"
+  if [ "$MANIFEST" == "" ]; then
+    export MANIFEST="$DIST_DIR/manifest_${BUILD_NUMBER}.xml"
+  fi
 fi
 
 # parse arguments
@@ -98,6 +98,7 @@ if ! areNativeLibsNewEnoughForKonan; then
   fi
 fi
 
+# list kotlin sessions in case there are several, b/279739438
 function checkForLeftoverKotlinSessions() {
   KOTLIN_SESSIONS_DIR=$OUT_DIR/gradle-project-cache/kotlin/sessions
   NUM_KOTLIN_SESSIONS="$(ls $KOTLIN_SESSIONS_DIR 2>/dev/null | wc -l)"
@@ -107,27 +108,32 @@ function checkForLeftoverKotlinSessions() {
 }
 checkForLeftoverKotlinSessions
 
+# list java processes to check for any running kotlin daemons, b/282228230
+function listJavaProcesses() {
+  echo "All java processes:"
+  ps -ef | grep /java || true
+}
+listJavaProcesses
+
+# launch a process to monitor for timeouts
+busytown/impl/monitor.sh 3600 busytown/impl/showJavaStacks.sh &
+
 # run the build
 if run ./gradlew --ci "$@"; then
   echo build passed
 else
-  if grep "has several compatible actual declarations in modules" "$DIST_DIR/logs/gradle.log" >/dev/null 2>/dev/null; then
-    run ./gradlew --stop || true
-    # try to copy the OUT_DIR into DIST where we can find it
-    cd "$OUT_DIR"
-    echo "zipping out into $DIST_DIR/out.zip"
-    zip --exclude out.zip -qr "$DIST_DIR/out.zip" .
-    cd -
-  else
-    if [ "$DIAGNOSE" == "true" ]; then
-      # see if diagnose-build-failure.sh can identify the root cauase
-      echo "running diagnose-build-failure.sh, see build.log" >&2
-      # Specify a short timeout in case we're running on a remote server, so we don't take too long.
-      # We probably won't have enough time to fully diagnose the problem given this timeout, but
-      # we might be able to determine whether this problem is reproducible enough for a developer to
-      # more easily investigate further
-      ./development/diagnose-build-failure/diagnose-build-failure.sh $DIAGNOSE_TIMEOUT_ARG "--ci $*"
-    fi
+  if [ "$DIAGNOSE" == "true" ]; then
+    # see if diagnose-build-failure.sh can identify the root cauase
+    echo "running diagnose-build-failure.sh, see build.log" >&2
+    # Specify a short timeout in case we're running on a remote server, so we don't take too long.
+    # We probably won't have enough time to fully diagnose the problem given this timeout, but
+    # we might be able to determine whether this problem is reproducible enough for a developer to
+    # more easily investigate further
+    ./development/diagnose-build-failure/diagnose-build-failure.sh $DIAGNOSE_TIMEOUT_ARG "--ci $*" || true
+    scansPrevDir="$DIST_DIR/scans-prev"
+    mkdir -p "$scansPrevDir"
+    # restore any prior build scans into the dist dir
+    cp ../../diagnose-build-failure/prev/dist/scan*.zip "$scansPrevDir/" || true
   fi
   BUILD_STATUS=1 # failure
 fi

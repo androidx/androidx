@@ -21,14 +21,14 @@ import android.app.ActivityOptions
 import android.content.Context
 import android.os.IBinder
 import android.util.Log
+import androidx.window.RequiresWindowSdkExtension
+import androidx.window.WindowSdkExtensions
 import androidx.window.core.BuildConfig
 import androidx.window.core.ConsumerAdapter
 import androidx.window.core.ExtensionsUtil
 import androidx.window.core.VerificationMode
 import androidx.window.embedding.EmbeddingInterfaceCompat.EmbeddingCallbackInterface
 import androidx.window.embedding.SplitController.SplitSupportStatus.Companion.SPLIT_AVAILABLE
-import androidx.window.extensions.WindowExtensions.VENDOR_API_LEVEL_2
-import androidx.window.extensions.WindowExtensions.VENDOR_API_LEVEL_3
 import androidx.window.extensions.WindowExtensionsProvider
 import androidx.window.extensions.core.util.function.Consumer
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
@@ -39,7 +39,7 @@ import java.lang.reflect.Proxy
  * Adapter implementation for different historical versions of activity embedding OEM interface in
  * [ActivityEmbeddingComponent]. Only supports the single current version in this implementation.
  */
-internal class EmbeddingCompat constructor(
+internal class EmbeddingCompat(
     private val embeddingExtension: ActivityEmbeddingComponent,
     private val adapter: EmbeddingAdapter,
     private val consumerAdapter: ConsumerAdapter,
@@ -71,7 +71,7 @@ internal class EmbeddingCompat constructor(
     }
 
     override fun setEmbeddingCallback(embeddingCallback: EmbeddingCallbackInterface) {
-        if (ExtensionsUtil.safeVendorApiLevel < VENDOR_API_LEVEL_2) {
+        if (ExtensionsUtil.safeVendorApiLevel < 2) {
             consumerAdapter.addConsumer(
                 embeddingExtension,
                 List::class,
@@ -92,70 +92,51 @@ internal class EmbeddingCompat constructor(
         return embeddingExtension.isActivityEmbedded(activity)
     }
 
+    @RequiresWindowSdkExtension(2)
     override fun setSplitAttributesCalculator(
         calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
     ) {
-        if (!isSplitAttributesCalculatorSupported()) {
-            throw UnsupportedOperationException("#setSplitAttributesCalculator is not supported " +
-                "on the device.")
-        }
+        WindowSdkExtensions.getInstance().requireExtensionVersion(2)
+
         embeddingExtension.setSplitAttributesCalculator(
             adapter.translateSplitAttributesCalculator(calculator)
         )
     }
 
+    @RequiresWindowSdkExtension(2)
     override fun clearSplitAttributesCalculator() {
-        if (!isSplitAttributesCalculatorSupported()) {
-            throw UnsupportedOperationException("#clearSplitAttributesCalculator is not " +
-                "supported on the device.")
-        }
+        WindowSdkExtensions.getInstance().requireExtensionVersion(2)
+
         embeddingExtension.clearSplitAttributesCalculator()
     }
 
-    override fun isSplitAttributesCalculatorSupported(): Boolean =
-        ExtensionsUtil.safeVendorApiLevel >= VENDOR_API_LEVEL_2
-
-    override fun finishActivityStacks(activityStacks: Set<ActivityStack>) {
-        if (!isFinishActivityStacksSupported()) {
-            throw UnsupportedOperationException("#finishActivityStacks is not " +
-                "supported on the device.")
-        }
-        val stackTokens = activityStacks.mapTo(mutableSetOf()) { it.token }
-        embeddingExtension.finishActivityStacks(stackTokens)
-    }
-
-    override fun isFinishActivityStacksSupported(): Boolean =
-        ExtensionsUtil.safeVendorApiLevel >= VENDOR_API_LEVEL_3
-
+    @RequiresWindowSdkExtension(3)
     override fun invalidateTopVisibleSplitAttributes() {
-        if (!areSplitAttributesUpdatesSupported()) {
-            throw UnsupportedOperationException("#invalidateTopVisibleSplitAttributes is not " +
-                "supported on the device.")
-        }
+        WindowSdkExtensions.getInstance().requireExtensionVersion(3)
+
         embeddingExtension.invalidateTopVisibleSplitAttributes()
     }
 
+    @RequiresWindowSdkExtension(3)
     override fun updateSplitAttributes(
         splitInfo: SplitInfo,
         splitAttributes: SplitAttributes
     ) {
-        if (!areSplitAttributesUpdatesSupported()) {
-            throw UnsupportedOperationException("#updateSplitAttributes is not supported on the " +
-                "device.")
-        }
+        WindowSdkExtensions.getInstance().requireExtensionVersion(3)
+
         embeddingExtension.updateSplitAttributes(
             splitInfo.token,
             adapter.translateSplitAttributes(splitAttributes)
         )
     }
 
-    override fun areSplitAttributesUpdatesSupported(): Boolean =
-        ExtensionsUtil.safeVendorApiLevel >= VENDOR_API_LEVEL_3
-
+    @RequiresWindowSdkExtension(3)
     override fun setLaunchingActivityStack(
         options: ActivityOptions,
         token: IBinder
     ): ActivityOptions {
+        WindowSdkExtensions.getInstance().requireExtensionVersion(3)
+
         return embeddingExtension.setLaunchingActivityStack(options, token)
     }
 

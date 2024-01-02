@@ -134,6 +134,27 @@ fun FocusRestorerSample() {
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
+@Sampled
+@Composable
+fun FocusRestorerCustomFallbackSample() {
+    val focusRequester = remember { FocusRequester() }
+    LazyRow(
+        // If restoration fails, focus would fallback to the item associated with focusRequester.
+        Modifier.focusRestorer { focusRequester }
+    ) {
+        item {
+            Button(
+                modifier = Modifier.focusRequester(focusRequester),
+                onClick = {}
+            ) { Text("1") }
+        }
+        item { Button(onClick = {}) { Text("2") } }
+        item { Button(onClick = {}) { Text("3") } }
+        item { Button(onClick = {}) { Text("4") } }
+    }
+}
+
 @Sampled
 @Composable
 fun RequestFocusSample() {

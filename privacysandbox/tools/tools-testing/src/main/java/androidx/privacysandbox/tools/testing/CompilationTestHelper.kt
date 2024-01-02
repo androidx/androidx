@@ -116,10 +116,23 @@ class CompilationResultSubject(private val result: TestCompilationResult) {
         assertThat(getShortErrorMessages()).containsExactly(*errors)
     }
 
-    private fun getRawErrorMessages() =
-        (result.diagnostics[Diagnostic.Kind.ERROR] ?: emptyList()) +
-            (result.diagnostics[Diagnostic.Kind.WARNING] ?: emptyList()) +
+    private fun getRawErrorMessages(): List<DiagnosticMessage> {
+        // Filter SdkActivityLauncher deprecation warnings. Our tests currently use the old version
+        // so the warnings are expected.
+        // TODO(b/307696996) - Remove this once the generator uses the new version exclusively.
+        val warningsToIgnore = listOf(
+            "'SdkActivityLauncher' is deprecated.",
+            "'SdkActivityLauncherFactory' is deprecated.",
+            "'toLauncherInfo(): Bundle' is deprecated.",
+        )
+        val filteredWarnings = result.diagnostics[Diagnostic.Kind.WARNING]?.filter { warning ->
+            !warningsToIgnore.any { warning.msg.contains(it) }
+        } ?: emptyList()
+
+        return (result.diagnostics[Diagnostic.Kind.ERROR] ?: emptyList()) +
+            filteredWarnings +
             (result.diagnostics[Diagnostic.Kind.MANDATORY_WARNING] ?: emptyList())
+    }
 
     private fun getShortErrorMessages() =
         result.diagnostics[Diagnostic.Kind.ERROR]?.map(DiagnosticMessage::msg)

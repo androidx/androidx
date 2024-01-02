@@ -57,6 +57,7 @@ import androidx.compose.runtime.changelist.Operation.UpdateNode
 import androidx.compose.runtime.changelist.Operation.UpdateValue
 import androidx.compose.runtime.changelist.Operation.Ups
 import androidx.compose.runtime.changelist.Operation.UseCurrentNode
+import androidx.compose.runtime.internal.IntRef
 
 internal class ChangeList : OperationsDebugStringFormattable {
 
@@ -288,7 +289,7 @@ internal class ChangeList : OperationsDebugStringFormattable {
 
     override fun toDebugString(linePrefix: String): String {
         return buildString {
-            append("ChangeList instance containing")
+            append("ChangeList instance containing ")
             append(size)
             append(" operations")
             if (isNotEmpty()) {

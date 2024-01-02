@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-@file:OptIn(InternalComposeApi::class)
 package androidx.compose.runtime
 
+import androidx.compose.runtime.snapshots.fastForEach
+import androidx.compose.runtime.tooling.CompositionData
+import androidx.compose.runtime.tooling.CompositionGroup
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -24,7 +25,6 @@ import kotlin.test.assertFalse
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
-@OptIn(InternalComposeApi::class)
 class SlotTableTests {
     @Test
     fun testCanCreate() {
@@ -3910,6 +3910,381 @@ class SlotTableTests {
     }
 
     @Test
+    fun canReportNonGroupCallInformationDuringWrite() {
+        val slots = SlotTable()
+        slots.write { writer ->
+            writer.insert {
+                writer.group(100) {
+                    writer.group(200, "C(200)") {
+                        writer.grouplessCall(300, "C(300)") { }
+                        writer.grouplessCall(301, "C(301)") { }
+                        writer.group(302, "C(302)") { }
+                        writer.grouplessCall(303, "C(303)") { }
+                        writer.group(304, "C(304)") { }
+                        writer.grouplessCall(305, "C(305)") {
+                            writer.group(400, "C(400)") { }
+                            writer.group(401, "C(401)") { }
+                        }
+                        writer.grouplessCall(306, "C(306)") {
+                            writer.group(402, "C(402)") { }
+                            writer.grouplessCall(403, "C(403)") {
+                                writer.group(500, "C(500)") { }
+                                writer.group(501, "C(501)") { }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        slots.verifyWellFormed()
+
+        val expectedRoot = SourceGroup.group(100) {
+            group(200, "C(200)") {
+                group(300, "C(300)") { }
+                group(301, "C(301)") { }
+                group(302, "C(302)") { }
+                group(303, "C(303)") { }
+                group(304, "C(304)") { }
+                group(305, "C(305)") {
+                    group(400, "C(400)") { }
+                    group(401, "C(401)") { }
+                }
+                group(306, "C(306)") {
+                    group(402, "C(402)") { }
+                    group(403, "C(403)") {
+                        group(500, "C(500)") { }
+                        group(501, "C(501)") { }
+                    }
+                }
+            }
+        }
+        val slotsRoot = SourceGroup.group(slots)
+        assertEquals(expectedRoot, slotsRoot)
+    }
+
+    @Test
+    fun canMoveSourceInformationFromAnotherTable() {
+        val sourceTable = SlotTable().apply {
+            write { writer ->
+                with(writer) {
+                    insert {
+                        group(200, "C(200)") {
+                            grouplessCall(300, "C(300)") {
+                                group(400, "C(400)") { }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        sourceTable.verifyWellFormed()
+
+        val mainTable = SlotTable().apply {
+            write { writer ->
+                with(writer) {
+                    insert {
+                        group(100) {
+                            group(201, "C(201)") { }
+                        }
+                    }
+                }
+            }
+        }
+        mainTable.verifyWellFormed()
+
+        mainTable.write { writer ->
+            with(writer) {
+                group {
+                    insert {
+                        moveFrom(sourceTable, 0)
+                    }
+                    skipToGroupEnd()
+                }
+            }
+        }
+        mainTable.verifyWellFormed()
+
+        val expected = SourceGroup.group(100) {
+            group(200, "C(200)") {
+                group(300, "C(300)") {
+                    group(400, "C(400)") { }
+                }
+            }
+            group(201, "C(201)") { }
+        }
+        val received = SourceGroup.group(mainTable)
+        assertEquals(expected, received)
+    }
+
+    @Test
+    fun canMoveSourceInformationIntoAGroupWithSourceInformation() {
+        val sourceTable = SlotTable().apply {
+            write { writer ->
+                with(writer) {
+                    insert {
+                        group(300, "C(300)") {
+                            grouplessCall(400, "C(400)") {
+                                group(500, "C(500)") { }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        sourceTable.verifyWellFormed()
+
+        val mainTable = SlotTable().apply {
+            write { writer ->
+                with(writer) {
+                    insert {
+                        group(100) {
+                            group(201, "C(201)") { }
+                        }
+                    }
+                }
+            }
+        }
+        mainTable.verifyWellFormed()
+
+        mainTable.write { writer ->
+            with(writer) {
+                group {
+                    group(201) {
+                        insert {
+                            moveFrom(sourceTable, 0)
+                        }
+                        skipToGroupEnd()
+                    }
+                    skipToGroupEnd()
+                }
+            }
+        }
+        mainTable.verifyWellFormed()
+
+        val expected = SourceGroup.group(100) {
+            group(201, "C(201)") {
+                group(300, "C(300)") {
+                    group(400, "C(400)") {
+                        group(500, "C(500)") { }
+                    }
+                }
+            }
+        }
+        val received = SourceGroup.group(mainTable)
+        assertEquals(expected, received)
+    }
+
+    @Test
+    fun canRemoveAGroupBeforeAnEmptyGrouplessCall() {
+        val slots = SlotTable().apply {
+            write { writer ->
+                with(writer) {
+                    insert {
+                        group(100) {
+                            group(200, "C(2001)") { }
+                            grouplessCall(201, "C(201)") { }
+                            group(202, "C(202)") { }
+                        }
+                    }
+                }
+            }
+        }
+        slots.verifyWellFormed()
+
+        slots.write { writer ->
+            with(writer) {
+                group {
+                    removeGroup()
+                    skipToGroupEnd()
+                }
+            }
+        }
+        slots.verifyWellFormed()
+
+        val expected = SourceGroup.group(100) {
+            group(201, "C(201)") { }
+            group(202, "C(202)") { }
+        }
+        val received = SourceGroup.group(slots)
+        assertEquals(expected, received)
+    }
+
+    @Test
+    fun canRemoveAGroupAfterAnEmptyGrouplessCall() {
+        val slots = SlotTable().apply {
+            write { writer ->
+                with(writer) {
+                    insert {
+                        group(100) {
+                            group(200, "C(200)") { }
+                            grouplessCall(201, "C(201)") { }
+                            group(202, "C(202)") { }
+                        }
+                    }
+                }
+            }
+        }
+        slots.verifyWellFormed()
+
+        slots.write { writer ->
+            with(writer) {
+                group {
+                    skipGroup()
+                    removeGroup()
+                    skipToGroupEnd()
+                }
+            }
+        }
+        slots.verifyWellFormed()
+
+        val expected = SourceGroup.group(100) {
+            group(200, "C(200)") { }
+            group(201, "C(201)") { }
+        }
+        val received = SourceGroup.group(slots)
+        assertEquals(expected, received)
+    }
+
+    @Test
+    fun canRemoveAGroupProducedInAGrouplessCall() {
+        val slots = SlotTable().apply {
+            write { writer ->
+                with(writer) {
+                    insert {
+                        group(100) {
+                            group(200, "C(200)") { }
+                            grouplessCall(201, "C(201)") {
+                                group(300, "C(300)") { }
+                            }
+                            group(202, "C(202)") { }
+                        }
+                    }
+                }
+            }
+        }
+        slots.verifyWellFormed()
+
+        slots.write { writer ->
+            with(writer) {
+                group {
+                    skipGroup()
+                    removeGroup()
+                    skipToGroupEnd()
+                }
+            }
+        }
+        slots.verifyWellFormed()
+
+        val expected = SourceGroup.group(100) {
+            group(200, "C(200)") { }
+            group(202, "C(202)") { }
+        }
+        val received = SourceGroup.group(slots)
+        assertEquals(expected, received)
+    }
+
+    @Test
+    fun canRemoveAGroupWithSourceInformation() {
+        val slots = SlotTable().apply {
+            write { writer ->
+                with(writer) {
+                    insert {
+                        group(100) {
+                            group(200, "C(200)") { }
+                            group(201, "C(201)") { }
+                            group(202, "C(202)") {
+                                grouplessCall(300, "C(300)") {
+                                    group(400, "C(400)") {
+                                        group(500, "C(500)") { }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        slots.verifyWellFormed()
+
+        slots.write { writer ->
+            with(writer) {
+                group(100) {
+                    skipGroup()
+                    skipGroup()
+                    group {
+                        group {
+                            removeGroup() // Remove group 500
+                            skipToGroupEnd()
+                        }
+                    }
+                }
+            }
+        }
+        slots.verifyWellFormed()
+
+        val expected = SourceGroup.group(100) {
+            group(200, "C(200)") { }
+            group(201, "C(201)") { }
+            group(202, "C(202)") {
+                group(300, "C(300)") {
+                    group(400, "C(400)") { }
+                }
+            }
+        }
+        val received = SourceGroup.group(slots)
+
+        assertEquals(expected, received)
+    }
+
+    @Test
+    fun canAddAGrouplessCallToAGroupWithNoSourceInformation() {
+        val slots = SlotTable().apply {
+            write { writer ->
+                with(writer) {
+                    insert {
+                        group(100) {
+                            group(200) {
+                                group(300, "C(300)") { }
+                                group(301, "C(301)") { }
+                                grouplessCall(302, "C(302)") {
+                                    group(400, "C(400)") { }
+                                }
+                            }
+                            group(201, "C(201)") {
+                                group(303) {
+                                    group(401, "C(401)") { }
+                                    grouplessCall(402, "C(402)") { }
+                                    group(403, "C(403)") { }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        val expected = SourceGroup.group(100) {
+            group(200) {
+                group(300, "C(300)") { }
+                group(301, "C(301)") { }
+                group(302, "C(302)") {
+                    group(400, "C(400)") { }
+                }
+            }
+            group(201, "C(201)") {
+                group(303) {
+                    group(401, "C(401)") { }
+                    group(402, "C(402)") { }
+                    group(403, "C(403)") { }
+                }
+            }
+        }
+        val received = SourceGroup.group(slots)
+
+        assertEquals(expected, received)
+    }
+
+    @Test
     fun canMoveAGroupFromATableIntoAnotherGroupAndModifyThatGroup() {
         val slots = SlotTable()
         var insertAnchor = Anchor(-1)
@@ -4013,34 +4388,47 @@ private fun SlotWriter.startNode(key: Any?) =
 private fun SlotWriter.startNode(key: Any?, node: Any?) =
     startNode(NodeKey, key, node)
 
-@OptIn(InternalComposeApi::class)
 internal inline fun SlotWriter.group(block: () -> Unit) {
     startGroup()
     block()
     endGroup()
 }
 
-@OptIn(InternalComposeApi::class)
 internal inline fun SlotWriter.group(key: Int, block: () -> Unit) {
     startGroup(key)
     block()
     endGroup()
 }
 
-@OptIn(InternalComposeApi::class)
+internal inline fun SlotWriter.group(key: Int, sourceInformation: String, block: () -> Unit) {
+    group(key) {
+        recordGroupSourceInformation(sourceInformation)
+        block()
+    }
+}
+
+internal inline fun SlotWriter.grouplessCall(
+    key: Int,
+    sourceInformation: String,
+    block: () -> Unit
+) {
+    recordGrouplessCallSourceInformationStart(key, sourceInformation)
+    block()
+    recordGrouplessCallSourceInformationEnd()
+}
+
 internal inline fun SlotWriter.nodeGroup(key: Int, node: Any, block: () -> Unit = { }) {
     startNode(NodeKey, key, node)
     block()
     endGroup()
 }
-@OptIn(InternalComposeApi::class)
+
 internal inline fun SlotWriter.insert(block: () -> Unit) {
     beginInsert()
     block()
     endInsert()
 }
 
-@OptIn(InternalComposeApi::class)
 internal inline fun SlotReader.group(key: Int, block: () -> Unit) {
     assertEquals(key, groupKey)
     startGroup()
@@ -4048,14 +4436,12 @@ internal inline fun SlotReader.group(key: Int, block: () -> Unit) {
     endGroup()
 }
 
-@OptIn(InternalComposeApi::class)
 internal inline fun SlotReader.group(block: () -> Unit) {
     startGroup()
     block()
     endGroup()
 }
 
-@OptIn(InternalComposeApi::class)
 private inline fun SlotReader.expectNode(key: Int, node: Any, block: () -> Unit = { }) {
     assertEquals(key, groupObjectKey)
     assertEquals(node, groupNode)
@@ -4067,7 +4453,6 @@ private inline fun SlotReader.expectNode(key: Int, node: Any, block: () -> Unit 
 private const val treeRoot = -1
 private const val elementKey = 100
 
-@OptIn(InternalComposeApi::class)
 private fun testSlotsNumbered(): SlotTable {
     val slotTable = SlotTable()
     slotTable.write { writer ->
@@ -4084,7 +4469,6 @@ private fun testSlotsNumbered(): SlotTable {
 }
 
 // Creates 0 until 10 items each with 10 elements numbered 0...n with 0..n slots
-@OptIn(InternalComposeApi::class)
 private fun testItems(): SlotTable {
     val slots = SlotTable()
     slots.write { writer ->
@@ -4121,7 +4505,6 @@ private fun testItems(): SlotTable {
     return slots
 }
 
-@OptIn(InternalComposeApi::class)
 private fun validateItems(slots: SlotTable) {
     slots.read { reader ->
         check(reader.groupKey == treeRoot) { "Invalid root key" }
@@ -4172,7 +4555,6 @@ private fun validateItems(slots: SlotTable) {
     }
 }
 
-@OptIn(InternalComposeApi::class)
 private fun narrowTrees(): Pair<SlotTable, List<Anchor>> {
     val slots = SlotTable()
     val anchors = mutableListOf<Anchor>()
@@ -4221,13 +4603,11 @@ private fun narrowTrees(): Pair<SlotTable, List<Anchor>> {
     return slots to anchors
 }
 
-@OptIn(InternalComposeApi::class)
 private fun SlotReader.expectGroup(key: Int): Int {
     assertEquals(key, groupKey)
     return skipGroup()
 }
 
-@OptIn(InternalComposeApi::class)
 private fun SlotReader.expectGroup(
     key: Int,
     block: () -> Unit
@@ -4238,12 +4618,10 @@ private fun SlotReader.expectGroup(
     endGroup()
 }
 
-@OptIn(InternalComposeApi::class)
 private fun SlotReader.expectData(value: Any) {
     assertEquals(value, next())
 }
 
-@OptIn(InternalComposeApi::class)
 private fun SlotReader.expectGroup(
     key: Int,
     objectKey: Any?,
@@ -4279,4 +4657,44 @@ internal fun expectError(message: String, block: () -> Unit) {
         exceptionThrown,
         "Expected test to throw an exception containing \"$message\""
     )
+}
+
+data class SourceGroup(val key: Any, val source: String?, val children: List<SourceGroup>) {
+
+    override fun toString(): String = buildString { toStringBuilder(this, 0) }
+
+    private fun toStringBuilder(builder: StringBuilder, indent: Int) {
+        repeat(indent) { builder.append(' ') }
+        builder.append("Group(")
+        builder.append(key)
+        builder.append(")")
+        if (source != null) {
+            builder.append(' ')
+            builder.append(source)
+        }
+        builder.appendLine()
+        children.fastForEach { it.toStringBuilder(builder, indent + 2) }
+    }
+
+    data class BuilderScope(private val children: ArrayList<SourceGroup> = ArrayList()) {
+        fun group(key: Int, source: String? = null, block: BuilderScope.() -> Unit) {
+            val scope = BuilderScope()
+            scope.block()
+            this.children.add(SourceGroup(key, source, scope.children))
+        }
+    }
+
+    companion object {
+        fun group(key: Int, block: BuilderScope.() -> Unit): SourceGroup {
+            val children = ArrayList<SourceGroup>()
+            val scope = BuilderScope(children)
+            scope.block()
+            return SourceGroup(key, null, children)
+        }
+
+        fun group(compositionData: CompositionData): SourceGroup =
+            groupOf(compositionData.compositionGroups.first())
+        private fun groupOf(group: CompositionGroup): SourceGroup =
+            SourceGroup(group.key, group.sourceInfo, group.compositionGroups.map(::groupOf))
+    }
 }

@@ -119,7 +119,7 @@ public class DataTest {
     public void testToString() {
         Data data = createData();
         String result = data.toString();
-        for (String key : data.mValues.keySet()) {
+        for (String key : data.getKeyValueMap().keySet()) {
             assertThat(result, containsString(key));
         }
     }
@@ -192,6 +192,7 @@ public class DataTest {
         Data first = createData();
         Data second = createData();
         assertThat(first.equals(second), is(true));
+        assertThat(first.hashCode() == second.hashCode(), is(true));
     }
 
     @Test

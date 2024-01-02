@@ -21,6 +21,7 @@ import androidx.wear.compose.integration.demos.common.ComposableDemo
 import androidx.wear.compose.integration.demos.common.DemoCategory
 import androidx.wear.compose.material3.samples.EdgeSwipeForSwipeToDismiss
 import androidx.wear.compose.material3.samples.FixedFontSize
+import androidx.wear.compose.material3.samples.HorizontalPageIndicatorSample
 import androidx.wear.compose.material3.samples.SimpleSwipeToDismissBox
 import androidx.wear.compose.material3.samples.StatefulSwipeToDismissBox
 import androidx.wear.compose.material3.samples.StepperSample
@@ -45,6 +46,9 @@ val WearMaterial3Demos = DemoCategory(
                 ComposableDemo("Child Button") {
                     ChildButtonDemo()
                 },
+                ComposableDemo("Compact Button") {
+                    CompactButtonDemo()
+                },
                 ComposableDemo("Multiline Button") {
                     MultilineButtonDemo()
                 },
@@ -53,6 +57,11 @@ val WearMaterial3Demos = DemoCategory(
                 },
             )
         ),
+        ComposableDemo("List Header") {
+            Centralize {
+                ListHeaderDemo()
+            }
+        },
         ComposableDemo("Card") {
             CardDemo()
         },
@@ -61,6 +70,33 @@ val WearMaterial3Demos = DemoCategory(
         },
         ComposableDemo("Icon Button") {
             IconButtonDemo()
+        },
+        ComposableDemo("Text Toggle Button") {
+            TextToggleButtonDemo()
+        },
+        ComposableDemo("Icon Toggle Button") {
+            IconToggleButtonDemo()
+        },
+        ComposableDemo("Checkbox") {
+            CheckboxDemos()
+        },
+        ComposableDemo("Switch") {
+            SwitchDemos()
+        },
+        ComposableDemo("Radio") {
+            RadioDemos()
+        },
+        ComposableDemo("Radio Button") {
+            RadioButtonDemo()
+        },
+        ComposableDemo("Split Radio Button") {
+            SplitRadioButtonDemo()
+        },
+        ComposableDemo("Toggle Button") {
+            ToggleButtonDemo()
+        },
+        ComposableDemo("Split Toggle Button") {
+            SplitToggleButtonDemo()
         },
         DemoCategory(
             "Stepper",
@@ -85,30 +121,11 @@ val WearMaterial3Demos = DemoCategory(
             "Slider",
             SliderDemos
         ),
-        ComposableDemo("List Header") {
-            Centralize {
-                ListHeaderDemo()
-            }
-        },
-        ComposableDemo("Text Toggle Button") {
-            TextToggleButtonDemo()
-        },
-        ComposableDemo("Icon Toggle Button") {
-            IconToggleButtonDemo()
-        },
         ComposableDemo(
             title = "Fixed Font Size"
         ) {
             Centralize { FixedFontSize() }
         },
-        DemoCategory(
-            title = "Selection Controls",
-            selectionControlsDemos
-        ),
-        DemoCategory(
-            title = "Toggle Button",
-            toggleButtonDemos
-        ),
         DemoCategory(
             title = "Swipe To Dismiss",
             listOf(
@@ -117,5 +134,9 @@ val WearMaterial3Demos = DemoCategory(
                 ComposableDemo("Edge swipe") { EdgeSwipeForSwipeToDismiss(it.navigateBack) },
             )
         ),
+        ComposableDemo("HorizontalPageIndicator") {
+            Centralize { HorizontalPageIndicatorSample() }
+        },
+        ComposableDemo("Settings Demo") { SettingsDemo() }
     )
 )

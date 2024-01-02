@@ -308,8 +308,22 @@ limitations under the License.
         app:layout_constraintLeft_toRightOf="@id/plus_ev_toggle"
         app:layout_constraintTop_toBottomOf="@id/VideoToggle" />
 
+    <ToggleButton
+        android:id="@+id/preview_stabilization"
+        android:layout_width="46dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="1dp"
+        android:background="@android:drawable/btn_default"
+        android:textOff="@string/toggle_preview_stabilization_off"
+        android:textOn="@string/toggle_preview_stabilization_on"
+        android:textSize="11dp"
+        android:translationZ="1dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/direction_toggle" />
+
     <Button
-        android:id="@+id/video_quality"
+        android:id="@+id/dynamic_range"
         android:layout_width="46dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="1dp"
@@ -324,7 +338,7 @@ limitations under the License.
         />
 
     <Button
-        android:id="@+id/video_dynamic_range"
+        android:id="@+id/video_quality"
         android:layout_width="46dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="1dp"
@@ -334,7 +348,7 @@ limitations under the License.
         android:textColor="#EEEEEE"
         android:textSize="14dp"
         android:visibility="invisible"
-        app:layout_constraintTop_toBottomOf="@id/video_persistent"
+        app:layout_constraintTop_toBottomOf="@id/dynamic_range"
         app:layout_constraintRight_toRightOf="parent"
         />
 
@@ -391,4 +405,8 @@ limitations under the License.
         app:layout_constraintStart_toEndOf="@+id/seekBar"
         app:layout_constraintTop_toTopOf="@+id/seekBar" />
 
+    <androidx.camera.view.ScreenFlashView
+        android:id="@+id/screen_flash_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

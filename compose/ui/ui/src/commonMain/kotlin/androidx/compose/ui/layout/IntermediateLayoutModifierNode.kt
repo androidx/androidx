@@ -19,8 +19,6 @@ package androidx.compose.ui.layout
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.GraphicsLayerScope
-import androidx.compose.ui.layout.Placeable.PlacementScope.Companion.place
-import androidx.compose.ui.layout.Placeable.PlacementScope.Companion.placeWithLayer
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.NodeMeasuringIntrinsics
 import androidx.compose.ui.node.Nodes
@@ -241,13 +239,15 @@ internal class IntermediateLayoutModifierNode(
         ) {
             val offset =
                 if (isIntermediateChangeActive) position else IntOffset.Zero
-            layerBlock?.let {
-                wrappedPlaceable?.placeWithLayer(
-                    offset,
-                    zIndex,
-                    it
-                )
-            } ?: wrappedPlaceable?.place(offset, zIndex)
+            with(node.coordinator!!.placementScope) {
+                layerBlock?.let {
+                    wrappedPlaceable?.placeWithLayer(
+                        offset,
+                        zIndex,
+                        it
+                    )
+                } ?: wrappedPlaceable?.place(offset, zIndex)
+            }
         }
 
         override val parentData: Any?
@@ -292,12 +292,7 @@ internal class IntermediateLayoutModifierNode(
             override val height = height
             override val alignmentLines = alignmentLines
             override fun placeChildren() {
-                Placeable.PlacementScope.executeWithRtlMirroringValues(
-                    width,
-                    layoutDirection,
-                    this@IntermediateLayoutModifierNode.coordinator,
-                    placementBlock
-                )
+                coordinator!!.placementScope.placementBlock()
             }
         }
 

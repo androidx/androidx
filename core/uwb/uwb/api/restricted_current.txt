@@ -2,19 +2,28 @@
 package androidx.core.uwb {
 
   public final class RangingCapabilities {
-    ctor public RangingCapabilities(boolean isDistanceSupported, boolean isAzimuthalAngleSupported, boolean isElevationAngleSupported, int minRangingInterval, java.util.Set<java.lang.Integer> supportedChannels, java.util.Set<java.lang.Integer> supportedConfigIds);
     method public int getMinRangingInterval();
     method public java.util.Set<java.lang.Integer> getSupportedChannels();
     method public java.util.Set<java.lang.Integer> getSupportedConfigIds();
+    method public java.util.Set<java.lang.Integer> getSupportedNtfConfigs();
+    method public java.util.Set<java.lang.Integer> getSupportedRangingUpdateRates();
+    method public java.util.Set<java.lang.Integer> getSupportedSlotDurations();
     method public boolean isAzimuthalAngleSupported();
+    method public boolean isBackgroundRangingSupported();
     method public boolean isDistanceSupported();
     method public boolean isElevationAngleSupported();
+    method public boolean isRangingIntervalReconfigureSupported();
     property public final boolean isAzimuthalAngleSupported;
+    property public final boolean isBackgroundRangingSupported;
     property public final boolean isDistanceSupported;
     property public final boolean isElevationAngleSupported;
+    property public final boolean isRangingIntervalReconfigureSupported;
     property public final int minRangingInterval;
     property public final java.util.Set<java.lang.Integer> supportedChannels;
     property public final java.util.Set<java.lang.Integer> supportedConfigIds;
+    property public final java.util.Set<java.lang.Integer> supportedNtfConfigs;
+    property public final java.util.Set<java.lang.Integer> supportedRangingUpdateRates;
+    property public final java.util.Set<java.lang.Integer> supportedSlotDurations;
   }
 
   public final class RangingMeasurement {
@@ -25,28 +34,39 @@ package androidx.core.uwb {
 
   public final class RangingParameters {
     ctor public RangingParameters(int uwbConfigType, int sessionId, int subSessionId, byte[]? sessionKeyInfo, byte[]? subSessionKeyInfo, androidx.core.uwb.UwbComplexChannel? complexChannel, java.util.List<androidx.core.uwb.UwbDevice> peerDevices, int updateRateType);
+    ctor public RangingParameters(int uwbConfigType, int sessionId, int subSessionId, byte[]? sessionKeyInfo, byte[]? subSessionKeyInfo, androidx.core.uwb.UwbComplexChannel? complexChannel, java.util.List<androidx.core.uwb.UwbDevice> peerDevices, int updateRateType, optional androidx.core.uwb.UwbRangeDataNtfConfig? uwbRangeDataNtfConfig);
+    ctor public RangingParameters(int uwbConfigType, int sessionId, int subSessionId, byte[]? sessionKeyInfo, byte[]? subSessionKeyInfo, androidx.core.uwb.UwbComplexChannel? complexChannel, java.util.List<androidx.core.uwb.UwbDevice> peerDevices, int updateRateType, optional androidx.core.uwb.UwbRangeDataNtfConfig? uwbRangeDataNtfConfig, optional @IntRange(from=androidx.core.uwb.RangingParameters.RANGING_SLOT_DURATION_1_MILLIS, to=androidx.core.uwb.RangingParameters.RANGING_SLOT_DURATION_2_MILLIS) long slotDurationMillis);
+    ctor public RangingParameters(int uwbConfigType, int sessionId, int subSessionId, byte[]? sessionKeyInfo, byte[]? subSessionKeyInfo, androidx.core.uwb.UwbComplexChannel? complexChannel, java.util.List<androidx.core.uwb.UwbDevice> peerDevices, int updateRateType, optional androidx.core.uwb.UwbRangeDataNtfConfig? uwbRangeDataNtfConfig, optional @IntRange(from=androidx.core.uwb.RangingParameters.RANGING_SLOT_DURATION_1_MILLIS, to=androidx.core.uwb.RangingParameters.RANGING_SLOT_DURATION_2_MILLIS) long slotDurationMillis, optional boolean isAoaDisabled);
     method public androidx.core.uwb.UwbComplexChannel? getComplexChannel();
     method public java.util.List<androidx.core.uwb.UwbDevice> getPeerDevices();
     method public int getSessionId();
     method public byte[]? getSessionKeyInfo();
+    method public long getSlotDurationMillis();
     method public int getSubSessionId();
     method public byte[]? getSubSessionKeyInfo();
     method public int getUpdateRateType();
     method public int getUwbConfigType();
+    method public androidx.core.uwb.UwbRangeDataNtfConfig? getUwbRangeDataNtfConfig();
+    method public boolean isAoaDisabled();
     property public final androidx.core.uwb.UwbComplexChannel? complexChannel;
+    property public final boolean isAoaDisabled;
     property public final java.util.List<androidx.core.uwb.UwbDevice> peerDevices;
     property public final int sessionId;
     property public final byte[]? sessionKeyInfo;
+    property public final long slotDurationMillis;
     property public final int subSessionId;
     property public final byte[]? subSessionKeyInfo;
     property public final int updateRateType;
     property public final int uwbConfigType;
+    property public final androidx.core.uwb.UwbRangeDataNtfConfig? uwbRangeDataNtfConfig;
     field public static final int CONFIG_MULTICAST_DS_TWR = 2; // 0x2
     field public static final int CONFIG_PROVISIONED_INDIVIDUAL_MULTICAST_DS_TWR = 7; // 0x7
     field public static final int CONFIG_PROVISIONED_MULTICAST_DS_TWR = 5; // 0x5
     field public static final int CONFIG_PROVISIONED_UNICAST_DS_TWR = 4; // 0x4
     field public static final int CONFIG_UNICAST_DS_TWR = 1; // 0x1
     field public static final androidx.core.uwb.RangingParameters.Companion Companion;
+    field public static final long RANGING_SLOT_DURATION_1_MILLIS = 1L; // 0x1L
+    field public static final long RANGING_SLOT_DURATION_2_MILLIS = 2L; // 0x2L
     field public static final int RANGING_UPDATE_RATE_AUTOMATIC = 1; // 0x1
     field public static final int RANGING_UPDATE_RATE_FREQUENT = 3; // 0x3
     field public static final int RANGING_UPDATE_RATE_INFREQUENT = 2; // 0x2
@@ -101,6 +121,7 @@ package androidx.core.uwb {
     method public androidx.core.uwb.UwbAddress getLocalAddress();
     method public androidx.core.uwb.RangingCapabilities getRangingCapabilities();
     method public kotlinx.coroutines.flow.Flow<androidx.core.uwb.RangingResult> prepareSession(androidx.core.uwb.RangingParameters parameters);
+    method public suspend Object? reconfigureRangeDataNtf(int configType, int proximityNear, int proximityFar, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public abstract androidx.core.uwb.UwbAddress localAddress;
     property public abstract androidx.core.uwb.RangingCapabilities rangingCapabilities;
   }
@@ -119,6 +140,7 @@ package androidx.core.uwb {
   public interface UwbControllerSessionScope extends androidx.core.uwb.UwbClientSessionScope {
     method public suspend Object? addControlee(androidx.core.uwb.UwbAddress address, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public androidx.core.uwb.UwbComplexChannel getUwbComplexChannel();
+    method public suspend Object? reconfigureRangingInterval(int intervalSkipCount, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? removeControlee(androidx.core.uwb.UwbAddress address, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public abstract androidx.core.uwb.UwbComplexChannel uwbComplexChannel;
   }
@@ -147,6 +169,16 @@ package androidx.core.uwb {
 
   public static final class UwbManager.Companion {
     method public androidx.core.uwb.UwbManager createInstance(android.content.Context context);
+  }
+
+  public final class UwbRangeDataNtfConfig {
+    ctor public UwbRangeDataNtfConfig(int configType, int ntfProximityNearCm, int ntfProximityFarCm);
+    method public int getConfigType();
+    method public int getNtfProximityFarCm();
+    method public int getNtfProximityNearCm();
+    property public final int configType;
+    property public final int ntfProximityFarCm;
+    property public final int ntfProximityNearCm;
   }
 
 }

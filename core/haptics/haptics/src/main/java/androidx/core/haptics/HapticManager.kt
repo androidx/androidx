@@ -19,11 +19,16 @@ package androidx.core.haptics
 import android.content.Context
 import android.os.Vibrator
 import androidx.annotation.RequiresPermission
+import androidx.annotation.VisibleForTesting
+import androidx.core.content.ContextCompat
+import androidx.core.haptics.device.HapticDeviceProfile
 import androidx.core.haptics.impl.HapticManagerImpl
-import androidx.core.haptics.signal.PredefinedEffect
+import androidx.core.haptics.impl.VibratorWrapperImpl
+import androidx.core.haptics.signal.HapticSignal
+import androidx.core.haptics.signal.ResolvableSignal
 
 /**
- * Manager for the vibrators of a device.
+ * Manager for interactions with a device vibrator.
  *
  * <p>If your process exits, any vibration you started will stop.
  */
@@ -32,35 +37,84 @@ interface HapticManager {
     companion object {
 
         /**
-         * Creates haptic manager for the system vibrators.
+         * Creates a haptic manager for the system vibrator.
          *
-         * Sample code:
+         * This returns a manager instance only if the device has a vibrator motor, i.e. the
+         * system vibrator check [Vibrator.hasVibrator] returns true, and returns null otherwise.
+         *
          * @sample androidx.core.haptics.samples.PlaySystemStandardClick
          *
-         * @param context Context to load the device vibrators.
-         * @return a new instance of HapticManager for the system vibrators.
+         * @param context Context to load the device vibrator.
+         * @return a new instance of HapticManager for the system vibrator, or null if the device
+         *   does not have a vibrator motor.
          */
         @JvmStatic
-        fun create(context: Context): HapticManager {
-            return HapticManagerImpl(context)
+        fun create(context: Context): HapticManager? {
+            return requireNotNull(ContextCompat.getSystemService(context, Vibrator::class.java)) {
+                "Vibrator service not found"
+            }.let { systemVibrator ->
+                if (systemVibrator.hasVibrator()) {
+                    HapticManagerImpl(VibratorWrapperImpl(systemVibrator))
+                } else {
+                    null
+                }
+            }
         }
 
-        /** Creates haptic manager for given vibrator. */
-        internal fun createForVibrator(vibrator: Vibrator): HapticManager {
-            return HapticManagerImpl(vibrator)
+        /** Creates a haptic manager for the given vibrator. */
+        @VisibleForTesting
+        internal fun createForVibrator(vibrator: VibratorWrapper): HapticManager? {
+            return if (vibrator.hasVibrator()) {
+                HapticManagerImpl(vibrator)
+            } else {
+                null
+            }
         }
     }
 
     /**
-     * Play a [PredefinedEffect].
+     * A [HapticDeviceProfile] describing the vibrator hardware capabilities for the device.
+     */
+    val deviceProfile: HapticDeviceProfile
+
+    /**
+     * Play a [HapticSignal].
      *
-     * The app should be in the foreground for the vibration to happen.
+     * @sample androidx.core.haptics.samples.PlayHapticSignal
      *
-     * Sample code:
-     * @sample androidx.core.haptics.samples.PlaySystemStandardClick
-     *
-     * @param effect The predefined haptic effect to be played.
+     * @param signal The haptic signal to be played.
+     * @param attrs The attributes corresponding to the haptic signal. For example, specify
+     *   [HapticAttributes.USAGE_NOTIFICATION] for notification vibrations or
+     *   [HapticAttributes.USAGE_TOUCH] for touch feedback haptics.
      */
     @RequiresPermission(android.Manifest.permission.VIBRATE)
-    fun play(effect: PredefinedEffect)
+    fun play(signal: HapticSignal, attrs: HapticAttributes)
+
+    /**
+     * Resolves and plays a given [ResolvableSignal].
+     *
+     * If the same signal will be played by this vibrator multiple times then consider resolving the
+     * [HapticSignal] only once using this [deviceProfile] and then reusing it.
+     *
+     * @sample androidx.core.haptics.samples.PlayResolvableHapticSignal
+     *
+     * @param signal The haptic signal to be resolved using this device profile and played.
+     * @param attrs The attributes corresponding to the haptic signal. For example, specify
+     *   [HapticAttributes.USAGE_NOTIFICATION] for notification vibrations or
+     *   [HapticAttributes.USAGE_TOUCH] for touch feedback haptics.
+     */
+    @RequiresPermission(android.Manifest.permission.VIBRATE)
+    fun play(signal: ResolvableSignal, attrs: HapticAttributes) {
+        signal.resolve(deviceProfile)?.let { resolvedSignal ->
+            play(resolvedSignal, attrs)
+        }
+    }
+
+    /**
+     * Cancel any [HapticSignal] currently playing.
+     *
+     * @sample androidx.core.haptics.samples.PlayThenCancel
+     */
+    @RequiresPermission(android.Manifest.permission.VIBRATE)
+    fun cancel()
 }

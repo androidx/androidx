@@ -45,12 +45,12 @@ package androidx.compose.animation.tooling {
     method public String getLabel();
     method public String getSpecType();
     method public long getStartTimeMillis();
-    method public java.util.Map<java.lang.Long,java.lang.Object> getValues();
+    method public java.util.Map<java.lang.Long,java.lang.Object?> getValues();
     property public final long endTimeMillis;
     property public final String label;
     property public final String specType;
     property public final long startTimeMillis;
-    property public final java.util.Map<java.lang.Long,java.lang.Object> values;
+    property public final java.util.Map<java.lang.Long,java.lang.Object?> values;
   }
 
 }

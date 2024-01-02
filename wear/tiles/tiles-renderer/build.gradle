@@ -92,10 +92,6 @@ protobuf {
     protoc {
         artifact = libs.protobufCompiler.get()
     }
-
-    // Generates the java proto-lite code for the protos in this project. See
-    // https://github.com/google/protobuf-gradle-plugin#customizing-protobuf-compilation
-    // for more information.
     generateProtoTasks {
         all().each { task ->
             task.builtins {
@@ -112,5 +108,6 @@ androidx {
     inceptionYear = "2021"
     description = "Android Wear Tiles Renderer components. These components can be used to parse " +
             "and render an already constructed Wear Tile."
+    metalavaK2UastEnabled = true
 }
 

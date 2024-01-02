@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -32,6 +31,7 @@ import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.ButtonColors
 import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.ChildButton
+import androidx.wear.compose.material3.CompactButton
 import androidx.wear.compose.material3.FilledTonalButton
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.ListHeader
@@ -39,8 +39,11 @@ import androidx.wear.compose.material3.OutlinedButton
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.samples.ButtonSample
 import androidx.wear.compose.material3.samples.ChildButtonSample
+import androidx.wear.compose.material3.samples.CompactButtonSample
 import androidx.wear.compose.material3.samples.FilledTonalButtonSample
+import androidx.wear.compose.material3.samples.FilledTonalCompactButtonSample
 import androidx.wear.compose.material3.samples.OutlinedButtonSample
+import androidx.wear.compose.material3.samples.OutlinedCompactButtonSample
 import androidx.wear.compose.material3.samples.SimpleButtonSample
 import androidx.wear.compose.material3.samples.SimpleChildButtonSample
 import androidx.wear.compose.material3.samples.SimpleFilledTonalButtonSample
@@ -235,6 +238,108 @@ fun ChildButtonDemo() {
 }
 
 @Composable
+fun CompactButtonDemo() {
+    ScalingLazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        item {
+            ListHeader {
+                Text("2 slot compact button")
+            }
+        }
+        item {
+            CompactButtonSample()
+        }
+        item {
+            FilledTonalCompactButtonSample()
+        }
+        item {
+            OutlinedCompactButtonSample()
+        }
+        item {
+            CompactButton(
+                onClick = { /* Do something */ },
+                icon = { StandardIcon(ButtonDefaults.SmallIconSize) },
+                colors = ButtonDefaults.childButtonColors()
+            ) {
+                Text("Child Compact Button", maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+        }
+        item {
+            ListHeader {
+                Text("Icon only compact button")
+            }
+        }
+        item {
+            CompactButton(
+                onClick = { /* Do something */ },
+                icon = { StandardIcon(ButtonDefaults.SmallIconSize) }
+            )
+        }
+        item {
+            CompactButton(
+                onClick = { /* Do something */ },
+                icon = { StandardIcon(ButtonDefaults.SmallIconSize) },
+                colors = ButtonDefaults.filledTonalButtonColors()
+            )
+        }
+        item {
+            CompactButton(
+                onClick = { /* Do something */ },
+                icon = { StandardIcon(ButtonDefaults.SmallIconSize) },
+                colors = ButtonDefaults.outlinedButtonColors(),
+                border = ButtonDefaults.outlinedButtonBorder(enabled = true)
+            )
+        }
+        item {
+            CompactButton(
+                onClick = { /* Do something */ },
+                icon = { StandardIcon(ButtonDefaults.SmallIconSize) },
+                colors = ButtonDefaults.childButtonColors()
+            )
+        }
+        item {
+            ListHeader {
+                Text("Text only compact button")
+            }
+        }
+        item {
+            CompactButton(
+                onClick = { /* Do something */ },
+            ) {
+                Text("Filled compact button", maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+        }
+        item {
+            CompactButton(
+                onClick = { /* Do something */ },
+                colors = ButtonDefaults.filledTonalButtonColors()
+            ) {
+                Text("Filled tonal compact button", maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+        }
+        item {
+            CompactButton(
+                onClick = { /* Do something */ },
+                colors = ButtonDefaults.outlinedButtonColors(),
+                border = ButtonDefaults.outlinedButtonBorder(enabled = true)
+            ) {
+                Text("Outlined compact button", maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+        }
+        item {
+            CompactButton(
+                onClick = { /* Do something */ },
+                colors = ButtonDefaults.childButtonColors()
+            ) {
+                Text("Child compact button", maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+        }
+    }
+}
+
+@Composable
 fun MultilineButtonDemo() {
     ScalingLazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -252,10 +357,10 @@ fun MultilineButtonDemo() {
             MultilineButton(enabled = false)
         }
         item {
-            MultilineButton(enabled = true, icon = { StandardIcon() })
+            MultilineButton(enabled = true, icon = { StandardIcon(ButtonDefaults.IconSize) })
         }
         item {
-            MultilineButton(enabled = false, icon = { StandardIcon() })
+            MultilineButton(enabled = false, icon = { StandardIcon(ButtonDefaults.IconSize) })
         }
         item {
             ListHeader {
@@ -269,10 +374,10 @@ fun MultilineButtonDemo() {
             Multiline3SlotButton(enabled = false)
         }
         item {
-            Multiline3SlotButton(enabled = true, icon = { StandardIcon() })
+            Multiline3SlotButton(enabled = true, icon = { StandardIcon(ButtonDefaults.IconSize) })
         }
         item {
-            Multiline3SlotButton(enabled = false, icon = { StandardIcon() })
+            Multiline3SlotButton(enabled = false, icon = { StandardIcon(ButtonDefaults.IconSize) })
         }
     }
 }
@@ -376,23 +481,5 @@ private fun Multiline3SlotButton(
         secondaryLabel = secondaryLabel,
         enabled = enabled,
         colors = colors,
-    )
-}
-
-@Composable
-private fun StandardIcon() {
-    Icon(
-        Icons.Filled.Favorite,
-        contentDescription = "Favorite icon",
-        modifier = Modifier.size(ButtonDefaults.IconSize)
-    )
-}
-
-@Composable
-private fun AvatarIcon() {
-    Icon(
-        Icons.Filled.AccountCircle,
-        contentDescription = "Account",
-        modifier = Modifier.size(ButtonDefaults.LargeIconSize)
     )
 }

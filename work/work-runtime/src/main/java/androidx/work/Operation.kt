@@ -19,6 +19,12 @@
 
 package androidx.work
 
+import androidx.concurrent.futures.CallbackToFutureAdapter
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import com.google.common.util.concurrent.ListenableFuture
+import java.util.concurrent.Executor
+
 /**
  * Awaits an [Operation] without blocking a thread.
  *
@@ -27,3 +33,28 @@ package androidx.work
  * or throws a [Throwable] that represents why the [Operation] failed.
  */
 public suspend inline fun Operation.await(): Operation.State.SUCCESS = result.await()
+
+internal fun launchOperation(executor: Executor, block: () -> Unit): Operation {
+    val liveData = MutableLiveData<Operation.State>(Operation.IN_PROGRESS)
+    val future = CallbackToFutureAdapter.getFuture { completer ->
+        executor.execute {
+            try {
+                block()
+                liveData.postValue(Operation.SUCCESS)
+                completer.set(Operation.SUCCESS)
+            } catch (t: Throwable) {
+                liveData.postValue(Operation.State.FAILURE(t))
+                completer.setException(t)
+            }
+        }
+    }
+    return OperationImpl(liveData, future)
+}
+
+private class OperationImpl(
+    private val state: LiveData<Operation.State>,
+    private val future: ListenableFuture<Operation.State.SUCCESS>,
+) : Operation {
+    override fun getState(): LiveData<Operation.State> = state
+    override fun getResult(): ListenableFuture<Operation.State.SUCCESS> = future
+}

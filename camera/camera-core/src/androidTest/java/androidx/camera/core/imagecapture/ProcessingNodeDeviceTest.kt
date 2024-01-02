@@ -21,6 +21,7 @@ import android.graphics.BitmapFactory.decodeByteArray
 import android.graphics.Color
 import android.graphics.ImageFormat
 import android.graphics.Rect
+import android.os.Build
 import androidx.camera.core.ImageCapture.OutputFileOptions
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.imagecapture.Utils.CAMERA_CAPTURE_RESULT
@@ -62,6 +63,16 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 21)
 class ProcessingNodeDeviceTest {
+
+    // The color before and after the encoding/decoding process on API 23 or below devices might
+    // have some deviation. For example, the Color.BLUE color (-16776961) might become -16776965.
+    // This will cause some testing failures. Therefore, use the tolerance value to check the
+    // results for the API 21 ~ 23 devices.
+    private val avgDiffTolerance = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+        0
+    } else {
+        1
+    }
 
     @Before
     fun setUp() {
@@ -134,8 +145,12 @@ class ProcessingNodeDeviceTest {
         // Act.
         val bitmap = processAndGetBitmap(node, nodeIn, imageIn, outputFileOptions)
         // Assert: the output is a cropped grayscale image.
-        assertThat(getAverageDiff(bitmap, Rect(0, 0, 320, 240), 0X555555)).isEqualTo(0)
-        assertThat(getAverageDiff(bitmap, Rect(321, 0, WIDTH, 240), 0XAAAAAA)).isEqualTo(0)
+        assertThat(getAverageDiff(bitmap, Rect(0, 0, 320, 240), 0X555555)).isAtMost(
+            avgDiffTolerance
+        )
+        assertThat(getAverageDiff(bitmap, Rect(321, 0, WIDTH, 240), 0XAAAAAA)).isAtMost(
+            avgDiffTolerance
+        )
     }
 
     private suspend fun processAndGetBitmap(
@@ -207,7 +222,7 @@ class ProcessingNodeDeviceTest {
                 createBitmap(WIDTH, HEIGHT),
                 restoredBitmap
             )
-        ).isEqualTo(0)
+        ).isAtMost(avgDiffTolerance)
     }
 
     private suspend fun inMemoryInputPacket_callbackInvoked(outputFileOptions: OutputFileOptions?) {
@@ -239,7 +254,9 @@ class ProcessingNodeDeviceTest {
         val imageOut = takePictureCallback.getInMemoryResult()
         val restoredJpeg = jpegImageToJpegByteArray(imageOut)
 
-        assertThat(getAverageDiff(createJpegBytes(WIDTH, HEIGHT), restoredJpeg)).isEqualTo(0)
+        assertThat(getAverageDiff(createJpegBytes(WIDTH, HEIGHT), restoredJpeg)).isAtMost(
+            avgDiffTolerance
+        )
         assertThat(imageOut.imageInfo.timestamp).isEqualTo(TIMESTAMP)
     }
 
@@ -275,8 +292,12 @@ class ProcessingNodeDeviceTest {
         // Assert: image content is cropped correctly
         val bitmap = BitmapFactory.decodeFile(filePath)
 
-        assertThat(getAverageDiff(bitmap, Rect(0, 0, 320, 240), Color.BLUE)).isEqualTo(0)
-        assertThat(getAverageDiff(bitmap, Rect(321, 0, WIDTH, 240), Color.YELLOW)).isEqualTo(0)
+        assertThat(getAverageDiff(bitmap, Rect(0, 0, 320, 240), Color.BLUE)).isAtMost(
+            avgDiffTolerance
+        )
+        assertThat(getAverageDiff(bitmap, Rect(321, 0, WIDTH, 240), Color.YELLOW)).isAtMost(
+            avgDiffTolerance
+        )
         // Assert: Exif info is saved correctly.
         val exif = Exif.createFromFileString(filePath)
         assertThat(exif.description).isEqualTo(EXIF_DESCRIPTION)

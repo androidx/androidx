@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-import androidx.build.AndroidXComposePlugin
-import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -26,11 +25,9 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
-def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
-
 androidXMultiplatform {
     android()
-    if (desktopEnabled) desktop()
+    desktop()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -38,11 +35,10 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlibCommon)
-                api(project(":compose:foundation:foundation"))
-                implementation(project(":compose:foundation:foundation-layout"))
-                implementation(project(":compose:material3:material3"))
+                api("androidx.compose.foundation:foundation:1.6.0-beta01")
+                implementation("androidx.compose.foundation:foundation-layout:1.6.0-beta01")
                 implementation(project(":compose:material3:material3-window-size-class"))
-                implementation(project(":compose:ui:ui-util"))
+                implementation("androidx.compose.ui:ui-util:1.6.0-beta01")
             }
         }
 
@@ -62,16 +58,13 @@ androidXMultiplatform {
             dependsOn(jvmMain)
             dependencies {
                 api("androidx.annotation:annotation:1.1.0")
-                implementation(project(":lifecycle:lifecycle-runtime-compose"))
-                implementation(project(":window:window"))
+                implementation("androidx.window:window:1.2.0")
             }
         }
 
-        if (desktopEnabled) {
-            desktopMain {
-                dependsOn(jvmMain)
-                dependencies {
-                }
+        desktopMain {
+            dependsOn(jvmMain)
+            dependencies {
             }
         }
 
@@ -80,18 +73,25 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            desktopTest {
-                dependsOn(jvmTest)
+        desktopTest {
+            dependsOn(jvmTest)
+        }
+
+        androidInstrumentedTest {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(project(":compose:material3:material3"))
+                implementation(project(":compose:test-utils"))
+                implementation(project(":window:window-testing"))
+                implementation(libs.junit)
+                implementation(libs.testRunner)
+                implementation(libs.truth)
             }
         }
 
-        androidAndroidTest {
+        androidUnitTest {
             dependsOn(jvmTest)
-            dependsOn(androidMain)
             dependencies {
-                implementation(project(":compose:test-utils"))
-                implementation(project(":window:window-testing"))
                 implementation(libs.junit)
                 implementation(libs.testRunner)
                 implementation(libs.truth)
@@ -108,9 +108,12 @@ androidx {
     name = "Material Adaptive"
     mavenVersion = LibraryVersions.COMPOSE_MATERIAL3_ADAPTIVE
     type = LibraryType.PUBLISHED_LIBRARY
-    publish = Publish.SNAPSHOT_ONLY
     inceptionYear = "2023"
     description = "Compose Material Design Adaptive Library"
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions.freeCompilerArgs += "-Xcontext-receivers"
 }
 
 // Screenshot tests related setup

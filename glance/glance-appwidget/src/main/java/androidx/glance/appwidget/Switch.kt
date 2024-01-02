@@ -16,6 +16,7 @@
 
 package androidx.glance.appwidget
 
+import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 import androidx.glance.Emittable
 import androidx.glance.EmittableCheckable
@@ -53,6 +54,9 @@ internal data class SwitchColorsImpl(
  * checked is provided to this action in its ActionParameters, and can be retrieved using the
  * [ToggleableStateKey]. If this action launches an activity, the current value of checked will be
  * passed as an intent extra with the name [RemoteViews.EXTRA_CHECKED].
+ * In order to allow the Launcher to provide this extra on Android version S and later, we use a
+ * mutable PendingIntent ([android.app.PendingIntent.FLAG_MUTABLE]) when this action is not a
+ * lambda. Before S, and for lambda actions, this will be an immutable PendingIntent.
  * @param modifier the modifier to apply to the switch
  * @param text the text to display to the end of the switch
  * @param style the style to apply to [text]
@@ -160,6 +164,19 @@ object SwitchDefaults {
         uncheckedThumbColor: ColorProvider,
         checkedTrackColor: ColorProvider,
         uncheckedTrackColor: ColorProvider,
+    ): SwitchColors = switchColors(
+        checkedThumbColor = checkedThumbColor,
+        uncheckedThumbColor = uncheckedThumbColor,
+        checkedTrackColor = checkedTrackColor,
+        uncheckedTrackColor = uncheckedTrackColor
+    )
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    fun switchColors(
+        checkedThumbColor: ColorProvider,
+        uncheckedThumbColor: ColorProvider,
+        checkedTrackColor: ColorProvider,
+        uncheckedTrackColor: ColorProvider,
     ): SwitchColors {
         return SwitchColorsImpl(
             thumb = createCheckableColorProvider(
@@ -225,7 +242,8 @@ private fun SwitchElement(
         })
 }
 
-internal class EmittableSwitch(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class EmittableSwitch(
     var colors: SwitchColors
 ) : EmittableCheckable() {
     override var modifier: GlanceModifier = GlanceModifier

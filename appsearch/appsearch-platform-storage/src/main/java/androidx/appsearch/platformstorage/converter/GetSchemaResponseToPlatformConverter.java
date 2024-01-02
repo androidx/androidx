@@ -47,13 +47,10 @@ public final class GetSchemaResponseToPlatformConverter {
     public static GetSchemaResponse toJetpackGetSchemaResponse(
             @NonNull android.app.appsearch.GetSchemaResponse platformResponse) {
         Preconditions.checkNotNull(platformResponse);
-        GetSchemaResponse.Builder jetpackBuilder;
+        GetSchemaResponse.Builder jetpackBuilder = new GetSchemaResponse.Builder();
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             // Android API level in S-v2 and lower won't have any supported feature.
-            jetpackBuilder = new GetSchemaResponse.Builder(/*getVisibilitySettingSupported=*/false);
-        } else {
-            // The regular builder has all supported features.
-            jetpackBuilder = new GetSchemaResponse.Builder();
+            jetpackBuilder.setVisibilitySettingSupported(false);
         }
         for (android.app.appsearch.AppSearchSchema platformSchema : platformResponse.getSchemas()) {
             jetpackBuilder.addSchema(SchemaToPlatformConverter.toJetpackSchema(platformSchema));

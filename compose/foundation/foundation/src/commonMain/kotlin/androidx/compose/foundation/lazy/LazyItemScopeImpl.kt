@@ -34,7 +34,7 @@ import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
-import kotlin.math.roundToInt
+import androidx.compose.ui.util.fastRoundToInt
 
 internal class LazyItemScopeImpl : LazyItemScope {
 
@@ -120,7 +120,7 @@ private class ParentSizeElement(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is ParentSizeNode) return false
+        if (other !is ParentSizeElement) return false
         return fraction == other.fraction &&
             widthState == other.widthState &&
             heightState == other.heightState
@@ -151,7 +151,7 @@ private class ParentSizeNode(
     ): MeasureResult {
         val width = widthState?.let {
             if (it.value != Constraints.Infinity) {
-                (it.value * fraction).roundToInt()
+                (it.value * fraction).fastRoundToInt()
             } else {
                 Constraints.Infinity
             }
@@ -159,7 +159,7 @@ private class ParentSizeNode(
 
         val height = heightState?.let {
             if (it.value != Constraints.Infinity) {
-                (it.value * fraction).roundToInt()
+                (it.value * fraction).fastRoundToInt()
             } else {
                 Constraints.Infinity
             }

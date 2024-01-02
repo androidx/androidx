@@ -57,7 +57,9 @@ import org.junit.runner.RunWith;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Test custom database migrations.
@@ -360,7 +362,7 @@ public class MigrationTest {
         try {
             Context targetContext = ApplicationProvider.getApplicationContext();
             MigrationDb db = Room.databaseBuilder(targetContext, MigrationDb.class, TEST_DB)
-                    .fallbackToDestructiveMigrationOnDowngrade()
+                    .fallbackToDestructiveMigrationOnDowngrade(false)
                     .build();
             helper.closeWhenFinished(db);
             db.dao().loadAllEntity1s();
@@ -379,7 +381,7 @@ public class MigrationTest {
 
         Context targetContext = ApplicationProvider.getApplicationContext();
         MigrationDb db = Room.databaseBuilder(targetContext, MigrationDb.class, TEST_DB)
-                .fallbackToDestructiveMigration()
+                .fallbackToDestructiveMigration(false)
                 .build();
         assertThat(db.dao().loadAllEntity1s().size(), is(0));
         db.close();
@@ -486,7 +488,7 @@ public class MigrationTest {
 
         Context targetContext = ApplicationProvider.getApplicationContext();
         MigrationDb db = Room.databaseBuilder(targetContext, MigrationDb.class, TEST_DB)
-                .fallbackToDestructiveMigrationOnDowngrade()
+                .fallbackToDestructiveMigrationOnDowngrade(false)
                 .build();
         assertThat(db.dao().loadAllEntity1s().size(), is(0));
         db.close();
@@ -503,7 +505,7 @@ public class MigrationTest {
 
         Context targetContext = ApplicationProvider.getApplicationContext();
         MigrationDb db = Room.databaseBuilder(targetContext, MigrationDb.class, TEST_DB)
-                .fallbackToDestructiveMigration()
+                .fallbackToDestructiveMigration(false)
                 .build();
         assertThat(db.dao().loadAllEntity1s().size(), is(0));
         db.close();
@@ -520,7 +522,7 @@ public class MigrationTest {
 
         Context targetContext = ApplicationProvider.getApplicationContext();
         MigrationDb db = Room.databaseBuilder(targetContext, MigrationDb.class, TEST_DB)
-                .fallbackToDestructiveMigrationOnDowngrade()
+                .fallbackToDestructiveMigrationOnDowngrade(false)
                 .addMigrations(MIGRATION_MAX_LATEST)
                 .build();
         // Check that two values are present, confirming the database migration was successful
@@ -620,6 +622,28 @@ public class MigrationTest {
                             + "found: 2f3557e56d7f665363f3e20d14787a59"
             );
         }
+    }
+
+    @Test
+    public void dropAllTablesDuringDestructiveMigrations() throws IOException {
+        SupportSQLiteDatabase database = helper.createDatabase(TEST_DB, MigrationDb.MAX_VERSION);
+        database.close();
+
+        Context targetContext = ApplicationProvider.getApplicationContext();
+        MigrationDb db = Room.databaseBuilder(targetContext, MigrationDb.class, TEST_DB)
+                .fallbackToDestructiveMigration(true)
+                .build();
+        Set<String> tableNames = new HashSet<>();
+        Cursor c = db.query("SELECT name FROM sqlite_master WHERE type = 'table'", new Object[0]);
+        while (c.moveToNext()) {
+            tableNames.add(c.getString(0));
+        }
+        c.close();
+        db.close();
+        // Extra table is no longer present
+        assertThat(tableNames.contains("Extra"), is(false));
+        // Android special table is present
+        assertThat(tableNames.contains("android_metadata"), is(true));
     }
 
     private void testFailure(int startVersion, int endVersion) throws IOException {

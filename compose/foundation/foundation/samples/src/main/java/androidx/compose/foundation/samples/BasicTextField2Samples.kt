@@ -21,13 +21,22 @@ package androidx.compose.foundation.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text2.BasicTextField2
-import androidx.compose.foundation.text2.input.TextEditFilter
+import androidx.compose.foundation.text2.input.InputTransformation
 import androidx.compose.foundation.text2.input.TextFieldState
+import androidx.compose.foundation.text2.input.byValue
 import androidx.compose.foundation.text2.input.delete
 import androidx.compose.foundation.text2.input.forEachChange
 import androidx.compose.foundation.text2.input.forEachChangeReversed
@@ -37,21 +46,26 @@ import androidx.compose.foundation.text2.input.rememberTextFieldState
 import androidx.compose.foundation.text2.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.foundation.text2.input.textAsFlow
 import androidx.compose.foundation.text2.input.then
+import androidx.compose.material.Button
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.substring
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
@@ -164,9 +178,9 @@ fun BasicTextField2StateEditSample() {
 
 @Sampled
 @Composable
-fun BasicTextField2CustomFilterSample() {
+fun BasicTextField2CustomInputTransformationSample() {
     val state = remember { TextFieldState() }
-    BasicTextField2(state, filter = { _, new ->
+    BasicTextField2(state, inputTransformation = { _, new ->
         // A filter that always places newly-input text at the start of the string, after a
         // prompt character, like a shell.
         val promptChar = '>'
@@ -178,7 +192,7 @@ fun BasicTextField2CustomFilterSample() {
         }
 
         // Step one: Figure out the insertion point.
-        val newPromptChars = new.countPrefix(promptChar)
+        val newPromptChars = new.asCharSequence().countPrefix(promptChar)
         val insertionPoint = if (newPromptChars == 0) 0 else 1
 
         // Step two: Ensure text is placed at the insertion point.
@@ -203,15 +217,41 @@ fun BasicTextField2CustomFilterSample() {
 }
 
 @Sampled
-fun BasicTextField2FilterChainingSample() {
-    val removeFirstEFilter = TextEditFilter { _, new ->
-        val index = new.indexOf('e')
+@Composable
+fun BasicTextField2InputTransformationByValueReplaceSample() {
+    val state = remember { TextFieldState() }
+    BasicTextField2(
+        state,
+        // Convert tabs to spaces.
+        inputTransformation = InputTransformation.byValue { _, proposed ->
+            proposed.replace("""\t""".toRegex(), "  ")
+        }
+    )
+}
+
+@Sampled
+@Composable
+fun BasicTextField2InputTransformationByValueChooseSample() {
+    val state = remember { TextFieldState() }
+    BasicTextField2(
+        state,
+        // Reject whitespace.
+        inputTransformation = InputTransformation.byValue { current, proposed ->
+            if ("""\s""".toRegex() in proposed) current else proposed
+        }
+    )
+}
+
+@Sampled
+fun BasicTextField2InputTransformationChainingSample() {
+    val removeFirstEFilter = InputTransformation { _, new ->
+        val index = new.asCharSequence().indexOf('e')
         if (index != -1) {
             new.replace(index, index + 1, "")
         }
     }
-    val printECountFilter = TextEditFilter { _, new ->
-        println("found ${new.count { it == 'e' }} 'e's in the string")
+    val printECountFilter = InputTransformation { _, new ->
+        println("found ${new.asCharSequence().count { it == 'e' }} 'e's in the string")
     }
 
     // Returns a filter that always prints 0 e's.
@@ -225,9 +265,9 @@ fun BasicTextField2FilterChainingSample() {
 @Composable
 fun BasicTextField2ChangeIterationSample() {
     // Print a log message every time the text is changed.
-    BasicTextField2(state = rememberTextFieldState(), filter = { _, new ->
+    BasicTextField2(state = rememberTextFieldState(), inputTransformation = { _, new ->
         new.changes.forEachChange { sourceRange, replacedLength ->
-            val newString = new.substring(sourceRange)
+            val newString = new.asCharSequence().substring(sourceRange)
             println("""$replacedLength characters were replaced with "$newString"""")
         }
     })
@@ -238,7 +278,7 @@ fun BasicTextField2ChangeIterationSample() {
 fun BasicTextField2ChangeReverseIterationSample() {
     // Make a text field behave in "insert mode" – inserted text overwrites the text ahead of it
     // instead of being inserted.
-    BasicTextField2(state = rememberTextFieldState(), filter = { _, new ->
+    BasicTextField2(state = rememberTextFieldState(), inputTransformation = { _, new ->
         new.changes.forEachChangeReversed { range, originalRange ->
             if (!range.collapsed && originalRange.collapsed) {
                 // New text was inserted, delete the text ahead of it.
@@ -323,4 +363,69 @@ fun BasicTextField2TextValuesSample() {
             }
         }
     }
+}
+
+@Sampled
+@Composable
+fun BasicTextField2UndoSample() {
+    val state = rememberTextFieldState()
+
+    Column(Modifier.padding(8.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(
+                onClick = { state.undoState.undo() },
+                enabled = state.undoState.canUndo
+            ) {
+                Text("Undo")
+            }
+
+            Button(
+                onClick = { state.undoState.redo() },
+                enabled = state.undoState.canRedo
+            ) {
+                Text("Redo")
+            }
+
+            Button(
+                onClick = { state.undoState.clearHistory() },
+                enabled = state.undoState.canUndo || state.undoState.canRedo
+            ) {
+                Text("Clear History")
+            }
+        }
+
+        BasicTextField2(
+            state = state,
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(1.dp, Color.LightGray, RoundedCornerShape(6.dp))
+                .padding(8.dp),
+            textStyle = TextStyle(fontSize = 16.sp)
+        )
+    }
+}
+
+@Sampled
+@Composable
+@OptIn(ExperimentalFoundationApi::class)
+fun BasicTextField2DecoratorSample() {
+    val state = rememberTextFieldState("Hello, World!")
+    BasicTextField2(
+        state = state,
+        decorator = { innerTextField ->
+            // Because the decorator is used, the whole Row gets the same behaviour as the internal
+            // input field would have otherwise. For example, there is no need to add a
+            // `Modifier.clickable` to the Row anymore to bring the text field into focus when user
+            // taps on a larger text field area which includes paddings and the icon areas.
+            Row(
+                Modifier
+                    .background(Color.LightGray, RoundedCornerShape(percent = 30))
+                    .padding(16.dp)
+            ) {
+                Icon(Icons.Default.MailOutline, contentDescription = "Mail Icon")
+                Spacer(Modifier.width(16.dp))
+                innerTextField()
+            }
+        }
+    )
 }

@@ -191,6 +191,7 @@ class FocusMeteringControlTest(private val template: Int) {
                     CaptureResult.CONTROL_AE_MODE_ON,
                     CaptureResult.CONTROL_AE_MODE_ON_ALWAYS_FLASH,
                     CaptureResult.CONTROL_AE_MODE_ON_AUTO_FLASH,
+                    CaptureResult.CONTROL_AE_MODE_ON_EXTERNAL_FLASH,
                     CaptureResult.CONTROL_AE_MODE_OFF
                 )
             )
@@ -224,6 +225,14 @@ class FocusMeteringControlTest(private val template: Int) {
             set(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL,
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3
+            )
+            set(
+                CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES, intArrayOf(
+                    CaptureResult.CONTROL_AE_MODE_ON,
+                    CaptureResult.CONTROL_AE_MODE_ON_ALWAYS_FLASH,
+                    CaptureResult.CONTROL_AE_MODE_ON_AUTO_FLASH,
+                    CaptureResult.CONTROL_AE_MODE_OFF
+                )
             )
             set(CameraCharacteristics.CONTROL_MAX_REGIONS_AF, 1)
             set(CameraCharacteristics.CONTROL_MAX_REGIONS_AE, 1)
@@ -1416,5 +1425,35 @@ class FocusMeteringControlTest(private val template: Int) {
             .addPoint(invalidPoint3)
             .addPoint(invalidPoint4).build()
         assertThat(focusMeteringControl.isFocusMeteringSupported(action)).isFalse()
+    }
+
+    @Test
+    @Config(minSdk = 28)
+    fun canEnableExternalFlashAeMode() {
+        focusMeteringControl.enableExternalFlashAeMode(true)
+        assertThat(focusMeteringControl.isExternalFlashAeModeEnabled).isTrue()
+    }
+
+    @Test
+    @Config(minSdk = 28)
+    fun canDisableExternalFlashAeMode_afterEnable() {
+        focusMeteringControl.enableExternalFlashAeMode(true)
+        focusMeteringControl.enableExternalFlashAeMode(false)
+        assertThat(focusMeteringControl.isExternalFlashAeModeEnabled).isFalse()
+    }
+
+    @Test
+    @Config(maxSdk = 27)
+    fun canNotEnableExternalFlashAeMode_whenBelowApi28() {
+        focusMeteringControl.enableExternalFlashAeMode(true)
+        assertThat(focusMeteringControl.isExternalFlashAeModeEnabled).isFalse()
+    }
+
+    @Test
+    @Config(minSdk = 28)
+    fun canNotEnableExternalFlashAeMode_whenAeModeNotAvailable() {
+        focusMeteringControl = initFocusMeteringControl(CAMERA1_ID)
+        focusMeteringControl.enableExternalFlashAeMode(true)
+        assertThat(focusMeteringControl.isExternalFlashAeModeEnabled).isFalse()
     }
 }

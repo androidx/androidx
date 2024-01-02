@@ -20,6 +20,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.os.IBinder
 import android.view.View
+import java.lang.AutoCloseable
 import java.util.concurrent.Executor
 
 /**
@@ -48,7 +49,7 @@ interface SandboxedUiAdapter {
     /**
      * A single session with the provider of remote content.
      */
-    interface Session {
+    interface Session : AutoCloseable {
 
         /**
          * Return the [View] that presents content for this session. The same view will be returned
@@ -79,7 +80,7 @@ interface SandboxedUiAdapter {
          * dispose of associated resources and that the [SessionClient] should not
          * receive further callback events.
          */
-        fun close()
+        override fun close()
     }
 
     /**

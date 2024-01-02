@@ -50,14 +50,12 @@ public fun GlanceModifier.border(
     BorderModifier(BorderDimension(resourceId = width), color)
 )
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public data class BorderModifier(
     public val width: BorderDimension,
     public val color: ColorProvider
 ) : GlanceModifier.Element
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public data class BorderDimension(
     public val dp: Dp = 0.dp,

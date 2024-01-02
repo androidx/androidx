@@ -506,16 +506,14 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             MediaRouter.RouteInfo route = getItem(position);
-            if (route.isEnabled()) {
-                ImageView iconView = view.findViewById(R.id.mr_chooser_route_icon);
-                ProgressBar progressBar = view.findViewById(R.id.mr_chooser_route_progress_bar);
-                // Show the progress bar
-                if (iconView != null && progressBar != null) {
-                    iconView.setVisibility(View.GONE);
-                    progressBar.setVisibility(View.VISIBLE);
-                }
-                route.select();
+            ImageView iconView = view.findViewById(R.id.mr_chooser_route_icon);
+            ProgressBar progressBar = view.findViewById(R.id.mr_chooser_route_progress_bar);
+            // Show the progress bar
+            if (iconView != null && progressBar != null) {
+                iconView.setVisibility(View.GONE);
+                progressBar.setVisibility(View.VISIBLE);
             }
+            route.select();
         }
 
         private Drawable getIconDrawable(MediaRouter.RouteInfo route) {

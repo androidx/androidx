@@ -81,15 +81,19 @@ class ConcurrencyHelpers {
         }
     }
 
+    static Executor mainThreadExecutor() {
+        return convertHandlerToExecutor(mainHandlerAsync());
+    }
+
     /**
-     * @deprecated Exists only for upgrade path, remove with
-     * {@link FontRequestEmojiCompatConfig#setHandler(Handler)}
+     * Convert a handler to an executor.
+     *
+     * We need to do this in places where Context is not available, and cannot use ContextCompat.
      *
      * @param handler a background thread handler
      * @return an executor that posts all work to that handler
      */
     @NonNull
-    @Deprecated
     static Executor convertHandlerToExecutor(@NonNull Handler handler) {
         return handler::post;
     }

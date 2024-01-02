@@ -26,7 +26,8 @@ import androidx.compose.ui.node.visitSelfAndChildren
  * onApplyChangesListener when nodes are scheduled for invalidation.
  */
 internal class FocusInvalidationManager(
-    private val onRequestApplyChangesListener: (() -> Unit) -> Unit
+    private val onRequestApplyChangesListener: (() -> Unit) -> Unit,
+    private val invalidateOwnerFocusState: () -> Unit
 ) {
     private var focusTargetNodes = mutableSetOf<FocusTargetNode>()
     private var focusEventNodes = mutableSetOf<FocusEventModifierNode>()
@@ -44,17 +45,23 @@ internal class FocusInvalidationManager(
         focusPropertiesNodes.scheduleInvalidation(node)
     }
 
+    fun hasPendingInvalidation(): Boolean {
+        return focusTargetNodes.isNotEmpty() ||
+        focusPropertiesNodes.isNotEmpty() ||
+        focusEventNodes.isNotEmpty()
+    }
+
     private fun <T> MutableSet<T>.scheduleInvalidation(node: T) {
         if (add(node)) {
             // If this is the first node scheduled for invalidation,
             // we set up a listener that runs after onApplyChanges.
             if (focusTargetNodes.size + focusEventNodes.size + focusPropertiesNodes.size == 1) {
-                onRequestApplyChangesListener.invoke(invalidateNodes)
+                onRequestApplyChangesListener.invoke(::invalidateNodes)
             }
         }
     }
 
-    private val invalidateNodes: () -> Unit = {
+    private fun invalidateNodes() {
         // Process all the invalidated FocusProperties nodes.
         focusPropertiesNodes.forEach {
             // We don't need to invalidate a focus properties node if it was scheduled for
@@ -131,6 +138,8 @@ internal class FocusInvalidationManager(
         }
         focusTargetNodes.clear()
         focusTargetsWithInvalidatedFocusEvents.clear()
+
+        invalidateOwnerFocusState()
 
          check(focusPropertiesNodes.isEmpty()) { "Unprocessed FocusProperties nodes" }
          check(focusEventNodes.isEmpty()) { "Unprocessed FocusEvent nodes" }

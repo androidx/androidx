@@ -36,8 +36,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Provides support for interacting with media sessions that applications have published
- * in order to express their ongoing media playback state.
+ * Provides support for interacting with media sessions that applications have published in order to
+ * express their ongoing media playback state.
  *
  * @see MediaSessionCompat
  * @see MediaSession
@@ -46,7 +46,10 @@ import java.util.Set;
  * @see MediaControllerCompat
  * @see MediaController
  * @see MediaBrowser
+ * @deprecated androidx.media2 is deprecated. Please migrate to <a
+ *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
  */
+@Deprecated
 public final class MediaSessionManager {
     static final String TAG = "MediaSessionManager";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);

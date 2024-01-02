@@ -47,7 +47,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.test.R;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -102,7 +101,6 @@ public class RecyclerViewBasicTest {
                 0, layoutManager.mLayoutCount);
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
     @Test
     @Ignore("b/236978861")
     public void setScrollContainer() {
@@ -556,15 +554,10 @@ public class RecyclerViewBasicTest {
         measure();
         layout();
 
-        boolean isIcsOrLower = Build.VERSION.SDK_INT <= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1;
-
-        // On API 15 and lower, focus forward get's translated to focus down.
-        View expected = isIcsOrLower ? focusAdapter.mBottomRight : focusAdapter.mBottomLeft;
+        View expected = focusAdapter.mBottomLeft;
         assertEquals(expected, focusAdapter.mTopRight.focusSearch(View.FOCUS_FORWARD));
 
-        // On API 15 and lower, focus forward get's translated to focus down, which in this case
-        // runs out of the RecyclerView, thus returning null.
-        expected = isIcsOrLower ? null : focusAdapter.mBottomRight;
+        expected = focusAdapter.mBottomRight;
         assertSame(expected, focusAdapter.mBottomLeft.focusSearch(View.FOCUS_FORWARD));
 
         // we don't want looping within RecyclerView

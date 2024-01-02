@@ -39,11 +39,35 @@ class ChildHelper {
 
     private static final String TAG = "ChildrenHelper";
 
+    /** Not in call to removeView/removeViewAt/removeViewIfHidden. */
+    private static final int REMOVE_STATUS_NONE = 0;
+
+    /** Within a call to removeView/removeViewAt. */
+    private static final int REMOVE_STATUS_IN_REMOVE = 1;
+
+     /** Within a call to removeViewIfHidden. */
+    private static final int REMOVE_STATUS_IN_REMOVE_IF_HIDDEN = 2;
+
     final Callback mCallback;
 
     final Bucket mBucket;
 
     final List<View> mHiddenViews;
+
+    /**
+     * One of REMOVE_STATUS_NONE, REMOVE_STATUS_IN_REMOVE, REMOVE_STATUS_IN_REMOVE_IF_HIDDEN.
+     * removeView and removeViewIfHidden may call each other:
+     * 1. removeView triggers removeViewIfHidden: this happens when removeView stops the item
+     *    animation.  removeViewIfHidden should do nothing.
+     * 2. removeView triggers removeView: this should not happen.
+     * 3. removeViewIfHidden triggers removeViewIfHidden: this should not happen, since the
+     *    animation was stopped before the first removeViewIfHidden, it won't trigger another
+     *    removeViewIfHidden.
+     * 4. removeViewIfHidden triggers removeView: this should not happen.
+     */
+    private int mRemoveStatus = REMOVE_STATUS_NONE;
+    /** The view to remove in REMOVE_STATUS_IN_REMOVE. */
+    private View mViewInRemoveView;
 
     ChildHelper(Callback callback) {
         mCallback = callback;
@@ -137,16 +161,28 @@ class ChildHelper {
      * @param view The view to remove.
      */
     void removeView(View view) {
-        int index = mCallback.indexOfChild(view);
-        if (index < 0) {
-            return;
+        if (mRemoveStatus == REMOVE_STATUS_IN_REMOVE) {
+            throw new IllegalStateException("Cannot call removeView(At) within removeView(At)");
+        } else if (mRemoveStatus == REMOVE_STATUS_IN_REMOVE_IF_HIDDEN) {
+            throw new IllegalStateException("Cannot call removeView(At) within removeViewIfHidden");
         }
-        if (mBucket.remove(index)) {
-            unhideViewInternal(view);
-        }
-        mCallback.removeViewAt(index);
-        if (DEBUG) {
-            Log.d(TAG, "remove View off:" + index + "," + this);
+        try {
+            mRemoveStatus = REMOVE_STATUS_IN_REMOVE;
+            mViewInRemoveView = view;
+            int index = mCallback.indexOfChild(view);
+            if (index < 0) {
+                return;
+            }
+            if (mBucket.remove(index)) {
+                unhideViewInternal(view);
+            }
+            mCallback.removeViewAt(index);
+            if (DEBUG) {
+                Log.d(TAG, "remove View off:" + index + "," + this);
+            }
+        } finally {
+            mRemoveStatus = REMOVE_STATUS_NONE;
+            mViewInRemoveView = null;
         }
     }
 
@@ -157,17 +193,29 @@ class ChildHelper {
      *              ChildHelper offsets this index to actual ViewGroup index.
      */
     void removeViewAt(int index) {
-        final int offset = getOffset(index);
-        final View view = mCallback.getChildAt(offset);
-        if (view == null) {
-            return;
+        if (mRemoveStatus == REMOVE_STATUS_IN_REMOVE) {
+            throw new IllegalStateException("Cannot call removeView(At) within removeView(At)");
+        } else if (mRemoveStatus == REMOVE_STATUS_IN_REMOVE_IF_HIDDEN) {
+            throw new IllegalStateException("Cannot call removeView(At) within removeViewIfHidden");
         }
-        if (mBucket.remove(offset)) {
-            unhideViewInternal(view);
-        }
-        mCallback.removeViewAt(offset);
-        if (DEBUG) {
-            Log.d(TAG, "removeViewAt " + index + ", off:" + offset + ", " + this);
+        try {
+            final int offset = getOffset(index);
+            final View view = mCallback.getChildAt(offset);
+            if (view == null) {
+                return;
+            }
+            mRemoveStatus = REMOVE_STATUS_IN_REMOVE;
+            mViewInRemoveView = view;
+            if (mBucket.remove(offset)) {
+                unhideViewInternal(view);
+            }
+            mCallback.removeViewAt(offset);
+            if (DEBUG) {
+                Log.d(TAG, "removeViewAt " + index + ", off:" + offset + ", " + this);
+            }
+        } finally {
+            mRemoveStatus = REMOVE_STATUS_NONE;
+            mViewInRemoveView = null;
         }
     }
 
@@ -370,23 +418,39 @@ class ChildHelper {
      * @return True if the View is found and it is hidden. False otherwise.
      */
     boolean removeViewIfHidden(View view) {
-        final int index = mCallback.indexOfChild(view);
-        if (index == -1) {
-            if (unhideViewInternal(view) && DEBUG) {
-                throw new IllegalStateException("view is in hidden list but not in view group");
+        if (mRemoveStatus == REMOVE_STATUS_IN_REMOVE) {
+            if (mViewInRemoveView != view) {
+                throw new IllegalStateException("Cannot call removeViewIfHidden within removeView"
+                        + "(At) for a different view");
             }
-            return true;
+            // removeView ends the ItemAnimation and triggers removeViewIfHidden
+            return false;
+        } else if (mRemoveStatus == REMOVE_STATUS_IN_REMOVE_IF_HIDDEN) {
+            throw new IllegalStateException("Cannot call removeViewIfHidden within"
+                    + " removeViewIfHidden");
         }
-        if (mBucket.get(index)) {
-            mBucket.remove(index);
-            if (!unhideViewInternal(view) && DEBUG) {
-                throw new IllegalStateException(
-                        "removed a hidden view but it is not in hidden views list");
+        try {
+            mRemoveStatus = REMOVE_STATUS_IN_REMOVE_IF_HIDDEN;
+            final int index = mCallback.indexOfChild(view);
+            if (index == -1) {
+                if (unhideViewInternal(view) && DEBUG) {
+                    throw new IllegalStateException("view is in hidden list but not in view group");
+                }
+                return true;
             }
-            mCallback.removeViewAt(index);
-            return true;
+            if (mBucket.get(index)) {
+                mBucket.remove(index);
+                if (!unhideViewInternal(view) && DEBUG) {
+                    throw new IllegalStateException(
+                            "removed a hidden view but it is not in hidden views list");
+                }
+                mCallback.removeViewAt(index);
+                return true;
+            }
+            return false;
+        } finally {
+            mRemoveStatus = REMOVE_STATUS_NONE;
         }
-        return false;
     }
 
     /**

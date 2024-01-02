@@ -19,7 +19,6 @@ package androidx.room.compiler.processing.ksp
 import androidx.room.compiler.processing.InternalXAnnotated
 import androidx.room.compiler.processing.XAnnotation
 import androidx.room.compiler.processing.XAnnotationBox
-import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.getDeclaredTargets
 import androidx.room.compiler.processing.unwrapRepeatedAnnotationsFromContainer
 import com.google.devtools.ksp.symbol.AnnotationUseSiteTarget
 import com.google.devtools.ksp.symbol.KSAnnotated
@@ -162,6 +161,10 @@ internal sealed class KspAnnotated(
             val NO_USE_SITE_OR_SET_PARAM: UseSiteFilter = Impl(
                 acceptedSiteTarget = AnnotationUseSiteTarget.SETPARAM,
                 acceptedTargets = setOf(AnnotationTarget.PROPERTY_SETTER)
+            )
+            val NO_USE_SITE_OR_RECEIVER: UseSiteFilter = Impl(
+                acceptedSiteTarget = AnnotationUseSiteTarget.RECEIVER,
+                acceptedTargets = setOf(AnnotationTarget.VALUE_PARAMETER)
             )
             val FILE: UseSiteFilter = Impl(
                 acceptedSiteTarget = AnnotationUseSiteTarget.FILE,

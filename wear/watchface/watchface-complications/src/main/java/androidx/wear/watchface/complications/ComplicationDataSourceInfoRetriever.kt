@@ -15,7 +15,6 @@
  */
 package androidx.wear.watchface.complications
 
-import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -81,25 +80,21 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
     )
 
     private inner class ProviderInfoServiceConnection : ServiceConnection {
-        @SuppressLint("SyntheticAccessor")
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
             deferredService.complete(IProviderInfoService.Stub.asInterface(service))
         }
 
-        @SuppressLint("SyntheticAccessor")
         override fun onBindingDied(name: ComponentName?) {
             synchronized(lock) { closed = true }
             deferredService.completeExceptionally(ServiceDisconnectedException())
         }
 
-        @SuppressLint("SyntheticAccessor")
         override fun onServiceDisconnected(name: ComponentName) {
             synchronized(lock) { closed = true }
             deferredService.completeExceptionally(ServiceDisconnectedException())
         }
     }
 
-    @SuppressLint("SyntheticAccessor")
     private val serviceConnection: ServiceConnection = ProviderInfoServiceConnection()
     private var context: Context? = null
     private val deferredService = CompletableDeferred<IProviderInfoService>()

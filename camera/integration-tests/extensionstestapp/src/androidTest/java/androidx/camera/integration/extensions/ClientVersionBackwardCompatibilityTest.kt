@@ -99,7 +99,7 @@ class ClientVersionBackwardCompatibilityTest(private val config: CameraIdExtensi
     fun tearDown() = runBlocking {
         if (::cameraProvider.isInitialized) {
             withContext(Dispatchers.Main) {
-                cameraProvider.shutdown()[10, TimeUnit.SECONDS]
+                cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
             }
         }
 
@@ -107,6 +107,17 @@ class ClientVersionBackwardCompatibilityTest(private val config: CameraIdExtensi
             withContext(Dispatchers.Main) {
                 extensionsManager.shutdown()[10, TimeUnit.SECONDS]
             }
+        }
+    }
+
+    private suspend fun isCaptureProcessProgressSupported(
+        extensionsCameraSelector: CameraSelector
+    ): Boolean {
+        return withContext(Dispatchers.Main) {
+            cameraProvider.unbindAll()
+            val camera = cameraProvider.bindToLifecycle(lifecycleOwner, extensionsCameraSelector)
+            ImageCapture
+                .getImageCaptureCapabilities(camera.cameraInfo).isCaptureProcessProgressSupported
         }
     }
 
@@ -120,8 +131,12 @@ class ClientVersionBackwardCompatibilityTest(private val config: CameraIdExtensi
         extensionCameraSelector = extensionsManager
             .getExtensionEnabledCameraSelector(baseCameraSelector, config.extensionMode)
 
+        val expectCaptureProcessProgress =
+            isCaptureProcessProgressSupported(extensionCameraSelector)
+
         val previewFrameLatch = CountDownLatch(1)
         val captureLatch = CountDownLatch(1)
+        var captureProcessProgressInvoked = false
 
         val preview = Preview.Builder().build()
         val imageCapture = ImageCapture.Builder().build()
@@ -144,10 +159,20 @@ class ClientVersionBackwardCompatibilityTest(private val config: CameraIdExtensi
                 override fun onCaptureSuccess(image: ImageProxy) {
                     captureLatch.countDown()
                 }
-            })
-        assertThat(captureLatch.await(3, TimeUnit.SECONDS)).isTrue()
+
+                override fun onCaptureProcessProgressed(progress: Int) {
+                    captureProcessProgressInvoked = true
+                }
+            }
+        )
+        assertThat(captureLatch.await(10, TimeUnit.SECONDS)).isTrue()
+        assertThat(captureProcessProgressInvoked).isEqualTo(expectCaptureProcessProgress)
     }
 
+    @Test
+    fun previewImageCaptureWork_clientVersion_1_0_0() = runBlocking {
+        assertPreviewAndImageCaptureWorking(clientVersion = "1.0.0")
+    }
     @Test
     fun previewImageCaptureWork_clientVersion_1_1_0() = runBlocking {
         assertPreviewAndImageCaptureWorking(clientVersion = "1.1.0")

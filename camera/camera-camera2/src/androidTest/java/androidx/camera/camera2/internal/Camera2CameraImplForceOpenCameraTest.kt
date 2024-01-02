@@ -161,6 +161,7 @@ class Camera2CameraImplForceOpenCameraTest {
 
         // Initialize camera instance
         val camera = Camera2CameraImpl(
+            ApplicationProvider.getApplicationContext(),
             cameraManagerCompat,
             camId,
             camera2CameraInfo,
@@ -168,7 +169,8 @@ class Camera2CameraImplForceOpenCameraTest {
             cameraRegistry,
             cameraExecutor,
             cameraHandler,
-            DisplayInfoManager.getInstance(ApplicationProvider.getApplicationContext())
+            DisplayInfoManager.getInstance(ApplicationProvider.getApplicationContext()),
+            -1L
         )
 
         // Open the camera

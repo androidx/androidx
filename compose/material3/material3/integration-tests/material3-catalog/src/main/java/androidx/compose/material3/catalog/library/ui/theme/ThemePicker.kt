@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
@@ -229,6 +230,18 @@ fun ThemePicker(
                     onValueChange = { fontScale = it },
                     onValueChangeFinished = { onThemeChange(theme.copy(fontScale = fontScale)) }
                 )
+            }
+        }
+        item {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Button(
+                    onClick = { onThemeChange(Theme()) }
+                ) {
+                    Text(text = stringResource(id = R.string.reset_all))
+                }
             }
         }
     }

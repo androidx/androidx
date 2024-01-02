@@ -15,7 +15,9 @@ dependencies {
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.material)
+    androidTestImplementation(libs.material, {
+        exclude group: "androidx.coordinatorlayout", module: "coordinatorlayout"
+    })
     androidTestImplementation(libs.espressoCore, excludes.espresso)
     androidTestImplementation(libs.bundles.espressoContrib, excludes.espresso)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
@@ -53,4 +55,5 @@ androidx {
     inceptionYear = "2011"
     description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren't a part of the framework APIs. Compatible on devices running API 14 or later."
     failOnDeprecationWarnings = false
+    metalavaK2UastEnabled = true
 }

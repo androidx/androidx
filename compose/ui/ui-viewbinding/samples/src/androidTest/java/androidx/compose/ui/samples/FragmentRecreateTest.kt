@@ -22,6 +22,7 @@ import android.view.ViewGroup
 import androidx.activity.compose.setContent
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.viewbinding.samples.R
+import androidx.compose.ui.viewbinding.samples.databinding.SampleEditTextLayoutBinding
 import androidx.compose.ui.viewbinding.samples.databinding.TestFragmentLayoutBinding
 import androidx.compose.ui.viewinterop.AndroidViewBinding
 import androidx.fragment.app.Fragment
@@ -51,6 +52,13 @@ class FragmentRecreateTest {
                 supportFragmentManager.findFragmentById(R.id.fragment_container)!!
             }
             assertThat(fragment.requireView().parent).isNotNull()
+            val binding = SampleEditTextLayoutBinding.bind(fragment.requireView())
+            assertThat(binding.editText.text.toString()).isEqualTo("Default")
+
+            // Update the state to make sure it gets saved and restored properly
+            withActivity {
+                binding.editText.setText("Updated")
+            }
 
             recreate()
 
@@ -58,6 +66,9 @@ class FragmentRecreateTest {
                 supportFragmentManager.findFragmentById(R.id.fragment_container)!!
             }
             assertThat(recreatedFragment.requireView().parent).isNotNull()
+            val recreatedBinding = SampleEditTextLayoutBinding.bind(
+                recreatedFragment.requireView())
+            assertThat(recreatedBinding.editText.text.toString()).isEqualTo("Updated")
         }
     }
 
@@ -72,6 +83,13 @@ class FragmentRecreateTest {
             assertWithMessage("Fragment should be added as a child fragment")
                 .that(fragment).isNotNull()
             assertThat(fragment!!.requireView().parent).isNotNull()
+            val binding = SampleEditTextLayoutBinding.bind(fragment.requireView())
+            assertThat(binding.editText.text.toString()).isEqualTo("Default")
+
+            // Update the state to make sure it gets saved and restored properly
+            withActivity {
+                binding.editText.setText("Updated")
+            }
 
             recreate()
 
@@ -83,6 +101,9 @@ class FragmentRecreateTest {
             assertWithMessage("Fragment should be added as a child fragment")
                 .that(recreatedFragment).isNotNull()
             assertThat(recreatedFragment!!.requireView().parent).isNotNull()
+            val recreatedBinding = SampleEditTextLayoutBinding.bind(
+                recreatedFragment.requireView())
+            assertThat(recreatedBinding.editText.text.toString()).isEqualTo("Updated")
         }
     }
 }

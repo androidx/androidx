@@ -21,6 +21,7 @@ package androidx.camera.camera2.pipe.compat
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.GraphState
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Permissions
 import androidx.camera.camera2.pipe.core.Threads
@@ -54,7 +55,7 @@ internal object RequestCloseAll : CameraRequest()
 // A queue depth of 32 was deemed necessary in b/276051078 where a flood of requests can cause the
 // queue depth to go over 8. In the long run, we can perhaps look into refactoring and
 // reimplementing the request queue in a more robust way.
-private const val requestQueueDepth = 32
+private const val requestQueueDepth = 64
 
 @Suppress("EXPERIMENTAL_API_USAGE")
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
@@ -81,27 +82,31 @@ constructor(
         sharedCameraIds: List<CameraId>,
         graphListener: GraphListener,
         isForegroundObserver: (Unit) -> Boolean,
-    ): VirtualCamera {
+    ): VirtualCamera? {
         val result = VirtualCameraState(cameraId, graphListener, threads.globalScope)
-        offerChecked(
-            RequestOpen(
-                result,
-                sharedCameraIds,
-                graphListener,
-                isForegroundObserver
+        if (!offerChecked(RequestOpen(result, sharedCameraIds, graphListener, isForegroundObserver))
+        ) {
+            Log.error { "Camera open request failed: VirtualCameraManager queue size exceeded" }
+            graphListener.onGraphError(
+                GraphState.GraphStateError(
+                    CameraError.ERROR_CAMERA_OPENER,
+                    willAttemptRetry = false
+                )
             )
-        )
+            return null
+        }
         return result
     }
 
     internal fun closeAll() {
-        offerChecked(RequestCloseAll)
+        if (!offerChecked(RequestCloseAll)) {
+            Log.warn { "Failed to close all cameras: Close request submission failed" }
+            return
+        }
     }
 
-    private fun offerChecked(request: CameraRequest) {
-        check(requestQueue.trySend(request).isSuccess) {
-            "There are more than $requestQueueDepth requests buffered!"
-        }
+    private fun offerChecked(request: CameraRequest): Boolean {
+        return requestQueue.trySend(request).isSuccess
     }
 
     private suspend fun requestLoop() = coroutineScope {

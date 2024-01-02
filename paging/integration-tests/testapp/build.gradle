@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
     id("kotlin-android")
-    id("kotlin-kapt")
+    id("com.google.devtools.ksp")
 }
 
 dependencies {
+    implementation(libs.multidex)
+
     implementation("androidx.arch.core:core-runtime:2.2.0")
     implementation(projectOrArtifact(":room:room-ktx"))
     implementation(projectOrArtifact(":room:room-rxjava2"))
@@ -33,7 +33,7 @@ dependencies {
     implementation(project(":paging:paging-runtime"))
     implementation(project(":paging:paging-rxjava2"))
 
-    kapt(projectOrArtifact(":room:room-compiler"))
+    ksp(projectOrArtifact(":room:room-compiler"))
 
     implementation(libs.multidex)
     implementation(projectOrArtifact(":recyclerview:recyclerview"))
@@ -41,22 +41,23 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.1.0")
     implementation(libs.kotlinStdlib)
 
+    // Only needed to ensure version of annotation:annotation matches in impl
+    // and androidTestImpl, for both AOSP and playground builds.
+    implementation(project(":annotation:annotation"))
+
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
-}
-
-kapt {
-    javacOptions {
-        option("--source", "8")
-        option("--target", "8")
-    }
+    androidTestImplementation(project(":annotation:annotation"))
 }
 
 android {
     namespace "androidx.paging.integration.testapp"
+    defaultConfig {
+        multiDexEnabled = true
+    }
 }
 
 // Enable parameter names to support Room incremental when its a project() dep.

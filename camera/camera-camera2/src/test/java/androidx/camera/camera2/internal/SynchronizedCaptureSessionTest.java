@@ -36,6 +36,7 @@ import androidx.camera.camera2.internal.compat.quirk.TextureViewIsClosedQuirk;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.Quirks;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -61,8 +62,8 @@ public class SynchronizedCaptureSessionTest {
     private SynchronizedCaptureSession.StateCallback mMockStateCallback;
     private List<OutputConfigurationCompat> mOutputs;
     private CaptureSessionRepository mCaptureSessionRepository;
-    private SynchronizedCaptureSessionOpener mSynchronizedCaptureSessionOpener;
-    private SynchronizedCaptureSessionOpener.Builder mCaptureSessionOpenerBuilder;
+    private SynchronizedCaptureSession.Opener mSynchronizedCaptureSessionOpener;
+    private SynchronizedCaptureSession.OpenerBuilder mCaptureSessionOpenerBuilder;
     private ScheduledExecutorService mScheduledExecutorService =
             Executors.newSingleThreadScheduledExecutor();
 
@@ -83,8 +84,8 @@ public class SynchronizedCaptureSessionTest {
         mFakeDeferrableSurfaces.add(mDeferrableSurface1);
         mFakeDeferrableSurfaces.add(mDeferrableSurface2);
 
-        mCaptureSessionOpenerBuilder = new SynchronizedCaptureSessionOpener.Builder(
-                android.os.AsyncTask.SERIAL_EXECUTOR, mScheduledExecutorService,
+        mCaptureSessionOpenerBuilder = new SynchronizedCaptureSession.OpenerBuilder(
+                CameraXExecutors.directExecutor(), mScheduledExecutorService,
                 mock(Handler.class), mCaptureSessionRepository,
                 new Quirks(Arrays.asList(new PreviewOrientationIncorrectQuirk(),
                         new ConfigureSurfaceToSecondarySessionFailQuirk())),
@@ -122,7 +123,7 @@ public class SynchronizedCaptureSessionTest {
         CameraCaptureSession mockCaptureSession1 = mock(CameraCaptureSession.class);
         SynchronizedCaptureSession.StateCallback mockStateCallback1 = mock(
                 SynchronizedCaptureSession.StateCallback.class);
-        SynchronizedCaptureSessionOpener captureSessionUtil1 =
+        SynchronizedCaptureSession.Opener captureSessionUtil1 =
                 mCaptureSessionOpenerBuilder.build();
         SessionConfigurationCompat sessionConfigurationCompat1 =
                 captureSessionUtil1.createSessionConfigurationCompat(

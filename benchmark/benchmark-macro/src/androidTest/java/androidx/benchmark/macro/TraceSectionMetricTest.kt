@@ -81,8 +81,10 @@ class TraceSectionMetricTest {
         tracePath = api24ColdStart,
         packageName = Packages.TARGET,
         sectionName = "inflate",
-        expectedFirstMs = 4.949, // first inflation
-        expectedSumMs = 19.779, // total inflation
+        expectedFirstMs = 4.949,
+        expectedMinMs = 4.588,
+        expectedMaxMs = 10.242,
+        expectedSumMs = 19.779,
         expectedSumCount = 3,
         targetPackageOnly = true,
     )
@@ -92,8 +94,10 @@ class TraceSectionMetricTest {
         tracePath = api24ColdStart,
         packageName = Packages.TARGET,
         sectionName = "inflate",
-        expectedFirstMs = 13.318, // first inflation
-        expectedSumMs = 43.128, // total inflation
+        expectedFirstMs = 13.318, // first inflation, in diff process
+        expectedMinMs = 0.836,
+        expectedMaxMs = 13.318,
+        expectedSumMs = 43.128,
         expectedSumCount = 8,
         targetPackageOnly = false,
     )
@@ -110,7 +114,7 @@ class TraceSectionMetricTest {
         ) {
             assumeTrue(PerfettoHelper.isAbiSupported())
 
-            val metric = TraceSectionMetric(sectionName, mode, targetPackageOnly)
+            val metric = TraceSectionMetric(sectionName, "testLabel", mode, targetPackageOnly)
             metric.configure(packageName = packageName)
 
             val result = PerfettoTraceProcessor.runSingleSessionServer(tracePath) {
@@ -127,11 +131,11 @@ class TraceSectionMetricTest {
                 )
             }
 
-            var measurements = listOf(Metric.Measurement(sectionName + "Ms", expectedMs))
+            var measurements = listOf(Metric.Measurement("testLabel${mode.name}Ms", expectedMs))
 
             if (mode == TraceSectionMetric.Mode.Sum) {
                 measurements = measurements + listOf(
-                    Metric.Measurement(sectionName + "Count", expectedCount.toDouble())
+                    Metric.Measurement("testLabelCount", expectedCount.toDouble())
                 )
             }
 
@@ -148,6 +152,8 @@ class TraceSectionMetricTest {
             sectionName: String,
             expectedFirstMs: Double,
             expectedSumMs: Double = expectedFirstMs, // default implies only one matching section
+            expectedMinMs: Double = expectedFirstMs, // default implies only one matching section
+            expectedMaxMs: Double = expectedFirstMs, // default implies only one matching section
             expectedSumCount: Int = 1,
             targetPackageOnly: Boolean = true,
         ) {
@@ -167,6 +173,24 @@ class TraceSectionMetricTest {
                 mode = TraceSectionMetric.Mode.Sum,
                 expectedMs = expectedSumMs,
                 expectedCount = expectedSumCount,
+                targetPackageOnly = targetPackageOnly,
+            )
+            verifyMetric(
+                tracePath = tracePath,
+                packageName = packageName,
+                sectionName = sectionName,
+                mode = TraceSectionMetric.Mode.Min,
+                expectedMs = expectedMinMs,
+                expectedCount = 1,
+                targetPackageOnly = targetPackageOnly,
+            )
+            verifyMetric(
+                tracePath = tracePath,
+                packageName = packageName,
+                sectionName = sectionName,
+                mode = TraceSectionMetric.Mode.Max,
+                expectedMs = expectedMaxMs,
+                expectedCount = 1,
                 targetPackageOnly = targetPackageOnly,
             )
         }

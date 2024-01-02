@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XConstructorType
+import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XExecutableType
 import androidx.room.compiler.processing.XFiler
 import androidx.room.compiler.processing.XMessager
@@ -28,12 +29,15 @@ import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.javac.XTypeElementStore
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.getClassDeclarationByName
+import com.google.devtools.ksp.processing.JvmPlatformInfo
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFile
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeAlias
 import com.google.devtools.ksp.symbol.KSTypeArgument
@@ -51,10 +55,19 @@ internal class KspProcessingEnv(
     private val logger = delegate.logger
     private val codeGenerator = delegate.codeGenerator
 
-    // No API to get this but Kotlin's default is 8, so go with it for now.
-    // TODO: https://github.com/google/ksp/issues/810
-    override val jvmVersion: Int
-        get() = 8
+    private val jvmPlatformInfo by lazy {
+        delegate.platforms.filterIsInstance<JvmPlatformInfo>().firstOrNull()
+    }
+
+    override val jvmVersion by lazy {
+       when (val jvmTarget = jvmPlatformInfo?.jvmTarget) {
+           // Special case "1.8" since it is the only valid value with the 1.x notation, it is
+           // also the default value.
+           // See https://kotlinlang.org/docs/compiler-reference.html#jvm-target-version
+           "1.8", null -> 8
+           else -> jvmTarget.toInt()
+       }
+    }
 
     private val ksFileMemberContainers = mutableMapOf<KSFile, KspFileMemberContainer>()
 
@@ -107,6 +120,10 @@ internal class KspProcessingEnv(
             ksType = resolver.builtIns.unitType,
             boxed = false,
         )
+
+    internal val jvmDefaultMode by lazy {
+        jvmPlatformInfo?.let { JvmDefaultMode.fromStringOrNull(it.jvmDefaultMode) }
+    }
 
     override fun findTypeElement(qName: String): KspTypeElement? {
         return typeElementStore[qName]
@@ -187,6 +204,18 @@ internal class KspProcessingEnv(
     override fun getArrayType(type: XType): KspArrayType {
         check(type is KspType)
         return arrayTypeFactory.createWithComponentType(type)
+    }
+
+    @OptIn(KspExperimental::class)
+    override fun getElementsFromPackage(packageName: String): List<XElement> {
+        return resolver.getDeclarationsFromPackage(packageName).map {
+            when (it) {
+                is KSClassDeclaration -> wrapClassDeclaration(it)
+                is KSPropertyDeclaration -> KspFieldElement.create(this, it)
+                is KSFunctionDeclaration -> KspMethodElement.create(this, it)
+                else -> error("Unknown element type")
+            }
+        }.toList()
     }
 
     /**
@@ -333,5 +362,20 @@ internal class KspProcessingEnv(
 
     inner class CommonTypes() {
         val anyType: XType = requireType("kotlin.Any")
+    }
+
+    internal enum class JvmDefaultMode(val option: String) {
+        DISABLE("disable"),
+        ALL_COMPATIBILITY("all-compatibility"),
+        ALL_INCOMPATIBLE("all");
+
+        companion object {
+            fun fromStringOrNull(string: String?): JvmDefaultMode? = when (string) {
+                DISABLE.option -> DISABLE
+                ALL_COMPATIBILITY.option -> ALL_COMPATIBILITY
+                ALL_INCOMPATIBLE.option -> ALL_INCOMPATIBLE
+                else -> null
+            }
+        }
     }
 }

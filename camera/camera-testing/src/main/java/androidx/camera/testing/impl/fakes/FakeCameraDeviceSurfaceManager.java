@@ -18,9 +18,7 @@ package androidx.camera.testing.impl.fakes;
 
 import static android.graphics.ImageFormat.JPEG;
 import static android.graphics.ImageFormat.YUV_420_888;
-
 import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
-
 import static com.google.common.primitives.Ints.asList;
 
 import android.util.Pair;
@@ -90,7 +88,8 @@ public final class FakeCameraDeviceSurfaceManager implements CameraDeviceSurface
             @CameraMode.Mode int cameraMode,
             @NonNull String cameraId,
             @NonNull List<AttachedSurfaceInfo> existingSurfaces,
-            @NonNull Map<UseCaseConfig<?>, List<Size>> newUseCaseConfigsSupportedSizeMap) {
+            @NonNull Map<UseCaseConfig<?>, List<Size>> newUseCaseConfigsSupportedSizeMap,
+            boolean isPreviewStabilizationOn) {
         List<UseCaseConfig<?>> newUseCaseConfigs =
                 new ArrayList<>(newUseCaseConfigsSupportedSizeMap.keySet());
         checkSurfaceCombo(existingSurfaces, newUseCaseConfigs);

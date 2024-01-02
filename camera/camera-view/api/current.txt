@@ -11,16 +11,23 @@ package androidx.camera.view {
     method @MainThread public java.util.concurrent.Executor? getImageAnalysisBackgroundExecutor();
     method @MainThread public int getImageAnalysisBackpressureStrategy();
     method @MainThread public int getImageAnalysisImageQueueDepth();
-    method @MainThread public androidx.camera.view.CameraController.OutputSize? getImageAnalysisTargetSize();
+    method @MainThread public int getImageAnalysisOutputImageFormat();
+    method @MainThread public androidx.camera.core.resolutionselector.ResolutionSelector? getImageAnalysisResolutionSelector();
+    method @Deprecated @MainThread public androidx.camera.view.CameraController.OutputSize? getImageAnalysisTargetSize();
     method @MainThread public int getImageCaptureFlashMode();
     method @MainThread public java.util.concurrent.Executor? getImageCaptureIoExecutor();
     method @MainThread public int getImageCaptureMode();
-    method @MainThread public androidx.camera.view.CameraController.OutputSize? getImageCaptureTargetSize();
+    method @MainThread public androidx.camera.core.resolutionselector.ResolutionSelector? getImageCaptureResolutionSelector();
+    method @Deprecated @MainThread public androidx.camera.view.CameraController.OutputSize? getImageCaptureTargetSize();
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> getInitializationFuture();
-    method @MainThread public androidx.camera.view.CameraController.OutputSize? getPreviewTargetSize();
+    method @MainThread public androidx.camera.core.resolutionselector.ResolutionSelector? getPreviewResolutionSelector();
+    method @Deprecated @MainThread public androidx.camera.view.CameraController.OutputSize? getPreviewTargetSize();
     method @MainThread public androidx.lifecycle.LiveData<java.lang.Integer!> getTapToFocusState();
     method @MainThread public androidx.lifecycle.LiveData<java.lang.Integer!> getTorchState();
+    method @MainThread public androidx.camera.core.DynamicRange getVideoCaptureDynamicRange();
+    method @MainThread public int getVideoCaptureMirrorMode();
     method @MainThread public androidx.camera.video.QualitySelector getVideoCaptureQualitySelector();
+    method @MainThread public android.util.Range<java.lang.Integer!> getVideoCaptureTargetFrameRate();
     method @MainThread public androidx.lifecycle.LiveData<androidx.camera.core.ZoomState!> getZoomState();
     method @MainThread public boolean hasCamera(androidx.camera.core.CameraSelector);
     method @MainThread public boolean isImageAnalysisEnabled();
@@ -36,16 +43,23 @@ package androidx.camera.view {
     method @MainThread public void setImageAnalysisBackgroundExecutor(java.util.concurrent.Executor?);
     method @MainThread public void setImageAnalysisBackpressureStrategy(int);
     method @MainThread public void setImageAnalysisImageQueueDepth(int);
-    method @MainThread public void setImageAnalysisTargetSize(androidx.camera.view.CameraController.OutputSize?);
+    method @MainThread public void setImageAnalysisOutputImageFormat(int);
+    method @MainThread public void setImageAnalysisResolutionSelector(androidx.camera.core.resolutionselector.ResolutionSelector?);
+    method @Deprecated @MainThread public void setImageAnalysisTargetSize(androidx.camera.view.CameraController.OutputSize?);
     method @MainThread public void setImageCaptureFlashMode(int);
     method @MainThread public void setImageCaptureIoExecutor(java.util.concurrent.Executor?);
     method @MainThread public void setImageCaptureMode(int);
-    method @MainThread public void setImageCaptureTargetSize(androidx.camera.view.CameraController.OutputSize?);
+    method @MainThread public void setImageCaptureResolutionSelector(androidx.camera.core.resolutionselector.ResolutionSelector?);
+    method @Deprecated @MainThread public void setImageCaptureTargetSize(androidx.camera.view.CameraController.OutputSize?);
     method @MainThread public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setLinearZoom(@FloatRange(from=0.0f, to=1.0f) float);
     method @MainThread public void setPinchToZoomEnabled(boolean);
-    method @MainThread public void setPreviewTargetSize(androidx.camera.view.CameraController.OutputSize?);
+    method @MainThread public void setPreviewResolutionSelector(androidx.camera.core.resolutionselector.ResolutionSelector?);
+    method @Deprecated @MainThread public void setPreviewTargetSize(androidx.camera.view.CameraController.OutputSize?);
     method @MainThread public void setTapToFocusEnabled(boolean);
+    method @MainThread public void setVideoCaptureDynamicRange(androidx.camera.core.DynamicRange);
+    method @MainThread public void setVideoCaptureMirrorMode(int);
     method @MainThread public void setVideoCaptureQualitySelector(androidx.camera.video.QualitySelector);
+    method @MainThread public void setVideoCaptureTargetFrameRate(android.util.Range<java.lang.Integer!>);
     method @MainThread public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setZoomRatio(float);
     method @MainThread @RequiresApi(26) public androidx.camera.video.Recording startRecording(androidx.camera.video.FileDescriptorOutputOptions, androidx.camera.view.video.AudioConfig, java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.camera.video.VideoRecordEvent!>);
     method @MainThread public androidx.camera.video.Recording startRecording(androidx.camera.video.FileOutputOptions, androidx.camera.view.video.AudioConfig, java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.camera.video.VideoRecordEvent!>);
@@ -63,12 +77,12 @@ package androidx.camera.view {
     field public static final int VIDEO_CAPTURE = 4; // 0x4
   }
 
-  @RequiresApi(21) public static final class CameraController.OutputSize {
-    ctor public CameraController.OutputSize(android.util.Size);
-    ctor public CameraController.OutputSize(int);
-    method public int getAspectRatio();
-    method public android.util.Size? getResolution();
-    field public static final int UNASSIGNED_ASPECT_RATIO = -1; // 0xffffffff
+  @Deprecated @RequiresApi(21) public static final class CameraController.OutputSize {
+    ctor @Deprecated public CameraController.OutputSize(android.util.Size);
+    ctor @Deprecated public CameraController.OutputSize(int);
+    method @Deprecated public int getAspectRatio();
+    method @Deprecated public android.util.Size? getResolution();
+    field @Deprecated public static final int UNASSIGNED_ASPECT_RATIO = -1; // 0xffffffff
   }
 
   @RequiresApi(21) public final class LifecycleCameraController extends androidx.camera.view.CameraController {
@@ -95,6 +109,7 @@ package androidx.camera.view {
     method @UiThread public void setController(androidx.camera.view.CameraController?);
     method @UiThread public void setImplementationMode(androidx.camera.view.PreviewView.ImplementationMode);
     method @UiThread public void setScaleType(androidx.camera.view.PreviewView.ScaleType);
+    method @UiThread public void setScreenFlashWindow(android.view.Window?);
   }
 
   @RequiresApi(21) public enum PreviewView.ImplementationMode {
@@ -124,6 +139,16 @@ package androidx.camera.view {
 
   public static interface RotationProvider.Listener {
     method public void onRotationChanged(int);
+  }
+
+  @RequiresApi(21) public final class ScreenFlashView extends android.view.View {
+    ctor @UiThread public ScreenFlashView(android.content.Context);
+    ctor @UiThread public ScreenFlashView(android.content.Context, android.util.AttributeSet?);
+    ctor @UiThread public ScreenFlashView(android.content.Context, android.util.AttributeSet?, int);
+    ctor @UiThread public ScreenFlashView(android.content.Context, android.util.AttributeSet?, int, int);
+    method @UiThread public androidx.camera.core.ImageCapture.ScreenFlash? getScreenFlash();
+    method @UiThread public void setController(androidx.camera.view.CameraController?);
+    method @UiThread public void setScreenFlashWindow(android.view.Window?);
   }
 
 }

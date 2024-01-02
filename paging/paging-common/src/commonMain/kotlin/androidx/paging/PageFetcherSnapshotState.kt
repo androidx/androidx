@@ -378,7 +378,6 @@ internal class PageFetcherSnapshotState<Key : Any, Value : Any> private construc
      * Wrapper for [PageFetcherSnapshotState], which protects access behind a [Mutex] to prevent
      * race scenarios.
      */
-    @Suppress("SyntheticAccessor")
     internal class Holder<Key : Any, Value : Any>(
         private val config: PagingConfig
     ) {

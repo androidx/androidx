@@ -92,6 +92,18 @@ public class DeviceQuirksLoader {
         if (ExtraSupportedResolutionQuirk.load()) {
             quirks.add(new ExtraSupportedResolutionQuirk());
         }
+        if (StretchedVideoResolutionQuirk.load()) {
+            quirks.add(new StretchedVideoResolutionQuirk());
+        }
+        if (CodecStuckOnFlushQuirk.load()) {
+            quirks.add(new CodecStuckOnFlushQuirk());
+        }
+        if (StopCodecAfterSurfaceRemovalCrashMediaServerQuirk.load()) {
+            quirks.add(new StopCodecAfterSurfaceRemovalCrashMediaServerQuirk());
+        }
+        if (ExtraSupportedQualityQuirk.load()) {
+            quirks.add(new ExtraSupportedQualityQuirk());
+        }
 
         return quirks;
     }

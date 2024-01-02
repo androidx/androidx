@@ -18,6 +18,7 @@ package androidx.camera.core.imagecapture;
 
 import static java.util.Objects.requireNonNull;
 
+import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.os.Build;
@@ -121,6 +122,19 @@ class ProcessingRequest {
     }
 
     /**
+     * @see TakePictureCallback#onCaptureStarted()
+     */
+    @MainThread
+    void onCaptureStarted() {
+        mCallback.onCaptureStarted();
+    }
+
+    @MainThread
+    void onCaptureProcessProgressed(int progress) {
+        mCallback.onCaptureProcessProgressed(progress);
+    }
+
+    /**
      * @see TakePictureCallback#onImageCaptured()
      */
     @MainThread
@@ -134,6 +148,10 @@ class ProcessingRequest {
     @MainThread
     void onFinalResult(@NonNull ImageCapture.OutputFileResults outputFileResults) {
         mCallback.onFinalResult(outputFileResults);
+    }
+
+    void onPostviewBitmapAvailable(@NonNull Bitmap bitmap) {
+        mCallback.onPostviewBitmapAvailable(bitmap);
     }
 
     /**

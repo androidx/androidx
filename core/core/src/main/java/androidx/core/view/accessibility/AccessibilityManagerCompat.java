@@ -161,33 +161,29 @@ public final class AccessibilityManagerCompat {
      * Registers a {@link TouchExplorationStateChangeListener} for changes in
      * the global touch exploration state of the system.
      *
+     * @param manager AccessibilityManager for which to add the listener.
      * @param listener The listener.
      * @return True if successfully registered.
      */
     public static boolean addTouchExplorationStateChangeListener(
             @NonNull AccessibilityManager manager,
             @NonNull TouchExplorationStateChangeListener listener) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            return Api19Impl.addTouchExplorationStateChangeListenerWrapper(manager, listener);
-        } else {
-            return false;
-        }
+        return manager.addTouchExplorationStateChangeListener(
+                new TouchExplorationStateChangeListenerWrapper(listener));
     }
 
     /**
      * Unregisters a {@link TouchExplorationStateChangeListener}.
      *
+     * @param manager AccessibilityManager for which to remove the listener.
      * @param listener The listener.
      * @return True if successfully unregistered.
      */
     public static boolean removeTouchExplorationStateChangeListener(
             @NonNull AccessibilityManager manager,
             @NonNull TouchExplorationStateChangeListener listener) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            return Api19Impl.removeTouchExplorationStateChangeListenerWrapper(manager, listener);
-        } else {
-            return false;
-        }
+        return manager.removeTouchExplorationStateChangeListener(
+                new TouchExplorationStateChangeListenerWrapper(listener));
     }
 
 
@@ -220,7 +216,6 @@ public final class AccessibilityManagerCompat {
         }
     }
 
-    @RequiresApi(19)
     private static final class TouchExplorationStateChangeListenerWrapper
             implements AccessibilityManager.TouchExplorationStateChangeListener {
         final TouchExplorationStateChangeListener mListener;
@@ -312,28 +307,6 @@ public final class AccessibilityManagerCompat {
         @DoNotInline
         static boolean isRequestFromAccessibilityTool(AccessibilityManager accessibilityManager) {
             return accessibilityManager.isRequestFromAccessibilityTool();
-        }
-    }
-    @RequiresApi(19)
-    static class Api19Impl {
-        private Api19Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static boolean addTouchExplorationStateChangeListenerWrapper(
-                AccessibilityManager accessibilityManager,
-                TouchExplorationStateChangeListener listener) {
-            return accessibilityManager.addTouchExplorationStateChangeListener(
-                    new TouchExplorationStateChangeListenerWrapper(listener));
-        }
-
-        @DoNotInline
-        static boolean removeTouchExplorationStateChangeListenerWrapper(
-                AccessibilityManager accessibilityManager,
-                TouchExplorationStateChangeListener listener) {
-            return accessibilityManager.removeTouchExplorationStateChangeListener(
-                    new TouchExplorationStateChangeListenerWrapper(listener));
         }
     }
 }

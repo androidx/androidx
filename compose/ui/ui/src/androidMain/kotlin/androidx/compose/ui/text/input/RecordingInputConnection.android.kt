@@ -41,8 +41,13 @@ private const val DEBUG_CLASS = "RecordingInputConnection"
  * @param eventCallback An input event listener.
  * @param autoCorrect Whether autoCorrect is enabled.
  */
+@Deprecated(
+    "Only exists to support the legacy TextInputService APIs. It is not used by any Compose " +
+        "code. A copy of this class in foundation is used by the legacy BasicTextField."
+)
 internal class RecordingInputConnection(
     initState: TextFieldValue,
+    @Suppress("DEPRECATION")
     val eventCallback: InputEventCallback2,
     val autoCorrect: Boolean
 ) : InputConnection {
@@ -93,6 +98,7 @@ internal class RecordingInputConnection(
      */
     fun updateInputState(
         state: TextFieldValue,
+        @Suppress("DEPRECATION")
         inputMethodManager: InputMethodManager,
     ) {
         if (!isActive) return

@@ -63,6 +63,10 @@ fun LazyLayout(
  * @param modifier to apply on the layout
  * @param prefetchState allows to schedule items for prefetching
  * @param measurePolicy Measure policy which allows to only compose and measure needed items.
+ *
+ * Note: this function is a part of [LazyLayout] harness that allows for building custom lazy
+ * layouts. LazyLayout and all corresponding APIs are still under development and are subject to
+ * change.
  */
 @ExperimentalFoundationApi
 @Composable

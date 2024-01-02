@@ -21,7 +21,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
-import kotlin.math.roundToInt
+import androidx.compose.ui.util.fastRoundToInt
 
 /**
  * An interface to calculate the position of a sized box inside an available space. [Alignment] is
@@ -171,7 +171,7 @@ data class BiasAlignment(
 
         val x = centerX * (1 + resolvedHorizontalBias)
         val y = centerY * (1 + verticalBias)
-        return IntOffset(x.roundToInt(), y.roundToInt())
+        return IntOffset(x.fastRoundToInt(), y.fastRoundToInt())
     }
 
     /**
@@ -191,7 +191,7 @@ data class BiasAlignment(
             // calculating the new positions
             val center = (space - size).toFloat() / 2f
             val resolvedBias = if (layoutDirection == LayoutDirection.Ltr) bias else -1 * bias
-            return (center * (1 + resolvedBias)).roundToInt()
+            return (center * (1 + resolvedBias)).fastRoundToInt()
         }
     }
 
@@ -210,7 +210,7 @@ data class BiasAlignment(
             // Convert to Px first and only round at the end, to avoid rounding twice while
             // calculating the new positions
             val center = (space - size).toFloat() / 2f
-            return (center * (1 + bias)).roundToInt()
+            return (center * (1 + bias)).fastRoundToInt()
         }
     }
 }
@@ -243,7 +243,7 @@ data class BiasAbsoluteAlignment(
 
         val x = centerX * (1 + horizontalBias)
         val y = centerY * (1 + verticalBias)
-        return IntOffset(x.roundToInt(), y.roundToInt())
+        return IntOffset(x.fastRoundToInt(), y.fastRoundToInt())
     }
 
     /**
@@ -266,7 +266,7 @@ data class BiasAbsoluteAlignment(
             // Convert to Px first and only round at the end, to avoid rounding twice while
             // calculating the new positions
             val center = (space - size).toFloat() / 2f
-            return (center * (1 + bias)).roundToInt()
+            return (center * (1 + bias)).fastRoundToInt()
         }
     }
 }

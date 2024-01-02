@@ -53,7 +53,13 @@
             android:launchMode="singleTop"
             android:exported="true" />
         <activity
+            android:name="androidx.activity.OnUserLeaveHintActivity"
+            android:exported="true" />
+        <activity
             android:name="androidx.activity.AutoRestarterActivity"
+            android:exported="true" />
+        <activity
+            android:name="androidx.activity.result.EmptyContentActivity"
             android:exported="true" />
         <activity
             android:name="androidx.activity.ResultComponentActivity"
@@ -78,6 +84,9 @@
             android:exported="true" />
         <activity
             android:name="androidx.activity.OptionMenuNoSuperActivity"
+            android:exported="true" />
+        <activity
+            android:name="androidx.activity.ActivityViewModelLazyTest$TestActivity"
             android:exported="true" />
         <activity
             android:name="androidx.activity.FullyDrawnActivity"

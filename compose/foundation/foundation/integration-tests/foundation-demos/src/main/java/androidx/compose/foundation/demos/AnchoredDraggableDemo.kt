@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.samples.AnchoredDraggableAnchorsFromCompositionSample
+import androidx.compose.foundation.samples.AnchoredDraggableCatchAnimatingWidgetSample
 import androidx.compose.foundation.samples.AnchoredDraggableCustomAnchoredSample
 import androidx.compose.foundation.samples.AnchoredDraggableLayoutDependentAnchorsSample
 import androidx.compose.foundation.verticalScroll
@@ -36,6 +37,8 @@ fun AnchoredDraggableDemo() {
         AnchoredDraggableAnchorsFromCompositionSample()
         Spacer(Modifier.height(50.dp))
         AnchoredDraggableLayoutDependentAnchorsSample()
+        Spacer(Modifier.height(50.dp))
+        AnchoredDraggableCatchAnimatingWidgetSample()
         Spacer(Modifier.height(50.dp))
         AnchoredDraggableCustomAnchoredSample()
     }

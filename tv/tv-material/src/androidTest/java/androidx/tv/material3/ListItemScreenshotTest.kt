@@ -24,8 +24,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -381,7 +381,7 @@ class ListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
                     },
                     trailingContent = {
                         Icon(
-                            imageVector = Icons.Filled.KeyboardArrowRight,
+                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                             contentDescription = null,
                             modifier = Modifier.size(ListItemDefaults.IconSize)
                         )

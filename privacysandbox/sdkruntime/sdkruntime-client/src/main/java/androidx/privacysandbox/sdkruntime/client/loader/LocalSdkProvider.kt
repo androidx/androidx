@@ -16,7 +16,6 @@
 package androidx.privacysandbox.sdkruntime.client.loader
 
 import android.os.Bundle
-import androidx.annotation.RestrictTo
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import org.jetbrains.annotations.TestOnly
 
@@ -24,9 +23,7 @@ import org.jetbrains.annotations.TestOnly
  * Provides interface for interaction with locally loaded SDK.
  * Handle different protocol versions inside.
  *
- * @suppress
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal abstract class LocalSdkProvider protected constructor(
     @get:TestOnly val sdkProvider: Any
 ) {

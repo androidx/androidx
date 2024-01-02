@@ -89,4 +89,30 @@ class SingleBundlingNodeTest {
         assertThat(packetB.imageProxy).isEqualTo(imageB1)
         assertThat(packetB.processingRequest).isEqualTo(requestB)
     }
+
+    @Test
+    fun postviewIsPropagated() {
+        // Arrange: create 1 request.
+        val captureBundle = createCaptureBundle(intArrayOf(1))
+        val request = FakeProcessingRequest(
+            captureBundle,
+            FakeTakePictureCallback(),
+            Futures.immediateFuture(null)
+        )
+        val tagBundleKey = captureBundle.hashCode().toString()
+        val image = Utils.createFakeImage(tagBundleKey, 1)
+        val postviewPacketPropagated = mutableListOf<ProcessingNode.InputPacket>()
+        matchingNodeOut.postviewEdge.setListener {
+            postviewPacketPropagated.add(it)
+        }
+
+        // Act: send request and propagate the postview image.
+        captureNodeOut.requestEdge.accept(request)
+        captureNodeOut.postviewImageEdge.accept(image)
+
+        // Assert:The request and postview is received.
+        val packetA = postviewPacketPropagated.single()
+        assertThat(packetA.imageProxy).isEqualTo(image)
+        assertThat(packetA.processingRequest).isEqualTo(request)
+    }
 }

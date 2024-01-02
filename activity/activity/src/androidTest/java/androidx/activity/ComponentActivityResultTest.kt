@@ -19,6 +19,7 @@ package androidx.activity
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
@@ -68,6 +69,12 @@ class ComponentActivityResultTest {
 
     @Test
     fun registerBeforeOnCreateTest() {
+        // There is a leak in API 30 InputMethodManager that causes this test to be flaky.
+        // Once https://github.com/square/leakcanary/issues/2592 is addressed we can upgrade
+        // leak canary and remove this.
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.R) {
+            return
+        }
         ActivityScenario.launch(RegisterBeforeOnCreateActivity::class.java).use { scenario ->
             scenario.withActivity {
                 recreate()
@@ -77,14 +84,20 @@ class ComponentActivityResultTest {
             scenario.withActivity { }
 
             scenario.withActivity {
-                assertThat(firstLaunchCount).isEqualTo(0)
-                assertThat(secondLaunchCount).isEqualTo(1)
+                assertThat(launchCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+                assertThat(launchedList).containsExactly("second")
             }
         }
     }
 
     @Test
     fun registerInInitTest() {
+        // There is a leak in API 30 InputMethodManager that causes this test to be flaky.
+        // Once https://github.com/square/leakcanary/issues/2592 is addressed we can upgrade
+        // leak canary and remove this.
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.R) {
+            return
+        }
         ActivityScenario.launch(RegisterInInitActivity::class.java).use { scenario ->
             scenario.withActivity {
                 recreate()
@@ -149,7 +162,7 @@ class PassThroughActivity : ComponentActivity() {
     @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        launcher.launch(intent.getParcelableExtra("destinationIntent"))
+        launcher.launch(intent.getParcelableExtra("destinationIntent")!!)
     }
 }
 
@@ -179,19 +192,21 @@ class ResultComponentActivity : ComponentActivity() {
 
 class RegisterBeforeOnCreateActivity : ComponentActivity() {
     lateinit var launcher: ActivityResultLauncher<Intent>
-    var firstLaunchCount = 0
-    var secondLaunchCount = 0
+    var launchCountDownLatch = CountDownLatch(1)
+    val launchedList = mutableListOf<String>()
     var recreated = false
 
     init {
         addOnContextAvailableListener {
             launcher = if (!recreated) {
                 registerForActivityResult(StartActivityForResult()) {
-                    firstLaunchCount++
+                    launchedList.add("first")
+                    launchCountDownLatch.countDown()
                 }
             } else {
                 registerForActivityResult(StartActivityForResult()) {
-                    secondLaunchCount++
+                    launchedList.add("second")
+                    launchCountDownLatch.countDown()
                 }
             }
         }

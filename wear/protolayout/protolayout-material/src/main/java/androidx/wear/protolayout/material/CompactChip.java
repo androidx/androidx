@@ -19,14 +19,11 @@ package androidx.wear.protolayout.material;
 import static androidx.wear.protolayout.DimensionBuilders.wrap;
 import static androidx.wear.protolayout.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER;
 import static androidx.wear.protolayout.LayoutElementBuilders.HORIZONTAL_ALIGN_START;
-import static androidx.wear.protolayout.material.Chip.METADATA_TAG_ICON;
-import static androidx.wear.protolayout.material.Chip.METADATA_TAG_TEXT;
 import static androidx.wear.protolayout.material.ChipDefaults.COMPACT_HEIGHT;
 import static androidx.wear.protolayout.material.ChipDefaults.COMPACT_HORIZONTAL_PADDING;
 import static androidx.wear.protolayout.material.ChipDefaults.COMPACT_ICON_SIZE;
 import static androidx.wear.protolayout.material.ChipDefaults.COMPACT_PRIMARY_COLORS;
-import static androidx.wear.protolayout.material.Helper.checkNotNull;
-import static androidx.wear.protolayout.material.Helper.checkTag;
+import static androidx.wear.protolayout.materialcore.Helper.checkNotNull;
 
 import android.content.Context;
 
@@ -36,7 +33,6 @@ import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters;
-import androidx.wear.protolayout.LayoutElementBuilders.Box;
 import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
 import androidx.wear.protolayout.ModifiersBuilders.Clickable;
 import androidx.wear.protolayout.expression.Fingerprint;
@@ -87,7 +83,6 @@ public class CompactChip implements LayoutElement {
         @NonNull private final Clickable mClickable;
         @NonNull private final DeviceParameters mDeviceParameters;
         @NonNull private ChipColors mChipColors = COMPACT_PRIMARY_COLORS;
-        private boolean mIsFontPaddingExcluded = false;
         @Nullable private String mIconResourceId = null;
 
         /**
@@ -123,25 +118,9 @@ public class CompactChip implements LayoutElement {
         }
 
         /**
-         * Sets whether the font padding is excluded or not. If not set, default to false, meaning
-         * that text will have font padding included.
-         *
-         * <p>Setting this to {@code true} will perfectly align the text label.
-         */
-        @NonNull
-        @ProtoLayoutExperimental
-        @SuppressWarnings("MissingGetterMatchingBuilder")
-        public Builder setExcludeFontPadding(boolean excluded) {
-            this.mIsFontPaddingExcluded = excluded;
-            return this;
-        }
-
-        /**
          * Sets the icon for the {@link CompactChip}. Provided icon will be tinted to the given
          * content color from {@link ChipColors}. This icon should be image with chosen alpha
          * channel that can be tinted.
-         *
-         * <p>It is highly recommended to use it with {@link #setExcludeFontPadding} set to true.
          */
         @NonNull
         public Builder setIconContent(@NonNull String imageResourceId) {
@@ -165,7 +144,6 @@ public class CompactChip implements LayoutElement {
                             .setHorizontalPadding(COMPACT_HORIZONTAL_PADDING)
                             .setPrimaryLabelContent(mText)
                             .setPrimaryLabelTypography(Typography.TYPOGRAPHY_CAPTION1)
-                            .setPrimaryLabelExcludeFontPadding(mIsFontPaddingExcluded)
                             .setIsPrimaryLabelScalable(false);
 
             if (mIconResourceId != null) {
@@ -220,23 +198,9 @@ public class CompactChip implements LayoutElement {
         if (element instanceof CompactChip) {
             return (CompactChip) element;
         }
-        if (!(element instanceof Box)) {
-            return null;
-        }
-        Box boxElement = (Box) element;
-        if (!checkTag(boxElement.getModifiers(), METADATA_TAG_TEXT)
-                && !checkTag(boxElement.getModifiers(), METADATA_TAG_ICON)) {
-            return null;
-        }
-
-        // Now we are sure that this element is a CompactChip.
-        return new CompactChip(new Chip(boxElement));
-    }
-
-    /** Returns whether the font padding for the primary label is excluded. */
-    @ProtoLayoutExperimental
-    public boolean hasExcludeFontPadding() {
-        return mElement.hasPrimaryLabelExcludeFontPadding();
+        androidx.wear.protolayout.materialcore.Chip coreChip =
+                androidx.wear.protolayout.materialcore.Chip.fromLayoutElement(element);
+        return coreChip == null ? null : new CompactChip(new Chip(coreChip));
     }
 
     @RestrictTo(Scope.LIBRARY_GROUP)

@@ -45,8 +45,8 @@ import okio.use
 public class OkioStorage<T>(
     private val fileSystem: FileSystem,
     private val serializer: OkioSerializer<T>,
-    private val coordinatorProducer: (Path, FileSystem) -> InterProcessCoordinator = { _, _ ->
-        createSingleProcessCoordinator()
+    private val coordinatorProducer: (Path, FileSystem) -> InterProcessCoordinator = { path, _ ->
+        createSingleProcessCoordinator(path)
     },
     private val producePath: () -> Path
 ) : Storage<T> {
@@ -56,7 +56,7 @@ public class OkioStorage<T>(
             "OkioStorage requires absolute paths, but did not get an absolute path from " +
                 "producePath = $producePath, instead got $path"
         }
-        path
+        path.normalized()
     }
 
     override fun createConnection(): StorageConnection<T> {
@@ -214,3 +214,11 @@ internal class OkioWriteScope<T>(
         }
     }
 }
+
+/**
+ * Create a coordinator for single process use cases.
+ *
+ * @param path The canonical path of the file managed by [createSingleProcessCoordinator]
+ */
+public fun createSingleProcessCoordinator(path: Path): InterProcessCoordinator =
+    createSingleProcessCoordinator(path.normalized().toString())

@@ -19,7 +19,7 @@ package androidx.build.dependencyTracker
 import androidx.build.dependencyTracker.AffectedModuleDetector.Companion.ENABLE_ARG
 import androidx.build.getCheckoutRoot
 import androidx.build.getDistributionDirectory
-import androidx.build.gitclient.GitClient
+import androidx.build.gitclient.getChangedFilesProvider
 import androidx.build.gradle.isRoot
 import java.io.File
 import org.gradle.api.Action
@@ -55,14 +55,6 @@ enum class ProjectSubset {
     CHANGED_PROJECTS,
     NONE
 }
-
-/**
- * Provides the list of file paths (relative to the git root) that have changed (can include removed
- * files).
- *
- * Returns `null` if changed files cannot be detected.
- */
-typealias ChangedFilesProvider = () -> List<String>?
 
 /**
  * A utility class that can discover which files are changed based on git history.
@@ -146,27 +138,25 @@ abstract class AffectedModuleDetector(protected val logger: Logger?) {
             if (baseCommitOverride != null) {
                 logger.info("using base commit override $baseCommitOverride")
             }
-            val changeInfoPath = GitClient.getChangeInfoPath(rootProject)
-            val manifestPath = GitClient.getManifestPath(rootProject)
             gradle.taskGraph.whenReady {
                 logger.lifecycle("projects evaluated")
                 val projectGraph = ProjectGraph(rootProject)
                 val dependencyTracker = DependencyTracker(rootProject, logger.toLogger())
                 val provider =
                     setupWithParams(
-                        rootProject,
-                        { spec ->
-                            val params = spec.parameters
-                            params.rootDir = rootProject.projectDir
-                            params.checkoutRoot = rootProject.getCheckoutRoot()
-                            params.projectGraph = projectGraph
-                            params.dependencyTracker = dependencyTracker
-                            params.log = logger
-                            params.baseCommitOverride = baseCommitOverride
-                            params.changeInfoPath = changeInfoPath
-                            params.manifestPath = manifestPath
-                        }
-                    )
+                        rootProject
+                    ) { spec ->
+                        val params = spec.parameters
+                        params.rootDir = rootProject.projectDir
+                        params.checkoutRoot = rootProject.getCheckoutRoot()
+                        params.projectGraph = projectGraph
+                        params.dependencyTracker = dependencyTracker
+                        params.log = logger
+                        params.baseCommitOverride = baseCommitOverride
+                        params.gitChangedFilesProvider = rootProject.getChangedFilesProvider(
+                            baseCommitOverride
+                        )
+                    }
                 logger.info("using real detector")
                 instance.wrapped = provider
             }
@@ -268,8 +258,7 @@ abstract class AffectedModuleDetectorLoader :
         var alwaysBuildIfExists: Set<String>?
         var ignoredPaths: Set<String>?
         var baseCommitOverride: String?
-        var changeInfoPath: Provider<String>
-        var manifestPath: Provider<String>
+        var gitChangedFilesProvider: Provider<List<String>>
     }
 
     val detector: AffectedModuleDetector by lazy {
@@ -277,38 +266,21 @@ abstract class AffectedModuleDetectorLoader :
         if (parameters.acceptAll) {
             AcceptAll(null)
         } else {
-            val baseCommitOverride = parameters.baseCommitOverride
-            if (baseCommitOverride != null) {
-                logger.info("using base commit override $baseCommitOverride")
-            }
-            val gitClient =
-                GitClient.create(
-                    projectDir = parameters.rootDir,
-                    checkoutRoot = parameters.checkoutRoot,
-                    logger = logger.toLogger(),
-                    changeInfoPath = parameters.changeInfoPath.get(),
-                    manifestPath = parameters.manifestPath.get()
-                )
-            val changedFilesProvider: ChangedFilesProvider = {
-                val baseSha = baseCommitOverride ?: gitClient.findPreviousSubmittedChange()
-                check(baseSha != null) {
-                    "gitClient returned null from findPreviousSubmittedChange"
-                }
-                val changedFiles = gitClient.findChangedFilesSince(baseSha)
-                logger.info("changed files: $changedFiles")
-                changedFiles
+            if (parameters.baseCommitOverride != null) {
+                logger.info("using base commit override ${parameters.baseCommitOverride}")
             }
 
             AffectedModuleDetectorImpl(
                 projectGraph = parameters.projectGraph,
                 dependencyTracker = parameters.dependencyTracker,
                 logger = logger.toLogger(),
-                cobuiltTestPaths = parameters.cobuiltTestPaths
-                        ?: AffectedModuleDetectorImpl.COBUILT_TEST_PATHS,
-                alwaysBuildIfExists = parameters.alwaysBuildIfExists
+                cobuiltTestPaths =
+                    parameters.cobuiltTestPaths ?: AffectedModuleDetectorImpl.COBUILT_TEST_PATHS,
+                alwaysBuildIfExists =
+                    parameters.alwaysBuildIfExists
                         ?: AffectedModuleDetectorImpl.ALWAYS_BUILD_IF_EXISTS,
                 ignoredPaths = parameters.ignoredPaths ?: AffectedModuleDetectorImpl.IGNORED_PATHS,
-                changedFilesProvider = changedFilesProvider
+                changedFilesProvider = parameters.gitChangedFilesProvider
             )
         }
     }
@@ -334,8 +306,7 @@ private class AcceptAll(logger: Logger? = null) : AffectedModuleDetector(logger)
  *
  * When a file in a module is changed, all modules that depend on it are considered as changed.
  */
-class AffectedModuleDetectorImpl
-constructor(
+class AffectedModuleDetectorImpl(
     private val projectGraph: ProjectGraph,
     private val dependencyTracker: DependencyTracker,
     logger: Logger?,
@@ -344,7 +315,7 @@ constructor(
     private val cobuiltTestPaths: Set<Set<String>> = COBUILT_TEST_PATHS,
     private val alwaysBuildIfExists: Set<String> = ALWAYS_BUILD_IF_EXISTS,
     private val ignoredPaths: Set<String> = IGNORED_PATHS,
-    private val changedFilesProvider: ChangedFilesProvider
+    private val changedFilesProvider: Provider<List<String>>
 ) : AffectedModuleDetector(logger) {
 
     private val allProjects by lazy { projectGraph.allProjects }
@@ -355,7 +326,7 @@ constructor(
 
     val dependentProjects by lazy { findDependentProjects() }
 
-    val alwaysBuild by lazy { alwaysBuildIfExists.filter({ path -> allProjects.contains(path) }) }
+    val alwaysBuild by lazy { alwaysBuildIfExists.filter { path -> allProjects.contains(path) } }
 
     private var unknownFiles: MutableSet<String> = mutableSetOf()
 
@@ -365,8 +336,6 @@ constructor(
     val buildAll by lazy { shouldBuildAll() }
 
     private val cobuiltTestProjects by lazy { lookupProjectSetsFromPaths(cobuiltTestPaths) }
-
-    private val buildContainsNonProjectFileChanges by lazy { unknownFiles.isNotEmpty() }
 
     override fun shouldInclude(project: String): Boolean {
         return if (project == ":" || buildAll) {
@@ -400,7 +369,7 @@ constructor(
      * Returns allProjects if there are no previous merge CLs, which shouldn't happen.
      */
     private fun findChangedProjects(): Set<String> {
-        val changedFiles = changedFilesProvider() ?: return allProjects
+        val changedFiles = changedFilesProvider.getOrNull() ?: return allProjects
 
         val changedProjects: MutableSet<String> = alwaysBuild.toMutableSet()
 
@@ -572,54 +541,11 @@ constructor(
                     ":benchmark:benchmark-macro",
                     ":benchmark:integration-tests:macrobenchmark-target"
                 ), // link benchmark-macro's correctness test and its target
-                setOf(
-                    ":benchmark:integration-tests",
-                    ":benchmark:integration-tests:macrobenchmark",
-                    ":benchmark:integration-tests:macrobenchmark-target"
-                ), // link benchmark's macrobenchmark and its target
-                setOf(
-                    ":compose:integration-tests",
-                    ":compose:integration-tests:macrobenchmark",
-                    ":compose:integration-tests:macrobenchmark-target"
-                ),
-                setOf(
-                    ":emoji2:integration-tests",
-                    ":emoji2:integration-tests:init-disabled-macrobenchmark",
-                    ":emoji2:integration-tests:init-disabled-macrobenchmark-target",
-                ),
-                setOf(
-                    ":emoji2:integration-tests",
-                    ":emoji2:integration-tests:init-enabled-macrobenchmark",
-                    ":emoji2:integration-tests:init-enabled-macrobenchmark-target",
-                ),
-                setOf(
-                    ":wear:benchmark:integration-tests",
-                    ":wear:benchmark:integration-tests:macrobenchmark",
-                    ":wear:benchmark:integration-tests:macrobenchmark-target"
-                ),
-                setOf(
-                    ":wear:compose:integration-tests",
-                    ":wear:compose:integration-tests:macrobenchmark",
-                    ":wear:compose:integration-tests:macrobenchmark-target"
-                ),
                 // Changing generator code changes the output for generated icons, which are tested
-                // in
-                // material-icons-extended.
+                // in material-icons-extended.
                 setOf(
                     ":compose:material:material:icons:generator",
                     ":compose:material:material-icons-extended"
-                ),
-                // Link glance-appwidget macrobenchmark and its target.
-                setOf(
-                    ":glance:glance-appwidget:integration-tests",
-                    ":glance:glance-appwidget:integration-tests:macrobenchmark",
-                    ":glance:glance-appwidget:integration-tests:macrobenchmark-target"
-                ),
-                setOf(
-                    ":constraintlayout:constraintlayout-compose:integration-tests",
-                    ":constraintlayout:constraintlayout-compose:integration-tests:macrobenchmark",
-                    ":constraintlayout:constraintlayout-compose:integration-tests:" +
-                        "macrobenchmark-target"
                 ),
                 setOf(
                     ":profileinstaller:integration-tests:profile-verification",
@@ -628,10 +554,6 @@ constructor(
                         "profile-verification-sample-no-initializer",
                     ":benchmark:integration-tests:baselineprofile-consumer",
                 ),
-                setOf(
-                    ":window:integration-tests:macrobenchmark",
-                    ":window:integration-tests:macrobenchmark-target",
-                )
             )
 
         val IGNORED_PATHS =

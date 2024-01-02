@@ -58,7 +58,6 @@ interface GlanceStateDefinition<T> {
  * Interface for an object that manages configuration for glanceables using the given
  * GlanceStateDefinition.
  *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface ConfigManager {
@@ -104,7 +103,6 @@ interface ConfigManager {
  * relevant to the representation of views, but not surface specific view data. For example, the
  * month displayed on a calendar rather than actual calendar entries.
  *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 object GlanceState : ConfigManager {

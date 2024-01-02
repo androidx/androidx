@@ -34,11 +34,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,9 +56,9 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
+import androidx.compose.ui.util.fastFirstOrNull
 import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.LocalReduceMotion
-import kotlinx.coroutines.launch
 
 /**
  * Receiver scope which is used by [ScalingLazyColumn].
@@ -396,7 +396,6 @@ public fun ScalingLazyColumn(
             state.reverseLayout.value = reverseLayout
             state.localInspectionMode.value = LocalInspectionMode.current
 
-            val coroutineScope = rememberCoroutineScope()
             LazyColumn(
                 modifier = Modifier
                     .clipToBounds()
@@ -408,9 +407,6 @@ public fun ScalingLazyColumn(
                             layoutInfo.readyForInitialScroll
                         ) {
                             initialized = true
-                            coroutineScope.launch {
-                                state.scrollToInitialItem()
-                            }
                         }
                     },
                 horizontalAlignment = horizontalAlignment,
@@ -448,6 +444,11 @@ public fun ScalingLazyColumn(
                     }
                 }
             }
+            if (initialized) {
+                LaunchedEffect(state) {
+                    state.scrollToInitialItem()
+                }
+            }
         }
     }
 }
@@ -463,8 +464,8 @@ public object ScalingLazyColumnDefaults {
      * Items in the ScalingLazyColumn have scaling and alpha effects applied to them depending on
      * their position in the viewport. The closer to the edge (top or bottom) of the viewport that
      * they are the greater the down scaling and transparency that is applied. Note that scaling and
-     * transparency effects are applied from the center of the viewport (full size and normal
-     * transparency) towards the edge (items can be smaller and more transparent).
+     * transparency effects are applied from the center of the viewport (nearest to full size and
+     * normal transparency) towards the edge (items can be smaller and more transparent).
      *
      * Deciding how much scaling and alpha to apply is based on the position and size of the item
      * and on a series of properties that are used to determine the transition area for each item.
@@ -475,10 +476,9 @@ public object ScalingLazyColumnDefaults {
      * than smaller items.
      *
      * [minTransitionArea] and [maxTransitionArea] are both in the range [0f..1f] and are
-     * the fraction of the distance between the edge of the viewport and the center of
-     * the viewport. E.g. a value of 0.2f for minTransitionArea and 0.75f for maxTransitionArea
-     * determines that all transition lines will fall between 1/5th (20%) and 3/4s (75%) of the
-     * distance between the viewport edge and center.
+     * the fraction of the distance between the edges of the viewport. E.g. a value of 0.2f for
+     * minTransitionArea and 0.75f for maxTransitionArea determines that all transition lines will
+     * fall between 1/5th (20%) and 3/4s (75%) of the height of the viewport.
      *
      * The size of the each item is used to determine where within the transition area range
      * minTransitionArea..maxTransitionArea the actual transition line will be. [minElementHeight]
@@ -536,13 +536,11 @@ public object ScalingLazyColumnDefaults {
      *
      * @param minTransitionArea The lower bound of the transition line area, closest to the
      * edge of the viewport. Defined as a fraction (value between 0f..1f) of the distance between
-     * the viewport edge and viewport center line. Must be less than or equal to
-     * [maxTransitionArea].
+     * the viewport edges. Must be less than or equal to [maxTransitionArea].
      *
      * @param maxTransitionArea The upper bound of the transition line area, closest to the
      * center of the viewport. The fraction (value between 0f..1f) of the distance
-     * between the viewport edge and viewport center line. Must be greater
-     * than or equal to [minTransitionArea].
+     * between the viewport edges. Must be greater than or equal to [minTransitionArea].
      *
      * @param scaleInterpolator An interpolator to use to determine how to apply scaling as a
      * item transitions across the scaling transition area.
@@ -658,7 +656,7 @@ private fun ScalingLazyColumnItemWrapper(
             val reverseLayout = state.reverseLayout.value!!
             val anchorType = state.anchorType.value!!
             val items = state.layoutInfo.internalVisibleItemInfo()
-            val currentItem = items.find { it.index == index }
+            val currentItem = items.fastFirstOrNull { it.index == index }
             if (currentItem != null) {
                 alpha = currentItem.alpha
                 scaleX = currentItem.scale

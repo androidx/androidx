@@ -20,6 +20,11 @@ import android.graphics.Shader
 import android.text.TextPaint
 import android.text.style.CharacterStyle
 import android.text.style.UpdateAppearance
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.isUnspecified
 import androidx.compose.ui.graphics.ShaderBrush
@@ -32,25 +37,19 @@ internal class ShaderBrushSpan(
     val shaderBrush: ShaderBrush,
     val alpha: Float
 ) : CharacterStyle(), UpdateAppearance {
-    var size: Size = Size.Unspecified
-    private var cachedShader: Pair<Size, Shader>? = null
+
+    var size: Size by mutableStateOf(Size.Unspecified)
+
+    private val shaderState: State<Shader?> = derivedStateOf {
+        if (size.isUnspecified || size.isEmpty()) {
+            null
+        } else {
+            shaderBrush.createShader(size)
+        }
+    }
 
     override fun updateDrawState(textPaint: TextPaint) {
         textPaint.setAlpha(alpha)
-
-        if (size.isUnspecified) return
-
-        val finalCachedShader = cachedShader
-
-        val shader = if (finalCachedShader == null || finalCachedShader.first != size) {
-            // if cached shader is not initialized or the size has changed, recreate the shader
-            shaderBrush.createShader(size)
-        } else {
-            // reuse the earlier created shader
-            finalCachedShader.second
-        }
-
-        textPaint.shader = shader
-        cachedShader = size to shader
+        textPaint.shader = shaderState.value
     }
 }

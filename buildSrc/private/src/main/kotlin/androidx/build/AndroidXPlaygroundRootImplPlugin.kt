@@ -20,10 +20,14 @@ import androidx.build.gradle.isRoot
 import groovy.xml.DOMBuilder
 import java.net.URI
 import java.net.URL
+import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
+import org.gradle.api.tasks.testing.Test
+import org.gradle.work.DisableCachingByDefault
+import org.jetbrains.kotlin.gradle.plugin.extraProperties
 
 /**
  * This plugin is used in Playground projects and adds functionality like resolving to snapshot
@@ -39,6 +43,9 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
     /** The configuration for the plugin read from the gradle properties */
     private lateinit var config: PlaygroundProperties
 
+    /** List of projects that were requested in the settings.gradle file */
+    private lateinit var primaryProjectPaths: Set<String>
+
     override fun apply(target: Project) {
         if (!target.isRoot) {
             throw GradleException("This plugin should only be applied to root project")
@@ -53,6 +60,10 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
         repos = PlaygroundRepositories(config)
         rootProject.repositories.addPlaygroundRepositories()
         GradleTransformWorkaround.maybeApply(rootProject)
+        PlaygroundCIHostTestsTask.register(rootProject)
+        primaryProjectPaths = target.extensions.extraProperties
+            .get("primaryProjects").toString().split(",")
+            .toSet()
         rootProject.subprojects { configureSubProject(it) }
     }
 
@@ -65,6 +76,11 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
                     val snapshotVersion = findSnapshotVersion(requested.group, requested.name)
                     details.useVersion(snapshotVersion)
                 }
+            }
+        }
+        if (project.path in primaryProjectPaths) {
+            project.tasks.withType(Test::class.java).configureEach {
+                PlaygroundCIHostTestsTask.addTask(project, it)
             }
         }
     }
@@ -229,5 +245,26 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
         const val SNAPSHOT_MARKER = "REPLACE_WITH_SNAPSHOT"
         const val INTERNAL_PREBUILTS_REPO_URL =
             "https://androidx.dev/storage/prebuilts/androidx/internal/repository"
+    }
+
+    @DisableCachingByDefault(because = "This is an anchor task that does no work.")
+    abstract class PlaygroundCIHostTestsTask : DefaultTask() {
+        init {
+            group = "Verification"
+            description = "Runs host tests that belong to the projects which were explicitly " +
+                "requested in the playground setup."
+        }
+        companion object {
+            private val NAME = "playgroundCIHostTests"
+            fun addTask(project: Project, task: Test) {
+                project.rootProject.tasks.named(NAME).configure {
+                    it.dependsOn(task)
+                }
+            }
+
+            fun register(project: Project) {
+                project.tasks.register(NAME, PlaygroundCIHostTestsTask::class.java)
+            }
+        }
     }
 }

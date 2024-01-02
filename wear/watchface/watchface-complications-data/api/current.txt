@@ -4,7 +4,7 @@ package androidx.wear.watchface.complications.data {
   public final class ColorRamp {
     ctor public ColorRamp(@ColorInt int[] colors, boolean interpolated);
     method public int[] getColors();
-    method public boolean getInterpolated();
+    method public boolean isInterpolated();
     property public final int[] colors;
     property public final boolean interpolated;
   }
@@ -93,6 +93,7 @@ package androidx.wear.watchface.complications.data {
   }
 
   @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public final class DynamicComplicationText implements androidx.wear.watchface.complications.data.ComplicationText {
+    ctor @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public DynamicComplicationText(androidx.wear.protolayout.expression.DynamicBuilders.DynamicString dynamicValue);
     ctor public DynamicComplicationText(androidx.wear.protolayout.expression.DynamicBuilders.DynamicString dynamicValue, CharSequence fallbackValue);
     method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicString getDynamicValue();
     method public CharSequence getFallbackValue();
@@ -234,8 +235,10 @@ package androidx.wear.watchface.complications.data {
     ctor public NoDataComplicationData();
     ctor public NoDataComplicationData(androidx.wear.watchface.complications.data.ComplicationData placeholder);
     method public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
+    method public androidx.wear.watchface.complications.data.ComplicationData? getInvalidatedData();
     method public androidx.wear.watchface.complications.data.ComplicationData? getPlaceholder();
     property public final androidx.wear.watchface.complications.data.ComplicationText? contentDescription;
+    property public final androidx.wear.watchface.complications.data.ComplicationData? invalidatedData;
     property public final androidx.wear.watchface.complications.data.ComplicationData? placeholder;
     field public static final androidx.wear.watchface.complications.data.NoDataComplicationData.Companion Companion;
     field public static final androidx.wear.watchface.complications.data.ComplicationType TYPE;
@@ -350,6 +353,7 @@ package androidx.wear.watchface.complications.data {
   }
 
   public static final class RangedValueComplicationData.Builder {
+    ctor @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public RangedValueComplicationData.Builder(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat dynamicValue, float min, float max, androidx.wear.watchface.complications.data.ComplicationText contentDescription);
     ctor @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public RangedValueComplicationData.Builder(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat dynamicValue, float fallbackValue, float min, float max, androidx.wear.watchface.complications.data.ComplicationText contentDescription);
     ctor public RangedValueComplicationData.Builder(float value, float min, float max, androidx.wear.watchface.complications.data.ComplicationText contentDescription);
     method public androidx.wear.watchface.complications.data.RangedValueComplicationData build();

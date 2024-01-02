@@ -108,7 +108,7 @@ class ImageCaptureLatencyTest(
     fun tearDown() = runBlocking {
         if (::cameraProvider.isInitialized) {
             withContext(Dispatchers.Main) {
-                cameraProvider.shutdown()
+                cameraProvider.shutdownAsync()
             }
         }
     }

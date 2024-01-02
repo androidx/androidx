@@ -17,9 +17,7 @@
 package androidx.privacysandbox.ads.adservices.measurement
 
 import android.net.Uri
-import android.os.Build
 import android.view.InputEvent
-import androidx.annotation.RequiresApi
 
 /**
  * Class to hold input to measurement source registration calls from web context.
@@ -37,7 +35,6 @@ import androidx.annotation.RequiresApi
  * @param verifiedDestination Verified destination by the caller. This is where the user actually
  * landed.
  */
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class WebSourceRegistrationRequest public constructor(
     val webSourceParams: List<WebSourceParams>,
     val topOriginUri: Uri,

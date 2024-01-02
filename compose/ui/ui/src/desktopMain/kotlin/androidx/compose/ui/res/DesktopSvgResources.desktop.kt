@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ImageBitmapConfig
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
@@ -106,6 +107,7 @@ private class SVGPainter(
     override fun DrawScope.onDraw() {
         if (previousDrawSize != size) {
             drawCache.drawCachedImage(
+                ImageBitmapConfig.Argb8888,
                 IntSize(ceil(size.width).toInt(), ceil(size.height).toInt()),
                 density = this,
                 layoutDirection,

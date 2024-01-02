@@ -19,11 +19,23 @@ package androidx.compose.foundation.text.selection
 import androidx.compose.foundation.AtomicLong
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.LayoutCoordinates
 
-internal class SelectionRegistrarImpl : SelectionRegistrar {
+internal class SelectionRegistrarImpl private constructor(
+    initialIncrementId: Long
+) : SelectionRegistrar {
+    companion object {
+        val Saver = Saver<SelectionRegistrarImpl, Long>(
+            save = { it.incrementId.get() },
+            restore = { SelectionRegistrarImpl(it) }
+        )
+    }
+
+    constructor() : this(initialIncrementId = 1L)
+
     /**
      * A flag to check if the [Selectable]s have already been sorted.
      */
@@ -54,7 +66,7 @@ internal class SelectionRegistrarImpl : SelectionRegistrar {
      * denote an invalid id.
      * @see SelectionRegistrar.InvalidSelectableId
      */
-    private var incrementId = AtomicLong(1)
+    private var incrementId = AtomicLong(initialIncrementId)
 
     /**
      * The callback to be invoked when the position change was triggered.

@@ -16,49 +16,73 @@
 
 package androidx.javascriptengine;
 
+import android.content.res.AssetFileDescriptor;
+import android.os.ParcelFileDescriptor;
+
 import androidx.annotation.NonNull;
+import androidx.core.util.Consumer;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.Executor;
 
 /**
- * Covers the case where the isolate is explicitly closed by the developer.
+ * Covers cases where the isolate is explicitly closed or uninitialized.
+ * <p>
+ * Although being in this state is considered terminated from the app perspective, the service
+ * side may still technically be running.
  */
 final class IsolateClosedState implements IsolateState {
-    IsolateClosedState() {
+    @NonNull
+    private final String mDescription;
+    IsolateClosedState(@NonNull String description) {
+        mDescription = description;
     }
 
     @NonNull
     @Override
     public ListenableFuture<String> evaluateJavaScriptAsync(@NonNull String code) {
-        throw new IllegalStateException("Calling evaluateJavaScriptAsync() after closing the"
-                + "Isolate");
+        throw new IllegalStateException(
+                "Calling evaluateJavaScriptAsync() when " + mDescription);
+    }
+
+    @NonNull
+    @Override
+    public ListenableFuture<String> evaluateJavaScriptAsync(@NonNull AssetFileDescriptor afd) {
+        throw new IllegalStateException(
+                "Calling evaluateJavaScriptAsync() when " + mDescription);
+    }
+
+    @NonNull
+    @Override
+    public ListenableFuture<String> evaluateJavaScriptAsync(@NonNull ParcelFileDescriptor pfd) {
+        throw new IllegalStateException(
+                "Calling evaluateJavaScriptAsync() when " + mDescription);
     }
 
     @Override
     public void setConsoleCallback(@NonNull Executor executor,
             @NonNull JavaScriptConsoleCallback callback) {
         throw new IllegalStateException(
-                "Calling setConsoleCallback() after closing the Isolate");
+                "Calling setConsoleCallback() when " + mDescription);
     }
 
     @Override
     public void setConsoleCallback(@NonNull JavaScriptConsoleCallback callback) {
         throw new IllegalStateException(
-                "Calling setConsoleCallback() after closing the Isolate");
+                "Calling setConsoleCallback() when " + mDescription);
     }
 
     @Override
     public void clearConsoleCallback() {
         throw new IllegalStateException(
-                "Calling clearConsoleCallback() after closing the Isolate");
+                "Calling clearConsoleCallback() when " + mDescription);
     }
 
     @Override
-    public boolean provideNamedData(@NonNull String name, @NonNull byte[] inputBytes) {
+    public void provideNamedData(@NonNull String name, @NonNull byte[] inputBytes) {
         throw new IllegalStateException(
-                "Calling provideNamedData() after closing the Isolate");
+                "Calling provideNamedData() when " + mDescription);
     }
 
     @Override
@@ -66,12 +90,20 @@ final class IsolateClosedState implements IsolateState {
     }
 
     @Override
-    public IsolateState setSandboxDead() {
-        return this;
+    public boolean canDie() {
+        return false;
     }
 
     @Override
-    public IsolateState setIsolateDead() {
-        return this;
+    public void addOnTerminatedCallback(@NonNull Executor executor,
+            @NonNull Consumer<TerminationInfo> callback) {
+        throw new IllegalStateException(
+                "Calling addOnTerminatedCallback() when " + mDescription);
+    }
+
+    @Override
+    public void removeOnTerminatedCallback(@NonNull Consumer<TerminationInfo> callback) {
+        throw new IllegalStateException(
+                "Calling removeOnTerminatedCallback() when " + mDescription);
     }
 }

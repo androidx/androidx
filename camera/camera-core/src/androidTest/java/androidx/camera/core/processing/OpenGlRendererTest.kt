@@ -17,6 +17,7 @@
 package androidx.camera.core.processing
 
 import android.graphics.SurfaceTexture
+import android.hardware.DataSpace
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.params.OutputConfiguration
 import android.opengl.Matrix
@@ -305,6 +306,14 @@ class OpenGlRendererTest {
     }
 
     @Test
+    fun init_returnsFormattedVersionStrings() = runBlocking(glDispatcher) {
+        val graphicsDeviceInfo = initRender()
+        val versionRegex = "([0-9]+)\\.([0-9]+)"
+        assertThat(graphicsDeviceInfo.glVersion).matches(versionRegex)
+        assertThat(graphicsDeviceInfo.eglVersion).matches(versionRegex)
+    }
+
+    @Test
     fun reInit(): Unit = runBlocking(glDispatcher) {
         createOpenGlRendererAndInit()
         glRenderer.release()
@@ -327,7 +336,25 @@ class OpenGlRendererTest {
     @SdkSuppress(minSdkVersion = 33) // HDR is supported from API 33.
     @Test
     fun renderByHlg(): Unit = runBlocking(glDispatcher) {
-        testRender(OutputType.SURFACE_TEXTURE, dynamicRange = DynamicRange.HLG_10_BIT)
+        val dynamicRange = DynamicRange.HLG_10_BIT
+        val graphicsDeviceInfo = initRender(dynamicRange = dynamicRange)
+        // Without the EGL_EXT_gl_colorspace_bt2020_hlg extension, we can't set the dataspace on
+        // the output surface, so we shouldn't expect a specified standard and transfer.
+        // As a fallback in the future, we can tonemap to PQ and make use of the
+        // EGL_EXT_gl_colorspace_bt2020_pq, should it exist on the device.
+        val (expectedStandard, expectedTransfer) =
+            if (graphicsDeviceInfo.eglExtensions.contains("EGL_EXT_gl_colorspace_bt2020_hlg")) {
+                Pair(DataSpace.STANDARD_BT2020, DataSpace.TRANSFER_HLG)
+            } else {
+                Pair(null, null)
+            }
+
+        testRender(
+            OutputType.SURFACE_TEXTURE, dynamicRange = dynamicRange,
+            shouldInit = false, /* already initialized */
+            expectedStandard = expectedStandard,
+            expectedTransfer = expectedTransfer
+        )
     }
 
     @SdkSuppress(minSdkVersion = 23)
@@ -357,15 +384,30 @@ class OpenGlRendererTest {
         assertThat(glRenderer.mOutputSurfaceMap[outputSurface]).isNull()
     }
 
+    private suspend fun initRender(
+        dynamicRange: DynamicRange = DynamicRange.SDR,
+        shaderProvider: ShaderProvider = ShaderProvider.DEFAULT,
+    ): OpenGlRenderer.GraphicDeviceInfo {
+        prepareCamera()
+        assumeDynamicRange(dynamicRange)
+        return createOpenGlRendererAndInit(
+            dynamicRange = dynamicRange,
+            shaderProvider = shaderProvider
+        )
+    }
+
     private suspend fun testRender(
         outputType: OutputType,
         dynamicRange: DynamicRange = DynamicRange.SDR,
-        shaderProvider: ShaderProvider = ShaderProvider.DEFAULT
+        shaderProvider: ShaderProvider = ShaderProvider.DEFAULT,
+        shouldInit: Boolean = true,
+        expectedStandard: Int? = null,
+        expectedTransfer: Int? = null
     ) {
         // Arrange.
-        prepareCamera()
-        assumeDynamicRange(dynamicRange)
-        createOpenGlRendererAndInit(dynamicRange = dynamicRange, shaderProvider = shaderProvider)
+        if (shouldInit) {
+            initRender(dynamicRange, shaderProvider)
+        }
 
         // Prepare input
         val surfaceTexture = SurfaceTexture(glRenderer.textureName).apply {
@@ -391,20 +433,34 @@ class OpenGlRendererTest {
 
         // Assert.
         assertThat(renderOutput.await(/*imageCount=*/5, /*timeoutInMs=*/10_000L)).isTrue()
+        expectedStandard?.let {
+            if (Build.VERSION.SDK_INT >= 33) {
+                assertThat(DataSpace.getStandard(renderOutput.dataSpace)).isEqualTo(it)
+            } else {
+                fail("Color standard only supported on API 33 and above.")
+            }
+        }
+        expectedTransfer?.let {
+            if (Build.VERSION.SDK_INT >= 33) {
+                assertThat(DataSpace.getTransfer(renderOutput.dataSpace)).isEqualTo(it)
+            } else {
+                fail("Transfer function only supported on API 33 and above.")
+            }
+        }
     }
 
     private suspend fun createOpenGlRendererAndInit(
         dynamicRange: DynamicRange = DynamicRange.SDR,
         shaderProvider: ShaderProvider = ShaderProvider.DEFAULT
-    ) {
+    ): OpenGlRenderer.GraphicDeviceInfo {
         createOpenGlRenderer()
 
-        if (currentCoroutineContext()[ContinuationInterceptor] == glDispatcher) {
+        return if (currentCoroutineContext()[ContinuationInterceptor] == glDispatcher) {
             // same dispatcher, init directly
             glRenderer.init(dynamicRange, shaderProvider)
         } else {
             runBlocking(glDispatcher) {
-                glRenderer.init(dynamicRange, shaderProvider)
+                return@runBlocking glRenderer.init(dynamicRange, shaderProvider)
             }
         }
     }

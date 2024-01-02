@@ -559,9 +559,7 @@ public class Toolbar extends ViewGroup implements MenuHost {
 
     @Override
     public void onRtlPropertiesChanged(int layoutDirection) {
-        if (Build.VERSION.SDK_INT >= 17) {
-            super.onRtlPropertiesChanged(layoutDirection);
-        }
+        super.onRtlPropertiesChanged(layoutDirection);
 
         ensureContentInsets();
         mContentInsets.setDirection(layoutDirection == ViewCompat.LAYOUT_DIRECTION_RTL);

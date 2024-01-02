@@ -19,6 +19,7 @@
 package androidx.camera.camera2.pipe.integration.adapter
 
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
@@ -31,6 +32,7 @@ import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.Observable
+import androidx.camera.core.impl.SessionProcessor
 import com.google.common.util.concurrent.ListenableFuture
 import javax.inject.Inject
 import kotlinx.atomicfu.atomic
@@ -52,19 +54,24 @@ class CameraInternalAdapter @Inject constructor(
 ) : CameraInternal {
     private val cameraId = config.cameraId
     private var coreCameraConfig: androidx.camera.core.impl.CameraConfig =
-        CameraConfigs.emptyConfig()
+        CameraConfigs.defaultConfig()
     private val debugId = cameraAdapterIds.incrementAndGet()
+    private var sessionProcessor: SessionProcessor? = null
 
     init {
         debug { "Created $this for $cameraId" }
         // TODO: Consider preloading the list of camera ids and metadata.
     }
 
-    fun pauseRefresh() = threads.scope.launch(threads.backgroundDispatcher) {
-        useCaseManager.pauseRefresh()
+    internal fun setCameraGraphCreationMode(createImmediately: Boolean) {
+        useCaseManager.setCameraGraphCreationMode(createImmediately)
     }
-    fun resumeRefresh() = threads.scope.launch(threads.backgroundDispatcher) {
-        useCaseManager.resumeRefresh()
+
+    internal fun getDeferredCameraGraphConfig(): CameraGraph.Config? =
+        useCaseManager.getDeferredCameraGraphConfig()
+
+    internal fun resumeDeferredCameraGraphCreation(cameraGraph: CameraGraph) {
+        useCaseManager.resumeDeferredComponentCreation(cameraGraph)
     }
 
     // Load / unload methods
@@ -121,7 +128,9 @@ class CameraInternalAdapter @Inject constructor(
     }
 
     override fun setExtendedConfig(cameraConfig: androidx.camera.core.impl.CameraConfig?) {
-        coreCameraConfig = cameraConfig ?: CameraConfigs.emptyConfig()
+        coreCameraConfig = cameraConfig ?: CameraConfigs.defaultConfig()
+        sessionProcessor = cameraConfig?.getSessionProcessor(null)
+        useCaseManager.sessionProcessor = sessionProcessor
     }
 
     override fun toString(): String = "CameraInternalAdapter<$cameraId>"

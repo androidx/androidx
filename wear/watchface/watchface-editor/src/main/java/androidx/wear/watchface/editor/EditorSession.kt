@@ -570,6 +570,8 @@ internal constructor(
 
             try {
                 deferredComplicationPreviewDataAvailable.await()
+                val previousDataSourceInfo: ComplicationDataSourceInfo? =
+                    complicationsDataSourceInfo.value[complicationSlotId]
 
                 // Emit an updated complicationsDataSourceInfoMap.
                 complicationsDataSourceInfo.value =
@@ -589,6 +591,11 @@ internal constructor(
                     HashMap(complicationsPreviewData.value).apply {
                         this[complicationSlotId] = previewData ?: EmptyComplicationData()
                     }
+                onComplicationUpdated(
+                    complicationSlotId,
+                    from = previousDataSourceInfo,
+                    to = complicationDataSourceChooserResult.dataSourceInfo,
+                )
 
                 return ChosenComplicationDataSource(
                     complicationSlotId,
@@ -779,6 +786,12 @@ internal constructor(
     protected open val showComplicationDeniedDialogIntent: Intent? = null
 
     protected open val showComplicationRationaleDialogIntent: Intent? = null
+
+    protected open fun onComplicationUpdated(
+        complicationSlotId: Int,
+        from: ComplicationDataSourceInfo?,
+        to: ComplicationDataSourceInfo?,
+    ) {}
 }
 
 /**
@@ -936,6 +949,11 @@ internal class OnWatchFaceEditorSessionImpl(
         if (!commitChangesOnClose && this::previousWatchFaceUserStyle.isInitialized) {
             userStyle.value = previousWatchFaceUserStyle
         }
+        if (this::editorDelegate.isInitialized) {
+            editorDelegate.complicationSlotsManager.unfreezeAllSlotsForEdit(
+                clearData = commitChangesOnClose
+            )
+        }
 
         if (this::fetchComplicationsDataJob.isInitialized) {
             // Wait until the fetchComplicationsDataJob has finished and released the
@@ -994,6 +1012,18 @@ internal class OnWatchFaceEditorSessionImpl(
     override fun getComplicationSlotIdAt(@Px x: Int, @Px y: Int): Int? {
         requireNotClosed()
         return editorDelegate.complicationSlotsManager.getComplicationSlotAt(x, y)?.id
+    }
+
+    override fun onComplicationUpdated(
+        complicationSlotId: Int,
+        from: ComplicationDataSourceInfo?,
+        to: ComplicationDataSourceInfo?,
+    ) {
+        editorDelegate.complicationSlotsManager.freezeSlotForEdit(
+            complicationSlotId,
+            from = from,
+            to = to,
+        )
     }
 }
 

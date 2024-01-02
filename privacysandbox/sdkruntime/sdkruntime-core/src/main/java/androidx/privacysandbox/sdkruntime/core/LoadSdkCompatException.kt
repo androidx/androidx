@@ -17,10 +17,9 @@ package androidx.privacysandbox.sdkruntime.core
 
 import android.app.sdksandbox.LoadSdkException
 import android.os.Bundle
-import android.os.ext.SdkExtensions.AD_SERVICES
 import androidx.annotation.DoNotInline
 import androidx.annotation.IntDef
-import androidx.annotation.RequiresExtension
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 
@@ -57,7 +56,6 @@ class LoadSdkCompatException : Exception {
      * @param cause The cause of the exception. A null value is permitted, and indicates that the
      *  cause is nonexistent or unknown.
      * @param extraInformation Extra error information. This is empty if there is no such information.
-     * @suppress
      */
     @RestrictTo(LIBRARY_GROUP)
     @JvmOverloads
@@ -76,7 +74,6 @@ class LoadSdkCompatException : Exception {
      *
      * @param loadSdkErrorCode The result code.
      * @param message The detailed message.
-     * @suppress
      */
     @RestrictTo(LIBRARY_GROUP)
     constructor(
@@ -95,7 +92,6 @@ class LoadSdkCompatException : Exception {
         extraInfo: Bundle
     ) : this(LOAD_SDK_SDK_DEFINED_ERROR, "", cause, extraInfo)
 
-    /** @suppress */
     @IntDef(
         SDK_SANDBOX_PROCESS_NOT_AVAILABLE,
         LOAD_SDK_NOT_FOUND,
@@ -113,13 +109,14 @@ class LoadSdkCompatException : Exception {
      *
      *  @return Platform exception.
      */
-    @RequiresExtension(extension = AD_SERVICES, version = 4)
-    internal fun toLoadSdkException(): LoadSdkException {
-        return ApiAdServicesV4Impl.toLoadSdkException(this)
+    @RequiresApi(34)
+    @RestrictTo(LIBRARY_GROUP)
+    fun toLoadSdkException(): LoadSdkException {
+        return Api34Impl.toLoadSdkException(this)
     }
 
-    @RequiresExtension(extension = AD_SERVICES, version = 4)
-    private object ApiAdServicesV4Impl {
+    @RequiresApi(34)
+    private object Api34Impl {
 
         @DoNotInline
         fun toLoadSdkException(ex: LoadSdkCompatException): LoadSdkException {
@@ -213,12 +210,11 @@ class LoadSdkCompatException : Exception {
          *
          *  @param ex Platform exception
          *  @return Compat exception.
-         *  @suppress
          */
-        @RequiresExtension(extension = AD_SERVICES, version = 4)
+        @RequiresApi(34)
         @RestrictTo(LIBRARY_GROUP)
         fun toLoadCompatSdkException(ex: LoadSdkException): LoadSdkCompatException {
-            return ApiAdServicesV4Impl.toLoadCompatSdkException(ex)
+            return Api34Impl.toLoadCompatSdkException(ex)
         }
     }
 }

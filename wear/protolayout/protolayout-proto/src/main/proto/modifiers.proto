@@ -22,6 +22,22 @@ message Clickable {
   // The action to perform when the element this modifier is attached to is
   // clicked.
   Action on_click = 2;
+
+  // The minimum width of the clickable area.
+  //
+  // The default value is 48dp, following the Material design accessibility
+  // guideline. Note that this value does not affect the layout, so the minimum
+  // clickable width is not guaranteed unless there is enough space around the
+  // element within its parent bounds.
+  DpProp minimum_clickable_width = 3;
+
+  // The minimum height of the clickable area.
+  //
+  // The default value is 48dp, following the Material design accessibility
+  // guideline. Note that this value does not affect the layout, so the minimum
+  // clickable height is not guaranteed unless there is enough space around the
+  // element within its parent bounds.
+  DpProp minimum_clickable_height = 4;
 }
 
 // The type of user interface element. Accessibility services might use this to
@@ -174,18 +190,20 @@ message Modifiers {
   // underneath it.
   AnimatedVisibility content_update_animation = 7;
 
-  // Whether the attached element is hidden, or visible. If the element is
-  // hidden, then it will still consume space in the layout, but will not render
-  // any contents, nor will any children render any contents.
-  //
-  // Note that a hidden element also cannot be clickable (i.e. a Clickable
-  // modifier would be ignored).
-  //
-  // Defaults to false (i.e. not hidden).
+
+  // This field is deprecated and is only kept for backward compatibility.
   BoolProp hidden = 8;
 
   // The optional identifier for the layout element.
   string id = 9;
+
+  // Whether the attached element is visible, or hidden. If the element is
+  // hidden, then it will still consume space in the layout, but will not render
+  // any contents, nor will any children render any contents. Defaults to visible.
+  //
+  // Note that a hidden element also cannot be clickable (i.e. a Clickable
+  // modifier would be ignored).
+  BoolProp visible = 10;
 }
 
 // The content transition of an element. Any update to the element or its
@@ -356,4 +374,16 @@ message SpanModifiers {
   // Allows its wrapped element to have actions associated with it, which will
   // be executed when the element is tapped.
   Clickable clickable = 1;
+}
+
+// The shadow definition. The shadow is drawn as a blur region around the
+// element.
+message Shadow {
+  // The blur radius of the shadow. It controls the size of the blur that is
+  // drawn.
+  // When set to zero, the shadow is not drawn. Defaults to zero.
+  DpProp blur_radius = 1;
+
+  // The color used in the shadow. Defaults to Black.
+  ColorProp color = 2;
 }

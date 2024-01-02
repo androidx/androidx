@@ -53,6 +53,7 @@ public final class MediaRouteDescriptor {
     static final String KEY_DESCRIPTION = "status";
     static final String KEY_ICON_URI = "iconUri";
     static final String KEY_ENABLED = "enabled";
+    static final String KEY_IS_SYSTEM_ROUTE = "isSystemRoute";
     static final String IS_DYNAMIC_GROUP_ROUTE = "isDynamicGroupRoute";
     static final String KEY_CONNECTING = "connecting";
     static final String KEY_CONNECTION_STATE = "connectionState";
@@ -149,6 +150,20 @@ public final class MediaRouteDescriptor {
      */
     public boolean isEnabled() {
         return mBundle.getBoolean(KEY_ENABLED, true);
+    }
+
+    /**
+     * Returns {@code true} if this route is a system route.
+     *
+     * <p>System routes are routes controlled by the system, like the device's built-in speakers,
+     * wired headsets, and bluetooth devices.
+     *
+     * <p>To use system routes, your application should write media sample data to a media framework
+     * API, typically via <a
+     * href="https://developer.android.com/reference/androidx/media3/exoplayer/ExoPlayer">Exoplayer</a>.
+     */
+    public boolean isSystemRoute() {
+        return mBundle.getBoolean(KEY_IS_SYSTEM_ROUTE, false);
     }
 
     /**
@@ -378,6 +393,7 @@ public final class MediaRouteDescriptor {
                 + ", description=" + getDescription()
                 + ", iconUri=" + getIconUri()
                 + ", isEnabled=" + isEnabled()
+                + ", isSystemRoute=" + isSystemRoute()
                 + ", connectionState=" + getConnectionState()
                 + ", controlFilters=" + Arrays.toString(getControlFilters().toArray())
                 + ", playbackType=" + getPlaybackType()
@@ -603,6 +619,18 @@ public final class MediaRouteDescriptor {
         @NonNull
         public Builder setEnabled(boolean enabled) {
             mBundle.putBoolean(KEY_ENABLED, enabled);
+            return this;
+        }
+
+        /**
+         * Sets whether the route is a system route.
+         *
+         * @see MediaRouteDescriptor#isSystemRoute()
+         */
+        @RestrictTo(LIBRARY)
+        @NonNull
+        public Builder setIsSystemRoute(boolean isSystemRoute) {
+            mBundle.putBoolean(KEY_IS_SYSTEM_ROUTE, isSystemRoute);
             return this;
         }
 

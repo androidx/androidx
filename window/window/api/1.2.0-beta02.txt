@@ -56,7 +56,7 @@ package androidx.window.area {
 
   @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public final class WindowAreaInfo {
     method public androidx.window.area.WindowAreaSession? getActiveSession(androidx.window.area.WindowAreaCapability.Operation operation);
-    method public androidx.window.area.WindowAreaCapability? getCapability(androidx.window.area.WindowAreaCapability.Operation operation);
+    method public androidx.window.area.WindowAreaCapability getCapability(androidx.window.area.WindowAreaCapability.Operation operation);
     method public androidx.window.layout.WindowMetrics getMetrics();
     method public android.os.Binder getToken();
     method public androidx.window.area.WindowAreaInfo.Type getType();

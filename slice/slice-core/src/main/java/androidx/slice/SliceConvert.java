@@ -43,8 +43,13 @@ import java.util.Set;
 /**
  * Convert between {@link androidx.slice.Slice androidx.slice.Slice} and
  * {@link android.app.slice.Slice android.app.slice.Slice}
+ *
+ * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+ * forward. If you are looking for a framework that handles communication across apps,
+ * consider using {@link android.app.appsearch.AppSearchManager}.
  */
 @RequiresApi(28)
+@Deprecated
 public class SliceConvert {
 
     private static final String TAG = "SliceConvert";

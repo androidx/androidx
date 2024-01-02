@@ -18,7 +18,6 @@ package androidx.dynamicanimation.animation;
 
 import android.animation.ValueAnimator;
 import android.os.Build;
-import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.view.Choreographer;
@@ -65,7 +64,6 @@ public class AnimationHandler {
         /**
          * Notifies all the on-going animations of the new frame.
          */
-        @SuppressWarnings("SyntheticAccessor") /* synthetic access */
         void dispatchAnimationFrame() {
             mCurrentFrameTime = SystemClock.uptimeMillis();
             AnimationHandler.this.doAnimationFrame(mCurrentFrameTime);
@@ -75,7 +73,6 @@ public class AnimationHandler {
         }
     }
 
-    private static final long FRAME_DELAY_MS = 10;
     private static final ThreadLocal<AnimationHandler> sAnimatorHandler = new ThreadLocal<>();
 
     /**
@@ -86,12 +83,9 @@ public class AnimationHandler {
             new SimpleArrayMap<>();
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final ArrayList<AnimationFrameCallback> mAnimationCallbacks = new ArrayList<>();
-    @SuppressWarnings("SyntheticAccessor") /* synthetic access */
     private final AnimationCallbackDispatcher mCallbackDispatcher =
             new AnimationCallbackDispatcher();
-    @SuppressWarnings("SyntheticAccessor") /* synthetic access */
     private final Runnable mRunnable = () -> mCallbackDispatcher.dispatchAnimationFrame();
-    @SuppressWarnings("SyntheticAccessor") /* synthetic access */
     private FrameCallbackScheduler mScheduler;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     long mCurrentFrameTime = 0;
@@ -107,9 +101,7 @@ public class AnimationHandler {
     static AnimationHandler getInstance() {
         if (sAnimatorHandler.get() == null) {
             AnimationHandler handler = new AnimationHandler(
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
-                            ? new FrameCallbackScheduler16()
-                            : new FrameCallbackScheduler14());
+                    new FrameCallbackScheduler16());
             sAnimatorHandler.set(handler);
         }
         return sAnimatorHandler.get();
@@ -233,7 +225,6 @@ public class AnimationHandler {
     /**
      * Default provider of timing pulse that uses Choreographer for frame callbacks.
      */
-    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
     static final class FrameCallbackScheduler16 implements FrameCallbackScheduler {
 
         private final Choreographer mChoreographer = Choreographer.getInstance();
@@ -247,31 +238,6 @@ public class AnimationHandler {
         @Override
         public boolean isCurrentThread() {
             return Thread.currentThread() == mLooper.getThread();
-        }
-    }
-
-    /**
-     * Frame provider for ICS and ICS-MR1 releases. The frame callback is achieved via posting
-     * a Runnable to the main thread Handler with a delay.
-     */
-    static class FrameCallbackScheduler14 implements FrameCallbackScheduler {
-
-        private final Handler mHandler = new Handler(Looper.myLooper());
-        private long mLastFrameTime;
-
-        @Override
-        public void postFrameCallback(@NonNull Runnable frameCallback) {
-            long delay = FRAME_DELAY_MS - (SystemClock.uptimeMillis() - mLastFrameTime);
-            delay = Math.max(delay, 0);
-            mHandler.postDelayed(() -> {
-                mLastFrameTime = SystemClock.uptimeMillis();
-                frameCallback.run();
-            }, delay);
-        }
-
-        @Override
-        public boolean isCurrentThread() {
-            return Thread.currentThread() == mHandler.getLooper().getThread();
         }
     }
 

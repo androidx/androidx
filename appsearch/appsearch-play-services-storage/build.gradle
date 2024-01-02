@@ -45,8 +45,12 @@ androidx {
     description =
             "An implementation of AppSearchSession and GlobalSearchSession on pre-S devices using " +
                     "play-services-appsearch SDK with Gogle Play Services as storage backend."
+    metalavaK2UastEnabled = true
 }
 
 android {
     namespace "androidx.appsearch.playservicesstorage"
+     defaultConfig {
+        minSdkVersion 19
+    }
 }

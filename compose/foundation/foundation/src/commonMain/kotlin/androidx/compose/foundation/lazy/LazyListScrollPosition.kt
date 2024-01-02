@@ -65,6 +65,11 @@ internal class LazyListScrollPosition(
         }
     }
 
+    fun updateScrollOffset(scrollOffset: Int) {
+        check(scrollOffset >= 0f) { "scrollOffset should be non-negative ($scrollOffset)" }
+        this.scrollOffset = scrollOffset
+    }
+
     /**
      * Updates the scroll position - the passed values will be used as a start position for
      * composing the items during the next measure pass and will be updated by the real

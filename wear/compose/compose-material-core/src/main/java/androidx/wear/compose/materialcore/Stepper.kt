@@ -17,8 +17,8 @@
 package androidx.wear.compose.materialcore
 
 import androidx.annotation.RestrictTo
+import androidx.compose.foundation.Indication
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -31,7 +31,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ProvidedValue
@@ -39,7 +38,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 
 /**
@@ -73,6 +71,7 @@ import androidx.compose.ui.unit.dp
  * @param disabledButtonProviderValues Values of CompositionLocal providers for disabled button such
  * as LocalContentColor, LocalContentAlpha, LocalTextStyle which are dependent on a specific
  * material design version and are not part of this material-agnostic library.
+ * @param buttonRipple Unbounded ripple used for the decrease and increase button
  * @param content Content body for the Stepper.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -88,6 +87,7 @@ public fun Stepper(
     backgroundColor: Color,
     enabledButtonProviderValues: Array<ProvidedValue<*>>,
     disabledButtonProviderValues: Array<ProvidedValue<*>>,
+    buttonRipple: Indication,
     content: @Composable BoxScope.() -> Unit
 ) {
     require(steps >= 0) { "steps should be >= 0" }
@@ -120,6 +120,7 @@ public fun Stepper(
             enabled = increaseButtonEnabled,
             buttonProviderValues = if (increaseButtonEnabled) enabledButtonProviderValues
             else disabledButtonProviderValues,
+            ripple = buttonRipple,
             content = increaseIcon
         )
         Box(
@@ -137,6 +138,7 @@ public fun Stepper(
             enabled = decreaseButtonEnabled,
             buttonProviderValues = if (decreaseButtonEnabled) enabledButtonProviderValues
             else disabledButtonProviderValues,
+            ripple = buttonRipple,
             content = decreaseIcon
         )
     }
@@ -149,6 +151,7 @@ private fun ColumnScope.FullScreenButton(
     paddingValues: PaddingValues,
     enabled: Boolean,
     buttonProviderValues: Array<ProvidedValue<*>>,
+    ripple: Indication,
     content: @Composable () -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -156,12 +159,14 @@ private fun ColumnScope.FullScreenButton(
         modifier = Modifier
             .fillMaxWidth()
             .weight(StepperDefaults.ButtonWeight)
-            .clickable(
-                interactionSource, null, onClick = onClick, enabled = enabled, role = Role.Button
+            .repeatableClickable(
+                enabled = enabled,
+                onClick = onClick,
+                interactionSource = interactionSource,
+                indication = null
             )
-            .repeatableClickable(enabled = enabled, onClick = onClick)
             .wrapContentWidth()
-            .indication(interactionSource, rememberRipple(bounded = false))
+            .indication(interactionSource, ripple)
             .padding(paddingValues),
         contentAlignment = contentAlignment,
     ) {

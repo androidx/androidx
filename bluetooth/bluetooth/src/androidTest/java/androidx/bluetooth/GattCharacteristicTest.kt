@@ -16,73 +16,48 @@
 
 package androidx.bluetooth
 
-import android.bluetooth.BluetoothGattCharacteristic as FwkBluetoothGattCharacteristic
+import android.bluetooth.BluetoothGattCharacteristic as FwkCharacteristic
+import com.google.common.truth.Truth.assertThat
 import java.util.UUID
-import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+/**
+ * Test cases for [GattCharacteristic]
+ */
 @RunWith(JUnit4::class)
 class GattCharacteristicTest {
+
     @Test
     fun constructorWithFwkInstance() {
         val propertiesMap = mapOf(
-            FwkBluetoothGattCharacteristic.PROPERTY_BROADCAST to
+            FwkCharacteristic.PROPERTY_BROADCAST to
                 GattCharacteristic.PROPERTY_BROADCAST,
-            FwkBluetoothGattCharacteristic.PROPERTY_EXTENDED_PROPS to
-                GattCharacteristic.PROPERTY_EXTENDS_PROP,
-            FwkBluetoothGattCharacteristic.PROPERTY_INDICATE to
+            FwkCharacteristic.PROPERTY_EXTENDED_PROPS to
+                GattCharacteristic.PROPERTY_EXTENDED_PROPS,
+            FwkCharacteristic.PROPERTY_INDICATE to
                 GattCharacteristic.PROPERTY_INDICATE,
-            FwkBluetoothGattCharacteristic.PROPERTY_NOTIFY
+            FwkCharacteristic.PROPERTY_NOTIFY
                 to GattCharacteristic.PROPERTY_NOTIFY,
-            FwkBluetoothGattCharacteristic.PROPERTY_READ
+            FwkCharacteristic.PROPERTY_READ
                 to GattCharacteristic.PROPERTY_READ,
-            FwkBluetoothGattCharacteristic.PROPERTY_SIGNED_WRITE
+            FwkCharacteristic.PROPERTY_SIGNED_WRITE
                 to GattCharacteristic.PROPERTY_SIGNED_WRITE,
-            FwkBluetoothGattCharacteristic.PROPERTY_WRITE
+            FwkCharacteristic.PROPERTY_WRITE
                 to GattCharacteristic.PROPERTY_WRITE,
-            FwkBluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE
+            FwkCharacteristic.PROPERTY_WRITE_NO_RESPONSE
                 to GattCharacteristic.PROPERTY_WRITE_NO_RESPONSE,
-        )
-
-        val permissionMap = mapOf(
-            FwkBluetoothGattCharacteristic.PERMISSION_READ to
-                GattCharacteristic.PERMISSION_READ,
-            FwkBluetoothGattCharacteristic.PERMISSION_READ_ENCRYPTED to
-                GattCharacteristic.PERMISSION_READ_ENCRYPTED,
-            FwkBluetoothGattCharacteristic.PERMISSION_READ_ENCRYPTED_MITM to
-                GattCharacteristic.PERMISSION_READ_ENCRYPTED_MITM,
-            FwkBluetoothGattCharacteristic.PERMISSION_WRITE to
-                GattCharacteristic.PERMISSION_WRITE,
-            FwkBluetoothGattCharacteristic.PERMISSION_WRITE_ENCRYPTED to
-                GattCharacteristic.PERMISSION_WRITE_ENCRYPTED,
-            FwkBluetoothGattCharacteristic.PERMISSION_WRITE_ENCRYPTED_MITM to
-                GattCharacteristic.PERMISSION_WRITE_ENCRYPTED_MITM,
-            FwkBluetoothGattCharacteristic.PERMISSION_WRITE_SIGNED to
-                GattCharacteristic.PERMISSION_WRITE_SIGNED,
-            FwkBluetoothGattCharacteristic.PERMISSION_WRITE_SIGNED_MITM to
-                GattCharacteristic.PERMISSION_WRITE_SIGNED_MITM
         )
 
         propertiesMap.forEach {
             val charUuid = UUID.randomUUID()
-            val fwkGattCharacteristic = FwkBluetoothGattCharacteristic(charUuid, it.key,
+            val fwkGattCharacteristic = FwkCharacteristic(charUuid, it.key,
                 /*permissions=*/0)
             val gattCharacteristic = GattCharacteristic(fwkGattCharacteristic)
 
-            Assert.assertEquals(fwkGattCharacteristic.uuid, gattCharacteristic.uuid)
-            Assert.assertEquals(it.value, gattCharacteristic.properties)
-        }
-
-        permissionMap.forEach {
-            val charUuid = UUID.randomUUID()
-            val fwkGattCharacteristic = FwkBluetoothGattCharacteristic(charUuid,
-                /*properties=*/0, it.key)
-            val gattCharacteristic = GattCharacteristic(fwkGattCharacteristic)
-
-            Assert.assertEquals(fwkGattCharacteristic.uuid, gattCharacteristic.uuid)
-            Assert.assertEquals(it.value, gattCharacteristic.permissions)
+            assertThat(gattCharacteristic.uuid).isEqualTo(fwkGattCharacteristic.uuid)
+            assertThat(gattCharacteristic.properties).isEqualTo(it.value)
         }
     }
 
@@ -91,12 +66,23 @@ class GattCharacteristicTest {
         val uuid = UUID.randomUUID()
 
         val properties = GattCharacteristic.PROPERTY_READ
-        val permissions = GattCharacteristic.PERMISSION_READ
 
-        val characteristic = GattCharacteristic(uuid, properties, permissions)
+        val characteristic = GattCharacteristic(uuid, properties)
 
-        Assert.assertEquals(uuid, characteristic.uuid)
-        Assert.assertEquals(properties, characteristic.properties)
-        Assert.assertEquals(permissions, characteristic.permissions)
+        assertThat(characteristic.uuid).isEqualTo(uuid)
+        assertThat(characteristic.properties).isEqualTo(properties)
+    }
+
+    @Test
+    fun subscriableCharacteristicHasCccd() {
+        val notifyCharacteristic = GattCharacteristic(UUID.randomUUID(),
+            GattCharacteristic.PROPERTY_READ or GattCharacteristic.PROPERTY_NOTIFY)
+        val indicateCharacteristic = GattCharacteristic(UUID.randomUUID(),
+            GattCharacteristic.PROPERTY_READ or GattCharacteristic.PROPERTY_INDICATE)
+
+        assertThat(notifyCharacteristic.fwkCharacteristic.getDescriptor(GattCommon.UUID_CCCD))
+            .isNotNull()
+        assertThat(indicateCharacteristic.fwkCharacteristic.getDescriptor(GattCommon.UUID_CCCD))
+            .isNotNull()
     }
 }

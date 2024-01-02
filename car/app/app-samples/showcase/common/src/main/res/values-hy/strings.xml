@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Ցանկերի ներդիր"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Ցանցերի ներդիր՝ երկար վերնագրով"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Որոնումների ներդիր"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Ներդիրի բեռնում"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Ներդիրների ձևանմուշի բեռնման դեմո"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Առանց ներդիրների ձևանմուշի դեմո"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Պատկերները չեն կարող ցուցադրվել անհայտ խնամորդի համար"</string>
@@ -364,4 +365,8 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"Երթուղիների ընտրանքներ"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"Խուսափել մայրուղիներից"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Խուսափել լաստանավերից"</string>
+    <string name="map_demos_title" msgid="2169766615521476592">"Քարտեզի դեմոներ"</string>
+    <string name="map_with_content_demo_title" msgid="1032610482145018739">"Բովանդակության դեմոներով քարտեզ"</string>
+    <string name="map_with_message_demo_title" msgid="7007078234918054436">"Հաղորդագրության ձևանմուշի դեմոյով քարտեզ"</string>
+    <string name="map_with_grid_demo_title" msgid="688667167861193192">"Ցանցի ձևանմուշի դեմոյով քարտեզ"</string>
 </resources>

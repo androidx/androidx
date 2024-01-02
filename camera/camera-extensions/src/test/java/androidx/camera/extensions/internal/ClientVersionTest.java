@@ -53,4 +53,15 @@ public class ClientVersionTest {
         assertThat(ClientVersion.isMinimumCompatibleVersion(Version.parse("1.3.0")))
                 .isFalse();
     }
+
+    @Test
+    public void testIsMaximumCompatibleVersion() {
+        ClientVersion.setCurrentVersion(new ClientVersion("1.2.0"));
+        assertThat(ClientVersion.isMaximumCompatibleVersion(Version.parse("1.3.0")))
+                .isTrue();
+        assertThat(ClientVersion.isMaximumCompatibleVersion(Version.parse("1.2.0")))
+                .isTrue();
+        assertThat(ClientVersion.isMaximumCompatibleVersion(Version.parse("1.1.0")))
+                .isFalse();
+    }
 }

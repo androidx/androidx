@@ -122,7 +122,11 @@ final class ProcessingInput2Packet implements
     }
 
     private static CameraCaptureResult getCameraCaptureResult(@NonNull ImageProxy image) {
-        return ((CameraCaptureResultImageInfo) image.getImageInfo()).getCameraCaptureResult();
+        if (image.getImageInfo() instanceof CameraCaptureResultImageInfo) {
+            return ((CameraCaptureResultImageInfo) image.getImageInfo()).getCameraCaptureResult();
+        } else {
+            return CameraCaptureResult.EmptyCameraCaptureResult.create();
+        }
     }
 
     /**

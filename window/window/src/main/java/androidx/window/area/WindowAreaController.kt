@@ -21,6 +21,7 @@ import android.os.Binder
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RestrictTo
+import androidx.window.WindowSdkExtensions
 import androidx.window.area.WindowAreaInfo.Type.Companion.TYPE_REAR_FACING
 import androidx.window.area.utils.DeviceUtils
 import androidx.window.core.BuildConfig
@@ -41,6 +42,9 @@ interface WindowAreaController {
     /**
      * [Flow] of the list of current [WindowAreaInfo]s that are currently available to be interacted
      * with.
+     *
+     * If [WindowSdkExtensions.extensionVersion] is less than 2,  the flow will return
+     * empty [WindowAreaInfo] list flow.
      */
     val windowAreaInfos: Flow<List<WindowAreaInfo>>
 

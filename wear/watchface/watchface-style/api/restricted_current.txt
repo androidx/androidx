@@ -143,9 +143,9 @@ package androidx.wear.watchface.style {
     method public Integer? getAccessibilityTraversalIndex();
     method public androidx.wear.watchface.complications.ComplicationSlotBounds? getComplicationSlotBounds();
     method public int getComplicationSlotId();
-    method public Boolean? getEnabled();
     method public Integer? getNameResourceId();
     method public Integer? getScreenReaderNameResourceId();
+    method public Boolean? isEnabled();
     property public final Integer? accessibilityTraversalIndex;
     property public final androidx.wear.watchface.complications.ComplicationSlotBounds? complicationSlotBounds;
     property public final int complicationSlotId;

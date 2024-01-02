@@ -28,7 +28,6 @@ import android.view.SurfaceHolder
 import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
-import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.complications.permission.dialogs.sample.ComplicationDeniedActivity
@@ -43,7 +42,7 @@ import java.time.ZonedDateTime
  * Sample watch face using OpenGL with textures loaded on a background thread by [createWatchFace]
  * which are used for rendering on the main thread.
  */
-open class ExampleOpenGLBackgroundInitWatchFaceService() : WatchFaceService() {
+open class ExampleOpenGLBackgroundInitWatchFaceService() : SampleWatchFaceService() {
     private val colorStyleSetting by lazy {
         UserStyleSetting.ListUserStyleSetting(
             UserStyleSetting.Id("color_style_setting"),

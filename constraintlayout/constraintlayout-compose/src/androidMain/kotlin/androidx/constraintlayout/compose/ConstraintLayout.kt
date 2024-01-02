@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import androidx.collection.IntIntPair
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.tween
@@ -1764,6 +1765,7 @@ internal open class Measurer(
         json.append("  bottom:  ${root.height} ,")
         json.append(" } }")
 
+        @Suppress("ListIterator")
         for (child in root.children) {
             val measurable = child.companionWidget
             if (measurable !is Measurable) {
@@ -1905,13 +1907,13 @@ internal open class Measurer(
 
         if (DEBUG) {
             root.debugName = "ConstraintLayout"
-            root.children.forEach { child ->
+            root.children.fastForEach { child ->
                 child.debugName =
                     (child.companionWidget as? Measurable)?.layoutId?.toString() ?: "NOTAG"
             }
             Log.d("CCL", "ConstraintLayout is asked to measure with $constraints")
             Log.d("CCL", root.toDebugString())
-            for (child in root.children) {
+            root.children.fastForEach { child ->
                 Log.d("CCL", child.toDebugString())
             }
         }
@@ -1968,6 +1970,7 @@ internal open class Measurer(
 
     fun Placeable.PlacementScope.performLayout(measurables: List<Measurable>) {
         if (frameCache.isEmpty()) {
+            @Suppress("ListIterator")
             for (child in root.children) {
                 val measurable = child.companionWidget
                 if (measurable !is Measurable) continue
@@ -2016,7 +2019,7 @@ internal open class Measurer(
     private fun measureWidget(
         constraintWidget: ConstraintWidget,
         constraints: Constraints
-    ): Pair<Int, Int> {
+    ): IntIntPair {
         val measurable = constraintWidget.companionWidget
         val widgetId = constraintWidget.stringId
         return when {
@@ -2039,15 +2042,15 @@ internal open class Measurer(
                     heightMode,
                     constraints.maxHeight
                 )
-                Pair(constraintWidget.measuredWidth, constraintWidget.measuredHeight)
+                IntIntPair(constraintWidget.measuredWidth, constraintWidget.measuredHeight)
             }
             measurable is Measurable -> {
                 val result = measurable.measure(constraints).also { placeables[measurable] = it }
-                Pair(result.width, result.height)
+                IntIntPair(result.width, result.height)
             }
             else -> {
                 Log.w("CCL", "Nothing to measure for widget: $widgetId")
-                Pair(0, 0)
+                IntIntPair(0, 0)
             }
         }
     }
@@ -2107,7 +2110,7 @@ internal open class Measurer(
 
     @Composable
     fun createDesignElements() {
-        for (element in designElements) {
+        designElements.fastForEach { element ->
             var id = element.id
             var function = DesignElements.map[element.type]
             if (function != null) {

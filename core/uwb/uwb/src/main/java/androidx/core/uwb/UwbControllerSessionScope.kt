@@ -56,4 +56,16 @@ interface UwbControllerSessionScope : UwbClientSessionScope {
      * [RangingResult.RangingResultPeerDisconnected] to listen for disconnects.
      */
     suspend fun removeControlee(address: UwbAddress)
+
+    /**
+     * Dynamically reconfigures ranging interval to an active ranging session.
+     *
+     * @throws [IllegalStateException] if the ranging is inactive.
+     *
+     * Otherwise, this method will return successfully with the ranging session reconfigured to
+     * skip number of ranging intervals set in intervalSkipCount. If intervalSkipCount
+     * is set to 0, the ranging interval will be set to the interval used when startRanging
+     * was called.
+     */
+    suspend fun reconfigureRangingInterval(intervalSkipCount: Int)
 }

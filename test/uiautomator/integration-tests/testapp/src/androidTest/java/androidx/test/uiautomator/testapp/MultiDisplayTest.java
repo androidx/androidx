@@ -34,7 +34,6 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.BySelector;
-import androidx.test.uiautomator.Orientation;
 import androidx.test.uiautomator.UiObject2;
 import androidx.test.uiautomator.Until;
 
@@ -136,16 +135,24 @@ public class MultiDisplayTest extends BaseTest {
         int secondaryDisplayId = getSecondaryDisplayId();
 
         try {
-            mDevice.setOrientation(Orientation.ROTATION_180, secondaryDisplayId);
-            assertEquals(Surface.ROTATION_180, mDevice.getDisplayRotation(secondaryDisplayId));
+            mDevice.setOrientationNatural(secondaryDisplayId);
+            assertEquals(Surface.ROTATION_0, mDevice.getDisplayRotation(secondaryDisplayId));
 
-            mDevice.setOrientation(Orientation.FROZEN, secondaryDisplayId);
-            assertEquals(Surface.ROTATION_180, mDevice.getDisplayRotation(secondaryDisplayId));
+            mDevice.setOrientationLeft(secondaryDisplayId);
+            assertEquals(Surface.ROTATION_90, mDevice.getDisplayRotation(secondaryDisplayId));
 
-            mDevice.setOrientation(Orientation.ROTATION_270, secondaryDisplayId);
+            mDevice.setOrientationRight(secondaryDisplayId);
             assertEquals(Surface.ROTATION_270, mDevice.getDisplayRotation(secondaryDisplayId));
+
+            mDevice.setOrientationPortrait(secondaryDisplayId);
+            assertTrue(mDevice.getDisplayHeight(secondaryDisplayId) >= mDevice.getDisplayWidth(
+                    secondaryDisplayId));
+
+            mDevice.setOrientationLandscape(secondaryDisplayId);
+            assertTrue(mDevice.getDisplayHeight(secondaryDisplayId) <= mDevice.getDisplayWidth(
+                    secondaryDisplayId));
         } finally {
-            mDevice.setOrientation(Orientation.ROTATION_0, secondaryDisplayId);
+            mDevice.setOrientationNatural(secondaryDisplayId);
         }
     }
 

@@ -31,7 +31,6 @@ import static androidx.camera.core.impl.ImageOutputConfig.OPTION_SUPPORTED_RESOL
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ROTATION;
-import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_CONFIG_UNPACKER;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_TYPE;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_CAPTURE_CONFIG;
@@ -980,7 +979,6 @@ public final class ImageAnalysis extends UseCase {
                     .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY)
                     .setTargetAspectRatio(DEFAULT_ASPECT_RATIO)
                     .setResolutionSelector(DEFAULT_RESOLUTION_SELECTOR)
-                    .setCaptureType(UseCaseConfigFactory.CaptureType.IMAGE_ANALYSIS)
                     .setDynamicRange(DEFAULT_DYNAMIC_RANGE);
 
             DEFAULT_CONFIG = builder.getUseCaseConfig();
@@ -1021,6 +1019,7 @@ public final class ImageAnalysis extends UseCase {
                                 + oldConfigClass);
             }
 
+            setCaptureType(UseCaseConfigFactory.CaptureType.IMAGE_ANALYSIS);
             setTargetClass(ImageAnalysis.class);
         }
 
@@ -1516,14 +1515,6 @@ public final class ImageAnalysis extends UseCase {
         @NonNull
         public Builder setSurfaceOccupancyPriority(int priority) {
             getMutableConfig().insertOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, priority);
-            return this;
-        }
-
-        @RestrictTo(Scope.LIBRARY)
-        @Override
-        @NonNull
-        public Builder setCameraSelector(@NonNull CameraSelector cameraSelector) {
-            getMutableConfig().insertOption(OPTION_CAMERA_SELECTOR, cameraSelector);
             return this;
         }
 

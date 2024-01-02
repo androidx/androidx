@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// @exportToFramework:copyToPath(testing/testutils/src/android/app/appsearch/testutil/external/AlwaysSupportedFeatures.java)
+// @exportToFramework:copyToPath(../../../cts/tests/appsearch/testutils/src/android/app/appsearch/testutil/external/AlwaysSupportedFeatures.java)
 package androidx.appsearch.localstorage;
 
 import androidx.annotation.NonNull;
@@ -67,9 +67,16 @@ public class AlwaysSupportedFeatures implements Features {
             case Features.SCHEMA_ADD_PARENT_TYPE:
                 // fall through
             case Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES:
+                // fall through
+            case Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES:
                 return true;
             default:
                 return false;
         }
+    }
+
+    @Override
+    public int getMaxIndexedProperties() {
+        return 64;
     }
 }

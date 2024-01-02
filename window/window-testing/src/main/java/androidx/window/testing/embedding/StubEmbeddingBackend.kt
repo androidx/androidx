@@ -159,10 +159,6 @@ internal class StubEmbeddingBackend : EmbeddingBackend {
         TODO("Not yet implemented")
     }
 
-    override fun isSplitAttributesCalculatorSupported(): Boolean {
-        TODO("Not yet implemented")
-    }
-
     override fun getActivityStack(activity: Activity): ActivityStack? {
         TODO("Not yet implemented")
     }
@@ -174,23 +170,11 @@ internal class StubEmbeddingBackend : EmbeddingBackend {
         TODO("Not yet implemented")
     }
 
-    override fun finishActivityStacks(activityStacks: Set<ActivityStack>) {
-        TODO("Not yet implemented")
-    }
-
-    override fun isFinishActivityStacksSupported(): Boolean {
-        TODO("Not yet implemented")
-    }
-
     override fun invalidateTopVisibleSplitAttributes() {
         TODO("Not yet implemented")
     }
 
     override fun updateSplitAttributes(splitInfo: SplitInfo, splitAttributes: SplitAttributes) {
-        TODO("Not yet implemented")
-    }
-
-    override fun areSplitAttributesUpdatesSupported(): Boolean {
         TODO("Not yet implemented")
     }
 

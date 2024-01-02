@@ -23,7 +23,7 @@ plugins {
 }
 
 dependencies {
-    def media3Version = '1.0.0-beta03'
+    def media3Version = '1.0.0'
 
     api(libs.kotlinStdlib)
 
@@ -59,4 +59,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Apply visual filters to images, video or UI in real time."
+    metalavaK2UastEnabled = true
 }

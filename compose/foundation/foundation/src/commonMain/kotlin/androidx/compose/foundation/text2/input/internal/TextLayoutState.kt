@@ -16,99 +16,117 @@
 
 package androidx.compose.foundation.text2.input.internal
 
-import androidx.compose.foundation.text.InternalFoundationTextApi
-import androidx.compose.foundation.text.TextDelegate
-import androidx.compose.foundation.text.updateTextDelegate
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.MeasureScope
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 
 /**
  * Manages text layout for TextField including layout coordinates of decoration box and inner text
  * field.
  */
-@OptIn(InternalFoundationTextApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 internal class TextLayoutState {
-    /**
-     * Set of parameters and an internal cache to compute text layout.
-     */
-    var textDelegate: TextDelegate? = null
-        private set
+    private var layoutCache = TextFieldLayoutStateCache()
+
+    var onTextLayout: (Density.(() -> TextLayoutResult?) -> Unit)? = null
+
+    val layoutResult: TextLayoutResult? by layoutCache
 
     /**
-     * Text Layout State.
-     */
-    var layoutResult: TextLayoutResult? by mutableStateOf(null)
-        private set
-
-    /** Measured bounds of the decoration box and inner text field. Together used to
-     * calculate the relative touch offset. Because touches are applied on the decoration box, we
-     * need to translate it to the inner text field coordinates.
+     * Measured layout coordinates of the decoration box, core text field, and text layout node.
+     *
+     * DecoratorNode
+     * -------------------
+     * |  CoreNode       |--> Outer Decoration Box with padding
+     * |  -------------  |
+     * |  |           |  |
+     * |  |           |--|--> Visible inner text field
+     * |  -------------  |    (Below the dashed line is not visible)
+     * |  |           |  |
+     * |  |           |  |
+     * -------------------
+     *    |           |
+     *    |           |---> Scrollable part (TextLayoutNode)
+     *    -------------
+     *
+     * These coordinates are used to calculate the relative positioning between multiple layers
+     * of a BasicTextField. For example, touches are processed by the decoration box but these
+     * should be converted to text layout positions to find out which character is pressed.
      *
      * [LayoutCoordinates] object returned from onGloballyPositioned callback is usually the same
      * instance unless a node is detached and re-attached to the tree. To react to layout and
      * positional changes even though the object never changes, we employ a neverEqualPolicy.
      */
-    var innerTextFieldCoordinates: LayoutCoordinates? by mutableStateOf(null, neverEqualPolicy())
-    var decorationBoxCoordinates: LayoutCoordinates? by mutableStateOf(null, neverEqualPolicy())
+    var textLayoutNodeCoordinates: LayoutCoordinates? by mutableStateOf(null, neverEqualPolicy())
+    var coreNodeCoordinates: LayoutCoordinates? by mutableStateOf(null, neverEqualPolicy())
+    var decoratorNodeCoordinates: LayoutCoordinates? by mutableStateOf(null, neverEqualPolicy())
 
-    fun MeasureScope.layout(
-        text: AnnotatedString,
+    /**
+     * Set to a non-zero value for single line TextFields in order to prevent text cuts.
+     */
+    var minHeightForSingleLineField by mutableStateOf(0.dp)
+
+    /**
+     * Updates the [TextFieldLayoutStateCache] with inputs that don't come from the measure phase.
+     * This method will initialize the cache the first time it's called.
+     * If the new inputs require re-calculating text layout, any readers of [layoutResult] called
+     * from a snapshot observer will be invalidated.
+     *
+     * @see layoutWithNewMeasureInputs
+     */
+    fun updateNonMeasureInputs(
+        textFieldState: TransformedTextFieldState,
         textStyle: TextStyle,
+        singleLine: Boolean,
         softWrap: Boolean,
+    ) {
+        layoutCache.updateNonMeasureInputs(
+            textFieldState = textFieldState,
+            textStyle = textStyle,
+            singleLine = singleLine,
+            softWrap = softWrap,
+        )
+    }
+
+    /**
+     * Updates the [TextFieldLayoutStateCache] with inputs that come from the measure phase and returns the
+     * latest [TextLayoutResult]. If the measure inputs haven't changed significantly since the
+     * last call, this will be the cached result. If the new inputs require re-calculating text
+     * layout, any readers of [layoutResult] called from a snapshot observer will be invalidated.
+     *
+     * [updateNonMeasureInputs] must be called before this method to initialize the cache.
+     */
+    fun layoutWithNewMeasureInputs(
         density: Density,
+        layoutDirection: LayoutDirection,
         fontFamilyResolver: FontFamily.Resolver,
         constraints: Constraints,
-        onTextLayout: Density.(TextLayoutResult) -> Unit
     ): TextLayoutResult {
-        val prevResult = Snapshot.withoutReadObservation { layoutResult }
-
-        val currTextDelegate = textDelegate
-
-        val newTextDelegate = if (currTextDelegate != null) {
-            updateTextDelegate(
-                current = currTextDelegate,
-                text = text,
-                style = textStyle,
-                softWrap = softWrap,
-                density = density,
-                fontFamilyResolver = fontFamilyResolver,
-                placeholders = emptyList(),
-            )
-        } else {
-            TextDelegate(
-                text = text,
-                style = textStyle,
-                density = density,
-                fontFamilyResolver = fontFamilyResolver,
-                softWrap = true,
-                placeholders = emptyList()
-            )
-        }
-
-        return newTextDelegate.layout(
+        val layoutResult = layoutCache.layoutWithNewMeasureInputs(
+            density = density,
             layoutDirection = layoutDirection,
+            fontFamilyResolver = fontFamilyResolver,
             constraints = constraints,
-            prevResult = prevResult
-        ).also {
-            textDelegate = newTextDelegate
-            if (prevResult != it) {
-                onTextLayout(it)
-            }
-            layoutResult = it
+        )
+
+        onTextLayout?.let { onTextLayout ->
+            val textLayoutProvider = { layoutCache.value }
+            onTextLayout(density, textLayoutProvider)
         }
+
+        return layoutResult
     }
 
     /**
@@ -131,9 +149,12 @@ internal class TextLayoutState {
      */
     fun getOffsetForPosition(position: Offset, coerceInVisibleBounds: Boolean = true): Int {
         val layoutResult = layoutResult ?: return -1
-        val relativePosition = position
-            .let { if (coerceInVisibleBounds) it.coercedInVisibleBoundsOfInputText() else it }
-            .relativeToInputText()
+        val coercedPosition = if (coerceInVisibleBounds) {
+            position.coercedInVisibleBoundsOfInputText()
+        } else {
+            position
+        }
+        val relativePosition = fromDecorationToTextLayout(coercedPosition)
         return layoutResult.getOffsetForPosition(relativePosition)
     }
 
@@ -144,28 +165,10 @@ internal class TextLayoutState {
      */
     fun isPositionOnText(offset: Offset): Boolean {
         val layoutResult = layoutResult ?: return false
-        val relativeOffset = offset.coercedInVisibleBoundsOfInputText().relativeToInputText()
+        val relativeOffset = fromDecorationToTextLayout(offset.coercedInVisibleBoundsOfInputText())
         val line = layoutResult.getLineForVerticalPosition(relativeOffset.y)
         return relativeOffset.x >= layoutResult.getLineLeft(line) &&
             relativeOffset.x <= layoutResult.getLineRight(line)
-    }
-
-    /**
-     * Translates the click happened on the decoration box to the position in the inner text
-     * field coordinates. This relative position is then used to determine symbol position in
-     * text using TextLayoutResult object.
-     */
-    private fun Offset.relativeToInputText(): Offset {
-        // Translates touch to the inner text field coordinates
-        return innerTextFieldCoordinates?.let { innerTextFieldCoordinates ->
-            decorationBoxCoordinates?.let { decorationBoxCoordinates ->
-                if (innerTextFieldCoordinates.isAttached && decorationBoxCoordinates.isAttached) {
-                    innerTextFieldCoordinates.localPositionOf(decorationBoxCoordinates, this)
-                } else {
-                    this
-                }
-            }
-        } ?: this
     }
 
     /**
@@ -174,15 +177,15 @@ internal class TextLayoutState {
      */
     private fun Offset.coercedInVisibleBoundsOfInputText(): Offset {
         // If offset is outside visible bounds of the inner text field, use visible bounds edges
-        val visibleInnerTextFieldRect =
-            innerTextFieldCoordinates?.let { innerTextFieldCoordinates ->
-                if (innerTextFieldCoordinates.isAttached) {
-                    decorationBoxCoordinates?.localBoundingBoxOf(innerTextFieldCoordinates)
+        val visibleTextLayoutNodeRect =
+            textLayoutNodeCoordinates?.let { textLayoutNodeCoordinates ->
+                if (textLayoutNodeCoordinates.isAttached) {
+                    decoratorNodeCoordinates?.localBoundingBoxOf(textLayoutNodeCoordinates)
                 } else {
                     Rect.Zero
                 }
             } ?: Rect.Zero
-        return this.coerceIn(visibleInnerTextFieldRect)
+        return this.coerceIn(visibleTextLayoutNodeRect)
     }
 }
 
@@ -201,13 +204,39 @@ internal fun Offset.coerceIn(rect: Rect): Offset {
 }
 
 /**
- * Translates a position from inner text field coordinates to decoration box coordinates.
+ * Translates a position from text layout node coordinates to core node coordinates.
  */
-internal fun TextLayoutState.fromInnerToDecoration(offset: Offset): Offset {
-    // Translates touch to the inner text field coordinates
-    return innerTextFieldCoordinates?.takeIf { it.isAttached }?.let { innerTextFieldCoordinates ->
-        decorationBoxCoordinates?.takeIf { it.isAttached }?.let { decorationBoxCoordinates ->
-            decorationBoxCoordinates.localPositionOf(innerTextFieldCoordinates, offset)
+internal fun TextLayoutState.fromTextLayoutToCore(offset: Offset): Offset {
+    return textLayoutNodeCoordinates?.takeIf { it.isAttached }?.let { textLayoutNodeCoordinates ->
+        coreNodeCoordinates?.takeIf { it.isAttached }?.let { coreNodeCoordinates ->
+            coreNodeCoordinates.localPositionOf(textLayoutNodeCoordinates, offset)
+        }
+    } ?: offset
+}
+
+/**
+ * Translates the click happened on the decorator node to the position in the text layout node
+ * coordinates. This relative position is then used to determine symbol position in text using
+ * TextLayoutResult object.
+ */
+internal fun TextLayoutState.fromDecorationToTextLayout(offset: Offset): Offset {
+    return textLayoutNodeCoordinates?.let { textLayoutNodeCoordinates ->
+        decoratorNodeCoordinates?.let { decoratorNodeCoordinates ->
+            if (textLayoutNodeCoordinates.isAttached && decoratorNodeCoordinates.isAttached) {
+                textLayoutNodeCoordinates.localPositionOf(decoratorNodeCoordinates, offset)
+            } else {
+                offset
+            }
+        }
+    } ?: offset
+}
+
+internal fun TextLayoutState.fromWindowToDecoration(offset: Offset): Offset {
+    return decoratorNodeCoordinates?.let { decoratorNodeCoordinates ->
+        if (decoratorNodeCoordinates.isAttached) {
+            decoratorNodeCoordinates.windowToLocal(offset)
+        } else {
+            offset
         }
     } ?: offset
 }

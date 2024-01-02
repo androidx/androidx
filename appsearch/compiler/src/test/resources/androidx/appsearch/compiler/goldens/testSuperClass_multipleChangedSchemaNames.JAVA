@@ -9,6 +9,7 @@ import java.lang.Override;
 import java.lang.String;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.processing.Generated;
 
 @Generated("androidx.appsearch.compiler.AppSearchCompiler")
@@ -63,9 +64,10 @@ public final class $$__AppSearch__FooGift implements DocumentClassFactory<FooGif
   }
 
   @Override
-  public FooGift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
-    String idConv = genericDoc.getId();
+  public FooGift fromGenericDocument(GenericDocument genericDoc,
+      Map<String, List<String>> documentClassMap) throws AppSearchException {
     String namespaceConv = genericDoc.getNamespace();
+    String idConv = genericDoc.getId();
     String[] noteCopy = genericDoc.getPropertyStringArray("note");
     String noteConv = null;
     if (noteCopy != null && noteCopy.length != 0) {

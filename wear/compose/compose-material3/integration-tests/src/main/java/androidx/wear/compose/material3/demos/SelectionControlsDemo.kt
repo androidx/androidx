@@ -16,216 +16,68 @@
 
 package androidx.wear.compose.material3.demos
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
-import androidx.wear.compose.integration.demos.common.Centralize
-import androidx.wear.compose.integration.demos.common.ComposableDemo
-import androidx.wear.compose.integration.demos.common.DemoCategory
-import androidx.wear.compose.material3.Checkbox
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.RadioButton
-import androidx.wear.compose.material3.Switch
 import androidx.wear.compose.material3.Text
-import androidx.wear.compose.material3.samples.CheckboxSample
-import androidx.wear.compose.material3.samples.RadioButtonSample
-import androidx.wear.compose.material3.samples.RtlSwitchSample
-import androidx.wear.compose.material3.samples.SwitchSample
-
-val selectionControlsDemos = listOf(
-    DemoCategory(
-        "Samples",
-        listOf(
-            ComposableDemo("Checkbox sample") {
-                Centralize(Modifier.padding(horizontal = 10.dp)) {
-                    CheckboxSample()
-                }
-            },
-            ComposableDemo("Switch sample") {
-                Centralize(Modifier.padding(horizontal = 10.dp)) {
-                    SwitchSample()
-                }
-            },
-            ComposableDemo("Rtl Switch sample") {
-                Centralize(Modifier.padding(horizontal = 10.dp)) {
-                    RtlSwitchSample()
-                }
-            },
-            ComposableDemo("RadioButton sample") {
-                Centralize(Modifier.padding(horizontal = 10.dp)) {
-                    RadioButtonSample()
-                }
-            },
-        )
-    ),
-    DemoCategory("Demos", listOf(
-        ComposableDemo("Checkbox demos") {
-            CheckboxDemos()
-        },
-        ComposableDemo("Switch demos") {
-            SwitchDemos()
-        },
-        ComposableDemo("RadioButton demos") {
-            RadioButtonDemos()
-        }
-    ))
-)
 
 @Composable
-private fun CheckboxDemos() {
+fun RadioDemos() {
+    var selectedIndex by remember { mutableIntStateOf(0) }
     ScalingLazyColumn(
-        modifier = Modifier
-            .fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item {
-            ListHeader { Text(text = "Checkbox") }
+            ListHeader { Text(text = "Radio control") }
         }
         item {
-            Row {
-                var checked1 by remember { mutableStateOf(false) }
-                Checkbox(checked = checked1, onCheckedChange = {
-                    checked1 = it
-                })
-                Spacer(modifier = Modifier.width(10.dp))
-                var checked2 by remember { mutableStateOf(true) }
-                Checkbox(checked = checked2, onCheckedChange = {
-                    checked2 = it
-                })
-            }
+            RadioDemo(
+                selected = selectedIndex == 0,
+                onSelected = { selectedIndex = 0 },
+                enabled = true
+            )
         }
         item {
-            ListHeader { Text(text = "Disabled Checkbox") }
+            RadioDemo(
+                selected = selectedIndex == 1,
+                onSelected = { selectedIndex = 1 },
+                enabled = true
+            )
         }
         item {
-            Row {
-                Checkbox(
-                    checked = false,
-                    enabled = false
-                )
-                Spacer(modifier = Modifier.width(10.dp))
-                Checkbox(
-                    checked = true,
-                    enabled = false
-                )
-            }
+            ListHeader { Text(text = "Disabled Radio control", textAlign = TextAlign.Center) }
+        }
+        item {
+            RadioDemo(selected = false, enabled = false)
+        }
+        item {
+            RadioDemo(selected = true, enabled = false)
         }
     }
 }
 
 @Composable
-private fun SwitchDemos() {
-    ScalingLazyColumn(
-        modifier = Modifier
-            .fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        item {
-            ListHeader { Text(text = "Switch") }
-        }
-        item {
-            Row {
-                var checked1 by remember { mutableStateOf(false) }
-                Switch(checked = checked1, onCheckedChange = {
-                    checked1 = it
-                })
-                Spacer(modifier = Modifier.width(10.dp))
-                var checked2 by remember { mutableStateOf(true) }
-                Switch(checked = checked2, onCheckedChange = {
-                    checked2 = it
-                })
-            }
-        }
-        item {
-            ListHeader { Text(text = "RTL Switch") }
-        }
-        item {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                Row {
-                    var checked1 by remember { mutableStateOf(true) }
-                    Switch(checked = checked1, onCheckedChange = {
-                        checked1 = it
-                    })
-                    Spacer(modifier = Modifier.width(10.dp))
-                    var checked2 by remember { mutableStateOf(false) }
-                    Switch(checked = checked2, onCheckedChange = {
-                        checked2 = it
-                    })
-                }
-            }
-        }
-        item {
-            ListHeader { Text(text = "Disabled Switch") }
-        }
-        item {
-            Row {
-                Switch(
-                    checked = false,
-                    enabled = false
-                )
-                Spacer(modifier = Modifier.width(10.dp))
-                Switch(
-                    checked = true,
-                    enabled = false
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun RadioButtonDemos() {
-    ScalingLazyColumn(
-        modifier = Modifier
-            .fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        item {
-            ListHeader { Text(text = "RadioButton") }
-        }
-        item {
-            Row {
-                var selected1 by remember { mutableStateOf(false) }
-                RadioButton(selected = selected1, onClick = {
-                    selected1 = !selected1
-                })
-                Spacer(modifier = Modifier.width(10.dp))
-                var selected2 by remember { mutableStateOf(true) }
-                RadioButton(selected = selected2, onClick = {
-                    selected2 = !selected2
-                })
-            }
-        }
-        item {
-            ListHeader { Text(text = "Disabled Radio") }
-        }
-        item {
-            Row {
-                RadioButton(
-                    selected = false,
-                    enabled = false
-                )
-                Spacer(modifier = Modifier.width(10.dp))
-                RadioButton(
-                    selected = true,
-                    enabled = false
-                )
-            }
-        }
-    }
+private fun RadioDemo(
+    selected: Boolean,
+    enabled: Boolean,
+    onSelected: () -> Unit = {}
+) {
+    RadioButton(
+        label = {
+            Text("Primary label", maxLines = 1, overflow = TextOverflow.Ellipsis)
+        },
+        selected = selected,
+        onSelected = onSelected,
+        enabled = enabled,
+    )
 }

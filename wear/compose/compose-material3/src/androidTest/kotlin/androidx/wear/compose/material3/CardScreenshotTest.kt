@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.wear.compose.material3.test
+package androidx.wear.compose.material3
 
 import android.os.Build
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.assertAgainstGolden
@@ -28,21 +29,11 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
-import androidx.wear.compose.material3.AppCard
-import androidx.wear.compose.material3.Card
-import androidx.wear.compose.material3.CardColors
-import androidx.wear.compose.material3.CardDefaults
-import androidx.wear.compose.material3.OutlinedCard
-import androidx.wear.compose.material3.SCREENSHOT_GOLDEN_PATH
-import androidx.wear.compose.material3.TEST_TAG
-import androidx.wear.compose.material3.TestIcon
-import androidx.wear.compose.material3.Text
-import androidx.wear.compose.material3.TitleCard
-import androidx.wear.compose.material3.setContentWithTheme
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
@@ -82,7 +73,9 @@ class CardScreenshotTest {
         sampleCard(
             colors = CardDefaults.imageCardColors(
                 containerPainter = CardDefaults.imageWithScrimBackgroundPainter(
-                    backgroundImagePainter = painterResource(id = R.drawable.backgroundimage1)
+                    backgroundImagePainter = painterResource(
+                        id = androidx.wear.compose.material3.test.R.drawable.backgroundimage1
+                    )
                 )
             )
         )
@@ -123,7 +116,9 @@ class CardScreenshotTest {
         sampleAppCard(
             colors = CardDefaults.imageCardColors(
                 containerPainter = CardDefaults.imageWithScrimBackgroundPainter(
-                    backgroundImagePainter = painterResource(id = R.drawable.backgroundimage1)
+                    backgroundImagePainter = painterResource(
+                        id = androidx.wear.compose.material3.test.R.drawable.backgroundimage1
+                    )
                 )
             )
         )
@@ -145,11 +140,49 @@ class CardScreenshotTest {
     }
 
     @Test
+    fun title_card_with_time_and_subtitle_ltr() =
+        verifyScreenshot(layoutDirection = LayoutDirection.Ltr) {
+            sampleTitleCardWithTimeAndSubtitle()
+        }
+
+    @Test
+    fun title_card_with_time_and_subtitle_disabled() =
+        verifyScreenshot(layoutDirection = LayoutDirection.Ltr) {
+            sampleTitleCardWithTimeAndSubtitle(enabled = false)
+        }
+
+    @Test
+    fun title_card_with_time_and_subtitle_rtl() =
+        verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
+            sampleTitleCardWithTimeAndSubtitle()
+        }
+
+    @Test
+    fun title_card_with_content_time_and_subtitle_ltr() =
+        verifyScreenshot(layoutDirection = LayoutDirection.Ltr) {
+            sampleTitleCardWithContentTimeAndSubtitle()
+        }
+
+    @Test
+    fun title_card_with_content_time_and_subtitle_disabled() =
+        verifyScreenshot(layoutDirection = LayoutDirection.Ltr) {
+            sampleTitleCardWithContentTimeAndSubtitle(enabled = false)
+        }
+
+    @Test
+    fun title_card_with_content_time_and_subtitle_rtl() =
+        verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
+            sampleTitleCardWithContentTimeAndSubtitle()
+        }
+
+    @Test
     fun title_card_image_background() = verifyScreenshot {
         sampleTitleCard(
             colors = CardDefaults.imageCardColors(
                 containerPainter = CardDefaults.imageWithScrimBackgroundPainter(
-                    backgroundImagePainter = painterResource(id = R.drawable.backgroundimage1)
+                    backgroundImagePainter = painterResource(
+                        id = androidx.wear.compose.material3.test.R.drawable.backgroundimage1
+                    )
                 )
             )
         )
@@ -164,7 +197,9 @@ class CardScreenshotTest {
             enabled = enabled,
             onClick = {},
             colors = colors,
-            modifier = Modifier.testTag(TEST_TAG),
+            modifier = Modifier
+                .testTag(TEST_TAG)
+                .width(cardWidth),
         ) {
             Text("Card: Some body content")
         }
@@ -177,7 +212,9 @@ class CardScreenshotTest {
         OutlinedCard(
             enabled = enabled,
             onClick = {},
-            modifier = Modifier.testTag(TEST_TAG),
+            modifier = Modifier
+                .testTag(TEST_TAG)
+                .width(cardWidth),
         ) {
             Text("Outlined Card: Some body content")
         }
@@ -196,7 +233,9 @@ class CardScreenshotTest {
             title = { Text("AppCard") },
             colors = colors,
             time = { Text("now") },
-            modifier = Modifier.testTag(TEST_TAG),
+            modifier = Modifier
+                .testTag(TEST_TAG)
+                .width(cardWidth),
         ) {
             Text("Some body content")
             Text("and some more body content")
@@ -214,10 +253,42 @@ class CardScreenshotTest {
             title = { Text("TitleCard") },
             time = { Text("now") },
             colors = colors,
-            modifier = Modifier.testTag(TEST_TAG),
+            modifier = Modifier
+                .testTag(TEST_TAG)
+                .width(cardWidth),
         ) {
             Text("Some body content")
             Text("and some more body content")
+        }
+    }
+
+    @Composable
+    private fun sampleTitleCardWithTimeAndSubtitle(
+        enabled: Boolean = true
+    ) {
+        TitleCard(
+            enabled = enabled,
+            onClick = {},
+            time = { Text("XXm") },
+            title = { Text("TitleCard") },
+            subtitle = { Text("Subtitle") },
+            modifier = Modifier.testTag(TEST_TAG),
+        )
+    }
+
+    @Composable
+    private fun sampleTitleCardWithContentTimeAndSubtitle(
+        enabled: Boolean = true
+    ) {
+        TitleCard(
+            enabled = enabled,
+            onClick = {},
+            time = { Text("XXm") },
+            title = { Text("TitleCard") },
+            subtitle = { Text("Subtitle") },
+            modifier = Modifier.testTag(TEST_TAG),
+        ) {
+            Text("Card content")
         }
     }
 
@@ -235,4 +306,6 @@ class CardScreenshotTest {
             .captureToImage()
             .assertAgainstGolden(screenshotRule, testName.methodName)
     }
+
+    private val cardWidth = 168.dp
 }

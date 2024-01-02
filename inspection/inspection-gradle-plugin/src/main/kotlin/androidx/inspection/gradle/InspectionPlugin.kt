@@ -40,7 +40,6 @@ import org.gradle.kotlin.dsl.dependencies
  * A plugin which, when present, ensures that intermediate inspector
  * resources are generated at build time
  */
-@Suppress("SyntheticAccessor")
 class InspectionPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         var foundLibraryPlugin = false
@@ -217,6 +216,7 @@ fun packageInspector(libraryProject: Project, inspectorProjectPath: String) {
 fun Project.createConsumeInspectionConfiguration(): Configuration =
     configurations.create("consumeInspector") {
         it.setupInspectorAttribute()
+        it.isCanBeConsumed = false
     }
 
 private fun Configuration.setupInspectorAttribute() {
@@ -228,6 +228,7 @@ private fun Configuration.setupInspectorAttribute() {
 fun Project.createConsumeNonDexedInspectionConfiguration(): Configuration =
     configurations.create("consumeNonDexedInspector") {
         it.setupNonDexedInspectorAttribute()
+        it.isCanBeConsumed = false
     }
 
 private fun Configuration.setupNonDexedInspectorAttribute() {

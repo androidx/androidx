@@ -16,14 +16,17 @@
 
 package androidx.compose.material.ripple.benchmark
 
-import androidx.compose.foundation.Indication
+import androidx.compose.foundation.IndicationNodeFactory
+import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.foundation.interaction.Interaction
+import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material.ripple.RippleAlpha
+import androidx.compose.material.ripple.createRippleModifierNode
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.ComposeBenchmarkScope
 import androidx.compose.testutils.LayeredComposeTestCase
@@ -31,9 +34,12 @@ import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.benchmark.benchmarkFirstCompose
 import androidx.compose.testutils.doFramesUntilNoChangesPending
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorProducer
+import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.platform.ViewRootForTest
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -53,71 +59,17 @@ class RippleBenchmark {
     @get:Rule
     val benchmarkRule = ComposeBenchmarkRule()
 
-    /**
-     * Composition cost of rememberRipple() - this is just a remembered factory object so it
-     * doesn't do much.
-     */
     @Test
-    fun rememberRippleFirstComposition() {
+    fun firstComposition() {
+        val interactionSource = MutableInteractionSource()
         benchmarkRule.benchmarkFirstCompose {
             object : LayeredComposeTestCase() {
                 @Composable
                 override fun MeasuredContent() {
-                    rememberRipple()
-                }
-            }
-        }
-    }
-
-    /**
-     * Composition cost of creating a ripple instance - this is what actually allocates
-     * ripple-related machinery and is later responsible for drawing ripples.
-     */
-    @Test
-    fun initialRippleRememberUpdatedInstanceFirstComposition() {
-        benchmarkRule.benchmarkFirstCompose {
-            object : LayeredComposeTestCase() {
-                val interactionSource = MutableInteractionSource()
-                var ripple: Indication? = null
-
-                @Composable
-                override fun ContentWrappers(content: @Composable () -> Unit) {
-                    // Create a ripple from outside the measured content
-                    ripple = rememberRipple()
-                    content()
-                }
-
-                @Composable
-                override fun MeasuredContent() {
-                    ripple!!.rememberUpdatedInstance(interactionSource = interactionSource)
-                }
-            }
-        }
-    }
-
-    /**
-     * Composition cost of creating a second ripple instance, after one has already been created,
-     * discounting any first-ripple performance costs.
-     */
-    @Test
-    fun additionalRippleRememberUpdatedInstanceFirstComposition() {
-        benchmarkRule.benchmarkFirstCompose {
-            object : LayeredComposeTestCase() {
-                val interactionSource = MutableInteractionSource()
-                var ripple: Indication? = null
-
-                @Composable
-                override fun ContentWrappers(content: @Composable () -> Unit) {
-                    // Create a ripple from outside the measured content
-                    ripple = rememberRipple()
-                    // Create another ripple and call rememberUpdatedInstance()
-                    rememberRipple().rememberUpdatedInstance(interactionSource = interactionSource)
-                    content()
-                }
-
-                @Composable
-                override fun MeasuredContent() {
-                    ripple!!.rememberUpdatedInstance(interactionSource = interactionSource)
+                    Box(Modifier.indication(
+                        interactionSource = interactionSource,
+                        indication = TestRipple
+                    ))
                 }
             }
         }
@@ -136,7 +88,7 @@ class RippleBenchmark {
 
         with(benchmarkRule) {
             runBenchmarkFor({ RippleInteractionTestCase() }) {
-                measureRepeated {
+                measureRepeatedOnUiThread {
                     runWithTimingDisabled {
                         doFramesUntilNoChangesMeasureLayoutOrDrawPending()
                     }
@@ -166,7 +118,7 @@ class RippleBenchmark {
 
         with(benchmarkRule) {
             runBenchmarkFor({ RippleInteractionTestCase() }) {
-                measureRepeated {
+                measureRepeatedOnUiThread {
                     runWithTimingDisabled {
                         doFramesUntilNoChangesMeasureLayoutOrDrawPending()
                         runBlocking {
@@ -205,7 +157,7 @@ class RippleBenchmark {
 
         with(benchmarkRule) {
             runBenchmarkFor({ RippleInteractionTestCase() }) {
-                measureRepeated {
+                measureRepeatedOnUiThread {
                     runWithTimingDisabled {
                         doFramesUntilNoChangesMeasureLayoutOrDrawPending()
                     }
@@ -237,7 +189,7 @@ class RippleBenchmark {
 
         with(benchmarkRule) {
             runBenchmarkFor({ RippleInteractionTestCase() }) {
-                measureRepeated {
+                measureRepeatedOnUiThread {
                     runWithTimingDisabled {
                         doFramesUntilNoChangesMeasureLayoutOrDrawPending()
                         runBlocking {
@@ -260,24 +212,19 @@ class RippleBenchmark {
 }
 
 /**
- * Test case for a manually-drawn ripple (no [androidx.compose.foundation.indication]) that allows
- * emitting [Interaction]s with [emitInteraction].
+ * Test case a ripple that allows emitting [Interaction]s with [emitInteraction].
  */
+@Suppress("DEPRECATION_ERROR")
 private class RippleInteractionTestCase : LayeredComposeTestCase() {
     private val interactionSource = MutableInteractionSource()
 
     @Composable
     override fun MeasuredContent() {
-        val instance = rememberRipple().rememberUpdatedInstance(interactionSource)
-
         Box(
             Modifier
                 .size(100.dp)
-                .drawWithContent {
-                    with(instance) {
-                        drawIndication()
-                    }
-                })
+                .indication(interactionSource, TestRipple)
+        )
     }
 
     suspend fun emitInteraction(interaction: Interaction) {
@@ -312,4 +259,48 @@ private fun ComposeBenchmarkScope<*>.doFramesUntilNoChangesMeasureLayoutOrDrawPe
 
     // Still not stable
     throw AssertionError("Changes are still pending after '$maxAmountOfFrames' frames.")
+}
+
+private val TestRipple = TestIndicationNodeFactory({ TestRippleColor }, { TestRippleAlpha })
+
+private val TestRippleColor = Color.Red
+
+private val TestRippleAlpha = RippleAlpha(
+    draggedAlpha = 0.1f,
+    focusedAlpha = 0.2f,
+    hoveredAlpha = 0.3f,
+    pressedAlpha = 0.4f
+)
+
+private class TestIndicationNodeFactory(
+    private val color: ColorProducer,
+    private val rippleAlpha: () -> RippleAlpha
+) : IndicationNodeFactory {
+    override fun create(interactionSource: InteractionSource): DelegatableNode {
+        return createRippleModifierNode(
+            interactionSource = interactionSource,
+            bounded = true,
+            radius = Dp.Unspecified,
+            color = color,
+            rippleAlpha = rippleAlpha
+        )
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as TestIndicationNodeFactory
+
+        if (color != other.color) return false
+        if (rippleAlpha != other.rippleAlpha) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = color.hashCode()
+        result = 31 * result + rippleAlpha.hashCode()
+        return result
+    }
 }

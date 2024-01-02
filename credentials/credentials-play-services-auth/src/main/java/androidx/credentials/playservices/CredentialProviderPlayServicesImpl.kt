@@ -37,9 +37,11 @@ import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.playservices.controllers.BeginSignIn.CredentialProviderBeginSignInController
 import androidx.credentials.playservices.controllers.CreatePassword.CredentialProviderCreatePasswordController
 import androidx.credentials.playservices.controllers.CreatePublicKeyCredential.CredentialProviderCreatePublicKeyCredentialController
+import androidx.credentials.playservices.controllers.GetSignInIntent.CredentialProviderGetSignInIntentController
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import java.util.concurrent.Executor
 
 /**
@@ -60,8 +62,15 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
         callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>
     ) {
         if (cancellationReviewer(cancellationSignal)) { return }
-        CredentialProviderBeginSignInController(context).invokePlayServices(
-            request, callback, executor, cancellationSignal)
+        if (isGetSignInIntentRequest(request)) {
+            CredentialProviderGetSignInIntentController(context).invokePlayServices(
+                request, callback, executor, cancellationSignal
+            )
+        } else {
+            CredentialProviderBeginSignInController(context).invokePlayServices(
+                request, callback, executor, cancellationSignal
+            )
+        }
     }
 
     @SuppressWarnings("deprecated")
@@ -99,7 +108,13 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
     }
     override fun isAvailableOnDevice(): Boolean {
         val resultCode = isGooglePlayServicesAvailable(context)
-        return resultCode == ConnectionResult.SUCCESS
+        val isSuccessful = resultCode == ConnectionResult.SUCCESS
+        if (!isSuccessful) {
+            val connectionResult = ConnectionResult(resultCode)
+            Log.w(TAG, "Connection with Google Play Services was not " +
+                "successful. Connection result is: " + connectionResult.toString())
+        }
+        return isSuccessful
     }
 
     // https://developers.google.com/android/reference/com/google/android/gms/common/ConnectionResult
@@ -107,7 +122,8 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
     // be useful to retry that one because our connection to GMSCore is a static variable
     // (see GoogleApiAvailability.getInstance()) so we cannot recreate the connection to retry.
     private fun isGooglePlayServicesAvailable(context: Context): Int {
-        return googleApiAvailability.isGooglePlayServicesAvailable(context)
+        return googleApiAvailability.isGooglePlayServicesAvailable(
+            context, /*minApkVersion=*/ MIN_GMS_APK_VERSION)
     }
 
     override fun onClearCredential(
@@ -140,6 +156,11 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
     companion object {
         private const val TAG = "PlayServicesImpl"
 
+        // This points to the min APK version of GMS that contains required changes
+        // to make passkeys work well
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        const val MIN_GMS_APK_VERSION = 230815045
+
         internal fun cancellationReviewerWithCallback(
             cancellationSignal: CancellationSignal?,
             callback: () -> Unit,
@@ -159,6 +180,15 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
                 }
             } else {
                 Log.i(TAG, "No cancellationSignal found")
+            }
+            return false
+        }
+
+        internal fun isGetSignInIntentRequest(request: GetCredentialRequest): Boolean {
+            for (option in request.credentialOptions) {
+                if (option is GetSignInWithGoogleOption) {
+                    return true
+                }
             }
             return false
         }

@@ -46,8 +46,7 @@ function joinPath() {
 
   mkdir -p "$(dirname $sourceFile)"
 
-  cd $explodedPath
-  find -type f | sort | xargs cat > "$sourceFile"
+  bash -c "cd $explodedPath && find -type f | sort | xargs cat > $sourceFile"
   chmod u+x "$sourceFile"
 }
 
@@ -61,6 +60,9 @@ function main() {
   echo joining all file paths under $explodedDir into $sourcePath
   for filePath in $filePaths; do
     joinPath "$explodedDir/$filePath" "$sourcePath/$filePath"
+  done
+  for filePath in $(find -type l); do
+    cp -P "$explodedDir/$filePath" "$sourcePath/$filePath"
   done
   echo done joining all file paths under $explodedDir into $sourcePath
 }

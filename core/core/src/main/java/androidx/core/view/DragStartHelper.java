@@ -94,6 +94,7 @@ public class DragStartHelper {
      * The newly created helper is not initially attached to the view, {@link #attach} must be
      * called explicitly.
      * @param view A View
+     * @param listener listener for the drag events.
      */
     public DragStartHelper(@NonNull View view, @NonNull OnDragStartListener listener) {
         mView = view;

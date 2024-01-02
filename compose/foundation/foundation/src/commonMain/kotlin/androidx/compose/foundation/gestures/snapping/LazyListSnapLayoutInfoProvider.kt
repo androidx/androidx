@@ -16,9 +16,6 @@
 
 package androidx.compose.foundation.gestures.snapping
 
-import androidx.compose.animation.core.DecayAnimationSpec
-import androidx.compose.animation.core.calculateTargetValue
-import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
@@ -28,15 +25,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.fastSumBy
 import kotlin.math.absoluteValue
-import kotlin.math.sign
 
 /**
  * A [SnapLayoutInfoProvider] for LazyLists.
  *
  * @param lazyListState The [LazyListState] with information about the current state of the list
- * @param positionInLayout The desired positioning of the snapped item within the main layout.
+ * @param snapPosition The desired positioning of the snapped item within the main layout.
  * This position should be considered with regard to the start edge of the item and the placement
  * within the viewport.
  *
@@ -45,26 +40,13 @@ import kotlin.math.sign
 @ExperimentalFoundationApi
 fun SnapLayoutInfoProvider(
     lazyListState: LazyListState,
-    positionInLayout: SnapPositionInLayout = SnapPositionInLayout.CenterToCenter
+    snapPosition: SnapPosition = SnapPosition.Center
 ): SnapLayoutInfoProvider = object : SnapLayoutInfoProvider {
 
     private val layoutInfo: LazyListLayoutInfo
         get() = lazyListState.layoutInfo
 
-    // Decayed page snapping is the default
-    override fun Density.calculateApproachOffset(initialVelocity: Float): Float {
-        val decayAnimationSpec: DecayAnimationSpec<Float> = splineBasedDecay(this)
-        val offset =
-            decayAnimationSpec.calculateTargetValue(NoDistance, initialVelocity).absoluteValue
-        val finalDecayOffset = (offset - calculateSnapStepSize()).coerceAtLeast(0f)
-        return if (finalDecayOffset == 0f) {
-            finalDecayOffset
-        } else {
-            finalDecayOffset * initialVelocity.sign
-        }
-    }
-
-    override fun Density.calculateSnappingOffset(currentVelocity: Float): Float {
+    override fun calculateSnappingOffset(currentVelocity: Float): Float {
         var lowerBoundOffset = Float.NEGATIVE_INFINITY
         var upperBoundOffset = Float.POSITIVE_INFINITY
 
@@ -77,7 +59,7 @@ fun SnapLayoutInfoProvider(
                     itemSize = item.size,
                     itemOffset = item.offset,
                     itemIndex = item.index,
-                    snapPositionInLayout = positionInLayout
+                    snapPosition = snapPosition
                 )
 
             // Find item that is closest to the center
@@ -91,15 +73,11 @@ fun SnapLayoutInfoProvider(
             }
         }
 
-        return calculateFinalOffset(currentVelocity, lowerBoundOffset, upperBoundOffset)
-    }
-
-    override fun Density.calculateSnapStepSize(): Float = with(layoutInfo) {
-        if (visibleItemsInfo.isNotEmpty()) {
-            visibleItemsInfo.fastSumBy { it.size } / visibleItemsInfo.size.toFloat()
-        } else {
-            0f
-        }
+        return calculateFinalOffset(
+            with(lazyListState.density) { calculateFinalSnappingItem(currentVelocity) },
+            lowerBoundOffset,
+            upperBoundOffset
+        )
     }
 }
 
@@ -119,3 +97,25 @@ fun rememberSnapFlingBehavior(lazyListState: LazyListState): FlingBehavior {
 
 internal val LazyListLayoutInfo.singleAxisViewportSize: Int
     get() = if (orientation == Orientation.Vertical) viewportSize.height else viewportSize.width
+
+@kotlin.jvm.JvmInline
+internal value class FinalSnappingItem internal constructor(
+    @Suppress("unused") private val value: Int
+) {
+    companion object {
+
+        val ClosestItem: FinalSnappingItem = FinalSnappingItem(0)
+
+        val NextItem: FinalSnappingItem = FinalSnappingItem(1)
+
+        val PreviousItem: FinalSnappingItem = FinalSnappingItem(2)
+    }
+}
+
+internal fun Density.calculateFinalSnappingItem(velocity: Float): FinalSnappingItem {
+    return if (velocity.absoluteValue < MinFlingVelocityDp.toPx()) {
+        FinalSnappingItem.ClosestItem
+    } else {
+        if (velocity > 0) FinalSnappingItem.NextItem else FinalSnappingItem.PreviousItem
+    }
+}

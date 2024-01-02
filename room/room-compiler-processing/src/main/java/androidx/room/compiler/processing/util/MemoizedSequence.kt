@@ -22,7 +22,6 @@ package androidx.room.compiler.processing.util
  *
  * Note that collecting on these sequence is not thread safe.
  */
-@Suppress("SyntheticAccessor")
 internal class MemoizedSequence<T>(
     private val buildSequence: () -> Sequence<T>
 ) : Sequence<T> {

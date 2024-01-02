@@ -21,6 +21,7 @@ import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.BringIntoViewRequesterNode
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusEventModifierNode
 import androidx.compose.ui.focus.FocusProperties
@@ -101,7 +102,7 @@ fun Modifier.focusable(
  *
  * @sample androidx.compose.foundation.samples.FocusableFocusGroupSample
  */
-@ExperimentalFoundationApi
+@Stable
 fun Modifier.focusGroup(): Modifier {
     return this
         .then(focusGroupInspectorInfo)
@@ -129,7 +130,7 @@ internal fun Modifier.focusableInNonTouchMode(
 },
     factory = {
         Modifier
-            .then(FocusableInNonTouchModeElement)
+            .then(if (enabled) FocusableInNonTouchModeElement else Modifier)
             .focusable(enabled, interactionSource)
     })
 
@@ -148,7 +149,7 @@ private val FocusableInNonTouchModeElement =
         }
     }
 
-private class FocusableInNonTouchMode : Modifier.Node(), CompositionLocalConsumerModifierNode,
+internal class FocusableInNonTouchMode : Modifier.Node(), CompositionLocalConsumerModifierNode,
     FocusPropertiesModifierNode {
 
     private val inputModeManager: InputModeManager
@@ -192,7 +193,7 @@ private class FocusableElement(
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-private class FocusableNode(
+internal class FocusableNode(
     interactionSource: MutableInteractionSource?
 ) : DelegatingNode(), FocusEventModifierNode, LayoutAwareModifierNode, SemanticsModifierNode,
     GlobalPositionAwareModifierNode {
