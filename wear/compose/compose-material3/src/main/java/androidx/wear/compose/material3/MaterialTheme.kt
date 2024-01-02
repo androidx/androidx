@@ -58,24 +58,19 @@ fun MaterialTheme(
     shapes: Shapes = MaterialTheme.shapes,
     content: @Composable () -> Unit
 ) {
-    val rememberedColors = remember {
-        // Explicitly creating a new object here so we don't mutate the initial [colors]
-        // provided, and overwrite the values set in it.
-        colorScheme.copy()
-    }.apply { updateColorSchemeFrom(colorScheme) }
     val rippleIndication = rippleOrFallbackImplementation()
-    val selectionColors = rememberTextSelectionColors(rememberedColors)
+    val selectionColors = rememberTextSelectionColors(colorScheme)
     @Suppress("DEPRECATION_ERROR")
     CompositionLocalProvider(
-        LocalColorScheme provides rememberedColors,
+        LocalColorScheme provides colorScheme,
         LocalShapes provides shapes,
         LocalTypography provides typography,
         LocalIndication provides rippleIndication,
         // TODO: b/304985887 - remove after one stable release
         androidx.compose.material.ripple.LocalRippleTheme provides CompatRippleTheme,
         LocalTextSelectionColors provides selectionColors,
-        LocalSwipeToDismissBackgroundScrimColor provides rememberedColors.background,
-        LocalSwipeToDismissContentScrimColor provides rememberedColors.background
+        LocalSwipeToDismissBackgroundScrimColor provides colorScheme.background,
+        LocalSwipeToDismissContentScrimColor provides colorScheme.background
         ) {
         ProvideTextStyle(value = typography.bodyLarge, content = content)
     }

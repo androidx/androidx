@@ -130,7 +130,7 @@ package androidx.wear.compose.material3 {
     field public static final androidx.wear.compose.material3.CheckboxDefaults INSTANCE;
   }
 
-  @androidx.compose.runtime.Stable public final class ColorScheme {
+  @androidx.compose.runtime.Immutable @androidx.compose.runtime.Stable public final class ColorScheme {
     ctor public ColorScheme(optional long primary, optional long primaryDim, optional long primaryContainer, optional long onPrimary, optional long onPrimaryContainer, optional long secondary, optional long secondaryDim, optional long secondaryContainer, optional long onSecondary, optional long onSecondaryContainer, optional long tertiary, optional long tertiaryDim, optional long tertiaryContainer, optional long onTertiary, optional long onTertiaryContainer, optional long surfaceDim, optional long surface, optional long surfaceBright, optional long onSurface, optional long onSurfaceVariant, optional long outline, optional long outlineVariant, optional long background, optional long onBackground, optional long error, optional long onError);
     method public androidx.wear.compose.material3.ColorScheme copy(optional long primary, optional long primaryDim, optional long primaryContainer, optional long onPrimary, optional long onPrimaryContainer, optional long secondary, optional long secondaryDim, optional long secondaryContainer, optional long onSecondary, optional long onSecondaryContainer, optional long tertiary, optional long tertiaryDim, optional long tertiaryContainer, optional long onTertiary, optional long onTertiaryContainer, optional long surfaceDim, optional long surface, optional long surfaceBright, optional long onSurface, optional long onSurfaceVariant, optional long outline, optional long outlineVariant, optional long background, optional long onBackground, optional long error, optional long onError);
     method public long getBackground();
@@ -159,7 +159,6 @@ package androidx.wear.compose.material3 {
     method public long getTertiary();
     method public long getTertiaryContainer();
     method public long getTertiaryDim();
-    method public void setSecondaryDim(long);
     property public final long background;
     property public final long error;
     property public final long onBackground;
