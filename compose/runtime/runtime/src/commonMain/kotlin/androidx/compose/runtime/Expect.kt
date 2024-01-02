@@ -40,7 +40,7 @@ internal expect fun getCurrentThreadId(): Long
 @InternalComposeApi
 expect fun identityHashCode(instance: Any?): Int
 
-expect class AtomicReference<V>(value: V) {
+internal expect class AtomicReference<V>(value: V) {
     fun get(): V
     fun set(value: V)
     fun getAndSet(value: V): V

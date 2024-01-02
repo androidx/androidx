@@ -20,6 +20,13 @@ import androidx.build.SdkHelperKt
 buildscript {
     SdkHelperKt.setSupportRootFolder(project, project.projectDir)
     SdkHelperKt.writeSdkPathToLocalPropertiesFile(project)
+
+    // Needed for atomicfu plugin
+    apply(from: "buildSrc/repos.gradle")
+    repos.addMavenRepositories(repositories)
+    dependencies {
+        classpath(libs.atomicFuPluginz)
+    }
 }
 
 apply from: "buildSrc/dependencies.gradle"

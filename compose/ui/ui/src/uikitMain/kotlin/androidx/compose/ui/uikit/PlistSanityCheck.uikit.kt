@@ -24,7 +24,7 @@ import platform.darwin.dispatch_async
 import platform.darwin.dispatch_get_global_queue
 
 internal object PlistSanityCheck {
-    private var isPerformed = atomic(false)
+    private val isPerformed = atomic(false)
 
     fun performIfNeeded() {
         if (isPerformed.compareAndSet(expect = false, update = true)) {

@@ -55,12 +55,12 @@ import java.awt.Point
 import java.awt.event.FocusEvent
 import java.awt.event.FocusListener
 import java.awt.event.MouseEvent
-import java.util.concurrent.atomic.AtomicBoolean
 import javax.swing.JPanel
 import javax.swing.LayoutFocusTraversalPolicy
 import javax.swing.SwingUtilities
 import kotlin.math.ceil
 import kotlin.math.floor
+import kotlinx.atomicfu.atomic
 
 val NoOpUpdate: Component.() -> Unit = {}
 
@@ -261,7 +261,7 @@ private class Updater<T : Component>(
     update: (T) -> Unit,
 ) {
     private var isDisposed = false
-    private val isUpdateScheduled = AtomicBoolean()
+    private val isUpdateScheduled = atomic(false)
     private val snapshotObserver = SnapshotStateObserver { command ->
         command()
     }
@@ -269,7 +269,7 @@ private class Updater<T : Component>(
     private val scheduleUpdate = { _: T ->
         if (!isUpdateScheduled.getAndSet(true)) {
             SwingUtilities.invokeLater {
-                isUpdateScheduled.set(false)
+                isUpdateScheduled.value = false
                 if (!isDisposed) {
                     performUpdate()
                 }

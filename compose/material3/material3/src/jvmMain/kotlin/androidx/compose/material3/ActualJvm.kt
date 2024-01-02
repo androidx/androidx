@@ -21,9 +21,6 @@ package androidx.compose.material3
 /* Copy of androidx.compose.material.ActualJvm, mirrored from Foundation. This is used for the
    M2/M3-internal copy of MutatorMutex.
  */
-internal actual typealias InternalAtomicReference<V> =
-    java.util.concurrent.atomic.AtomicReference<V>
-
 /**
  * Represents a Locale for the calendar. This locale will be used when formatting dates, determining
  * the input format, and more.

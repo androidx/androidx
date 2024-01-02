@@ -1,7 +1,5 @@
-// ktlint-disable filename
-
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.text
+package androidx.compose.material3
 
-internal actual typealias AtomicReference<V> = java.util.concurrent.atomic.AtomicReference<V>
+import kotlinx.atomicfu.atomic
+
+internal actual class AtomicReference<V> actual constructor(value: V) {
+    private val delegate = atomic(value)
+    actual fun get() = delegate.value
+    actual fun set(value: V) {
+        delegate.value = value
+    }
+    actual fun getAndSet(value: V) = delegate.getAndSet(value)
+    actual fun compareAndSet(expect: V, newValue: V) = delegate.compareAndSet(expect, newValue)
+}

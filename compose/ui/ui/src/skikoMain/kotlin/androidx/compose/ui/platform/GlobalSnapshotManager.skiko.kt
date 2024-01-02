@@ -17,6 +17,7 @@
 package androidx.compose.ui.platform
 
 import androidx.compose.runtime.snapshots.Snapshot
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
@@ -33,8 +34,8 @@ import kotlinx.coroutines.launch
  * [ensureStarted] during setup to initialize periodic global snapshot notifications.
  */
 internal object GlobalSnapshotManager {
-    private val started = AtomicInt(0)
-    private val sent = AtomicInt(0)
+    private val started = atomic(0)
+    private val sent = atomic(0)
 
     fun ensureStarted() {
         if (started.compareAndSet(0, 1)) {

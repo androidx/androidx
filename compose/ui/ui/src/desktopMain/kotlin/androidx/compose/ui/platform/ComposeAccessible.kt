@@ -48,7 +48,6 @@ import java.awt.Point
 import java.awt.Rectangle
 import java.awt.event.FocusListener
 import java.util.Locale
-import java.util.concurrent.atomic.AtomicBoolean
 import javax.accessibility.Accessible
 import javax.accessibility.AccessibleAction
 import javax.accessibility.AccessibleComponent
@@ -66,6 +65,7 @@ import javax.swing.text.AttributeSet
 import kotlin.math.roundToInt
 import org.jetbrains.skia.BreakIterator
 import javax.swing.text.SimpleAttributeSet
+import kotlinx.atomicfu.atomic
 import org.jetbrains.skiko.nativeInitializeAccessible
 
 private fun <T> SemanticsConfiguration.getFirstOrNull(key: SemanticsPropertyKey<List<T>>): T? {
@@ -87,7 +87,7 @@ internal class ComposeAccessible(
     // The property change listener is what allows us to update CAccessible when some value changes.
     java.awt.Component()
 {
-    private val isNativelyInitialized = AtomicBoolean(false)
+    private val isNativelyInitialized = atomic(false)
 
     val composeAccessibleContext: ComposeAccessibleComponent by lazy { ComposeAccessibleComponent() }
 

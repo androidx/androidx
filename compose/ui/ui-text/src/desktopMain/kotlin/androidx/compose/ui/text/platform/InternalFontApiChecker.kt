@@ -16,23 +16,23 @@
 
 package androidx.compose.ui.text.platform
 
-import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.atomicfu.atomic
 
 internal object InternalFontApiChecker {
 
-    private var hasCheckedAccess = AtomicBoolean(false)
-    private var isSunFontAccessible = AtomicBoolean(false)
+    private var hasCheckedAccess by atomic(false)
+    private var isSunFontAccessible by atomic(false)
 
     /**
      * Check whether the `sun.font` API is accessible. The result is cached
      * after the initial lookup; this API can safely be called multiple times.
      */
     fun isSunFontApiAccessible(): Boolean {
-        if (hasCheckedAccess.get()) return isSunFontAccessible.get()
+        if (hasCheckedAccess) return isSunFontAccessible
 
         val canAccess = canAccessSunFontApi()
-        isSunFontAccessible.set(canAccess)
-        hasCheckedAccess.set(true)
+        isSunFontAccessible = canAccess
+        hasCheckedAccess = true
         return canAccess
     }
 

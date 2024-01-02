@@ -1,7 +1,5 @@
-// ktlint-disable filename
-
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("UNUSED_PARAMETER")
-package androidx.compose.animation.core
 
-internal actual typealias AtomicReference<V> = androidx.compose.runtime.AtomicReference<V>
+package androidx.compose.ui.platform
 
+internal expect class AtomicInt(value: Int) {
+    fun addAndGet(delta: Int): Int
+    fun compareAndSet(expected: Int, new: Int): Boolean
+}

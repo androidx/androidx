@@ -16,6 +16,11 @@
  * limitations under the License.
  */
 
-package androidx.compose.animation.core
+package androidx.compose.ui.text
 
-internal actual typealias AtomicReference<V> = java.util.concurrent.atomic.AtomicReference<V>
+internal expect class AtomicReference<V>(value: V) {
+    fun get(): V
+    fun set(value: V)
+    fun getAndSet(value: V): V
+    fun compareAndSet(expect: V, newValue: V): Boolean
+}

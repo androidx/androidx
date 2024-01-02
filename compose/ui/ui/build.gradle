@@ -16,7 +16,6 @@
 
 import androidx.build.AndroidXComposePlugin
 import androidx.build.LibraryType
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 import static androidx.inspection.gradle.InspectionPluginKt.packageInspector
 
@@ -24,6 +23,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
+    id("kotlinx-atomicfu")
 }
 
 AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)

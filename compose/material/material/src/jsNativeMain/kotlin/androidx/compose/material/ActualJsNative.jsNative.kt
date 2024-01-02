@@ -18,7 +18,5 @@ package androidx.compose.material
 
 import androidx.compose.ui.text.PlatformTextStyle
 
-actual typealias InternalAtomicReference<V> = androidx.compose.runtime.AtomicReference<V>
-
 internal actual fun defaultPlatformTextStyle(): PlatformTextStyle? = null
 

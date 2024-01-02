@@ -24,6 +24,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
+    id("kotlinx-atomicfu")
 }
 
 AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
@@ -118,6 +119,7 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 dependsOn(commonMain)
                 dependencies {
                     api(libs.skikoCommon)
+                    implementation(libs.atomicFu)
                 }
             }
 

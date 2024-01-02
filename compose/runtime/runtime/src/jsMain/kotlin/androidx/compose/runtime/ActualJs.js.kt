@@ -29,40 +29,6 @@ import kotlin.time.toDuration
 
 internal actual fun getCurrentThreadId(): Long = 0
 
-internal actual class AtomicInt actual constructor(private var value: Int) {
-    actual fun get(): Int = value
-
-    actual fun set(value: Int) {
-        this.value = value
-    }
-    actual fun add(amount: Int): Int {
-        this.value += amount
-        return this.value
-    }
-}
-
-actual class AtomicReference<V> actual constructor(private var value: V) {
-    actual fun get(): V = value
-
-    actual fun set(value: V) {
-        this.value = value
-    }
-
-    actual fun getAndSet(value: V): V {
-        val oldValue = this.value
-        this.value = value
-        return oldValue
-    }
-
-    actual fun compareAndSet(expect: V, newValue: V): Boolean =
-        if (expect == value) {
-            value = newValue
-            true
-        } else {
-            false
-        }
-}
-
 @InternalComposeApi
 actual fun identityHashCode(instance: Any?): Int {
     if (instance == null) {
