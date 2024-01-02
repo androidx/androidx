@@ -129,7 +129,7 @@ fun ExposedDropdownMenuBox(
     val collapsedDescription = getString(Strings.MenuCollapsed)
 
     val scope = remember(expanded, onExpandedChange, config, view, density) {
-        object : ExposedDropdownMenuBoxScope {
+        object : ExposedDropdownMenuBoxScope() {
             override fun Modifier.menuAnchor(): Modifier = this
                 .onGloballyPositioned {
                     anchorCoordinates = it
@@ -226,13 +226,13 @@ private fun SoftKeyboardListener(
  * Scope for [ExposedDropdownMenuBox].
  */
 @ExperimentalMaterial3Api
-interface ExposedDropdownMenuBoxScope {
+abstract class ExposedDropdownMenuBoxScope {
     /**
      * Modifier which should be applied to a [TextField] (or [OutlinedTextField]) placed inside the
      * scope. It's responsible for properly anchoring the [ExposedDropdownMenu], handling semantics
      * of the component, and requesting focus.
      */
-    fun Modifier.menuAnchor(): Modifier
+    abstract fun Modifier.menuAnchor(): Modifier
 
     /**
      * Modifier which should be applied to an [ExposedDropdownMenu] placed inside the scope. It's
@@ -244,7 +244,7 @@ interface ExposedDropdownMenuBoxScope {
      * @param matchTextFieldWidth whether the menu should match the width of the text field to which
      * it's attached. If set to `true`, the width will match the width of the text field.
      */
-    fun Modifier.exposedDropdownSize(
+    abstract fun Modifier.exposedDropdownSize(
         matchTextFieldWidth: Boolean = true
     ): Modifier
 
