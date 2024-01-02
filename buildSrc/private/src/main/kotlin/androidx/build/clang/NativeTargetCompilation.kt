@@ -56,12 +56,23 @@ class NativeTargetCompilation internal constructor(
 
     /**
      * Dynamically links the shared library output of this target with the given [dependency]'s
-     * shared library output.
+     * object library output.
      */
     @Suppress("unused") // used from build.gradle
     fun linkWith(dependency: MultiTargetNativeCompilation) {
         linkedObjects.from(
             dependency.sharedObjectOutputFor(konanTarget)
+        )
+    }
+
+    /**
+     * Statically include the shared library output of this target with the given [dependency]'s
+     * archive library output.
+     */
+    @Suppress("unused") // used from build.gradle
+    fun include(dependency: MultiTargetNativeCompilation) {
+        linkedObjects.from(
+            dependency.sharedArchiveOutputFor(konanTarget)
         )
     }
 
