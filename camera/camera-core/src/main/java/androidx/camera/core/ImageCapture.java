@@ -1413,15 +1413,7 @@ public final class ImageCapture extends UseCase {
      * configuration change.
      *
      * <p>The processing estimate can vary based on device processing load.
-     *
-     * <p>If the image capture latency estimate is not supported then
-     * {@link ImageCaptureLatencyEstimate#UNDEFINED_IMAGE_CAPTURE_LATENCY} is returned. If the
-     * capture latency is not supported then the capture latency component will be
-     * {@link ImageCaptureLatencyEstimate#UNDEFINED_CAPTURE_LATENCY}. If the processing
-     * latency is not supported then the processing latency component will be
-     * {@link ImageCaptureLatencyEstimate#UNDEFINED_PROCESSING_LATENCY}.
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public ImageCaptureLatencyEstimate getRealtimeCaptureLatencyEstimate() {
         final CameraInternal camera = getCamera();
