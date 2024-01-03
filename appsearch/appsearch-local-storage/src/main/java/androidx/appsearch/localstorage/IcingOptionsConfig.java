@@ -51,6 +51,18 @@ public interface IcingOptionsConfig {
     int DEFAULT_MAX_PAGE_BYTES_LIMIT = Integer.MAX_VALUE;
 
     /**
+     * The default threshold for integer index bucket split. 65536 is picked based on
+     * benchmark (Icing integer-index-storage_benchmark.cc).
+     * <ul>
+     *     <li>There will be only 16 buckets when indexing 1M integers, which improves the
+     *     performance of numeric search range query.
+     *     <li>It also increases # of hits to read for numeric search exact query, but the overall
+     *     query latency is still reasonable.
+     * </ul>
+     */
+    int DEFAULT_INTEGER_INDEX_BUCKET_SPLIT_THRESHOLD = 65536;
+
+    /**
      * The maximum allowable token length. All tokens in excess of this size will be truncated to
      * max_token_length before being indexed.
      *
@@ -150,4 +162,17 @@ public interface IcingOptionsConfig {
      * result exceeds this limit.
      */
     int getMaxPageBytesLimit();
+
+    /**
+     * Flag for {@link com.google.android.icing.proto.IcingSearchEngineOptions}.
+     *
+     * <p>Threshold for integer index bucket split. Integer index stores hits in several buckets,
+     * and splits if # of hits in a single bucket exceed the threshold. Splitting bucket accelerates
+     * numeric search exact query, but potentially downgrades the performance of range query.
+     *
+     * <p>This flag is for rolling out new threshold 65536. If identifying any issues, then change
+     * it back to 341 (the previous bucket split threshold, capacity of full max-sized posting
+     * list).
+     */
+    int getIntegerIndexBucketSplitThreshold();
 }

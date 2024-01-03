@@ -620,8 +620,7 @@ public final class ModifiersBuilders {
         private final ModifiersProto.ElementMetadata mImpl;
         @Nullable private final Fingerprint mFingerprint;
 
-        ElementMetadata(
-                ModifiersProto.ElementMetadata impl, @Nullable Fingerprint fingerprint) {
+        ElementMetadata(ModifiersProto.ElementMetadata impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
             this.mFingerprint = fingerprint;
         }
@@ -988,8 +987,7 @@ public final class ModifiersBuilders {
         private final ModifiersProto.SpanModifiers mImpl;
         @Nullable private final Fingerprint mFingerprint;
 
-        SpanModifiers(
-                ModifiersProto.SpanModifiers impl, @Nullable Fingerprint fingerprint) {
+        SpanModifiers(ModifiersProto.SpanModifiers impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
             this.mFingerprint = fingerprint;
         }

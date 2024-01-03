@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 
 /**
@@ -114,6 +115,107 @@ fun ListItem(
         scale = scale,
         border = border,
         glow = glow,
+        minHeight = listItemMinHeight(
+            hasLeadingContent = leadingContent != null,
+            hasSupportingContent = supportingContent != null,
+            hasOverlineContent = overlineContent != null
+        ),
+        minIconSize = ListItemDefaults.IconSize,
+        headlineTextStyle = MaterialTheme.typography.titleMedium,
+        trailingTextStyle = MaterialTheme.typography.labelLarge,
+        interactionSource = interactionSource
+    )
+}
+
+/**
+ * Lists are continuous, vertical indexes of text or images.
+ *
+ * [DenseListItem] is a smaller/denser version of the Material [ListItem].
+ *
+ * This component can be used to achieve the list item templates existing in the spec. One-line list
+ * items have a singular line of headline content. Two-line list items additionally have either
+ * supporting or overline content. Three-line list items have either both supporting and overline
+ * content, or extended (two-line) supporting text.
+ *
+ * This ListItem handles click events, calling its [onClick] lambda. It also support selected state
+ * which can be toggled using the [selected] param.
+ *
+ * @param selected defines whether this ListItem is selected or not
+ * @param onClick called when this ListItem is clicked
+ * @param headlineContent the [Composable] headline content of the list item
+ * @param modifier [Modifier] to be applied to the list item
+ * @param enabled controls the enabled state of this list item. When `false`, this component will
+ * not respond to user input, and it will appear visually disabled and disabled to accessibility
+ * services.
+ * @param onLongClick called when this ListItem is long clicked (long-pressed).
+ * @param leadingContent the [Composable] leading content of the list item
+ * @param overlineContent the [Composable] content displayed above the headline content
+ * @param supportingContent the [Composable] content displayed below the headline content
+ * @param trailingContent the [Composable] trailing meta text, icon, switch or checkbox
+ * @param tonalElevation the tonal elevation of this list item
+ * @param shape [ListItemShape] defines the shape of ListItem's container in different interaction
+ * states. See [ListItemDefaults.shape].
+ * @param colors [ListItemColors] defines the background and content colors used in the list item
+ * for different interaction states. See [ListItemDefaults.colors]
+ * @param scale [ListItemScale] defines the size of the list item relative to its original size in
+ * different interaction states. See [ListItemDefaults.scale]
+ * @param border [ListItemBorder] defines a border around the list item in different interaction
+ * states. See [ListItemDefaults.border]
+ * @param glow [ListItemGlow] defines a shadow to be shown behind the list item for different
+ * interaction states. See [ListItemDefaults.glow]
+ * @param interactionSource the [MutableInteractionSource] representing the stream of
+ * [Interaction]s for this component. You can create and pass in your own [remember]ed instance
+ * to observe [Interaction]s and customize the appearance / behavior of this list item in different
+ * states.
+ */
+@ExperimentalTvMaterial3Api
+@Composable
+fun DenseListItem(
+    selected: Boolean,
+    onClick: () -> Unit,
+    headlineContent: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    onLongClick: (() -> Unit)? = null,
+    overlineContent: (@Composable () -> Unit)? = null,
+    supportingContent: (@Composable () -> Unit)? = null,
+    leadingContent: (@Composable BoxScope.() -> Unit)? = null,
+    trailingContent: (@Composable () -> Unit)? = null,
+    tonalElevation: Dp = ListItemDefaults.ListItemElevation,
+    shape: ListItemShape = ListItemDefaults.shape(),
+    colors: ListItemColors = ListItemDefaults.colors(),
+    scale: ListItemScale = ListItemDefaults.scale(),
+    border: ListItemBorder = ListItemDefaults.border(),
+    glow: ListItemGlow = ListItemDefaults.glow(),
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+) {
+    BaseListItem(
+        selected = selected,
+        onClick = onClick,
+        headlineContent = headlineContent,
+        contentPadding = ListItemDefaults.ContentPaddingDense,
+        modifier = modifier,
+        enabled = enabled,
+        onLongClick = onLongClick,
+        leadingContent = leadingContent,
+        overlineContent = overlineContent,
+        supportingContent = supportingContent,
+        trailingContent = trailingContent,
+        tonalElevation = tonalElevation,
+        shape = shape,
+        colors = colors,
+        scale = scale,
+        border = border,
+        glow = glow,
+        minHeight = listItemMinHeight(
+            hasLeadingContent = leadingContent != null,
+            hasSupportingContent = supportingContent != null,
+            hasOverlineContent = overlineContent != null,
+            dense = true
+        ),
+        minIconSize = ListItemDefaults.IconSizeDense,
+        headlineTextStyle = MaterialTheme.typography.titleSmall,
+        trailingTextStyle = MaterialTheme.typography.labelSmall,
         interactionSource = interactionSource
     )
 }
@@ -145,6 +247,10 @@ fun ListItem(
  * states.
  * @param glow [ListItemGlow] defines a shadow to be shown behind the list item for different
  * interaction states.
+ * @param minHeight defines the minimum height [Dp] for the ListItem.
+ * @param minIconSize defines the minimum icon size [Dp] to be used in leading content.
+ * @param headlineTextStyle defines the [TextStyle] for the headline content.
+ * @param trailingTextStyle defines the [TextStyle] for the trailing content.
  * @param interactionSource the [MutableInteractionSource] representing the stream of
  * [Interaction]s for this component. You can create and pass in your own [remember]ed instance
  * to observe [Interaction]s and customize the appearance / behavior of this list item in different
@@ -170,6 +276,10 @@ private fun BaseListItem(
     scale: ListItemScale,
     border: ListItemBorder,
     glow: ListItemGlow,
+    minHeight: Dp,
+    minIconSize: Dp,
+    headlineTextStyle: TextStyle,
+    trailingTextStyle: TextStyle,
     interactionSource: MutableInteractionSource
 ) {
     val semanticModifier = Modifier
@@ -177,6 +287,7 @@ private fun BaseListItem(
             this.selected = selected
         }
         .then(modifier)
+
     Surface(
         checked = selected,
         onCheckedChange = { onClick.invoke() },
@@ -193,13 +304,7 @@ private fun BaseListItem(
     ) {
         Row(
             modifier = Modifier
-                .defaultMinSize(
-                    minHeight = listItemMinHeight(
-                        hasLeadingContent = leadingContent != null,
-                        hasSupportingContent = supportingContent != null,
-                        hasOverlineContent = overlineContent != null
-                    )
-                )
+                .defaultMinSize(minHeight = minHeight)
                 .padding(contentPadding),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -207,8 +312,8 @@ private fun BaseListItem(
                 Box(
                     modifier = Modifier
                         .defaultMinSize(
-                            minWidth = ListItemDefaults.IconSize,
-                            minHeight = ListItemDefaults.IconSize
+                            minWidth = minIconSize,
+                            minHeight = minIconSize
                         )
                         .graphicsLayer {
                             alpha = ListItemDefaults.LeadingContentOpacity
@@ -241,7 +346,7 @@ private fun BaseListItem(
                     }
 
                     ProvideTextStyle(
-                        value = MaterialTheme.typography.titleMedium,
+                        value = headlineTextStyle,
                         content = headlineContent
                     )
 
@@ -269,7 +374,7 @@ private fun BaseListItem(
                         LocalContentColor provides LocalContentColor.current
                     ) {
                         ProvideTextStyle(
-                            value = MaterialTheme.typography.labelLarge,
+                            value = trailingTextStyle,
                             content = it
                         )
                     }
@@ -286,6 +391,7 @@ private fun BaseListItem(
  * @param hasLeadingContent if the leading supporting visual of the list item exists.
  * @param hasSupportingContent if the supporting text composable of the list item exists.
  * @param hasOverlineContent if the text composable displayed above the headline text exists.
+ * @param dense whether the current list item is dense or not.
  *
  * @return The minimum container height for the given list item (to be used with
  * [Modifier.defaultMinSize]).
@@ -294,16 +400,29 @@ private fun BaseListItem(
 private fun listItemMinHeight(
     hasLeadingContent: Boolean,
     hasSupportingContent: Boolean,
-    hasOverlineContent: Boolean
+    hasOverlineContent: Boolean,
+    dense: Boolean = false
 ): Dp {
     return when {
-        hasSupportingContent && hasOverlineContent -> ListItemDefaults.MinContainerHeightThreeLine
+        hasSupportingContent && hasOverlineContent -> {
+            if (dense) ListItemDefaults.MinDenseContainerHeightThreeLine
+            else ListItemDefaults.MinContainerHeightThreeLine
+        }
 
-        hasSupportingContent || hasOverlineContent -> ListItemDefaults.MinContainerHeightTwoLine
+        hasSupportingContent || hasOverlineContent -> {
+            if (dense) ListItemDefaults.MinDenseContainerHeightTwoLine
+            else ListItemDefaults.MinContainerHeightTwoLine
+        }
 
-        hasLeadingContent -> ListItemDefaults.MinContainerHeightLeadingContent
+        hasLeadingContent -> {
+            if (dense) ListItemDefaults.MinDenseContainerHeightLeadingContent
+            else ListItemDefaults.MinContainerHeightLeadingContent
+        }
 
-        else -> ListItemDefaults.MinContainerHeight
+        else -> {
+            if (dense) ListItemDefaults.MinDenseContainerHeight
+            else ListItemDefaults.MinContainerHeight
+        }
     }
 }
 

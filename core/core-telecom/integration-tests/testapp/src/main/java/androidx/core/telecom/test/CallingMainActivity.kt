@@ -32,8 +32,6 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 @RequiresApi(34)
@@ -120,7 +118,6 @@ class CallingMainActivity : Activity() {
         val callObject = VoipCall()
 
         CoroutineScope(Dispatchers.IO).launch {
-            val coroutineScope = this
             try {
                 mCallsManager!!.addCall(attributes) {
                     // set the client callback implementation
@@ -131,17 +128,23 @@ class CallingMainActivity : Activity() {
                     callObject.setCallControl(this)
 
                     // Collect updates
-                    currentCallEndpoint
-                        .onEach { callObject.onCallEndpointChanged(it) }
-                        .launchIn(coroutineScope)
+                    launch {
+                        currentCallEndpoint.collect {
+                            callObject.onCallEndpointChanged(it)
+                        }
+                    }
 
-                    availableEndpoints
-                        .onEach { callObject.onAvailableCallEndpointsChanged(it) }
-                        .launchIn(coroutineScope)
+                    launch {
+                        availableEndpoints.collect {
+                            callObject.onAvailableCallEndpointsChanged(it)
+                        }
+                    }
 
-                    isMuted
-                        .onEach { callObject.onMuteStateChanged(it) }
-                        .launchIn(coroutineScope)
+                    launch {
+                        isMuted.collect {
+                            callObject.onMuteStateChanged(it)
+                        }
+                    }
                 }
                 addCallRow(callObject)
             } catch (e: CancellationException) {

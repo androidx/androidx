@@ -83,7 +83,7 @@ class SpecifyJobSchedulerIdRangeIssueDetector : Detector(), SourceCodeScanner {
         if (name !in WELL_KNOWN_JOB_SERVICES) {
             hasOtherJobServices = true
             // Keep track of location
-            location = context.getLocation(declaration.javaPsi)
+            location = context.getNameLocation(declaration)
         }
     }
 

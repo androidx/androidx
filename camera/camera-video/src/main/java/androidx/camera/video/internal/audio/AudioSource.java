@@ -186,7 +186,8 @@ public final class AudioSource {
         mExecutor = CameraXExecutors.newSequentialExecutor(executor);
         mStartRetryIntervalNs = MILLISECONDS.toNanos(startRetryIntervalMs);
         try {
-            mAudioStream = audioStreamFactory.create(settings, attributionContext);
+            mAudioStream = new BufferedAudioStream(audioStreamFactory.create(settings,
+                    attributionContext), settings);
         } catch (IllegalArgumentException | AudioStream.AudioStreamException e) {
             throw new AudioSourceAccessException("Unable to create AudioStream", e);
         }

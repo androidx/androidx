@@ -19,6 +19,7 @@ package androidx.build.buildInfo
 import androidx.build.buildInfo.CreateLibraryBuildInfoFileTask.Companion.asBuildInfoDependencies
 import androidx.build.jetpad.LibraryBuildInfoFile
 import androidx.testutils.gradle.ProjectSetupRule
+import com.google.common.truth.Truth.assertThat
 import com.google.gson.Gson
 import java.io.File
 import net.saff.checkmark.Checkmark.Companion.check
@@ -29,7 +30,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
-import com.google.common.truth.Truth.assertThat
 
 class CreateLibraryBuildInfoFileTaskTest {
     @get:Rule
@@ -78,7 +78,7 @@ class CreateLibraryBuildInfoFileTaskTest {
         assertThat(buildInfo.groupId).isEqualTo("androidx.build_info_test")
         assertThat(buildInfo.artifactId).isEqualTo("test")
         assertThat(buildInfo.version).isEqualTo("0.0.1")
-        assertThat(buildInfo.kotlinVersion).isEqualTo(projectSetup.props.kotlinVersion)
+        assertThat(buildInfo.kotlinVersion).isEqualTo(projectSetup.props.kgpVersion)
         assertThat(buildInfo.groupIdRequiresSameVersion).isFalse()
         assertThat(buildInfo.dependencies).hasSize(1)
         assertThat(buildInfo.dependencies.single().groupId).isEqualTo("androidx.core")

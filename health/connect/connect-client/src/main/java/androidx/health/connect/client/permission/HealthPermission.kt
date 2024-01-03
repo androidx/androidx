@@ -131,6 +131,21 @@ internal constructor(
 
         internal const val PERMISSION_PREFIX = "android.permission.health."
 
+        /**
+         * A permission to write exercise routes.
+         *
+         * This permission must be granted to successfully insert a route as a field of the
+         * corresponding [androidx.health.connect.client.records.ExerciseSessionRecord]. An attempt
+         * to insert/update a session with a set route without the permission granted will result in
+         * a failed call and the session insertion/update will be rejected.
+         *
+         * If the permission is not granted the previously written route will not be deleted if the
+         * session gets updated with no route set.
+         *
+         * @sample androidx.health.connect.client.samples.InsertExerciseRoute
+         */
+        const val PERMISSION_WRITE_EXERCISE_ROUTE = PERMISSION_PREFIX + "WRITE_EXERCISE_ROUTE"
+
         // Read permissions for ACTIVITY.
         internal const val READ_ACTIVE_CALORIES_BURNED =
             PERMISSION_PREFIX + "READ_ACTIVE_CALORIES_BURNED"
@@ -153,15 +168,18 @@ internal constructor(
         internal const val READ_BODY_WATER_MASS = PERMISSION_PREFIX + "READ_BODY_WATER_MASS"
         internal const val READ_BONE_MASS = PERMISSION_PREFIX + "READ_BONE_MASS"
         internal const val READ_HEIGHT = PERMISSION_PREFIX + "READ_HEIGHT"
+
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal const val READ_HIP_CIRCUMFERENCE = PERMISSION_PREFIX + "READ_HIP_CIRCUMFERENCE"
         internal const val READ_LEAN_BODY_MASS = PERMISSION_PREFIX + "READ_LEAN_BODY_MASS"
+
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal const val READ_WAIST_CIRCUMFERENCE = PERMISSION_PREFIX + "READ_WAIST_CIRCUMFERENCE"
         internal const val READ_WEIGHT = PERMISSION_PREFIX + "READ_WEIGHT"
 
         // Read permissions for CYCLE_TRACKING.
         internal const val READ_CERVICAL_MUCUS = PERMISSION_PREFIX + "READ_CERVICAL_MUCUS"
+
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal const val READ_INTERMENSTRUAL_BLEEDING =
             PERMISSION_PREFIX + "READ_INTERMENSTRUAL_BLEEDING"
@@ -195,7 +213,6 @@ internal constructor(
         internal const val WRITE_DISTANCE = PERMISSION_PREFIX + "WRITE_DISTANCE"
         internal const val WRITE_ELEVATION_GAINED = PERMISSION_PREFIX + "WRITE_ELEVATION_GAINED"
         internal const val WRITE_EXERCISE = PERMISSION_PREFIX + "WRITE_EXERCISE"
-        internal const val WRITE_EXERCISE_ROUTE = PERMISSION_PREFIX + "WRITE_EXERCISE_ROUTE"
         internal const val WRITE_FLOORS_CLIMBED = PERMISSION_PREFIX + "WRITE_FLOORS_CLIMBED"
         internal const val WRITE_STEPS = PERMISSION_PREFIX + "WRITE_STEPS"
         internal const val WRITE_TOTAL_CALORIES_BURNED =
@@ -212,9 +229,11 @@ internal constructor(
         internal const val WRITE_BODY_WATER_MASS = PERMISSION_PREFIX + "WRITE_BODY_WATER_MASS"
         internal const val WRITE_BONE_MASS = PERMISSION_PREFIX + "WRITE_BONE_MASS"
         internal const val WRITE_HEIGHT = PERMISSION_PREFIX + "WRITE_HEIGHT"
+
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal const val WRITE_HIP_CIRCUMFERENCE = PERMISSION_PREFIX + "WRITE_HIP_CIRCUMFERENCE"
         internal const val WRITE_LEAN_BODY_MASS = PERMISSION_PREFIX + "WRITE_LEAN_BODY_MASS"
+
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal const val WRITE_WAIST_CIRCUMFERENCE =
             PERMISSION_PREFIX + "WRITE_WAIST_CIRCUMFERENCE"
@@ -222,6 +241,7 @@ internal constructor(
 
         // Write permissions for CYCLE_TRACKING.
         internal const val WRITE_CERVICAL_MUCUS = PERMISSION_PREFIX + "WRITE_CERVICAL_MUCUS"
+
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal const val WRITE_INTERMENSTRUAL_BLEEDING =
             PERMISSION_PREFIX + "WRITE_INTERMENSTRUAL_BLEEDING"

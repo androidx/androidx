@@ -23,7 +23,6 @@ import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.benchmark.Errors.PREFIX
-import androidx.benchmark.InstrumentationResults.ideSummaryLineWrapped
 import androidx.benchmark.InstrumentationResults.instrumentationReport
 import androidx.benchmark.InstrumentationResults.reportBundle
 import java.util.concurrent.TimeUnit
@@ -91,7 +90,8 @@ class BenchmarkState internal constructor(
             profiler = Arguments.profiler,
             warmupCount = warmupCount,
             measurementCount = Arguments.iterations ?: measurementCount,
-            simplifiedTimingOnlyMode = simplifiedTimingOnlyMode
+            simplifiedTimingOnlyMode = simplifiedTimingOnlyMode,
+            cpuEventCountersMask = Arguments.cpuEventCounterMask
         )
     )
 
@@ -110,8 +110,8 @@ class BenchmarkState internal constructor(
      */
     private val simplifiedTimingOnlyMode = phaseConfig.simplifiedTimingOnlyMode
 
-    /** @suppress */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     var traceUniqueName: String = "benchmark"
 
     internal var warmupRepeats = 0 // number of warmup repeats that occurred
@@ -204,9 +204,7 @@ class BenchmarkState internal constructor(
      */
     fun pauseTiming() {
         check(!paused) { "Unable to pause the benchmark. The benchmark has already paused." }
-        if (!currentPhase.ignorePauseEvent) {
-            currentMetrics.capturePaused()
-        }
+        currentMetrics.capturePaused()
         paused = true
     }
 
@@ -236,9 +234,7 @@ class BenchmarkState internal constructor(
      */
     fun resumeTiming() {
         check(paused) { "Unable to resume the benchmark. The benchmark is already running." }
-        if (!currentPhase.ignorePauseEvent) {
-            currentMetrics.captureResumed()
-        }
+        currentMetrics.captureResumed()
         paused = false
     }
 
@@ -304,9 +300,9 @@ class BenchmarkState internal constructor(
             if (it.warmupManager != null) {
                 // warmup phase
                 currentMetrics.captureInit()
-                // Note that warmupManager presence implies only one metric captured,
-                // this is validated in MicrobenchmarkPhase init
-                val lastMeasuredWarmupValue = currentMetrics.data.last()[0]
+                // Note that warmup is based on repeat time, *not* the timeNs metric, since we want
+                // to account for paused time during warmup (paused work should stabilize too)
+                val lastMeasuredWarmupValue = currentMetrics.peekSingleRepeatTime()
                 if (it.warmupManager.onNextIteration(lastMeasuredWarmupValue)) {
                     warmupEstimatedIterationTimeNs = lastMeasuredWarmupValue
                     warmupRepeats = currentMeasurement
@@ -491,23 +487,17 @@ class BenchmarkState internal constructor(
             // these 'legacy' CI output metrics are considered output
             metricResults.forEach { it.putInBundle(status, PREFIX) }
         }
-        val nanos = getMinTimeNanos()
-        val allocations = metricResults.firstOrNull { it.name == "allocationCount" }?.median
-        InstrumentationResultScope(status).ideSummaryRecord(
-            summaryV1 = ideSummaryLineWrapped(
-                key = key,
-                nanos = nanos,
-                allocations = allocations,
-                traceRelPath = null,
-                profilerResult = null
+        InstrumentationResultScope(status).reportSummaryToIde(
+            warningMessage = Errors.acquireWarningStringForLogging() ?: "",
+            testName = key,
+            measurements = BenchmarkResult.Measurements(
+                singleMetrics = metricResults,
+                sampledMetrics = emptyList()
             ),
-            summaryV2 = ideSummaryLineWrapped(
-                key = key,
-                nanos = nanos,
-                allocations = allocations,
-                traceRelPath = tracePath?.let { Outputs.relativePathFor(it) },
-                profilerResult = profilerResult
-            ),
+            profilerResults = listOfNotNull(
+                tracePath?.let { Profiler.ResultFile(label = "Trace", absolutePath = tracePath) },
+                profilerResult
+            )
         )
         return status
     }
@@ -605,14 +595,9 @@ class BenchmarkState internal constructor(
                 if (className.isNotEmpty()) "$className.$testName" else testName
 
             instrumentationReport {
-                ideSummaryRecord(
-                    summaryV1 = ideSummaryLineWrapped(
-                        key = fullTestName,
-                        nanos = report.getMetricResult("timeNs").min,
-                        allocations = null,
-                        traceRelPath = null,
-                        profilerResult = null
-                    )
+                reportSummaryToIde(
+                    testName = fullTestName,
+                    measurements = report.metrics,
                 )
             }
 

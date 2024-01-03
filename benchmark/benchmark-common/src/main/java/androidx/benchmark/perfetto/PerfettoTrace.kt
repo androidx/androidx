@@ -17,10 +17,11 @@
 package androidx.benchmark.perfetto
 
 import androidx.annotation.RequiresApi
+import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig.InitialProcessState
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
 
-@RequiresApi(23)
+@RequiresApi(23) // should match PerfettoHelper.MIN_SDK_VERSION
 @ExperimentalPerfettoCaptureApi
 class PerfettoTrace(
     /**
@@ -157,7 +158,12 @@ class PerfettoTrace(
             PerfettoCaptureWrapper().record(
                 fileLabel = fileLabel,
                 config,
-                userspaceTracingPackage,
+                perfettoSdkConfig = userspaceTracingPackage?.let {
+                    PerfettoCapture.PerfettoSdkConfig(
+                        it,
+                        InitialProcessState.Unknown
+                    )
+                },
                 traceCallback = { path ->
                     File(path).appendUiState(
                         UiState(

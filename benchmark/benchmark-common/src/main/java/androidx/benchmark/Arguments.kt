@@ -50,7 +50,14 @@ object Arguments {
      *
      * Currently internal/experimental
      */
-    val fullTracingEnable: Boolean
+    private val _fullTracingEnable: Boolean
+    val fullTracingEnable: Boolean get() = fullTracingEnableOverride ?: _fullTracingEnable
+
+    /**
+     * Allows tests to override whether full tracing is enabled
+     */
+    @VisibleForTesting
+    var fullTracingEnableOverride: Boolean? = null
 
     val enabledRules: Set<RuleType>
 
@@ -63,7 +70,6 @@ object Arguments {
     val enableCompilation: Boolean
     val killProcessDelayMillis: Long
     val enableStartupProfiles: Boolean
-    val strictStartupProfiles: Boolean
     val dryRunMode: Boolean
 
     // internal properties are microbenchmark only
@@ -76,6 +82,8 @@ object Arguments {
     internal val profilerSampleFrequency: Int
     internal val profilerSampleDurationSeconds: Long
     internal val thermalThrottleSleepDurationSeconds: Long
+    private val cpuEventCounterEnable: Boolean
+    internal val cpuEventCounterMask: Int
 
     internal var error: String? = null
     internal val additionalTestOutputDir: String?
@@ -120,7 +128,7 @@ object Arguments {
         iterations =
             arguments.getBenchmarkArgument("iterations")?.toInt()
 
-        fullTracingEnable =
+        _fullTracingEnable =
             (arguments.getBenchmarkArgument("fullTracing.enable")?.toBoolean() ?: false)
 
         // Transform comma-delimited list into set of suppressed errors
@@ -180,6 +188,22 @@ object Arguments {
             )
         }
 
+        cpuEventCounterEnable =
+            arguments.getBenchmarkArgument("cpuEventCounter.enable")?.toBoolean() ?: false
+        cpuEventCounterMask =
+            if (cpuEventCounterEnable) {
+                arguments.getBenchmarkArgument("cpuEventCounter.events", "Instructions,CpuCycles")
+                    .split(",").map { eventName ->
+                            CpuEventCounter.Event.valueOf(eventName)
+                    }.getFlags()
+            } else {
+                0x0
+            }
+        if (cpuEventCounterEnable && cpuEventCounterMask == 0x0) {
+            error = "Must set a cpu event counters mask to use counters." +
+                " See CpuEventCounters.Event for flag definitions."
+        }
+
         thermalThrottleSleepDurationSeconds =
             arguments.getBenchmarkArgument("thermalThrottle.sleepDurationSeconds")?.ifBlank { null }
                 ?.toLong()
@@ -193,15 +217,12 @@ object Arguments {
 
         enableStartupProfiles =
             arguments.getBenchmarkArgument("startupProfiles.enable")?.toBoolean() ?: true
-
-        strictStartupProfiles =
-            arguments.getBenchmarkArgument("startupProfiles.strict")?.toBoolean() ?: false
     }
 
     fun methodTracingEnabled(): Boolean {
         return when {
             dryRunMode -> false
-            _profiler != null && _profiler.javaClass.simpleName == "MethodTracing" -> true
+            _profiler == MethodTracing -> true
             else -> false
         }
     }

@@ -33,3 +33,10 @@ android {
     }
     namespace "androidx.wear.watchface.complications.permission.dialogs.sample"
 }
+
+androidx {
+    name = "Wear Watchface Permission Dialog Samples"
+    type = LibraryType.SAMPLES
+    inceptionYear = "2021"
+    description = "Contains sample code for building Watchface Permission Dialogs"
+}

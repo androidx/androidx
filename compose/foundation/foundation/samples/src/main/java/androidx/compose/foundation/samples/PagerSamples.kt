@@ -38,9 +38,11 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -336,5 +338,18 @@ fun HorizontalPagerWithScrollableContent() {
                 }
             }
         }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Sampled
+@Composable
+fun UsingPagerLayoutInfoForSideEffectSample() {
+    val pagerState = rememberPagerState() { 10 }
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.layoutInfo.visiblePagesInfo.firstOrNull() }
+            .collect {
+                // use the new first visible page info
+            }
     }
 }

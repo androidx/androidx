@@ -27,6 +27,6 @@ class InvalidModificationError :
     DomError(TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_INVALID_MODIFICATION_ERROR) {
     internal companion object {
         internal const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_INVALID_MODIFICATION_ERROR: String =
-            "androidx.credentials.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_INVALID_MODIFICATION_ERROR"
+            "androidx.credentials.TYPE_INVALID_MODIFICATION_ERROR"
     }
 }

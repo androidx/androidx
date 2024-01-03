@@ -24,7 +24,6 @@ import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.variant.SourceDirectories
 import com.android.build.api.variant.Variant
 import com.android.utils.usLocaleCapitalize
-import java.io.File
 import org.gradle.api.Action
 import org.gradle.api.DomainObjectCollection
 import org.gradle.api.Project
@@ -36,6 +35,7 @@ import org.gradle.api.file.Directory
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.TaskOutputFilePropertyBuilder
 import org.gradle.api.tasks.TaskProvider
 
 // Gradle task group used to identify Stable AIDL tasks.
@@ -68,7 +68,6 @@ class ArtifactType {
     }
 }
 
-@Suppress("UnstableApiUsage") // SourceDirectories.Flat
 fun registerCompileAidlApi(
     project: Project,
     variant: Variant,
@@ -277,18 +276,16 @@ fun registerUpdateAidlApi(
 /**
  * Tells Gradle to skip running this task, even if this task declares no output files.
  */
-private fun Task.cacheEvenIfNoOutputs() {
-    this.outputs.file(this.getPlaceholderOutput())
-}
+private fun Task.cacheEvenIfNoOutputs(): TaskOutputFilePropertyBuilder =
+    outputs.file(getPlaceholderOutput())
 
 /**
  * Returns an unused output path that we can pass to Gradle to prevent Gradle from thinking that we
  * forgot to declare outputs of this task, and instead to skip this task if its inputs are
  * unchanged.
  */
-private fun Task.getPlaceholderOutput(): File {
-    return File(this.project.buildDir, "placeholderOutput/" + this.name.replace(":", "-"))
-}
+private fun Task.getPlaceholderOutput(): Provider<RegularFile> =
+    project.layout.buildDirectory.file("placeholderOutput/${name.replace(':', '-')}")
 
 private fun computeTaskName(prefix: String, variant: Variant, suffix: String) =
     "$prefix${variant.name.usLocaleCapitalize()}$suffix"

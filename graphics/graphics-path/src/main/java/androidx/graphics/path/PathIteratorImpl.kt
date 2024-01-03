@@ -20,7 +20,6 @@ import android.graphics.Path
 import android.graphics.PathIterator as PlatformPathIterator
 import android.graphics.PointF
 import androidx.annotation.RequiresApi
-import androidx.core.os.BuildCompat
 import androidx.graphics.path.PathIterator.ConicEvaluation
 
 /**
@@ -29,7 +28,6 @@ import androidx.graphics.path.PathIterator.ConicEvaluation
  * to perform conic conversion.
  */
 @Suppress("IllegalExperimentalApiUsage")
-@BuildCompat.PrereleaseSdkCheck
 internal abstract class PathIteratorImpl(
     val path: Path,
     val conicEvaluation: ConicEvaluation = ConicEvaluation.AsQuadratics,
@@ -154,8 +152,6 @@ internal abstract class PathIteratorImpl(
  * [calculateSize], which is implemented here.
  */
 @RequiresApi(34)
-@Suppress("IllegalExperimentalApiUsage")
-@BuildCompat.PrereleaseSdkCheck
 internal class PathIteratorApi34Impl(
     path: Path,
     conicEvaluation: ConicEvaluation = ConicEvaluation.AsQuadratics,
@@ -242,8 +238,6 @@ internal class PathIteratorApi34Impl(
  * structure). But if the caller wants conic conversion, then we need to iterate through
  * and convert appropriately, counting as we iterate.
  */
-@Suppress("IllegalExperimentalApiUsage")
-@BuildCompat.PrereleaseSdkCheck
 internal class PathIteratorPreApi34Impl(
     path: Path,
     conicEvaluation: ConicEvaluation = ConicEvaluation.AsQuadratics,

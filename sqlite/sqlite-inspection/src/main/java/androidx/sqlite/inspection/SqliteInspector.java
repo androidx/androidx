@@ -438,7 +438,7 @@ final class SqliteInspector extends Inspector {
     private void registerInvalidationHooks(EntryExitMatchingHookRegistry hookRegistry) {
         /**
          * Schedules a task using {@link mScheduledExecutor} and executes it on {@link mIOExecutor}.
-         **/
+         */
         final RequestCollapsingThrottler.DeferredExecutor deferredExecutor =
                 new RequestCollapsingThrottler.DeferredExecutor() {
                     @Override

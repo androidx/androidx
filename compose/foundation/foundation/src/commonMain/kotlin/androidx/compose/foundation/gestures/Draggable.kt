@@ -51,7 +51,6 @@ import androidx.compose.ui.unit.Velocity
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.sign
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.coroutineScope
@@ -168,10 +167,15 @@ fun rememberDraggableState(onDelta: (Float) -> Unit): DraggableState {
  * pressing on it. It's useful to set it when value you're dragging is settling / animating.
  * @param onDragStarted callback that will be invoked when drag is about to start at the starting
  * position, allowing user to suspend and perform preparation for drag, if desired. This suspend
- * function is invoked with the draggable scope, allowing for async processing, if desired
+ * function is invoked with the draggable scope, allowing for async processing, if desired. Note
+ * that the scope used here is the one provided by the draggable node, for long running work that
+ * needs to outlast the modifier being in the composition you should use a scope that fits the
+ * lifecycle needed.
  * @param onDragStopped callback that will be invoked when drag is finished, allowing the
  * user to react on velocity and process it. This suspend function is invoked with the draggable
- * scope, allowing for async processing, if desired
+ * scope, allowing for async processing, if desired.  Note that the scope used here is the one
+ * provided by the draggable node, for long running work that needs to outlast the modifier being
+ * in the composition you should use a scope that fits the lifecycle needed.
  * @param reverseDirection reverse the direction of the scroll, so top to bottom scroll will
  * behave like bottom to top and left to right will behave like right to left.
  */
@@ -296,32 +300,42 @@ internal class DraggableNode(
     private val _startDragImmediately: () -> Boolean = { startDragImmediately() }
     private val velocityTracker = VelocityTracker()
 
+    /**
+     * To preserve the original behavior we had (before the Modifier.Node migration) we need to
+     * scope the DragStopped and DragCancel methods to the node's coroutine scope instead of using
+     * the one provided by the pointer input modifier, this is to ensure that even when the pointer
+     * input scope is reset we will continue any coroutine scope scope that we started from these
+     * methods while the pointer input scope was active.
+     */
+    override fun onAttach() {
+        coroutineScope.launch {
+            while (isActive) {
+                var event = channel.receive()
+                if (event !is DragStarted) continue
+                processDragStart(event)
+                try {
+                    state.drag(MutatePriority.UserInput) {
+                        while (event !is DragStopped && event !is DragCancelled) {
+                            (event as? DragDelta)?.let { dragBy(it.delta.toFloat(orientation)) }
+                            event = channel.receive()
+                        }
+                    }
+                    if (event is DragStopped) {
+                        processDragStop(event as DragStopped)
+                    } else if (event is DragCancelled) {
+                        processDragCancel()
+                    }
+                } catch (c: CancellationException) {
+                    processDragCancel()
+                }
+            }
+        }
+    }
+
     private val pointerInputNode = delegate(SuspendingPointerInputModifierNode {
         // TODO: conditionally undelegate when aosp/2462416 lands?
         if (!enabled) return@SuspendingPointerInputModifierNode
         coroutineScope {
-            launch(start = CoroutineStart.UNDISPATCHED) {
-                while (isActive) {
-                    var event = channel.receive()
-                    if (event !is DragStarted) continue
-                    processDragStart(event)
-                    try {
-                        state.drag(MutatePriority.UserInput) {
-                            while (event !is DragStopped && event !is DragCancelled) {
-                                (event as? DragDelta)?.let { dragBy(it.delta.toFloat(orientation)) }
-                                event = channel.receive()
-                            }
-                        }
-                        if (event is DragStopped) {
-                            processDragStop(event as DragStopped)
-                        } else if (event is DragCancelled) {
-                            processDragCancel()
-                        }
-                    } catch (c: CancellationException) {
-                        processDragCancel()
-                    }
-                }
-            }
             try {
                 awaitPointerEventScope {
                     while (isActive) {

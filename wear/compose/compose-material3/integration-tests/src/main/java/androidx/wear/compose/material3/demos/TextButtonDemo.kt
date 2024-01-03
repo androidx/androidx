@@ -23,9 +23,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material3.ButtonDefaults
+import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.TextButton
 import androidx.wear.compose.material3.TextButtonDefaults
@@ -33,6 +35,7 @@ import androidx.wear.compose.material3.samples.FilledTextButtonSample
 import androidx.wear.compose.material3.samples.FilledTonalTextButtonSample
 import androidx.wear.compose.material3.samples.OutlinedTextButtonSample
 import androidx.wear.compose.material3.samples.TextButtonSample
+import androidx.wear.compose.material3.touchTargetAwareSize
 
 @Composable
 fun TextButtonDemo() {
@@ -41,7 +44,9 @@ fun TextButtonDemo() {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item {
-            Text("Text Button")
+            ListHeader {
+                Text("Text Button")
+            }
         }
         item {
             Row {
@@ -53,7 +58,9 @@ fun TextButtonDemo() {
             }
         }
         item {
-            Text("FilledTonalTextButton")
+            ListHeader {
+                Text("Filled Tonal")
+            }
         }
         item {
             Row {
@@ -69,7 +76,9 @@ fun TextButtonDemo() {
             }
         }
         item {
-            Text("FilledTextButton")
+            ListHeader {
+                Text("Filled")
+            }
         }
         item {
             Row {
@@ -85,7 +94,9 @@ fun TextButtonDemo() {
             }
         }
         item {
-            Text("OutlinedTextButton")
+            ListHeader {
+                Text("Outlined")
+            }
         }
         item {
             Row {
@@ -101,5 +112,50 @@ fun TextButtonDemo() {
                 }
             }
         }
+        item {
+            ListHeader {
+                Text("Sizes")
+            }
+        }
+        item {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("${TextButtonDefaults.LargeButtonSize.value.toInt()}dp")
+                Spacer(Modifier.width(4.dp))
+                TextButtonWithSize(TextButtonDefaults.LargeButtonSize)
+            }
+        }
+        item {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("${TextButtonDefaults.DefaultButtonSize.value.toInt()}dp")
+                Spacer(Modifier.width(4.dp))
+                TextButtonWithSize(TextButtonDefaults.DefaultButtonSize)
+            }
+        }
+        item {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("${TextButtonDefaults.SmallButtonSize.value.toInt()}dp")
+                Spacer(Modifier.width(4.dp))
+                TextButtonWithSize(TextButtonDefaults.SmallButtonSize)
+            }
+        }
+        item {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("${TextButtonDefaults.ExtraSmallButtonSize.value.toInt()}dp")
+                Spacer(Modifier.width(4.dp))
+                TextButtonWithSize(TextButtonDefaults.ExtraSmallButtonSize)
+            }
+        }
+    }
+}
+
+@Composable
+private fun TextButtonWithSize(size: Dp) {
+    TextButton(
+        modifier = Modifier.touchTargetAwareSize(size),
+        onClick = { },
+        enabled = true,
+        colors = TextButtonDefaults.filledTonalTextButtonColors()
+    ) {
+        Text(text = "AB")
     }
 }

@@ -31,7 +31,7 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   }
 
   @Override
-  public List<Class<?>> getNestedDocumentClasses() throws AppSearchException {
+  public List<Class<?>> getDependencyDocumentClasses() throws AppSearchException {
     return Collections.emptyList();
   }
 

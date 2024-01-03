@@ -116,8 +116,7 @@ public class LayoutDefaults {
 
     /** Contains default values used for {@link MultiButtonLayout}. */
     public static final class MultiButtonLayoutDefaults {
-        private MultiButtonLayoutDefaults() {
-        }
+        private MultiButtonLayoutDefaults() {}
 
         /** The maximum number of button that can be added to the {@link MultiButtonLayout}. */
         @SuppressWarnings("MinMaxConstant")
@@ -130,13 +129,14 @@ public class LayoutDefaults {
         public static final DpProp BUTTON_SIZE_FOR_3_PLUS_BUTTONS = ButtonDefaults.DEFAULT_SIZE;
 
         /**
-         * The default size of button in case when there are 2 buttons in the {@link MultiButtonLayout}.
+         * The default size of button in case when there are 2 buttons in the {@link
+         * MultiButtonLayout}.
          */
         public static final DpProp BUTTON_SIZE_FOR_2_BUTTONS = ButtonDefaults.LARGE_SIZE;
 
         /**
-         * The default size of button in case when there is 1 button in the
-         * {@link MultiButtonLayout}.
+         * The default size of button in case when there is 1 button in the {@link
+         * MultiButtonLayout}.
          */
         public static final DpProp BUTTON_SIZE_FOR_1_BUTTON = ButtonDefaults.EXTRA_LARGE_SIZE;
 
@@ -146,8 +146,8 @@ public class LayoutDefaults {
         static final DpProp SPACER_WIDTH = dp(6);
 
         /**
-         * The default height for horizontal spacer between buttons in the
-         * {@link MultiButtonLayout}.
+         * The default height for horizontal spacer between buttons in the {@link
+         * MultiButtonLayout}.
          */
         static final DpProp SPACER_HEIGHT = dp(4);
     }

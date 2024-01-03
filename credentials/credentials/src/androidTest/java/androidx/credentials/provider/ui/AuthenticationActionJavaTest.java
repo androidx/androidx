@@ -26,7 +26,6 @@ import android.app.slice.Slice;
 import android.content.Context;
 import android.content.Intent;
 
-import androidx.core.os.BuildCompat;
 import androidx.credentials.provider.AuthenticationAction;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -38,7 +37,6 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-@SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
 public class AuthenticationActionJavaTest {
     private static final CharSequence TITLE = "title";
     private final Context mContext = ApplicationProvider.getApplicationContext();
@@ -48,9 +46,6 @@ public class AuthenticationActionJavaTest {
 
     @Test
     public void constructor_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         AuthenticationAction action = new AuthenticationAction(TITLE, mPendingIntent);
 
         assertThat(mPendingIntent == action.getPendingIntent());
@@ -58,9 +53,6 @@ public class AuthenticationActionJavaTest {
 
     @Test
     public void build_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         AuthenticationAction action =
                 new AuthenticationAction.Builder(TITLE, mPendingIntent).build();
 
@@ -69,9 +61,6 @@ public class AuthenticationActionJavaTest {
 
     @Test
     public void constructor_nullPendingIntent_throwsNPE() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         assertThrows("Expected null pending intent to throw NPE",
                 NullPointerException.class,
                 () -> new AuthenticationAction(TITLE, null));
@@ -79,19 +68,14 @@ public class AuthenticationActionJavaTest {
 
     @Test
     public void constructor_emptyTitle_throwsIllegalArgumentException() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         assertThrows("Expected empty title to throw IAE",
                 IllegalArgumentException.class,
                 () -> new AuthenticationAction("", mPendingIntent));
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 28)
     public void fromSlice_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         AuthenticationAction originalAction = new AuthenticationAction(TITLE, mPendingIntent);
         Slice slice = AuthenticationAction.toSlice(originalAction);
 

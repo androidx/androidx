@@ -183,109 +183,112 @@ public annotation class IsForSafeWatchFace
  *
  * Manifest requirements:
  * - The manifest declaration of this service must include an intent filter for
- *   android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST.
+ *   `android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST`.
  * - A ComplicationDataSourceService must include a `meta-data` tag with
- *   android.support.wearable.complications.SUPPORTED_TYPES in its manifest entry. The value of this
- *   tag should be a comma separated list of types supported by the data source, from this table: |
- *   Androidx class | Tag name | |--------------------------------------|-------------------| |
- *   [GoalProgressComplicationData] | GOAL_PROGRESS | | [LongTextComplicationData] | LONG_TEXT | |
- *   [MonochromaticImageComplicationData] | ICON | | [PhotoImageComplicationData] | LARGE_IMAGE | |
- *   [RangedValueComplicationData] | RANGED_TEXT | | [ShortTextComplicationData] | SHORT_TEXT | |
- *   [SmallImageComplicationData] | SMALL_IMAGE | | [WeightedElementsComplicationData] |
- *   WEIGHTED_ELEMENTS |
+ *   `android.support.wearable.complications.SUPPORTED_TYPES` in its manifest entry.
+ *
+ * The value of `android.support.wearable.complications.SUPPORTED_TYPES` should be a comma separated
+ * list of types supported by the data source, from this table:
+ *
+ * | Androidx class                       | Tag name          |
+ * |--------------------------------------|-------------------|
+ * | [GoalProgressComplicationData]       | GOAL_PROGRESS     |
+ * | [LongTextComplicationData]           | LONG_TEXT         |
+ * | [MonochromaticImageComplicationData] | ICON              |
+ * | [PhotoImageComplicationData]         | LARGE_IMAGE       |
+ * | [RangedValueComplicationData]        | RANGED_TEXT       |
+ * | [ShortTextComplicationData]          | SHORT_TEXT        |
+ * | [SmallImageComplicationData]         | SMALL_IMAGE       |
+ * | [WeightedElementsComplicationData]   | WEIGHTED_ELEMENTS |
  *
  * The order in which types are listed has no significance. In the case where a watch face supports
  * multiple types in a single complication slot, the watch face will determine which types it
  * prefers.
  *
- * For example, a complication data source that supports the RANGED_VALUE, SHORT_TEXT, and ICON
- * types would include the following in its manifest entry:
+ * For example, a complication data source that supports the `RANGED_VALUE`, `SHORT_TEXT`, and
+ * `ICON` types would include the following in its manifest entry:
  * ```
- * <meta-data android:name="android.support.wearable.complications.SUPPORTED_TYPES"
- * android:value="RANGED_VALUE,SHORT_TEXT,ICON"/>
+ * <meta-data
+ *     android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+ *     android:value="RANGED_VALUE,SHORT_TEXT,ICON" />
  * ```
  *
- * From android T onwards, it is recommended for Complication DataSourceServices to be direct boot
+ * From android T onwards, it is recommended for [ComplicationDataSourceService]s to be direct boot
  * aware because the system is able to fetch complications before the lock screen has been removed.
- * To do this add android:directBootAware="true" to your service tag.
+ * To do this add `android:directBootAware="true"` to your service tag.
  * - A provider can choose to trust one or more watch faces by including the following in its
  *   manifest entry:
  * ```
- * <meta-data android:name="android.support.wearable.complications.SAFE_WATCH_FACES
- * android:value="com.pkg1/com.trusted.wf1,com.pkg2/com.trusted.wf2"/>
+ * <meta-data
+ *     android:name="android.support.wearable.complications.SAFE_WATCH_FACES"
+ *     android:value="com.pkg1/com.trusted.wf1,com.pkg2/com.trusted.wf2" />
  * ```
  *
  * The listed watch faces will not need
- * 'com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA' in order to receive
+ * `com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA` in order to receive
  * complications from this provider. Also the provider may choose to serve different types to safe
  * watch faces by including the following in its manifest:
  * ```
- * <meta-data android:name=
- *     "androidx.wear.watchface.complications.datasource.SAFE_WATCH_FACE_SUPPORTED_TYPES"
- *      android:value="ICON"/>
+ * <meta-data
+ *     android:name="androidx.wear.watchface.complications.datasource.SAFE_WATCH_FACE_SUPPORTED_TYPES"
+ *     android:value="ICON" />
  * ```
  *
  * In addition the provider can learn if a request is for a safe watchface by examining
- * [ComplicationRequest.isForSafeWatchFace]. Note SAFE_WATCH_FACE_SUPPORTED_TYPES and
- * isForSafeWatchFace are gated behind the privileged permission
+ * [ComplicationRequest.isForSafeWatchFace]. Note `SAFE_WATCH_FACE_SUPPORTED_TYPES` and
+ * `isForSafeWatchFace` are gated behind the privileged permission
  * `com.google.wear.permission.GET_IS_FOR_SAFE_WATCH_FACE`.
  * - A ComplicationDataSourceService should include a `meta-data` tag with
- *   android.support.wearable.complications.UPDATE_PERIOD_SECONDS its manifest entry. The value of
- *   this tag is the number of seconds the complication data source would like to elapse between
+ *   `android.support.wearable.complications.UPDATE_PERIOD_SECONDS` in its manifest entry. The value
+ *   of this tag is the number of seconds the complication data source would like to elapse between
  *   update requests.
  *
- * Note that update requests are not guaranteed to be sent with this frequency.
+ * **Note that update requests are not guaranteed to be sent with this frequency.** For
+ * complications with frequent updates they can also register a separate `meta-data` tag with
+ * `androidx.wear.watchface.complications.data.source.IMMEDIATE_UPDATE_PERIOD_MILLISECONDS` in their
+ * manifest which supports sampling at up to 1Hz when the watch face is visible and non-ambient,
+ * however this also requires the application to have the privileged permission
+ * `com.google.android.wearable.permission.USE_IMMEDIATE_COMPLICATION_UPDATE`.
  *
  * If a complication data source never needs to receive update requests beyond the one sent when a
  * complication is activated, the value of this tag should be 0.
  *
- * For example, a complication data source that would like to update every ten minutes should
+ * For example, a complication data source that would like to update at most every hour should
  * include the following in its manifest entry:
  * ```
- * <meta-data android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
- * android:value="600"/>
+ * <meta-data
+ *     android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
+ *     android:value="3600" />
  * ```
- *
- * There is a lower limit for android.support.wearable.complications.UPDATE_PERIOD_SECONDS imposed
- * by the system to prevent excessive power drain. For complications with frequent updates they can
- * also register a separate [METADATA_KEY_IMMEDIATE_UPDATE_PERIOD_MILLISECONDS] meta data tag which
- * supports sampling at up to 1Hz when the watch face is visible and non-ambient, however this also
- * requires the DataSourceService to have the privileged permission
- * `com.google.android.wearable.permission.USE_IMMEDIATE_COMPLICATION_UPDATE`.
- *
- * ```
- *   <meta-data android:name=
- *      "androidx.wear.watchface.complications.data.source.IMMEDIATE_UPDATE_PERIOD_MILLISECONDS"
- *   android:value="1000"/>
- * ```
- * - A ComplicationDataSourceService can include a `meta-data` tag with
+ * - A [ComplicationDataSourceService] can include a `meta-data` tag with
  *   android.support.wearable.complications.PROVIDER_CONFIG_ACTION its manifest entry to cause a
  *   configuration activity to be shown when the complication data source is selected.
  *
  * The configuration activity must reside in the same package as the complication data source, and
  * must register an intent filter for the action specified here, including
- * android.support.wearable.complications.category.PROVIDER_CONFIG as well as
+ * `android.support.wearable.complications.category.PROVIDER_CONFIG` as well as
  * [Intent.CATEGORY_DEFAULT] as categories.
  *
  * The complication id being configured will be included in the intent that starts the config
- * activity using the extra key android.support.wearable.complications.EXTRA_CONFIG_COMPLICATION_ID.
+ * activity using the extra key
+ * `android.support.wearable.complications.EXTRA_CONFIG_COMPLICATION_ID`.
  *
  * The complication type that will be requested from the complication data source will also be
- * included, using the extra key android.support.wearable.complications
- * .EXTRA_CONFIG_COMPLICATION_TYPE.
+ * included, using the extra key
+ * `android.support.wearable.complications.EXTRA_CONFIG_COMPLICATION_TYPE`.
  *
  * The complication data source's [ComponentName] will also be included in the intent that starts
  * the config activity, using the extra key
- * android.support.wearable.complications.EXTRA_CONFIG_PROVIDER_COMPONENT.
+ * `android.support.wearable.complications.EXTRA_CONFIG_PROVIDER_COMPONENT`.
  *
  * The config activity must call [Activity.setResult] with either [Activity.RESULT_OK] or
  * [Activity.RESULT_CANCELED] before it is finished, to tell the system whether or not the
  * complication data source should be set on the given complication.
  *
- * It is possible to provide additional 'meta-data' tag
- * androidx.watchface.complications.datasource.DEFAULT_CONFIG_SUPPORTED in the service set to "true"
- * to let the system know that the data source is able to provide complication data before it is
- * configured.
+ * It is possible to provide additional `meta-data` tag
+ * `androidx.watchface.complications.datasource.DEFAULT_CONFIG_SUPPORTED` in the service set to
+ * `"true"` to let the system know that the data source is able to provide complication data before
+ * it is configured.
  * - The manifest entry for the service should also include an android:icon attribute. The icon
  *   provided there should be a single-color white icon that represents the complication data
  *   source. This icon will be shown in the complication data source chooser interface, and may also
@@ -299,8 +302,8 @@ public annotation class IsForSafeWatchFace
  * limit of 100 data sources per APK. Above that the companion watchface editor won't support this
  * complication data source app.
  *
- * There's no need to call setDataSource for any the ComplicationData Builders because the system
- * will append this value on your behalf.
+ * There's no need to call `setDataSource` for any the [ComplicationData] Builders because the
+ * system will append this value on your behalf.
  */
 public abstract class ComplicationDataSourceService : Service() {
     private var wrapper: IComplicationProviderWrapper? = null
@@ -769,15 +772,18 @@ public abstract class ComplicationDataSourceService : Service() {
          * the [ComplicationData], but omitting the "TYPE_" prefix, e.g. `SHORT_TEXT`, `LONG_TEXT`,
          * `RANGED_VALUE`.
          *
-         * The order in which types are listed has no significance. In the case where a watch face
-         * supports multiple types in a single complication slot, the watch face will determine
-         * which types it prefers.
+         * The order of types in `METADATA_KEY_SUPPORTED_TYPES` has no significance. During
+         * complication data source selection, each item in the complication slot's supported types
+         * is checked against entries in the data source's `METADATA_KEY_SUPPORTED_TYPES` and the
+         * first matching entry from the slot's support types (if any) is chosen. If there are no
+         * matches then this data source is not eligible to be selected in that slot.
          *
          * For example, a complication data source that supports the RANGED_VALUE, SHORT_TEXT, and
          * ICON type would include the following in its manifest entry:
          * ```
-         * <meta-data android:name="android.support.wearable.complications.SUPPORTED_TYPES"
-         * android:value="RANGED_VALUE,SHORT_TEXT,ICON"/>
+         * <meta-data
+         *     android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+         *     android:value="RANGED_VALUE,SHORT_TEXT,ICON" />
          * ```
          */
         // TODO(b/192233205): Migrate value to androidx.
@@ -813,8 +819,9 @@ public abstract class ComplicationDataSourceService : Service() {
          * For example, a complication data source that would like to update every ten minutes
          * should include the following in its manifest entry:
          * ```
-         * <meta-data android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
-         * android:value="600"/>
+         * <meta-data
+         *     android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
+         *     android:value="600" />
          * ```
          */
         // TODO(b/192233205): Migrate value to androidx.

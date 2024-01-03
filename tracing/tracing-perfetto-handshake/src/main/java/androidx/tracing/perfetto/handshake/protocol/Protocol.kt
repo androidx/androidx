@@ -21,11 +21,11 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 
 // Keep these two packages in sync:
-// - `androidx.tracing.perfetto.handshake.protocol` in the tracing/tracing-perfetto-common folder
+// - `androidx.tracing.perfetto.handshake.protocol` in the tracing/tracing-perfetto-handshake folder
 // - `androidx.tracing.perfetto.internal.handshake.protocol` in the tracing/tracing-perfetto folder
 //
-// This is a part of a WIP refactor to decouple tracing-perfetto and tracing-perfetto-common and to
-// rename tracing-perfetto-common to tracing-perfetto-handshake tracked under TODO(243405142)
+// This is a part of a WIP refactor to decouple tracing-perfetto and tracing-perfetto-handshake
+// tracked under TODO(243405142)
 
 @RestrictTo(LIBRARY_GROUP)
 public object RequestKeys {
@@ -40,7 +40,7 @@ public object RequestKeys {
      * Request can include [KEY_PATH] as an optional extra.
      *
      * Response to the request is a JSON string (to allow for CLI support) with the following:
-     * - [ResponseKeys.KEY_EXIT_CODE] (always)
+     * - [ResponseKeys.KEY_RESULT_CODE] (always)
      * - [ResponseKeys.KEY_REQUIRED_VERSION] (always)
      * - [ResponseKeys.KEY_MESSAGE] (optional)
      */
@@ -62,7 +62,7 @@ public object RequestKeys {
      * Request can include [KEY_PERSISTENT] as an optional extra.
      *
      * Response to the request is a JSON string (to allow for CLI support) with the following:
-     * - [ResponseKeys.KEY_EXIT_CODE] (always)
+     * - [ResponseKeys.KEY_RESULT_CODE] (always)
      * - [ResponseKeys.KEY_REQUIRED_VERSION] (always)
      * - [ResponseKeys.KEY_MESSAGE] (optional)
      */
@@ -86,7 +86,7 @@ public object RequestKeys {
      * Request can include [KEY_PERSISTENT] as an optional extra.
      *
      * Response to the request is a JSON string (to allow for CLI support) with the following:
-     * - [ResponseKeys.KEY_EXIT_CODE] (always)
+     * - [ResponseKeys.KEY_RESULT_CODE] (always)
      */
     public const val ACTION_DISABLE_TRACING_COLD_START: String =
         "androidx.tracing.perfetto.action.DISABLE_TRACING_COLD_START"
@@ -105,8 +105,13 @@ public object RequestKeys {
 
 @RestrictTo(LIBRARY_GROUP)
 public object ResponseKeys {
-    /** Exit code as listed in [ResponseExitCodes]. */
-    public const val KEY_EXIT_CODE: String = "exitCode"
+    /**
+     * Result code as listed in [ResponseResultCodes].
+     *
+     * Note: the value of the string ("exitCode") is kept unchanged to maintain backwards
+     * compatibility.
+     */
+    public const val KEY_RESULT_CODE: String = "exitCode"
 
     /**
      * Required version of the binaries. Java and binary library versions have to match to
@@ -121,7 +126,7 @@ public object ResponseKeys {
     public const val KEY_MESSAGE: String = "message"
 }
 
-public object ResponseExitCodes {
+public object ResponseResultCodes {
     /**
      * Indicates that the broadcast resulted in `result=0`, which is an equivalent
      * of [android.app.Activity.RESULT_CANCELED].
@@ -136,46 +141,46 @@ public object ResponseExitCodes {
     public const val RESULT_CODE_ALREADY_ENABLED: Int = 2
 
     /**
-     * Required version described in [EnableTracingResponse.requiredVersion].
+     * Required version described in [Response.requiredVersion].
      * A follow-up [androidx.tracing.perfetto.handshake.PerfettoSdkHandshake.enableTracingImmediate]
      * request expected with binaries to sideload specified.
      */
     public const val RESULT_CODE_ERROR_BINARY_MISSING: Int = 11
 
-    /** Required version described in [EnableTracingResponse.requiredVersion]. */
+    /** Required version described in [Response.requiredVersion]. */
     public const val RESULT_CODE_ERROR_BINARY_VERSION_MISMATCH: Int = 12
 
     /**
      * Could be a result of a stale version of the binary cached locally.
      * Retrying with a freshly downloaded library likely to fix the issue.
-     * More specific information in [EnableTracingResponse.message]
+     * More specific information in [Response.message]
      */
     public const val RESULT_CODE_ERROR_BINARY_VERIFICATION_ERROR: Int = 13
 
-    /** More specific information in [EnableTracingResponse.message] */
+    /** More specific information in [Response.message] */
     public const val RESULT_CODE_ERROR_OTHER: Int = 99
 }
 
 @Retention(AnnotationRetention.SOURCE)
 @IntDef(
-    ResponseExitCodes.RESULT_CODE_CANCELLED,
-    ResponseExitCodes.RESULT_CODE_SUCCESS,
-    ResponseExitCodes.RESULT_CODE_ALREADY_ENABLED,
-    ResponseExitCodes.RESULT_CODE_ERROR_BINARY_MISSING,
-    ResponseExitCodes.RESULT_CODE_ERROR_BINARY_VERSION_MISMATCH,
-    ResponseExitCodes.RESULT_CODE_ERROR_BINARY_VERIFICATION_ERROR,
-    ResponseExitCodes.RESULT_CODE_ERROR_OTHER
+    ResponseResultCodes.RESULT_CODE_CANCELLED,
+    ResponseResultCodes.RESULT_CODE_SUCCESS,
+    ResponseResultCodes.RESULT_CODE_ALREADY_ENABLED,
+    ResponseResultCodes.RESULT_CODE_ERROR_BINARY_MISSING,
+    ResponseResultCodes.RESULT_CODE_ERROR_BINARY_VERSION_MISMATCH,
+    ResponseResultCodes.RESULT_CODE_ERROR_BINARY_VERIFICATION_ERROR,
+    ResponseResultCodes.RESULT_CODE_ERROR_OTHER
 )
-private annotation class EnableTracingResultCode
+private annotation class ResultCode
 
-public class EnableTracingResponse @RestrictTo(LIBRARY_GROUP) constructor(
-    @EnableTracingResultCode public val exitCode: Int,
+public class Response @RestrictTo(LIBRARY_GROUP) constructor(
+    @ResultCode public val resultCode: Int,
 
     /**
      * This can be `null` iff we cannot communicate with the broadcast receiver of the target
      * process (e.g. app does not offer Perfetto tracing) or if we cannot parse the response
      * from the receiver. In either case, tracing is unlikely to work under these circumstances,
-     * and more context on how to proceed can be found in [exitCode] or [message] properties.
+     * and more context on how to proceed can be found in [resultCode] or [message] properties.
      */
     public val requiredVersion: String?,
 

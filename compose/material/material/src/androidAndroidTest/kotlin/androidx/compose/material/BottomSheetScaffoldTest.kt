@@ -45,6 +45,7 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -77,6 +78,8 @@ class BottomSheetScaffoldTest {
     val rule = createComposeRule()
 
     private val peekHeight = 75.dp
+
+    private val fabSpacing = 16.dp
 
     private val sheetContent = "frontLayerTag"
 
@@ -438,7 +441,7 @@ class BottomSheetScaffoldTest {
     }
 
     @Test
-    fun bottomSheetScaffold_fab_position(): Unit = runBlocking(AutoTestFrameClock()) {
+    fun bottomSheetScaffold_fab_startPosition(): Unit = runBlocking(AutoTestFrameClock()) {
         val fabTag = "fab"
         var fabSize: IntSize = IntSize.Zero
         lateinit var scaffoldState: BottomSheetScaffoldState
@@ -462,11 +465,14 @@ class BottomSheetScaffoldTest {
                         Icon(Icons.Filled.Favorite, null)
                     }
                 },
-                content = { Text("Content") }
+                floatingActionButtonPosition = FabPosition.Start,
+                content = { Text("Content") },
             )
         }
         with(rule.density) {
-            rule.onNodeWithTag(fabTag).assertTopPositionInRootIsEqualTo(
+            rule.onNodeWithTag(fabTag).assertLeftPositionInRootIsEqualTo(
+                fabSpacing
+            ).assertTopPositionInRootIsEqualTo(
                 rule.rootHeight() - peekHeight - fabSize.height.toDp() / 2
             )
         }
@@ -474,7 +480,57 @@ class BottomSheetScaffoldTest {
         advanceClock()
 
         with(rule.density) {
-            rule.onNodeWithTag(fabTag).assertTopPositionInRootIsEqualTo(
+            rule.onNodeWithTag(fabTag).assertLeftPositionInRootIsEqualTo(
+                fabSpacing
+            ).assertTopPositionInRootIsEqualTo(
+                rule.rootHeight() - 300.dp - fabSize.height.toDp() / 2
+            )
+        }
+    }
+
+    @Test
+    fun bottomSheetScaffold_fab_endPosition(): Unit = runBlocking(AutoTestFrameClock()) {
+        val fabTag = "fab"
+        var fabSize: IntSize = IntSize.Zero
+        lateinit var scaffoldState: BottomSheetScaffoldState
+        rule.setContent {
+            scaffoldState = rememberBottomSheetScaffoldState()
+            BottomSheetScaffold(
+                scaffoldState = scaffoldState,
+                sheetContent = {
+                    Box(Modifier.fillMaxWidth().requiredHeight(300.dp).testTag(sheetContent))
+                },
+                sheetGesturesEnabled = false,
+                sheetPeekHeight = peekHeight,
+                floatingActionButton = {
+                    FloatingActionButton(
+                        modifier = Modifier
+                            .onGloballyPositioned { positioned ->
+                                fabSize = positioned.size
+                            }.testTag(fabTag),
+                        onClick = {}
+                    ) {
+                        Icon(Icons.Filled.Favorite, null)
+                    }
+                },
+                floatingActionButtonPosition = FabPosition.End,
+                content = { Text("Content") }
+            )
+        }
+        with(rule.density) {
+            rule.onNodeWithTag(fabTag).assertLeftPositionInRootIsEqualTo(
+                rule.rootWidth() - fabSize.width.toDp() - fabSpacing
+            ).assertTopPositionInRootIsEqualTo(
+                rule.rootHeight() - peekHeight - fabSize.height.toDp() / 2
+            )
+        }
+        scaffoldState.bottomSheetState.expand()
+        advanceClock()
+
+        with(rule.density) {
+            rule.onNodeWithTag(fabTag).assertLeftPositionInRootIsEqualTo(
+                rule.rootWidth() - fabSize.width.toDp() - fabSpacing
+            ).assertTopPositionInRootIsEqualTo(
                 rule.rootHeight() - 300.dp - fabSize.height.toDp() / 2
             )
         }

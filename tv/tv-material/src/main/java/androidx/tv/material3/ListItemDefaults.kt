@@ -39,6 +39,11 @@ object ListItemDefaults {
     val IconSize = 32.dp
 
     /**
+     * The Icon size used by [DenseListItem].
+     */
+    val IconSizeDense = 20.dp
+
+    /**
      * The default elevation used by [ListItem].
      */
     val ListItemElevation = Elevation.Level0
@@ -51,6 +56,13 @@ object ListItemDefaults {
         vertical = 12.dp
     )
 
+    /**
+     * The default content padding [PaddingValues] used by [DenseListItem]
+     */
+    internal val ContentPaddingDense = PaddingValues(
+        horizontal = 12.dp,
+        vertical = 10.dp
+    )
     internal const val LeadingContentOpacity = 0.8f
     internal const val OverlineContentOpacity = 0.6f
     internal const val SupportingContentOpacity = 0.8f
@@ -62,6 +74,11 @@ object ListItemDefaults {
     internal val MinContainerHeightLeadingContent = 56.dp
     internal val MinContainerHeightTwoLine = 64.dp
     internal val MinContainerHeightThreeLine = 80.dp
+
+    internal val MinDenseContainerHeight = 40.dp
+    internal val MinDenseContainerHeightLeadingContent = 40.dp
+    internal val MinDenseContainerHeightTwoLine = 56.dp
+    internal val MinDenseContainerHeightThreeLine = 72.dp
 
     private val ListItemShape = RoundedCornerShape(8.dp)
 

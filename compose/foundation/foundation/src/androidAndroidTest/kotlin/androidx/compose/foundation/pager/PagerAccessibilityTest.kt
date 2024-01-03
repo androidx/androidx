@@ -31,6 +31,7 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.core.view.ViewCompat
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -63,6 +64,7 @@ class PagerAccessibilityTest(config: ParamConfig) : BasePagerTest(config = confi
         rule.runOnIdle { assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f) }
     }
 
+    @Ignore
     @Test
     fun accessibilityPaging_animateScrollToPage() {
         createPager(initialPage = 5, pageCount = { DefaultPageCount })
@@ -106,6 +108,7 @@ class PagerAccessibilityTest(config: ParamConfig) : BasePagerTest(config = confi
         rule.runOnIdle { assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f) }
     }
 
+    @Ignore
     @Test
     fun userScrollEnabledIsOff_shouldNotAllowPageAccessibilityActions() {
         // Arrange

@@ -16,10 +16,6 @@
 
 package androidx.graphics.shapes
 
-import androidx.core.graphics.div
-import androidx.core.graphics.minus
-import androidx.core.graphics.plus
-
 /**
  * MeasuredFeatures contains a list of all features in a polygon along with the [0..1] progress
  * at that feature
@@ -67,11 +63,13 @@ internal fun featureDistSquared(f1: RoundedPolygon.Feature, f2: RoundedPolygon.F
         debugLog(LOG_TAG) { "*** Feature distance ∞ for convex-vs-concave corners" }
         return Float.MAX_VALUE
     }
-    val (c1, c2) = listOf(f1, f2).map { f ->
-        (f.cubics.first().p0 + f.cubics.last().p3) / 2f
-    }
-    val d = c1 - c2
-    return d.x * d.x + d.y * d.y
+    val c1x = (f1.cubics.first().anchorX0 + f1.cubics.last().anchorX1) / 2f
+    val c1y = (f1.cubics.first().anchorY0 + f1.cubics.last().anchorY1) / 2f
+    val c2x = (f2.cubics.first().anchorX0 + f2.cubics.last().anchorX1) / 2f
+    val c2y = (f2.cubics.first().anchorY0 + f2.cubics.last().anchorY1) / 2f
+    val dx = c1x - c2x
+    val dy = c1y - c2y
+    return dx * dx + dy * dy
 }
 
 /**

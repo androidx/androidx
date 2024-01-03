@@ -130,10 +130,12 @@ class CallsManager constructor(context: Context) {
 
     /**
      * VoIP applications should look at each [Capability] annotated above and call this API in
-     * order to start adding calls via [addCall].
+     * order to start adding calls via [addCall].  Registering capabilities must be done before
+     * calling [addCall] or an exception will be thrown by [addCall]. The capabilities can be
+     * updated by re-registering.
      *
-     * Note: Registering capabilities must be done before calling [addCall] or an exception will
-     * be thrown by [addCall].
+     * Note: There is no need to unregister at any point. Telecom will handle unregistering once
+     * the application using core-telecom has been removed from the device.
      *
      * @throws UnsupportedOperationException if the device is on an invalid build
      */
@@ -165,12 +167,16 @@ class CallsManager constructor(context: Context) {
      * disconnected, use the [CallControlScope.disconnect].
      *
      * <b>Call Lifecycle</b>: Your app is given foreground execution priority as long as you have an
-     * ongoing call and are posting a [android.app.Notification.CallStyle] notification.
-     * When your application is given foreground execution priority, your app is treated as a
-     * foreground service. Foreground execution priority will prevent the
-     * [android.app.ActivityManager] from killing your application when it is placed the
-     * background. Foreground execution priority is removed from your app when all of your app's
-     * calls terminate or your app no longer posts a valid notification.
+     * ongoing call and are posting a [android.app.Notification.CallStyle] notification within 5
+     * seconds of adding the call via this method. When your application is given foreground
+     * execution priority, your app is treated as a foreground service. Foreground execution
+     * priority will prevent the [android.app.ActivityManager] from killing your application when
+     * it is placed the background. Foreground execution priority is removed from your app when all
+     * of your app's calls terminate or your app no longer posts a valid notification.
+     *
+     * Note: For outgoing calls, your application should either immediately post a
+     * [android.app.Notification.CallStyle] notification or delay adding the call via this
+     * addCall method until the remote side is ready.
      *
      * @param callAttributes     attributes of the new call (incoming or outgoing, address, etc. )
      * @param block              DSL interface block that will run when the call is ready
@@ -234,7 +240,11 @@ class CallsManager constructor(context: Context) {
 
             /* at this point in time we have CallControl object */
             val scope =
-                CallSession.CallControlScopeImpl(openResult.getCompleted(), callChannels)
+                CallSession.CallControlScopeImpl(
+                    openResult.getCompleted(),
+                    callChannels,
+                    coroutineContext
+                )
 
             // Run the clients code with the session active and exposed via the CallControlScope
             // interface implementation declared above.
@@ -253,8 +263,11 @@ class CallsManager constructor(context: Context) {
 
             pauseExecutionUntilCallIsReady_orTimeout(openResult, request)
 
-            val scope =
-                CallSessionLegacy.CallControlScopeImpl(openResult.getCompleted(), callChannels)
+            val scope = CallSessionLegacy.CallControlScopeImpl(
+                openResult.getCompleted(),
+                callChannels,
+                coroutineContext
+            )
 
             // Run the clients code with the session active and exposed via the
             // CallControlScope interface implementation declared above.

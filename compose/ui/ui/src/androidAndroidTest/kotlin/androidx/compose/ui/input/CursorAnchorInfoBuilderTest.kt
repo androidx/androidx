@@ -35,6 +35,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.font.toFontFamily
+import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.build
 import androidx.compose.ui.text.style.TextOverflow
@@ -252,6 +253,28 @@ class CursorAnchorInfoBuilderTest {
     }
 
     @Test
+    fun testInsertionMarkerWithVisualTransformation() {
+        val fontSize = 10.sp
+        val textFieldValue = TextFieldValue("abcde", selection = TextRange(2))
+        val offsetMapping = object : OffsetMapping {
+            override fun originalToTransformed(offset: Int) = if (offset < 2) offset else offset + 3
+            override fun transformedToOriginal(offset: Int) = throw NotImplementedError()
+        }
+        val textLayoutResult = getTextLayoutResult("ab---cde", fontSize = fontSize)
+
+        val cursorAnchorInfo =
+            CursorAnchorInfo.Builder()
+                .build(textFieldValue, textLayoutResult, matrix, offsetMapping = offsetMapping)
+
+        val fontSizeInPx = with(defaultDensity) { fontSize.toPx() }
+        assertThat(cursorAnchorInfo.insertionMarkerHorizontal).isEqualTo(5 * fontSizeInPx)
+        assertThat(cursorAnchorInfo.insertionMarkerTop).isEqualTo(0f)
+        assertThat(cursorAnchorInfo.insertionMarkerBottom).isEqualTo(fontSizeInPx)
+        assertThat(cursorAnchorInfo.insertionMarkerBaseline).isEqualTo(fontSizeInPx)
+        assertThat(cursorAnchorInfo.insertionMarkerFlags).isEqualTo(FLAG_HAS_VISIBLE_REGION)
+    }
+
+    @Test
     fun testInsertionMarkerNotVisible() {
         val fontSize = 10.sp
         val textFieldValue = TextFieldValue("abc", selection = TextRange(1))
@@ -266,6 +289,7 @@ class CursorAnchorInfoBuilderTest {
             CursorAnchorInfo.Builder()
                 .build(
                     textFieldValue,
+                    OffsetMapping.Identity,
                     textLayoutResult,
                     matrix,
                     innerTextFieldBounds = innerTextFieldBounds,
@@ -293,6 +317,7 @@ class CursorAnchorInfoBuilderTest {
             CursorAnchorInfo.Builder()
                 .build(
                     textFieldValue,
+                    OffsetMapping.Identity,
                     textLayoutResult,
                     matrix,
                     innerTextFieldBounds = innerTextFieldBounds,
@@ -390,6 +415,47 @@ class CursorAnchorInfoBuilderTest {
     }
 
     @Test
+    fun testCharacterBoundsWithVisualTransformation() {
+        val fontSize = 10.sp
+        val fontSizeInPx = with(defaultDensity) { fontSize.toPx() }
+        val text = "abcd"
+        // Composition is on "bc"
+        val composition = TextRange(2, 4)
+        val offsetMapping = object : OffsetMapping {
+            override fun originalToTransformed(offset: Int) = 2 * offset
+            override fun transformedToOriginal(offset: Int) = throw NotImplementedError()
+        }
+        val transformedText = "a-b-c-d-"
+        val textFieldValue = TextFieldValue(text, composition = composition)
+        val width = transformedText.length * fontSizeInPx
+        val textLayoutResult =
+            getTextLayoutResult(transformedText, fontSize = fontSize, width = width)
+
+        val cursorAnchorInfo =
+            CursorAnchorInfo.Builder()
+                .build(textFieldValue, textLayoutResult, matrix, offsetMapping = offsetMapping)
+
+        for (index in text.indices) {
+            if (index in composition) {
+                assertThat(cursorAnchorInfo.getCharacterBounds(index))
+                    .isEqualTo(
+                        RectF(
+                            2 * index * fontSizeInPx,
+                            0f,
+                            (2 * index + 1) * fontSizeInPx,
+                            fontSizeInPx
+                        )
+                    )
+                assertThat(cursorAnchorInfo.getCharacterBoundsFlags(index))
+                    .isEqualTo(FLAG_HAS_VISIBLE_REGION)
+            } else {
+                assertThat(cursorAnchorInfo.getCharacterBounds(index)).isNull()
+                assertThat(cursorAnchorInfo.getCharacterBoundsFlags(index)).isEqualTo(0)
+            }
+        }
+    }
+
+    @Test
     fun testCharacterBoundsVisibility() {
         val fontSize = 10.sp
         val fontSizeInPx = with(defaultDensity) { fontSize.toPx() }
@@ -406,6 +472,7 @@ class CursorAnchorInfoBuilderTest {
             CursorAnchorInfo.Builder()
                 .build(
                     textFieldValue,
+                    OffsetMapping.Identity,
                     textLayoutResult,
                     matrix,
                     innerTextFieldBounds = innerTextFieldBounds,
@@ -452,6 +519,7 @@ class CursorAnchorInfoBuilderTest {
             CursorAnchorInfo.Builder()
                 .build(
                     textFieldValue,
+                    OffsetMapping.Identity,
                     getTextLayoutResult(textFieldValue.text),
                     matrix,
                     innerTextFieldBounds = Rect(1f, 2f, 3f, 4f),
@@ -472,6 +540,7 @@ class CursorAnchorInfoBuilderTest {
             CursorAnchorInfo.Builder()
                 .build(
                     textFieldValue,
+                    OffsetMapping.Identity,
                     getTextLayoutResult(textFieldValue.text),
                     matrix,
                     innerTextFieldBounds = Rect(1f, 2f, 3f, 4f),
@@ -503,6 +572,7 @@ class CursorAnchorInfoBuilderTest {
             CursorAnchorInfo.Builder()
                 .build(
                     textFieldValue,
+                    OffsetMapping.Identity,
                     textLayoutResult,
                     matrix,
                     innerTextFieldBounds = innerTextFieldBounds,
@@ -563,6 +633,7 @@ class CursorAnchorInfoBuilderTest {
             CursorAnchorInfo.Builder()
                 .build(
                     textFieldValue,
+                    OffsetMapping.Identity,
                     textLayoutResult,
                     matrix,
                     innerTextFieldBounds = innerTextFieldBounds,
@@ -613,6 +684,7 @@ private fun CursorAnchorInfo.Builder.build(
     textFieldValue: TextFieldValue,
     textLayoutResult: TextLayoutResult,
     matrix: Matrix,
+    offsetMapping: OffsetMapping = OffsetMapping.Identity,
     includeInsertionMarker: Boolean = true,
     includeCharacterBounds: Boolean = true,
     includeEditorBounds: Boolean = true,
@@ -622,6 +694,7 @@ private fun CursorAnchorInfo.Builder.build(
         Rect(0f, 0f, textLayoutResult.size.width.toFloat(), textLayoutResult.size.height.toFloat())
     return build(
         textFieldValue,
+        offsetMapping,
         textLayoutResult,
         matrix,
         innerTextFieldBounds = innerTextFieldBounds,

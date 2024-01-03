@@ -98,6 +98,7 @@ import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextInputSelection
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.ParagraphStyle
@@ -619,7 +620,7 @@ class TextFieldTest {
         }
 
         rule.onNodeWithTag(Tag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .assertIsFocused()
 
         rule.runOnIdle {
@@ -647,7 +648,7 @@ class TextFieldTest {
         }
 
         rule.onNodeWithTag(Tag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .assertIsFocused()
 
         val error = assertFailsWith<AssertionError> {

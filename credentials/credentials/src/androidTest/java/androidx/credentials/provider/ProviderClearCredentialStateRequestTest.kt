@@ -17,7 +17,6 @@
 package androidx.credentials.provider
 
 import android.content.pm.SigningInfo
-import androidx.annotation.RequiresApi
 import androidx.credentials.equals
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -26,12 +25,11 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
+@SdkSuppress(minSdkVersion = 28)
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class ProviderClearCredentialStateRequestTest {
 
-    @RequiresApi(34)
     @Test
     fun testConstructor_success() {
         val callingAppInfo = CallingAppInfo("sample_package_name", SigningInfo())

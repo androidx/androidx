@@ -59,3 +59,13 @@ internal fun SemanticsNodeInteraction.assertHandlePositionMatches(
             .isWithin(5f).of(expectedY.value)
     }
 }
+
+internal fun SemanticsNodeInteraction.assertHandleAnchorMatches(
+    anchor: SelectionHandleAnchor
+) {
+    val node = fetchSemanticsNode()
+    val actualAnchor = node.config[SelectionHandleInfoKey].anchor
+    val message = "Expected anchor ($anchor), " +
+        "but found ($actualAnchor)"
+    assertWithMessage(message).that(actualAnchor).isEqualTo(anchor)
+}

@@ -49,6 +49,76 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class IntrinsicTest : LayoutTest() {
     @Test
+    fun testMaxIntrinsic_HandleNegative() = with(density) {
+        val positionedLatch = CountDownLatch(2)
+        val size = Ref<IntSize>()
+        val position = Ref<Offset>()
+        val sizeTwo = Ref<IntSize>()
+        val positionTwo = Ref<Offset>()
+        val measurePolicy = object : MeasurePolicy {
+            override fun MeasureScope.measure(
+                measurables: List<Measurable>,
+                constraints: Constraints
+            ): MeasureResult {
+                return layout(0, 0) {}
+            }
+
+            override fun IntrinsicMeasureScope.minIntrinsicHeight(
+                measurables: List<IntrinsicMeasurable>,
+                width: Int
+            ): Int {
+                return -1
+            }
+
+            override fun IntrinsicMeasureScope.minIntrinsicWidth(
+                measurables: List<IntrinsicMeasurable>,
+                height: Int
+            ): Int {
+                return -1
+            }
+
+            override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+                measurables: List<IntrinsicMeasurable>,
+                width: Int
+            ): Int {
+                return -1
+            }
+
+            override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+                measurables: List<IntrinsicMeasurable>,
+                height: Int
+            ): Int {
+                return -1
+            }
+        }
+        show {
+            Column {
+                Layout(modifier = Modifier
+                    .width(IntrinsicSize.Min)
+                    .height(IntrinsicSize.Min)
+                    .saveLayoutInfo(
+                        size = size,
+                        position = position,
+                        positionedLatch = positionedLatch
+                    ), measurePolicy = measurePolicy)
+                Layout(modifier = Modifier
+                    .width(IntrinsicSize.Max)
+                    .height(IntrinsicSize.Max)
+                    .saveLayoutInfo(
+                        size = sizeTwo,
+                        position = positionTwo,
+                        positionedLatch = positionedLatch
+                    ), measurePolicy = measurePolicy)
+            }
+        }
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
+        assertEquals(IntSize(0.dp.roundToPx(), 0.dp.roundToPx()), size.value)
+        assertEquals(IntSize(0.dp.roundToPx(), 0.dp.roundToPx()), sizeTwo.value)
+        assertEquals(Offset(0f, 0f), position.value)
+        assertEquals(Offset(0f, 0f), positionTwo.value)
+    }
+
+    @Test
     fun testMinIntrinsicWidth() = with(density) {
         val positionedLatch = CountDownLatch(2)
         val minIntrinsicWidthSize = Ref<IntSize>()

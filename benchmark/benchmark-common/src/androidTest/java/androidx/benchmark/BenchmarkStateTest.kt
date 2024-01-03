@@ -212,8 +212,8 @@ class BenchmarkStateTest {
         assertTrue("$displayStringV1 should contain foo", displayStringV1.contains("foo"))
         assertTrue("$displayStringV2 should contain foo", displayStringV2.contains("foo"))
         assertTrue(
-            "$displayStringV2 should contain [trace](file://bar)",
-            displayStringV2.contains("[trace](file://bar)")
+            "$displayStringV2 should contain [Trace](file://bar)",
+            displayStringV2.contains("[Trace](file://bar)")
         )
 
         // check attribute presence and naming

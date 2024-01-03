@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
+<issues format="6" by="lint 8.1.0-beta05" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta05)" variant="all" version="8.1.0-beta05">
 
     <issue
         id="PrimitiveInLambda"
@@ -8,6 +8,15 @@
         errorLine2="                   ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/compose/foundation/demos/text/ComposeLineHeight.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;appendWithColor&apos; with type Function2&lt;? super Color, ? super String, ? extends Unit>."
+        errorLine1="                    fun appendWithColor(color: Color, text: String) {"
+        errorLine2="                    ^">
+        <location
+            file="src/main/java/androidx/compose/foundation/demos/text/ComposeTextSelection.kt"/>
     </issue>
 
     <issue
@@ -93,6 +102,24 @@
 
     <issue
         id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;isValidDistance&apos; with type Function1&lt;? super Float, ? extends Boolean>."
+        errorLine1="    fun Float.isValidDistance(): Boolean {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/compose/foundation/demos/snapping/RowSnapLayoutInfoProvider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method RowSnappingMainLayout has parameter &apos;onLayoutSizeChanged&apos; with type Function1&lt;? super IntSize, Unit>."
+        errorLine1="    onLayoutSizeChanged: (IntSize) -> Unit"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/foundation/demos/snapping/RowSnappingDemos.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method rememberRowSnapLayoutInfoProvider has parameter &apos;layoutSize&apos; with type Function1&lt;? super Density, Float>."
         errorLine1="    layoutSize: Density.() -> Float"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~">
@@ -123,6 +150,15 @@
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method ResizeHandle has parameter &apos;onDrag&apos; with type Function1&lt;? super Float, Unit>."
         errorLine1="private fun ResizeHandle(orientation: Orientation, onDrag: (Float) -> Unit) {"
         errorLine2="                                                           ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/foundation/demos/ScrollableFocusedChildDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method size has parameter &apos;size&apos; with type Function0&lt;Size>."
+        errorLine1="private fun Modifier.size(size: () -> Size): Modifier = layout { measurable, _ ->"
+        errorLine2="                                ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/compose/foundation/demos/ScrollableFocusedChildDemo.kt"/>
     </issue>

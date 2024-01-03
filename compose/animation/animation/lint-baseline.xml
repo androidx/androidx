@@ -1,5 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="cli" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
+<issues format="6" by="lint 8.1.0-beta05" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta05)" variant="all" version="8.1.0-beta05">
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method SizeTransform has parameter &apos;sizeAnimationSpec&apos; with type Function2&lt;? super IntSize, ? super IntSize, ? extends FiniteAnimationSpec&lt;IntSize>>."
+        errorLine1="    sizeAnimationSpec: (initialSize: IntSize, targetSize: IntSize) -> FiniteAnimationSpec&lt;IntSize> ="
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/AnimatedContent.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor SizeTransformImpl has parameter &apos;sizeAnimationSpec&apos; with type Function2&lt;? super IntSize, ? super IntSize, ? extends FiniteAnimationSpec&lt;IntSize>>."
+        errorLine1="        (initialSize: IntSize, targetSize: IntSize) -> FiniteAnimationSpec&lt;IntSize>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/AnimatedContent.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;IntSize, IntSize, FiniteAnimationSpec&lt;IntSize>> of &apos;getSizeAnimationSpec&apos;."
+        errorLine1="        (initialSize: IntSize, targetSize: IntSize) -> FiniteAnimationSpec&lt;IntSize>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/AnimatedContent.kt"/>
+    </issue>
 
     <issue
         id="PrimitiveInLambda"
@@ -17,6 +44,96 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/animation/AnimatedContent.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method animateContentSize has parameter &apos;finishedListener&apos; with type Function2&lt;? super IntSize, ? super IntSize, Unit>."
+        errorLine1="    finishedListener: ((initialValue: IntSize, targetValue: IntSize) -> Unit)? = null"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/AnimationModifier.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor SizeAnimationModifierElement has parameter &apos;finishedListener&apos; with type Function2&lt;? super IntSize, ? super IntSize, Unit>."
+        errorLine1="    val finishedListener: ((initialValue: IntSize, targetValue: IntSize) -> Unit)?"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/AnimationModifier.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;IntSize, IntSize, Unit> of &apos;getFinishedListener&apos;."
+        errorLine1="    val finishedListener: ((initialValue: IntSize, targetValue: IntSize) -> Unit)?"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/AnimationModifier.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor SizeAnimationModifierNode has parameter &apos;listener&apos; with type Function2&lt;? super IntSize, ? super IntSize, Unit>."
+        errorLine1="    var listener: ((startSize: IntSize, endSize: IntSize) -> Unit)? = null"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/AnimationModifier.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method setListener has parameter &apos;&lt;set-?>&apos; with type Function2&lt;? super IntSize, ? super IntSize, Unit>."
+        errorLine1="    var listener: ((startSize: IntSize, endSize: IntSize) -> Unit)? = null"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/AnimationModifier.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;IntSize, IntSize, Unit> of &apos;getListener&apos;."
+        errorLine1="    var listener: ((startSize: IntSize, endSize: IntSize) -> Unit)? = null"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/AnimationModifier.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method slideIn has parameter &apos;initialOffset&apos; with type Function1&lt;? super IntSize, IntOffset>."
+        errorLine1="    initialOffset: (fullSize: IntSize) -> IntOffset,"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/EnterExitTransition.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method slideOut has parameter &apos;targetOffset&apos; with type Function1&lt;? super IntSize, IntOffset>."
+        errorLine1="    targetOffset: (fullSize: IntSize) -> IntOffset,"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/EnterExitTransition.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method expandIn has parameter &apos;initialSize&apos; with type Function1&lt;? super IntSize, IntSize>."
+        errorLine1="    initialSize: (fullSize: IntSize) -> IntSize = { IntSize(0, 0) },"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/EnterExitTransition.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method shrinkOut has parameter &apos;targetSize&apos; with type Function1&lt;? super IntSize, IntSize>."
+        errorLine1="    targetSize: (fullSize: IntSize) -> IntSize = { IntSize(0, 0) },"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/EnterExitTransition.kt"/>
     </issue>
 
     <issue
@@ -89,6 +206,60 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/animation/EnterExitTransition.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor Slide has parameter &apos;slideOffset&apos; with type Function1&lt;? super IntSize, IntOffset>."
+        errorLine1="    val slideOffset: (fullSize: IntSize) -> IntOffset,"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/EnterExitTransition.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;IntSize, IntOffset> of &apos;getSlideOffset&apos;."
+        errorLine1="    val slideOffset: (fullSize: IntSize) -> IntOffset,"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/EnterExitTransition.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor ChangeSize has parameter &apos;size&apos; with type Function1&lt;? super IntSize, IntSize>."
+        errorLine1="    val size: (fullSize: IntSize) -> IntSize = { IntSize(0, 0) },"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/EnterExitTransition.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;IntSize, IntSize> of &apos;getSize&apos;."
+        errorLine1="    val size: (fullSize: IntSize) -> IntSize = { IntSize(0, 0) },"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/EnterExitTransition.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method animateColorAsState has parameter &apos;finishedListener&apos; with type Function1&lt;? super Color, Unit>."
+        errorLine1="    finishedListener: ((Color) -> Unit)? = null"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/SingleValueAnimation.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method animateColorAsState has parameter &apos;finishedListener&apos; with type Function1&lt;? super Color, ? extends Unit>."
+        errorLine1="    finishedListener: ((Color) -> Unit)? = null"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/SingleValueAnimation.kt"/>
     </issue>
 
 </issues>

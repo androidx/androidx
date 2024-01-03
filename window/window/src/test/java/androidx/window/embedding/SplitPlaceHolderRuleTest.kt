@@ -288,6 +288,50 @@ internal class SplitPlaceHolderRuleTest {
         assertTrue(rule.checkParentBounds(density, bounds))
     }
 
+    @Test
+    fun testToString() {
+        val filters = HashSet<ActivityFilter>()
+        val intent = Intent()
+        val minWidthDp = 123
+        val minHeightDp = 456
+        val minSmallestMinWidthDp = 789
+        val maxAspectRatioInPortrait = EmbeddingAspectRatio.ratio(1.23f)
+        val maxAspectRatioInLandscape = EmbeddingAspectRatio.ratio(4.56f)
+        val finishPrimaryWithPlaceholder = SplitRule.FinishBehavior.ADJACENT
+        val expectedSplitAttributes = SplitAttributes.Builder()
+            .setSplitType(SplitAttributes.SplitType.ratio(0.3f))
+            .setLayoutDirection(SplitAttributes.LayoutDirection.LEFT_TO_RIGHT)
+            .build()
+        filters.add(
+            ActivityFilter(
+                ActivityComponentInfo("a", "b"),
+                "ACTION"
+            )
+        )
+        val ruleString = SplitPlaceholderRule.Builder(filters, intent)
+            .setMinWidthDp(minWidthDp)
+            .setMinHeightDp(minHeightDp)
+            .setMinSmallestWidthDp(minSmallestMinWidthDp)
+            .setMaxAspectRatioInPortrait(maxAspectRatioInPortrait)
+            .setMaxAspectRatioInLandscape(maxAspectRatioInLandscape)
+            .setFinishPrimaryWithPlaceholder(finishPrimaryWithPlaceholder)
+            .setDefaultSplitAttributes(expectedSplitAttributes)
+            .setTag(TEST_TAG)
+            .build()
+            .toString()
+
+        assertTrue(ruleString.contains(filters.toString()))
+        assertTrue(ruleString.contains(intent.toString()))
+        assertTrue(ruleString.contains(minHeightDp.toString()))
+        assertTrue(ruleString.contains(minWidthDp.toString()))
+        assertTrue(ruleString.contains(minSmallestMinWidthDp.toString()))
+        assertTrue(ruleString.contains(maxAspectRatioInPortrait.toString()))
+        assertTrue(ruleString.contains(maxAspectRatioInLandscape.toString()))
+        assertTrue(ruleString.contains(finishPrimaryWithPlaceholder.toString()))
+        assertTrue(ruleString.contains(expectedSplitAttributes.toString()))
+        assertTrue(ruleString.contains(TEST_TAG))
+    }
+
     companion object {
 
         private const val density = 2f

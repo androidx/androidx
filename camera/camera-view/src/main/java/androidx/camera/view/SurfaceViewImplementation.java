@@ -43,6 +43,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.Objects;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The SurfaceView implementation for {@link PreviewView}.
@@ -51,6 +53,9 @@ import java.util.concurrent.Executor;
 final class SurfaceViewImplementation extends PreviewViewImplementation {
 
     private static final String TAG = "SurfaceViewImpl";
+
+    // Wait for 100ms for a screenshot. It usually takes <10ms on Pixel 6a / OS 14.
+    private static final int SCREENSHOT_TIMEOUT_MILLIS = 100;
 
     // Synthetic Accessor
     @SuppressWarnings("WeakerAccess")
@@ -131,6 +136,8 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
             return null;
         }
 
+        Semaphore screenshotLock = new Semaphore(0);
+
         // Copy display contents of the surfaceView's surface into a Bitmap.
         final Bitmap bitmap = Bitmap.createBitmap(mSurfaceView.getWidth(), mSurfaceView.getHeight(),
                 Bitmap.Config.ARGB_8888);
@@ -141,8 +148,22 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
                 Logger.e(TAG, "PreviewView.SurfaceViewImplementation.getBitmap() failed with error "
                         + copyResult);
             }
+            screenshotLock.release();
         }, mSurfaceView.getHandler());
 
+        // Blocks the current thread until the screenshot is done or timed out.
+        try {
+            boolean success = screenshotLock.tryAcquire(1, SCREENSHOT_TIMEOUT_MILLIS,
+                    TimeUnit.MILLISECONDS);
+            if (!success) {
+                // Fail silently if we can't take the screenshot in time. It's unlikely to
+                // happen but when it happens, it's better to return a half rendered screenshot
+                // than nothing.
+                Logger.e(TAG, "Timed out while trying to acquire screenshot.");
+            }
+        } catch (InterruptedException e) {
+            Logger.e(TAG, "Interrupted while trying to acquire screenshot.", e);
+        }
         return bitmap;
     }
 

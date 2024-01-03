@@ -19,6 +19,7 @@ package androidx.credentials.provider
 import android.app.PendingIntent
 import android.content.Intent
 import android.os.Bundle
+import androidx.annotation.VisibleForTesting
 import androidx.credentials.CreatePublicKeyCredentialRequest
 import androidx.credentials.CreatePublicKeyCredentialRequest.Companion.BUNDLE_KEY_CLIENT_DATA_HASH
 import androidx.credentials.CreatePublicKeyCredentialRequest.Companion.BUNDLE_KEY_REQUEST_JSON
@@ -76,7 +77,14 @@ class BeginCreatePublicKeyCredentialRequest @JvmOverloads constructor(
     }
 
     internal companion object {
+
         @JvmStatic
+        @VisibleForTesting
+        fun createForTest(data: Bundle, callingAppInfo: CallingAppInfo?):
+            BeginCreatePublicKeyCredentialRequest {
+            return createFrom(data, callingAppInfo)
+        }
+
         internal fun createFrom(data: Bundle, callingAppInfo: CallingAppInfo?):
             BeginCreatePublicKeyCredentialRequest {
             try {

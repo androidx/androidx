@@ -16,16 +16,12 @@
 
 @file:JvmName("SdkActivityLaunchers")
 
-// TODO(b/282918396): Stop using app.BundleCompat and change it to os.BundleCompat when permission
-// issue is fixed.
-@file:Suppress("DEPRECATION")
-
 package androidx.privacysandbox.ui.client
 
 import android.app.Activity
 import android.os.Bundle
 import android.os.IBinder
-import androidx.core.app.BundleCompat
+import androidx.core.os.BundleCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat

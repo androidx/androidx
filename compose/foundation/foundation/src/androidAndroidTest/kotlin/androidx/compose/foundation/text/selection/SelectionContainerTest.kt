@@ -19,6 +19,8 @@ package androidx.compose.foundation.text.selection
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
@@ -73,6 +75,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.width
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -374,7 +377,9 @@ class SelectionContainerTest {
             Column {
                 BasicText(
                     AnnotatedString(longText),
-                    Modifier.fillMaxWidth().testTag(tag1),
+                    Modifier
+                        .fillMaxWidth()
+                        .testTag(tag1),
                     style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
                     maxLines = 1
                 )
@@ -398,7 +403,9 @@ class SelectionContainerTest {
             Column {
                 BasicText(
                     AnnotatedString(longText),
-                    Modifier.fillMaxWidth().testTag(tag1),
+                    Modifier
+                        .fillMaxWidth()
+                        .testTag(tag1),
                     style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -414,6 +421,78 @@ class SelectionContainerTest {
 
         assertAnchorInfo(selection.value?.start, offset = 0, selectableId = 1)
         assertAnchorInfo(selection.value?.end, offset = longText.length, selectableId = 1)
+    }
+
+    @Test
+    fun selectionIncludes_noHeightText() {
+        lateinit var clipboardManager: ClipboardManager
+        createSelectionContainer {
+            clipboardManager = LocalClipboardManager.current
+            clipboardManager.setText(AnnotatedString("Clipboard content at start of test."))
+            Column {
+                BasicText(
+                    text = "Hello",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag(tag1),
+                )
+                BasicText(
+                    text = "THIS SHOULD NOT CAUSE CRASH",
+                    modifier = Modifier.height(0.dp)
+                )
+                BasicText(
+                    text = "World",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag(tag2),
+                )
+            }
+        }
+
+        startSelection(tag1)
+        dragHandleTo(
+            handle = Handle.SelectionEnd,
+            offset = characterBox(tag2, 4).bottomRight
+        )
+
+        assertAnchorInfo(selection.value?.start, offset = 0, selectableId = 1)
+        assertAnchorInfo(selection.value?.end, offset = 5, selectableId = 3)
+    }
+
+    @Test
+    fun selectionIncludes_noWidthText() {
+        lateinit var clipboardManager: ClipboardManager
+        createSelectionContainer {
+            clipboardManager = LocalClipboardManager.current
+            clipboardManager.setText(AnnotatedString("Clipboard content at start of test."))
+            Column {
+                BasicText(
+                    text = "Hello",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag(tag1),
+                )
+                BasicText(
+                    text = "THIS SHOULD NOT CAUSE CRASH",
+                    modifier = Modifier.width(0.dp)
+                )
+                BasicText(
+                    text = "World",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag(tag2),
+                )
+            }
+        }
+
+        startSelection(tag1)
+        dragHandleTo(
+            handle = Handle.SelectionEnd,
+            offset = characterBox(tag2, 4).bottomRight
+        )
+
+        assertAnchorInfo(selection.value?.start, offset = 0, selectableId = 1)
+        assertAnchorInfo(selection.value?.end, offset = 5, selectableId = 3)
     }
 
     @Test

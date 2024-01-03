@@ -32,7 +32,12 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -55,6 +60,8 @@ import org.junit.runners.Parameterized
 class LazyScrollTest(private val orientation: Orientation) {
     @get:Rule
     val rule = createComposeRule()
+
+    private val lazyListTag = "LazyList"
 
     private val vertical: Boolean
         get() = orientation == Orientation.Vertical
@@ -213,6 +220,56 @@ class LazyScrollTest(private val orientation: Orientation) {
             state.animateScrollToItem(itemsCount + 2)
         }
         assertThat(state.firstVisibleItemIndex).isEqualTo(itemsCount - 3)
+    }
+
+    @Test
+    fun animateScrollBySemantics() = testScroll {
+        val scrollAxisKey = if (vertical) {
+            SemanticsProperties.VerticalScrollAxisRange
+        } else {
+            SemanticsProperties.HorizontalScrollAxisRange
+        }
+
+        withContext(Dispatchers.Main + AutoTestFrameClock()) {
+            state.animateScrollBy(1f)
+        }
+
+        var firstScrollAmount = 0
+        rule.onNodeWithTag(lazyListTag)
+            .assert(SemanticsMatcher("Scroll amount is nonzero") {
+                firstScrollAmount = it.config.get(scrollAxisKey).value().toInt()
+                firstScrollAmount != 0
+            })
+            .assert(SemanticsMatcher("Max scroll value is higher than scroll amount") {
+                with(it.config.get(scrollAxisKey)) {
+                    value().toInt() < maxValue().toInt()
+                }
+            })
+
+        withContext(Dispatchers.Main + AutoTestFrameClock()) {
+            state.animateScrollBy(1f)
+        }
+
+        rule.onNodeWithTag(lazyListTag)
+            .assert(SemanticsMatcher("Second scroll amount is different from the first") {
+                it.config.get(scrollAxisKey).value().toInt() != firstScrollAmount
+            })
+            .assert(SemanticsMatcher("Max scroll value is higher than scroll amount") {
+                with(it.config.get(scrollAxisKey)) {
+                    value().toInt() < maxValue().toInt()
+                }
+            })
+
+        withContext(Dispatchers.Main + AutoTestFrameClock()) {
+            state.animateScrollBy(10_000f)
+        }
+
+        rule.onNodeWithTag(lazyListTag)
+            .assert(SemanticsMatcher("Max scroll value is equal to scroll amount") {
+                with(it.config.get(scrollAxisKey)) {
+                    value().toInt() == maxValue().toInt()
+                }
+            })
     }
 
     @Test
@@ -379,7 +436,7 @@ class LazyScrollTest(private val orientation: Orientation) {
     private fun TestContent(spacingDp: Dp) {
         if (vertical) {
             LazyColumn(
-                Modifier.height(containerSizeDp),
+                Modifier.height(containerSizeDp).testTag(lazyListTag),
                 state,
                 verticalArrangement = Arrangement.spacedBy(spacingDp)
             ) {
@@ -389,7 +446,8 @@ class LazyScrollTest(private val orientation: Orientation) {
             }
         } else {
             LazyRow(
-                Modifier.width(containerSizeDp), state,
+                Modifier.width(containerSizeDp).testTag(lazyListTag),
+                state,
                 horizontalArrangement = Arrangement.spacedBy(spacingDp)
             ) {
                 items(itemsCount) {

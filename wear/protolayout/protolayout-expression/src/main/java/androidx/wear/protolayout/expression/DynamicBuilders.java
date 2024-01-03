@@ -29,6 +29,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec;
 import androidx.wear.protolayout.expression.ConditionScopes.ConditionScope;
+import androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedBool;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedColor;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedDuration;
@@ -36,7 +37,6 @@ import androidx.wear.protolayout.expression.FixedValueBuilders.FixedFloat;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedInstant;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedInt32;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedString;
-import androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue;
 import androidx.wear.protolayout.expression.proto.DynamicProto;
 import androidx.wear.protolayout.protobuf.CodedInputStream;
 import androidx.wear.protolayout.protobuf.CodedOutputStream;
@@ -439,10 +439,7 @@ public final class DynamicBuilders {
         public Fingerprint getFingerprint() {
             return mFingerprint;
         }
-        /**
-         * Creates a new wrapper instance from the proto.
-         *
-         */
+        /** Creates a new wrapper instance from the proto. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static PlatformInt32Source fromProto(
@@ -456,10 +453,7 @@ public final class DynamicBuilders {
             return fromProto(proto, null);
         }
 
-        /**
-         * Returns the internal proto instance.
-         *
-         */
+        /** Returns the internal proto instance. */
         @NonNull
         DynamicProto.PlatformInt32Source toProto() {
             return mImpl;
@@ -1669,9 +1663,7 @@ public final class DynamicBuilders {
          */
         @NonNull
         static DynamicInt32 animate(@NonNull DynamicDataKey<DynamicInt32> dynamicDataKey) {
-            return new AnimatableDynamicInt32.Builder()
-                    .setInput(from(dynamicDataKey))
-                    .build();
+            return new AnimatableDynamicInt32.Builder().setInput(from(dynamicDataKey)).build();
         }
 
         /**
@@ -2772,7 +2764,6 @@ public final class DynamicBuilders {
             return mImpl.getSourceNamespace();
         }
 
-
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -3744,7 +3735,6 @@ public final class DynamicBuilders {
             return mImpl.getSourceNamespace();
         }
 
-
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -4370,9 +4360,7 @@ public final class DynamicBuilders {
          */
         @NonNull
         static DynamicFloat animate(@NonNull DynamicDataKey<DynamicFloat> dynamicDataKey) {
-            return new AnimatableDynamicFloat.Builder()
-                    .setInput(from(dynamicDataKey))
-                    .build();
+            return new AnimatableDynamicFloat.Builder().setInput(from(dynamicDataKey)).build();
         }
 
         /**
@@ -5240,7 +5228,6 @@ public final class DynamicBuilders {
         public String getSourceNamespace() {
             return mImpl.getSourceNamespace();
         }
-
 
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -6812,9 +6799,7 @@ public final class DynamicBuilders {
          */
         @NonNull
         static DynamicColor animate(@NonNull DynamicDataKey<DynamicColor> dynamicDataKey) {
-            return new AnimatableDynamicColor.Builder()
-                    .setInput(from(dynamicDataKey))
-                    .build();
+            return new AnimatableDynamicColor.Builder().setInput(from(dynamicDataKey)).build();
         }
 
         /**

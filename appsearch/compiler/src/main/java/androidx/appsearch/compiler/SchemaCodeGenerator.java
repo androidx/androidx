@@ -16,6 +16,8 @@
 
 package androidx.appsearch.compiler;
 
+import static androidx.appsearch.compiler.IntrospectionHelper.getPropertyType;
+
 import androidx.annotation.NonNull;
 
 import com.squareup.javapoet.ClassName;
@@ -27,15 +29,16 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.WildcardTypeName;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
-import javax.lang.model.element.VariableElement;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
@@ -47,7 +50,7 @@ class SchemaCodeGenerator {
     private final ProcessingEnvironment mEnv;
     private final IntrospectionHelper mHelper;
     private final DocumentModel mModel;
-    private final Set<ClassName> mDocumentTypesAccumulator = new HashSet<>();
+    private final Set<ClassName> mDependencyDocumentClasses = new LinkedHashSet<>();
 
     public static void generate(
             @NonNull ProcessingEnvironment env,
@@ -89,11 +92,11 @@ class SchemaCodeGenerator {
                         .addStatement("return $L", schemaInitializer)
                         .build());
 
-        classBuilder.addMethod(createNestedClassesMethod());
+        classBuilder.addMethod(createDependencyClassesMethod());
     }
 
     @NonNull
-    private MethodSpec createNestedClassesMethod() {
+    private MethodSpec createDependencyClassesMethod() {
         TypeName setOfClasses = ParameterizedTypeName.get(ClassName.get("java.util", "List"),
                 ParameterizedTypeName.get(ClassName.get(Class.class),
                         WildcardTypeName.subtypeOf(Object.class)));
@@ -103,18 +106,18 @@ class SchemaCodeGenerator {
                         ParameterizedTypeName.get(ClassName.get(Class.class),
                                 WildcardTypeName.subtypeOf(Object.class)));
 
-        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("getNestedDocumentClasses")
+        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("getDependencyDocumentClasses")
                 .addModifiers(Modifier.PUBLIC)
                 .returns(setOfClasses)
                 .addAnnotation(Override.class)
                 .addException(mHelper.getAppSearchExceptionClass());
 
-        if (mDocumentTypesAccumulator.isEmpty()) {
+        if (mDependencyDocumentClasses.isEmpty()) {
             methodBuilder.addStatement("return $T.emptyList()",
                     ClassName.get("java.util", "Collections"));
         } else {
             methodBuilder.addStatement("$T classSet = new $T()", setOfClasses, arraySetOfClasses);
-            for (ClassName className : mDocumentTypesAccumulator) {
+            for (ClassName className : mDependencyDocumentClasses) {
                 methodBuilder.addStatement("classSet.add($T.class)", className);
             }
             methodBuilder.addStatement("return classSet").build();
@@ -123,55 +126,59 @@ class SchemaCodeGenerator {
     }
 
     /**
-     * This method accumulates Document-type properties in mDocumentTypesAccumulator by calling
-     * {@link #createPropertySchema}.
+     * This method accumulates Document-type properties, by calling {@link #createPropertySchema},
+     * and parent types in mDependencyDocumentClasses.
      */
     private CodeBlock createSchemaInitializerGetDocumentTypes() throws ProcessingException {
         CodeBlock.Builder codeBlock = CodeBlock.builder()
                 .add("new $T(SCHEMA_NAME)", mHelper.getAppSearchClass("AppSearchSchema", "Builder"))
                 .indent();
-        for (VariableElement property : mModel.getPropertyFields().values()) {
+        for (TypeElement parentType : mModel.getParentTypes()) {
+            ClassName parentDocumentFactoryClass =
+                    mHelper.getDocumentClassFactoryForClass(ClassName.get(parentType));
+            codeBlock.add("\n.addParentType($T.SCHEMA_NAME)", parentDocumentFactoryClass);
+            mDependencyDocumentClasses.add(ClassName.get(parentType));
+        }
+        for (Element property : mModel.getPropertyElements().values()) {
             codeBlock.add("\n.addProperty($L)", createPropertySchema(property));
         }
         codeBlock.add("\n.build()").unindent();
         return codeBlock.build();
     }
 
-    /** This method accumulates Document-type properties in mDocumentTypesAccumulator. */
-    private CodeBlock createPropertySchema(@NonNull VariableElement property)
+    /** This method accumulates Document-type properties in mDependencyDocumentClasses. */
+    private CodeBlock createPropertySchema(@NonNull Element property)
             throws ProcessingException {
         AnnotationMirror annotation = mModel.getPropertyAnnotation(property);
         Map<String, Object> params = mHelper.getAnnotationParams(annotation);
 
         // Find the property type
         Types typeUtil = mEnv.getTypeUtils();
-        TypeMirror propertyType;
+        TypeMirror propertyType = getPropertyType(property);
         boolean repeated = false;
         boolean isPropertyString = false;
         boolean isPropertyDocument = false;
         boolean isPropertyLong = false;
-        if (property.asType().getKind() == TypeKind.ERROR) {
+        if (propertyType.getKind() == TypeKind.ERROR) {
             throw new ProcessingException("Property type unknown to java compiler", property);
         } else if (typeUtil.isAssignable(
-                typeUtil.erasure(property.asType()), mHelper.mCollectionType)) {
+                typeUtil.erasure(propertyType), mHelper.mCollectionType)) {
             List<? extends TypeMirror> genericTypes =
-                    ((DeclaredType) property.asType()).getTypeArguments();
+                    ((DeclaredType) propertyType).getTypeArguments();
             if (genericTypes.isEmpty()) {
                 throw new ProcessingException(
                         "Property is repeated but has no generic type", property);
             }
             propertyType = genericTypes.get(0);
             repeated = true;
-        } else if (property.asType().getKind() == TypeKind.ARRAY
+        } else if (propertyType.getKind() == TypeKind.ARRAY
                 // Byte arrays have a native representation in Icing, so they are not considered a
                 // "repeated" type
-                && !typeUtil.isSameType(property.asType(), mHelper.mBytePrimitiveArrayType)
-                && !typeUtil.isSameType(property.asType(), mHelper.mByteBoxArrayType)) {
-            propertyType = ((ArrayType) property.asType()).getComponentType();
+                && !typeUtil.isSameType(propertyType, mHelper.mBytePrimitiveArrayType)
+                && !typeUtil.isSameType(propertyType, mHelper.mByteBoxArrayType)) {
+            propertyType = ((ArrayType) propertyType).getComponentType();
             repeated = true;
 
-        } else {
-            propertyType = property.asType();
         }
         ClassName propertyClass;
         if (typeUtil.isSameType(propertyType, mHelper.mStringType)) {
@@ -210,7 +217,7 @@ class SchemaCodeGenerator {
                     propertyClass.nestedClass("Builder"),
                     propertyName,
                     documentFactoryClass);
-            mDocumentTypesAccumulator.add(documentClass);
+            mDependencyDocumentClasses.add(documentClass);
         } else {
             codeBlock.add("new $T($S)", propertyClass.nestedClass("Builder"), propertyName);
         }

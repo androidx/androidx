@@ -26,7 +26,13 @@ for Kotlin libraries.
 
 <!--#include file="/company/teams/androidx/api_guidelines/dependencies.md"-->
 
-<!--#include file="/company/teams/androidx/api_guidelines/misc.md"-->
+<!--#include file="/company/teams/androidx/api_guidelines/annotations.md"-->
+
+<!--#include file="/company/teams/androidx/api_guidelines/async.md"-->
+
+<!--#include file="/company/teams/androidx/api_guidelines/processors.md"-->
+
+<!--#include file="/company/teams/androidx/api_guidelines/kotlin.md"-->
 
 <!--#include file="/company/teams/androidx/api_guidelines/testing.md"-->
 

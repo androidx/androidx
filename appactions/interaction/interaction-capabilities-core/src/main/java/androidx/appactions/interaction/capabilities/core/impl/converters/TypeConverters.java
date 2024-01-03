@@ -43,6 +43,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Optional;
 
 /** Converters for capability argument values. Convert from internal proto types to public types. */
@@ -275,6 +276,57 @@ public final class TypeConverters {
             @NonNull TypeSpec<T> nestedTypeSpec) {
         final TypeSpec<SearchAction<T>> typeSpec = createSearchActionTypeSpec(nestedTypeSpec);
         return ParamValueConverter.Companion.of(typeSpec)::fromParamValue;
+    }
+
+    /** Given a list of supported Enum Types, creates a ParamValueConverter instance. */
+    @NonNull
+    public static <T> ParamValueConverter<T> createEnumParamValueConverter(
+            @NonNull List<T> supportedValues) {
+        return new ParamValueConverter<T>() {
+            @Override
+            public T fromParamValue(@NonNull ParamValue paramValue) throws
+                    StructConversionException {
+                for (T supportedValue : supportedValues) {
+                    if (supportedValue.toString().equals(paramValue.getIdentifier())) {
+                        return supportedValue;
+                    }
+                }
+                throw new StructConversionException("cannot convert paramValue to protobuf "
+                        + "Value because identifier " + paramValue.getIdentifier() + " is not "
+                        + "one of the supported values");
+            }
+
+            @NonNull
+            @Override
+            public ParamValue toParamValue(@NonNull T obj) {
+                for (T supportedValue : supportedValues) {
+                    if (supportedValue.equals(obj)) {
+                        return ParamValue.newBuilder().setIdentifier(obj.toString()).build();
+                    }
+                }
+                throw new IllegalStateException("cannot convert " + obj + " to ParamValue "
+                        + "because it did not match one of the supported values");
+            }
+        };
+    }
+
+    /** Given a list of supported Enum Types, creates a EntityConverter instance. */
+    @NonNull
+    public static <T> EntityConverter<T> createEnumEntityConverter(
+            @NonNull List<T> supportedValues) {
+        return new EntityConverter<T>() {
+            @NonNull
+            @Override
+            public Entity convert(T obj) throws IllegalStateException {
+                for (T supportedValue : supportedValues) {
+                    if (supportedValue.toString().equals(obj.toString())) {
+                        return Entity.newBuilder().setIdentifier(obj.toString()).build();
+                    }
+                }
+                throw new IllegalStateException("cannot convert " + obj + " to entity "
+                        + "because it did not match one of the supported values");
+            }
+        };
     }
 
     private TypeConverters() {

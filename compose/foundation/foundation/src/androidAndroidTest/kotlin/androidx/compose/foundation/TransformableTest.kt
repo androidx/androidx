@@ -269,6 +269,61 @@ class TransformableTest {
         }
     }
 
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test
+    fun transformableInsideScroll_canPan_offsetProvided() {
+        var lastCanPanOffset = Offset.Zero
+
+        rule.setContent {
+            Column(
+                Modifier
+                    .size(100.dp)
+                    .testTag(TEST_TAG)
+            ) {
+                repeat(3) {
+                    Box(
+                        Modifier
+                            .size(100.dp)
+                            .transformable(
+                                state = rememberTransformableState { _, _, _ ->
+                                    // no-op
+                                },
+                                canPan = { offset ->
+                                    lastCanPanOffset = offset
+                                    false
+                                }
+                            )
+                    )
+                }
+            }
+        }
+
+        val expected = Offset(0f, -50f)
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            down(1, center)
+            moveBy(1, expected)
+        }
+
+        rule.runOnIdle {
+            assertThat(lastCanPanOffset).isEqualTo(expected)
+        }
+
+        val expected2 = Offset(30f, 0f)
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            moveBy(1, expected2)
+        }
+
+        rule.runOnIdle {
+            assertThat(lastCanPanOffset).isEqualTo(expected2)
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            up(1)
+        }
+    }
+
     @Test
     fun transformable_rotate() {
         var cumulativeRotation = 0f

@@ -39,15 +39,16 @@ import org.junit.runner.RunWith
 class MenuHostHelperTest {
 
     private val context = InstrumentationRegistry.getInstrumentation().context
-    private val menuProvider = object : MenuProvider {
-        override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-            menuInflater.inflate(R.menu.example_menu, menu)
-        }
+    private val menuProvider =
+        object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.example_menu, menu)
+            }
 
-        override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-            return true
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return true
+            }
         }
-    }
 
     @Test
     fun onPrepareMenu() {
@@ -56,19 +57,21 @@ class MenuHostHelperTest {
             val menuHost = TestMenuHost(toolbar.menu, withActivity { menuInflater })
             var menuPrepared: Boolean
 
-            menuHost.addMenuProvider(object : MenuProvider {
-                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                    menuInflater.inflate(R.menu.example_menu, menu)
-                }
+            menuHost.addMenuProvider(
+                object : MenuProvider {
+                    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                        menuInflater.inflate(R.menu.example_menu, menu)
+                    }
 
-                override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                    return true
-                }
+                    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                        return true
+                    }
 
-                override fun onPrepareMenu(menu: Menu) {
-                    menuPrepared = true
+                    override fun onPrepareMenu(menu: Menu) {
+                        menuPrepared = true
+                    }
                 }
-            })
+            )
 
             menuPrepared = false
             menuHost.onPrepareMenu(toolbar.menu)
@@ -221,15 +224,16 @@ class MenuHostHelperTest {
 
             menuHost.addMenuProvider(menuProvider)
 
-            val menuProvider2 = object : MenuProvider {
-                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                    menuInflater.inflate(R.menu.example_menu2, menu)
-                }
+            val menuProvider2 =
+                object : MenuProvider {
+                    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                        menuInflater.inflate(R.menu.example_menu2, menu)
+                    }
 
-                override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                    return true
+                    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                        return true
+                    }
                 }
-            }
             menuHost.addMenuProvider(menuProvider2)
 
             assertThat(toolbar.menu.findItem(R.id.item1)).isNotNull()
@@ -258,19 +262,21 @@ class MenuHostHelperTest {
             val menuHost = TestMenuHost(toolbar.menu, withActivity { menuInflater })
 
             var menuClosed = false
-            menuHost.addMenuProvider(object : MenuProvider {
-                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                    menuInflater.inflate(R.menu.example_menu, menu)
-                }
+            menuHost.addMenuProvider(
+                object : MenuProvider {
+                    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                        menuInflater.inflate(R.menu.example_menu, menu)
+                    }
 
-                override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                    return true
-                }
+                    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                        return true
+                    }
 
-                override fun onMenuClosed(menu: Menu) {
-                    menuClosed = true
+                    override fun onMenuClosed(menu: Menu) {
+                        menuClosed = true
+                    }
                 }
-            })
+            )
 
             menuHost.onMenuClosed(toolbar.menu)
             assertThat(menuClosed).isTrue()

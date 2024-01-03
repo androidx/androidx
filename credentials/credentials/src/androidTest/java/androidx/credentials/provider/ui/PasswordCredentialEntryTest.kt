@@ -21,7 +21,6 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Icon
 import android.os.Bundle
-import androidx.core.os.BuildCompat
 import androidx.credentials.PasswordCredential
 import androidx.credentials.R
 import androidx.credentials.equals
@@ -40,8 +39,8 @@ import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 26)
 @SmallTest
 class PasswordCredentialEntryTest {
     private val mContext = ApplicationProvider.getApplicationContext<Context>()
@@ -53,35 +52,24 @@ class PasswordCredentialEntryTest {
 
     @Test
     fun constructor_requiredParams_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val entry = constructEntryWithRequiredParamsOnly()
 
         assertNotNull(entry)
-        assertNotNull(entry.slice)
         assertThat(entry.type).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL)
         assertEntryWithRequiredParamsOnly(entry)
     }
 
     @Test
     fun constructor_allParams_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val entry = constructEntryWithAllParams()
 
         assertNotNull(entry)
-        assertNotNull(entry.slice)
         assertThat(entry.type).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL)
         assertEntryWithAllParams(entry)
     }
 
     @Test
     fun constructor_emptyUsername_throwsIAE() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         assertThrows(
             "Expected empty username to throw IllegalArgumentException",
             IllegalArgumentException::class.java
@@ -94,9 +82,6 @@ class PasswordCredentialEntryTest {
 
     @Test
     fun constructor_nullIcon_defaultIconSet() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val entry = PasswordCredentialEntry.Builder(
             mContext, USERNAME, mPendingIntent, BEGIN_OPTION).build()
 
@@ -110,9 +95,6 @@ class PasswordCredentialEntryTest {
 
     @Test
     fun constructor_nullTypeDisplayName_defaultDisplayNameSet() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val entry = PasswordCredentialEntry(
             mContext, USERNAME, mPendingIntent, BEGIN_OPTION)
 
@@ -125,9 +107,6 @@ class PasswordCredentialEntryTest {
 
     @Test
     fun constructor_isAutoSelectAllowedDefault_false() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val entry = constructEntryWithRequiredParamsOnly()
         val entry1 = constructEntryWithAllParams()
 
@@ -136,13 +115,15 @@ class PasswordCredentialEntryTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 28)
     fun fromSlice_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val originalEntry = constructEntryWithAllParams()
 
-        val entry = fromSlice(originalEntry.slice)
+        val slice = PasswordCredentialEntry.toSlice(originalEntry)
+
+        assertNotNull(slice)
+
+        val entry = fromSlice(slice!!)
 
         assertNotNull(entry)
         entry?.let {

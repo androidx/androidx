@@ -42,6 +42,7 @@ import com.google.android.icing.proto.SchemaTypeConfigProto;
 import com.google.android.icing.proto.ScoringSpecProto;
 import com.google.android.icing.proto.SearchSpecProto;
 import com.google.android.icing.proto.TypePropertyWeights;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
@@ -387,6 +388,170 @@ public class SearchSpecToProtoConverterTest {
         assertThat(resultSpecProto.getSnippetSpec().getNumMatchesPerProperty()).isEqualTo(345);
         assertThat(resultSpecProto.getSnippetSpec().getMaxWindowUtf32Length()).isEqualTo(456);
         assertThat(resultSpecProto.getMaxJoinedChildrenPerParentToReturn()).isEqualTo(10);
+    }
+
+    @Test
+    public void testToResultSpecProto_grouping_withJoinSpec_packageFilter() throws Exception {
+        String personPrefix = PrefixUtil.createPrefix("contacts", "database");
+        String actionPrefix = PrefixUtil.createPrefix("aiai", "database");
+
+        SchemaTypeConfigProto configProto = SchemaTypeConfigProto.getDefaultInstance();
+        Map<String, Map<String, SchemaTypeConfigProto>> schemaMap = ImmutableMap.of(
+                personPrefix, ImmutableMap.of(personPrefix + "typeA", configProto),
+                actionPrefix, ImmutableMap.of(actionPrefix + "typeA", configProto));
+        Map<String, Set<String>> namespaceMap = ImmutableMap.of(
+                personPrefix, ImmutableSet.of(personPrefix + "namespaceA"),
+                actionPrefix, ImmutableSet.of(actionPrefix + "namespaceA"));
+
+        SearchSpec nestedSearchSpec = new SearchSpec.Builder()
+                .setResultGrouping(SearchSpec.GROUPING_TYPE_PER_PACKAGE, 10)
+                .addFilterPackageNames("aiai")
+                .build();
+
+        // Create a JoinSpec object and set it in the converter
+        JoinSpec joinSpec = new JoinSpec.Builder("childPropertyExpression")
+                .setNestedSearch("nestedQuery", nestedSearchSpec)
+                .build();
+
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setJoinSpec(joinSpec)
+                .setResultGrouping(SearchSpec.GROUPING_TYPE_PER_PACKAGE, 10)
+                .addFilterPackageNames("contacts")
+                .build();
+
+        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(
+                /*queryExpression=*/"query",
+                searchSpec,
+                /*prefixes=*/ImmutableSet.of(personPrefix, actionPrefix),
+                namespaceMap,
+                schemaMap,
+                mDefaultIcingOptionsConfig);
+
+        ResultSpecProto resultSpecProto = converter.toResultSpecProto(
+                namespaceMap,
+                schemaMap);
+
+        assertThat(resultSpecProto.getResultGroupingsCount()).isEqualTo(1);
+        assertThat(resultSpecProto.getResultGroupings(0).getEntryGroupings(0).getNamespace())
+                .isEqualTo("contacts$database/namespaceA");
+        ResultSpecProto nestedResultSpecProto =
+                converter.toSearchSpecProto().getJoinSpec().getNestedSpec().getResultSpec();
+        assertThat(nestedResultSpecProto.getResultGroupingsCount()).isEqualTo(1);
+        assertThat(nestedResultSpecProto.getResultGroupings(0).getEntryGroupings(0).getNamespace())
+                .isEqualTo("aiai$database/namespaceA");
+    }
+
+    @Test
+    public void testToResultSpecProto_projection_withJoinSpec_packageFilter() throws Exception {
+        String personPrefix = PrefixUtil.createPrefix("contacts", "database");
+        String actionPrefix = PrefixUtil.createPrefix("aiai", "database");
+
+        SchemaTypeConfigProto configProto = SchemaTypeConfigProto.getDefaultInstance();
+        Map<String, Map<String, SchemaTypeConfigProto>> schemaMap = ImmutableMap.of(
+                personPrefix, ImmutableMap.of(personPrefix + "Person", configProto),
+                actionPrefix, ImmutableMap.of(actionPrefix + "ContactAction", configProto));
+        Map<String, Set<String>> namespaceMap = ImmutableMap.of(
+                personPrefix, ImmutableSet.of(personPrefix + "namespaceA"),
+                actionPrefix, ImmutableSet.of(actionPrefix + "namespaceA"));
+
+        SearchSpec nestedSearchSpec = new SearchSpec.Builder()
+                .setResultGrouping(SearchSpec.GROUPING_TYPE_PER_PACKAGE, 10)
+                .addProjection("ContactAction", ImmutableList.of("type"))
+                .build();
+
+        // Create a JoinSpec object and set it in the converter
+        JoinSpec joinSpec = new JoinSpec.Builder("childPropertyExpression")
+                .setNestedSearch("nestedQuery", nestedSearchSpec)
+                .build();
+
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setJoinSpec(joinSpec)
+                .setResultGrouping(SearchSpec.GROUPING_TYPE_PER_PACKAGE, 10)
+                .addProjection("Person", ImmutableList.of("name"))
+                .build();
+
+        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(
+                /*queryExpression=*/"query",
+                searchSpec,
+                /*prefixes=*/ImmutableSet.of(personPrefix, actionPrefix),
+                namespaceMap,
+                schemaMap,
+                mDefaultIcingOptionsConfig);
+
+        ResultSpecProto resultSpecProto = converter.toResultSpecProto(
+                namespaceMap,
+                schemaMap);
+
+        assertThat(resultSpecProto.getTypePropertyMasksCount()).isEqualTo(1);
+        assertThat(resultSpecProto.getTypePropertyMasks(0).getSchemaType()).isEqualTo(
+                "contacts$database/Person");
+        assertThat(resultSpecProto.getTypePropertyMasks(0).getPaths(0)).isEqualTo("name");
+
+        ResultSpecProto nestedResultSpecProto =
+                converter.toSearchSpecProto().getJoinSpec().getNestedSpec().getResultSpec();
+        assertThat(nestedResultSpecProto.getTypePropertyMasksCount()).isEqualTo(1);
+        assertThat(nestedResultSpecProto.getTypePropertyMasks(0).getSchemaType()).isEqualTo(
+                "aiai$database/ContactAction");
+        assertThat(nestedResultSpecProto.getTypePropertyMasks(0).getPaths(0)).isEqualTo("type");
+    }
+
+    @Test
+    public void testToResultSpecProto_weight_withJoinSpec_packageFilter() throws Exception {
+        String personPrefix = PrefixUtil.createPrefix("contacts", "database");
+        String actionPrefix = PrefixUtil.createPrefix("aiai", "database");
+
+        SchemaTypeConfigProto configProto = SchemaTypeConfigProto.getDefaultInstance();
+        Map<String, Map<String, SchemaTypeConfigProto>> schemaMap = ImmutableMap.of(
+                personPrefix, ImmutableMap.of(personPrefix + "Person", configProto),
+                actionPrefix, ImmutableMap.of(actionPrefix + "ContactAction", configProto));
+        Map<String, Set<String>> namespaceMap = ImmutableMap.of(
+                personPrefix, ImmutableSet.of(personPrefix + "namespaceA"),
+                actionPrefix, ImmutableSet.of(actionPrefix + "namespaceA"));
+
+        SearchSpec nestedSearchSpec = new SearchSpec.Builder()
+                .setResultGrouping(SearchSpec.GROUPING_TYPE_PER_PACKAGE, 10)
+                .setPropertyWeights("ContactAction", ImmutableMap.of("type", 3.0))
+                .setRankingStrategy(RANKING_STRATEGY_RELEVANCE_SCORE)
+                .build();
+
+        // Create a JoinSpec object and set it in the converter
+        JoinSpec joinSpec = new JoinSpec.Builder("childPropertyExpression")
+                .setNestedSearch("nestedQuery", nestedSearchSpec)
+                .build();
+
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setJoinSpec(joinSpec)
+                .setPropertyWeights("Person", ImmutableMap.of("name", 2.0))
+                .setRankingStrategy(RANKING_STRATEGY_RELEVANCE_SCORE)
+                .build();
+
+        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(
+                /*queryExpression=*/"query",
+                searchSpec,
+                /*prefixes=*/ImmutableSet.of(personPrefix, actionPrefix),
+                namespaceMap,
+                schemaMap,
+                mDefaultIcingOptionsConfig);
+
+        ScoringSpecProto scoringSpecProto = converter.toScoringSpecProto();
+
+        assertThat(scoringSpecProto.getTypePropertyWeightsCount()).isEqualTo(1);
+        assertThat(scoringSpecProto.getTypePropertyWeights(0).getSchemaType()).isEqualTo(
+                "contacts$database/Person");
+        assertThat(scoringSpecProto.getTypePropertyWeights(0)
+                .getPropertyWeights(0).getWeight()).isEqualTo(2);
+        assertThat(scoringSpecProto.getTypePropertyWeights(0)
+                .getPropertyWeights(0).getPath()).isEqualTo("name");
+
+        ScoringSpecProto nestedScoringSpecProto =
+                converter.toSearchSpecProto().getJoinSpec().getNestedSpec().getScoringSpec();
+        assertThat(nestedScoringSpecProto.getTypePropertyWeightsCount()).isEqualTo(1);
+        assertThat(nestedScoringSpecProto.getTypePropertyWeights(0).getSchemaType()).isEqualTo(
+                "aiai$database/ContactAction");
+        assertThat(nestedScoringSpecProto.getTypePropertyWeights(0)
+                .getPropertyWeights(0).getWeight()).isEqualTo(3);
+        assertThat(nestedScoringSpecProto.getTypePropertyWeights(0)
+                .getPropertyWeights(0).getPath()).isEqualTo("type");
     }
 
     @Test

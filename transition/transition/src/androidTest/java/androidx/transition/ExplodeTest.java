@@ -33,7 +33,6 @@ import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
-import androidx.core.os.BuildCompat;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -186,7 +185,7 @@ public class ExplodeTest extends BaseTransitionTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     @Test
     public void seekingExplode() throws Throwable {
-        if (!BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT < 34) {
             return; // only supported on U+
         }
         TransitionSeekController[] seekControllerArr = new TransitionSeekController[1];
@@ -259,7 +258,7 @@ public class ExplodeTest extends BaseTransitionTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     @Test
     public void seekingImplode() throws Throwable {
-        if (!BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT < 34) {
             return; // only supported on U+
         }
         TransitionSeekController[] seekControllerArr = new TransitionSeekController[1];
@@ -341,7 +340,7 @@ public class ExplodeTest extends BaseTransitionTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     @Test
     public void seekingImplodeBeforeStart() throws Throwable {
-        if (!BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT < 34) {
             return; // only supported on U+
         }
         TransitionSeekController[] seekControllerArr = new TransitionSeekController[1];
@@ -388,7 +387,7 @@ public class ExplodeTest extends BaseTransitionTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     @Test
     public void seekWithTranslation() throws Throwable {
-        if (!BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT < 34) {
             return; // only supported on U+
         }
         TransitionSeekController[] seekControllerArr = new TransitionSeekController[1];

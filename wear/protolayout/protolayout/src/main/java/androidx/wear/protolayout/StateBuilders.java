@@ -152,8 +152,8 @@ public final class StateBuilders {
              *     than the allowed limit ({@link #getMaxStateEntryCount()}).
              * @since 1.2
              */
-            @NonNull
             @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
             public <T extends DynamicType> Builder addKeyToValueMapping(
                     @NonNull AppDataKey<T> sourceKey, @NonNull DynamicDataValue<T> value) {
                 if (mImpl.getIdToValueMap().size() >= getMaxStateEntryCount()) {

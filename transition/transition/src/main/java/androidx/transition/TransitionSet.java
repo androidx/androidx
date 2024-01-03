@@ -517,6 +517,17 @@ public class TransitionSet extends Transition {
         }
     }
 
+    @Override
+    boolean hasAnimators() {
+        for (int i = 0; i < mTransitions.size(); i++) {
+            Transition child = mTransitions.get(i);
+            if (child.hasAnimators()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @Override
     void prepareAnimatorsForSeeking() {
@@ -525,12 +536,10 @@ public class TransitionSet extends Transition {
             @Override
             public void onTransitionCancel(@NonNull Transition transition) {
                 mTransitions.remove(transition);
-                if (mTransitions.isEmpty()) {
+                if (!hasAnimators()) {
                     notifyListeners(TransitionNotification.ON_CANCEL, false);
-                    if (!mEnded) {
-                        mEnded = true;
-                        notifyListeners(TransitionNotification.ON_END, false);
-                    }
+                    mEnded = true;
+                    notifyListeners(TransitionNotification.ON_END, false);
                 }
             }
         };

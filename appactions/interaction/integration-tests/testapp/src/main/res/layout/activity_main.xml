@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -15,45 +13,7 @@
       android:gravity="center"
       android:orientation="horizontal">
     <TextView
-        android:id="@+id/hour"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:background="@drawable/round_back_black10_10"
-        android:text="00"
-        android:textColor="#FFFFFF"
-        android:textStyle="bold"
-        android:textSize="30sp"
-        android:gravity="center"/>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=":"
-        android:textColor="#FFFFFF"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:textSize="30sp"
-        android:textStyle="bold"/>
-    <TextView
-        android:id="@+id/minute"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:background="@drawable/round_back_black10_10"
-        android:text="00"
-        android:textColor="#FFFFFF"
-        android:textStyle="bold"
-        android:textSize="30sp"
-        android:gravity="center"/>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=":"
-        android:textColor="#FFFFFF"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:textSize="30sp"
-        android:textStyle="bold"/>
-    <TextView
-        android:id="@+id/second"
+        android:id="@+id/remainingTimeLabel"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:background="@drawable/round_back_black10_10"

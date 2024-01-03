@@ -33,7 +33,6 @@ import androidx.compose.ui.text.android.LayoutCompat.HyphenationFrequency
 import androidx.compose.ui.text.android.LayoutCompat.JustificationMode
 import androidx.compose.ui.text.android.LayoutCompat.LineBreakStyle
 import androidx.compose.ui.text.android.LayoutCompat.LineBreakWordStyle
-import androidx.core.os.BuildCompat
 import java.lang.reflect.Constructor
 import java.lang.reflect.InvocationTargetException
 
@@ -206,7 +205,6 @@ private class StaticLayoutFactory23 : StaticLayoutFactoryImpl {
             }.build()
     }
 
-    @androidx.annotation.OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
     override fun isFallbackLineSpacingEnabled(
         layout: StaticLayout,
         useFallbackLineSpacing: Boolean

@@ -63,7 +63,7 @@ fun AppTabRow(
                         selected = selectedTabIndex == index,
                         onFocus = { onSelectedTabIndexChange(index) },
                         colors = TabDefaults.pillIndicatorTabColors(
-                            contentColor = LocalContentColor.current,
+                            inactiveContentColor = LocalContentColor.current,
 //                            selectedContentColor = Color(0xFF313033),
                         ),
                         modifier = Modifier

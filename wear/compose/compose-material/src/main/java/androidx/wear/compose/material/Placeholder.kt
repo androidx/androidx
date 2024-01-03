@@ -54,6 +54,8 @@ import androidx.compose.ui.platform.inspectable
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.lerp
+import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
+import androidx.wear.compose.foundation.LocalReduceMotion
 import kotlin.math.max
 import kotlin.math.pow
 import kotlinx.coroutines.coroutineScope
@@ -93,6 +95,7 @@ import kotlinx.coroutines.isActive
 public class PlaceholderState internal constructor(
     private val isContentReady: State<() -> Boolean>,
     private val maxScreenDimension: Float,
+    private val isReduceMotionEnabled: Boolean
 ) {
 
     /**
@@ -113,10 +116,12 @@ public class PlaceholderState internal constructor(
      * Start the animation of the placeholder state.
      */
     public suspend fun startPlaceholderAnimation() {
-        coroutineScope {
-            while (isActive) {
-                withInfiniteAnimationFrameMillis {
-                    frameMillis.longValue = it
+        if (!isReduceMotionEnabled) {
+            coroutineScope {
+                while (isActive) {
+                    withInfiniteAnimationFrameMillis {
+                        frameMillis.longValue = it
+                    }
                 }
             }
         }
@@ -243,8 +248,12 @@ public class PlaceholderState internal constructor(
                     }
                     // Placeholder
                 } else if (isContentReady.value()) {
-                    startOfWipeOffAnimation = frameMillis.longValue
-                    field = PlaceholderStage.WipeOff
+                    if (isReduceMotionEnabled) {
+                        field = PlaceholderStage.ShowContent
+                    } else {
+                        startOfWipeOffAnimation = frameMillis.longValue
+                        field = PlaceholderStage.WipeOff
+                    }
                 }
             }
             return field
@@ -287,6 +296,7 @@ public class PlaceholderState internal constructor(
  * @param isContentReady a lambda to determine whether all of the data/content has been loaded for a
  * given component and is ready to be displayed.
  */
+@OptIn(ExperimentalWearFoundationApi::class)
 @ExperimentalWearMaterialApi
 @Composable
 public fun rememberPlaceholderState(
@@ -295,8 +305,15 @@ public fun rememberPlaceholderState(
     val maxScreenDimension = with(LocalDensity.current) {
         Dp(max(screenHeightDp(), screenWidthDp()).toFloat()).toPx()
     }
+    val isReduceMotionEnabled = LocalReduceMotion.current.enabled()
     val myLambdaState = rememberUpdatedState(isContentReady)
-    return remember { PlaceholderState(myLambdaState, maxScreenDimension) }
+    return remember {
+        PlaceholderState(
+            myLambdaState,
+            maxScreenDimension,
+            isReduceMotionEnabled
+        )
+    }
 }
 
 /**
@@ -373,8 +390,10 @@ public fun Modifier.placeholder(
  * @param shape the shape of the component.
  * @param color the color to use in the shimmer.
  */
+
 @Suppress("ComposableModifierFactory")
 @ExperimentalWearMaterialApi
+@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 public fun Modifier.placeholderShimmer(
     placeholderState: PlaceholderState,
@@ -388,11 +407,15 @@ public fun Modifier.placeholderShimmer(
         properties["color"] = color
     }
 ) {
-    PlaceholderShimmerModifier(
-        placeholderState = placeholderState,
-        color = color,
-        shape = shape
-    )
+    if (LocalReduceMotion.current.enabled()) {
+        Modifier
+    } else {
+        PlaceholderShimmerModifier(
+            placeholderState = placeholderState,
+            color = color,
+            shape = shape
+        )
+    }
 }
 
 /**

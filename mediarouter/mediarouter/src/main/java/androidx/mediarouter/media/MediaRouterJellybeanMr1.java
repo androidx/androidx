@@ -36,21 +36,22 @@ import java.lang.reflect.Method;
 final class MediaRouterJellybeanMr1 {
     private static final String TAG = "MediaRouterJellybeanMr1";
 
-    public static Object createCallback(Callback callback) {
-        return new CallbackProxy<Callback>(callback);
+    public static CallbackProxy<Callback> createCallback(Callback callback) {
+        return new CallbackProxy<>(callback);
     }
 
     public static final class RouteInfo {
-        public static boolean isEnabled(@NonNull Object routeObj) {
-            return ((android.media.MediaRouter.RouteInfo) routeObj).isEnabled();
+        public static boolean isEnabled(@NonNull android.media.MediaRouter.RouteInfo route) {
+            return route.isEnabled();
         }
 
         @Nullable
-        public static Display getPresentationDisplay(@NonNull Object routeObj) {
+        public static Display getPresentationDisplay(
+                @NonNull android.media.MediaRouter.RouteInfo route) {
             // android.media.MediaRouter.RouteInfo.getPresentationDisplay() was
             // added in API 17. However, some factory releases of JB MR1 missed it.
             try {
-                return ((android.media.MediaRouter.RouteInfo) routeObj).getPresentationDisplay();
+                return route.getPresentationDisplay();
             } catch (NoSuchMethodError ex) {
                 Log.w(TAG, "Cannot get presentation display for the route.", ex);
             }
@@ -62,7 +63,7 @@ final class MediaRouterJellybeanMr1 {
     }
 
     public interface Callback extends MediaRouterJellybean.Callback {
-        void onRoutePresentationDisplayChanged(@NonNull Object routeObj);
+        void onRoutePresentationDisplayChanged(@NonNull android.media.MediaRouter.RouteInfo route);
     }
 
     /**
@@ -175,10 +176,7 @@ final class MediaRouterJellybeanMr1 {
         // code: the reflection is used for a specific Android version and the real Android API
         // check is happening in the class' constructor and in SystemMediaRouteProvider#obtain
         @SuppressLint("BanUncheckedReflection")
-        public boolean isConnecting(@NonNull Object routeObj) {
-            android.media.MediaRouter.RouteInfo route =
-                    (android.media.MediaRouter.RouteInfo) routeObj;
-
+        public boolean isConnecting(@NonNull android.media.MediaRouter.RouteInfo route) {
             if (mGetStatusCodeMethod != null) {
                 try {
                     int statusCode = (Integer) mGetStatusCodeMethod.invoke(route);

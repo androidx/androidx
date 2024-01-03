@@ -18,6 +18,7 @@ package androidx.privacysandbox.ui.core
 
 import android.content.Context
 import android.content.res.Configuration
+import android.os.IBinder
 import android.view.View
 import java.util.concurrent.Executor
 
@@ -36,6 +37,7 @@ interface SandboxedUiAdapter {
      */
     fun openSession(
         context: Context,
+        windowInputToken: IBinder,
         initialWidth: Int,
         initialHeight: Int,
         isZOrderOnTop: Boolean,

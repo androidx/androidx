@@ -90,9 +90,10 @@ fun UnderlinedIndicatorTabRow() {
   TabRow(
     selectedTabIndex = selectedTabIndex,
     separator = { Spacer(modifier = Modifier.width(12.dp)) },
-    indicator = { tabPositions ->
+    indicator = { tabPositions, isActivated ->
       TabRowDefaults.UnderlinedIndicator(
-        currentTabPosition = tabPositions[selectedTabIndex]
+        currentTabPosition = tabPositions[selectedTabIndex],
+        isActivated = isActivated,
       )
     },
     modifier = Modifier.focusRestorer()
@@ -180,17 +181,19 @@ fun OnClickNavigation() {
   ) {
     TabRow(
       selectedTabIndex = focusedTabIndex,
-      indicator = { tabPositions ->
+      indicator = { tabPositions, isActivated ->
         // FocusedTab's indicator
         TabRowDefaults.PillIndicator(
           currentTabPosition = tabPositions[focusedTabIndex],
           activeColor = Color.Blue.copy(alpha = 0.4f),
           inactiveColor = Color.Transparent,
+          isActivated = isActivated,
         )
 
         // SelectedTab's indicator
         TabRowDefaults.PillIndicator(
-          currentTabPosition = tabPositions[activeTabIndex]
+          currentTabPosition = tabPositions[activeTabIndex],
+          isActivated = isActivated,
         )
       },
       modifier = Modifier.focusRestorer()

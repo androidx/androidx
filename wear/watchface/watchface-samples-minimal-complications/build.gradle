@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryType
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
@@ -32,13 +30,6 @@ dependencies {
     api(project(":wear:watchface:watchface-guava"))
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.3.1")
     implementation(libs.guavaAndroid)
-}
-
-androidx {
-    name = "Wear Watchface Minimal Complications Sample"
-    type = LibraryType.SAMPLES
-    inceptionYear = "2021"
-    description = "Contains the sample code for the Androidx Wear Watchface library"
 }
 
 android {

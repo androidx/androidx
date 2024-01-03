@@ -248,7 +248,7 @@ public class TestCasesGenerator {
         testCases.put(
                 "compactchip_icon_toolong_golden" + goldenSuffix,
                 new CompactChip.Builder(
-                        context, "AbcdefghiEXTRAEXTRAEXTRA", clickable, deviceParameters)
+                                context, "AbcdefghiEXTRAEXTRAEXTRA", clickable, deviceParameters)
                         .setIconContent(ICON_ID_SMALL)
                         .setExcludeFontPadding(true)
                         .build());

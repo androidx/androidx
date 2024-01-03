@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.gestures
 
+import androidx.annotation.FloatRange
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.animate
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -352,7 +353,7 @@ class AnchoredDraggableState<T>(
      * The fraction of the progress going from [currentValue] to [closestValue], within [0f..1f]
      * bounds, or 1f if the [AnchoredDraggableState] is in a settled state.
      */
-    /*@FloatRange(from = 0f, to = 1f)*/
+    @get:FloatRange(from = 0.0, to = 1.0)
     val progress: Float by derivedStateOf(structuralEqualityPolicy()) {
         val a = anchors.positionOf(currentValue)
         val b = anchors.positionOf(closestValue)

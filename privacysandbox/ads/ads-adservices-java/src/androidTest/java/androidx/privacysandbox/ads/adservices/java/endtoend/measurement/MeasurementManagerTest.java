@@ -26,6 +26,7 @@ import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo;
 import androidx.privacysandbox.ads.adservices.java.endtoend.TestUtil;
 import androidx.privacysandbox.ads.adservices.java.measurement.MeasurementManagerFutures;
 import androidx.privacysandbox.ads.adservices.measurement.DeletionRequest;
+import androidx.privacysandbox.ads.adservices.measurement.SourceRegistrationRequest;
 import androidx.privacysandbox.ads.adservices.measurement.WebSourceParams;
 import androidx.privacysandbox.ads.adservices.measurement.WebSourceRegistrationRequest;
 import androidx.privacysandbox.ads.adservices.measurement.WebTriggerParams;
@@ -103,6 +104,19 @@ public class MeasurementManagerTest {
         assertThat(mMeasurementManager.registerSourceAsync(
                 SOURCE_REGISTRATION_URI,
                 /* inputEvent= */ null).get())
+                .isNotNull();
+    }
+
+    @Test
+    public void testRegisterAppSources_NoServerSetup_NoErrors() throws Exception {
+        // Skip the test if SDK extension 5 is not present.
+        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 5);
+
+        SourceRegistrationRequest request =
+                new SourceRegistrationRequest.Builder(
+                        Collections.singletonList(SOURCE_REGISTRATION_URI))
+                        .build();
+        assertThat(mMeasurementManager.registerSourceAsync(request).get())
                 .isNotNull();
     }
 

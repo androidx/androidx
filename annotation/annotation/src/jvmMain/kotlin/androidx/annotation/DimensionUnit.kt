@@ -15,10 +15,7 @@
  */
 package androidx.annotation
 
-/**
- * Typedef for the [Dimension.unit] attribute.
- *
- */
+/** Typedef for the [Dimension.unit] attribute. */
 @IntDef(Dimension.PX, Dimension.DP, Dimension.SP)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @Retention(AnnotationRetention.SOURCE)

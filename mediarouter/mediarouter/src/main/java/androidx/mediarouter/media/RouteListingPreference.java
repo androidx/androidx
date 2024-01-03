@@ -25,6 +25,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
 
 import java.lang.annotation.Retention;
@@ -144,7 +145,6 @@ public final class RouteListingPreference {
 
     // Internal methods.
 
-    /** @hide */
     @RequiresApi(api = 34)
     @NonNull /* package */
     android.media.RouteListingPreference toPlatformRouteListingPreference() {
@@ -217,7 +217,7 @@ public final class RouteListingPreference {
     /** Holds preference information for a specific route in a {@link RouteListingPreference}. */
     public static final class Item {
 
-        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Retention(RetentionPolicy.SOURCE)
         @IntDef(
                 value = {
@@ -239,7 +239,7 @@ public final class RouteListingPreference {
          */
         public static final int SELECTION_BEHAVIOR_GO_TO_APP = 2;
 
-        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Retention(RetentionPolicy.SOURCE)
         @IntDef(
                 flag = true,
@@ -279,7 +279,7 @@ public final class RouteListingPreference {
          */
         public static final int FLAG_SUGGESTED = 1 << 2;
 
-        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Retention(RetentionPolicy.SOURCE)
         @IntDef(
                 value = {

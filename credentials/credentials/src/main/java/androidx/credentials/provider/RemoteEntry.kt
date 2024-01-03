@@ -55,8 +55,10 @@ class RemoteEntry constructor(
      * A builder for [RemoteEntry]
      *
      * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
-     * entry, must be created with flag [PendingIntent.FLAG_MUTABLE] to allow the Android
-     * system to attach the final request
+     * entry, must be created with a unique request code per entry,
+     * with flag [PendingIntent.FLAG_MUTABLE] to allow the Android system to attach the
+     * final request, and NOT with flag [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple
+     * times
      */
     class Builder constructor(
         private val pendingIntent: PendingIntent
@@ -75,6 +77,17 @@ class RemoteEntry constructor(
         private const val SLICE_HINT_PENDING_INTENT =
             "androidx.credentials.provider.remoteEntry.SLICE_HINT_PENDING_INTENT"
 
+        private const val SLICE_SPEC_TYPE = "RemoteEntry"
+
+        private const val REVISION_ID = 1
+
+        /**
+         * Converts an instance of [RemoteEntry] to a [Slice].
+         *
+         * This method is only expected to be called on an API > 28
+         * impl, hence returning null for other levels as the
+         * visibility is only restricted to the library.
+         */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @RequiresApi(28)
         @JvmStatic
@@ -82,8 +95,7 @@ class RemoteEntry constructor(
             remoteEntry: RemoteEntry
         ): Slice {
             val pendingIntent = remoteEntry.pendingIntent
-            // TODO("Put the right spec and version value")
-            val sliceBuilder = Slice.Builder(Uri.EMPTY, SliceSpec("type", 1))
+            val sliceBuilder = Slice.Builder(Uri.EMPTY, SliceSpec(SLICE_SPEC_TYPE, REVISION_ID))
             sliceBuilder.addAction(
                 pendingIntent,
                 Slice.Builder(sliceBuilder)

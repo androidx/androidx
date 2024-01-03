@@ -20,8 +20,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
-import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.AppDataKey;
+import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.proto.TypesProto;
 
 import org.junit.Test;
@@ -31,14 +31,14 @@ public class TypeBuildersTest {
     private static final TypeBuilders.StringProp STRING_PROP =
             new TypeBuilders.StringProp.Builder("string")
                     .setDynamicValue(
-                            DynamicBuilders.DynamicString.from(
-                                    new AppDataKey<>(STATE_KEY)))
+                            DynamicBuilders.DynamicString.from(new AppDataKey<>(STATE_KEY)))
                     .build();
 
     private static final TypeBuilders.FloatProp FLOAT_PROP =
             new TypeBuilders.FloatProp.Builder(12f)
                     .setDynamicValue(DynamicBuilders.DynamicFloat.from(new AppDataKey<>(STATE_KEY)))
                     .build();
+
     @SuppressWarnings("deprecation")
     private static final TypeBuilders.FloatProp.Builder FLOAT_PROP_WITHOUT_STATIC_VALUE =
             new TypeBuilders.FloatProp.Builder()
@@ -49,8 +49,7 @@ public class TypeBuildersTest {
     private static final TypeBuilders.StringProp.Builder STRING_PROP_BUILDER_WITHOUT_STATIC_VALUE =
             new TypeBuilders.StringProp.Builder()
                     .setDynamicValue(
-                            DynamicBuilders.DynamicString.from(
-                                    new AppDataKey<>(STATE_KEY)));
+                            DynamicBuilders.DynamicString.from(new AppDataKey<>(STATE_KEY)));
 
     @Test
     public void stringPropSupportsDynamicString() {

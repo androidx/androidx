@@ -84,7 +84,7 @@ class SnoozeAlarmTest {
             .isEqualTo(
                 Arguments.Builder()
                     .setSnoozeDuration(Duration.ofMinutes(5))
-                    .setTargetAlarm(AlarmValue(Alarm.Builder().setIdentifier("abc").build()))
+                    .setTargetAlarm(AlarmReference(Alarm.Builder().setIdentifier("abc").build()))
                     .build()
             )
     }

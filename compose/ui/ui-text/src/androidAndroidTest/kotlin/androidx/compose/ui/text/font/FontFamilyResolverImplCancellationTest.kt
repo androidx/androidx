@@ -28,7 +28,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runCurrent
 import org.junit.After
@@ -54,10 +54,8 @@ class FontFamilyResolverImplCancellationTest {
     fun setup() {
         asyncTypefaceCache = AsyncTypefaceCache()
         typefaceRequestCache = TypefaceRequestCache()
-        val dispatcher = TestCoroutineDispatcher()
-        scope = TestCoroutineScope(dispatcher).also {
-            dispatcher.pauseDispatcher()
-        }
+        val dispatcher = StandardTestDispatcher()
+        scope = TestCoroutineScope(dispatcher)
         val injectedContext = scope.coroutineContext.minusKey(CoroutineExceptionHandler)
         subject = FontFamilyResolverImpl(
             fontLoader,

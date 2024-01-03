@@ -58,6 +58,7 @@ private class BinderAdapterDelegate(
 
     fun openSession(
         context: Context,
+        windowInputToken: IBinder,
         initialWidth: Int,
         initialHeight: Int,
         isZOrderOnTop: Boolean,
@@ -65,13 +66,13 @@ private class BinderAdapterDelegate(
         client: SandboxedUiAdapter.SessionClient
     ) {
         adapter.openSession(
-            context, initialWidth, initialHeight, isZOrderOnTop, clientExecutor,
+            context, windowInputToken, initialWidth, initialHeight, isZOrderOnTop, clientExecutor,
             client
         )
     }
 
     override fun openRemoteSession(
-        hostToken: IBinder,
+        windowInputToken: IBinder,
         displayId: Int,
         initialWidth: Int,
         initialHeight: Int,
@@ -87,13 +88,13 @@ private class BinderAdapterDelegate(
                     sandboxContext.createDisplayContext(mDisplayManager.getDisplay(displayId))
                 val surfaceControlViewHost = SurfaceControlViewHost(
                     windowContext,
-                    mDisplayManager.getDisplay(displayId), hostToken
+                    mDisplayManager.getDisplay(displayId), windowInputToken
                 )
                 val sessionClient = SessionClientProxy(
                     surfaceControlViewHost, initialWidth, initialHeight, remoteSessionClient
                 )
                 openSession(
-                    windowContext, initialWidth, initialHeight, isZOrderOnTop,
+                    windowContext, windowInputToken, initialWidth, initialHeight, isZOrderOnTop,
                     Runnable::run, sessionClient
                 )
             } catch (exception: Throwable) {
@@ -111,7 +112,15 @@ private class BinderAdapterDelegate(
 
         override fun onSessionOpened(session: SandboxedUiAdapter.Session) {
             val view = session.view
-            surfaceControlViewHost.setView(view, initialWidth, initialHeight)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                val touchTransferringView = TouchFocusTransferringView(
+                    sandboxContext, surfaceControlViewHost)
+                touchTransferringView.addView(view)
+                surfaceControlViewHost.setView(touchTransferringView, initialWidth, initialHeight)
+            } else {
+                surfaceControlViewHost.setView(view, initialWidth, initialHeight)
+            }
+
             val surfacePackage = surfaceControlViewHost.surfacePackage
             val remoteSessionController =
                 RemoteSessionController(surfaceControlViewHost, session)
@@ -146,8 +155,11 @@ private class BinderAdapterDelegate(
             }
 
             override fun close() {
-                session.close()
-                surfaceControlViewHost.release()
+                val mHandler = Handler(Looper.getMainLooper())
+                mHandler.post {
+                    session.close()
+                    surfaceControlViewHost.release()
+                }
             }
         }
     }

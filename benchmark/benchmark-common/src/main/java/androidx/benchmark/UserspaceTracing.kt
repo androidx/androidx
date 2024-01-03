@@ -32,7 +32,6 @@ import perfetto.protos.TrackEvent
  * benchmark) can be added to the trace by calling [commitToTrace], and appending that to the
  * trace on-disk.
  *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 object UserspaceTracing {
@@ -125,7 +124,6 @@ object UserspaceTracing {
     }
 }
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 inline fun <T> userspaceTrace(label: String, block: () -> T): T {
     UserspaceTracing.beginSection(label)

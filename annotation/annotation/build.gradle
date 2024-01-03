@@ -1,7 +1,7 @@
 import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
-import androidx.build.Publish
+import androidx.build.KotlinTarget
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 
@@ -72,6 +72,7 @@ androidx {
     name = "Annotation"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.ANNOTATION
+    kotlinTarget = KotlinTarget.KOTLIN_1_7
     inceptionYear = "2013"
     description = "Provides source annotations for tooling and readability."
 }

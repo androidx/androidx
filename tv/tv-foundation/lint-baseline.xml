@@ -93,11 +93,83 @@
 
     <issue
         id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method LazyGrid has parameter &apos;slotSizesSums&apos; with type Function2&lt;? super Density, ? super Constraints, ? extends List&lt;Integer>>."
+        errorLine1="    slotSizesSums: Density.(Constraints) -> List&lt;Int>,"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/grid/LazyGrid.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;measurePolicy&apos; with type Function2&lt;? super LazyLayoutMeasureScope, ? super Constraints, ? extends MeasureResult>."
+        errorLine1="    val measurePolicy = rememberLazyGridMeasurePolicy("
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/grid/LazyGrid.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;LazyLayoutMeasureScope, Constraints, MeasureResult> of &apos;rememberLazyGridMeasurePolicy&apos;."
+        errorLine1="private fun rememberLazyGridMeasurePolicy("
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/grid/LazyGrid.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method rememberLazyGridMeasurePolicy has parameter &apos;slotSizesSums&apos; with type Function2&lt;? super Density, ? super Constraints, ? extends List&lt;Integer>>."
+        errorLine1="    slotSizesSums: Density.(Constraints) -> List&lt;Int>,"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/grid/LazyGrid.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;lineOf&apos; with type Function1&lt;? super Integer, ? extends Integer>."
         errorLine1="        val lineOf: (Int) -> Int = {"
         errorLine2="                    ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/tv/foundation/lazy/grid/LazyGridAnimateScrollScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;slotSizesSums&apos; with type Function2&lt;? super Density, ? super Constraints, ? extends List&lt;? extends Integer>>."
+        errorLine1="    val slotSizesSums = rememberColumnWidthSums(columns, horizontalArrangement, contentPadding)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/grid/LazyGridDsl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;slotSizesSums&apos; with type Function2&lt;? super Density, ? super Constraints, ? extends List&lt;? extends Integer>>."
+        errorLine1="    val slotSizesSums = rememberRowHeightSums(rows, verticalArrangement, contentPadding)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/grid/LazyGridDsl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;Density, Constraints, List&lt;Integer>> of &apos;rememberColumnWidthSums&apos;."
+        errorLine1="private fun rememberColumnWidthSums("
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/grid/LazyGridDsl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;Density, Constraints, List&lt;Integer>> of &apos;rememberRowHeightSums&apos;."
+        errorLine1="private fun rememberRowHeightSums("
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/grid/LazyGridDsl.kt"/>
     </issue>
 
     <issue
@@ -210,6 +282,15 @@
 
     <issue
         id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;reverseAware&apos; with type Function1&lt;? super Integer, ? extends Integer>."
+        errorLine1="        fun Int.reverseAware() ="
+        errorLine2="        ^">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/grid/LazyGridMeasure.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor NearestRangeKeyIndexMapState has parameter &apos;firstVisibleItemIndex&apos; with type Function0&lt;Integer>."
         errorLine1="    firstVisibleItemIndex: () -> Int,"
         errorLine2="                           ~~~~~~~~~">
@@ -273,9 +354,72 @@
 
     <issue
         id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;measurePolicy&apos; with type Function2&lt;? super LazyLayoutMeasureScope, ? super Constraints, ? extends MeasureResult>."
+        errorLine1="    val measurePolicy = rememberLazyListMeasurePolicy("
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/list/LazyList.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;LazyLayoutMeasureScope, Constraints, MeasureResult> of &apos;rememberLazyListMeasurePolicy&apos;."
+        errorLine1="private fun rememberLazyListMeasurePolicy("
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/list/LazyList.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method measureLazyList has parameter &apos;layout&apos; with type Function3&lt;? super Integer, ? super Integer, ? super Function1&lt;? super PlacementScope, Unit>, ? extends MeasureResult>."
         errorLine1="    layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/list/LazyListMeasure.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;endIndex&apos; with type Function1&lt;? super LazyListBeyondBoundsInfo, ? extends Integer>."
+        errorLine1="    fun LazyListBeyondBoundsInfo.endIndex() = min(end, itemsCount - 1)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/list/LazyListMeasure.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;addItem&apos; with type Function1&lt;? super Integer, ? extends Unit>."
+        errorLine1="    fun addItem(index: Int) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/list/LazyListMeasure.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;startIndex&apos; with type Function1&lt;? super LazyListBeyondBoundsInfo, ? extends Integer>."
+        errorLine1="    fun LazyListBeyondBoundsInfo.startIndex() = min(start, itemsCount - 1)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/list/LazyListMeasure.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;addItem&apos; with type Function1&lt;? super Integer, ? extends Unit>."
+        errorLine1="    fun addItem(index: Int) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/list/LazyListMeasure.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;reverseAware&apos; with type Function1&lt;? super Integer, ? extends Integer>."
+        errorLine1="        fun Int.reverseAware() ="
+        errorLine2="        ^">
         <location
             file="src/main/java/androidx/tv/foundation/lazy/list/LazyListMeasure.kt"/>
     </issue>

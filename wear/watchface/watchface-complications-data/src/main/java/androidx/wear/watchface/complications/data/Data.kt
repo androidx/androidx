@@ -246,7 +246,8 @@ constructor(
         }
 
         /**
-         * Sets the complication's fallback, used in case any dynamic value has been invalidated.
+         * Sets the complication's fallback, used in case any dynamic value cannot be evaluated,
+         * e.g. when a data source is not available.
          *
          * IMPORTANT: This is only used when the system supports dynamic values. See each dynamic
          * value field's fallback companion field for the situation where the system does not
@@ -328,7 +329,6 @@ internal constructor(
             "persistencePolicy=$persistencePolicy, displayPolicy=$displayPolicy)"
     }
 
-    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField public val TYPE: ComplicationType = ComplicationType.NO_DATA
@@ -357,7 +357,6 @@ public class EmptyComplicationData :
         return "EmptyComplicationData()"
     }
 
-    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField public val TYPE: ComplicationType = ComplicationType.EMPTY
@@ -387,7 +386,6 @@ public class NotConfiguredComplicationData :
         return "NotConfiguredComplicationData()"
     }
 
-    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField public val TYPE: ComplicationType = ComplicationType.NOT_CONFIGURED
@@ -577,7 +575,6 @@ internal constructor(
         }
     }
 
-    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField public val TYPE: ComplicationType = ComplicationType.SHORT_TEXT
@@ -761,7 +758,6 @@ internal constructor(
         }
     }
 
-    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField public val TYPE: ComplicationType = ComplicationType.LONG_TEXT
@@ -886,7 +882,7 @@ public class ColorRamp(
 public class RangedValueComplicationData
 internal constructor(
     public val value: Float,
-    public val dynamicValue: DynamicFloat?,
+    @get:RequiresApi(Build.VERSION_CODES.TIRAMISU) public val dynamicValue: DynamicFloat?,
     public val min: Float,
     public val max: Float,
     public val monochromaticImage: MonochromaticImage?,
@@ -981,8 +977,8 @@ internal constructor(
          *   semantic meaning of value can be specified via [setValueType].
          *
          *   IMPORTANT: This is only used when the system does not support dynamic values _at all_.
-         *   See [setDynamicValueInvalidationFallback] for the situation where the dynamic value has
-         *   been invalidated.
+         *   See [setDynamicValueInvalidationFallback] for the situation where the dynamic value
+         *   cannot be evaluated, e.g. when a data source is not available.
          *
          * @param min The minimum value. For [TYPE_PERCENTAGE] this must be 0f.
          * @param max The maximum value. This must be less than [Float.MAX_VALUE]. For
@@ -992,7 +988,7 @@ internal constructor(
          *   complications do not have textual representation this attribute can be used for
          *   providing such. Please do not include the word 'complication' in the description.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         public constructor(
             dynamicValue: DynamicFloat,
             fallbackValue: Float,
@@ -1146,7 +1142,6 @@ internal constructor(
         }
     }
 
-    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField public val TYPE: ComplicationType = ComplicationType.RANGED_VALUE
@@ -1251,7 +1246,7 @@ internal constructor(
 public class GoalProgressComplicationData
 internal constructor(
     public val value: Float,
-    public val dynamicValue: DynamicFloat?,
+    @get:RequiresApi(Build.VERSION_CODES.TIRAMISU) public val dynamicValue: DynamicFloat?,
     public val targetValue: Float,
     public val monochromaticImage: MonochromaticImage?,
     public val smallImage: SmallImage?,
@@ -1330,8 +1325,8 @@ internal constructor(
          *   systems that don't support dynamic values, and should be >= 0.
          *
          *   IMPORTANT: This is only used when the system does not support dynamic values _at all_.
-         *   See [setDynamicValueInvalidationFallback] for the situation where the dynamic value has
-         *   been invalidated.
+         *   See [setDynamicValueInvalidationFallback] for the situation where the dynamic value
+         *   cannot be evaluated, e.g. when a data source is not available.
          *
          * @param targetValue The target value. This must be less than [Float.MAX_VALUE].
          * @param contentDescription Defines localized text that briefly describes content of the
@@ -1339,6 +1334,7 @@ internal constructor(
          *   complications do not have textual representation this attribute can be used for
          *   providing such. Please do not include the word 'complication' in the description.
          */
+        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         public constructor(
             dynamicValue: DynamicFloat,
             fallbackValue: Float,
@@ -1476,7 +1472,6 @@ internal constructor(
         }
     }
 
-    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField public val TYPE: ComplicationType = ComplicationType.GOAL_PROGRESS
@@ -1926,7 +1921,6 @@ internal constructor(
             "dynamicValueInvalidationFallback=$dynamicValueInvalidationFallback)"
     }
 
-    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField public val TYPE: ComplicationType = ComplicationType.MONOCHROMATIC_IMAGE
@@ -2046,7 +2040,6 @@ internal constructor(
 
     override fun hasPlaceholderFields() = smallImage.isPlaceholder()
 
-    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField public val TYPE: ComplicationType = ComplicationType.SMALL_IMAGE
@@ -2172,7 +2165,6 @@ internal constructor(
 
     override fun hasPlaceholderFields() = photoImage.isPlaceholder()
 
-    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField public val TYPE: ComplicationType = ComplicationType.PHOTO_IMAGE
@@ -2299,7 +2291,6 @@ internal constructor(
         }
     }
 
-    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField public val TYPE: ComplicationType = ComplicationType.NO_PERMISSION

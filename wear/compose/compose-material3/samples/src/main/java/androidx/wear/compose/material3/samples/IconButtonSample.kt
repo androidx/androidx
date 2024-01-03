@@ -32,7 +32,7 @@ fun IconButtonSample() {
     IconButton(onClick = { /* Do something */ }) {
         Icon(
             imageVector = Icons.Filled.Favorite,
-            contentDescription = "Localized description"
+            contentDescription = "Favorite icon"
         )
     }
 }
@@ -43,7 +43,7 @@ fun FilledIconButtonSample() {
     FilledIconButton(onClick = { /* Do something */ }) {
         Icon(
             imageVector = Icons.Filled.Favorite,
-            contentDescription = "Localized description"
+            contentDescription = "Favorite icon"
         )
     }
 }
@@ -54,7 +54,7 @@ fun FilledTonalIconButtonSample() {
     FilledTonalIconButton(onClick = { /* Do something */ }) {
         Icon(
             imageVector = Icons.Filled.Favorite,
-            contentDescription = "Localized description"
+            contentDescription = "Favorite icon"
         )
     }
 }
@@ -65,7 +65,7 @@ fun OutlinedIconButtonSample() {
     OutlinedIconButton(onClick = { /* Do something */ }) {
         Icon(
             imageVector = Icons.Filled.Favorite,
-            contentDescription = "Localized description"
+            contentDescription = "Favorite icon"
         )
     }
 }

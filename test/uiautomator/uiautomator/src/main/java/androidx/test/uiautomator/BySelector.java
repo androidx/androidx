@@ -55,6 +55,9 @@ public class BySelector {
     Integer mMinDepth;
     Integer mMaxDepth;
 
+    // Display ID
+    Integer mDisplayId;
+
     // Ancestor selector
     BySelector mAncestorSelector;
     Integer mMaxAncestorDistance;
@@ -91,6 +94,8 @@ public class BySelector {
 
         mMinDepth = original.mMinDepth;
         mMaxDepth = original.mMaxDepth;
+
+        mDisplayId = original.mDisplayId;
 
         mAncestorSelector = original.mAncestorSelector == null ? null :
                 new BySelector(original.mAncestorSelector);
@@ -638,6 +643,23 @@ public class BySelector {
     }
 
     /**
+     * Adds a display ID selector criteria for matching. A UI element will be considered a match
+     * if it is within the display with the ID of {@code displayId} and all other criteria for
+     * this selector are met.
+     *
+     * @param displayId The display ID to match. Use {@link Display#getDisplayId()} to get the ID.
+     * @return A reference to this {@link BySelector}.
+     */
+    @RequiresApi(30)
+    public @NonNull BySelector displayId(int displayId) {
+        if (mDisplayId != null) {
+            throw new IllegalStateException("Display ID selector is already defined");
+        }
+        mDisplayId = displayId;
+        return this;
+    }
+
+    /**
      * Adds a parent selector criteria for matching. A UI element will be considered a match if it
      * has a parent element (direct ancestor) which matches the {@code parentSelector} and all
      * other criteria for this selector are met.
@@ -790,6 +812,9 @@ public class BySelector {
         }
         if (mSelected != null) {
             builder.append("SELECTED='").append(mSelected).append("', ");
+        }
+        if (mDisplayId != null) {
+            builder.append("DISPLAY_ID='").append(mDisplayId).append("', ");
         }
         if (mAncestorSelector != null) {
             builder.append("ANCESTOR='")

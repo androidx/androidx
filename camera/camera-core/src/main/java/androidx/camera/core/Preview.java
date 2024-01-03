@@ -252,12 +252,13 @@ public final class Preview extends UseCase {
             SurfaceEdge appEdge = requireNonNull(nodeOutput.get(outConfig));
             appEdge.addOnInvalidatedListener(() -> onAppEdgeInvalidated(appEdge, camera));
             mCurrentSurfaceRequest = appEdge.createSurfaceRequest(camera);
+            mSessionDeferrableSurface = mCameraEdge.getDeferrableSurface();
         } else {
             mCameraEdge.addOnInvalidatedListener(this::notifyReset);
             mCurrentSurfaceRequest = mCameraEdge.createSurfaceRequest(camera);
+            mSessionDeferrableSurface = mCurrentSurfaceRequest.getDeferrableSurface();
         }
-        // Send the app Surface to the app.
-        mSessionDeferrableSurface = mCameraEdge.getDeferrableSurface();
+
         if (mSurfaceProvider != null) {
             // Only send surface request if the provider is set.
             sendSurfaceRequest();
@@ -266,6 +267,7 @@ public final class Preview extends UseCase {
         // Send the camera Surface to the camera2.
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config,
                 streamSpec.getResolution());
+        sessionConfigBuilder.setExpectedFrameRateRange(streamSpec.getExpectedFrameRateRange());
         if (streamSpec.getImplementationOptions() != null) {
             sessionConfigBuilder.addImplementationOptions(streamSpec.getImplementationOptions());
         }
@@ -437,7 +439,6 @@ public final class Preview extends UseCase {
         } else {
             mSurfaceProvider = surfaceProvider;
             mSurfaceProviderExecutor = executor;
-            notifyActive();
 
             // It could be a previous request has already been sent, which means the caller wants
             // to replace the Surface. Or, it could be the pipeline has not started. Or the use
@@ -448,15 +449,19 @@ public final class Preview extends UseCase {
                         getAttachedStreamSpec());
                 notifyReset();
             }
+            notifyActive();
         }
     }
 
     private void sendSurfaceRequest() {
+        // App receives TransformationInfo when 1) the listener is set or 2) the info is sent. We
+        // should send the info before the listen is set so the app only receives once.
+        sendTransformationInfoIfReady();
+
+        // Send the SurfaceRequest.
         final SurfaceProvider surfaceProvider = checkNotNull(mSurfaceProvider);
         final SurfaceRequest surfaceRequest = checkNotNull(mCurrentSurfaceRequest);
-
         mSurfaceProviderExecutor.execute(() -> surfaceProvider.onSurfaceRequested(surfaceRequest));
-        sendTransformationInfoIfReady();
     }
 
     /**
@@ -1078,10 +1083,8 @@ public final class Preview extends UseCase {
          * size match to the device's screen resolution, or to 1080p (1920x1080), whichever is
          * smaller. See the
          * <a href="https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture">Regular capture</a>
-         * section in {@link android.hardware.camera2.CameraDevice}'. {@link Preview} has a
-         * default {@link ResolutionStrategy} with the {@code PREVIEW} bound size and
-         * {@link ResolutionStrategy#FALLBACK_RULE_CLOSEST_LOWER} to achieve this. Applications
-         * can override this default strategy with a different resolution strategy.
+         * section in {@link android.hardware.camera2.CameraDevice}'. Applications can set any
+         * {@link ResolutionStrategy} to override it.
          *
          * <p>Note that due to compatibility reasons, CameraX may select a resolution that is
          * larger than the default screen resolution on certain devices.

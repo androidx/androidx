@@ -38,18 +38,18 @@ internal fun linearMap(xValues: List<Float>, yValues: List<Float>, x: Float): Fl
         progressInRange(x, xValues[it], xValues[(it + 1) % xValues.size])
     }
     val segmentEndIndex = (segmentStartIndex + 1) % xValues.size
-    val segmentSizeX = positiveModule(
+    val segmentSizeX = positiveModulo(
         xValues[segmentEndIndex] - xValues[segmentStartIndex],
         1f
     )
-    val segmentSizeY = positiveModule(
+    val segmentSizeY = positiveModulo(
         yValues[segmentEndIndex] - yValues[segmentStartIndex],
         1f
     )
     val positionInSegment = segmentSizeX.let {
-        if (it < 0.001f) 0.5f else positiveModule(x - xValues[segmentStartIndex], 1f) / it
+        if (it < 0.001f) 0.5f else positiveModulo(x - xValues[segmentStartIndex], 1f) / it
     }
-    return positiveModule(
+    return positiveModulo(
         yValues[segmentStartIndex] + segmentSizeY * positionInSegment,
         1f
     )

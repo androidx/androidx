@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-/** @hide */
 @RestrictTo(LIBRARY)
 package androidx.core.location.altitude.impl.proto;
 

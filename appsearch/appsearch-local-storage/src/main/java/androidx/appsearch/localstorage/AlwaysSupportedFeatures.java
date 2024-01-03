@@ -63,6 +63,10 @@ public class AlwaysSupportedFeatures implements Features {
             case Features.SCHEMA_SET_DELETION_PROPAGATION:
                 // fall through
             case Features.SET_SCHEMA_CIRCULAR_REFERENCES:
+                // fall through
+            case Features.SCHEMA_ADD_PARENT_TYPE:
+                // fall through
+            case Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES:
                 return true;
             default:
                 return false;

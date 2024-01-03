@@ -88,6 +88,7 @@ class FakeCapability private constructor() {
             .setOutput(Output::class.java)
             .bindParameter(
                 "fieldOne",
+                Arguments::fieldOne,
                 Arguments.Builder::setFieldOne,
                 TypeConverters.STRING_PARAM_VALUE_CONVERTER
             )

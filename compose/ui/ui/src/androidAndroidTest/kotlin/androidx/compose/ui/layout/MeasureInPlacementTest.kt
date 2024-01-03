@@ -114,7 +114,7 @@ class MeasureInPlacementTest {
      */
     @OptIn(ExperimentalComposeUiApi::class)
     @Test
-    fun measureInModifierPlacementWithLookaheadLayout() {
+    fun measureInModifierPlacementWithLookaheadScope() {
         var childSize = IntSize.Zero
         rule.setContent {
             LookaheadScope {
@@ -146,7 +146,7 @@ class MeasureInPlacementTest {
      */
     @OptIn(ExperimentalComposeUiApi::class)
     @Test
-    fun measureInLayoutPlacementWithLookaheadLayout() {
+    fun measureInLayoutPlacementWithLookaheadScope() {
         var childSize = IntSize.Zero
         rule.setContent {
             LookaheadScope {

@@ -19,10 +19,14 @@ package androidx.wear.compose.material3.samples
 import androidx.annotation.Sampled
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.wear.compose.material3.AppCard
 import androidx.wear.compose.material3.Card
 import androidx.wear.compose.material3.CardDefaults
@@ -47,8 +51,8 @@ fun CardSample() {
 fun AppCardSample() {
     AppCard(
         onClick = { /* Do something */ },
-        appName = { Text("AppName") },
-        title = { Text("AppCard") },
+        appName = { Text("App name") },
+        title = { Text("Card title") },
         time = { Text("now") },
     ) {
         Text("Card content")
@@ -60,7 +64,7 @@ fun AppCardSample() {
 fun AppCardWithIconSample() {
     AppCard(
         onClick = { /* Do something */ },
-        appName = { Text("AppName") },
+        appName = { Text("App name") },
         appImage = {
             Icon(
                 painter = painterResource(id = android.R.drawable.star_big_off),
@@ -70,7 +74,7 @@ fun AppCardWithIconSample() {
                     .wrapContentSize(align = Alignment.Center),
             )
         },
-        title = { Text("AppCard with icon") },
+        title = { Text("Card title") },
         time = { Text("now") },
     ) {
         Text("Card content")
@@ -82,7 +86,7 @@ fun AppCardWithIconSample() {
 fun TitleCardSample() {
     TitleCard(
         onClick = { /* Do something */ },
-        title = { Text("TitleCard") },
+        title = { Text("Title card") },
         time = { Text("now") },
     ) {
         Text("Card content")
@@ -94,14 +98,16 @@ fun TitleCardSample() {
 fun TitleCardWithImageSample() {
     TitleCard(
         onClick = { /* Do something */ },
-        title = { Text("TitleCard With an ImageBackground") },
+        title = { Text("Card title") },
+        time = { Text("now") },
         colors = CardDefaults.imageCardColors(
             containerPainter = CardDefaults.imageWithScrimBackgroundPainter(
                 backgroundImagePainter = painterResource(id = R.drawable.backgroundimage)
             ),
             contentColor = MaterialTheme.colorScheme.onSurface,
             titleColor = MaterialTheme.colorScheme.onSurface
-        )
+        ),
+        modifier = Modifier.semantics { contentDescription = "Background image" }
     ) {
         Text("Card content")
     }
@@ -113,7 +119,7 @@ fun OutlinedCardSample() {
     OutlinedCard(
         onClick = { /* Do something */ },
     ) {
-        Text("OutlinedCard")
+        Text("Outlined card")
     }
 }
 
@@ -122,8 +128,16 @@ fun OutlinedCardSample() {
 fun OutlinedAppCardSample() {
     AppCard(
         onClick = { /* Do something */ },
-        appName = { Text("AppName") },
-        title = { Text("Outlined AppCard") },
+        appName = { Text("App name") },
+        appImage = {
+            Icon(
+                Icons.Filled.Favorite,
+                contentDescription = "favourites",
+                modifier = Modifier.size(CardDefaults.AppImageSize)
+            )
+        },
+        title = { Text("App card") },
+        time = { Text("now") },
         colors = CardDefaults.outlinedCardColors(),
         border = CardDefaults.outlinedCardBorder(),
     ) {
@@ -136,7 +150,8 @@ fun OutlinedAppCardSample() {
 fun OutlinedTitleCardSample() {
     TitleCard(
         onClick = { /* Do something */ },
-        title = { Text("Outlined TitleCard") },
+        title = { Text("Title card") },
+        time = { Text("now") },
         colors = CardDefaults.outlinedCardColors(),
         border = CardDefaults.outlinedCardBorder(),
     ) {

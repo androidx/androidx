@@ -64,12 +64,12 @@ public class GoldenTestActivity extends Activity {
         ProtoLayoutViewInstance instance =
                 new ProtoLayoutViewInstance(
                         new ProtoLayoutViewInstance.Config.Builder(
-                                appContext,
-                                mainExecutor,
-                                mainExecutor,
-                                "androidx.wear.tiles.extra.CLICKABLE_ID")
+                                        appContext,
+                                        mainExecutor,
+                                        mainExecutor,
+                                        "androidx.wear.tiles.extra.CLICKABLE_ID")
                                 .setIsViewFullyVisible(true)
-                        .build());
+                                .build());
 
         instance.renderAndAttach(checkNotNull(layout).toProto(), resources.toProto(), root);
 

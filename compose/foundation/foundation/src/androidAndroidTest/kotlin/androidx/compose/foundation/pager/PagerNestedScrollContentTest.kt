@@ -36,6 +36,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
@@ -54,6 +55,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.test.assertTrue
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -384,7 +386,6 @@ class PagerNestedScrollContentTest(
 
         // Assert: Check we're settled.
         rule.runOnIdle {
-            assertThat(pagerState.currentPage).isEqualTo(5)
             assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f)
         }
 
@@ -395,6 +396,7 @@ class PagerNestedScrollContentTest(
         rule.runOnIdle { assertThat(focusItems).contains("page=5-item=3") }
 
         // Act: Move focus in inner scrollable
+        val previousPage = pagerState.currentPage
         rule.runOnIdle {
             assertTrue {
                 if (vertical) {
@@ -408,7 +410,7 @@ class PagerNestedScrollContentTest(
         // Assert: Check we actually scrolled, but didn't move pages.
         rule.runOnIdle {
             assertThat(focusItems).contains("page=5-item=4")
-            assertThat(pagerState.currentPage).isEqualTo(5)
+            assertThat(pagerState.currentPage).isEqualTo(previousPage)
             assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f)
         }
 
@@ -428,8 +430,60 @@ class PagerNestedScrollContentTest(
 
         // Assert: Check we moved pages.
         rule.runOnIdle {
-            assertThat(pagerState.currentPage).isEqualTo(6)
+            assertThat(focusItems).contains("page=6-item=0")
             assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f)
+        }
+    }
+
+    @Test
+    fun focusableContentInPage_focusMoveShouldNotLeavePagesInIntermediateState() {
+        lateinit var pagerFocusRequester: FocusRequester
+
+        createPager(
+            modifier = Modifier.fillMaxSize(),
+            pageCount = { DefaultPageCount },
+            initialPage = 3
+        ) { page ->
+            val focusRequester = remember {
+                FocusRequester().apply {
+                    if (page == 5) pagerFocusRequester = this
+                }
+            }
+
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = Modifier
+                        .size(64.dp)
+                        .focusRequester(focusRequester)
+                        .focusable()
+                )
+            }
+        }
+
+        // Assert: Pager is settled
+        assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f)
+        assertThat(pagerState.currentPage).isEqualTo(3)
+
+        // Scroll to a page
+        rule.runOnIdle {
+            scope.launch {
+                pagerState.scrollToPage(5)
+            }
+        }
+
+        // Assert: Pager is settled
+        assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f)
+        assertThat(pagerState.currentPage).isEqualTo(5)
+
+        // Act: Request focus.
+        rule.runOnIdle {
+            pagerFocusRequester.requestFocus()
+        }
+
+        // Assert: Pager is settled
+        rule.runOnIdle {
+            assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f)
+            assertThat(pagerState.currentPage).isEqualTo(5)
         }
     }
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
+<issues format="6" by="lint 8.1.0-beta05" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta05)" variant="all" version="8.1.0-beta05">
 
     <issue
         id="BanSynchronizedMethods"
@@ -8,15 +8,6 @@
         errorLine2="                            ^">
         <location
             file="src/main/java/androidx/work/impl/utils/futures/AbstractFuture.java"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="        Thread.sleep(TEST_TIMEOUT_IN_MS);"
-        errorLine2="               ~~~~~">
-        <location
-            file="src/androidTest/java/androidx/work/impl/workers/ConstraintTrackingWorkerTest.java"/>
     </issue>
 
     <issue

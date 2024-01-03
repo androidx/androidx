@@ -31,7 +31,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.TextEditFilter
-import androidx.compose.foundation.text2.input.TextFieldBufferWithSelection
+import androidx.compose.foundation.text2.input.TextFieldBuffer
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.clearText
@@ -170,7 +170,7 @@ private class PinState(val maxDigits: Int) {
     private object OnlyDigitsFilter : TextEditFilter {
         override fun filter(
             originalValue: TextFieldCharSequence,
-            valueWithChanges: TextFieldBufferWithSelection
+            valueWithChanges: TextFieldBuffer
         ) {
             if (!valueWithChanges.isDigitsOnly()) {
                 valueWithChanges.revertAllChanges()

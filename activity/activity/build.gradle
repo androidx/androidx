@@ -4,6 +4,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("kotlin-android")
+    id("androidx.baselineprofile")
 }
 
 android {
@@ -43,6 +44,8 @@ dependencies {
     })
 
     lintPublish(project(":activity:activity-lint"))
+
+    baselineProfile(project(":activity:integration-tests:baselineprofile"))
 }
 
 androidx {
@@ -50,4 +53,12 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Provides the base Activity subclass and the relevant hooks to build a composable structure on top."
+}
+
+baselineProfile {
+    // This filter selects everything in androidx.activity, excluding the integration test code.
+    filter {
+        include "androidx.activity.**"
+        exclude "androidx.activity.integration.**"
+    }
 }

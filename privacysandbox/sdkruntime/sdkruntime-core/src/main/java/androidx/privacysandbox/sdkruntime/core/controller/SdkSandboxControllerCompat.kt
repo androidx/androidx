@@ -18,12 +18,11 @@ package androidx.privacysandbox.sdkruntime.core.controller
 
 import android.app.sdksandbox.sdkprovider.SdkSandboxController
 import android.content.Context
+import android.os.Build
 import android.os.IBinder
 import androidx.annotation.Keep
-import androidx.annotation.OptIn
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
-import androidx.core.os.BuildCompat
 import androidx.privacysandbox.sdkruntime.core.AdServicesInfo
 import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
@@ -164,10 +163,9 @@ class SdkSandboxControllerCompat internal constructor(
     }
 
     private object PlatformImplFactory {
-        @OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
         fun create(context: Context): SandboxControllerImpl {
             if (AdServicesInfo.isAtLeastV5()) {
-                if (BuildCompat.isAtLeastU() || AdServicesInfo.isDeveloperPreview()) {
+                if (Build.VERSION.SDK_INT >= 34 || AdServicesInfo.isDeveloperPreview()) {
                     return PlatformUDCImpl.from(context)
                 }
                 return PlatformImpl.from(context)

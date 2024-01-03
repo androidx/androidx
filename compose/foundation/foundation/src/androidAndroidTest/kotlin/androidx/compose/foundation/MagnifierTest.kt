@@ -719,6 +719,36 @@ class MagnifierTest {
 
     @SdkSuppress(minSdkVersion = 28)
     @Test
+    fun platformMagnifierModifier_firesOnSizeChanged_initially_whenSourceCenterUnspecified() {
+        val magnifierSize = IntSize(10, 11)
+        val sizeEvents = mutableListOf<DpSize>()
+        val platformMagnifier = CountingPlatformMagnifier().apply {
+            size = magnifierSize
+        }
+        rule.setContent {
+            Box(
+                Modifier.magnifier(
+                    sourceCenter = { Offset.Unspecified },
+                    magnifierCenter = { Offset.Unspecified },
+                    zoom = Float.NaN,
+                    style = MagnifierStyle.Default,
+                    onSizeChanged = { sizeEvents += it },
+                    platformMagnifierFactory = PlatformMagnifierFactory(platformMagnifier)
+                )
+            )
+        }
+
+        rule.runOnIdle {
+            assertThat(sizeEvents).containsExactly(
+                with(rule.density) {
+                    magnifierSize.toSize().toDpSize()
+                }
+            )
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 28)
+    @Test
     fun platformMagnifierModifier_firesOnSizeChanged_whenNewSizeRequested() {
         val size1 = IntSize(10, 11)
         val size2 = size1 * 2

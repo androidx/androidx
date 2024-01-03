@@ -29,17 +29,23 @@ import androidx.credentials.exceptions.ClearCredentialException
 import androidx.credentials.exceptions.ClearCredentialUnknownException
 import androidx.credentials.exceptions.ClearCredentialUnsupportedException
 import androidx.credentials.exceptions.CreateCredentialCancellationException
+import androidx.credentials.exceptions.CreateCredentialCustomException
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.CreateCredentialInterruptedException
 import androidx.credentials.exceptions.CreateCredentialNoCreateOptionException
 import androidx.credentials.exceptions.CreateCredentialUnknownException
 import androidx.credentials.exceptions.CreateCredentialUnsupportedException
 import androidx.credentials.exceptions.GetCredentialCancellationException
+import androidx.credentials.exceptions.GetCredentialCustomException
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.GetCredentialInterruptedException
 import androidx.credentials.exceptions.GetCredentialUnknownException
 import androidx.credentials.exceptions.GetCredentialUnsupportedException
 import androidx.credentials.exceptions.NoCredentialException
+import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialDomException
+import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialException
+import androidx.credentials.exceptions.publickeycredential.GetPublicKeyCredentialDomException
+import androidx.credentials.exceptions.publickeycredential.GetPublicKeyCredentialException
 import androidx.credentials.internal.FrameworkImplHelper
 import java.util.concurrent.Executor
 
@@ -215,7 +221,6 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
                     FrameworkImplHelper.getFinalCreateCredentialData(request, context),
                     request.candidateQueryData)
                 .setIsSystemProviderRequired(request.isSystemProviderRequired)
-                // TODO("change to taking value from the request when ready")
                 .setAlwaysSendAppInfoToProvider(true)
         setOriginForCreateRequest(request, createCredentialRequestBuilder)
         return createCredentialRequestBuilder.build()
@@ -236,16 +241,6 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
         val builder = android.credentials.GetCredentialRequest.Builder(
             GetCredentialRequest.toRequestDataBundle(request))
         request.credentialOptions.forEach {
-            // TODO(b/278308121): clean up the temporary bundle value injection after the Beta 2
-            // release.
-            if (request.preferImmediatelyAvailableCredentials &&
-                it is GetPublicKeyCredentialOption) {
-                it.requestData.putBoolean(
-                    "androidx.credentials.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS",
-                    true,
-                )
-            }
-
             builder.addCredentialOption(
                 android.credentials.CredentialOption.Builder(
                     it.type, it.requestData, it.candidateQueryData
@@ -275,6 +270,7 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
 
     internal fun convertToJetpackGetException(error: android.credentials.GetCredentialException):
         GetCredentialException {
+
         return when (error.type) {
             android.credentials.GetCredentialException.TYPE_NO_CREDENTIAL ->
                 NoCredentialException(error.message)
@@ -285,7 +281,16 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
             android.credentials.GetCredentialException.TYPE_INTERRUPTED ->
                 GetCredentialInterruptedException(error.message)
 
-            else -> GetCredentialUnknownException(error.message)
+            android.credentials.GetCredentialException.TYPE_UNKNOWN ->
+                GetCredentialUnknownException(error.message)
+
+            else -> {
+                if (error.type.startsWith(GET_DOM_EXCEPTION_PREFIX)) {
+                    GetPublicKeyCredentialException.createFrom(error.type, error.message)
+                } else {
+                    GetCredentialCustomException(error.type, error.message)
+                }
+            }
         }
     }
 
@@ -302,7 +307,16 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
             android.credentials.CreateCredentialException.TYPE_INTERRUPTED ->
                 CreateCredentialInterruptedException(error.message)
 
-            else -> CreateCredentialUnknownException(error.message)
+            android.credentials.CreateCredentialException.TYPE_UNKNOWN ->
+                CreateCredentialUnknownException(error.message)
+
+            else -> {
+                if (error.type.startsWith(CREATE_DOM_EXCEPTION_PREFIX)) {
+                    CreatePublicKeyCredentialException.createFrom(error.type, error.message)
+                } else {
+                    CreateCredentialCustomException(error.type, error.message)
+                }
+            }
         }
     }
 
@@ -320,12 +334,14 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
     internal fun convertPrepareGetResponseToJetpackClass(
         response: android.credentials.PrepareGetCredentialResponse
     ): PrepareGetCredentialResponse {
-        return PrepareGetCredentialResponse(
-            response,
-            PrepareGetCredentialResponse.PendingGetCredentialHandle(
-                response.pendingGetCredentialHandle,
-            )
+        val handle = PrepareGetCredentialResponse.PendingGetCredentialHandle(
+            response.pendingGetCredentialHandle,
         )
+
+        return PrepareGetCredentialResponse.Builder()
+            .setFrameworkResponse(response)
+            .setPendingGetCredentialHandle(handle)
+            .build()
     }
 
     override fun isAvailableOnDevice(): Boolean {
@@ -357,7 +373,6 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
 
             override fun onError(error: android.credentials.ClearCredentialStateException) {
                 Log.i(TAG, "ClearCredentialStateException error returned from framework")
-                // TODO("Covert to the appropriate exception")
                 callback.onError(ClearCredentialUnknownException())
             }
         }
@@ -372,5 +387,10 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
 
     private companion object {
         private const val TAG = "CredManProvService"
+
+        private const val GET_DOM_EXCEPTION_PREFIX =
+            GetPublicKeyCredentialDomException.TYPE_GET_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION
+        private const val CREATE_DOM_EXCEPTION_PREFIX =
+            CreatePublicKeyCredentialDomException.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION
     }
 }

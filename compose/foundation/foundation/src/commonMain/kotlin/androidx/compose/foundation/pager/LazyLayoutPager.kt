@@ -77,13 +77,13 @@ internal fun Pager(
     userScrollEnabled: Boolean,
     /** Number of pages to layout before and after the visible pages */
     beyondBoundsPageCount: Int = 0,
-    /** Space between pages **/
+    /** Space between pages */
     pageSpacing: Dp = 0.dp,
-    /** Allows to change how to calculate the Page size **/
+    /** Allows to change how to calculate the Page size */
     pageSize: PageSize,
-    /** A [NestedScrollConnection] that dictates how this [Pager] behaves with nested lists.  **/
+    /** A [NestedScrollConnection] that dictates how this [Pager] behaves with nested lists.  */
     pageNestedScrollConnection: NestedScrollConnection,
-    /** a stable and unique key representing the Page **/
+    /** a stable and unique key representing the Page */
     key: ((index: Int) -> Any)?,
     /** The alignment to align pages horizontally. Required when isVertical is true */
     horizontalAlignment: Alignment.Horizontal,
@@ -123,23 +123,18 @@ internal fun Pager(
         PagerWrapperFlingBehavior(flingBehavior, state)
     }
 
-    val pagerSemantics = if (userScrollEnabled) {
-        Modifier.pagerSemantics(state, orientation == Orientation.Vertical)
-    } else {
-        Modifier
-    }
-
     val semanticState = rememberPagerSemanticState(
         state,
         reverseLayout,
         orientation == Orientation.Vertical
     )
 
+    val pagerBringIntoViewScroller = remember(state) { PagerBringIntoViewScroller(state) }
+
     LazyLayout(
         modifier = modifier
             .then(state.remeasurementModifier)
             .then(state.awaitLayoutModifier)
-            .then(pagerSemantics)
             .lazyLayoutSemantics(
                 itemProviderLambda = pagerItemProvider,
                 state = semanticState,
@@ -167,7 +162,7 @@ internal fun Pager(
                 state = state,
                 overscrollEffect = overscrollEffect,
                 enabled = userScrollEnabled,
-                bringIntoViewScroller = PagerBringIntoViewScroller
+                bringIntoViewScroller = pagerBringIntoViewScroller
             )
             .dragDirectionDetector(state)
             .nestedScroll(pageNestedScrollConnection),
@@ -244,9 +239,10 @@ private fun rememberPagerItemProviderLambda(
     pageCount: () -> Int
 ): () -> PagerLazyLayoutItemProvider {
     val latestContent = rememberUpdatedState(pageContent)
-    return remember(state, latestContent, key, pageCount) {
+    val latestKey = rememberUpdatedState(key)
+    return remember(state, latestContent, latestKey, pageCount) {
         val intervalContentState = derivedStateOf(referentialEqualityPolicy()) {
-            PagerLayoutIntervalContent(latestContent.value, key, pageCount())
+            PagerLayoutIntervalContent(latestContent.value, latestKey.value, pageCount())
         }
         val itemProviderState = derivedStateOf(referentialEqualityPolicy()) {
             val intervalContent = intervalContentState.value
@@ -286,26 +282,37 @@ private fun Modifier.dragDirectionDetector(state: PagerState) =
     }
 
 @OptIn(ExperimentalFoundationApi::class)
-private val PagerBringIntoViewScroller = object : BringIntoViewScroller {
+private class PagerBringIntoViewScroller(val pagerState: PagerState) : BringIntoViewScroller {
 
     override val scrollAnimationSpec: AnimationSpec<Float> = spring()
 
+    /**
+     * [calculateScrollDistance] for Pager behaves differently than in a normal list. We must
+     * always respect the snapped pages over bringing a child into view. The logic here will
+     * behave like so:
+     *
+     * 1) If a child is outside of the view, start bringing it into view.
+     * 2) If a child's trailing edge is outside of the page bounds and the child is smaller than
+     * the page, scroll until the trailing edge is in view.
+     * 3) Once a child is fully in view, if it is smaller than the page, scroll until the page is
+     * settled.
+     * 4) If the child is larger than the page, scroll until it is partially in view and continue
+     * scrolling until the page is settled.
+     */
     override fun calculateScrollDistance(offset: Float, size: Float, containerSize: Float): Float {
-        val trailingEdge = offset + size
-        val leadingEdge = offset
-
-        val sizeOfItemRequestingFocus = (trailingEdge - leadingEdge).absoluteValue
-        val childSmallerThanParent = sizeOfItemRequestingFocus <= containerSize
-        val initialTargetForLeadingEdge = 0.0f
-        val spaceAvailableToShowItem = containerSize - initialTargetForLeadingEdge
-
-        val targetForLeadingEdge =
-            if (childSmallerThanParent && spaceAvailableToShowItem < sizeOfItemRequestingFocus) {
-                containerSize - sizeOfItemRequestingFocus
+        return if (offset >= containerSize || offset < 0) {
+            offset
+        } else {
+            if (size <= containerSize && (offset + size) > containerSize) {
+                offset // bring into view
             } else {
-                initialTargetForLeadingEdge
+                // are we in a settled position?
+                if (pagerState.currentPageOffsetFraction.absoluteValue == 0.0f) {
+                    0f
+                } else {
+                    offset
+                }
             }
-
-        return leadingEdge - targetForLeadingEdge
+        }
     }
 }

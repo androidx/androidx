@@ -21,7 +21,10 @@ import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
+import android.util.Pair;
 import android.view.Surface;
+
+import androidx.annotation.Nullable;
 
 import java.util.Map;
 
@@ -191,6 +194,32 @@ public interface SessionProcessorImpl {
      * Abort all capture tasks.
      */
     void abortCapture(int captureSequenceId);
+
+    /**
+     * Returns the dynamically calculated capture latency pair in milliseconds.
+     *
+     * <p>In contrast to {@link AdvancedExtenderImpl#getEstimatedCaptureLatencyRange} this method is
+     * guaranteed to be called after {@link #onCaptureSessionStart}.
+     * The measurement is expected to take in to account dynamic parameters such as the current
+     * scene, the state of 3A algorithms, the state of internal HW modules and return a more
+     * accurate assessment of the still capture latency.</p>
+     *
+     * @return pair that includes the estimated input frame/frames camera capture latency as the
+     * first field. This is the time between {@link #onCaptureStarted} and
+     * {@link #onCaptureProcessStarted}. The second field value includes the estimated
+     * post-processing latency. This is the time between {@link #onCaptureProcessStarted} until
+     * the processed frame returns back to the client registered surface.
+     * Both first and second values will be in milliseconds. The total still capture latency will be
+     * the sum of both the first and second values of the pair.
+     * The pair is expected to be null if the dynamic latency estimation is not supported.
+     * If clients have not configured a still capture output, then this method can also return a
+     * null pair.
+     * @since 1.4
+     */
+    @Nullable
+    default Pair<Long, Long> getRealtimeCaptureLatency() {
+        return null;
+    };
 
     /**
      * Callback for notifying the status of {@link #startCapture(CaptureCallback)} and

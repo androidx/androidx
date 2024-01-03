@@ -23,9 +23,6 @@ import androidx.datastore.core.StorageConnection
 import androidx.datastore.core.WriteScope
 import androidx.datastore.core.createSingleProcessCoordinator
 import androidx.datastore.core.use
-import kotlinx.atomicfu.atomic
-import kotlinx.atomicfu.locks.SynchronizedObject
-import kotlinx.atomicfu.locks.synchronized
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import okio.FileNotFoundException
@@ -64,7 +61,7 @@ public class OkioStorage<T>(
 
     override fun createConnection(): StorageConnection<T> {
         canonicalPath.toString().let { path ->
-            synchronized(activeFilesLock) {
+            activeFilesLock.withLock {
                 check(!activeFiles.contains(path)) {
                     "There are multiple DataStores active for the same file: $path. You should " +
                         "either maintain your DataStore as a singleton or confirm that there is " +
@@ -80,7 +77,7 @@ public class OkioStorage<T>(
             serializer,
             coordinatorProducer(canonicalPath, fileSystem)
         ) {
-            synchronized(activeFilesLock) {
+            activeFilesLock.withLock {
                 activeFiles.remove(canonicalPath.toString())
             }
         }
@@ -88,10 +85,7 @@ public class OkioStorage<T>(
 
     internal companion object {
         internal val activeFiles = mutableSetOf<String>()
-
-        class Sync : SynchronizedObject()
-
-        internal val activeFilesLock = Sync()
+        val activeFilesLock = Synchronizer()
     }
 }
 
@@ -174,7 +168,7 @@ internal open class OkioReadScope<T>(
     protected val serializer: OkioSerializer<T>
 ) : ReadScope<T> {
 
-    private var closed by atomic(false)
+    private val closed = AtomicBoolean(false)
 
     override suspend fun readData(): T {
         checkClose()
@@ -194,11 +188,11 @@ internal open class OkioReadScope<T>(
     }
 
     override fun close() {
-        closed = true
+        closed.set(true)
     }
 
     protected fun checkClose() {
-        check(!closed) { "This scope has already been closed." }
+        check(!closed.get()) { "This scope has already been closed." }
     }
 }
 

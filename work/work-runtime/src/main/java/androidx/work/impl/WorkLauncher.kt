@@ -40,7 +40,7 @@ interface WorkLauncher {
      * @param workSpecId The [WorkSpec] id to stop
      */
     fun stopWork(workSpecId: StartStopToken) {
-        stopWork(workSpecId, StopReason.Undefined)
+        stopWork(workSpecId, StopReason.Unknown)
     }
 
     fun stopWork(workSpecId: StartStopToken, reason: StopReason)

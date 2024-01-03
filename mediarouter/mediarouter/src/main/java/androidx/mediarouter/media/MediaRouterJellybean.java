@@ -18,7 +18,7 @@ package androidx.mediarouter.media;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
+import android.media.MediaRouter;
 import android.os.Build;
 import android.util.Log;
 
@@ -35,11 +35,6 @@ import java.util.List;
 final class MediaRouterJellybean {
     private static final String TAG = "MediaRouterJellybean";
 
-    // android.media.AudioSystem.DEVICE_OUT_BLUETOOTH_A2DP = 0x80;
-    // android.media.AudioSystem.DEVICE_OUT_BLUETOOTH_A2DP_HEADPHONES = 0x100;
-    // android.media.AudioSystem.DEVICE_OUT_BLUETOOTH_A2DP_SPEAKER = 0x200;
-    public static final int DEVICE_OUT_BLUETOOTH = 0x80 | 0x100 | 0x200;
-
     public static final int ROUTE_TYPE_LIVE_AUDIO = 0x1;
     public static final int ROUTE_TYPE_LIVE_VIDEO = 0x2;
     public static final int ROUTE_TYPE_USER = 0x00800000;
@@ -49,274 +44,200 @@ final class MediaRouterJellybean {
                     | MediaRouterJellybean.ROUTE_TYPE_LIVE_VIDEO
                     | MediaRouterJellybean.ROUTE_TYPE_USER;
 
-    public static Object getMediaRouter(Context context) {
-        return context.getSystemService(Context.MEDIA_ROUTER_SERVICE);
+    public static android.media.MediaRouter getMediaRouter(Context context) {
+        return (android.media.MediaRouter) context.getSystemService(Context.MEDIA_ROUTER_SERVICE);
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    public static List getRoutes(Object routerObj) {
-        final android.media.MediaRouter router = (android.media.MediaRouter) routerObj;
+    public static List<MediaRouter.RouteInfo> getRoutes(android.media.MediaRouter router) {
         final int count = router.getRouteCount();
-        List out = new ArrayList(count);
+        List<MediaRouter.RouteInfo> out = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
             out.add(router.getRouteAt(i));
         }
         return out;
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    public static List getCategories(Object routerObj) {
-        final android.media.MediaRouter router = (android.media.MediaRouter) routerObj;
-        final int count = router.getCategoryCount();
-        List out = new ArrayList(count);
-        for (int i = 0; i < count; i++) {
-            out.add(router.getCategoryAt(i));
-        }
-        return out;
+    public static MediaRouter.RouteInfo getSelectedRoute(android.media.MediaRouter router,
+            int type) {
+        return router.getSelectedRoute(type);
     }
 
-    public static Object getSelectedRoute(Object routerObj, int type) {
-        return ((android.media.MediaRouter) routerObj).getSelectedRoute(type);
+    public static void selectRoute(android.media.MediaRouter router, int types,
+            android.media.MediaRouter.RouteInfo route) {
+        router.selectRoute(types, route);
     }
 
-    public static void selectRoute(Object routerObj, int types, Object routeObj) {
-        ((android.media.MediaRouter) routerObj).selectRoute(types,
-                (android.media.MediaRouter.RouteInfo) routeObj);
+    public static void addCallback(android.media.MediaRouter router, int types,
+            android.media.MediaRouter.Callback callback) {
+        router.addCallback(types, callback);
     }
 
-    public static void addCallback(Object routerObj, int types, Object callbackObj) {
-        ((android.media.MediaRouter) routerObj).addCallback(types,
-                (android.media.MediaRouter.Callback) callbackObj);
+    public static void removeCallback(android.media.MediaRouter router,
+            android.media.MediaRouter.Callback callback) {
+        router.removeCallback(callback);
     }
 
-    public static void removeCallback(Object routerObj, Object callbackObj) {
-        ((android.media.MediaRouter) routerObj).removeCallback(
-                (android.media.MediaRouter.Callback) callbackObj);
-    }
-
-    public static Object createRouteCategory(Object routerObj,
+    public static android.media.MediaRouter.RouteCategory createRouteCategory(
+            android.media.MediaRouter router,
             String name, boolean isGroupable) {
-        return ((android.media.MediaRouter) routerObj).createRouteCategory(name, isGroupable);
+        return router.createRouteCategory(name, isGroupable);
     }
 
-    public static Object createUserRoute(Object routerObj, Object categoryObj) {
-        return ((android.media.MediaRouter) routerObj).createUserRoute(
-                (android.media.MediaRouter.RouteCategory) categoryObj);
+    public static MediaRouter.UserRouteInfo createUserRoute(android.media.MediaRouter router,
+            android.media.MediaRouter.RouteCategory category) {
+        return router.createUserRoute(category);
     }
 
-    public static void addUserRoute(Object routerObj, Object routeObj) {
-        ((android.media.MediaRouter) routerObj).addUserRoute(
-                (android.media.MediaRouter.UserRouteInfo) routeObj);
+    public static void addUserRoute(android.media.MediaRouter router,
+            android.media.MediaRouter.UserRouteInfo route) {
+        router.addUserRoute(route);
     }
 
-    public static void removeUserRoute(Object routerObj, Object routeObj) {
+    public static void removeUserRoute(android.media.MediaRouter router,
+            android.media.MediaRouter.UserRouteInfo route) {
         try {
-            ((android.media.MediaRouter) routerObj).removeUserRoute(
-                    (android.media.MediaRouter.UserRouteInfo) routeObj);
+            router.removeUserRoute(route);
         } catch (IllegalArgumentException e) {
             // Work around for https://issuetracker.google.com/issues/202931542.
             Log.w(TAG, "Failed to remove user route", e);
         }
     }
 
-    public static Object createCallback(Callback callback) {
-        return new CallbackProxy<Callback>(callback);
+    public static CallbackProxy<Callback> createCallback(Callback callback) {
+        return new CallbackProxy<>(callback);
     }
 
-    public static Object createVolumeCallback(VolumeCallback callback) {
-        return new VolumeCallbackProxy<VolumeCallback>(callback);
+    public static VolumeCallbackProxy<VolumeCallback> createVolumeCallback(
+            VolumeCallback callback) {
+        return new VolumeCallbackProxy<>(callback);
     }
 
     public static final class RouteInfo {
         @NonNull
-        public static CharSequence getName(@NonNull Object routeObj, @NonNull Context context) {
-            return ((android.media.MediaRouter.RouteInfo) routeObj).getName(context);
+        public static CharSequence getName(@NonNull android.media.MediaRouter.RouteInfo route,
+                @NonNull Context context) {
+            return route.getName(context);
         }
 
-        @NonNull
-        public static CharSequence getStatus(@NonNull Object routeObj) {
-            return ((android.media.MediaRouter.RouteInfo) routeObj).getStatus();
+        public static int getSupportedTypes(@NonNull android.media.MediaRouter.RouteInfo route) {
+            return route.getSupportedTypes();
         }
 
-        public static int getSupportedTypes(@NonNull Object routeObj) {
-            return ((android.media.MediaRouter.RouteInfo) routeObj).getSupportedTypes();
+        public static int getPlaybackType(@NonNull android.media.MediaRouter.RouteInfo route) {
+            return route.getPlaybackType();
         }
 
-        @Nullable
-        public static Object getCategory(@NonNull Object routeObj) {
-            return ((android.media.MediaRouter.RouteInfo) routeObj).getCategory();
+        public static int getPlaybackStream(@NonNull android.media.MediaRouter.RouteInfo route) {
+            return route.getPlaybackStream();
         }
 
-        @Nullable
-        public static Drawable getIconDrawable(@NonNull Object routeObj) {
-            return ((android.media.MediaRouter.RouteInfo) routeObj).getIconDrawable();
+        public static int getVolume(@NonNull android.media.MediaRouter.RouteInfo route) {
+            return route.getVolume();
         }
 
-        public static int getPlaybackType(@NonNull Object routeObj) {
-            return ((android.media.MediaRouter.RouteInfo) routeObj).getPlaybackType();
+        public static int getVolumeMax(@NonNull android.media.MediaRouter.RouteInfo route) {
+            return route.getVolumeMax();
         }
 
-        public static int getPlaybackStream(@NonNull Object routeObj) {
-            return ((android.media.MediaRouter.RouteInfo) routeObj).getPlaybackStream();
-        }
-
-        public static int getVolume(@NonNull Object routeObj) {
-            return ((android.media.MediaRouter.RouteInfo) routeObj).getVolume();
-        }
-
-        public static int getVolumeMax(@NonNull Object routeObj) {
-            return ((android.media.MediaRouter.RouteInfo) routeObj).getVolumeMax();
-        }
-
-        public static int getVolumeHandling(@NonNull Object routeObj) {
-            return ((android.media.MediaRouter.RouteInfo) routeObj).getVolumeHandling();
+        public static int getVolumeHandling(@NonNull android.media.MediaRouter.RouteInfo route) {
+            return route.getVolumeHandling();
         }
 
         @Nullable
-        public static Object getTag(@NonNull Object routeObj) {
-            return ((android.media.MediaRouter.RouteInfo) routeObj).getTag();
+        public static Object getTag(@NonNull android.media.MediaRouter.RouteInfo route) {
+            return route.getTag();
         }
 
-        public static void setTag(@NonNull Object routeObj, @Nullable Object tag) {
-            ((android.media.MediaRouter.RouteInfo) routeObj).setTag(tag);
+        public static void setTag(@NonNull android.media.MediaRouter.RouteInfo route,
+                @Nullable Object tag) {
+            route.setTag(tag);
         }
 
-        public static void requestSetVolume(@NonNull Object routeObj, int volume) {
-            ((android.media.MediaRouter.RouteInfo) routeObj).requestSetVolume(volume);
+        public static void requestSetVolume(@NonNull android.media.MediaRouter.RouteInfo route,
+                int volume) {
+            route.requestSetVolume(volume);
         }
 
-        public static void requestUpdateVolume(@NonNull Object routeObj, int direction) {
-            ((android.media.MediaRouter.RouteInfo) routeObj).requestUpdateVolume(direction);
-        }
-
-        @Nullable
-        public static Object getGroup(@NonNull Object routeObj) {
-            return ((android.media.MediaRouter.RouteInfo) routeObj).getGroup();
-        }
-
-        public static boolean isGroup(@NonNull Object routeObj) {
-            return routeObj instanceof android.media.MediaRouter.RouteGroup;
+        public static void requestUpdateVolume(
+                @NonNull android.media.MediaRouter.RouteInfo route, int direction) {
+            route.requestUpdateVolume(direction);
         }
 
         private RouteInfo() {
         }
     }
 
-    public static final class RouteGroup {
-        @SuppressWarnings({"rawtypes", "unchecked"})
-        @NonNull
-        public static List getGroupedRoutes(@NonNull Object groupObj) {
-            final android.media.MediaRouter.RouteGroup group =
-                    (android.media.MediaRouter.RouteGroup) groupObj;
-            final int count = group.getRouteCount();
-            List out = new ArrayList(count);
-            for (int i = 0; i < count; i++) {
-                out.add(group.getRouteAt(i));
-            }
-            return out;
-        }
-
-        private RouteGroup() {
-        }
-    }
-
     public static final class UserRouteInfo {
-        public static void setName(@NonNull Object routeObj, @NonNull CharSequence name) {
-            ((android.media.MediaRouter.UserRouteInfo) routeObj).setName(name);
+        public static void setName(@NonNull android.media.MediaRouter.UserRouteInfo route,
+                @NonNull CharSequence name) {
+            route.setName(name);
         }
 
-        public static void setStatus(@NonNull Object routeObj, @NonNull CharSequence status) {
-            ((android.media.MediaRouter.UserRouteInfo) routeObj).setStatus(status);
+        public static void setPlaybackType(
+                @NonNull android.media.MediaRouter.UserRouteInfo route, int type) {
+            route.setPlaybackType(type);
         }
 
-        public static void setIconDrawable(@NonNull Object routeObj, @Nullable Drawable icon) {
-            ((android.media.MediaRouter.UserRouteInfo) routeObj).setIconDrawable(icon);
+        public static void setPlaybackStream(
+                @NonNull android.media.MediaRouter.UserRouteInfo route, int stream) {
+            route.setPlaybackStream(stream);
         }
 
-        public static void setPlaybackType(@NonNull Object routeObj, int type) {
-            ((android.media.MediaRouter.UserRouteInfo) routeObj).setPlaybackType(type);
+        public static void setVolume(@NonNull android.media.MediaRouter.UserRouteInfo route,
+                int volume) {
+            route.setVolume(volume);
         }
 
-        public static void setPlaybackStream(@NonNull Object routeObj, int stream) {
-            ((android.media.MediaRouter.UserRouteInfo) routeObj).setPlaybackStream(stream);
+        public static void setVolumeMax(@NonNull android.media.MediaRouter.UserRouteInfo route,
+                int volumeMax) {
+            route.setVolumeMax(volumeMax);
         }
 
-        public static void setVolume(@NonNull Object routeObj, int volume) {
-            ((android.media.MediaRouter.UserRouteInfo) routeObj).setVolume(volume);
+        public static void setVolumeHandling(
+                @NonNull android.media.MediaRouter.UserRouteInfo route, int volumeHandling) {
+            route.setVolumeHandling(volumeHandling);
         }
 
-        public static void setVolumeMax(@NonNull Object routeObj, int volumeMax) {
-            ((android.media.MediaRouter.UserRouteInfo) routeObj).setVolumeMax(volumeMax);
+        public static void setVolumeCallback(@NonNull android.media.MediaRouter.UserRouteInfo route,
+                @NonNull android.media.MediaRouter.VolumeCallback volumeCallback) {
+            route.setVolumeCallback(volumeCallback);
         }
 
-        public static void setVolumeHandling(@NonNull Object routeObj, int volumeHandling) {
-            ((android.media.MediaRouter.UserRouteInfo) routeObj).setVolumeHandling(volumeHandling);
-        }
-
-        public static void setVolumeCallback(@NonNull Object routeObj,
-                @NonNull Object volumeCallbackObj) {
-            ((android.media.MediaRouter.UserRouteInfo) routeObj).setVolumeCallback(
-                    (android.media.MediaRouter.VolumeCallback) volumeCallbackObj);
-        }
-
-        public static void setRemoteControlClient(@NonNull Object routeObj,
+        public static void setRemoteControlClient(
+                @NonNull android.media.MediaRouter.UserRouteInfo route,
                 @Nullable Object rccObj) {
-            ((android.media.MediaRouter.UserRouteInfo) routeObj).setRemoteControlClient(
-                    (android.media.RemoteControlClient) rccObj);
+            route.setRemoteControlClient((android.media.RemoteControlClient) rccObj);
         }
 
         private UserRouteInfo() {
         }
     }
 
-    public static final class RouteCategory {
-        @Nullable
-        public static CharSequence getName(@NonNull Object categoryObj, @NonNull Context context) {
-            return ((android.media.MediaRouter.RouteCategory) categoryObj).getName(context);
-        }
-
-        @SuppressWarnings({"rawtypes", "unchecked"})
-        @NonNull
-        public static List getRoutes(@NonNull Object categoryObj) {
-            ArrayList out = new ArrayList();
-            ((android.media.MediaRouter.RouteCategory) categoryObj).getRoutes(out);
-            return out;
-        }
-
-        public static int getSupportedTypes(@NonNull Object categoryObj) {
-            return ((android.media.MediaRouter.RouteCategory) categoryObj).getSupportedTypes();
-        }
-
-        public static boolean isGroupable(@NonNull Object categoryObj) {
-            return ((android.media.MediaRouter.RouteCategory) categoryObj).isGroupable();
-        }
-
-        private RouteCategory() {
-        }
-    }
-
     public interface Callback {
-        void onRouteSelected(int type, @NonNull Object routeObj);
+        void onRouteSelected(int type, @NonNull android.media.MediaRouter.RouteInfo route);
 
-        void onRouteUnselected(int type, @NonNull Object routeObj);
+        void onRouteUnselected(int type, @NonNull android.media.MediaRouter.RouteInfo route);
 
-        void onRouteAdded(@NonNull Object routeObj);
+        void onRouteAdded(@NonNull android.media.MediaRouter.RouteInfo route);
 
-        void onRouteRemoved(@NonNull Object routeObj);
+        void onRouteRemoved(@NonNull android.media.MediaRouter.RouteInfo route);
 
-        void onRouteChanged(@NonNull Object routeObj);
+        void onRouteChanged(@NonNull android.media.MediaRouter.RouteInfo route);
 
-        void onRouteGrouped(@NonNull Object routeObj, @NonNull Object groupObj, int index);
+        void onRouteGrouped(@NonNull android.media.MediaRouter.RouteInfo route,
+                @NonNull android.media.MediaRouter.RouteGroup group, int index);
 
-        void onRouteUngrouped(@NonNull Object routeObj, @NonNull Object groupObj);
+        void onRouteUngrouped(@NonNull android.media.MediaRouter.RouteInfo route,
+                @NonNull android.media.MediaRouter.RouteGroup group);
 
-        void onRouteVolumeChanged(@NonNull Object routeObj);
+        void onRouteVolumeChanged(@NonNull android.media.MediaRouter.RouteInfo route);
     }
 
     public interface VolumeCallback {
-        void onVolumeSetRequest(@NonNull Object routeObj, int volume);
+        void onVolumeSetRequest(@NonNull android.media.MediaRouter.RouteInfo route, int volume);
 
-        void onVolumeUpdateRequest(@NonNull Object routeObj, int direction);
+        void onVolumeUpdateRequest(@NonNull android.media.MediaRouter.RouteInfo route,
+                int direction);
     }
 
     /**
@@ -341,11 +262,8 @@ final class MediaRouterJellybean {
         // code: the reflection is used for a specific Android version and the real Android API
         // check is happening in the class' constructor and in SystemMediaRouteProvider#obtain
         @SuppressLint("BanUncheckedReflection")
-        public void selectRoute(@NonNull Object routerObj, int types, @NonNull Object routeObj) {
-            android.media.MediaRouter router = (android.media.MediaRouter) routerObj;
-            android.media.MediaRouter.RouteInfo route =
-                    (android.media.MediaRouter.RouteInfo) routeObj;
-
+        public void selectRoute(@NonNull android.media.MediaRouter router, int types,
+                @NonNull android.media.MediaRouter.RouteInfo route) {
             int routeTypes = route.getSupportedTypes();
             if ((routeTypes & ROUTE_TYPE_USER) == 0) {
                 // Handle non-user routes.
@@ -399,9 +317,7 @@ final class MediaRouterJellybean {
         // check is happening in the class' constructor and in SystemMediaRouteProvider#obtain
         @SuppressLint("BanUncheckedReflection")
         @NonNull
-        public Object getDefaultRoute(@NonNull Object routerObj) {
-            android.media.MediaRouter router = (android.media.MediaRouter) routerObj;
-
+        public Object getDefaultRoute(@NonNull android.media.MediaRouter router) {
             if (mGetSystemAudioRouteMethod != null) {
                 try {
                     return mGetSystemAudioRouteMethod.invoke(router);
@@ -484,8 +400,7 @@ final class MediaRouterJellybean {
         }
 
         @Override
-        public void onVolumeSetRequest(android.media.MediaRouter.RouteInfo route,
-                int volume) {
+        public void onVolumeSetRequest(android.media.MediaRouter.RouteInfo route, int volume) {
             mCallback.onVolumeSetRequest(route, volume);
         }
 

@@ -31,8 +31,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyRow
+import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Text
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun AppLazyRow(
     title: String,
@@ -63,10 +65,9 @@ fun AppLazyRow(
             items.forEachIndexed { index, movie ->
                 item {
                     drawItem(
-                        movie = movie,
-                        index = index,
-                        modifier = Modifier
-                            .ifElse(index == 0, focusRestorerModifiers.childModifier)
+                        movie,
+                        index,
+                        Modifier.ifElse(index == 0, focusRestorerModifiers.childModifier)
                     )
                 }
             }

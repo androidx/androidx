@@ -26,6 +26,12 @@ import androidx.appactions.interaction.protobuf.Struct
  * `androidx.appactions.builtintypes.types.*` that are [Thing] or its subtypes.
  */
 interface BuiltInTypeSerializer<T : Thing> {
+    /** The schema.org type's name as it appears in the serialized format e.g. `Person`. */
+    val typeName: String
+
+    /** Reference to the structured Built-in Type's class e.g. `Person::class.java`. */
+    val classRef: Class<T>
+
     fun serialize(instance: T): Struct
     fun deserialize(jsonObj: Struct): T
 

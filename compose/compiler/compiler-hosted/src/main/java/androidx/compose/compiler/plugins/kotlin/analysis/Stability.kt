@@ -19,6 +19,7 @@ package androidx.compose.compiler.plugins.kotlin.analysis
 import androidx.compose.compiler.plugins.kotlin.ComposeFqNames
 import androidx.compose.compiler.plugins.kotlin.lower.AbstractComposeLowering
 import androidx.compose.compiler.plugins.kotlin.lower.annotationClass
+import androidx.compose.compiler.plugins.kotlin.lower.isSyntheticComposableFunction
 import org.jetbrains.kotlin.backend.jvm.ir.isInlineClassType
 import org.jetbrains.kotlin.ir.declarations.IrAnnotationContainer
 import org.jetbrains.kotlin.ir.declarations.IrClass
@@ -350,6 +351,7 @@ private fun stabilityOf(
         type.isUnit() ||
             type.isPrimitiveType() ||
             type.isFunctionOrKFunction() ||
+            type.isSyntheticComposableFunction() ||
             type.isString() -> Stability.Stable
 
         type.isTypeParameter() -> {

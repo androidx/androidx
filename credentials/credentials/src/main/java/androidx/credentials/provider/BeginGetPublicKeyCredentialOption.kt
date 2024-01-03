@@ -35,7 +35,7 @@ import androidx.credentials.provider.utils.RequestValidationUtil
  * [android.service.credentials.CallingAppInfo.getOrigin] is set
  *
  * @throws NullPointerException If [requestJson] is null
- * @throws IllegalArgumentException If [requestJson] is empty
+ * @throws IllegalArgumentException If [requestJson] is empty, or is not a valid JSON
  *
  * Note : Credential providers are not expected to utilize the constructor in this class for any
  * production flow. This constructor must only be used for testing purposes.

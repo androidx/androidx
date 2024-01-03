@@ -149,13 +149,19 @@ class RequestWithCallback implements TakePictureCallback {
             // Fail silently if the request has been aborted.
             return;
         }
-        if (mTakePictureRequest.decrementRetryCounter()) {
-            mRetryControl.retryRequest(mTakePictureRequest);
-        } else {
+
+        boolean isRetryAllowed = mTakePictureRequest.decrementRetryCounter();
+        if (!isRetryAllowed) {
             onFailure(imageCaptureException);
         }
         markComplete();
         mCaptureCompleter.setException(imageCaptureException);
+
+        if (isRetryAllowed) {
+            // retry after all the cleaning up works are done via mCaptureCompleter.setException,
+            // e.g. removing previous request from CaptureNode, SingleBundlingNode etc.
+            mRetryControl.retryRequest(mTakePictureRequest);
+        }
     }
 
     @MainThread

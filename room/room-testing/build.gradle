@@ -39,7 +39,7 @@ dependencies {
     api(libs.junit)
     implementation("androidx.arch.core:core-runtime:2.2.0")
     androidTestImplementation(libs.truth) // Kruth currently lacks StringSubject#containsMatch
-    androidTestImplementation(project(":internal-testutils-kmp"))
+    androidTestImplementation(project(":kruth:kruth"))
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)

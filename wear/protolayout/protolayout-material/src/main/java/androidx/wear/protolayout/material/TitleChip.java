@@ -75,8 +75,8 @@ import androidx.wear.protolayout.proto.LayoutElementProto;
  * TitleChip myChip = TitleChip.fromLayoutElement(box.getContents().get(0));
  * }</pre>
  *
- * @see  androidx.wear.protolayout.material.layouts.PrimaryLayout.Builder#setContent if this
- * TitleChip is used inside of {@link androidx.wear.protolayout.material.layouts.PrimaryLayout}.
+ * @see androidx.wear.protolayout.material.layouts.PrimaryLayout.Builder#setContent if this
+ *     TitleChip is used inside of {@link androidx.wear.protolayout.material.layouts.PrimaryLayout}.
  */
 public class TitleChip implements LayoutElement {
     @NonNull private final Chip mElement;
@@ -284,9 +284,7 @@ public class TitleChip implements LayoutElement {
         return new TitleChip(new Chip(boxElement));
     }
 
-    /**
-     *  Returns whether the font padding for the primary label is excluded.
-     */
+    /** Returns whether the font padding for the primary label is excluded. */
     @ProtoLayoutExperimental
     public boolean hasExcludeFontPadding() {
         return mElement.hasPrimaryLabelExcludeFontPadding();

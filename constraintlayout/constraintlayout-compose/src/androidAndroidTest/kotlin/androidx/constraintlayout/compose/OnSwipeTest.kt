@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
@@ -33,10 +32,8 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.lerp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import kotlin.math.roundToInt
 import org.junit.After
 import org.junit.Before
 import org.junit.Ignore
@@ -78,32 +75,15 @@ class OnSwipeTest {
         val motionSemantic = rule.onNodeWithTag("MyMotion")
         motionSemantic
             .assertExists()
-            .performTouchInput {
-                // Do a periodic swipe between two points that lasts 500ms
-                val start = Offset(right * 0.25f, centerY)
-                val end = Offset(right * 0.5f, centerY)
-                val durationMillis = 500L
-                val durationMillisFloat = durationMillis.toFloat()
-
-                // Start touch input
-                down(0, start)
-
-                val steps = (durationMillisFloat / eventPeriodMillis.toFloat()).roundToInt()
-                var step = 0
-
-                val getPositionAt: (Long) -> Offset = {
-                    lerp(start, end, it.toFloat() / durationMillis)
-                }
-
-                var tP = 0L
-                while (step++ < steps) {
-                    val progress = step / steps.toFloat()
-                    val tn = lerp(0, durationMillis, progress)
-                    updatePointerTo(0, getPositionAt(tn))
-                    move(tn - tP)
-                    tP = tn
-                }
-            }
+            .performSwipe(
+                from = {
+                    Offset(right * 0.25f, centerY)
+                },
+                to = {
+                    Offset(right * 0.5f, centerY)
+                },
+                endWithUp = false
+            )
         rule.onNodeWithTag("box").assertPositionInRootIsEqualTo(51.6.dp, 128.3.dp)
         motionSemantic
             .performTouchInput {

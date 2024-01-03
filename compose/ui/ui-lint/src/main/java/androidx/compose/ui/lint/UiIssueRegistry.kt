@@ -31,7 +31,6 @@ class UiIssueRegistry : IssueRegistry() {
     override val minApi = CURRENT_API
     override val issues get() = listOf(
         ComposedModifierDetector.UnnecessaryComposedModifier,
-        ModifierDeclarationDetector.ComposableModifierFactory,
         ModifierDeclarationDetector.ModifierFactoryExtensionFunction,
         ModifierDeclarationDetector.ModifierFactoryReturnType,
         ModifierDeclarationDetector.ModifierFactoryUnreferencedReceiver,

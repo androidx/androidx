@@ -23,8 +23,8 @@ import kotlin.annotation.AnnotationTarget.PROPERTY_GETTER
 import kotlin.annotation.AnnotationTarget.PROPERTY_SETTER
 
 /**
- * Denotes that this API is only useful until the given API level; after that,
- * a more suitable platform API is available.
+ * Denotes that this API is only useful until the given API level; after that, a more suitable
+ * platform API is available.
  */
 @MustBeDocumented
 @Retention(AnnotationRetention.BINARY)

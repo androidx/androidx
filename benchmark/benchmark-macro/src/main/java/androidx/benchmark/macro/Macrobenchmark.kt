@@ -27,11 +27,14 @@ import androidx.benchmark.BenchmarkResult
 import androidx.benchmark.ConfigurationError
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.InstrumentationResults
+import androidx.benchmark.Profiler
 import androidx.benchmark.ResultWriter
 import androidx.benchmark.Shell
 import androidx.benchmark.UserspaceTracing
 import androidx.benchmark.checkAndGetSuppressionState
 import androidx.benchmark.conditionalError
+import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig
+import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig.InitialProcessState
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
 import androidx.benchmark.perfetto.PerfettoConfig
 import androidx.benchmark.perfetto.PerfettoTrace
@@ -137,25 +140,41 @@ internal fun checkErrors(packageName: String): ConfigurationError.SuppressionSta
                 """.trimIndent()
             ),
             conditionalError(
+                hasError = DeviceInfo.misconfiguredForTracing,
+                id = "DEVICE-TRACING-MISCONFIGURED",
+                summary = "This ${DeviceInfo.typeLabel}'s OS is misconfigured for tracing",
+                message = """
+                    This ${DeviceInfo.typeLabel}'s OS image has not correctly mounted the tracing
+                    file system, which prevents macrobenchmarking, and Perfetto/atrace trace capture
+                    in general. You can try a different device, or experiment with an emulator
+                    (though that will not give timing measurements representative of real device
+                    experience).
+                    This error may not be suppressed.
+                """.trimIndent()
+            ),
+            conditionalError(
                 hasError = Arguments.methodTracingEnabled(),
                 id = "METHOD-TRACING-ENABLED",
                 summary = "Method tracing is enabled during a Macrobenchmark",
                 message = """
                     The Macrobenchmark run for $packageName has method tracing enabled.
-                    This causes the VM will run more slowly than usual, so the metrics from the
+                    This causes the VM to run more slowly than usual, so the metrics from the
                     trace files should only be considered in relative terms
                     (e.g. was run #1 faster than run #2). Also, these metrics cannot be compared
                     with benchmark runs that don't have method tracing enabled.
                 """.trimIndent()
-            )
+            ),
         ).sortedBy { it.id }
 
     // These error ids are really warnings. In that, we don't need developers to have to
     // explicitly suppress them using test instrumentation arguments.
     // TODO: Introduce a better way to surface warnings.
-    val warnings = setOf("METHOD-TRACING-ENABLED")
+    val alwaysSuppressed = setOf("METHOD-TRACING-ENABLED")
+    val neverSuppressed = setOf("DEVICE-TRACING-MISCONFIGURED")
 
-    return errors.checkAndGetSuppressionState(Arguments.suppressedErrors + warnings)
+    return errors.checkAndGetSuppressionState(
+        Arguments.suppressedErrors + alwaysSuppressed - neverSuppressed
+    )
 }
 
 /**
@@ -173,7 +192,7 @@ private fun macrobenchmark(
     iterations: Int,
     launchWithClearTask: Boolean,
     startupModeMetricHint: StartupMode?,
-    userspaceTracingPackage: String?,
+    perfettoSdkConfig: PerfettoSdkConfig?,
     setupBlock: MacrobenchmarkScope.() -> Unit,
     measureBlock: MacrobenchmarkScope.() -> Unit
 ) {
@@ -217,6 +236,7 @@ private fun macrobenchmark(
     // output, and give it different (test-wide) lifecycle
     val perfettoCollector = PerfettoCaptureWrapper()
     val tracePaths = mutableListOf<String>()
+    val resultFiles = mutableListOf<Profiler.ResultFile>()
     try {
         metrics.forEach {
             it.configure(packageName)
@@ -256,7 +276,7 @@ private fun macrobenchmark(
                         },
                         useStackSamplingConfig = true
                     ),
-                    userspaceTracingPackage = userspaceTracingPackage
+                    perfettoSdkConfig = perfettoSdkConfig
                 ) {
                     try {
                         trace("start metrics") {
@@ -273,7 +293,12 @@ private fun macrobenchmark(
                                 it.stop()
                             }
                             if (launchWithMethodTracing) {
-                                scope.stopMethodTracing()
+                                val (label, tracePath) = scope.stopMethodTracing()
+                                val resultFile = Profiler.ResultFile(
+                                    label = label,
+                                    absolutePath = tracePath
+                                )
+                                resultFiles += resultFile
                             }
                         }
                     }
@@ -328,13 +353,14 @@ private fun macrobenchmark(
             """.trimIndent()
         }
         InstrumentationResults.instrumentationReport {
-            val (summaryV1, summaryV2) = ideSummaryStrings(
-                warningMessage,
-                uniqueName,
-                measurements,
-                tracePaths
+            reportSummaryToIde(
+                warningMessage = warningMessage,
+                testName = uniqueName,
+                measurements = measurements,
+                iterationTracePaths = tracePaths,
+                profilerResults = resultFiles
             )
-            ideSummaryRecord(summaryV1 = summaryV1, summaryV2 = summaryV2)
+
             warningMessage = "" // warning only printed once
             measurements.singleMetrics.forEach {
                 it.putInBundle(bundle, suppressionState?.prefix ?: "")
@@ -367,8 +393,6 @@ private fun macrobenchmark(
 
 /**
  * Run a macrobenchmark with the specified StartupMode
- *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun macrobenchmarkWithStartupMode(
@@ -383,13 +407,17 @@ fun macrobenchmarkWithStartupMode(
     setupBlock: MacrobenchmarkScope.() -> Unit,
     measureBlock: MacrobenchmarkScope.() -> Unit
 ) {
-    val userspaceTracingPackage = if (Arguments.fullTracingEnable &&
-        startupMode != StartupMode.COLD // can't use with COLD, since the broadcast wakes up target
-    ) {
-        packageName
-    } else {
-        null
-    }
+    val perfettoSdkConfig =
+        if (Arguments.fullTracingEnable && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            PerfettoSdkConfig(
+                packageName,
+                when (startupMode) {
+                    null -> InitialProcessState.Unknown
+                    StartupMode.COLD -> InitialProcessState.NotAlive
+                    StartupMode.HOT, StartupMode.WARM -> InitialProcessState.Alive
+                }
+            )
+        } else null
     macrobenchmark(
         uniqueName = uniqueName,
         className = className,
@@ -399,7 +427,7 @@ fun macrobenchmarkWithStartupMode(
         compilationMode = compilationMode,
         iterations = iterations,
         startupModeMetricHint = startupMode,
-        userspaceTracingPackage = userspaceTracingPackage,
+        perfettoSdkConfig = perfettoSdkConfig,
         setupBlock = {
             if (startupMode == StartupMode.COLD) {
                 // Run setup before killing process

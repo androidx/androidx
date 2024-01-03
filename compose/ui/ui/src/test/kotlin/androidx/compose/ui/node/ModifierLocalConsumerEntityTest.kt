@@ -38,12 +38,12 @@ import androidx.compose.ui.modifier.modifierLocalOf
 import androidx.compose.ui.modifier.modifierLocalProvider
 import androidx.compose.ui.platform.AccessibilityManager
 import androidx.compose.ui.platform.ClipboardManager
+import androidx.compose.ui.platform.PlatformTextInputSessionScope
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.input.PlatformTextInputPluginRegistry
 import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -292,6 +292,7 @@ class ModifierLocalConsumerEntityTest {
     @OptIn(ExperimentalComposeUiApi::class)
     private class FakeOwner : Owner {
         val listeners = mutableVectorOf<() -> Unit>()
+
         @OptIn(InternalCoreApi::class)
         override var showLayoutBounds: Boolean = false
         override val snapshotObserver: OwnerSnapshotObserver = OwnerSnapshotObserver { it.invoke() }
@@ -347,14 +348,13 @@ class ModifierLocalConsumerEntityTest {
             get() = TODO("Not yet implemented")
         override val textInputService: TextInputService
             get() = TODO("Not yet implemented")
-        override val platformTextInputPluginRegistry: PlatformTextInputPluginRegistry
-            get() = TODO("Not yet implemented")
         override val pointerIconService: PointerIconService
             get() = TODO("Not yet implemented")
         override val focusOwner: FocusOwner
             get() = TODO("Not yet implemented")
         override val windowInfo: WindowInfo
             get() = TODO("Not yet implemented")
+
         @Deprecated(
             "fontLoader is deprecated, use fontFamilyResolver",
             replaceWith = ReplaceWith("fontFamilyResolver")
@@ -377,6 +377,7 @@ class ModifierLocalConsumerEntityTest {
 
         override fun createLayer(drawBlock: (Canvas) -> Unit, invalidateParentLayer: () -> Unit) =
             TODO("Not yet implemented")
+
         override fun onRequestRelayout(
             layoutNode: LayoutNode,
             affectsLookahead: Boolean,
@@ -389,10 +390,13 @@ class ModifierLocalConsumerEntityTest {
 
         override fun calculatePositionInWindow(localPosition: Offset) =
             TODO("Not yet implemented")
+
         override fun calculateLocalPosition(positionInWindow: Offset) =
             TODO("Not yet implemented")
+
         override fun requestFocus() =
             TODO("Not yet implemented")
+
         override fun measureAndLayout(sendPointerUpdate: Boolean) =
             TODO("Not yet implemented")
 
@@ -402,12 +406,21 @@ class ModifierLocalConsumerEntityTest {
 
         override fun forceMeasureTheSubtree(layoutNode: LayoutNode, affectsLookahead: Boolean) =
             TODO("Not yet implemented")
+
         override fun onSemanticsChange() =
             TODO("Not yet implemented")
+
         override fun onLayoutChange(layoutNode: LayoutNode) =
             TODO("Not yet implemented")
+
         override fun getFocusDirection(keyEvent: KeyEvent) =
             TODO("Not yet implemented")
+
+        override suspend fun textInputSession(
+            session: suspend PlatformTextInputSessionScope.() -> Nothing
+        ): Nothing {
+            TODO("Not yet implemented")
+        }
     }
 }
 

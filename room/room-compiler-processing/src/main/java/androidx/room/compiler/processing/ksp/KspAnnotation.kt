@@ -20,6 +20,7 @@ import androidx.room.compiler.processing.InternalXAnnotation
 import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XAnnotationValue
 import androidx.room.compiler.processing.XType
+import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.Origin
@@ -50,18 +51,27 @@ internal class KspAnnotation(
     }
 
     override val annotationValues: List<XAnnotationValue> by lazy {
-        // In KSP the annotation members may be represented by constructor parameters in kotlin
-        // source or by abstract methods in java source so we check both.
-        val typesByName = if (typeElement.getConstructors().single().parameters.isNotEmpty()) {
-            typeElement.getConstructors()
-                .single()
-                .parameters
-                .associate { it.name to it.type }
-        } else {
-            typeElement.getDeclaredMethods()
-                .filter { it.isAbstract() }
-                .associate { it.name to it.returnType }
-        }
+        // Whether the annotation value is being treated as property or abstract method depends on
+        // the actual usage of the annotation. If the annotation is being used on Java source, then
+        // the annotation value will have a corresponding method element, otherwise, it will become
+        // a kotlin property.
+        val typesByName =
+            buildMap {
+                typeElement.getDeclaredMethods()
+                    .filter {
+                        if ((typeElement as KspTypeElement).declaration
+                                .getConstructors()
+                                .single().parameters
+                                .isNotEmpty()) {
+                            it.isKotlinPropertyMethod()
+                        } else {
+                            it.isAbstract()
+                        }
+                    }.forEach {
+                        put(it.name, it.returnType)
+                        put(it.jvmName, it.returnType)
+                    }
+            }
         // KSAnnotated.arguments isn't guaranteed to have the same ordering as declared in the
         // annotation declaration, so we order it manually using a map from name to index.
         val indexByName = typesByName.keys.mapIndexed { index, name -> name to index }.toMap()

@@ -611,7 +611,8 @@ class SurfaceControlCompatTest {
                         assertNotNull(buffer2)
 
                         SurfaceControlCompat.Transaction()
-                            .setBuffer(scCompat, buffer) {
+                            .setBuffer(scCompat, buffer) { releaseFence ->
+                                releaseFence.awaitForever()
                                 releaseLatch.countDown()
                             }
                             .setVisibility(scCompat, true)
@@ -682,10 +683,12 @@ class SurfaceControlCompatTest {
                         assertNotNull(buffer3)
 
                         SurfaceControlCompat.Transaction()
-                            .setBuffer(scCompat, buffer) {
+                            .setBuffer(scCompat, buffer) { releaseFence ->
+                                releaseFence.awaitForever()
                                 releaseLatch.countDown()
                             }
-                            .setBuffer(scCompat, buffer2) {
+                            .setBuffer(scCompat, buffer2) { releaseFence ->
+                                releaseFence.awaitForever()
                                 assertTrue(releaseLatch.await(3000, TimeUnit.MILLISECONDS))
                                 releaseLatch2.countDown()
                             }
@@ -755,7 +758,8 @@ class SurfaceControlCompatTest {
 
                         SurfaceControlCompat.Transaction()
                             .setBuffer(scCompat, buffer)
-                            .setBuffer(scCompat, buffer3) {
+                            .setBuffer(scCompat, buffer3) { releaseFence ->
+                                releaseFence.awaitForever()
                                 releaseLatch.countDown()
                             }
                             .setBuffer(scCompat, buffer2)
@@ -837,10 +841,12 @@ class SurfaceControlCompatTest {
                         assertNotNull(buffer3)
 
                         SurfaceControlCompat.Transaction()
-                            .setBuffer(scCompat, buffer) {
+                            .setBuffer(scCompat, buffer) { releaseFence ->
+                                releaseFence.awaitForever()
                                 releaseLatch.countDown()
                             }
-                            .setBuffer(scCompat2, buffer2) {
+                            .setBuffer(scCompat2, buffer2) { releaseFence ->
+                                releaseFence.awaitForever()
                                 releaseLatch2.countDown()
                             }
                             .setVisibility(scCompat, true)

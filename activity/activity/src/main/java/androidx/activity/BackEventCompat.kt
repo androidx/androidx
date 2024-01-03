@@ -20,11 +20,9 @@ import android.os.Build
 import android.window.BackEvent
 import androidx.annotation.DoNotInline
 import androidx.annotation.IntDef
-import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
-import androidx.core.os.BuildCompat
 
 /**
  * Compat around the [BackEvent] class
@@ -49,7 +47,6 @@ class BackEventCompat @VisibleForTesting constructor(
 ) {
 
     @RequiresApi(34)
-    @OptIn(BuildCompat.PrereleaseSdkCheck::class)
     constructor(backEvent: BackEvent) : this (
         Api34Impl.touchX(backEvent),
         Api34Impl.touchY(backEvent),
@@ -73,8 +70,6 @@ class BackEventCompat @VisibleForTesting constructor(
      * @throws UnsupportedOperationException if this API is called on an API prior to 34.
      */
     @RequiresApi(34)
-    @OptIn(BuildCompat.PrereleaseSdkCheck::class)
-    @Suppress("PrereleaseSdkCoreDependency")
     fun toBackEvent(): BackEvent {
         if (Build.VERSION.SDK_INT >= 34) {
             return Api34Impl.createOnBackEvent(touchX, touchY, progress, swipeEdge)

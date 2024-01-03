@@ -17,7 +17,6 @@
 package androidx.compose.runtime.changelist
 
 import androidx.compose.runtime.Anchor
-import androidx.compose.runtime.ComposeNodeLifecycleCallback
 import androidx.compose.runtime.ComposerImpl
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionContext
@@ -196,10 +195,6 @@ internal class ComposerChangeListWriter(
         }
     }
 
-    fun deactivate(node: ComposeNodeLifecycleCallback) {
-        changeList.pushDeactivate(node)
-    }
-
     fun remember(value: RememberObserver) {
         changeList.pushRemember(value)
     }
@@ -211,11 +206,6 @@ internal class ComposerChangeListWriter(
 
     fun resetSlots() {
         changeList.pushResetSlots()
-    }
-
-    fun clearSlotValue(index: Int, data: Any) {
-        pushSlotTableOperationPreamble()
-        changeList.pushClearSlotValue(index, data)
     }
 
     fun updateAuxData(data: Any?) {
@@ -456,6 +446,11 @@ internal class ComposerChangeListWriter(
         startedGroup = false
         startedGroups.clear()
         writersReaderDelta = 0
+    }
+
+    fun deactivateCurrentGroup() {
+        pushSlotTableOperationPreamble()
+        changeList.pushDeactivateCurrentGroup()
     }
 
     companion object {

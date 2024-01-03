@@ -33,6 +33,7 @@ import androidx.room.compiler.processing.collectAllMethods
 import androidx.room.compiler.processing.collectFieldsIncludingPrivateSupers
 import androidx.room.compiler.processing.filterMethodsByConfig
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE
+import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticConstructorElement
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
 import androidx.room.compiler.processing.tryBox
 import androidx.room.compiler.processing.util.MemoizedSequence
@@ -45,7 +46,10 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclarationContainer
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
+import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.Modifier
+import com.google.devtools.ksp.symbol.Origin.JAVA_LIB
+import com.google.devtools.ksp.symbol.Origin.KOTLIN_LIB
 import com.squareup.javapoet.ClassName
 import com.squareup.kotlinpoet.javapoet.JClassName
 import com.squareup.kotlinpoet.javapoet.KClassName
@@ -98,31 +102,18 @@ internal sealed class KspTypeElement(
             null
         } else {
             declaration.superTypes
-                .map { it.resolve() }
                 .singleOrNull {
-                    (it.declaration as? KSClassDeclaration)?.classKind == ClassKind.CLASS
-                }?.let {
-                    env.wrap(
-                        ksType = it,
-                        allowPrimitives = false
-                    )
-                } ?: env.commonTypes.anyType
+                    (it.resolve().declaration as? KSClassDeclaration)?.classKind == ClassKind.CLASS
+                }?.let { env.wrap(it) }
+                ?: env.commonTypes.anyType
         }
     }
 
     override val superInterfaces by lazy {
-        declaration.superTypes.asSequence().map {
-            it.resolve()
-        }
-        .filter {
-            it.declaration is KSClassDeclaration &&
-                (it.declaration as KSClassDeclaration).classKind == ClassKind.INTERFACE
-        }.mapTo(mutableListOf()) {
-            env.wrap(
-                ksType = it,
-                allowPrimitives = false
-            )
-        }
+        declaration.superTypes.asSequence()
+            .filter {
+                (it.resolve().declaration as? KSClassDeclaration)?.classKind == ClassKind.INTERFACE
+            }.mapTo(mutableListOf()) { env.wrap(it) }
     }
 
     @Deprecated(
@@ -238,11 +229,7 @@ internal sealed class KspTypeElement(
         return Modifier.DATA in declaration.modifiers
     }
 
-    override fun isValueClass(): Boolean {
-        // The inline modifier for inline classes is deprecated in Kotlin but we still include it
-        // in this check.
-        return Modifier.VALUE in declaration.modifiers || Modifier.INLINE in declaration.modifiers
-    }
+    override fun isValueClass(): Boolean = declaration.isValueClass()
 
     override fun isFunctionalInterface(): Boolean {
         return Modifier.FUN in declaration.modifiers
@@ -262,6 +249,9 @@ internal sealed class KspTypeElement(
     }
 
     override fun findPrimaryConstructor(): XConstructorElement? {
+        if (isAnnotationClass()) {
+            return null
+        }
         return declaration.primaryConstructor?.let {
             KspConstructorElement(
                 env = env,
@@ -323,12 +313,67 @@ internal sealed class KspTypeElement(
     }
 
     override fun getConstructors(): List<XConstructorElement> {
-        return declaration.getConstructors().map {
-            KspConstructorElement(
-                env = env,
-                declaration = it
+        if (isAnnotationClass()) {
+            return emptyList()
+        }
+        val constructors = declaration.getConstructors().toList()
+
+        return buildList {
+            addAll(
+                constructors.map {
+                    KspConstructorElement(
+                        env = env,
+                        declaration = it
+                    )
+                }
             )
-        }.toList()
+            constructors
+                .filter { it.hasOverloads() }
+                .forEach { addAll(enumerateSyntheticConstructors(it)) }
+
+            // To match KAPT if all params in the primary constructor have default values then
+            // synthesize a no-arg constructor if one is not already present.
+            val hasNoArgConstructor = constructors.any { it.parameters.isEmpty() }
+            if (!hasNoArgConstructor) {
+                declaration.primaryConstructor?.let {
+                    if (!it.hasOverloads() && it.parameters.all { it.hasDefault }) {
+                        add(
+                            KspSyntheticConstructorElement(
+                                env = env,
+                                declaration = it,
+                                valueParameters = emptyList()
+                            )
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private fun enumerateSyntheticConstructors(
+        declaration: KSFunctionDeclaration
+    ): List<KspSyntheticConstructorElement> {
+        val parameters = declaration.parameters
+        val defaultParamsCount = parameters.count { it.hasDefault }
+        if (defaultParamsCount < 1) { return emptyList() }
+        val constructorEnumeration = mutableListOf<KspSyntheticConstructorElement>()
+        for (defaultParameterToUseCount in 0..defaultParamsCount - 1) {
+            val parameterEnumeration = mutableListOf<KSValueParameter>()
+            var defaultParameterUsedCount = 0
+            for (parameter in parameters) {
+                if (parameter.hasDefault) {
+                    if (defaultParameterUsedCount++ >= defaultParameterToUseCount) {
+                      continue
+                    }
+                }
+                parameterEnumeration.add(parameter)
+            }
+            constructorEnumeration.add(
+                KspSyntheticConstructorElement(env, declaration, parameterEnumeration))
+        }
+        val isPreCompiled =
+            declaration.origin == KOTLIN_LIB || declaration.origin == JAVA_LIB
+        return if (isPreCompiled) constructorEnumeration.reversed() else constructorEnumeration
     }
 
     override fun getSuperInterfaceElements(): List<XTypeElement> {

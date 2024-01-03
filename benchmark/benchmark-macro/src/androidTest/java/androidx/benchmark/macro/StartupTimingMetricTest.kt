@@ -22,6 +22,8 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.Outputs
+import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig
+import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig.InitialProcessState
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
 import androidx.benchmark.perfetto.PerfettoConfig
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
@@ -310,7 +312,7 @@ internal fun measureStartup(
             },
             useStackSamplingConfig = false
         ),
-        userspaceTracingPackage = packageName,
+        perfettoSdkConfig = PerfettoSdkConfig(packageName, InitialProcessState.Unknown),
         block = measureBlock
     )!!
 

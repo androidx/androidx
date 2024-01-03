@@ -136,9 +136,9 @@ public final class ColorBuilders {
             }
 
             /**
-             * Sets the static  color value, in ARGB format. If a dynamic value is also set and the
-             * renderer supports dynamic values for the corresponding field, this static value
-             * will be ignored. If the static value is not specified, zero (equivalent to {@link
+             * Sets the static color value, in ARGB format. If a dynamic value is also set and the
+             * renderer supports dynamic values for the corresponding field, this static value will
+             * be ignored. If the static value is not specified, zero (equivalent to {@link
              * Color#TRANSPARENT}) will be used instead.
              *
              * @since 1.0

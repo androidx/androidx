@@ -30,6 +30,9 @@ import androidx.compose.ui.tooling.CrossFadePreview
 import androidx.compose.ui.tooling.CrossFadeWithLabelPreview
 import androidx.compose.ui.tooling.DecayAnimationPreview
 import androidx.compose.ui.tooling.InfiniteTransitionPreview
+import androidx.compose.ui.tooling.NullAnimateAsStatePreview
+import androidx.compose.ui.tooling.NullAnimatedContentPreview
+import androidx.compose.ui.tooling.NullTransitionPreview
 import androidx.compose.ui.tooling.TargetBasedAnimationPreview
 import androidx.compose.ui.tooling.TransitionAnimatedVisibilityPreview
 import androidx.compose.ui.tooling.TransitionPreview
@@ -335,6 +338,33 @@ class AnimationSearchTest {
         val search = AnimationSearch({ PreviewAnimationClock {} }) { }
         rule.searchAndTrackAllAnimations(search) { AnimatedContentPreview() }
         assertTrue(search.hasAnimations)
+    }
+
+    @Test
+    fun nullAnimatedContentIsTrackedAsUnsupported() {
+        val clock = PreviewAnimationClock()
+        val search = AnimationSearch({ clock }) { }
+        rule.searchAndTrackAllAnimations(search) { NullAnimatedContentPreview() }
+        assertEquals(1, clock.trackedUnsupportedAnimations.size)
+        assertTrue(clock.animatedContentClocks.isEmpty())
+    }
+
+    @Test
+    fun nullAnimatedXAsStateIsTrackedAsUnsupported() {
+        val clock = PreviewAnimationClock()
+        val search = AnimationSearch({ clock }) { }
+        rule.searchAndTrackAllAnimations(search) { NullAnimateAsStatePreview() }
+        assertEquals(1, clock.trackedUnsupportedAnimations.size)
+        assertTrue(clock.animateXAsStateClocks.isEmpty())
+    }
+
+    @Test
+    fun nullTransitionIsTrackedAsUnsupported() {
+        val clock = PreviewAnimationClock()
+        val search = AnimationSearch({ clock }) { }
+        rule.searchAndTrackAllAnimations(search) { NullTransitionPreview() }
+        assertEquals(1, clock.trackedUnsupportedAnimations.size)
+        assertTrue(clock.transitionClocks.isEmpty())
     }
 
     @Test

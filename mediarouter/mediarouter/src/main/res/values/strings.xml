@@ -102,17 +102,14 @@
     <string name="mr_chooser_zero_routes_found_title">No devices available</string>
 
     <!-- Text displayed to hint making sure device and cast device are connected to the same Wi-Fi. [CHAR_LIMIT=NONE] -->
-    <string name="mr_chooser_wifi_warning_description">Make sure the other device is on the same Wi-Fi network as this %s</string>
+    <string name="mr_chooser_wifi_warning_description_phone">Make sure the other device is on the same Wi-Fi network as this phone</string>
+    <string name="mr_chooser_wifi_warning_description_tablet">Make sure the other device is on the same Wi-Fi network as this tablet</string>
+    <string name="mr_chooser_wifi_warning_description_tv">Make sure the other device is on the same Wi-Fi network as this tv</string>
+    <string name="mr_chooser_wifi_warning_description_watch">Make sure the other device is on the same Wi-Fi network as this watch</string>
+    <string name="mr_chooser_wifi_warning_description_car">Make sure the other device is on the same Wi-Fi network as this car</string>
+    <string name="mr_chooser_wifi_warning_description_unknown">Make sure the other device is on the same Wi-Fi network as this device</string>
 
     <!-- Text displayed to link the user to the support article. [CHAR_LIMIT=NONE] -->
     <string name="mr_chooser_wifi_learn_more"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">Learn more</a></string>
     <string name="ic_media_route_learn_more_accessibility">Learn how to cast</string>
-
-    <!-- Text displayed representing different form factors of devices. [CHAR_LIMIT=NONE] -->
-    <string name="mr_device_form_factor_phone">phone</string>
-    <string name="mr_device_form_factor_tablet">tablet</string>
-    <string name="mr_device_form_factor_tv">tv</string>
-    <string name="mr_device_form_factor_watch">watch</string>
-    <string name="mr_device_form_factor_car">car</string>
-    <string name="mr_device_form_factor_unknown">device</string>
 </resources>

@@ -18,75 +18,115 @@ package androidx.graphics.shapes
 
 import android.graphics.Matrix
 import android.graphics.PointF
-import androidx.core.graphics.minus
-import androidx.core.graphics.plus
-import androidx.core.graphics.times
 import kotlin.math.sqrt
 
 /**
- * This class holds the anchor and control point data for a single cubic Bézier curve.
+ * This class holds the anchor and control point data for a single cubic Bézier curve,
+ * with anchor points ([anchorX0], [anchorY0]) and ([anchorX1], [anchorY1]) at either end
+ * and control points ([controlX0], [controlY0]) and ([controlX1], [controlY1]) determining
+ * the slope of the curve between the anchor points.
  *
- * @param p0 the first anchor point
- * @param p1 the first control point
- * @param p2 the second control point
- * @param p3 the second anchor point
+ * @param anchorX0 the first anchor point x coordinate
+ * @param anchorY0 the first anchor point y coordinate
+ * @param controlX0 the first control point x coordinate
+ * @param controlY0 the first control point y coordinate
+ * @param controlX1 the second control point x coordinate
+ * @param controlY1 the second control point y coordinate
+ * @param anchorX1 the second anchor point x coordinate
+ * @param anchorY1 the second anchor point y coordinate
  */
-class Cubic(p0: PointF, p1: PointF, p2: PointF, p3: PointF) {
-
-    // TODO: cubic points should not be mutable. Consider switching to Floats instead of Points,
-    /**
-     * The first anchor point
-     */
-    val p0: PointF
-
-    /**
-     * The first control point
-     */
-    val p1: PointF
+class Cubic(
+    anchorX0: Float,
+    anchorY0: Float,
+    controlX0: Float,
+    controlY0: Float,
+    controlX1: Float,
+    controlY1: Float,
+    anchorX1: Float,
+    anchorY1: Float
+) {
 
     /**
-     * The second control point
+     * The first anchor point x coordinate
      */
-    val p2: PointF
+    var anchorX0: Float = anchorX0
+        private set
 
     /**
-     * The second anchor point
+     * The first anchor point y coordinate
      */
-    val p3: PointF
+    var anchorY0: Float = anchorY0
+        private set
 
-    // Defensive copy to new PointF objects
-    init {
-        this.p0 = PointF(p0.x, p0.y)
-        this.p1 = PointF(p1.x, p1.y)
-        this.p2 = PointF(p2.x, p2.y)
-        this.p3 = PointF(p3.x, p3.y)
-    }
+    /**
+     * The first control point x coordinate
+     */
+    var controlX0: Float = controlX0
+        private set
+
+    /**
+     * The first control point y coordinate
+     */
+    var controlY0: Float = controlY0
+        private set
+
+    /**
+     * The second control point x coordinate
+     */
+    var controlX1: Float = controlX1
+        private set
+
+    /**
+     * The second control point y coordinate
+     */
+    var controlY1: Float = controlY1
+        private set
+
+    /**
+     * The second anchor point x coordinate
+     */
+    var anchorX1: Float = anchorX1
+        private set
+
+    /**
+     * The second anchor point y coordinate
+     */
+    var anchorY1: Float = anchorY1
+        private set
+
+    internal constructor(p0: PointF, p1: PointF, p2: PointF, p3: PointF) :
+        this(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y)
 
     /**
      * Copy constructor which creates a copy of the given object.
      */
-    constructor(cubic: Cubic) : this(cubic.p0, cubic.p1, cubic.p2, cubic.p3)
+    constructor(cubic: Cubic) : this(
+        cubic.anchorX0, cubic.anchorY0, cubic.controlX0, cubic.controlY0,
+        cubic.controlX1, cubic.controlY1, cubic.anchorX1, cubic.anchorY1,
+    )
 
     override fun toString(): String {
-        return "p0: $p0, p1: $p1, p2: $p2, p3: $p3"
+        return "p0: ($anchorX0, $anchorY0) p1: ($controlX0, $controlY0), " +
+            "p2: ($controlX1, $controlY1), p3: ($anchorX1, $anchorY1)"
     }
 
     /**
      * Returns a point on the curve for parameter t, representing the proportional distance
-     * along the curve between its starting ([p0]) and ending ([p3]) anchor points.
+     * along the curve between its starting ([anchorX0], [anchorY0]) and ending
+     * ([anchorX1], [anchorY1]) anchor points.
      *
-     * @param t The distance along the curve between the anchor points, where 0 is at [p0] and
-     * 1 is at [p1]
+     * @param t The distance along the curve between the anchor points, where 0 is at
+     * ([anchorX0], [anchorY0]) and 1 is at ([controlX0], [controlY0])
      * @param result Optional object to hold the result, can be passed in to avoid allocating a
      * new PointF object.
      */
     @JvmOverloads
     fun pointOnCurve(t: Float, result: PointF = PointF()): PointF {
         val u = 1 - t
-        result.x = p0.x * (u * u * u) + p1.x * (3 * t * u * u) +
-            p2.x * (3 * t * t * u) + p3.x * (t * t * t)
-        result.y = p0.y * (u * u * u) + p1.y * (3 * t * u * u) +
-            p2.y * (3 * t * t * u) + p3.y * (t * t * t)
+        result.x = anchorX0 * (u * u * u) + controlX0 * (3 * t * u * u) +
+            controlX1 * (3 * t * t * u) + anchorX1 * (t * t * t)
+        result.y = anchorY0 * (u * u * u) + controlY0 * (3 * t * u * u) +
+            controlY1 * (3 * t * t * u) + anchorY1 * (t * t * t)
         return result
     }
 
@@ -97,34 +137,48 @@ class Cubic(p0: PointF, p1: PointF, p2: PointF, p3: PointF) {
     // TODO: cartesian optimization?
     fun split(t: Float): Pair<Cubic, Cubic> {
         val u = 1 - t
+        val pointOnCurve = pointOnCurve(t)
         return Cubic(
-            p0,
-            p0 * u + p1 * t,
-            p0 * (u * u) + p1 * (2 * u * t) + p2 * (t * t),
-            pointOnCurve(t)
+            anchorX0, anchorY0,
+            anchorX0 * u + controlX0 * t, anchorY0 * u + controlY0 * t,
+            anchorX0 * (u * u) + controlX0 * (2 * u * t) + controlX1 * (t * t),
+            anchorY0 * (u * u) + controlY0 * (2 * u * t) + controlY1 * (t * t),
+            pointOnCurve.x, pointOnCurve.y
         ) to Cubic(
             // TODO: should calculate once and share the result
-            pointOnCurve(t),
-            p1 * (u * u) + p2 * (2 * u * t) + p3 * (t * t),
-            p2 * u + p3 * t,
-            p3
+            pointOnCurve.x, pointOnCurve.y,
+            controlX0 * (u * u) + controlX1 * (2 * u * t) + anchorX1 * (t * t),
+            controlY0 * (u * u) + controlY1 * (2 * u * t) + anchorY1 * (t * t),
+            controlX1 * u + anchorX1 * t, controlY1 * u + anchorY1 * t,
+            anchorX1, anchorY1
         )
     }
 
     /**
      * Utility function to reverse the control/anchor points for this curve.
      */
-    fun reverse() = Cubic(p3, p2, p1, p0)
+    fun reverse() = Cubic(anchorX1, anchorY1, controlX1, controlY1, controlX0, controlY0,
+        anchorX0, anchorY0)
 
     /**
      * Operator overload to enable adding Cubic objects together, like "c0 + c1"
      */
-    operator fun plus(o: Cubic) = Cubic(p0 + o.p0, p1 + o.p1, p2 + o.p2, p3 + o.p3)
+    operator fun plus(o: Cubic) = Cubic(
+        anchorX0 + o.anchorX0, anchorY0 + o.anchorY0,
+        controlX0 + o.controlX0, controlY0 + o.controlY0,
+        controlX1 + o.controlX1, controlY1 + o.controlY1,
+        anchorX1 + o.anchorX1, anchorY1 + o.anchorY1
+    )
 
     /**
      * Operator overload to enable multiplying Cubics by a scalar value x, like "c0 * x"
      */
-    operator fun times(x: Float) = Cubic(p0 * x, p1 * x, p2 * x, p3 * x)
+    operator fun times(x: Float) = Cubic(
+        anchorX0 * x, anchorY0 * x,
+        controlX0 * x, controlY0 * x,
+        controlX1 * x, controlY1 * x,
+        anchorX1 * x, anchorY1 * x
+    )
 
     /**
      * Operator overload to enable multiplying Cubics by an Int scalar value x, like "c0 * x"
@@ -156,23 +210,23 @@ class Cubic(p0: PointF, p1: PointF, p2: PointF, p3: PointF) {
         if (points.size < 8) {
             throw IllegalArgumentException("points array must be of size >= 8")
         }
-        points[0] = p0.x
-        points[1] = p0.y
-        points[2] = p1.x
-        points[3] = p1.y
-        points[4] = p2.x
-        points[5] = p2.y
-        points[6] = p3.x
-        points[7] = p3.y
+        points[0] = anchorX0
+        points[1] = anchorY0
+        points[2] = controlX0
+        points[3] = controlY0
+        points[4] = controlX1
+        points[5] = controlY1
+        points[6] = anchorX1
+        points[7] = anchorY1
         matrix.mapPoints(points)
-        p0.x = points[0]
-        p0.y = points[1]
-        p1.x = points[2]
-        p1.y = points[3]
-        p2.x = points[4]
-        p2.y = points[5]
-        p3.x = points[6]
-        p3.y = points[7]
+        anchorX0 = points[0]
+        anchorY0 = points[1]
+        controlX0 = points[2]
+        controlY0 = points[3]
+        controlX1 = points[4]
+        controlY1 = points[5]
+        anchorX1 = points[6]
+        anchorY1 = points[7]
     }
 
     override fun equals(other: Any?): Boolean {
@@ -181,19 +235,27 @@ class Cubic(p0: PointF, p1: PointF, p2: PointF, p3: PointF) {
 
         other as Cubic
 
-        if (p0 != other.p0) return false
-        if (p1 != other.p1) return false
-        if (p2 != other.p2) return false
-        if (p3 != other.p3) return false
+        if (anchorX0 != other.anchorX0) return false
+        if (anchorY0 != other.anchorY0) return false
+        if (controlX0 != other.controlX0) return false
+        if (controlY0 != other.controlY0) return false
+        if (controlX1 != other.controlX1) return false
+        if (controlY1 != other.controlY1) return false
+        if (anchorX1 != other.anchorX1) return false
+        if (anchorY1 != other.anchorY1) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = p0.hashCode()
-        result = 31 * result + p1.hashCode()
-        result = 31 * result + p2.hashCode()
-        result = 31 * result + p3.hashCode()
+        var result = anchorX0.hashCode()
+        result = 31 * result + anchorY0.hashCode()
+        result = 31 * result + controlX0.hashCode()
+        result = 31 * result + controlY0.hashCode()
+        result = 31 * result + controlX1.hashCode()
+        result = 31 * result + controlY1.hashCode()
+        result = 31 * result + anchorX1.hashCode()
+        result = 31 * result + anchorY1.hashCode()
         return result
     }
 
@@ -203,12 +265,14 @@ class Cubic(p0: PointF, p1: PointF, p2: PointF, p3: PointF) {
          * The control points lie 1/3 of the distance from their respective anchor points.
          */
         @JvmStatic
-        fun straightLine(p0: PointF, p1: PointF): Cubic {
+        fun straightLine(x0: Float, y0: Float, x1: Float, y1: Float): Cubic {
             return Cubic(
-                p0,
-                interpolate(p0, p1, 1f / 3f),
-                interpolate(p0, p1, 2f / 3f),
-                p1
+                x0, y0,
+                interpolate(x0, x1, 1f / 3f),
+                interpolate(y0, y1, 1f / 3f),
+                interpolate(x0, x1, 2f / 3f),
+                interpolate(y0, y1, 2f / 3f),
+                x1, y1
             )
         }
 
@@ -222,17 +286,28 @@ class Cubic(p0: PointF, p1: PointF, p2: PointF, p3: PointF) {
          * equidistant from the center.
          */
         @JvmStatic
-        fun circularArc(center: PointF, p0: PointF, p1: PointF): Cubic {
-            val p0d = (p0 - center).getDirection()
-            val p1d = (p1 - center).getDirection()
-            p0d.rotate90()
-            val clockwise = p0d.rotate90().dotProduct(p1 - center) >= 0
+        fun circularArc(
+            centerX: Float,
+            centerY: Float,
+            x0: Float,
+            y0: Float,
+            x1: Float,
+            y1: Float
+        ): Cubic {
+            val p0d = directionVector(x0 - centerX, y0 - centerY)
+            val p1d = directionVector(x1 - centerX, y1 - centerY)
+            val rotatedP0 = p0d.rotate90()
+            val rotatedP1 = p1d.rotate90()
+            val clockwise = rotatedP0.dotProduct(x1 - centerX, y1 - centerY) >= 0
             val cosa = p0d.dotProduct(p1d)
-            if (cosa > 0.999f) /* p0 ~= p1 */ return straightLine(p0, p1)
-            val k = (p0 - center).getDistance() * 4f / 3f *
-                    (sqrt(2 * (1 - cosa)) - sqrt(1 - cosa * cosa)) / (1 - cosa) *
-                    if (clockwise) 1f else -1f
-            return Cubic(p0, p0 + p0d.rotate90() * k, p1 - p1d.rotate90() * k, p1)
+            if (cosa > 0.999f) /* p0 ~= p1 */ return straightLine(x0, y0, x1, y1)
+            val k = distance(x0 - centerX, y0 - centerY) * 4f / 3f *
+                (sqrt(2 * (1 - cosa)) - sqrt(1 - cosa * cosa)) / (1 - cosa) *
+                if (clockwise) 1f else -1f
+            return Cubic(
+                x0, y0, x0 + rotatedP0.x * k, y0 + rotatedP0.y * k,
+                x1 - rotatedP1.x * k, y1 - rotatedP1.y * k, x1, y1
+            )
         }
 
         /**
@@ -243,10 +318,14 @@ class Cubic(p0: PointF, p1: PointF, p2: PointF, p3: PointF) {
         @JvmStatic
         fun interpolate(start: Cubic, end: Cubic, t: Float): Cubic {
             return (Cubic(
-                interpolate(start.p0, end.p0, t),
-                interpolate(start.p1, end.p1, t),
-                interpolate(start.p2, end.p2, t),
-                interpolate(start.p3, end.p3, t),
+                interpolate(start.anchorX0, end.anchorX0, t),
+                interpolate(start.anchorY0, end.anchorY0, t),
+                interpolate(start.controlX0, end.controlX0, t),
+                interpolate(start.controlY0, end.controlY0, t),
+                interpolate(start.controlX1, end.controlX1, t),
+                interpolate(start.controlY1, end.controlY1, t),
+                interpolate(start.anchorX1, end.anchorX1, t),
+                interpolate(start.anchorY1, end.anchorY1, t),
             ))
         }
     }

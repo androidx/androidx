@@ -35,6 +35,7 @@ import android.os.Looper;
 import android.util.Log;
 import android.view.PixelCopy;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -43,6 +44,7 @@ import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.car.app.SessionInfo;
 import androidx.car.app.activity.renderer.ICarAppActivity;
@@ -62,7 +64,6 @@ import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
 import androidx.car.app.utils.ThreadUtils;
 import androidx.core.view.DisplayCutoutCompat;
-import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.Lifecycle;
@@ -85,6 +86,8 @@ public abstract class BaseCarAppActivity extends FragmentActivity {
     LoadingView mLoadingView;
     View mActivityContainerView;
     View mLocalContentContainerView;
+
+    boolean mDecorFitsSystemWindows = false;
 
     /**
      * Displays the snapshot of the surface view to avoid a visual glitch when app comes
@@ -131,10 +134,18 @@ public abstract class BaseCarAppActivity extends FragmentActivity {
                     // SystemUiVisibility set in CarAppActivity#onCreate(). Failing to do so would
                     // cause a mismatch between the insets applied to the content on the hosts side
                     // vs. the actual visible window available on the client side.
-                    Insets insets = WindowInsetsCompat.toWindowInsetsCompat(windowInsets)
-                            .getInsets(WindowInsetsCompat.Type.systemBars()
-                                    | WindowInsetsCompat.Type.ime())
-                            .toPlatformInsets();
+                    Insets insets;
+                    // Android U+ (SDK 34+) introduced SYSTEM_OVERLAYS insets, which we pass to the
+                    // host to adjust padding.
+                    if (Build.VERSION.SDK_INT >= 34) {
+                        // TODO(b/287700349): Add tests once Robolectric supports SDK 34.
+                        insets = Api34Impl.getInsets(windowInsets);
+                    } else {
+                        insets = WindowInsetsCompat.toWindowInsetsCompat(windowInsets)
+                                .getInsets(WindowInsetsCompat.Type.systemBars()
+                                        | WindowInsetsCompat.Type.ime())
+                                .toPlatformInsets();
+                    }
                     DisplayCutoutCompat displayCutout =
                             WindowInsetsCompat.toWindowInsetsCompat(windowInsets)
                                     .getDisplayCutout();
@@ -241,6 +252,18 @@ public abstract class BaseCarAppActivity extends FragmentActivity {
                 }
             };
 
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    private static class Api34Impl {
+
+        private Api34Impl() {
+        }
+
+        static Insets getInsets(WindowInsets windowInsets) {
+            return windowInsets.getInsets(WindowInsets.Type.systemBars() | WindowInsets.Type.ime()
+                    | WindowInsets.Type.systemOverlays());
+        }
+    }
+
     @RequiresApi(Build.VERSION_CODES.R)
     private static class Api30Impl {
         private Api30Impl() {
@@ -250,6 +273,14 @@ public abstract class BaseCarAppActivity extends FragmentActivity {
         static WindowInsets getDecorViewInsets(WindowInsets insets) {
             return new WindowInsets.Builder(insets).setInsets(
                     WindowInsets.Type.displayCutout(), Insets.NONE).build();
+        }
+
+        @DoNotInline
+        static void setDecorFitsSystemWindows(BaseCarAppActivity activity, Window window,
+                boolean decorFitsSystemWindows) {
+            // Set mDecorFitsSystemWindows so we can retrieve its value for testing.
+            activity.mDecorFitsSystemWindows = decorFitsSystemWindows;
+            window.setDecorFitsSystemWindows(decorFitsSystemWindows);
         }
     }
 
@@ -325,18 +356,28 @@ public abstract class BaseCarAppActivity extends FragmentActivity {
 
         // Remove display cut-out insets on DecorView
         getWindow().getDecorView().setOnApplyWindowInsetsListener((view, insets) -> {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (Build.VERSION.SDK_INT >= 30) {
                 insets = Api30Impl.getDecorViewInsets(insets);
             }
             return view.onApplyWindowInsets(insets);
         });
 
-        // IMPORTANT: The SystemUiVisibility applied here must match the insets provided to the
-        // host in OnApplyWindowInsetsListener above. Failing to do so would cause a mismatch
-        // between the insets applied to the content on the hosts side vs. the actual visible
-        // window available on the client side.
-        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+        if (Build.VERSION.SDK_INT >= 30) {
+            Api30Impl.setDecorFitsSystemWindows(this, getWindow(), false);
+        } else {
+            getWindow().getDecorView().setFitsSystemWindows(false);
+        }
         mActivityContainerView.requestApplyInsets();
+    }
+
+    /**
+     * TODO(b/283985939): Workaround for testing {@code setDecorFitsSystemWindows} for older
+     * versions of Roboelectric that don't support {@code getDecorFitsSystemWindows}. Remove this
+     * once Roboelectric version is upgraded to v4.10.3.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public boolean getDecorFitsSystemWindows() {
+        return mDecorFitsSystemWindows;
     }
 
     /** Takes a snapshot of the surface view and puts it in the surfaceSnapshotView if succeeded. */

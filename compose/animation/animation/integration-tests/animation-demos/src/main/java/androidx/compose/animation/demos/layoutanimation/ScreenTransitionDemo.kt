@@ -18,6 +18,7 @@ package androidx.compose.animation.demos.layoutanimation
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.expandHorizontally
@@ -65,7 +66,9 @@ fun ScreenTransitionDemo() {
                         else -> TestScreens.Screen1
                     }
                 },
-                modifier = Modifier.align(Alignment.CenterVertically).padding(10.dp)
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .padding(10.dp)
             ) {
                 Text("Previous screen")
             }
@@ -77,7 +80,9 @@ fun ScreenTransitionDemo() {
                         else -> TestScreens.Screen1
                     }
                 },
-                modifier = Modifier.align(Alignment.CenterVertically).padding(10.dp)
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .padding(10.dp)
             ) {
                 Text("Next screen")
             }
@@ -85,25 +90,32 @@ fun ScreenTransitionDemo() {
         val transition = updateTransition(targetScreen, "screen transition")
         transition.AnimatedContent(
             transitionSpec = {
-                if (TestScreens.Screen1 isTransitioningTo TestScreens.Screen2 ||
-                    TestScreens.Screen2 isTransitioningTo TestScreens.Screen1
-                ) {
-                    (expandHorizontally(animationSpec = tween(500)) + fadeIn()).togetherWith(
-                        shrinkVertically(animationSpec = tween(500)) +
-                            fadeOut(animationSpec = tween(500))
-                    )
-                } else if (TestScreens.Screen2 isTransitioningTo TestScreens.Screen3) {
-                    slideIntoContainer(towards = SlideDirection.Left) togetherWith
-                        slideOutOfContainer(towards = SlideDirection.Left)
-                } else if (TestScreens.Screen3 isTransitioningTo TestScreens.Screen2) {
-                    slideIntoContainer(towards = SlideDirection.Right) togetherWith
-                        slideOutOfContainer(towards = SlideDirection.Right)
-                } else {
-                    // Material fade through
-                    fadeIn(animationSpec = tween(220, delayMillis = 90)) +
-                        scaleIn(
-                            initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90)
-                        ) togetherWith fadeOut(animationSpec = tween(90))
+                when {
+                    TestScreens.Screen1 isTransitioningTo TestScreens.Screen2 ||
+                        TestScreens.Screen2 isTransitioningTo TestScreens.Screen1 ->
+                        (expandHorizontally(animationSpec = tween(500)) + fadeIn()).togetherWith(
+                            shrinkVertically(animationSpec = tween(500)) +
+                                fadeOut(animationSpec = tween(500))
+                        )
+
+                    TestScreens.Screen2 isTransitioningTo TestScreens.Screen3 ->
+                        slideIntoContainer(towards = SlideDirection.Left) togetherWith
+                            slideOutOfContainer(towards = SlideDirection.Left)
+
+                    TestScreens.Screen3 isTransitioningTo TestScreens.Screen2 ->
+                        slideIntoContainer(towards = SlideDirection.Right) togetherWith
+                            slideOutOfContainer(towards = SlideDirection.Right)
+
+                    TestScreens.Screen3 isTransitioningTo TestScreens.Screen1 ->
+                        slideIntoContainer(towards = SlideDirection.Right) togetherWith
+                            ExitTransition.Hold
+
+                    else ->
+                        // Material fade through
+                        fadeIn(animationSpec = tween(220, delayMillis = 90)) +
+                            scaleIn(
+                                initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90)
+                            ) togetherWith fadeOut(animationSpec = tween(90))
                 }
             }
         ) {
@@ -124,21 +136,30 @@ enum class TestScreens {
 
 @Composable
 fun Screen1() {
-    Box(modifier = Modifier.fillMaxSize().padding(30.dp).background(Color(0xffff6f69))) {
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .padding(30.dp)
+        .background(Color(0xffff6f69))) {
         Text("Screen 1", modifier = Modifier.align(Center))
     }
 }
 
 @Composable
 fun Screen2() {
-    Box(modifier = Modifier.fillMaxSize().padding(30.dp).background(Color(0xffffcc5c))) {
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .padding(30.dp)
+        .background(Color(0xffffcc5c))) {
         Text("Screen 2", modifier = Modifier.align(Center))
     }
 }
 
 @Composable
 fun Screen3() {
-    Box(modifier = Modifier.fillMaxSize().padding(30.dp).background(Color(0xff2a9d84))) {
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .padding(30.dp)
+        .background(Color(0xff2a9d84))) {
         Text("Screen 3", modifier = Modifier.align(Center))
     }
 }

@@ -161,9 +161,13 @@ object MethodSpecHelper {
      * * thrown types are copied if the backing element is from java
      */
     @JvmStatic
+    @JvmOverloads
     fun overriding(
         elm: XMethodElement,
-        owner: XType
+        owner: XType =
+            checkNotNull(elm.enclosingElement.type) {
+                "Cannot override method without enclosing class"
+            }
     ): MethodSpec.Builder {
         val asMember = elm.asMemberOf(owner)
         return overriding(

@@ -41,7 +41,13 @@ import androidx.appactions.interaction.protobuf.Struct
  *
  * @throws StructConversionException if some internal error occurs during serialization.
  */
-fun serialize(@Suppress("UNUSED_PARAMETER") instance: Thing): Struct = TODO()
+fun serialize(instance: Thing): Struct {
+    val serializer =
+        builtInTypeSerializerRegistry.getSerializer(instance)
+            ?: throw StructConversionException(
+                "Could not unambiguously determine the serializer for instance: $instance")
+    return serializer.serialize(instance)
+}
 
 /**
  * Converts a JSON-LD conforming [Struct] to a [Thing] (or subtype).

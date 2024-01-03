@@ -129,9 +129,18 @@ class ComposeErrorMessages : DefaultErrorMessages.Extension {
             "Composable setValue operator is not currently supported."
         )
         MAP.put(
+            ComposeErrors.MISMATCHED_COMPOSABLE_IN_EXPECT_ACTUAL,
+            "Mismatched @Composable annotation between expect and actual declaration"
+        )
+        MAP.put(
             ComposeErrors.REDUNDANT_COMPOSABLE_ANNOTATION,
             "Invalid `@Composable` annotation on inline lambda." +
                 " This will become an error in Kotlin 2.0."
+        )
+        MAP.put(
+            ComposeErrors.NAMED_ARGUMENTS_NOT_ALLOWED,
+            "Named arguments in composable function types are deprecated." +
+            " This will become an error in Kotlin 2.0"
         )
     }
 }

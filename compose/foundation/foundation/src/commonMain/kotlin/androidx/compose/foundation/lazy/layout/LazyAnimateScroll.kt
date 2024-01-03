@@ -45,7 +45,7 @@ private inline fun debugLog(generateMsg: () -> String) {
 /**
  * Abstraction over animated scroll for using [animateScrollToItem] in different layouts.
  * todo(b/243786897): revisit this API and make it public
- **/
+ */
 internal interface LazyAnimateScrollScope {
     val density: Density
 

@@ -2,6 +2,7 @@ package androidx.benchmark
 
 import android.annotation.SuppressLint
 import android.util.Log
+import androidx.benchmark.CpuEventCounter.Event
 import java.util.concurrent.TimeUnit
 
 internal class MicrobenchmarkPhase(
@@ -13,7 +14,6 @@ internal class MicrobenchmarkPhase(
 
     val profiler: Profiler? = null,
     val gcBeforePhase: Boolean = false,
-    val ignorePauseEvent: Boolean = false,
     val thermalThrottleSleepsMax: Int = 0,
 ) {
     val metricsContainer = MetricsContainer(metrics, measurementCount)
@@ -21,9 +21,10 @@ internal class MicrobenchmarkPhase(
     var thermalThrottleSleepSeconds = 0L
 
     init {
-        check(loopMode.warmupManager == null || metricsContainer.names.size == 1) {
-            "If warmup is enabled, must only capture one metric," +
-                " as WarmupManager only one value per repeat"
+        if (loopMode.warmupManager != null) {
+            check(metricsContainer.names.first() == "timeNs" && metricsContainer.names.size <= 2) {
+                "If warmup is enabled, expect to only capture one or two metrics"
+            }
         }
     }
 
@@ -101,6 +102,16 @@ internal class MicrobenchmarkPhase(
     companion object {
         private val THROTTLE_BACKOFF_S = Arguments.thermalThrottleSleepDurationSeconds
 
+        // static instance ensures there's only one, and we don't leak native memory
+        private val cpuEventCounter: CpuEventCounter by lazy {
+            // As this is only ever enabled by experimental arguments, we force enable this
+            // permanently once the first benchmark uses it, for local runs only.
+            CpuEventCounter.forceEnable()?.let { errorMessage ->
+                throw IllegalStateException(errorMessage)
+            }
+            CpuEventCounter()
+        }
+
         fun dryRunModePhase() = MicrobenchmarkPhase(
             label = "Benchmark DryRun Timing",
             measurementCount = 1,
@@ -114,23 +125,40 @@ internal class MicrobenchmarkPhase(
         )
 
         fun warmupPhase(
-            warmupManager: WarmupManager
+            warmupManager: WarmupManager,
+            collectCpuEventInstructions: Boolean,
         ) = MicrobenchmarkPhase(
             label = "Benchmark Warmup",
             measurementCount = 1,
             loopMode = LoopMode.Warmup(warmupManager),
-            gcBeforePhase = true,
-            ignorePauseEvent = true
+            metrics = if (collectCpuEventInstructions) {
+                arrayOf(
+                    TimeCapture(),
+                    CpuEventCounterCapture(cpuEventCounter, listOf(Event.Instructions))
+                )
+            } else {
+                arrayOf(TimeCapture())
+            },
+            gcBeforePhase = true
         )
 
         fun timingMeasurementPhase(
             loopMode: LoopMode,
             measurementCount: Int,
-            simplifiedTimingOnlyMode: Boolean
+            simplifiedTimingOnlyMode: Boolean,
+            cpuEventCountersMask: Int,
         ) = MicrobenchmarkPhase(
             label = "Benchmark Time",
             measurementCount = measurementCount,
             loopMode = loopMode,
+            metrics = if (cpuEventCountersMask != 0) {
+                arrayOf(
+                    TimeCapture(),
+                    CpuEventCounterCapture(cpuEventCounter, cpuEventCountersMask)
+                )
+            } else {
+                arrayOf(TimeCapture())
+            },
             thermalThrottleSleepsMax = if (simplifiedTimingOnlyMode) 0 else 2
         )
 
@@ -177,6 +205,7 @@ internal class MicrobenchmarkPhase(
         val profiler: Profiler?,
         val warmupCount: Int?,
         val measurementCount: Int?,
+        val cpuEventCountersMask: Int,
     ) {
         val warmupManager = WarmupManager(overrideCount = warmupCount)
         init {
@@ -201,12 +230,21 @@ internal class MicrobenchmarkPhase(
                 // sharing between these phases, we should update that JSON representation.
                 val loopMode = LoopMode.Duration(BenchmarkState.DEFAULT_MEASUREMENT_DURATION_NS)
                 listOfNotNull(
-                    warmupPhase(warmupManager),
+                    warmupPhase(
+                        warmupManager = warmupManager,
+                        // Collect the instructions metric to ensure that behavior and timing aren't
+                        // significantly skewed between warmup and timing phases. For example, if
+                        // only timing phase has a complex impl of pause/resume, then behavior
+                        // changes drastically, and the warmupManager will estimate a far faster
+                        // impl of `measureRepeated { runWithTimingDisabled }`
+                        collectCpuEventInstructions = cpuEventCountersMask != 0
+                    ),
                     // Regular timing phase
                     timingMeasurementPhase(
                         measurementCount = measurementCount ?: 50,
                         loopMode = loopMode,
-                        simplifiedTimingOnlyMode = simplifiedTimingOnlyMode
+                        simplifiedTimingOnlyMode = simplifiedTimingOnlyMode,
+                        cpuEventCountersMask = cpuEventCountersMask
                     ),
                     if (simplifiedTimingOnlyMode || profiler == null) {
                         null

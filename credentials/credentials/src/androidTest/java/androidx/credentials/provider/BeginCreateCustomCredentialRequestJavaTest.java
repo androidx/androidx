@@ -23,7 +23,6 @@ import static org.junit.Assert.assertThrows;
 import android.content.pm.SigningInfo;
 import android.os.Bundle;
 
-import androidx.core.os.BuildCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -31,30 +30,27 @@ import androidx.test.filters.SmallTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-@SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
+@SdkSuppress(minSdkVersion = 28)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class BeginCreateCustomCredentialRequestJavaTest {
 
     @Test
     public void constructor_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
-
         new BeginCreateCustomCredentialRequest("type", Bundle.EMPTY, null);
     }
 
     @Test
-    public void constructor_nullTypeBundle_throws() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
+    public void constructor_callingappinfo_success() {
+        new BeginCreateCustomCredentialRequest("type", Bundle.EMPTY, new CallingAppInfo(
+                        "package", new SigningInfo()));
+    }
 
-        // TODO(b/275416815) - parameterize to account for all individually
-        assertThrows("Expected null list to throw NPE",
+    @Test
+    public void constructor_nullBundleInfo_throws() {
+        assertThrows("Expected null candidateQueryData to throw NPE",
                 NullPointerException.class,
-                () -> new BeginCreateCustomCredentialRequest(null, null,
+                () -> new BeginCreateCustomCredentialRequest("", null,
                         new CallingAppInfo(
                         "package", new SigningInfo()))
         );
@@ -62,10 +58,6 @@ public class BeginCreateCustomCredentialRequestJavaTest {
 
     @Test
     public void constructor_emptyType_throws() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
-
         assertThrows("Expected empty type to throw IAE",
                 IllegalArgumentException.class,
                 () -> new BeginCreateCustomCredentialRequest("", Bundle.EMPTY,
@@ -76,9 +68,6 @@ public class BeginCreateCustomCredentialRequestJavaTest {
 
     @Test
     public void getter_type() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         String expectedType = "ironman";
 
         BeginCreateCustomCredentialRequest beginCreateCustomCredentialRequest =
@@ -90,9 +79,6 @@ public class BeginCreateCustomCredentialRequestJavaTest {
 
     @Test
     public void getter_bundle() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         String expectedKey = "query";
         String expectedValue = "data";
         Bundle expectedBundle = new Bundle();

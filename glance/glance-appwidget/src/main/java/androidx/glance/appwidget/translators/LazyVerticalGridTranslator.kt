@@ -17,6 +17,7 @@
 package androidx.glance.appwidget.translators
 
 import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_ALLOW_UNSAFE_IMPLICIT_INTENT
 import android.app.PendingIntent.FLAG_MUTABLE
 import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.content.Intent
@@ -72,14 +73,16 @@ private fun RemoteViews.translateEmittableLazyVerticalGrid(
           "Only counts from 1 to 5 are supported."
       }
     }
-    // TODO(b/205868100): Add FLAG_ALLOW_UNSAFE_IMPLICIT_INTENT for api 34
     setPendingIntentTemplate(
         viewDef.mainViewId,
         PendingIntent.getActivity(
             translationContext.context,
             0,
             Intent(),
-            FILL_IN_COMPONENT or FLAG_MUTABLE or FLAG_UPDATE_CURRENT,
+            FILL_IN_COMPONENT
+                or FLAG_MUTABLE
+                or FLAG_UPDATE_CURRENT
+                or FLAG_ALLOW_UNSAFE_IMPLICIT_INTENT,
             element.activityOptions,
         )
     )

@@ -37,13 +37,11 @@ import androidx.annotation.DoNotInline;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.BundleCompat;
 import androidx.core.app.NotificationBuilderWithBuilderAccessor;
-import androidx.core.os.BuildCompat;
 import androidx.media.R;
 
 /**
@@ -248,11 +246,10 @@ public class NotificationCompat {
 
         /**
          */
-        @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
         @RestrictTo(LIBRARY)
         @Override
         public void apply(NotificationBuilderWithBuilderAccessor builder) {
-            if (BuildCompat.isAtLeastU()) {
+            if (Build.VERSION.SDK_INT >= 34) {
                 Api21Impl.setMediaStyle(builder.getBuilder(),
                         Api21Impl.fillInMediaStyle(Api34Impl.setRemotePlaybackInfo(
                                 Api21Impl.createMediaStyle(), mDeviceName, mDeviceIcon,
@@ -420,11 +417,10 @@ public class NotificationCompat {
 
         /**
          */
-        @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
         @RestrictTo(LIBRARY)
         @Override
         public void apply(NotificationBuilderWithBuilderAccessor builder) {
-            if (BuildCompat.isAtLeastU()) {
+            if (Build.VERSION.SDK_INT >= 34) {
                 Api21Impl.setMediaStyle(builder.getBuilder(), Api21Impl.fillInMediaStyle(
                         Api34Impl.setRemotePlaybackInfo(
                                 Api24Impl.createDecoratedMediaCustomViewStyle(), mDeviceName,

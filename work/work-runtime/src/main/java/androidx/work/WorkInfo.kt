@@ -16,6 +16,7 @@
 package androidx.work
 
 import androidx.annotation.IntRange
+import androidx.annotation.RequiresApi
 import androidx.work.WorkInfo.State
 import java.util.UUID
 
@@ -105,6 +106,24 @@ class WorkInfo @JvmOverloads constructor(
      * there are limited scheduling slots or other factors.
      */
     val nextScheduleTimeMillis: Long = Long.MAX_VALUE,
+
+    /**
+     * The reason why this worker was stopped on the previous run attempt, its value is
+     * one of `android.app.job.JobParameters.STOP_REASON_*`, such as
+     * [android.app.job.JobParameters.STOP_REASON_CONSTRAINT_CONNECTIVITY], or
+     * [STOP_REASON_NOT_STOPPED] if a worker wasn't stopped.
+     *
+     * For a worker being stopped, at first it should have attempted to run, i.e. its state
+     * should be == RUNNING and then [ListenableWorker.onStopped] should have been called,
+     * resulting in this worker's state going back [WorkInfo.State.ENQUEUED]. In this situation
+     * (`runAttemptCount > 0` and `state == ENQUEUED`) this `stopReason` property could be checked
+     * to see for additional information. Please note, that this state (`runAttemptCount > 0` and
+     * `state == ENQUEUED`) can happen not only because a worker was stopped, but also when
+     * a worker returns `ListenableWorker.Result.retry()`. In this situation this property will
+     * return [STOP_REASON_NOT_STOPPED].
+     */
+    @get:RequiresApi(31)
+    val stopReason: Int = STOP_REASON_NOT_STOPPED
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -119,6 +138,7 @@ class WorkInfo @JvmOverloads constructor(
         if (initialDelayMillis != workInfo.initialDelayMillis) return false
         if (periodicityInfo != workInfo.periodicityInfo) return false
         if (nextScheduleTimeMillis != workInfo.nextScheduleTimeMillis) return false
+        if (stopReason != workInfo.stopReason) return false
         return if (tags != workInfo.tags) false else progress == workInfo.progress
     }
 
@@ -134,6 +154,7 @@ class WorkInfo @JvmOverloads constructor(
         result = 31 * result + initialDelayMillis.hashCode()
         result = 31 * result + periodicityInfo.hashCode()
         result = 31 * result + nextScheduleTimeMillis.hashCode()
+        result = 31 * result + stopReason.hashCode()
         return result
     }
 
@@ -143,7 +164,8 @@ class WorkInfo @JvmOverloads constructor(
             "runAttemptCount=$runAttemptCount, generation=$generation, " +
             "constraints=$constraints, initialDelayMillis=$initialDelayMillis, " +
             "periodicityInfo=$periodicityInfo, " +
-            "nextScheduleTimeMillis=$nextScheduleTimeMillis}")
+            "nextScheduleTimeMillis=$nextScheduleTimeMillis}, " +
+            "stopReason=$stopReason")
     }
 
     /**
@@ -223,5 +245,27 @@ class WorkInfo @JvmOverloads constructor(
             return "PeriodicityInfo{repeatIntervalMillis=$repeatIntervalMillis, " +
                 "flexIntervalMillis=$flexIntervalMillis}"
         }
+    }
+
+    companion object {
+        /**
+         * Additional stop reason, that is returned from [WorkInfo.stopReason] in cases when
+         * a worker in question wasn't stopped. E.g. when a worker was just enqueued, but didn't
+         * run yet.
+         */
+        const val STOP_REASON_NOT_STOPPED = -256
+
+        /**
+         * Additional stop reason that is used in cases when worker did stop, but the reason for
+         * this is unknown. For example, when the app abruptly stopped due to a crash or when a
+         * device suddenly ran out of the battery.
+         *
+         * [STOP_REASON_UNKNOWN] is introduced in addition to
+         * [android.app.job.JobParameters.STOP_REASON_UNDEFINED], because `STOP_REASON_UNDEFINED`
+         * is used by JobScheduler in the `JobParameters` object passed to
+         * `JobService#onStartJob(JobParameters)`. Thus it has significantly different meaning
+         * than `STOP_REASON_UNKNOWN`, so we don't want to collide these two situations.
+         */
+        const val STOP_REASON_UNKNOWN = -512
     }
 }

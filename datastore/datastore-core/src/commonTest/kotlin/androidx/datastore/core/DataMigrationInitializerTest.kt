@@ -23,6 +23,7 @@ import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
@@ -32,7 +33,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 
 @OptIn(ExperimentalCoroutinesApi::class)
-abstract class DataMigrationInitializerTest<F : TestFile, IOE : Throwable>
+abstract class DataMigrationInitializerTest<F : TestFile<F>, IOE : Throwable>
     (private val testIO: TestIO<F, IOE>) {
 
     private lateinit var storage: Storage<Byte>
@@ -46,7 +47,7 @@ abstract class DataMigrationInitializerTest<F : TestFile, IOE : Throwable>
     }
 
     fun doTest(test: suspend TestScope.() -> Unit) {
-        testScope.runTest(dispatchTimeoutMs = 10000) {
+        testScope.runTest(timeout = 10000.milliseconds) {
             test(testScope)
         }
     }

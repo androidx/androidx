@@ -1,5 +1,158 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
+<issues format="6" by="lint 8.1.0-beta05" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta05)" variant="all" version="8.1.0-beta05">
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;trippedModifier&apos; with type Function2&lt;? super Boolean, ? super Color, ? extends Modifier>."
+        errorLine1="    fun trippedModifier(isActive: Boolean, color: Color) ="
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/compose/ui/demos/gestures/ButtonMetaStateDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;onDoubleTap&apos; with type Function1&lt;? super Offset, ? extends Unit>."
+        errorLine1="    val onDoubleTap: (Offset) -> Unit = {"
+        errorLine2="                     ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/demos/gestures/DoubleTapGestureDetectorDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;onTap&apos; with type Function1&lt;? super Offset, ? extends Unit>."
+        errorLine1="    val onTap: (Offset) -> Unit = {"
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/demos/gestures/DoubleTapInTapDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;onDoubleTap&apos; with type Function1&lt;? super Offset, ? extends Unit>."
+        errorLine1="    val onDoubleTap: (Offset) -> Unit = { _ ->"
+        errorLine2="                     ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/demos/gestures/DoubleTapInTapDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;onPress&apos; with type Function1&lt;? super Offset, ? extends Unit>."
+        errorLine1="    val onPress: (Offset) -> Unit = {"
+        errorLine2="                 ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/demos/gestures/HorizontalScrollersInVerticalScrollerDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;onTap&apos; with type Function1&lt;? super Offset, ? extends Unit>."
+        errorLine1="    val onTap: (Offset) -> Unit = {"
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/demos/gestures/HorizontalScrollersInVerticalScrollerDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;onDoubleTap&apos; with type Function1&lt;? super Offset, ? extends Unit>."
+        errorLine1="    val onDoubleTap: (Offset) -> Unit = {"
+        errorLine2="                     ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/demos/gestures/HorizontalScrollersInVerticalScrollerDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;onLongPress&apos; with type Function1&lt;? super Offset, ? extends Unit>."
+        errorLine1="    val onLongPress = { _: Offset ->"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/compose/ui/demos/gestures/HorizontalScrollersInVerticalScrollerDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;onLongPress&apos; with type Function1&lt;? super Offset, ? extends Unit>."
+        errorLine1="    val onLongPress = { _: Offset ->"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/compose/ui/demos/gestures/LongPressGestureDetectorDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;onLongPress&apos; with type Function1&lt;? super Offset, ? extends Unit>."
+        errorLine1="    val onLongPress: (Offset) -> Unit = {"
+        errorLine2="                     ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/demos/gestures/NestedLongPressDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;onLongPress&apos; with type Function1&lt;? super Offset, ? extends Unit>."
+        errorLine1="    val onLongPress = { _: Offset ->"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/compose/ui/demos/gestures/NestedPressDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;onTap&apos; with type Function1&lt;? super Offset, ? extends Unit>."
+        errorLine1="    val onTap: (Offset) -> Unit = {"
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/demos/gestures/NestedPressDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;onDoubleTap&apos; with type Function1&lt;? super Offset, ? extends Unit>."
+        errorLine1="    val onDoubleTap = { _: Offset ->"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/compose/ui/demos/gestures/NestedPressDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;onPress&apos; with type Function1&lt;? super Offset, ? extends Unit>."
+        errorLine1="    val onPress: (Offset) -> Unit = {"
+        errorLine2="                 ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/demos/gestures/NestedScrollingDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;onTap&apos; with type Function1&lt;? super Offset, ? extends Unit>."
+        errorLine1="    val onTap: (Offset) -> Unit = {"
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/demos/gestures/NestedScrollingDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;onDoubleTap&apos; with type Function1&lt;? super Offset, ? extends Unit>."
+        errorLine1="    val onDoubleTap: (Offset) -> Unit = {"
+        errorLine2="                     ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/demos/gestures/NestedScrollingDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;onLongPress&apos; with type Function1&lt;? super Offset, ? extends Unit>."
+        errorLine1="    val onLongPress = { _: Offset ->"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/compose/ui/demos/gestures/NestedScrollingDemo.kt"/>
+    </issue>
 
     <issue
         id="PrimitiveInLambda"
@@ -30,11 +183,74 @@
 
     <issue
         id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;onTap&apos; with type Function1&lt;? super Offset, ? extends Unit>."
+        errorLine1="    val onTap: (Offset) -> Unit = {"
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/demos/viewinterop/PointerInputInteropAndroidInCompose.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;onStart&apos; with type Function1&lt;? super Offset, ? extends Unit>."
+        errorLine1="    val onStart: (Offset) -> Unit = {"
+        errorLine2="                 ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/demos/gestures/PressIndicatorGestureDetectorDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method RecyclingAndroidViewLazyColumn has parameter &apos;onChangeCheck&apos; with type Function2&lt;? super Integer, ? super Boolean, Unit>."
         errorLine1="    onChangeCheck: (Int, Boolean) -> Unit"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/compose/ui/demos/viewinterop/ScrollingAndroidViewsDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;onTap&apos; with type Function1&lt;? super Offset, ? extends Unit>."
+        errorLine1="    val onTap: (Offset) -> Unit = {"
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/demos/gestures/TapGestureDetectorDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;onPress&apos; with type Function1&lt;? super Offset, ? extends Unit>."
+        errorLine1="    val onPress: (Offset) -> Unit = {"
+        errorLine2="                 ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/demos/gestures/VerticalScrollerInDrawerLayoutDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;onTap&apos; with type Function1&lt;? super Offset, ? extends Unit>."
+        errorLine1="    val onTap: (Offset) -> Unit = {"
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/demos/gestures/VerticalScrollerInDrawerLayoutDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;onDoubleTap&apos; with type Function1&lt;? super Offset, ? extends Unit>."
+        errorLine1="    val onDoubleTap: (Offset) -> Unit = {"
+        errorLine2="                     ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/demos/gestures/VerticalScrollerInDrawerLayoutDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;onLongPress&apos; with type Function1&lt;? super Offset, ? extends Unit>."
+        errorLine1="    val onLongPress = { _: Offset ->"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/compose/ui/demos/gestures/VerticalScrollerInDrawerLayoutDemo.kt"/>
     </issue>
 
 </issues>

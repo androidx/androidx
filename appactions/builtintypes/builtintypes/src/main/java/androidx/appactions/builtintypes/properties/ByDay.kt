@@ -14,6 +14,7 @@
 package androidx.appactions.builtintypes.properties
 
 import androidx.appactions.builtintypes.types.DayOfWeek
+import androidx.appsearch.`annotation`.Document
 import java.util.Objects
 import kotlin.Any
 import kotlin.Boolean
@@ -25,7 +26,7 @@ import kotlin.jvm.JvmName
 /**
  * Defines the day(s) of the week on which a recurring Event takes place.
  *
- * See http://schema.org/byDay for context.
+ * See https://schema.org/byDay for context.
  *
  * Holds one of:
  * * Text i.e. [String]
@@ -33,10 +34,11 @@ import kotlin.jvm.JvmName
  *
  * May hold more types over time.
  */
+@Document(name = "bitprop:ByDay")
 public class ByDay
 internal constructor(
   /** The [String] variant, or null if constructed using a different variant. */
-  @get:JvmName("asText") public val asText: String? = null,
+  @get:JvmName("asText") @Document.StringProperty public val asText: String? = null,
   /** The [DayOfWeek] variant, or null if constructed using a different variant. */
   @get:JvmName("asDayOfWeek") public val asDayOfWeek: DayOfWeek? = null,
   /**
@@ -45,7 +47,7 @@ internal constructor(
    * Every AppSearch document needs an identifier. Since property wrappers are only meant to be used
    * at nested levels, this is internal and will always be an empty string.
    */
-  internal val identifier: String = "",
+  @Document.Id internal val identifier: String = "",
 ) {
   /** Constructor for the [String] variant. */
   public constructor(text: String) : this(asText = text)

@@ -17,6 +17,8 @@
 package androidx.bluetooth.integration.testapp.ui.advertiser
 
 import androidx.bluetooth.AdvertiseParams
+import androidx.bluetooth.GattCharacteristic
+import androidx.bluetooth.GattService
 import androidx.lifecycle.ViewModel
 import java.util.UUID
 
@@ -60,6 +62,9 @@ class AdvertiserViewModel : ViewModel() {
             serviceUuids
         )
 
+    private val _gattServerServices = mutableListOf<GattService>()
+    val gattServerServices: List<GattService> = _gattServerServices
+
     fun removeAdvertiseDataAtIndex(index: Int) {
         val manufacturerDataSize = manufacturerDatas.size
         val serviceDataSize = serviceDatas.size
@@ -71,5 +76,19 @@ class AdvertiserViewModel : ViewModel() {
         } else {
             serviceUuids.removeAt(index - manufacturerDataSize - serviceDataSize)
         }
+    }
+
+    fun addGattService(gattService: GattService) {
+        _gattServerServices.add(gattService)
+    }
+
+    fun addGattCharacteristic(service: GattService, characteristic: GattCharacteristic) {
+        val index = _gattServerServices.indexOf(service)
+        if (index < 0) return;
+        _gattServerServices[index] = GattService(service.uuid,
+            service.characteristics.toMutableList().apply {
+                add(characteristic)
+            }
+        )
     }
 }

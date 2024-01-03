@@ -41,7 +41,11 @@ import androidx.compose.ui.unit.Velocity
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
-import androidx.test.espresso.action.ViewActions.swipeUp
+import androidx.test.espresso.action.CoordinatesProvider
+import androidx.test.espresso.action.GeneralLocation
+import androidx.test.espresso.action.GeneralSwipeAction
+import androidx.test.espresso.action.Press
+import androidx.test.espresso.action.Swipe
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -83,25 +87,30 @@ class VelocityTrackingParityTest {
     fun equalDraggable_withEqualSwipes_shouldProduceSimilarVelocity() {
         // Arrange
         createActivity()
-        checkVisibility(composeView, View.VISIBLE)
-        checkVisibility(draggableView, View.GONE)
-
-        // Act
-        swipeView(R.id.compose_view)
-
-        val currentTopInCompose = latestComposeVelocity
-
-        // switch visibility
-        rule.runOnUiThread {
-            composeView.visibility = View.GONE
-            draggableView.visibility = View.VISIBLE
-        }
-
         checkVisibility(composeView, View.GONE)
         checkVisibility(draggableView, View.VISIBLE)
 
+        // Act: Use system to send motion events and collect them.
         swipeView(R.id.draggable_view)
+
         val childAtTheTopOfView = draggableView.latestVelocity.y
+
+        // switch visibility
+        rule.runOnUiThread {
+            composeView.visibility = View.VISIBLE
+            draggableView.visibility = View.GONE
+        }
+
+        checkVisibility(composeView, View.VISIBLE)
+        checkVisibility(draggableView, View.GONE)
+
+        assertTrue { isValidGesture(draggableView.motionEvents.filterNotNull()) }
+
+        // Inject the same events in compose view
+        for (event in draggableView.motionEvents) {
+            composeView.dispatchTouchEvent(event)
+        }
+        val currentTopInCompose = latestComposeVelocity
 
         // assert
         assertThat(childAtTheTopOfView).isWithin(VelocityDifferenceTolerance)
@@ -126,9 +135,39 @@ class VelocityTrackingParityTest {
     }
 
     private fun swipeView(id: Int) {
-        Espresso.onView(withId(id)).perform(swipeUp())
+        controlledSwipeUp(id)
         rule.waitForIdle()
     }
+
+    /**
+     * Checks the contents of [events] represents a swipe gesture.
+     */
+    private fun isValidGesture(events: List<MotionEvent>): Boolean {
+        val down = events.filter { it.action == MotionEvent.ACTION_DOWN }
+        val move = events.filter { it.action == MotionEvent.ACTION_MOVE }
+        val up = events.filter { it.action == MotionEvent.ACTION_UP }
+        return down.size == 1 && move.isNotEmpty() && up.size == 1
+    }
+}
+
+internal fun controlledSwipeUp(id: Int) {
+    Espresso.onView(withId(id))
+        .perform(
+            espressoSwipe(
+                GeneralLocation.CENTER,
+                GeneralLocation.TOP_CENTER
+            )
+        )
+}
+
+private fun espressoSwipe(
+    start: CoordinatesProvider,
+    end: CoordinatesProvider
+): GeneralSwipeAction {
+    return GeneralSwipeAction(
+        Swipe.FAST, start, end,
+        Press.FINGER
+    )
 }
 
 @Composable
@@ -154,10 +193,11 @@ private fun ActivityScenario<*>.createActivityWithComposeContent(
         activity.setContentView(layout)
         with(activity.findViewById<ComposeView>(R.id.compose_view)) {
             setContent(content)
+            visibility = View.GONE
         }
 
         activity.findViewById<VelocityTrackingView>(R.id.draggable_view)?.visibility =
-            View.GONE
+            View.VISIBLE
     }
     moveToState(Lifecycle.State.RESUMED)
 }
@@ -169,7 +209,9 @@ private class VelocityTrackingView(context: Context, attributeSet: AttributeSet)
     View(context, attributeSet) {
     private val tracker = VelocityTracker.obtain()
     var latestVelocity: Velocity = Velocity.Zero
+    val motionEvents = mutableListOf<MotionEvent?>()
     override fun onTouchEvent(event: MotionEvent?): Boolean {
+        motionEvents.add(MotionEvent.obtain(event))
         when (event?.action) {
             MotionEvent.ACTION_UP -> {
                 tracker.computeCurrentVelocity(1000)

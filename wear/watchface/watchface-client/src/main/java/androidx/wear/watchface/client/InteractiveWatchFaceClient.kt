@@ -37,7 +37,7 @@ import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.ContentDescriptionLabel
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.Renderer
-import androidx.wear.watchface.TapType
+import androidx.wear.watchface.TapTypeIntDef
 import androidx.wear.watchface.WatchFaceColors
 import androidx.wear.watchface.WatchFaceExperimental
 import androidx.wear.watchface.complications.data.ComplicationData
@@ -161,8 +161,7 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
     ): Bitmap
 
     /** Whether or not the watch face supports [RemoteWatchFaceViewHost]. */
-    public val isRemoteWatchFaceViewHostSupported: Boolean
-        @get:JvmName("isRemoteWatchFaceViewHostSupported") get() = false
+    public val isRemoteWatchFaceViewHostSupported: Boolean get() = false
 
     /**
      * Constructs a [RemoteWatchFaceViewHost] whose [RemoteWatchFaceViewHost.surfacePackage] can be
@@ -194,13 +193,17 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
     @get:Throws(RemoteException::class) public val previewReferenceInstant: Instant
 
     /**
-     * The watchface's [OverlayStyle] which configures the system status overlay on Wear 3.0 and
-     * beyond. Note for older watch faces which don't support this, the default value will be
-     * returned.
+     * The watchface's [OverlayStyle] which may be null.
+     *
+     * Note while this plumbing got built, it was never used by the system ui on any platform
+     * and it will be removed.
      */
+    @Deprecated("OverlayStyle will be removed in a future release.")
     @get:Throws(RemoteException::class)
+    @Suppress("Deprecation")
     public val overlayStyle: OverlayStyle
         // Default implementation, overridden below.
+        @Suppress("Deprecation")
         get() = OverlayStyle()
 
     /**
@@ -284,10 +287,10 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      *
      * @param xPosition The x-coordinate of the tap in pixels
      * @param yPosition The y-coordinate of the tap in pixels
-     * @param tapType The [TapType] of the event
+     * @param tapType The [TapTypeIntDef] of the event
      */
     @Throws(RemoteException::class)
-    public fun sendTouchEvent(@Px xPosition: Int, @Px yPosition: Int, @TapType tapType: Int)
+    public fun sendTouchEvent(@Px xPosition: Int, @Px yPosition: Int, @TapTypeIntDef tapType: Int)
 
     /**
      * Returns the [ContentDescriptionLabel]s describing the watch face, for the use by screen
@@ -564,6 +567,8 @@ internal constructor(
     override val previewReferenceInstant: Instant
         get() = Instant.ofEpochMilli(iInteractiveWatchFace.previewReferenceTimeMillis)
 
+    @Suppress("Deprecation")
+    @Deprecated("OverlayStyle will be removed in a future release.")
     override val overlayStyle: OverlayStyle
         get() {
             if (iInteractiveWatchFace.apiVersion >= 4) {
@@ -606,7 +611,7 @@ internal constructor(
             synchronized(lock) { closed = true }
         }
 
-    override fun sendTouchEvent(xPosition: Int, yPosition: Int, @TapType tapType: Int) =
+    override fun sendTouchEvent(xPosition: Int, yPosition: Int, @TapTypeIntDef tapType: Int) =
         TraceEvent("InteractiveWatchFaceClientImpl.sendTouchEvent").use {
             iInteractiveWatchFace.sendTouchEvent(xPosition, yPosition, tapType)
         }

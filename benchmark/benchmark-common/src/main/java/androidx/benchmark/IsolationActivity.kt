@@ -42,7 +42,6 @@ import kotlin.concurrent.thread
  * - status bar repaints
  * - running in background (some cores may be foreground-app only)
  *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class IsolationActivity : android.app.Activity() {

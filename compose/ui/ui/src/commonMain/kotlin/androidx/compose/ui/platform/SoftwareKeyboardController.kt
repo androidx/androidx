@@ -17,12 +17,11 @@
 package androidx.compose.ui.platform
 
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.text.input.TextInputService
 
 /**
  * Provide software keyboard control.
  */
-@ExperimentalComposeUiApi
 @Stable
 interface SoftwareKeyboardController {
     /**
@@ -48,15 +47,6 @@ interface SoftwareKeyboardController {
     fun show()
 
     /**
-     * @see show
-     */
-    @Deprecated(
-        "Use show instead.",
-        ReplaceWith("show()")
-    )
-    fun showSoftwareKeyboard() = show()
-
-    /**
      * Hide the software keyboard.
      *
      * This request is best effort, if the system cannot hide the software keyboard this call
@@ -68,13 +58,18 @@ interface SoftwareKeyboardController {
      * recomposition.
      */
     fun hide()
+}
 
-    /**
-     * @see hide
-     */
-    @Deprecated(
-        "Use hide instead.",
-        ReplaceWith("hide()")
-    )
-    fun hideSoftwareKeyboard() = hide()
+internal class DelegatingSoftwareKeyboardController(
+    val textInputService: TextInputService
+) : SoftwareKeyboardController {
+    override fun show() {
+        @Suppress("DEPRECATION")
+        textInputService.showSoftwareKeyboard()
+    }
+
+    override fun hide() {
+        @Suppress("DEPRECATION")
+        textInputService.hideSoftwareKeyboard()
+    }
 }

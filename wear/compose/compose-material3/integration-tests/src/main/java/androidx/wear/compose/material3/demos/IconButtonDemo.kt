@@ -19,24 +19,30 @@ package androidx.wear.compose.material3.demos
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.FilledIconButton
 import androidx.wear.compose.material3.FilledTonalIconButton
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.IconButton
+import androidx.wear.compose.material3.IconButtonDefaults
+import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.OutlinedIconButton
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.samples.FilledIconButtonSample
 import androidx.wear.compose.material3.samples.FilledTonalIconButtonSample
 import androidx.wear.compose.material3.samples.IconButtonSample
 import androidx.wear.compose.material3.samples.OutlinedIconButtonSample
+import androidx.wear.compose.material3.touchTargetAwareSize
 
 @Composable
 fun IconButtonDemo() {
@@ -45,7 +51,9 @@ fun IconButtonDemo() {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item {
-            Text("Icon Button")
+            ListHeader {
+                Text("Icon button")
+            }
         }
         item {
             Row {
@@ -55,15 +63,14 @@ fun IconButtonDemo() {
                     onClick = { },
                     enabled = false
                 ) {
-                    Icon(
-                        imageVector = Icons.Filled.Favorite,
-                        contentDescription = "Localized description"
-                    )
+                    StandardIcon()
                 }
             }
         }
         item {
-            Text("FilledTonalIconButton")
+            ListHeader {
+                Text("Filled Tonal")
+            }
         }
         item {
             Row {
@@ -73,15 +80,14 @@ fun IconButtonDemo() {
                     onClick = { },
                     enabled = false
                 ) {
-                    Icon(
-                        imageVector = Icons.Filled.Favorite,
-                        contentDescription = "Localized description"
-                    )
+                    StandardIcon()
                 }
             }
         }
         item {
-            Text("FilledIconButton")
+            ListHeader {
+                Text("Filled")
+            }
         }
         item {
             Row {
@@ -91,15 +97,14 @@ fun IconButtonDemo() {
                     onClick = { },
                     enabled = false
                 ) {
-                    Icon(
-                        imageVector = Icons.Filled.Favorite,
-                        contentDescription = "Localized description"
-                    )
+                    StandardIcon()
                 }
             }
         }
         item {
-            Text("OutlinedIconButton")
+            ListHeader {
+                Text("Outlined")
+            }
         }
         item {
             Row {
@@ -109,12 +114,60 @@ fun IconButtonDemo() {
                     onClick = { },
                     enabled = false
                 ) {
-                    Icon(
-                        imageVector = Icons.Filled.Favorite,
-                        contentDescription = "Localized description"
-                    )
+                    StandardIcon()
                 }
             }
         }
+        item {
+            ListHeader {
+                Text("Sizes")
+            }
+        }
+        item {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("${IconButtonDefaults.LargeButtonSize.value.toInt()}dp")
+                Spacer(Modifier.width(4.dp))
+                IconButtonWithSize(IconButtonDefaults.LargeButtonSize)
+            }
+        }
+        item {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("${IconButtonDefaults.DefaultButtonSize.value.toInt()}dp")
+                Spacer(Modifier.width(4.dp))
+                IconButtonWithSize(IconButtonDefaults.DefaultButtonSize)
+            }
+        }
+        item {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("${IconButtonDefaults.SmallButtonSize.value.toInt()}dp")
+                Spacer(Modifier.width(4.dp))
+                IconButtonWithSize(IconButtonDefaults.SmallButtonSize)
+            }
+        }
+        item {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("${IconButtonDefaults.ExtraSmallButtonSize.value.toInt()}dp")
+                Spacer(Modifier.width(4.dp))
+                IconButtonWithSize(IconButtonDefaults.ExtraSmallButtonSize)
+            }
+        }
+    }
+}
+
+@Composable
+private fun StandardIcon(iconSize: Dp = ButtonDefaults.IconSize) {
+    Icon(
+        Icons.Filled.Favorite,
+        contentDescription = "Favorite icon",
+        modifier = Modifier.requiredSize(iconSize)
+    )
+}
+
+@Composable
+private fun IconButtonWithSize(size: Dp) {
+    FilledTonalIconButton(
+        modifier = Modifier.touchTargetAwareSize(size),
+        onClick = { /* Do something */ }) {
+        StandardIcon(IconButtonDefaults.iconSizeFor(size))
     }
 }

@@ -77,16 +77,16 @@ public class GoldenTestActivity extends Activity {
         Resources resources = generateResources();
         TileRenderer renderer = new TileRenderer(appContext, mainExecutor, i -> {});
 
-       try {
-           View firstChild =
-                   renderer.inflateAsync(layout, resources, root).get(30, TimeUnit.MILLISECONDS);
+        try {
+            View firstChild =
+                    renderer.inflateAsync(layout, resources, root).get(30, TimeUnit.MILLISECONDS);
 
-           // Simulate what the thing outside the renderer should do. Center the contents.
-           LayoutParams layoutParams = (LayoutParams) firstChild.getLayoutParams();
-           layoutParams.gravity = Gravity.CENTER;
-       } catch (Exception e) {
-           throw new IllegalStateException("Rendering of layout hasn't finished in time.", e);
-       }
+            // Simulate what the thing outside the renderer should do. Center the contents.
+            LayoutParams layoutParams = (LayoutParams) firstChild.getLayoutParams();
+            layoutParams.gravity = Gravity.CENTER;
+        } catch (Exception e) {
+            throw new IllegalStateException("Rendering of layout hasn't finished in time.", e);
+        }
 
         // Set the activity to be full screen so when we crop the Bitmap we don't get time bar etc.
         requestWindowFeature(Window.FEATURE_NO_TITLE);

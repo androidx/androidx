@@ -93,7 +93,7 @@ internal class LazyMeasuredLineProvider(
     /**
      * Contains the mapping between the key and the index. It could contain not all the items of
      * the list as an optimization.
-     **/
+     */
     val keyToIndexMap: LazyLayoutKeyIndexMap get() = measuredItemProvider.keyToIndexMap
 }
 

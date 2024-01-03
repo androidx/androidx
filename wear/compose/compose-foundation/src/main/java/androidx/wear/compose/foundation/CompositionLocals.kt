@@ -24,7 +24,9 @@ import android.os.Looper
 import android.provider.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.os.HandlerCompat
 import java.util.concurrent.atomic.AtomicReference
@@ -49,6 +51,22 @@ val LocalReduceMotion: ProvidableCompositionLocal<ReduceMotion> = staticComposit
         getReduceMotionFlowFor(context).value
     }
 }
+
+/**
+ * CompositionLocal containing the background scrim color of [SwipeToDismissBox].
+ *
+ * Defaults to [Color.Black] if not explicitly set.
+ */
+public val LocalSwipeToDismissBackgroundScrimColor: ProvidableCompositionLocal<Color> =
+    compositionLocalOf { Color.Black }
+
+/**
+ * CompositionLocal containing the content scrim color of [SwipeToDismissBox].
+ *
+ * Defaults to [Color.Black] if not explicitly set.
+ */
+public val LocalSwipeToDismissContentScrimColor: ProvidableCompositionLocal<Color> =
+    compositionLocalOf { Color.Black }
 
 /**
  * ReduceMotion provides a means for callers to determine whether an app should turn off

@@ -65,7 +65,6 @@ import org.mockito.Mockito.reset
 import org.mockito.Mockito.spy
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
-import org.mockito.Mockito.`when`
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
@@ -426,7 +425,6 @@ class SystemForegroundDispatcherTest {
             .setInitialState(WorkInfo.State.RUNNING)
             .build()
 
-        `when`(processor.isEnqueuedInForeground(eq(request.stringId))).thenReturn(true)
         workDatabase.workSpecDao().insertWorkSpec(request.workSpec)
         val notificationId = 1
         val notification = mock(Notification::class.java)

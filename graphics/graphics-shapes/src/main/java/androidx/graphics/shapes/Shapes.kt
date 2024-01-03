@@ -16,7 +16,6 @@
 
 package androidx.graphics.shapes
 
-import android.graphics.PointF
 import androidx.annotation.IntRange
 import kotlin.math.cos
 
@@ -27,7 +26,8 @@ import kotlin.math.cos
  * @param numVertices The number of vertices in the underlying polygon with which to
  * approximate the circle, default value is 8
  * @param radius optional radius for the circle, default value is 1.0
- * @param center optional center for the circle, default value is (0, 0)
+ * @param centerX X coordinate of optional center for the circle, default value is 0
+ * @param centerY Y coordinate of optional center for the circle, default value is 0
  *
  * @throws IllegalArgumentException [numVertices] must be at least 3
  */
@@ -35,7 +35,8 @@ import kotlin.math.cos
 fun RoundedPolygon.Companion.circle(
     @IntRange(from = 3) numVertices: Int = 8,
     radius: Float = 1f,
-    center: PointF = Zero
+    centerX: Float = 0f,
+    centerY: Float = 0f
 ): RoundedPolygon {
 
     if (numVertices < 3) throw IllegalArgumentException("Circle must have at least three vertices")
@@ -46,7 +47,7 @@ fun RoundedPolygon.Companion.circle(
     val polygonRadius = radius / cos(theta)
     return RoundedPolygon(
         numVertices, rounding = CornerRounding(radius), radius = polygonRadius,
-        center = center
+        centerX = centerX, centerY = centerY
     )
 }
 
@@ -69,26 +70,27 @@ fun RoundedPolygon.Companion.circle(
  * parameter is not null, then it must be of size 4 for the four corners of the shape. If this
  * parameter is null, then the polygon will use the [rounding] parameter for every vertex instead.
  * The default value is null.
- * @param center The center of the rectangle, around which all vertices will be placed
- * equidistantly. The default center is at (0,0).
+ * @param centerX The X coordinate of the center of the rectangle, around which all vertices will
+ * be placed equidistantly. The default center is at (0,0).
+ * @param centerY The X coordinate of the center of the rectangle, around which all vertices will
+ * be placed equidistantly. The default center is at (0,0).
  */
 fun RoundedPolygon.Companion.rectangle(
     width: Float = 2f,
     height: Float = 2f,
     rounding: CornerRounding = CornerRounding.Unrounded,
     perVertexRounding: List<CornerRounding>? = null,
-    center: PointF = Zero
+    centerX: Float = 0f,
+    centerY: Float = 0f
 ): RoundedPolygon {
-    val left = center.x - width / 2
-    val top = center.y - height / 2
-    val right = center.x + width / 2
-    val bottom = center.y + height / 2
+    val left = centerX - width / 2
+    val top = centerY - height / 2
+    val right = centerX + width / 2
+    val bottom = centerY + height / 2
 
     return RoundedPolygon(
-        listOf(
-            PointF(right, bottom), PointF(left, bottom), PointF(left, top),
-            PointF(right, top)
-        ), rounding, perVertexRounding, center
+        floatArrayOf(right, bottom, left, bottom, left, top, right, top),
+        rounding, perVertexRounding, centerX, centerY
     )
 }
 
@@ -114,8 +116,10 @@ fun RoundedPolygon.Companion.rectangle(
  * parameter is not null, then it must have the same size as 2 * [numVerticesPerRadius]. If this
  * parameter is null, then the polygon will use the [rounding] parameter for every vertex instead.
  * The default value is null.
- * @param center The center of the polygon, around which all vertices will be placed. The
- * default center is at (0,0).
+ * @param centerX The X coordinate of the center of the polygon, around which all vertices will
+ * be placed. The default center is at (0,0).
+ * @param centerY The Y coordinate of the center of the polygon, around which all vertices will
+ * be placed. The default center is at (0,0).
  *
  * @throws IllegalArgumentException if either [radius] or [innerRadius] are <= 0 or
  * [innerRadius] > [radius].
@@ -128,7 +132,8 @@ fun RoundedPolygon.Companion.star(
     rounding: CornerRounding = CornerRounding.Unrounded,
     innerRounding: CornerRounding? = null,
     perVertexRounding: List<CornerRounding>? = null,
-    center: PointF = Zero
+    centerX: Float = 0f,
+    centerY: Float = 0f
 ): RoundedPolygon {
     if (radius <= 0f || innerRadius <= 0f) {
         throw IllegalArgumentException("Star radii must both be greater than 0")
@@ -148,10 +153,7 @@ fun RoundedPolygon.Companion.star(
 
     // Star polygon is just a polygon with all vertices supplied (where we generate
     // those vertices to be on the inner/outer radii)
-    return RoundedPolygon((0 until numVerticesPerRadius).flatMap {
-        listOf(
-            radialToCartesian(radius, (FloatPi / numVerticesPerRadius * 2 * it), center),
-            radialToCartesian(innerRadius, FloatPi / numVerticesPerRadius * (2 * it + 1), center)
-        )
-    }, rounding, pvRounding, center)
+    return RoundedPolygon(
+        starVerticesFromNumVerts(numVerticesPerRadius, radius, innerRadius, centerX, centerY),
+        rounding, pvRounding, centerX, centerY)
 }

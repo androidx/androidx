@@ -34,7 +34,6 @@ import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.toSize
-import kotlin.jvm.JvmName
 import kotlin.math.abs
 import kotlin.math.sign
 
@@ -47,8 +46,9 @@ internal expect fun SemanticsNodeInteraction.performClickImpl(): SemanticsNodeIn
  *
  * @return The [SemanticsNodeInteraction] that is the receiver of this method
  */
+@OptIn(ExperimentalTestApi::class)
 fun SemanticsNodeInteraction.performClick(): SemanticsNodeInteraction {
-    return performClickImpl()
+    return this.invokeGlobalAssertions().performClickImpl()
 }
 
 /**
@@ -503,6 +503,13 @@ fun SemanticsNodeInteraction.performMultiModalInput(
     }
     return this
 }
+
+/**
+ * Requests the focus system to give focus to this node by invoking the
+ * [RequestFocus][SemanticsActions.RequestFocus] semantics action.
+ */
+fun SemanticsNodeInteraction.requestFocus(): SemanticsNodeInteraction =
+    performSemanticsAction(SemanticsActions.RequestFocus)
 
 @Deprecated(
     message = "Replaced with same function, but with SemanticsNodeInteraction as return type",

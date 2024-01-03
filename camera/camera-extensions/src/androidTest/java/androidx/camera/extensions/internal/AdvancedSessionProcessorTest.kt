@@ -44,6 +44,7 @@ import android.hardware.camera2.TotalCaptureResult
 import android.media.ImageReader
 import android.media.ImageWriter
 import android.os.Build
+import android.util.Pair
 import android.util.Size
 import android.view.Surface
 import androidx.annotation.RequiresApi
@@ -115,6 +116,7 @@ class AdvancedSessionProcessorTest {
 
     @Before
     fun setUp() = runBlocking {
+        ExtensionVersion.injectInstance(null)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
         withContext(Dispatchers.Main) {
             fakeLifecycleOwner = FakeLifecycleOwner()
@@ -224,6 +226,25 @@ class AdvancedSessionProcessorTest {
 
         fakeSessionProcessImpl.assertStartTriggerIsCalledWithParameters(parametersMap)
     }
+
+    @Test
+    fun getRealtimeLatencyEstimate_advancedSessionProcessorInvokesSessionProcessorImpl() =
+        runBlocking {
+            assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
+            ClientVersion.setCurrentVersion(ClientVersion("1.4.0"))
+
+            val fakeSessionProcessImpl = object : SessionProcessorImpl by FakeSessionProcessImpl() {
+                override fun getRealtimeCaptureLatency(): Pair<Long, Long> = Pair(1000L, 10L)
+            }
+            val advancedSessionProcessor = AdvancedSessionProcessor(
+                fakeSessionProcessImpl, emptyList(), context
+            )
+
+            val realtimeCaptureLatencyEstimate = advancedSessionProcessor.realtimeCaptureLatency
+
+            assertThat(realtimeCaptureLatencyEstimate?.first).isEqualTo(1000L)
+            assertThat(realtimeCaptureLatencyEstimate?.second).isEqualTo(10L)
+        }
 
     private suspend fun assumeAllowsSharedSurface() = withContext(Dispatchers.Main) {
         val imageReader = ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 2)

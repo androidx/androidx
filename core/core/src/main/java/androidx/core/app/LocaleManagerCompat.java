@@ -19,6 +19,7 @@ package androidx.core.app;
 import android.app.LocaleManager;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.os.Build;
 import android.os.LocaleList;
 
@@ -60,11 +61,7 @@ public final class LocaleManagerCompat {
                         localeManager));
             }
         } else {
-            // Changing app locales using AppCompatDelegate for API < 33 does not modify the
-            // context's configuration and hence this configuration can be used to fetch system
-            // locales.
-            systemLocales = getConfigurationLocales(context.getApplicationContext()
-                    .getResources().getConfiguration());
+            systemLocales = getConfigurationLocales(Resources.getSystem().getConfiguration());
         }
         return systemLocales;
     }

@@ -109,9 +109,11 @@ public class AppSearchCompiler extends BasicAnnotationProcessor {
 
         private void processDocument(@NonNull TypeElement element)
                 throws ProcessingException, MissingTypeException {
-            if (element.getKind() != ElementKind.CLASS) {
+            if (element.getKind() != ElementKind.CLASS
+                    && element.getKind() != ElementKind.INTERFACE) {
                 throw new ProcessingException(
-                        "@Document annotation on something other than a class", element);
+                        "@Document annotation on something other than a class or an interface",
+                        element);
             }
 
             DocumentModel model;

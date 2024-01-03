@@ -26,10 +26,9 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.SemanticsActions.RequestFocus
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.requestFocus
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -65,7 +64,7 @@ class LazyListFocusMoveCompositionCountTest {
                 }
             }
         }
-        rule.onNodeWithTag("4").performSemanticsAction(RequestFocus)
+        rule.onNodeWithTag("4").requestFocus()
         rule.runOnIdle { composedItems.clear() }
 
         // Act.
@@ -91,7 +90,7 @@ class LazyListFocusMoveCompositionCountTest {
                 }
             }
         }
-        rule.onNodeWithTag("4").performSemanticsAction(RequestFocus)
+        rule.onNodeWithTag("4").requestFocus()
         rule.runOnIdle { composedItems.clear() }
 
         // Act.
@@ -119,7 +118,7 @@ class LazyListFocusMoveCompositionCountTest {
                 }
             }
         }
-        rule.onNodeWithTag("4").performSemanticsAction(RequestFocus)
+        rule.onNodeWithTag("4").requestFocus()
         rule.runOnIdle { composedItems.clear() }
 
         // Act.

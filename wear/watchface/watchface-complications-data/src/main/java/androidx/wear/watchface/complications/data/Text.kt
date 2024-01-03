@@ -16,8 +16,10 @@
 
 package androidx.wear.watchface.complications.data
 
+import android.annotation.SuppressLint
 import android.content.res.Resources
 import android.icu.util.TimeZone
+import android.os.Build
 import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.support.wearable.complications.ComplicationText as WireComplicationText
 import android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder as WireComplicationTextTimeDifferenceBuilder
@@ -32,6 +34,7 @@ import android.text.style.SubscriptSpan
 import android.text.style.SuperscriptSpan
 import android.text.style.TypefaceSpan
 import android.text.style.UnderlineSpan
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
 import java.time.Instant
@@ -67,8 +70,7 @@ public interface ComplicationText {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun isPlaceholder(): Boolean = false
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.SUBCLASSES)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun getTimeDependentText(): WireTimeDependentText
 
     /** Converts this value to [WireComplicationText] object used for serialization. */
@@ -111,8 +113,7 @@ public class PlainComplicationText internal constructor(delegate: WireComplicati
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun isPlaceholder(): Boolean = delegate.isPlaceholder()
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.SUBCLASSES)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun getTimeDependentText() = delegate.getTimeDependentText()
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -265,8 +266,7 @@ public class TimeDifferenceComplicationText internal constructor(delegate: WireC
 
     override fun isAlwaysEmpty() = delegate.isAlwaysEmpty()
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.SUBCLASSES)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun getTimeDependentText() = delegate.getTimeDependentText()
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -415,8 +415,7 @@ public class TimeFormatComplicationText internal constructor(delegate: WireCompl
 
     override fun isAlwaysEmpty() = delegate.isAlwaysEmpty()
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.SUBCLASSES)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun getTimeDependentText() = delegate.getTimeDependentText()
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -546,6 +545,7 @@ private class DelegatingComplicationText(private val delegate: WireComplicationT
 }
 
 /** Converts a [WireComplicationText] into an equivalent [ComplicationText] instead. */
+@SuppressLint("NewApi") // This is what's in the wire format, regardless of whether it's supported.
 internal fun WireComplicationText.toApiComplicationText(
     placeholderAware: Boolean = false
 ): ComplicationText =
@@ -615,9 +615,10 @@ public fun WireTimeDependentText.toApiComplicationText(): ComplicationText =
  * @param fallbackValue Used when the system does not support dynamic values.
  *
  *   IMPORTANT: This is only used when the system does not support dynamic values _at all_. See
- *   [ComplicationData.BaseBuilder.setDynamicValueInvalidationFallback] for the situation where the
- *   dynamic value has been invalidated.
+ *   [ComplicationData.dynamicValueInvalidationFallback] for the situation where the dynamic value
+ *   cannot be evaluated, e.g. when a data source is not available.
  */
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 public class DynamicComplicationText(
     public val dynamicValue: DynamicString,
     public val fallbackValue: CharSequence,

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
+<issues format="6" by="lint 8.1.0-beta05" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta05)" variant="all" version="8.1.0-beta05">
 
     <issue
         id="BanThreadSleep"
@@ -8,6 +8,24 @@
         errorLine2="               ~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/compose/ui/test/android/WindowCapture.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;scrollDelta&apos; with type Function2&lt;? super Float, ? super Float, ? extends Float>."
+        errorLine1="    // Given the desired scroll value to align either side of the target with the"
+        errorLine2="    ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/Actions.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;genState&apos; with type Function2&lt;? super Key, ? super Integer, ? extends Integer>."
+        errorLine1="        fun genState(key: Key, mask: Int) = if (isKeyDown(key)) mask else 0"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/test/AndroidInputDispatcher.android.kt"/>
     </issue>
 
     <issue

@@ -28,6 +28,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 
 import com.example.androidx.mediarouting.activities.systemrouting.SystemRouteItem;
+import com.example.androidx.mediarouting.activities.systemrouting.SystemRoutesSourceItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,14 +56,21 @@ public final class BluetoothManagerSystemRoutesSource implements SystemRoutesSou
     }
 
     @NonNull
+    @Override
+    public SystemRoutesSourceItem getSourceItem() {
+        return new SystemRoutesSourceItem.Builder(
+                SystemRoutesSourceItem.ROUTE_SOURCE_BLUETOOTH_MANAGER)
+                .build();
+    }
+
+    @NonNull
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     @Override
-    public List<SystemRouteItem> fetchRoutes() {
+    public List<SystemRouteItem> fetchSourceRouteItems() {
         List<SystemRouteItem> out = new ArrayList<>();
 
         for (BluetoothDevice device : mBluetoothAdapter.getBondedDevices()) {
-            out.add(new SystemRouteItem.Builder(/* id= */ device.getAddress(),
-                    /* type= */ SystemRouteItem.ROUTE_SOURCE_BLUETOOTH_MANAGER)
+            out.add(new SystemRouteItem.Builder(/* id= */ device.getAddress())
                     .setName(device.getName())
                     .setAddress(device.getAddress())
                     .build());

@@ -2091,6 +2091,13 @@ public class WorkManagerImplTest {
                         eq(PackageManager.DONT_KILL_APP));
 
         reset(packageManager);
+
+        // Scheduling work involved enabling RescheduleReceiver.class.
+        // Mark the component state as enabled (so we can check for disablement).
+        // This is necessary because we are using a PackageManager mock here.
+        when(packageManager.getComponentEnabledSetting(eq(componentName)))
+                .thenReturn(PackageManager.COMPONENT_ENABLED_STATE_ENABLED);
+
         mWorkManagerImpl.cancelWorkById(stopAwareWorkRequest.getId())
                 .getResult()
                 .get();

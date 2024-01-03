@@ -755,6 +755,54 @@ class CompositionReusingTests {
 
         assertEquals(listOf(true), onReleaseCalls)
     }
+
+    @Test
+    fun reusableContentTriggersRememberObserver() = compositionTest {
+        var reuseKey by mutableStateOf(0)
+
+        val rememberedState = object : RememberObserver {
+            var rememberCount = 0
+            var forgottenCount = 0
+            var abandonCount = 0
+
+            override fun toString(): String = "Some text"
+
+            override fun onRemembered() {
+                rememberCount++
+            }
+
+            override fun onForgotten() {
+                forgottenCount++
+            }
+
+            override fun onAbandoned() {
+                abandonCount++
+            }
+        }
+
+        compose {
+            ReusableContent(reuseKey) {
+                val state = remember { rememberedState }
+                Text("$state")
+            }
+        }
+
+        validate {
+            Text("$rememberedState")
+        }
+
+        assertEquals(1, rememberedState.rememberCount)
+        assertEquals(0, rememberedState.forgottenCount)
+        assertEquals(0, rememberedState.abandonCount)
+
+        reuseKey++
+        expectChanges()
+        revalidate()
+
+        assertEquals(2, rememberedState.rememberCount)
+        assertEquals(1, rememberedState.forgottenCount)
+        assertEquals(0, rememberedState.abandonCount)
+    }
 }
 
 private fun View.findTextWith(contains: String) =

@@ -364,8 +364,91 @@ internal class SandboxedSdkContextCompatTest(
         assertThat(oldDatabasePath.exists()).isFalse()
     }
 
+    @Test
+    fun getSharedPreferences_returnPrefixedSharedPreferencesFromApp() {
+        val sdkSharedPreferencesName = "getSharedPreferencesTest"
+        val sdkSharedPreferences = sdkContextCompat.getSharedPreferences(
+            sdkSharedPreferencesName,
+            Context.MODE_PRIVATE
+        )
+
+        sdkSharedPreferences.edit().putInt("test", 42).commit()
+
+        val appSharedPreferences = appStorageContext.getSharedPreferences(
+            "${SDK_SHARED_PREFERENCES_PREFIX}_${SDK_PACKAGE_NAME}_$sdkSharedPreferencesName",
+            Context.MODE_PRIVATE
+        )
+        val result = appSharedPreferences.getInt("test", 0)
+        assertThat(result).isEqualTo(42)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
+    fun deleteSharedPreferences() {
+        val sdkSharedPreferencesName = "deleteSharedPreferencesTest"
+        val sdkSharedPreferences = sdkContextCompat.getSharedPreferences(
+            sdkSharedPreferencesName,
+            Context.MODE_PRIVATE
+        )
+        sdkSharedPreferences.edit().putInt("test", 42).commit()
+
+        sdkContextCompat.deleteSharedPreferences(sdkSharedPreferencesName)
+
+        val sdkSharedPreferencesAfterDelete = sdkContextCompat.getSharedPreferences(
+            sdkSharedPreferencesName,
+            Context.MODE_PRIVATE
+        )
+        assertThat(sdkSharedPreferencesAfterDelete.contains("test")).isFalse()
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
+    fun moveSharedPreferencesFrom_migrateSharedPreferencesFromAnotherSdkContext() {
+        val sourceAppStorageContext = if (sdkContextCompat.isDeviceProtectedStorage) {
+            ApplicationProvider.getApplicationContext()
+        } else {
+            appStorageContext.createDeviceProtectedStorageContext()
+        }
+        val sourceContext = SandboxedSdkContextCompat(
+            sourceAppStorageContext,
+            sdkPackageName = SDK_PACKAGE_NAME,
+            classLoader = javaClass.classLoader!!.parent!!
+        )
+
+        val sdkSharedPreferencesName = "testMoveTo$contextType"
+
+        sourceContext.deleteSharedPreferences(sdkSharedPreferencesName)
+        val sourceSharedPreferences = sourceContext.getSharedPreferences(
+            sdkSharedPreferencesName,
+            Context.MODE_PRIVATE
+        )
+        sourceSharedPreferences.edit().putInt("test", 42).commit()
+
+        val moveResult = sdkContextCompat.moveSharedPreferencesFrom(
+            sourceContext,
+            sdkSharedPreferencesName
+        )
+        assertThat(moveResult).isTrue()
+
+        val migratedSharedPreferences = sdkContextCompat.getSharedPreferences(
+            sdkSharedPreferencesName,
+            Context.MODE_PRIVATE
+        )
+
+        val result = migratedSharedPreferences.getInt("test", 0)
+        assertThat(result)
+            .isEqualTo(42)
+
+        val oldSharedPreferences = sourceContext.getSharedPreferences(
+            sdkSharedPreferencesName,
+            Context.MODE_PRIVATE
+        )
+        assertThat(oldSharedPreferences.contains("test")).isFalse()
+    }
+
     companion object {
         private const val SDK_ROOT_FOLDER = "RuntimeEnabledSdksData"
+        private const val SDK_SHARED_PREFERENCES_PREFIX = "RuntimeEnabledSdk"
         private const val SDK_PACKAGE_NAME = "androidx.privacysandbox.sdkruntime.testsdk1"
 
         @Parameterized.Parameters(name = "{0}")

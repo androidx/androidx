@@ -28,10 +28,8 @@ import android.view.View;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.collection.SimpleArrayMap;
-import androidx.core.os.BuildCompat;
 import androidx.core.view.KeyEventDispatcher;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
@@ -164,8 +162,6 @@ public class ComponentActivity extends Activity implements
     protected final boolean shouldDumpInternalState(@Nullable String[] args) {
         return !shouldSkipDump(args);
     }
-
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     private static boolean shouldSkipDump(@Nullable String[] args) {
         if (args != null && args.length > 0) {
             // NOTE: values below are hardcoded on framework's Activity (like dumpInner())
@@ -178,7 +174,7 @@ public class ComponentActivity extends Activity implements
                     return Build.VERSION.SDK_INT >= Build.VERSION_CODES.S;
                 case "--list-dumpables":
                 case "--dump-dumpable":
-                    return BuildCompat.isAtLeastT();
+                    return Build.VERSION.SDK_INT >= 33;
             }
         }
         return false;

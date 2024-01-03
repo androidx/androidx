@@ -28,7 +28,6 @@ import androidx.appsearch.app.Migrator;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.SetSchemaResponse;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import java.util.Map;
@@ -48,9 +47,6 @@ public final class SetSchemaRequestToPlatformConverter {
      * Translates a jetpack {@link SetSchemaRequest} into a platform
      * {@link android.app.appsearch.SetSchemaRequest}.
      */
-    // TODO(b/265311462): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
-    //  BuildCompat.isAtLeastU() is removed.
-    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     public static android.app.appsearch.SetSchemaRequest toPlatformSetSchemaRequest(
             @NonNull SetSchemaRequest jetpackRequest) {
@@ -77,7 +73,7 @@ public final class SetSchemaRequestToPlatformConverter {
             }
         }
         if (!jetpackRequest.getRequiredPermissionsForSchemaTypeVisibility().isEmpty()) {
-            if (Build.VERSION.SDK_INT < 33) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
                 throw new UnsupportedOperationException(
                         "Set required permissions for schema type visibility are not supported "
                                 + "with this backend/Android API level combination.");

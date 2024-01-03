@@ -35,6 +35,7 @@ import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.animateValueAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
@@ -71,6 +72,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.state.ToggleableState
+import androidx.compose.ui.tooling.animation.Utils
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -126,6 +128,16 @@ fun AnimatedContentPreview() {
             Text("Add")
         }
         AnimatedContent(targetState = count) { targetCount ->
+            // Make sure to use `targetCount`, not `count`.
+            Text(text = "Count: $targetCount")
+        }
+    }
+}
+@Preview
+@Composable
+fun NullAnimatedContentPreview() {
+    Row {
+        AnimatedContent(targetState = null, label = "AnimatedContent") { targetCount ->
             // Make sure to use `targetCount`, not `count`.
             Text(text = "Count: $targetCount")
         }
@@ -201,6 +213,27 @@ fun TransitionPreview() {
 
 @Preview
 @Composable
+fun NullTransitionPreview() {
+    val transition = updateTransition<Boolean?>(
+        null,
+        label = "checkBoxAnim"
+    )
+
+    transition.animateDp(
+        transitionSpec = {
+            tween(durationMillis = 1000, easing = LinearEasing)
+        },
+        label = "CheckBox Corner"
+    ) {
+        when (it) {
+            null -> 28.dp
+            else -> 0.dp
+        }
+    }
+}
+
+@Preview
+@Composable
 fun AnimateAsStatePreview() {
     var showMenu by remember { mutableStateOf(true) }
     var message by remember { mutableStateOf("Hello") }
@@ -255,6 +288,18 @@ fun AnimateAsStateWithLabelsPreview() {
             }) {
         Text(text = message)
     }
+}
+
+@Preview
+@Composable
+fun NullAnimateAsStatePreview() {
+    val offset by animateValueAsState(
+        targetValue = null,
+        Utils.nullableFloatConverter,
+        label = "Nullable"
+    )
+
+    Box(Modifier.offset(offset?.dp ?: 1.dp))
 }
 
 @Preview

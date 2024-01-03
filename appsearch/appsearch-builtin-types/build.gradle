@@ -23,7 +23,7 @@ plugins {
 
 dependencies {
     implementation project(":appsearch:appsearch")
-    implementation project(':core:core')
+    implementation("androidx.core:core:1.8.0")
 
     annotationProcessor project(':appsearch:appsearch-compiler')
 

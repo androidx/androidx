@@ -155,6 +155,7 @@ fun WideCardLayout(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 internal fun CardLayoutContent(
     title: @Composable () -> Unit,

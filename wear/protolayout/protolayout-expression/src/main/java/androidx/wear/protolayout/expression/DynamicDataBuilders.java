@@ -162,7 +162,7 @@ public final class DynamicDataBuilders {
 
         /** Builder to create {@link DynamicDataValue} objects. */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        interface Builder <T extends DynamicType> {
+        interface Builder<T extends DynamicType> {
 
             /** Builds an instance with values accumulated in this Builder. */
             @NonNull

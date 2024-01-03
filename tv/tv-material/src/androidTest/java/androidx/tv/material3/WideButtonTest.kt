@@ -43,8 +43,8 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performKeyInput
-import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -155,7 +155,7 @@ class WideButtonTest {
             }
         }
         rule.onNodeWithTag(WideButtonTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
         rule.runOnIdle {
             Truth.assertThat(counter).isEqualTo(1)
@@ -184,7 +184,7 @@ class WideButtonTest {
         }
 
         rule.onNodeWithTag(WideButtonTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performLongKeyPress(rule, Key.DirectionCenter)
         rule.runOnIdle {
             Truth.assertThat(counter).isEqualTo(1)
@@ -213,7 +213,7 @@ class WideButtonTest {
             // Confirm the button starts off enabled, with a click action
             .assertHasClickAction()
             .assertIsEnabled()
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
             // Then confirm it's disabled with click action after clicking it
             .assertHasClickAction()
@@ -248,7 +248,7 @@ class WideButtonTest {
         }
 
         rule.onNodeWithTag(watchButtonTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
 
         rule.runOnIdle {
@@ -257,7 +257,7 @@ class WideButtonTest {
         }
 
         rule.onNodeWithTag(playButtonTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
 
         rule.runOnIdle {

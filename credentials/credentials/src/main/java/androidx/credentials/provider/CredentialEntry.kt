@@ -29,13 +29,11 @@ import androidx.credentials.PublicKeyCredential.Companion.TYPE_PUBLIC_KEY_CREDEN
 abstract class CredentialEntry internal constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     open val type: String,
-    val beginGetCredentialOption: BeginGetCredentialOption,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    val slice: Slice
+    val beginGetCredentialOption: BeginGetCredentialOption
 ) {
     internal companion object {
         @JvmStatic
-        @RequiresApi(34)
+        @RequiresApi(28)
         internal fun createFrom(slice: Slice): CredentialEntry? {
             return try {
                 when (slice.spec?.type) {
@@ -48,6 +46,17 @@ abstract class CredentialEntry internal constructor(
                 // password / passkey parsing attempt.
                 CustomCredentialEntry.fromSlice(slice)
             }
+        }
+
+        @JvmStatic
+        @RequiresApi(28)
+        internal fun toSlice(entry: CredentialEntry): Slice? {
+            when (entry) {
+                is PasswordCredentialEntry -> return PasswordCredentialEntry.toSlice(entry)
+                is PublicKeyCredentialEntry -> return PublicKeyCredentialEntry.toSlice(entry)
+                is CustomCredentialEntry -> return CustomCredentialEntry.toSlice(entry)
+            }
+            return null
         }
     }
 }

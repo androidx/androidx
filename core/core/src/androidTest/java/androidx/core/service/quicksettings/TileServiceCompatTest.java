@@ -59,7 +59,7 @@ public class TileServiceCompatTest {
         Bundle options = new Bundle();
         PendingIntentActivityWrapper wrapper = new PendingIntentActivityWrapper(mContext,
                 requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT, options, /* isMutable = */
-                true);
+                false);
         TileServiceCompat.setTileServiceWrapper(tileServiceWrapper);
 
         TileServiceCompat.startActivityAndCollapse(tileService, wrapper);

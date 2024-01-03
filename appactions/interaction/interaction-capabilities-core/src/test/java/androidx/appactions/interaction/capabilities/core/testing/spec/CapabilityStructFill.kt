@@ -82,11 +82,13 @@ class CapabilityStructFill {
             .setOutput(Output::class.java)
             .bindParameter(
                 "listItem",
+                Arguments::listItem,
                 Arguments.Builder::setListItem,
                 ParamValueConverter.of(TypeConverters.LIST_ITEM_TYPE_SPEC)
             )
             .bindParameter(
                 "string",
+                Arguments::string,
                 Arguments.Builder::setAnyString,
                 TypeConverters.STRING_PARAM_VALUE_CONVERTER
             )

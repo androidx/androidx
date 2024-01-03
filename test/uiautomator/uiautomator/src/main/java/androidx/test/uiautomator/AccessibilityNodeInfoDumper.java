@@ -88,6 +88,10 @@ class AccessibilityNodeInfoDumper {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             serializer.attribute("", "hint", safeCharSeqToString(Api26Impl.getHintText(node)));
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            serializer.attribute("", "display-id",
+                    Integer.toString(Api30Impl.getDisplayId(node)));
+        }
         int count = node.getChildCount();
         for (int i = 0; i < count; i++) {
             AccessibilityNodeInfo child = node.getChild(i);
@@ -162,13 +166,17 @@ class AccessibilityNodeInfoDumper {
         int childCount = node.getChildCount();
         for (int x = 0; x < childCount; x++) {
             AccessibilityNodeInfo childNode = node.getChild(x);
-
+            if (childNode == null) {
+                continue;
+            }
             if (!safeCharSeqToString(childNode.getContentDescription()).isEmpty()
-                    || !safeCharSeqToString(childNode.getText()).isEmpty())
+                    || !safeCharSeqToString(childNode.getText()).isEmpty()) {
                 return true;
+            }
 
-            if (childNafCheck(childNode))
+            if (childNafCheck(childNode)) {
                 return true;
+            }
         }
         return false;
     }
@@ -206,6 +214,17 @@ class AccessibilityNodeInfoDumper {
         static String getHintText(AccessibilityNodeInfo accessibilityNodeInfo) {
             CharSequence chars = accessibilityNodeInfo.getHintText();
             return chars != null ? chars.toString() : null;
+        }
+    }
+
+    @RequiresApi(30)
+    static class Api30Impl {
+        private Api30Impl() {
+        }
+
+        @DoNotInline
+        static int getDisplayId(AccessibilityNodeInfo accessibilityNodeInfo) {
+            return accessibilityNodeInfo.getWindow().getDisplayId();
         }
     }
 }

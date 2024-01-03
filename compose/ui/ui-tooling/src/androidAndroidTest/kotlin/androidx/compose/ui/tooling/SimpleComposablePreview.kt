@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.tooling.preview.Preview
@@ -169,8 +170,7 @@ fun MultiPreviews() {
 }
 
 class TestContentParameterProviderBoolean : PreviewParameterProvider<Boolean> {
-    override val values: Sequence<Boolean>
-        get() = sequenceOf(false, true)
+    override val values: Sequence<Boolean> = sequenceOf(false, true)
 }
 
 @Preview
@@ -180,4 +180,21 @@ fun PreviewParametersComposablePreview(
     valueParameter: Boolean
 ) {
     Text(valueParameter.toString())
+}
+
+class TestContentParameterProviderCornerRadius : PreviewParameterProvider<CornerRadius> {
+    override val values = sequenceOf(
+        CornerRadius(42f),
+        CornerRadius.Zero,
+        CornerRadius(0f, 34f)
+    )
+}
+
+@Preview
+@Composable
+fun TestCornerRadius(
+    @PreviewParameter(TestContentParameterProviderCornerRadius::class)
+    radius: CornerRadius
+) {
+    Text(radius.toString())
 }

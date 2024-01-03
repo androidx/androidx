@@ -41,6 +41,7 @@ internal class FrontBufferUtils private constructor() {
         /**
          * Flags that are expected to be supported on all [HardwareBuffer] instances
          */
+        @SuppressLint("WrongConstant")
         internal const val BaseFlags =
             HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE or
                 HardwareBuffer.USAGE_GPU_COLOR_OUTPUT or

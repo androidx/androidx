@@ -15,7 +15,7 @@
  */
 
 import androidx.build.Publish
-import androidx.build.SupportConfigKt
+import androidx.build.AndroidXConfig
 
 plugins {
     id("AndroidXPlugin")
@@ -42,7 +42,7 @@ dependencies {
 }
 
 ext {
-    webviewBoundaryInterfacesDir = new File(SupportConfigKt.getExternalProjectPath(project),
+    webviewBoundaryInterfacesDir = new File(AndroidXConfig.getExternalProjectPath(project),
             "webview_support_interfaces")
 }
 

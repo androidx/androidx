@@ -38,7 +38,7 @@ class StopWorkRunnable(
         processor: Processor,
         token: StartStopToken,
         stopInForeground: Boolean,
-    ) : this(processor, token, stopInForeground, StopReason.Undefined)
+    ) : this(processor, token, stopInForeground, StopReason.Unknown)
 
     override fun run() {
         val isStopped = if (stopInForeground) {

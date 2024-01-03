@@ -19,7 +19,9 @@ package androidx.privacysandbox.ui.tests.endtoend
 import android.content.Context
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
+import android.os.Binder
 import android.os.Build
+import android.os.IBinder
 import android.view.View
 import android.view.View.OnLayoutChangeListener
 import android.view.ViewGroup
@@ -168,6 +170,7 @@ class IntegrationTests {
 
         adapterFromCoreLibInfo.openSession(
             context,
+            Binder(),
             10 /* initialWidth */,
             10 /* initialHeight */,
             true,
@@ -242,6 +245,7 @@ class IntegrationTests {
 
         override fun openSession(
             context: Context,
+            windowInputToken: IBinder,
             initialWidth: Int,
             initialHeight: Int,
             isZOrderOnTop: Boolean,

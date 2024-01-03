@@ -19,8 +19,6 @@ package androidx.credentials
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.Bundle
-import androidx.annotation.RequiresApi
-import androidx.core.os.BuildCompat
 import androidx.credentials.provider.CallingAppInfo
 
 /** True if the two Bundles contain the same elements, and false otherwise. */
@@ -72,15 +70,16 @@ const val MAX_CRED_MAN_PRE_FRAMEWORK_API_LEVEL = Build.VERSION_CODES.TIRAMISU
 /** True if the device running the test is post framework api level,
  * false if pre framework api level. */
 fun isPostFrameworkApiLevel(): Boolean {
-    return BuildCompat.isAtLeastU()
+    return Build.VERSION.SDK_INT >= 34
 }
 
-@RequiresApi(Build.VERSION_CODES.P)
 fun equals(a: Icon, b: Icon): Boolean {
+    if (Build.VERSION.SDK_INT <= 28) {
+        return true
+    }
     return a.type == b.type && a.resId == b.resId
 }
 
-@RequiresApi(34)
 fun equals(a: CallingAppInfo, b: CallingAppInfo): Boolean {
     return a.packageName == b.packageName && a.origin == b.origin
 }

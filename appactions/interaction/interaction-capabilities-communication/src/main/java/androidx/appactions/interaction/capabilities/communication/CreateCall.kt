@@ -29,6 +29,7 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.TypeCon
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.CALL_TYPE_SPEC
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.PARTICIPANT_TYPE_SPEC
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
+import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecRegistry
 import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.proto.ParamValue
 import androidx.appactions.interaction.protobuf.Struct
@@ -65,7 +66,7 @@ class CreateCall private constructor() {
     class Arguments
     internal constructor(
         val callFormat: Call.CanonicalValue.CallFormat?,
-        val participantList: List<ParticipantValue>
+        val participantList: List<ParticipantReference>
     ) {
         override fun toString(): String {
             return "Arguments(callFormat=$callFormat, participantList=$participantList)"
@@ -91,13 +92,13 @@ class CreateCall private constructor() {
 
         class Builder {
             private var callFormat: Call.CanonicalValue.CallFormat? = null
-            private var participantList: List<ParticipantValue> = mutableListOf()
+            private var participantList: List<ParticipantReference> = mutableListOf()
 
             fun setCallFormat(callFormat: Call.CanonicalValue.CallFormat): Builder = apply {
                 this.callFormat = callFormat
             }
 
-            fun setParticipantList(participantList: List<ParticipantValue>): Builder = apply {
+            fun setParticipantList(participantList: List<ParticipantReference>): Builder = apply {
                 this.participantList = participantList
             }
 
@@ -184,13 +185,15 @@ class CreateCall private constructor() {
                 .setOutput(Output::class.java)
                 .bindParameter(
                     SlotMetadata.CALL_FORMAT.path,
+                    Arguments::callFormat,
                     Arguments.Builder::setCallFormat,
                     TypeConverters.CALL_FORMAT_PARAM_VALUE_CONVERTER
                 )
                 .bindRepeatedParameter(
                     SlotMetadata.PARTICIPANT.path,
+                    Arguments::participantList,
                     Arguments.Builder::setParticipantList,
-                    ParticipantValue.PARAM_VALUE_CONVERTER,
+                    ParticipantReference.PARAM_VALUE_CONVERTER,
                 )
                 .bindOutput(
                     "call",
@@ -203,5 +206,8 @@ class CreateCall private constructor() {
                     ExecutionStatus::toParamValue
                 )
                 .build()
+        init {
+            ActionSpecRegistry.registerActionSpec(Arguments::class, Output::class, ACTION_SPEC)
+        }
     }
 }

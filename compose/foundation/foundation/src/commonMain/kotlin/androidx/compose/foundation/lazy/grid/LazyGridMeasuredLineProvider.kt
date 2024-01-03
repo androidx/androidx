@@ -94,7 +94,7 @@ internal abstract class LazyGridMeasuredLineProvider(
     /**
      * Contains the mapping between the key and the index. It could contain not all the items of
      * the list as an optimization.
-     **/
+     */
     val keyIndexMap: LazyLayoutKeyIndexMap get() = measuredItemProvider.keyIndexMap
 
     abstract fun createLine(

@@ -27,7 +27,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -42,8 +41,8 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performKeyInput
-import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -109,7 +108,7 @@ class ChipTest {
             }
         }
         rule.onNodeWithTag(AssistChipTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput {
                 pressKey(Key.DirectionCenter)
             }
@@ -132,7 +131,7 @@ class ChipTest {
             }
         }
         rule.onNodeWithTag(AssistChipTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             // Confirm the filterChip starts off enabled, with a click action
             .assertHasClickAction()
             .assertIsEnabled()
@@ -166,7 +165,7 @@ class ChipTest {
         }
 
         rule.onNodeWithTag(loginChipTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
 
         rule.runOnIdle {
@@ -175,7 +174,7 @@ class ChipTest {
         }
 
         rule.onNodeWithTag(registerChipTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
 
         rule.runOnIdle {
@@ -236,7 +235,7 @@ class ChipTest {
             }
         }
         rule.onNodeWithTag(FilterChipTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
         rule.runOnIdle { Truth.assertThat(counter).isEqualTo(1) }
     }
@@ -263,7 +262,7 @@ class ChipTest {
             }
         }
         rule.onNodeWithTag(FilterChipTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
         rule.waitUntil { isSelected }
         rule.onNodeWithTag(FilterChipLeadingContentTag, useUnmergedTree = true).assertIsDisplayed()
@@ -291,7 +290,7 @@ class ChipTest {
             }
         }
         rule.onNodeWithTag(FilterChipTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
         rule.onNodeWithContentDescription("Filter Selected").assertDoesNotExist()
         rule.onNodeWithContentDescription("Add Icon").assertIsDisplayed()
@@ -313,7 +312,7 @@ class ChipTest {
             }
         }
         rule.onNodeWithTag(FilterChipTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             // Confirm the filterChip starts off enabled, with a click action
             .assertHasClickAction()
             .assertIsEnabled()
@@ -349,7 +348,7 @@ class ChipTest {
         }
 
         rule.onNodeWithTag(loginChipTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
 
         rule.runOnIdle {
@@ -358,7 +357,7 @@ class ChipTest {
         }
 
         rule.onNodeWithTag(registerChipTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
 
         rule.runOnIdle {
@@ -424,7 +423,7 @@ class ChipTest {
             }
         }
         rule.onNodeWithTag(InputChipTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
         rule.runOnIdle {
             Truth.assertThat(counter).isEqualTo(1)
@@ -447,7 +446,7 @@ class ChipTest {
             }
         }
         rule.onNodeWithTag(InputChipTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             // Confirm the filterChip starts off enabled, with a click action
             .assertHasClickAction()
             .assertIsEnabled()
@@ -489,7 +488,7 @@ class ChipTest {
         }
 
         rule.onNodeWithTag(loginChipTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
 
         rule.runOnIdle {
@@ -498,7 +497,7 @@ class ChipTest {
         }
 
         rule.onNodeWithTag(registerChipTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
 
         rule.runOnIdle {
@@ -561,7 +560,7 @@ class ChipTest {
             }
         }
         rule.onNodeWithTag(SuggestionChipTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
         rule.runOnIdle {
             Truth.assertThat(counter).isEqualTo(1)
@@ -583,7 +582,7 @@ class ChipTest {
             }
         }
         rule.onNodeWithTag(SuggestionChipTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             // Confirm the chip starts off enabled, with a click action
             .assertHasClickAction()
             .assertIsEnabled()
@@ -624,7 +623,7 @@ class ChipTest {
         }
 
         rule.onNodeWithTag(loginChipTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
 
         rule.runOnIdle {
@@ -633,7 +632,7 @@ class ChipTest {
         }
 
         rule.onNodeWithTag(registerChipTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
 
         rule.runOnIdle {

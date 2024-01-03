@@ -30,7 +30,6 @@ import okio.FileSystem
 import okio.Path
 import org.apache.logging.log4j.kotlin.logger
 import org.jetbrains.kotlin.gradle.utils.NativeCompilerDownloader
-import org.jetbrains.kotlin.konan.CompilerVersion.Companion.fromString
 import org.jetbrains.kotlin.konan.properties.resolvablePropertyList
 import org.jetbrains.kotlin.konan.properties.resolvablePropertyString
 import org.jetbrains.kotlin.konan.target.Architecture
@@ -58,7 +57,7 @@ class KonanPrebuiltsDownloader(
         val project = ProjectService.createProject()
         val compiler = NativeCompilerDownloader(
             project = project,
-            compilerVersion = fromString(compilerVersion)
+            compilerVersion = compilerVersion
         )
         // make sure we have the local compiler downloaded so we can find the konan.properties
         compiler.downloadIfNeeded()

@@ -241,9 +241,7 @@ public class TileServiceTest {
         mTileProviderServiceStub.onTileRequest(
                 TILE_ID,
                 new TileRequestData(
-                        RequestProto.TileRequest.newBuilder()
-                                .build()
-                                .toByteArray(),
+                        RequestProto.TileRequest.newBuilder().build().toByteArray(),
                         TileRequestData.VERSION_PROTOBUF),
                 mMockTileCallback);
 
@@ -316,9 +314,7 @@ public class TileServiceTest {
         mTileProviderServiceStub.onResourcesRequest(
                 TILE_ID,
                 new ResourcesRequestData(
-                        RequestProto.ResourcesRequest.newBuilder()
-                                .build()
-                                .toByteArray(),
+                        RequestProto.ResourcesRequest.newBuilder().build().toByteArray(),
                         ResourcesRequestData.VERSION_PROTOBUF),
                 mMockResourcesCallback);
 

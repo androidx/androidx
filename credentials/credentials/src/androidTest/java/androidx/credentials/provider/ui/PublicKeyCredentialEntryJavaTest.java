@@ -28,7 +28,6 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Icon;
 import android.os.Bundle;
 
-import androidx.core.os.BuildCompat;
 import androidx.credentials.PublicKeyCredential;
 import androidx.credentials.R;
 import androidx.credentials.TestUtilsKt;
@@ -45,8 +44,8 @@ import org.junit.runner.RunWith;
 import java.time.Instant;
 
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 26)
 @SmallTest
-@SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
 public class PublicKeyCredentialEntryJavaTest {
     private static final CharSequence USERNAME = "title";
     private static final CharSequence DISPLAYNAME = "subtitle";
@@ -67,35 +66,24 @@ public class PublicKeyCredentialEntryJavaTest {
 
     @Test
     public void build_requiredParamsOnly_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         PublicKeyCredentialEntry entry = constructWithRequiredParamsOnly();
 
         assertNotNull(entry);
-        assertNotNull(entry.getSlice());
         assertThat(entry.getType()).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL);
         assertEntryWithRequiredParams(entry);
     }
 
     @Test
     public void build_allParams_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         PublicKeyCredentialEntry entry = constructWithAllParams();
 
         assertNotNull(entry);
-        assertNotNull(entry.getSlice());
         assertThat(entry.getType()).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL);
         assertEntryWithAllParams(entry);
     }
 
     @Test
     public void build_withNullUsername_throwsNPE() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         assertThrows("Expected null username to throw NPE",
                 NullPointerException.class,
                 () -> new PublicKeyCredentialEntry.Builder(
@@ -105,9 +93,6 @@ public class PublicKeyCredentialEntryJavaTest {
 
     @Test
     public void build_withNullBeginOption_throwsNPE() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         assertThrows("Expected null option to throw NPE",
                 NullPointerException.class,
                 () -> new PublicKeyCredentialEntry.Builder(
@@ -117,9 +102,6 @@ public class PublicKeyCredentialEntryJavaTest {
 
     @Test
     public void build_withNullPendingIntent_throwsNPE() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         assertThrows("Expected null pending intent to throw NPE",
                 NullPointerException.class,
                 () -> new PublicKeyCredentialEntry.Builder(
@@ -129,9 +111,6 @@ public class PublicKeyCredentialEntryJavaTest {
 
     @Test
     public void build_withEmptyUsername_throwsIAE() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         assertThrows("Expected empty username to throw IllegalArgumentException",
                 IllegalArgumentException.class,
                 () -> new PublicKeyCredentialEntry.Builder(
@@ -140,9 +119,6 @@ public class PublicKeyCredentialEntryJavaTest {
 
     @Test
     public void build_withNullIcon_defaultIconSet() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         PublicKeyCredentialEntry entry = new PublicKeyCredentialEntry
                 .Builder(
                 mContext, USERNAME, mPendingIntent, mBeginOption).build();
@@ -153,9 +129,6 @@ public class PublicKeyCredentialEntryJavaTest {
 
     @Test
     public void build_nullTypeDisplayName_defaultDisplayNameSet() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         PublicKeyCredentialEntry entry = new PublicKeyCredentialEntry.Builder(
                         mContext, USERNAME, mPendingIntent, mBeginOption).build();
 
@@ -166,15 +139,12 @@ public class PublicKeyCredentialEntryJavaTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 28)
     public void fromSlice_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         PublicKeyCredentialEntry originalEntry = constructWithAllParams();
-        assertNotNull(originalEntry.getSlice());
 
         PublicKeyCredentialEntry entry = PublicKeyCredentialEntry.fromSlice(
-                originalEntry.getSlice());
+                PublicKeyCredentialEntry.toSlice(originalEntry));
 
         assertNotNull(entry);
         assertEntryWithRequiredParams(entry);

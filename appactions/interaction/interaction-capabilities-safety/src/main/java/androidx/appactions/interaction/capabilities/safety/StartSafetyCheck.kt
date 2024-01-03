@@ -28,6 +28,7 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.ParamVa
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.SAFETY_CHECK_TYPE_SPEC
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
+import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecRegistry
 import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.safety.executionstatus.EmergencySharingInProgress
 import androidx.appactions.interaction.capabilities.safety.executionstatus.SafetyAccountNotLoggedIn
@@ -231,11 +232,13 @@ class StartSafetyCheck private constructor() {
                 .setOutput(Output::class.java)
                 .bindParameter(
                     SlotMetadata.DURATION.path,
+                    Arguments::duration,
                     Arguments.Builder::setDuration,
                     TypeConverters.DURATION_PARAM_VALUE_CONVERTER
                 )
                 .bindParameter(
                     SlotMetadata.CHECK_IN_TIME.path,
+                    Arguments::checkInTime,
                     Arguments.Builder::setCheckInTime,
                     TypeConverters.ZONED_DATE_TIME_PARAM_VALUE_CONVERTER
                 )
@@ -250,5 +253,8 @@ class StartSafetyCheck private constructor() {
                     ExecutionStatus::toParamValue
                 )
                 .build()
+        init {
+            ActionSpecRegistry.registerActionSpec(Arguments::class, Output::class, ACTION_SPEC)
+        }
     }
 }

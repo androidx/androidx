@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XNullability
+import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSType
 import com.squareup.kotlinpoet.javapoet.JTypeName
 import com.squareup.kotlinpoet.javapoet.KTypeName
@@ -31,10 +32,11 @@ import com.squareup.kotlinpoet.javapoet.KTypeName
 internal class KspVoidType(
     env: KspProcessingEnv,
     ksType: KSType,
+    originalKSAnnotations: Sequence<KSAnnotation> = ksType.annotations,
     val boxed: Boolean,
     scope: KSTypeVarianceResolverScope? = null,
     typeAlias: KSType? = null,
-) : KspType(env, ksType, scope, typeAlias) {
+) : KspType(env, ksType, originalKSAnnotations, scope, typeAlias) {
     override fun resolveJTypeName(): JTypeName {
         return if (boxed || nullability == XNullability.NULLABLE) {
             JTypeName.VOID.box()
@@ -64,7 +66,8 @@ internal class KspVoidType(
     override fun copy(
         env: KspProcessingEnv,
         ksType: KSType,
+        originalKSAnnotations: Sequence<KSAnnotation>,
         scope: KSTypeVarianceResolverScope?,
         typeAlias: KSType?,
-    ) = KspVoidType(env, ksType, boxed, scope, typeAlias)
+    ) = KspVoidType(env, ksType, originalKSAnnotations, boxed, scope, typeAlias)
 }

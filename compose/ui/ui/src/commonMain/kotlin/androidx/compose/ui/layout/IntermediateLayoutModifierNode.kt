@@ -282,21 +282,6 @@ internal class IntermediateLayoutModifierNode(
                 this@lookaheadScopeCoordinates.lookaheadScopeCoordinates
             }
 
-        @Suppress("DEPRECATION")
-        @Deprecated(
-            "onPlaced in LookaheadLayoutScope has been deprecated. It's replaced" +
-                " with reading LookaheadLayoutCoordinates directly during placement in" +
-                "IntermediateMeasureScope"
-        )
-        override fun Modifier.onPlaced(
-            onPlaced: (
-                lookaheadScopeCoordinates: LookaheadLayoutCoordinates,
-                layoutCoordinates: LookaheadLayoutCoordinates
-            ) -> Unit
-        ): Modifier = with(closestLookaheadScope) {
-            this@onPlaced.onPlaced(onPlaced)
-        }
-
         override fun layout(
             width: Int,
             height: Int,

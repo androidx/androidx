@@ -28,6 +28,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.R
+import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Density
@@ -111,7 +112,7 @@ internal class AndroidWindowInsets(
  *
  * This property should be set prior to first composition.
  */
-var ComposeView.consumeWindowInsets: Boolean
+var AbstractComposeView.consumeWindowInsets: Boolean
     get() = getTag(R.id.consume_window_insets_tag) as? Boolean ?: true
     set(value) {
         setTag(R.id.consume_window_insets_tag, value)
@@ -469,7 +470,8 @@ internal class WindowInsetsHolder private constructor(insets: WindowInsetsCompat
     )
 
     /**
-     * `true` unless the `ComposeView` [ComposeView.consumeWindowInsets] is set to `false`.
+     * `true` unless the `AbstractComposeView` [AbstractComposeView.consumeWindowInsets] is set to
+     * `false`.
      */
     val consumes = (view.parent as? View)?.getTag(R.id.consume_window_insets_tag)
         as? Boolean ?: true

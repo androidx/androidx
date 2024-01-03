@@ -17,9 +17,9 @@
 package androidx.datastore.protos
 
 import androidx.datastore.core.CorruptionException
-import androidx.testing.TestMessageProto.ExtendableProto
-import androidx.testing.TestMessageProto.ExtensionProto
-import androidx.testing.TestMessageProto.FooProto
+import androidx.datastore.testing.TestMessageProto.ExtendableProto
+import androidx.datastore.testing.TestMessageProto.ExtensionProto
+import androidx.datastore.testing.TestMessageProto.FooProto
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import com.google.protobuf.ExtensionRegistryLite

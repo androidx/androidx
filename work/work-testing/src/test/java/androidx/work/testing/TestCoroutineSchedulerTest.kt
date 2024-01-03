@@ -43,6 +43,7 @@ import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.TestDispatcher
+import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
@@ -50,11 +51,13 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.SQLiteMode
 
 /**
  * Verifies ability to use [kotlinx.coroutines.test.TestCoroutineScheduler] standard Coroutines test
  * dispatchers to test WorkManager over the progress of time.
  */
+@SQLiteMode(SQLiteMode.Mode.LEGACY) // b/285714232
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, maxSdk = 33)
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -202,6 +205,11 @@ class TestCoroutineSchedulerTest {
             shadowLooper.idle()
             testCoroutineScheduler.runCurrent()
         }
+    }
+
+    @After
+    fun tearDown() {
+        WorkManagerTestInitHelper.closeWorkDatabase()
     }
 }
 

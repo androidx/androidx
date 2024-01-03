@@ -205,7 +205,7 @@ public class CredentialManagerJavaTest {
     @Test
     public void testClearCredentialSessionAsync_throws() throws InterruptedException {
         if (isPostFrameworkApiLevel()) {
-            return; // TODO(Support!)
+            return;
         }
         CountDownLatch latch = new CountDownLatch(1);
         AtomicReference<ClearCredentialException> loadedResult = new AtomicReference<>();

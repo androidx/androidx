@@ -22,7 +22,6 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.TimeInterpolator;
-import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -48,15 +47,17 @@ import androidx.annotation.IdRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
 import androidx.collection.LongSparseArray;
 import androidx.core.content.res.TypedArrayUtils;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Consumer;
 import androidx.core.view.ViewCompat;
+import androidx.dynamicanimation.animation.DynamicAnimation;
+import androidx.dynamicanimation.animation.FloatValueHolder;
+import androidx.dynamicanimation.animation.SpringAnimation;
+import androidx.dynamicanimation.animation.SpringForce;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -744,7 +745,6 @@ public abstract class Transition implements Cloneable {
      * TransitionSet subclass overrides this method and delegates it to
      * each of its children in succession.
      */
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     void createAnimators(@NonNull ViewGroup sceneRoot, @NonNull TransitionValuesMaps startValues,
             @NonNull TransitionValuesMaps endValues,
             @NonNull ArrayList<TransitionValues> startValuesList,
@@ -1850,11 +1850,19 @@ public abstract class Transition implements Cloneable {
     }
 
     /**
+     * Used by seeking Transitions to determine if a canceled transition will cancel the entire
+     * set or not.
+     * @return {@code true} if there are any seeking animators that haven't been canceled.
+     */
+    boolean hasAnimators() {
+        return !mCurrentAnimators.isEmpty();
+    }
+
+    /**
      * Called by TransitionManager to play the transition. This calls
      * createAnimators() to set things up and create all of the animations and then
      * runAnimations() to actually start the animations.
      */
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     void playTransition(@NonNull ViewGroup sceneRoot) {
         mStartValuesList = new ArrayList<>();
         mEndValuesList = new ArrayList<>();
@@ -1913,9 +1921,9 @@ public abstract class Transition implements Cloneable {
         createAnimators(sceneRoot, mStartValues, mEndValues, mStartValuesList, mEndValuesList);
         if (mSeekController == null) {
             runAnimators();
-        } else if (BuildCompat.isAtLeastU()) {
+        } else if (Build.VERSION.SDK_INT >= 34) {
             prepareAnimatorsForSeeking();
-            mSeekController.setCurrentPlayTimeMillis(0);
+            mSeekController.initPlayTime();
             mSeekController.ready();
         }
     }
@@ -2685,14 +2693,17 @@ public abstract class Transition implements Cloneable {
      */
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     class SeekController extends TransitionListenerAdapter implements TransitionSeekController,
-            ValueAnimator.AnimatorUpdateListener {
+            DynamicAnimation.OnAnimationUpdateListener {
+        // Animation calculations appear to work better with numbers that range greater than 1
         private long mCurrentPlayTime = -1;
         private ArrayList<Consumer<TransitionSeekController>> mOnReadyListeners = null;
+        private ArrayList<Consumer<TransitionSeekController>> mOnProgressListeners = null;
         private boolean mIsReady;
         private boolean mIsCanceled;
 
-        private ValueAnimator mAnimator;
-        private boolean mIsAnimatingReversed;
+        private SpringAnimation mSpringAnimation;
+        private Consumer<TransitionSeekController>[] mListenerCache = null;
+        private final VelocityTracker1D mVelocityTracker = new VelocityTracker1D();
 
         @Override
         public long getDurationMillis() {
@@ -2702,6 +2713,11 @@ public abstract class Transition implements Cloneable {
         @Override
         public long getCurrentPlayTimeMillis() {
             return Math.min(getDurationMillis(), Math.max(0, mCurrentPlayTime));
+        }
+
+        @Override
+        public float getCurrentFraction() {
+            return ((float) getCurrentPlayTimeMillis()) / ((float) getDurationMillis());
         }
 
         @Override
@@ -2718,34 +2734,54 @@ public abstract class Transition implements Cloneable {
                     onReadyListeners.get(i).accept(this);
                 }
             }
+            callProgressListeners();
         }
 
         @Override
         public void setCurrentPlayTimeMillis(long playTimeMillis) {
-            if (mAnimator != null) {
+            if (mSpringAnimation != null) {
                 throw new IllegalStateException("setCurrentPlayTimeMillis() called after animation "
                         + "has been started");
             }
-            if (playTimeMillis == mCurrentPlayTime) {
+            if (playTimeMillis == mCurrentPlayTime || !isReady()) {
                 return; // no change
             }
 
+            long targetPlayTime = playTimeMillis;
             if (!mIsCanceled) {
-                if (playTimeMillis == 0 && mCurrentPlayTime > 0) {
+                if (targetPlayTime == 0 && mCurrentPlayTime > 0) {
                     // Force the transition to end
-                    playTimeMillis = -1;
+                    targetPlayTime = -1;
                 } else {
                     long duration = getDurationMillis();
                     // Force the transition to the end
-                    if (playTimeMillis == duration && mCurrentPlayTime < duration) {
-                        playTimeMillis = duration + 1;
+                    if (targetPlayTime == duration && mCurrentPlayTime < duration) {
+                        targetPlayTime = duration + 1;
                     }
                 }
-                if (playTimeMillis != mCurrentPlayTime) {
-                    Transition.this.setCurrentPlayTimeMillis(playTimeMillis, mCurrentPlayTime);
-                    mCurrentPlayTime = playTimeMillis;
+                if (targetPlayTime != mCurrentPlayTime) {
+                    Transition.this.setCurrentPlayTimeMillis(targetPlayTime, mCurrentPlayTime);
+                    mCurrentPlayTime = targetPlayTime;
                 }
             }
+            callProgressListeners();
+            mVelocityTracker.addDataPoint(AnimationUtils.currentAnimationTimeMillis(),
+                    (float) targetPlayTime);
+        }
+
+        void initPlayTime() {
+            long playTime = (getDurationMillis() == 0) ? 1 : 0;
+            Transition.this.setCurrentPlayTimeMillis(playTime, mCurrentPlayTime);
+            mCurrentPlayTime = playTime;
+        }
+
+        @Override
+        public void setCurrentFraction(float fraction) {
+            if (mSpringAnimation != null) {
+                throw new IllegalStateException("setCurrentFraction() called after animation "
+                        + "has been started");
+            }
+            setCurrentPlayTimeMillis((long) (fraction * getDurationMillis()));
         }
 
         @Override
@@ -2780,55 +2816,85 @@ public abstract class Transition implements Cloneable {
         }
 
         @Override
-        public void onAnimationUpdate(@NonNull ValueAnimator valueAnimator) {
-            long time = Math.max(-1,
-                    Math.min(getDurationMillis() + 1, mAnimator.getCurrentPlayTime())
-            );
-            if (mIsAnimatingReversed) {
-                time = getDurationMillis() - time;
-            }
+        public void onAnimationUpdate(DynamicAnimation animation, float value, float velocity) {
+            long time = Math.max(-1, Math.min(getDurationMillis() + 1, Math.round((double) value)));
             Transition.this.setCurrentPlayTimeMillis(time, mCurrentPlayTime);
             mCurrentPlayTime = time;
+            callProgressListeners();
         }
 
-        private void createAnimator() {
-            long duration = getDurationMillis() + 1;
-            mAnimator = ValueAnimator.ofInt((int) duration);
-            mAnimator.setInterpolator(null);
-            mAnimator.setDuration(duration);
-            mAnimator.addUpdateListener(this);
+        private void ensureAnimation() {
+            if (mSpringAnimation != null) {
+                return;
+            }
+            mVelocityTracker.addDataPoint(AnimationUtils.currentAnimationTimeMillis(),
+                    (float) mCurrentPlayTime);
+            mSpringAnimation = new SpringAnimation(new FloatValueHolder());
+            SpringForce springForce = new SpringForce();
+            springForce.setDampingRatio(SpringForce.DAMPING_RATIO_NO_BOUNCY);
+            springForce.setStiffness(SpringForce.STIFFNESS_LOW);
+            mSpringAnimation.setSpring(springForce);
+            mSpringAnimation.setStartValue((float) mCurrentPlayTime);
+            mSpringAnimation.addUpdateListener(this);
+            mSpringAnimation.setStartVelocity(mVelocityTracker.calculateVelocity());
+            mSpringAnimation.setMaxValue((float) (getDurationMillis() + 1));
+            mSpringAnimation.setMinValue(-1f);
+            mSpringAnimation.setMinimumVisibleChange(4f); // 4 milliseconds ~ 1/2 frame @ 120Hz
+            mSpringAnimation.addEndListener((anim, canceled, value, velocity) -> {
+                if (!canceled) {
+                    boolean isReversed = value < 1f;
+                    notifyListeners(TransitionNotification.ON_END, isReversed);
+                }
+                mSpringAnimation = null;
+            });
         }
 
         @Override
         public void animateToEnd() {
-            if (mAnimator != null) {
-                mAnimator.cancel();
-            }
-            final long duration = getDurationMillis();
-            if (mCurrentPlayTime > duration) {
-                return; // we're already at the end
-            }
-            createAnimator();
-            mIsAnimatingReversed = false;
-            mAnimator.setCurrentPlayTime(mCurrentPlayTime);
-            mAnimator.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    notifyListeners(TransitionNotification.ON_END, false);
-                }
-            });
-            mAnimator.start();
+            ensureAnimation();
+            mSpringAnimation.animateToFinalPosition((float) (getDurationMillis() + 1));
         }
 
         @Override
         public void animateToStart() {
-            if (mAnimator != null) {
-                mAnimator.cancel();
+            ensureAnimation();
+            mSpringAnimation.animateToFinalPosition(-1);
+        }
+
+        @Override
+        public void addOnProgressChangedListener(
+                @NonNull Consumer<TransitionSeekController> consumer) {
+            if (mOnProgressListeners == null) {
+                mOnProgressListeners = new ArrayList<>();
             }
-            createAnimator();
-            mAnimator.setCurrentPlayTime(getDurationMillis() - mCurrentPlayTime);
-            mIsAnimatingReversed = true;
-            mAnimator.start();
+            mOnProgressListeners.add(consumer);
+        }
+
+        @Override
+        public void removeOnProgressChangedListener(
+                @NonNull Consumer<TransitionSeekController> consumer) {
+            if (mOnProgressListeners != null) {
+                mOnProgressListeners.remove(consumer);
+            }
+        }
+
+        @SuppressWarnings("unchecked")
+        private void callProgressListeners() {
+            if (mOnProgressListeners == null || mOnProgressListeners.isEmpty()) {
+                return;
+            }
+            int size = mOnProgressListeners.size();
+            if (mListenerCache == null) {
+                mListenerCache = new Consumer[size];
+            }
+            Consumer<TransitionSeekController>[] cache =
+                    mOnProgressListeners.toArray(mListenerCache);
+            mListenerCache = null;
+            for (int i = 0; i < size; i++) {
+                cache[i].accept(this);
+                cache[i] = null;
+            }
+            mListenerCache = cache;
         }
     }
 }

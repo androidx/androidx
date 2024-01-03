@@ -20,8 +20,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.ColorSpace
 import android.hardware.HardwareBuffer
-import android.os.Build
-import androidx.core.os.BuildCompat
 import androidx.graphics.drawSquares
 import androidx.graphics.isAllColor
 import androidx.graphics.opengl.egl.supportsNativeAndroidFence
@@ -42,7 +40,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
+@SdkSuppress(minSdkVersion = 34)
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class SingleBufferedCanvasRendererV34Test {
@@ -137,9 +135,6 @@ class SingleBufferedCanvasRendererV34Test {
 
     @Test
     fun testClearRenderer() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val transformer = BufferTransformer().apply {
             computeTransform(TEST_WIDTH, TEST_HEIGHT, BUFFER_TRANSFORM_IDENTITY)
         }
@@ -190,9 +185,6 @@ class SingleBufferedCanvasRendererV34Test {
 
     @Test
     fun testCancelPending() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val transformer = BufferTransformer().apply {
             computeTransform(TEST_WIDTH, TEST_HEIGHT, BUFFER_TRANSFORM_IDENTITY)
         }
@@ -250,9 +242,6 @@ class SingleBufferedCanvasRendererV34Test {
 
     @Test
     fun testMultiReleasesDoesNotCrash() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val transformer = BufferTransformer().apply {
             computeTransform(TEST_WIDTH, TEST_HEIGHT, BUFFER_TRANSFORM_IDENTITY)
         }
@@ -291,9 +280,6 @@ class SingleBufferedCanvasRendererV34Test {
 
     @Test
     fun testRendererVisibleFlag() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         var supportsNativeAndroidFence = false
         withEgl { eglManager ->
             supportsNativeAndroidFence = eglManager.supportsNativeAndroidFence()
@@ -352,9 +338,6 @@ class SingleBufferedCanvasRendererV34Test {
         actualColors: RectColors,
         expectedColors: RectColors
     ) {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val transformer = BufferTransformer()
         transformer.computeTransform(TEST_WIDTH, TEST_HEIGHT, transform)
         val executor = Executors.newSingleThreadExecutor()

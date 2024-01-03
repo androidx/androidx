@@ -22,24 +22,30 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
+import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.TextObfuscationMode
 import androidx.compose.foundation.text2.input.rememberTextFieldState
+import androidx.compose.foundation.text2.selection.FakeClipboardManager
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextInputSelection
 import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -65,12 +71,20 @@ class BasicSecureTextFieldTest {
     fun passwordSemanticsAreSet() {
         rule.setContent {
             BasicSecureTextField(
-                state = rememberTextFieldState(),
+                state = remember {
+                    TextFieldState("Hello", initialSelectionInChars = TextRange(0, 1))
+                },
                 modifier = Modifier.testTag(Tag)
             )
         }
 
+        rule.onNodeWithTag(Tag).requestFocus()
+        rule.waitForIdle()
         rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Password))
+        rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyIsDefined(SemanticsActions.PasteText))
+        // temporarily define copy and cut actions on BasicSecureTextField but make them no-op
+        rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyIsDefined(SemanticsActions.CopyText))
+        rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyIsDefined(SemanticsActions.CutText))
     }
 
     @Test
@@ -135,17 +149,17 @@ class BasicSecureTextFieldTest {
 
     @Test
     fun lastTypedCharacterIsRevealed_hidesAfterFocusIsLost() {
-        val focusRequester = FocusRequester()
         rule.setContent {
             Column {
                 BasicSecureTextField(
                     state = rememberTextFieldState(),
                     modifier = Modifier.testTag(Tag)
                 )
-                Box(modifier = Modifier
-                    .size(1.dp)
-                    .focusRequester(focusRequester)
-                    .focusable()
+                Box(
+                    modifier = Modifier
+                        .size(1.dp)
+                        .testTag("otherFocusable")
+                        .focusable()
                 )
             }
         }
@@ -154,7 +168,8 @@ class BasicSecureTextFieldTest {
             performTextInput("a")
             rule.mainClock.advanceTimeBy(200)
             assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("a")
-            focusRequester.requestFocus()
+            rule.onNodeWithTag("otherFocusable")
+                .requestFocus()
             rule.mainClock.advanceTimeBy(50)
             assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("\u2022")
         }
@@ -268,6 +283,51 @@ class BasicSecureTextFieldTest {
             rule.mainClock.advanceTimeByFrame()
             assertThat(fetchTextLayoutResult().layoutInput.text.text)
                 .isEqualTo("\u2022\u2022\u2022")
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun semantics_copy() {
+        val state = TextFieldState("Hello World!")
+        val clipboardManager = FakeClipboardManager("initial")
+        rule.setContent {
+            CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
+                BasicSecureTextField(
+                    state = state,
+                    modifier = Modifier.testTag(Tag)
+                )
+            }
+        }
+
+        rule.onNodeWithTag(Tag).performTextInputSelection(TextRange(0, 5))
+        rule.onNodeWithTag(Tag).performSemanticsAction(SemanticsActions.CopyText)
+
+        rule.runOnIdle {
+            assertThat(clipboardManager.getText()?.toString()).isEqualTo("initial")
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun semantics_cut() {
+        val state = TextFieldState("Hello World!")
+        val clipboardManager = FakeClipboardManager("initial")
+        rule.setContent {
+            CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
+                BasicSecureTextField(
+                    state = state,
+                    modifier = Modifier.testTag(Tag)
+                )
+            }
+        }
+
+        rule.onNodeWithTag(Tag).performTextInputSelection(TextRange(0, 5))
+        rule.onNodeWithTag(Tag).performSemanticsAction(SemanticsActions.CutText)
+
+        rule.runOnIdle {
+            assertThat(clipboardManager.getText()?.toString()).isEqualTo("initial")
+            assertThat(state.text.toString()).isEqualTo("Hello World!")
         }
     }
 }

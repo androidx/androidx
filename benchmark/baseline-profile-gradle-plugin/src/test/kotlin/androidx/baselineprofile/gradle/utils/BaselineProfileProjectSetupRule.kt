@@ -166,7 +166,7 @@ class BaselineProfileProjectSetupRule(
 
             val kotlinGradlePluginDependency = if (addKotlinGradlePluginToClasspath) {
                 """
-             "org.jetbrains.kotlin:kotlin-gradle-plugin:${appTargetSetupRule.props.kotlinVersion}"
+             "${appTargetSetupRule.props.kgpDependency}"
                     """.trimIndent()
             } else {
                 null

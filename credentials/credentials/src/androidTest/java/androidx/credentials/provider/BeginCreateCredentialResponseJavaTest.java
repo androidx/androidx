@@ -24,7 +24,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
-import androidx.core.os.BuildCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -35,17 +34,13 @@ import org.junit.runner.RunWith;
 import java.util.Arrays;
 import java.util.Collections;
 
-@SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
+@SdkSuppress(minSdkVersion = 26)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class BeginCreateCredentialResponseJavaTest {
 
     @Test
     public void constructor_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
-
         new BeginCreateCredentialResponse(
                 Arrays.asList(constructCreateEntryWithSimpleParams("AccountName",
                         "Desc")),
@@ -55,10 +50,6 @@ public class BeginCreateCredentialResponseJavaTest {
 
     @Test
     public void builder_createEntriesOnly_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
-
         new BeginCreateCredentialResponse.Builder().setCreateEntries(
                 Arrays.asList(constructCreateEntryWithSimpleParams("AccountName",
                         "Desc"))
@@ -67,10 +58,6 @@ public class BeginCreateCredentialResponseJavaTest {
 
     @Test
     public void builder_remoteEntryOnly_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
-
         new BeginCreateCredentialResponse.Builder().setRemoteEntry(
                 constructRemoteEntry()
         ).build();
@@ -78,10 +65,6 @@ public class BeginCreateCredentialResponseJavaTest {
 
     @Test
     public void constructor_nullList_throws() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
-
         assertThrows("Expected null list to throw NPE",
                 NullPointerException.class,
                 () -> new BeginCreateCredentialResponse(
@@ -91,10 +74,6 @@ public class BeginCreateCredentialResponseJavaTest {
 
     @Test
     public void buildConstruct_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
-
         new BeginCreateCredentialResponse.Builder().setCreateEntries(
                 Arrays.asList(constructCreateEntryWithSimpleParams("AccountName",
                         "Desc"))).build();
@@ -102,10 +81,6 @@ public class BeginCreateCredentialResponseJavaTest {
 
     @Test
     public void buildConstruct_nullList_throws() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
-
         assertThrows("Expected null list to throw NPE",
                 NullPointerException.class,
                 () -> new BeginCreateCredentialResponse.Builder().setCreateEntries(null).build()
@@ -114,9 +89,6 @@ public class BeginCreateCredentialResponseJavaTest {
 
     @Test
     public void getter_createEntry() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         String expectedAccountName = "AccountName";
         String expectedDescription = "Desc";
 
@@ -132,10 +104,6 @@ public class BeginCreateCredentialResponseJavaTest {
 
     @Test
     public void getter_remoteEntry_null() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
-
         RemoteEntry expectedRemoteEntry = null;
         BeginCreateCredentialResponse response = new BeginCreateCredentialResponse(
                 Arrays.asList(constructCreateEntryWithSimpleParams("AccountName",
@@ -149,9 +117,6 @@ public class BeginCreateCredentialResponseJavaTest {
 
     @Test
     public void getter_remoteEntry_nonNull() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         RemoteEntry expectedRemoteEntry = constructRemoteEntryDefault();
 
         BeginCreateCredentialResponse response = new BeginCreateCredentialResponse(

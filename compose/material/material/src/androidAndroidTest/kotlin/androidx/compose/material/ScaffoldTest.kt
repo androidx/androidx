@@ -72,6 +72,7 @@ class ScaffoldTest {
     @get:Rule
     val rule = createComposeRule()
 
+    private val fabSpacing = 16.dp
     private val scaffoldTag = "Scaffold"
 
     @Test
@@ -272,6 +273,45 @@ class ScaffoldTest {
     }
 
     @Test
+    fun scaffold_startDockedFab_position() {
+        var fabPosition: Offset = Offset.Zero
+        var fabSize: IntSize = IntSize.Zero
+        var bottomBarPosition: Offset = Offset.Zero
+        rule.setContent {
+            Scaffold(
+                floatingActionButton = {
+                    FloatingActionButton(
+                        modifier = Modifier.onGloballyPositioned { positioned ->
+                            fabSize = positioned.size
+                            fabPosition = positioned.positionInRoot()
+                        },
+                        onClick = {}
+                    ) {
+                        Icon(Icons.Filled.Favorite, null)
+                    }
+                },
+                floatingActionButtonPosition = FabPosition.Start,
+                isFloatingActionButtonDocked = true,
+                bottomBar = {
+                    BottomAppBar(
+                        Modifier
+                            .onGloballyPositioned { positioned: LayoutCoordinates ->
+                                bottomBarPosition = positioned.positionInRoot()
+                            }
+                    ) {}
+                }
+            ) {
+                Text("body")
+            }
+        }
+        with(rule.density) {
+            assertThat(fabPosition.x).isWithin(1f).of(fabSpacing.toPx())
+        }
+        val expectedFabY = bottomBarPosition.y - (fabSize.height / 2)
+        assertThat(fabPosition.y).isEqualTo(expectedFabY)
+    }
+
+    @Test
     fun scaffold_centerDockedFab_position() {
         var fabPosition: Offset = Offset.Zero
         var fabSize: IntSize = IntSize.Zero
@@ -302,6 +342,10 @@ class ScaffoldTest {
             ) {
                 Text("body")
             }
+        }
+        with(rule.density) {
+            assertThat(fabPosition.x).isWithin(1f).of(
+                (rule.rootWidth().toPx() - fabSize.width) / 2f)
         }
         val expectedFabY = bottomBarPosition.y - (fabSize.height / 2)
         assertThat(fabPosition.y).isEqualTo(expectedFabY)
@@ -338,6 +382,10 @@ class ScaffoldTest {
             ) {
                 Text("body")
             }
+        }
+        with(rule.density) {
+            assertThat(fabPosition.x).isWithin(1f).of(
+                rule.rootWidth().toPx() - fabSize.width - fabSpacing.toPx())
         }
         val expectedFabY = bottomBarPosition.y - (fabSize.height / 2)
         assertThat(fabPosition.y).isEqualTo(expectedFabY)

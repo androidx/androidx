@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.tryUnbox
+import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSType
 import com.squareup.kotlinpoet.javapoet.JTypeName
 import com.squareup.kotlinpoet.javapoet.KTypeName
@@ -31,8 +32,9 @@ import com.squareup.kotlinpoet.javapoet.KTypeName
 internal class KspPrimitiveType(
     env: KspProcessingEnv,
     ksType: KSType,
+    originalKSAnnotations: Sequence<KSAnnotation> = ksType.annotations,
     typeAlias: KSType? = null,
-) : KspType(env, ksType, null, typeAlias) {
+) : KspType(env, ksType, originalKSAnnotations, null, typeAlias) {
     override fun resolveJTypeName(): JTypeName {
         return ksType.asJTypeName(env.resolver).tryUnbox()
     }
@@ -51,7 +53,8 @@ internal class KspPrimitiveType(
     override fun copy(
         env: KspProcessingEnv,
         ksType: KSType,
+        originalKSAnnotations: Sequence<KSAnnotation>,
         scope: KSTypeVarianceResolverScope?,
         typeAlias: KSType?
-    ) = KspPrimitiveType(env, ksType, typeAlias)
+    ) = KspPrimitiveType(env, ksType, originalKSAnnotations, typeAlias)
 }

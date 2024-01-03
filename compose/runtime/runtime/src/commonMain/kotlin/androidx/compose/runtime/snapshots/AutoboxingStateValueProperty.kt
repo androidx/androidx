@@ -27,7 +27,7 @@ package androidx.compose.runtime.snapshots
  * instead.
  */
 @Retention(AnnotationRetention.BINARY)
-@Target(AnnotationTarget.PROPERTY)
+@Target(AnnotationTarget.PROPERTY_SETTER, AnnotationTarget.PROPERTY_GETTER)
 annotation class AutoboxingStateValueProperty(
     /**
      * An alternative, non-boxing property that can be used instead of the annotated property.

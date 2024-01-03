@@ -168,13 +168,6 @@ internal class TestWrapperWorker(
 object NoOpForegroundProcessor : ForegroundProcessor {
     override fun startForeground(workSpecId: String, foregroundInfo: ForegroundInfo) {
     }
-
-    override fun stopForeground(workSpecId: String) {
-    }
-
-    override fun isEnqueuedInForeground(workSpecId: String): Boolean {
-        return false
-    }
 }
 
 class ManualExecutor : Executor {

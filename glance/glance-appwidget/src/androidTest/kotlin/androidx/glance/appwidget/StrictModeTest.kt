@@ -122,6 +122,10 @@ class StrictModeTest {
     }
 
     @Test
+    @SdkSuppress(
+        minSdkVersion = Build.VERSION_CODES.S,
+        maxSdkVersion = Build.VERSION_CODES.TIRAMISU
+    )
     fun lazyColumn_actionRunCallback() {
         TestGlanceAppWidget.uiDefinition = {
             LazyColumn {

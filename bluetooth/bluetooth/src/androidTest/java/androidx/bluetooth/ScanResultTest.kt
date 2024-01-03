@@ -53,10 +53,11 @@ class ScanResultTest {
             timeStampNanos)
         val scanResult = ScanResult(fwkScanResult)
 
-        assertEquals(scanResult.device.name, BluetoothDevice(fwkBluetoothDevice).name)
-        assertEquals(scanResult.device.bondState, BluetoothDevice(fwkBluetoothDevice).bondState)
+        assertEquals(scanResult.device.name, BluetoothDevice.of(fwkBluetoothDevice).name)
+        assertEquals(scanResult.device.bondState, BluetoothDevice.of(fwkBluetoothDevice).bondState)
         assertEquals(scanResult.deviceAddress.address, address)
-        assertEquals(scanResult.deviceAddress.addressType, AddressType.ADDRESS_TYPE_RANDOM)
+        assertEquals(scanResult.deviceAddress.addressType,
+            BluetoothAddress.ADDRESS_TYPE_RANDOM_STATIC)
         assertEquals(scanResult.isConnectable(), true)
         assertEquals(scanResult.timestampNanos, timeStampNanos)
         assertEquals(scanResult.getManufacturerSpecificData(1), null)

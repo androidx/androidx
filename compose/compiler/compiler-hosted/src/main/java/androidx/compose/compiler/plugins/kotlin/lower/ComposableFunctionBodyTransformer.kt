@@ -929,9 +929,16 @@ class ComposableFunctionBodyTransformer(
                 returnVar?.let { irReturn(declaration.symbol, irGet(it)) }
             )
         )
-        if (elideGroups && !hasExplicitGroups && collectSourceInformation) {
+        if (elideGroups && !hasExplicitGroups) {
             scope.realizeEndCalls {
-                irSourceInformationMarkerEnd(body, scope)
+                irComposite(
+                    statements = listOfNotNull(
+                        if (emitTraceMarkers) irTraceEventEnd() else null,
+                        if (collectSourceInformation)
+                            irSourceInformationMarkerEnd(body, scope)
+                        else null
+                    )
+                )
             }
         }
 
@@ -2031,7 +2038,10 @@ class ComposableFunctionBodyTransformer(
 
             val name = declaration.kotlinFqName
             val file = declaration.file.name
-            val line = declaration.file.fileEntry.getLineNumber(declaration.startOffset)
+            // FIXME: This should probably use `declaration.startOffset`, but the K2 implementation
+            //        is unfinished (i.e., in K2 the start offset of an annotated function could
+            //        point at the annotation instead of the start of the function).
+            val line = declaration.file.fileEntry.getLineNumber(startOffset)
             val traceInfo = "$name ($file:$line)" // TODO(174715171) decide on what to log
             val dirty = scope.dirty
             val changed = scope.changedParameter
@@ -2513,6 +2523,10 @@ class ComposableFunctionBodyTransformer(
         var scope: Scope? = currentScope
         loop@ while (scope != null) {
             when (scope) {
+                is Scope.CallScope,
+                is Scope.ReturnScope -> {
+                    // Ignore
+                }
                 is Scope.FunctionScope -> {
                     scope.markCoalescableGroup(coalescableScope, realizeGroup, makeEnd)
                     if (!scope.isInlinedLambda) {
@@ -2522,9 +2536,6 @@ class ComposableFunctionBodyTransformer(
                 is Scope.BlockScope -> {
                     scope.markCoalescableGroup(coalescableScope, realizeGroup, makeEnd)
                     break@loop
-                }
-                is Scope.CallScope -> {
-                    // Ignore
                 }
                 else -> error("Unexpected scope type")
             }
@@ -3430,12 +3441,14 @@ class ComposableFunctionBodyTransformer(
 
     override fun visitReturn(expression: IrReturn): IrExpression {
         if (!isInComposableScope) return super.visitReturn(expression)
-        expression.transformChildrenVoid()
+        val scope = Scope.ReturnScope(expression)
+        withScope(scope) {
+            expression.transformChildrenVoid()
+        }
         val endBlock = mutableStatementContainer()
         encounteredReturn(expression.returnTargetSymbol) { endBlock.statements.add(it) }
-        return if (expression.value.type
-            .also { if (it is IrSimpleType) it.classifier }
-            .isUnitOrNullableUnit()
+        return if (
+            !scope.hasComposableCalls && expression.value.type.isUnitOrNullableUnit()
         ) {
             expression.wrap(listOf(endBlock))
         } else {
@@ -3857,16 +3870,16 @@ class ComposableFunctionBodyTransformer(
                 for (param in function.valueParameters) {
                     val paramName = param.name.asString()
                     when {
-                        paramName.startsWith("_context_receiver_") -> Unit
                         paramName == KtxNameConventions.COMPOSER_PARAMETER.identifier ->
                             composerParameter = param
                         paramName.startsWith(KtxNameConventions.DEFAULT_PARAMETER.identifier) ->
                             defaultParams += param
                         paramName.startsWith(KtxNameConventions.CHANGED_PARAMETER.identifier) ->
                             changedParams += param
-                        paramName.startsWith("\$anonymous\$parameter") -> Unit
-                        paramName.startsWith("\$name\$for\$destructuring") -> Unit
-                        paramName.startsWith("\$noName_") -> Unit
+                        paramName.startsWith("\$context_receiver_") ||
+                        paramName.startsWith("\$anonymous\$parameter") ||
+                        paramName.startsWith("\$name\$for\$destructuring") ||
+                        paramName.startsWith("\$noName_") ||
                         paramName == "\$this" -> Unit
                         else -> realValueParamCount++
                     }
@@ -4184,6 +4197,16 @@ class ComposableFunctionBodyTransformer(
             private fun getNameForTemporary(nameHint: String?) =
                 functionScope?.getNameForTemporary(nameHint)
                     ?: error("Expected to be in a function")
+        }
+
+        class ReturnScope(
+            val expression: IrReturn
+        ) : BlockScope("return") {
+            override fun sourceLocationOf(call: IrElement): SourceLocation =
+                when (val parent = parent) {
+                    is BlockScope -> parent.sourceLocationOf(call)
+                    else -> super.sourceLocationOf(call)
+                }
         }
 
         class ComposableLambdaScope : BlockScope("composableLambda") {

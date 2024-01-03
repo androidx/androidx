@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text.selection
 
-import androidx.compose.foundation.MagnifierPositionInRoot
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.BasicTextField
@@ -90,11 +89,16 @@ internal class TextFieldVisualTransformationMagnifierTest(
         val handle = config.handle
         showHandle(handle)
 
+        assertNoMagnifierExists(rule)
+
         // Touch the handle to show the magnifier.
         rule.onNode(isSelectionHandle(handle))
-            .performTouchInput { down(center) }
+            .performTouchInput {
+                down(center)
+                movePastSlopBy(Offset(1f, 0f))
+            }
 
-        assertThat(getMagnifierCenterOffset()).isNotEqualTo(Offset.Zero)
+        assertMagnifierExists(rule)
     }
 
     @Ignore("b/266233836")
@@ -124,13 +128,13 @@ internal class TextFieldVisualTransformationMagnifierTest(
         // Touch the handle to show the magnifier.
         rule.onNode(isSelectionHandle(handle))
             .performTouchInput { down(center) }
-        val magnifierInitialPosition = getMagnifierCenterOffset()
+        val magnifierInitialPosition = getMagnifierCenterOffset(rule, requireSpecified = true)
 
         // Drag the handle horizontally - the magnifier should follow.
         rule.onNode(isSelectionHandle(handle))
             .performTouchInput { movePastSlopBy(dragDistance) }
 
-        assertThat(getMagnifierCenterOffset())
+        assertThat(getMagnifierCenterOffset(rule))
             .isEqualTo(magnifierInitialPosition + dragDistance)
     }
 
@@ -161,12 +165,6 @@ internal class TextFieldVisualTransformationMagnifierTest(
         )
         moveBy(delta + slop)
     }
-
-    private fun getMagnifierCenterOffset(): Offset =
-        rule.onNode(SemanticsMatcher.keyIsDefined(MagnifierPositionInRoot))
-            .fetchSemanticsNode()
-            .config[MagnifierPositionInRoot]
-            .let(rule::runOnIdle)
 
     companion object {
         @JvmStatic

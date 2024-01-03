@@ -184,12 +184,14 @@ internal class TextFieldDelegate {
          *
          * @param textInputSession the current input session
          * @param textFieldValue the editor state
+         * @param offsetMapping the offset mapping for the visual transformation
          * @param textLayoutResult the layout result
          */
         @JvmStatic
         internal fun updateTextLayoutResult(
             textInputSession: TextInputSession,
             textFieldValue: TextFieldValue,
+            offsetMapping: OffsetMapping,
             textLayoutResult: TextLayoutResultProxy
         ) {
             textLayoutResult.innerTextFieldCoordinates?.let { innerTextFieldCoordinates ->
@@ -197,6 +199,7 @@ internal class TextFieldDelegate {
                 textLayoutResult.decorationBoxCoordinates?.let { decorationBoxCoordinates ->
                     textInputSession.updateTextLayoutResult(
                         textFieldValue,
+                        offsetMapping,
                         textLayoutResult.value,
                         innerTextFieldCoordinates.positionInWindow(),
                         innerTextFieldCoordinates.visibleBounds(),

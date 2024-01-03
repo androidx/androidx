@@ -21,7 +21,6 @@ import android.graphics.ImageFormat
 import android.graphics.PixelFormat.RGBA_8888
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCaptureSession
-import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.TotalCaptureResult
 import android.media.Image
@@ -35,6 +34,8 @@ import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraXThreads
 import androidx.camera.extensions.impl.PreviewImageProcessorImpl
 import androidx.camera.extensions.impl.ProcessResultImpl
+import androidx.camera.extensions.util.Api21Impl
+import androidx.camera.extensions.util.Api21Impl.toCameraDeviceWrapper
 import androidx.camera.testing.Camera2Util
 import androidx.camera.testing.CameraUtil
 import androidx.test.core.app.ApplicationProvider
@@ -62,7 +63,7 @@ class PreviewProcessorTest {
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
         CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
     )
-    private lateinit var cameraDevice: CameraDevice
+    private lateinit var cameraDevice: Api21Impl.CameraDeviceWrapper
     private lateinit var cameraCaptureSession: CameraCaptureSession
     private lateinit var surfaceTexture: SurfaceTexture
     private lateinit var previewSurface: Surface
@@ -104,9 +105,14 @@ class PreviewProcessorTest {
             WIDTH, HEIGHT, ImageFormat.YUV_420_888, MAX_IMAGES
         )
 
-        cameraDevice = Camera2Util.openCameraDevice(cameraManager, CAMERA_ID, backgroundHandler)
+        cameraDevice = Camera2Util.openCameraDevice(
+            cameraManager,
+            CAMERA_ID,
+            backgroundHandler
+        ).toCameraDeviceWrapper()
+
         cameraCaptureSession = Camera2Util.openCaptureSession(
-            cameraDevice,
+            cameraDevice.unwrap(),
             arrayListOf(imageReaderYuv.surface),
             backgroundHandler
         )
@@ -169,7 +175,7 @@ class PreviewProcessorTest {
             previewUpdateDeferred.complete(true)
         }
 
-        Camera2Util.startRepeating(cameraDevice, cameraCaptureSession,
+        Camera2Util.startRepeating(cameraDevice.unwrap(), cameraCaptureSession,
             arrayListOf(imageReaderYuv.surface)) {
             if (!captureResultFetched) {
                 captureResultFetched = true

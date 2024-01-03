@@ -16,12 +16,16 @@
 package androidx.camera.view
 
 import android.content.Context
+import android.os.Build
+import android.view.WindowManager
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.Api27Impl.setShowWhenLocked
+import androidx.camera.testing.Api27Impl.setTurnScreenOn
 import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraUtil.PreTestCameraIdList
@@ -305,6 +309,20 @@ class PreviewViewBitmapTest(
             previewView.implementationMode = mode
             previewView.scaleType = scaleType
             activityRule.scenario.onActivity { activity: FakeActivity ->
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                    activity.setShowWhenLocked()
+                    activity.setTurnScreenOn()
+                    activity.window.addFlags(
+                        WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                    )
+                } else {
+                    @Suppress("DEPRECATION")
+                    activity.window.addFlags(
+                        WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+                            or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                            or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                    )
+                }
                 activity.setContentView(
                     previewView
                 )
@@ -348,6 +366,7 @@ class PreviewViewBitmapTest(
         private const val CAMERA_LENS = CameraSelector.LENS_FACING_BACK
 
         @BeforeClass
+        @JvmStatic
         fun classSetUp() {
             CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
         }

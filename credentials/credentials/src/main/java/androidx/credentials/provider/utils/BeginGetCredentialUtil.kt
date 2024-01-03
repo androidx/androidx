@@ -110,16 +110,19 @@ class BeginGetCredentialUtil {
             credentialEntries: List<CredentialEntry>
         ) {
             credentialEntries.forEach {
-                builder.addCredentialEntry(
-                    android.service.credentials.CredentialEntry(
-                        android.service.credentials.BeginGetCredentialOption(
-                            it.beginGetCredentialOption.id,
-                            it.type,
-                            Bundle.EMPTY
-                        ),
-                        it.slice
+                val entrySlice = CredentialEntry.toSlice(it)
+                if (entrySlice != null) {
+                    builder.addCredentialEntry(
+                        android.service.credentials.CredentialEntry(
+                            android.service.credentials.BeginGetCredentialOption(
+                                it.beginGetCredentialOption.id,
+                                it.type,
+                                Bundle.EMPTY
+                            ),
+                            entrySlice
+                        )
                     )
-                )
+                }
             }
         }
 

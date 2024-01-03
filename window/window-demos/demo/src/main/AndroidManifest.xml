@@ -58,7 +58,7 @@
             android:exported="false"
             android:configChanges="orientation|screenSize|screenLayout|screenSize"
             android:label="@string/window_metrics"/>
-        <activity android:name=".RearDisplayActivityConfigChanges"
+        <activity android:name=".area.RearDisplayActivityConfigChanges"
             android:exported="true"
             android:configChanges=
                 "orientation|screenLayout|screenSize|layoutDirection|smallestScreenSize"

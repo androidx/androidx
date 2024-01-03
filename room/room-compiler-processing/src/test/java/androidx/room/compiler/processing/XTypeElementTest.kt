@@ -41,6 +41,7 @@ import com.squareup.kotlinpoet.javapoet.JTypeName
 import com.squareup.kotlinpoet.javapoet.JTypeVariableName
 import com.squareup.kotlinpoet.javapoet.KClassName
 import com.squareup.kotlinpoet.javapoet.KTypeVariableName
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -1438,13 +1439,14 @@ class XTypeElementTest(
             }
             abstract class AbstractNoExplicit
             abstract class AbstractExplicit(x:Int)
+            annotation class AnnotationClass
             """.trimIndent()
         )
         runTest(sources = listOf(src)) { invocation ->
             val subjects = listOf(
                 "MyInterface", "NoExplicitConstructor", "Base", "ExplicitConstructor",
                 "BaseWithSecondary", "Sub", "SubWith3Constructors",
-                "AbstractNoExplicit", "AbstractExplicit"
+                "AbstractNoExplicit", "AbstractExplicit", "AnnotationClass"
             )
             val constructorCounts = subjects.map {
                 it to invocation.processingEnv.requireTypeElement(it).getConstructors().size
@@ -1459,7 +1461,8 @@ class XTypeElementTest(
                     "Sub" to 1,
                     "SubWith3Constructors" to 3,
                     "AbstractNoExplicit" to 1,
-                    "AbstractExplicit" to 1
+                    "AbstractExplicit" to 1,
+                    "AnnotationClass" to 0
                 )
 
             val primaryConstructorParameterNames = subjects.map {
@@ -1479,11 +1482,157 @@ class XTypeElementTest(
                     "Sub" to listOf("x"),
                     "SubWith3Constructors" to emptyList<String>(),
                     "AbstractNoExplicit" to emptyList<String>(),
-                    "AbstractExplicit" to listOf("x")
+                    "AbstractExplicit" to listOf("x"),
+                    "AnnotationClass" to null
                 )
         }
     }
 
+    @Test
+    fun constructorsWithOverloads() {
+        val src = Source.kotlin(
+            "Subject.kt",
+            """
+            class DefaultArgs @JvmOverloads constructor(x:Int = 1, y: Double, z: Long = 1) {}
+            class NoDefaultArgs @JvmOverloads constructor(x:Int, y: Double, z: Long) {}
+            class AllDefaultArgs @JvmOverloads constructor(x:Int = 1, y: Double = 0.0, z: Long = 1) {}
+            """.trimIndent()
+        )
+        runTest(sources = listOf(src)) { invocation ->
+            val defaultArgsConstructors =
+                invocation.processingEnv.requireTypeElement("DefaultArgs")
+                    .getConstructorSignatures()
+            val noDefaultArgsConstructors =
+                invocation.processingEnv.requireTypeElement("NoDefaultArgs")
+                    .getConstructorSignatures()
+            val allDefaultArgsConstructors =
+                invocation.processingEnv.requireTypeElement("AllDefaultArgs")
+                    .getConstructorSignatures()
+
+            if (isPreCompiled) {
+                assertThat(defaultArgsConstructors)
+                    .containsExactly(
+                        "DefaultArgs(int,double,long)",
+                        "DefaultArgs(int,double)",
+                        "DefaultArgs(double)"
+                    ).inOrder()
+                assertThat(noDefaultArgsConstructors)
+                    .containsExactly(
+                        "NoDefaultArgs(int,double,long)"
+                    ).inOrder()
+                assertThat(allDefaultArgsConstructors)
+                    .containsExactly(
+                        "AllDefaultArgs(int,double,long)",
+                        "AllDefaultArgs(int,double)",
+                        "AllDefaultArgs(int)",
+                        "AllDefaultArgs()"
+                    ).inOrder()
+            } else {
+                assertThat(defaultArgsConstructors)
+                    .containsExactly(
+                        "DefaultArgs(int,double,long)",
+                        "DefaultArgs(double)",
+                        "DefaultArgs(int,double)"
+                    ).inOrder()
+                assertThat(noDefaultArgsConstructors)
+                    .containsExactly(
+                        "NoDefaultArgs(int,double,long)"
+                    ).inOrder()
+                assertThat(allDefaultArgsConstructors)
+                    .containsExactly(
+                        "AllDefaultArgs(int,double,long)",
+                        "AllDefaultArgs()",
+                        "AllDefaultArgs(int)",
+                        "AllDefaultArgs(int,double)"
+                    ).inOrder()
+            }
+
+            val subjects = listOf("DefaultArgs", "NoDefaultArgs", "AllDefaultArgs")
+            if (invocation.isKsp) {
+                val syntheticConstructorCounts = subjects.map {
+                    it to invocation.processingEnv.requireTypeElement(it)
+                        .getConstructors()
+                        .filter { it.isSyntheticConstructorForJvmOverloads() }
+                        .size
+                }
+                assertThat(syntheticConstructorCounts)
+                    .containsExactly(
+                        "DefaultArgs" to 2,
+                        "NoDefaultArgs" to 0,
+                        "AllDefaultArgs" to 3,
+                    )
+            }
+        }
+    }
+
+    @Test
+    fun constructorsWithDefaultValues() {
+        val src = Source.kotlin(
+            "Subject.kt",
+            """
+            // These should have a no-arg constructor
+            class DefaultCtor
+            class DefaultArgsPrimary(val x: String = "")
+            class AlreadyHasPrimaryNoArgsCtor() {
+                constructor(y: Int = 1) : this()
+            }
+            class AlreadyHasSecondaryNoArgsCtor(val x: String) {
+                constructor() : this("")
+            }
+
+            // These can't have no arg constructor
+            class DefaultArgsSecondary(val x: String) {
+                constructor(y: Int = 1) : this("")
+            }
+            class CantHaveNoArgsCtor(val x: String = "", val y: Int)
+
+            // Shouldn't synthesize no-arg for annotation classes
+            annotation class AnnotationClass(val x: String = "")
+            """.trimIndent()
+        )
+        runTest(sources = listOf(src)) { invocation ->
+            val subjects = listOf(
+                "DefaultCtor", "DefaultArgsPrimary", "AlreadyHasPrimaryNoArgsCtor",
+                "AlreadyHasSecondaryNoArgsCtor", "DefaultArgsSecondary", "CantHaveNoArgsCtor",
+                "AnnotationClass"
+            )
+            val constructorCounts =
+                subjects.associateWith {
+                    invocation.processingEnv.requireTypeElement(it).getConstructors().size
+                }
+            assertThat(constructorCounts)
+                .containsExactlyEntriesIn(
+                    mapOf(
+                        "DefaultCtor" to 1,
+                        "DefaultArgsPrimary" to 2,
+                        "AlreadyHasPrimaryNoArgsCtor" to 2,
+                        "AlreadyHasSecondaryNoArgsCtor" to 2,
+                        "DefaultArgsSecondary" to 2,
+                        "CantHaveNoArgsCtor" to 1,
+                        "AnnotationClass" to 0,
+                    )
+                )
+
+            val hasNoArgConstructor = subjects.associateWith {
+                invocation.processingEnv.requireTypeElement(it)
+                    .getConstructors().any { it.parameters.isEmpty() }
+            }
+            assertThat(hasNoArgConstructor)
+                .containsExactlyEntriesIn(
+                    mapOf(
+                        "DefaultCtor" to true,
+                        "DefaultArgsPrimary" to true,
+                        "AlreadyHasPrimaryNoArgsCtor" to true,
+                        "AlreadyHasSecondaryNoArgsCtor" to true,
+                        "DefaultArgsSecondary" to false,
+                        "CantHaveNoArgsCtor" to false,
+                        "AnnotationClass" to false,
+                    )
+                )
+        }
+    }
+
+    @Ignore("b/284452502")
     @Test
     fun jvmDefault() {
         val src = Source.kotlin(
@@ -2172,6 +2321,17 @@ class XTypeElementTest(
     private fun List<XMethodElement>.jvmNames() = map {
         it.jvmName
     }.toList()
+
+    private fun XTypeElement.getConstructorSignatures(): List<String> =
+        getConstructors().map { it.signature() }
+
+    private fun XConstructorElement.signature(): String {
+        val params = executableType.parameterTypes.joinToString(",") {
+            it.asTypeName().java.toString()
+        }
+        val enclosingName = enclosingElement.name
+        return "$enclosingName($params)"
+    }
 
     private fun XMethodElement.signature(owner: XType): String {
         val methodType = this.asMemberOf(owner)

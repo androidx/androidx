@@ -356,6 +356,16 @@ public class By {
     }
 
     /**
+     * Constructs a new {@link BySelector} and sets the display ID criteria.
+     *
+     * @see BySelector#displayId(int)
+     */
+    @RequiresApi(30)
+    public static @NonNull BySelector displayId(int displayId) {
+        return new BySelector().displayId(displayId);
+    }
+
+    /**
      * Constructs a new {@link BySelector} and adds a parent selector criteria.
      *
      * @see BySelector#hasParent(BySelector)

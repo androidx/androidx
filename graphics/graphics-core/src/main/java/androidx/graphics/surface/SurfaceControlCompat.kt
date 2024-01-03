@@ -193,7 +193,7 @@ class SurfaceControlCompat internal constructor(
          * this callback may be reused after this point.
          */
         @JniVisible
-        fun onTransactionCompleted()
+        fun onTransactionCompleted(transactionStats: Long)
     }
 
     /**
@@ -314,14 +314,15 @@ class SurfaceControlCompat internal constructor(
          * @param fence Optional [SyncFenceCompat] that serves as the presentation fence. If set,
          * the [SurfaceControlCompat.Transaction] will not apply until the fence signals.
          * @param releaseCallback Optional callback invoked when the buffer is ready for re-use
-         * after being presented to the display.
+         * after being presented to the display. This also includes a [SyncFenceCompat] instance
+         * that consumers must wait on before consuming the buffer
          */
         @JvmOverloads
         fun setBuffer(
             surfaceControl: SurfaceControlCompat,
             buffer: HardwareBuffer?,
             fence: SyncFenceCompat? = null,
-            releaseCallback: (() -> Unit)? = null
+            releaseCallback: ((SyncFenceCompat) -> Unit)? = null
         ): Transaction {
             mImpl.setBuffer(surfaceControl.scImpl, buffer, fence?.mImpl, releaseCallback)
             return this
@@ -519,7 +520,7 @@ class SurfaceControlCompat internal constructor(
          *
          * Must be finite && >= 1.0f
          * @return this
-         **/
+         */
         @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         fun setExtendedRangeBrightness(
             surfaceControl: SurfaceControlCompat,

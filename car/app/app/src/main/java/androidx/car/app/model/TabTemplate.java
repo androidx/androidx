@@ -239,7 +239,9 @@ public class TabTemplate implements Template {
         }
 
         /**
-         * Sets the {@link TabContents} to show in the template.
+         * Sets the {@link TabContents} to show in the template. Note that only certain templates
+         * may be used as content. See {@link TabContents.Builder#Builder(Template)} for more
+         * details.
          *
          * @throws NullPointerException if {@code tabContents} is null
          */

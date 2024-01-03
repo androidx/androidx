@@ -27,6 +27,6 @@ class ConstraintError :
     DomError(TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_CONSTRAINT_ERROR) {
     internal companion object {
         internal const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_CONSTRAINT_ERROR: String =
-            "androidx.credentials.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_CONSTRAINT_ERROR"
+            "androidx.credentials.TYPE_CONSTRAINT_ERROR"
     }
 }

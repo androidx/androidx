@@ -22,6 +22,7 @@ import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraExtensionSession
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.TotalCaptureResult
+import android.os.Build
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.FrameNumber
@@ -145,36 +146,56 @@ internal open class AndroidCameraExtensionSession(
 ) : CameraExtensionSessionWrapper {
 
     private val frameNumbers: AtomicLong = atomic(0L)
-    private val frameNumbersMap: MutableMap<CameraExtensionSession, Long> = HashMap()
+    private val extensionSessionMap: MutableMap<CameraExtensionSession, Long> = HashMap()
 
     override fun capture(
         request: CaptureRequest,
         listener: CameraCaptureSession.CaptureCallback
     ): Int? = catchAndReportCameraExceptions(device.cameraId, cameraErrorListener) {
-        val frameQueue = LinkedList<Long>()
-        cameraExtensionSession.capture(
-            request,
-            callbackExecutor,
-            Camera2CaptureSessionCallbackToExtensionCaptureCallback(
-                listener as Camera2CaptureCallback,
-                frameQueue
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            cameraExtensionSession.capture(
+                request,
+                callbackExecutor,
+                Camera2CaptureSessionCallbackToExtensionCaptureCallback(
+                    listener as Camera2CaptureCallback,
+                    LinkedList()
+                )
             )
-        )
+        } else {
+            cameraExtensionSession.capture(
+                request,
+                callbackExecutor,
+                Camera2CaptureSessionCallbackToExtensionCaptureCallbackAndroidS(
+                    listener as Camera2CaptureCallback,
+                    mutableMapOf()
+                )
+            )
+        }
     }
 
     override fun setRepeatingRequest(
         request: CaptureRequest,
         listener: CameraCaptureSession.CaptureCallback,
     ): Int? = catchAndReportCameraExceptions(device.cameraId, cameraErrorListener) {
-        val frameQueue = LinkedList<Long>()
-        cameraExtensionSession.setRepeatingRequest(
-            request,
-            callbackExecutor,
-            Camera2CaptureSessionCallbackToExtensionCaptureCallback(
-                listener as Camera2CaptureCallback,
-                frameQueue
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            cameraExtensionSession.setRepeatingRequest(
+                request,
+                callbackExecutor,
+                Camera2CaptureSessionCallbackToExtensionCaptureCallback(
+                    listener as Camera2CaptureCallback,
+                    LinkedList()
+                )
             )
-        )
+        } else {
+            cameraExtensionSession.setRepeatingRequest(
+                request,
+                callbackExecutor,
+                Camera2CaptureSessionCallbackToExtensionCaptureCallbackAndroidS(
+                    listener as Camera2CaptureCallback,
+                    mutableMapOf()
+                )
+            )
+        }
     }
 
     override fun stopRepeating(): Boolean =
@@ -238,7 +259,7 @@ internal open class AndroidCameraExtensionSession(
             timestamp: Long
         ) {
             val frameNumber = frameNumbers.incrementAndGet()
-            frameNumbersMap[session] = frameNumber
+            extensionSessionMap[session] = frameNumber
             frameQueue.add(frameNumber)
             captureCallback.onCaptureStarted(
                 request,
@@ -262,7 +283,7 @@ internal open class AndroidCameraExtensionSession(
         }
 
         override fun onCaptureSequenceCompleted(session: CameraExtensionSession, sequenceId: Int) {
-            val frameNumber = frameNumbersMap[session]
+            val frameNumber = extensionSessionMap[session]
             captureCallback.onCaptureSequenceCompleted(sequenceId, frameNumber!!)
         }
 
@@ -275,8 +296,67 @@ internal open class AndroidCameraExtensionSession(
             request: CaptureRequest,
             result: TotalCaptureResult
         ) {
+            Log.info { "Extension session listener's onComplete requires Android T or higher." }
             val frameNumber = frameQueue.remove()
             captureCallback.onCaptureCompleted(request, result, FrameNumber(frameNumber))
+        }
+    }
+
+    /**
+     * [CameraExtensionSession.ExtensionCaptureCallback]'s onCaptureResultAvailable is gated
+     * behind Android T, so any devices on Android S or older will not see onCaptureResultAvailable
+     * being triggered. This implementation calls onCaptureCompleted in onCaptureStarted and does
+     * not keep track of completed or failed frames for repeating requests.
+     */
+    inner class Camera2CaptureSessionCallbackToExtensionCaptureCallbackAndroidS(
+        private val captureCallback: Camera2CaptureCallback,
+        private val captureRequestMap: MutableMap<CaptureRequest, MutableList<Long>>
+
+    ) : CameraExtensionSession.ExtensionCaptureCallback() {
+
+        override fun onCaptureStarted(
+            session: CameraExtensionSession,
+            request: CaptureRequest,
+            timestamp: Long
+        ) {
+            val frameNumber = frameNumbers.incrementAndGet()
+            extensionSessionMap[session] = frameNumber
+            captureRequestMap.getOrPut(request) { mutableListOf() }.add(frameNumber)
+            captureCallback.onCaptureStarted(
+                request,
+                frameNumber,
+                timestamp
+            )
+        }
+
+        override fun onCaptureProcessStarted(
+            session: CameraExtensionSession,
+            request: CaptureRequest
+        ) {
+        }
+
+        override fun onCaptureFailed(session: CameraExtensionSession, request: CaptureRequest) {
+            if (captureRequestMap[request]!!.size == 1) {
+                val frameNumber = captureRequestMap[request]!![0]
+                captureCallback.onCaptureFailed(
+                    request,
+                    FrameNumber(frameNumber)
+                )
+            } else {
+                Log.info {
+                    "onCaptureFailed is not triggered for repeating requests. Request " +
+                        "frame numbers: " + captureRequestMap[request]!!.stream()
+                }
+            }
+        }
+
+        override fun onCaptureSequenceCompleted(session: CameraExtensionSession, sequenceId: Int) {
+            val frameNumber = extensionSessionMap[session]
+            captureCallback.onCaptureSequenceCompleted(sequenceId, frameNumber!!)
+        }
+
+        override fun onCaptureSequenceAborted(session: CameraExtensionSession, sequenceId: Int) {
+            captureCallback.onCaptureSequenceAborted(sequenceId)
         }
     }
 }

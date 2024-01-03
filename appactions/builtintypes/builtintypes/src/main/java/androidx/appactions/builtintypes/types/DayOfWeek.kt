@@ -19,7 +19,7 @@ import kotlin.jvm.JvmField
 /**
  * The day of the week.
  *
- * See http://schema.org/DayOfWeek for context.
+ * See https://schema.org/DayOfWeek for context.
  *
  * Represents an open enum. See [Companion] for the different possible variants. More variants may
  * be added over time.

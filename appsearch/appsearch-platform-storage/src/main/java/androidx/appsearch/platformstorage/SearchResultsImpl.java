@@ -27,7 +27,6 @@ import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.platformstorage.converter.SearchResultToPlatformConverter;
 import androidx.concurrent.futures.ResolvableFuture;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -58,14 +57,12 @@ class SearchResultsImpl implements SearchResults {
         mExecutor = Preconditions.checkNotNull(executor);
     }
 
-    // TODO(b/265311462): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
-    //  BuildCompat.isAtLeastU() is removed.
     @SuppressLint("WrongConstant")
     @Override
     @NonNull
-    @BuildCompat.PrereleaseSdkCheck
     public ListenableFuture<List<SearchResult>> getNextPageAsync() {
-        if (!BuildCompat.isAtLeastU() && mSearchSpec.getJoinSpec() != null) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+                && mSearchSpec.getJoinSpec() != null) {
             throw new UnsupportedOperationException("Searching with a SearchSpec containing a "
                     + "JoinSpec is not supported on this AppSearch implementation.");
         }

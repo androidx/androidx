@@ -17,6 +17,7 @@
 package androidx.graphics.lowlatency
 
 import android.app.Activity
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.view.Gravity
@@ -51,6 +52,7 @@ class SampleInkViewActivity : Activity() {
             }
             container = FrameLayout(this).apply {
                 addView(toggle)
+                setBackgroundColor(Color.BLACK)
             }
             toggleLowLatencyView()
             setContentView(container)

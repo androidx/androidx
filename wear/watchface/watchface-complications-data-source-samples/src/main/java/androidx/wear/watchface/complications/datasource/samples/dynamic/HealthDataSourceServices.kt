@@ -18,6 +18,7 @@ package androidx.wear.watchface.complications.datasource.samples.dynamic
 
 import android.Manifest.permission
 import android.content.pm.PackageManager.PERMISSION_GRANTED
+import android.os.Build
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
 import androidx.wear.protolayout.expression.PlatformHealthSources
@@ -137,6 +138,24 @@ object HealthDataSourceServices {
             request: ComplicationRequest,
             listener: ComplicationRequestListener
         ) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                val text =
+                    PlainComplicationText.Builder(getString(R.string.dynamic_data_not_supported))
+                        .build()
+                listener.onComplicationData(
+                    RangedValueComplicationData.Builder(
+                            value = 0f,
+                            min = 0f,
+                            max = max,
+                            contentDescription = text
+                        )
+                        .setTitle(title)
+                        .setText(text)
+                        .build()
+                )
+                return
+            }
+
             val value = value
             if (value == null) {
                 // Missing permission.

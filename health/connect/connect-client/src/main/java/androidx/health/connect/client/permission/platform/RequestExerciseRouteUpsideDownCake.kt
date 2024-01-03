@@ -36,9 +36,9 @@ import androidx.health.platform.client.impl.logger.Logger
 @RequiresApi(34)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class RequestExerciseRouteUpsideDownCake :
-    ActivityResultContract<String?, ExerciseRoute?>() {
-    override fun createIntent(context: Context, input: String?): Intent {
-        require(!input.isNullOrEmpty()) { "Session identifier is required" }
+    ActivityResultContract<String, ExerciseRoute?>() {
+    override fun createIntent(context: Context, input: String): Intent {
+        require(input.isNotEmpty()) { "Session identifier can't be empty" }
         return Intent(HealthConnectManager.ACTION_REQUEST_EXERCISE_ROUTE).apply {
             putExtra(HealthConnectManager.EXTRA_SESSION_ID, input)
         }

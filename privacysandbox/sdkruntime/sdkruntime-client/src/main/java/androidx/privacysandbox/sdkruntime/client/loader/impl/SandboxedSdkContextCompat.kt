@@ -17,6 +17,7 @@ package androidx.privacysandbox.sdkruntime.client.loader.impl
 
 import android.content.Context
 import android.content.ContextWrapper
+import android.content.SharedPreferences
 import android.database.DatabaseErrorHandler
 import android.database.sqlite.SQLiteDatabase
 import android.os.Build
@@ -34,6 +35,8 @@ import java.io.FileOutputStream
  * inside [getDataDir].
  * Folders with special permissions or additional logic (caches, etc) created as subfolders of same
  * application folders.
+ * SDK Shared Preferences supported by adding prefix to name and delegating to Application
+ * Shared Preferences.
  *
  * SDK Folders hierarchy (from application [getDataDir]):
  * 1) /cache/RuntimeEnabledSdksData/<sdk_package_name> - cache
@@ -195,12 +198,71 @@ internal class SandboxedSdkContextCompat(
     override fun databaseList(): Array<String> {
         return listOrEmpty(getDatabasesDir())
     }
+
+    override fun getSharedPreferences(name: String, mode: Int): SharedPreferences {
+        return baseContext.getSharedPreferences(
+            getSdkSharedPreferenceName(name),
+            mode
+        )
+    }
+
+    /**
+     * Only moving between instances of [SandboxedSdkContextCompat] supported.
+     * Supporting of other contexts not possible as prefixed name will not be found by
+     * internal context implementation.
+     * SDK should work ONLY with SDK context.
+     */
+    @RequiresApi(Build.VERSION_CODES.N)
+    override fun moveSharedPreferencesFrom(sourceContext: Context, name: String): Boolean {
+        if (sourceContext !is SandboxedSdkContextCompat) {
+            return false
+        }
+
+        val sourceBaseContext = sourceContext.baseContext
+        val sourceBaseDataDir = Api24.dataDir(sourceBaseContext)
+        val sourceSharedPreferencesDir = File(sourceBaseDataDir, "shared_prefs")
+
+        val targetBaseDataDir = Api24.dataDir(baseContext)
+        val targetSharedPreferencesDir = File(targetBaseDataDir, "shared_prefs")
+
+        if (sourceSharedPreferencesDir == targetSharedPreferencesDir) {
+            return true
+        }
+
+        synchronized(SandboxedSdkContextCompat::class.java) {
+            val sdkSharedPreferencesName = getSdkSharedPreferenceName(name)
+            val moveResult = MigrationUtils.moveFiles(
+                sourceSharedPreferencesDir,
+                targetSharedPreferencesDir,
+                "$sdkSharedPreferencesName.xml"
+            )
+
+            if (moveResult) {
+                // clean cache in source context
+                Api24.deleteSharedPreferences(sourceBaseContext, sdkSharedPreferencesName)
+            }
+
+            return moveResult
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    override fun deleteSharedPreferences(name: String): Boolean {
+        return Api24.deleteSharedPreferences(
+            baseContext,
+            getSdkSharedPreferenceName(name)
+        )
+    }
+
     override fun getClassLoader(): ClassLoader? {
         return classLoader
     }
 
     private fun getDatabasesDir(): File =
         ensureDirExists(dataDir, "databases")
+
+    private fun getSdkSharedPreferenceName(originalName: String) =
+        "${SDK_SHARED_PREFERENCES_PREFIX}_${sdkPackageName}_$originalName"
 
     private fun listOrEmpty(dir: File?): Array<String> {
         return dir?.list() ?: emptyArray()
@@ -237,9 +299,17 @@ internal class SandboxedSdkContextCompat(
         @DoNotInline
         fun createDeviceProtectedStorageContext(context: Context): Context =
             context.createDeviceProtectedStorageContext()
+
+        @DoNotInline
+        fun dataDir(context: Context): File = context.dataDir
+
+        @DoNotInline
+        fun deleteSharedPreferences(context: Context, name: String): Boolean =
+            context.deleteSharedPreferences(name)
     }
 
     private companion object {
         private const val SDK_ROOT_FOLDER = "RuntimeEnabledSdksData"
+        private const val SDK_SHARED_PREFERENCES_PREFIX = "RuntimeEnabledSdk"
     }
 }

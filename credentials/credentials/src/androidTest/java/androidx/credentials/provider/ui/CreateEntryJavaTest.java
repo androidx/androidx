@@ -28,7 +28,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Icon;
 
-import androidx.core.os.BuildCompat;
 import androidx.credentials.provider.CreateEntry;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -41,8 +40,8 @@ import org.junit.runner.RunWith;
 import java.time.Instant;
 
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 26)
 @SmallTest
-@SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
 public class CreateEntryJavaTest {
     private static final CharSequence ACCOUNT_NAME = "account_name";
     private static final int PASSWORD_COUNT = 10;
@@ -61,9 +60,6 @@ public class CreateEntryJavaTest {
 
     @Test
     public void constructor_requiredParameters_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         CreateEntry entry = constructEntryWithRequiredParams();
 
         assertNotNull(entry);
@@ -77,9 +73,6 @@ public class CreateEntryJavaTest {
 
     @Test
     public void constructor_allParameters_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         CreateEntry entry = constructEntryWithAllParams();
 
         assertNotNull(entry);
@@ -88,9 +81,6 @@ public class CreateEntryJavaTest {
 
     @Test
     public void constructor_nullAccountName_throwsNPE() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         assertThrows("Expected null title to throw NPE",
                 NullPointerException.class,
                 () -> new CreateEntry.Builder(
@@ -99,9 +89,6 @@ public class CreateEntryJavaTest {
 
     @Test
     public void constructor_nullPendingIntent_throwsNPE() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         assertThrows("Expected null pending intent to throw NPE",
                 NullPointerException.class,
                 () -> new CreateEntry.Builder(ACCOUNT_NAME, null).build());
@@ -109,19 +96,14 @@ public class CreateEntryJavaTest {
 
     @Test
     public void constructor_emptyAccountName_throwsIAE() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         assertThrows("Expected empty account name to throw NPE",
                 IllegalArgumentException.class,
                 () -> new CreateEntry.Builder("", mPendingIntent).build());
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 28)
     public void fromSlice_requiredParams_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         CreateEntry originalEntry = constructEntryWithRequiredParams();
 
         CreateEntry entry = CreateEntry.fromSlice(
@@ -132,10 +114,8 @@ public class CreateEntryJavaTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 28)
     public void fromSlice_allParams_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         CreateEntry originalEntry = constructEntryWithAllParams();
 
         CreateEntry entry = CreateEntry.fromSlice(

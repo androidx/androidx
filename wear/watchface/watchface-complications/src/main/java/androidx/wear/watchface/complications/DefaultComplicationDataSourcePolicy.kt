@@ -307,11 +307,10 @@ public class DefaultComplicationDataSourcePolicy {
         return result
     }
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     companion object {
         internal const val NO_DEFAULT_PROVIDER = SystemDataSources.NO_DATA_SOURCE
 
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         fun inflate(
             resources: Resources,
             parser: XmlResourceParser,
@@ -356,6 +355,11 @@ public class DefaultComplicationDataSourcePolicy {
             }
             val systemDataSourceFallback =
                 parser.getAttributeIntValue(NAMESPACE_APP, "systemDataSourceFallback", 0)
+            require(SystemDataSources.isAllowedOnDevice(systemDataSourceFallback)) {
+                "$nodeName at line ${parser.lineNumber} cannot have the supplied " +
+                    "systemDataSourceFallback value at the current API level."
+            }
+
             require(parser.hasValue("systemDataSourceFallbackDefaultType")) {
                 "A $nodeName must have a systemDataSourceFallbackDefaultType attribute"
             }

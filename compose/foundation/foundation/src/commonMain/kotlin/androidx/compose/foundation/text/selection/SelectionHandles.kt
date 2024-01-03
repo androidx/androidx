@@ -44,8 +44,22 @@ internal val SelectionHandleInfoKey =
  */
 internal data class SelectionHandleInfo(
     val handle: Handle,
-    val position: Offset
+    val position: Offset,
+    val anchor: SelectionHandleAnchor
 )
+
+/**
+ * How the selection handle is anchored to its position
+ *
+ * In a regular text selection, selection start is anchored to left.
+ * Only cursor handle is always anchored at the middle.
+ * In a regular text selection, selection end is anchored to right.
+ */
+internal enum class SelectionHandleAnchor {
+    Left,
+    Middle,
+    Right
+}
 
 @Composable
 internal expect fun SelectionHandle(

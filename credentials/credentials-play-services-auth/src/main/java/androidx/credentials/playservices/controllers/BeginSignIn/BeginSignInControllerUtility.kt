@@ -63,8 +63,6 @@ internal class BeginSignInControllerUtility {
                         )
                     }
                     isPublicKeyCredReqFound = true
-                    // TODO(b/262924507) : watch for GIS update on single vs multiple options of a
-                    // single type. Also make allow list update as GIS has done it.
                 } else if (option is GetGoogleIdOption) {
                     requestBuilder.setGoogleIdTokenRequestOptions(
                         convertToGoogleIdTokenOption(option)

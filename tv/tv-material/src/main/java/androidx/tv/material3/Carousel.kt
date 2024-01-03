@@ -475,7 +475,6 @@ object CarouselDefaults {
      * @param spacing spacing between the indicator dots
      * @param indicator indicator dot representing each item in the carousel
      */
-    @ExperimentalTvMaterial3Api
     @Composable
     fun IndicatorRow(
         itemCount: Int,
@@ -502,7 +501,7 @@ object CarouselDefaults {
         ) {
             repeat(itemCount) {
                 val isActive = it == activeItemIndex
-                indicator(isActive = isActive)
+                indicator(isActive)
             }
         }
     }

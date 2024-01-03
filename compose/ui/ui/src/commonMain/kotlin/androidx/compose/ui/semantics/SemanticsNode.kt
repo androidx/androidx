@@ -260,10 +260,15 @@ class SemanticsNode internal constructor(
         // TODO(lmr): visitChildren would be great for this but we would lose the zSorted bit...
         //  i wonder if we can optimize this for the common case of no z-sortedness going on.
         zSortedChildren.forEach { child ->
-            if (child.nodes.has(Nodes.Semantics)) {
-                list.add(SemanticsNode(child, mergingEnabled))
-            } else {
-                child.fillOneLayerOfSemanticsWrappers(list)
+            // TODO(b/290936195): In some conditions it appears that children here can be
+            //  unattached. We just guard against that here as a "quick fix" but we need to
+            //  understand why this is happening and followup with a proper fix.
+            if (child.isAttached) {
+                if (child.nodes.has(Nodes.Semantics)) {
+                    list.add(SemanticsNode(child, mergingEnabled))
+                } else {
+                    child.fillOneLayerOfSemanticsWrappers(list)
+                }
             }
         }
     }

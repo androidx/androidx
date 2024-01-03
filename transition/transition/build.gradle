@@ -12,6 +12,7 @@ dependencies {
     implementation("androidx.collection:collection:1.1.0")
     compileOnly("androidx.fragment:fragment:1.2.5")
     compileOnly("androidx.appcompat:appcompat:1.0.1")
+    implementation("androidx.dynamicanimation:dynamicanimation:1.0.0")
 
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)

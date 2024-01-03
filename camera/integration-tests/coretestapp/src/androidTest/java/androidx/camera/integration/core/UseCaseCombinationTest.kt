@@ -44,6 +44,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.After
@@ -399,7 +400,8 @@ class UseCaseCombinationTest(
         withContext(Dispatchers.Main) {
             cameraProvider.unbind(preview)
         }
-        previewMonitor.waitForStreamIdle()
+        delay(1000) // Unbind and stop the output stream should be done within 1 sec.
+        previewMonitor.waitForStreamIdle(count = 1, timeMillis = TimeUnit.SECONDS.toMillis(2))
 
         // Assert
         imageCapture.waitForCapturing()

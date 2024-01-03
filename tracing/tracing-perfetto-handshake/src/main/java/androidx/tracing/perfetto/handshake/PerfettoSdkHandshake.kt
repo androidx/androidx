@@ -16,16 +16,17 @@
 
 package androidx.tracing.perfetto.handshake
 
-import androidx.tracing.perfetto.handshake.protocol.EnableTracingResponse
+import androidx.tracing.perfetto.handshake.protocol.RequestKeys.ACTION_DISABLE_TRACING_COLD_START
 import androidx.tracing.perfetto.handshake.protocol.RequestKeys.ACTION_ENABLE_TRACING
 import androidx.tracing.perfetto.handshake.protocol.RequestKeys.ACTION_ENABLE_TRACING_COLD_START
 import androidx.tracing.perfetto.handshake.protocol.RequestKeys.KEY_PATH
 import androidx.tracing.perfetto.handshake.protocol.RequestKeys.KEY_PERSISTENT
 import androidx.tracing.perfetto.handshake.protocol.RequestKeys.RECEIVER_CLASS_NAME
-import androidx.tracing.perfetto.handshake.protocol.ResponseExitCodes
-import androidx.tracing.perfetto.handshake.protocol.ResponseKeys.KEY_EXIT_CODE
+import androidx.tracing.perfetto.handshake.protocol.Response
 import androidx.tracing.perfetto.handshake.protocol.ResponseKeys.KEY_MESSAGE
 import androidx.tracing.perfetto.handshake.protocol.ResponseKeys.KEY_REQUIRED_VERSION
+import androidx.tracing.perfetto.handshake.protocol.ResponseKeys.KEY_RESULT_CODE
+import androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes
 import java.io.File
 
 /**
@@ -46,7 +47,7 @@ public class PerfettoSdkHandshake(
     private val executeShellCommand: ShellCommandExecutor
 ) {
     /**
-     * Attempts to enable tracing in an app. It will wake up (or start) the app process, so it will
+     * Attempts to enable tracing in the app. It will wake up (or start) the app process, so it will
      * act as warm/hot tracing. For cold tracing see [enableTracingColdStart]
      *
      * Note: if the app process is not running, it will be launched making the method a bad choice
@@ -56,89 +57,122 @@ public class PerfettoSdkHandshake(
      */
     public fun enableTracingImmediate(
         librarySource: LibrarySource? = null
-    ): EnableTracingResponse {
+    ): Response = safeExecute {
         val libPath = librarySource?.run {
-            PerfettoSdkSideloader(targetPackage).sideloadFromZipFile(
-                libraryZip,
-                tempDirectory,
-                executeShellCommand,
-                moveLibFileFromTmpDirToAppDir
-            )
+            when (this) {
+                is LibrarySource.ZipLibrarySource -> {
+                    PerfettoSdkSideloader(targetPackage).sideloadFromZipFile(
+                        libraryZip,
+                        tempDirectory,
+                        executeShellCommand,
+                        moveLibFileFromTmpDirToAppDir
+                    )
+                }
+            }
         }
-        return sendEnableTracingBroadcast(libPath, coldStart = false)
+        sendTracingBroadcast(ACTION_ENABLE_TRACING, libPath)
     }
 
     /**
-     * Attempts to prepare cold startup tracing in an app.
+     * Attempts to prepare cold startup tracing in the app.
      *
-     * @param killAppProcess function responsible for terminating the app process (no-op if the
-     * process is already terminated)
+     * @param persistent if set to true, cold start tracing mode is persisted between app runs and
+     * must be cleared using [disableTracingColdStart]. Otherwise, cold start tracing is enabled
+     * only for the first app start since enabling.
+     * While persistent mode reduces some overhead of setting up tracing, it recommended to use
+     * non-persistent mode as it does not pose the risk of leaving cold start tracing persistently
+     * enabled in case of a failure to clean-up with [disableTracingColdStart].
+     *
      * @param librarySource optional AAR or an APK containing `libtracing_perfetto.so`
      */
+    @JvmOverloads
     public fun enableTracingColdStart(
-        killAppProcess: () -> Unit,
-        librarySource: LibrarySource?
-    ): EnableTracingResponse {
+        persistent: Boolean = false,
+        librarySource: LibrarySource? = null
+    ): Response = safeExecute {
         // sideload the `libtracing_perfetto.so` file if applicable
         val libPath = librarySource?.run {
-            PerfettoSdkSideloader(targetPackage).sideloadFromZipFile(
-                libraryZip,
-                tempDirectory,
-                executeShellCommand,
-                moveLibFileFromTmpDirToAppDir
-            )
+            when (this) {
+                is LibrarySource.ZipLibrarySource -> {
+                    PerfettoSdkSideloader(targetPackage).sideloadFromZipFile(
+                        libraryZip,
+                        tempDirectory,
+                        executeShellCommand,
+                        moveLibFileFromTmpDirToAppDir
+                    )
+                }
+            }
         }
 
         // ensure a clean start (e.g. in case tracing is already enabled)
         killAppProcess()
 
         // verify (by performing a regular handshake) that we can enable tracing at app startup
-        val response = sendEnableTracingBroadcast(libPath, coldStart = true, persistent = false)
-        if (response.exitCode == ResponseExitCodes.RESULT_CODE_SUCCESS) {
+        val response = sendTracingBroadcast(
+            ACTION_ENABLE_TRACING_COLD_START,
+            libPath,
+            persistent = persistent
+        )
+        if (response.resultCode == ResponseResultCodes.RESULT_CODE_SUCCESS) {
             // terminate the app process (that we woke up by issuing a broadcast earlier)
             killAppProcess()
         }
 
-        return response
+        response
     }
 
-    private fun sendEnableTracingBroadcast(
+    /**
+     * Disables cold start tracing in the app if previously enabled by [enableTracingColdStart].
+     *
+     * No-op if cold start tracing was not enabled in the app, or if it was enabled in
+     * the non-`persistent` mode and the app has already been started at least once.
+     *
+     * The function initially enables the app process (if not already enabled), but leaves it in
+     * a terminated state after executing.
+     *
+     * @see [enableTracingColdStart]
+     */
+    public fun disableTracingColdStart(): Response = safeExecute {
+        sendTracingBroadcast(ACTION_DISABLE_TRACING_COLD_START).also {
+            killAppProcess()
+        }
+    }
+
+    private fun sendTracingBroadcast(
+        action: String,
         libPath: File? = null,
-        coldStart: Boolean,
         persistent: Boolean? = null
-    ): EnableTracingResponse {
-        val action = if (coldStart) ACTION_ENABLE_TRACING_COLD_START else ACTION_ENABLE_TRACING
+    ): Response {
         val commandBuilder = StringBuilder("am broadcast -a $action")
         if (persistent != null) commandBuilder.append(" --es $KEY_PERSISTENT $persistent")
         if (libPath != null) commandBuilder.append(" --es $KEY_PATH $libPath")
         commandBuilder.append(" $targetPackage/$RECEIVER_CLASS_NAME")
 
         val rawResponse = executeShellCommand(commandBuilder.toString())
-
-        val response = try {
+        return try {
             parseResponse(rawResponse)
-        } catch (e: IllegalArgumentException) {
-            val message = "Exception occurred while trying to parse a response." +
-                " Error: ${e.message}. Raw response: $rawResponse."
-            EnableTracingResponse(ResponseExitCodes.RESULT_CODE_ERROR_OTHER, null, message)
+        } catch (e: Exception) {
+            throw PerfettoSdkHandshakeException(
+                "Exception occurred while trying to parse a response." +
+                    " Error: ${e.message}. Raw response: $rawResponse."
+            )
         }
-        return response
     }
 
-    private fun parseResponse(rawResponse: String): EnableTracingResponse {
+    private fun parseResponse(rawResponse: String): Response {
         val line = rawResponse
             .split(Regex("\r?\n"))
             .firstOrNull { it.contains("Broadcast completed: result=") }
-            ?: throw IllegalArgumentException("Cannot parse: $rawResponse")
+            ?: throw PerfettoSdkHandshakeException("Cannot parse: $rawResponse")
 
-        if (line == "Broadcast completed: result=0") return EnableTracingResponse(
-            ResponseExitCodes.RESULT_CODE_CANCELLED, null, null
+        if (line == "Broadcast completed: result=0") return Response(
+            ResponseResultCodes.RESULT_CODE_CANCELLED, null, null
         )
 
         val matchResult =
             Regex("Broadcast completed: (result=.*?)(, data=\".*?\")?(, extras: .*)?")
                 .matchEntire(line)
-                ?: throw IllegalArgumentException("Cannot parse: $rawResponse")
+                ?: throw PerfettoSdkHandshakeException("Cannot parse: $rawResponse")
 
         val broadcastResponseCode = matchResult
             .groups[1]
@@ -152,41 +186,101 @@ public class PerfettoSdkHandshake(
             ?.value
             ?.substringAfter(", data=\"")
             ?.dropLast(1)
-            ?: throw IllegalArgumentException("Cannot parse: $rawResponse. " +
-                "Unable to detect 'data=' section."
+            ?: throw PerfettoSdkHandshakeException(
+                "Cannot parse: $rawResponse. " +
+                    "Unable to detect 'data=' section."
             )
 
         val dataMap = parseJsonMap(dataString)
-        val response = EnableTracingResponse(
-            dataMap[KEY_EXIT_CODE]?.toInt()
-                ?: throw IllegalArgumentException("Response missing $KEY_EXIT_CODE value"),
+        val response = Response(
+            dataMap[KEY_RESULT_CODE]?.toInt()
+                ?: throw PerfettoSdkHandshakeException("Response missing $KEY_RESULT_CODE value"),
             dataMap[KEY_REQUIRED_VERSION]
-                ?: throw IllegalArgumentException("Response missing $KEY_REQUIRED_VERSION value"),
+                ?: throw PerfettoSdkHandshakeException(
+                    "Response missing $KEY_REQUIRED_VERSION" +
+                        " value"
+                ),
             dataMap[KEY_MESSAGE]
         )
 
-        if (broadcastResponseCode != response.exitCode) {
-            throw IllegalStateException(
-                "Cannot parse: $rawResponse. Exit code " +
-                    "not matching broadcast exit code."
+        if (broadcastResponseCode != response.resultCode) {
+            throw PerfettoSdkHandshakeException(
+                "Cannot parse: $rawResponse. Result code not matching broadcast result code."
             )
         }
 
         return response
     }
 
-    /**
-    * @param libraryZip either an AAR or an APK containing `libtracing_perfetto.so`
-    * @param tempDirectory a directory directly accessible to the caller process (used for
-     * extraction of the binaries from the zip)
-    * @param moveLibFileFromTmpDirToAppDir a function capable of moving the binary file from
-    * the [tempDirectory] to an app accessible folder
-    */
-    // TODO(245426369): consider moving to a factory pattern for constructing these and refer to
-    //  this one as `aarLibrarySource` and `apkLibrarySource`
-    public class LibrarySource @Suppress("StreamFiles") constructor(
-        internal val libraryZip: File,
-        internal val tempDirectory: File,
-        internal val moveLibFileFromTmpDirToAppDir: FileMover
-    )
+    /** Executes provided [block] and wraps exceptions in an appropriate [Response] */
+    private fun safeExecute(block: () -> Response): Response = try {
+        block()
+    } catch (exception: Exception) {
+        Response(ResponseResultCodes.RESULT_CODE_ERROR_OTHER, null, exception.message)
+    }
+
+    private fun killAppProcess() {
+        // on a root session we can use `killall` which works on both system and user apps
+        // `am force-stop` only works on user apps
+        val isRootSession = executeShellCommand("id").contains("uid=0(root)")
+        val result = when (isRootSession) {
+            true -> executeShellCommand("killall $targetPackage")
+            else -> executeShellCommand("am force-stop $targetPackage")
+        }
+        if (result.isNotBlank() && !result.contains("No such process")) {
+            throw PerfettoSdkHandshakeException("Issue while trying to kill app process: $result")
+        }
+    }
+
+    /** Provides means to sideload Perfetto SDK native binaries */
+    public sealed class LibrarySource {
+        internal class ZipLibrarySource @Suppress("StreamFiles") constructor(
+            internal val libraryZip: File,
+            internal val tempDirectory: File,
+            internal val moveLibFileFromTmpDirToAppDir: FileMover
+        ) : LibrarySource()
+
+        public companion object {
+            /**
+             * Provides means to sideload Perfetto SDK native binaries with a library AAR used as
+             * a source
+             *
+             * @param aarFile an AAR file containing `libtracing_perfetto.so`
+             * @param tempDirectory a directory directly accessible to the caller process (used for
+             * extraction of the binaries from the zip)
+             * @param moveLibFileFromTmpDirToAppDir a function capable of moving the binary file
+             * from the [tempDirectory] to an app accessible folder
+             */
+            @Suppress("StreamFiles")
+            @JvmStatic
+            public fun aarLibrarySource(
+                aarFile: File,
+                tempDirectory: File,
+                moveLibFileFromTmpDirToAppDir: FileMover
+            ): LibrarySource =
+                ZipLibrarySource(aarFile, tempDirectory, moveLibFileFromTmpDirToAppDir)
+
+            /**
+             * Provides means to sideload Perfetto SDK native binaries with an APK containing
+             * the library used as a source
+             *
+             * @param apkFile an APK file containing `libtracing_perfetto.so`
+             * @param tempDirectory a directory directly accessible to the caller process (used for
+             * extraction of the binaries from the zip)
+             * @param moveLibFileFromTmpDirToAppDir a function capable of moving the binary file
+             * from the [tempDirectory] to an app accessible folder
+             */
+            @Suppress("StreamFiles")
+            @JvmStatic
+            public fun apkLibrarySource(
+                apkFile: File,
+                tempDirectory: File,
+                moveLibFileFromTmpDirToAppDir: FileMover
+            ): LibrarySource =
+                ZipLibrarySource(apkFile, tempDirectory, moveLibFileFromTmpDirToAppDir)
+        }
+    }
 }
+
+/** Internal exception class for issues specific to [PerfettoSdkHandshake] */
+private class PerfettoSdkHandshakeException(message: String) : Exception(message)

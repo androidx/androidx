@@ -77,9 +77,9 @@ fun FancyScrollingDemo() {
                     val decay = exponentialDecay<Float>()
                     val target = decay.calculateTargetValue(animScroll.value, velocity)
                     // Adjust the target position to center align the item
-                    var rem = target % itemWidth.value
+                    var rem = target % itemWidth.floatValue
                     if (rem < 0) {
-                        rem += itemWidth.value
+                        rem += itemWidth.floatValue
                     }
                     animScroll.animateTo(
                         targetValue = target - rem,
@@ -93,7 +93,7 @@ fun FancyScrollingDemo() {
         Canvas(modifier.fillMaxWidth().height(400.dp)) {
             val width = size.width / 2f
             val scroll = animScroll.value + width / 2
-            itemWidth.value = width
+            itemWidth.floatValue = width
             if (DEBUG) {
                 Log.w(
                     "Anim",

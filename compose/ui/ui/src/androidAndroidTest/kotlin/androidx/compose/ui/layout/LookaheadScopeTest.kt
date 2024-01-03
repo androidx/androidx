@@ -288,7 +288,7 @@ class LookaheadScopeTest {
     }
 
     @Test
-    fun nestedLookaheadLayoutTest() {
+    fun nestedLookaheadScopeTest() {
         var parentLookaheadMeasure = 0
         var childLookaheadMeasure = 0
         var parentLookaheadPlace = 0
@@ -550,7 +550,7 @@ class LookaheadScopeTest {
             assertEquals(0, measure)
             assertEquals(0, place)
 
-            // Switch to LookaheadLayout
+            // Switch to LookaheadScope
             controlGroupEnabled = !controlGroupEnabled
         }
 
@@ -1243,7 +1243,7 @@ class LookaheadScopeTest {
     }
 
     @Test
-    fun firstBaselineAlignmentInLookaheadLayout() {
+    fun firstBaselineAlignmentInLookaheadScope() {
         assertSameLayoutWithAndWithoutLookahead { modifier ->
             Box(modifier.fillMaxWidth()) {
                 Row {
@@ -2348,7 +2348,7 @@ class LookaheadScopeTest {
             if (enableControlGroup) {
                 Layout(measurePolicy = defaultMeasurePolicy, content = {
                     content(
-                        modifier = Modifier.trackSizeAndPosition(
+                        Modifier.trackSizeAndPosition(
                             controlGroupSizes,
                             controlGroupPositions,
                         )
@@ -2358,7 +2358,7 @@ class LookaheadScopeTest {
                 Layout(measurePolicy = defaultMeasurePolicy, content = {
                     LookaheadScope {
                         content(
-                            modifier = Modifier
+                            Modifier
                                 .trackSizeAndPosition(sizes, positions)
                                 .assertSameSizeAndPosition(this)
                         )

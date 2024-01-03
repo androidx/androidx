@@ -44,12 +44,12 @@ fun SimpleButtonSample() {
 fun ButtonSample() {
     Button(
         onClick = { /* Do something */ },
-        label = { Text("Button with icon") },
+        label = { Text("Button") },
         secondaryLabel = { Text("Secondary label") },
         icon = {
             Icon(
                 Icons.Filled.Favorite,
-                contentDescription = "Localized description",
+                contentDescription = "Favorite icon",
                 modifier = Modifier.size(ButtonDefaults.IconSize)
             )
         }
@@ -61,7 +61,7 @@ fun ButtonSample() {
 fun SimpleFilledTonalButtonSample() {
     FilledTonalButton(
         onClick = { /* Do something */ },
-        label = { Text("FilledTonalButton") }
+        label = { Text("Filled Tonal Button") }
     )
 }
 
@@ -70,12 +70,12 @@ fun SimpleFilledTonalButtonSample() {
 fun FilledTonalButtonSample() {
     FilledTonalButton(
         onClick = { /* Do something */ },
-        label = { Text("FilledTonalButton") },
+        label = { Text("Filled Tonal Button") },
         secondaryLabel = { Text("Secondary label") },
         icon = {
             Icon(
                 Icons.Filled.Favorite,
-                contentDescription = "Localized description",
+                contentDescription = "Favorite icon",
                 modifier = Modifier.size(ButtonDefaults.IconSize)
             )
         }
@@ -87,7 +87,7 @@ fun FilledTonalButtonSample() {
 fun SimpleOutlinedButtonSample() {
     OutlinedButton(
         onClick = { /* Do something */ },
-        label = { Text("OutlinedButton") }
+        label = { Text("Outlined Button") }
     )
 }
 
@@ -96,12 +96,12 @@ fun SimpleOutlinedButtonSample() {
 fun OutlinedButtonSample() {
     OutlinedButton(
         onClick = { /* Do something */ },
-        label = { Text("OutlinedButton") },
+        label = { Text("Outlined Button") },
         secondaryLabel = { Text("Secondary label") },
         icon = {
             Icon(
                 Icons.Filled.Favorite,
-                contentDescription = "Localized description",
+                contentDescription = "Favorite icon",
                 modifier = Modifier.size(ButtonDefaults.IconSize)
             )
         }
@@ -113,7 +113,7 @@ fun OutlinedButtonSample() {
 fun SimpleChildButtonSample() {
     ChildButton(
         onClick = { /* Do something */ },
-        label = { Text("ChildButton") }
+        label = { Text("Child Button") }
     )
 }
 
@@ -122,12 +122,12 @@ fun SimpleChildButtonSample() {
 fun ChildButtonSample() {
     ChildButton(
         onClick = { /* Do something */ },
-        label = { Text("ChildButton") },
+        label = { Text("Child Button") },
         secondaryLabel = { Text("Secondary label") },
         icon = {
             Icon(
                 Icons.Filled.Favorite,
-                contentDescription = "Localized description",
+                contentDescription = "Favorite icon",
                 modifier = Modifier.size(ButtonDefaults.IconSize)
             )
         }

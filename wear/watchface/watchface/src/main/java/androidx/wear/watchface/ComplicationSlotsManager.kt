@@ -80,11 +80,11 @@ public class ComplicationSlotsManager(
     /**
      * The [WatchState] of the associated watch face. This is only initialized after
      * [WatchFaceService.createComplicationSlotsManager] has completed.
-     *
-     * @hide
      */
     @VisibleForTesting
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @field:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public lateinit var watchState: WatchState
 
     internal lateinit var watchFaceHostApi: WatchFaceHostApi
@@ -127,8 +127,8 @@ public class ComplicationSlotsManager(
 
     private val complicationListeners = HashSet<TapCallback>()
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var configExtrasChangeCallback: WatchFace.ComplicationSlotConfigExtrasChangeCallback? =
         null
 

@@ -33,6 +33,7 @@ import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.core.internal.TargetConfig.OPTION_TARGET_NAME
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraCoordinator
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager
@@ -310,6 +311,24 @@ class UseCaseTest {
         assertThrows<IllegalArgumentException> {
             snapToSurfaceRotation(360)
         }
+    }
+
+    @Test
+    fun keepUseCaseTargetName_whenMergingConfigs() {
+        val targetName = "Fake-UseCase-TargetName"
+        val fakeUseCase = FakeUseCaseConfig.Builder().setTargetName(targetName).build()
+        val extendedConfig = FakeUseCaseConfig.Builder().apply {
+            mutableConfig.insertOption(OPTION_TARGET_NAME, "Extended-Config-TargetName")
+        }.useCaseConfig
+        val defaultConfig = FakeUseCaseConfig.Builder().apply {
+            mutableConfig.insertOption(OPTION_TARGET_NAME, "Default-Config-TargetName")
+        }.useCaseConfig
+        val mergedConfig = fakeUseCase.mergeConfigs(
+            FakeCameraInfoInternal(0, CameraSelector.LENS_FACING_BACK),
+            extendedConfig,
+            defaultConfig
+        )
+        assertThat(mergedConfig.targetName).isEqualTo(targetName)
     }
 
     private fun createFakeUseCase(

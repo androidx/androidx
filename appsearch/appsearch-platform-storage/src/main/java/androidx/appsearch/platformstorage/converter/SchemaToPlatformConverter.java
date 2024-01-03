@@ -24,7 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchSchema;
-import androidx.core.os.BuildCompat;
+import androidx.appsearch.app.Features;
 import androidx.core.util.Preconditions;
 
 import java.util.List;
@@ -43,9 +43,6 @@ public final class SchemaToPlatformConverter {
      * Translates a jetpack {@link AppSearchSchema} into a platform
      * {@link android.app.appsearch.AppSearchSchema}.
      */
-    // TODO(b/265311462): Remove BuildCompat.PrereleaseSdkCheck annotation once
-    //  toPlatformProperty() doesn't have it either.
-    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     public static android.app.appsearch.AppSearchSchema toPlatformSchema(
             @NonNull AppSearchSchema jetpackSchema) {
@@ -58,6 +55,11 @@ public final class SchemaToPlatformConverter {
                     toPlatformProperty(properties.get(i));
             platformBuilder.addProperty(platformProperty);
         }
+        if (!jetpackSchema.getParentTypes().isEmpty()) {
+            // TODO(b/269295094): Remove this once polymorphism becomes available.
+            throw new UnsupportedOperationException(Features.SCHEMA_ADD_PARENT_TYPE
+                    + " is not available on this AppSearch implementation.");
+        }
         return platformBuilder.build();
     }
 
@@ -65,9 +67,6 @@ public final class SchemaToPlatformConverter {
      * Translates a platform {@link android.app.appsearch.AppSearchSchema} to a jetpack
      * {@link AppSearchSchema}.
      */
-    // TODO(b/265311462): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
-    //  BuildCompat.isAtLeastU() is removed.
-    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     public static AppSearchSchema toJetpackSchema(
             @NonNull android.app.appsearch.AppSearchSchema platformSchema) {
@@ -80,15 +79,14 @@ public final class SchemaToPlatformConverter {
             AppSearchSchema.PropertyConfig jetpackProperty = toJetpackProperty(properties.get(i));
             jetpackBuilder.addProperty(jetpackProperty);
         }
+        // TODO(b/269295094): Call jetpackBuilder.addParentType() to add parent types once
+        //  polymorphism becomes available in platform.
         return jetpackBuilder.build();
     }
 
     // Most stringProperty.get calls cause WrongConstant lint errors because the methods are not
     // defined as returning the same constants as the corresponding setter expects, but they do
     @SuppressLint("WrongConstant")
-    // TODO(b/265311462): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
-    //  BuildCompat.isAtLeastU() is removed.
-    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     private static android.app.appsearch.AppSearchSchema.PropertyConfig toPlatformProperty(
             @NonNull AppSearchSchema.PropertyConfig jetpackProperty) {
@@ -110,7 +108,7 @@ public final class SchemaToPlatformConverter {
 
             if (stringProperty.getJoinableValueType()
                     == AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID) {
-                if (!BuildCompat.isAtLeastU()) {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                     throw new UnsupportedOperationException(
                         "StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID is not supported"
                                 + " on this AppSearch implementation.");
@@ -128,7 +126,7 @@ public final class SchemaToPlatformConverter {
                     .setCardinality(jetpackProperty.getCardinality());
             if (longProperty.getIndexingType()
                     == AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_RANGE) {
-                if (!BuildCompat.isAtLeastU()) {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                     throw new UnsupportedOperationException(
                         "LongProperty.INDEXING_TYPE_RANGE is not supported on this AppSearch "
                                 + "implementation.");
@@ -155,6 +153,13 @@ public final class SchemaToPlatformConverter {
         } else if (jetpackProperty instanceof AppSearchSchema.DocumentPropertyConfig) {
             AppSearchSchema.DocumentPropertyConfig documentProperty =
                     (AppSearchSchema.DocumentPropertyConfig) jetpackProperty;
+            if (!documentProperty.getIndexableNestedProperties().isEmpty()) {
+                // TODO(b/289150947): Update and set list once indexable-nested-properties-list is
+                //  available.
+                throw new UnsupportedOperationException(
+                        "DocumentPropertyConfig.addIndexableNestedProperties is not supported on "
+                                + "this AppSearch implementation.");
+            }
             return new android.app.appsearch.AppSearchSchema.DocumentPropertyConfig.Builder(
                     documentProperty.getName(), documentProperty.getSchemaType())
                     .setCardinality(documentProperty.getCardinality())
@@ -169,9 +174,6 @@ public final class SchemaToPlatformConverter {
     // Most stringProperty.get calls cause WrongConstant lint errors because the methods are not
     // defined as returning the same constants as the corresponding setter expects, but they do
     @SuppressLint("WrongConstant")
-    // TODO(b/265311462): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
-    //  BuildCompat.isAtLeastU() is removed.
-    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     private static AppSearchSchema.PropertyConfig toJetpackProperty(
             @NonNull android.app.appsearch.AppSearchSchema.PropertyConfig platformProperty) {
@@ -185,7 +187,7 @@ public final class SchemaToPlatformConverter {
                             .setCardinality(stringProperty.getCardinality())
                             .setIndexingType(stringProperty.getIndexingType())
                             .setTokenizerType(stringProperty.getTokenizerType());
-            if (BuildCompat.isAtLeastU()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 jetpackBuilder.setJoinableValueType(
                         ApiHelperForU.getJoinableValueType(stringProperty));
             }
@@ -197,7 +199,7 @@ public final class SchemaToPlatformConverter {
             AppSearchSchema.LongPropertyConfig.Builder jetpackBuilder =
                     new AppSearchSchema.LongPropertyConfig.Builder(longProperty.getName())
                             .setCardinality(longProperty.getCardinality());
-            if (BuildCompat.isAtLeastU()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 jetpackBuilder.setIndexingType(
                         ApiHelperForU.getIndexingType(longProperty));
             }
@@ -227,6 +229,8 @@ public final class SchemaToPlatformConverter {
                     .setCardinality(documentProperty.getCardinality())
                     .setShouldIndexNestedProperties(documentProperty.shouldIndexNestedProperties())
                     .build();
+            // TODO(b/289150947): Add the indexable_nested_properties_list once it becomes
+            //  available in platform.
         } else {
             throw new IllegalArgumentException(
                     "Invalid property type " + platformProperty.getClass()
@@ -234,9 +238,7 @@ public final class SchemaToPlatformConverter {
         }
     }
 
-    // TODO(b/265311462): Replace literal '34' with Build.VERSION_CODES.UPSIDE_DOWN_CAKE when the
-    // SDK_INT is finalized.
-    @RequiresApi(34)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     private static class ApiHelperForU {
         private ApiHelperForU() {
             // This class is not instantiable.

@@ -106,7 +106,7 @@ class SurfaceControlWrapperTest {
         var mCallbackTime = -1L
         var mLatch = CountDownLatch(1)
 
-        override fun onTransactionCompleted() {
+        override fun onTransactionCompleted(transactionStats: Long) {
             mCallbackTime = SystemClock.elapsedRealtime()
             mLatch.countDown()
         }

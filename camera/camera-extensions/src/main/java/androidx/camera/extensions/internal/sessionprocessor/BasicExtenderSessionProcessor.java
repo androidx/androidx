@@ -647,4 +647,14 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
 
         return captureSequenceId;
     }
+
+    @Nullable
+    @Override
+    public Pair<Long, Long> getRealtimeCaptureLatency() {
+        if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
+                && ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)) {
+            return mImageCaptureExtenderImpl.getRealtimeCaptureLatency();
+        }
+        return null;
+    }
 }

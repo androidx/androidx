@@ -180,6 +180,10 @@ internal class JniBindings {
         @JniVisible
         external fun nGetDisplayOrientation(): String
 
+        @JvmStatic
+        @JniVisible
+        external fun nGetPreviousReleaseFenceFd(surfaceControl: Long, transactionStats: Long): Int
+
         init {
             System.loadLibrary("graphics-core")
         }
@@ -216,7 +220,7 @@ internal class SurfaceControlWrapper {
         }
     }
 
-    private var mNativeSurfaceControl: Long = 0
+    internal var mNativeSurfaceControl: Long = 0
 
     /**
      * Compatibility class for ASurfaceTransaction.

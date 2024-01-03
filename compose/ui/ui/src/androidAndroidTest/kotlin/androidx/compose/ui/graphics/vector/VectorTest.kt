@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
@@ -40,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.AtLeastSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.background
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
@@ -187,6 +189,26 @@ class VectorTest {
         takeScreenShot(size).apply {
             assertEquals(Color.White.toArgb(), getPixel(5, size - 5))
             assertEquals(Color.Red.toArgb(), getPixel(size - 5, 5))
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testVectorRendersOnceOnFirstFrame() {
+        var drawCount = 0
+        val testTag = "TestTag"
+        rule.setContent {
+            Box(modifier = Modifier
+                .wrapContentSize()
+                .drawBehind {
+                    drawCount++
+                }
+                .paint(painterResource(R.drawable.ic_triangle2))
+                .testTag(testTag))
+        }
+
+        rule.onNodeWithTag(testTag).captureToImage().toPixelMap().apply {
+            assertEquals(1, drawCount)
         }
     }
 
@@ -521,6 +543,25 @@ class VectorTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testVectorStrokeWidth() {
+        val strokeWidth = mutableStateOf(100)
+        rule.setContent {
+            VectorStroke(strokeWidth = strokeWidth.value)
+        }
+        takeScreenShot(200).apply {
+            assertEquals(Color.Yellow.toArgb(), getPixel(100, 25))
+            assertEquals(Color.Blue.toArgb(), getPixel(100, 75))
+        }
+        rule.runOnUiThread { strokeWidth.value = 200 }
+        rule.waitForIdle()
+        takeScreenShot(200).apply {
+            assertEquals(Color.Yellow.toArgb(), getPixel(100, 25))
+            assertEquals(Color.Yellow.toArgb(), getPixel(100, 75))
+        }
+    }
+
     @Composable
     private fun VectorTint(
         size: Int = 200,
@@ -650,6 +691,47 @@ class VectorTest {
                     trimPathStart = 0.25f,
                     trimPathEnd = 0.75f,
                     trimPathOffset = 0.5f
+                )
+            },
+            alignment = alignment
+        )
+        AtLeastSize(size = minimumSize, modifier = background) {
+        }
+    }
+
+    @Composable
+    private fun VectorStroke(
+        size: Int = 200,
+        strokeWidth: Int = 100,
+        minimumSize: Int = size,
+        alignment: Alignment = Alignment.Center
+    ) {
+        val sizePx = size.toFloat()
+        val sizeDp = (size / LocalDensity.current.density).dp
+        val strokeWidthPx = strokeWidth.toFloat()
+        val background = Modifier.paint(
+            rememberVectorPainter(
+                defaultWidth = sizeDp,
+                defaultHeight = sizeDp,
+                autoMirror = false
+            ) { _, _ ->
+                Path(
+                    pathData = PathData {
+                        lineTo(sizePx, 0.0f)
+                        lineTo(sizePx, sizePx)
+                        lineTo(0.0f, sizePx)
+                        close()
+                    },
+                    fill = SolidColor(Color.Blue)
+                )
+                // A thick stroke
+                Path(
+                    pathData = PathData {
+                        moveTo(0.0f, 0.0f)
+                        lineTo(sizePx, 0.0f)
+                    },
+                    stroke = SolidColor(Color.Yellow),
+                    strokeLineWidth = strokeWidthPx,
                 )
             },
             alignment = alignment

@@ -18,7 +18,6 @@ package androidx.credentials.provider.ui
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import androidx.core.os.BuildCompat
 import androidx.credentials.provider.Action
 import androidx.credentials.provider.Action.Companion.fromSlice
 import androidx.test.core.app.ApplicationProvider
@@ -33,7 +32,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-@SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
 class ActionTest {
     private val mContext = ApplicationProvider.getApplicationContext<Context>()
     private val mIntent = Intent()
@@ -42,14 +40,9 @@ class ActionTest {
 
     @Test
     fun constructor_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val action = Action(TITLE, mPendingIntent, SUBTITLE)
-        val slice = Action.toSlice(action)
 
         assertNotNull(action)
-        assertNotNull(slice)
         assertThat(TITLE == action.title)
         assertThat(SUBTITLE == action.subtitle)
         assertThat(mPendingIntent === action.pendingIntent)
@@ -57,9 +50,6 @@ class ActionTest {
 
     @Test
     fun constructor_emptyTitle_throwsIllegalArgumentException() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         Assert.assertThrows(
             "Expected empty title to throw IllegalArgumentException",
             IllegalArgumentException::class.java
@@ -67,10 +57,8 @@ class ActionTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 28)
     fun fromSlice_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val originalAction = Action(TITLE, mPendingIntent, SUBTITLE)
         val slice = Action.toSlice(originalAction)
 

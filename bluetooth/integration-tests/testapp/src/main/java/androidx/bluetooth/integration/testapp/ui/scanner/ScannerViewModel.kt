@@ -16,10 +16,8 @@
 
 package androidx.bluetooth.integration.testapp.ui.scanner
 
-// TODO(ofy) Migrate to androidx.bluetooth.BluetoothDevice
-// TODO(ofy) Migrate to androidx.bluetooth.ScanResult once in place
-import android.bluetooth.BluetoothDevice
-import android.bluetooth.le.ScanResult
+import androidx.bluetooth.BluetoothDevice
+import androidx.bluetooth.ScanResult
 import androidx.bluetooth.integration.testapp.data.connection.DeviceConnection
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

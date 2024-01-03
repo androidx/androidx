@@ -169,12 +169,26 @@ private object JvmDescriptorTypeVisitor : AbstractTypeVisitor8<String, Any?>() {
                     NestingKind.MEMBER, NestingKind.LOCAL ->
                         enclosingElement.internalName + "$" + simpleName
                     NestingKind.ANONYMOUS ->
-                        error("Unsupported nesting $nestingKind")
+                        elementError("Unsupported nesting $nestingKind", this)
                     else ->
-                        error("Unsupported, nestingKind == null")
+                        elementError("Unsupported, nestingKind == null", this)
                 }
             is ExecutableElement -> enclosingElement.internalName
             is QualifiedNameable -> qualifiedName.toString().replace('.', '/')
             else -> simpleName.toString()
         }
+
+    /**
+     * Throws an exception with the error [msg] and the [element] and its enclosing elements appended.
+     */
+    private fun elementError(msg: String, element: Element): Nothing {
+        fun buildName(element: Element): String {
+            val enclosingPart =
+                element.enclosingElement?.let { buildName(it) + "." } ?: ""
+            val simpleName = element.simpleName.ifEmpty { "<unnamed>" }
+            return enclosingPart + simpleName
+        }
+        val name = buildName(element)
+        error("$msg - On element $name")
+    }
 }

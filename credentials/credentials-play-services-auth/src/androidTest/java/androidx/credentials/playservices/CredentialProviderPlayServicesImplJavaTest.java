@@ -21,7 +21,8 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import androidx.core.os.BuildCompat;
+import android.os.Build;
+
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
@@ -40,7 +41,7 @@ public class CredentialProviderPlayServicesImplJavaTest {
     @Test
     @SdkSuppress(maxSdkVersion = 33)
     public void isAvailableOnDevice_apiSuccess_returnsTrue() {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return; // Wait until Mockito fixes 'mock' for API 34
         }
         ActivityScenario<TestCredentialsActivity> activityScenario =
@@ -63,7 +64,7 @@ public class CredentialProviderPlayServicesImplJavaTest {
     @Test
     @SdkSuppress(maxSdkVersion = 33)
     public void isAvailableOnDevice_apiNotSuccess_returnsFalse() {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return; // Wait until Mockito fixes 'mock' for API 34
         }
         ActivityScenario<TestCredentialsActivity> activityScenario =

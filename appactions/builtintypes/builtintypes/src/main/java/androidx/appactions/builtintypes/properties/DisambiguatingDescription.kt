@@ -13,6 +13,7 @@
 // limitations under the License.
 package androidx.appactions.builtintypes.properties
 
+import androidx.appsearch.`annotation`.Document
 import java.util.Objects
 import kotlin.Any
 import kotlin.Boolean
@@ -26,7 +27,7 @@ import kotlin.jvm.JvmName
  * similar items. Information from other properties (in particular, name) may be necessary for the
  * description to be useful for disambiguation.
  *
- * See http://schema.org/disambiguatingDescription for context.
+ * See https://schema.org/disambiguatingDescription for context.
  *
  * Holds one of:
  * * Text i.e. [String]
@@ -34,10 +35,11 @@ import kotlin.jvm.JvmName
  *
  * May hold more types over time.
  */
+@Document(name = "bitprop:DisambiguatingDescription")
 public class DisambiguatingDescription
 internal constructor(
   /** The [String] variant, or null if constructed using a different variant. */
-  @get:JvmName("asText") public val asText: String? = null,
+  @get:JvmName("asText") @Document.StringProperty public val asText: String? = null,
   /** The [CanonicalValue] variant, or null if constructed using a different variant. */
   @get:JvmName("asCanonicalValue") public val asCanonicalValue: CanonicalValue? = null,
   /**
@@ -46,7 +48,7 @@ internal constructor(
    * Every AppSearch document needs an identifier. Since property wrappers are only meant to be used
    * at nested levels, this is internal and will always be an empty string.
    */
-  internal val identifier: String = "",
+  @Document.Id internal val identifier: String = "",
 ) {
   /** Constructor for the [String] variant. */
   public constructor(text: String) : this(asText = text)

@@ -15,6 +15,7 @@
  */
 package androidx.compose.material
 
+import androidx.annotation.FloatRange
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Column
@@ -186,7 +187,7 @@ class BottomSheetState @Deprecated(
      * The fraction of the progress, within [0f..1f] bounds, or 1f if the [AnchoredDraggableState]
      * is in a settled state.
      */
-    /*@FloatRange(from = 0f, to = 1f)*/
+    @get:FloatRange(from = 0.0, to = 1.0)
     @ExperimentalMaterialApi
     val progress: Float
         get() = anchoredDraggableState.progress
@@ -437,11 +438,9 @@ fun BottomSheetScaffold(
     content: @Composable (PaddingValues) -> Unit
 ) {
     // b/278692145 Remove this once deprecated methods without density are removed
-    if (scaffoldState.bottomSheetState.density == null) {
-        val density = LocalDensity.current
-        SideEffect {
-            scaffoldState.bottomSheetState.density = density
-        }
+    val density = LocalDensity.current
+    SideEffect {
+        scaffoldState.bottomSheetState.density = density
     }
 
     val peekHeightPx = with(LocalDensity.current) { sheetPeekHeight.toPx() }
@@ -632,6 +631,7 @@ private fun BottomSheetScaffoldLayout(
         val fabWidth = fabPlaceable?.fastMaxBy { it.width }?.width ?: 0
         val fabHeight = fabPlaceable?.fastMaxBy { it.height }?.height ?: 0
         val fabOffsetX = when (floatingActionButtonPosition) {
+            FabPosition.Start -> FabSpacing.roundToPx()
             FabPosition.Center -> (layoutWidth - fabWidth) / 2
             else -> layoutWidth - fabWidth - FabSpacing.roundToPx()
         }

@@ -17,17 +17,20 @@
 package androidx.window.core
 
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import androidx.window.core.VerificationMode.LOG
 import androidx.window.extensions.WindowExtensionsProvider
 
 internal object ExtensionsUtil {
 
     private val TAG = ExtensionsUtil::class.simpleName
+    private var overrideVendorApiLevel: Int? = null
 
     val safeVendorApiLevel: Int
         get() {
             return try {
-                WindowExtensionsProvider.getWindowExtensions().vendorApiLevel
+                overrideVendorApiLevel
+                    ?: WindowExtensionsProvider.getWindowExtensions().vendorApiLevel
             } catch (e: NoClassDefFoundError) {
                 if (BuildConfig.verificationMode == LOG) {
                     Log.d(TAG, "Embedding extension version not found")
@@ -40,4 +43,14 @@ internal object ExtensionsUtil {
                 0
             }
         }
+
+    @VisibleForTesting
+    internal fun setOverrideVendorApiLevel(apiLevel: Int) {
+        overrideVendorApiLevel = apiLevel
+    }
+
+    @VisibleForTesting
+    internal fun resetOverrideVendorApiLevel() {
+        overrideVendorApiLevel = null
+    }
 }

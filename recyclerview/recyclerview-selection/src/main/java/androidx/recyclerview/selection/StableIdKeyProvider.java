@@ -151,7 +151,7 @@ public final class StableIdKeyProvider extends ItemKeyProvider<Long> {
      * A wrapper interface for RecyclerView allowing for easy unit testing.
      */
     interface ViewHost {
-        /** Registers View{Holder} lifecycle event listener. **/
+        /** Registers View{Holder} lifecycle event listener. */
         void registerLifecycleListener(@NonNull LifecycleListener listener);
 
         /**

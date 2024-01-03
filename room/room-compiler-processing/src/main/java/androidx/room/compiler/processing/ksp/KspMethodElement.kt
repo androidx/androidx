@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XMethodType
@@ -33,7 +34,13 @@ internal sealed class KspMethodElement(
     env: KspProcessingEnv,
     declaration: KSFunctionDeclaration,
     val isSyntheticStatic: Boolean
-) : KspExecutableElement(env, declaration), XMethodElement {
+) : KspExecutableElement(env, declaration),
+    XAnnotated by KspAnnotated.create(
+        env = env,
+        delegate = declaration,
+        filter = KspAnnotated.UseSiteFilter.NO_USE_SITE_OR_METHOD
+    ),
+    XMethodElement {
 
     override val name: String
         get() = declaration.simpleName.asString()

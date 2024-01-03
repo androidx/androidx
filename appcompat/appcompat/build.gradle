@@ -29,9 +29,6 @@ dependencies {
     implementation("androidx.resourceinspection:resourceinspection-annotation:1.0.1")
     api("androidx.savedstate:savedstate:1.2.1")
 
-    // Due to experimental annotations used in core.
-    compileOnly(libs.kotlinStdlib)
-
     kapt("androidx.resourceinspection:resourceinspection-processor:1.0.1")
 
     androidTestImplementation(libs.kotlinStdlib)

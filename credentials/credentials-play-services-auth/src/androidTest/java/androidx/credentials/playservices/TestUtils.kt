@@ -38,7 +38,6 @@ class TestUtils {
         }
 
         /**
-         * // TODO remove this or modify so it has forced checks.
          * Given a superset and a subset json, this figures out if the subset can be found
          * within the superset by recursively checking for values that exist in the subset
          * also existing in the superset in the same format. Note this means that the superset
@@ -91,8 +90,6 @@ class TestUtils {
                     if (!superSet.containsAll(subSet)) {
                         return false
                     }
-                    // TODO("For specific sequences, place into a treeset (sorted by specific
-                    // TODO("required identifiers) and compare subset to superset"))
                 } else {
                     if (!values.equals(superValues)) {
                         return false

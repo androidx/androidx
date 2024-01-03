@@ -23,7 +23,6 @@ import static org.junit.Assert.assertThrows;
 import android.content.pm.SigningInfo;
 import android.os.Bundle;
 
-import androidx.core.os.BuildCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -34,26 +33,18 @@ import org.junit.runner.RunWith;
 import java.util.Collections;
 import java.util.List;
 
-@SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
+@SdkSuppress(minSdkVersion = 28)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class BeginGetCredentialRequestJavaTest {
 
     @Test
     public void constructor_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
-
         new BeginGetCredentialRequest(Collections.emptyList(), null);
     }
 
     @Test
     public void constructor_nullList_throws() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
-
         assertThrows("Expected null list to throw NPE",
                 NullPointerException.class,
                 () -> new BeginGetCredentialRequest(null,
@@ -64,9 +55,6 @@ public class BeginGetCredentialRequestJavaTest {
 
     @Test
     public void getter_beginGetCredentialOptions() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         String expectedKey = "query";
         String expectedValue = "data";
         Bundle expectedBundle = new Bundle();
@@ -98,9 +86,6 @@ public class BeginGetCredentialRequestJavaTest {
 
     @Test
     public void getter_nullCallingAppInfo() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         CallingAppInfo expectedCallingAppInfo = null;
 
         BeginGetCredentialRequest beginGetCredentialRequest =
@@ -113,9 +98,6 @@ public class BeginGetCredentialRequestJavaTest {
 
     @Test
     public void getter_nonNullCallingAppInfo() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         String expectedPackageName = "john.wick.four.credentials";
         CallingAppInfo expectedCallingAppInfo = new CallingAppInfo(expectedPackageName,
                 new SigningInfo());

@@ -20,7 +20,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Icon
-import androidx.core.os.BuildCompat
 import androidx.credentials.provider.CreateEntry
 import androidx.credentials.provider.CreateEntry.Companion.fromSlice
 import androidx.test.core.app.ApplicationProvider
@@ -36,8 +35,8 @@ import org.junit.Assert.assertNull
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 26)
 @SmallTest
 class CreateEntryTest {
     private val mContext = ApplicationProvider.getApplicationContext<Context>()
@@ -49,9 +48,6 @@ class CreateEntryTest {
 
     @Test
     fun constructor_success_autoSelectDefaultFalse() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val entry = constructEntryWithRequiredParams()
 
         assertNotNull(entry)
@@ -66,9 +62,6 @@ class CreateEntryTest {
 
     @Test
     fun constructor_requiredParameters_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val entry = constructEntryWithRequiredParams()
 
         assertNotNull(entry)
@@ -82,9 +75,6 @@ class CreateEntryTest {
 
     @Test
     fun constructor_allParameters_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val entry = constructEntryWithAllParams()
 
         assertNotNull(entry)
@@ -93,9 +83,6 @@ class CreateEntryTest {
 
     @Test
     fun constructor_emptyAccountName_throwsIAE() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         Assert.assertThrows(
             "Expected empty account name to throw NPE",
             IllegalArgumentException::class.java
@@ -107,13 +94,15 @@ class CreateEntryTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 28)
     fun fromSlice_requiredParams_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val originalEntry = constructEntryWithRequiredParams()
 
-        val entry = fromSlice(CreateEntry.toSlice(originalEntry))
+        val slice = CreateEntry.toSlice(originalEntry)
+
+        assertNotNull(slice)
+
+        val entry = fromSlice(CreateEntry.toSlice(originalEntry)!!)
 
         assertNotNull(entry)
         entry?.let {
@@ -122,13 +111,15 @@ class CreateEntryTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 28)
     fun fromSlice_allParams_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val originalEntry = constructEntryWithAllParams()
 
-        val entry = fromSlice(CreateEntry.toSlice(originalEntry))
+        val slice = CreateEntry.toSlice(originalEntry)
+
+        assertNotNull(slice)
+
+        val entry = fromSlice(slice!!)
 
         assertNotNull(entry)
         entry?.let {

@@ -69,15 +69,17 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
         internal fun maybeRegisterForMerge(
             project: Project,
             variantName: String,
+            mergeAwareTaskName: String,
             hasDependencies: Boolean = false,
             library: Boolean,
             sourceProfilesFileCollection: FileCollection,
             outputDir: Provider<Directory>,
             filterRules: List<Pair<RuleType, String>> = listOf(),
+            isLastTask: Boolean
         ): TaskProvider<MergeBaselineProfileTask> {
             return project
                 .tasks
-                .maybeRegister(MERGE_TASK_NAME, variantName, TASK_NAME_SUFFIX) { task ->
+                .maybeRegister(MERGE_TASK_NAME, mergeAwareTaskName, TASK_NAME_SUFFIX) { task ->
 
                     // Sets whether or not baseline profile dependencies have been set.
                     // If they haven't, the task will fail at execution time.
@@ -103,32 +105,49 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
                     // Sets whether this task has been configured for a library. In this case,
                     // startup profiles are not handled.
                     task.library.set(library)
+
+                    // Determines whether this is the last task to be executed. This flag is used
+                    // exclusively for logging purposes.
+                    task.lastTask.set(isLastTask)
                 }
         }
 
         internal fun maybeRegisterForCopy(
             project: Project,
             variantName: String,
+            mergeAwareTaskName: String,
             library: Boolean,
             sourceDir: Provider<Directory>,
             outputDir: Provider<Directory>,
+            isLastTask: Boolean
         ): TaskProvider<MergeBaselineProfileTask> {
             return project
                 .tasks
-                .maybeRegister(COPY_TASK_NAME, variantName, "baselineProfileIntoSrc") { task ->
+                .maybeRegister(
+                    COPY_TASK_NAME,
+                    mergeAwareTaskName,
+                    "baselineProfileIntoSrc"
+                ) { task ->
                     task.baselineProfileFileCollection.from.add(sourceDir)
                     task.baselineProfileDir.set(outputDir)
                     task.library.set(library)
+                    task.variantName.set(variantName)
+
+                    // Determines whether this is the last task to be executed. This flag is used
+                    // exclusively for logging purposes.
+                    task.lastTask.set(isLastTask)
                 }
         }
     }
 
-    @get: Input
-    @get: Optional
+    @get:Input
     abstract val variantName: Property<String>
 
-    @get: Input
-    @get: Optional
+    @get:Input
+    abstract val lastTask: Property<Boolean>
+
+    @get:Input
+    @get:Optional
     abstract val hasDependencies: Property<Boolean>
 
     @get: Input
@@ -236,6 +255,14 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
                 delete()
                 if (filteredProfileRules.isNotEmpty()) {
                     writeText(filteredProfileRules.joinToString(System.lineSeparator()))
+                    if (lastTask.get()) {
+                        logger.warn(
+                            """
+                            A baseline profile was generated for the variant `${variantName.get()}`:
+                            $absolutePath
+                        """.trimIndent()
+                        )
+                    }
                 }
             }
 
@@ -278,6 +305,14 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
                 delete()
                 if (sortedProfileRules.isNotEmpty()) {
                     writeText(sortedProfileRules.joinToString(System.lineSeparator()))
+                    if (lastTask.get()) {
+                        logger.warn(
+                            """
+                            A startup profile was generated for the variant `${variantName.get()}`:
+                            $absolutePath
+                        """.trimIndent()
+                        )
+                    }
                 }
             }
     }

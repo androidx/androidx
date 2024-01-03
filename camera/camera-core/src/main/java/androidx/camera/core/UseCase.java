@@ -19,6 +19,7 @@ package androidx.camera.core;
 import static androidx.camera.core.MirrorMode.MIRROR_MODE_OFF;
 import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON;
 import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY;
+import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MAX_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_RESOLUTION;
@@ -226,15 +227,21 @@ public abstract class UseCase {
             }
         }
 
+        // Removes the default max resolution setting if application sets any ResolutionStrategy
+        // to override it.
+        if (mUseCaseConfig.containsOption(OPTION_RESOLUTION_SELECTOR)
+                && mergedConfig.containsOption(OPTION_MAX_RESOLUTION)) {
+            ResolutionSelector resolutionSelector =
+                    mUseCaseConfig.retrieveOption(OPTION_RESOLUTION_SELECTOR);
+            if (resolutionSelector.getResolutionStrategy() != null) {
+                mergedConfig.removeOption(OPTION_MAX_RESOLUTION);
+            }
+        }
+
         // If any options need special handling, this is the place to do it. For now we'll just copy
         // over all options.
         for (Option<?> opt : mUseCaseConfig.listOptions()) {
-            @SuppressWarnings("unchecked") // Options/values are being copied directly
-            Option<Object> objectOpt = (Option<Object>) opt;
-
-            mergedConfig.insertOption(objectOpt,
-                    mUseCaseConfig.getOptionPriority(opt),
-                    mUseCaseConfig.retrieveOption(objectOpt));
+            Config.mergeOptionValue(mergedConfig, mergedConfig, mUseCaseConfig, opt);
         }
 
         if (extendedConfig != null) {
@@ -246,9 +253,7 @@ public abstract class UseCase {
                 if (objectOpt.getId().equals(TargetConfig.OPTION_TARGET_NAME.getId())) {
                     continue;
                 }
-                mergedConfig.insertOption(objectOpt,
-                        extendedConfig.getOptionPriority(opt),
-                        extendedConfig.retrieveOption(objectOpt));
+                Config.mergeOptionValue(mergedConfig, mergedConfig, extendedConfig, opt);
             }
         }
 

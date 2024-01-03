@@ -201,6 +201,8 @@ class StillCaptureRequestTest {
     @Test
     fun captureRequestsFailWithCaptureFailedError_onFailed(): Unit = runTest(testDispatcher) {
         val requestFuture = stillCaptureRequestControl.issueCaptureRequests()
+        val fakeRequestMetadata = FakeRequestMetadata()
+        val frameNumber = FrameNumber(0)
 
         advanceUntilIdle()
         assumeTrue(fakeCameraGraphSession.submittedRequests.size == captureConfigList.size)
@@ -209,9 +211,15 @@ class StillCaptureRequestTest {
             request.listeners.forEach { listener ->
                 @Suppress("DEPRECATION")
                 listener.onFailed(
-                    FakeRequestMetadata(),
-                    FrameNumber(0),
-                    createCaptureFailure()
+                    fakeRequestMetadata,
+                    frameNumber,
+                    FakeCaptureFailure(
+                        fakeRequestMetadata,
+                        false,
+                        frameNumber,
+                        CaptureFailure.REASON_ERROR,
+                        null
+                    )
                 )
             }
         }
@@ -412,13 +420,6 @@ class StillCaptureRequestTest {
             assertThat((cause as ImageCaptureException).imageCaptureError)
                 .isEqualTo(ImageCapture.ERROR_CAMERA_CLOSED)
         }
-    }
-
-    private fun createCaptureFailure(): CaptureFailure {
-        val c = Class.forName("android.hardware.camera2.CaptureFailure")
-        val constructor = c.getDeclaredConstructor()
-        constructor.isAccessible = true
-        return constructor.newInstance() as CaptureFailure
     }
 
     private fun initUseCaseCameraScopeObjects() {

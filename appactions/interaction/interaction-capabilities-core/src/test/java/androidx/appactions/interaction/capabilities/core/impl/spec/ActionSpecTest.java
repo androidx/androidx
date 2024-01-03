@@ -54,14 +54,17 @@ public final class ActionSpecTest {
                     .setOutput(Output.class)
                     .bindParameter(
                             "requiredString",
+                            Arguments::getRequiredStringField,
                             Arguments.Builder::setRequiredStringField,
                             TypeConverters.STRING_PARAM_VALUE_CONVERTER)
                     .bindParameter(
                             "optionalString",
+                            Arguments::getOptionalStringField,
                             Arguments.Builder::setOptionalStringField,
                             TypeConverters.STRING_PARAM_VALUE_CONVERTER)
                     .bindRepeatedParameter(
                             "repeatedString",
+                            Arguments::getRepeatedStringField,
                             Arguments.Builder::setRepeatedStringField,
                             TypeConverters.STRING_PARAM_VALUE_CONVERTER)
                     .bindOutput(
@@ -112,14 +115,17 @@ public final class ActionSpecTest {
                     .setOutput(Output.class)
                     .bindParameter(
                             "requiredEntity",
+                            GenericEntityArguments::getSingularField,
                             GenericEntityArguments.Builder::setSingularField,
                             TEST_ENTITY_PARAM_VALUE_CONVERTER)
                     .bindParameter(
                             "optionalEntity",
+                            GenericEntityArguments::getOptionalField,
                             GenericEntityArguments.Builder::setOptionalField,
                             TEST_ENTITY_PARAM_VALUE_CONVERTER)
                     .bindRepeatedParameter(
                             "repeatedEntities",
+                            GenericEntityArguments::getRepeatedField,
                             GenericEntityArguments.Builder::setRepeatedField,
                             TEST_ENTITY_PARAM_VALUE_CONVERTER)
                     .build();

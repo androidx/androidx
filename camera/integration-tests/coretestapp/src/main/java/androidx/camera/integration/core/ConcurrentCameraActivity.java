@@ -123,7 +123,6 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
                 mIsConcurrentModeOn = true;
             }
             mLayoutButton.setEnabled(mCameraProvider != null && mIsConcurrentModeOn);
-            mToggleButton.setEnabled(mCameraProvider != null && mIsConcurrentModeOn);
         });
         mLayoutButton.setOnClickListener(view -> {
             if (mIsLayoutPiP) {

@@ -317,8 +317,6 @@ private fun stackSamplingSource(
  * Config for perfetto.
  *
  * Eventually, this should be more configurable.
- *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal fun perfettoConfig(

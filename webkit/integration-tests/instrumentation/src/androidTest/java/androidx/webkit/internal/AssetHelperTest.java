@@ -35,6 +35,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.FileNameMap;
+import java.net.URLConnection;
 
 @RunWith(AndroidJUnit4.class)
 public class AssetHelperTest {
@@ -43,6 +45,7 @@ public class AssetHelperTest {
     private static final String TEST_STRING = "Just a test";
     private AssetHelper mAssetHelper;
     private File mInternalStorageTestDir;
+    private FileNameMap mDefaultFileNameMap;
 
     @Before
     public void setup() {
@@ -50,11 +53,13 @@ public class AssetHelperTest {
         mAssetHelper = new AssetHelper(context);
         mInternalStorageTestDir = new File(context.getFilesDir(), "test_dir");
         mInternalStorageTestDir.mkdirs();
+        mDefaultFileNameMap = URLConnection.getFileNameMap();
     }
 
     @After
     public void tearDown() {
         WebkitUtils.recursivelyDeleteFile(mInternalStorageTestDir);
+        URLConnection.setFileNameMap(mDefaultFileNameMap);
     }
 
     @Test
@@ -218,6 +223,48 @@ public class AssetHelperTest {
             if (svgStream != null) svgStream.close();
             if (svgzStream != null) svgzStream.close();
         }
+    }
+
+    @Test
+    @SmallTest
+    public void testGuessMimeType() {
+        // First check the OS
+        Assert.assertEquals("text/plain", AssetHelper.guessMimeType("aFile.txt"));
+
+        // Then check the first item in our list
+        Assert.assertEquals("video/webm", AssetHelper.guessMimeType("AVideoFile.webm"));
+        // A random list item
+        Assert.assertEquals("application/xhtml+xml", AssetHelper.guessMimeType("TestMimeFile.xht"));
+        // A file path doesn't cause issues
+        Assert.assertEquals(
+                "application/xhtml+xml", AssetHelper.guessMimeType("a/path/to/TestMimeFile.xht"));
+        // A file path doesn't cause issues
+        Assert.assertEquals(
+                "application/xhtml+xml", AssetHelper.guessMimeType("a/path/to/TestMimeFile.xht"));
+
+        // Check case insensitive
+        Assert.assertEquals("video/mpeg", AssetHelper.guessMimeType("aVideo.mPG"));
+
+        // Check a few error conditions fallback to default
+        Assert.assertEquals("text/plain", AssetHelper.guessMimeType(null));
+        Assert.assertEquals("text/plain", AssetHelper.guessMimeType("No full stop!"));
+        Assert.assertEquals("text/plain", AssetHelper.guessMimeType("file."));
+        Assert.assertEquals("text/plain", AssetHelper.guessMimeType("A.myownfiletype"));
+
+        // We added this because javascript mime types weren't being handled
+        // correctly so also adding a test for that to be safe
+        Assert.assertEquals("application/javascript", AssetHelper.guessMimeType("a js file.js"));
+
+        // Check that overridden mime map is prioritized
+        final String expectedMime = "test/mime";
+
+        URLConnection.setFileNameMap(new FileNameMap() {
+            @Override
+            public String getContentTypeFor(String fileName) {
+                return expectedMime;
+            }
+        });
+        Assert.assertEquals(expectedMime, AssetHelper.guessMimeType("aFile.txt"));
     }
 
     private InputStream assertOpen(String path) throws IOException {

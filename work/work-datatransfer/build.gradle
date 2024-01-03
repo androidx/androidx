@@ -23,12 +23,19 @@ plugins {
 }
 
 android {
+    defaultConfig {
+        minSdkVersion 23
+    }
     namespace "androidx.work.datatransfer"
 }
 
 dependencies {
-    api(project(":work:work-runtime-ktx"))
     api(libs.kotlinStdlib)
+    api(libs.kotlinCoroutinesAndroid)
+    implementation(project(":work:work-runtime-ktx"))
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRunner)
 }
 
 androidx {

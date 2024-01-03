@@ -17,14 +17,16 @@
 package androidx.compose.foundation.text2
 
 import android.view.KeyEvent
+import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.ExtractedText
 import android.view.inputmethod.InputConnection
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.input.TextFieldState
-import androidx.compose.foundation.text2.input.internal.AndroidTextInputAdapter
 import androidx.compose.foundation.text2.input.internal.ComposeInputMethodManager
+import androidx.compose.foundation.text2.input.internal.setInputConnectionCreatedListenerForTests
 import androidx.compose.foundation.text2.input.placeCursorAtEnd
-import androidx.compose.foundation.text2.input.placeCursorBeforeCharAt
+import androidx.compose.foundation.text2.input.selectAll
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -32,14 +34,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performKeyInput
-import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.TextRange
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -49,10 +51,15 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalTestApi::class)
+@OptIn(
+    ExperimentalFoundationApi::class,
+    ExperimentalTestApi::class,
+)
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 internal class BasicTextField2ImmIntegrationTest {
+
+    private lateinit var hostView: View
 
     @get:Rule
     val rule = createComposeRule()
@@ -61,9 +68,7 @@ internal class BasicTextField2ImmIntegrationTest {
     val immRule = ComposeInputMethodManagerTestRule()
 
     private val Tag = "BasicTextField2"
-
     private val imm = FakeInputMethodManager()
-    private val state = TextFieldState()
 
     @Before
     fun setUp() {
@@ -71,109 +76,116 @@ internal class BasicTextField2ImmIntegrationTest {
     }
 
     @Test
-    fun keyboardVisibility_whenFocusGained() {
+    fun becomesTextEditor_whenFocusGained() {
+        val state = TextFieldState()
         rule.setContent {
+            hostView = LocalView.current
             BasicTextField2(state, Modifier.testTag(Tag))
-        }
-
-        rule.runOnIdle {
-            imm.expectNoMoreCalls()
         }
 
         requestFocus(Tag)
 
         rule.runOnIdle {
-            imm.expectCall("restartInput")
-            imm.expectCall("showSoftInput")
-            imm.expectNoMoreCalls()
+            assertThat(hostView.onCheckIsTextEditor()).isTrue()
+            val connection = hostView.onCreateInputConnection(EditorInfo())
+            assertThat(connection).isNotNull()
+            connection.commitText("hello", 0)
+            assertThat(state.text.toString()).isEqualTo("hello")
         }
     }
 
     @Test
-    fun keyboardVisibility_whenFocusLost() {
+    fun stopsBeingTextEditor_whenFocusLost() {
+        val state = TextFieldState()
         var focusManager: FocusManager? = null
         rule.setContent {
+            hostView = LocalView.current
             focusManager = LocalFocusManager.current
             BasicTextField2(state, Modifier.testTag(Tag))
         }
         requestFocus(Tag)
         rule.runOnIdle {
-            imm.resetCalls()
-
             focusManager!!.clearFocus()
         }
-
         rule.runOnIdle {
-            imm.expectNoMoreCalls()
+            assertThat(hostView.onCheckIsTextEditor()).isFalse()
+            assertThat(hostView.onCreateInputConnection(EditorInfo())).isNull()
         }
     }
 
     @Test
-    fun keyboardVisibility_whenFocusTransferred() {
+    fun staysTextEditor_whenFocusTransferred() {
+        val state1 = TextFieldState()
+        val state2 = TextFieldState()
         rule.setContent {
-            BasicTextField2(state, Modifier.testTag(Tag + 1))
-            BasicTextField2(state, Modifier.testTag(Tag + 2))
+            hostView = LocalView.current
+            BasicTextField2(state1, Modifier.testTag(Tag + 1))
+            BasicTextField2(state2, Modifier.testTag(Tag + 2))
         }
-        requestFocus(Tag + 1)
-        rule.runOnIdle { imm.resetCalls() }
 
+        requestFocus(Tag + 1)
         requestFocus(Tag + 2)
 
         rule.runOnIdle {
-            imm.expectCall("restartInput")
-            imm.expectCall("showSoftInput")
-            imm.expectNoMoreCalls()
+            assertThat(hostView.onCheckIsTextEditor()).isTrue()
+            val connection = hostView.onCreateInputConnection(EditorInfo())
+            assertThat(connection).isNotNull()
+            connection.commitText("hello", 0)
+            connection.endBatchEdit()
+            assertThat(state2.text.toString()).isEqualTo("hello")
+            assertThat(state1.text.toString()).isEmpty()
         }
     }
 
     @Test
-    fun keyboardVisibility_whenRemovedFromCompositionWhileFocused() {
+    fun stopsBeingTextEditor_whenRemovedFromCompositionWhileFocused() {
+        val state = TextFieldState()
         var compose by mutableStateOf(true)
         rule.setContent {
+            hostView = LocalView.current
             if (compose) {
                 BasicTextField2(state, Modifier.testTag(Tag))
             }
         }
         requestFocus(Tag)
         rule.runOnIdle {
-            imm.resetCalls()
-
             compose = false
         }
 
         rule.runOnIdle {
-            imm.expectCall("hideSoftInput")
-            imm.expectCall("restartInput")
-            imm.expectNoMoreCalls()
+            assertThat(hostView.onCheckIsTextEditor()).isFalse()
+            assertThat(hostView.onCreateInputConnection(EditorInfo())).isNull()
         }
     }
 
     @Test
     fun inputRestarted_whenStateInstanceChanged() {
-        var state by mutableStateOf(state)
+        val state1 = TextFieldState()
+        val state2 = TextFieldState()
+        var state by mutableStateOf(state1)
         rule.setContent {
+            hostView = LocalView.current
             BasicTextField2(state, Modifier.testTag(Tag))
         }
         requestFocus(Tag)
-        rule.runOnIdle { imm.resetCalls() }
 
-        state = TextFieldState()
+        state = state2
 
         rule.runOnIdle {
-            imm.expectCall("restartInput")
-            imm.expectCall("showSoftInput")
-            imm.expectNoMoreCalls()
+            assertThat(hostView.onCheckIsTextEditor()).isTrue()
+            val connection = hostView.onCreateInputConnection(EditorInfo())
+            assertThat(connection).isNotNull()
+            connection.commitText("hello", 0)
+            assertThat(state2.text.toString()).isEqualTo("hello")
+            assertThat(state1.text.toString()).isEmpty()
         }
     }
 
     @Test
     fun immUpdated_whenFilterChangesText_fromInputConnection() {
         val state = TextFieldState()
-        var inputConnection: InputConnection? = null
-        AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests { _, ic ->
-            inputConnection = ic
-        }
         rule.setContent {
+            hostView = LocalView.current
             BasicTextField2(
                 state = state,
                 modifier = Modifier.testTag(Tag),
@@ -188,8 +200,13 @@ internal class BasicTextField2ImmIntegrationTest {
         requestFocus(Tag)
         rule.runOnIdle {
             imm.resetCalls()
-            inputConnection!!.setComposingText("hello", 1)
-            imm.expectCall("updateSelection(5, 5, -1, -1)")
+            assertThat(hostView.onCheckIsTextEditor()).isTrue()
+            val connection = hostView.onCreateInputConnection(EditorInfo())
+            assertThat(connection).isNotNull()
+
+            connection.commitText("hello", 1)
+
+            assertThat(state.text.toString()).isEqualTo("helloworld")
             imm.expectCall("restartInput")
             imm.expectNoMoreCalls()
         }
@@ -224,7 +241,7 @@ internal class BasicTextField2ImmIntegrationTest {
     fun immUpdated_whenFilterChangesSelection_fromInputConnection() {
         val state = TextFieldState()
         var inputConnection: InputConnection? = null
-        AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests { _, ic ->
+        setInputConnectionCreatedListenerForTests { _, ic ->
             inputConnection = ic
         }
         rule.setContent {
@@ -304,7 +321,7 @@ internal class BasicTextField2ImmIntegrationTest {
     }
 
     private fun requestFocus(tag: String) =
-        rule.onNodeWithTag(tag).performSemanticsAction(SemanticsActions.RequestFocus)
+        rule.onNodeWithTag(tag).requestFocus()
 
     private class FakeInputMethodManager : ComposeInputMethodManager {
         private val calls = mutableListOf<String>()

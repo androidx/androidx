@@ -27,6 +27,6 @@ class NotFoundError :
     DomError(TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NOT_FOUND_ERROR) {
     internal companion object {
         internal const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NOT_FOUND_ERROR: String =
-            "androidx.credentials.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NOT_FOUND_ERROR"
+            "androidx.credentials.TYPE_NOT_FOUND_ERROR"
     }
 }

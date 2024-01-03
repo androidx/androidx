@@ -79,7 +79,8 @@ class BenchmarkStateConfigTest {
             simplifiedTimingOnlyMode = true,
             profiler = null,
             warmupCount = 100,
-            measurementCount = 1000
+            measurementCount = 1000,
+            cpuEventCountersMask = 0x0,
         ),
         expectedWarmups = 0,
         expectedMeasurements = 1,
@@ -94,7 +95,8 @@ class BenchmarkStateConfigTest {
             simplifiedTimingOnlyMode = true,
             profiler = null,
             warmupCount = 100,
-            measurementCount = 1000
+            measurementCount = 1000,
+            cpuEventCountersMask = 0x0,
         ),
         expectedWarmups = 0,
         expectedMeasurements = 10,
@@ -110,7 +112,8 @@ class BenchmarkStateConfigTest {
             simplifiedTimingOnlyMode = false,
             profiler = null,
             warmupCount = null,
-            measurementCount = null
+            measurementCount = null,
+            cpuEventCountersMask = 0x0,
         ),
         expectedWarmups = null,
         expectedMeasurements = 55, // includes allocations
@@ -125,7 +128,8 @@ class BenchmarkStateConfigTest {
             simplifiedTimingOnlyMode = false,
             profiler = null,
             warmupCount = 10,
-            measurementCount = 100
+            measurementCount = 100,
+            cpuEventCountersMask = 0x0,
         ),
         expectedWarmups = 10,
         expectedMeasurements = 105, // includes allocations
@@ -140,7 +144,8 @@ class BenchmarkStateConfigTest {
             simplifiedTimingOnlyMode = false,
             profiler = MethodTracing,
             warmupCount = 5,
-            measurementCount = 10
+            measurementCount = 10,
+            cpuEventCountersMask = 0x0,
         ),
         expectedWarmups = 5,
         expectedMeasurements = 15, // profiler not measured, not accounted for here
@@ -156,7 +161,8 @@ class BenchmarkStateConfigTest {
             simplifiedTimingOnlyMode = true,
             profiler = MethodTracing,
             warmupCount = 100,
-            measurementCount = 10
+            measurementCount = 10,
+            cpuEventCountersMask = 0x0,
         ),
         expectedWarmups = 100,
         expectedMeasurements = 10,

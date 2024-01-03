@@ -474,11 +474,15 @@ internal class LayoutNode(
             // is a virtual lookahead root
             lookaheadRoot = _foldedParent?.lookaheadRoot ?: lookaheadRoot
         }
-        nodes.markAsAttached()
+        if (!deactivated) {
+            nodes.markAsAttached()
+        }
         _foldedChildren.forEach { child ->
             child.attach(owner)
         }
-        nodes.runAttachLifecycle()
+        if (!deactivated) {
+            nodes.runAttachLifecycle()
+        }
 
         invalidateMeasurements()
         parent?.invalidateMeasurements()
@@ -487,7 +491,9 @@ internal class LayoutNode(
         onAttach?.invoke(owner)
 
         layoutDelegate.updateParentData()
-        invalidateFocusOnAttach()
+        if (!deactivated) {
+            invalidateFocusOnAttach()
+        }
     }
 
     /**
@@ -1012,7 +1018,7 @@ internal class LayoutNode(
     ) {
         check(lookaheadRoot != null) {
             "Lookahead measure cannot be requested on a node that is not a part of the" +
-                "LookaheadLayout"
+                "LookaheadScope"
         }
         val owner = owner ?: return
         if (!ignoreRemeasureRequests && !isVirtual) {
@@ -1027,7 +1033,7 @@ internal class LayoutNode(
     }
 
     /**
-     * This gets called when both lookahead measurement (if in a LookaheadLayout) and actual
+     * This gets called when both lookahead measurement (if in a LookaheadScope) and actual
      * measurement need to be re-done. Such events include modifier change, attach/detach, etc.
      */
     internal fun invalidateMeasurements() {
@@ -1317,6 +1323,7 @@ internal class LayoutNode(
     private var deactivated = false
 
     override fun onReuse() {
+        require(isAttached) { "onReuse is only expected on attached node" }
         interopViewFactoryHolder?.onReuse()
         if (deactivated) {
             deactivated = false
@@ -1395,7 +1402,7 @@ internal class LayoutNode(
     /**
      * Describes the current state the [LayoutNode] is in. A [LayoutNode] is expected to be in
      * [LookaheadMeasuring] first, followed by [LookaheadLayingOut] if it is in a
-     * LookaheadLayout. After the lookahead is finished, [Measuring] and then [LayingOut] will
+     * LookaheadScope. After the lookahead is finished, [Measuring] and then [LayingOut] will
      * happen as needed.
      */
     internal enum class LayoutState {

@@ -35,10 +35,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.os.BuildCompat;
 import androidx.mediarouter.media.MediaRouter;
 import androidx.mediarouter.media.RouteListingPreference;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -62,13 +60,11 @@ public class RouteListingPreferenceActivity extends AppCompatActivity {
 
     private RoutesManager mRoutesManager;
     private RecyclerView mRouteListingPreferenceRecyclerView;
-
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (!BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT < 34) {
             Toast.makeText(
                             /* context= */ this,
                             "Route Listing Preference requires Android U+",

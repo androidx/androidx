@@ -18,6 +18,7 @@ package androidx.constraintlayout.compose
 
 import android.content.Context
 import android.os.Build
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -71,6 +72,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import kotlin.math.roundToInt
 import kotlin.test.assertNotEquals
+import kotlin.test.assertTrue
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -2540,6 +2542,58 @@ class ConstraintLayoutTest {
         rule.onNodeWithTag("box0").assertWidthIsEqualTo(Dp.Unspecified)
         rule.onNodeWithTag("box0").assertHeightIsEqualTo(Dp.Unspecified)
         assertEquals(Offset(rootSizePx / 2f, rootSizePx / 2f).round(), box1Position)
+    }
+
+    @Test
+    fun testAnimateChanges_withInlineDsl() = with(rule.density) {
+        val durationMs = 200
+        val rootSizePx = 100
+        val boxSizePx = 20
+        val expectedEndPosition = IntOffset(rootSizePx - boxSizePx, rootSizePx - boxSizePx)
+        var box0Position = IntOffset.Zero
+        val atTopLeftCorner = mutableStateOf(true)
+
+        rule.setContent {
+            ConstraintLayout(
+                modifier = Modifier.size(rootSizePx.toDp()),
+                animateChanges = true,
+                animationSpec = tween(durationMs)
+            ) {
+                val boxRef = createRef()
+                Box(
+                    Modifier
+                        .background(Color.Red)
+                        .constrainAs(boxRef) {
+                            width = boxSizePx.toDp().asDimension()
+                            height = boxSizePx.toDp().asDimension()
+                            if (atTopLeftCorner.value) {
+                                top.linkTo(parent.top)
+                                start.linkTo(parent.start)
+                            } else {
+                                bottom.linkTo(parent.bottom)
+                                end.linkTo(parent.end)
+                            }
+                        }
+                        .onGloballyPositioned {
+                            box0Position = it.positionInParent().round()
+                        }
+                )
+            }
+        }
+        rule.waitForIdle()
+        assertEquals(IntOffset.Zero, box0Position)
+
+        rule.mainClock.autoAdvance = false
+        atTopLeftCorner.value = false
+
+        rule.mainClock.advanceTimeBy(durationMs / 2L)
+        rule.waitForIdle()
+        assertTrue(box0Position.x > 0 && box0Position.y > 0)
+        assertTrue(box0Position.x < expectedEndPosition.x && box0Position.y < expectedEndPosition.y)
+
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+        assertEquals(expectedEndPosition, box0Position)
     }
 
     private fun listAnchors(box: ConstrainedLayoutReference): List<ConstrainScope.() -> Unit> {

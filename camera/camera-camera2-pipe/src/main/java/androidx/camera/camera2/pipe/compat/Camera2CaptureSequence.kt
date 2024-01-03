@@ -30,6 +30,7 @@ import androidx.camera.camera2.pipe.CaptureSequences.invokeOnRequest
 import androidx.camera.camera2.pipe.CaptureSequences.invokeOnRequests
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Request
+import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.StreamId
@@ -154,42 +155,56 @@ internal class Camera2CaptureSequence(
         invokeOnRequest(request) { it.onComplete(request, frameNumber, frameInfo) }
     }
 
-    @Deprecated(
-        message = "Migrating to using RequestFailureWrapper instead of CaptureFailure",
-        level = DeprecationLevel.WARNING,
-        replaceWith = ReplaceWith("onFailed")
-    )
     override fun onCaptureFailed(
         captureSession: CameraCaptureSession,
         captureRequest: CaptureRequest,
         captureFailure: CaptureFailure
-    ) = onCaptureFailed(
-        captureRequest,
-        FrameNumber(captureFailure.frameNumber)
-    )
-
-    override fun onCaptureFailed(
-        captureRequest: CaptureRequest,
-        frameNumber: FrameNumber
     ) {
-        sequenceListener.onCaptureSequenceComplete(this)
-
         val requestNumber = readRequestNumber(captureRequest)
 
         // Load the request and throw if we are not able to find an associated request. Under
         // normal circumstances this should never happen.
         val request = readRequestMetadata(requestNumber)
 
-        val androidCaptureFailure = AndroidCaptureFailure(
+        val androidCaptureFailure = AndroidCaptureFailure(request, captureFailure)
+
+        invokeCaptureFailure(
+            request,
+            FrameNumber(captureFailure.frameNumber),
+            androidCaptureFailure
+        )
+    }
+
+    private fun invokeCaptureFailure(
+        request: RequestMetadata,
+        frameNumber: FrameNumber,
+        requestFailure: RequestFailure
+    ) {
+        sequenceListener.onCaptureSequenceComplete(this)
+        invokeOnRequest(request) {
+            it.onFailed(request, frameNumber, requestFailure)
+        }
+    }
+
+    override fun onCaptureFailed(
+        captureRequest: CaptureRequest,
+        frameNumber: FrameNumber
+    ) {
+        val requestNumber = readRequestNumber(captureRequest)
+
+        // Load the request and throw if we are not able to find an associated request. Under
+        // normal circumstances this should never happen.
+        val request = readRequestMetadata(requestNumber)
+
+        val simpleCaptureFailure = SimpleCaptureFailure(
             request,
             false,
             frameNumber,
-            CaptureFailure.REASON_ERROR
+            CaptureFailure.REASON_ERROR,
+            null
         )
 
-        invokeOnRequest(request) {
-            it.onFailed(request, frameNumber, androidCaptureFailure)
-        }
+        invokeCaptureFailure(request, frameNumber, simpleCaptureFailure)
     }
 
     override fun onCaptureBufferLost(

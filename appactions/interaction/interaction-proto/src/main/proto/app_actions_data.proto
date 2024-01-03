@@ -314,7 +314,7 @@ message FulfillmentRequest {
       INTENT_CONFIRMED = 3;
     }
 
-    // The current progress of handling the dialog.
+    // The Type of this Fulfillment. Not applicable for one-shot Fulfillment.
     optional Type type = 5;
 
     // The status of the SYNC request. Only set when fulfillment type == SYNC.

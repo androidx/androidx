@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
+<issues format="6" by="lint 8.1.0-beta05" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta05)" variant="all" version="8.1.0-beta05">
 
     <issue
         id="BanSynchronizedMethods"
@@ -8,42 +8,6 @@
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ServiceConnection.java"/>
-    </issue>
-
-    <issue
-        id="PrereleaseSdkCoreDependency"
-        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
-        errorLine1="            if (BuildCompat.isAtLeastU()) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/connect/client/PermissionController.kt"/>
-    </issue>
-
-    <issue
-        id="PrereleaseSdkCoreDependency"
-        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
-        errorLine1="            if (BuildCompat.isAtLeastU()) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/connect/client/PermissionController.kt"/>
-    </issue>
-
-    <issue
-        id="PrereleaseSdkCoreDependency"
-        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
-        errorLine1="            if (BuildCompat.isAtLeastU()) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/connect/client/PermissionController.kt"/>
-    </issue>
-
-    <issue
-        id="PrereleaseSdkCoreDependency"
-        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
-        errorLine1="            if (BuildCompat.isAtLeastU()) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/connect/client/PermissionController.kt"/>
     </issue>
 
     <issue

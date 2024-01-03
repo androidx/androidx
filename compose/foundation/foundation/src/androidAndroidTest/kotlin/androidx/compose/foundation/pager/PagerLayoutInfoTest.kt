@@ -175,26 +175,6 @@ class PagerLayoutInfoTest(private val param: ParamConfig) : BasePagerTest(param)
     }
 
     @Test
-    fun totalCountIsCorrect() {
-        var count by mutableStateOf(10)
-        createPager(
-            pageCount = { count },
-            pageSize = { PageSize.Fixed(10.dp) }
-        ) {
-            Box(Modifier.requiredSize(10.dp))
-        }
-
-        rule.runOnIdle {
-            assertThat(pagerState.layoutInfo.pagesCount).isEqualTo(10)
-            count = 20
-        }
-
-        rule.runOnIdle {
-            assertThat(pagerState.layoutInfo.pagesCount).isEqualTo(20)
-        }
-    }
-
-    @Test
     fun viewportOffsetsAndSizeAreCorrect() {
         val sizePx = 45
         val sizeDp = with(rule.density) { sizePx.toDp() }

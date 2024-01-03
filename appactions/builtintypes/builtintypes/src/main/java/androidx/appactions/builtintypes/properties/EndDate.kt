@@ -13,6 +13,7 @@
 // limitations under the License.
 package androidx.appactions.builtintypes.properties
 
+import androidx.appsearch.`annotation`.Document
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -27,7 +28,7 @@ import kotlin.jvm.JvmName
 /**
  * The end date and time of the item.
  *
- * See http://schema.org/endDate for context.
+ * See https://schema.org/endDate for context.
  *
  * Holds one of:
  * * Date i.e. [LocalDate]
@@ -36,6 +37,7 @@ import kotlin.jvm.JvmName
  *
  * May hold more types over time.
  */
+@Document(name = "bitprop:EndDate")
 public class EndDate
 internal constructor(
   /** The [LocalDate] variant, or null if constructed using a different variant. */
@@ -50,7 +52,7 @@ internal constructor(
    * Every AppSearch document needs an identifier. Since property wrappers are only meant to be used
    * at nested levels, this is internal and will always be an empty string.
    */
-  internal val identifier: String = "",
+  @Document.Id internal val identifier: String = "",
 ) {
   /** Constructor for the [LocalDate] variant. */
   public constructor(date: LocalDate) : this(asDate = date)

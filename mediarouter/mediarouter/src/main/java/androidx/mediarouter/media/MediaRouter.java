@@ -350,14 +350,6 @@ public final class MediaRouter {
                 globalMediaRouter.getRoutes();
     }
 
-    @MainThread
-    @Nullable
-    RouteInfo getRoute(String uniqueId) {
-        checkCallingThread();
-        GlobalMediaRouter globalMediaRouter = getGlobalRouter();
-        return globalMediaRouter == null ? null : globalMediaRouter.getRoute(uniqueId);
-    }
-
     /**
      * Gets information about the {@link MediaRouter.ProviderInfo route providers}
      * currently known to this media router.
@@ -2237,7 +2229,6 @@ public final class MediaRouter {
             this(provider, /* treatRouteDescriptorIdsAsUnique= */ false);
         }
 
-        /** @hide */
         ProviderInfo(MediaRouteProvider provider, boolean treatRouteDescriptorIdsAsUnique) {
             mProviderInstance = provider;
             mMetadata = provider.getMetadata();
@@ -2319,8 +2310,7 @@ public final class MediaRouter {
         @NonNull
         @Override
         public String toString() {
-            return "MediaRouter.RouteProviderInfo{ packageName=" + getPackageName()
-                    + " }";
+            return "MediaRouter.RouteProviderInfo{ packageName=" + getPackageName() + " }";
         }
     }
 

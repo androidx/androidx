@@ -17,6 +17,7 @@
 package androidx.constraintlayout.core.state;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.constraintlayout.core.motion.CustomVariable;
 import androidx.constraintlayout.core.motion.Motion;
 import androidx.constraintlayout.core.motion.MotionWidget;
@@ -110,8 +111,7 @@ public class Transition implements TypedValues {
 
         @SuppressWarnings("unused")
         private String mRotationCenterId;
-        @SuppressWarnings("unused")
-        private String mLimitBoundsTo;
+        String mLimitBoundsTo;
         @SuppressWarnings("unused")
         private boolean mDragVertical = true;
         private int mDragDirection = 0;
@@ -401,6 +401,34 @@ public class Transition implements TypedValues {
     }
 
     /**
+     * For the given position (in the MotionLayout coordinate space) determine whether we accept
+     * the first down for on swipe.
+     * <p>
+     * This is based off {@link OnSwipe#mLimitBoundsTo}. If null, we accept the drag at any
+     * position, otherwise, we only accept it if it's within its bounds.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public boolean isFirstDownAccepted(float posX, float posY) {
+        if (mOnSwipe == null) {
+            return false;
+        }
+
+        if (mOnSwipe.mLimitBoundsTo != null) {
+            WidgetState targetWidget = mState.get(mOnSwipe.mLimitBoundsTo);
+            if (targetWidget == null) {
+                System.err.println("mLimitBoundsTo target is null");
+                return false;
+            }
+            // Calculate against the interpolated/current frame
+            WidgetFrame frame = targetWidget.getFrame(2);
+            return posX >= frame.left && posX < frame.right && posY >= frame.top
+                    && posY < frame.bottom;
+        } else {
+            return true;
+        }
+    }
+
+    /**
      * Converts from xy drag to progress
      * This should be used till touch up
      *
@@ -664,6 +692,16 @@ public class Transition implements TypedValues {
     // @TODO: add description
     public void clear() {
         mState.clear();
+    }
+
+    /**
+     * Reset animation properties of the Transition.
+     * <p>
+     * This will not affect the internal model of the widgets (a.k.a. {@link #mState}).
+     */
+    void resetProperties() {
+        mOnSwipe = null;
+        mBundle.clear();
     }
 
     // @TODO: add description

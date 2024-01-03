@@ -26,7 +26,7 @@ import java.util.function.Supplier
 
 /** The implementation of `ActionSpec` interface.  */
 internal class ActionSpecImpl<ArgumentsT, ArgumentsBuilderT, OutputT>(
-    private val capabilityName: String,
+    override val capabilityName: String,
     private val argumentBuilderSupplier: Supplier<ArgumentsBuilderT>,
     private val paramBindingList: List<ParamBinding<ArgumentsT, ArgumentsBuilderT>>,
     private val outputBindings: Map<String, Function<OutputT, List<ParamValue>>>,
@@ -63,6 +63,18 @@ internal class ActionSpecImpl<ArgumentsT, ArgumentsBuilderT, OutputT>(
             }
         }
         return builderFinalizer.apply(argumentBuilder)
+    }
+
+    override fun serializeArguments(args: ArgumentsT): Map<String, List<ParamValue>> {
+        val paramValuesMap = mutableMapOf<String, List<ParamValue>>()
+        paramBindingList.forEach {
+            binding ->
+            val paramValues = binding.argumentSerializer(args)
+            if (paramValues.size > 0) {
+                paramValuesMap[binding.name] = paramValues
+            }
+        }
+        return paramValuesMap.toMap()
     }
 
     override fun convertOutputToProto(output: OutputT): FulfillmentResponse.StructuredOutput {

@@ -47,7 +47,6 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
-import kotlinx.coroutines.yield
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -385,14 +384,9 @@ class SuspendingPointerInputFilterTest {
 
         rule.runOnIdle {
             runTest {
-                withTimeout(400) {
-                    while (!results.isClosedForSend) {
-                        yield()
-                    }
+                val received = withTimeout(400) {
+                    results.receiveAsFlow().toList()
                 }
-
-                val received = results.receiveAsFlow().toList()
-
                 assertThat(received).hasSize(twoExpectedEvents.size)
 
                 twoExpectedEvents.forEachIndexed { index, expectedEvent ->

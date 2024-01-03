@@ -71,6 +71,7 @@ public final class AppSearchResultToPlatformConverter {
      * Uses the given {@link android.app.appsearch.AppSearchResult} to populate the given
      * {@link ResolvableFuture}, transforming it using {@code valueMapper}.
      */
+    @SuppressLint("WrongConstant")
     public static <PlatformType, JetpackType> void platformAppSearchResultToFuture(
             @NonNull android.app.appsearch.AppSearchResult<PlatformType> platformResult,
             @NonNull ResolvableFuture<JetpackType> future,

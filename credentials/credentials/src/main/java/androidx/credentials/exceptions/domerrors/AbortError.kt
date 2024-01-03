@@ -26,6 +26,6 @@ class AbortError :
     DomError(TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_ABORT_ERROR) {
     internal companion object {
         internal const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_ABORT_ERROR: String =
-            "androidx.credentials.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_ABORT_ERROR"
+            "androidx.credentials.TYPE_ABORT_ERROR"
     }
 }

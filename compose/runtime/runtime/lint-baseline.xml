@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
+<issues format="6" by="lint 8.1.0-beta05" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta05)" variant="all" version="8.1.0-beta05">
 
     <issue
         id="ExperimentalPropertyAnnotation"
@@ -66,6 +66,15 @@
 
     <issue
         id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;reportGroup&apos; with type Function3&lt;? super Integer, ? super Boolean, ? super Integer, ? extends Integer>."
+        errorLine1="        fun reportGroup(group: Int, needsNodeDelete: Boolean, nodeIndex: Int): Int {"
+        errorLine2="        ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/Composer.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method set has parameter &apos;block&apos; with type Function2&lt;? super T, ? super Integer, Unit>."
         errorLine1="        noinline block: T.(value: Int) -> Unit"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~">
@@ -78,6 +87,15 @@
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method update has parameter &apos;block&apos; with type Function2&lt;? super T, ? super Integer, Unit>."
         errorLine1="        noinline block: T.(value: Int) -> Unit"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/Composer.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;collectFromGroup&apos; with type Function1&lt;? super Integer, ? extends Unit>."
+        errorLine1="        fun collectFromGroup(group: Int) {"
+        errorLine2="        ^">
         <location
             file="src/commonMain/kotlin/androidx/compose/runtime/Composer.kt"/>
     </issue>
@@ -120,9 +138,27 @@
 
     <issue
         id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method forEachData$lint_module has parameter &apos;block&apos; with type Function2&lt;? super Integer, Object, Unit>."
-        errorLine1="    internal fun forEachData(group: Int, block: (index: Int, data: Any?) -> Unit) {"
-        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;validateGroup&apos; with type Function2&lt;? super Integer, ? super Integer, ? extends Integer>."
+        errorLine1="        fun validateGroup(parent: Int, parentEnd: Int): Int {"
+        errorLine2="        ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/SlotTable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;dataIndex&apos; with type Function1&lt;? super Integer, ? extends Integer>."
+        errorLine1="        fun dataIndex(index: Int) ="
+        errorLine2="        ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/SlotTable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;isStarted&apos; with type Function1&lt;? super Integer, ? extends Boolean>."
+        errorLine1="        fun isStarted(index: Int): Boolean ="
+        errorLine2="        ^">
         <location
             file="src/commonMain/kotlin/androidx/compose/runtime/SlotTable.kt"/>
     </issue>

@@ -42,7 +42,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.os.BuildCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
@@ -268,7 +267,7 @@ public class FadeTest extends BaseTest {
 
     @Test
     public void seekingFadeIn() throws Throwable {
-        if (!BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT < 34) {
             return; // only supported on U+
         }
         final TransitionActivity activity = rule.getActivity();
@@ -334,7 +333,7 @@ public class FadeTest extends BaseTest {
 
     @Test
     public void seekingFadeOut() throws Throwable {
-        if (!BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT < 34) {
             return; // only supported on U+
         }
         final TransitionActivity activity = rule.getActivity();
@@ -409,7 +408,7 @@ public class FadeTest extends BaseTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     @Test
     public void seekingFadeInBeforeStart() throws Throwable {
-        if (!BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT < 34) {
             return; // only supported on U+
         }
         TransitionSeekController[] seekControllerArr = new TransitionSeekController[1];
@@ -451,6 +450,41 @@ public class FadeTest extends BaseTest {
             // It is already not shown, so it can just go straight to GONE
             assertEquals(1f, view.getTransitionAlpha(), 0f);
             assertEquals(View.GONE, view.getVisibility());
+        });
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    public void seekingFadeToStartBeforeRestoring() throws Throwable {
+        TransitionSeekController[] seekControllerArr = new TransitionSeekController[1];
+
+        View view = new View(rule.getActivity());
+        View view2 = new View(rule.getActivity());
+
+        // Animate it in
+        rule.runOnUiThread(() -> {
+            mRoot.addView(view, new ViewGroup.LayoutParams(100, 100));
+            seekControllerArr[0] = TransitionManager.controlDelayedTransition(mRoot, new Fade());
+            view.setVisibility(View.GONE);
+            mRoot.addView(view2, new ViewGroup.LayoutParams(100, 100));
+        });
+
+        rule.runOnUiThread(() -> {
+            seekControllerArr[0] = TransitionManager.controlDelayedTransition(mRoot, new Fade());
+            view2.setVisibility(View.GONE);
+            view.setVisibility(View.VISIBLE);
+        });
+
+        rule.runOnUiThread(() -> {
+            // It is already shown, so it can just go straight to VISIBLE
+            assertEquals(1f, view.getTransitionAlpha(), 0f);
+            assertEquals(View.VISIBLE, view.getVisibility());
+
+            // It is already not shown, so it can just go straight to GONE
+            assertEquals(1f, view2.getTransitionAlpha(), 0f);
+            assertEquals(View.GONE, view2.getVisibility());
+
+            assertEquals(0, seekControllerArr[0].getDurationMillis());
         });
     }
 

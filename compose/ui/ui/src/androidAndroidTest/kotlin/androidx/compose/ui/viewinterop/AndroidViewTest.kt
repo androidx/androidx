@@ -41,12 +41,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisallowComposableCalls
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReusableContent
 import androidx.compose.runtime.ReusableContentHost
 import androidx.compose.runtime.SideEffect
@@ -57,6 +60,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -73,6 +77,9 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.platform.findViewTreeCompositionContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.TestActivity
+import androidx.compose.ui.test.assertHeightIsEqualTo
+import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
+import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -118,6 +125,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
+import kotlin.test.assertIs
 import org.hamcrest.CoreMatchers.endsWith
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.instanceOf
@@ -439,7 +447,124 @@ class AndroidViewTest {
     }
 
     @Test
-    fun androidView_updateObservesStateChanges() {
+    fun androidView_updateIsRanInitially() {
+        rule.setContent {
+            Box {
+                AndroidView(::UpdateTestView) { view ->
+                    view.counter = 1
+                }
+            }
+        }
+
+        onView(instanceOf(UpdateTestView::class.java)).check { view, _ ->
+            assertIs<UpdateTestView>(view)
+            assertThat(view.counter).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun androidView_updateObservesMultipleStateChanges() {
+        var counter by mutableStateOf(1)
+
+        rule.setContent {
+            Box {
+                AndroidView(::UpdateTestView) { view ->
+                    view.counter = counter
+                }
+            }
+        }
+
+        counter = 2
+        onView(instanceOf(UpdateTestView::class.java)).check { view, _ ->
+            assertIs<UpdateTestView>(view)
+            assertThat(view.counter).isEqualTo(counter)
+        }
+
+        counter = 3
+        onView(instanceOf(UpdateTestView::class.java)).check { view, _ ->
+            assertIs<UpdateTestView>(view)
+            assertThat(view.counter).isEqualTo(counter)
+        }
+
+        counter = 4
+        onView(instanceOf(UpdateTestView::class.java)).check { view, _ ->
+            assertIs<UpdateTestView>(view)
+            assertThat(view.counter).isEqualTo(counter)
+        }
+    }
+
+    @Test
+    fun androidView_updateObservesStateChanges_fromDisposableEffect() {
+        var counter by mutableStateOf(1)
+
+        rule.setContent {
+            DisposableEffect(Unit) {
+                counter = 2
+                onDispose {}
+            }
+
+            Box {
+                AndroidView(::UpdateTestView) { view ->
+                    view.counter = counter
+                }
+            }
+        }
+
+        onView(instanceOf(UpdateTestView::class.java)).check { view, _ ->
+            assertIs<UpdateTestView>(view)
+            assertThat(view.counter).isEqualTo(2)
+        }
+    }
+
+    @Test
+    fun androidView_updateObservesStateChanges_fromLaunchedEffect() {
+        var counter by mutableStateOf(1)
+
+        rule.setContent {
+            LaunchedEffect(Unit) {
+                counter = 2
+            }
+
+            Box {
+                AndroidView(::UpdateTestView) { view ->
+                    view.counter = counter
+                }
+            }
+        }
+
+        onView(instanceOf(UpdateTestView::class.java)).check { view, _ ->
+            assertIs<UpdateTestView>(view)
+            assertThat(view.counter).isEqualTo(2)
+        }
+    }
+
+    @Test
+    fun androidView_updateObservesMultipleStateChanges_fromEffect() {
+        var counter by mutableStateOf(1)
+
+        rule.setContent {
+            LaunchedEffect(Unit) {
+                counter = 2
+                withFrameNanos {
+                    counter = 3
+                }
+            }
+
+            Box {
+                AndroidView(::UpdateTestView) { view ->
+                    view.counter = counter
+                }
+            }
+        }
+
+        onView(instanceOf(UpdateTestView::class.java)).check { view, _ ->
+            assertIs<UpdateTestView>(view)
+            assertThat(view.counter).isEqualTo(3)
+        }
+    }
+
+    @Test
+    fun androidView_updateObservesLayoutStateChanges() {
         var size by mutableStateOf(20)
         var obtainedSize: IntSize = IntSize.Zero
         rule.setContent {
@@ -1439,10 +1564,15 @@ class AndroidViewTest {
         val columnHeightDp = with(rule.density) { columnHeight.toDp() }
         var viewSize = IntSize.Zero
         rule.setContent {
-            Column(Modifier.height(columnHeightDp).fillMaxWidth()) {
+            Column(
+                Modifier
+                    .height(columnHeightDp)
+                    .fillMaxWidth()) {
                 AndroidView(
                     factory = { View(it) },
-                    modifier = Modifier.weight(1f).onGloballyPositioned { viewSize = it.size }
+                    modifier = Modifier
+                        .weight(1f)
+                        .onGloballyPositioned { viewSize = it.size }
                 )
 
                 Box(Modifier.height(columnHeightDp / 4))
@@ -1452,6 +1582,86 @@ class AndroidViewTest {
         rule.runOnIdle {
             assertEquals(columnHeight * 3 / 4, viewSize.height)
         }
+    }
+
+    @Test
+    fun androidView_visibilityGone() {
+        var view: View? = null
+        var drawCount = 0
+        val viewSizeDp = 50.dp
+        val viewSize = with(rule.density) { viewSizeDp.roundToPx() }
+        rule.setContent {
+            AndroidView(
+                modifier = Modifier
+                    .testTag("wrapper")
+                    .heightIn(max = viewSizeDp),
+                factory = {
+                    object : View(it) {
+                        override fun dispatchDraw(canvas: Canvas) {
+                            drawCount++
+                            super.dispatchDraw(canvas)
+                        }
+                    }
+                },
+                update = {
+                    view = it
+                    it.layoutParams = ViewGroup.LayoutParams(viewSize, WRAP_CONTENT)
+                },
+            )
+        }
+
+        rule.onNodeWithTag("wrapper")
+            .assertHeightIsEqualTo(viewSizeDp)
+
+        rule.runOnUiThread {
+            drawCount = 0
+            view?.visibility = View.GONE
+        }
+
+        rule.onNodeWithTag("wrapper")
+            .assertHeightIsEqualTo(0.dp)
+        assertEquals(0, drawCount)
+    }
+
+    @Test
+    fun androidView_visibilityGone_column() {
+        var view: View? = null
+        val viewSizeDp = 50.dp
+        val viewSize = with(rule.density) { viewSizeDp.roundToPx() }
+        rule.setContent {
+            Column {
+                AndroidView(
+                    modifier = Modifier
+                        .testTag("wrapper")
+                        .heightIn(max = viewSizeDp),
+                    factory = {
+                        View(it)
+                    },
+                    update = {
+                        view = it
+                        it.layoutParams = ViewGroup.LayoutParams(viewSize, WRAP_CONTENT)
+                    },
+                )
+
+                Box(
+                    Modifier
+                        .size(viewSizeDp)
+                        .testTag("box")
+                )
+            }
+        }
+
+        rule.onNodeWithTag("box")
+            .assertTopPositionInRootIsEqualTo(viewSizeDp)
+            .assertLeftPositionInRootIsEqualTo(0.dp)
+
+        rule.runOnUiThread {
+            view?.visibility = View.GONE
+        }
+
+        rule.onNodeWithTag("box")
+            .assertTopPositionInRootIsEqualTo(0.dp)
+            .assertLeftPositionInRootIsEqualTo(0.dp)
     }
 
     @ExperimentalComposeUiApi
@@ -1550,6 +1760,10 @@ class AndroidViewTest {
             super.onRestoreInstanceState((state as Bundle).getParcelable("superState"))
             onRestoredValue(state.getString(key)!!)
         }
+    }
+
+    private class UpdateTestView(context: Context) : View(context) {
+        var counter = 0
     }
 
     private fun Dp.toPx(displayMetrics: DisplayMetrics) =

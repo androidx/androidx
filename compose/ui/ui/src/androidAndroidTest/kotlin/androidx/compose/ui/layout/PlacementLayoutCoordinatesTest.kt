@@ -124,7 +124,7 @@ class PlacementLayoutCoordinatesTest {
      */
     @OptIn(ExperimentalComposeUiApi::class)
     @Test
-    fun coordinatesWhilePlacingWithLookaheadLayout() {
+    fun coordinatesWhilePlacingWithLookaheadScope() {
         val locations = mutableStateListOf<LayoutCoordinates?>()
         var locationAtPlace: IntOffset? by mutableStateOf(null)
         var boxSize by mutableStateOf(IntSize.Zero)
@@ -209,7 +209,7 @@ class PlacementLayoutCoordinatesTest {
      */
     @OptIn(ExperimentalComposeUiApi::class)
     @Test
-    fun coordinatesWhileAligningWithLookaheadLayout() {
+    fun coordinatesWhileAligningWithLookaheadScope() {
         val locations = mutableStateListOf<LayoutCoordinates?>()
         rule.setContent {
             LookaheadScope {
@@ -275,7 +275,7 @@ class PlacementLayoutCoordinatesTest {
      */
     @OptIn(ExperimentalComposeUiApi::class)
     @Test
-    fun coordinatesWhileAligningInLookaheadLayout() {
+    fun coordinatesWhileAligningInLookaheadScope() {
         val locations = mutableStateListOf<LayoutCoordinates?>()
         rule.setContent {
             LookaheadScope {

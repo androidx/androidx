@@ -18,7 +18,6 @@ package androidx.credentials.provider;
 
 import android.content.pm.SigningInfo;
 
-import androidx.core.os.BuildCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -29,66 +28,40 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-@SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
+@SdkSuppress(minSdkVersion = 28)
 public class CallingAppInfoJavaTest {
 
     @Test
     public void constructor_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
-
         new CallingAppInfo("name", new SigningInfo());
     }
 
     @Test
     public void constructor_success_withOrigin() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
-
         new CallingAppInfo("name", new SigningInfo(), "origin");
     }
 
     @Test
     public void constructor_fail_emptyPackageName() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
-
         Assert.assertThrows(
                 "Expected exception from no package name",
                 IllegalArgumentException.class,
-                () -> {
-                    new CallingAppInfo("", new SigningInfo(), "origin");
-                });
+                () -> new CallingAppInfo("", new SigningInfo(), "origin"));
     }
 
     @Test
     public void constructor_fail_nullPackageName() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
-
         Assert.assertThrows(
                 "Expected exception from null package name",
                 NullPointerException.class,
-                () -> {
-                    new CallingAppInfo(null, new SigningInfo(), "origin");
-                });
+                () -> new CallingAppInfo(null, new SigningInfo(), "origin"));
     }
 
     @Test
     public void constructor_fail_nullSigningInfo() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
-
         Assert.assertThrows(
                 "Expected exception from null signing info",
                 NullPointerException.class,
-                () -> {
-                    new CallingAppInfo("package", null, "origin");
-                });
+                () -> new CallingAppInfo("package", null, "origin"));
     }
 }

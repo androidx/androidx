@@ -65,7 +65,7 @@ fun mutableDoubleStateOf(
 @Stable
 @JvmDefaultWithCompatibility
 interface DoubleState : State<Double> {
-    @AutoboxingStateValueProperty("doubleValue")
+    @get:AutoboxingStateValueProperty("doubleValue")
     override val value: Double
         @Suppress("AutoBoxing") get() = doubleValue
 
@@ -94,7 +94,8 @@ inline operator fun DoubleState.getValue(
 @Stable
 @JvmDefaultWithCompatibility
 interface MutableDoubleState : DoubleState, MutableState<Double> {
-    @AutoboxingStateValueProperty("doubleValue")
+    @get:AutoboxingStateValueProperty("doubleValue")
+    @set:AutoboxingStateValueProperty("doubleValue")
     override var value: Double
         @Suppress("AutoBoxing") get() = doubleValue
         set(value) { doubleValue = value }

@@ -46,6 +46,10 @@ import androidx.compose.ui.layout.OnRemeasuredModifier
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.InspectorValueInfo
 import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.semantics.ScrollAxisRange
+import androidx.compose.ui.semantics.horizontalScrollAxisRange
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.verticalScrollAxisRange
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -86,15 +90,51 @@ public fun <T> Modifier.swipeableV2(
     enabled: Boolean = true,
     reverseDirection: Boolean = false,
     interactionSource: MutableInteractionSource? = null
-) = draggable(
-    state = state.swipeDraggableState,
-    orientation = orientation,
-    enabled = enabled,
-    interactionSource = interactionSource,
-    reverseDirection = reverseDirection,
-    startDragImmediately = state.isAnimationRunning,
-    onDragStopped = { velocity -> launch { state.settle(velocity) } }
-)
+): Modifier {
+    // Swipeables publish scroll range semantics so they look like they can scroll between values
+    // of 0 and 1, inclusive, so that AndroidComposeView can report a value from its canScroll
+    // methods that correctly tells the system's ScrollDismissLayout whether it should intercept
+    // touch values (see b/199908428). This logic is *not* duplicated in the non-Wear swipeable
+    // because it's a bit of a hack to fix navigation in WearOS. Once swipeable implements proper
+    // nested scrolling, and the two swipeable implementations are merged, this fake scrolling stuff
+    // should be gone anyway. Also note that the regular Android swipe-to-go-back gesture works very
+    // differently than the wear gesture so we don't need this workaround to support it.
+    // TODO(b/201009199): Modifier.swipeableV2 should coordinate with the nested scrolling system.
+    val semantics = if (!enabled) Modifier else Modifier.semantics {
+        // Set a fake scroll range axis so that the AndroidComposeView can correctly report whether
+        // scrolling is supported via canScroll{Horizontally,Vertically}.
+        val range = ScrollAxisRange(
+            value = {
+                // Avoid dividing by 0.
+                if (state.minOffset == state.maxOffset) {
+                    0f
+                } else {
+                    val clampedOffset = (state.offset ?: 0f)
+                        .coerceIn(state.minOffset, state.maxOffset)
+                    // [0f, 1f] representing the fraction between the swipe bounds.
+                    // Return the remaining fraction available to swipe.
+                    (state.maxOffset - clampedOffset) / (state.maxOffset - state.minOffset)
+                }
+            },
+            maxValue = { 1f },
+            reverseScrolling = reverseDirection
+        )
+        when (orientation) {
+            Orientation.Horizontal -> horizontalScrollAxisRange = range
+            Orientation.Vertical -> verticalScrollAxisRange = range
+        }
+    }
+
+    return this.then(semantics).draggable(
+        state = state.swipeDraggableState,
+        orientation = orientation,
+        enabled = enabled,
+        interactionSource = interactionSource,
+        reverseDirection = reverseDirection,
+        startDragImmediately = state.isAnimationRunning,
+        onDragStopped = { velocity -> launch { state.settle(velocity) } }
+    )
+}
 
 /**
  * Define anchor points for a given [SwipeableV2State] based on this node's layout size and update

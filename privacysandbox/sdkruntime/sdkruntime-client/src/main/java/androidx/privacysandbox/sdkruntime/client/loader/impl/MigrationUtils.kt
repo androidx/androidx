@@ -33,7 +33,7 @@ import java.io.OutputStream
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 internal object MigrationUtils {
 
-    private const val LOG_TAG = "MigrationUtils"
+    private const val LOG_TAG = "LocalSdkMigrationUtils"
 
     /**
      * Try to migrate all files from source to target that match requested prefix.

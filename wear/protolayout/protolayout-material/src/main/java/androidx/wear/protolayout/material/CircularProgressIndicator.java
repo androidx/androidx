@@ -123,8 +123,8 @@ public class CircularProgressIndicator implements LayoutElement {
         public Builder() {}
 
         /**
-         * Sets the progress of the {@link CircularProgressIndicator}. Progress ratio should be
-         * a value between 0 and 1. If not set, 0 will be used. Progress will be colored in {@link
+         * Sets the progress of the {@link CircularProgressIndicator}. Progress ratio should be a
+         * value between 0 and 1. If not set, 0 will be used. Progress will be colored in {@link
          * ProgressIndicatorColors#getIndicatorColor()}.
          */
         @NonNull
@@ -141,9 +141,9 @@ public class CircularProgressIndicator implements LayoutElement {
          * <p>While this field is statically accessible from 1.0, it's only bindable since version
          * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
          *
-         * @param progressRatio The progress between 0 and 1. This field supports setting a
-         *     dynamic value. The static value of {@code progressRatio} will be considered as 0
-         *     if it's smaller than zero and as 1 if it's larger than one.
+         * @param progressRatio The progress between 0 and 1. This field supports setting a dynamic
+         *     value. The static value of {@code progressRatio} will be considered as 0 if it's
+         *     smaller than zero and as 1 if it's larger than one.
          */
         @NonNull
         public Builder setProgress(@NonNull FloatProp progressRatio) {

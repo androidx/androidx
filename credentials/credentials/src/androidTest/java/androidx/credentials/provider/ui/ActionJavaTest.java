@@ -26,7 +26,6 @@ import android.app.slice.Slice;
 import android.content.Context;
 import android.content.Intent;
 
-import androidx.core.os.BuildCompat;
 import androidx.credentials.provider.Action;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -38,7 +37,6 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-@SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
 public class ActionJavaTest {
     private static final CharSequence TITLE = "title";
     private static final CharSequence SUBTITLE = "subtitle";
@@ -51,9 +49,6 @@ public class ActionJavaTest {
 
     @Test
     public void constructor_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         Action action = new Action(TITLE, mPendingIntent, SUBTITLE);
 
         assertNotNull(action);
@@ -64,9 +59,6 @@ public class ActionJavaTest {
 
     @Test
     public void constructor_nullTitle_throwsNPE() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         assertThrows("Expected null title to throw NPE",
                 NullPointerException.class,
                 () -> new Action(null, mPendingIntent, SUBTITLE));
@@ -74,9 +66,6 @@ public class ActionJavaTest {
 
     @Test
     public void constructor_nullPendingIntent_throwsNPE() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         assertThrows("Expected null title to throw NPE",
                 NullPointerException.class,
                 () -> new Action(TITLE, null, SUBTITLE));
@@ -84,19 +73,14 @@ public class ActionJavaTest {
 
     @Test
     public void constructor_emptyTitle_throwsIllegalArgumentException() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         assertThrows("Expected empty title to throw IllegalArgumentException",
                 IllegalArgumentException.class,
                 () -> new Action("", mPendingIntent, SUBTITLE));
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 28)
     public void fromSlice_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         Action originalAction = new Action(TITLE, mPendingIntent, SUBTITLE);
         Slice slice = Action.toSlice(originalAction);
 

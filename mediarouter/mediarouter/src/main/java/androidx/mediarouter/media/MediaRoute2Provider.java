@@ -47,9 +47,7 @@ import android.util.SparseArray;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
-import androidx.core.os.BuildCompat;
 import androidx.mediarouter.R;
 import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor;
 import androidx.mediarouter.media.MediaRouter.ControlRequestCallback;
@@ -83,8 +81,6 @@ class MediaRoute2Provider extends MediaRouteProvider {
 
     private List<MediaRoute2Info> mRoutes = new ArrayList<>();
     private Map<String, String> mRouteIdToOriginalRouteIdMap = new ArrayMap<>();
-
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @SuppressWarnings({"SyntheticAccessor"})
     MediaRoute2Provider(@NonNull Context context, @NonNull Callback callback) {
         super(context);
@@ -94,7 +90,7 @@ class MediaRoute2Provider extends MediaRouteProvider {
         mHandler = new Handler(Looper.getMainLooper());
         mHandlerExecutor = mHandler::post;
 
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             mRouteCallback = new RouteCallbackUpsideDownCake();
         } else {
             mRouteCallback = new RouteCallback();

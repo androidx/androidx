@@ -20,6 +20,8 @@ import android.os.Build
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.benchmark.perfetto.PerfettoCapture
+import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig
+import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig.InitialProcessState
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -68,10 +70,12 @@ class PerfettoSdkOverheadBenchmark {
         runWithTimingDisabled { /* nothing */ }
     }
 
-    /** Measuring overhead of [androidx.tracing.perfetto.Tracing]. */
+    /** Measuring overhead of [androidx.tracing.perfetto.PerfettoSdkTrace]. */
     @Test
     fun traceBeginEnd_perfettoSdkTrace() {
-        PerfettoCapture().enableAndroidxTracingPerfetto(targetPackage, true).let { response ->
+        PerfettoCapture().enableAndroidxTracingPerfetto(
+            PerfettoSdkConfig(targetPackage, InitialProcessState.Alive)
+        ).let { response ->
             assertTrue(
                 "Ensuring Perfetto SDK is enabled",
                 response == null || response.contains("already enabled")
@@ -79,8 +83,8 @@ class PerfettoSdkOverheadBenchmark {
         }
         var ix = 0
         benchmarkRule.measureRepeated {
-            androidx.tracing.perfetto.Tracing.traceEventStart(0, testData[ix++ % testData.size])
-            androidx.tracing.perfetto.Tracing.traceEventEnd()
+            androidx.tracing.perfetto.PerfettoSdkTrace.beginSection(testData[ix++ % testData.size])
+            androidx.tracing.perfetto.PerfettoSdkTrace.endSection()
         }
     }
 

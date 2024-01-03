@@ -29,6 +29,12 @@ dependencies {
     implementation("androidx.annotation:annotation:1.1.0")
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
     implementation(project(":appactions:interaction:interaction-capabilities-core"))
+
+    // depending on productivity (any vertical works) capability artifact for writing unit tests
+    // for this library
+    testImplementation(project(":appactions:interaction:interaction-capabilities-productivity"))
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
 }
 
 android {

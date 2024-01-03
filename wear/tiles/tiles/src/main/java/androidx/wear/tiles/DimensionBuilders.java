@@ -578,8 +578,7 @@ public final class DimensionBuilders {
     }
 
     /**
-     * Return an instance of one of this object's subtypes, from the protocol buffer
-     * representation.
+     * Return an instance of one of this object's subtypes, from the protocol buffer representation.
      */
     @NonNull
     static ContainerDimension containerDimensionFromProto(
@@ -620,8 +619,7 @@ public final class DimensionBuilders {
     }
 
     /**
-     * Return an instance of one of this object's subtypes, from the protocol buffer
-     * representation.
+     * Return an instance of one of this object's subtypes, from the protocol buffer representation.
      */
     @NonNull
     static ImageDimension imageDimensionFromProto(@NonNull DimensionProto.ImageDimension proto) {

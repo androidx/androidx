@@ -108,7 +108,7 @@ import java.util.function.Supplier;
 public class DynamicTypeEvaluator {
     private static final String TAG = "DynamicTypeEvaluator";
     private static final QuotaManager NO_OP_QUOTA_MANAGER =
-            new FixedQuotaManagerImpl(Integer.MAX_VALUE);
+            new FixedQuotaManagerImpl(Integer.MAX_VALUE, "dynamic nodes noop");
 
     @NonNull
     private static final QuotaManager DISABLED_ANIMATIONS_QUOTA_MANAGER =

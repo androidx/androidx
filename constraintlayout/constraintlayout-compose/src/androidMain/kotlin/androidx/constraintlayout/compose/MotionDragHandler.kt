@@ -16,13 +16,21 @@
 
 package androidx.constraintlayout.compose
 
-import androidx.compose.foundation.gestures.detectDragGestures
+import android.annotation.SuppressLint
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.awaitTouchSlopOrCancellation
+import androidx.compose.foundation.gestures.drag
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableFloatState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.PointerInputChange
+import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.input.pointer.util.addPointerInputChange
 import androidx.compose.ui.platform.debugInspectorInfo
@@ -39,12 +47,13 @@ import kotlinx.coroutines.isActive
  */
 internal fun Modifier.motionPointerInput(
     key: Any,
-    motionProgress: MotionProgress,
+    motionProgress: MutableFloatState,
     measurer: MotionMeasurer
 ): Modifier = composed(
     inspectorInfo = debugInspectorInfo {
         name = "motionPointerInput"
         properties["key"] = key
+        properties["motionProgress"] = motionProgress
         properties["measurer"] = measurer
     }
 ) {
@@ -94,8 +103,11 @@ internal fun Modifier.motionPointerInput(
     }
     return@composed this.pointerInput(key) {
         val velocityTracker = VelocityTracker()
-        detectDragGestures(
-            onDragStart = {
+        detectDragGesturesWhenNeeded(
+            onAcceptFirstDown = { offset ->
+                swipeHandler.onAcceptFirstDownForOnSwipe(offset)
+            },
+            onDragStart = { _ ->
                 velocityTracker.resetTracking()
             },
             onDragEnd = {
@@ -103,12 +115,19 @@ internal fun Modifier.motionPointerInput(
                     // Indicate that the swipe has ended, MotionLayout should animate the rest.
                     MotionDragState.onDragEnd(velocityTracker.calculateVelocity())
                 )
+            },
+            onDragCancel = {
+                dragChannel.trySend(
+                    // Indicate that the swipe has ended, MotionLayout should animate the rest.
+                    MotionDragState.onDragEnd(velocityTracker.calculateVelocity())
+                )
+            },
+            onDrag = { change, dragAmount ->
+                velocityTracker.addPointerInputChange(change)
+                // As dragging is done, pass the dragAmount to update the MotionLayout progress.
+                dragChannel.trySend(MotionDragState.onDrag(dragAmount))
             }
-        ) { change, dragAmount ->
-            velocityTracker.addPointerInputChange(change)
-            // As dragging is done, pass the dragAmount to update the MotionLayout progress.
-            dragChannel.trySend(MotionDragState.onDrag(dragAmount))
-        }
+        )
     }
 }
 
@@ -135,5 +154,49 @@ internal data class MotionDragState(
                 dragAmount = Offset.Unspecified,
                 velocity = velocity
             )
+    }
+}
+
+/**
+ * Copy of [androidx.compose.foundation.gestures.detectDragGestures] with the opportunity to decide
+ * whether we consume the rest of the drag with [onAcceptFirstDown].
+ */
+@SuppressLint("PrimitiveInLambda")
+private suspend fun PointerInputScope.detectDragGesturesWhenNeeded(
+    onAcceptFirstDown: (Offset) -> Boolean,
+    onDragStart: (Offset) -> Unit,
+    onDragEnd: () -> Unit,
+    onDragCancel: () -> Unit,
+    onDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit
+) {
+    awaitEachGesture {
+        val down = awaitFirstDown(requireUnconsumed = true)
+        if (!onAcceptFirstDown(down.position)) {
+            return@awaitEachGesture
+        }
+        var drag: PointerInputChange?
+        var overSlop = Offset.Zero
+        do {
+            drag = awaitTouchSlopOrCancellation(
+                pointerId = down.id
+            ) { change, over ->
+                change.consume()
+                overSlop = over
+            }
+        } while (drag != null && !drag.isConsumed)
+        if (drag != null) {
+            onDragStart.invoke(drag.position)
+            onDrag(drag, overSlop)
+            if (
+                !drag(drag.id) {
+                    onDrag(it, it.positionChange())
+                    it.consume()
+                }
+            ) {
+                onDragCancel()
+            } else {
+                onDragEnd()
+            }
+        }
     }
 }

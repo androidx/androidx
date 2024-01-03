@@ -176,7 +176,9 @@ public interface SurfaceOutput extends Closeable {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
-    Matrix getSensorToBufferTransform();
+    default Matrix getSensorToBufferTransform() {
+        return new Matrix();
+    }
 
     /**
      * Events of the {@link Surface} retrieved from

@@ -105,7 +105,7 @@ final class CaptureSession implements CaptureSessionInterface {
     @Nullable
     @GuardedBy("mSessionLock")
     SessionConfig mSessionConfig;
-    /** The capture options from CameraEventCallback.onRepeating(). **/
+    /** The capture options from CameraEventCallback.onRepeating(). */
     @NonNull
     @GuardedBy("mSessionLock")
     Config mCameraEventOnRepeatingOptions = OptionsBundle.emptyBundle();

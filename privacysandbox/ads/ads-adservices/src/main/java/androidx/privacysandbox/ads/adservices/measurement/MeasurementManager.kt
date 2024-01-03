@@ -27,7 +27,10 @@ import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresExtension
 import androidx.annotation.RequiresPermission
 import androidx.core.os.asOutcomeReceiver
+import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
 import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
@@ -80,6 +83,16 @@ abstract class MeasurementManager {
      */
     @RequiresPermission(ACCESS_ADSERVICES_ATTRIBUTION)
     abstract suspend fun registerWebTrigger(request: WebTriggerRegistrationRequest)
+
+    /**
+     * Register an attribution source(click or view) context. This API will not process any
+     * redirects, all registration URLs should be supplied with the request.
+     *
+     * @param request source registration request
+     */
+    @RequiresPermission(ACCESS_ADSERVICES_ATTRIBUTION)
+    @ExperimentalFeatures.RegisterSourceOptIn
+    abstract suspend fun registerSource(request: SourceRegistrationRequest)
 
     /**
      * Get Measurement API status.
@@ -157,6 +170,26 @@ abstract class MeasurementManager {
                     convertWebSourceRequest(request),
                     Runnable::run,
                     continuation.asOutcomeReceiver())
+            }
+        }
+
+        @DoNotInline
+        @ExperimentalFeatures.RegisterSourceOptIn
+        @RequiresPermission(ACCESS_ADSERVICES_ATTRIBUTION)
+        override suspend fun registerSource(
+            request: SourceRegistrationRequest
+        ): Unit = coroutineScope {
+            request.registrationUris.forEach { uri ->
+                launch {
+                    suspendCancellableCoroutine<Any> { continuation ->
+                        mMeasurementManager.registerSource(
+                            uri,
+                            request.inputEvent,
+                            Runnable::run,
+                            continuation.asOutcomeReceiver()
+                        )
+                    }
+                }
             }
         }
 

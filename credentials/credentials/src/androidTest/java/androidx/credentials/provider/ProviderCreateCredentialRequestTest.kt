@@ -17,7 +17,6 @@
 package androidx.credentials.provider
 
 import android.content.pm.SigningInfo
-import androidx.core.os.BuildCompat
 import androidx.credentials.CreatePasswordRequest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -25,17 +24,13 @@ import androidx.test.filters.SmallTest
 import org.junit.Test
 import org.junit.runner.RunWith
 
- @SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
+ @SdkSuppress(minSdkVersion = 28)
  @RunWith(AndroidJUnit4::class)
  @SmallTest
  class ProviderCreateCredentialRequestTest {
 
     @Test
     fun constructor_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
-
         val request = CreatePasswordRequest("id", "password")
 
         ProviderCreateCredentialRequest(

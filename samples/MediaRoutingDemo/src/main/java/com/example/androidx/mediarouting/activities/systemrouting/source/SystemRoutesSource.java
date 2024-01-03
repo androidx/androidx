@@ -19,6 +19,7 @@ package com.example.androidx.mediarouting.activities.systemrouting.source;
 import androidx.annotation.NonNull;
 
 import com.example.androidx.mediarouting.activities.systemrouting.SystemRouteItem;
+import com.example.androidx.mediarouting.activities.systemrouting.SystemRoutesSourceItem;
 
 import java.util.List;
 
@@ -28,9 +29,14 @@ import java.util.List;
 public interface SystemRoutesSource {
 
     /**
-     * Fetches system routes and returns a list of {@link SystemRouteItem}.
+     * Gets a source item containing source type.
      */
     @NonNull
-    List<SystemRouteItem> fetchRoutes();
+    SystemRoutesSourceItem getSourceItem();
 
+    /**
+     * Fetches a list of {@link SystemRouteItem} discovered by this source.
+     */
+    @NonNull
+    List<SystemRouteItem> fetchSourceRouteItems();
 }

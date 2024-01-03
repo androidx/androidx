@@ -24,7 +24,6 @@ import android.content.pm.ServiceInfo;
 import android.os.Build;
 import android.util.Log;
 
-import androidx.core.os.BuildCompat;
 import androidx.test.core.app.ApplicationProvider;
 
 import java.util.List;
@@ -228,7 +227,7 @@ public class TestUtil {
                 .queryIntentServices(intent, PackageManager.MATCH_SYSTEM_ONLY);
 
         // TODO: b/271866693 avoid hardcoding package names
-        if (resolveInfos != null && BuildCompat.isAtLeastT()) {
+        if (resolveInfos != null && Build.VERSION.SDK_INT >= 33) {
             resolveInfos = resolveInfos.stream()
                     .filter(info ->
                             !info.serviceInfo.packageName.contains(EXT_SERVICES_PACKAGE_NAME))

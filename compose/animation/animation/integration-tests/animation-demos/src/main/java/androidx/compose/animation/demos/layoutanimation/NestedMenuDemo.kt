@@ -18,6 +18,7 @@ package androidx.compose.animation.demos.layoutanimation
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
@@ -74,10 +75,7 @@ fun NestedMenuDemo() {
                 if (initialState < targetState) {
                     // Going from parent menu to child menu, slide towards left
                     slideIntoContainer(towards = SlideDirection.Left) togetherWith
-                        slideOutOfContainer(
-                            towards = SlideDirection.Left,
-                            targetOffset = { offsetForFullSlide -> offsetForFullSlide / 2 }
-                        )
+                        ExitTransition.Hold
                 } else {
                     // Going from child menu to parent menu, slide towards right
                     slideIntoContainer(

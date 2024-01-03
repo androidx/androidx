@@ -37,7 +37,6 @@ import java.nio.charset.Charset
  * Wrappers for UiAutomation.executeShellCommand to handle compat behavior, and add additional
  * features like script execution (with piping), stdin/stderr.
  *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 object Shell {

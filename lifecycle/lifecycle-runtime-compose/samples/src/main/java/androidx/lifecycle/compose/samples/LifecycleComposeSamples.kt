@@ -71,6 +71,7 @@ private interface TimeAnalytics {
 private interface DataAnalytics {
     fun trackScreenView(screenName: String)
     fun startTimeTracking(): TimeAnalytics
+    fun sendDisposalAnalytics(timeAnalytics: TimeAnalytics)
 }
 
 @Sampled
@@ -94,7 +95,7 @@ fun lifecycleStartEffectSample() {
         LifecycleStartEffect {
             val timeTracker = dataAnalytics.startTimeTracking()
 
-            onStop {
+            onStopOrDispose {
                 timeTracker.stopTimeTracking()
             }
         }
@@ -111,7 +112,7 @@ fun lifecycleResumeEffectSample() {
         LifecycleResumeEffect {
             val timeTracker = dataAnalytics.startTimeTracking()
 
-            onPause {
+            onPauseOrDispose {
                 timeTracker.stopTimeTracking()
             }
         }

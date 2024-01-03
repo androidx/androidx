@@ -21,7 +21,6 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Icon
 import android.os.Bundle
-import androidx.core.os.BuildCompat
 import androidx.credentials.PublicKeyCredential
 import androidx.credentials.R
 import androidx.credentials.equals
@@ -39,7 +38,7 @@ import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
+@SdkSuppress(minSdkVersion = 26)
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class PublicKeyCredentialEntryTest {
@@ -52,34 +51,23 @@ class PublicKeyCredentialEntryTest {
 
     @Test
     fun constructor_requiredParamsOnly_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val entry = constructWithRequiredParamsOnly()
 
         assertNotNull(entry)
-        assertNotNull(entry.slice)
         assertThat(entry.type).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL)
         assertEntryWithRequiredParams(entry)
     }
 
     @Test
     fun constructor_allParams_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val entry = constructWithAllParams()
         assertNotNull(entry)
-        assertNotNull(entry.slice)
         assertThat(entry.type).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL)
         assertEntryWithAllParams(entry)
     }
 
     @Test
     fun constructor_emptyUsername_throwsIAE() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         assertThrows(
             "Expected empty username to throw IllegalArgumentException",
             IllegalArgumentException::class.java
@@ -92,9 +80,6 @@ class PublicKeyCredentialEntryTest {
 
     @Test
     fun constructor_nullIcon_defaultIconSet() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val entry = PublicKeyCredentialEntry(
             mContext, USERNAME, mPendingIntent, BEGIN_OPTION
         )
@@ -109,9 +94,6 @@ class PublicKeyCredentialEntryTest {
 
     @Test
     fun constructor_nullTypeDisplayName_defaultDisplayNameSet() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val entry = PublicKeyCredentialEntry(
             mContext, USERNAME, mPendingIntent, BEGIN_OPTION
         )
@@ -123,13 +105,13 @@ class PublicKeyCredentialEntryTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 28)
     fun fromSlice_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val originalEntry = constructWithAllParams()
+        val slice = PublicKeyCredentialEntry.toSlice(originalEntry)
 
-        val entry = fromSlice(originalEntry.slice)
+        assertNotNull(slice)
+        val entry = fromSlice(slice!!)
 
         assertNotNull(entry)
         entry?.let {

@@ -17,7 +17,9 @@
 package androidx.compose.foundation.pager
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -26,6 +28,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeLeft
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.launch
@@ -247,6 +250,46 @@ class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
         rule.runOnIdle {
             assertThat(state.pageCount).isEqualTo(pageCount.value)
             assertThat(state.currentPage).isEqualTo(1) // last page
+        }
+    }
+
+    @Test
+    fun keyLambdaShouldUpdateWhenDatasetChanges() {
+        lateinit var pagerState: PagerState
+        val listA = mutableStateOf(listOf(1))
+
+        @Composable
+        fun MyComposable(data: List<Int>) {
+            pagerState = rememberPagerState { data.size }
+            HorizontalPager(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .testTag("pager"),
+                state = pagerState,
+                key = { data[it] }
+            ) {
+                Spacer(
+                    Modifier
+                        .fillMaxSize())
+            }
+        }
+
+        rule.setContent {
+            MyComposable(listA.value)
+        }
+
+        rule.runOnIdle {
+            listA.value = listOf(1, 2)
+        }
+
+        assertThat(listA.value.size).isEqualTo(2)
+
+        rule.onNodeWithTag("pager").performTouchInput {
+            swipeLeft()
+        }
+
+        rule.runOnIdle {
+            assertThat(pagerState.currentPage).isEqualTo(1)
         }
     }
 

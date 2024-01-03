@@ -140,35 +140,35 @@ public final class FakeCameraCaptureResult implements CameraCaptureResult {
             return fakeCameraCaptureResult;
         }
 
-        /** Set the {@link CameraCaptureMetaData.AfMode} **/
+        /** Set the {@link CameraCaptureMetaData.AfMode} */
         @NonNull
         public Builder setAfMode(@Nullable CameraCaptureMetaData.AfMode mode) {
             mAfMode = mode;
             return this;
         }
 
-        /** Set the {@link CameraCaptureMetaData.AfState} **/
+        /** Set the {@link CameraCaptureMetaData.AfState} */
         @NonNull
         public Builder setAfState(@Nullable CameraCaptureMetaData.AfState state) {
             mAfState = state;
             return this;
         }
 
-        /** Set the {@link CameraCaptureMetaData.AeState} **/
+        /** Set the {@link CameraCaptureMetaData.AeState} */
         @NonNull
         public Builder setAeState(@Nullable CameraCaptureMetaData.AeState state) {
             mAeState = state;
             return this;
         }
 
-        /** Set the {@link CameraCaptureMetaData.AwbState} **/
+        /** Set the {@link CameraCaptureMetaData.AwbState} */
         @NonNull
         public Builder setAwbState(@Nullable CameraCaptureMetaData.AwbState state) {
             mAwbState = state;
             return this;
         }
 
-        /** Set the {@link CameraCaptureMetaData.FlashState} **/
+        /** Set the {@link CameraCaptureMetaData.FlashState} */
         @NonNull
         public Builder setFlashState(@Nullable CameraCaptureMetaData.FlashState state) {
             mFlashState = state;

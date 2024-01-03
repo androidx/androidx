@@ -116,7 +116,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final String TAG = "FragmentManager";
 
-    static boolean USE_PREDICTIVE_BACK = true;
+    static boolean USE_PREDICTIVE_BACK = false;
 
     /**
      * Control whether FragmentManager uses the new state predictive back feature that allows
@@ -467,6 +467,11 @@ public abstract class FragmentManager implements FragmentResultOwner {
 
                 @Override
                 public void handleOnBackStarted(@NonNull BackEventCompat backEvent) {
+                    if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+                        Log.d(FragmentManager.TAG,
+                                "handleOnBackStarted. PREDICTIVE_BACK = " + USE_PREDICTIVE_BACK
+                        );
+                    }
                     if (USE_PREDICTIVE_BACK) {
                         prepareBackStackTransition();
                     }
@@ -474,6 +479,11 @@ public abstract class FragmentManager implements FragmentResultOwner {
 
                 @Override
                 public void handleOnBackProgressed(@NonNull BackEventCompat backEvent) {
+                    if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                        Log.v(FragmentManager.TAG,
+                                "handleOnBackProgressed. PREDICTIVE_BACK = " + USE_PREDICTIVE_BACK
+                        );
+                    }
                     if (mTransitioningOp != null) {
                         // Collect the correct SpecialEffectsControllers and pass in the progress
                         Set<SpecialEffectsController> changedControllers  =
@@ -490,11 +500,21 @@ public abstract class FragmentManager implements FragmentResultOwner {
 
                 @Override
                 public void handleOnBackPressed() {
+                    if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+                        Log.d(FragmentManager.TAG,
+                                "handleOnBackPressed. PREDICTIVE_BACK = " + USE_PREDICTIVE_BACK
+                        );
+                    }
                     FragmentManager.this.handleOnBackPressed();
                 }
 
                 @Override
                 public void handleOnBackCancelled() {
+                    if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+                        Log.d(FragmentManager.TAG,
+                                "handleOnBackCancelled. PREDICTIVE_BACK = " + USE_PREDICTIVE_BACK
+                        );
+                    }
                     if (USE_PREDICTIVE_BACK) {
                         cancelBackStackTransition();
                         mTransitioningOp = null;
@@ -710,8 +730,15 @@ public abstract class FragmentManager implements FragmentResultOwner {
         // This FragmentManager needs to have a back stack for this to be enabled
         // And the parent fragment, if it exists, needs to be the primary navigation
         // fragment.
-        mOnBackPressedCallback.setEnabled(getBackStackEntryCount() > 0
-                && isPrimaryNavigation(mParent));
+        boolean isEnabled = getBackStackEntryCount() > 0
+                && isPrimaryNavigation(mParent);
+        if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+            Log.d(FragmentManager.TAG,
+                    "OnBackPressedCallback for FragmentManager " + this + " enabled state is "
+                            + isEnabled
+            );
+        }
+        mOnBackPressedCallback.setEnabled(isEnabled);
     }
 
     /**

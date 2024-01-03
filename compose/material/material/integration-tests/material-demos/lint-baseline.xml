@@ -1,5 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
+<issues format="6" by="lint 8.1.0-beta05" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta05)" variant="all" version="8.1.0-beta05">
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method ColorPicker has parameter &apos;onColorChange&apos; with type Function1&lt;? super Color, Unit>."
+        errorLine1="private fun ColorPicker(onColorChange: (Color) -> Unit) {"
+        errorLine2="                                       ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/material/demos/ColorPickerDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;updateColorWheel&apos; with type Function1&lt;? super Offset, ? extends Unit>."
+        errorLine1="            fun updateColorWheel(newPosition: Offset) {"
+        errorLine2="            ^">
+        <location
+            file="src/main/java/androidx/compose/material/demos/ColorPickerDemo.kt"/>
+    </issue>
 
     <issue
         id="PrimitiveInLambda"

@@ -19,6 +19,7 @@ package androidx.compose.ui.tooling
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.currentComposer
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -166,5 +167,21 @@ class MyTestComposableWithIntPreviewParams {
 
     private class TestContentParameterProviderInt : PreviewParameterProvider<Int> {
         override val values = sequenceOf(42, 45, 92)
+    }
+}
+
+class MyTestComposableWithClassTypePreviewParams {
+    @Preview(showBackground = true)
+    @Composable
+    private fun TestRadius(
+        @PreviewParameter(CornerRadiusParamProvider::class)
+        @Suppress("UNUSED_PARAMETER")
+        radius: CornerRadius
+    ) {
+    }
+
+    class CornerRadiusParamProvider : PreviewParameterProvider<CornerRadius> {
+        override val values: Sequence<CornerRadius>
+            get() = sequenceOf(CornerRadius(42f), CornerRadius.Zero, CornerRadius(0f, 34f))
     }
 }

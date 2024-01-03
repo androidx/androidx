@@ -16,7 +16,6 @@
 
 package androidx.graphics.shapes
 
-import android.graphics.PointF
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -36,11 +35,11 @@ class PolygonMeasureTest {
     @Test
     fun irregularTriangleAngleMeasure() = irregularPolygonAngleMeasure(
         RoundedPolygon(
-            vertices = listOf(
-                PointF(0f, -1f),
-                PointF(1f, 1f),
-                PointF(0f, 0.5f),
-                PointF(-1f, 1f)
+            vertices = floatArrayOf(
+                0f, -1f,
+                1f, 1f,
+                0f, 0.5f,
+                -1f, 1f
             ),
             perVertexRounding = listOf(
                 CornerRounding(0.2f, 0.5f),
@@ -54,11 +53,11 @@ class PolygonMeasureTest {
     @Test
     fun quarterAngleMeasure() = irregularPolygonAngleMeasure(
         RoundedPolygon(
-            vertices = listOf(
-                PointF(-1f, -1f),
-                PointF(1f, -1f),
-                PointF(1f, 1f),
-                PointF(-1f, 1f)
+            vertices = floatArrayOf(
+                -1f, -1f,
+                1f, -1f,
+                1f, 1f,
+                -1f, 1f
             ),
             perVertexRounding = listOf(
                 CornerRounding.Unrounded,
@@ -71,7 +70,7 @@ class PolygonMeasureTest {
 
     private fun polygonAngleMeasure(sides: Int) {
         val polygon = RoundedPolygon(sides)
-        val measurer = AngleMeasurer(polygon.center)
+        val measurer = AngleMeasurer(polygon.centerX, polygon.centerY)
 
         val measuredPolygon = MeasuredPolygon.measurePolygon(measurer, polygon)
 
@@ -85,7 +84,7 @@ class PolygonMeasureTest {
     }
 
     private fun irregularPolygonAngleMeasure(polygon: RoundedPolygon) {
-        val measurer = AngleMeasurer(polygon.center)
+        val measurer = AngleMeasurer(polygon.centerX, polygon.centerY)
 
         val measuredPolygon = MeasuredPolygon.measurePolygon(measurer, polygon)
 

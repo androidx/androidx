@@ -64,6 +64,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintSet
 import androidx.constraintlayout.compose.Dimension
 import androidx.constraintlayout.compose.ExperimentalMotionApi
+import androidx.constraintlayout.compose.InvalidationStrategy
 import androidx.constraintlayout.compose.MotionLayout
 import androidx.constraintlayout.compose.MotionLayoutScope
 import androidx.constraintlayout.compose.MotionScene
@@ -75,19 +76,26 @@ import androidx.constraintlayout.compose.integration.macrobenchmark.target.commo
 @Preview
 @Composable
 fun NewMotionMessagePreview() {
-    NewMotionMessageWithControls(useDsl = false)
+    NewMotionMessageWithControls(useDsl = false, optimize = false)
 }
 
 @Preview
 @Composable
 fun NewMotionMessagePreviewWithDsl() {
-    NewMotionMessageWithControls(useDsl = true)
+    NewMotionMessageWithControls(useDsl = true, optimize = false)
+}
+
+@Preview
+@Composable
+fun NewMotionMessagePreviewWithDslOptimized() {
+    NewMotionMessageWithControls(useDsl = true, optimize = true)
 }
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMotionApi::class)
 @Composable
 fun NewMotionMessageWithControls(
-    useDsl: Boolean
+    useDsl: Boolean,
+    optimize: Boolean
 ) {
     val initialLayout = NewMessageLayout.Full
     val newMessageState = rememberNewMessageState(initialLayoutState = initialLayout)
@@ -111,10 +119,20 @@ fun NewMotionMessageWithControls(
                 text = "Mini"
             )
         }
+        val invalidationStrategy = remember(newMessageState, optimize) {
+            if (optimize) {
+                InvalidationStrategy {
+                    newMessageState.currentState
+                }
+            } else {
+                InvalidationStrategy.DefaultInvalidationStrategy
+            }
+        }
         NewMessageButton(
             modifier = Modifier.fillMaxSize(),
             motionScene = motionScene,
             state = newMessageState,
+            invalidationStrategy = invalidationStrategy,
         )
     }
 }
@@ -533,16 +551,18 @@ internal fun MotionLayoutScope.MotionMessageContent(
 
 @Composable
 private fun NewMessageButton(
-    modifier: Modifier = Modifier,
     motionScene: MotionScene,
-    state: NewMessageState
+    state: NewMessageState,
+    invalidationStrategy: InvalidationStrategy,
+    modifier: Modifier = Modifier,
 ) {
     val currentStateName = state.currentState.name
     MotionLayout(
         motionScene = motionScene,
         animationSpec = tween(700),
         constraintSetName = currentStateName,
-        modifier = modifier
+        modifier = modifier,
+        invalidationStrategy = invalidationStrategy
     ) {
         MotionMessageContent(state = state)
     }

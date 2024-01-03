@@ -16,6 +16,7 @@
 
 package androidx.appsearch.app;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.annotation.IntDef;
@@ -24,6 +25,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.exceptions.IllegalSchemaException;
 import androidx.appsearch.util.BundleUtil;
 import androidx.appsearch.util.IndentingStringBuilder;
@@ -35,6 +37,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -51,6 +54,7 @@ import java.util.Set;
 public final class AppSearchSchema {
     private static final String SCHEMA_TYPE_FIELD = "schemaType";
     private static final String PROPERTIES_FIELD = "properties";
+    private static final String PARENT_TYPES_FIELD = "parentTypes";
 
     private final Bundle mBundle;
 
@@ -139,6 +143,23 @@ public final class AppSearchSchema {
         return ret;
     }
 
+    /**
+     * Returns the list of parent types of this schema for polymorphism.
+     *
+     * <!--@exportToFramework:ifJetpack()--><!--@exportToFramework:else()
+     * @exportToFramework:hide TODO(b/291122592): Unhide in Mainline when API updates via Mainline
+     *   are possible.
+     * -->
+     */
+    @NonNull
+    public List<String> getParentTypes() {
+        List<String> parentTypes = mBundle.getStringArrayList(AppSearchSchema.PARENT_TYPES_FIELD);
+        if (parentTypes == null) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableList(parentTypes);
+    }
+
     @Override
     public boolean equals(@Nullable Object other) {
         if (this == other) {
@@ -151,18 +172,22 @@ public final class AppSearchSchema {
         if (!getSchemaType().equals(otherSchema.getSchemaType())) {
             return false;
         }
+        if (!getParentTypes().equals(otherSchema.getParentTypes())) {
+            return false;
+        }
         return getProperties().equals(otherSchema.getProperties());
     }
 
     @Override
     public int hashCode() {
-        return ObjectsCompat.hash(getSchemaType(), getProperties());
+        return ObjectsCompat.hash(getSchemaType(), getProperties(), getParentTypes());
     }
 
     /** Builder for {@link AppSearchSchema objects}. */
     public static final class Builder {
         private final String mSchemaType;
         private ArrayList<Bundle> mPropertyBundles = new ArrayList<>();
+        private ArraySet<String> mParentTypes = new ArraySet<>();
         private final Set<String> mPropertyNames = new ArraySet<>();
         private boolean mBuilt = false;
 
@@ -186,12 +211,92 @@ public final class AppSearchSchema {
             return this;
         }
 
+        /**
+         * Adds a parent type to the given type for polymorphism, so that the given type will be
+         * considered as a subtype of {@code parentSchemaType}.
+         *
+         * <p>Subtype relations are automatically considered transitive, so callers are only
+         * required to provide direct parents. Specifically, if T1 &lt;: T2 and T2 &lt;: T3 are
+         * known, then T1 &lt;: T3 will be inferred automatically, where &lt;: is the subtype
+         * symbol.
+         *
+         * <p>Polymorphism is currently supported in the following ways:
+         * <ul>
+         *     <li>Search filters on a parent type will automatically be extended to the child
+         *     types as well. For example, if Artist &lt;: Person, then a search with a filter on
+         *     type Person (by calling {@link SearchSpec.Builder#addFilterSchemas}) will also
+         *     include documents of type Artist in the search result.
+         *     <li>In the projection API, the property paths to project specified for a
+         *     parent type will automatically be extended to the child types as well. If both a
+         *     parent type and one of its child type are specified in the projection API, the
+         *     parent type's paths will be merged into the child's. For more details on
+         *     projection, see {@link SearchSpec.Builder#addProjection}.
+         *     <li>A document property defined as type U is allowed to be set with a document of
+         *     type T, as long as T &lt;: U, but note that index will only be based on the defined
+         *     type, which is U. For example, consider a document of type "Company" with a
+         *     repeated "employees" field of type "Person". We can add employees of either
+         *     type "Person" or type "Artist" or both to this property, as long as "Artist" is a
+         *     subtype of "Person". However, the index of the "employees" property will be based
+         *     on what's defined in "Person", even for an added document of type "Artist".
+         * </ul>
+         *
+         * <p>Subtypes must meet the following requirements. A violation of the requirements will
+         * cause {@link AppSearchSession#setSchemaAsync} to throw an {@link AppSearchException}
+         * with the result code of {@link AppSearchResult#RESULT_INVALID_ARGUMENT}. Consider a
+         * type Artist and a type Person, and Artist claims to be a subtype of Person, then:
+         * <ul>
+         *     <li>Every property in Person must have a corresponding property in Artist with the
+         *     same name.
+         *     <li>Every non-document property in Person must have the same type as the type of
+         *     the corresponding property in Artist. For example, if "age" is an integer property
+         *     in Person, then "age" must also be an integer property in Artist, instead of a
+         *     string.
+         *     <li>The schema type of every document property in Artist must be a subtype of the
+         *     schema type of the corresponding document property in Person, if such a property
+         *     exists in Person. For example, if "awards" is a document property of type Award in
+         *     Person, then the type of the "awards" property in Artist must be a subtype of
+         *     Award, say ArtAward. Note that every type is a subtype of itself.
+         *     <li>Every property in Artist must have a cardinality stricter than or equal to the
+         *     cardinality of the corresponding property in Person, if such a property exists in
+         *     Person. For example, if "awards" is a property in Person of cardinality OPTIONAL,
+         *     then the cardinality of the "awards" property in Artist can only be REQUIRED or
+         *     OPTIONAL. Rule: REQUIRED &lt; OPTIONAL &lt; REPEATED.
+         *     <li>There are no other enforcements on the corresponding properties in Artist,
+         *     such as index type, tokenizer type, etc. These settings can be safely overridden.
+         * </ul>
+         *
+         * <p>A type can be defined to have multiple parents, but it must be compatible with each
+         * of its parents based on the above rules. For example, if LocalBusiness is defined as a
+         * subtype of both Place and Organization, then the compatibility of LocalBusiness with
+         * Place and the compatibility of LocalBusiness with Organization will both be checked.
+         *
+         * <!--@exportToFramework:ifJetpack()--><!--@exportToFramework:else()
+         * @exportToFramework:hide TODO(b/291122592): Unhide in Mainline when API updates via
+         *   Mainline are possible.
+         * -->
+         */
+        @CanIgnoreReturnValue
+        @NonNull
+        // @exportToFramework:startStrip()
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.SCHEMA_ADD_PARENT_TYPE)
+        // @exportToFramework:endStrip()
+        public AppSearchSchema.Builder addParentType(@NonNull String parentSchemaType) {
+            Preconditions.checkNotNull(parentSchemaType);
+            resetIfBuilt();
+            mParentTypes.add(parentSchemaType);
+            return this;
+        }
+
         /** Constructs a new {@link AppSearchSchema} from the contents of this builder. */
         @NonNull
         public AppSearchSchema build() {
             Bundle bundle = new Bundle();
             bundle.putString(AppSearchSchema.SCHEMA_TYPE_FIELD, mSchemaType);
             bundle.putParcelableArrayList(AppSearchSchema.PROPERTIES_FIELD, mPropertyBundles);
+            bundle.putStringArrayList(AppSearchSchema.PARENT_TYPES_FIELD,
+                    new ArrayList<>(mParentTypes));
             mBuilt = true;
             return new AppSearchSchema(bundle);
         }
@@ -199,6 +304,7 @@ public final class AppSearchSchema {
         private void resetIfBuilt() {
             if (mBuilt) {
                 mPropertyBundles = new ArrayList<>(mPropertyBundles);
+                mParentTypes = new ArraySet<>(mParentTypes);
                 mBuilt = false;
             }
         }
@@ -221,6 +327,7 @@ public final class AppSearchSchema {
          * <p>NOTE: The integer values of these constants must match the proto enum constants in
          * com.google.android.icing.proto.PropertyConfigProto.DataType.Code.
          *
+         * @exportToFramework:hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @IntDef(value = {
@@ -272,6 +379,7 @@ public final class AppSearchSchema {
          * <p>NOTE: The integer values of these constants must match the proto enum constants in
          * com.google.android.icing.proto.PropertyConfigProto.Cardinality.Code.
          *
+         * @exportToFramework:hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @IntDef(value = {
@@ -497,6 +605,7 @@ public final class AppSearchSchema {
          * <p>NOTE: The integer values of these constants must match the proto enum constants in
          * com.google.android.icing.proto.IndexingConfig.TokenizerType.Code.
          *
+         * @exportToFramework:hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @IntDef(value = {
@@ -1086,6 +1195,8 @@ public final class AppSearchSchema {
     public static final class DocumentPropertyConfig extends PropertyConfig {
         private static final String SCHEMA_TYPE_FIELD = "schemaType";
         private static final String INDEX_NESTED_PROPERTIES_FIELD = "indexNestedProperties";
+        private static final String INDEXABLE_NESTED_PROPERTIES_LIST_FIELD =
+                "indexableNestedPropertiesList";
 
         DocumentPropertyConfig(@NonNull Bundle bundle) {
             super(bundle);
@@ -1098,14 +1209,35 @@ public final class AppSearchSchema {
         }
 
         /**
-         * Returns whether fields in the nested document should be indexed according to that
+         * Returns whether properties in the nested document should be indexed according to that
          * document's schema.
          *
          * <p>If false, the nested document's properties are not indexed regardless of its own
          * schema.
+         *
+         * @see DocumentPropertyConfig.Builder#addIndexableNestedProperties(String...) for
+         * indexing a subset of properties from the nested document.
          */
         public boolean shouldIndexNestedProperties() {
             return mBundle.getBoolean(INDEX_NESTED_PROPERTIES_FIELD);
+        }
+
+        /**
+         * Returns the list of indexable nested properties for the nested document.
+         *
+         * <!--@exportToFramework:ifJetpack()--><!--@exportToFramework:else()
+         * @exportToFramework:hide TODO(b/291122592): Unhide in Mainline when API updates via
+         *   Mainline are possible.
+         * -->
+         */
+        @NonNull
+        public List<String> getIndexableNestedProperties() {
+            List<String> indexableNestedPropertiesList =
+                    mBundle.getStringArrayList(INDEXABLE_NESTED_PROPERTIES_LIST_FIELD);
+            if (indexableNestedPropertiesList == null) {
+                return Collections.emptyList();
+            }
+            return Collections.unmodifiableList(indexableNestedPropertiesList);
         }
 
         /** Builder for {@link DocumentPropertyConfig}. */
@@ -1114,6 +1246,7 @@ public final class AppSearchSchema {
             private final String mSchemaType;
             @Cardinality private int mCardinality = CARDINALITY_OPTIONAL;
             private boolean mShouldIndexNestedProperties = false;
+            private final Set<String> mIndexableNestedPropertiesList = new ArraySet<>();
 
             /**
              * Creates a new {@link DocumentPropertyConfig.Builder}.
@@ -1147,11 +1280,14 @@ public final class AppSearchSchema {
             }
 
             /**
-             * Configures whether fields in the nested document should be indexed according to that
-             * document's schema.
+             * Configures whether properties in the nested document should be indexed according to
+             * that document's schema.
              *
              * <p>If false, the nested document's properties are not indexed regardless of its own
              * schema.
+             *
+             * <p>To index a subset of properties from the nested document, set this to false and
+             * use {@link #addIndexableNestedProperties(String...)}.
              */
             @CanIgnoreReturnValue
             @NonNull
@@ -1161,14 +1297,151 @@ public final class AppSearchSchema {
                 return this;
             }
 
-            /** Constructs a new {@link PropertyConfig} from the contents of this builder. */
+            /**
+             * Adds one or more properties for indexing from the nested document. The added property
+             * will be indexed according to that property's indexing configurations in the
+             * document's schema definition. All properties in this list will consume a sectionId
+             * regardless of its actual indexing config -- this includes properties added that
+             * do not actually exist, as well as properties that are not set as indexable in the
+             * nested schema type.
+             *
+             * <p>Input strings should follow the format of the property path for the nested
+             * property, with '.' as the path separator. This nested document's property name
+             * should not be included in the property path.
+             *
+             * <p>Ex. Consider an 'Organization' schema type which defines a nested document
+             * property 'address' (Address schema type), where Address has a nested document
+             * property 'country' (Country schema type with string 'name' property), and a string
+             * 'street' property. The 'street' and 'country's name' properties from the 'address'
+             * document property can be indexed for the 'Organization' schema type by calling:
+             * <pre>{@code
+             * OrganizationSchema.addProperty(
+             *                 new DocumentPropertyConfig.Builder("address", "Address")
+             *                         .addIndexableNestedProperties("street", "country.name")
+             *                         .build()).
+             * }</pre>
+             *
+             * <p>{@link DocumentPropertyConfig.Builder#setShouldIndexNestedProperties} is
+             * required to be false if any indexable nested property is added this way for the
+             * document property. Attempting to build a DocumentPropertyConfig when this is not
+             * true throws {@link IllegalArgumentException}.
+             *
+             * <!--@exportToFramework:ifJetpack()--><!--@exportToFramework:else()
+             * @exportToFramework:hide TODO(b/291122592): Unhide in Mainline when API updates via
+             *   Mainline are possible.
+             * -->
+             */
+            @CanIgnoreReturnValue
+            @NonNull
+            // @exportToFramework:startStrip()
+            @RequiresFeature(
+                    enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                    name = Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES)
+            // @exportToFramework:endStrip()
+            public DocumentPropertyConfig.Builder addIndexableNestedProperties(
+                    @NonNull String... indexableNestedProperties) {
+                Preconditions.checkNotNull(indexableNestedProperties);
+                return addIndexableNestedProperties(Arrays.asList(indexableNestedProperties));
+            }
+
+            /**
+             * Adds one or more property paths for indexing from the nested document property.
+             *
+             * @see #addIndexableNestedProperties(String...)
+             *
+             * <!--@exportToFramework:ifJetpack()--><!--@exportToFramework:else()
+             * @exportToFramework:hide TODO(b/291122592): Unhide in Mainline when API updates via
+             *   Mainline are possible.
+             * -->
+             */
+            @CanIgnoreReturnValue
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            // @exportToFramework:startStrip()
+            @RequiresFeature(
+                    enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                    name = Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES)
+            // @exportToFramework:endStrip()
+            public DocumentPropertyConfig.Builder addIndexableNestedPropertyPaths(
+                    @NonNull PropertyPath... indexableNestedPropertyPaths) {
+                Preconditions.checkNotNull(indexableNestedPropertyPaths);
+                return addIndexableNestedPropertyPaths(Arrays.asList(indexableNestedPropertyPaths));
+            }
+
+            /**
+             * Adds one or more properties for indexing from the nested document property.
+             *
+             * @see #addIndexableNestedProperties(String...)
+             *
+             * <!--@exportToFramework:ifJetpack()--><!--@exportToFramework:else()
+             * @exportToFramework:hide TODO(b/291122592): Unhide in Mainline when API updates via
+             *   Mainline are possible.
+             * -->
+             */
+            @CanIgnoreReturnValue
+            @NonNull
+            // @exportToFramework:startStrip()
+            @RequiresFeature(
+                    enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                    name = Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES)
+            // @exportToFramework:endStrip()
+            public DocumentPropertyConfig.Builder addIndexableNestedProperties(
+                    @NonNull Collection<String> indexableNestedProperties) {
+                Preconditions.checkNotNull(indexableNestedProperties);
+                mIndexableNestedPropertiesList.addAll(indexableNestedProperties);
+                return this;
+            }
+
+            /**
+             * Adds one or more property paths for indexing from the nested document property.
+             *
+             * @see #addIndexableNestedProperties(String...)
+             *
+             * <!--@exportToFramework:ifJetpack()--><!--@exportToFramework:else()
+             * @exportToFramework:hide TODO(b/291122592): Unhide in Mainline when API updates via
+             *   Mainline are possible.
+             * -->
+             */
+            @CanIgnoreReturnValue
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            // @exportToFramework:startStrip()
+            @RequiresFeature(
+                    enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                    name = Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES)
+            // @exportToFramework:endStrip()
+            public DocumentPropertyConfig.Builder addIndexableNestedPropertyPaths(
+                    @NonNull Collection<PropertyPath> indexableNestedPropertyPaths) {
+                Preconditions.checkNotNull(indexableNestedPropertyPaths);
+                List<PropertyPath> propertyPathList = new ArrayList<>(indexableNestedPropertyPaths);
+                for (int i = 0; i < indexableNestedPropertyPaths.size(); i++) {
+                    mIndexableNestedPropertiesList.add(propertyPathList.get(i).toString());
+                }
+                return this;
+            }
+
+            /**
+             * Constructs a new {@link PropertyConfig} from the contents of this builder.
+             *
+             * @throws IllegalArgumentException if the provided PropertyConfig sets
+             * {@link #shouldIndexNestedProperties()} to true and has one or more properties
+             * defined for {@link #getIndexableNestedProperties()}.
+             */
             @NonNull
             public DocumentPropertyConfig build() {
+                if (mShouldIndexNestedProperties && !mIndexableNestedPropertiesList.isEmpty()) {
+                    throw new IllegalArgumentException(
+                            "DocumentIndexingConfig#shouldIndexNestedProperties is required "
+                                    + "to be false when one or more indexableNestedProperties are "
+                                    + "provided.");
+                }
                 Bundle bundle = new Bundle();
                 bundle.putString(NAME_FIELD, mPropertyName);
                 bundle.putInt(DATA_TYPE_FIELD, DATA_TYPE_DOCUMENT);
                 bundle.putInt(CARDINALITY_FIELD, mCardinality);
                 bundle.putBoolean(INDEX_NESTED_PROPERTIES_FIELD, mShouldIndexNestedProperties);
+                bundle.putStringArrayList(INDEXABLE_NESTED_PROPERTIES_LIST_FIELD,
+                        new ArrayList<>(mIndexableNestedPropertiesList));
                 bundle.putString(SCHEMA_TYPE_FIELD, mSchemaType);
                 return new DocumentPropertyConfig(bundle);
             }
@@ -1186,6 +1459,10 @@ public final class AppSearchSchema {
             builder
                     .append("shouldIndexNestedProperties: ")
                     .append(shouldIndexNestedProperties())
+                    .append(",\n");
+
+            builder.append("indexableNestedProperties: ")
+                    .append(getIndexableNestedProperties())
                     .append(",\n");
 
             builder.append("schemaType: \"").append(getSchemaType()).append("\",\n");

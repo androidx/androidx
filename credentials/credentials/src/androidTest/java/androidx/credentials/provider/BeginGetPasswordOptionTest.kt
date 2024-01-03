@@ -16,8 +16,6 @@
 package androidx.credentials.provider
 
 import android.os.Bundle
-import androidx.annotation.RequiresApi
-import androidx.core.os.BuildCompat
 import androidx.credentials.GetPasswordOption
 import androidx.credentials.PasswordCredential
 import androidx.credentials.equals
@@ -29,18 +27,15 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-@RequiresApi(34)
 class BeginGetPasswordOptionTest {
     companion object {
         private const val BUNDLE_ID_KEY =
             "android.service.credentials.BeginGetCredentialOption.BUNDLE_ID_KEY"
         private const val BUNDLE_ID = "id"
     }
+
     @Test
-    fun getter_frameworkProperties() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
+    fun constructor_success() {
         val expectedAllowedUserIds: Set<String> = setOf("id1", "id2", "id3")
         val bundle = Bundle()
         bundle.putStringArrayList(
@@ -56,5 +51,16 @@ class BeginGetPasswordOptionTest {
         assertThat(option.allowedUserIds).containsExactlyElementsIn(expectedAllowedUserIds)
     }
 
-    // TODO ("Add framework conversion, createFrom tests")
+    @Test
+    fun createFrom_success() {
+        val expectedAllowedUserIds: Set<String> = setOf("id1", "id2", "id3")
+        val bundle = Bundle()
+        bundle.putStringArrayList(
+            GetPasswordOption.BUNDLE_KEY_ALLOWED_USER_IDS,
+            ArrayList(expectedAllowedUserIds)
+        )
+
+        var option = BeginGetPasswordOption.createForTest(bundle, "id")
+        assertThat(option.id).isEqualTo("id")
+    }
 }

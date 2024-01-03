@@ -18,24 +18,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/navigation_home">
-
-    <fragment
-        android:id="@+id/navigation_home"
-        android:name="androidx.bluetooth.integration.testapp.ui.home.HomeFragment"
-        android:label="@string/title_home"
-        tools:layout="@layout/fragment_home" />
+    app:startDestination="@id/navigation_scanner">
 
     <fragment
         android:id="@+id/navigation_scanner"
         android:name="androidx.bluetooth.integration.testapp.ui.scanner.ScannerFragment"
         android:label="@string/title_scanner"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_scanner" />
 
     <fragment
         android:id="@+id/navigation_advertiser"
         android:name="androidx.bluetooth.integration.testapp.ui.advertiser.AdvertiserFragment"
         android:label="@string/title_advertiser"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_advertiser" />
 
 </navigation>

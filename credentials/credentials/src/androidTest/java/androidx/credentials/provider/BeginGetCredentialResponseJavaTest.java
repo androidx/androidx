@@ -25,7 +25,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
-import androidx.core.os.BuildCompat;
 import androidx.credentials.PasswordCredential;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
@@ -34,29 +33,21 @@ import androidx.test.filters.SmallTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
 import java.util.Collections;
 
-@SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
+@SdkSuppress(minSdkVersion = 28)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class BeginGetCredentialResponseJavaTest {
 
     @Test
     public void constructor_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
-
         new BeginGetCredentialResponse();
     }
 
-    // TODO(b/275416815) - parameterize to account for all individually
     @Test
-    public void constructor_nullList_throws() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
-
+    public void constructor_nullList_throws_allListsNull() {
         assertThrows("Expected null list to throw NPE",
                 NullPointerException.class,
                 () -> new BeginGetCredentialResponse(
@@ -65,20 +56,39 @@ public class BeginGetCredentialResponseJavaTest {
     }
 
     @Test
-    public void buildConstruct_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
+    public void constructor_nullList_throws_credEntriesNull() {
+        assertThrows("Expected null list to throw NPE",
+                NullPointerException.class,
+                () -> new BeginGetCredentialResponse(
+                        null, new ArrayList<>(), new ArrayList<>(), constructRemoteEntryDefault())
+        );
+    }
 
+    @Test
+    public void constructor_nullList_throws_actionsNull() {
+        assertThrows("Expected null list to throw NPE",
+                NullPointerException.class,
+                () -> new BeginGetCredentialResponse(
+                        new ArrayList<>(), null, new ArrayList<>(), constructRemoteEntryDefault())
+        );
+    }
+
+    @Test
+    public void constructor_nullList_throws_authActionsNull() {
+        assertThrows("Expected null list to throw NPE",
+                NullPointerException.class,
+                () -> new BeginGetCredentialResponse(
+                        new ArrayList<>(), new ArrayList<>(), null, constructRemoteEntryDefault())
+        );
+    }
+
+    @Test
+    public void buildConstruct_success() {
         new BeginGetCredentialResponse.Builder().build();
     }
 
     @Test
     public void buildConstruct_nullList_throws() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
-
         assertThrows("Expected null list to throw NPE",
                 NullPointerException.class,
                 () -> new BeginGetCredentialResponse.Builder().setCredentialEntries(null)
@@ -88,9 +98,6 @@ public class BeginGetCredentialResponseJavaTest {
 
     @Test
     public void getter_credentialEntries() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         int expectedSize = 1;
         String expectedType = PasswordCredential.TYPE_PASSWORD_CREDENTIAL;
         String expectedUsername = "f35";
@@ -111,9 +118,6 @@ public class BeginGetCredentialResponseJavaTest {
 
     @Test
     public void getter_actionEntries() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         int expectedSize = 1;
         String expectedTitle = "boeing";
         String expectedSubtitle = "737max";
@@ -133,9 +137,6 @@ public class BeginGetCredentialResponseJavaTest {
 
     @Test
     public void getter_authActionEntries() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         int expectedSize = 1;
         String expectedTitle = "boeing";
 
@@ -152,9 +153,6 @@ public class BeginGetCredentialResponseJavaTest {
 
     @Test
     public void getter_remoteEntry_null() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         RemoteEntry expectedRemoteEntry = null;
 
         BeginGetCredentialResponse response = new BeginGetCredentialResponse(
@@ -168,9 +166,6 @@ public class BeginGetCredentialResponseJavaTest {
 
     @Test
     public void getter_remoteEntry_nonNull() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         RemoteEntry expectedRemoteEntry = constructRemoteEntryDefault();
 
         BeginGetCredentialResponse response = new BeginGetCredentialResponse(

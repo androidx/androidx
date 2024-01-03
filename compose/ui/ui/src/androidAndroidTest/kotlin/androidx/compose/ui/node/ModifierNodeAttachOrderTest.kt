@@ -17,7 +17,10 @@
 package androidx.compose.ui.node
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.runtime.ReusableContentHost
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -298,5 +301,41 @@ class ModifierNodeAttachOrderTest {
             )
             log.clear()
         }
+    }
+
+    // Regression test for b/289461011
+    @Test
+    fun reusable_nodes_in_movable_content() {
+        var active by mutableStateOf(true)
+        var inBox by mutableStateOf(true)
+        val content = movableContentOf {
+            ReusableContentHost(active = active) {
+                BasicText("Hello World")
+            }
+        }
+
+        rule.setContent {
+            if (inBox) {
+                Box {
+                    content()
+                }
+            } else {
+                content()
+            }
+        }
+
+        rule.runOnIdle {
+            active = false
+        }
+
+        rule.runOnIdle {
+            inBox = false
+        }
+
+        rule.runOnIdle {
+            active = true
+        }
+
+        rule.waitForIdle()
     }
 }

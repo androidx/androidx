@@ -20,9 +20,10 @@ import android.content.Context
 import android.os.Build
 import android.util.Log
 import androidx.startup.Initializer
+import androidx.tracing.perfetto.internal.handshake.protocol.Response
 import java.io.File
 
-/** Enables tracing at app startup if a [StartupTracingConfig] is present. */
+/** Enables tracing at app startup if configured prior to app starting */
 class StartupTracingInitializer : Initializer<Unit> {
     private companion object {
         private val TAG = StartupTracingInitializer::class.java.name
@@ -43,12 +44,12 @@ class StartupTracingInitializer : Initializer<Unit> {
         // enable tracing
         val libFilePath = config.libFilePath
         val enableTracingResponse =
-            if (libFilePath == null) Tracing.enable()
-            else Tracing.enable(File(libFilePath), context)
+            if (libFilePath == null) PerfettoSdkTrace.enable()
+            else PerfettoSdkTrace.enable(File(libFilePath), context)
 
         // log the result for debuggability
-        Log.d(TAG, "EnableTracingResponse: { " +
-            "exitCode: ${enableTracingResponse.exitCode}, " +
+        Log.d(TAG, "${Response::class.java.name}: { " +
+            "resultCode: ${enableTracingResponse.resultCode}, " +
             "message: ${enableTracingResponse.message}, " +
             "requiredVersion: ${enableTracingResponse.requiredVersion} " +
             "}")

@@ -53,6 +53,7 @@ public final class AppSearchResult<ValueType> {
             RESULT_INVALID_SCHEMA,
             RESULT_SECURITY_ERROR,
             RESULT_DENIED,
+            RESULT_RATE_LIMITED,
     })
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
@@ -104,6 +105,14 @@ public final class AppSearchResult<ValueType> {
      */
     // TODO(b/279047435): unhide this the next time we can make API changes
     public static final int RESULT_DENIED = 9;
+
+    /**
+     * The caller has hit AppSearch's rate limit and the requested operation has been rejected.
+     * <!--@exportToFramework:hide-->
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    // TODO(b/279047435): unhide this the next time we can make API changes
+    public static final int RESULT_RATE_LIMITED = 10;
 
     private final @ResultCode int mResultCode;
     @Nullable private final ValueType mResultValue;

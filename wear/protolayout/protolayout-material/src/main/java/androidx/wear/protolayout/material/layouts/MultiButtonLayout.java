@@ -52,10 +52,9 @@ import java.util.List;
 
 /**
  * Opinionated ProtoLayout layout, that can contain between 1 and {@link
- * LayoutDefaults.MultiButtonLayoutDefaults#MAX_BUTTONS} number of buttons arranged
- * inline with the Material
- * guidelines. Can be used as a content passed in to the {@link PrimaryLayout}, but if there is
- * {@link LayoutDefaults.MultiButtonLayoutDefaults#MAX_BUTTONS} buttons it should be used
+ * LayoutDefaults.MultiButtonLayoutDefaults#MAX_BUTTONS} number of buttons arranged inline with the
+ * Material guidelines. Can be used as a content passed in to the {@link PrimaryLayout}, but if
+ * there is {@link LayoutDefaults.MultiButtonLayoutDefaults#MAX_BUTTONS} buttons it should be used
  * on its own.
  *
  * <p>When accessing the contents of a container for testing, note that this element can't be simply
@@ -114,9 +113,8 @@ public class MultiButtonLayout implements LayoutElement {
         /**
          * Add one new button to the layout. Note that it is accepted to pass in any {@link
          * LayoutElement}, but it is strongly recommended to add a {@link Button} as the layout is
-         * optimized for it. Any button added after
-         * {@link LayoutDefaults.MultiButtonLayoutDefaults#MAX_BUTTONS} is reached will be
-         * discarded.
+         * optimized for it. Any button added after {@link
+         * LayoutDefaults.MultiButtonLayoutDefaults#MAX_BUTTONS} is reached will be discarded.
          */
         @NonNull
         @SuppressWarnings("MissingGetterMatchingBuilder")
@@ -145,22 +143,20 @@ public class MultiButtonLayout implements LayoutElement {
             int buttonNum = mButtonsContent.size();
             if (buttonNum > MAX_BUTTONS) {
                 throw new IllegalArgumentException(
-                        "Too many buttons are added. Maximum number is "
-                                + MAX_BUTTONS
-                                + ".");
+                        "Too many buttons are added. Maximum number is " + MAX_BUTTONS + ".");
             }
 
             LayoutElement buttons = buildButtons(buttonNum);
             Box.Builder elementBuilder =
                     new Box.Builder()
-                        .setModifiers(
-                            new Modifiers.Builder()
-                                .setMetadata(
-                                    new ElementMetadata.Builder()
-                                        .setTagData(getTagBytes(METADATA_TAG))
-                                        .build())
-                                .build())
-                        .addContent(buttons);
+                            .setModifiers(
+                                    new Modifiers.Builder()
+                                            .setMetadata(
+                                                    new ElementMetadata.Builder()
+                                                            .setTagData(getTagBytes(METADATA_TAG))
+                                                            .build())
+                                            .build())
+                            .addContent(buttons);
 
             return new MultiButtonLayout(elementBuilder.build());
         }
@@ -172,7 +168,8 @@ public class MultiButtonLayout implements LayoutElement {
                     return wrapButton(mButtonsContent.get(0), BUTTON_SIZE_FOR_1_BUTTON);
                 case 2:
                     return build2ButtonRow(
-                            mButtonsContent.get(0), mButtonsContent.get(1),
+                            mButtonsContent.get(0),
+                            mButtonsContent.get(1),
                             BUTTON_SIZE_FOR_2_BUTTONS);
                 case 3:
                     return build3ButtonRow(
@@ -209,7 +206,7 @@ public class MultiButtonLayout implements LayoutElement {
                                             ? build2ButtonRow(
                                                     mButtonsContent.get(3),
                                                     mButtonsContent.get(4),
-                                            BUTTON_SIZE_FOR_3_PLUS_BUTTONS)
+                                                    BUTTON_SIZE_FOR_3_PLUS_BUTTONS)
                                             : build3ButtonRow(
                                                     mButtonsContent.get(2),
                                                     mButtonsContent.get(3),

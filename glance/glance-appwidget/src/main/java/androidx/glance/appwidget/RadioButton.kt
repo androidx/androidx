@@ -19,6 +19,7 @@ package androidx.glance.appwidget
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.glance.Emittable
+import androidx.glance.EmittableCheckable
 import androidx.glance.ExperimentalGlanceApi
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceNode
@@ -39,13 +40,9 @@ class RadioButtonColors internal constructor(internal val radio: CheckableColorP
 
 internal class EmittableRadioButton(
     var colors: RadioButtonColors
-) : Emittable {
+) : EmittableCheckable() {
     override var modifier: GlanceModifier = GlanceModifier
-    var checked: Boolean = false
     var enabled: Boolean = true
-    var text: String = ""
-    var style: TextStyle? = null
-    var maxLines: Int = Int.MAX_VALUE
 
     override fun copy(): Emittable = EmittableRadioButton(colors = colors).also {
         it.modifier = modifier

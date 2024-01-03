@@ -43,13 +43,13 @@ class CubicShape internal constructor() {
         val copy = mutableListOf<Cubic>()
         var prevCubic = cubics[cubics.size - 1]
         for (cubic in cubics) {
-            if (cubic.p0 != prevCubic.p3) {
+            if (cubic.anchorX0 != prevCubic.anchorX1 || cubic.anchorY0 != prevCubic.anchorY1) {
                 throw IllegalArgumentException("CubicShapes must be contiguous, with the anchor " +
                         "points of all curves matching the anchor points of the preceding and " +
                         "succeeding cubics")
             }
             prevCubic = cubic
-            copy.add(Cubic(cubic.p0, cubic.p1, cubic.p2, cubic.p3))
+            copy.add(Cubic(cubic))
         }
         updateCubics(copy)
     }
@@ -132,15 +132,16 @@ class CubicShape internal constructor() {
     private fun updatePath() {
         path.rewind()
         if (cubics.isNotEmpty()) {
-            path.moveTo(cubics[0].p0.x, cubics[0].p0.y)
+            path.moveTo(cubics[0].anchorX0, cubics[0].anchorY0)
             for (bezier in cubics) {
                 path.cubicTo(
-                    bezier.p1.x, bezier.p1.y,
-                    bezier.p2.x, bezier.p2.y,
-                    bezier.p3.x, bezier.p3.y
+                    bezier.controlX0, bezier.controlY0,
+                    bezier.controlX1, bezier.controlY1,
+                    bezier.anchorX1, bezier.anchorY1
                 )
             }
         }
+        path.close()
     }
 
     internal fun draw(canvas: Canvas, paint: Paint) {
@@ -157,26 +158,22 @@ class CubicShape internal constructor() {
         var maxX = Float.MIN_VALUE
         var maxY = Float.MIN_VALUE
         for (bezier in cubics) {
-            with(bezier.p0) {
-                if (x < minX) minX = x
-                if (y < minY) minY = y
-                if (x > maxX) maxX = x
-                if (y > maxY) maxY = y
-            }
-            with(bezier.p1) {
-                if (x < minX) minX = x
-                if (y < minY) minY = y
-                if (x > maxX) maxX = x
-                if (y > maxY) maxY = y
-            }
-            with(bezier.p2) {
-                if (x < minX) minX = x
-                if (y < minY) minY = y
-                if (x > maxX) maxX = x
-                if (y > maxY) maxY = y
-            }
-            // No need to use p3, since it is already taken into account in the next
-            // curve's p0 point.
+            if (bezier.anchorX0 < minX) minX = bezier.anchorX0
+            if (bezier.anchorY0 < minY) minY = bezier.anchorY0
+            if (bezier.anchorX0 > maxX) maxX = bezier.anchorX0
+            if (bezier.anchorY0 > maxY) maxY = bezier.anchorY0
+
+            if (bezier.controlX0 < minX) minX = bezier.controlX0
+            if (bezier.controlY0 < minY) minY = bezier.controlY0
+            if (bezier.controlX0 > maxX) maxX = bezier.controlX0
+            if (bezier.controlY0 > maxY) maxY = bezier.controlY0
+
+            if (bezier.controlX1 < minX) minX = bezier.controlX1
+            if (bezier.controlY1 < minY) minY = bezier.controlY1
+            if (bezier.controlX1 > maxX) maxX = bezier.controlX1
+            if (bezier.controlY1 > maxY) maxY = bezier.controlY1
+            // No need to use x3/y3, since it is already taken into account in the next
+            // curve's x0/y0 point.
         }
         bounds.set(minX, minY, maxX, maxY)
     }

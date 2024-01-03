@@ -19,7 +19,6 @@ package androidx.camera.camera2.pipe.integration.impl
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.core.Log.debug
-import androidx.camera.camera2.pipe.core.Log.warn
 import androidx.camera.camera2.pipe.integration.adapter.asListenableFuture
 import androidx.camera.camera2.pipe.integration.adapter.propagateOnceTo
 import androidx.camera.camera2.pipe.integration.config.CameraScope
@@ -40,7 +39,6 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withTimeoutOrNull
 
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @CameraScope
@@ -144,12 +142,7 @@ class StillCaptureRequestControl @Inject constructor(
         // completed. On some devices, AE preCapture triggered in submitStillCaptures may not
         // work properly if the repeating request to change the flash mode is not completed.
         debug { "StillCaptureRequestControl: Waiting for flash control" }
-        withTimeoutOrNull(1_000L) {
-            flashControl.updateSignal.join()
-        } ?: {
-            warn { "StillCaptureRequestControl: Waiting for flash control timed out" }
-        }
-        debug { "StillCaptureRequestControl: Waiting for flash control done" }
+        flashControl.updateSignal.join()
         debug { "StillCaptureRequestControl: Issuing single capture" }
         val deferredList = camera.requestControl.issueSingleCaptureAsync(
             request.captureConfigs,

@@ -17,6 +17,7 @@
 package androidx.car.app.navigation.model.constraints;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.GridTemplate;
@@ -32,10 +33,11 @@ import com.google.common.collect.ImmutableSet;
  * Encapsulates the constraints to apply when creating a Content {@link Template} within a parent
  * template.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @ExperimentalCarApi
 @RequiresCarApi(7)
 public class ContentTemplateConstraints {
-    /** Allowed templates for Map with Content Templates **/
+    /** Allowed templates for Map with Content Templates */
     @NonNull
     public static final ContentTemplateConstraints MAP_WITH_CONTENT_TEMPLATE_CONSTRAINTS =
             new ContentTemplateConstraints(ImmutableSet.of(
@@ -43,7 +45,7 @@ public class ContentTemplateConstraints {
                     MessageTemplate.class
             ));
 
-    /** Allowed templates for TabContents **/
+    /** Allowed templates for TabContents */
     @NonNull
     public static final ContentTemplateConstraints TAB_CONTENTS_CONSTRAINTS =
             new ContentTemplateConstraints(ImmutableSet.of(

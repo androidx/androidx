@@ -17,23 +17,19 @@
 package androidx.appsearch.platformstorage.converter;
 
 import android.annotation.SuppressLint;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.JoinSpec;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 /**
  * Translates between Platform and Jetpack versions of {@link JoinSpec}.
  */
-// TODO(b/265311462): Remove BuildCompat.PrereleaseSdkCheck annotation once
-//  SearchSpecToPlatformConverter.toPlatformSearchSpec() removes it. Also, replace literal '34' with
-//  Build.VERSION_CODES.UPSIDE_DOWN_CAKE once the SDK_INT is finalized.
-@BuildCompat.PrereleaseSdkCheck
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@RequiresApi(34)
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 public class JoinSpecToPlatformConverter {
     private JoinSpecToPlatformConverter() {}
 

@@ -77,7 +77,7 @@ fun DemoImage(
 fun TextIcon(
     text: String,
     size: Dp = 24.dp,
-    style: TextStyle = MaterialTheme.typography.title2
+    style: TextStyle = MaterialTheme.typography.button
 ) {
     Button(
         modifier = Modifier

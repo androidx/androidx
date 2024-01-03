@@ -531,7 +531,7 @@ public final class JavaScriptSandbox implements AutoCloseable {
     @GuardedBy("mLock")
     private void notifyIsolatesAboutClosureLocked() {
         for (JavaScriptIsolate ele : mActiveIsolateSet) {
-            ele.notifySandboxClosed();
+            ele.maybeSetSandboxDead();
         }
         mActiveIsolateSet.clear();
     }

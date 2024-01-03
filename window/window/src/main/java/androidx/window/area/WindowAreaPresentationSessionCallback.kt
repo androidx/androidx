@@ -18,12 +18,14 @@ package androidx.window.area
 
 import android.content.Context
 import android.view.View
+import androidx.window.core.ExperimentalWindowApi
 
 /**
  * A callback to notify about the lifecycle of a window area presentation session.
  *
  * @see WindowAreaController.presentContentOnWindowArea
  */
+@ExperimentalWindowApi
 interface WindowAreaPresentationSessionCallback {
 
     /**

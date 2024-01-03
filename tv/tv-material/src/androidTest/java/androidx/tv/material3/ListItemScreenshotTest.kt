@@ -30,12 +30,11 @@ import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onChild
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -249,7 +248,7 @@ class ListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
 
         rule.onNodeWithTag(ListItemWrapperTag)
             .onChild()
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
         rule.waitForIdle()
 
         assertAgainstGolden("listItem_${scheme.name}_threeLine_focused")
@@ -304,7 +303,7 @@ class ListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
 
         rule.onNodeWithTag(ListItemWrapperTag)
             .onChild()
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
         rule.waitForIdle()
 
         assertAgainstGolden("listItem_${scheme.name}_threeLine_focusedDisabled")
@@ -357,7 +356,7 @@ class ListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
 
         rule.onNodeWithTag(ListItemWrapperTag)
             .onChild()
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
         rule.waitForIdle()
 
         assertAgainstGolden("listItem_${scheme.name}_threeLine_focusedSelected")

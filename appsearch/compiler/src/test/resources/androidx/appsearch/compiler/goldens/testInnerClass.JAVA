@@ -33,7 +33,7 @@ public final class $$__AppSearch__Gift$$__InnerGift implements DocumentClassFact
   }
 
   @Override
-  public List<Class<?>> getNestedDocumentClasses() throws AppSearchException {
+  public List<Class<?>> getDependencyDocumentClasses() throws AppSearchException {
     return Collections.emptyList();
   }
 

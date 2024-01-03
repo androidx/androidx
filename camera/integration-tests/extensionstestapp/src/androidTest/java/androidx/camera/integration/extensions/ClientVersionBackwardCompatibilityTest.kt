@@ -17,16 +17,14 @@
 package androidx.camera.integration.extensions
 
 import android.content.Context
-import android.hardware.camera2.CaptureResult
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCapture.OnImageCapturedCallback
+import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
-import androidx.camera.core.impl.SessionProcessor
-import androidx.camera.core.impl.SessionProcessor.CaptureCallback
+import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.extensions.ExtensionsManager
-import androidx.camera.extensions.internal.ExtensionVersion
-import androidx.camera.extensions.internal.Version
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
 import androidx.camera.integration.extensions.utils.CameraIdExtensionModePair
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil
@@ -57,21 +55,13 @@ import org.junit.runners.Parameterized
  * well not only on CameraX app with v1.4.0 Extensions-Interface but also on apps with v1.3.0 and
  * prior versions.
  *
- * There are two types of tests:
- *   - Client supplied callback being invoked properly: Apps with older version of
- *   Extensions-Interface might lack some of the methods in these client supplied callback such as
- *   [SessionProcessorImpl#CaptureCallback]. So it's important that OEM extensions doesn't
- *   invoke these new methods on the client that uses older version.
- *   - Variants of the APIs should work properly: some methods such as
- *   [androidx.camera.extensions.imp.CaptureProcessorImpl#process]has two overloaded methods.
- *   While client with latest version will invoke the newer version,
- *   the older one will invoke another version. So it's important to have both version working as
- *   expected.
+ * For app-supplied callback methods, OEMs should use default methods that was added from 2023/Jun
+ * to prevent from crash in older client versions. Please note this test can't detect the failure if
+ * OEMs didn't use default methods.
  *
- *  This class tests these compatibility issues by verifying some high-level functions on top of
- *  CameraX full Extensions implementations because it's difficult and wasted to create a full
- *  functional fake implementation and difficult to monitor the call to the low level
- *  Extensions-Interface instances.
+ * For variants of the overloaded API methods, OEMs should implement all of it to ensure it works
+ * well on older client versions.
+ *
  */
 @LargeTest
 @RunWith(Parameterized::class)
@@ -120,27 +110,23 @@ class ClientVersionBackwardCompatibilityTest(private val config: CameraIdExtensi
         }
     }
 
-    private suspend fun startCameraAndGetSessionProcessor(
-        clientVersion: String,
-        minRuntimeVersion: Version? = null
-    ): SessionProcessor {
+    private suspend fun assertPreviewAndImageCaptureWorking(clientVersion: String) {
         extensionsManager = ExtensionsManager.getInstanceAsync(
             context,
             cameraProvider,
             clientVersion
         )[10000, TimeUnit.MILLISECONDS]
         assumeTrue(extensionsManager.isExtensionAvailable(baseCameraSelector, config.extensionMode))
-        minRuntimeVersion?.let {
-            assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(minRuntimeVersion))
-        }
         extensionCameraSelector = extensionsManager
             .getExtensionEnabledCameraSelector(baseCameraSelector, config.extensionMode)
 
         val previewFrameLatch = CountDownLatch(1)
-        val camera = withContext(Dispatchers.Main) {
-            val preview = Preview.Builder().build()
-            val imageCapture = ImageCapture.Builder().build()
+        val captureLatch = CountDownLatch(1)
 
+        val preview = Preview.Builder().build()
+        val imageCapture = ImageCapture.Builder().build()
+
+        withContext(Dispatchers.Main) {
             preview.setSurfaceProvider(
                 SurfaceTextureProvider.createAutoDrainingSurfaceTextureProvider {
                     previewFrameLatch.countDown()
@@ -151,112 +137,34 @@ class ClientVersionBackwardCompatibilityTest(private val config: CameraIdExtensi
                 preview, imageCapture
             )
         }
+
         assertThat(previewFrameLatch.await(3, TimeUnit.SECONDS)).isTrue()
-        return camera.extendedConfig.sessionProcessor
-    }
-
-    private suspend fun verifyOnCaptureCompletedInvoked_stillCapture(
-        clientVersion: String,
-        shouldInvoke: Boolean
-    ) {
-        val sessionProcessor = startCameraAndGetSessionProcessor(
-            clientVersion = clientVersion,
-            minRuntimeVersion = Version.VERSION_1_3
-        )
-
-        val latchSequenceCompleted = CountDownLatch(1)
-        var isOnCaptureCompletedInvoked = false
-        sessionProcessor.startCapture(object : CaptureCallback {
-            override fun onCaptureSequenceCompleted(captureSequenceId: Int) {
-                latchSequenceCompleted.countDown()
-            }
-
-            override fun onCaptureCompleted(
-                timestamp: Long,
-                captureSequenceId: Int,
-                result: MutableMap<CaptureResult.Key<Any>, Any>
-            ) {
-                isOnCaptureCompletedInvoked = true
-            }
-        })
-
-        assertThat(latchSequenceCompleted.await(3, TimeUnit.SECONDS)).isTrue()
-        assertThat(isOnCaptureCompletedInvoked).isEqualTo(shouldInvoke)
-    }
-
-    private suspend fun verifyOnCaptureCompletedInvoked_repeating(
-        clientVersion: String,
-        shouldInvoke: Boolean
-    ) {
-        val sessionProcessor = startCameraAndGetSessionProcessor(
-            clientVersion = clientVersion,
-            minRuntimeVersion = Version.VERSION_1_3
-        )
-
-        val latchSequenceCompleted = CountDownLatch(1)
-        var isOnCaptureCompletedInvoked = false
-
-        sessionProcessor.startRepeating(object : CaptureCallback {
-            override fun onCaptureSequenceCompleted(captureSequenceId: Int) {
-                latchSequenceCompleted.countDown()
-            }
-
-            override fun onCaptureCompleted(
-                timestamp: Long,
-                captureSequenceId: Int,
-                result: MutableMap<CaptureResult.Key<Any>, Any>
-            ) {
-                isOnCaptureCompletedInvoked = true
-            }
-        })
-
-        assertThat(latchSequenceCompleted.await(3, TimeUnit.SECONDS)).isTrue()
-        assertThat(isOnCaptureCompletedInvoked).isEqualTo(shouldInvoke)
-    }
-
-    /**
-     * For Advanced Extender, SessionProcessor.onCaptureCompleted is invoked when
-     * SessionProcessorImpl.onCaptureCompleted is invoked. So it's effective to verify just
-     * SessionProcessor.onCaptureCompleted.
-     *
-     * For Basic Extender, CaptureProcessorImpl#process(..) and
-     * CaptureProcessorImpl#process(.. ProcessResultImpl) will be invoked depending on the client and
-     * OEM versions. And only the process() with ProcessResultImpl version will trigger the
-     * SessionProcessor.onCaptureCompleted call. So we can verify if
-     * SessionProcessor.onCaptureCompleted is invoked or not to see if the correct version of the
-     * process() is invoked.
-     */
-    @Test
-    fun stillCapture_onCaptureCompletedInvoked_1_3_0() = runBlocking {
-        verifyOnCaptureCompletedInvoked_stillCapture(clientVersion = "1.3.0", shouldInvoke = true)
+        imageCapture.takePicture(CameraXExecutors.ioExecutor(),
+            object : OnImageCapturedCallback() {
+                override fun onCaptureSuccess(image: ImageProxy) {
+                    captureLatch.countDown()
+                }
+            })
+        assertThat(captureLatch.await(3, TimeUnit.SECONDS)).isTrue()
     }
 
     @Test
-    fun stillCapture_onCaptureCompletedInvoked_1_3_0_above() = runBlocking {
-        // use a significantly large version to see if the OEM appropriately implements the version
-        // comparison.
-        verifyOnCaptureCompletedInvoked_stillCapture(clientVersion = "1.7.0", shouldInvoke = true)
+    fun previewImageCaptureWork_clientVersion_1_1_0() = runBlocking {
+        assertPreviewAndImageCaptureWorking(clientVersion = "1.1.0")
     }
 
     @Test
-    fun stillCapture_onCaptureCompletedNotInvoked_1_3_0_below() = runBlocking {
-        verifyOnCaptureCompletedInvoked_stillCapture(clientVersion = "1.2.0", shouldInvoke = false)
+    fun previewImageCaptureWork_clientVersion_1_2_0() = runBlocking {
+        assertPreviewAndImageCaptureWorking(clientVersion = "1.2.0")
     }
 
     @Test
-    fun repeating_onCaptureCompletedInvoked_1_3_0() = runBlocking {
-        verifyOnCaptureCompletedInvoked_repeating(clientVersion = "1.3.0", shouldInvoke = true)
+    fun previewImageCaptureWork_clientVersion_1_3_0() = runBlocking {
+        assertPreviewAndImageCaptureWorking(clientVersion = "1.3.0")
     }
 
     @Test
-    fun repeating_onCaptureCompletedInvoked_1_3_0_above() = runBlocking {
-        // use a significantly large version to see if the OEM appropriately implements the version
-        // comparison.
-        verifyOnCaptureCompletedInvoked_repeating(clientVersion = "1.7.0", shouldInvoke = true)
-    }
-
-    @Test
-    fun repeating_onCaptureCompletedNotInvoked_1_3_0_below() = runBlocking {
-        verifyOnCaptureCompletedInvoked_repeating(clientVersion = "1.2.0", shouldInvoke = false)
+    fun previewImageCaptureWork_clientVersion_1_4_0() = runBlocking {
+        assertPreviewAndImageCaptureWorking(clientVersion = "1.4.0")
     }
 }

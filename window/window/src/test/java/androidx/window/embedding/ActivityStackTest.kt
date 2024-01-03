@@ -19,11 +19,13 @@ package androidx.window.embedding
 import android.app.Activity
 import android.os.Binder
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.mockito.kotlin.mock
 
+/** Unit tests for [ActivityStack] */
 class ActivityStackTest {
 
     @Test
@@ -49,5 +51,29 @@ class ActivityStackTest {
 
         assertNotEquals(first, third)
         assertNotEquals(first.hashCode(), third.hashCode())
+    }
+
+    @Test
+    fun testIsEmpty() {
+        var stack = ActivityStack(emptyList(), isEmpty = true, Binder())
+
+        assertTrue(stack.isEmpty)
+
+        stack = ActivityStack(emptyList(), isEmpty = false, Binder())
+
+        assertFalse(stack.isEmpty)
+    }
+
+    @Test
+    fun testToString() {
+        val activitiesInProcess = mock<List<Activity>>()
+        val isEmpty = false
+        val token = Binder()
+
+        val stackString = ActivityStack(activitiesInProcess, isEmpty, token).toString()
+
+        assertTrue(stackString.contains(activitiesInProcess.toString()))
+        assertTrue(stackString.contains(isEmpty.toString()))
+        assertTrue(stackString.contains(token.toString()))
     }
 }

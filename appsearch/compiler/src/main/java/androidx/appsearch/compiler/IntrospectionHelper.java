@@ -15,12 +15,13 @@
  */
 package androidx.appsearch.compiler;
 
+import static com.google.auto.common.MoreTypes.asTypeElement;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 
-import com.google.auto.common.MoreTypes;
 import com.google.auto.value.AutoValue;
 import com.squareup.javapoet.ClassName;
 
@@ -29,19 +30,22 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
@@ -66,6 +70,8 @@ class IntrospectionHelper {
             "androidx.appsearch.annotation.Document.CreationTimestampMillis";
     static final String TTL_MILLIS_CLASS = "androidx.appsearch.annotation.Document.TtlMillis";
     static final String SCORE_CLASS = "androidx.appsearch.annotation.Document.Score";
+    static final String BUILDER_PRODUCER_CLASS =
+            "androidx.appsearch.annotation.Document.BuilderProducer";
     final TypeMirror mCollectionType;
     final TypeMirror mListType;
     final TypeMirror mStringType;
@@ -126,9 +132,24 @@ class IntrospectionHelper {
         return null;
     }
 
-    /** Checks whether the property data type is one of the valid types. */
-    public boolean isFieldOfExactType(VariableElement property, TypeMirror... validTypes) {
+    /**
+     * Returns the property type of the given property. Properties are represented by an
+     * annotated Java element that is either a Java field or a getter method.
+     */
+    @NonNull
+    public static TypeMirror getPropertyType(@NonNull Element property) {
+        Objects.requireNonNull(property);
+
         TypeMirror propertyType = property.asType();
+        if (property.getKind() == ElementKind.METHOD) {
+            propertyType = ((ExecutableType) propertyType).getReturnType();
+        }
+        return propertyType;
+    }
+
+    /** Checks whether the property data type is one of the valid types. */
+    public boolean isFieldOfExactType(Element property, TypeMirror... validTypes) {
+        TypeMirror propertyType = getPropertyType(property);
         for (TypeMirror validType : validTypes) {
             if (propertyType.getKind() == TypeKind.ARRAY) {
                 if (mTypeUtils.isSameType(
@@ -140,24 +161,30 @@ class IntrospectionHelper {
                         ((DeclaredType) propertyType).getTypeArguments().get(0), validType)) {
                     return true;
                 }
-            } else if (mTypeUtils.isSameType(property.asType(), validType)) {
+            } else if (mTypeUtils.isSameType(propertyType, validType)) {
                 return true;
             }
         }
         return false;
     }
 
+    /** Checks whether the property data type is of boolean type. */
+    public boolean isFieldOfBooleanType(Element property) {
+        return isFieldOfExactType(property, mBooleanBoxType, mBooleanPrimitiveType);
+    }
+
     /**
      * Checks whether the property data class has {@code androidx.appsearch.annotation.Document
      * .DocumentProperty} annotation.
      */
-    public boolean isFieldOfDocumentType(VariableElement property) {
-        TypeMirror propertyType = property.asType();
+    public boolean isFieldOfDocumentType(Element property) {
+        TypeMirror propertyType = getPropertyType(property);
+
         AnnotationMirror documentAnnotation = null;
 
         if (propertyType.getKind() == TypeKind.ARRAY) {
             documentAnnotation = getDocumentAnnotation(
-                    mTypeUtils.asElement(((ArrayType) property.asType()).getComponentType()));
+                    mTypeUtils.asElement(((ArrayType) propertyType).getComponentType()));
         } else if (mTypeUtils.isAssignable(mTypeUtils.erasure(propertyType), mCollectionType)) {
             documentAnnotation = getDocumentAnnotation(mTypeUtils.asElement(
                     ((DeclaredType) propertyType).getTypeArguments().get(0)));
@@ -207,21 +234,20 @@ class IntrospectionHelper {
 
     /**
      * Get a list of super classes of element annotated with @Document, in order starting with the
-     * class at the top of the hierarchy and descending down the class hierarchy
+     * class at the top of the hierarchy and descending down the class hierarchy. Note that this
+     * ordering is important because super classes must appear first in the list than child classes
+     * to make property overrides work.
      */
     @NonNull
     public static List<TypeElement> generateClassHierarchy(
-            @NonNull TypeElement element, boolean isAutoValueDocument)
-            throws ProcessingException {
+            @NonNull TypeElement element) throws ProcessingException {
         Deque<TypeElement> hierarchy = new ArrayDeque<>();
-        if (isAutoValueDocument) {
+        if (element.getAnnotation(AutoValue.class) != null) {
             // We don't allow classes annotated with both Document and AutoValue to extend classes.
             // Because of how AutoValue is set up, there is no way to add a constructor to
             // populate fields of super classes.
             // There should just be the generated class and the original annotated class
-            TypeElement superClass = MoreTypes.asTypeElement(
-                    MoreTypes.asTypeElement(element.getSuperclass()).getSuperclass());
-
+            TypeElement superClass = asTypeElement(element.getSuperclass());
             if (!superClass.getQualifiedName().contentEquals(Object.class.getCanonicalName())) {
                 throw new ProcessingException(
                         "A class annotated with AutoValue and Document cannot have a superclass",
@@ -229,25 +255,47 @@ class IntrospectionHelper {
             }
             hierarchy.add(element);
         } else {
-            TypeElement currentClass = element;
-            while (!currentClass.getQualifiedName()
-                    .contentEquals(Object.class.getCanonicalName())) {
-                // If you inherit from an AutoValue class, you have to implement the static methods.
-                // That defeats the purpose of AutoValue
-                if (currentClass.getAnnotation(AutoValue.class) != null) {
-                    throw new ProcessingException(
-                            "A class annotated with Document cannot inherit from a class "
-                                    + "annotated with AutoValue", element);
-                }
-
-                if (getDocumentAnnotation(currentClass) != null) {
-                    hierarchy.addFirst(currentClass);
-                }
-
-                currentClass = MoreTypes.asTypeElement(currentClass.getSuperclass());
-            }
+            Set<TypeElement> visited = new HashSet<>();
+            generateClassHierarchyHelper(element, element, hierarchy, visited);
         }
         return new ArrayList<>(hierarchy);
+    }
+
+    private static void generateClassHierarchyHelper(@NonNull TypeElement leafElement,
+            @NonNull TypeElement currentClass, @NonNull Deque<TypeElement> hierarchy,
+            @NonNull Set<TypeElement> visited)
+            throws ProcessingException {
+        if (currentClass.getQualifiedName().contentEquals(Object.class.getCanonicalName())) {
+            return;
+        }
+        // If you inherit from an AutoValue class, you have to implement the static methods.
+        // That defeats the purpose of AutoValue
+        if (currentClass.getAnnotation(AutoValue.class) != null) {
+            throw new ProcessingException(
+                    "A class annotated with Document cannot inherit from a class "
+                            + "annotated with AutoValue", leafElement);
+        }
+
+        // It's possible to revisit the same interface more than once, so this check exists to
+        // catch that.
+        if (visited.contains(currentClass)) {
+            return;
+        }
+        visited.add(currentClass);
+
+        if (getDocumentAnnotation(currentClass) != null) {
+            hierarchy.addFirst(currentClass);
+        }
+        TypeMirror superclass = currentClass.getSuperclass();
+        // If currentClass is an interface, then superclass could be NONE.
+        if (superclass.getKind() != TypeKind.NONE) {
+            generateClassHierarchyHelper(leafElement, asTypeElement(superclass),
+                    hierarchy, visited);
+        }
+        for (TypeMirror implementedInterface : currentClass.getInterfaces()) {
+            generateClassHierarchyHelper(leafElement, asTypeElement(implementedInterface),
+                    hierarchy, visited);
+        }
     }
 
     enum PropertyClass {

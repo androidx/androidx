@@ -24,11 +24,15 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
-    // Add dependencies here
+    api(project(":appactions:interaction:interaction-service"))
+    implementation(project(":wear:protolayout:protolayout"))
 }
 
 android {
     namespace "androidx.appactions.interaction.service.wear"
+    defaultConfig {
+        minSdkVersion 26
+    }
 }
 
 androidx {

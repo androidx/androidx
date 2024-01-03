@@ -19,8 +19,10 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -50,7 +52,8 @@ import androidx.compose.ui.unit.dp
  *
  * The [Chip] is Stadium shaped and has a max height designed to take no more than two lines of text
  * of [Typography.button] style. The [Chip] can have an icon or image horizontally
- * parallel to the two lines of text.
+ * parallel to the two lines of text. With localisation and/or large font sizes, the [Chip] height
+ * adjusts to accommodate the contents.
  *
  * The [Chip] can have different styles with configurable content colors, background colors
  * including gradients, these are provided by [ChipColors] implementations.
@@ -117,7 +120,8 @@ public fun Chip(
  *
  * The [Chip] is Stadium shaped and has a max height designed to take no more than two lines of text
  * of [Typography.button] style. The [Chip] can have an icon or image horizontally
- * parallel to the two lines of text.
+ * parallel to the two lines of text. With localisation and/or large font sizes, the [Chip] height
+ * adjusts to accommodate the contents.
  *
  * The [Chip] can have different styles with configurable content colors, background colors
  * including gradients, these are provided by [ChipColors] implementations.
@@ -166,7 +170,9 @@ public fun Chip(
     content: @Composable RowScope.() -> Unit,
 ) {
     androidx.wear.compose.materialcore.Chip(
-        modifier = modifier.height(ChipDefaults.Height),
+        modifier = modifier
+            .defaultMinSize(minHeight = ChipDefaults.Height)
+            .height(IntrinsicSize.Min),
         onClick = onClick,
         background = { colors.background(enabled = it) },
         border = { border.borderStroke(enabled = it) },
@@ -191,6 +197,8 @@ public fun Chip(
  * The [Chip] is Stadium shaped and has a max height designed to take no more than two lines of text
  * of [Typography.button] style. If no secondary label is provided then the label
  * can be two lines of text. The label and secondary label should be consistently aligned.
+ * With localisation and/or large font sizes, the [Chip] height adjusts to
+ * accommodate the contents.
  *
  * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
  * the text starts next to the icon.
@@ -274,6 +282,8 @@ public fun Chip(
  * The [Chip] is Stadium shaped and has a max height designed to take no more than two lines of text
  * of [Typography.button] style. If no secondary label is provided then the label
  * can be two lines of text. The label and secondary label should be consistently aligned.
+ * With localisation and/or large font sizes, the [Chip] height adjusts to
+ * accommodate the contents.
  *
  * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
  * the text starts next to the icon.
@@ -340,7 +350,9 @@ public fun Chip(
     border: ChipBorder = ChipDefaults.chipBorder()
 ) {
     androidx.wear.compose.materialcore.Chip(
-        modifier = modifier.height(ChipDefaults.Height),
+        modifier = modifier
+            .defaultMinSize(minHeight = ChipDefaults.Height)
+            .height(IntrinsicSize.Min),
         label = provideScopeContent(
             colors.contentColor(enabled = enabled),
             MaterialTheme.typography.button,
@@ -374,6 +386,8 @@ public fun Chip(
  * The [OutlinedChip] is Stadium shaped and has a max height designed to take no more than two lines
  * of text of [Typography.button] style. If no secondary label is provided then the label
  * can be two lines of text. The label and secondary label should be consistently aligned.
+ * With localisation and/or large font sizes, the [OutlinedChip] height adjusts to
+ * accommodate the contents.
  *
  * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
  * the text starts next to the icon.
@@ -1077,8 +1091,8 @@ public object ChipDefaults {
         )
     }
 
-    private val ChipHorizontalPadding = 14.dp
-    private val ChipVerticalPadding = 6.dp
+    public val ChipHorizontalPadding = 14.dp
+    public val ChipVerticalPadding = 6.dp
 
     /**
      * The default content padding used by [Chip]
@@ -1090,8 +1104,8 @@ public object ChipDefaults {
         bottom = ChipVerticalPadding
     )
 
-    private val CompactChipHorizontalPadding = 12.dp
-    private val CompactChipVerticalPadding = 0.dp
+    public val CompactChipHorizontalPadding = 12.dp
+    public val CompactChipVerticalPadding = 0.dp
 
     /**
      * The default content padding used by [CompactChip]
@@ -1107,7 +1121,7 @@ public object ChipDefaults {
      * The default height applied for the [Chip].
      * Note that you can override it by applying Modifier.heightIn directly on [Chip].
      */
-    internal val Height = 52.dp
+    public val Height = 52.dp
 
     /**
      * The height applied for the [CompactChip]. This includes a visible chip height of 32.dp and
@@ -1117,7 +1131,7 @@ public object ChipDefaults {
      * Note that you can override it by adjusting Modifier.height and Modifier.padding directly on
      * [CompactChip].
      */
-    internal val CompactChipHeight = 48.dp
+    public val CompactChipHeight = 48.dp
 
     /**
      * The default padding to be provided around a [CompactChip] in order to ensure that its

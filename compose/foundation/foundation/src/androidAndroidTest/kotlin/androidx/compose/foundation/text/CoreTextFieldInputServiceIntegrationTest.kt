@@ -45,6 +45,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TextInputService
@@ -464,6 +465,7 @@ class CoreTextFieldInputServiceIntegrationTest {
 
         rule.runOnIdle {
             assertThat(platformTextInputService.lastInputValue).isNull()
+            assertThat(platformTextInputService.offsetMapping).isNull()
             assertThat(platformTextInputService.textLayoutResult).isNull()
             assertThat(platformTextInputService.textLayoutPositionInWindow).isNull()
             assertThat(platformTextInputService.innerTextFieldBounds).isNull()
@@ -476,6 +478,7 @@ class CoreTextFieldInputServiceIntegrationTest {
 
         rule.runOnIdle {
             assertThat(platformTextInputService.lastInputValue).isEqualTo(value)
+            assertThat(platformTextInputService.offsetMapping).isNotNull()
             assertThat(platformTextInputService.textLayoutResult).isNotNull()
             assertThat(platformTextInputService.textLayoutResult).isEqualTo(textLayoutResult)
             assertThat(platformTextInputService.textLayoutPositionInWindow)
@@ -512,6 +515,7 @@ class CoreTextFieldInputServiceIntegrationTest {
         var lastInputValue: TextFieldValue? = null
         var lastInputImeOptions: ImeOptions? = null
 
+        var offsetMapping: OffsetMapping? = null
         var textLayoutResult: TextLayoutResult? = null
         var textLayoutPositionInWindow: Offset? = null
         var innerTextFieldBounds: Rect? = null
@@ -554,12 +558,14 @@ class CoreTextFieldInputServiceIntegrationTest {
 
         override fun updateTextLayoutResult(
             textFieldValue: TextFieldValue,
+            offsetMapping: OffsetMapping,
             textLayoutResult: TextLayoutResult,
             textLayoutPositionInWindow: Offset,
             innerTextFieldBounds: Rect,
             decorationBoxBounds: Rect
         ) {
             lastInputValue = textFieldValue
+            this.offsetMapping = offsetMapping
             this.textLayoutResult = textLayoutResult
             this.textLayoutPositionInWindow = textLayoutPositionInWindow
             this.innerTextFieldBounds = innerTextFieldBounds

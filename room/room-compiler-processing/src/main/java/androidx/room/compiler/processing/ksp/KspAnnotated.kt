@@ -19,6 +19,7 @@ package androidx.room.compiler.processing.ksp
 import androidx.room.compiler.processing.InternalXAnnotated
 import androidx.room.compiler.processing.XAnnotation
 import androidx.room.compiler.processing.XAnnotationBox
+import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.getDeclaredTargets
 import androidx.room.compiler.processing.unwrapRepeatedAnnotationsFromContainer
 import com.google.devtools.ksp.symbol.AnnotationUseSiteTarget
 import com.google.devtools.ksp.symbol.KSAnnotated
@@ -113,8 +114,8 @@ internal sealed class KspAnnotated(
         fun accept(env: KspProcessingEnv, annotation: KSAnnotation): Boolean
 
         private class Impl(
-            val acceptedSiteTarget: AnnotationUseSiteTarget,
-            val acceptedTarget: AnnotationTarget,
+            val acceptedSiteTarget: AnnotationUseSiteTarget? = null,
+            val acceptedTargets: Set<AnnotationTarget>,
             private val acceptNoTarget: Boolean = true,
         ) : UseSiteFilter {
             override fun accept(env: KspProcessingEnv, annotation: KSAnnotation): Boolean {
@@ -123,7 +124,7 @@ internal sealed class KspAnnotated(
                 return if (useSiteTarget != null) {
                     acceptedSiteTarget == useSiteTarget
                 } else if (annotationTargets.isNotEmpty()) {
-                    annotationTargets.contains(acceptedTarget)
+                    annotationTargets.any { acceptedTargets.contains(it) }
                 } else {
                     acceptNoTarget
                 }
@@ -136,33 +137,39 @@ internal sealed class KspAnnotated(
                     return annotation.useSiteTarget == null
                 }
             }
+            val NO_USE_SITE_OR_CONSTRUCTOR: UseSiteFilter = Impl(
+                acceptedTargets = setOf(AnnotationTarget.CONSTRUCTOR)
+            )
+            val NO_USE_SITE_OR_METHOD: UseSiteFilter = Impl(
+                acceptedTargets = setOf(AnnotationTarget.FUNCTION)
+            )
             val NO_USE_SITE_OR_FIELD: UseSiteFilter = Impl(
                 acceptedSiteTarget = AnnotationUseSiteTarget.FIELD,
-                acceptedTarget = AnnotationTarget.FIELD
+                acceptedTargets = setOf(AnnotationTarget.FIELD, AnnotationTarget.PROPERTY)
             )
             val NO_USE_SITE_OR_METHOD_PARAMETER: UseSiteFilter = Impl(
                 acceptedSiteTarget = AnnotationUseSiteTarget.PARAM,
-                acceptedTarget = AnnotationTarget.VALUE_PARAMETER
+                acceptedTargets = setOf(AnnotationTarget.VALUE_PARAMETER)
             )
             val NO_USE_SITE_OR_GETTER: UseSiteFilter = Impl(
                 acceptedSiteTarget = AnnotationUseSiteTarget.GET,
-                acceptedTarget = AnnotationTarget.PROPERTY_GETTER
+                acceptedTargets = setOf(AnnotationTarget.PROPERTY_GETTER)
             )
             val NO_USE_SITE_OR_SETTER: UseSiteFilter = Impl(
                 acceptedSiteTarget = AnnotationUseSiteTarget.SET,
-                acceptedTarget = AnnotationTarget.PROPERTY_SETTER
+                acceptedTargets = setOf(AnnotationTarget.PROPERTY_SETTER)
             )
             val NO_USE_SITE_OR_SET_PARAM: UseSiteFilter = Impl(
                 acceptedSiteTarget = AnnotationUseSiteTarget.SETPARAM,
-                acceptedTarget = AnnotationTarget.PROPERTY_SETTER
+                acceptedTargets = setOf(AnnotationTarget.PROPERTY_SETTER)
             )
             val FILE: UseSiteFilter = Impl(
                 acceptedSiteTarget = AnnotationUseSiteTarget.FILE,
-                acceptedTarget = AnnotationTarget.FILE,
+                acceptedTargets = setOf(AnnotationTarget.FILE),
                 acceptNoTarget = false
             )
 
-            private fun KSAnnotation.getDeclaredTargets(
+            internal fun KSAnnotation.getDeclaredTargets(
                 env: KspProcessingEnv
             ): Set<AnnotationTarget> {
                 val annotationDeclaration = this.annotationType.resolve().declaration

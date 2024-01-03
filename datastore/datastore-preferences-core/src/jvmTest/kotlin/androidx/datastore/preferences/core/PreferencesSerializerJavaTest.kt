@@ -25,6 +25,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import okio.FileSystem
@@ -43,10 +44,9 @@ class PreferencesSerializerJavaTest {
     @BeforeTest
     fun setUp() {
         testFile = testIO.newTempFile()
-        fileSystem.createDirectories(testFile.path.parent!!)
     }
     fun doTest(test: suspend TestScope.() -> Unit) {
-        runTest(dispatchTimeoutMs = 10000) {
+        runTest(timeout = 10000.milliseconds) {
             test(this)
         }
     }

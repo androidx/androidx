@@ -110,6 +110,9 @@ class ByMatcher {
 
     /** Searches the hierarchy under the root for nodes that match the selector. */
     private List<AccessibilityNodeInfo> findMatches(AccessibilityNodeInfo root) {
+        if (!matchesDisplayId(root)) {
+            return new ArrayList<>();
+        }
         List<AccessibilityNodeInfo> ret = findMatches(root, 0, new PartialMatchList());
         if (ret.isEmpty()) {
             // No matches found, run watchers and retry.
@@ -131,7 +134,7 @@ class ByMatcher {
             PartialMatchList partialMatches) {
         List<AccessibilityNodeInfo> ret = new ArrayList<>();
 
-        // Don't bother searching the subtree if it is not visible
+        // Don't bother searching the subtree if it is not visible.
         if (!node.isVisibleToUser()) {
             return ret;
         }
@@ -182,6 +185,32 @@ class ByMatcher {
             }
         }
         return ret;
+    }
+
+    /** Returns true if the display ID criteria is null or equal to that of the node. */
+    private boolean matchesDisplayId(AccessibilityNodeInfo node) {
+        Set<Integer> displayIds = getDisplayIds(mRootSelector);
+        if (displayIds.size() == 0) {
+            // No display ID specified in the selector tree.
+            return true;
+        } else if (displayIds.size() > 1) {
+            // A selector tree with multiple display IDs is invalid.
+            return false;
+        }
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+                && displayIds.contains(Api30Impl.getDisplayId(node));
+    }
+
+    /** Returns all the specified display IDs in the selector tree. */
+    private Set<Integer> getDisplayIds(BySelector selector) {
+        Set<Integer> displayIds = new HashSet<>();
+        if (selector.mDisplayId != null) {
+            displayIds.add(selector.mDisplayId);
+        }
+        for (BySelector childSelector : selector.mChildSelectors) {
+            displayIds.addAll(getDisplayIds(childSelector));
+        }
+        return displayIds;
     }
 
     /**
@@ -388,6 +417,17 @@ class ByMatcher {
                 mMatch = match;
                 mNext = next;
             }
+        }
+    }
+
+    @RequiresApi(30)
+    static class Api30Impl {
+        private Api30Impl() {
+        }
+
+        @DoNotInline
+        static int getDisplayId(AccessibilityNodeInfo accessibilityNodeInfo) {
+            return accessibilityNodeInfo.getWindow().getDisplayId();
         }
     }
 }

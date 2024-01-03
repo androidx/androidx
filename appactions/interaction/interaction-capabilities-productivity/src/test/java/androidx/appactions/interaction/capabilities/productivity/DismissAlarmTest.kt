@@ -80,7 +80,7 @@ class DismissAlarmTest {
         assertThat(argsDeferred.awaitSync())
             .isEqualTo(
                 Arguments.Builder()
-                    .setAlarm(AlarmValue(Alarm.Builder().setIdentifier("abc").build()))
+                    .setAlarm(AlarmReference(Alarm.Builder().setIdentifier("abc").build()))
                     .build()
             )
     }

@@ -181,7 +181,7 @@ class AudioUnderrunMetric : Metric() {
  * Positive numbers indicate a dropped frame and visible jank / stutter, negative numbers indicate
  * how much faster than the deadline a frame was.
  *
- * * `frameCpuTimeMs` - How much time the frame took to be produced on the CPU - on both the UI
+ * * `frameDurationCpuMs` - How much time the frame took to be produced on the CPU - on both the UI
  * Thread, and RenderThread.
  */
 @Suppress("CanSealedSubClassBeObject")

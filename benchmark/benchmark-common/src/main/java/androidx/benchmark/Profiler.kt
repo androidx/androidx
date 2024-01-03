@@ -21,6 +21,7 @@ import android.os.Build
 import android.os.Debug
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.benchmark.BenchmarkState.Companion.TAG
 import androidx.benchmark.Outputs.dateToFileName
@@ -43,18 +44,32 @@ import java.io.File
  * avoid these however, in order to avoid the runtime visiting a new class in the hot path, when
  * switching from warmup -> timing phase, when [start] would be called.
  */
-internal sealed class Profiler {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+sealed class Profiler {
     class ResultFile(
         val label: String,
         val outputRelativePath: String,
-        val source: Profiler
+        val source: Profiler?
     ) {
+        constructor(
+            label: String,
+            absolutePath: String
+        ) : this(
+            label = label,
+            outputRelativePath = Outputs.relativePathFor(absolutePath),
+            source = null
+        )
+
         fun embedInPerfettoTrace(perfettoTracePath: String) {
-            source.embedInPerfettoTrace(
+            source?.embedInPerfettoTrace(
                 File(Outputs.outputDirectory, outputRelativePath),
                 File(perfettoTracePath)
             )
         }
+        val sanitizedOutputRelativePath: String
+            get() = outputRelativePath
+                .replace("(", "\\(")
+                .replace(")", "\\)")
     }
 
     abstract fun start(traceUniqueName: String): ResultFile?

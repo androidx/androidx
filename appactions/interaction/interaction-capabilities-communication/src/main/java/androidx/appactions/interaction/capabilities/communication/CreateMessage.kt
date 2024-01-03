@@ -29,6 +29,7 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.TypeCon
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.MESSAGE_TYPE_SPEC
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.RECIPIENT_TYPE_SPEC
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
+import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecRegistry
 import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import androidx.appactions.interaction.proto.ParamValue
@@ -63,7 +64,7 @@ class CreateMessage private constructor() {
     }
 
     class Arguments
-    internal constructor(val recipientList: List<RecipientValue>, val messageText: String?) {
+    internal constructor(val recipientList: List<RecipientReference>, val messageText: String?) {
         override fun toString(): String {
             return "Arguments(recipient=$recipientList, messageTextList=$messageText)"
         }
@@ -87,15 +88,15 @@ class CreateMessage private constructor() {
         }
 
         class Builder {
-            private var recipientList: List<RecipientValue> = mutableListOf()
+            private var recipientList: List<RecipientReference> = mutableListOf()
             private var messageText: String? = null
 
-            fun setRecipientList(recipientList: List<RecipientValue>): Builder = apply {
+            fun setRecipientList(recipientList: List<RecipientReference>): Builder = apply {
                 this.recipientList = recipientList
             }
 
-            fun setMessageText(messageTextList: String): Builder = apply {
-                this.messageText = messageTextList
+            fun setMessageText(messageText: String): Builder = apply {
+                this.messageText = messageText
             }
 
             fun build(): Arguments = Arguments(recipientList, messageText)
@@ -182,11 +183,13 @@ class CreateMessage private constructor() {
                 .setOutput(Output::class.java)
                 .bindRepeatedParameter(
                     SlotMetadata.RECIPIENT.path,
+                    Arguments::recipientList,
                     Arguments.Builder::setRecipientList,
-                    RecipientValue.PARAM_VALUE_CONVERTER,
+                    RecipientReference.PARAM_VALUE_CONVERTER,
                 )
                 .bindParameter(
                     SlotMetadata.TEXT.path,
+                    Arguments::messageText,
                     Arguments.Builder::setMessageText,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                 )
@@ -201,5 +204,8 @@ class CreateMessage private constructor() {
                     ExecutionStatus::toParamValue
                 )
                 .build()
+        init {
+            ActionSpecRegistry.registerActionSpec(Arguments::class, Output::class, ACTION_SPEC)
+        }
     }
 }

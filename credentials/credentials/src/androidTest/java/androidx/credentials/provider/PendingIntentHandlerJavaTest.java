@@ -19,9 +19,9 @@ package androidx.credentials.provider;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Intent;
+import android.os.Build;
 
 import androidx.annotation.RequiresApi;
-import androidx.core.os.BuildCompat;
 import androidx.credentials.CreatePasswordResponse;
 import androidx.credentials.GetCredentialResponse;
 import androidx.credentials.PasswordCredential;
@@ -43,7 +43,7 @@ public class PendingIntentHandlerJavaTest {
 
     @Test
     public void test_setGetCreateCredentialException() {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return;
         }
 
@@ -62,7 +62,7 @@ public class PendingIntentHandlerJavaTest {
 
     @Test
     public void test_setGetCreateCredentialException_throwsWhenEmptyIntent() {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return;
         }
 
@@ -74,7 +74,7 @@ public class PendingIntentHandlerJavaTest {
 
     @Test
     public void test_credentialException() {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return;
         }
 
@@ -92,7 +92,7 @@ public class PendingIntentHandlerJavaTest {
 
     @Test
     public void test_credentialException_throwsWhenEmptyIntent() {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return;
         }
 
@@ -102,7 +102,7 @@ public class PendingIntentHandlerJavaTest {
 
     @Test
     public void test_beginGetResponse() {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return;
         }
 
@@ -120,7 +120,7 @@ public class PendingIntentHandlerJavaTest {
 
     @Test
     public void test_beginGetResponse_throwsWhenEmptyIntent() {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return;
         }
 
@@ -130,7 +130,7 @@ public class PendingIntentHandlerJavaTest {
 
     @Test
     public void test_credentialResponse() {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return;
         }
 
@@ -148,7 +148,7 @@ public class PendingIntentHandlerJavaTest {
 
     @Test
     public void test_credentialResponse_throwsWhenEmptyIntent() {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return;
         }
 
@@ -158,7 +158,7 @@ public class PendingIntentHandlerJavaTest {
 
     @Test
     public void test_createCredentialCredentialResponse() {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return;
         }
 
@@ -176,7 +176,7 @@ public class PendingIntentHandlerJavaTest {
 
     @Test
     public void test_createCredentialCredentialResponse_throwsWhenEmptyIntent() {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return;
         }
 

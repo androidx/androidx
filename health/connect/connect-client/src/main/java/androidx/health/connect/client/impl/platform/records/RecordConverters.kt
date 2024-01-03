@@ -36,6 +36,7 @@ import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ElevationGainedRecord
 import androidx.health.connect.client.records.ExerciseLap
 import androidx.health.connect.client.records.ExerciseRoute
+import androidx.health.connect.client.records.ExerciseRouteResult
 import androidx.health.connect.client.records.ExerciseSegment
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.FloorsClimbedRecord
@@ -290,11 +291,12 @@ private fun PlatformExerciseSessionRecord.toSdkExerciseSessionRecord() =
         exerciseType = exerciseType.toSdkExerciseSessionType(),
         title = title?.toString(),
         notes = notes?.toString(),
-        route = route?.toSdkExerciseRoute(),
         laps = laps.map { it.toSdkExerciseLap() }.sortedBy { it.startTime },
         segments = segments.map { it.toSdkExerciseSegment() }.sortedBy { it.startTime },
-        hasRoute = hasRoute(),
         metadata = metadata.toSdkMetadata(),
+        exerciseRouteResult = route?.let { ExerciseRouteResult.Data(it.toSdkExerciseRoute()) }
+                ?: if (hasRoute()) ExerciseRouteResult.ConsentRequired()
+                else ExerciseRouteResult.NoData(),
     )
 
 private fun PlatformFloorsClimbedRecord.toSdkFloorsClimbedRecord() =
@@ -706,9 +708,11 @@ private fun ExerciseSessionRecord.toPlatformExerciseSessionRecord() =
             endZoneOffset?.let { setEndZoneOffset(it) }
             notes?.let { setNotes(it) }
             title?.let { setTitle(it) }
-            route?.let { setRoute(it.toPlatformExerciseRoute()) }
             setLaps(laps.map { it.toPlatformExerciseLap() })
             setSegments(segments.map { it.toPlatformExerciseSegment() })
+            if (exerciseRouteResult is ExerciseRouteResult.Data) {
+                setRoute(exerciseRouteResult.exerciseRoute.toPlatformExerciseRoute())
+            }
         }
         .build()
 

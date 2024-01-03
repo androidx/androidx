@@ -64,12 +64,12 @@ import androidx.wear.widget.drawer.DrawerTestActivity.DrawerStyle;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 import java.util.concurrent.TimeoutException;
 
@@ -91,12 +91,10 @@ public class WearableDrawerLayoutEspressoTest {
     private final Intent mSinglePageIntent =
             new DrawerTestActivity.Builder().setStyle(DrawerStyle.BOTH_DRAWER_NAV_SINGLE_PAGE)
                     .build();
-    @Mock WearableNavigationDrawerView.OnItemSelectedListener mNavDrawerItemSelectedListener;
 
-    @Before
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
-    }
+    @Rule public final MockitoRule mocks = MockitoJUnit.rule();
+
+    @Mock WearableNavigationDrawerView.OnItemSelectedListener mNavDrawerItemSelectedListener;
 
     @Test
     public void openingNavigationDrawerDoesNotCloseActionDrawer() {

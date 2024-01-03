@@ -31,4 +31,22 @@
                 android:key="timer.duration" />
         </service>
     </capability>
+    <capability android:name="actions.intent.PAUSE_TIMER">
+        <service
+            android:name="androidx.appactions.interaction.testapp.ClockInteractionService"
+            android:identifier="pause_timer_oneshot">
+            <parameter
+                android:name="timer.name"
+                android:key="timer.name" />
+        </service>
+    </capability>
+    <capability android:name="actions.intent.RESUME_TIMER">
+        <service
+            android:name="androidx.appactions.interaction.testapp.ClockInteractionService"
+            android:identifier="resume_timer_oneshot">
+            <parameter
+                android:name="timer.name"
+                android:key="timer.name" />
+        </service>
+    </capability>
 </shortcuts>

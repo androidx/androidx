@@ -32,7 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package androidx.media2.session;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IMediaSession {
   oneway void connect(androidx.media2.session.IMediaController caller, int seq, in androidx.versionedparcelable.ParcelImpl connectionRequest) = 0;
   oneway void release(androidx.media2.session.IMediaController caller, int seq) = 1;

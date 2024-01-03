@@ -19,6 +19,7 @@ package androidx.compose.ui.text.input
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.text.AtomicReference
+import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.TextLayoutResult
 
 /**
@@ -67,6 +68,15 @@ open class TextInputService(private val platformTextInputService: PlatformTextIn
     }
 
     /**
+    * Restart input and show the keyboard. This should only be called when starting a new
+    * `PlatformTextInputModifierNode.textInputSession`.
+    */
+    @InternalTextApi
+    fun startInput() {
+        platformTextInputService.startInput()
+    }
+
+    /**
      * Stop text input session.
      *
      * If the [session] is not the currently open session, no action will occur.
@@ -77,6 +87,11 @@ open class TextInputService(private val platformTextInputService: PlatformTextIn
         if (_currentInputSession.compareAndSet(session, null)) {
             platformTextInputService.stopInput()
         }
+    }
+
+    @InternalTextApi
+    fun stopInput() {
+        platformTextInputService.stopInput()
     }
 
     /**
@@ -96,9 +111,7 @@ open class TextInputService(private val platformTextInputService: PlatformTextIn
     )
     // TODO(b/183448615) @InternalTextApi
     fun showSoftwareKeyboard() {
-        if (_currentInputSession.get() != null) {
-            platformTextInputService.showSoftwareKeyboard()
-        }
+        platformTextInputService.showSoftwareKeyboard()
     }
 
     /**
@@ -180,6 +193,7 @@ class TextInputSession(
      * Notify the input service of layout and position changes.
      *
      * @param textFieldValue the text field's [TextFieldValue]
+     * @param offsetMapping the offset mapping for the visual transformation
      * @param textLayoutResult the text field's [TextLayoutResult]
      * @param textLayoutPositionInWindow position of the text field relative to the window
      * @param innerTextFieldBounds visible bounds of the text field in local coordinates, or an
@@ -189,6 +203,7 @@ class TextInputSession(
      */
     fun updateTextLayoutResult(
         textFieldValue: TextFieldValue,
+        offsetMapping: OffsetMapping,
         textLayoutResult: TextLayoutResult,
         textLayoutPositionInWindow: Offset,
         innerTextFieldBounds: Rect,
@@ -196,6 +211,7 @@ class TextInputSession(
     ) = ensureOpenSession {
         platformTextInputService.updateTextLayoutResult(
             textFieldValue,
+            offsetMapping,
             textLayoutResult,
             textLayoutPositionInWindow,
             innerTextFieldBounds,
@@ -276,6 +292,14 @@ interface PlatformTextInputService {
     )
 
     /**
+     * Restart input and show the keyboard. This should only be called when starting a new
+     * `PlatformTextInputModifierNode.textInputSession`.
+     *
+     * @see TextInputService.startInput
+     */
+    fun startInput() {}
+
+    /**
      * Stop text input session.
      *
      * @see TextInputService.stopInput
@@ -323,6 +347,7 @@ interface PlatformTextInputService {
      */
     fun updateTextLayoutResult(
         textFieldValue: TextFieldValue,
+        offsetMapping: OffsetMapping,
         textLayoutResult: TextLayoutResult,
         textLayoutPositionInWindow: Offset,
         innerTextFieldBounds: Rect,

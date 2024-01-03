@@ -117,12 +117,12 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
     ): Bitmap
 
     /** Whether or not the watch face supports [renderWatchFaceToSurface]. */
-    public val isRenderWatchFaceToSurfaceSupported: Boolean
-        @get:JvmName("isRenderWatchFaceToSurfaceSupported") get() = false
+    public val isRenderWatchFaceToSurfaceSupported: Boolean get() = false
 
     /**
      * Renders the [androidx.wear.watchface.ComplicationSlot] to a shared memory backed [Bitmap]
-     * with the given settings.
+     * with the given settings. The complication will be rendered at the same scale as it would be
+     * when the watch face is full screen.
      *
      * @param complicationSlotId The id of the complication to render
      * @param renderParameters The [RenderParameters] to draw with

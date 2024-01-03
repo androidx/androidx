@@ -50,14 +50,12 @@ class Morph(
     private var morphMatch = match(start, end)
 
     // path is used to draw the object
+    // It is cached to avoid recalculating it if the progress has not changed
     private val path = Path()
 
-    // These temp anchor/control points are used when progress changes to hold interpolated values
-    // Using these structures avoids allocations during morph animation
-    private val tempA0 = PointF()
-    private val tempC0 = PointF()
-    private val tempC1 = PointF()
-    private val tempA1 = PointF()
+    // last value for which the cached path was constructed. We cache this and the path
+    // to avoid recreating the path for the same progress value
+    private var currentPathProgress: Float = Float.MIN_VALUE
 
     /**
      * The bounds of the morph object are estimated by control and anchor points of all cubic curves
@@ -67,7 +65,6 @@ class Morph(
 
     init {
         calculateBounds(bounds)
-        updatePath()
     }
 
     /**
@@ -81,68 +78,48 @@ class Morph(
         var maxX = Float.MIN_VALUE
         var maxY = Float.MIN_VALUE
         for (pair in morphMatch) {
-            with(pair.first.p0) {
-                if (x < minX) minX = x
-                if (y < minY) minY = y
-                if (x > maxX) maxX = x
-                if (y > maxY) maxY = y
-            }
-            with(pair.second.p0) {
-                if (x < minX) minX = x
-                if (y < minY) minY = y
-                if (x > maxX) maxX = x
-                if (y > maxY) maxY = y
-            }
-            with(pair.first.p1) {
-                if (x < minX) minX = x
-                if (y < minY) minY = y
-                if (x > maxX) maxX = x
-                if (y > maxY) maxY = y
-            }
-            with(pair.second.p1) {
-                if (x < minX) minX = x
-                if (y < minY) minY = y
-                if (x > maxX) maxX = x
-                if (y > maxY) maxY = y
-            }
-            with(pair.first.p2) {
-                if (x < minX) minX = x
-                if (y < minY) minY = y
-                if (x > maxX) maxX = x
-                if (y > maxY) maxY = y
-            }
-            with(pair.second.p2) {
-                if (x < minX) minX = x
-                if (y < minY) minY = y
-                if (x > maxX) maxX = x
-                if (y > maxY) maxY = y
-            }
-            // Skip p3 since every p3 is the next curve's p0
+            if (pair.first.anchorX0 < minX) minX = pair.first.anchorX0
+            if (pair.first.anchorY0 < minY) minY = pair.first.anchorY0
+            if (pair.first.anchorX0 > maxX) maxX = pair.first.anchorX0
+            if (pair.first.anchorY0 > maxY) maxY = pair.first.anchorY0
+
+            if (pair.second.anchorX0 < minX) minX = pair.second.anchorX0
+            if (pair.second.anchorY0 < minY) minY = pair.second.anchorY0
+            if (pair.second.anchorX0 > maxX) maxX = pair.second.anchorX0
+            if (pair.second.anchorY0 > maxY) maxY = pair.second.anchorY0
+
+            if (pair.first.controlX0 < minX) minX = pair.first.controlX0
+            if (pair.first.controlY0 < minY) minY = pair.first.controlY0
+            if (pair.first.controlX0 > maxX) maxX = pair.first.controlX0
+            if (pair.first.controlY0 > maxY) maxY = pair.first.controlY0
+
+            if (pair.second.controlX0 < minX) minX = pair.second.controlX0
+            if (pair.second.controlY0 < minY) minY = pair.second.controlY0
+            if (pair.second.controlX0 > maxX) maxX = pair.second.controlX0
+            if (pair.second.controlY0 > maxY) maxY = pair.second.controlY0
+
+            if (pair.first.controlX1 < minX) minX = pair.first.controlX1
+            if (pair.first.controlY1 < minY) minY = pair.first.controlY1
+            if (pair.first.controlX1 > maxX) maxX = pair.first.controlX1
+            if (pair.first.controlY1 > maxY) maxY = pair.first.controlY1
+
+            if (pair.second.controlX1 < minX) minX = pair.second.controlX1
+            if (pair.second.controlY1 < minY) minY = pair.second.controlY1
+            if (pair.second.controlX1 > maxX) maxX = pair.second.controlX1
+            if (pair.second.controlY1 > maxY) maxY = pair.second.controlY1
+            // Skip x3/y3 since every last point is the next curve's first point
         }
         bounds.set(minX, minY, maxX, maxY)
     }
 
     /**
-     * The progress of a [Morph] object is a value from 0 to 1 that determines its current
-     * shape, between the start and end shapes provided at construction time. A value of 0 results
-     * in the start shape, a value of 1 results in the end shape, and any value in between
-     * results in a shape which is a linear interpolation between those two shapes.
-     *
-     * The range is generally [0..1] and values outside could result in undefined shapes, but
-     * values close to (but outside) the range can be used to get an exaggerated effect
-     * (e.g., for a bounce or overshoot animation).
-     */
-    var progress: Float = 0.0f
-        set(value) {
-            field = value
-            updatePath()
-        }
-
-    /**
      * This function updates the [path] object which holds the rendering information for the
      * morph shape, using the current [progress] property for the morph.
      */
-    private fun updatePath() {
+    private fun getPath(progress: Float): Path {
+        // Noop if we have already
+        if (progress == currentPathProgress) return path
+
         // In a future release, Path interpolation may be possible through the Path API
         // itself. Until then, we have to rewind and repopulate with the new/interpolated
         // values
@@ -150,17 +127,27 @@ class Morph(
 
         // If the list is not empty, do an initial moveTo using the first element of the match.
         morphMatch.firstOrNull()?. let { first ->
-            interpolate(first.first.p0, first.second.p0, tempA0, progress)
-            path.moveTo(tempA0.x, tempA0.y)
+            path.moveTo(
+                interpolate(first.first.anchorX0, first.second.anchorX0, progress),
+                interpolate(first.first.anchorY0, first.second.anchorY0, progress)
+            )
         }
 
         // And one cubicTo for each element, including the first.
-        for (element in morphMatch) {
-            interpolate(element.first.p1, element.second.p1, tempC0, progress)
-            interpolate(element.first.p2, element.second.p2, tempC1, progress)
-            interpolate(element.first.p3, element.second.p3, tempA1, progress)
-            path.cubicTo(tempC0.x, tempC0.y, tempC1.x, tempC1.y, tempA1.x, tempA1.y)
+        for (i in 0..morphMatch.lastIndex) {
+            val element = morphMatch[i]
+            path.cubicTo(
+                interpolate(element.first.controlX0, element.second.controlX0, progress),
+                interpolate(element.first.controlY0, element.second.controlY0, progress),
+                interpolate(element.first.controlX1, element.second.controlX1, progress),
+                interpolate(element.first.controlY1, element.second.controlY1, progress),
+                interpolate(element.first.anchorX1, element.second.anchorX1, progress),
+                interpolate(element.first.anchorY1, element.second.anchorY1, progress),
+            )
         }
+        path.close()
+        currentPathProgress = progress
+        return path
     }
 
     /**
@@ -177,7 +164,8 @@ class Morph(
             pair.second.transform(matrix)
         }
         calculateBounds(bounds)
-        updatePath()
+        // Reset cached progress value to force recalculation due to transform change
+        currentPathProgress = Float.MIN_VALUE
     }
 
     /**
@@ -185,17 +173,38 @@ class Morph(
      * retrieved for use outside of this class. Note that this function returns a copy of
      * the internal [Path] to maintain immutability, thus there is some overhead in retrieving
      * the path with this function.
+     *
+     * @param progress a value from 0 to 1 that determines the morph's current
+     * shape, between the start and end shapes provided at construction time. A value of 0 results
+     * in the start shape, a value of 1 results in the end shape, and any value in between
+     * results in a shape which is a linear interpolation between those two shapes.
+     * The range is generally [0..1] and values outside could result in undefined shapes, but
+     * values close to (but outside) the range can be used to get an exaggerated effect
+     * (e.g., for a bounce or overshoot animation).
+     * @param path optional Path object to be used to hold the resulting Path data. If provided,
+     * that Path's data will be replaced with the internal Path data for the Morph. If none
+     * is provided, new Path object will be created and used instead.
      */
-    fun asPath(): Path {
-        return Path(path)
+    @JvmOverloads
+    fun asPath(progress: Float, path: Path = Path()): Path {
+        path.set(getPath(progress))
+        return path
     }
 
     /**
-     * Returns a view of the current state of this morph as a list of Cubics.
+     * Returns a representation of the morph object at a given [progress] value as a list of Cubics.
      * Note that this function causes a new list to be created and populated, so there is some
      * overhead.
+     *
+     * @param progress a value from 0 to 1 that determines the morph's current
+     * shape, between the start and end shapes provided at construction time. A value of 0 results
+     * in the start shape, a value of 1 results in the end shape, and any value in between
+     * results in a shape which is a linear interpolation between those two shapes.
+     * The range is generally [0..1] and values outside could result in undefined shapes, but
+     * values close to (but outside) the range can be used to get an exaggerated effect
+     * (e.g., for a bounce or overshoot animation).
      */
-    fun asCubics() =
+    fun asCubics(progress: Float) =
         mutableListOf<Cubic>().apply {
             clear()
             for (pair in morphMatch) {
@@ -239,8 +248,10 @@ class Morph(
 
             // Measure polygons, returns lists of measured cubics for each polygon, which
             // we then use to match start/end curves
-            val measuredPolygon1 = MeasuredPolygon.measurePolygon(AngleMeasurer(p1.center), p1)
-            val measuredPolygon2 = MeasuredPolygon.measurePolygon(AngleMeasurer(p2.center), p2)
+            val measuredPolygon1 = MeasuredPolygon.measurePolygon(
+                AngleMeasurer(p1.centerX, p1.centerY), p1)
+            val measuredPolygon2 = MeasuredPolygon.measurePolygon(
+                AngleMeasurer(p2.centerX, p2.centerY), p2)
 
             // features1 and 2 will contain the list of corners (just the inner circular curve)
             // along with the progress at the middle of those corners. These measurement values
@@ -295,7 +306,7 @@ class Morph(
                 // b1a, b2a are ending progress values of current measured cubics in [0,1] range
                 val b1a = if (i1 == bs1.size) 1f else b1.endOutlineProgress
                 val b2a = if (i2 == bs2.size) 1f else doubleMapper.mapBack(
-                    positiveModule(b2.endOutlineProgress + polygon2CutPoint, 1f)
+                    positiveModulo(b2.endOutlineProgress + polygon2CutPoint, 1f)
                 )
                 val minb = min(b1a, b2a)
                 debugLog(LOG_TAG) { "$b1a $b2a | $minb" }
@@ -310,7 +321,7 @@ class Morph(
                 }
                 val (seg2, newb2) = if (b2a > minb + AngleEpsilon) {
                     debugLog(LOG_TAG) { "Cut 2" }
-                    b2.cutAtProgress(positiveModule(doubleMapper.map(minb) - polygon2CutPoint, 1f))
+                    b2.cutAtProgress(positiveModulo(doubleMapper.map(minb) - polygon2CutPoint, 1f))
                 } else {
                     b2 to bs2.getOrNull(i2++)
                 }
@@ -329,11 +340,12 @@ class Morph(
                 repeat(2) { listIx ->
                     val points = ret.map { if (listIx == 0) it.first else it.second }
                     debugLog(LOG_TAG) {
-                        "M " + showPoint(points.first().p0) + " " +
+                        "M " + showPoint(PointF(points.first().anchorX0,
+                            points.first().anchorY0)) + " " +
                             points.joinToString(" ") {
-                                "C " + showPoint(it.p1) + ", " +
-                                    showPoint(it.p2) + ", " +
-                                    showPoint(it.p3)
+                                "C " + showPoint(PointF(it.controlX0, it.controlY0)) + ", " +
+                                    showPoint(PointF(it.controlX1, it.controlY1)) + ", " +
+                                    showPoint(PointF(it.anchorX1, it.anchorY1))
                             } + " Z"
                     }
                 }
@@ -346,7 +358,8 @@ class Morph(
      * Draws the Morph object. This is called by the public extension function
      * [Canvas.drawMorph]. By default, it simply calls [Canvas.drawPath].
      */
-    internal fun draw(canvas: Canvas, paint: Paint) {
+    internal fun draw(canvas: Canvas, paint: Paint, progress: Float) {
+        val path = getPath(progress)
         canvas.drawPath(path, paint)
     }
 }
@@ -358,10 +371,17 @@ class Morph(
  * path. This extension function avoids that overhead when rendering).
  *
  * @param morph The object to be drawn
- * @param paint The attributes
+ * @param paint The drawing attributes to be used when rendering the morph object
+ * @param progress a value from 0 to 1 that determines the morph's current
+ * shape, between the start and end shapes provided at construction time. A value of 0 results
+ * in the start shape, a value of 1 results in the end shape, and any value in between
+ * results in a shape which is a linear interpolation between those two shapes.
+ * The range is generally [0..1] and values outside could result in undefined shapes, but
+ * values close to (but outside) the range can be used to get an exaggerated effect
+ * (e.g., for a bounce or overshoot animation).
  */
-fun Canvas.drawMorph(morph: Morph, paint: Paint) {
-    morph.draw(this, paint)
+fun Canvas.drawMorph(morph: Morph, paint: Paint, progress: Float = 0f) {
+    morph.draw(this, paint, progress)
 }
 
 private val LOG_TAG = "Morph"

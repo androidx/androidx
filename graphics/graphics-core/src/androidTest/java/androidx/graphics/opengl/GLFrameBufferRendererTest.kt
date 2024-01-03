@@ -45,6 +45,7 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -101,7 +102,7 @@ class GLFrameBufferRendererTest {
             assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
             assertNotNull(renderer)
             assertTrue(renderer!!.isValid())
-            assertTrue(syncStrategy === renderer?.getSyncStrategy())
+            assertTrue(syncStrategy === renderer?.syncStrategy)
             if (supportsNativeFence) {
                 assertNotNull(fence)
             } else {
@@ -142,7 +143,7 @@ class GLFrameBufferRendererTest {
             assertTrue(createLatch.await(3000, TimeUnit.MILLISECONDS))
             assertNotNull(renderer)
             assertTrue(renderer!!.isValid())
-            assertTrue(glRenderer == renderer?.getGLRenderer())
+            assertTrue(glRenderer == renderer?.glRenderer)
         } finally {
             renderer.blockingRelease()
             glRenderer.stop(true)
@@ -178,7 +179,7 @@ class GLFrameBufferRendererTest {
             assertTrue(createLatch.await(3000, TimeUnit.MILLISECONDS))
             assertNotNull(renderer)
             assertTrue(renderer!!.isValid())
-            assertEquals(5, renderer?.getMaxBuffers())
+            assertEquals(5, renderer?.maxBuffers)
         } finally {
             renderer.blockingRelease()
         }
@@ -228,7 +229,7 @@ class GLFrameBufferRendererTest {
                 .onActivity {
                     surfaceView = it.getSurfaceView()
                     renderer = GLFrameBufferRenderer.Builder(surfaceView!!, callbacks)
-                        .setPixelFormat(HardwareBuffer.RGBA_FP16)
+                        .setBufferFormat(HardwareBuffer.RGBA_FP16)
                         .build()
                 }
             scenario.moveToState(Lifecycle.State.RESUMED)
@@ -236,13 +237,14 @@ class GLFrameBufferRendererTest {
             assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
             assertNotNull(renderer)
             assertTrue(renderer!!.isValid())
-            assertEquals(HardwareBuffer.RGBA_FP16, renderer?.getPixelFormat())
+            assertEquals(HardwareBuffer.RGBA_FP16, renderer?.bufferFormat)
             assertEquals(HardwareBuffer.RGBA_FP16, pixelFormat)
         } finally {
             renderer.blockingRelease()
         }
     }
 
+    @Ignore // b/288580549
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testSetUsageFlags() {
@@ -287,7 +289,7 @@ class GLFrameBufferRendererTest {
 
             assertTrue(createLatch.await(3000, TimeUnit.MILLISECONDS))
             assertNotNull(renderer)
-            val usageFlags = renderer?.getUsageFlags() ?: 0
+            val usageFlags = renderer?.usageFlags ?: 0
             assertTrue(usageFlags and HardwareBuffer.USAGE_GPU_DATA_BUFFER != 0L)
             assertTrue(usageFlags and HardwareBuffer.USAGE_CPU_READ_RARELY != 0L)
             assertTrue(actualUsageFlags and HardwareBuffer.USAGE_GPU_DATA_BUFFER != 0L)

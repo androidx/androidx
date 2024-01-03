@@ -41,6 +41,7 @@ import androidx.appactions.builtintypes.experimental.types.ListItem;
 import androidx.appactions.builtintypes.experimental.types.Message;
 import androidx.appactions.builtintypes.experimental.types.Person;
 import androidx.appactions.builtintypes.experimental.types.SafetyCheck;
+import androidx.appactions.builtintypes.types.DayOfWeek;
 import androidx.appactions.builtintypes.types.Timer;
 import androidx.appactions.interaction.capabilities.core.SearchAction;
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException;
@@ -60,6 +61,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -728,6 +730,86 @@ public final class TypeConvertersTest {
 
         assertThat(output)
                 .isEqualTo(new SearchAction.Builder<ItemList>().setFilter(itemList).build());
+    }
+
+    @Test
+    public void createEnumParamValueConverter_withValidSupportedType() throws Exception {
+        ParamValueConverter<DayOfWeek> testEnumParamValueConverter =
+                TypeConverters.createEnumParamValueConverter(
+                        Arrays.asList(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY)
+                );
+        ParamValue paramValue = ParamValue.newBuilder()
+                .setIdentifier(DayOfWeek.MONDAY.toString())
+                .build();
+
+        assertThat(testEnumParamValueConverter.fromParamValue(paramValue)).isEqualTo(
+                DayOfWeek.MONDAY
+        );
+
+        assertThat(testEnumParamValueConverter.toParamValue(DayOfWeek.MONDAY)).isEqualTo(
+                paramValue
+        );
+    }
+
+    @Test
+    public void createEnumParamValueConverter_withInValidSupportedType_shouldThrowException() {
+        ParamValueConverter<DayOfWeek> testEnumParamValueConverter =
+                TypeConverters.createEnumParamValueConverter(
+                        Arrays.asList(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY)
+                );
+        ParamValue paramValue = ParamValue.newBuilder().setIdentifier("invalid").build();
+
+        StructConversionException thrown = assertThrows(
+                StructConversionException.class,
+                () -> testEnumParamValueConverter.fromParamValue(paramValue)
+        );
+
+        assertThat(thrown)
+                .hasMessageThat()
+                .contains(
+                        "cannot convert paramValue to protobuf Value because identifier "
+                                + paramValue.getIdentifier() + " is not one of "
+                                + "the supported values");
+
+        IllegalStateException illegalStateException = assertThrows(
+                IllegalStateException.class,
+                () -> testEnumParamValueConverter.toParamValue(DayOfWeek.PUBLIC_HOLIDAYS)
+        );
+
+        assertThat(illegalStateException)
+                .hasMessageThat()
+                .contains("cannot convert " + DayOfWeek.PUBLIC_HOLIDAYS + " to ParamValue "
+                        + "because it did not match one of the supported values");
+    }
+
+    @Test
+    public void createEnumEntityConverter_withValidSupportedType() throws Exception {
+        EntityConverter<DayOfWeek> testEnumEntityConverter =
+                TypeConverters.createEnumEntityConverter(
+                        Arrays.asList(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY)
+                );
+
+        assertThat(testEnumEntityConverter.convert(DayOfWeek.MONDAY)).isEqualTo(
+                Entity.newBuilder().setIdentifier(DayOfWeek.MONDAY.toString()).build()
+        );
+    }
+
+    @Test
+    public void createEnumEntityConverter_withInValidSupportedType_shouldThrowException() {
+        EntityConverter<DayOfWeek> testEnumEntityConverter =
+                TypeConverters.createEnumEntityConverter(
+                        Arrays.asList(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY)
+                );
+
+        IllegalStateException thrown = assertThrows(
+                IllegalStateException.class,
+                () -> testEnumEntityConverter.convert(DayOfWeek.PUBLIC_HOLIDAYS)
+        );
+
+        assertThat(thrown)
+                .hasMessageThat()
+                .contains("cannot convert " + DayOfWeek.PUBLIC_HOLIDAYS + " to entity "
+                        + "because it did not match one of the supported values");
     }
 
     @Test

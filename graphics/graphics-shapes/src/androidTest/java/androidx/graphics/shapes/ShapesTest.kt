@@ -64,8 +64,8 @@ class ShapesTest {
         radius2: Float = radius1,
         center: PointF = Zero
     ) {
-        assertPointOnRadii(cubic.p0, radius1, radius2, center)
-        assertPointOnRadii(cubic.p3, radius1, radius2, center)
+        assertPointOnRadii(PointF(cubic.anchorX0, cubic.anchorY0), radius1, radius2, center)
+        assertPointOnRadii(PointF(cubic.anchorX1, cubic.anchorY1), radius1, radius2, center)
     }
 
     /**
@@ -108,7 +108,7 @@ class ShapesTest {
         assertCircleShape(bigCircle.toCubicShape(), radius = 3f)
 
         val center = PointF(1f, 2f)
-        val offsetCircle = RoundedPolygon.circle(center = center)
+        val offsetCircle = RoundedPolygon.circle(centerX = center.x, centerY = center.y)
         assertCircleShape(offsetCircle.toCubicShape(), center = center)
     }
 
@@ -128,7 +128,8 @@ class ShapesTest {
         }
 
         val center = PointF(1f, 2f)
-        star = RoundedPolygon.star(4, innerRadius = innerRadius, center = center)
+        star = RoundedPolygon.star(4, innerRadius = innerRadius,
+            centerX = center.x, centerY = center.y)
         shape = star.toCubicShape()
         for (cubic in shape.cubics) {
             assertCubicOnRadii(cubic, radius, innerRadius, center)

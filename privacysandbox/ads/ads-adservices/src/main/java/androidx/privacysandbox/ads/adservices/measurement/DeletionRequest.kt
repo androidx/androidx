@@ -20,6 +20,7 @@ import android.net.Uri
 import android.os.Build
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import java.time.Instant
 
 /**
@@ -107,7 +108,7 @@ class DeletionRequest(
          */
         public const val DELETION_MODE_EXCLUDE_INTERNAL_DATA = 1
 
-        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(
             DELETION_MODE_ALL,
@@ -124,7 +125,7 @@ class DeletionRequest(
          */
         public const val MATCH_BEHAVIOR_PRESERVE = 1
 
-        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(
             MATCH_BEHAVIOR_DELETE,

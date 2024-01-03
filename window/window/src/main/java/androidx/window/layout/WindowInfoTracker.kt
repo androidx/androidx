@@ -25,7 +25,7 @@ import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.annotation.UiContext
 import androidx.window.core.ConsumerAdapter
 import androidx.window.layout.adapter.WindowBackend
-import androidx.window.layout.adapter.extensions.ExtensionWindowLayoutInfoBackend
+import androidx.window.layout.adapter.extensions.ExtensionWindowBackend
 import androidx.window.layout.adapter.sidecar.SidecarWindowBackend
 import kotlinx.coroutines.flow.Flow
 
@@ -106,7 +106,7 @@ interface WindowInfoTracker {
                     SafeWindowLayoutComponentProvider(loader, ConsumerAdapter(loader))
                 }
                 provider?.windowLayoutComponent?.let { component ->
-                    ExtensionWindowLayoutInfoBackend(component, ConsumerAdapter(loader))
+                    ExtensionWindowBackend.newInstance(component, ConsumerAdapter(loader))
                 }
             } catch (t: Throwable) {
                 if (DEBUG) {

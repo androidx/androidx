@@ -22,6 +22,7 @@
     <item name="transition_transform" type="id"/>
     <item name="transition_image_transform" type="id"/>
     <item name="transition_clip" type="id"/>
+    <item name="transition_pause_alpha" type="id"/>
     <item name="parent_matrix" type="id"/>
     <item name="ghost_view" type="id"/>
     <item name="ghost_view_holder" type="id"/>

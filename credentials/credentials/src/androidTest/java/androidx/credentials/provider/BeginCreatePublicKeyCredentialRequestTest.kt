@@ -17,9 +17,9 @@ package androidx.credentials.provider
 
 import android.content.pm.SigningInfo
 import android.os.Bundle
-import androidx.annotation.RequiresApi
-import androidx.core.os.BuildCompat
+import androidx.credentials.internal.FrameworkClassParsingException
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
@@ -28,13 +28,10 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-@RequiresApi(34)
+@SdkSuppress(minSdkVersion = 28)
 class BeginCreatePublicKeyCredentialRequestTest {
     @Test
     fun constructor_emptyJson_throwsIllegalArgumentException() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         Assert.assertThrows(
             "Expected empty Json to throw error",
             IllegalArgumentException::class.java
@@ -52,9 +49,6 @@ class BeginCreatePublicKeyCredentialRequestTest {
 
     @Test
     fun constructor_invalidJson_throwsIllegalArgumentException() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         Assert.assertThrows(
             "Expected invalid Json to throw error",
             IllegalArgumentException::class.java
@@ -72,9 +66,6 @@ class BeginCreatePublicKeyCredentialRequestTest {
 
     @Test
     fun constructor_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         BeginCreatePublicKeyCredentialRequest(
             "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
             CallingAppInfo(
@@ -86,9 +77,6 @@ class BeginCreatePublicKeyCredentialRequestTest {
 
     @Test
     fun constructorWithClientDataHash_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         BeginCreatePublicKeyCredentialRequest(
             "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
             CallingAppInfo(
@@ -100,10 +88,36 @@ class BeginCreatePublicKeyCredentialRequestTest {
     }
 
     @Test
-    fun getter_requestJson_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
+    fun constructor_success_createFrom() {
+        val bundle = Bundle()
+        bundle.putString(BUNDLE_KEY_REQUEST_JSON, "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}")
+        bundle.putByteArray(BUNDLE_KEY_CLIENT_DATA_HASH, byteArrayOf())
+
+        BeginCreatePublicKeyCredentialRequest.createForTest(
+            bundle,
+            CallingAppInfo(
+                "sample_package_name", SigningInfo()
+            )
+        )
+    }
+
+    @Test
+    fun constructor_error_createFrom() {
+        Assert.assertThrows(
+            "Expected create from to throw error",
+            FrameworkClassParsingException::class.java
+        ) {
+            BeginCreatePublicKeyCredentialRequest.createForTest(
+                Bundle(),
+                CallingAppInfo(
+                    "sample_package_name", SigningInfo()
+                )
+            )
         }
+    }
+
+    @Test
+    fun getter_requestJson_success() {
         val testJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
 
         val createPublicKeyCredentialReq = BeginCreatePublicKeyCredentialRequest(
@@ -121,9 +135,6 @@ class BeginCreatePublicKeyCredentialRequestTest {
 
     @Test
     fun getter_clientDataHash_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return
-        }
         val testClientDataHashExpected = "client_data_hash".toByteArray()
         val createPublicKeyCredentialReq = BeginCreatePublicKeyCredentialRequest(
             "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
@@ -137,5 +148,30 @@ class BeginCreatePublicKeyCredentialRequestTest {
         val testClientDataHashActual = createPublicKeyCredentialReq.clientDataHash
         assertThat(testClientDataHashActual).isEqualTo(testClientDataHashExpected)
     }
-    // TODO ("Add framework conversion, createFrom & preferImmediatelyAvailable tests")
+
+    @Test
+    @SdkSuppress(minSdkVersion = 34)
+    fun conversion() {
+        val testJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
+
+        val req = BeginCreatePublicKeyCredentialRequest(
+            testJsonExpected,
+            CallingAppInfo(
+                "sample_package_name", SigningInfo()
+            ),
+            Bundle()
+        )
+
+        val bundle = BeginCreateCredentialRequest.asBundle(req)
+        assertThat(bundle).isNotNull()
+
+        var converted = BeginCreateCredentialRequest.fromBundle(bundle)
+        assertThat(req.type).isEqualTo(converted!!.type)
+    }
+
+    internal companion object {
+        internal const val BUNDLE_KEY_CLIENT_DATA_HASH =
+            "androidx.credentials.BUNDLE_KEY_CLIENT_DATA_HASH"
+        internal const val BUNDLE_KEY_REQUEST_JSON = "androidx.credentials.BUNDLE_KEY_REQUEST_JSON"
+    }
 }

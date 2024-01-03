@@ -28,7 +28,7 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.guava)
-    testImplementation(project(":internal-testutils-kmp"))
+    testImplementation(project(":kruth:kruth"))
 }
 
 androidx {

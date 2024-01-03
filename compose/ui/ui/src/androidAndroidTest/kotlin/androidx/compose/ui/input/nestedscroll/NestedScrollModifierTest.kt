@@ -57,7 +57,6 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -988,7 +987,6 @@ class NestedScrollModifierTest {
         }
     }
 
-    @Ignore // This is failing in some APIs, but it's fixed for impulse.
     @Test
     fun nestedScroll_movingTarget_velocityShouldRespectSign() {
         var lastVelocity = Velocity.Zero

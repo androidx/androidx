@@ -25,7 +25,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 
-import androidx.core.os.BuildCompat;
 import androidx.credentials.provider.RemoteEntry;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -37,7 +36,6 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-@SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
 public class RemoteEntryJavaTest {
     private final Context mContext = ApplicationProvider.getApplicationContext();
     private final Intent mIntent = new Intent();
@@ -47,9 +45,6 @@ public class RemoteEntryJavaTest {
 
     @Test
     public void constructor_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         RemoteEntry entry = new RemoteEntry(mPendingIntent);
 
         assertNotNull(entry);
@@ -58,9 +53,6 @@ public class RemoteEntryJavaTest {
 
     @Test
     public void build_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         RemoteEntry entry = new RemoteEntry.Builder(mPendingIntent).build();
 
         assertNotNull(entry);
@@ -69,19 +61,14 @@ public class RemoteEntryJavaTest {
 
     @Test
     public void constructor_nullPendingIntent_throwsNPE() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         assertThrows("Expected null pending intent to throw NPE",
                 NullPointerException.class,
                 () -> new RemoteEntry(null));
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 28)
     public void fromSlice_success() {
-        if (!BuildCompat.isAtLeastU()) {
-            return;
-        }
         RemoteEntry originalEntry = new RemoteEntry(mPendingIntent);
 
         RemoteEntry fromSlice = RemoteEntry.fromSlice(RemoteEntry.toSlice(originalEntry));

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.1.0-beta05" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta05)" variant="all" version="8.1.0-beta05">
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;expectNumber&apos; with type Function0&lt;? extends Integer>."
+        errorLine1="    fun expectNumber(): Int {"
+        errorLine2="    ^">
+        <location
+            file="src/jvmMain/kotlin/androidx/compose/ui/tooling/data/SlotTree.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;ensureIndexes&apos; with type Function1&lt;? super Integer, ? extends Unit>."
+        errorLine1="    fun ensureIndexes(index: Int) {"
+        errorLine2="    ^">
+        <location
+            file="src/jvmMain/kotlin/androidx/compose/ui/tooling/data/SlotTree.kt"/>
+    </issue>
+
+</issues>

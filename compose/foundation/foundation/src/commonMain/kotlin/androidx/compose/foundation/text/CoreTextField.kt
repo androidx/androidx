@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text.selection.SelectionHandleAnchor
 import androidx.compose.foundation.text.selection.SelectionHandleInfo
 import androidx.compose.foundation.text.selection.SelectionHandleInfoKey
 import androidx.compose.foundation.text.selection.SimpleLayout
@@ -396,7 +397,12 @@ internal fun CoreTextField(
             state.layoutResult?.let { layoutResult ->
                 state.inputSession?.let { inputSession ->
                     if (state.hasFocus) {
-                        TextFieldDelegate.updateTextLayoutResult(inputSession, value, layoutResult)
+                        TextFieldDelegate.updateTextLayoutResult(
+                            inputSession,
+                            value,
+                            offsetMapping,
+                            layoutResult
+                        )
                     }
                 }
             }
@@ -845,7 +851,7 @@ internal class TextFieldState(
     /**
      * A flag to check if the floating toolbar should show.
      */
-    var showFloatingToolbar = false
+    var showFloatingToolbar by mutableStateOf(false)
 
     /**
      * True if the position of the selection start handle is within a visible part of the window
@@ -1098,7 +1104,8 @@ internal fun TextFieldCursorHandle(manager: TextFieldSelectionManager) {
                 .semantics {
                     this[SelectionHandleInfoKey] = SelectionHandleInfo(
                         handle = Handle.Cursor,
-                        position = position
+                        position = position,
+                        anchor = SelectionHandleAnchor.Middle
                     )
                 },
             content = null

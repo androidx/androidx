@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.shape
 
+import androidx.annotation.IntRange
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Outline
@@ -181,13 +182,13 @@ fun CutCornerShape(
  * with a range of 0 - 100.
  */
 fun CutCornerShape(
-    /*@IntRange(from = 0, to = 100)*/
+    @IntRange(from = 0, to = 100)
     topStartPercent: Int = 0,
-    /*@IntRange(from = 0, to = 100)*/
+    @IntRange(from = 0, to = 100)
     topEndPercent: Int = 0,
-    /*@IntRange(from = 0, to = 100)*/
+    @IntRange(from = 0, to = 100)
     bottomEndPercent: Int = 0,
-    /*@IntRange(from = 0, to = 100)*/
+    @IntRange(from = 0, to = 100)
     bottomStartPercent: Int = 0
 ) = CutCornerShape(
     topStart = CornerSize(topStartPercent),

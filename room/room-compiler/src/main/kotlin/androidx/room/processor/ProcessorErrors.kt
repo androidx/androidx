@@ -271,8 +271,9 @@ object ProcessorErrors {
         return MISSING_PARAMETER_FOR_BIND.format(bindVarName.joinToString(", "))
     }
 
-    fun valueCollectionMustBeListOrSet(mapValueTypeName: String): String {
-        return "Multimap 'value' collection type must be a List or Set. Found $mapValueTypeName."
+    fun valueCollectionMustBeListOrSetOrMap(mapValueTypeName: String): String {
+        return "Multimap 'value' collection type must be a List, Set or Map. " +
+            "Found $mapValueTypeName."
     }
 
     private val UNUSED_QUERY_METHOD_PARAMETER = "Unused parameter%s: %s"

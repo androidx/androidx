@@ -303,6 +303,30 @@ public class ProtoLayoutDifferTest {
     }
 
     @Test
+    public void areSameFingerprints() {
+        assertThat(
+                        ProtoLayoutDiffer.areSameFingerprints(
+                                referenceLayout().getFingerprint(),
+                                referenceLayout().getFingerprint()))
+                .isTrue();
+        assertThat(
+                        ProtoLayoutDiffer.areSameFingerprints(
+                                referenceLayout().getFingerprint(),
+                                layoutWithOneUpdatedNode().getFingerprint()))
+                .isFalse();
+        assertThat(
+                        ProtoLayoutDiffer.areSameFingerprints(
+                                referenceLayout().getFingerprint(),
+                                layoutWithDifferentNumberOfChildren().getFingerprint()))
+                .isFalse();
+        assertThat(
+                        ProtoLayoutDiffer.areSameFingerprints(
+                                referenceLayout().getFingerprint(),
+                                layoutWithUpdateToNodeSelfFingerprint().getFingerprint()))
+                .isFalse();
+    }
+
+    @Test
     public void isChildOf_forAnActualChild_returnsTrue() {
         String childPosId = "pT1.2.3";
         String parentPosId = "pT1.2";

@@ -23,13 +23,15 @@ import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
+import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
+import androidx.appactions.interaction.capabilities.core.impl.converters.UnionTypeSpec
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
+import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecRegistry
 import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.serializers.types.ALARM_TYPE_SPEC
-import androidx.appactions.interaction.proto.ParamValue
-import androidx.appactions.interaction.protobuf.Struct
-import androidx.appactions.interaction.protobuf.Value
+import androidx.appactions.interaction.capabilities.serializers.types.GENERIC_ERROR_STATUS_TYPE_SPEC
+import androidx.appactions.interaction.capabilities.serializers.types.SUCCESS_STATUS_TYPE_SPEC
 import java.time.Duration
 
 /** A capability corresponding to actions.intent.SNOOZE_ALARM */
@@ -63,7 +65,7 @@ class SnoozeAlarm private constructor() {
     }
 
     class Arguments
-    internal constructor(val snoozeDuration: Duration?, val targetAlarm: AlarmValue?) {
+    internal constructor(val snoozeDuration: Duration?, val targetAlarm: AlarmReference?) {
         override fun toString(): String {
             return "Arguments(snoozeDuration=$snoozeDuration,targetAlarm=$targetAlarm)"
         }
@@ -88,13 +90,13 @@ class SnoozeAlarm private constructor() {
 
         class Builder {
             private var snoozeDuration: Duration? = null
-            private var targetAlarm: AlarmValue? = null
+            private var targetAlarm: AlarmReference? = null
 
             fun setSnoozeDuration(snoozeDuration: Duration): Builder = apply {
                 this.snoozeDuration = snoozeDuration
             }
 
-            fun setTargetAlarm(targetAlarm: AlarmValue): Builder = apply {
+            fun setTargetAlarm(targetAlarm: AlarmReference): Builder = apply {
                 this.targetAlarm = targetAlarm
             }
 
@@ -153,19 +155,18 @@ class SnoozeAlarm private constructor() {
             this.genericErrorStatus = genericErrorStatus
         }
 
-        internal fun toParamValue(): ParamValue {
-            var status: String = ""
-            if (successStatus != null) {
-                status = successStatus.toString()
-            }
-            if (genericErrorStatus != null) {
-                status = genericErrorStatus.toString()
-            }
-            val value: Value = Value.newBuilder().setStringValue(status).build()
-            return ParamValue.newBuilder().setStructValue(
-                    Struct.newBuilder().putFields(TypeConverters.FIELD_NAME_TYPE, value).build()
-                )
-                .build()
+        companion object {
+            private val TYPE_SPEC = UnionTypeSpec.Builder<ExecutionStatus>()
+                .bindMemberType(
+                    memberGetter = ExecutionStatus::successStatus,
+                    ctor = { ExecutionStatus(it) },
+                    typeSpec = SUCCESS_STATUS_TYPE_SPEC
+                ).bindMemberType(
+                    memberGetter = ExecutionStatus::genericErrorStatus,
+                    ctor = { ExecutionStatus(it) },
+                    typeSpec = GENERIC_ERROR_STATUS_TYPE_SPEC
+                ).build()
+            internal val PARAM_VALUE_CONVERTER = ParamValueConverter.of(TYPE_SPEC)
         }
     }
 
@@ -176,27 +177,32 @@ class SnoozeAlarm private constructor() {
         /** Canonical name for [SnoozeAlarm] capability */
         const val CAPABILITY_NAME = "actions.intent.SNOOZE_ALARM"
         private val ACTION_SPEC =
-                ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-                        .setArguments(Arguments::class.java,
-                            Arguments::Builder,
-                            Arguments.Builder::build
-                        )
-                        .setOutput(Output::class.java)
-                        .bindParameter(
-                                SlotMetadata.DURATION.path,
-                                Arguments.Builder::setSnoozeDuration,
-                                TypeConverters.DURATION_PARAM_VALUE_CONVERTER
-                        )
-                        .bindParameter(
-                                SlotMetadata.ALARM.path,
-                                Arguments.Builder::setTargetAlarm,
-                                AlarmValue.PARAM_VALUE_CONVERTER
-                        )
-                        .bindOutput(
-                            "executionStatus",
-                            Output::executionStatus,
-                            ExecutionStatus::toParamValue
-                        )
-                        .build()
+            ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
+                .setArguments(Arguments::class.java,
+                    Arguments::Builder,
+                    Arguments.Builder::build
+                )
+                .setOutput(Output::class.java)
+                .bindParameter(
+                    SlotMetadata.DURATION.path,
+                    Arguments::snoozeDuration,
+                    Arguments.Builder::setSnoozeDuration,
+                    TypeConverters.DURATION_PARAM_VALUE_CONVERTER
+                )
+                .bindParameter(
+                    SlotMetadata.ALARM.path,
+                    Arguments::targetAlarm,
+                    Arguments.Builder::setTargetAlarm,
+                    AlarmReference.PARAM_VALUE_CONVERTER
+                )
+                .bindOutput(
+                    "executionStatus",
+                    Output::executionStatus,
+                    ExecutionStatus.PARAM_VALUE_CONVERTER
+                )
+                .build()
+        init {
+            ActionSpecRegistry.registerActionSpec(Arguments::class, Output::class, ACTION_SPEC)
+        }
     }
 }

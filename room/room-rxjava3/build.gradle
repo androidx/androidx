@@ -31,7 +31,7 @@ dependencies {
     implementation("androidx.arch.core:core-runtime:2.2.0")
     implementation(libs.kotlinStdlib)
 
-    testImplementation(project(":internal-testutils-kmp"))
+    testImplementation(project(":kruth:kruth"))
     testImplementation(libs.kotlinTest)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.mockitoKotlin4)

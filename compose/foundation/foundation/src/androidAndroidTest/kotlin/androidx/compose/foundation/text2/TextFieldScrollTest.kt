@@ -48,15 +48,14 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.test.swipe
 import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeLeft
@@ -422,7 +421,7 @@ class TextFieldScrollTest {
             )
         }
 
-        rule.onNodeWithTag(TextfieldTag).performSemanticsAction(SemanticsActions.RequestFocus)
+        rule.onNodeWithTag(TextfieldTag).requestFocus()
 
         // move cursor to the end
         state.editProcessor.reset(
@@ -447,7 +446,7 @@ class TextFieldScrollTest {
             )
         }
 
-        rule.onNodeWithTag(TextfieldTag).performSemanticsAction(SemanticsActions.RequestFocus)
+        rule.onNodeWithTag(TextfieldTag).requestFocus()
         rule.waitForIdle()
 
         runBlockingAndAwaitIdle { scrollState.scrollTo(scrollState.maxValue) }

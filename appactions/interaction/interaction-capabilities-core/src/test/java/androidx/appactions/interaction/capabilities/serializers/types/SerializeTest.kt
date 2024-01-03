@@ -17,25 +17,30 @@
 package androidx.appactions.interaction.capabilities.serializers.types
 
 import androidx.appactions.builtintypes.types.Person
+import androidx.appactions.builtintypes.types.Thing
 import androidx.appactions.interaction.capabilities.serializers.stringValue
 import androidx.appactions.interaction.protobuf.Struct
+import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
 import org.junit.Test
 
 class SerializeTest {
     @Test
-    fun serialize_ThrowsNotImplementedError() {
-        val person = Person.Builder().setName("Jane").setEmail("jane@gmail.com").build()
-        assertThrows(NotImplementedError::class.java) { serialize(person) }
+    fun serialize_dynamicallyDispatchesToTheCorrectSerializer() {
+        val thing: Thing = Person.Builder().setName("Jane").setEmail("jane@gmail.com").build()
+        assertThat(serialize(thing))
+            .isEqualTo(Struct.newBuilder().putFields("@type", stringValue("Person")).build())
+        // TODO(kalindthakkar): Expand to check the name once serialization logic is in
     }
 
     @Test
-    fun deserialize_ThrowsNotImplementedError() {
-        val struct = Struct.newBuilder()
-            .putFields("@type", stringValue("Person"))
-            .putFields("name", stringValue("Jane"))
-            .putFields("email", stringValue("jane@gmail.com"))
-            .build()
+    fun deserialize_throwsNotImplementedError() {
+        val struct =
+            Struct.newBuilder()
+                .putFields("@type", stringValue("Person"))
+                .putFields("name", stringValue("Jane"))
+                .putFields("email", stringValue("jane@gmail.com"))
+                .build()
         assertThrows(NotImplementedError::class.java) { deserialize(struct) }
     }
 }

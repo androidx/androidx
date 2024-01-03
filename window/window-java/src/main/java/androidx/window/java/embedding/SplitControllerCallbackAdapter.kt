@@ -17,18 +17,12 @@
 package androidx.window.java.embedding
 
 import android.app.Activity
-import androidx.annotation.GuardedBy
 import androidx.core.util.Consumer
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.SplitController
 import androidx.window.embedding.SplitInfo
+import androidx.window.java.core.CallbackToFlowAdapter
 import java.util.concurrent.Executor
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.launch
 
 /**
  * An adapted interface for [SplitController] that provides callback shaped APIs to report
@@ -40,12 +34,12 @@ import kotlinx.coroutines.launch
  * @param controller A [SplitController] that can be obtained by [SplitController.getInstance]
  */
 @ExperimentalWindowApi
-class SplitControllerCallbackAdapter(private val controller: SplitController) {
+class SplitControllerCallbackAdapter private constructor(
+    private val controller: SplitController,
+    private val callbackToFlowAdapter: CallbackToFlowAdapter
+) {
 
-    /** A [ReentrantLock] to protect against concurrent access to [consumerToJobMap]. */
-    private val lock = ReentrantLock()
-    @GuardedBy("lock")
-    private val consumerToJobMap = mutableMapOf<Consumer<List<SplitInfo>>, Job>()
+    constructor(controller: SplitController) : this(controller, CallbackToFlowAdapter())
 
     /**
      * Registers a listener for updates about the active split state(s) that this
@@ -69,16 +63,7 @@ class SplitControllerCallbackAdapter(private val controller: SplitController) {
         executor: Executor,
         consumer: Consumer<List<SplitInfo>>
     ) {
-        lock.withLock {
-            if (consumerToJobMap[consumer] != null) {
-                return
-            }
-            val scope = CoroutineScope(executor.asCoroutineDispatcher())
-            consumerToJobMap[consumer] = scope.launch {
-                controller.splitInfoList(activity).collect { splitInfoList ->
-                    consumer.accept(splitInfoList) }
-            }
-        }
+        callbackToFlowAdapter.connect(executor, consumer, controller.splitInfoList(activity))
     }
 
     /**
@@ -87,9 +72,6 @@ class SplitControllerCallbackAdapter(private val controller: SplitController) {
      * @param consumer the previously registered [Consumer] to unregister.
      */
     fun removeSplitListener(consumer: Consumer<List<SplitInfo>>) {
-        lock.withLock {
-            consumerToJobMap[consumer]?.cancel()
-            consumerToJobMap.remove(consumer)
-        }
+        callbackToFlowAdapter.disconnect(consumer)
     }
 }

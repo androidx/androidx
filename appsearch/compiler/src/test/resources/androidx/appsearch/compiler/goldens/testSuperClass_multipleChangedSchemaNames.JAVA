@@ -42,7 +42,7 @@ public final class $$__AppSearch__FooGift implements DocumentClassFactory<FooGif
   }
 
   @Override
-  public List<Class<?>> getNestedDocumentClasses() throws AppSearchException {
+  public List<Class<?>> getDependencyDocumentClasses() throws AppSearchException {
     return Collections.emptyList();
   }
 

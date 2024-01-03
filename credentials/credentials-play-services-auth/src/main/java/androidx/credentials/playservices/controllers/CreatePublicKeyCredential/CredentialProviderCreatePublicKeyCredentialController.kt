@@ -106,10 +106,9 @@ internal class CredentialProviderCreatePublicKeyCredentialController(private val
         try {
             fidoRegistrationRequest = this.convertRequestToPlayServices(request)
         } catch (e: JSONException) {
-            // TODO(b/262924507) : Perfect error code parsing and pass-back
             cancelOrCallbackExceptionOrResult(cancellationSignal) { this.executor.execute {
-                this.callback
-                .onError(CreatePublicKeyCredentialDomException(EncodingError(), e.message)) } }
+                this.callback.onError(JSONExceptionToPKCError(e))
+            } }
             return
         } catch (t: Throwable) {
             cancelOrCallbackExceptionOrResult(cancellationSignal) { this.executor.execute {
@@ -124,7 +123,13 @@ internal class CredentialProviderCreatePublicKeyCredentialController(private val
         hiddenIntent.putExtra(REQUEST_TAG, fidoRegistrationRequest)
         generateHiddenActivityIntent(resultReceiver, hiddenIntent,
             CREATE_PUBLIC_KEY_CREDENTIAL_TAG)
-        context.startActivity(hiddenIntent)
+        try {
+            context.startActivity(hiddenIntent)
+        } catch (e: Exception) {
+            cancelOrCallbackExceptionOrResult(cancellationSignal) { this.executor.execute {
+                this.callback.onError(
+                    CreateCredentialUnknownException(ERROR_MESSAGE_START_ACTIVITY_FAILED)) } }
+        }
     }
 
     internal fun handleResponse(uniqueRequestCode: Int, resultCode: Int, data: Intent?) {
@@ -185,10 +190,18 @@ internal class CredentialProviderCreatePublicKeyCredentialController(private val
             .toCreatePasskeyResponseJson(response))
     }
 
+    private fun JSONExceptionToPKCError(exception: JSONException):
+        CreatePublicKeyCredentialDomException {
+        val myCopy: String? = exception.message
+        if (myCopy != null && myCopy.length > 0) {
+            return CreatePublicKeyCredentialDomException(EncodingError(), myCopy)
+        }
+        return CreatePublicKeyCredentialDomException(EncodingError(), "Unknown error")
+    }
+
     companion object {
         private const val TAG = "CreatePublicKey"
         private var controller: CredentialProviderCreatePublicKeyCredentialController? = null
-        // TODO(b/262924507) : Test multiple calls (re-instantiation validates but just in case)
 
         /**
          * This finds a past version of the

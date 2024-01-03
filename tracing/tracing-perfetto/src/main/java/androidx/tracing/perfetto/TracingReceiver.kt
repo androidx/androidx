@@ -23,16 +23,17 @@ import android.os.Build
 import android.util.JsonWriter
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY
+import androidx.tracing.perfetto.PerfettoSdkTrace.Response
 import androidx.tracing.perfetto.StartupTracingConfigStore.store
-import androidx.tracing.perfetto.Tracing.EnableTracingResponse
-import androidx.tracing.perfetto.internal.handshake.protocol.EnableTracingResponse
+import androidx.tracing.perfetto.internal.handshake.protocol.RequestKeys.ACTION_DISABLE_TRACING_COLD_START
 import androidx.tracing.perfetto.internal.handshake.protocol.RequestKeys.ACTION_ENABLE_TRACING
 import androidx.tracing.perfetto.internal.handshake.protocol.RequestKeys.ACTION_ENABLE_TRACING_COLD_START
 import androidx.tracing.perfetto.internal.handshake.protocol.RequestKeys.KEY_PATH
 import androidx.tracing.perfetto.internal.handshake.protocol.RequestKeys.KEY_PERSISTENT
-import androidx.tracing.perfetto.internal.handshake.protocol.ResponseExitCodes.RESULT_CODE_ERROR_OTHER
-import androidx.tracing.perfetto.internal.handshake.protocol.ResponseExitCodes.RESULT_CODE_SUCCESS
+import androidx.tracing.perfetto.internal.handshake.protocol.Response
 import androidx.tracing.perfetto.internal.handshake.protocol.ResponseKeys
+import androidx.tracing.perfetto.internal.handshake.protocol.ResponseResultCodes.RESULT_CODE_ERROR_OTHER
+import androidx.tracing.perfetto.internal.handshake.protocol.ResponseResultCodes.RESULT_CODE_SUCCESS
 import java.io.File
 import java.io.StringWriter
 import java.util.concurrent.LinkedBlockingQueue
@@ -56,7 +57,7 @@ class TracingReceiver : BroadcastReceiver() {
         if (intent == null || intent.action !in listOf(
                 ACTION_ENABLE_TRACING,
                 ACTION_ENABLE_TRACING_COLD_START,
-                // ACTION_DISABLE_TRACING_COLD_START // TODO(282733308): implement
+                ACTION_DISABLE_TRACING_COLD_START
             )
         ) return
 
@@ -73,12 +74,13 @@ class TracingReceiver : BroadcastReceiver() {
                         enableTracingColdStart(
                             context,
                             srcPath,
-                            isPersistent = intent.extras?.getBoolean(KEY_PERSISTENT) ?: false
+                            intent.extras?.getString(KEY_PERSISTENT).toBoolean()
                         )
+                    ACTION_DISABLE_TRACING_COLD_START -> disableTracingColdStart(context)
                     else -> throw IllegalStateException() // supported actions checked earlier
                 }
 
-                pendingResult.setResult(response.exitCode, response.toJsonString(), null)
+                pendingResult.setResult(response.resultCode, response.toJsonString(), null)
             } finally {
                 pendingResult.finish()
             }
@@ -88,31 +90,31 @@ class TracingReceiver : BroadcastReceiver() {
     /**
      * Enables Perfetto SDK tracing in the app
      */
-    private fun enableTracingImmediate(srcPath: String?, context: Context?): EnableTracingResponse =
+    private fun enableTracingImmediate(srcPath: String?, context: Context?): Response =
         when {
             Build.VERSION.SDK_INT < Build.VERSION_CODES.R -> {
                 // TODO(234351579): Support API < 30
-                EnableTracingResponse(
+                Response(
                     RESULT_CODE_ERROR_OTHER,
                     "SDK version not supported. Current minimum SDK = ${Build.VERSION_CODES.R}"
                 )
             }
             srcPath != null && context != null -> {
                 try {
-                    Tracing.enable(File(srcPath), context)
+                    PerfettoSdkTrace.enable(File(srcPath), context)
                 } catch (e: Exception) {
-                    EnableTracingResponse(RESULT_CODE_ERROR_OTHER, e)
+                    Response(RESULT_CODE_ERROR_OTHER, e)
                 }
             }
             srcPath != null && context == null -> {
-                EnableTracingResponse(
+                Response(
                     RESULT_CODE_ERROR_OTHER,
                     "Cannot copy source file: $srcPath without access to a Context instance."
                 )
             }
             else -> {
                 // Library path was not provided, trying to resolve using app's local library files.
-                Tracing.enable()
+                PerfettoSdkTrace.enable()
             }
         }
 
@@ -125,10 +127,10 @@ class TracingReceiver : BroadcastReceiver() {
         context: Context?,
         srcPath: String?,
         isPersistent: Boolean
-    ): EnableTracingResponse = enableTracingImmediate(srcPath, context).also {
-        if (it.exitCode == RESULT_CODE_SUCCESS) {
+    ): Response = enableTracingImmediate(srcPath, context).also {
+        if (it.resultCode == RESULT_CODE_SUCCESS) {
             val config = StartupTracingConfig(libFilePath = srcPath, isPersistent = isPersistent)
-            if (context == null) return EnableTracingResponse(
+            if (context == null) return Response(
                 RESULT_CODE_ERROR_OTHER,
                 "Cannot set up cold start tracing without a Context instance."
             )
@@ -136,14 +138,27 @@ class TracingReceiver : BroadcastReceiver() {
         }
     }
 
-    private fun EnableTracingResponse.toJsonString(): String {
+    private fun disableTracingColdStart(context: Context?): Response = when {
+        context != null -> {
+            StartupTracingConfigStore.clear(context.applicationInfo.packageName)
+            Response(RESULT_CODE_SUCCESS)
+        }
+        else ->
+            Response(
+                RESULT_CODE_ERROR_OTHER,
+                "Cannot ensure we can disable cold start tracing without access to an app Context" +
+                    " instance"
+            )
+    }
+
+    private fun Response.toJsonString(): String {
         val output = StringWriter()
 
         JsonWriter(output).use {
             it.beginObject()
 
-            it.name(ResponseKeys.KEY_EXIT_CODE)
-            it.value(exitCode)
+            it.name(ResponseKeys.KEY_RESULT_CODE)
+            it.value(resultCode)
 
             it.name(ResponseKeys.KEY_REQUIRED_VERSION)
             it.value(requiredVersion)

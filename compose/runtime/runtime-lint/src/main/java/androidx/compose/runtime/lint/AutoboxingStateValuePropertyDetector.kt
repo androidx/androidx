@@ -49,6 +49,10 @@ class AutoboxingStateValuePropertyDetector : Detector(), SourceCodeScanner {
         return listOf("androidx.compose.runtime.snapshots.AutoboxingStateValueProperty")
     }
 
+    override fun isApplicableAnnotationUsage(type: AnnotationUsageType): Boolean {
+        return type == AnnotationUsageType.FIELD_REFERENCE
+    }
+
     override fun visitAnnotationUsage(
         context: JavaContext,
         usage: UElement,
@@ -61,10 +65,6 @@ class AutoboxingStateValuePropertyDetector : Detector(), SourceCodeScanner {
         allClassAnnotations: List<UAnnotation>,
         allPackageAnnotations: List<UAnnotation>
     ) {
-        if (type != AnnotationUsageType.FIELD_REFERENCE) {
-            return
-        }
-
         val resolvedPropertyName = usage.identifier ?: "<unknown identifier>"
         val preferredPropertyName = annotation.preferredPropertyName ?: "<unknown replacement>"
 

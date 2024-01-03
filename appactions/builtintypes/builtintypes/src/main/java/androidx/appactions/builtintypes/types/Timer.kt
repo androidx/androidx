@@ -15,6 +15,7 @@ package androidx.appactions.builtintypes.types
 
 import androidx.appactions.builtintypes.properties.DisambiguatingDescription
 import androidx.appactions.builtintypes.properties.Name
+import androidx.appsearch.`annotation`.Document
 import java.time.Duration
 import java.util.Objects
 import kotlin.Any
@@ -33,16 +34,20 @@ import kotlin.jvm.JvmStatic
 /**
  * A timer to go off at a particular time.
  *
- * See http://schema.googleapis.com/Timer for context.
+ * See https://schema.googleapis.com/Timer for context.
  *
  * Should not be directly implemented. More properties may be added over time. Instead consider
  * using [Companion.Builder] or see [AbstractTimer] if you need to extend this type.
  */
+@Document(
+  name = "bit:Timer",
+  parent = [Thing::class],
+)
 public interface Timer : Thing {
   /**
    * The duration of the item (movie, audio recording, event, etc.).
    *
-   * See http://schema.org/duration for more context.
+   * See https://schema.org/duration for more context.
    */
   public val duration: Duration?
 
@@ -51,7 +56,7 @@ public interface Timer : Thing {
 
   public companion object {
     /** Returns a default implementation of [Builder] with no properties set. */
-    @JvmStatic public fun Builder(): Builder<*> = TimerImpl.Builder()
+    @JvmStatic @Document.BuilderProducer public fun Builder(): Builder<*> = TimerImpl.Builder()
   }
 
   /**
@@ -154,22 +159,22 @@ internal constructor(
     if (this === other) return true
     if (other == null || this::class.java != other::class.java) return false
     other as Self
+    if (namespace != other.namespace) return false
     if (duration != other.duration) return false
     if (disambiguatingDescription != other.disambiguatingDescription) return false
     if (identifier != other.identifier) return false
     if (name != other.name) return false
-    if (namespace != other.namespace) return false
     if (additionalProperties != other.additionalProperties) return false
     return true
   }
 
   public final override fun hashCode(): Int =
     Objects.hash(
+      namespace,
       duration,
       disambiguatingDescription,
       identifier,
       name,
-      namespace,
       additionalProperties
     )
 
@@ -319,11 +324,11 @@ internal constructor(
       if (this === other) return true
       if (other == null || this::class.java != other::class.java) return false
       other as Self
+      if (namespace != other.namespace) return false
       if (duration != other.duration) return false
       if (disambiguatingDescription != other.disambiguatingDescription) return false
       if (identifier != other.identifier) return false
       if (name != other.name) return false
-      if (namespace != other.namespace) return false
       if (additionalProperties != other.additionalProperties) return false
       return true
     }
@@ -331,11 +336,11 @@ internal constructor(
     @Suppress("BuilderSetStyle")
     public final override fun hashCode(): Int =
       Objects.hash(
+        namespace,
         duration,
         disambiguatingDescription,
         identifier,
         name,
-        namespace,
         additionalProperties
       )
 

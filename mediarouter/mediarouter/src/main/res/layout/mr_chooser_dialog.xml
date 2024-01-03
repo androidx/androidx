@@ -70,7 +70,7 @@
                     android:id="@+id/mr_chooser_wifi_warning_description"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/mr_chooser_wifi_warning_description"
+                    android:text="@string/mr_chooser_wifi_warning_description_phone"
                     android:textAppearance="@style/TextAppearance.MediaRouter.SecondaryText" />
 
                 <TextView

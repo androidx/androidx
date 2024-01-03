@@ -88,6 +88,7 @@ import androidx.wear.watchface.data.WatchFaceColorsWireFormat
 import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyle
+import androidx.wear.watchface.style.UserStyleFlavors
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
@@ -478,7 +479,7 @@ public class WatchFaceServiceTest {
     }
 
     private fun initEngine(
-        @WatchFaceType watchFaceType: Int,
+        @WatchFaceTypeIntDef watchFaceType: Int,
         complicationSlots: List<ComplicationSlot>,
         userStyleSchema: UserStyleSchema,
         apiVersion: Int = 2,
@@ -599,7 +600,7 @@ public class WatchFaceServiceTest {
     }
 
     private fun initWallpaperInteractiveWatchFaceInstance(
-        @WatchFaceType watchFaceType: Int = WatchFaceType.ANALOG,
+        @WatchFaceTypeIntDef watchFaceType: Int = WatchFaceType.ANALOG,
         complicationSlots: List<ComplicationSlot> = emptyList(),
         userStyleSchema: UserStyleSchema = UserStyleSchema(emptyList()),
         wallpaperInteractiveWatchFaceInstanceParams: WallpaperInteractiveWatchFaceInstanceParams =
@@ -1316,7 +1317,11 @@ public class WatchFaceServiceTest {
                 null
             )
         verify(tapListener)
-            .onTapEvent(TapType.UP, TapEvent(10, 200, Instant.ofEpochMilli(looperTimeMillis)), null)
+            .onTapEvent(
+                TapType.UP,
+                TapEvent(10, 200, Instant.ofEpochMilli(looperTimeMillis)),
+                null
+            )
     }
 
     @Test
@@ -3315,12 +3320,14 @@ public class WatchFaceServiceTest {
                 choreographer
             )
 
+        val componentName = ComponentName("test.watchface.app", "test.watchface.class")
         engineWrapper =
-            testWatchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
+            testWatchFaceService.createHeadlessEngine(componentName)
+                as WatchFaceService.EngineWrapper
 
         engineWrapper.createHeadlessInstance(
             HeadlessWatchFaceInstanceParams(
-                ComponentName("test.watchface.app", "test.watchface.class"),
+                componentName,
                 DeviceConfig(false, false, 100, 200),
                 100,
                 100,
@@ -3882,7 +3889,9 @@ public class WatchFaceServiceTest {
                 choreographer
             )
 
-        testWatchFaceService.createHeadlessEngine()
+        testWatchFaceService.createHeadlessEngine(
+            ComponentName("test.watchface.app", "test.watchface.class")
+        )
 
         runPostedTasksFor(0)
 
@@ -4546,12 +4555,14 @@ public class WatchFaceServiceTest {
         engineWrapper.onCreate(surfaceHolder)
         engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
 
+        val componentName = ComponentName("test.watchface.app", "test.watchface.class")
         val headlessEngineWrapper =
-            testWatchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
+            testWatchFaceService.createHeadlessEngine(componentName)
+                as WatchFaceService.EngineWrapper
 
         headlessEngineWrapper.createHeadlessInstance(
             HeadlessWatchFaceInstanceParams(
-                ComponentName("test.watchface.app", "test.watchface.class"),
+                componentName,
                 DeviceConfig(false, false, 100, 200),
                 100,
                 100,
@@ -4687,12 +4698,14 @@ public class WatchFaceServiceTest {
         engineWrapper.onCreate(surfaceHolder)
         engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
 
+        val componentName = ComponentName("test.watchface.app", "test.watchface.class")
         val headlessEngineWrapper =
-            testWatchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
+            testWatchFaceService.createHeadlessEngine(componentName)
+                as WatchFaceService.EngineWrapper
 
         headlessEngineWrapper.createHeadlessInstance(
             HeadlessWatchFaceInstanceParams(
-                ComponentName("test.watchface.app", "test.watchface.class"),
+                componentName,
                 DeviceConfig(false, false, 100, 200),
                 100,
                 100,
@@ -4819,12 +4832,14 @@ public class WatchFaceServiceTest {
         engineWrapper.onCreate(surfaceHolder)
         engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
 
+        val componentName = ComponentName("test.watchface.app", "test.watchface.class")
         val headlessEngineWrapper =
-            testWatchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
+            testWatchFaceService.createHeadlessEngine(componentName)
+                as WatchFaceService.EngineWrapper
 
         headlessEngineWrapper.createHeadlessInstance(
             HeadlessWatchFaceInstanceParams(
-                ComponentName("test.watchface.app", "test.watchface.class"),
+                componentName,
                 DeviceConfig(false, false, 100, 200),
                 100,
                 100,
@@ -5115,12 +5130,14 @@ public class WatchFaceServiceTest {
                 choreographer
             )
 
+        val componentName = ComponentName("test.watchface.app", "test.watchface.class")
         engineWrapper =
-            testWatchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
+            testWatchFaceService.createHeadlessEngine(componentName)
+                as WatchFaceService.EngineWrapper
 
         engineWrapper.createHeadlessInstance(
             HeadlessWatchFaceInstanceParams(
-                ComponentName("test.watchface.app", "test.watchface.class"),
+                componentName,
                 DeviceConfig(false, false, 100, 200),
                 100,
                 100,
@@ -5183,12 +5200,14 @@ public class WatchFaceServiceTest {
                 choreographer
             )
 
+        val componentName = ComponentName("test.watchface.app", "test.watchface.class")
         engineWrapper =
-            testWatchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
+            testWatchFaceService.createHeadlessEngine(componentName)
+                as WatchFaceService.EngineWrapper
 
         engineWrapper.createHeadlessInstance(
             HeadlessWatchFaceInstanceParams(
-                ComponentName("test.watchface.app", "test.watchface.class"),
+                componentName,
                 DeviceConfig(false, false, 100, 200),
                 100,
                 100,
@@ -6377,12 +6396,14 @@ public class WatchFaceServiceTest {
                 forceIsVisible = true
             )
 
+        val componentName = ComponentName("test.watchface.app", "test.watchface.class")
         engineWrapper =
-            testWatchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
+            testWatchFaceService.createHeadlessEngine(componentName)
+                as WatchFaceService.EngineWrapper
 
         engineWrapper.createHeadlessInstance(
             HeadlessWatchFaceInstanceParams(
-                ComponentName("test.watchface.app", "test.watchface.class"),
+                componentName,
                 DeviceConfig(false, false, 100, 200),
                 100,
                 100,
@@ -6529,11 +6550,12 @@ public class WatchFaceServiceTest {
     @Test
     public fun createHeadlessSessionDelegate_onDestroy() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val componentName = ComponentName(context, TestNopCanvasWatchFaceService::class.java)
+        val componentName =
+            ComponentName(context, TestNopCanvasWatchFaceServiceWithHandler::class.java)
         lateinit var delegate: WatchFace.EditorDelegate
 
         // Allows us to programmatically control tasks.
-        TestNopCanvasWatchFaceService.handler = this.handler
+        TestNopCanvasWatchFaceServiceWithHandler.handler = this.handler
 
         CoroutineScope(handler.asCoroutineDispatcher().immediate).launch {
             delegate =
@@ -6589,7 +6611,7 @@ public class WatchFaceServiceTest {
         )
 
         // Allows us to programmatically control tasks.
-        TestNopCanvasWatchFaceService.handler = this.handler
+        TestNopCanvasWatchFaceServiceWithHandler.handler = this.handler
 
         CoroutineScope(handler.asCoroutineDispatcher().immediate).launch {
             delegate =
@@ -6689,6 +6711,115 @@ public class WatchFaceServiceTest {
             .isEqualTo(INTERACTIVE_INSTANCE_ID)
     }
 
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.R])
+    @RequiresApi(Build.VERSION_CODES.R)
+    public fun interactive_wf_has_null_resourceOnlyWatchFacePackageName() {
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            emptyList(),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                INTERACTIVE_INSTANCE_ID,
+                DeviceConfig(false, false, 0, 0),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                null,
+                null,
+                null
+            )
+        )
+
+        assertThat(engineWrapper.resourceOnlyWatchFacePackageName).isNull()
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.R])
+    @RequiresApi(Build.VERSION_CODES.O_MR1)
+    public fun headless_wf_has_null_resourceOnlyWatchFacePackageName() {
+        val service = TestNopCanvasWatchFaceService(context)
+        val componentName = ComponentName("test.watchface.app", "test.watchface.class")
+
+        engineWrapper =
+            service.createHeadlessEngine(componentName) as WatchFaceService.EngineWrapper
+        engineWrapper.createHeadlessInstance(
+            HeadlessWatchFaceInstanceParams(
+                componentName,
+                DeviceConfig(false, false, 100, 200),
+                100,
+                100,
+                null
+            )
+        )
+
+        assertThat(engineWrapper.resourceOnlyWatchFacePackageName).isNull()
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.R])
+    @RequiresApi(Build.VERSION_CODES.R)
+    public fun interactive_wf_runtime_has_non_null_resourceOnlyWatchFacePackageName() {
+        val service = TestNopWatchFaceRuntimeService(context)
+        InteractiveInstanceManager
+            .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
+                InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
+                    WallpaperInteractiveWatchFaceInstanceParams(
+                        SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive",
+                        DeviceConfig(false, false, 0, 0),
+                        WatchUiState(false, 0),
+                        UserStyle(emptyMap()).toWireFormat(),
+                        emptyList(),
+                        "com.resource.only.package",
+                        null
+                    ),
+                    object : IPendingInteractiveWatchFace.Stub() {
+                        override fun getApiVersion() = IPendingInteractiveWatchFace.API_VERSION
+
+                        override fun onInteractiveWatchFaceCreated(
+                            iInteractiveWatchFace: IInteractiveWatchFace
+                        ) {
+                            interactiveWatchFaceInstance = iInteractiveWatchFace
+                        }
+
+                        override fun onInteractiveWatchFaceCrashed(exception: CrashInfoParcel?) {
+                            fail("WatchFace crashed: $exception")
+                        }
+                    }
+                )
+            )
+
+        engineWrapper = service.onCreateEngine() as WatchFaceService.EngineWrapper
+        engineWrapper.onCreate(surfaceHolder)
+        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
+
+        assertThat(engineWrapper.resourceOnlyWatchFacePackageName)
+            .isEqualTo("com.resource.only.package")
+        engineWrapper.onDestroy()
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.R])
+    @RequiresApi(Build.VERSION_CODES.O_MR1)
+    public fun headless_wf_runtime_has_non_null_resourceOnlyWatchFacePackageName() {
+        val service = TestNopWatchFaceRuntimeService(context)
+        val componentName = ComponentName("com.resource.only.package", "null")
+
+        engineWrapper =
+            service.createHeadlessEngine(componentName) as WatchFaceService.EngineWrapper
+        engineWrapper.createHeadlessInstance(
+            HeadlessWatchFaceInstanceParams(
+                componentName,
+                DeviceConfig(false, false, 100, 200),
+                100,
+                100,
+                null
+            )
+        )
+
+        assertThat(engineWrapper.resourceOnlyWatchFacePackageName)
+            .isEqualTo("com.resource.only.package")
+    }
+
     private fun getLeftShortTextComplicationDataText(): CharSequence {
         val complication =
             complicationSlotsManager[LEFT_COMPLICATION_ID]!!.complicationData.value
@@ -6723,7 +6854,115 @@ public class WatchFaceServiceTest {
     private suspend fun <T> Deferred<T>.awaitWithTimeout(): T = withTimeout(1000) { await() }
 }
 
-class TestNopCanvasWatchFaceService : WatchFaceService() {
+class TestNopWatchFaceRuntimeService(testContext: Context) : WatchFaceRuntimeService() {
+    var lastResourceOnlyWatchFacePackageName: String? = null
+
+    init {
+        attachBaseContext(testContext)
+    }
+
+    override fun createUserStyleSchema(resourceOnlyWatchFacePackageName: String) =
+        UserStyleSchema(emptyList())
+
+    override fun createComplicationSlotsManager(
+        currentUserStyleRepository: CurrentUserStyleRepository,
+        resourceOnlyWatchFacePackageName: String
+    ) = ComplicationSlotsManager(emptyList(), currentUserStyleRepository)
+
+    override fun createUserStyleFlavors(
+        currentUserStyleRepository: CurrentUserStyleRepository,
+        complicationSlotsManager: ComplicationSlotsManager,
+        resourceOnlyWatchFacePackageName: String
+    ) = UserStyleFlavors()
+
+    override suspend fun createWatchFace(
+        surfaceHolder: SurfaceHolder,
+        watchState: WatchState,
+        complicationSlotsManager: ComplicationSlotsManager,
+        currentUserStyleRepository: CurrentUserStyleRepository,
+        resourceOnlyWatchFacePackageName: String
+    ): WatchFace {
+        lastResourceOnlyWatchFacePackageName = resourceOnlyWatchFacePackageName
+        System.out.println("<<< createWatchFace " + resourceOnlyWatchFacePackageName)
+        return WatchFace(
+            WatchFaceType.DIGITAL,
+            @Suppress("deprecation")
+            object :
+                Renderer.CanvasRenderer(
+                    surfaceHolder,
+                    currentUserStyleRepository,
+                    watchState,
+                    CanvasType.HARDWARE,
+                    16
+                ) {
+                override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
+                    // Intentionally empty.
+                }
+
+                override fun renderHighlightLayer(
+                    canvas: Canvas,
+                    bounds: Rect,
+                    zonedDateTime: ZonedDateTime
+                ) {
+                    // Intentionally empty.
+                }
+            }
+        )
+    }
+
+    override fun getSystemTimeProvider() =
+        object : SystemTimeProvider {
+            override fun getSystemTimeMillis() = 123456789L
+
+            override fun getSystemTimeZoneId() = ZoneId.of("UTC")
+        }
+}
+
+class TestNopCanvasWatchFaceService(testContext: Context) : WatchFaceService() {
+    init {
+        attachBaseContext(testContext)
+    }
+
+    override suspend fun createWatchFace(
+        surfaceHolder: SurfaceHolder,
+        watchState: WatchState,
+        complicationSlotsManager: ComplicationSlotsManager,
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ) =
+        WatchFace(
+            WatchFaceType.DIGITAL,
+            @Suppress("deprecation")
+            object :
+                Renderer.CanvasRenderer(
+                    surfaceHolder,
+                    currentUserStyleRepository,
+                    watchState,
+                    CanvasType.HARDWARE,
+                    16
+                ) {
+                override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
+                    // Intentionally empty.
+                }
+
+                override fun renderHighlightLayer(
+                    canvas: Canvas,
+                    bounds: Rect,
+                    zonedDateTime: ZonedDateTime
+                ) {
+                    // Intentionally empty.
+                }
+            }
+        )
+
+    override fun getSystemTimeProvider() =
+        object : SystemTimeProvider {
+            override fun getSystemTimeMillis() = 123456789L
+
+            override fun getSystemTimeZoneId() = ZoneId.of("UTC")
+        }
+}
+
+class TestNopCanvasWatchFaceServiceWithHandler : WatchFaceService() {
     companion object {
         lateinit var handler: Handler
     }
@@ -6776,6 +7015,6 @@ class TestNopCanvasWatchFaceService : WatchFaceService() {
 @RequiresApi(27)
 class TestWatchFaceControlService : WatchFaceControlService() {
     override fun createWatchFaceService(watchFaceName: ComponentName): WatchFaceService? {
-        return TestNopCanvasWatchFaceService()
+        return TestNopCanvasWatchFaceServiceWithHandler()
     }
 }

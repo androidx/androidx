@@ -127,8 +127,7 @@ class RoomIncrementalAnnotationProcessingTest(
             appendLine("}")
         }
         val agpDependency = projectSetup.props.agpDependency
-        val kotlinPluginDependency =
-            "org.jetbrains.kotlin:kotlin-gradle-plugin:${projectSetup.props.kotlinVersion}"
+        val kotlinPluginDependency = projectSetup.props.kgpDependency
         val kspPluginDependency =
             "com.google.devtools.ksp:symbol-processing-gradle-plugin:" +
                 projectSetup.props.kspVersion

@@ -33,6 +33,7 @@ internal class CursorAnchorInfoController(private val inputMethodManager: InputM
 
     private var textFieldValue: TextFieldValue? = null
     private var textLayoutResult: TextLayoutResult? = null
+    private var offsetMapping: OffsetMapping? = null
     private var textLayoutPositionInWindow: Offset? = null
     private var innerTextFieldBounds: Rect? = null
     private var decorationBoxBounds: Rect? = null
@@ -83,6 +84,7 @@ internal class CursorAnchorInfoController(private val inputMethodManager: InputM
      * Notify the controller of layout and position changes.
      *
      * @param textFieldValue the text field's [TextFieldValue]
+     * @param offsetMapping the offset mapping for the visual transformation
      * @param textLayoutResult the text field's [TextLayoutResult]
      * @param textLayoutPositionInWindow position of the text field relative to the window
      * @param innerTextFieldBounds visible bounds of the text field in local coordinates, or an
@@ -92,12 +94,14 @@ internal class CursorAnchorInfoController(private val inputMethodManager: InputM
      */
     fun updateTextLayoutResult(
         textFieldValue: TextFieldValue,
+        offsetMapping: OffsetMapping,
         textLayoutResult: TextLayoutResult,
         textLayoutPositionInWindow: Offset,
         innerTextFieldBounds: Rect,
         decorationBoxBounds: Rect
     ) {
         this.textFieldValue = textFieldValue
+        this.offsetMapping = offsetMapping
         this.textLayoutResult = textLayoutResult
         this.textLayoutPositionInWindow = textLayoutPositionInWindow
         this.innerTextFieldBounds = innerTextFieldBounds
@@ -117,6 +121,7 @@ internal class CursorAnchorInfoController(private val inputMethodManager: InputM
      */
     fun invalidate() {
         textFieldValue = null
+        offsetMapping = null
         textLayoutResult = null
         textLayoutPositionInWindow = null
         innerTextFieldBounds = null
@@ -132,6 +137,7 @@ internal class CursorAnchorInfoController(private val inputMethodManager: InputM
         inputMethodManager.updateCursorAnchorInfo(
             builder.build(
                 textFieldValue!!,
+                offsetMapping!!,
                 textLayoutResult!!,
                 matrix,
                 innerTextFieldBounds!!,

@@ -32,6 +32,13 @@ if [ "$1" == "--diagnose" ]; then
 else
   DIAGNOSE=false
 fi
+if [ "$1" == "--diagnose-timeout" ]; then
+  shift
+  DIAGNOSE_TIMEOUT_ARG="--timeout $1"
+  shift
+else
+  DIAGNOSE_TIMEOUT_ARG=""
+fi
 
 # record the build start time
 BUILD_START_MARKER="$OUT_DIR/build.sh.start"
@@ -49,9 +56,7 @@ function run() {
   if eval "$*"; then
     return 0
   else
-    echo >&2
     echo "Gradle command failed:" >&2
-    echo >&2
     # Echo the Gradle command formatted for ease of reading.
     # Put each argument on its own line because some arguments may be long.
     # Also put "\" at the end of non-final lines so the command can be copy-pasted
@@ -107,6 +112,7 @@ if run ./gradlew --ci "$@"; then
   echo build passed
 else
   if grep "has several compatible actual declarations in modules" "$DIST_DIR/logs/gradle.log" >/dev/null 2>/dev/null; then
+    run ./gradlew --stop || true
     # try to copy the OUT_DIR into DIST where we can find it
     cd "$OUT_DIR"
     echo "zipping out into $DIST_DIR/out.zip"
@@ -114,13 +120,13 @@ else
     cd -
   else
     if [ "$DIAGNOSE" == "true" ]; then
-     # see if diagnose-build-failure.sh can identify the root cauase
+      # see if diagnose-build-failure.sh can identify the root cauase
       echo "running diagnose-build-failure.sh, see build.log" >&2
       # Specify a short timeout in case we're running on a remote server, so we don't take too long.
       # We probably won't have enough time to fully diagnose the problem given this timeout, but
       # we might be able to determine whether this problem is reproducible enough for a developer to
       # more easily investigate further
-      ./development/diagnose-build-failure/diagnose-build-failure.sh --timeout 600 "--ci $*"
+      ./development/diagnose-build-failure/diagnose-build-failure.sh $DIAGNOSE_TIMEOUT_ARG "--ci $*"
     fi
   fi
   BUILD_STATUS=1 # failure

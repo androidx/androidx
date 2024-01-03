@@ -16,11 +16,12 @@
 package androidx.annotation
 
 /**
- * Annotation that can be attached to a constructor with a single [LayoutRes] parameter
- * to denote what layout the component intends to inflate and set as its content.
+ * Annotation that can be attached to a constructor with a single [LayoutRes] parameter to denote
+ * what layout the component intends to inflate and set as its content.
  *
- * It is strongly recommended that components that support this annotation specifically call
- * it out in their documentation.
+ * It is strongly recommended that components that support this annotation specifically call it out
+ * in their documentation.
+ *
  * ```
  * public class MainFragment extends Fragment {
  *     public MainFragment() {

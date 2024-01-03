@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.lazy
 
+import androidx.annotation.IntRange as AndroidXIntRange
 import androidx.compose.animation.core.AnimationState
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.Spring
@@ -254,7 +255,7 @@ class LazyListState constructor(
      * scroll the item further upward (taking it partly offscreen).
      */
     suspend fun scrollToItem(
-        /*@IntRange(from = 0)*/
+        @AndroidXIntRange(from = 0)
         index: Int,
         scrollOffset: Int = 0
     ) {
@@ -391,7 +392,7 @@ class LazyListState constructor(
      * scroll the item further upward (taking it partly offscreen).
      */
     suspend fun animateScrollToItem(
-        /*@IntRange(from = 0)*/
+        @AndroidXIntRange(from = 0)
         index: Int,
         scrollOffset: Int = 0
     ) {

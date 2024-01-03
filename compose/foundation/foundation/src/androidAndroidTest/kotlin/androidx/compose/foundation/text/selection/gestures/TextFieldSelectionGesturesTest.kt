@@ -34,6 +34,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
@@ -118,6 +119,68 @@ internal class TextFieldSelectionGesturesTest : AbstractSelectionGesturesTest() 
 
         asserter.applyAndAssert {
             textToolbarShown = true // paste will show up if clipboard is not empty
+        }
+    }
+
+    // Regression for magnifier not showing when the text field begins empty,
+    // then text is added, the magnifier continues not to show.
+    @Test
+    fun whenTouch_withNoText_thenLongPressAndDrag_thenAddText_longPressAndDragAgain() {
+        textFieldValue.value = TextFieldValue()
+        rule.waitForIdle()
+
+        performTouchGesture {
+            longPress(boundsInRoot.center)
+        }
+
+        asserter.applyAndAssert {
+            textContent = ""
+            hapticsCount++
+        }
+
+        touchDragTo(boundsInRoot.centerLeft)
+
+        asserter.assert()
+
+        performTouchGesture {
+            up()
+        }
+
+        asserter.applyAndAssert {
+            textToolbarShown = true // paste will show up if clipboard is not empty
+        }
+
+        val newText = "Some Text"
+        rule.onNodeWithTag(pointerAreaTag).performTextInput(newText)
+        rule.waitForIdle()
+
+        performTouchGesture {
+            longPress(characterPosition(2))
+        }
+
+        asserter.applyAndAssert {
+            textContent = newText
+            selection = 0 to 4
+            selectionHandlesShown = true
+            magnifierShown = true
+            textToolbarShown = false
+            hapticsCount++
+        }
+
+        touchDragTo(characterPosition(6))
+
+        asserter.applyAndAssert {
+            selection = 0 to 9
+            hapticsCount++
+        }
+
+        performTouchGesture {
+            up()
+        }
+
+        asserter.applyAndAssert {
+            textToolbarShown = true
+            magnifierShown = false
         }
     }
 

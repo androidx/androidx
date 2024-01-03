@@ -21,6 +21,8 @@ import android.content.Context
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.os.Build
+import android.os.IBinder
+import android.view.SurfaceView
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
@@ -74,6 +76,7 @@ class SandboxedSdkViewTest {
     class FailingTestSandboxedUiAdapter : SandboxedUiAdapter {
         override fun openSession(
             context: Context,
+            windowInputToken: IBinder,
             initialWidth: Int,
             initialHeight: Int,
             isZOrderOnTop: Boolean,
@@ -96,6 +99,7 @@ class SandboxedSdkViewTest {
         var internalClient: SandboxedUiAdapter.SessionClient? = null
         var testSession: TestSession? = null
         var isZOrderOnTop = true
+        var inputToken: IBinder? = null
 
         // When set to true, the onSessionOpened callback will only be invoked when specified
         // by the test. This is to test race conditions when the session is being loaded.
@@ -103,6 +107,7 @@ class SandboxedSdkViewTest {
 
         override fun openSession(
             context: Context,
+            windowInputToken: IBinder,
             initialWidth: Int,
             initialHeight: Int,
             isZOrderOnTop: Boolean,
@@ -117,6 +122,7 @@ class SandboxedSdkViewTest {
             }
             isSessionOpened = true
             this.isZOrderOnTop = isZOrderOnTop
+            this.inputToken = windowInputToken
             openSessionLatch?.countDown()
         }
 
@@ -248,7 +254,6 @@ class SandboxedSdkViewTest {
     @Test
     fun childViewRemovedOnErrorTest() {
         assertTrue(view.childCount == 0)
-
         addViewToLayout()
 
         openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)
@@ -402,6 +407,49 @@ class SandboxedSdkViewTest {
         assertFalse(
             "XML overrides SandboxedSdkView.isTransitionGroup", view.isTransitionGroup
         )
+    }
+
+    /**
+     * Ensures that the input token passed when opening a session is non-null and is the same host
+     * token as another [SurfaceView] in the same activity.
+     */
+    @Test
+    fun inputTokenIsCorrect() {
+        lateinit var layout: LinearLayout
+        val surfaceView = SurfaceView(context)
+        val surfaceViewLatch = CountDownLatch(1)
+
+        // Attach SurfaceView
+        activity.runOnUiThread {
+            layout = activity.findViewById(
+                R.id.mainlayout
+            )
+            layout.addView(surfaceView)
+        }
+        var token: IBinder? = null
+        surfaceView.addOnAttachStateChangeListener(
+            object : View.OnAttachStateChangeListener {
+                override fun onViewAttachedToWindow(p0: View) {
+                    token = surfaceView.hostToken
+                    surfaceViewLatch.countDown()
+                }
+
+                override fun onViewDetachedFromWindow(p0: View) {
+                }
+            }
+        )
+
+        // Verify SurfaceView has a non-null token when attached.
+        assertThat(surfaceViewLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(surfaceView.hostToken).isNotNull()
+        activity.runOnUiThread {
+            layout.removeView(surfaceView)
+        }
+
+        // Verify that the UI adapter receives the same host token object when opening a session.
+        addViewToLayout()
+        assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(testSandboxedUiAdapter.inputToken).isEqualTo(token)
     }
 
     private fun addViewToLayout() {

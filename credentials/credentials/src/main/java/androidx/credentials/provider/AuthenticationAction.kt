@@ -51,8 +51,10 @@ import java.util.Collections
  *
  * @param title the title to be shown with this entry on the account selector UI
  * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
- * authentication entry on the UI, must be created with flag [PendingIntent.FLAG_MUTABLE] so
- * that the system can add the complete request to the extras of the associated intent
+ * entry, must be created with a unique request code per entry,
+ * with flag [PendingIntent.FLAG_MUTABLE] to allow the Android system to attach the
+ * final request, and NOT with flag [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple
+ * times
  *
  * @see android.service.credentials.BeginGetCredentialResponse
  * for more usage details.
@@ -72,8 +74,11 @@ class AuthenticationAction constructor(
      * A builder for [AuthenticationAction]
      *
      * @param title the title to be displayed with this authentication action entry
-     * @param pendingIntent the [PendingIntent] that will be fired when the user selects
-     * this entry
+     * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
+     * entry, must be created with a unique request code per entry,
+     * with flag [PendingIntent.FLAG_MUTABLE] to allow the Android system to attach the
+     * final request, and NOT with flag [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple
+     * times
      */
     class Builder constructor(
         private val title: CharSequence,

@@ -131,6 +131,11 @@
             android:theme="@style/Theme.TextColors"/>
 
         <activity
+            android:name="androidx.appcompat.widget.AppCompatTextViewFontScalingTest$TextViewFontScalingActivity"
+            android:label="@string/app_compat_text_view_activity"
+            android:theme="@style/Theme.TextColors" />
+
+        <activity
             android:name="androidx.appcompat.widget.AppCompatTextViewAutoSizeActivity"
             android:label="@string/app_compat_text_view_auto_size_activity"
             android:theme="@style/Theme.AppCompat.Light"/>

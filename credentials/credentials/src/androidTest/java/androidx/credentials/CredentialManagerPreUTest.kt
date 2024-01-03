@@ -22,10 +22,8 @@ import androidx.annotation.RequiresApi
 import androidx.credentials.exceptions.ClearCredentialException
 import androidx.credentials.exceptions.ClearCredentialProviderConfigurationException
 import androidx.credentials.exceptions.CreateCredentialException
-import androidx.credentials.exceptions.CreateCredentialNoCreateOptionException
 import androidx.credentials.exceptions.CreateCredentialProviderConfigurationException
 import androidx.credentials.exceptions.GetCredentialProviderConfigurationException
-import androidx.credentials.exceptions.NoCredentialException
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -63,13 +61,11 @@ class CredentialManagerPreUTest {
         if (Looper.myLooper() == null) {
             Looper.prepare()
         }
-        if (!isPostFrameworkApiLevel()) {
-            assertThrows<CreateCredentialProviderConfigurationException> {
-                credentialManager.createCredential(
-                    Activity(),
-                    CreatePasswordRequest("test-user-id", "test-password")
-                )
-            }
+        assertThrows<CreateCredentialProviderConfigurationException> {
+            credentialManager.createCredential(
+                Activity(),
+                CreatePasswordRequest("test-user-id", "test-password")
+            )
         }
     }
 
@@ -85,14 +81,8 @@ class CredentialManagerPreUTest {
         withUse(ActivityScenario.launch(TestActivity::class.java)) {
             withActivity {
                 runBlocking {
-                    if (!isPostFrameworkApiLevel()) {
-                        assertThrows<GetCredentialProviderConfigurationException> {
-                            credentialManager.getCredential(this@withActivity, request)
-                        }
-                    } else {
-                        assertThrows<NoCredentialException> {
-                            credentialManager.getCredential(this@withActivity, request)
-                        }
+                    assertThrows<GetCredentialProviderConfigurationException> {
+                        credentialManager.getCredential(this@withActivity, request)
                     }
                 }
             }
@@ -105,10 +95,8 @@ class CredentialManagerPreUTest {
             Looper.prepare()
         }
 
-        if (!isPostFrameworkApiLevel()) {
-            assertThrows<ClearCredentialProviderConfigurationException> {
-                credentialManager.clearCredentialState(ClearCredentialStateRequest())
-            }
+        assertThrows<ClearCredentialProviderConfigurationException> {
+            credentialManager.clearCredentialState(ClearCredentialStateRequest())
         }
     }
 
@@ -142,24 +130,17 @@ class CredentialManagerPreUTest {
         if (loadedResult.get() == null) {
             return // A strange flow occurred where an exception wasn't propagated up
         }
-        if (!isPostFrameworkApiLevel()) {
-            assertThat(loadedResult.get().javaClass).isEqualTo(
-                CreateCredentialProviderConfigurationException::class.java
-            )
-        } else {
-            assertThat(loadedResult.get().javaClass).isEqualTo(
-                CreateCredentialNoCreateOptionException::class.java
-            )
-        }
+
+        // Check the exception is the correct class.
+        assertThat(loadedResult.get().javaClass).isEqualTo(
+            CreateCredentialProviderConfigurationException::class.java
+        )
     }
 
     @Test
     fun testClearCredentialSessionAsync_throws() {
         if (Looper.myLooper() == null) {
             Looper.prepare()
-        }
-        if (isPostFrameworkApiLevel()) {
-            return // TODO(Support!)
         }
         val latch = CountDownLatch(1)
         val loadedResult: AtomicReference<ClearCredentialException> = AtomicReference()
@@ -177,6 +158,11 @@ class CredentialManagerPreUTest {
             })
 
         latch.await(100L, TimeUnit.MILLISECONDS)
+        if (loadedResult.get() == null) {
+            return // A strange flow occurred where an exception wasn't propagated up
+        }
+
+        // Check the exception is the correct type.
         assertThat(loadedResult.get().type).isEqualTo(
             ClearCredentialProviderConfigurationException
                 .TYPE_CLEAR_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION

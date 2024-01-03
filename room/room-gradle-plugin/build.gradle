@@ -41,7 +41,7 @@ dependencies {
     testImplementation(project(":internal-testutils-gradle-plugin"))
     testImplementation(gradleTestKit())
     testImplementation(libs.junit)
-    testImplementation(project(":internal-testutils-kmp"))
+    testImplementation(project(":kruth:kruth"))
     testImplementation(libs.testParameterInjector)
 
     testPlugin("com.android.tools.build:gradle:7.3.0")

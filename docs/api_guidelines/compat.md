@@ -246,6 +246,20 @@ adb logcat | grep 'dex2oat'
 ... I dex2oat : Soft verification failures in
 ```
 
+#### View constructors {#compat-view-constructors}
+
+The four-arg View constructor -- `View(Context, AttributeSet, int, int)` -- was
+added in SDK 21 and allows a developer to pass in an explicit default style
+resource rather than relying on a theme attribute to resolve the default style
+resource. Because this API was added in SDK 21, care must be taken to ensure
+that it is not called through any < SDK 21 code path.
+
+Views *may* implement a four-arg constructor in one of the following ways:
+
+1.  Do not implement.
+1.  Implement and annotate with `@RequiresApi(21)`. This means the three-arg
+    constructor **must not** call into the four-arg constructor.
+
 #### Device-specific issues {#compat-oem}
 
 Library code may work around device- or manufacturer-specific issues -- issues

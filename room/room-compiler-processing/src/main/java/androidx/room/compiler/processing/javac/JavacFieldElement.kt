@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing.javac
 
+import androidx.room.compiler.processing.XAnnotation
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.javac.kotlin.KmPropertyContainer
 import androidx.room.compiler.processing.javac.kotlin.KmTypeContainer
@@ -26,9 +27,33 @@ internal class JavacFieldElement(
     env: JavacProcessingEnv,
     element: VariableElement
 ) : JavacVariableElement(env, element), XFieldElement {
+    override fun getAllAnnotations(): List<XAnnotation> {
+        return buildList {
+            addAll(super.getAllAnnotations())
+            // For kotlin sources, annotations placed on properties will appear on synthetic
+            // "$annotations" methods in the KAPT stub rather than on the field so we append these
+            // annotations to match KSP. Note that the synthetic "$annotations" method isn't
+            // accessible on precompiled classes in KAPT due to
+            // https://youtrack.jetbrains.com/issue/KT-34684, so they will still be missing in that
+            // case, but there's nothing we can really do about that.
+            syntheticMethodForAnnotations?.let { methodForAnnotations ->
+                addAll(
+                    methodForAnnotations.getAllAnnotations()
+                        .filter { it.qualifiedName != "java.lang.Deprecated" }
+                        .toList()
+                )
+            }
+        }
+    }
 
     override val kotlinMetadata: KmPropertyContainer? by lazy {
         (enclosingElement as? JavacTypeElement)?.kotlinMetadata?.getPropertyMetadata(name)
+    }
+
+    private val syntheticMethodForAnnotations: JavacMethodElement? by lazy {
+        (enclosingElement as? JavacTypeElement)
+            ?.getSyntheticMethodsForAnnotations()
+            ?.singleOrNull { it.name == kotlinMetadata?.syntheticMethodForAnnotations?.name }
     }
 
     override val kotlinType: KmTypeContainer?

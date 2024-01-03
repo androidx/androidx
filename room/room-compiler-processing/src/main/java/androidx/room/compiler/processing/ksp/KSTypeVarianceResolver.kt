@@ -159,6 +159,8 @@ internal class KSTypeVarianceResolver(private val resolver: Resolver) {
         // using "asMemberOf", then it has special rules about how to resolve the types.
         getJavaWildcardWithTypeVariables(
             declarationType = KSTypeWrapper(resolver, scope.declarationType())
+                .replaceTypeAliases()
+                .replaceSuspendFunctionTypes()
                 .getJavaWildcard(scope),
             scope = scope,
         )

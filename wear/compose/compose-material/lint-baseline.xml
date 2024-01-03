@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
+<issues format="6" by="lint 8.1.0-beta05" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta05)" variant="all" version="8.1.0-beta05">
 
     <issue
         id="PrimitiveInLambda"
@@ -129,9 +129,63 @@
 
     <issue
         id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;boundsSize&apos; with type Function1&lt;? super Density, ? extends IntSize>."
+        errorLine1="    val boundsSize: Density.() -> IntSize = {"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/PositionIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;boundsOffset&apos; with type Function1&lt;? super Density, ? extends IntOffset>."
+        errorLine1="    val boundsOffset: Density.() -> IntOffset = {"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/PositionIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor FractionPositionIndicatorState has parameter &apos;fraction&apos; with type Function0&lt;Float>."
         errorLine1="    private val fraction: () -> Float"
         errorLine2="                          ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/PositionIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method BoundsLimiter has parameter &apos;offset&apos; with type Function1&lt;? super Density, IntOffset>."
+        errorLine1="    offset: Density.() -> IntOffset,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/PositionIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method BoundsLimiter has parameter &apos;size&apos; with type Function1&lt;? super Density, IntSize>."
+        errorLine1="    size: Density.() -> IntSize,"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/PositionIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method BoundsLimiter has parameter &apos;onSizeChanged&apos; with type Function1&lt;? super IntSize, Unit>."
+        errorLine1="    onSizeChanged: (IntSize) -> Unit = { },"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/PositionIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method transparentSizeModifier has parameter &apos;size&apos; with type Function1&lt;? super Density, IntSize>."
+        errorLine1="private fun Modifier.transparentSizeModifier(size: Density.() -> IntSize): Modifier = this.then("
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/compose/material/PositionIndicator.kt"/>
     </issue>

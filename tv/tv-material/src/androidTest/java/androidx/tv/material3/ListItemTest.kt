@@ -46,12 +46,12 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performKeyInput
-import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.width
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.MediumTest
+import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth
 import org.junit.Rule
 import org.junit.Test
@@ -61,7 +61,7 @@ import org.junit.runner.RunWith
     ExperimentalTestApi::class,
     ExperimentalTvMaterial3Api::class
 )
-@MediumTest
+@LargeTest
 @RunWith(AndroidJUnit4::class)
 class ListItemTest {
     @get:Rule
@@ -84,7 +84,7 @@ class ListItemTest {
         }
 
         rule.onNodeWithTag(ListItemTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
         rule.runOnIdle {
             Truth.assertThat(counter).isEqualTo(1)
@@ -119,7 +119,7 @@ class ListItemTest {
         }
 
         rule.onNodeWithTag(openItemTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
 
         rule.runOnIdle {
@@ -128,7 +128,7 @@ class ListItemTest {
         }
 
         rule.onNodeWithTag(closeItemTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
 
         rule.runOnIdle {
@@ -155,14 +155,14 @@ class ListItemTest {
         }
 
         rule.onNodeWithTag(ListItemTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performLongKeyPress(rule, Key.DirectionCenter)
         rule.runOnIdle {
             Truth.assertThat(counter).isEqualTo(1)
         }
 
         rule.onNodeWithTag(ListItemTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performLongKeyPress(rule, Key.DirectionCenter, count = 2)
         rule.runOnIdle {
             Truth.assertThat(counter).isEqualTo(3)
@@ -184,7 +184,7 @@ class ListItemTest {
         }
 
         rule.onNodeWithTag(ListItemTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
         rule.runOnIdle {
             Truth.assertThat(!checkedState)
@@ -257,7 +257,7 @@ class ListItemTest {
     }
 
     @Test
-    fun listItem_iconPadding() {
+    fun listItem_leadingContentPadding() {
         val testIconTag = "IconTag"
 
         rule.setContent {
@@ -315,7 +315,7 @@ class ListItemTest {
 
         rule.setContent {
             ListItem(
-                leadingContent = {
+                trailingContent = {
                     Box(
                         modifier = Modifier
                             .size(ListItemDefaults.IconSize)
@@ -353,14 +353,14 @@ class ListItemTest {
             "padding between the bottom of the trailing content and the bottom of the list item."
         )
 
-        (trailingContentBounds.left - itemBounds.left).assertIsEqualTo(
+        (itemBounds.right - trailingContentBounds.right).assertIsEqualTo(
             16.dp,
-            "padding between the start of the trailing content and the start of the list item."
+            "padding between the end of the trailing content and the end of the list item."
         )
 
-        (textBounds.left - trailingContentBounds.right).assertIsEqualTo(
+        (trailingContentBounds.left - textBounds.right).assertIsEqualTo(
             8.dp,
-            "padding between the end of the trailing content and the start of the text."
+            "padding between the start of the trailing content and the end of the text."
         )
     }
 
@@ -382,7 +382,7 @@ class ListItemTest {
             .assertHasClickAction()
             .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Selected))
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Selected, false))
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .assertIsEnabled()
             .performKeyInput { pressKey(Key.DirectionCenter) }
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Selected, true))
@@ -409,7 +409,7 @@ class ListItemTest {
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.OnLongClick))
             .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Selected))
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Selected, false))
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .assertIsEnabled()
             .performLongKeyPress(rule, Key.DirectionCenter)
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Selected, true))
@@ -452,7 +452,7 @@ class ListItemTest {
             // Confirm the button starts off enabled, with a click action
             .assertHasClickAction()
             .assertIsEnabled()
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
             // Then confirm it's disabled with click action after clicking it
             .assertHasClickAction()
@@ -488,7 +488,214 @@ class ListItemTest {
         rule.onNodeWithTag(ListItemTag)
             .assertWidthIsEqualTo(rule.onRoot().getUnclippedBoundsInRoot().width)
     }
+
+    @Test
+    fun denseListItem_contentPaddingHorizontal() {
+        rule.setContent {
+            DenseListItem(
+                modifier = Modifier.testTag(DenseListItemTag),
+                headlineContent = {
+                    Text(
+                        text = "Test Text",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag(DenseListItemTextTag)
+                            .semantics(mergeDescendants = true) {}
+                    )
+                },
+                onClick = {},
+                selected = false
+            )
+        }
+
+        val itemBounds = rule.onNodeWithTag(DenseListItemTag).getUnclippedBoundsInRoot()
+        val textBounds = rule.onNodeWithTag(DenseListItemTextTag).getUnclippedBoundsInRoot()
+
+        (textBounds.left - itemBounds.left).assertIsEqualTo(
+            12.dp,
+            "padding between the start of the list item and the start of the text."
+        )
+
+        (itemBounds.right - textBounds.right).assertIsEqualTo(
+            12.dp,
+            "padding between the end of the text and the end of the list item."
+        )
+    }
+
+    @Test
+    fun denseListItem_contentPaddingVertical() {
+        rule.setContent {
+            ListItem(
+                modifier = Modifier.testTag(DenseListItemTag),
+                headlineContent = {
+                    Text(
+                        text = "Test Text",
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .testTag(DenseListItemTextTag)
+                            .semantics(mergeDescendants = true) {}
+                    )
+                },
+                onClick = {},
+                selected = false
+            )
+        }
+
+        val itemBounds = rule.onNodeWithTag(DenseListItemTag).getUnclippedBoundsInRoot()
+        val textBounds = rule.onNodeWithTag(DenseListItemTextTag).getUnclippedBoundsInRoot()
+
+        (textBounds.top - itemBounds.top).assertIsEqualTo(
+            12.dp,
+            "padding between the top of the list item and the top of the text."
+        )
+
+        (itemBounds.bottom - textBounds.bottom).assertIsEqualTo(
+            12.dp,
+            "padding between the bottom of the text and the bottom of the list item."
+        )
+    }
+
+    @Test
+    fun denseListItem_leadingContentPadding() {
+        val testIconTag = "IconTag"
+
+        rule.setContent {
+            DenseListItem(
+                leadingContent = {
+                    Box(
+                        modifier = Modifier
+                            .size(ListItemDefaults.IconSizeDense)
+                            .testTag(testIconTag)
+                            .semantics(mergeDescendants = true) {}
+                    )
+                },
+                modifier = Modifier.testTag(DenseListItemTag),
+                headlineContent = {
+                    Text(
+                        text = "Test Text",
+                        modifier = Modifier
+                            .testTag(DenseListItemTextTag)
+                            .semantics(mergeDescendants = true) {}
+                    )
+                },
+                onClick = {},
+                selected = false
+            )
+        }
+
+        val itemBounds = rule.onNodeWithTag(DenseListItemTag).getUnclippedBoundsInRoot()
+        val textBounds = rule.onNodeWithTag(DenseListItemTextTag).getUnclippedBoundsInRoot()
+        val iconBounds = rule.onNodeWithTag(testIconTag).getUnclippedBoundsInRoot()
+
+        (iconBounds.top - itemBounds.top).assertIsEqualTo(
+            10.dp,
+            "padding between the top of the list item and the top of the icon."
+        )
+
+        (itemBounds.bottom - iconBounds.bottom).assertIsEqualTo(
+            10.dp,
+            "padding between the bottom of the icon and the bottom of the list item."
+        )
+
+        (iconBounds.left - itemBounds.left).assertIsEqualTo(
+            12.dp,
+            "padding between the start of the icon and the start of the list item."
+        )
+
+        (textBounds.left - iconBounds.right).assertIsEqualTo(
+            8.dp,
+            "padding between the end of the icon and the start of the text."
+        )
+    }
+
+    @Test
+    fun denseListItem_trailingContentPadding() {
+        val testTrailingContentTag = "TrailingIconTag"
+
+        rule.setContent {
+            DenseListItem(
+                trailingContent = {
+                    Box(
+                        modifier = Modifier
+                            .size(ListItemDefaults.IconSizeDense)
+                            .testTag(testTrailingContentTag)
+                            .semantics(mergeDescendants = true) {}
+                    )
+                },
+                modifier = Modifier.testTag(DenseListItemTag),
+                headlineContent = {
+                    Text(
+                        text = "Test Text",
+                        modifier = Modifier
+                            .testTag(DenseListItemTextTag)
+                            .fillMaxWidth()
+                            .semantics(mergeDescendants = true) {}
+                    )
+                },
+                onClick = {},
+                selected = false
+            )
+        }
+
+        val itemBounds = rule.onNodeWithTag(DenseListItemTag).getUnclippedBoundsInRoot()
+        val textBounds = rule.onNodeWithTag(DenseListItemTextTag).getUnclippedBoundsInRoot()
+        val trailingContentBounds =
+            rule.onNodeWithTag(testTrailingContentTag).getUnclippedBoundsInRoot()
+
+        (trailingContentBounds.top - itemBounds.top).assertIsEqualTo(
+            10.dp,
+            "padding between the top of the list item and the top of the trailing content."
+        )
+
+        (itemBounds.bottom - trailingContentBounds.bottom).assertIsEqualTo(
+            10.dp,
+            "padding between the bottom of the trailing content and the bottom of the list item."
+        )
+
+        (itemBounds.right - trailingContentBounds.right).assertIsEqualTo(
+            12.dp,
+            "padding between the end of the trailing content and the end of the list item."
+        )
+
+        (trailingContentBounds.left - textBounds.right).assertIsEqualTo(
+            8.dp,
+            "padding between the start of the trailing content and the end of the text."
+        )
+    }
+
+    @Test
+    fun denseListItem_oneLineHeight() {
+        val expectedHeightNoIcon = 40.dp
+
+        rule.setContent {
+            DenseListItem(
+                modifier = Modifier.testTag(DenseListItemTag),
+                headlineContent = { Text(text = "text") },
+                onClick = {},
+                selected = false
+            )
+        }
+
+        rule.onNodeWithTag(DenseListItemTag).assertHeightIsEqualTo(expectedHeightNoIcon)
+    }
+
+    @Test
+    fun denseListItem_width() {
+        rule.setContent {
+            DenseListItem(
+                modifier = Modifier.testTag(DenseListItemTag),
+                headlineContent = { Text(text = "text") },
+                onClick = {},
+                selected = false
+            )
+        }
+        rule.onNodeWithTag(DenseListItemTag)
+            .assertWidthIsEqualTo(rule.onRoot().getUnclippedBoundsInRoot().width)
+    }
 }
 
 private const val ListItemTag = "ListItem"
 private const val ListItemTextTag = "ListItemText"
+
+private const val DenseListItemTag = "DenseListItem"
+private const val DenseListItemTextTag = "DenseListItemText"

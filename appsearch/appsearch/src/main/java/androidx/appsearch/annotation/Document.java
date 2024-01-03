@@ -16,6 +16,7 @@
 // @exportToFramework:skipFile()
 package androidx.appsearch.annotation;
 
+import androidx.annotation.NonNull;
 import androidx.appsearch.app.AppSearchSchema;
 
 import java.lang.annotation.Documented;
@@ -86,6 +87,22 @@ public @interface Document {
      * <p>If not specified, it will be automatically set to the simple name of the annotated class.
      */
     String name() default "";
+
+    /**
+     * The list of {@link Document} annotated classes that this type inherits from, in the context
+     * of AppSearch.
+     *
+     * <p>Please note that the type systems in AppSearch and Java are not necessarily equivalent.
+     * Specifically, if Foo and Bar are two classes, Bar can be a parent type of Foo in
+     * AppSearch, but the Foo class does not have to extend the Bar class in Java. The converse
+     * holds as well. However, the most common use case is to align the two type systems for
+     * single parent pattern, given that if Foo extends Bar in Java, Bar's properties will
+     * automatically be copied into Foo so that it is not necessary to redefine every property in
+     * Foo.
+     *
+     * @see AppSearchSchema.Builder#addParentType(String)
+     */
+    Class<?>[] parent() default {};
 
     /**
      * Marks a member field of a document as the document's unique identifier (ID).
@@ -237,6 +254,47 @@ public @interface Document {
                 default AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_NONE;
 
         /**
+         * Configures how a property should be converted to and from a {@link String}.
+         *
+         * <p>Useful for representing properties using rich types that boil down to simple string
+         * values in the database.
+         *
+         * <p>The referenced class must satisfy the following:
+         *
+         * <ol>
+         *     <li>
+         *         Have a static method called {@code serialize} that converts the property's Java
+         *         type to a {@link String}.
+         *     </li>
+         *     <li>
+         *         Have a static method called {@code deserialize} that converts a {@link String} to
+         *         the property's Java type or returns null if deserialization failed.
+         *     </li>
+         * </ol>
+         *
+         * <p>For example:
+         *
+         * <pre>
+         * {@code
+         * @Document("Entity")
+         * public final class MyEntity {
+         *
+         *     @Document.StringProperty(serializer = SomeRichTypeSerializer.class)
+         *     public SomeRichType getMyProperty();
+         *
+         *     public final class SomeRichTypeSerializer {
+         *       public static String serialize(SomeRichType instance) {...}
+         *
+         *       @Nullable
+         *       public static SomeRichType deserialize(String string) {...}
+         *     }
+         * }
+         * }
+         * </pre>
+         */
+        Class<?> serializer() default DefaultSerializer.class;
+
+        /**
          * Configures whether this property must be specified for the document to be valid.
          *
          * <p>This attribute does not apply to properties of a repeated type (e.g. a list).
@@ -246,6 +304,20 @@ public @interface Document {
          * this attribute to {@code true}.
          */
         boolean required() default false;
+
+        final class DefaultSerializer {
+            private DefaultSerializer() {}
+
+            @NonNull
+            public static String serialize(@NonNull String value) {
+                return value;
+            }
+
+            @NonNull
+            public static String deserialize(@NonNull String string) {
+                return string;
+            }
+        }
     }
 
     /**
@@ -310,6 +382,29 @@ public @interface Document {
                 default AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE;
 
         /**
+         * Configures how a property should be converted to and from a {@link Long}.
+         *
+         * <p>Useful for representing properties using rich types that boil down to simple 64-bit
+         * integer values in the database.
+         *
+         * <p>The referenced class must satisfy the following:
+         *
+         * <ol>
+         *     <li>
+         *         Have a static method called {@code serialize} that converts the property's Java
+         *         type to a {@link Long}.
+         *     </li>
+         *     <li>
+         *         Have a static method called {@code deserialize} that converts a {@link Long} to
+         *         the property's Java type or returns null if deserialization failed.
+         *     </li>
+         * </ol>
+         *
+         * <p>See {@link StringProperty#serializer()} for an example of a serializer.
+         */
+        Class<?> serializer() default DefaultSerializer.class;
+
+        /**
          * Configures whether this property must be specified for the document to be valid.
          *
          * <p>This attribute does not apply to properties of a repeated type (e.g. a list).
@@ -319,6 +414,18 @@ public @interface Document {
          * this attribute to {@code true}.
          */
         boolean required() default false;
+
+        final class DefaultSerializer {
+            private DefaultSerializer() {}
+
+            public static long serialize(long value) {
+                return value;
+            }
+
+            public static long deserialize(long l) {
+                return l;
+            }
+        }
     }
 
     /**
@@ -337,6 +444,29 @@ public @interface Document {
         String name() default "";
 
         /**
+         * Configures how a property should be converted to and from a {@link Double}.
+         *
+         * <p>Useful for representing properties using rich types that boil down to simple
+         * double-precision decimal values in the database.
+         *
+         * <p>The referenced class must satisfy the following:
+         *
+         * <ol>
+         *     <li>
+         *         Have a static method called {@code serialize} that converts the property's Java
+         *         type to a {@link Double}.
+         *     </li>
+         *     <li>
+         *         Have a static method called {@code deserialize} that converts a {@link Double} to
+         *         the property's Java type or returns null if deserialization failed.
+         *     </li>
+         * </ol>
+         *
+         * <p>See {@link StringProperty#serializer()} for an example of a serializer.
+         */
+        Class<?> serializer() default DefaultSerializer.class;
+
+        /**
          * Configures whether this property must be specified for the document to be valid.
          *
          * <p>This attribute does not apply to properties of a repeated type (e.g. a list).
@@ -346,6 +476,18 @@ public @interface Document {
          * this attribute to {@code true}.
          */
         boolean required() default false;
+
+        final class DefaultSerializer {
+            private DefaultSerializer() {}
+
+            public static double serialize(double value) {
+                return value;
+            }
+
+            public static double deserialize(double d) {
+                return d;
+            }
+        }
     }
 
     /** Configures a boolean member field of a class as a property known to AppSearch. */
@@ -395,4 +537,17 @@ public @interface Document {
          */
         boolean required() default false;
     }
+
+    /**
+     * Marks a method as a builder producer.
+     *
+     * <p>A builder producer is a static method that returns a builder, which contains a "build()"
+     * method to construct the AppSearch document object and setter methods to set field values.
+     * Once a builder producer is specified, AppSearch will be forced to use the builder pattern to
+     * construct the document object.
+     */
+    @Documented
+    @Retention(RetentionPolicy.CLASS)
+    @Target(ElementType.METHOD)
+    @interface BuilderProducer {}
 }

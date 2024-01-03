@@ -43,9 +43,9 @@ inline fun Path.asAndroidPath(): android.graphics.Path =
 ) : Path {
 
     // Temporary value holders to reuse an object (not part of a state):
-    private val rectF = android.graphics.RectF()
-    private val radii = FloatArray(8)
-    private val mMatrix = android.graphics.Matrix()
+    private var rectF: android.graphics.RectF? = null
+    private var radii: FloatArray? = null
+    private var mMatrix: android.graphics.Matrix? = null
 
     override var fillType: PathFillType
         get() {
@@ -122,9 +122,10 @@ inline fun Path.asAndroidPath(): android.graphics.Path =
         val top = rect.top
         val right = rect.right
         val bottom = rect.bottom
-        rectF.set(left, top, right, bottom)
+        if (rectF == null) rectF = android.graphics.RectF()
+        rectF!!.set(left, top, right, bottom)
         internalPath.arcTo(
-            rectF,
+            rectF!!,
             startAngleDegrees,
             sweepAngleDegrees,
             forceMoveTo
@@ -133,13 +134,15 @@ inline fun Path.asAndroidPath(): android.graphics.Path =
 
     override fun addRect(rect: Rect) {
         check(_rectIsValid(rect)) { "invalid rect" }
-        rectF.set(rect.left, rect.top, rect.right, rect.bottom)
-        internalPath.addRect(rectF, android.graphics.Path.Direction.CCW)
+        if (rectF == null) rectF = android.graphics.RectF()
+        rectF!!.set(rect.left, rect.top, rect.right, rect.bottom)
+        internalPath.addRect(rectF!!, android.graphics.Path.Direction.CCW)
     }
 
     override fun addOval(oval: Rect) {
-        rectF.set(oval.left, oval.top, oval.right, oval.bottom)
-        internalPath.addOval(rectF, android.graphics.Path.Direction.CCW)
+        if (rectF == null) rectF = android.graphics.RectF()
+        rectF!!.set(oval.left, oval.top, oval.right, oval.bottom)
+        internalPath.addOval(rectF!!, android.graphics.Path.Direction.CCW)
     }
 
     override fun addArcRad(oval: Rect, startAngleRadians: Float, sweepAngleRadians: Float) {
@@ -148,24 +151,30 @@ inline fun Path.asAndroidPath(): android.graphics.Path =
 
     override fun addArc(oval: Rect, startAngleDegrees: Float, sweepAngleDegrees: Float) {
         check(_rectIsValid(oval)) { "invalid rect" }
-        rectF.set(oval.left, oval.top, oval.right, oval.bottom)
-        internalPath.addArc(rectF, startAngleDegrees, sweepAngleDegrees)
+        if (rectF == null) rectF = android.graphics.RectF()
+        rectF!!.set(oval.left, oval.top, oval.right, oval.bottom)
+        internalPath.addArc(rectF!!, startAngleDegrees, sweepAngleDegrees)
     }
 
     override fun addRoundRect(roundRect: RoundRect) {
-        rectF.set(roundRect.left, roundRect.top, roundRect.right, roundRect.bottom)
-        radii[0] = roundRect.topLeftCornerRadius.x
-        radii[1] = roundRect.topLeftCornerRadius.y
+        if (rectF == null) rectF = android.graphics.RectF()
+        rectF!!.set(roundRect.left, roundRect.top, roundRect.right, roundRect.bottom)
 
-        radii[2] = roundRect.topRightCornerRadius.x
-        radii[3] = roundRect.topRightCornerRadius.y
+        if (radii == null) radii = FloatArray(8)
+        with(radii!!) {
+            this[0] = roundRect.topLeftCornerRadius.x
+            this[1] = roundRect.topLeftCornerRadius.y
 
-        radii[4] = roundRect.bottomRightCornerRadius.x
-        radii[5] = roundRect.bottomRightCornerRadius.y
+            this[2] = roundRect.topRightCornerRadius.x
+            this[3] = roundRect.topRightCornerRadius.y
 
-        radii[6] = roundRect.bottomLeftCornerRadius.x
-        radii[7] = roundRect.bottomLeftCornerRadius.y
-        internalPath.addRoundRect(rectF, radii, android.graphics.Path.Direction.CCW)
+            this[4] = roundRect.bottomRightCornerRadius.x
+            this[5] = roundRect.bottomRightCornerRadius.y
+
+            this[6] = roundRect.bottomLeftCornerRadius.x
+            this[7] = roundRect.bottomLeftCornerRadius.y
+        }
+        internalPath.addRoundRect(rectF!!, radii!!, android.graphics.Path.Direction.CCW)
     }
 
     override fun addPath(path: Path, offset: Offset) {
@@ -185,24 +194,29 @@ inline fun Path.asAndroidPath(): android.graphics.Path =
     }
 
     override fun translate(offset: Offset) {
-        mMatrix.reset()
-        mMatrix.setTranslate(offset.x, offset.y)
-        internalPath.transform(mMatrix)
+        if (mMatrix == null) mMatrix = android.graphics.Matrix()
+        else mMatrix!!.reset()
+        mMatrix!!.setTranslate(offset.x, offset.y)
+        internalPath.transform(mMatrix!!)
     }
 
     override fun transform(matrix: Matrix) {
-        mMatrix.setFrom(matrix)
-        internalPath.transform(mMatrix)
+        if (mMatrix == null) mMatrix = android.graphics.Matrix()
+        mMatrix!!.setFrom(matrix)
+        internalPath.transform(mMatrix!!)
     }
 
     override fun getBounds(): Rect {
-        internalPath.computeBounds(rectF, true)
-        return Rect(
-            rectF.left,
-            rectF.top,
-            rectF.right,
-            rectF.bottom
-        )
+        if (rectF == null) rectF = android.graphics.RectF()
+        with(rectF!!) {
+            internalPath.computeBounds(this, true)
+            return Rect(
+                this.left,
+                this.top,
+                this.right,
+                this.bottom
+            )
+        }
     }
 
     override fun op(

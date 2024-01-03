@@ -16,12 +16,11 @@
 
 package androidx.bluetooth.integration.testapp.ui.scanner
 
-// TODO(ofy) Migrate to androidx.bluetooth.BluetoothGattService
-import android.bluetooth.BluetoothGattService
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.bluetooth.GattService
 import androidx.bluetooth.integration.testapp.R
 import androidx.bluetooth.integration.testapp.data.connection.DeviceConnection
 import androidx.bluetooth.integration.testapp.data.connection.OnClickCharacteristic
@@ -61,7 +60,7 @@ class DeviceServicesAdapter(
         private val recyclerViewServiceCharacteristic: RecyclerView =
             itemView.findViewById(R.id.recycler_view_service_characteristic)
 
-        fun bind(deviceConnection: DeviceConnection, service: BluetoothGattService) {
+        fun bind(deviceConnection: DeviceConnection, service: GattService) {
             textViewUuid.text = service.uuid.toString()
 
             recyclerViewServiceCharacteristic.adapter = DeviceServiceCharacteristicsAdapter(

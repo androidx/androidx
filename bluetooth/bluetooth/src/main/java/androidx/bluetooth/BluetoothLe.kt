@@ -20,10 +20,16 @@ import android.bluetooth.BluetoothManager
 import android.bluetooth.le.AdvertiseCallback
 import android.bluetooth.le.AdvertiseData
 import android.bluetooth.le.AdvertiseSettings
+import android.bluetooth.le.ScanCallback
+import android.bluetooth.le.ScanResult as FwkScanResult
+import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.os.ParcelUuid
 import android.util.Log
 import androidx.annotation.RequiresPermission
+import androidx.annotation.RestrictTo
+import java.util.UUID
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -40,75 +46,261 @@ class BluetoothLe(private val context: Context) {
     }
 
     private val bluetoothManager =
-        context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-
+        context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager?
+    private val bluetoothAdapter = bluetoothManager?.adapter
+    private val serverImpl = GattServerImpl(context)
     /**
-     * Returns a [Flow] to start Bluetooth LE Advertising. When the flow is successfully collected,
+     * Returns a _cold_ [Flow] to start Bluetooth LE Advertising. When the flow is successfully collected,
      * the operation status [AdvertiseResult] will be delivered via the
      * flow [kotlinx.coroutines.channels.Channel].
      *
      * @param advertiseParams [AdvertiseParams] for Bluetooth LE advertising.
-     * @return A [Flow] with [AdvertiseResult] status in the data stream.
+     * @return A _cold_ [Flow] with [AdvertiseResult] status in the data stream.
      */
     @RequiresPermission("android.permission.BLUETOOTH_ADVERTISE")
-    fun advertise(advertiseParams: AdvertiseParams): Flow<Int> =
-        callbackFlow {
-            val callback = object : AdvertiseCallback() {
-                override fun onStartFailure(errorCode: Int) {
-                    Log.d(TAG, "onStartFailure() called with: errorCode = $errorCode")
+    fun advertise(advertiseParams: AdvertiseParams): Flow<Int> = callbackFlow {
+        val callback = object : AdvertiseCallback() {
+            override fun onStartFailure(errorCode: Int) {
+                Log.d(TAG, "onStartFailure() called with: errorCode = $errorCode")
 
-                    when (errorCode) {
-                        AdvertiseCallback.ADVERTISE_FAILED_DATA_TOO_LARGE ->
-                            trySend(AdvertiseResult.ADVERTISE_FAILED_DATA_TOO_LARGE)
-                        AdvertiseCallback.ADVERTISE_FAILED_FEATURE_UNSUPPORTED ->
-                            trySend(AdvertiseResult.ADVERTISE_FAILED_FEATURE_UNSUPPORTED)
-                        AdvertiseCallback.ADVERTISE_FAILED_INTERNAL_ERROR ->
-                            trySend(AdvertiseResult.ADVERTISE_FAILED_INTERNAL_ERROR)
-                        AdvertiseCallback.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS ->
-                            trySend(AdvertiseResult.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS)
-                    }
-                }
+                when (errorCode) {
+                    AdvertiseCallback.ADVERTISE_FAILED_DATA_TOO_LARGE ->
+                        trySend(AdvertiseResult.ADVERTISE_FAILED_DATA_TOO_LARGE)
 
-                override fun onStartSuccess(settingsInEffect: AdvertiseSettings) {
-                    Log.d(TAG, "onStartSuccess() called with: settingsInEffect = $settingsInEffect")
+                    AdvertiseCallback.ADVERTISE_FAILED_FEATURE_UNSUPPORTED ->
+                        trySend(AdvertiseResult.ADVERTISE_FAILED_FEATURE_UNSUPPORTED)
 
-                    trySend(AdvertiseResult.ADVERTISE_STARTED)
+                    AdvertiseCallback.ADVERTISE_FAILED_INTERNAL_ERROR ->
+                        trySend(AdvertiseResult.ADVERTISE_FAILED_INTERNAL_ERROR)
+
+                    AdvertiseCallback.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS ->
+                        trySend(AdvertiseResult.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS)
                 }
             }
 
-            val bluetoothAdapter = bluetoothManager.adapter
-            val bleAdvertiser = bluetoothAdapter.bluetoothLeAdvertiser
+            override fun onStartSuccess(settingsInEffect: AdvertiseSettings) {
+                Log.d(TAG, "onStartSuccess() called with: settingsInEffect = $settingsInEffect")
 
-            val advertiseSettings = with(AdvertiseSettings.Builder()) {
-                advertiseParams.isConnectable.let { setConnectable(it) }
-                advertiseParams.timeoutMillis.let { setTimeout(it) }
-                // TODO(ofy) Add when AndroidX is targeting Android U
-//                advertiseParams.isDiscoverable.let { setDiscoverable(it) }
-                build()
-            }
-
-            val advertiseData = with(AdvertiseData.Builder()) {
-                advertiseParams.shouldIncludeDeviceName.let { setIncludeDeviceName(it) }
-                advertiseParams.serviceData.forEach {
-                    addServiceData(ParcelUuid(it.key), it.value)
-                }
-                advertiseParams.manufacturerData.forEach {
-                    addManufacturerData(it.key, it.value)
-                }
-                advertiseParams.serviceUuids.forEach {
-                    addServiceUuid(ParcelUuid(it))
-                }
-                build()
-            }
-
-            Log.d(TAG, "bleAdvertiser.startAdvertising($advertiseSettings, $advertiseData) called")
-            bleAdvertiser.startAdvertising(advertiseSettings, advertiseData, callback)
-
-            awaitClose {
-                Log.d(TAG, "bleAdvertiser.stopAdvertising() called")
-                bleAdvertiser.stopAdvertising(callback)
+                trySend(AdvertiseResult.ADVERTISE_STARTED)
             }
         }
 
-    // TODO(ofy) Add remainder of class functions such as scan, connectGatt, openGattServer...
+        val bleAdvertiser = bluetoothAdapter?.bluetoothLeAdvertiser
+
+        val advertiseSettings = with(AdvertiseSettings.Builder()) {
+            setConnectable(advertiseParams.isConnectable)
+            setTimeout(advertiseParams.timeoutMillis)
+            // TODO(b/290697177) Add when AndroidX is targeting Android U
+//            setDiscoverable(advertiseParams.isDiscoverable)
+            build()
+        }
+
+        val advertiseData = with(AdvertiseData.Builder()) {
+            setIncludeDeviceName(advertiseParams.shouldIncludeDeviceName)
+            advertiseParams.serviceData.forEach {
+                addServiceData(ParcelUuid(it.key), it.value)
+            }
+            advertiseParams.manufacturerData.forEach {
+                addManufacturerData(it.key, it.value)
+            }
+            advertiseParams.serviceUuids.forEach {
+                addServiceUuid(ParcelUuid(it))
+            }
+            build()
+        }
+
+        Log.d(TAG, "bleAdvertiser.startAdvertising($advertiseSettings, $advertiseData) called")
+        bleAdvertiser?.startAdvertising(advertiseSettings, advertiseData, callback)
+
+        awaitClose {
+            Log.d(TAG, "bleAdvertiser.stopAdvertising() called")
+            bleAdvertiser?.stopAdvertising(callback)
+        }
+    }
+
+    /**
+     * Returns a _cold_ [Flow] to start Bluetooth LE scanning. Scanning is used to
+     * discover advertising devices nearby.
+     *
+     * @param filters [ScanFilter]s for finding exact Bluetooth LE devices.
+     *
+     * @return A _cold_ [Flow] of [ScanResult] that matches with the given scan filter.
+     */
+    @RequiresPermission("android.permission.BLUETOOTH_SCAN")
+    fun scan(filters: List<ScanFilter> = emptyList()): Flow<ScanResult> = callbackFlow {
+        val callback = object : ScanCallback() {
+            override fun onScanResult(callbackType: Int, result: FwkScanResult) {
+                trySend(ScanResult(result))
+            }
+
+            override fun onScanFailed(errorCode: Int) {
+                // TODO(b/270492198): throw precise exception
+                cancel("onScanFailed() called with: errorCode = $errorCode")
+            }
+        }
+
+        val bleScanner = bluetoothAdapter?.bluetoothLeScanner
+        val fwkFilters = filters.map { it.fwkScanFilter }
+        val scanSettings = ScanSettings.Builder().build()
+        bleScanner?.startScan(fwkFilters, scanSettings, callback)
+
+        awaitClose {
+            bleScanner?.stopScan(callback)
+        }
+    }
+
+    /**
+     * Scope for operations as a GATT client role.
+     *
+     * @see connectGatt
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    interface GattClientScope {
+
+        /**
+         * Gets the services discovered from the remote device
+         */
+        fun getServices(): List<GattService>
+
+        /**
+         * Gets the service of the remote device by UUID.
+         *
+         * If multiple instances of the same service exist, the first instance of the service
+         * is returned.
+         */
+        fun getService(uuid: UUID): GattService?
+
+        /**
+         * Reads the characteristic value from the server.
+         *
+         * @param characteristic a remote [GattCharacteristic] to read
+         * @return The value of the characteristic
+         */
+        suspend fun readCharacteristic(characteristic: GattCharacteristic):
+            Result<ByteArray>
+
+        /**
+         * Writes the characteristic value to the server.
+         *
+         * @param characteristic a remote [GattCharacteristic] to write
+         * @param value a value to be written.
+         * @param writeType [GattCharacteristic.WRITE_TYPE_DEFAULT],
+         * [GattCharacteristic.WRITE_TYPE_NO_RESPONSE], or
+         * [GattCharacteristic.WRITE_TYPE_SIGNED].
+         * @return the result of the write operation
+         */
+        suspend fun writeCharacteristic(
+            characteristic: GattCharacteristic,
+            value: ByteArray,
+            writeType: Int
+        ): Result<Unit>
+
+        /**
+         * Returns a _cold_ [Flow] that contains the indicated value of the given characteristic.
+         */
+        fun subscribeToCharacteristic(characteristic: GattCharacteristic): Flow<ByteArray>
+
+        /**
+         * Suspends the current coroutine until the pending operations are handled and the connection
+         * is closed, then it invokes the given [block] before resuming the coroutine.
+         */
+        suspend fun awaitClose(block: () -> Unit)
+    }
+
+    /**
+     * Connects to the GATT server on the remote Bluetooth device and
+     * invokes the given [block] after the connection is made.
+     *
+     * The block may not be run if connection fails.
+     *
+     * @param device a [BluetoothDevice] to connect to
+     * @param block a block of code that is invoked after the connection is made.
+     *
+     * @return a result returned by the given block if the connection was successfully finished
+     *         or an failure with the corresponding reason.
+     *
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    suspend fun <R> connectGatt(
+        device: BluetoothDevice,
+        block: suspend GattClientScope.() -> R
+    ): Result<R> {
+        return GattClient().connect(context, device, block)
+    }
+
+    /**
+     * Represents a client connection request from a remote device.
+     *
+     * @property device The remote device connecting to the server.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    class GattServerConnectionRequest internal constructor(
+        val device: BluetoothDevice,
+        private val serverImpl: GattServerImpl,
+        internal val session: GattServerImpl.Session,
+    ) {
+        /**
+         * Accepts the connection request and handles incoming requests after that.
+         *
+         * Requests before calling this should be saved.
+         *
+         * @see GattServerScope
+         */
+        suspend fun accept(block: GattServerScope.() -> Unit) {
+            return serverImpl.acceptConnection(this, block)
+        }
+
+        /**
+         * Rejects the connection request.
+         */
+        fun reject() {
+            return serverImpl.rejectConnection(this)
+        }
+    }
+
+    /**
+     * A scope for operations as a GATT server role.
+     *
+     * Collect [requests] to respond with requests from the client.
+     *
+     * @see GattServerConnectionRequest#accept()
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    interface GattServerScope {
+        /**
+         * A client device connected to the server.
+         */
+        val device: BluetoothDevice
+
+        /**
+         * A _hot_ [Flow] of incoming requests from the client.
+         *
+         * A request is either [GattServerRequest.ReadCharacteristicRequest] or
+         * [GattServerRequest.WriteCharacteristicRequest]
+         */
+        val requests: Flow<GattServerRequest>
+
+        /**
+         * Notifies a client of a characteristic value change.
+         *
+         * @param characteristic the updated characteristic.
+         * @param value the new value of the characteristic.
+         */
+        fun notify(characteristic: GattCharacteristic, value: ByteArray)
+    }
+
+    /**
+     * Opens a GATT server.
+     *
+     * It returns a _cold_ [Flow] of connection requests.
+     * If the flow is cancelled, the server will be closed.
+     *
+     * Only one server at a time can be opened.
+     *
+     * @see GattServerConnectionRequest
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    fun openGattServer(services: List<GattService>): Flow<GattServerConnectionRequest> {
+        return serverImpl.open(services)
+    }
 }

@@ -44,9 +44,11 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityWindowInfo;
 
+import androidx.annotation.Discouraged;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.Px;
 import androidx.annotation.RequiresApi;
 import androidx.test.uiautomator.util.Traces;
 import androidx.test.uiautomator.util.Traces.Section;
@@ -175,6 +177,18 @@ public class UiDevice implements Searchable {
     /**
      * Waits for given the {@code condition} to be met.
      *
+     * @param condition The {@link SearchCondition} to evaluate.
+     * @param timeout Maximum amount of time to wait in milliseconds.
+     * @return The final result returned by the {@code condition}, or null if the {@code condition}
+     * was not met before the {@code timeout}.
+     */
+    public <U> U wait(@NonNull SearchCondition<U> condition, long timeout) {
+        return wait((Condition<? super UiDevice, U>) condition, timeout);
+    }
+
+    /**
+     * Waits for given the {@code condition} to be met.
+     *
      * @param condition The {@link Condition} to evaluate.
      * @param timeout Maximum amount of time to wait in milliseconds.
      * @return The final result returned by the {@code condition}, or null if the {@code condition}
@@ -279,25 +293,20 @@ public class UiDevice implements Searchable {
     }
 
     /**
-     * Returns the display size in dp (device-independent pixel)
+     * Returns the default display size in dp (device-independent pixel).
+     * <p>The returned display size is adjusted per screen rotation. Also this will return the
+     * actual size of the screen, rather than adjusted per system decorations (like status bar).
      *
-     * The returned display size is adjusted per screen rotation. Also this will return the actual
-     * size of the screen, rather than adjusted per system decorations (like status bar).
-     *
+     * @see DisplayMetrics#density
      * @return a Point containing the display size in dp
      */
     @NonNull
     public Point getDisplaySizeDp() {
-        Display display = getDefaultDisplay();
-        Point p = new Point();
-        display.getRealSize(p);
-        DisplayMetrics metrics = new DisplayMetrics();
-        display.getRealMetrics(metrics);
-        float dpx = p.x / metrics.density;
-        float dpy = p.y / metrics.density;
-        p.x = Math.round(dpx);
-        p.y = Math.round(dpy);
-        return p;
+        Point p = getDisplaySize(Display.DEFAULT_DISPLAY);
+        Context context = getUiContext(Display.DEFAULT_DISPLAY);
+        int densityDpi = context.getResources().getConfiguration().densityDpi;
+        float density = (float) densityDpi / DisplayMetrics.DENSITY_DEFAULT;
+        return new Point(Math.round(p.x / density), Math.round(p.y / density));
     }
 
     /**
@@ -535,27 +544,45 @@ public class UiDevice implements Searchable {
     }
 
     /**
-     * Gets the width of the display, in pixels. The width and height details
-     * are reported based on the current orientation of the display.
-     * @return width in pixels or zero on failure
+     * Gets the width of the default display, in pixels. The size is adjusted based on the
+     * current orientation of the display.
+     *
+     * @return width in pixels
      */
-    public int getDisplayWidth() {
-        Display display = getDefaultDisplay();
-        Point p = new Point();
-        display.getRealSize(p);
-        return p.x;
+    public @Px int getDisplayWidth() {
+        return getDisplayWidth(Display.DEFAULT_DISPLAY);
     }
 
     /**
-     * Gets the height of the display, in pixels. The size is adjusted based
-     * on the current orientation of the display.
-     * @return height in pixels or zero on failure
+     * Gets the width of the display with {@code displayId}, in pixels. The size is adjusted
+     * based on the current orientation of the display.
+     *
+     * @param displayId the display ID. Use {@link Display#getDisplayId()} to get the ID.
+     * @return width in pixels
      */
-    public int getDisplayHeight() {
-        Display display = getDefaultDisplay();
-        Point p = new Point();
-        display.getRealSize(p);
-        return p.y;
+    public @Px int getDisplayWidth(int displayId) {
+        return getDisplaySize(displayId).x;
+    }
+
+    /**
+     * Gets the height of the default display, in pixels. The size is adjusted based on the
+     * current orientation of the display.
+     *
+     * @return height in pixels
+     */
+    public @Px int getDisplayHeight() {
+        return getDisplayHeight(Display.DEFAULT_DISPLAY);
+    }
+
+    /**
+     * Gets the height of the display with {@code displayId}, in pixels. The size is adjusted
+     * based on the current orientation of the display.
+     *
+     * @param displayId the display ID. Use {@link Display#getDisplayId()} to get the ID.
+     * @return height in pixels
+     */
+    public @Px int getDisplayHeight(int displayId) {
+        return getDisplaySize(displayId).y;
     }
 
     /**
@@ -783,7 +810,7 @@ public class UiDevice implements Searchable {
      */
     public int getDisplayRotation() {
         waitForIdle();
-        return getDefaultDisplay().getRotation();
+        return getDisplayById(Display.DEFAULT_DISPLAY).getRotation();
     }
 
     /**
@@ -1099,12 +1126,14 @@ public class UiDevice implements Searchable {
      * <p>
      * Calling function with large amount of output will have memory impacts, and the function call
      * will block if the command executed is blocking.
-     * <p>Note: calling this function requires API level 21 or above
+     *
      * @param cmd the command to run
      * @return the standard output of the command
-     * @throws IOException
-     * @hide legacy hidden method, kept for compatibility with existing tests.
+     * @throws IOException if an I/O error occurs while reading output
      */
+    @Discouraged(message = "Can be useful for simple commands, but lacks support for proper error"
+            + " handling, input data, or complex commands (quotes, pipes) that can be obtained "
+            + "from UiAutomation#executeShellCommandRwe or similar utilities.")
     @RequiresApi(21)
     @NonNull
     public String executeShellCommand(@NonNull String cmd) throws IOException {
@@ -1121,8 +1150,21 @@ public class UiDevice implements Searchable {
         }
     }
 
-    private Display getDefaultDisplay() {
-        return mDisplayManager.getDisplay(Display.DEFAULT_DISPLAY);
+    Display getDisplayById(int displayId) {
+        return mDisplayManager.getDisplay(displayId);
+    }
+
+    /**
+     * Gets the size of the display with {@code displayId}, in pixels. The size is adjusted based
+     * on the current orientation of the display.
+     *
+     * @see Display#getRealSize(Point)
+     */
+    Point getDisplaySize(int displayId) {
+        Point p = new Point();
+        Display display = getDisplayById(displayId);
+        display.getRealSize(p);
+        return p;
     }
 
     @RequiresApi(21)
@@ -1176,7 +1218,7 @@ public class UiDevice implements Searchable {
         Context context = mUiContexts.get(displayId);
         if (context == null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                final Display display = mDisplayManager.getDisplay(displayId);
+                final Display display = getDisplayById(displayId);
                 if (display != null) {
                     context = Api31Impl.createWindowContext(mInstrumentation.getContext(), display);
                 } else {

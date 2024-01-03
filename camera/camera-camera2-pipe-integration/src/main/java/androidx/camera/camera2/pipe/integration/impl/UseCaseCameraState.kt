@@ -18,7 +18,6 @@
 
 package androidx.camera.camera2.pipe.integration.impl
 
-import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureRequest
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
@@ -30,6 +29,7 @@ import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.Request
+import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamId
@@ -38,6 +38,7 @@ import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import javax.inject.Inject
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
@@ -241,9 +242,14 @@ class UseCaseCameraState @Inject constructor(
         threads.scope.launch(start = CoroutineStart.UNDISPATCHED) {
             val result: CompletableDeferred<Unit>?
             val request: Request?
-            cameraGraph.acquireSession().use {
+            try {
+                cameraGraph.acquireSession()
+            } catch (e: CancellationException) {
+                Log.debug(e) { "Cannot acquire session at ${this@UseCaseCameraState}" }
+                null
+            }.let { session ->
                 synchronized(lock) {
-                    request = if (currentStreams.isEmpty()) {
+                    request = if (currentStreams.isEmpty() || session == null) {
                         null
                     } else {
                         Request(
@@ -263,18 +269,21 @@ class UseCaseCameraState @Inject constructor(
                     updating = false
                     updateSignal = null
                 }
-
-                if (request == null) {
-                    it.stopRepeating()
-                } else {
-                    result?.let { result ->
-                        synchronized(lock) {
-                            updateSignals.add(RequestSignal(submittedRequestCounter.value, result))
+                session?.use {
+                    if (request == null) {
+                        it.stopRepeating()
+                    } else {
+                        result?.let { result ->
+                            synchronized(lock) {
+                                updateSignals.add(
+                                    RequestSignal(submittedRequestCounter.value, result)
+                                )
+                            }
                         }
+                        Log.debug { "Update RepeatingRequest: $request" }
+                        it.startRepeating(request)
+                        it.update3A(request.parameters)
                     }
-                    Log.debug { "Update RepeatingRequest: $request" }
-                    it.startRepeating(request)
-                    it.update3A(request.parameters)
                 }
             }
 
@@ -324,23 +333,19 @@ class UseCaseCameraState @Inject constructor(
             }
         }
 
-        @Deprecated(
-            message = "Migrating to using RequestFailureWrapper instead of CaptureFailure",
-            level = DeprecationLevel.WARNING
-        )
         override fun onFailed(
             requestMetadata: RequestMetadata,
             frameNumber: FrameNumber,
-            captureFailure: CaptureFailure,
+            requestFailure: RequestFailure,
         ) {
             @Suppress("DEPRECATION")
-            super.onFailed(requestMetadata, frameNumber, captureFailure)
-            completeExceptionally(requestMetadata, captureFailure)
+            super.onFailed(requestMetadata, frameNumber, requestFailure)
+            completeExceptionally(requestMetadata, requestFailure)
         }
 
         private fun completeExceptionally(
             requestMetadata: RequestMetadata,
-            captureFailure: CaptureFailure? = null
+            requestFailure: RequestFailure? = null
         ) {
             threads.scope.launch(start = CoroutineStart.UNDISPATCHED) {
                 requestMetadata[USE_CASE_CAMERA_STATE_CUSTOM_TAG]?.let { requestNo ->
@@ -348,7 +353,7 @@ class UseCaseCameraState @Inject constructor(
                         updateSignals.completeExceptionally(
                             requestNo,
                             Throwable(
-                                "Failed in framework level" + (captureFailure?.reason?.let {
+                                "Failed in framework level" + (requestFailure?.reason?.let {
                                     " with CaptureFailure.reason = $it"
                                 } ?: "")
                             )

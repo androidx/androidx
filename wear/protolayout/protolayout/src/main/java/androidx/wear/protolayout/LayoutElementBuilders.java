@@ -78,6 +78,7 @@ public final class LayoutElementBuilders {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({FONT_WEIGHT_UNDEFINED, FONT_WEIGHT_NORMAL, FONT_WEIGHT_MEDIUM, FONT_WEIGHT_BOLD})
     @Retention(RetentionPolicy.SOURCE)
+    @OptIn(markerClass = ProtoLayoutExperimental.class)
     public @interface FontWeight {}
 
     /**
@@ -115,12 +116,7 @@ public final class LayoutElementBuilders {
      * @since 1.0
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @IntDef({
-            FONT_VARIANT_UNDEFINED,
-            FONT_VARIANT_TITLE,
-            FONT_VARIANT_BODY,
-            FONT_VARIANT_CUSTOM_1
-    })
+    @IntDef({FONT_VARIANT_UNDEFINED, FONT_VARIANT_TITLE, FONT_VARIANT_BODY, FONT_VARIANT_CUSTOM_1})
     @Retention(RetentionPolicy.SOURCE)
     @OptIn(markerClass = ProtoLayoutExperimental.class)
     public @interface FontVariant {}
@@ -146,8 +142,9 @@ public final class LayoutElementBuilders {
      */
     public static final int FONT_VARIANT_BODY = 2;
 
-    /** Renderer dependent Font variant. If not supported, will behave similar to
-     *  {@link #FONT_VARIANT_UNDEFINED}.
+    /**
+     * Renderer dependent Font variant. If not supported, will behave similar to {@link
+     * #FONT_VARIANT_UNDEFINED}.
      */
     @ProtoLayoutExperimental
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -1115,8 +1112,8 @@ public final class LayoutElementBuilders {
         private final LayoutElementProto.AndroidTextStyle mImpl;
         @Nullable private final Fingerprint mFingerprint;
 
-        AndroidTextStyle(LayoutElementProto.AndroidTextStyle impl,
-                @Nullable Fingerprint fingerprint) {
+        AndroidTextStyle(
+                LayoutElementProto.AndroidTextStyle impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
             this.mFingerprint = fingerprint;
         }
@@ -2085,7 +2082,7 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setContentScaleMode(@ContentScaleMode int contentScaleMode) {
                 return setContentScaleMode(
-                       new ContentScaleModeProp.Builder().setValue(contentScaleMode).build());
+                        new ContentScaleModeProp.Builder().setValue(contentScaleMode).build());
             }
 
             /**
@@ -2621,7 +2618,8 @@ public final class LayoutElementBuilders {
             public Builder setHorizontalAlignment(@HorizontalAlignment int horizontalAlignment) {
                 return setHorizontalAlignment(
                         new HorizontalAlignmentProp.Builder()
-                                .setValue(horizontalAlignment).build());
+                                .setValue(horizontalAlignment)
+                                .build());
             }
 
             /**
@@ -2836,10 +2834,16 @@ public final class LayoutElementBuilders {
              * Sets the style of font to use (size, bold etc). If not specified, defaults to the
              * platform's default body font.
              *
+             * DynamicColor is not supported for SpanText.
+             *
              * @since 1.0
              */
             @NonNull
             public Builder setFontStyle(@NonNull FontStyle fontStyle) {
+                ColorProp colorProp = fontStyle.getColor();
+                if (colorProp != null && colorProp.getDynamicValue() != null) {
+                    throw new IllegalArgumentException("SpanText does not support DynamicColor.");
+                }
                 mImpl.setFontStyle(fontStyle.toProto());
                 mFingerprint.recordPropertyUpdate(
                         2, checkNotNull(fontStyle.getFingerprint()).aggregateValueAsInt());
@@ -3720,7 +3724,8 @@ public final class LayoutElementBuilders {
             public Builder setHorizontalAlignment(@HorizontalAlignment int horizontalAlignment) {
                 return setHorizontalAlignment(
                         new HorizontalAlignmentProp.Builder()
-                                .setValue(horizontalAlignment).build());
+                                .setValue(horizontalAlignment)
+                                .build());
             }
 
             /**
@@ -4066,21 +4071,6 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets the bounding constraints for the layout affected by the dynamic value from {@link
-         * #getAnchorAngle()}.
-         *
-         * @since 1.2
-         */
-        @Nullable
-        public AngularLayoutConstraint getLayoutConstraintsForDynamicAnchorAngle() {
-            if (mImpl.hasAnchorAngle()) {
-                return AngularLayoutConstraint.fromProto(mImpl.getAnchorAngle());
-            } else {
-                return null;
-            }
-        }
-
-        /**
          * Gets how to align the contents of this container relative to anchor_angle. If not
          * defined, defaults to ARC_ANCHOR_CENTER.
          *
@@ -4209,11 +4199,6 @@ public final class LayoutElementBuilders {
              * <p>While this field is statically accessible from 1.0, it's only bindable since
              * version 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
              *
-             * <p>When using a dynamic value, make sure to specify the bounding constraints for the
-             * affected layout element through {@code
-             * setLayoutConstraintsForDynamicAnchorAngle(AngularLayoutConstraint)} otherwise {@code
-             * build()} fails.
-             *
              * @since 1.0
              */
             @NonNull
@@ -4221,23 +4206,6 @@ public final class LayoutElementBuilders {
                 mImpl.setAnchorAngle(anchorAngle.toProto());
                 mFingerprint.recordPropertyUpdate(
                         2, checkNotNull(anchorAngle.getFingerprint()).aggregateValueAsInt());
-                return this;
-            }
-
-            /**
-             * Sets the bounding constraints for the layout affected by the dynamic value from
-             * {@link #setAnchorAngle(DegreesProp)}}.
-             *
-             * @since 1.2
-             */
-            @NonNull
-            public Builder setLayoutConstraintsForDynamicAnchorAngle(
-                    @NonNull DimensionBuilders.AngularLayoutConstraint angularLayoutConstraint) {
-                mImpl.mergeAnchorAngle(angularLayoutConstraint.toProto());
-                mFingerprint.recordPropertyUpdate(
-                        2,
-                        checkNotNull(angularLayoutConstraint.getFingerprint())
-                                .aggregateValueAsInt());
                 return this;
             }
 
@@ -4312,12 +4280,6 @@ public final class LayoutElementBuilders {
             @Override
             @NonNull
             public Arc build() {
-                DimensionProto.DegreesProp anchorAngle = mImpl.getAnchorAngle();
-                if (anchorAngle.hasDynamicValue() && !anchorAngle.hasValueForLayout()) {
-                    throw new IllegalStateException(
-                            "anchorAngle with dynamic value requires "
-                                    + "layoutConstraintsForDynamicAnchorAngle to be present.");
-                }
                 return new Arc(mImpl.build(), mFingerprint);
             }
         }
@@ -5289,9 +5251,7 @@ public final class LayoutElementBuilders {
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public LayoutElementProto.LayoutElement toLayoutElementProto() {
-            return LayoutElementProto.LayoutElement.newBuilder()
-                    .setExtension(mImpl)
-                    .build();
+            return LayoutElementProto.LayoutElement.newBuilder().setExtension(mImpl).build();
         }
 
         @Override
@@ -6229,8 +6189,8 @@ public final class LayoutElementBuilders {
      * Font styles, currently set up to match Wear's font styling.
      *
      * @deprecated Use {@link androidx.wear.protolayout.material.Typography} on Material {@link
-     *     androidx.wear.protolayout.material.Text} (highly recommended) or make your own
-     *     {@link FontStyle}.
+     *     androidx.wear.protolayout.material.Text} (highly recommended) or make your own {@link
+     *     FontStyle}.
      */
     @Deprecated
     public static final class FontStyles {
@@ -6340,8 +6300,8 @@ public final class LayoutElementBuilders {
         /**
          * Font style for medium body text.
          *
-         * @deprecated Use {@link androidx.wear.protolayout.material.Typography#TYPOGRAPHY_BODY2}
-         *     on Material {@link androidx.wear.protolayout.material.Text}.
+         * @deprecated Use {@link androidx.wear.protolayout.material.Typography#TYPOGRAPHY_BODY2} on
+         *     Material {@link androidx.wear.protolayout.material.Text}.
          */
         @NonNull
         @Deprecated

@@ -30,12 +30,12 @@ dependencies {
     api(libs.kotlinCoroutinesAndroid)
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)
-    testImplementation(project(":internal-testutils-kmp"))
+    testImplementation(project(":kruth:kruth"))
     testImplementation("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
     testImplementation(libs.testRunner)
     testImplementation(libs.kotlinCoroutinesTest)
 
-    androidTestImplementation(project(":internal-testutils-kmp"))
+    androidTestImplementation(project(":kruth:kruth"))
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.kotlinCoroutinesTest)
 }

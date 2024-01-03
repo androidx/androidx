@@ -16,11 +16,11 @@
 
 package androidx.privacysandbox.ui.integration.testapp
 
-import android.content.res.Configuration
 import android.os.Bundle
 import android.os.ext.SdkExtensions
 import android.util.Log
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.RequiresExtension
@@ -44,6 +44,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var mSandboxedSdkView1: SandboxedSdkView
     private lateinit var mSandboxedSdkView2: SandboxedSdkView
+    private lateinit var mSandboxedSdkView3: SandboxedSdkView
+    private lateinit var mNewAdButton: Button
 
     // TODO(b/257429573): Remove this line once fixed.
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
@@ -71,25 +73,32 @@ class MainActivity : AppCompatActivity() {
         mSdkLoaded = true
         val sdkApi = ISdkApi.Stub.asInterface(sandboxedSdk.getInterface())
 
-        mSandboxedSdkView1 = findViewById<SandboxedSdkView>(R.id.rendered_view)
+        mSandboxedSdkView1 = findViewById(R.id.rendered_view)
         mSandboxedSdkView1.addStateChangedListener(StateChangeListener(mSandboxedSdkView1))
         mSandboxedSdkView1.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
-            sdkApi.loadAd(/*isWebView=*/ true)
+            sdkApi.loadAd(/*isWebView=*/ true, "")
         ))
 
         mSandboxedSdkView2 = SandboxedSdkView(this@MainActivity)
         mSandboxedSdkView2.addStateChangedListener(StateChangeListener(mSandboxedSdkView2))
-        mSandboxedSdkView2.layoutParams = ViewGroup.LayoutParams(200, 200)
-        runOnUiThread(Runnable {
+        mSandboxedSdkView2.layoutParams = ViewGroup.LayoutParams(400, 400)
+        runOnUiThread {
             findViewById<LinearLayout>(R.id.ad_layout).addView(mSandboxedSdkView2)
-        })
+        }
         mSandboxedSdkView2.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
-            sdkApi.loadAd(/*isWebView=*/ false)
+            sdkApi.loadAd(/*isWebView=*/ false, "Hey!")
         ))
-    }
 
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
+        mSandboxedSdkView3 = findViewById(R.id.new_ad_view)
+        mSandboxedSdkView3.addStateChangedListener(StateChangeListener(mSandboxedSdkView3))
+
+        mNewAdButton = findViewById(R.id.new_ad_button)
+        var count = 1
+        mNewAdButton.setOnClickListener {
+            mSandboxedSdkView3.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
+                sdkApi.loadAd(/*isWebView=*/ false, "Hey #$count")))
+            count++
+        }
     }
 
     private inner class StateChangeListener(val view: SandboxedSdkView) :
@@ -101,12 +110,12 @@ class MainActivity : AppCompatActivity() {
                 val parent = view.parent as ViewGroup
                 val index = parent.indexOfChild(view)
                 val textView = TextView(this@MainActivity)
-                textView.setText(state.throwable.message)
+                textView.text = state.throwable.message
 
-                runOnUiThread(Runnable {
+                runOnUiThread {
                     parent.removeView(view)
                     parent.addView(textView, index)
-                })
+                }
             }
         }
     }

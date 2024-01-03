@@ -92,7 +92,7 @@ fun FeaturedCarousel(
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
+@OptIn(ExperimentalAnimationApi::class, ExperimentalTvMaterial3Api::class)
 @Composable
 private fun AnimatedContentScope.CarouselSlide(
     title: String,

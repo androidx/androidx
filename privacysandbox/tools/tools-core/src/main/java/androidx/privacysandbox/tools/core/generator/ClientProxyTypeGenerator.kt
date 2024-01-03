@@ -139,6 +139,7 @@ class ClientProxyTypeGenerator(
         addParameters(
             listOf(
                 ParameterSpec(contextPropertyName, contextClass),
+                ParameterSpec("windowInputToken", ClassName("android.os", "IBinder")),
                 ParameterSpec("initialWidth", Types.int.poetClassName()),
                 ParameterSpec("initialHeight", Types.int.poetClassName()),
                 ParameterSpec("isZOrderOnTop", Types.boolean.poetClassName()),
@@ -151,8 +152,8 @@ class ClientProxyTypeGenerator(
             )
         )
         addStatement(
-            "$sandboxedUiAdapterPropertyName.openSession(%N, initialWidth, initialHeight, " +
-                "isZOrderOnTop, clientExecutor, client)",
+            "$sandboxedUiAdapterPropertyName.openSession(%N, windowInputToken, initialWidth, " +
+                "initialHeight, isZOrderOnTop, clientExecutor, client)",
             contextPropertyName,
         )
     }

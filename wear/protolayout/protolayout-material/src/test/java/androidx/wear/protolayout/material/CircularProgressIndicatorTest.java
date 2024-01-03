@@ -63,12 +63,12 @@ public class CircularProgressIndicatorTest {
 
     @Test
     public void testProgressIndicatorWithDynamicProgress() {
-        TypeBuilders.FloatProp floatProp = new TypeBuilders.FloatProp.Builder(0)
-                .setDynamicValue(DynamicBuilders.DynamicFloat.constant(0.5f)).build();
-        CircularProgressIndicator circularProgressIndicator =
-                new CircularProgressIndicator.Builder()
-                        .setProgress(floatProp)
+        TypeBuilders.FloatProp floatProp =
+                new TypeBuilders.FloatProp.Builder(0)
+                        .setDynamicValue(DynamicBuilders.DynamicFloat.constant(0.5f))
                         .build();
+        CircularProgressIndicator circularProgressIndicator =
+                new CircularProgressIndicator.Builder().setProgress(floatProp).build();
 
         Box box = new Box.Builder().addContent(circularProgressIndicator).build();
 
@@ -79,6 +79,7 @@ public class CircularProgressIndicatorTest {
         assertThat(newCpi.getProgress().toProto().hasDynamicValue()).isTrue();
         assertThat(newCpi.getProgress().toProto().hasValueForLayout()).isTrue();
     }
+
     @Test
     public void testProgressIndicatorCustom() {
         float progress = 0.25f;

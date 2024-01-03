@@ -14,4 +14,6 @@ export ANDROIDX_PROJECTS=INFRAROGUE   # TODO: Switch from `INFRAROGUE` to `KMP`
 export USE_ANDROIDX_REMOTE_BUILD_CACHE=false
 
 # run build in a sandbox
-../development/sandbox/run-without-network.sh impl/build.sh buildOnServer allTests --no-configuration-cache --no-daemon -Pandroidx.displayTestOutput=false
+../development/sandbox/run-without-network.sh impl/build.sh buildOnServer \
+    allTests \
+    -Pandroidx.displayTestOutput=false

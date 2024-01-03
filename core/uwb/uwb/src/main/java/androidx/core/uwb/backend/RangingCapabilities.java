@@ -64,9 +64,9 @@ public class RangingCapabilities implements android.os.Parcelable
     {
         int _aidl_start_pos = _aidl_parcel.dataPosition();
         _aidl_parcel.writeInt(0);
-        _aidl_parcel.writeBoolean(supportsDistance);
-        _aidl_parcel.writeBoolean(supportsAzimuthalAngle);
-        _aidl_parcel.writeBoolean(supportsElevationAngle);
+        _aidl_parcel.writeInt(supportsDistance ? 1 : 0);
+        _aidl_parcel.writeInt(supportsAzimuthalAngle ? 1 : 0);
+        _aidl_parcel.writeInt(supportsElevationAngle ? 1 : 0);
         _aidl_parcel.writeInt(minRangingInterval);
         _aidl_parcel.writeIntArray(supportedChannels);
         _aidl_parcel.writeIntArray(supportedNtfConfigs);
@@ -84,11 +84,11 @@ public class RangingCapabilities implements android.os.Parcelable
         try {
             if (_aidl_parcelable_size < 4) throw new android.os.BadParcelableException("Parcelable too small");;
             if (_aidl_parcel.dataPosition() - _aidl_start_pos >= _aidl_parcelable_size) return;
-            supportsDistance = _aidl_parcel.readBoolean();
+            supportsDistance = _aidl_parcel.readInt() == 1;
             if (_aidl_parcel.dataPosition() - _aidl_start_pos >= _aidl_parcelable_size) return;
-            supportsAzimuthalAngle = _aidl_parcel.readBoolean();
+            supportsAzimuthalAngle = _aidl_parcel.readInt() == 1;
             if (_aidl_parcel.dataPosition() - _aidl_start_pos >= _aidl_parcelable_size) return;
-            supportsElevationAngle = _aidl_parcel.readBoolean();
+            supportsElevationAngle = _aidl_parcel.readInt() == 1;
             if (_aidl_parcel.dataPosition() - _aidl_start_pos >= _aidl_parcelable_size) return;
             minRangingInterval = _aidl_parcel.readInt();
             if (_aidl_parcel.dataPosition() - _aidl_start_pos >= _aidl_parcelable_size) return;
