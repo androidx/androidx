@@ -54,17 +54,14 @@ import androidx.compose.ui.platform.DefaultHapticFeedback
 import androidx.compose.ui.platform.PlatformClipboardManager
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformRootForTest
+import androidx.compose.ui.platform.PlatformTextInputSessionScope
 import androidx.compose.ui.platform.RenderNodeLayer
 import androidx.compose.ui.scene.ComposeScene
 import androidx.compose.ui.scene.ComposeSceneInputHandler
 import androidx.compose.ui.scene.ComposeScenePointer
 import androidx.compose.ui.semantics.EmptySemanticsElement
 import androidx.compose.ui.semantics.SemanticsOwner
-import androidx.compose.ui.text.ExperimentalTextApi
-import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.font.createFontFamilyResolver
-import androidx.compose.ui.text.input.PlatformTextInputPluginRegistry
-import androidx.compose.ui.text.input.PlatformTextInputPluginRegistryImpl
 import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -74,6 +71,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.round
 import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.awaitCancellation
 
 /**
  * Owner of root [LayoutNode].
@@ -240,12 +238,12 @@ internal class RootNodeOwner(
         override val density get() = this@RootNodeOwner.density
         override val textInputService = TextInputService(platformContext.textInputService)
 
-        @Suppress("UNUSED_ANONYMOUS_PARAMETER")
-        @OptIn(InternalTextApi::class, ExperimentalTextApi::class)
-        override val platformTextInputPluginRegistry: PlatformTextInputPluginRegistry
-            get() = PlatformTextInputPluginRegistryImpl { factory, platformTextInput ->
-                TODO("See https://issuetracker.google.com/267235947")
-            }
+        // TODO(https://youtrack.jetbrains.com/issue/COMPOSE-733/Merge-1.6.-Apply-changes-for-the-new-text-input) implement
+        override suspend fun textInputSession(
+            session: suspend PlatformTextInputSessionScope.() -> Nothing
+        ): Nothing {
+            awaitCancellation()
+        }
 
         override val pointerIconService = PointerIconServiceImpl()
         override val focusOwner get() = this@RootNodeOwner.focusOwner

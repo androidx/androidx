@@ -30,6 +30,7 @@ import androidx.compose.ui.input.pointer.PointerIconService
 import androidx.compose.ui.modifier.ModifierLocalManager
 import androidx.compose.ui.platform.AccessibilityManager
 import androidx.compose.ui.platform.ClipboardManager
+import androidx.compose.ui.platform.PlatformTextInputSessionScope
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
@@ -38,7 +39,6 @@ import androidx.compose.ui.test.runSkikoComposeUiTest
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.input.PlatformTextInputPluginRegistry
 import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -194,8 +194,9 @@ class DepthSortedSetTest {
         override val autofill: Autofill? get() = throw IllegalStateException()
         override val density: Density get() = throw IllegalStateException()
         override val textInputService: TextInputService get() = throw IllegalStateException()
-        @OptIn(ExperimentalTextApi::class)
-        override val platformTextInputPluginRegistry: PlatformTextInputPluginRegistry get() = throw IllegalStateException()
+        override suspend fun textInputSession(
+            session: suspend PlatformTextInputSessionScope.() -> Nothing
+        ) = throw IllegalStateException()
         override val pointerIconService: PointerIconService get() = throw IllegalStateException()
         override val focusOwner: FocusOwner get() = throw IllegalStateException()
         override val windowInfo: WindowInfo get() = throw IllegalStateException()
