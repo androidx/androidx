@@ -210,6 +210,10 @@ public class GetSchemaResponseCtsTest {
                 getSchemaResponse::getRequiredPermissionsForSchemaTypeVisibility);
         assertThat(e.getMessage()).isEqualTo("Get visibility setting is not supported with"
                 + " this backend/Android API level combination.");
+        e = assertThrows(UnsupportedOperationException.class,
+                getSchemaResponse::getPubliclyVisibleSchemas);
+        assertThat(e.getMessage()).isEqualTo("Get visibility setting is not supported with"
+                + " this backend/Android API level combination.");
     }
 
     /**
