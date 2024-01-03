@@ -4141,9 +4141,9 @@ package androidx.core.widget {
     method public void scrollTargetBy(int, int);
   }
 
-  public final class ListViewCompat {
-    method public static boolean canScrollList(android.widget.ListView, int);
-    method public static void scrollListBy(android.widget.ListView, int);
+  @Deprecated public final class ListViewCompat {
+    method @Deprecated public static boolean canScrollList(android.widget.ListView, int);
+    method @Deprecated public static void scrollListBy(android.widget.ListView, int);
   }
 
   public class NestedScrollView extends android.widget.FrameLayout implements androidx.core.view.NestedScrollingChild3 androidx.core.view.NestedScrollingParent3 androidx.core.view.ScrollingView {
