@@ -202,6 +202,12 @@ public interface Features {
             "SET_SCHEMA_REQUEST_ADD_SCHEMA_TYPE_VISIBLE_TO_CONFIG";
 
     /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * {@link EnterpriseGlobalSearchSession}
+     */
+    String ENTERPRISE_GLOBAL_SEARCH_SESSION = "ENTERPRISE_GLOBAL_SEARCH_SESSION";
+
+    /**
      * Returns whether a feature is supported at run-time. Feature support depends on the
      * feature in question, the AppSearch backend being used and the Android version of the
      * device.
