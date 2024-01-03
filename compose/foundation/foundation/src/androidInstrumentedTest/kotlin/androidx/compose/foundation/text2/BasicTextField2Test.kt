@@ -24,7 +24,7 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
@@ -92,7 +92,6 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.drop
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -981,28 +980,24 @@ internal class BasicTextField2Test {
         rule.onNodeWithTag(Tag).assertIsNotFocused()
     }
 
-    @Ignore("b/297680209")
     @Test
     fun swipingTextFieldInScrollableContainer_doesNotGainFocus() {
         val scrollState = ScrollState(0)
         inputMethodInterceptor.setTextFieldTestContent {
             Column(
                 Modifier
-                    .size(100.dp)
+                    .height(100.dp)
                     .verticalScroll(scrollState)
             ) {
                 BasicTextField2(
                     state = rememberTextFieldState(),
                     modifier = Modifier.testTag(Tag)
                 )
-                Box(Modifier.size(200.dp))
+                Box(Modifier.height(200.dp))
             }
         }
 
-        rule.onNodeWithTag(Tag).performTouchInput {
-            // swipe through
-            swipeUp(durationMillis = 1000)
-        }
+        rule.onNodeWithTag(Tag).performTouchInput { swipeUp() }
         rule.onNodeWithTag(Tag).assertIsNotFocused()
         assertThat(scrollState.value).isNotEqualTo(0)
     }
