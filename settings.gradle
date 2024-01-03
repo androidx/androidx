@@ -109,6 +109,7 @@ def includeProject(name, filePath) {
     }
 }
 
+includeProject(":collection:collection")
 includeProject(":compose:animation")
 includeProject(":compose:animation:animation")
 includeProject(":compose:animation:animation-lint")

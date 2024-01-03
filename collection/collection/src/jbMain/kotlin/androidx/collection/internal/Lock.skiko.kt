@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-@file:RestrictTo(RestrictTo.Scope.LIBRARY)
-
 package androidx.collection.internal
 
-import androidx.annotation.RestrictTo
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 
 internal actual class Lock {
+    private val synchronizedObject = SynchronizedObject()
 
     actual inline fun <T> synchronizedImpl(block: () -> T): T =
-        synchronized(lock = this, block = block)
+        synchronized(synchronizedObject, block)
 }

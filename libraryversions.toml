@@ -179,7 +179,7 @@ BUILDSRC_TESTS_MAX_DEP_VERSIONS_MAIN = { group = "androidx.buildSrc-tests-max-de
 CAMERA = { group = "androidx.camera", atomicGroupVersion = "versions.CAMERA" }
 CARDVIEW = { group = "androidx.cardview", atomicGroupVersion = "versions.CARDVIEW" }
 CAR_APP = { group = "androidx.car.app", atomicGroupVersion = "versions.CAR_APP" }
-COLLECTION = { group = "androidx.collection", atomicGroupVersion = "versions.COLLECTION" }
+COLLECTION = { group = "org.jetbrains.compose.collection-internal", atomicGroupVersion = "versions.COMPOSE", overrideInclude = [ ":collection:collection" ] }
 COMPOSE_ANIMATION = { group = "org.jetbrains.compose.animation", atomicGroupVersion = "versions.COMPOSE" }
 COMPOSE_COMPILER = { group = "org.jetbrains.compose.compiler", atomicGroupVersion = "versions.COMPOSE_COMPILER" }
 COMPOSE_DESKTOP = { group = "org.jetbrains.compose.desktop", atomicGroupVersion = "versions.COMPOSE" }

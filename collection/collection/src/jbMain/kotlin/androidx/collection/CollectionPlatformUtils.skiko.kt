@@ -13,16 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.collection
 
 /**
- * JVM actual of internal utils for handling target differences in collection code.
+ * Native actual of internal utils for handling target differences in collection code.
  */
 internal actual object CollectionPlatformUtils {
 
-    @Suppress("NOTHING_TO_INLINE")
     internal actual inline fun createIndexOutOfBoundsException(): IndexOutOfBoundsException {
-        return ArrayIndexOutOfBoundsException()
+        return IndexOutOfBoundsException()
     }
 }
