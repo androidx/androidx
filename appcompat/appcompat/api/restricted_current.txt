@@ -2275,7 +2275,7 @@ package androidx.appcompat.widget {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ViewUtils {
-    method public static void computeFitSystemWindows(android.view.View!, android.graphics.Rect!, android.graphics.Rect!);
+    method public static void computeFitSystemWindows(android.view.View, android.graphics.Rect, android.graphics.Rect);
     method public static boolean isLayoutRtl(android.view.View!);
     method public static void makeOptionalFitsSystemWindows(android.view.View!);
   }
