@@ -852,7 +852,7 @@ package androidx.health.services.client.data {
     method public java.util.Set<androidx.health.services.client.data.PassiveGoal> getDailyGoals();
     method public java.util.Set<androidx.health.services.client.data.DataType<?,? extends androidx.health.services.client.data.DataPoint<?>>> getDataTypes();
     method public java.util.Set<androidx.health.services.client.data.HealthEvent.Type> getHealthEventTypes();
-    method public boolean getShouldUserActivityInfoBeRequested();
+    method public boolean shouldUserActivityInfoBeRequested();
     property public final java.util.Set<androidx.health.services.client.data.PassiveGoal> dailyGoals;
     property public final java.util.Set<androidx.health.services.client.data.DataType<?,? extends androidx.health.services.client.data.DataPoint<?>>> dataTypes;
     property public final java.util.Set<androidx.health.services.client.data.HealthEvent.Type> healthEventTypes;
