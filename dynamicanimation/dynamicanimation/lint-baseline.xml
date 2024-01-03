@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
+<issues format="6" by="lint 8.3.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha10)" variant="all" version="8.3.0-alpha10">
 
     <issue
         id="BanThreadSleep"
@@ -15,51 +15,6 @@
         message="This call references a method added in API level 33; however, the containing class androidx.dynamicanimation.animation.AnimationHandler is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                mDurationScale = ValueAnimator.getDurationScale();"
         errorLine2="                                               ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/dynamicanimation/animation/AnimationHandler.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                property.setValue(object, value);"
-        errorLine2="                         ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/dynamicanimation/animation/FloatPropertyCompat.java"/>
-    </issue>
-
-    <issue
-        id="VisibleForTests"
-        message="This method should only be accessed from tests or within private scope"
-        errorLine1="        float durationScale = getAnimationHandler().getDurationScale();"
-        errorLine2="                                                    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"/>
-    </issue>
-
-    <issue
-        id="VisibleForTests"
-        message="This method should only be accessed from tests or within private scope"
-        errorLine1="        if (!getAnimationHandler().isCurrentThread()) {"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/dynamicanimation/animation/SpringAnimation.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/dynamicanimation/animation/AnimationHandler.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 16"
-        errorLine1="    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/dynamicanimation/animation/AnimationHandler.java"/>
     </issue>
@@ -96,6 +51,15 @@
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void removeUpdateListener(OnAnimationUpdateListener listener) {"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"/>
+    </issue>
+
+    <issue
+        id="VisibleForTests"
+        message="This method should only be accessed from tests or within private scope"
+        errorLine1="        float durationScale = getAnimationHandler().getDurationScale();"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"/>
     </issue>
@@ -200,6 +164,15 @@
     </issue>
 
     <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                property.setValue(object, value);"
+        errorLine2="                         ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/FloatPropertyCompat.java"/>
+    </issue>
+
+    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public SpringAnimation(FloatValueHolder floatValueHolder) {"
@@ -258,6 +231,15 @@
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public SpringAnimation setSpring(SpringForce force) {"
         errorLine2="                                     ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/SpringAnimation.java"/>
+    </issue>
+
+    <issue
+        id="VisibleForTests"
+        message="This method should only be accessed from tests or within private scope"
+        errorLine1="        if (!getAnimationHandler().isCurrentThread()) {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/dynamicanimation/animation/SpringAnimation.java"/>
     </issue>

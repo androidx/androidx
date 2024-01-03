@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
+<issues format="6" by="lint 8.3.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha10)" variant="all" version="8.3.0-alpha10">
 
     <issue
         id="RestrictedApiAndroidX"
@@ -47,12 +47,12 @@
     </issue>
 
     <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 18"
-        errorLine1="        @RequiresApi(18)"
-        errorLine2="        ~~~~~~~~~~~~~~~~">
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void writeToParcel(Parcel dest, int flags) {"
+        errorLine2="                              ~~~~~~">
         <location
-            file="src/main/java/androidx/media2/common/ClassVerificationHelper.java"/>
+            file="src/main/java/androidx/media2/common/ParcelImplListSlice.java"/>
     </issue>
 
     <issue
@@ -62,42 +62,6 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/common/SessionPlayer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="            Executor executor, OnMetadataChangedListener listener) {"
-        errorLine2="            ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/common/MediaItem.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="            Executor executor, OnMetadataChangedListener listener) {"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/common/MediaItem.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void removeOnMetadataChangedListener(OnMetadataChangedListener listener) {"
-        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/common/MediaItem.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void writeToParcel(Parcel dest, int flags) {"
-        errorLine2="                              ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/common/ParcelImplListSlice.java"/>
     </issue>
 
 </issues>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-beta05" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta05)" variant="all" version="8.1.0-beta05">
+<issues format="6" by="lint 8.3.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha10)" variant="all" version="8.3.0-alpha10">
 
     <issue
         id="BanThreadSleep"
@@ -8,24 +8,6 @@
         errorLine2="                       ~~~~~">
         <location
             file="src/androidTest/java/androidx/preference/tests/EditTextPreferenceDialogFragmentCompatTest.java"/>
-    </issue>
-
-    <issue
-        id="KotlinPropertyAccess"
-        message="This getter should be public such that `onBindEditTextListener` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
-        errorLine1="    @Nullable OnBindEditTextListener getOnBindEditTextListener() {"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/preference/EditTextPreference.java"/>
-    </issue>
-
-    <issue
-        id="KotlinPropertyAccess"
-        message="This getter should be public such that `valueIndex` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
-        errorLine1="    private int getValueIndex() {"
-        errorLine2="                ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/preference/ListPreference.java"/>
     </issue>
 
     <issue
@@ -51,6 +33,15 @@
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onSetInitialValue(Object defaultValue) {"
         errorLine2="                                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/preference/EditTextPreference.java"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="This getter should be public such that `onBindEditTextListener` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    @Nullable OnBindEditTextListener getOnBindEditTextListener() {"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/EditTextPreference.java"/>
     </issue>
@@ -114,6 +105,15 @@
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public int findIndexOfValue(String value) {"
         errorLine2="                                ~~~~~~">
+        <location
+            file="src/main/java/androidx/preference/ListPreference.java"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="This getter should be public such that `valueIndex` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    private int getValueIndex() {"
+        errorLine2="                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/ListPreference.java"/>
     </issue>
