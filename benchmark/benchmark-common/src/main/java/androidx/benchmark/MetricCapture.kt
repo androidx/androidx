@@ -18,35 +18,56 @@ package androidx.benchmark
 
 import android.os.Debug
 
-internal abstract class MetricCapture(
+/**
+ * Microbenchmark metric.
+ *
+ * Note that the API is designed around low overhead, even in the case of multiple submetrics (such
+ * as cpu perf event counters) that must be started/stopped together for efficiency.
+ *
+ * This class may be initialized on a different thread from where measurement occurs, but all
+ * `capture` methods must be invoked from the same thread.
+ */
+@ExperimentalBenchmarkConfigApi
+abstract class MetricCapture(
     val names: List<String>
 ) {
     /**
      * Starts collecting data for a run.
      *
-     * Must be called at the start of each run.
+     * Called at the start of each run.
      */
     abstract fun captureStart(timeNs: Long)
 
     /**
-     * Marks the end of a run, and stores one metric value in the output array since the last call
-     * to start.
+     * Mark the end of a run, and store offset metrics in the output array, per sub metric.
      *
-     * Should be called when a run stops.
+     * To output values, store them in the output array offset by both the parameter offset,
+     * and their submetric index, for example:
+     *
+     * ```
+     * class MyMetricCapture("firstSubMetricName", "secondSubMetricName") {
+     *     //...
+     *     override fun captureStop(timeNs: Long, output: LongArray, offset: Int) {
+     *         output[offset + 0] = firstSubMetricValue
+     *         output[offset + 1] = secondSubMetricValue
+     *     }
+     * }
+     * ```
+     *
+     * @param timeNs Time of metric capture start, in monotonic time (System..
+     * @param output LongArray sized to hold all simultaneous sub metric outputs, use `offset` as
+     *  the initial position in `output` to start writing submetrics.
+     * @param offset Offset into the output array to start writing sub metrics.
      */
     abstract fun captureStop(timeNs: Long, output: LongArray, offset: Int)
 
     /**
-     * Pauses data collection.
-     *
-     * Call when you want to not capture the following part of a run.
+     * Pause data collection.
      */
     abstract fun capturePaused()
 
     /**
-     * Resumes data collection.
-     *
-     * Call when you want to resume capturing a capturePaused-ed run.
+     * Resume data collection
      */
     abstract fun captureResumed()
 
@@ -59,7 +80,13 @@ internal abstract class MetricCapture(
     }
 }
 
-internal class TimeCapture : MetricCapture(
+/**
+ * Time metric, which reports time in nanos, based on the time passed to [captureStop].
+ *
+ * Reports "timeNs"
+ */
+@ExperimentalBenchmarkConfigApi
+public class TimeCapture : MetricCapture(
     names = listOf("timeNs")
 ) {
     private var currentStarted = 0L

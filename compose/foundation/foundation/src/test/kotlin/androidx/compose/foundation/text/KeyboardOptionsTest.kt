@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text
 
+import androidx.compose.ui.text.input.AndroidImeOptions
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -30,11 +31,14 @@ class KeyboardOptionsTest {
 
     @Test
     fun test_toImeOption() {
+        val platformImeOptions = AndroidImeOptions("privateImeOptions")
+
         val keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Number,
             imeAction = ImeAction.Go,
             capitalization = KeyboardCapitalization.Sentences,
-            autoCorrect = false
+            autoCorrect = false,
+            platformImeOptions = platformImeOptions
         )
 
         assertThat(keyboardOptions.toImeOptions(singleLine = true)).isEqualTo(
@@ -43,7 +47,8 @@ class KeyboardOptionsTest {
                 imeAction = ImeAction.Go,
                 capitalization = KeyboardCapitalization.Sentences,
                 autoCorrect = false,
-                singleLine = true
+                singleLine = true,
+                platformImeOptions = platformImeOptions
             )
         )
     }

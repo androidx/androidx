@@ -27,13 +27,16 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.Remeasurement
 import androidx.compose.ui.layout.RemeasurementModifier
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
@@ -50,8 +53,9 @@ class PagerPrefetcherTest(
     private val paramConfig: ParamConfig
 ) : BasePagerTest(paramConfig) {
 
-    var pageSizePx = 30
+    var pageSizePx = 300
     val pageSizeDp = with(rule.density) { pageSizePx.toDp() }
+    var touchSlope: Float = 0.0f
 
     @Test
     fun notPrefetchingForwardInitially() {
@@ -70,7 +74,7 @@ class PagerPrefetcherTest(
     }
 
     @Test
-    fun prefetchingForwardAfterSmallScroll() {
+    fun prefetchingForwardAfterSmallScroll_programmatically() {
         composePager()
         val preFetchIndex = 2
         rule.runOnIdle {
@@ -88,13 +92,61 @@ class PagerPrefetcherTest(
     }
 
     @Test
-    fun prefetchingBackwardAfterSmallScroll() {
+    fun prefetchingBackwardAfterSmallScroll_programmatically() {
         composePager(initialPage = 2, initialPageOffsetFraction = 10 / pageSizePx.toFloat())
 
         rule.runOnIdle {
             runBlocking {
                 pagerState.scrollBy(-5f)
             }
+        }
+
+        waitForPrefetch(1)
+
+        rule.onNodeWithTag("1")
+            .assertExists()
+        rule.onNodeWithTag("0")
+            .assertDoesNotExist()
+    }
+
+    @Test
+    fun prefetchingForwardAfterSmallScroll_withGesture() {
+        composePager()
+        val preFetchIndex = 2
+        val delta = (touchSlope + 5) * scrollForwardSign
+
+        onPager().performTouchInput {
+            down(center)
+            if (vertical) {
+                moveBy(Offset(x = 0f, y = delta))
+            } else {
+                moveBy(Offset(x = delta, y = 0f))
+            }
+            up()
+        }
+
+        waitForPrefetch(preFetchIndex)
+
+        rule.onNodeWithTag("$preFetchIndex")
+            .assertExists()
+        rule.onNodeWithTag("${paramConfig.beyondBoundsPageCount + preFetchIndex + 1}")
+            .assertDoesNotExist()
+    }
+
+    @Test
+    fun prefetchingBackwardAfterSmallScroll_withGesture() {
+        composePager(initialPage = 2, initialPageOffsetFraction = 10 / pageSizePx.toFloat())
+
+        val delta = (touchSlope + 5) * -1 * scrollForwardSign
+
+        onPager().performTouchInput {
+            down(center)
+            if (vertical) {
+                moveBy(Offset(x = 0f, y = delta))
+            } else {
+                moveBy(Offset(x = delta, y = 0f))
+            }
+            up()
         }
 
         waitForPrefetch(1)
@@ -455,6 +507,7 @@ class PagerPrefetcherTest(
                 }
             }
         ) {
+            touchSlope = LocalViewConfiguration.current.touchSlop
             DisposableEffect(it) {
                 activeNodes.add(it)
                 onDispose {

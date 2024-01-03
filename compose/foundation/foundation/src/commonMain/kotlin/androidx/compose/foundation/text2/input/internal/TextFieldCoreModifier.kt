@@ -28,8 +28,8 @@ import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.selection.TextFieldSelectionState
+import androidx.compose.foundation.text2.selection.textFieldMagnifierNode
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Brush
@@ -39,16 +39,21 @@ import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.isUnspecified
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
+import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.DrawModifierNode
+import androidx.compose.ui.node.GlobalPositionAwareModifierNode
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.invalidateMeasurement
 import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextPainter
 import androidx.compose.ui.text.TextRange
@@ -125,10 +130,12 @@ internal class TextFieldCoreModifierNode(
     private var writeable: Boolean,
     private var scrollState: ScrollState,
     private var orientation: Orientation,
-) : Modifier.Node(),
+) : DelegatingNode(),
     LayoutModifierNode,
     DrawModifierNode,
-    CompositionLocalConsumerModifierNode {
+    CompositionLocalConsumerModifierNode,
+    GlobalPositionAwareModifierNode,
+    SemanticsModifierNode {
 
     /**
      * Animatable object for cursor's alpha value. It becomes 1f for half a second and 0f for
@@ -154,6 +161,15 @@ internal class TextFieldCoreModifierNode(
     private var previousSelection: TextRange = TextRange.Zero
     private var lastFollowing: Int = -1
     private var previousCursorRect: Rect = Rect.Zero
+
+    private val textFieldMagnifierNode = delegate(
+        textFieldMagnifierNode(
+            textFieldState = textFieldState,
+            textFieldSelectionState = textFieldSelectionState,
+            textLayoutState = textLayoutState,
+            isFocused = isFocused
+        )
+    )
 
     /**
      * Updates all the related properties and invalidates internal state based on the changes.
@@ -182,6 +198,13 @@ internal class TextFieldCoreModifierNode(
         this.writeable = writeable
         this.scrollState = scrollState
         this.orientation = orientation
+
+        textFieldMagnifierNode.update(
+            textFieldState = textFieldState,
+            textFieldSelectionState = textFieldSelectionState,
+            textLayoutState = textLayoutState,
+            isFocused = isFocused
+        )
 
         if (!showCursor) {
             changeObserverJob?.cancel()
@@ -235,6 +258,8 @@ internal class TextFieldCoreModifierNode(
             drawSelection(value.selectionInChars, textLayoutResult)
             drawText(textLayoutResult)
         }
+
+        with(textFieldMagnifierNode) { draw() }
     }
 
     private fun MeasureScope.measureVerticalScroll(
@@ -456,6 +481,14 @@ internal class TextFieldCoreModifierNode(
             alpha = cursorAlphaValue,
             strokeWidth = cursorRect.width
         )
+    }
+
+    override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
+        textFieldMagnifierNode.onGloballyPositioned(coordinates)
+    }
+
+    override fun SemanticsPropertyReceiver.applySemantics() {
+        with(textFieldMagnifierNode) { applySemantics() }
     }
 }
 

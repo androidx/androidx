@@ -286,7 +286,7 @@ fun ScalingLazyColumnWithRSB(
         space = 4.dp,
         alignment = if (!reverseLayout) Alignment.Top else Alignment.Bottom
     ),
-    autoCentering: AutoCenteringParams = AutoCenteringParams(),
+    autoCentering: AutoCenteringParams? = null,
     content: ScalingLazyListScope.() -> Unit
 ) {
     val flingBehavior = if (snap) ScalingLazyColumnDefaults.snapFlingBehavior(

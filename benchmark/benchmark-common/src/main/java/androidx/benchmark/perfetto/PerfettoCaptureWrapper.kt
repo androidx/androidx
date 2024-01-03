@@ -20,12 +20,14 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.benchmark.InMemoryTracing
 import androidx.benchmark.Outputs
 import androidx.benchmark.Outputs.dateToFileName
 import androidx.benchmark.PropOverride
 import androidx.benchmark.Shell
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.LOG_TAG
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
+import java.io.File
 
 /**
  * Wrapper for [PerfettoCapture] which does nothing below API 23.
@@ -93,6 +95,7 @@ class PerfettoCaptureWrapper {
         perfettoSdkConfig: PerfettoCapture.PerfettoSdkConfig?,
         traceCallback: ((String) -> Unit)? = null,
         enableTracing: Boolean = true,
+        inMemoryTracingLabel: String? = null,
         block: () -> Unit
     ): String? {
         // skip if Perfetto not supported, or if caller opts out
@@ -122,11 +125,20 @@ class PerfettoCaptureWrapper {
         try {
             propOverride?.forceValue()
             start(config, perfettoSdkConfig)
+
+            // To avoid b/174007010, userspace tracing is cleared and saved *during* trace, so
+            // that events won't lie outside the bounds of the trace content.
+            InMemoryTracing.clearEvents()
             try {
                 block()
             } finally {
                 // finally here to ensure trace is fully recorded if block throws
                 path = stop(fileLabel)
+
+                if (inMemoryTracingLabel != null) {
+                    val inMemoryTrace = InMemoryTracing.commitToTrace(inMemoryTracingLabel)
+                    File(path).appendBytes(inMemoryTrace.encode())
+                }
                 traceCallback?.invoke(path)
             }
             return path

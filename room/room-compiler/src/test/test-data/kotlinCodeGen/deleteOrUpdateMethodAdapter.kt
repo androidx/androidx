@@ -6,7 +6,6 @@ import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.String
 import kotlin.Suppress
-import kotlin.Unit
 import kotlin.collections.List
 import kotlin.jvm.JvmStatic
 
@@ -23,17 +22,17 @@ public class MyDao_Impl(
     init {
         this.__db = __db
         this.__deletionAdapterOfMyEntity = object : EntityDeletionOrUpdateAdapter<MyEntity>(__db) {
-            public override fun createQuery(): String = "DELETE FROM `MyEntity` WHERE `pk` = ?"
+            protected override fun createQuery(): String = "DELETE FROM `MyEntity` WHERE `pk` = ?"
 
-            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity): Unit {
+            protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
                 statement.bindLong(1, entity.pk)
             }
         }
         this.__updateAdapterOfMyEntity = object : EntityDeletionOrUpdateAdapter<MyEntity>(__db) {
-            public override fun createQuery(): String =
+            protected override fun createQuery(): String =
                 "UPDATE OR ABORT `MyEntity` SET `pk` = ?,`data` = ? WHERE `pk` = ?"
 
-            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity): Unit {
+            protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
                 statement.bindLong(1, entity.pk)
                 statement.bindString(2, entity.data)
                 statement.bindLong(3, entity.pk)
@@ -41,7 +40,7 @@ public class MyDao_Impl(
         }
     }
 
-    public override fun deleteEntity(item: MyEntity): Unit {
+    public override fun deleteEntity(item: MyEntity) {
         __db.assertNotSuspendingTransaction()
         __db.beginTransaction()
         try {
@@ -65,7 +64,7 @@ public class MyDao_Impl(
         }
     }
 
-    public override fun updateEntity(item: MyEntity): Unit {
+    public override fun updateEntity(item: MyEntity) {
         __db.assertNotSuspendingTransaction()
         __db.beginTransaction()
         try {

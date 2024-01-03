@@ -113,6 +113,7 @@ import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.utils.AspectRatioUtil;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.camera.video.ExperimentalPersistentRecording;
 import androidx.camera.video.FileOutputOptions;
 import androidx.camera.video.MediaStoreOutputOptions;
 import androidx.camera.video.OutputOptions;
@@ -581,7 +582,8 @@ public class CameraXActivity extends AppCompatActivity {
         });
     }
 
-    @SuppressLint("MissingPermission")
+    @SuppressLint({"MissingPermission", "NullAnnotationGroup"})
+    @OptIn(markerClass = ExperimentalPersistentRecording.class)
     private void setUpRecordButton() {
         mRecordUi.getButtonRecord().setOnClickListener((view) -> {
             RecordUi.State state = mRecordUi.getState();

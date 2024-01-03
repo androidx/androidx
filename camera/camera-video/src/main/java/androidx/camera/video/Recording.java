@@ -122,7 +122,7 @@ public final class Recording implements AutoCloseable {
      *
      * @return {@code true} if the recording is a persistent recording, otherwise {@code false}.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @ExperimentalPersistentRecording
     public boolean isPersistent() {
         return mIsPersistent;
     }

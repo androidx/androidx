@@ -70,7 +70,7 @@ class IconButtonScreenshotTest {
     }
 
     @Test
-    fun filled_icon_button_disabled() = verifyScreenshot("icon_button_disabled") {
+    fun filled_icon_button_disabled() = verifyScreenshot {
         sampleFilledIconButton(enabled = false, isCompact = false)
     }
 
@@ -80,7 +80,7 @@ class IconButtonScreenshotTest {
     }
 
     @Test
-    fun filled_tonal_icon_button_disabled() = verifyScreenshot("icon_button_disabled") {
+    fun filled_tonal_icon_button_disabled() = verifyScreenshot {
         sampleFilledTonalIconButton(enabled = false, isCompact = false)
     }
 
@@ -110,7 +110,7 @@ class IconButtonScreenshotTest {
     }
 
     @Test
-    fun filled_compact_icon_button_disabled() = verifyScreenshot("compact_icon_button_disabled") {
+    fun filled_compact_icon_button_disabled() = verifyScreenshot {
         sampleFilledIconButton(enabled = false, isCompact = true)
     }
 
@@ -121,7 +121,7 @@ class IconButtonScreenshotTest {
 
     @Test
     fun filled_tonal_compact_icon_button_disabled() =
-        verifyScreenshot("compact_icon_button_disabled") {
+        verifyScreenshot {
             sampleFilledTonalIconButton(enabled = false, isCompact = true)
         }
 

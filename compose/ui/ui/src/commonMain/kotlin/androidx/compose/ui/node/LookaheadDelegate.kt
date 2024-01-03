@@ -20,7 +20,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.LookaheadLayoutCoordinatesImpl
+import androidx.compose.ui.layout.LookaheadLayoutCoordinates
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
@@ -111,7 +111,7 @@ internal abstract class LookaheadDelegate(
     override val coordinates: LayoutCoordinates
         get() = lookaheadLayoutCoordinates
 
-    val lookaheadLayoutCoordinates = LookaheadLayoutCoordinatesImpl(this)
+    val lookaheadLayoutCoordinates = LookaheadLayoutCoordinates(this)
     override val alignmentLinesOwner: AlignmentLinesOwner
         get() = coordinator.layoutNode.layoutDelegate.lookaheadAlignmentLinesOwner!!
 
@@ -151,14 +151,22 @@ internal abstract class LookaheadDelegate(
         zIndex: Float,
         layerBlock: (GraphicsLayerScope.() -> Unit)?
     ) {
+        placeSelf(position)
+        if (isShallowPlacing) return
+        placeChildren()
+    }
+
+    private fun placeSelf(position: IntOffset) {
         if (this.position != position) {
             this.position = position
             layoutNode.layoutDelegate.lookaheadPassDelegate
                 ?.notifyChildrenUsingCoordinatesWhilePlacing()
             coordinator.invalidateAlignmentLinesFromPositionChange()
         }
-        if (isShallowPlacing) return
-        placeChildren()
+    }
+
+    internal fun placeSelfApparentToRealOffset(position: IntOffset) {
+        placeSelf(position + apparentToRealOffset)
     }
 
     protected open fun placeChildren() {

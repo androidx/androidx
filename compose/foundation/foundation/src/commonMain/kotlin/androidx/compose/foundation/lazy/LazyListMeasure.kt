@@ -33,6 +33,7 @@ import androidx.compose.ui.util.fastForEach
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.math.sign
+import kotlinx.coroutines.CoroutineScope
 
 /**
  * Measures and calculates the positions for the requested items. The result is produced
@@ -56,12 +57,13 @@ internal fun measureLazyList(
     horizontalArrangement: Arrangement.Horizontal?,
     reverseLayout: Boolean,
     density: Density,
-    placementAnimator: LazyListItemPlacementAnimator,
+    itemAnimator: LazyListItemAnimator,
     beyondBoundsItemCount: Int,
     pinnedItems: List<Int>,
     hasLookaheadPassOccurred: Boolean,
     isLookingAhead: Boolean,
     postLookaheadLayoutInfo: LazyListLayoutInfo?,
+    coroutineScope: CoroutineScope,
     @Suppress("PrimitiveInLambda")
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
 ): LazyListMeasureResult {
@@ -69,12 +71,25 @@ internal fun measureLazyList(
     require(afterContentPadding >= 0) { "invalid afterContentPadding" }
     if (itemsCount <= 0) {
         // empty data set. reset the current scroll and report zero size
+        val layoutWidth = constraints.minWidth
+        val layoutHeight = constraints.minHeight
+        itemAnimator.onMeasured(
+            consumedScroll = 0,
+            layoutWidth = layoutWidth,
+            layoutHeight = layoutHeight,
+            positionedItems = mutableListOf(),
+            itemProvider = measuredItemProvider,
+            isVertical = isVertical,
+            isLookingAhead = isLookingAhead,
+            hasLookaheadOccurred = hasLookaheadPassOccurred,
+            coroutineScope = coroutineScope
+        )
         return LazyListMeasureResult(
             firstVisibleItem = null,
             firstVisibleItemScrollOffset = 0,
             canScrollForward = false,
             consumedScroll = 0f,
-            measureResult = layout(constraints.minWidth, constraints.minHeight) {},
+            measureResult = layout(layoutWidth, layoutHeight) {},
             scrollBackAmount = 0f,
             visibleItemsInfo = emptyList(),
             viewportStartOffset = -beforeContentPadding,
@@ -301,7 +316,7 @@ internal fun measureLazyList(
             density = density,
         )
 
-        placementAnimator.onMeasured(
+        itemAnimator.onMeasured(
             consumedScroll = consumedScroll.toInt(),
             layoutWidth = layoutWidth,
             layoutHeight = layoutHeight,
@@ -309,7 +324,8 @@ internal fun measureLazyList(
             itemProvider = measuredItemProvider,
             isVertical = isVertical,
             isLookingAhead = isLookingAhead,
-            hasLookaheadOccurred = hasLookaheadPassOccurred
+            hasLookaheadOccurred = hasLookaheadPassOccurred,
+            coroutineScope = coroutineScope
         )
 
         val headerItem = if (headerIndexes.isNotEmpty()) {

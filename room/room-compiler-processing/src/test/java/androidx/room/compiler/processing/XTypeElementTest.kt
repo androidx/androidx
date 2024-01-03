@@ -16,6 +16,8 @@
 
 package androidx.room.compiler.processing
 
+import androidx.kruth.assertThat
+import androidx.kruth.assertWithMessage
 import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.asClassName
@@ -25,14 +27,12 @@ import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.asKClassName
 import androidx.room.compiler.processing.util.asMutableKClassName
 import androidx.room.compiler.processing.util.compileFiles
-import androidx.room.compiler.processing.util.createXTypeVariableName
 import androidx.room.compiler.processing.util.getAllFieldNames
 import androidx.room.compiler.processing.util.getDeclaredField
+import androidx.room.compiler.processing.util.getDeclaredMethodByJvmName
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.runProcessorTest
-import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
 import com.squareup.kotlinpoet.INT
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.javapoet.JClassName
@@ -539,7 +539,7 @@ class XTypeElementTest(
             }
 
             baseClass.getField("genericProp").let { field ->
-                assertThat(field.type.asTypeName()).isEqualTo(createXTypeVariableName("T"))
+                assertThat(field.type.asTypeName()).isEqualTo(XTypeName.getTypeVariableName("T"))
             }
 
             subClass.getField("genericProp").let { field ->
@@ -823,6 +823,26 @@ class XTypeElementTest(
     }
 
     @Test
+    fun lazyProperty() {
+        val src = Source.kotlin(
+            "Subject.kt",
+            """
+            class Subject {
+              val myLazy by lazy { "wow" }
+            }
+            """.trimIndent()
+        )
+        runTest(sources = listOf(src)) {
+            val subject = it.processingEnv.requireTypeElement("Subject")
+            val fields = subject.getDeclaredFields()
+            assertThat(fields).isEmpty()
+            val method = subject.getDeclaredMethodByJvmName("getMyLazy")
+            assertThat(method).isNotNull()
+            assertThat(method.isKotlinPropertyMethod()).isTrue()
+        }
+    }
+
+    @Test
     fun declaredAndInstanceMethods() {
         val src = Source.kotlin(
             "Foo.kt",
@@ -870,14 +890,14 @@ class XTypeElementTest(
                 "extFun"
             ).inOrder()
             declaredMethods.forEach { method ->
-              assertWithMessage("Enclosing element of method ${method.jvmName}")
-                .that(method.enclosingElement.name)
-                .isEqualTo("Base")
+                assertWithMessage("Enclosing element of method ${method.jvmName}")
+                    .that(method.enclosingElement.name)
+                    .isEqualTo("Base")
             }
             baseCompanion.getDeclaredMethods().forEach { method ->
-              assertWithMessage("Enclosing element of method ${method.jvmName}")
-                .that(method.enclosingElement.name)
-                .isEqualTo("Companion")
+                assertWithMessage("Enclosing element of method ${method.jvmName}")
+                    .that(method.enclosingElement.name)
+                    .isEqualTo("Companion")
             }
 
             val sub = invocation.processingEnv.requireTypeElement("SubClass")
@@ -1910,26 +1930,26 @@ class XTypeElementTest(
                     method = method,
                     name = "method",
                     enclosingElement = abstractClass,
-                    returnType = createXTypeVariableName("T2"),
+                    returnType = XTypeName.getTypeVariableName("T2"),
                     parameterTypes = arrayOf(
-                        createXTypeVariableName("T1"),
-                        createXTypeVariableName("T2")
+                        XTypeName.getTypeVariableName("T1"),
+                        XTypeName.getTypeVariableName("T2")
                     )
                 )
                 checkMethodType(
                     methodType = method.executableType,
-                    returnType = createXTypeVariableName("T2"),
+                    returnType = XTypeName.getTypeVariableName("T2"),
                     parameterTypes = arrayOf(
-                        createXTypeVariableName("T1"),
-                        createXTypeVariableName("T2")
+                        XTypeName.getTypeVariableName("T1"),
+                        XTypeName.getTypeVariableName("T2")
                     )
                 )
                 checkMethodType(
                     methodType = method.asMemberOf(abstractClass.type),
-                    returnType = createXTypeVariableName("T2"),
+                    returnType = XTypeName.getTypeVariableName("T2"),
                     parameterTypes = arrayOf(
-                        createXTypeVariableName("T1"),
-                        createXTypeVariableName("T2")
+                        XTypeName.getTypeVariableName("T1"),
+                        XTypeName.getTypeVariableName("T2")
                     )
                 )
                 checkMethodType(
@@ -1982,26 +2002,26 @@ class XTypeElementTest(
                 method = abstractClassMethod,
                 name = "method",
                 enclosingElement = abstractClass,
-                returnType = createXTypeVariableName("T2"),
+                returnType = XTypeName.getTypeVariableName("T2"),
                 parameterTypes = arrayOf(
-                    createXTypeVariableName("T1"),
-                    createXTypeVariableName("T2")
+                    XTypeName.getTypeVariableName("T1"),
+                    XTypeName.getTypeVariableName("T2")
                 )
             )
             checkMethodType(
                 methodType = abstractClassMethod.executableType,
-                returnType = createXTypeVariableName("T2"),
+                returnType = XTypeName.getTypeVariableName("T2"),
                 parameterTypes = arrayOf(
-                    createXTypeVariableName("T1"),
-                    createXTypeVariableName("T2")
+                    XTypeName.getTypeVariableName("T1"),
+                    XTypeName.getTypeVariableName("T2")
                 )
             )
             checkMethodType(
                 methodType = abstractClassMethod.asMemberOf(abstractClass.type),
-                returnType = createXTypeVariableName("T2"),
+                returnType = XTypeName.getTypeVariableName("T2"),
                 parameterTypes = arrayOf(
-                    createXTypeVariableName("T1"),
-                    createXTypeVariableName("T2"),
+                    XTypeName.getTypeVariableName("T1"),
+                    XTypeName.getTypeVariableName("T2"),
                 )
             )
             checkMethodType(
@@ -2089,7 +2109,7 @@ class XTypeElementTest(
             checkConstructorParameters(
                 typeElement = abstractClass,
                 expectedParameters = arrayOf(
-                    createXTypeVariableName("T")
+                    XTypeName.getTypeVariableName("T")
                 )
             )
             checkConstructorParameters(
@@ -2302,6 +2322,64 @@ class XTypeElementTest(
         ) { invocation ->
             val subject = invocation.processingEnv.requireTypeElement("test.MyClass\$Foo")
             assertThat(subject.asClassName().canonicalName).isEqualTo("test.MyClass\$Foo")
+        }
+    }
+
+    @Test
+    fun propertyAccessors() {
+        runTest(
+            sources = listOf(
+                Source.kotlin(
+                    "Subject.kt",
+                    """
+                    class Subject {
+                        val val1: String = TODO()
+                        @get:JvmName("getVal2JvmName")
+                        val val2: String = TODO()
+                        var var1: String = TODO()
+                        @get:JvmName("getVar2JvmName")
+                        var var2: String = TODO()
+                        @set:JvmName("setVar3JvmName")
+                        var var3: String = TODO()
+                        @get:JvmName("getVar4JvmName")
+                        @set:JvmName("setVar4JvmName")
+                        var var4: String = TODO()
+                        @set:JvmName("setVar5JvmName")
+                        @get:JvmName("getVar5JvmName")
+                        var var5: String = TODO()
+                    }
+                    """.trimIndent()
+                )
+            )
+        ) { invocation ->
+            val subject = invocation.processingEnv.requireTypeElement("Subject")
+
+            // Check method names
+            assertThat(subject.getDeclaredMethods().map { it.name })
+                .containsExactly(
+                    "getVal1", // val1 accessors
+                    "getVal2", // val2 accessors
+                    "getVar1", "setVar1", // var1 accessors
+                    "getVar2", "setVar2", // var2 accessors
+                    "getVar3", "setVar3", // var3 accessors
+                    "getVar4", "setVar4", // var4 accessors
+                    "getVar5", "setVar5", // var5 accessors
+                ).inOrder()
+
+            // Check property names and corresponding accessors
+            assertThat(
+                subject.getDeclaredFields().map {
+                    it.name to listOf(it.getter?.name, it.setter?.name)
+                }
+            ).containsExactly(
+                "val1" to listOf("getVal1", null),
+                "val2" to listOf("getVal2", null),
+                "var1" to listOf("getVar1", "setVar1"),
+                "var2" to listOf("getVar2", "setVar2"),
+                "var3" to listOf("getVar3", "setVar3"),
+                "var4" to listOf("getVar4", "setVar4"),
+                "var5" to listOf("getVar5", "setVar5"),
+            )
         }
     }
 

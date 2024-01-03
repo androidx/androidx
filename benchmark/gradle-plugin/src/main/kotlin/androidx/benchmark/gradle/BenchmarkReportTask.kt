@@ -18,8 +18,10 @@ package androidx.benchmark.gradle
 
 import java.io.File
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.StopExecutionException
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
@@ -27,17 +29,11 @@ import org.gradle.work.DisableCachingByDefault
 @Suppress("UnstableApiUsage")
 @DisableCachingByDefault(because = "Benchmark measurements are performed each task execution.")
 abstract class BenchmarkReportTask : DefaultTask() {
-    private val benchmarkReportDir: File
 
     init {
         group = "Android"
         description = "Run benchmarks found in the current project and output reports to the " +
             "benchmark_reports folder under the project's build directory."
-
-        benchmarkReportDir = File(
-            "${project.buildDir}/outputs", "connected_android_test_additional_output"
-        )
-        outputs.dir(benchmarkReportDir)
 
         // This task should mirror the upToDate behavior of connectedAndroidTest as we always want
         // this task to run after connectedAndroidTest is run to pull the most recent benchmark
@@ -46,7 +42,10 @@ abstract class BenchmarkReportTask : DefaultTask() {
         outputs.upToDateWhen { false }
     }
 
-    @get: Input
+    @get:OutputDirectory
+    abstract val benchmarkReportDir: DirectoryProperty
+
+    @get:Input
     abstract val adbPath: Property<String>
 
     @TaskAction
@@ -57,10 +56,11 @@ abstract class BenchmarkReportTask : DefaultTask() {
     }
 
     private fun getReportsForDevices(adb: Adb) {
-        if (benchmarkReportDir.exists()) {
-            benchmarkReportDir.deleteRecursively()
+        val reportDir = benchmarkReportDir.asFile.get()
+        if (reportDir.exists()) {
+            reportDir.deleteRecursively()
         }
-        benchmarkReportDir.mkdirs()
+        reportDir.mkdirs()
 
         val deviceIds = adb.execSync("devices -l").stdout
             .split("\n")
@@ -75,12 +75,12 @@ abstract class BenchmarkReportTask : DefaultTask() {
                 throw StopExecutionException("Failed to find benchmark report on device: $deviceId")
             }
 
-            val outDir = File(benchmarkReportDir, deviceId)
+            val outDir = File(reportDir, deviceId)
             outDir.mkdirs()
             getReportsForDevice(adb, outDir, dataDir, deviceId)
             logger.info(
                 "Benchmark",
-                "Benchmark report files generated at ${benchmarkReportDir.absolutePath}"
+                "Benchmark report files generated at ${reportDir.absolutePath}"
             )
         }
     }

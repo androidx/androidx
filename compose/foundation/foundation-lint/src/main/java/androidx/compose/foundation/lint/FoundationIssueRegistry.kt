@@ -32,8 +32,7 @@ class FoundationIssueRegistry : IssueRegistry() {
     override val issues get() = listOf(
         LazyLayoutStateReadInCompositionDetector.FrequentlyChangedStateReadInComposition,
         UnrememberedMutableInteractionSourceDetector.UnrememberedMutableInteractionSource,
-        NonLambdaOffsetModifierDetector.UseOfNonLambdaOverload,
-        BoxWithConstraintsDetector.UnusedConstraintsParameter
+        NonLambdaOffsetModifierDetector.UseOfNonLambdaOverload
     )
     override val vendor = Vendor(
         vendorName = "Jetpack Compose",

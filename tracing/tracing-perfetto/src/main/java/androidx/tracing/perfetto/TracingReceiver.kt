@@ -134,13 +134,13 @@ class TracingReceiver : BroadcastReceiver() {
                 RESULT_CODE_ERROR_OTHER,
                 "Cannot set up cold start tracing without a Context instance."
             )
-            config.store(context.applicationInfo.packageName)
+            config.store(context)
         }
     }
 
     private fun disableTracingColdStart(context: Context?): Response = when {
         context != null -> {
-            StartupTracingConfigStore.clear(context.applicationInfo.packageName)
+            StartupTracingConfigStore.clear(context)
             Response(RESULT_CODE_SUCCESS)
         }
         else ->

@@ -17,7 +17,7 @@
 package androidx.room
 
 /**
- * Declares which column(s) are used to build a map or multimap return value in a {@link Dao}
+ * Declares which column(s) are used to build a map or multimap return value in a [Dao]
  * query method.
  *
  * This annotation is required when the key or value of the Map is a single column of one of the
@@ -46,6 +46,7 @@ package androidx.room
  */
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.BINARY)
+@Deprecated("Use @MapColumn instead.")
 public annotation class MapInfo(
     /**
      * The name of the column to be used for the map's keys.

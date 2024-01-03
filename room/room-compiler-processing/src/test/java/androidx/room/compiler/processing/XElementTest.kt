@@ -16,6 +16,8 @@
 
 package androidx.room.compiler.processing
 
+import androidx.kruth.Subject
+import androidx.kruth.assertThat
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.javac.JavacTypeElement
@@ -28,7 +30,6 @@ import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.asJClassName
 import androidx.room.compiler.processing.util.compileFiles
-import androidx.room.compiler.processing.util.createXTypeVariableName
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.getParameter
@@ -36,7 +37,6 @@ import androidx.room.compiler.processing.util.kspProcessingEnv
 import androidx.room.compiler.processing.util.kspResolver
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.util.runProcessorTestWithoutKsp
-import com.google.common.truth.Truth.assertThat
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
@@ -243,24 +243,24 @@ class XElementTest {
 
             validateMethodElement(
                 element = it.processingEnv.requireTypeElement("foo.bar.Base"),
-                tTypeName = createXTypeVariableName("T"),
-                rTypeName = createXTypeVariableName("R")
+                tTypeName = XTypeName.getTypeVariableName("T", listOf(XTypeName.ANY_OBJECT)),
+                rTypeName = XTypeName.getTypeVariableName("R", listOf(XTypeName.ANY_OBJECT))
             )
             validateMethodElement(
                 element = it.processingEnv.requireTypeElement("foo.bar.Child"),
-                tTypeName = createXTypeVariableName("T"),
-                rTypeName = createXTypeVariableName("R")
+                tTypeName = XTypeName.getTypeVariableName("T", listOf(XTypeName.ANY_OBJECT)),
+                rTypeName = XTypeName.getTypeVariableName("R", listOf(XTypeName.ANY_OBJECT))
             )
 
             validateMethodTypeAsMemberOf(
                 element = it.processingEnv.requireTypeElement("foo.bar.Base"),
-                tTypeName = createXTypeVariableName("T"),
-                rTypeName = createXTypeVariableName("R")
+                tTypeName = XTypeName.getTypeVariableName("T", listOf(XTypeName.ANY_OBJECT)),
+                rTypeName = XTypeName.getTypeVariableName("R", listOf(XTypeName.ANY_OBJECT))
             )
             validateMethodTypeAsMemberOf(
                 element = it.processingEnv.requireTypeElement("foo.bar.Child"),
                 tTypeName = String::class.asClassName(),
-                rTypeName = createXTypeVariableName("R")
+                rTypeName = XTypeName.getTypeVariableName("R", listOf(XTypeName.ANY_OBJECT))
             )
         }
     }
@@ -929,13 +929,12 @@ class XElementTest {
             if (inv.isKsp) {
                 getTopLevelFunctionOrPropertyElements(inv, "foo.bar").forEach {
                         elem ->
-                    assertThat(elem.enclosingElement).isInstanceOf(
-                        getFileContainerClass(precompiled))
+                    assertThat(elem.enclosingElement).isFileContainer(precompiled)
                 }
             } else {
                 inv.processingEnv.getTypeElementsFromPackage("foo.bar").forEach {
                         typeElement ->
-                    assertThat(typeElement).isInstanceOf(JavacTypeElement::class.java)
+                    assertThat(typeElement).isInstanceOf<JavacTypeElement>()
                     assertThat(typeElement.enclosingElement).isNull()
 
                     typeElement.getEnclosedElements().forEach { elem ->
@@ -1009,12 +1008,10 @@ class XElementTest {
         ) { invocation, precompiled ->
             if (invocation.isKsp) {
                 getTopLevelFunctionOrPropertyElements(invocation, "foo.bar").forEach { elem ->
-                    assertThat(elem.closestMemberContainer).isInstanceOf(
-                        getFileContainerClass(precompiled))
+                    assertThat(elem.closestMemberContainer).isFileContainer(precompiled)
                     if (elem is XExecutableElement) {
                         elem.parameters.forEach { p ->
-                            assertThat(p.closestMemberContainer).isInstanceOf(
-                                getFileContainerClass(precompiled))
+                            assertThat(p.closestMemberContainer).isFileContainer(precompiled)
                         }
                     }
                 }
@@ -1132,12 +1129,13 @@ class XElementTest {
         }
         .filterNotNull()
 
-    private fun getFileContainerClass(precompiled: Boolean) =
+    private fun Subject<XElement>.isFileContainer(precompiled: Boolean) {
         if (precompiled) {
-            KspSyntheticFileMemberContainer::class.java
+            isInstanceOf<KspSyntheticFileMemberContainer>()
         } else {
-            KspFileMemberContainer::class.java
+            isInstanceOf<KspFileMemberContainer>()
         }
+    }
 
     private fun runProcessorTestHelper(
         sources: List<Source>,

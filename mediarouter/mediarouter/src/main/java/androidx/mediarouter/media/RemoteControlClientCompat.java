@@ -33,22 +33,23 @@ import java.lang.ref.WeakReference;
  */
 abstract class RemoteControlClientCompat {
     protected final Context mContext;
-    protected final Object mRcc;
+    protected final android.media.RemoteControlClient mRcc;
     protected VolumeCallback mVolumeCallback;
 
-    protected RemoteControlClientCompat(Context context, Object rcc) {
+    protected RemoteControlClientCompat(Context context, android.media.RemoteControlClient rcc) {
         mContext = context;
         mRcc = rcc;
     }
 
-    public static RemoteControlClientCompat obtain(Context context, Object rcc) {
+    public static RemoteControlClientCompat obtain(
+            Context context, android.media.RemoteControlClient rcc) {
         if (Build.VERSION.SDK_INT >= 16) {
             return new JellybeanImpl(context, rcc);
         }
         return new LegacyImpl(context, rcc);
     }
 
-    public Object getRemoteControlClient() {
+    public android.media.RemoteControlClient getRemoteControlClient() {
         return mRcc;
     }
 
@@ -111,7 +112,7 @@ abstract class RemoteControlClientCompat {
      * Does nothing.
      */
     static class LegacyImpl extends RemoteControlClientCompat {
-        public LegacyImpl(Context context, Object rcc) {
+        LegacyImpl(Context context, android.media.RemoteControlClient rcc) {
             super(context, rcc);
         }
     }
@@ -131,7 +132,7 @@ abstract class RemoteControlClientCompat {
         private final android.media.MediaRouter.UserRouteInfo mUserRoute;
         private boolean mRegistered;
 
-        public JellybeanImpl(Context context, Object rcc) {
+        JellybeanImpl(Context context, android.media.RemoteControlClient rcc) {
             super(context, rcc);
 
             mRouter = MediaRouterJellybean.getMediaRouter(context);

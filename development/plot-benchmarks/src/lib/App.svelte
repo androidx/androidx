@@ -1,23 +1,22 @@
 <script lang="ts">
   import type { Writable } from "svelte/store";
-  import { derived, writable } from "svelte/store";
-  import type { FileMetadata } from "../files.js";
-  import type { Benchmarks } from "../schema.js";
-  import Chart from "./Chart.svelte";
-  import Files from "./Files.svelte";
+  import { writable } from "svelte/store";
+  import type { FileMetadata } from "../types/files.js";
+  import Session from "./Session.svelte";
+  import { wrap } from "comlink";
+  import { StatService } from "../workers/service.js";
 
-  let entries: Writable<Array<FileMetadata>> = writable([]);
-  let containers = derived(entries, ($entries) => {
-    const containers: Array<Benchmarks> = [];
-    for (let i = 0; i < $entries.length; i += 1) {
-      let entry = $entries[i];
-      containers.push(entry.benchmarks);
-    }
-    return containers;
-  });
+  // Stores
+  let entries: Writable<FileMetadata[]> = writable([]);
+  const url = new URL("../workers/worker.ts", import.meta.url);
+  const service = wrap<StatService>(
+    new Worker(url, {
+      type: "module",
+    })
+  );
 
-  function onFileMetadataEvent(event) {
-    const detail: Array<FileMetadata> = event.detail;
+  function onFilesChanged(event) {
+    const detail: FileMetadata[] = event.detail;
     if (detail) {
       const enabled = detail.filter((metadata) => metadata.enabled === true);
       $entries = [...enabled];
@@ -31,8 +30,5 @@
 </details>
 
 <div class="container">
-  <Files on:entries={onFileMetadataEvent} />
-  {#if $containers.length > 0}
-    <Chart {containers} />
-  {/if}
+  <Session fileEntries={$entries} {service} on:entries={onFilesChanged} />
 </div>

@@ -1483,6 +1483,7 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 @Query("SELECT * FROM Artist JOIN Song ON Artist.artistId = Song.artistKey")
                 fun getArtistWithSongs(): Map<Artist, List<Song>>
 
+                @Suppress("DEPRECATION") // For @MapInfo
                 @MapInfo(valueColumn = "songCount")
                 @Query(
                     "SELECT Artist.*, COUNT(songId) as songCount " +
@@ -1492,6 +1493,7 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 fun getArtistSongCount(): Map<Artist, Int>
 
                 @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+                @Suppress("DEPRECATION") // For @MapInfo
                 @MapInfo(valueColumn = "songId")
                 @Query("SELECT * FROM Artist JOIN Song ON Artist.artistId = Song.artistKey")
                 fun getArtistWithSongIds(): Map<Artist, List<String>>

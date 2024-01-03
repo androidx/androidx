@@ -73,13 +73,13 @@ public final class RouteListingPreference {
     public static final String EXTRA_ROUTE_ID = android.media.RouteListingPreference.EXTRA_ROUTE_ID;
 
     @NonNull private final List<RouteListingPreference.Item> mItems;
-    private final boolean mUseSystemOrdering;
+    private final boolean mIsSystemOrderingEnabled;
     @Nullable private final ComponentName mLinkedItemComponentName;
 
     // Must be package private to avoid a synthetic accessor for the builder.
     /* package */ RouteListingPreference(RouteListingPreference.Builder builder) {
         mItems = builder.mItems;
-        mUseSystemOrdering = builder.mUseSystemOrdering;
+        mIsSystemOrderingEnabled = builder.mIsSystemOrderingEnabled;
         mLinkedItemComponentName = builder.mLinkedItemComponentName;
     }
 
@@ -100,8 +100,8 @@ public final class RouteListingPreference {
      * <p>The system's ordering strategy is implementation-dependent, but may take into account each
      * route's recency or frequency of use in order to rank them.
      */
-    public boolean getUseSystemOrdering() {
-        return mUseSystemOrdering;
+    public boolean isSystemOrderingEnabled() {
+        return mIsSystemOrderingEnabled;
     }
 
     /**
@@ -134,13 +134,13 @@ public final class RouteListingPreference {
         }
         RouteListingPreference that = (RouteListingPreference) other;
         return mItems.equals(that.mItems)
-                && mUseSystemOrdering == that.mUseSystemOrdering
+                && mIsSystemOrderingEnabled == that.mIsSystemOrderingEnabled
                 && Objects.equals(mLinkedItemComponentName, that.mLinkedItemComponentName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mItems, mUseSystemOrdering, mLinkedItemComponentName);
+        return Objects.hash(mItems, mIsSystemOrderingEnabled, mLinkedItemComponentName);
     }
 
     // Internal methods.
@@ -158,13 +158,13 @@ public final class RouteListingPreference {
 
         // The builder fields must be package private to avoid synthetic accessors.
         /* package */ List<RouteListingPreference.Item> mItems;
-        /* package */ boolean mUseSystemOrdering;
+        /* package */ boolean mIsSystemOrderingEnabled;
         /* package */ ComponentName mLinkedItemComponentName;
 
         /** Creates a new instance with default values (documented in the setters). */
         public Builder() {
             mItems = Collections.emptyList();
-            mUseSystemOrdering = true;
+            mIsSystemOrderingEnabled = true;
         }
 
         /**
@@ -180,15 +180,14 @@ public final class RouteListingPreference {
         }
 
         /**
-         * See {@link #getUseSystemOrdering()}
+         * See {@link #isSystemOrderingEnabled()}
          *
          * <p>The default value is {@code true}.
          */
-        // Lint requires "isUseSystemOrdering", but "getUseSystemOrdering" is a better name.
-        @SuppressWarnings("MissingGetterMatchingBuilder")
         @NonNull
-        public RouteListingPreference.Builder setUseSystemOrdering(boolean useSystemOrdering) {
-            mUseSystemOrdering = useSystemOrdering;
+        public RouteListingPreference.Builder setSystemOrderingEnabled(
+                boolean systemOrderingEnabled) {
+            mIsSystemOrderingEnabled = systemOrderingEnabled;
             return this;
         }
 
@@ -576,7 +575,7 @@ public final class RouteListingPreference {
             return new android.media.RouteListingPreference.Builder()
                     .setItems(platformRlpItems)
                     .setLinkedItemComponentName(routeListingPreference.getLinkedItemComponentName())
-                    .setUseSystemOrdering(routeListingPreference.getUseSystemOrdering())
+                    .setUseSystemOrdering(routeListingPreference.isSystemOrderingEnabled())
                     .build();
         }
 

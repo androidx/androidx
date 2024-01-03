@@ -71,7 +71,7 @@ fun ListHeader(
     ) {
         CompositionLocalProvider(
             LocalContentColor provides contentColor,
-            LocalTextStyle provides MaterialTheme.typography.buttonMedium,
+            LocalTextStyle provides MaterialTheme.typography.labelMedium,
         ) {
             content()
         }
@@ -119,7 +119,7 @@ fun ListSubheader(
     ) {
         CompositionLocalProvider(
             LocalContentColor provides contentColor,
-            LocalTextStyle provides MaterialTheme.typography.captionLarge,
+            LocalTextStyle provides MaterialTheme.typography.labelSmall,
         ) {
             if (icon != null) {
                 Box(

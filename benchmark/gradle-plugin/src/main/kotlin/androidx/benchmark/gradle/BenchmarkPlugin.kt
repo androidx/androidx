@@ -137,13 +137,18 @@ class BenchmarkPlugin : Plugin<Project> {
             if (!applied) {
                 applied = true
 
+                // Note, this directory is hard-coded in AGP
+                val outputDir = project.layout.buildDirectory.dir(
+                    "outputs/connected_android_test_additional_output"
+                )
                 if (!project.properties[ADDITIONAL_TEST_OUTPUT_KEY].toString().toBoolean()) {
                     // Only enable pulling benchmark data through this plugin on older versions of
                     // AGP that do not yet enable this flag.
                     project.tasks.register("benchmarkReport", BenchmarkReportTask::class.java)
-                        .configure {
-                            it.adbPath.set(adbPathProvider)
-                            it.dependsOn(project.tasks.named("connectedAndroidTest"))
+                        .configure { reportTask ->
+                            reportTask.benchmarkReportDir.set(outputDir)
+                            reportTask.adbPath.set(adbPathProvider)
+                            reportTask.dependsOn(project.tasks.named("connectedAndroidTest"))
                         }
 
                     project.tasks.named("connectedAndroidTest").configure {
@@ -153,13 +158,12 @@ class BenchmarkPlugin : Plugin<Project> {
                         it.finalizedBy("benchmarkReport")
                     }
                 } else {
-                    val projectBuildDir = project.buildDir.path
                     project.tasks.named("connectedAndroidTest").configure {
                         it.doLast {
                             it.logger.info(
                                 "Benchmark",
-                                "Benchmark report files generated at $projectBuildDir" +
-                                    "/outputs/connected_android_test_additional_output"
+                                "Benchmark report files generated at " +
+                                    outputDir.get().asFile.absolutePath
                             )
                         }
                     }

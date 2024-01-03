@@ -17,7 +17,7 @@
 package androidx.camera.testing.fakes;
 
 import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
-import static androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE;
+import static androidx.camera.testing.impl.fakes.FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE;
 
 import android.graphics.Rect;
 import android.util.Size;
@@ -193,8 +193,8 @@ public final class FakeCameraControl implements CameraControlInternal {
 
     @NonNull
     @Override
-    public ListenableFuture<Integer> setExposureCompensationIndex(int exposure) {
-        mExposureCompensation = exposure;
+    public ListenableFuture<Integer> setExposureCompensationIndex(int value) {
+        mExposureCompensation = value;
         return Futures.immediateFuture(null);
     }
 

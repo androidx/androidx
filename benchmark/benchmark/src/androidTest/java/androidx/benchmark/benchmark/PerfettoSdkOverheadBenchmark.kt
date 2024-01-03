@@ -17,6 +17,8 @@
 package androidx.benchmark.benchmark
 
 import android.os.Build
+import androidx.benchmark.ExperimentalBenchmarkConfigApi
+import androidx.benchmark.MicrobenchmarkConfig
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.benchmark.perfetto.PerfettoCapture
@@ -35,6 +37,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@OptIn(ExperimentalBenchmarkConfigApi::class)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R) // TODO(234351579): Support API < 30
@@ -48,7 +51,7 @@ class PerfettoSdkOverheadBenchmark {
         InstrumentationRegistry.getInstrumentation().targetContext.packageName
 
     @get:Rule
-    val benchmarkRule = BenchmarkRule(packages = listOf(targetPackage))
+    val benchmarkRule = BenchmarkRule(MicrobenchmarkConfig(shouldEnableTraceAppTag = true))
 
     private val testData = Array(50_000) { UUID.randomUUID().toString() }
 

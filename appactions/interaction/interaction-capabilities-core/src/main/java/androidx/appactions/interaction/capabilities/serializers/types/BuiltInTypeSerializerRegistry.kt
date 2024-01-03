@@ -52,6 +52,7 @@ private const val LOG_TAG = "BuiltInTypeSerializerRegistry"
  *   [BuiltInTypeSerializer].
  * @param getClassOrNull Functor that returns a class ref given its canonical name, or null.
  */
+@Suppress("BanUncheckedReflection")
 class BuiltInTypeSerializerRegistry(
     serializerRegistryClassNames: List<String>,
     getClassOrNull: (canonicalName: String) -> Class<*>?
@@ -61,6 +62,11 @@ class BuiltInTypeSerializerRegistry(
         Collections.synchronizedMap(mutableMapOf())
 
     init {
+        // Need to use reflection to dynamically access serializers based on type-name. These
+        // serializers may be coming from a downstream artifact and are not available at
+        // compile-time. This also aids in a binary-bloat optimization where all serializers start
+        // off a dead code and then we instruct proguard to only retain the serializers for types
+        // that are explicitly referenced and prune others.
         val serializers =
             serializerRegistryClassNames
                 // object AllProductivitySerializers

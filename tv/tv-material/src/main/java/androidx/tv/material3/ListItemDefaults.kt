@@ -49,6 +49,28 @@ object ListItemDefaults {
     val ListItemElevation = Elevation.Level0
 
     /**
+     * The default shape for a [ListItem].
+     */
+    val ListItemShape = RoundedCornerShape(8.dp)
+
+    /**
+     * The default border applied to [ListItem] in focused disabled state.
+     */
+    val FocusedDisabledBorder
+        @ReadOnlyComposable
+        @Composable get() = Border(
+            border = BorderStroke(
+                width = 2.dp,
+                color = MaterialTheme.colorScheme.border
+            )
+        )
+
+    /**
+     * The default opacity for the [ListItem] container color in selected state.
+     */
+    const val SelectedContinerColorOpacity = 0.4f
+
+    /**
      * The default content padding [PaddingValues] used by [ListItem]
      */
     internal val ContentPadding = PaddingValues(
@@ -63,6 +85,7 @@ object ListItemDefaults {
         horizontal = 12.dp,
         vertical = 10.dp
     )
+
     internal const val LeadingContentOpacity = 0.8f
     internal const val OverlineContentOpacity = 0.6f
     internal const val SupportingContentOpacity = 0.8f
@@ -79,18 +102,6 @@ object ListItemDefaults {
     internal val MinDenseContainerHeightLeadingContent = 40.dp
     internal val MinDenseContainerHeightTwoLine = 56.dp
     internal val MinDenseContainerHeightThreeLine = 72.dp
-
-    private val ListItemShape = RoundedCornerShape(8.dp)
-
-    private val DefaultBorder
-        @ReadOnlyComposable
-        @Composable get() = Border(
-            border = BorderStroke(
-                width = 2.dp,
-                color = MaterialTheme.colorScheme.border
-            ),
-            shape = ListItemShape
-        )
 
     /**
      * Creates a [ListItemShape] that represents the default container shapes used in a ListItem
@@ -162,7 +173,7 @@ object ListItemDefaults {
         pressedContainerColor: Color = focusedContainerColor,
         pressedContentColor: Color = contentColorFor(focusedContainerColor),
         selectedContainerColor: Color = MaterialTheme.colorScheme.secondaryContainer
-            .copy(alpha = 0.4f),
+            .copy(alpha = SelectedContinerColorOpacity),
         selectedContentColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
         disabledContainerColor: Color = Color.Transparent,
         disabledContentColor: Color = MaterialTheme.colorScheme.onSurface,
@@ -249,7 +260,7 @@ object ListItemDefaults {
         selectedBorder: Border = border,
         disabledBorder: Border = border,
         focusedSelectedBorder: Border = focusedBorder,
-        focusedDisabledBorder: Border = DefaultBorder,
+        focusedDisabledBorder: Border = FocusedDisabledBorder,
         pressedSelectedBorder: Border = border
     ) = ListItemBorder(
         border = border,

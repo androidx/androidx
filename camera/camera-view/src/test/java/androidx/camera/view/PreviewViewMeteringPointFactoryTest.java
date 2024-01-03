@@ -72,7 +72,8 @@ public class PreviewViewMeteringPointFactoryTest {
                         0,
                         Surface.ROTATION_0,
                         /*hasCameraTransform=*/true,
-                        /*sensorToBufferTransform=*/new Matrix()),
+                        /*sensorToBufferTransform=*/new Matrix(),
+                        /*mirroring=*/false),
                 new Size(WIDTH, HEIGHT),
                 /*isFrontCamera=*/false);
         PreviewViewMeteringPointFactory previewViewMeteringPointFactory =
@@ -97,7 +98,8 @@ public class PreviewViewMeteringPointFactoryTest {
                         /*rotationDegrees=*/0,
                         Surface.ROTATION_0,
                         /*hasCameraTransform=*/true,
-                        /*sensorToBufferTransform=*/new Matrix()),
+                        /*sensorToBufferTransform=*/new Matrix(),
+                        /*mirroring=*/false),
                 new Size(WIDTH, HEIGHT),
                 /*isFrontCamera=*/false);
         PreviewViewMeteringPointFactory previewViewMeteringPointFactory =

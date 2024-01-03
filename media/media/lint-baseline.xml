@@ -2,24 +2,6 @@
 <issues format="6" by="lint 8.1.0-beta05" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta05)" variant="all" version="8.1.0-beta05">
 
     <issue
-        id="PrereleaseSdkCoreDependency"
-        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
-        errorLine1="            if (BuildCompat.isAtLeastU()) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="PrereleaseSdkCoreDependency"
-        message="Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core"
-        errorLine1="            if (BuildCompat.isAtLeastU()) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
         errorLine1="oneway interface IMediaControllerCallback {"

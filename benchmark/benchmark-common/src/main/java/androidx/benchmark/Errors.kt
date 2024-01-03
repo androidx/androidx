@@ -189,7 +189,9 @@ object Errors {
                     |    be avoided, due to measurement inaccuracy.
                 """.trimMarginWrapNewlines()
             } else if (
-                Build.VERSION.SDK_INT >= 29 && !context.isProfileableByShell()
+                DeviceInfo.profileableEnforced &&
+                Build.VERSION.SDK_INT >= 29 &&
+                !context.isProfileableByShell()
             ) {
                 warningPrefix += "SIMPLEPERF_"
                 warningString += """

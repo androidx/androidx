@@ -96,6 +96,7 @@ dependencies {
     implementation(libs.apacheCommonsCodec)
     implementation(libs.intellijAnnotations)
     testImplementation(libs.truth)
+    testImplementation(project(":kruth:kruth"))
     testImplementation(libs.testParameterInjector)
     testImplementation(libs.autoValue) // to access the processor in tests
     testImplementation(libs.autoServiceAnnotations)

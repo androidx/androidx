@@ -22,6 +22,7 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.keyframes
@@ -54,6 +55,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -116,7 +118,8 @@ fun SimpleAnimatedContentSample() {
         Box(
             Modifier
                 .size(200.dp)
-                .background(Color(0xffffdb00)))
+                .background(Color(0xffffdb00))
+        )
     }
 
     @Composable
@@ -124,7 +127,8 @@ fun SimpleAnimatedContentSample() {
         Box(
             Modifier
                 .size(40.dp)
-                .background(Color(0xffff8100)))
+                .background(Color(0xffff8100))
+        )
     }
 
     @Composable
@@ -132,7 +136,8 @@ fun SimpleAnimatedContentSample() {
         Box(
             Modifier
                 .size(80.dp, 20.dp)
-                .background(Color(0xffff4400)))
+                .background(Color(0xffff4400))
+        )
     }
 
     var contentState: ContentState by remember { mutableStateOf(ContentState.Foo) }
@@ -301,6 +306,30 @@ fun SlideIntoContainerSample() {
                 NestedMenuState.Level3 -> 3f
             }
         }
+    }
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Suppress("UNUSED_VARIABLE")
+@Sampled
+@Composable
+fun ScaleInToFitContainerSample() {
+    // enum class CartState { Expanded, Collapsed }
+    // This is an example of scaling both the incoming content and outgoing content to fit in the
+    // animating container size while animating alpha.
+    val transitionSpec: AnimatedContentTransitionScope<CartState>.() -> ContentTransform = {
+        // Fade in while scaling the content.
+        fadeIn() + scaleInToFitContainer() togetherWith
+            // Fade out outgoing content while scaling it. It is important
+            // to combine `scaleOutToFitContainer` with another ExitTransition that defines
+            // a timeframe for the exit (such as fade/shrink/slide/Hold).
+            fadeOut() + scaleOutToFitContainer(
+                // Default alignment is the content alignment defined in AnimatedContent
+                Alignment.Center,
+                // Content will be scaled based on the height of the content. Default content
+                // scale is ContentScale.FillWidth.
+                ContentScale.FillHeight
+            )
     }
 }
 

@@ -19,8 +19,8 @@ package androidx.core.performance.samples
 import android.app.Application
 import android.os.Build
 import androidx.annotation.Sampled
+import androidx.core.performance.DefaultDevicePerformance
 import androidx.core.performance.DevicePerformance
-import androidx.core.performance.play.services.PlayServicesDevicePerformanceSupplier
 
 @Sampled
 fun usage() {
@@ -30,13 +30,13 @@ fun usage() {
         private lateinit var devicePerformance: DevicePerformance
 
         override fun onCreate() {
-            devicePerformance =
-                PlayServicesDevicePerformanceSupplier.createDevicePerformance(applicationContext)
+            // use a DevicePerformance derived class
+            devicePerformance = DefaultDevicePerformance()
         }
 
         fun doSomeThing() {
             when {
-                devicePerformance.mediaPerformanceClass >= Build.VERSION_CODES.S -> {
+                devicePerformance.mediaPerformanceClass >= Build.VERSION_CODES.TIRAMISU -> {
                     // Provide the most premium experience for highest performing devices
                 }
                 devicePerformance.mediaPerformanceClass == Build.VERSION_CODES.R -> {

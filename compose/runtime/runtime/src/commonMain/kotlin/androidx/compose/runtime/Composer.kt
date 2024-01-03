@@ -2007,18 +2007,14 @@ internal class ComposerImpl(
         if (inserting) {
             providers = parentScope.putValue(local, state)
             invalid = false
+            writerHasAProvider = true
         } else {
             val oldScope = reader.groupAux(reader.currentGroup) as PersistentCompositionLocalMap
             providers =
                 if ((!skipping || change) && (value.canOverride || !parentScope.contains(local)))
                     parentScope.putValue(local, state)
                 else oldScope
-            if (oldScope !== providers) {
-                invalid = true
-                writerHasAProvider = true
-            } else {
-                invalid = false
-            }
+            invalid = reusing || oldScope !== providers
         }
         if (invalid && !inserting) {
             providerUpdates[reader.currentGroup] = providers
@@ -3334,6 +3330,7 @@ internal class ComposerImpl(
     private fun reportFreeMovableContent(groupBeingRemoved: Int) {
 
         fun reportGroup(group: Int, needsNodeDelete: Boolean, nodeIndex: Int): Int {
+            val reader = reader
             return if (reader.hasMark(group)) {
                 // If the group has a mark then it is either a movable content group or a
                 // composition context group
@@ -3391,7 +3388,7 @@ internal class ComposerImpl(
                         }
                     }
                     reader.nodeCount(group)
-                } else reader.nodeCount(group)
+                } else if (reader.isNode(group)) 1 else reader.nodeCount(group)
             } else if (reader.containsMark(group)) {
                 // Traverse the group freeing the child movable content. This group is known to
                 // have at least one child that contains movable content because the group is
@@ -3424,8 +3421,8 @@ internal class ComposerImpl(
                     }
                     current += reader.groupSize(current)
                 }
-                runningNodeCount
-            } else reader.nodeCount(group)
+                if (reader.isNode(group)) 1 else runningNodeCount
+            } else if (reader.isNode(group)) 1 else reader.nodeCount(group)
         }
         reportGroup(groupBeingRemoved, needsNodeDelete = false, nodeIndex = 0)
         changeListWriter.endNodeMovement()

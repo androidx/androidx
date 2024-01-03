@@ -54,7 +54,7 @@ internal class MetricsContainer(
     internal val data: List<LongArray> = List(repeatCount) { LongArray(names.size) }
 
     /**
-     * Array of start / stop time, per measurement, to be passed to [UserspaceTracing].
+     * Array of start / stop time, per measurement, to be passed to [InMemoryTracing].
      *
      * These values are used both in metric calculation and trace data, so tracing is extremely low
      * overhead - just the cost of storing the timing data in an additional place in memory.
@@ -135,8 +135,8 @@ internal class MetricsContainer(
      */
     fun captureFinished(maxIterations: Int): List<MetricResult> {
         for (i in 0..repeatTiming.lastIndex step 2) {
-            UserspaceTracing.beginSection("measurement ${i / 2}", nanoTime = repeatTiming[i])
-            UserspaceTracing.endSection(nanoTime = repeatTiming[i + 1])
+            InMemoryTracing.beginSection("measurement ${i / 2}", nanoTime = repeatTiming[i])
+            InMemoryTracing.endSection(nanoTime = repeatTiming[i + 1])
         }
 
         return names.mapIndexed { index, name ->

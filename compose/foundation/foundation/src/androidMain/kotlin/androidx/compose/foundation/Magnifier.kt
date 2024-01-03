@@ -425,7 +425,8 @@ internal class MagnifierNode(
         // if the zoom changes between recompositions we don't need to recreate the magnifier. On
         // older platforms, the zoom can only be set initially, so we use the zoom itself as a key
         // so the magnifier gets recreated if it changes.
-        if ((zoom != previousZoom && !platformMagnifierFactory.canUpdateZoom) ||
+        if (magnifier == null ||
+            (zoom != previousZoom && !platformMagnifierFactory.canUpdateZoom) ||
             style != previousStyle ||
             platformMagnifierFactory != previousPlatformMagnifierFactory) {
             recreateMagnifier()
@@ -449,7 +450,7 @@ internal class MagnifierNode(
             val previousDensity = density
             val density = currentValueOf(LocalDensity).also { this.density = it }
 
-            if (view != previousView || density != previousDensity) {
+            if (magnifier == null || view != previousView || density != previousDensity) {
                 recreateMagnifier()
             }
 

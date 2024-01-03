@@ -21,7 +21,6 @@ import androidx.build.uptodatedness.EnableCachingKt
 import androidx.build.Version
 
 import com.android.build.gradle.LibraryExtension
-import com.android.build.gradle.api.AndroidSourceDirectorySet
 import com.android.build.gradle.api.SourceKind
 import com.google.common.io.Files
 import org.apache.commons.io.FileUtils
@@ -382,8 +381,6 @@ class ProtocolLocation {
     }
 }
 
-LibraryExtension library = project.extensions.getByType(LibraryExtension.class)
-
 def getLibraryExtension() {
     return project.extensions.findByType(LibraryExtension.class)
 }
@@ -412,12 +409,13 @@ public FileCollection getSourceCollection() {
     return sourceCollection
 }
 
-def writeCarApiLevelFileTask = tasks.register("writeCarApiLevelFile", ApiLevelFileWriterTask) { task ->
-    task.outputDir.set(new File(project.buildDir, "generatedResources"))
-}
+def writeCarApiLevel = tasks.register("writeCarApiLevelFile", ApiLevelFileWriterTask)
 
-AndroidSourceDirectorySet resources = library.sourceSets.getByName("main").resources
-resources.srcDir(writeCarApiLevelFileTask.map {it.outputDir })
+androidComponents {
+    onVariants(selector().all(), { variant ->
+        variant.sources.resources.addGeneratedSourceDirectory(writeCarApiLevel, { it.outputDir })
+    })
+}
 
 // afterEvaluate required to read extension properties
 afterEvaluate {
@@ -465,10 +463,3 @@ afterEvaluate {
     EnableCachingKt.cacheEvenIfNoOutputs(checkProtocolApiCompat)
     checkApi.dependsOn(checkProtocolApi)
 }
-
-library.libraryVariants.all { variant ->
-    variant.processJavaResourcesProvider.configure {
-        it.dependsOn(writeCarApiLevelFile)
-    }
-}
-

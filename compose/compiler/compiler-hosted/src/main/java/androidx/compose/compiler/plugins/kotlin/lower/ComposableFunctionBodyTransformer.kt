@@ -1689,12 +1689,20 @@ class ComposableFunctionBodyTransformer(
         )
 
         if (defaultParam == null) {
-            require(parameterCount == defaultIndex) // param count is 1-based, index is 0-based
+            // param count is 1-based, index is 0-based
+            require(parameterCount == defaultIndex) {
+                "Expected $defaultIndex params for ${function.fqNameWhenAvailable}, " +
+                    "found $parameterCount"
+            }
         } else {
+            val expectedParamCount = defaultIndex +
+                defaultParamCount(contextParameterCount + numRealValueParameters)
             require(
-                parameterCount == defaultIndex +
-                    defaultParamCount(contextParameterCount + numRealValueParameters)
-            )
+                parameterCount == expectedParamCount
+            ) {
+                "Expected $expectedParamCount params for ${function.fqNameWhenAvailable}, " +
+                    "found $parameterCount"
+            }
         }
 
         val lambda = irLambdaExpression(
@@ -2694,6 +2702,9 @@ class ComposableFunctionBodyTransformer(
                         }
                     }
                 }
+            }
+            arg is IrVararg -> {
+                meta.stability = stabilityOf(arg.varargElementType)
             }
         }
     }
@@ -3877,7 +3888,6 @@ class ComposableFunctionBodyTransformer(
                         paramName.startsWith(KtxNameConventions.CHANGED_PARAMETER.identifier) ->
                             changedParams += param
                         paramName.startsWith("\$context_receiver_") ||
-                        paramName.startsWith("\$anonymous\$parameter") ||
                         paramName.startsWith("\$name\$for\$destructuring") ||
                         paramName.startsWith("\$noName_") ||
                         paramName == "\$this" -> Unit

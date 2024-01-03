@@ -27,8 +27,8 @@ import androidx.camera.core.imagecapture.Utils.ROTATION_DEGREES
 import androidx.camera.core.imagecapture.Utils.WIDTH
 import androidx.camera.core.impl.utils.Exif.createFromInputStream
 import androidx.camera.core.processing.Packet
-import androidx.camera.testing.TestImageUtil.createYuvFakeImageProxy
-import androidx.camera.testing.fakes.FakeImageInfo
+import androidx.camera.testing.impl.TestImageUtil.createYuvFakeImageProxy
+import androidx.camera.testing.impl.fakes.FakeImageInfo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest

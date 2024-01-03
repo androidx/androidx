@@ -3,10 +3,8 @@ package com.mysdk
 import android.content.Context
 import com.myotherpackage.MyOtherPackageDataClassConverter
 import com.myotherpackage.ParcelableMyOtherPackageDataClass
-import com.mysdk.PrivacySandboxThrowableParcelConverter
 import com.mysdk.PrivacySandboxThrowableParcelConverter.toThrowableParcel
 import kotlin.IntArray
-import kotlin.Unit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -17,8 +15,7 @@ public class MyMainPackageInterfaceStubDelegate internal constructor(
 ) : IMyMainPackageInterface.Stub() {
   private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main)
 
-  public override fun doIntStuff(x: IntArray, transactionCallback: IListIntTransactionCallback):
-      Unit {
+  public override fun doIntStuff(x: IntArray, transactionCallback: IListIntTransactionCallback) {
     val job = coroutineScope.launch {
       try {
         val result = delegate.doIntStuff(x.toList())
@@ -33,7 +30,7 @@ public class MyMainPackageInterfaceStubDelegate internal constructor(
   }
 
   public override fun useDataClass(x: ParcelableMyOtherPackageDataClass,
-      transactionCallback: IMyOtherPackageDataClassTransactionCallback): Unit {
+      transactionCallback: IMyOtherPackageDataClassTransactionCallback) {
     val job = coroutineScope.launch {
       try {
         val result =

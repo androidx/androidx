@@ -16,9 +16,14 @@
 package androidx.compose.material
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.samples.BottomNavigationSample
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertIsEqualTo
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -132,6 +137,31 @@ class BottomNavigationTest {
     }
 
     @Test
+    fun bottomNavigation_size_withInsets() {
+        val height = 56.dp
+        val fakeInset = 5.dp
+        rule.setMaterialContentForSizeAssertions {
+            var selectedItem by remember { mutableStateOf(0) }
+            val items = listOf("Songs", "Artists", "Playlists")
+
+            BottomNavigation(
+                windowInsets = WindowInsets(fakeInset, fakeInset, fakeInset, fakeInset),
+            ) {
+                items.forEachIndexed { index, item ->
+                    BottomNavigationItem(
+                        icon = { Icon(Icons.Filled.Favorite, contentDescription = null) },
+                        label = { Text(item) },
+                        selected = selectedItem == index,
+                        onClick = { selectedItem = index }
+                    )
+                }
+            }
+        }
+            .assertWidthIsEqualTo(rule.rootWidth())
+            .assertHeightIsEqualTo(height + fakeInset * 2)
+    }
+
+    @Test
     fun bottomNavigationItem_sizeAndPositions() {
         lateinit var parentCoords: LayoutCoordinates
         val itemCoords = mutableMapOf<Int, LayoutCoordinates>()
@@ -170,6 +200,54 @@ class BottomNavigationTest {
                 Truth.assertThat(coord.size.height).isEqualTo(expectedItemHeight)
                 Truth.assertThat(coord.positionInWindow().x)
                     .isEqualTo((expectedItemWidth * index).toFloat())
+            }
+        }
+    }
+
+    @Test
+    fun bottomNavigationItem_sizeAndPositions_withInsets() {
+        lateinit var parentCoords: LayoutCoordinates
+        val itemCoords = mutableMapOf<Int, LayoutCoordinates>()
+        val fakeInset = 6.dp
+        rule.setMaterialContent(
+            Modifier.onGloballyPositioned { coords: LayoutCoordinates ->
+                parentCoords = coords
+            }
+        ) {
+            Box {
+                BottomNavigation(
+                    windowInsets = WindowInsets(fakeInset, fakeInset, fakeInset, fakeInset),
+                ) {
+                    repeat(4) { index ->
+                        BottomNavigationItem(
+                            icon = { Icon(Icons.Filled.Favorite, null) },
+                            label = { Text("Item $index") },
+                            selected = index == 0,
+                            onClick = {},
+                            modifier = Modifier.onGloballyPositioned { coords ->
+                                itemCoords[index] = coords
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdleWithDensity {
+            val totalWidth = parentCoords.size.width
+
+            val expectedItemWidth = (totalWidth - fakeInset.roundToPx() * 2) / 4
+            val expectedItemHeight = 56.dp.roundToPx()
+
+            Truth.assertThat(itemCoords.size).isEqualTo(4)
+
+            itemCoords.forEach { (index, coord) ->
+                Truth.assertThat(coord.size.width).isEqualTo(expectedItemWidth)
+                Truth.assertThat(coord.size.height).isEqualTo(expectedItemHeight)
+                Truth.assertThat(coord.positionInWindow().x)
+                    .isEqualTo((expectedItemWidth * index + fakeInset.roundToPx()).toFloat())
+                Truth.assertThat(coord.positionInWindow().y)
+                    .isEqualTo(fakeInset.roundToPx().toFloat())
             }
         }
     }

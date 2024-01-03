@@ -39,6 +39,14 @@ public class CarMessageTest {
         // assert no crash
     }
 
+    /** Ensure the builder does not fail for the minimum set of required fields. */
+    @Test
+    public void build_withRequiredFieldsOnly_multimedia() {
+        TestConversationFactory.createMinimalMultimediaMessage();
+
+        // assert no crash
+    }
+
     /** Ensure the builder does not fail when all fields are assigned. */
     @Test
     public void build_withAllFields() {
@@ -47,18 +55,52 @@ public class CarMessageTest {
         // assert no crash
     }
 
-    // Ignore nullability, so we can null out a builder field
-    @SuppressWarnings("ConstantConditions")
     @Test
-    public void build_throwsException_ifMessageBodyMissing() {
+    public void build_throwsException_ifMultimediaDataIncomplete() {
         assertThrows(
-                NullPointerException.class,
-                () -> TestConversationFactory.createMinimalMessageBuilder()
-                        .setBody(null)
+                IllegalStateException.class,
+                () -> TestConversationFactory.createMinimalMultimediaMessageBuilder()
+                        .setMultimediaMimeType(null)
+                        .build()
+        );
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> TestConversationFactory.createMinimalMultimediaMessageBuilder()
+                        .setMultimediaUri(null)
+                        .build()
+        );
+
+        // Even if the message has valid body text, incomplete multimedia metadata is still
+        // considered invalid
+        assertThrows(
+                IllegalStateException.class,
+                () -> TestConversationFactory.createFullyPopulatedMessageBuilder()
+                        .setMultimediaMimeType(null)
+                        .build()
+        );
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> TestConversationFactory.createFullyPopulatedMessageBuilder()
+                        .setMultimediaUri(null)
                         .build()
         );
     }
 
+    @Test
+    public void build_throwsException_ifNoContent() {
+        assertThrows(
+                IllegalStateException.class,
+                () -> TestConversationFactory.createFullyPopulatedMessageBuilder()
+                        .setBody(null)
+                        .setMultimediaMimeType(null)
+                        .setMultimediaUri(null)
+                        .build()
+        );
+    }
+
+    @Test
     public void build_throwsException_ifSenderNameMissing() {
         assertThrows(
                 NullPointerException.class,
@@ -70,6 +112,7 @@ public class CarMessageTest {
         );
     }
 
+    @Test
     public void build_throwsException_ifSenderKeyMissing() {
         assertThrows(
                 NullPointerException.class,

@@ -570,6 +570,7 @@ class TextFieldKeyEventTest {
         }
     }
 
+    @Ignore // b/293919923
     @Test
     fun textField_withActiveSelection_shiftTabSingleLine() {
         keysSequenceTest("text", singleLine = true) {

@@ -42,7 +42,9 @@ public class ContentTemplateConstraints {
     public static final ContentTemplateConstraints MAP_WITH_CONTENT_TEMPLATE_CONSTRAINTS =
             new ContentTemplateConstraints(ImmutableSet.of(
                     GridTemplate.class,
-                    MessageTemplate.class
+                    MessageTemplate.class,
+                    ListTemplate.class,
+                    PaneTemplate.class
             ));
 
     /** Allowed templates for TabContents */

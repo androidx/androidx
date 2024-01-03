@@ -588,7 +588,7 @@ object Shell {
             if (runningProcesses.isEmpty()) {
                 return
             }
-            userspaceTrace("wait for $runningProcesses to die") {
+            inMemoryTrace("wait for $runningProcesses to die") {
                 SystemClock.sleep(waitPollPeriodMs)
             }
             Log.d(BenchmarkState.TAG, "Waiting $waitPollPeriodMs ms for $runningProcesses to die")
@@ -608,6 +608,34 @@ object Shell {
             .substringAfter("Broadcast completed: result=")
             .trim()
             .toIntOrNull()
+    }
+
+    @RequiresApi(21)
+    fun disablePackages(appPackages: List<String>) {
+        val command = appPackages.joinToString(separator = "\n") { appPackage ->
+            "pm disable-user $appPackage"
+        }
+        executeScriptCaptureStdoutStderr(command)
+    }
+
+    @RequiresApi(21)
+    fun enablePackages(appPackages: List<String>) {
+        val command = appPackages.joinToString(separator = "\n") { appPackage ->
+            "pm enable $appPackage"
+        }
+        executeScriptCaptureStdoutStderr(command)
+    }
+
+    @RequiresApi(24)
+    fun disableBackgroundDexOpt() {
+        // Cancels the active job if any
+        ShellImpl.executeCommandUnsafe("cmd package bg-dexopt-job --cancel")
+        ShellImpl.executeCommandUnsafe("cmd package bg-dexopt-job --disable")
+    }
+
+    @RequiresApi(24)
+    fun enableBackgroundDexOpt() {
+        ShellImpl.executeCommandUnsafe("cmd package bg-dexopt-job --enable")
     }
 
     @RequiresApi(21)

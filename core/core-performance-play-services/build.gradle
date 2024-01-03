@@ -26,12 +26,9 @@ dependencies {
     api(libs.kotlinStdlib)
 
     implementation(libs.playServicesDevicePerformance)
-
-    // Coroutines
     implementation(libs.kotlinCoroutinesCore)
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.1.1")
-
     implementation(project(":core:core-performance"))
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
 
     testImplementation(libs.testCore)
     testImplementation(libs.kotlinStdlib)

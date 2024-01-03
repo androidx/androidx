@@ -16,11 +16,13 @@
 
 package androidx.compose.foundation.lazy.staggeredgrid
 
-import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateItemModifierNode
+import androidx.compose.foundation.lazy.layout.LazyLayoutAnimation
+import androidx.compose.foundation.lazy.layout.LazyLayoutAnimationSpecsNode
 import androidx.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
+import kotlinx.coroutines.CoroutineScope
 
 /**
  * Handles the item placement animations when it is set via
@@ -58,7 +60,8 @@ internal class LazyStaggeredGridItemPlacementAnimator {
         positionedItems: MutableList<LazyStaggeredGridMeasuredItem>,
         itemProvider: LazyStaggeredGridMeasureProvider,
         isVertical: Boolean,
-        laneCount: Int
+        laneCount: Int,
+        coroutineScope: CoroutineScope
     ) {
         if (!positionedItems.fastAny { it.hasAnimations } && keyToItemInfoMap.isEmpty()) {
             // no animations specified - no work needed
@@ -90,8 +93,9 @@ internal class LazyStaggeredGridItemPlacementAnimator {
                 val itemInfo = keyToItemInfoMap[item.key]
                 // there is no state associated with this item yet
                 if (itemInfo == null) {
-                    keyToItemInfoMap[item.key] =
-                        ItemInfo(item.lane, item.span, item.crossAxisOffset)
+                    val newItemInfo = ItemInfo(item.lane, item.span, item.crossAxisOffset)
+                    newItemInfo.updateAnimation(item, coroutineScope)
+                    keyToItemInfoMap[item.key] = newItemInfo
                     val previousIndex = previousKeyToIndexMap.getIndex(item.key)
                     if (previousIndex != -1 && item.index != previousIndex) {
                         if (previousIndex < previousFirstVisibleIndex) {
@@ -101,15 +105,18 @@ internal class LazyStaggeredGridItemPlacementAnimator {
                             movingInFromEndBound.add(item)
                         }
                     } else {
-                        initializeNode(
+                        initializeAnimation(
                             item,
-                            item.offset.let { if (item.isVertical) it.y else it.x }
+                            item.offset.let { if (item.isVertical) it.y else it.x },
+                            newItemInfo
                         )
                     }
                 } else {
-                    item.forEachNode {
-                        if (it.rawOffset != LazyLayoutAnimateItemModifierNode.NotInitialized) {
-                            it.rawOffset += scrollOffset
+                    itemInfo.animations.forEach { animation ->
+                        if (animation != null &&
+                            animation.rawOffset != LazyLayoutAnimation.NotInitialized
+                        ) {
+                            animation.rawOffset += scrollOffset
                         }
                     }
                     itemInfo.lane = item.lane
@@ -129,7 +136,7 @@ internal class LazyStaggeredGridItemPlacementAnimator {
             movingInFromStartBound.fastForEach { item ->
                 accumulatedOffsetPerLane[item.lane] += item.mainAxisSize
                 val mainAxisOffset = 0 - accumulatedOffsetPerLane[item.lane]
-                initializeNode(item, mainAxisOffset)
+                initializeAnimation(item, mainAxisOffset)
                 startAnimationsIfNeeded(item)
             }
             accumulatedOffsetPerLane.fill(0)
@@ -139,7 +146,7 @@ internal class LazyStaggeredGridItemPlacementAnimator {
             movingInFromEndBound.fastForEach { item ->
                 val mainAxisOffset = mainAxisLayoutSize + accumulatedOffsetPerLane[item.lane]
                 accumulatedOffsetPerLane[item.lane] += item.mainAxisSize
-                initializeNode(item, mainAxisOffset)
+                initializeAnimation(item, mainAxisOffset)
                 startAnimationsIfNeeded(item)
             }
             accumulatedOffsetPerLane.fill(0)
@@ -159,13 +166,8 @@ internal class LazyStaggeredGridItemPlacementAnimator {
                     SpanRange(itemInfo.lane, itemInfo.span)
                 )
                 // check if we have any active placement animation on the item
-                var inProgress = false
-                repeat(item.placeablesCount) {
-                    if (item.getParentData(it).node?.isAnimationInProgress == true) {
-                        inProgress = true
-                        return@repeat
-                    }
-                }
+                val inProgress =
+                    itemInfo.animations.any { it?.isPlacementAnimationInProgress == true }
                 if ((!inProgress && newIndex == previousKeyToIndexMap.getIndex(key))) {
                     keyToItemInfoMap.remove(key)
                 } else {
@@ -221,9 +223,10 @@ internal class LazyStaggeredGridItemPlacementAnimator {
         firstVisibleIndex = -1
     }
 
-    private fun initializeNode(
+    private fun initializeAnimation(
         item: LazyStaggeredGridMeasuredItem,
-        mainAxisOffset: Int
+        mainAxisOffset: Int,
+        itemInfo: ItemInfo = keyToItemInfoMap.getValue(item.key)
     ) {
         val firstPlaceableOffset = item.offset
 
@@ -234,45 +237,84 @@ internal class LazyStaggeredGridItemPlacementAnimator {
         }
 
         // initialize offsets
-        item.forEachNode { node ->
-            val diffToFirstPlaceableOffset =
-                item.offset - firstPlaceableOffset
-            node.rawOffset = targetFirstPlaceableOffset + diffToFirstPlaceableOffset
+        itemInfo.animations.forEach { animation ->
+            if (animation != null) {
+                val diffToFirstPlaceableOffset =
+                    item.offset - firstPlaceableOffset
+                animation.rawOffset = targetFirstPlaceableOffset + diffToFirstPlaceableOffset
+            }
         }
     }
 
     private fun startAnimationsIfNeeded(item: LazyStaggeredGridMeasuredItem) {
-        item.forEachNode { node ->
-            val newTarget = item.offset
-            val currentTarget = node.rawOffset
-            if (currentTarget != LazyLayoutAnimateItemModifierNode.NotInitialized &&
-                currentTarget != newTarget
-            ) {
-                node.animatePlacementDelta(newTarget - currentTarget)
+        val itemInfo = keyToItemInfoMap.getValue(item.key)
+        itemInfo.animations.forEach { animation ->
+            if (animation != null) {
+                val newTarget = item.offset
+                val currentTarget = animation.rawOffset
+                if (currentTarget != LazyLayoutAnimation.NotInitialized &&
+                    currentTarget != newTarget
+                ) {
+                    animation.animatePlacementDelta(newTarget - currentTarget)
+                }
+                animation.rawOffset = newTarget
             }
-            node.rawOffset = newTarget
         }
     }
 
-    private val Any?.node get() = this as? LazyLayoutAnimateItemModifierNode
+    fun getAnimation(key: Any, placeableIndex: Int): LazyLayoutAnimation? =
+        keyToItemInfoMap[key]?.animations?.get(placeableIndex)
 
     private val LazyStaggeredGridMeasuredItem.hasAnimations: Boolean
         get() {
-            forEachNode { return true }
+            repeat(placeablesCount) { index ->
+                getParentData(index).specs?.let {
+                    // found at least one
+                    return true
+                }
+            }
             return false
         }
-
-    private inline fun LazyStaggeredGridMeasuredItem.forEachNode(
-        block: (LazyLayoutAnimateItemModifierNode) -> Unit
-    ) {
-        repeat(placeablesCount) { index ->
-            getParentData(index).node?.let(block)
-        }
-    }
 }
 
 private class ItemInfo(
     var lane: Int,
     var span: Int,
     var crossAxisOffset: Int
-)
+) {
+    /**
+     * This array will have the same amount of elements as there are placeables on the item.
+     * If the element is not null this means there are specs associated with the given placeable.
+     */
+    var animations = EmptyArray
+        private set
+
+    fun updateAnimation(
+        positionedItem: LazyStaggeredGridMeasuredItem,
+        coroutineScope: CoroutineScope
+    ) {
+        for (i in positionedItem.placeablesCount until animations.size) {
+            animations[i]?.stopAnimations()
+        }
+        if (animations.size != positionedItem.placeablesCount) {
+            animations = animations.copyOf(positionedItem.placeablesCount)
+        }
+        repeat(positionedItem.placeablesCount) { index ->
+            val specs = positionedItem.getParentData(index).specs
+            if (specs == null) {
+                animations[index]?.stopAnimations()
+                animations[index] = null
+            } else {
+                val item = animations[index] ?: LazyLayoutAnimation(coroutineScope).also {
+                    animations[index] = it
+                }
+                item.appearanceSpec = specs.appearanceSpec
+                item.placementSpec = specs.placementSpec
+            }
+        }
+    }
+}
+
+private val Any?.specs get() = this as? LazyLayoutAnimationSpecsNode
+
+private val EmptyArray = emptyArray<LazyLayoutAnimation?>()

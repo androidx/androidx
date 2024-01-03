@@ -23,7 +23,7 @@ import androidx.camera.core.DynamicRange
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.EncoderProfilesProxy
 import androidx.camera.core.impl.Timebase
-import androidx.camera.testing.EncoderProfilesUtil
+import androidx.camera.testing.impl.EncoderProfilesUtil
 import androidx.camera.video.VideoSpec
 import androidx.camera.video.internal.encoder.VideoEncoderDataSpace
 import androidx.test.ext.junit.runners.AndroidJUnit4

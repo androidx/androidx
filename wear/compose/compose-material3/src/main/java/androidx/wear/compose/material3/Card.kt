@@ -198,7 +198,7 @@ fun AppCard(
         appName = {
             CompositionLocalProvider(
                 LocalContentColor provides colors.appNameColor,
-                LocalTextStyle provides MaterialTheme.typography.captionLarge,
+                LocalTextStyle provides MaterialTheme.typography.labelSmall,
             ) {
                 appName()
             }
@@ -207,7 +207,7 @@ fun AppCard(
             {
                 CompositionLocalProvider(
                     LocalContentColor provides colors.timeColor,
-                    LocalTextStyle provides MaterialTheme.typography.captionLarge,
+                    LocalTextStyle provides MaterialTheme.typography.labelSmall,
                 ) {
                     time()
                 }
@@ -325,7 +325,7 @@ fun TitleCard(
                 Spacer(modifier = Modifier.weight(1.0f))
                 CompositionLocalProvider(
                     LocalContentColor provides colors.timeColor,
-                    LocalTextStyle provides MaterialTheme.typography.captionLarge,
+                    LocalTextStyle provides MaterialTheme.typography.labelSmall,
                 ) {
                     time()
                 }

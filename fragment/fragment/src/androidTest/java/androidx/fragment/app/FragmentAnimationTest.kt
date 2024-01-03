@@ -83,6 +83,7 @@ class FragmentAnimationTest {
         activityRule.waitForExecution()
 
         assertEnterPopExit(fragment)
+        assertThat(fragment.onResumeCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
     }
 
     // Ensure that removing and popping a Fragment uses the exit and popEnter animators
@@ -94,6 +95,7 @@ class FragmentAnimationTest {
         val fragment = AnimationFragment()
         fm.beginTransaction().add(R.id.fragmentContainer, fragment, "1").commit()
         activityRule.waitForExecution()
+        assertThat(fragment.onResumeCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
 
         fm.beginTransaction()
             .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
@@ -199,6 +201,8 @@ class FragmentAnimationTest {
             .add(R.id.fragmentContainer, fragment2, "2")
             .commit()
         activityRule.waitForExecution()
+        assertThat(fragment1.onResumeCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(fragment2.onResumeCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
 
         val fragment3 = AnimationFragment()
         fm.beginTransaction()
@@ -207,6 +211,7 @@ class FragmentAnimationTest {
             .addToBackStack(null)
             .commit()
         activityRule.waitForExecution()
+        assertThat(fragment3.onResumeCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
 
         assertFragmentAnimation(fragment1, 1, false, EXIT)
         assertFragmentAnimation(fragment2, 1, false, EXIT)
@@ -1078,6 +1083,7 @@ class FragmentAnimationTest {
         var enter: Boolean = false
         var resourceId: Int = 0
         var loadedAnimation = 0
+        val onResumeCountDownLatch = CountDownLatch(1)
 
         override fun onCreateAnimation(transit: Int, enter: Boolean, nextAnim: Int): Animation? {
             if (nextAnim == 0 ||
@@ -1092,6 +1098,11 @@ class FragmentAnimationTest {
             resourceId = nextAnim
             this.enter = enter
             return animation
+        }
+
+        override fun onResume() {
+            super.onResume()
+            onResumeCountDownLatch.countDown()
         }
     }
 

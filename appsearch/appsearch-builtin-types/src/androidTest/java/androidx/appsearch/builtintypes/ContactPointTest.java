@@ -244,5 +244,10 @@ public class ContactPointTest {
         assertThat(doc.getPropertyStringArray("email")).asList().isEqualTo(emails);
         assertThat(doc.getPropertyStringArray("address")).asList().isEqualTo(addresses);
         assertThat(doc.getPropertyStringArray("telephone")).asList().isEqualTo(telephones);
+
+        // Test that toDocumentClass doesn't lose information.
+        GenericDocument newDoc = GenericDocument.fromDocumentClass(
+                doc.toDocumentClass(ContactPoint.class));
+        assertThat(newDoc).isEqualTo(doc);
     }
 }

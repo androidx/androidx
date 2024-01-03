@@ -16,7 +16,6 @@
 
 package androidx.compose.integration.macrobenchmark.target
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -74,7 +73,6 @@ class LazyBoxWithConstraintsActivity : ComponentActivity() {
     }
 }
 
-@SuppressLint("UnusedBoxWithConstraintsScope") // Need the nested subcompose layout for testing
 @Composable
 private fun NonLazyRow(entry: NestedListEntry) {
     BoxWithConstraints {

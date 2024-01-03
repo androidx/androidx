@@ -22,7 +22,7 @@ import android.util.Size
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT
 import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType
-import androidx.camera.testing.fakes.FakeUseCaseConfig
+import androidx.camera.testing.impl.fakes.FakeUseCaseConfig
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

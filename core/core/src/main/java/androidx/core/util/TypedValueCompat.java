@@ -23,13 +23,19 @@ import static android.util.TypedValue.COMPLEX_UNIT_PT;
 import static android.util.TypedValue.COMPLEX_UNIT_PX;
 import static android.util.TypedValue.COMPLEX_UNIT_SP;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 
 import androidx.annotation.DoNotInline;
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * Container for a dynamically typed data value.  Primarily used with
@@ -38,6 +44,19 @@ import androidx.annotation.RequiresApi;
  * <p>Used to convert between dimension values like DP and SP to pixels, and vice versa.
  */
 public class TypedValueCompat {
+    /** The unit of a {@link TypedValue#TYPE_DIMENSION} */
+    @IntDef(value = {
+            COMPLEX_UNIT_PX,
+            COMPLEX_UNIT_DIP,
+            COMPLEX_UNIT_SP,
+            COMPLEX_UNIT_PT,
+            COMPLEX_UNIT_IN,
+            COMPLEX_UNIT_MM,
+    })
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ComplexDimensionUnit {}
+
     private static final float INCHES_PER_PT = (1.0f / 72);
     private static final float INCHES_PER_MM = (1.0f / 25.4f);
 
@@ -50,6 +69,8 @@ public class TypedValueCompat {
      * @param complexDimension the dimension, typically {@link TypedValue#data}
      * @return The complex unit type
      */
+    @ComplexDimensionUnit
+    @SuppressLint("WrongConstant")
     public static int getUnitFromComplexDimension(int complexDimension) {
         return TypedValue.COMPLEX_UNIT_MASK & (complexDimension >> TypedValue.COMPLEX_UNIT_SHIFT);
     }
@@ -68,7 +89,7 @@ public class TypedValueCompat {
      * @throws IllegalArgumentException if unitToConvertTo is not valid.
      */
     public static float deriveDimension(
-            int unitToConvertTo,
+            @ComplexDimensionUnit int unitToConvertTo,
             float pixelValue,
             @NonNull DisplayMetrics metrics) {
         if (Build.VERSION.SDK_INT >= 34) {
@@ -179,8 +200,11 @@ public class TypedValueCompat {
     @RequiresApi(34)
     private static class Api34Impl {
         @DoNotInline
-        public static float deriveDimension(int unitToConvertTo, float pixelValue,
-                DisplayMetrics metrics) {
+        public static float deriveDimension(
+                @ComplexDimensionUnit int unitToConvertTo,
+                float pixelValue,
+                DisplayMetrics metrics
+        ) {
             return TypedValue.deriveDimension(unitToConvertTo, pixelValue, metrics);
         }
     }

@@ -107,6 +107,7 @@ class ClientProxyTypeGenerator(
 
     private fun toSuspendFunSpec(method: Method) =
         FunSpec.builder(method.name).build {
+            addModifiers(KModifier.PUBLIC)
             addModifiers(KModifier.OVERRIDE)
             addModifiers(KModifier.SUSPEND)
             addParameters(method.parameters.map { it.poetSpec() })
@@ -128,14 +129,14 @@ class ClientProxyTypeGenerator(
 
     private fun toNonSuspendFunSpec(method: Method) =
         FunSpec.builder(method.name).build {
-            addModifiers(KModifier.OVERRIDE)
+            addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
             addParameters(method.parameters.map { it.poetSpec() })
 
             addCode(generateRemoteCall(method))
         }
 
     private fun generateOpenSession() = FunSpec.builder("openSession").build {
-        addModifiers(KModifier.OVERRIDE)
+        addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
         addParameters(
             listOf(
                 ParameterSpec(contextPropertyName, contextClass),

@@ -260,10 +260,10 @@ public fun rememberRevealState(
  *
  * @param action The mandatory action that needs to be added to the component.
  * @param modifier Optional [Modifier] for this component.
- * @param state The [RevealState] of this component. It can be used to customise the anchors
- * and threshold config of the swipeable modifier which is applied.
  * @param onFullSwipe An optional lambda which will be triggered when a full swipe from either of
  * the anchors is performed.
+ * @param state The [RevealState] of this component. It can be used to customise the anchors
+ * and threshold config of the swipeable modifier which is applied.
  * @param additionalAction The optional action that can be added to the component.
  * @param undoAction The optional undo action that will be applied to the component once the
  * mandatory action has been performed.
@@ -322,38 +322,41 @@ public fun SwipeToReveal(
             label = "AdditionalActionAnimationSpec"
         )
 
-        Row(
-            modifier = Modifier.matchParentSize(),
-            horizontalArrangement = Arrangement.Absolute.Right
-        ) {
-            Crossfade(
-                targetState = swipeCompleted && undoAction != null,
-                animationSpec = tween(durationMillis = STANDARD_ANIMATION),
-                label = "CrossFadeS2R"
-            ) { displayUndo ->
-                if (displayUndo) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        ActionSlot(revealScope, content = undoAction!!)
-                    }
-                } else {
-                    Row(
-                        modifier = Modifier.width(availableWidth),
-                        horizontalArrangement = Arrangement.Absolute.Right
-                    ) {
-                        // weight cannot be 0 so remove the composable when weight becomes 0
-                        if (additionalAction != null && additionalActionWeight.value > 0) {
-                            Spacer(Modifier.size(SwipeToRevealDefaults.padding))
-                            ActionSlot(
-                                revealScope,
-                                content = additionalAction,
-                                weight = additionalActionWeight.value
-                            )
+        // Draw the buttons only when offset is greater than zero.
+        if (abs(state.offset) > 0) {
+            Row(
+                modifier = Modifier.matchParentSize(),
+                horizontalArrangement = Arrangement.Absolute.Right
+            ) {
+                Crossfade(
+                    targetState = swipeCompleted && undoAction != null,
+                    animationSpec = tween(durationMillis = STANDARD_ANIMATION),
+                    label = "CrossFadeS2R"
+                ) { displayUndo ->
+                    if (displayUndo) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            ActionSlot(revealScope, content = undoAction!!)
                         }
-                        Spacer(Modifier.size(SwipeToRevealDefaults.padding))
-                        ActionSlot(revealScope, content = action)
+                    } else {
+                        Row(
+                            modifier = Modifier.width(availableWidth),
+                            horizontalArrangement = Arrangement.Absolute.Right
+                        ) {
+                            // weight cannot be 0 so remove the composable when weight becomes 0
+                            if (additionalAction != null && additionalActionWeight.value > 0) {
+                                Spacer(Modifier.size(SwipeToRevealDefaults.padding))
+                                ActionSlot(
+                                    revealScope,
+                                    content = additionalAction,
+                                    weight = additionalActionWeight.value
+                                )
+                            }
+                            Spacer(Modifier.size(SwipeToRevealDefaults.padding))
+                            ActionSlot(revealScope, content = action)
+                        }
                     }
                 }
             }
@@ -385,12 +388,13 @@ public interface RevealScope {
      * anchor for [RevealValue.Revealing].
      * If there is no such anchor defined for [RevealValue.Revealing], it returns 0.0f.
      */
+    /* @FloatRange(from = 0.0) */
     public val revealOffset: Float
 }
 
 @OptIn(ExperimentalWearFoundationApi::class)
 private class RevealScopeImpl constructor(
-    private val revealState: RevealState
+    val revealState: RevealState,
 ) : RevealScope {
 
     /**
@@ -427,7 +431,9 @@ private fun RowScope.ActionSlot(
     content: @Composable RevealScope.() -> Unit
 ) {
     Box(
-        modifier = modifier.fillMaxHeight().weight(weight),
+        modifier = modifier
+            .fillMaxHeight()
+            .weight(weight),
         contentAlignment = Alignment.Center
     ) {
         with(revealScope) {

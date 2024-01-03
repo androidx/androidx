@@ -65,8 +65,8 @@ class StandardSubjectBuilder internal constructor(
      * use the previously set failure strategy and any previously set failure message.
      */
     fun <T, S : Subject<T>> about(
-        subjectFactory: Subject.Factory<T, S>,
-    ): SimpleSubjectBuilder<T, S> =
+        subjectFactory: Subject.Factory<S, T>,
+    ): SimpleSubjectBuilder<S, T> =
         SimpleSubjectBuilder(metadata = metadata, subjectFactory = subjectFactory)
 
     /**

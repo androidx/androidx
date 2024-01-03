@@ -5,7 +5,7 @@ import androidx.annotation.RestrictTo
 import androidx.benchmark.Outputs
 import androidx.benchmark.Shell
 import androidx.benchmark.getFirstMountedMediaDir
-import androidx.benchmark.userspaceTrace
+import androidx.benchmark.inMemoryTrace
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
 
@@ -73,7 +73,7 @@ object MethodTracing {
     }
 
     private fun broadcast(targetPackageName: String, extras: String) {
-        userspaceTrace("methodTracingBroadcast") {
+        inMemoryTrace("methodTracingBroadcast") {
             val action = "androidx.benchmark.experiments.ACTION_METHOD_TRACE"
             val result =
                 Shell.amBroadcast("-a $action $extras $targetPackageName/$RECEIVER_NAME") ?: 0

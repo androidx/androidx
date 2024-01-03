@@ -16,10 +16,15 @@
 
 package androidx.compose.ui.window
 
+import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.AlignmentLine
@@ -204,12 +209,79 @@ class PopupLayoutTest {
         assertThat(layout.params.y).isEqualTo(50)
     }
 
+    @Test
+    fun positionUpdated_whenStateReadInPositionProviderChanged() {
+        var offset by mutableStateOf(IntOffset.Zero)
+        val layout = createPopupLayout(
+            // The state observer is only active while attached.
+            attachToWindow = { true },
+            positionProvider = object : PopupPositionProvider {
+                override fun calculatePosition(
+                    anchorBounds: IntRect,
+                    windowSize: IntSize,
+                    layoutDirection: LayoutDirection,
+                    popupContentSize: IntSize
+                ): IntOffset = offset
+            },
+        )
+        layout.popupContentSize = IntSize.Zero
+        // Need to calculate position at least once to do initial observation.
+        layout.updateParentLayoutCoordinates(MutableLayoutCoordinates())
+
+        rule.runOnIdle {
+            assertThat(layout.params.x).isEqualTo(0)
+            assertThat(layout.params.y).isEqualTo(0)
+        }
+
+        offset = IntOffset(40, 50)
+
+        rule.runOnIdle {
+            assertThat(layout.params.x).isEqualTo(40)
+            assertThat(layout.params.y).isEqualTo(50)
+        }
+    }
+
+    @Test
+    fun positionNotUpdated_whenStateReadInPositionProviderChanged_whileDetached() {
+        var offset by mutableStateOf(IntOffset.Zero)
+        var attachToWindow by mutableStateOf(true)
+        val layout = createPopupLayout(
+            // The state observer is only active while attached.
+            attachToWindow = { attachToWindow },
+            positionProvider = object : PopupPositionProvider {
+                override fun calculatePosition(
+                    anchorBounds: IntRect,
+                    windowSize: IntSize,
+                    layoutDirection: LayoutDirection,
+                    popupContentSize: IntSize
+                ): IntOffset = offset
+            },
+        )
+        layout.popupContentSize = IntSize.Zero
+        // Need to calculate position at least once to do initial observation.
+        layout.updateParentLayoutCoordinates(MutableLayoutCoordinates())
+        rule.runOnIdle {
+            assertThat(layout.params.x).isEqualTo(0)
+            assertThat(layout.params.y).isEqualTo(0)
+        }
+        attachToWindow = false
+        rule.waitForIdle()
+
+        offset = IntOffset(40, 50)
+
+        rule.runOnIdle {
+            assertThat(layout.params.x).isEqualTo(0)
+            assertThat(layout.params.y).isEqualTo(0)
+        }
+    }
+
     private fun createPopupLayout(
         onDismissRequest: (() -> Unit)? = null,
         properties: PopupProperties = PopupProperties(),
         density: Density = rule.density,
         positionProvider: PopupPositionProvider = ZeroPositionProvider,
-        popupLayoutHelper: PopupLayoutHelper = NoopPopupLayoutHelper()
+        popupLayoutHelper: PopupLayoutHelper = NoopPopupLayoutHelper(),
+        attachToWindow: () -> Boolean = { false },
     ): PopupLayout {
         lateinit var layout: PopupLayout
         rule.setContent {
@@ -225,6 +297,17 @@ class PopupLayoutTest {
                     popupId = UUID.randomUUID(),
                     popupLayoutHelper = popupLayoutHelper
                 ).also { layout = it }
+            }
+
+            if (attachToWindow()) {
+                DisposableEffect(Unit) {
+                    val windowManager =
+                        view.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+                    windowManager.addView(layout, WindowManager.LayoutParams())
+                    onDispose {
+                        windowManager.removeView(layout)
+                    }
+                }
             }
         }
         return rule.runOnIdle { layout }

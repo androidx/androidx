@@ -28,8 +28,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -66,9 +68,15 @@ class LazyNestedScrollingTest {
                     state = scrollable
                 )
             ) {
-                LazyColumn(Modifier.requiredSize(100.dp).testTag(LazyTag)) {
+                LazyColumn(
+                    Modifier
+                        .requiredSize(100.dp)
+                        .testTag(LazyTag)) {
                     items(items) {
-                        Spacer(Modifier.requiredSize(50.dp).testTag("$it"))
+                        Spacer(
+                            Modifier
+                                .requiredSize(50.dp)
+                                .testTag("$it"))
                     }
                 }
             }
@@ -101,9 +109,15 @@ class LazyNestedScrollingTest {
                     state = scrollable
                 )
             ) {
-                LazyColumn(Modifier.requiredSize(100.dp).testTag(LazyTag)) {
+                LazyColumn(
+                    Modifier
+                        .requiredSize(100.dp)
+                        .testTag(LazyTag)) {
                     items(items) {
-                        Spacer(Modifier.requiredSize(50.dp).testTag("$it"))
+                        Spacer(
+                            Modifier
+                                .requiredSize(50.dp)
+                                .testTag("$it"))
                     }
                 }
             }
@@ -146,9 +160,15 @@ class LazyNestedScrollingTest {
                     state = scrollable
                 )
             ) {
-                LazyColumn(Modifier.requiredSize(100.dp).testTag(LazyTag)) {
+                LazyColumn(
+                    Modifier
+                        .requiredSize(100.dp)
+                        .testTag(LazyTag)) {
                     items(items) {
-                        Spacer(Modifier.requiredSize(40.dp).testTag("$it"))
+                        Spacer(
+                            Modifier
+                                .requiredSize(40.dp)
+                                .testTag("$it"))
                     }
                 }
             }
@@ -181,9 +201,15 @@ class LazyNestedScrollingTest {
                     state = scrollable
                 )
             ) {
-                LazyColumn(Modifier.requiredSize(100.dp).testTag(LazyTag)) {
+                LazyColumn(
+                    Modifier
+                        .requiredSize(100.dp)
+                        .testTag(LazyTag)) {
                     items(items) {
-                        Spacer(Modifier.requiredSize(50.dp).testTag("$it"))
+                        Spacer(
+                            Modifier
+                                .requiredSize(50.dp)
+                                .testTag("$it"))
                     }
                 }
             }
@@ -222,10 +248,15 @@ class LazyNestedScrollingTest {
                 )
             ) {
                 LazyRow(
-                    modifier = Modifier.requiredSize(100.dp).testTag(LazyTag)
+                    modifier = Modifier
+                        .requiredSize(100.dp)
+                        .testTag(LazyTag)
                 ) {
                     items(items) {
-                        Spacer(Modifier.requiredSize(50.dp).testTag("$it"))
+                        Spacer(
+                            Modifier
+                                .requiredSize(50.dp)
+                                .testTag("$it"))
                     }
                 }
             }
@@ -259,10 +290,15 @@ class LazyNestedScrollingTest {
                 )
             ) {
                 LazyRow(
-                    modifier = Modifier.requiredSize(100.dp).testTag(LazyTag)
+                    modifier = Modifier
+                        .requiredSize(100.dp)
+                        .testTag(LazyTag)
                 ) {
                     items(items) {
-                        Spacer(Modifier.requiredSize(50.dp).testTag("$it"))
+                        Spacer(
+                            Modifier
+                                .requiredSize(50.dp)
+                                .testTag("$it"))
                     }
                 }
             }
@@ -306,10 +342,15 @@ class LazyNestedScrollingTest {
                 )
             ) {
                 LazyRow(
-                    modifier = Modifier.requiredSize(100.dp).testTag(LazyTag)
+                    modifier = Modifier
+                        .requiredSize(100.dp)
+                        .testTag(LazyTag)
                 ) {
                     items(items) {
-                        Spacer(Modifier.requiredSize(40.dp).testTag("$it"))
+                        Spacer(
+                            Modifier
+                                .requiredSize(40.dp)
+                                .testTag("$it"))
                     }
                 }
             }
@@ -343,10 +384,15 @@ class LazyNestedScrollingTest {
                 )
             ) {
                 LazyRow(
-                    modifier = Modifier.requiredSize(100.dp).testTag(LazyTag)
+                    modifier = Modifier
+                        .requiredSize(100.dp)
+                        .testTag(LazyTag)
                 ) {
                     items(items) {
-                        Spacer(Modifier.requiredSize(50.dp).testTag("$it"))
+                        Spacer(
+                            Modifier
+                                .requiredSize(50.dp)
+                                .testTag("$it"))
                     }
                 }
             }
@@ -366,6 +412,62 @@ class LazyNestedScrollingTest {
 
         rule.runOnIdle {
             Truth.assertThat(draggedOffset).isEqualTo(-expectedDragOffset)
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun mouseScrollInLazyRow_nestedLazyRowInLazyColumn_scrollsVertically() = runBlocking {
+        val items = (1..50).toList()
+        var total = 0f
+
+        val scrollable = ScrollableState {
+            total += it
+            it
+        }
+        rule.setContentWithTestViewConfiguration {
+            Box(
+                Modifier.scrollable(
+                    orientation = Orientation.Vertical,
+                    state = scrollable
+                )
+            ) {
+                LazyColumn(
+                    modifier = Modifier.requiredSize(200.dp)
+                ) {
+                    item {
+                        LazyRow(
+                            modifier = Modifier
+                                .requiredSize(100.dp)
+                                .testTag(LazyTag)
+                        ) {
+                            items(items) {
+                                Spacer(Modifier.requiredSize(50.dp))
+                            }
+                        }
+                    }
+                    items(items) {
+                        Spacer(Modifier.requiredSize(50.dp))
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag(LazyTag).performMouseInput {
+            this.scroll(100f)
+        }
+
+        rule.runOnIdle {
+            // Mouse scroll is opposite, so we test is it less than zero (negative number).
+            Truth.assertThat(total).isLessThan(0)
+        }
+
+        rule.onNodeWithTag(LazyTag).performMouseInput {
+            this.scroll(-100f)
+        }
+
+        rule.runOnIdle {
+            Truth.assertThat(total).isLessThan(0.01f)
         }
     }
 }

@@ -35,7 +35,8 @@ import java.util.List;
 /**
  * Provides an utility method to show the system's output switcher dialog.
  *
- * @see <a href="https://developer.android.com/guide/topics/media/media-routing">Media Routing</a>
+ * <p>See <a href="https://developer.android.com/guide/topics/media/media-routing">the Media
+ * Routing guide</a> for more information.
  */
 public final class SystemOutputSwitcherDialogController {
 

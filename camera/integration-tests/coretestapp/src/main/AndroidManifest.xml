@@ -65,6 +65,17 @@ limitations under the License.
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".VideoCameraSwitchingActivity"
+            android:exported="true"
+            android:label="Video Camera Switching Test App"
+            android:taskAffinity="androidx.camera.integration.core.VideoCameraSwitchingActivity"
+            android:theme="@style/NoTitleTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 
     <uses-feature android:glEsVersion="0x00020000" />

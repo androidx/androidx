@@ -291,6 +291,10 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
             mLifecycleCameraRepository.clear();
         });
 
+        if (mCameraX != null) {
+            mCameraX.getCameraFactory().getCameraCoordinator().shutdown();
+        }
+
         ListenableFuture<Void> shutdownFuture = mCameraX != null ? mCameraX.shutdown() :
                 Futures.immediateFuture(null);
 

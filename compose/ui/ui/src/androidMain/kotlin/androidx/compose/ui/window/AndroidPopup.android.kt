@@ -22,6 +22,7 @@ import android.graphics.Outline
 import android.graphics.PixelFormat
 import android.graphics.Rect
 import android.os.Build
+import android.os.Looper
 import android.view.Gravity
 import android.view.KeyEvent
 import android.view.MotionEvent
@@ -48,6 +49,7 @@ import androidx.compose.runtime.rememberCompositionContext
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateObserver
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -430,6 +432,16 @@ internal class PopupLayout(
 
     override val subCompositionView: AbstractComposeView get() = this
 
+    private val snapshotStateObserver = SnapshotStateObserver(onChangedExecutor = { command ->
+        // This is the same executor logic used by AndroidComposeView's OwnerSnapshotObserver, which
+        // drives most of the state observation in compose UI.
+        if (handler?.looper === Looper.myLooper()) {
+            command()
+        } else {
+            handler?.post(command)
+        }
+    })
+
     init {
         id = android.R.id.content
         setViewTreeLifecycleOwner(composeView.findViewTreeLifecycleOwner())
@@ -476,6 +488,17 @@ internal class PopupLayout(
     @UiComposable
     override fun Content() {
         content()
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        snapshotStateObserver.start()
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        snapshotStateObserver.stop()
+        snapshotStateObserver.clear()
     }
 
     override fun internalOnMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -666,12 +689,15 @@ internal class PopupLayout(
             IntSize(width = bounds.width, height = bounds.height)
         }
 
-        val popupPosition = positionProvider.calculatePosition(
-            parentBounds,
-            windowSize,
-            parentLayoutDirection,
-            popupContentSize
-        )
+        var popupPosition = IntOffset.Zero
+        snapshotStateObserver.observeReads(this, onCommitAffectingPopupPosition) {
+            popupPosition = positionProvider.calculatePosition(
+                parentBounds,
+                windowSize,
+                parentLayoutDirection,
+                popupContentSize
+            )
+        }
 
         params.x = popupPosition.x
         params.y = popupPosition.y
@@ -766,6 +792,14 @@ internal class PopupLayout(
             // accessibilityTitle is not exposed as a public API therefore we set popup window
             // title which is used as a fallback by a11y services
             title = composeView.context.resources.getString(R.string.default_popup_window_title)
+        }
+    }
+
+    private companion object {
+        private val onCommitAffectingPopupPosition = { popupLayout: PopupLayout ->
+            if (popupLayout.isAttachedToWindow) {
+                popupLayout.updatePosition()
+            }
         }
     }
 }

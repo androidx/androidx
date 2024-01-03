@@ -15,7 +15,6 @@ import kotlin.Int
 import kotlin.Long
 import kotlin.String
 import kotlin.Suppress
-import kotlin.Unit
 import kotlin.collections.List
 import kotlin.jvm.JvmStatic
 
@@ -30,15 +29,17 @@ public class MyDao_Impl(
     init {
         this.__db = __db
         this.__insertionAdapterOfMyEntity = object : EntityInsertionAdapter<MyEntity>(__db) {
-            public override fun createQuery(): String =
+            protected override fun createQuery(): String =
                 "INSERT OR ABORT INTO `MyEntity` (`pk`,`uuidData`,`nullableUuidData`,`nullableLongData`,`doubleNullableLongData`,`genericData`) VALUES (?,?,?,?,?,?)"
 
-            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity): Unit {
+            protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
                 val _data: Long = checkNotNull(entity.pk.data) {
-                    "Cannot bind nullable value of inline class to a NOT NULL column." }
+                    "Cannot bind NULLABLE value 'data' of inline class 'LongValueClass' to a NOT NULL column."
+                }
                 statement.bindLong(1, _data)
                 val _data_1: UUID = checkNotNull(entity.uuidData.data) {
-                    "Cannot bind nullable value of inline class to a NOT NULL column." }
+                    "Cannot bind NULLABLE value 'data' of inline class 'UUIDValueClass' to a NOT NULL column."
+                }
                 statement.bindBlob(2, convertUUIDToByte(_data_1))
                 val _tmpNullableUuidData: UUIDValueClass? = entity.nullableUuidData
                 val _data_2: UUID? = _tmpNullableUuidData?.data
@@ -48,7 +49,8 @@ public class MyDao_Impl(
                     statement.bindBlob(3, convertUUIDToByte(_data_2))
                 }
                 val _data_3: Long = checkNotNull(entity.nullableLongData.data) {
-                    "Cannot bind nullable value of inline class to a NOT NULL column." }
+                    "Cannot bind NULLABLE value 'data' of inline class 'NullableLongValueClass' to a NOT NULL column."
+                }
                 statement.bindLong(4, _data_3)
                 val _tmpDoubleNullableLongData: NullableLongValueClass? = entity.doubleNullableLongData
                 val _data_4: Long? = _tmpDoubleNullableLongData?.data
@@ -58,13 +60,14 @@ public class MyDao_Impl(
                     statement.bindLong(5, _data_4)
                 }
                 val _password: String = checkNotNull(entity.genericData.password) {
-                    "Cannot bind nullable value of inline class to a NOT NULL column." }
+                    "Cannot bind NULLABLE value 'password' of inline class 'GenericValueClass<String>' to a NOT NULL column."
+                }
                 statement.bindString(6, _password)
             }
         }
     }
 
-    public override fun addEntity(item: MyEntity): Unit {
+    public override fun addEntity(item: MyEntity) {
         __db.assertNotSuspendingTransaction()
         __db.beginTransaction()
         try {
@@ -125,7 +128,7 @@ public class MyDao_Impl(
                 _result =
                     MyEntity(_tmpPk,_tmpUuidData,_tmpNullableUuidData,_tmpNullableLongData,_tmpDoubleNullableLongData,_tmpGenericData)
             } else {
-                error("Cursor was empty, but expected a single item.")
+                error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
             }
             return _result
         } finally {

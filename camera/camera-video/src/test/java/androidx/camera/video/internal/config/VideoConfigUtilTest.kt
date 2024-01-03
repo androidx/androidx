@@ -22,7 +22,7 @@ import android.media.MediaRecorder
 import android.os.Build
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy
-import androidx.camera.testing.EncoderProfilesUtil
+import androidx.camera.testing.impl.EncoderProfilesUtil
 import androidx.camera.video.MediaSpec
 import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy
 import com.google.common.truth.Truth.assertThat

@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION") // b/220884658
-
 package androidx.datastore.core
 
 import androidx.datastore.TestFile
@@ -29,6 +27,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -76,11 +75,12 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
 
     fun doTest(initDataStore: Boolean = false, test: suspend TestScope.() -> Unit) {
         if (initDataStore) {
-            runTest(dispatchTimeoutMs = 10000) {
+            // running this separately to ensure the DS it is closed after initialization
+            runTest {
                 initDataStore(this)
             }
         }
-        runTest(dispatchTimeoutMs = 10000) {
+        runTest(timeout = 10.seconds) {
             test(this)
         }
     }
@@ -339,14 +339,14 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
 
     @Test
     fun testCanWriteFromInitTask() = doTest {
-        store = newDataStore(initTasksList = listOf<InitTaskList>({ api -> api.updateData { 1 } }))
+        store = newDataStore(initTasksList = listOf({ api -> api.updateData { 1 } }))
 
         assertThat(store.data.first()).isEqualTo(1)
     }
 
     @Test
     fun testInitTaskFailsFirstTimeDueToReadFail() = doTest(initDataStore = true) {
-        store = newDataStore(initTasksList = listOf<InitTaskList>({ api -> api.updateData { 1 } }))
+        store = newDataStore(initTasksList = listOf({ api -> api.updateData { 1 } }))
 
         serializerConfig.failingRead = true
         assertThrows(testIO.ioExceptionClass()) { store.updateData { 2 } }
@@ -398,7 +398,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
         val continueInit = CompletableDeferred<Unit>()
 
         store = newDataStore(
-            initTasksList = listOf<InitTaskList>({ api ->
+            initTasksList = listOf({ api ->
                 continueInit.await()
                 api.updateData { 1 }
             })
@@ -422,7 +422,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
         val continueInit = CompletableDeferred<Unit>()
 
         store = newDataStore(
-            initTasksList = listOf<InitTaskList>({ api ->
+            initTasksList = listOf({ api ->
                 continueInit.await()
                 api.updateData { 1 }
             })
@@ -612,7 +612,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
         }
 
         coroutineScope {
-            val testingHandler: TestingCorruptionHandler = TestingCorruptionHandler()
+            val testingHandler = TestingCorruptionHandler()
             val newStore = newDataStore(corruptionHandler = testingHandler, file = testFile)
 
             newStore.updateData { 2 }
@@ -648,7 +648,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
         }
 
         coroutineScope {
-            val testingHandler: TestingCorruptionHandler = TestingCorruptionHandler()
+            val testingHandler = TestingCorruptionHandler()
             serializerConfig.failReadWithCorruptionException = true
             val newStore = newDataStore(corruptionHandler = testingHandler, file = testFile)
 
@@ -668,7 +668,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
         }
 
         coroutineScope {
-            val testingHandler: TestingCorruptionHandler = TestingCorruptionHandler()
+            val testingHandler = TestingCorruptionHandler()
             serializerConfig.failReadWithCorruptionException = true
             val newStore = newDataStore(corruptionHandler = testingHandler, file = testFile)
 
@@ -687,8 +687,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
         }
 
         coroutineScope {
-            val testingHandler: TestingCorruptionHandler =
-                TestingCorruptionHandler(replaceWith = 10)
+            val testingHandler = TestingCorruptionHandler(replaceWith = 10)
             serializerConfig.failReadWithCorruptionException = true
             val newStore = newDataStore(
                 corruptionHandler = testingHandler, file = testFile,
@@ -968,7 +967,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
         serializerConfig: TestingSerializerConfig = this.serializerConfig,
         scope: CoroutineScope = dataStoreScope,
         initTasksList: List<InitTaskList> = listOf(),
-        corruptionHandler: CorruptionHandler<Byte> = NoOpCorruptionHandler<Byte>()
+        corruptionHandler: CorruptionHandler<Byte> = NoOpCorruptionHandler()
     ): DataStore<Byte> {
         return DataStoreImpl(
             testIO.getStorage(serializerConfig, { createSingleProcessCoordinator() }) { file },

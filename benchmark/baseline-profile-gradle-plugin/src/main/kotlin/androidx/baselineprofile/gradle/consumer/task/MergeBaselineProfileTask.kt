@@ -192,7 +192,10 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
         // Read the profile rules from the file collection that contains the profile artifacts from
         // all the configurations for this variant and merge them in a single list.
         val profileRules = baselineProfileFileCollection.files
-            .readLines { FILENAME_MATCHER_BASELINE_PROFILE in it.name }
+            .readLines {
+                FILENAME_MATCHER_BASELINE_PROFILE in it.name ||
+                    FILENAME_MATCHER_STARTUP_PROFILE in it.name
+            }
 
         if (variantName.isPresent && profileRules.isEmpty()) {
             logger.warn(

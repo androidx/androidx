@@ -32,6 +32,17 @@ object SemanticsProperties {
             parentValue?.toMutableList()?.also { it.addAll(childValue) } ?: childValue
         }
     )
+
+    /**
+     * @see SemanticsPropertyReceiver.testTag
+     */
+    val TestTag = SemanticsPropertyKey<String>(
+        name = "TestTag",
+        mergePolicy = { parentValue, _ ->
+            // No merge
+            parentValue
+        }
+    )
 }
 
 /**
@@ -74,6 +85,24 @@ var SemanticsPropertyReceiver.contentDescription: String
         )
     }
     set(value) { set(SemanticsProperties.ContentDescription, listOf(value)) }
+
+/**
+ * Test tag attached to this Glance composable node.
+ *
+ * This is a free form String and can be used to find nodes in testing frameworks.
+ */
+var SemanticsPropertyReceiver.testTag: String
+    /**
+     * Throws [UnsupportedOperationException]. Should not be called.
+     */
+    get() {
+        throw UnsupportedOperationException(
+            "You cannot retrieve a semantics property directly"
+        )
+    }
+    set(value) {
+        set(SemanticsProperties.TestTag, value)
+    }
 
 /**
  * Describes the semantics information associated with the owning component.

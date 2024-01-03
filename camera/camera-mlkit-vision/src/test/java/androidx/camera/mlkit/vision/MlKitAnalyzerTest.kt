@@ -25,8 +25,8 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.impl.utils.TransformUtils.getRectToRect
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor
-import androidx.camera.testing.fakes.FakeImageInfo
-import androidx.camera.testing.fakes.FakeImageProxy
+import androidx.camera.testing.impl.fakes.FakeImageInfo
+import androidx.camera.testing.impl.fakes.FakeImageProxy
 import androidx.camera.view.CameraController.COORDINATE_SYSTEM_VIEW_REFERENCED
 import com.google.common.truth.Truth.assertThat
 import com.google.mlkit.vision.interfaces.Detector
@@ -185,7 +185,8 @@ class MlKitAnalyzerTest {
         imageInfo.rotationDegrees = ROTATION_DEGREES
         imageInfo.sensorToBufferTransformMatrix = SENSOR_TO_BUFFER
 
-        val imageProxy = FakeImageProxy(imageInfo)
+        val imageProxy =
+            FakeImageProxy(imageInfo)
         imageProxy.image = mock(Image::class.java)
         imageProxy.width = IMAGE_ANALYSIS_RECT.width()
         imageProxy.height = IMAGE_ANALYSIS_RECT.height()

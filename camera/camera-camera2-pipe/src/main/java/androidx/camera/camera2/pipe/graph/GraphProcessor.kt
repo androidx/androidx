@@ -22,6 +22,8 @@ import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CaptureSequenceProcessor
+import androidx.camera.camera2.pipe.FrameInfo
+import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.GraphState
 import androidx.camera.camera2.pipe.GraphState.GraphStateError
 import androidx.camera.camera2.pipe.GraphState.GraphStateStarted
@@ -29,6 +31,8 @@ import androidx.camera.camera2.pipe.GraphState.GraphStateStarting
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopping
 import androidx.camera.camera2.pipe.Request
+import androidx.camera.camera2.pipe.RequestMetadata
+import androidx.camera.camera2.pipe.compat.Camera2Quirks
 import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.config.ForCameraGraph
 import androidx.camera.camera2.pipe.core.Debug
@@ -37,6 +41,8 @@ import androidx.camera.camera2.pipe.core.Log.warn
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.formatForLogs
 import androidx.camera.camera2.pipe.putAllMetadata
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -154,6 +160,27 @@ constructor(
 
     @GuardedBy("lock")
     private var pendingParametersDeferred: CompletableDeferred<Boolean>? = null
+
+    // On some devices, we need to wait for 10 frames to complete before we can guarantee the
+    // success of single capture requests. This is a quirk identified as part of b/287020251 and
+    // reported in b/289284907.
+    private var repeatingRequestsCompleted = CountDownLatch(10)
+
+    // Graph listener added to repeating requests in order to handle the aforementioned quirk.
+    private val graphProcessorRepeatingListeners =
+        if (!Camera2Quirks.shouldWaitForRepeatingBeforeCapture()) {
+            graphListeners
+        } else {
+            graphListeners + object : Request.Listener {
+                override fun onComplete(
+                    requestMetadata: RequestMetadata,
+                    frameNumber: FrameNumber,
+                    result: FrameInfo
+                ) {
+                    repeatingRequestsCompleted.countDown()
+                }
+            }
+        }
 
     private val _graphState = MutableStateFlow<GraphState>(GraphStateStopped)
 
@@ -452,7 +479,7 @@ constructor(
                         requests = listOf(request),
                         defaultParameters = cameraGraphConfig.defaultParameters,
                         requiredParameters = requiredParameters,
-                        listeners = graphListeners
+                        listeners = graphProcessorRepeatingListeners,
                     )
                 ) {
                     // ONLY update the current repeating request if the update succeeds
@@ -502,6 +529,15 @@ constructor(
     }
 
     private fun submitLoop() {
+        if (Camera2Quirks.shouldWaitForRepeatingBeforeCapture() && hasRepeatingRequest()) {
+            debug {
+                "Quirk: Waiting for 10 repeating requests to complete before submitting requests"
+            }
+            if (!repeatingRequestsCompleted.await(2, TimeUnit.SECONDS)) {
+                warn { "Failed to wait for 10 repeating requests to complete after 5 seconds" }
+            }
+        }
+
         var burst: List<Request>
         var processor: GraphRequestProcessor
 

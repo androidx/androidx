@@ -67,7 +67,7 @@ public class UiObject2 implements Searchable {
 
     // Default gesture speeds and timeouts.
     private static final int DEFAULT_SWIPE_SPEED = 5_000; // dp/s
-    private static final int DEFAULT_SCROLL_SPEED = 5_000; // dp/s
+    private static final int DEFAULT_SCROLL_SPEED = 1_500; // dp/s
     private static final int DEFAULT_FLING_SPEED = 7_500; // dp/s
     private static final int DEFAULT_DRAG_SPEED = 2_500; // dp/s
     private static final int DEFAULT_PINCH_SPEED = 1_000; // dp/s

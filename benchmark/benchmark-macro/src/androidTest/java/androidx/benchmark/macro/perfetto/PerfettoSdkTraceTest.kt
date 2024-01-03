@@ -58,7 +58,12 @@ class PerfettoSdkTraceTest(enableAppTagTracing: Boolean, enableUserspaceTracing:
             if (enableUserspaceTracing) yield(StringSource.userspaceTraceStrings)
         }.flatMap { it }.toList()
         val actualSlices = PerfettoTraceProcessor.runSingleSessionServer(trace.path) {
-            StringSource.allTraceStrings.flatMap { querySlices(it).map { s -> s.name } }
+            StringSource.allTraceStrings.flatMap {
+                querySlices(
+                    it,
+                    packageName = null
+                ).map { s -> s.name }
+            }
         }
         assertThat(actualSlices).containsExactlyElementsIn(expectedSlices)
     }

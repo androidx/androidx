@@ -568,6 +568,44 @@ class CompositionLocalTests {
         }
     }
 
+    @Suppress("UNUSED_EXPRESSION")
+    @Test // Regression for b/292224893
+    fun testSingleInvalidatedProvider() = compositionTest {
+        val local1 = compositionLocalOf { 10 }
+        val local2 = compositionLocalOf { 20 }
+        val local3 = compositionLocalOf { 30 }
+        var state by mutableStateOf(0)
+
+        compose {
+            state
+            CompositionLocalProvider(local1 provides 11) {
+                state
+                CompositionLocalProvider(local2 provides 22) {
+                    state
+                    CompositionLocalProvider(local3 provides 33) {
+                        state
+                        assertEquals(11, local1.current)
+                        assertEquals(22, local2.current)
+                        assertEquals(33, local3.current)
+                    }
+                    assertEquals(11, local1.current)
+                    assertEquals(22, local2.current)
+                    assertEquals(30, local3.current)
+                }
+                assertEquals(11, local1.current)
+                assertEquals(20, local2.current)
+                assertEquals(30, local3.current)
+            }
+            assertEquals(10, local1.current)
+            assertEquals(20, local2.current)
+            assertEquals(30, local3.current)
+        }
+
+        state++
+
+        advance()
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun testProvideAllLocals() = compositionTest {

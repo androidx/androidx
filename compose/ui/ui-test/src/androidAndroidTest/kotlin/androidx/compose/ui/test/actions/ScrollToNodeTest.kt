@@ -30,11 +30,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.actions.ScrollToNodeTest.Orientation.HorizontalRtl
 import androidx.compose.ui.test.actions.ScrollToNodeTest.Orientation.Vertical
 import androidx.compose.ui.test.actions.ScrollToNodeTest.StartPosition.FullyAfter
 import androidx.compose.ui.test.actions.ScrollToNodeTest.StartPosition.FullyBefore
 import androidx.compose.ui.test.actions.ScrollToNodeTest.StartPosition.NotInList
+import androidx.compose.ui.test.addGlobalAssertion
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
@@ -46,6 +49,7 @@ import androidx.compose.ui.test.util.ClickableTestBox
 import androidx.compose.ui.test.util.ClickableTestBox.defaultTag
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.LayoutDirection
+import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
 import org.junit.Test
@@ -198,6 +202,42 @@ class ScrollToNodeTest(private val config: TestConfig) {
             assertWithMessage("item needs to be fully inside the viewport")
                 .that(targetBounds.rightOrBottom).isAtMost(viewportBounds.rightOrBottom)
         }
+    }
+
+    @Test
+    @ExperimentalTestApi
+    fun scrollToTarget_withGlobalAssertion() {
+        if (config.targetPosition in listOf(FullyAfter, FullyBefore, NotInList)) {
+            return
+        }
+        val state = LazyListState(config.initialScrollIndex, config.initialScrollOffset)
+        val isRtl = config.orientation == HorizontalRtl
+        val isVertical = config.orientation == Vertical
+
+        // Some boxes in a row/col with a specific initialScrollOffset so that the target we want
+        // to bring into view is either before, partially before, in, partially after or after
+        // the viewport.
+        rule.setContent {
+            val direction = if (isRtl) LayoutDirection.Rtl else LayoutDirection.Ltr
+            CompositionLocalProvider(LocalLayoutDirection provides direction) {
+                if (isVertical) {
+                    LazyColumn(columnModifier(), state, reverseLayout = config.reverseLayout) {
+                        Boxes()
+                    }
+                } else {
+                    LazyRow(rowModifier(), state, reverseLayout = config.reverseLayout) {
+                        Boxes()
+                    }
+                }
+            }
+        }
+        var capturedSni: SemanticsNodeInteraction? = null
+        addGlobalAssertion(/* name= */ "Capture SNI") { sni -> capturedSni = sni }
+
+        val sni = rule.onNodeWithTag(containerTag)
+        sni.performScrollToNode(hasTestTag(itemTag))
+
+        assertThat(capturedSni).isEqualTo(sni)
     }
 
     private val Rect.leftOrTop: Float

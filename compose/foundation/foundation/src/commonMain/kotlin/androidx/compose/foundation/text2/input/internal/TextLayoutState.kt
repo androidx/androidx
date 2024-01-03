@@ -186,7 +186,7 @@ internal class TextLayoutState {
     }
 }
 
-private fun Offset.coerceIn(rect: Rect): Offset {
+internal fun Offset.coerceIn(rect: Rect): Offset {
     val xOffset = when {
         x < rect.left -> rect.left
         x > rect.right -> rect.right
@@ -198,4 +198,16 @@ private fun Offset.coerceIn(rect: Rect): Offset {
         else -> y
     }
     return Offset(xOffset, yOffset)
+}
+
+/**
+ * Translates a position from inner text field coordinates to decoration box coordinates.
+ */
+internal fun TextLayoutState.fromInnerToDecoration(offset: Offset): Offset {
+    // Translates touch to the inner text field coordinates
+    return innerTextFieldCoordinates?.takeIf { it.isAttached }?.let { innerTextFieldCoordinates ->
+        decorationBoxCoordinates?.takeIf { it.isAttached }?.let { decorationBoxCoordinates ->
+            decorationBoxCoordinates.localPositionOf(innerTextFieldCoordinates, offset)
+        }
+    } ?: offset
 }

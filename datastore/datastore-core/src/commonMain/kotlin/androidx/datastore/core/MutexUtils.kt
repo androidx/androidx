@@ -28,7 +28,7 @@ import kotlinx.coroutines.sync.Mutex
  *
  * [block] is guaranteed to be called once and only once by this function.
  */
-@OptIn(ExperimentalContracts::class)
+@ExperimentalContracts
 internal inline fun <R> Mutex.withTryLock(owner: Any? = null, block: (Boolean) -> R): R {
     contract {
         callsInPlace(block, InvocationKind.EXACTLY_ONCE)

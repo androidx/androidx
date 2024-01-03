@@ -32,6 +32,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -80,7 +81,7 @@ fun SampleNavigationDrawer() {
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Sampled
 @Composable
-fun SampleModalNavigationDrawer() {
+fun SampleModalNavigationDrawerWithSolidScrim() {
     val navigationRow: @Composable (drawerValue: DrawerValue, color: Color, text: String) -> Unit =
         { drawerValue, color, text ->
             Row(Modifier.padding(10.dp).focusable()) {
@@ -104,6 +105,43 @@ fun SampleModalNavigationDrawer() {
                 navigationRow(it, Color.Yellow, "Yellow")
             }
         }
+    ) {
+        Button(modifier = Modifier
+            .height(100.dp)
+            .fillMaxWidth(), onClick = {}) {
+            Text("BUTTON")
+        }
+    }
+}
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Sampled
+@Composable
+fun SampleModalNavigationDrawerWithGradientScrim() {
+    val navigationRow: @Composable (drawerValue: DrawerValue, color: Color, text: String) -> Unit =
+        { drawerValue, color, text ->
+            Row(Modifier.padding(10.dp).focusable()) {
+                Box(Modifier.size(50.dp).background(color).padding(end = 20.dp))
+                AnimatedVisibility(visible = drawerValue == DrawerValue.Open) {
+                    Text(
+                        text = text,
+                        softWrap = false,
+                        modifier = Modifier.padding(15.dp).width(50.dp),
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+        }
+
+    androidx.tv.material3.ModalNavigationDrawer(
+        drawerContent = {
+            Column(Modifier.fillMaxHeight()) {
+                navigationRow(it, Color.Red, "Red")
+                navigationRow(it, Color.Blue, "Blue")
+                navigationRow(it, Color.Yellow, "Yellow")
+            }
+        },
+        scrimBrush = Brush.horizontalGradient(listOf(Color.DarkGray, Color.Transparent))
     ) {
         Button(modifier = Modifier
             .height(100.dp)

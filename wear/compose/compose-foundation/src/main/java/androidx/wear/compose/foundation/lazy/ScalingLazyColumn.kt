@@ -34,11 +34,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,6 +58,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.LocalReduceMotion
+import kotlinx.coroutines.launch
 
 /**
  * Receiver scope which is used by [ScalingLazyColumn].
@@ -395,6 +396,7 @@ public fun ScalingLazyColumn(
             state.reverseLayout.value = reverseLayout
             state.localInspectionMode.value = LocalInspectionMode.current
 
+            val coroutineScope = rememberCoroutineScope()
             LazyColumn(
                 modifier = Modifier
                     .clipToBounds()
@@ -406,6 +408,9 @@ public fun ScalingLazyColumn(
                             layoutInfo.readyForInitialScroll
                         ) {
                             initialized = true
+                            coroutineScope.launch {
+                                state.scrollToInitialItem()
+                            }
                         }
                     },
                 horizontalAlignment = horizontalAlignment,
@@ -441,11 +446,6 @@ public fun ScalingLazyColumn(
                             }
                         })
                     }
-                }
-            }
-            if (initialized) {
-                LaunchedEffect(state) {
-                    state.scrollToInitialItem()
                 }
             }
         }

@@ -31,7 +31,7 @@ import javax.lang.model.util.AbstractAnnotationValueVisitor8
 
 internal class JavacAnnotationValue(
     val env: JavacProcessingEnv,
-    private val method: JavacMethodElement,
+    val method: JavacMethodElement,
     val annotationValue: AnnotationValue,
     override val valueType: XType = method.returnType,
     private val valueProvider: () -> Any? = {

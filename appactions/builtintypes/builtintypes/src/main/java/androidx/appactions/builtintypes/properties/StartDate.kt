@@ -22,6 +22,7 @@ import kotlin.Any
 import kotlin.Boolean
 import kotlin.Int
 import kotlin.String
+import kotlin.Suppress
 import kotlin.error
 import kotlin.jvm.JvmName
 
@@ -46,14 +47,19 @@ internal constructor(
   @get:JvmName("asLocalDateTime") public val asLocalDateTime: LocalDateTime? = null,
   /** The [Instant] variant, or null if constructed using a different variant. */
   @get:JvmName("asInstant") public val asInstant: Instant? = null,
-  /**
-   * The AppSearch document's identifier.
-   *
-   * Every AppSearch document needs an identifier. Since property wrappers are only meant to be used
-   * at nested levels, this is internal and will always be an empty string.
-   */
-  @Document.Id internal val identifier: String = "",
+  /** Required ctor param for the AppSearch compiler. */
+  @Suppress("UNUSED_PARAMETER") identifier: String = "",
+  /** Required ctor param for the AppSearch compiler. */
+  @Suppress("UNUSED_PARAMETER") namespace: String = "",
 ) {
+  @get:Document.Id
+  internal val identifier: String
+    get() = ""
+
+  @get:Document.Namespace
+  internal val namespace: String
+    get() = ""
+
   /** Constructor for the [LocalDate] variant. */
   public constructor(date: LocalDate) : this(asDate = date)
 

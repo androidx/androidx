@@ -27,7 +27,7 @@ import androidx.benchmark.DeviceInfo
 import androidx.benchmark.InstrumentationResults
 import androidx.benchmark.Outputs
 import androidx.benchmark.Shell
-import androidx.benchmark.userspaceTrace
+import androidx.benchmark.inMemoryTrace
 import java.io.File
 
 /**
@@ -59,7 +59,7 @@ fun collect(
         val finalMaxIterations = if (Arguments.dryRunMode) 1 else maxIterations
 
         while (iteration <= finalMaxIterations) {
-            userspaceTrace("generate profile for $packageName ($iteration)") {
+            inMemoryTrace("generate profile for $packageName ($iteration)") {
                 val mode = CompilationMode.Partial(
                     baselineProfileMode = BaselineProfileMode.Disable,
                     warmupIterations = 1

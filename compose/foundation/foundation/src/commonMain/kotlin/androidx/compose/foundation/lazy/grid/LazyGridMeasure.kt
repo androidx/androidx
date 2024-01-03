@@ -33,6 +33,7 @@ import kotlin.math.abs
 import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.math.sign
+import kotlinx.coroutines.CoroutineScope
 
 /**
  * Measures and calculates the positions for the currently visible items. The result is produced
@@ -59,6 +60,7 @@ internal fun measureLazyGrid(
     placementAnimator: LazyGridItemPlacementAnimator,
     spanLayoutProvider: LazyGridSpanLayoutProvider,
     pinnedItems: List<Int>,
+    coroutineScope: CoroutineScope,
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
 ): LazyGridMeasureResult {
     require(beforeContentPadding >= 0) { "negative beforeContentPadding" }
@@ -270,7 +272,8 @@ internal fun measureLazyGrid(
             positionedItems = positionedItems,
             itemProvider = measuredItemProvider,
             spanLayoutProvider = spanLayoutProvider,
-            isVertical = isVertical
+            isVertical = isVertical,
+            coroutineScope = coroutineScope
         )
 
         return LazyGridMeasureResult(

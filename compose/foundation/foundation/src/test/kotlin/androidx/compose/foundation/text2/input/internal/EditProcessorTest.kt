@@ -165,8 +165,8 @@ class EditProcessorTest {
 
         val initialBuffer = processor.mBuffer
 
-        assertThat(initialSelection.min).isEqualTo(initialBuffer.selectionStart)
-        assertThat(initialSelection.max).isEqualTo(initialBuffer.selectionEnd)
+        assertThat(initialSelection.start).isEqualTo(initialBuffer.selectionStart)
+        assertThat(initialSelection.end).isEqualTo(initialBuffer.selectionEnd)
 
         val updatedSelection = TextRange(3, 0)
         val newTextFieldValue = TextFieldCharSequence(textFieldValue, selection = updatedSelection)
@@ -174,8 +174,8 @@ class EditProcessorTest {
         processor.reset(newTextFieldValue)
 
         assertThat(processor.mBuffer).isSameInstanceAs(initialBuffer)
-        assertThat(updatedSelection.min).isEqualTo(initialBuffer.selectionStart)
-        assertThat(updatedSelection.max).isEqualTo(initialBuffer.selectionEnd)
+        assertThat(updatedSelection.start).isEqualTo(initialBuffer.selectionStart)
+        assertThat(updatedSelection.end).isEqualTo(initialBuffer.selectionEnd)
         assertThat(resetCalled).isEqualTo(1)
     }
 

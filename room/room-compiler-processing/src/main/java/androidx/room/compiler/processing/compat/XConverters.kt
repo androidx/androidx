@@ -43,6 +43,8 @@ import androidx.room.compiler.processing.javac.JavacRoundEnv
 import androidx.room.compiler.processing.javac.JavacType
 import androidx.room.compiler.processing.javac.JavacTypeElement
 import androidx.room.compiler.processing.javac.JavacVariableElement
+import androidx.room.compiler.processing.ksp.KSClassDeclarationAsOriginatingElement
+import androidx.room.compiler.processing.ksp.KSFileAsOriginatingElement
 import androidx.room.compiler.processing.ksp.KspAnnotation
 import androidx.room.compiler.processing.ksp.KspAnnotationValue
 import androidx.room.compiler.processing.ksp.KspElement
@@ -106,10 +108,18 @@ object XConverters {
     fun XVariableElement.toJavac(): VariableElement = (this as JavacVariableElement).element
 
     @JvmStatic
-    fun XAnnotation.toJavac(): AnnotationMirror = (this as JavacAnnotation).mirror
+    fun XAnnotation.toJavac(): AnnotationMirror = when (this) {
+        is JavacAnnotation -> this.mirror
+        // TODO(kuanyingchou: Try to support JavacKmAnnotation
+        else -> error("Don't know how to convert element of type '${this::class}' to Java")
+    }
 
     @JvmStatic
-    fun XAnnotationValue.toJavac(): AnnotationValue = (this as JavacAnnotationValue).annotationValue
+    fun XAnnotationValue.toJavac(): AnnotationValue = when (this) {
+        is JavacAnnotationValue -> this.annotationValue
+        // TODO(kuanyingchou: Try to support JavacKmAnnotationValue
+        else -> error("Don't know how to convert element of type '${this::class}' to Java")
+    }
 
     @JvmStatic
     fun XType.toJavac(): TypeMirror = (this as JavacType).typeMirror
@@ -123,6 +133,10 @@ object XConverters {
             is TypeElement -> this.toXProcessing(env)
             is ExecutableElement -> this.toXProcessing(env)
             is VariableElement -> this.toXProcessing(env)
+            is KSFileAsOriginatingElement ->
+                (env as KspProcessingEnv).wrapKSFile(this.ksFile)
+            is KSClassDeclarationAsOriginatingElement ->
+                (env as KspProcessingEnv).wrapClassDeclaration(this.ksClassDeclaration)
             else -> error(
                 "Don't know how to convert element of type '${this::class}' to a XElement"
             )

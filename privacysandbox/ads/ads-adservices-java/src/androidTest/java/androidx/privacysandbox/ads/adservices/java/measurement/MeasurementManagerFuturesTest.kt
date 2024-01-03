@@ -351,7 +351,7 @@ class MeasurementManagerFuturesTest {
             null
         }
 
-        val uris = (0..20).map { i ->
+        val uris = (1..20).map { i ->
             val uri = Uri.parse("www.uri$i.com")
             if (i == 15) {
                 doAnswer(errorCallback).`when`(measurementManager)

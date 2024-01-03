@@ -20,6 +20,7 @@ import android.bluetooth.BluetoothManager
 import android.bluetooth.le.AdvertiseCallback
 import android.bluetooth.le.AdvertiseData
 import android.bluetooth.le.AdvertiseSettings
+import android.bluetooth.le.BluetoothLeScanner
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult as FwkScanResult
 import android.bluetooth.le.ScanSettings
@@ -28,6 +29,7 @@ import android.os.ParcelUuid
 import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import java.util.UUID
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
@@ -39,7 +41,7 @@ import kotlinx.coroutines.flow.callbackFlow
  * operations such as scanning, advertising, and connection with a respective [BluetoothDevice].
  *
  */
-class BluetoothLe(private val context: Context) {
+class BluetoothLe constructor(private val context: Context) {
 
     private companion object {
         private const val TAG = "BluetoothLe"
@@ -48,7 +50,17 @@ class BluetoothLe(private val context: Context) {
     private val bluetoothManager =
         context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager?
     private val bluetoothAdapter = bluetoothManager?.adapter
-    private val serverImpl = GattServerImpl(context)
+
+    @VisibleForTesting
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    val client = GattClient(context)
+    private val server = GattServer(context)
+
+    @VisibleForTesting
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY)
+    var onStartScanListener: OnStartScanListener? = null
+
     /**
      * Returns a _cold_ [Flow] to start Bluetooth LE Advertising. When the flow is successfully collected,
      * the operation status [AdvertiseResult] will be delivered via the
@@ -143,6 +155,7 @@ class BluetoothLe(private val context: Context) {
         val fwkFilters = filters.map { it.fwkScanFilter }
         val scanSettings = ScanSettings.Builder().build()
         bleScanner?.startScan(fwkFilters, scanSettings, callback)
+        onStartScanListener?.onStartScan(bleScanner)
 
         awaitClose {
             bleScanner?.stopScan(callback)
@@ -225,7 +238,7 @@ class BluetoothLe(private val context: Context) {
         device: BluetoothDevice,
         block: suspend GattClientScope.() -> R
     ): Result<R> {
-        return GattClient().connect(context, device, block)
+        return client.connect(device, block)
     }
 
     /**
@@ -236,8 +249,8 @@ class BluetoothLe(private val context: Context) {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     class GattServerConnectionRequest internal constructor(
         val device: BluetoothDevice,
-        private val serverImpl: GattServerImpl,
-        internal val session: GattServerImpl.Session,
+        private val server: GattServer,
+        internal val session: GattServer.Session,
     ) {
         /**
          * Accepts the connection request and handles incoming requests after that.
@@ -247,14 +260,14 @@ class BluetoothLe(private val context: Context) {
          * @see GattServerScope
          */
         suspend fun accept(block: GattServerScope.() -> Unit) {
-            return serverImpl.acceptConnection(this, block)
+            return server.acceptConnection(this, block)
         }
 
         /**
          * Rejects the connection request.
          */
         fun reject() {
-            return serverImpl.rejectConnection(this)
+            return server.rejectConnection(this)
         }
     }
 
@@ -297,10 +310,29 @@ class BluetoothLe(private val context: Context) {
      *
      * Only one server at a time can be opened.
      *
+     * @param services the services that will be exposed to the clients.
+     *
      * @see GattServerConnectionRequest
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     fun openGattServer(services: List<GattService>): Flow<GattServerConnectionRequest> {
-        return serverImpl.open(services)
+        return server.open(services)
+    }
+
+    /**
+     * Updates the services of the opened GATT server.
+     * It will be ignored if there is no opened server.
+     *
+     * @param services the new services that will be notified to the clients.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    fun updateServices(services: List<GattService>) {
+        server.updateServices(services)
+    }
+
+    @VisibleForTesting
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    fun interface OnStartScanListener {
+        fun onStartScan(scanner: BluetoothLeScanner?)
     }
 }

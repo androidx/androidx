@@ -57,6 +57,7 @@ dependencies {
     androidTestImplementation(project(":internal-testutils-mockito"))
 
     testImplementation(libs.junit)
+    testImplementation(libs.testExtJunit)
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)

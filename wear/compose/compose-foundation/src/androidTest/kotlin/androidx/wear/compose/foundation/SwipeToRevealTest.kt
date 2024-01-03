@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
@@ -51,32 +52,6 @@ class SwipeToRevealTest {
     }
 
     @Test
-    fun supports_testTag_onAction() {
-        rule.setContent {
-            swipeToRevealWithDefaults(
-                action = {
-                    getAction(modifier = Modifier.testTag(TEST_TAG))
-                }
-            )
-        }
-
-        rule.onNodeWithTag(testTag = TEST_TAG).assertExists()
-    }
-
-    @Test
-    fun supports_testTag_onAdditionalAction() {
-        rule.setContent {
-            swipeToRevealWithDefaults(
-                additionalAction = {
-                    getAction(modifier = Modifier.testTag(TEST_TAG))
-                }
-            )
-        }
-
-        rule.onNodeWithTag(testTag = TEST_TAG).assertExists()
-    }
-
-    @Test
     fun onStartWithDefaultState_keepsContentToRight() {
         rule.setContent {
             swipeToRevealWithDefaults(
@@ -85,6 +60,49 @@ class SwipeToRevealTest {
         }
 
         rule.onNodeWithTag(TEST_TAG).assertLeftPositionInRootIsEqualTo(0.dp)
+    }
+
+    @Test
+    fun onZeroOffset_doesNotDrawActions() {
+        rule.setContent {
+            swipeToRevealWithDefaults(
+                action = { actionContent(modifier = Modifier.testTag(TEST_TAG)) }
+            )
+        }
+
+        rule.onNodeWithTag(TEST_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun onRevealing_drawsAction() {
+        rule.setContent {
+            swipeToRevealWithDefaults(
+                state = rememberRevealState(initialValue = RevealValue.Revealing),
+                action = { actionContent(modifier = Modifier.testTag(TEST_TAG)) }
+            )
+        }
+
+        rule.onNodeWithTag(TEST_TAG).assertExists()
+    }
+
+    @Test
+    fun onSwipe_drawsAction() {
+        val s2rTag = "S2RTag"
+        rule.setContent {
+            swipeToRevealWithDefaults(
+                modifier = Modifier.testTag(s2rTag),
+                action = { actionContent(modifier = Modifier.testTag(TEST_TAG)) }
+            )
+        }
+
+        rule.onNodeWithTag(s2rTag).performTouchInput {
+            down(center)
+            // Move the pointer by quarter of the screen width, don't move up the pointer
+            moveBy(delta = Offset(x = -(centerX / 4), y = 0f))
+        }
+
+        rule.waitForIdle()
+        rule.onNodeWithTag(TEST_TAG).assertExists()
     }
 
     @Test
@@ -160,7 +178,9 @@ class SwipeToRevealTest {
         onClick: () -> Unit = {},
         modifier: Modifier = Modifier
     ) {
-        Box(modifier = modifier.size(width = 200.dp, height = 50.dp).clickable { onClick() }) {}
+        Box(modifier = modifier
+            .size(width = 200.dp, height = 50.dp)
+            .clickable { onClick() }) {}
     }
 
     @Composable

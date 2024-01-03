@@ -26,7 +26,7 @@ import androidx.room.ext.isNotError
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.QueryType
 import androidx.room.parser.SqlParser
-import androidx.room.processor.ProcessorErrors.cannotMapInfoSpecifiedColumn
+import androidx.room.processor.ProcessorErrors.cannotMapSpecifiedColumn
 import androidx.room.solver.TypeAdapterExtras
 import androidx.room.solver.query.result.PojoRowAdapter
 import androidx.room.verifier.ColumnInfo
@@ -208,6 +208,7 @@ private class InternalQueryProcessor(
         )
     }
 
+    @Suppress("DEPRECATION") // Due to MapInfo usage
     private fun getQueryMethod(
         delegate: MethodProcessorDelegate,
         returnType: XType,
@@ -284,6 +285,7 @@ private class InternalQueryProcessor(
      * Parse @MapInfo annotation, validate its inputs and put information in the bag of extras,
      * it will be later used by the TypeAdapterStore.
      */
+    @Suppress("DEPRECATION") // Due to @MapInfo usage
     private fun processMapInfo(
         mapInfoAnnotation: XAnnotationBox<androidx.room.MapInfo>,
         query: ParsedQuery,
@@ -323,18 +325,20 @@ private class InternalQueryProcessor(
                 keyColumn.isEmpty() || resultColumns.contains(keyColumn, keyTable),
                 queryExecutableElement
             ) {
-                cannotMapInfoSpecifiedColumn(
+                cannotMapSpecifiedColumn(
                     (if (keyTable != null) "$keyTable." else "") + keyColumn,
-                    resultColumns.map { it.name }
+                    resultColumns.map { it.name },
+                    androidx.room.MapInfo::class.java.simpleName
                 )
             }
             context.checker.check(
                 valueColumn.isEmpty() || resultColumns.contains(valueColumn, valueTable),
                 queryExecutableElement
             ) {
-                cannotMapInfoSpecifiedColumn(
+                cannotMapSpecifiedColumn(
                     (if (valueTable != null) "$valueTable." else "") + valueColumn,
-                    resultColumns.map { it.name }
+                    resultColumns.map { it.name },
+                    androidx.room.MapInfo::class.java.simpleName
                 )
             }
         }

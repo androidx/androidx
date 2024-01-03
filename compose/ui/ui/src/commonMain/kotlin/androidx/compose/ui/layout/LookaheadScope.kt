@@ -44,7 +44,6 @@ import kotlinx.coroutines.CoroutineScope
  *
  * @param content The child composable to be laid out.
  */
-@ExperimentalComposeUiApi
 @UiComposable
 @Composable
 fun LookaheadScope(content: @Composable @UiComposable LookaheadScope.() -> Unit) {
@@ -112,8 +111,8 @@ private data class IntermediateLayoutElement(
  *
  * [IntermediateMeasureScope.lookaheadSize] provides the target size of the layout.
  * [IntermediateMeasureScope] is also a [LookaheadScope], thus allowing layouts to
- * read their [LookaheadLayoutCoordinates] during placement using
- * [LookaheadScope.toLookaheadCoordinates], as well as the [LookaheadLayoutCoordinates] of the
+ * read their lookahead [LayoutCoordinates] during placement using
+ * [LookaheadScope.toLookaheadCoordinates], as well as the lookahead [LayoutCoordinates] of the
  * closest lookahead scope via [LookaheadScope.lookaheadScopeCoordinates].
  * By knowing the target size and position, layout adjustments such as animations can be defined
  * in [intermediateLayout] to morph the layout gradually in both size and position
@@ -141,22 +140,23 @@ sealed interface IntermediateMeasureScope : LookaheadScope, CoroutineScope, Meas
  * [LookaheadScope]. This receiver scope allows access to [lookaheadScopeCoordinates] from
  * any child's [Placeable.PlacementScope]. It also allows any child to convert
  * [LayoutCoordinates] (which can be retrieved in [Placeable.PlacementScope]) to
- * [LookaheadLayoutCoordinates] using [toLookaheadCoordinates].
+ * [LayoutCoordinates] in lookahead coordinate space using [toLookaheadCoordinates].
  *
  * @sample androidx.compose.ui.samples.LookaheadLayoutCoordinatesSample
  */
-@ExperimentalComposeUiApi
 interface LookaheadScope {
     /**
      * Converts a [LayoutCoordinates] into a [LayoutCoordinates] in the Lookahead coordinates space.
      * This is only applicable to child layouts within [LookaheadScope].
      */
+    @ExperimentalComposeUiApi
     fun LayoutCoordinates.toLookaheadCoordinates(): LayoutCoordinates
 
     /**
      * Returns the [LayoutCoordinates] of the [LookaheadScope]. This is
      * only accessible from [Placeable.PlacementScope] (i.e. during placement time).
      */
+    @ExperimentalComposeUiApi
     val Placeable.PlacementScope.lookaheadScopeCoordinates: LayoutCoordinates
 
     /**
@@ -165,6 +165,7 @@ interface LookaheadScope {
      * [toLookaheadCoordinates], and 2) invoking [LayoutCoordinates.localPositionOf] with the
      * converted coordinates.
      */
+    @ExperimentalComposeUiApi
     fun LayoutCoordinates.localLookaheadPositionOf(coordinates: LayoutCoordinates) =
         this.toLookaheadCoordinates().localPositionOf(
             coordinates.toLookaheadCoordinates(),
@@ -177,7 +178,7 @@ internal class LookaheadScopeImpl(
     var scopeCoordinates: (() -> LayoutCoordinates)? = null
 ) : LookaheadScope {
     override fun LayoutCoordinates.toLookaheadCoordinates(): LayoutCoordinates {
-        return this as? LookaheadLayoutCoordinatesImpl
+        return this as? LookaheadLayoutCoordinates
             ?: (this as NodeCoordinator).let {
                 // If the coordinator has no lookahead delegate. Its
                 // lookahead coords is the same as its coords

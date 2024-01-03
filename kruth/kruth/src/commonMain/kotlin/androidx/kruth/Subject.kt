@@ -33,6 +33,8 @@ open class Subject<out T>(
     private val metadata: FailureMetadata = FailureMetadata(),
 ) {
 
+    protected fun check(): StandardSubjectBuilder = StandardSubjectBuilder(metadata = metadata)
+
     internal val asserter: KruthAsserter get() = asserter()
 
     internal fun asserter(withActual: Boolean = false): KruthAsserter =
@@ -252,7 +254,7 @@ open class Subject<out T>(
      * [our doc on extensions](https://truth.dev/extension). It explains where [Factory] fits into
      * the process.
      */
-    fun interface Factory<T, out S : Subject<T>> {
-        fun createSubject(metadata: FailureMetadata, actual: T): S
+    fun interface Factory<out SubjectT : Subject<ActualT>, ActualT> {
+        fun createSubject(metadata: FailureMetadata, actual: ActualT): SubjectT
     }
 }

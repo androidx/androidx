@@ -452,6 +452,28 @@ class SandboxedSdkViewTest {
         assertThat(testSandboxedUiAdapter.inputToken).isEqualTo(token)
     }
 
+    /**
+     * Ensures that ACTIVE will only be sent to registered state change listeners after the first
+     * draw event.
+     */
+    @Test
+    fun activeStateOnlySentAfterFirstDraw() {
+        addViewToLayout()
+        var latch = CountDownLatch(1)
+        view.addStateChangedListener {
+            if (it == SandboxedSdkUiSessionState.Active) {
+                latch.countDown()
+            }
+        }
+        assertThat(latch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+
+        // Manually set state to IDLE.
+        // Subsequent draw events should not flip the state back to ACTIVE.
+        view.stateListenerManager.currentUiSessionState = SandboxedSdkUiSessionState.Idle
+        latch = CountDownLatch(1)
+        assertThat(latch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
+    }
+
     private fun addViewToLayout() {
         activity.runOnUiThread {
             activity.findViewById<LinearLayout>(

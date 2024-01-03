@@ -199,6 +199,9 @@ public interface CameraInfo {
      * {@link CameraSelector#LENS_FACING_BACK}, or {@link CameraSelector#LENS_FACING_EXTERNAL}.
      * If the lens facing of the camera can not be resolved, return
      * {@link CameraSelector#LENS_FACING_UNKNOWN}.
+     *
+     * @throws IllegalArgumentException If the device cannot return a valid lens facing value,
+     *                                  it will throw this exception.
      */
     @CameraSelector.LensFacing
     default int getLensFacing() {

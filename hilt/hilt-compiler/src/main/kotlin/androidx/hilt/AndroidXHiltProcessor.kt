@@ -29,7 +29,9 @@ import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType.ISOLATING
  */
 @AutoService(Processor::class)
 @IncrementalAnnotationProcessor(ISOLATING)
-class AndroidXHiltProcessor : JavacBasicAnnotationProcessor() {
+class AndroidXHiltProcessor : JavacBasicAnnotationProcessor(
+    config = WorkerStep.ENV_CONFIG
+) {
 
     override fun processingSteps() = listOf(WorkerStep())
 

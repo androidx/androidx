@@ -37,6 +37,12 @@ import androidx.compose.ui.unit.Constraints
  * @param prefetchState allows to schedule items for prefetching
  * @param measurePolicy Measure policy which allows to only compose and measure needed items.
  */
+@Deprecated(
+    message = "Use an overload accepting a lambda prodicing an item provider instead",
+    replaceWith = ReplaceWith(
+        "LazyLayout({ itemProvider }, modifier, prefetchState, measurePolicy)"
+    )
+)
 @ExperimentalFoundationApi
 @Composable
 fun LazyLayout(
@@ -48,9 +54,19 @@ fun LazyLayout(
     LazyLayout({ itemProvider }, modifier, prefetchState, measurePolicy)
 }
 
+/**
+ * A layout that only composes and lays out currently needed items. Can be used to build
+ * efficient scrollable layouts.
+ *
+ * @param itemProvider lambda producing an item provider containing all the needed info about
+ * the items which could be used to compose and measure items as part of [measurePolicy].
+ * @param modifier to apply on the layout
+ * @param prefetchState allows to schedule items for prefetching
+ * @param measurePolicy Measure policy which allows to only compose and measure needed items.
+ */
 @ExperimentalFoundationApi
 @Composable
-internal fun LazyLayout(
+fun LazyLayout(
     itemProvider: () -> LazyLayoutItemProvider,
     modifier: Modifier = Modifier,
     prefetchState: LazyLayoutPrefetchState? = null,

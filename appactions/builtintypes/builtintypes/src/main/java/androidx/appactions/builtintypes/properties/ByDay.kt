@@ -20,6 +20,7 @@ import kotlin.Any
 import kotlin.Boolean
 import kotlin.Int
 import kotlin.String
+import kotlin.Suppress
 import kotlin.error
 import kotlin.jvm.JvmName
 
@@ -38,17 +39,22 @@ import kotlin.jvm.JvmName
 public class ByDay
 internal constructor(
   /** The [String] variant, or null if constructed using a different variant. */
-  @get:JvmName("asText") @Document.StringProperty public val asText: String? = null,
+  @get:JvmName("asText") @get:Document.StringProperty public val asText: String? = null,
   /** The [DayOfWeek] variant, or null if constructed using a different variant. */
   @get:JvmName("asDayOfWeek") public val asDayOfWeek: DayOfWeek? = null,
-  /**
-   * The AppSearch document's identifier.
-   *
-   * Every AppSearch document needs an identifier. Since property wrappers are only meant to be used
-   * at nested levels, this is internal and will always be an empty string.
-   */
-  @Document.Id internal val identifier: String = "",
+  /** Required ctor param for the AppSearch compiler. */
+  @Suppress("UNUSED_PARAMETER") identifier: String = "",
+  /** Required ctor param for the AppSearch compiler. */
+  @Suppress("UNUSED_PARAMETER") namespace: String = "",
 ) {
+  @get:Document.Id
+  internal val identifier: String
+    get() = ""
+
+  @get:Document.Namespace
+  internal val namespace: String
+    get() = ""
+
   /** Constructor for the [String] variant. */
   public constructor(text: String) : this(asText = text)
 

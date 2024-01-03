@@ -242,7 +242,7 @@ class SelectionControlsTest {
     }
 
     @Test
-    fun checkbox_is_off_when_checked() {
+    fun checkbox_is_off_when_unchecked() {
         // This test only applies when onCheckedChange is defined.
         rule.setContent {
             CheckboxWithDefaults(
@@ -312,7 +312,12 @@ class SelectionControlsTest {
 
         val checkboxImage = rule.onNodeWithTag(TEST_TAG).captureToImage()
         checkboxImage.assertContainsColor(boxColorDisabledChecked)
-        checkboxImage.assertContainsColor(checkmarkColorDisabledChecked)
+        checkboxImage.assertContainsColor(
+            hardLightBlend(
+                boxColorDisabledChecked,
+                boxColorDisabledChecked
+            )
+        )
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -462,7 +467,7 @@ class SelectionControlsTest {
     }
 
     @Test
-    fun switch_is_off_when_checked() {
+    fun switch_is_off_when_unchecked() {
         // This test only applies when onCheckedChange is defined.
         rule.setContent {
             SwitchWithDefaults(
@@ -847,7 +852,7 @@ class SelectionControlsTest {
         enabled: Boolean = true,
         onCheckedChange: ((Boolean) -> Unit)? = null,
         interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-        drawBox: FunctionDrawBox = FunctionDrawBox { _, _, _ -> },
+        drawBox: FunctionDrawBox = FunctionDrawBox { _, _, _, _ -> },
         width: Dp = 24.dp,
         height: Dp = 24.dp
     ) = Checkbox(
@@ -998,7 +1003,7 @@ class SelectionControlsTest {
                         disabledUncheckedColor = checkmarkColorDisabledUnchecked
                     )
                 },
-                drawBox = FunctionDrawBox { drawScope, color, _ ->
+                drawBox = { drawScope, color, _, _ ->
                     drawScope.drawRoundRect(color)
                 })
         }
@@ -1050,7 +1055,7 @@ class SelectionControlsTest {
                         disabledUncheckedColor = thumbIconColorDisabledUnchecked
                     )
                 },
-                drawThumb = FunctionDrawThumb { drawScope, thumbColor, _, thumbIconColor, _ ->
+                drawThumb = { drawScope, thumbColor, _, thumbIconColor, _ ->
                     // drawing
                     drawScope.drawCircle(
                         color = thumbColor,
@@ -1094,6 +1099,23 @@ class SelectionControlsTest {
                 }
             )
         }
+    }
+
+    // Formula taken from https://en.wikipedia.org/wiki/Blend_modes#Hard_Light
+    private fun hardLightBlend(colorA: Color, colorB: Color): Color {
+        fun blendChannel(a: Float, b: Float): Float {
+            return if (b < 0.5f) {
+                2 * a * b
+            } else {
+                1 - 2 * (1 - a) * (1 - b)
+            }
+        }
+
+        val blendedRed = blendChannel(colorA.red, colorB.red)
+        val blendedGreen = blendChannel(colorA.green, colorB.green)
+        val blendedBlue = blendChannel(colorA.blue, colorB.blue)
+
+        return Color(red = blendedRed, green = blendedGreen, blue = blendedBlue)
     }
 
     @Composable

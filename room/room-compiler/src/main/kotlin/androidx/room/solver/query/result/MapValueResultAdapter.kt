@@ -340,8 +340,12 @@ sealed class MapValueResultAdapter(
                             language == CodeLanguage.KOTLIN &&
                             valueTypeArg.nullability == XNullability.NONNULL
                         ) {
-                            // TODO(b/249984504): Generate / output a better message.
-                            addStatement("error(%S)", "Missing value for a key.")
+                            addStatement(
+                                "error(%S)",
+                                "The column(s) of the map value object of type " +
+                                    "'$valueTypeArg' are NULL but the map's value type " +
+                                    "argument expect it to be NON-NULL"
+                            )
                         } else {
                             genPutValueCode.invoke("null", false)
                             addStatement("continue")

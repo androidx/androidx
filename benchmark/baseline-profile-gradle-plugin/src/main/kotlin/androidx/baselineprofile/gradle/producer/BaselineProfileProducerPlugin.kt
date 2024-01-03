@@ -65,6 +65,11 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) : A
     maxAgpVersion = MAX_AGP_VERSION_REQUIRED
 ) {
 
+    companion object {
+        private const val PROP_ENABLED_RULES =
+            "android.testInstrumentationRunnerArguments.androidx.benchmark.enabledRules"
+    }
+
     private val baselineProfileExtension = BaselineProfileProducerExtension.register(project)
     private val configurationManager = ConfigurationManager(project)
     private val shouldSkipGeneration by lazy {
@@ -217,9 +222,18 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) : A
         // api so the actual creation of the tasks is postponed to be executed when all the
         // agp tasks have been created, using the old api.
 
+        // The enabled rules property is passed automatically according to the variant, if it was
+        // not set by the user.
+        val enabledRulesNotSet = !project
+            .gradle
+            .startParameter
+            .projectProperties
+            .any { it.key!!.contentEquals(PROP_ENABLED_RULES) }
+
         // If this is a benchmark variant sets the instrumentation runner argument to run only
         // tests with MacroBenchmark rules.
-        if (variant.buildType in benchmarkExtendedToOriginalTypeMap.keys) {
+        if (enabledRulesNotSet &&
+            variant.buildType in benchmarkExtendedToOriginalTypeMap.keys) {
             if (supportsFeature(TEST_VARIANT_SUPPORTS_INSTRUMENTATION_RUNNER_ARGUMENTS)) {
                 InstrumentationTestRunnerArgumentsAgp82.set(
                     variant = variant,
@@ -239,7 +253,8 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) : A
 
             // If this is a benchmark variant sets the instrumentation runner argument to run only
             // tests with MacroBenchmark rules.
-            if (supportsFeature(TEST_VARIANT_SUPPORTS_INSTRUMENTATION_RUNNER_ARGUMENTS)) {
+            if (enabledRulesNotSet &&
+                supportsFeature(TEST_VARIANT_SUPPORTS_INSTRUMENTATION_RUNNER_ARGUMENTS)) {
                 InstrumentationTestRunnerArgumentsAgp82.set(
                     variant = variant,
                     arguments = listOf(

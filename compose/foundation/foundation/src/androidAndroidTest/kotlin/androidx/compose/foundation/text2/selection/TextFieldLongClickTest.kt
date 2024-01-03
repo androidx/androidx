@@ -58,8 +58,6 @@ class TextFieldLongClickTest {
     @get:Rule
     val rule = createComposeRule()
 
-    private lateinit var state: TextFieldState
-
     private val TAG = "BasicTextField2"
 
     private val fontSize = 10.sp
@@ -67,7 +65,7 @@ class TextFieldLongClickTest {
     private val defaultTextStyle = TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = fontSize)
 
     @Test
-    fun emptyTextField_longClickShowsCursor() {
+    fun emptyTextField_longClickDoesNotShowCursor() {
         rule.setContent {
             BasicTextField2(
                 state = rememberTextFieldState(),
@@ -78,7 +76,7 @@ class TextFieldLongClickTest {
 
         rule.onNodeWithTag(TAG).performTouchInput { longClick() }
 
-        rule.onNode(isSelectionHandle(Handle.Cursor)).assertIsDisplayed()
+        rule.onNode(isSelectionHandle(Handle.Cursor)).assertDoesNotExist()
     }
 
     @Test

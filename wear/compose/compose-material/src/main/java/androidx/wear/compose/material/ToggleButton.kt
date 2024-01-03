@@ -15,28 +15,22 @@
  */
 package androidx.wear.compose.material
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 
 /**
@@ -219,36 +213,24 @@ public fun ToggleButton(
     role: Role = ToggleButtonDefaults.DefaultRole,
     content: @Composable BoxScope.() -> Unit,
 ) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier
-            .defaultMinSize(
-                minWidth = ToggleButtonDefaults.DefaultToggleButtonSize,
-                minHeight = ToggleButtonDefaults.DefaultToggleButtonSize
-            )
-            .clip(shape)
-            .toggleable(
-                value = checked,
-                onValueChange = onCheckedChange,
-                enabled = enabled,
-                role = role,
-                interactionSource = interactionSource,
-                indication = rememberRipple()
-            )
-            .background(
-                color = colors.backgroundColor(enabled = enabled, checked = checked).value,
-                shape = shape
-            )
-    ) {
-        val contentColor = colors.contentColor(enabled = enabled, checked = checked).value
-        CompositionLocalProvider(
-            LocalContentColor provides contentColor,
-            LocalContentAlpha provides contentColor.alpha,
-            LocalTextStyle provides MaterialTheme.typography.button,
-        ) {
-            content()
-        }
-    }
+    androidx.wear.compose.materialcore.ToggleButton(
+        checked = checked,
+        onCheckedChange = onCheckedChange,
+        modifier = modifier.semantics { this.role = role },
+        enabled = enabled,
+        backgroundColor = { isEnabled, isChecked ->
+            colors.backgroundColor(enabled = isEnabled, checked = isChecked)
+        },
+        border = { _, _ -> null },
+        toggleButtonSize = ToggleButtonDefaults.DefaultToggleButtonSize,
+        interactionSource = interactionSource,
+        shape = shape,
+        content = provideScopeContent(
+            colors.contentColor(enabled = enabled, checked = checked),
+            MaterialTheme.typography.button,
+            content
+        )
+    )
 }
 /**
  * Represents the background and content colors used in a toggle button in different states.

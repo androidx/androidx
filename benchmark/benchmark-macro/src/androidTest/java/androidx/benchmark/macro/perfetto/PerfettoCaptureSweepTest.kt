@@ -129,7 +129,7 @@ class PerfettoCaptureSweepTest(
         perfettoCapture.stop(traceFilePath)
 
         val matchingSlices = PerfettoTraceProcessor.runSingleSessionServer(traceFilePath) {
-            querySlices("PerfettoCaptureTest_%")
+            querySlices("PerfettoCaptureTest_%", packageName = null)
         }
 
         // Note: this test avoids validating platform-triggered trace sections, to avoid flakes

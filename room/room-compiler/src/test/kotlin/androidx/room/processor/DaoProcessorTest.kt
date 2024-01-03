@@ -17,6 +17,7 @@
 package androidx.room.processor
 
 import COMMON
+import androidx.kruth.assertThat
 import androidx.room.compiler.processing.isTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
@@ -30,7 +31,6 @@ import androidx.room.testing.context
 import androidx.room.vo.Dao
 import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.Warning
-import com.google.common.truth.Truth
 import createVerifierFromEntitiesAndViews
 import java.io.File
 import org.hamcrest.CoreMatchers.`is`
@@ -277,7 +277,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
             val dbType = invocation.context.processingEnv.requireType(ROOM_DB)
             val daoProcessor =
                 DaoProcessor(invocation.context, dao, dbType, null)
-            Truth.assertThat(daoProcessor.context.logger.suppressedWarnings)
+            assertThat(daoProcessor.context.logger.suppressedWarnings)
                 .containsExactly(Warning.CURSOR_MISMATCH)
         }
     }

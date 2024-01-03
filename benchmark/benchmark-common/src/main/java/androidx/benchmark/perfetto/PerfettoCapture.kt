@@ -22,9 +22,9 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.Outputs
 import androidx.benchmark.Shell
+import androidx.benchmark.inMemoryTrace
 import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig.InitialProcessState
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
-import androidx.benchmark.userspaceTrace
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.tracing.perfetto.handshake.PerfettoSdkHandshake
 import androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes.RESULT_CODE_ALREADY_ENABLED
@@ -57,18 +57,18 @@ public class PerfettoCapture(
     /**
      * Start collecting perfetto trace.
      */
-    fun start(config: PerfettoConfig) = userspaceTrace("start perfetto") {
+    fun start(config: PerfettoConfig) = inMemoryTrace("start perfetto") {
         // Write config proto to dir that shell can read
         //     We use `.pb` even with textproto so we'll only ever have one file
         val configProtoFile = File(Outputs.dirUsableByAppAndShell, "trace_config.pb")
         try {
-            userspaceTrace("write config") {
+            inMemoryTrace("write config") {
                 config.writeTo(configProtoFile)
                 if (Outputs.forceFilesForShellAccessible) {
                     configProtoFile.setReadable(true, /* ownerOnly = */ false)
                 }
             }
-            userspaceTrace("start perfetto process") {
+            inMemoryTrace("start perfetto process") {
                 helper.startCollecting(configProtoFile.absolutePath, config.isTextProto)
             }
         } finally {
@@ -82,7 +82,7 @@ public class PerfettoCapture(
      * @param destinationPath Absolute path to write perfetto trace to. Must be shell-writable,
      * such as result of `context.getExternalFilesDir(null)` or other similar `external` paths.
      */
-    public fun stop(destinationPath: String) = userspaceTrace("stop perfetto") {
+    public fun stop(destinationPath: String) = inMemoryTrace("stop perfetto") {
         helper.stopCollecting(destinationPath)
     }
 

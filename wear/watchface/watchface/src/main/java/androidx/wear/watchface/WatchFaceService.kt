@@ -437,9 +437,9 @@ public abstract class WatchFaceService : WallpaperService() {
             }
     }
 
-    /** The context used to resolve resources. Unlocks future work. */
-    protected open val resourcesContext: Context
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) get() = this
+    /** Returns the context used to resolve resources. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    protected open fun getResourcesContext(runtimePackage: String): Context = this
 
     /**
      * Returns the id of the XmlSchemaAndComplicationSlotsDefinition XML resource or 0 if it can't
@@ -2644,7 +2644,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 for (styleSetting in schema.userStyleSettings) {
                     estimatedBytes +=
                         styleSetting.estimateWireSizeInBytesAndValidateIconDimensions(
-                            resourcesContext,
+                            getResourcesContext(getComponentName().packageName),
                             MAX_REASONABLE_SCHEMA_ICON_WIDTH,
                             MAX_REASONABLE_SCHEMA_ICON_HEIGHT,
                         )

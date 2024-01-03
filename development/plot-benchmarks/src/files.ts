@@ -1,14 +1,4 @@
-import type { Benchmarks } from "./schema.js";
-
-export interface FileMetadata {
-  file: File;
-  enabled: boolean;
-  benchmarks: Benchmarks;
-}
-
-export interface FileMetadataEvent {
-  entries: Array<FileMetadata>;
-}
+import type { Benchmarks } from "./types/benchmark.js";
 
 export async function readBenchmarks(file: File): Promise<Benchmarks> {
   const contents = await readFile(file);

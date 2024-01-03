@@ -40,6 +40,9 @@ object DeviceInfo {
     val typeLabel = if (isEmulator) "emulator" else "device"
 
     val isEngBuild = Build.FINGERPRINT.contains(":eng/")
+    private val isUserdebugBuild = Build.FINGERPRINT.contains(":userdebug/")
+
+    val profileableEnforced = !isEngBuild && !isUserdebugBuild
 
     val isRooted = Build.FINGERPRINT.contains(":userdebug/") ||
         arrayOf(

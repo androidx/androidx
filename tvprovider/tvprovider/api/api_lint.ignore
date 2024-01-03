@@ -81,13 +81,9 @@ HiddenSuperclass: androidx.tvprovider.media.tv.WatchNextProgram:
     Public class androidx.tvprovider.media.tv.WatchNextProgram stripped of unavailable superclass androidx.tvprovider.media.tv.BasePreviewProgram
 
 
-IntentName: androidx.tvprovider.media.tv.TvContractCompat.PreviewPrograms#COLUMN_INTERACTION_COUNT:
+IntentName: androidx.tvprovider.media.tv.TvContractCompat.PreviewProgramColumns#COLUMN_INTERACTION_COUNT:
     Intent action constant name must be ACTION_FOO: COLUMN_INTERACTION_COUNT
-IntentName: androidx.tvprovider.media.tv.TvContractCompat.PreviewPrograms#COLUMN_INTERACTION_TYPE:
-    Intent action constant name must be ACTION_FOO: COLUMN_INTERACTION_TYPE
-IntentName: androidx.tvprovider.media.tv.TvContractCompat.WatchNextPrograms#COLUMN_INTERACTION_COUNT:
-    Intent action constant name must be ACTION_FOO: COLUMN_INTERACTION_COUNT
-IntentName: androidx.tvprovider.media.tv.TvContractCompat.WatchNextPrograms#COLUMN_INTERACTION_TYPE:
+IntentName: androidx.tvprovider.media.tv.TvContractCompat.PreviewProgramColumns#COLUMN_INTERACTION_TYPE:
     Intent action constant name must be ACTION_FOO: COLUMN_INTERACTION_TYPE
 
 

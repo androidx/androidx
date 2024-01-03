@@ -113,7 +113,8 @@ sealed class EnterTransition {
                 fade = data.fade ?: enter.data.fade,
                 slide = data.slide ?: enter.data.slide,
                 changeSize = data.changeSize ?: enter.data.changeSize,
-                scale = data.scale ?: enter.data.scale
+                scale = data.scale ?: enter.data.scale,
+                effectsMap = data.effectsMap + enter.data.effectsMap
             )
         )
     }
@@ -198,7 +199,8 @@ sealed class ExitTransition {
                 slide = data.slide ?: exit.data.slide,
                 changeSize = data.changeSize ?: exit.data.changeSize,
                 scale = data.scale ?: exit.data.scale,
-                hold = data.hold || exit.data.hold
+                hold = data.hold || exit.data.hold,
+                effectsMap = data.effectsMap + exit.data.effectsMap
             )
         )
     }
@@ -796,6 +798,18 @@ internal data class Scale(
     val animationSpec: FiniteAnimationSpec<Float>
 )
 
+internal fun EnterTransition(
+    key: Any,
+    node: ModifierNodeElement<out Modifier.Node>
+): EnterTransition =
+    EnterTransitionImpl(TransitionData(effectsMap = mapOf(key to node)))
+
+internal fun ExitTransition(
+    key: Any,
+    node: ModifierNodeElement<out Modifier.Node>
+): ExitTransition =
+    ExitTransitionImpl(TransitionData(effectsMap = mapOf(key to node)))
+
 @Immutable
 private class EnterTransitionImpl(override val data: TransitionData) : EnterTransition()
 
@@ -822,8 +836,17 @@ internal data class TransitionData(
     val slide: Slide? = null,
     val changeSize: ChangeSize? = null,
     val scale: Scale? = null,
-    val hold: Boolean = false
+    val hold: Boolean = false,
+    val effectsMap: Map<Any, ModifierNodeElement<out Modifier.Node>> = emptyMap()
 )
+
+@Suppress("ModifierFactoryExtensionFunction", "ModifierFactoryReturnType")
+internal operator fun EnterTransition.get(key: Any): ModifierNodeElement<out Modifier.Node>? =
+    data.effectsMap[key]
+
+@Suppress("ModifierFactoryExtensionFunction", "ModifierFactoryReturnType")
+internal operator fun ExitTransition.get(key: Any): ModifierNodeElement<out Modifier.Node>? =
+    data.effectsMap[key]
 
 @OptIn(ExperimentalAnimationApi::class, InternalAnimationApi::class)
 @Suppress("ModifierFactoryExtensionFunction", "ComposableModifierFactory")
@@ -833,7 +856,6 @@ internal fun Transition<EnterExitState>.createModifier(
     exit: ExitTransition,
     label: String
 ): Modifier {
-
     // Active enter & active exit reference the enter and exit transition that is currently being
     // used. It is important to preserve the active enter/exit that was previously used before
     // changing target state, such that if the previous enter/exit is interrupted, we still hold
@@ -879,7 +901,6 @@ internal fun Transition<EnterExitState>.createModifier(
         activeExit.data.changeSize?.clip == false) || !shouldAnimateSizeChange
 
     val graphicsLayerBlock = createGraphicsLayerBlock(activeEnter, activeExit, label)
-
     return Modifier
         .graphicsLayer(clip = !disableClip)
         .then(
@@ -1026,9 +1047,6 @@ private class EnterExitTransitionModifierNode(
             }
         }
 
-    private fun targetConstraints(default: Constraints) =
-        if (lookaheadConstraintsAvailable) lookaheadConstraints else default
-
     val sizeTransitionSpec: Transition.Segment<EnterExitState>.() -> FiniteAnimationSpec<IntSize> =
         {
             when {
@@ -1097,15 +1115,15 @@ private class EnterExitTransitionModifierNode(
             val measuredSize = IntSize(placeable.width, placeable.height)
             lookaheadSize = measuredSize
             lookaheadConstraints = constraints
-            val sizeToReport = if (transition.targetState == EnterExitState.Visible)
-                measuredSize
-            else
-                IntSize.Zero
-            return layout(sizeToReport.width, sizeToReport.height) {
+            return layout(measuredSize.width, measuredSize.height) {
                 placeable.place(0, 0)
             }
         } else {
-            val placeable = measurable.measure(targetConstraints(constraints))
+            // Measure the content based on the current constraints passed down from parent.
+            // AnimatedContent will measure outgoing children with a cached constraints to avoid
+            // re-layout the outgoing content. At the animateEnterExit() level, it's not best not
+            // to make assumptions, which is why we use constraints from parent.
+            val placeable = measurable.measure(constraints)
             val measuredSize = IntSize(placeable.width, placeable.height)
             val target = if (lookaheadSize.isValid) lookaheadSize else measuredSize
             val animSize = sizeAnimation?.animate(sizeTransitionSpec) { sizeByState(it, target) }

@@ -31,12 +31,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 @VisibleForTesting
 public var argumentSource: Bundle? = null
 
-/**
- * Allows tests to override profiler
- */
-@VisibleForTesting
-internal var profilerOverride: Profiler? = null
-
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 object Arguments {
     // public properties are shared by micro + macro benchmarks
@@ -45,19 +39,18 @@ object Arguments {
     /**
      * Set to true to enable androidx.tracing.perfetto tracepoints (such as composition tracing)
      *
-     * Note this only affects Macrobenchmarks currently, and only when StartupMode.COLD is not used,
-     * since enabling the tracepoints wakes the target process
-     *
-     * Currently internal/experimental
+     * Note that when StartupMode.COLD is used, additional work must be performed during target app
+     * startup to initialize tracing.
      */
-    private val _fullTracingEnable: Boolean
-    val fullTracingEnable: Boolean get() = fullTracingEnableOverride ?: _fullTracingEnable
+    private val _perfettoSdkTracingEnable: Boolean
+    val perfettoSdkTracingEnable: Boolean get() =
+        perfettoSdkTracingEnableOverride ?: _perfettoSdkTracingEnable
 
     /**
      * Allows tests to override whether full tracing is enabled
      */
     @VisibleForTesting
-    var fullTracingEnableOverride: Boolean? = null
+    var perfettoSdkTracingEnableOverride: Boolean? = null
 
     val enabledRules: Set<RuleType>
 
@@ -76,9 +69,7 @@ object Arguments {
     internal val outputEnable: Boolean
     internal val startupMode: Boolean
     internal val iterations: Int?
-    private val _profiler: Profiler?
     internal val profiler: Profiler?
-        get() = if (profilerOverride != null) profilerOverride else _profiler
     internal val profilerSampleFrequency: Int
     internal val profilerSampleDurationSeconds: Long
     internal val thermalThrottleSleepDurationSeconds: Long
@@ -128,8 +119,11 @@ object Arguments {
         iterations =
             arguments.getBenchmarkArgument("iterations")?.toInt()
 
-        _fullTracingEnable =
-            (arguments.getBenchmarkArgument("fullTracing.enable")?.toBoolean() ?: false)
+        _perfettoSdkTracingEnable =
+            arguments.getBenchmarkArgument("perfettoSdkTracing.enable")?.toBoolean()
+                // fullTracing.enable is the legacy/compat name
+                ?: arguments.getBenchmarkArgument("fullTracing.enable")?.toBoolean()
+                    ?: false
 
         // Transform comma-delimited list into set of suppressed errors
         // E.g. "DEBUGGABLE, UNLOCKED" -> setOf("DEBUGGABLE", "UNLOCKED")
@@ -171,7 +165,7 @@ object Arguments {
         enableCompilation =
             arguments.getBenchmarkArgument("compilation.enabled")?.toBoolean() ?: !dryRunMode
 
-        _profiler = arguments.getProfiler(outputEnable)
+        profiler = arguments.getProfiler(outputEnable)
         profilerSampleFrequency =
             arguments.getBenchmarkArgument("profiling.sampleFrequency")?.ifBlank { null }
                 ?.toInt()
@@ -180,10 +174,10 @@ object Arguments {
             arguments.getBenchmarkArgument("profiling.sampleDurationSeconds")?.ifBlank { null }
                 ?.toLong()
                 ?: 5
-        if (_profiler != null) {
+        if (profiler != null) {
             Log.d(
                 BenchmarkState.TAG,
-                "Profiler ${_profiler.javaClass.simpleName}, freq " +
+                "Profiler ${profiler.javaClass.simpleName}, freq " +
                     "$profilerSampleFrequency, duration $profilerSampleDurationSeconds"
             )
         }
@@ -222,7 +216,7 @@ object Arguments {
     fun methodTracingEnabled(): Boolean {
         return when {
             dryRunMode -> false
-            _profiler == MethodTracing -> true
+            profiler == MethodTracing -> true
             else -> false
         }
     }

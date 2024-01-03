@@ -3867,6 +3867,65 @@ class CompositionTests {
         }
     }
 
+    @Stable
+    class VarargConsumer(var invokeCount: Int = 0) {
+        @Composable fun Varargs(vararg ints: Int) {
+            invokeCount++
+            for (i in ints) {
+                use(i)
+            }
+        }
+    }
+
+    // Regression test for b/286132194
+    @Test
+    fun composableVarargs_skipped() = compositionTest {
+        val consumer = VarargConsumer()
+        var recomposeTrigger by mutableStateOf(0)
+        compose {
+            Linear {
+                use(recomposeTrigger)
+                consumer.Varargs(0, 1, 2, 3)
+            }
+        }
+
+        assertEquals(1, consumer.invokeCount)
+
+        recomposeTrigger = 1
+        advance()
+
+        assertEquals(1, consumer.invokeCount)
+    }
+
+    fun interface TestFunInterface {
+        fun compute(value: Int)
+    }
+
+    @Composable fun TestMemoizedFun(compute: TestFunInterface) {
+        val oldCompute = remember { compute }
+        assertEquals(oldCompute, compute)
+    }
+
+    @Test
+    fun funInterface_isMemoized() = compositionTest {
+        var recomposeTrigger by mutableStateOf(0)
+        val capture = 0
+        compose {
+            use(recomposeTrigger)
+            TestMemoizedFun {
+                // no captures
+                use(it)
+            }
+            TestMemoizedFun {
+                // stable captures
+                use(capture)
+            }
+        }
+
+        recomposeTrigger++
+        advance()
+    }
+
     private inline fun CoroutineScope.withGlobalSnapshotManager(block: CoroutineScope.() -> Unit) {
         val channel = Channel<Unit>(Channel.CONFLATED)
         val job = launch {

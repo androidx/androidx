@@ -30,10 +30,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarColorConstraints;
 import androidx.car.app.model.constraints.CarIconConstraints;
-import androidx.car.app.annotations.KeepFields;
 import androidx.core.graphics.drawable.IconCompat;
 
 import java.lang.annotation.Retention;
@@ -113,6 +113,7 @@ public final class CarIcon {
                     TYPE_APP_ICON,
                     TYPE_ERROR,
                     TYPE_PAN,
+                    TYPE_COMPOSE_MESSAGE,
             })
     @Retention(RetentionPolicy.SOURCE)
     public @interface CarIconType {
@@ -159,6 +160,13 @@ public final class CarIcon {
     public static final int TYPE_PAN = 7;
 
     /**
+     * A message icon.
+     *
+     * @see #COMPOSE_MESSAGE
+     */
+    public static final int TYPE_COMPOSE_MESSAGE = 8;
+
+    /**
      * Represents the app's icon, as defined in the app's manifest by the {@code android:icon}
      * attribute of the {@code application} element.
      */
@@ -189,6 +197,13 @@ public final class CarIcon {
     @RequiresCarApi(2)
     @NonNull
     public static final CarIcon PAN = CarIcon.forStandardType(TYPE_PAN);
+
+    /**
+     * An icon that represents the user's intent to send a message.
+     */
+    @RequiresCarApi(7)
+    @NonNull
+    public static final CarIcon COMPOSE_MESSAGE = CarIcon.forStandardType(TYPE_COMPOSE_MESSAGE);
 
     @CarIconType
     private final int mType;
@@ -315,6 +330,8 @@ public final class CarIcon {
                 return "BACK";
             case TYPE_PAN:
                 return "PAN";
+            case TYPE_COMPOSE_MESSAGE:
+                return "COMPOSE_MESSAGE";
             case TYPE_CUSTOM:
                 return "CUSTOM";
             default:

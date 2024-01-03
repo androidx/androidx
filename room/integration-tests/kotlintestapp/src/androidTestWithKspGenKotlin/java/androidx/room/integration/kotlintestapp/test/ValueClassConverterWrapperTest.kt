@@ -214,7 +214,8 @@ class ValueClassConverterWrapperTest {
         assertThrows<IllegalStateException> {
             db.dao().insertNullableEntity(data)
         }.hasMessageThat().isEqualTo(
-            "Cannot bind nullable value of inline class to a NOT NULL column."
+            "Cannot bind NULLABLE value 'data' of inline class 'NullableValue' to " +
+                "a NOT NULL column."
         )
     }
 

@@ -13,15 +13,6 @@
     <issue
         id="BanThreadSleep"
         message="Uses Thread.sleep()"
-        errorLine1="                    Thread.sleep(1000L);"
-        errorLine2="                           ~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/RetryActivity.java"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
         errorLine1="            Thread.sleep(200);"
         errorLine2="                   ~~~~~">
         <location

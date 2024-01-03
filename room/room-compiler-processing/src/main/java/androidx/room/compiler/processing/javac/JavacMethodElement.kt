@@ -99,6 +99,10 @@ internal class JavacMethodElement(
         )
     }
 
+    val defaultValue: JavacAnnotationValue? = element.defaultValue?.let {
+        JavacAnnotationValue(env, this, element.defaultValue, returnType)
+    }
+
     override fun asMemberOf(other: XType): XMethodType {
         return if (other !is JavacDeclaredType || enclosingElement.type.isSameType(other)) {
             executableType

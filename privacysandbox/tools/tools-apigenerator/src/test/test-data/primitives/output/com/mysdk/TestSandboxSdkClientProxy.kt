@@ -1,6 +1,5 @@
 package com.mysdk
 
-import com.mysdk.PrivacySandboxThrowableParcelConverter
 import com.mysdk.PrivacySandboxThrowableParcelConverter.fromThrowableParcel
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -34,31 +33,31 @@ public class TestSandboxSdkClientProxy(
         }
     }
 
-    public override fun echoBoolean(input: Boolean): Unit {
+    public override fun echoBoolean(input: Boolean) {
         remote.echoBoolean(input)
     }
 
-    public override fun echoChar(input: Char): Unit {
+    public override fun echoChar(input: Char) {
         remote.echoChar(input)
     }
 
-    public override fun echoDouble(input: Double): Unit {
+    public override fun echoDouble(input: Double) {
         remote.echoDouble(input)
     }
 
-    public override fun echoFloat(input: Float): Unit {
+    public override fun echoFloat(input: Float) {
         remote.echoFloat(input)
     }
 
-    public override fun echoInt(input: Int): Unit {
+    public override fun echoInt(input: Int) {
         remote.echoInt(input)
     }
 
-    public override fun echoLong(input: Long): Unit {
+    public override fun echoLong(input: Long) {
         remote.echoLong(input)
     }
 
-    public override fun echoString(input: String): Unit {
+    public override fun echoString(input: String) {
         remote.echoString(input)
     }
 
@@ -269,7 +268,7 @@ public class TestSandboxSdkClientProxy(
         }
     }
 
-    public override fun receiveAndReturnNothing(): Unit {
+    public override fun receiveAndReturnNothing() {
         remote.receiveAndReturnNothing()
     }
 
@@ -299,7 +298,7 @@ public class TestSandboxSdkClientProxy(
         first: Int,
         second: String,
         third: Long,
-    ): Unit {
+    ) {
         remote.receiveMultipleArguments(first, second, third)
     }
 }

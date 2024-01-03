@@ -66,7 +66,7 @@ class TextButtonScreenshotTest {
 
     @Test
     fun filled_text_button_disabled() =
-        verifyScreenshot("text_button_disabled") {
+        verifyScreenshot {
             sampleFilledTextButton(enabled = false, isCompact = false)
         }
 
@@ -77,7 +77,7 @@ class TextButtonScreenshotTest {
 
     @Test
     fun filled_tonal_text_button_disabled() =
-        verifyScreenshot("text_button_disabled") {
+        verifyScreenshot {
             sampleFilledTonalTextButton(enabled = false, isCompact = false)
         }
 
@@ -108,7 +108,7 @@ class TextButtonScreenshotTest {
 
     @Test
     fun filled_compact_text_button_disabled() =
-        verifyScreenshot("compact_text_button_disabled") {
+        verifyScreenshot {
             sampleFilledTextButton(enabled = false, isCompact = true)
         }
 
@@ -119,7 +119,7 @@ class TextButtonScreenshotTest {
 
     @Test
     fun filled_tonal_compact_text_button_disabled() =
-        verifyScreenshot("compact_text_button_disabled") {
+        verifyScreenshot {
             sampleFilledTonalTextButton(enabled = false, isCompact = true)
         }
 

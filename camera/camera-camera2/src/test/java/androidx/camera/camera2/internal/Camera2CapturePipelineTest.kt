@@ -55,8 +55,8 @@ import androidx.camera.core.impl.Quirks
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.internal.CameraCaptureResultImageInfo
-import androidx.camera.testing.fakes.FakeCameraCaptureResult
-import androidx.camera.testing.fakes.FakeImageProxy
+import androidx.camera.testing.impl.fakes.FakeCameraCaptureResult
+import androidx.camera.testing.impl.fakes.FakeImageProxy
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth
@@ -1252,11 +1252,15 @@ class Camera2CapturePipelineTest {
 
         // Only need to initialize when not disabled
         if (!isZslDisabledByFlashMode && !isZslDisabledByUserCaseConfig) {
-            val captureResult = FakeCameraCaptureResult()
+            val captureResult =
+                FakeCameraCaptureResult()
             captureResult.afState = AfState.LOCKED_FOCUSED
             captureResult.aeState = AeState.CONVERGED
             captureResult.awbState = AwbState.CONVERGED
-            val imageProxy = FakeImageProxy(CameraCaptureResultImageInfo(captureResult))
+            val imageProxy =
+                FakeImageProxy(
+                    CameraCaptureResultImageInfo(captureResult)
+                )
             imageProxy.image = mock(Image::class.java)
             zslControl.mImageRingBuffer.enqueue(imageProxy)
             zslControl.mReprocessingImageWriter = mock(ImageWriter::class.java)

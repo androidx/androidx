@@ -73,6 +73,14 @@ public class ActionTest {
     }
 
     @Test
+    public void createComposeMessage_throws_hasListener() {
+        assertThrows(
+                IllegalStateException.class,
+                () -> new Action.Builder(Action.COMPOSE_MESSAGE).setOnClickListener(() -> {
+                }).build());
+    }
+
+    @Test
     public void create_noTitleDefault() {
         OnClickListener onClickListener = mock(OnClickListener.class);
         Action action = new Action.Builder()

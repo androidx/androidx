@@ -16,7 +16,7 @@
 
 package androidx.camera.integration.uiwidgets.rotations
 
-import androidx.camera.testing.CoreAppTestUtil
+import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.test.core.app.ActivityScenario
 import androidx.test.filters.LargeTest
 import org.junit.After

@@ -28,8 +28,8 @@ import androidx.camera.core.imagecapture.FakeImageCaptureControl.Action.SUBMIT_R
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.internal.compat.quirk.CaptureFailedRetryQuirk
 import androidx.camera.core.internal.compat.quirk.DeviceQuirks
-import androidx.camera.testing.fakes.FakeImageInfo
-import androidx.camera.testing.fakes.FakeImageProxy
+import androidx.camera.testing.impl.fakes.FakeImageInfo
+import androidx.camera.testing.impl.fakes.FakeImageProxy
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.After
@@ -132,7 +132,11 @@ class TakePictureManagerTest {
         // Camera returns the image, but it should be ignored.
         val processingRequest = imagePipeline.getProcessingRequest(request1)
         processingRequest.onImageCaptured()
-        processingRequest.onFinalResult(FakeImageProxy(FakeImageInfo()))
+        processingRequest.onFinalResult(
+            FakeImageProxy(
+                FakeImageInfo()
+            )
+        )
         shadowOf(getMainLooper()).idle()
 
         // Assert: one request is sent.
@@ -169,7 +173,11 @@ class TakePictureManagerTest {
         val processingRequest = imagePipeline.getProcessingRequest(request)
         processingRequest.onImageCaptured()
         // Act.
-        processingRequest.onFinalResult(FakeImageProxy(FakeImageInfo()))
+        processingRequest.onFinalResult(
+            FakeImageProxy(
+                FakeImageInfo()
+            )
+        )
         processingRequest.onFinalResult(OutputFileResults(null))
     }
 
@@ -318,7 +326,8 @@ class TakePictureManagerTest {
         shadowOf(getMainLooper()).idle()
         val response1 = exception
         val response2 = OutputFileResults(null)
-        val response3 = FakeImageProxy(FakeImageInfo())
+        val response3 =
+            FakeImageProxy(FakeImageInfo())
         imagePipeline.getProcessingRequest(request1).onImageCaptured()
         imagePipeline.getProcessingRequest(request2).onImageCaptured()
         imagePipeline.getProcessingRequest(request3).onImageCaptured()
@@ -373,7 +382,8 @@ class TakePictureManagerTest {
         takePictureManager.offerRequest(request)
 
         // Act: send ImageProxy via ImagePipeline
-        val image = FakeImageProxy(FakeImageInfo())
+        val image =
+            FakeImageProxy(FakeImageInfo())
         imagePipeline.getProcessingRequest(request).onImageCaptured()
         imagePipeline.getProcessingRequest(request).onFinalResult(image)
         shadowOf(getMainLooper()).idle()
@@ -397,7 +407,11 @@ class TakePictureManagerTest {
 
         // Act: increase the capacity and invoke image closed.
         imagePipeline.queueCapacity = 1
-        takePictureManager.onImageClose(FakeImageProxy(FakeImageInfo()))
+        takePictureManager.onImageClose(
+            FakeImageProxy(
+                FakeImageInfo()
+            )
+        )
         shadowOf(getMainLooper()).idle()
 
         // Assert: the request is sent.

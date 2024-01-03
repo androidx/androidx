@@ -22,6 +22,7 @@ import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.MeteringRectangle
 import android.hardware.camera2.params.SessionConfiguration
+import android.os.Build
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
@@ -151,7 +152,29 @@ interface CameraGraph : AutoCloseable {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     data class Flags(
         val configureBlankSessionOnStop: Boolean = false,
-        val abortCapturesOnStop: Boolean = false,
+
+        /**
+         * When creating a new capture session, the camera framework waits for all the inflight
+         * capture requests from the prior session before creating the new session. Calling
+         * abortCaptures() triggers an explicit flush on the camera HAL side. Therefore, aborting
+         * the captures allows us to switch to a new capture session sooner (see the referenced bug
+         * for more info).
+         *
+         * However, there might be cases where we might not want to trigger the flush. For example,
+         * if we're recording a video, we may not want the video recording to be disrupted too
+         * early. Hence, this flag is provided so that we can override this behavior.
+         *
+         * Ideally we should be able to invoke abortCaptures() every time during close. However,
+         * improper flush implementations, which seem to occur largely on older devices, have shown
+         * to cause irregular behaviors, such as NPEs (b/139448807), capture session entering
+         * abnormal states (b/162314023), and (potentially) camera device close stalling based on
+         * testing, etc. Hence, we're enabling this behavior by default on API level >= R (30) for
+         * now.
+         *
+         * - Bug(s): b/287020251
+         * - API levels: R (30) and above
+         */
+        val abortCapturesOnStop: Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R,
 
         /**
          * A quirk that waits for the last repeating capture request to start before stopping the

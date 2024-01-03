@@ -292,7 +292,8 @@ private fun rememberLazyListMeasurePolicy(
                     spacing = spacing,
                     visualOffset = visualItemOffset,
                     key = key,
-                    contentType = contentType
+                    contentType = contentType,
+                    animator = state.itemAnimator
                 )
             }
         }
@@ -335,12 +336,15 @@ private fun rememberLazyListMeasurePolicy(
             horizontalArrangement = horizontalArrangement,
             reverseLayout = reverseLayout,
             density = this,
-            placementAnimator = state.placementAnimator,
+            itemAnimator = state.itemAnimator,
             beyondBoundsItemCount = beyondBoundsItemCount,
             pinnedItems = pinnedItems,
             hasLookaheadPassOccurred = hasLookaheadPassOccurred,
             isLookingAhead = isLookingAhead,
             postLookaheadLayoutInfo = state.postLookaheadLayoutInfo,
+            coroutineScope = requireNotNull(state.coroutineScope) {
+                "coroutineScope should be not null"
+            },
             layout = { width, height, placement ->
                 layout(
                     containerConstraints.constrainWidth(width + totalHorizontalPadding),

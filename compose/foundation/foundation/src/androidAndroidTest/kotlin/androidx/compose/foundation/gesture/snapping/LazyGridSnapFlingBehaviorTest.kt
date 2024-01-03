@@ -61,6 +61,7 @@ import kotlin.math.absoluteValue
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlinx.coroutines.runBlocking
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -178,6 +179,7 @@ class LazyGridSnapFlingBehaviorTest(private val orientation: Orientation) :
         }
     }
 
+    @Ignore // b/293513475
     @Test
     fun aboveThresholdVelocityBackward_notLargeEnoughScroll_shouldGoToPreviousPage() {
         var lazyGridState: LazyGridState? = null

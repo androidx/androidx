@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
+import kotlinx.coroutines.CoroutineScope
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -43,6 +44,7 @@ internal fun rememberStaggeredGridMeasurePolicy(
     orientation: Orientation,
     mainAxisSpacing: Dp,
     crossAxisSpacing: Dp,
+    coroutineScope: CoroutineScope,
     slots: LazyGridStaggeredGridSlotsProvider
 ): LazyLayoutMeasureScope.(Constraints) -> LazyStaggeredGridMeasureResult = remember(
     state,
@@ -115,6 +117,7 @@ internal fun rememberStaggeredGridMeasurePolicy(
             reverseLayout = reverseLayout,
             beforeContentPadding = beforeContentPadding,
             afterContentPadding = afterContentPadding,
+            coroutineScope = coroutineScope
         ).also {
             state.applyMeasureResult(it)
         }

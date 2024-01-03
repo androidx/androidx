@@ -140,6 +140,15 @@ public class Camera2CameraCoordinator implements CameraCoordinator {
         mConcurrentCameraModeListeners.remove(listener);
     }
 
+    @Override
+    public void shutdown() {
+        mConcurrentCameraModeListeners.clear();
+        mConcurrentCameraIdMap.clear();
+        mActiveConcurrentCameraInfos.clear();
+        mConcurrentCameraIds.clear();
+        mCameraOperatingMode = CAMERA_OPERATING_MODE_UNSPECIFIED;
+    }
+
     private void retrieveConcurrentCameraIds() {
         try {
             mConcurrentCameraIds = mCameraManager.getConcurrentCameraIds();

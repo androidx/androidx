@@ -2292,6 +2292,110 @@ public class AppSearchCompilerTest {
     }
 
     @Test
+    public void testCreationByBuilderAnnotatingBuilderClass() throws Exception {
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "public interface Gift {\n"
+                        + "  @Document.Namespace public String getNamespace();\n"
+                        + "  @Document.Id public String getId();\n"
+                        + "  @Document.LongProperty public int getPrice();\n"
+                        + "  @Document.BuilderProducer\n"
+                        + "  class GiftBuilder {\n"
+                        + "    private String namespace;\n"
+                        + "    private String id;\n"
+                        + "    private int price;\n"
+                        + "    public GiftBuilder setNamespace(String namespace) {\n"
+                        + "      this.namespace = namespace;\n"
+                        + "      return this;\n"
+                        + "    }\n"
+                        + "    public GiftBuilder setId(String id) {\n"
+                        + "      this.id = id;\n"
+                        + "      return this;\n"
+                        + "    }\n"
+                        + "    public GiftBuilder setPrice(int price) {\n"
+                        + "      this.price = price;\n"
+                        + "      return this;\n"
+                        + "    }\n"
+                        + "    public Gift build() {\n"
+                        + "      return new GiftImpl(this.id, this.namespace, this.price);\n"
+                        + "    }\n"
+                        + "  }\n"
+                        + "}\n"
+                        + "class GiftImpl implements Gift {\n"
+                        + "  public GiftImpl(String id, String namespace, int price) {\n"
+                        + "    this.id = id;\n"
+                        + "    this.namespace = namespace;\n"
+                        + "    this.price = price;\n"
+                        + "  }\n"
+                        + "  private String namespace;\n"
+                        + "  private String id;\n"
+                        + "  private int price;\n"
+                        + "  public String getNamespace() { return namespace; }\n"
+                        + "  public String getId() { return id; }\n"
+                        + "  public int getPrice() { return price; }\n"
+                        + "}\n");
+        assertThat(compilation).succeededWithoutWarnings();
+        checkResultContains("Gift.java",
+                "Gift.GiftBuilder builder = new Gift.GiftBuilder()");
+        checkResultContains("Gift.java", "builder.setNamespace(getNamespaceConv)");
+        checkResultContains("Gift.java", "builder.setId(getIdConv)");
+        checkResultContains("Gift.java", "builder.setPrice(getPriceConv)");
+        checkResultContains("Gift.java", "builder.build()");
+        checkEqualsGolden("Gift.java");
+    }
+
+    @Test
+    public void testCreationByBuilderWithParameterAnnotatingBuilderClass() throws Exception {
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "public interface Gift {\n"
+                        + "  @Document.Namespace public String getNamespace();\n"
+                        + "  @Document.Id public String getId();\n"
+                        + "  @Document.LongProperty public int getPrice();\n"
+                        + "  @Document.BuilderProducer\n"
+                        + "  class GiftBuilder {\n"
+                        + "    private String namespace;\n"
+                        + "    private String id;\n"
+                        + "    private int price;\n"
+                        + "    public GiftBuilder(int price) {\n"
+                        + "      this.price = price;\n"
+                        + "    }\n"
+                        + "    public GiftBuilder setNamespace(String namespace) {\n"
+                        + "      this.namespace = namespace;\n"
+                        + "      return this;\n"
+                        + "    }\n"
+                        + "    public GiftBuilder setId(String id) {\n"
+                        + "      this.id = id;\n"
+                        + "      return this;\n"
+                        + "    }\n"
+                        + "    public Gift build() {\n"
+                        + "      return new GiftImpl(this.id, this.namespace, this.price);\n"
+                        + "    }\n"
+                        + "  }\n"
+                        + "}\n"
+                        + "class GiftImpl implements Gift {\n"
+                        + "  public GiftImpl(String id, String namespace, int price) {\n"
+                        + "    this.id = id;\n"
+                        + "    this.namespace = namespace;\n"
+                        + "    this.price = price;\n"
+                        + "  }\n"
+                        + "  private String namespace;\n"
+                        + "  private String id;\n"
+                        + "  private int price;\n"
+                        + "  public String getNamespace() { return namespace; }\n"
+                        + "  public String getId() { return id; }\n"
+                        + "  public int getPrice() { return price; }\n"
+                        + "}\n");
+        assertThat(compilation).succeededWithoutWarnings();
+        checkResultContains("Gift.java",
+                "Gift.GiftBuilder builder = new Gift.GiftBuilder(getPriceConv)");
+        checkResultContains("Gift.java", "builder.setNamespace(getNamespaceConv)");
+        checkResultContains("Gift.java", "builder.setId(getIdConv)");
+        checkResultContains("Gift.java", "builder.build()");
+        checkEqualsGolden("Gift.java");
+    }
+
+    @Test
     public void testCreationByBuilderOnly() throws Exception {
         // Once a builder producer is provided, AppSearch will only use the builder pattern, even
         // if another creation method is available.
@@ -2421,7 +2525,7 @@ public class AppSearchCompilerTest {
                         + "}\n");
         assertThat(compilation).hadErrorContaining("Found duplicated builder producer");
 
-        // Builder producer must be static
+        // Builder producer method must be static
         compilation = compile(
                 "@Document\n"
                         + "public interface Gift {\n"
@@ -2458,7 +2562,36 @@ public class AppSearchCompilerTest {
                         + "}\n");
         assertThat(compilation).hadErrorContaining("Builder producer must be static");
 
-        // Builder producer cannot be private
+        // Builder producer class must be static
+        compilation = compile(
+                "@Document\n"
+                        + "public class Gift {\n"
+                        + "  public Gift(String id, String namespace) {\n"
+                        + "    this.id = id;\n"
+                        + "    this.namespace = namespace;\n"
+                        + "  }\n"
+                        + "  @Document.Namespace public String namespace;\n"
+                        + "  @Document.Id public String id;\n"
+                        + "  @Document.BuilderProducer\n"
+                        + "  class Builder {\n"
+                        + "    private String namespace;\n"
+                        + "    private String id;\n"
+                        + "    public Builder setNamespace(String namespace) {\n"
+                        + "      this.namespace = namespace;\n"
+                        + "      return this;\n"
+                        + "    }\n"
+                        + "    public Builder setId(String id) {\n"
+                        + "      this.id = id;\n"
+                        + "      return this;\n"
+                        + "    }\n"
+                        + "    public Gift build() {\n"
+                        + "      return new Gift(this.id, this.namespace);\n"
+                        + "    }\n"
+                        + "  }\n"
+                        + "}\n");
+        assertThat(compilation).hadErrorContaining("Builder producer must be static");
+
+        // Builder producer method cannot be private
         compilation = compile(
                 "@Document\n"
                         + "public interface Gift {\n"
@@ -2495,7 +2628,36 @@ public class AppSearchCompilerTest {
                         + "}\n");
         assertThat(compilation).hadErrorContaining("Builder producer cannot be private");
 
-        // Builder producer must be a method
+        // Builder producer class cannot be private
+        compilation = compile(
+                "@Document\n"
+                        + "public class Gift {\n"
+                        + "  public Gift(String id, String namespace) {\n"
+                        + "    this.id = id;\n"
+                        + "    this.namespace = namespace;\n"
+                        + "  }\n"
+                        + "  @Document.Namespace public String namespace;\n"
+                        + "  @Document.Id public String id;\n"
+                        + "  @Document.BuilderProducer\n"
+                        + "  private static class Builder {\n"
+                        + "    private String namespace;\n"
+                        + "    private String id;\n"
+                        + "    public Builder setNamespace(String namespace) {\n"
+                        + "      this.namespace = namespace;\n"
+                        + "      return this;\n"
+                        + "    }\n"
+                        + "    public Builder setId(String id) {\n"
+                        + "      this.id = id;\n"
+                        + "      return this;\n"
+                        + "    }\n"
+                        + "    public Gift build() {\n"
+                        + "      return new Gift(this.id, this.namespace);\n"
+                        + "    }\n"
+                        + "  }\n"
+                        + "}\n");
+        assertThat(compilation).hadErrorContaining("Builder producer cannot be private");
+
+        // Builder producer must be a method or a class.
         compilation = compile(
                 "@Document\n"
                         + "public class Gift {\n"

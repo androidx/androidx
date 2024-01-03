@@ -23,8 +23,8 @@ import android.os.Build
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.ioExecutor
 import androidx.camera.core.impl.utils.futures.Futures.immediateFailedFuture
 import androidx.camera.core.impl.utils.futures.Futures.immediateFuture
-import androidx.camera.testing.mocks.helpers.CallTimes
-import androidx.camera.testing.mocks.helpers.CallTimesAtLeast
+import androidx.camera.testing.impl.mocks.helpers.CallTimes
+import androidx.camera.testing.impl.mocks.helpers.CallTimesAtLeast
 import androidx.camera.video.internal.BufferProvider
 import androidx.camera.video.internal.FakeBufferProvider
 import androidx.camera.video.internal.encoder.FakeInputBuffer

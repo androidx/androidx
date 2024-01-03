@@ -248,7 +248,7 @@ internal class CaptureSessionState(
      * a closed state. This will not cancel repeating requests or abort captures.
      */
     fun disconnect() {
-        shutdown(abortAndStopRepeating = false)
+        shutdown(abortAndStopRepeating = cameraGraphFlags.abortCapturesOnStop)
     }
 
     /**

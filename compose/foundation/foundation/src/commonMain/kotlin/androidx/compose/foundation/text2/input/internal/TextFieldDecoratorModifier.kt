@@ -20,6 +20,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.cancelsTextSelection
 import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldState
@@ -293,6 +294,8 @@ internal class TextFieldDecoratorModifierNode(
         if (!enabled) disabled()
 
         setText { newText ->
+            if (readOnly || !enabled) return@setText false
+
             textFieldState.editProcessor.update(
                 listOf(
                     DeleteAllCommand,
@@ -324,6 +327,8 @@ internal class TextFieldDecoratorModifierNode(
             }
         }
         insertTextAtCursor { newText ->
+            if (readOnly || !enabled) return@insertTextAtCursor false
+
             textFieldState.editProcessor.update(
                 listOf(
                     // Finish composing text first because when the field is focused the IME
@@ -377,8 +382,11 @@ internal class TextFieldDecoratorModifierNode(
         textFieldSelectionState.isFocused = focusState.isFocused
 
         if (focusState.isFocused) {
-            startInputSession()
-            // TODO(halilibo): bringIntoView
+            // Deselect when losing focus even if readonly.
+            if (enabled && !readOnly) {
+                startInputSession()
+                // TODO(halilibo): bringIntoView
+            }
         } else {
             disposeInputSession()
             textFieldState.deselect()
@@ -406,8 +414,13 @@ internal class TextFieldDecoratorModifierNode(
     }
 
     override fun onPreKeyEvent(event: KeyEvent): Boolean {
-        // TextField does not handle pre key events.
-        return false
+        val selection = textFieldState.text.selectionInChars
+        return if (!selection.collapsed && event.cancelsTextSelection()) {
+            textFieldSelectionState.deselect()
+            true
+        } else {
+            false
+        }
     }
 
     override fun onKeyEvent(event: KeyEvent): Boolean {

@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing
 
+import androidx.room.compiler.codegen.XClassName
 import com.squareup.javapoet.ClassName
 import kotlin.reflect.KClass
 
@@ -36,6 +37,21 @@ interface XAnnotated {
      */
     fun getAnnotations(annotationName: ClassName): List<XAnnotation> {
         return getAllAnnotations().filter { annotationName.canonicalName() == it.qualifiedName }
+    }
+
+    /**
+     * Returns the list of [XAnnotation] elements that have the same qualified name as the given
+     * [annotationName]. Otherwise, returns an empty list.
+     *
+     * For repeated annotations declared in Java code, please use the repeated annotation type,
+     * not the container. Calling this method with a container annotation will have inconsistent
+     * behaviour between Java AP and KSP.
+     *
+     * @see [hasAnnotation]
+     * @see [hasAnnotationWithPackage]
+     */
+    fun getAnnotations(annotationName: XClassName): List<XAnnotation> {
+        return getAllAnnotations().filter { annotationName.canonicalName == it.qualifiedName }
     }
 
     /**
@@ -85,6 +101,16 @@ interface XAnnotated {
      * @see [hasAnyAnnotation]
      */
     fun hasAnnotation(annotationName: ClassName): Boolean {
+        return getAnnotations(annotationName).isNotEmpty()
+    }
+
+    /**
+     * Returns `true` if this element is annotated with an [XAnnotation] that has the same
+     * qualified name as the given [annotationName].
+     *
+     * @see [hasAnyAnnotation]
+     */
+    fun hasAnnotation(annotationName: XClassName): Boolean {
         return getAnnotations(annotationName).isNotEmpty()
     }
 
@@ -160,10 +186,33 @@ interface XAnnotated {
     }
 
     /**
+     * Returns the [XAnnotation] that has the same qualified name as [annotationName].
+     * Otherwise, `null` value is returned.
+     *
+     * @see [hasAnnotation]
+     * @see [getAnnotations]
+     * @see [hasAnnotationWithPackage]
+     */
+    fun getAnnotation(annotationName: XClassName): XAnnotation? {
+        return getAnnotations(annotationName).firstOrNull()
+    }
+
+    /**
      * Returns the [Annotation]s that are annotated with [annotationName]
      */
     fun getAnnotationsAnnotatedWith(
         annotationName: ClassName
+    ): Set<XAnnotation> {
+        return getAllAnnotations().filter {
+            it.type.typeElement?.hasAnnotation(annotationName) ?: false
+        }.toSet()
+    }
+
+    /**
+     * Returns the [Annotation]s that are annotated with [annotationName]
+     */
+    fun getAnnotationsAnnotatedWith(
+        annotationName: XClassName
     ): Set<XAnnotation> {
         return getAllAnnotations().filter {
             it.type.typeElement?.hasAnnotation(annotationName) ?: false

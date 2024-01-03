@@ -17,6 +17,7 @@
 package com.example.androidx.mediarouting.activities.systemrouting.source;
 
 import android.content.Context;
+import android.media.AudioDeviceCallback;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.os.Build;
@@ -33,10 +34,27 @@ import java.util.List;
 
 /** Implements {@link SystemRoutesSource} using {@link AudioManager}. */
 @RequiresApi(Build.VERSION_CODES.M)
-public final class AudioManagerSystemRoutesSource implements SystemRoutesSource {
+public final class AudioManagerSystemRoutesSource extends SystemRoutesSource {
 
     @NonNull
     private final AudioManager mAudioManager;
+
+    @NonNull
+    private final AudioDeviceCallback mAudioDeviceCallback = new AudioDeviceCallback() {
+        @Override
+        public void onAudioDevicesAdded(AudioDeviceInfo[] addedDevices) {
+            for (AudioDeviceInfo audioDeviceInfo: addedDevices) {
+                mOnRoutesChangedListener.onRouteAdded(createRouteItemFor(audioDeviceInfo));
+            }
+        }
+
+        @Override
+        public void onAudioDevicesRemoved(AudioDeviceInfo[] removedDevices) {
+            for (AudioDeviceInfo audioDeviceInfo: removedDevices) {
+                mOnRoutesChangedListener.onRouteRemoved(createRouteItemFor(audioDeviceInfo));
+            }
+        }
+    };
 
     /** Returns a new instance. */
     @NonNull
@@ -47,6 +65,16 @@ public final class AudioManagerSystemRoutesSource implements SystemRoutesSource 
 
     AudioManagerSystemRoutesSource(@NonNull AudioManager audioManager) {
         mAudioManager = audioManager;
+    }
+
+    @Override
+    public void start() {
+        mAudioManager.registerAudioDeviceCallback(mAudioDeviceCallback, /* handler= */ null);
+    }
+
+    @Override
+    public void stop() {
+        mAudioManager.unregisterAudioDeviceCallback(mAudioDeviceCallback);
     }
 
     @NonNull
@@ -63,22 +91,27 @@ public final class AudioManagerSystemRoutesSource implements SystemRoutesSource 
 
         AudioDeviceInfo[] deviceInfos = mAudioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS);
         for (AudioDeviceInfo audioDeviceInfo : deviceInfos) {
-            SystemRouteItem.Builder builder = new SystemRouteItem.Builder(
-                    String.valueOf(audioDeviceInfo.getId()))
-                    .setName(audioDeviceInfo.getProductName().toString());
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                builder.setAddress(Api28Impl.getAddress(audioDeviceInfo));
-            }
-
-            out.add(builder.build());
+            out.add(createRouteItemFor(audioDeviceInfo));
         }
 
         return out;
     }
 
+    @NonNull
+    private static SystemRouteItem createRouteItemFor(@NonNull AudioDeviceInfo audioDeviceInfo) {
+        SystemRouteItem.Builder builder = new SystemRouteItem.Builder(
+                String.valueOf(audioDeviceInfo.getId()))
+                .setName(audioDeviceInfo.getProductName().toString());
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            builder.setAddress(Api28Impl.getAddress(audioDeviceInfo));
+        }
+
+        return builder.build();
+    }
+
     @RequiresApi(Build.VERSION_CODES.P)
-    static class Api28Impl {
+    private static final class Api28Impl {
         private Api28Impl() {
             // This class is not instantiable.
         }

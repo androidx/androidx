@@ -67,6 +67,18 @@ class MapSubject<K, V> internal constructor(
             )
         )
 
+    /**
+     * Fails if the map does not contain at least the given set of key/value pairs. The arguments
+     * must not contain duplicate keys.
+     */
+    fun containsAtLeast(vararg entries: Pair<K, V>): Ordered =
+        containsAtLeastEntriesIn(
+            accumulateMap(
+                functionName = "containsAtLeast",
+                entries = entries.toList(),
+            )
+        )
+
     /** Fails if the map does not contain exactly the given set of entries in the given map. */
     fun containsExactlyEntriesIn(expectedMap: Map<K, V>): Ordered {
         requireNonNull(actual) { "Expected $expectedMap, but was null" }
@@ -82,6 +94,17 @@ class MapSubject<K, V> internal constructor(
         containsEntriesInAnyOrder(expectedMap = expectedMap, allowUnexpected = false)
 
         return MapInOrder(expectedMap = expectedMap, allowUnexpected = false)
+    }
+
+    /** Fails if the map does not contain at least the given set of entries in the given map.  */
+    fun containsAtLeastEntriesIn(expectedMap: Map<K, V>): Ordered {
+        if (expectedMap.isEmpty()) {
+            return NoopOrdered
+        }
+
+        containsEntriesInAnyOrder(expectedMap = expectedMap, allowUnexpected = true)
+
+        return MapInOrder(expectedMap = expectedMap, allowUnexpected = true)
     }
 
     private fun containsEntriesInAnyOrder(

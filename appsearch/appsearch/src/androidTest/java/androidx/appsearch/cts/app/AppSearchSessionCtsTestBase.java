@@ -232,6 +232,121 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
+    public void testSetSchema_addIndexedNestedDocumentProperty() throws Exception {
+        // Create schema with a nested document type
+        // SectionId assignment for 'Person':
+        // - "name": string type, indexed. Section id = 0.
+        // - "worksFor.name": string type, (nested) indexed. Section id = 1.
+        AppSearchSchema personSchema = new AppSearchSchema.Builder("Person")
+                .addProperty(new StringPropertyConfig.Builder("name")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .addProperty(new DocumentPropertyConfig.Builder("worksFor", "Organization")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setShouldIndexNestedProperties(true)
+                        .build())
+                .build();
+        AppSearchSchema organizationSchema = new AppSearchSchema.Builder("Organization")
+                .addProperty(new StringPropertyConfig.Builder("name")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .build();
+        mDb1.setSchemaAsync(
+                new SetSchemaRequest.Builder().addSchemas(personSchema, organizationSchema)
+                        .build()).get();
+
+        // Index documents and verify using getDocuments
+        GenericDocument person = new GenericDocument.Builder<>("namespace", "person1", "Person")
+                .setPropertyString("name", "John")
+                .setPropertyDocument("worksFor",
+                        new GenericDocument.Builder<>("namespace", "org1", "Organization")
+                                .setPropertyString("name", "Google")
+                                .build())
+                .build();
+
+        AppSearchBatchResult<String, Void> putResult =
+                checkIsBatchResultSuccess(mDb1.putAsync(
+                        new PutDocumentsRequest.Builder().addGenericDocuments(person).build()));
+        assertThat(putResult.getSuccesses()).containsExactly("person1", null);
+        assertThat(putResult.getFailures()).isEmpty();
+
+        GetByDocumentIdRequest getByDocumentIdRequest =
+                new GetByDocumentIdRequest.Builder("namespace")
+                        .addIds("person1")
+                        .build();
+        List<GenericDocument> outDocuments = doGet(mDb1, getByDocumentIdRequest);
+        assertThat(outDocuments).hasSize(1);
+        assertThat(outDocuments).containsExactly(person);
+
+        // Verify search using property filter
+        SearchResults searchResults = mDb1.search("worksFor.name:Google", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        outDocuments = convertSearchResultsToDocuments(searchResults);
+        assertThat(outDocuments).hasSize(1);
+        assertThat(outDocuments).containsExactly(person);
+
+        // Change the schema to add another nested document property to 'Person'
+        // The added property has 'optional' cardinality, so this change is compatible and indexed
+        // documents should still be searchable.
+        //
+        // New section id assignment for 'Person':
+        // - "almaMater.name", string type, (nested) indexed. Section id = 0
+        // - "name": string type, indexed. Section id = 1
+        // - "worksFor.name": string type, (nested) indexed. Section id = 2
+        AppSearchSchema newPersonSchema = new AppSearchSchema.Builder("Person")
+                .addProperty(new StringPropertyConfig.Builder("name")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .addProperty(new DocumentPropertyConfig.Builder("worksFor", "Organization")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setShouldIndexNestedProperties(true)
+                        .build())
+                .addProperty(new DocumentPropertyConfig.Builder("almaMater", "Organization")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setShouldIndexNestedProperties(true)
+                        .build())
+                .build();
+        mDb1.setSchemaAsync(
+                new SetSchemaRequest.Builder().addSchemas(newPersonSchema, organizationSchema)
+                        .build()).get();
+        Set<AppSearchSchema> outSchemaTypes = mDb1.getSchemaAsync().get().getSchemas();
+        assertThat(outSchemaTypes).containsExactly(newPersonSchema, organizationSchema);
+
+        getByDocumentIdRequest = new GetByDocumentIdRequest.Builder("namespace")
+                .addIds("person1")
+                .build();
+        outDocuments = doGet(mDb1, getByDocumentIdRequest);
+        assertThat(outDocuments).hasSize(1);
+        assertThat(outDocuments).containsExactly(person);
+
+        // Verify that index rebuild was triggered correctly. The same query "worksFor.name:Google"
+        // should still match the same result.
+        searchResults = mDb1.search("worksFor.name:Google", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        outDocuments = convertSearchResultsToDocuments(searchResults);
+        assertThat(outDocuments).hasSize(1);
+        assertThat(outDocuments).containsExactly(person);
+
+        // In new_schema the 'name' property is now indexed at section id 1. If searching for
+        // "name:Google" matched the document, this means that index rebuild was not triggered
+        // correctly and Icing is still searching the old index, where 'worksFor.name' was
+        // indexed at section id 1.
+        searchResults = mDb1.search("name:Google", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        outDocuments = convertSearchResultsToDocuments(searchResults);
+        assertThat(outDocuments).isEmpty();
+    }
+
+    @Test
     public void testSetSchemaWithValidCycle_allowCircularReferences() throws Exception {
         assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.SET_SCHEMA_CIRCULAR_REFERENCES));
 

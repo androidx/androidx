@@ -24,7 +24,7 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.os.Looper
 import android.view.Surface
-import androidx.camera.testing.GLUtil
+import androidx.camera.testing.impl.GLUtil
 import androidx.test.filters.SdkSuppress
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.android.asCoroutineDispatcher

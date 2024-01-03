@@ -102,7 +102,7 @@ internal class EditProcessor(
             )
             textChanged = true
         } else if (bufferState.selectionInChars != newValue.selectionInChars) {
-            mBuffer.setSelection(newValue.selectionInChars.min, newValue.selectionInChars.max)
+            mBuffer.setSelection(newValue.selectionInChars.start, newValue.selectionInChars.end)
             selectionChanged = true
         }
 

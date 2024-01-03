@@ -539,6 +539,7 @@ abstract class PagerState(
         cancelPrefetchIfVisibleItemsChanged(result)
         if (!isScrollInProgress) {
             settledPageState = currentPage
+            upDownDifference = Offset.Zero
         }
     }
 
@@ -547,6 +548,19 @@ abstract class PagerState(
     } else {
         0
     }
+
+    // check if the scrolling will be a result of a fling operation. That is, if the scrolling
+    // direction is in the opposite direction of the gesture movement. Also, return true if there
+    // is no applied gesture that causes the scrolling
+    private fun isGestureActionMatchesScroll(delta: Float): Boolean =
+        if (layoutInfo.orientation == Orientation.Vertical) {
+            sign(delta) == sign(upDownDifference.y)
+        } else {
+            sign(delta) == sign(upDownDifference.x)
+        } || isNotGestureAction()
+
+    private fun isNotGestureAction(): Boolean =
+        upDownDifference.x.toInt() == 0 && upDownDifference.y.toInt() == 0
 
     private fun performScroll(distance: Float): Float {
         if (distance < 0 && !canScrollForward || distance > 0 && !canScrollBackward) {
@@ -563,8 +577,9 @@ abstract class PagerState(
         if (abs(scrollToBeConsumed) > 0.5f) {
             val preScrollToBeConsumed = scrollToBeConsumed
             remeasurement?.forceRemeasure()
-            if (prefetchingEnabled) {
-                notifyPrefetch(preScrollToBeConsumed - scrollToBeConsumed)
+            val delta = preScrollToBeConsumed - scrollToBeConsumed
+            if (prefetchingEnabled && isGestureActionMatchesScroll(delta)) {
+                notifyPrefetch(delta)
             }
         }
 

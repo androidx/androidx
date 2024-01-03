@@ -20,6 +20,7 @@ import androidx.hilt.ClassNames
 import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XProcessingEnvConfig
 import androidx.room.compiler.processing.XProcessingStep
 import androidx.room.compiler.processing.XTypeElement
 import javax.tools.Diagnostic
@@ -138,5 +139,9 @@ class WorkerStep : XProcessingStep {
         } else {
             messager.printMessage(Diagnostic.Kind.ERROR, message)
         }
+    }
+
+    companion object {
+        val ENV_CONFIG = XProcessingEnvConfig.DEFAULT.copy(disableAnnotatedElementValidation = true)
     }
 }

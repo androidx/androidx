@@ -1,5 +1,6 @@
 package androidx.wear.compose.material
 
+import androidx.annotation.FloatRange
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.LinearEasing
@@ -12,20 +13,20 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.progressSemantics
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.ProgressIndicatorDefaults.BaseRotationAngle
@@ -78,7 +79,7 @@ import kotlin.math.min
  */
 @Composable
 public fun CircularProgressIndicator(
-    /* @FloatRange(fromInclusive = true, from = 0.0, toInclusive = true, to = 1.0) */
+    @FloatRange(from = 0.0, to = 1.0)
     progress: Float,
     modifier: Modifier = Modifier,
     startAngle: Float = 270f,
@@ -87,34 +88,37 @@ public fun CircularProgressIndicator(
     trackColor: Color = MaterialTheme.colors.onBackground.copy(alpha = 0.1f),
     strokeWidth: Dp = ProgressIndicatorDefaults.StrokeWidth,
 ) {
-    val stroke = with(LocalDensity.current) {
-        Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
-    }
-
-    Canvas(
+    // Canvas internally uses Spacer.drawBehind.
+    // Using Spacer.drawWithCache to optimize the stroke allocations.
+    Spacer(
         modifier
             .progressSemantics(progress)
             .size(ButtonCircularIndicatorDiameter)
             .focusable()
-    ) {
-        val backgroundSweep = 360f - ((startAngle - endAngle) % 360 + 360) % 360
-        val progressSweep = backgroundSweep * progress.coerceIn(0f..1f)
-        // Draw a background
-        drawCircularIndicator(
-            startAngle,
-            backgroundSweep,
-            trackColor,
-            stroke
-        )
+            .drawWithCache {
+                val backgroundSweep = 360f - ((startAngle - endAngle) % 360 + 360) % 360
+                val progressSweep = backgroundSweep * progress.coerceIn(0f..1f)
+                val stroke = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
 
-        // Draw a progress
-        drawCircularIndicator(
-            startAngle,
-            progressSweep,
-            indicatorColor,
-            stroke
-        )
-    }
+                onDrawWithContent {
+                    // Draw a background
+                    drawCircularIndicator(
+                        startAngle,
+                        backgroundSweep,
+                        trackColor,
+                        stroke
+                    )
+
+                    // Draw a progress
+                    drawCircularIndicator(
+                        startAngle,
+                        progressSweep,
+                        indicatorColor,
+                        stroke
+                    )
+                }
+            }
+    )
 }
 
 /**
@@ -146,10 +150,6 @@ public fun CircularProgressIndicator(
         .copy(alpha = 0.3f),
     strokeWidth: Dp = IndeterminateStrokeWidth,
 ) {
-    val stroke = with(LocalDensity.current) {
-        Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
-    }
-
     val transition = rememberInfiniteTransition()
     // The current rotation around the circle, so we know where to start the rotation from
     val currentRotation by transition.animateValue(
@@ -198,28 +198,35 @@ public fun CircularProgressIndicator(
             }
         )
     )
-    Canvas(
+
+    // Canvas internally uses Spacer.drawBehind.
+    // Using Spacer.drawWithCache to optimize the stroke allocations.
+    Spacer(
         modifier
             .progressSemantics()
             .size(IndeterminateCircularIndicatorDiameter)
             .focusable()
-    ) {
+            .drawWithCache
+            {
+                val stroke = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
 
-        val currentRotationAngleOffset = (currentRotation * RotationAngleOffset) % 360f
+                val currentRotationAngleOffset = (currentRotation * RotationAngleOffset) % 360f
+                // How long a line to draw using the start angle as a reference point
+                val sweep = abs(endAngle - startProgressAngle)
 
-        // How long a line to draw using the start angle as a reference point
-        val sweep = abs(endAngle - startProgressAngle)
+                // Offset by the constant offset and the per rotation offset
+                val offset = (startAngle + currentRotationAngleOffset + baseRotation) % 360f
 
-        // Offset by the constant offset and the per rotation offset
-        val offset = (startAngle + currentRotationAngleOffset + baseRotation) % 360f
-        drawCircularIndicator(0f, 360f, trackColor, stroke)
-        drawIndeterminateCircularIndicator(
-            startProgressAngle + offset,
-            sweep,
-            indicatorColor,
-            stroke
-        )
-    }
+                onDrawWithContent {
+                    drawCircularIndicator(0f, 360f, trackColor, stroke)
+                    drawIndeterminateCircularIndicator(
+                        startProgressAngle + offset,
+                        sweep,
+                        indicatorColor,
+                        stroke
+                    )
+                }
+            })
 }
 
 /**

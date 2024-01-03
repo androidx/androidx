@@ -1144,8 +1144,8 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     private void testScrollFrozen(boolean fling) throws Throwable {
         RecyclerView recyclerView = new RecyclerView(getActivity());
 
-        final int horizontalScrollCount = 3;
-        final int verticalScrollCount = 3;
+        final int horizontalScrollCount = 2;
+        final int verticalScrollCount = 2;
         final int horizontalVelocity = 1000;
         final int verticalVelocity = 1000;
         final AtomicInteger horizontalCounter = new AtomicInteger(horizontalScrollCount);
@@ -1203,9 +1203,9 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                     Gravity.LEFT | Gravity.TOP,
                     mRecyclerView.getWidth() / 2, mRecyclerView.getHeight() / 2);
         }
-        assertEquals("rv's horizontal scroll cb must not run", horizontalScrollCount,
+        assertEquals("scrollHorizontallyBy must not run", horizontalScrollCount,
                 horizontalCounter.get());
-        assertEquals("rv's vertical scroll cb must not run", verticalScrollCount,
+        assertEquals("scrollVerticallyBy must not run", verticalScrollCount,
                 verticalCounter.get());
 
         suppressLayout(false);
@@ -1217,8 +1217,14 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                     Gravity.LEFT | Gravity.TOP,
                     mRecyclerView.getWidth() / 2, mRecyclerView.getHeight() / 2);
         }
-        assertEquals("rv's horizontal scroll cb must finishes", 0, horizontalCounter.get());
-        assertEquals("rv's vertical scroll cb must finishes", 0, verticalCounter.get());
+
+        // Hopefully we can assume that even on a *really* laggy device, we get at least two
+        // scroll frames.  If this test flakes, consider replacing this with a check that
+        // it's called at least once.
+        assertEquals("scrollHorizontallyBy should have been called at least twice",
+                0, horizontalCounter.get());
+        assertEquals("scrollVerticallyBy should have been called at least twice",
+                0, verticalCounter.get());
     }
 
     @Test

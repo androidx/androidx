@@ -38,8 +38,8 @@ val SUCCESS_STATUS_TYPE_SPEC: TypeSpec<SuccessStatus> = TypeSpecBuilder.newBuild
   NAME_TYPE_SPEC
 ).bindStringField(
   "identifier",
-  { it.identifier },
+  { it.identifier.ifEmpty { null } },
   SuccessStatus.Builder<*>::setIdentifier
 ).bindIdentifier {
-  it.identifier
+  it.identifier.ifEmpty { null }
 }.build()

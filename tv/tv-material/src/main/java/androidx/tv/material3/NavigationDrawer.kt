@@ -40,7 +40,8 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
@@ -59,7 +60,8 @@ import androidx.compose.ui.zIndex
  * layout grid.
  *
  * Example:
- * @sample androidx.tv.samples.SampleModalNavigationDrawer
+ * @sample androidx.tv.samples.SampleModalNavigationDrawerWithSolidScrim
+ * @sample androidx.tv.samples.SampleModalNavigationDrawerWithGradientScrim
  *
  * @param drawerContent Content that needs to be displayed on the drawer based on whether the drawer
  * is [DrawerValue.Open] or [DrawerValue.Closed].
@@ -72,7 +74,7 @@ import androidx.compose.ui.zIndex
  *
  * @param modifier the [Modifier] to be applied to this drawer
  * @param drawerState state of the drawer
- * @param scrimColor color of the scrim that obscures content when the drawer is open
+ * @param scrimBrush brush to paint the scrim that obscures content when the drawer is open
  * @param content content of the rest of the UI
  */
 @ExperimentalTvMaterial3Api
@@ -81,7 +83,7 @@ fun ModalNavigationDrawer(
     drawerContent: @Composable (DrawerValue) -> Unit,
     modifier: Modifier = Modifier,
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
-    scrimColor: Color = LocalColorScheme.current.scrim.copy(alpha = 0.5f),
+    scrimBrush: Brush = SolidColor(LocalColorScheme.current.scrim.copy(alpha = 0.5f)),
     content: @Composable () -> Unit
 ) {
     val localDensity = LocalDensity.current
@@ -113,14 +115,14 @@ fun ModalNavigationDrawer(
             content = drawerContent
         )
 
+        if (drawerState.currentValue == DrawerValue.Open) {
+            // Scrim
+            Canvas(Modifier.fillMaxSize()) {
+                drawRect(scrimBrush)
+            }
+        }
         Box(Modifier.padding(start = closedDrawerWidth.value ?: ClosedDrawerWidth.dp)) {
             content()
-            if (drawerState.currentValue == DrawerValue.Open) {
-                // Scrim
-                Canvas(Modifier.fillMaxSize()) {
-                    drawRect(scrimColor)
-                }
-            }
         }
     }
 }

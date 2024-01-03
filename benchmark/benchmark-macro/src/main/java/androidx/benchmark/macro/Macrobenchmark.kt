@@ -30,9 +30,9 @@ import androidx.benchmark.InstrumentationResults
 import androidx.benchmark.Profiler
 import androidx.benchmark.ResultWriter
 import androidx.benchmark.Shell
-import androidx.benchmark.UserspaceTracing
 import androidx.benchmark.checkAndGetSuppressionState
 import androidx.benchmark.conditionalError
+import androidx.benchmark.inMemoryTrace
 import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig
 import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig.InitialProcessState
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
@@ -41,7 +41,6 @@ import androidx.benchmark.perfetto.PerfettoTrace
 import androidx.benchmark.perfetto.PerfettoTraceProcessor
 import androidx.benchmark.perfetto.UiState
 import androidx.benchmark.perfetto.appendUiState
-import androidx.benchmark.userspaceTrace
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.tracing.trace
 import java.io.File
@@ -67,12 +66,6 @@ internal fun checkErrors(packageName: String): ConfigurationError.SuppressionSta
 
     val applicationInfo = getInstalledPackageInfo(packageName)
 
-    val errorNotProfileable = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        applicationInfo.isNotProfileableByShell()
-    } else {
-        false
-    }
-
     val instrumentation = InstrumentationRegistry.getInstrumentation()
     val errors = DeviceInfo.errors +
         // TODO: Merge this debuggable check / definition with Errors.kt in benchmark-common
@@ -82,23 +75,27 @@ internal fun checkErrors(packageName: String): ConfigurationError.SuppressionSta
                 id = "DEBUGGABLE",
                 summary = "Benchmark Target is Debuggable",
                 message = """
-                    Target package $packageName
-                    is running with debuggable=true, which drastically reduces
-                    runtime performance in order to support debugging features. Run
-                    benchmarks with debuggable=false. Debuggable affects execution speed
-                    in ways that mean benchmark improvements might not carry over to a
+                    Target package $packageName is running with debuggable=true in its manifest,
+                    which drastically reduces runtime performance in order to support debugging
+                    features. Run benchmarks with debuggable=false. Debuggable affects execution
+                    speed in ways that mean benchmark improvements might not carry over to a
                     real user's experience (or even regress release performance).
                 """.trimIndent()
             ),
             conditionalError(
-                hasError = errorNotProfileable,
+                // Profileable is currently only needed on API 29+30, since app trace tag no longer
+                // requires profileable on API 31, and macrobench doesn't currently offer other
+                // means of profiling (like simpleperf) that need the flag.
+                hasError = DeviceInfo.profileableEnforced &&
+                    Build.VERSION.SDK_INT in 29..30 &&
+                    applicationInfo.isNotProfileableByShell(),
                 id = "NOT-PROFILEABLE",
                 summary = "Benchmark Target is NOT profileable",
                 message = """
-                    Target package $packageName
-                    is running without profileable. Profileable is required to enable
-                    macrobenchmark to capture detailed trace information from the target process,
-                    such as System tracing sections defined in the app, or libraries.
+                    Target package $packageName is running without <profileable shell=true>.
+                    Profileable is required on Android 10 & 11 to enable macrobenchmark to capture
+                    detailed trace information from the target process, such as System tracing
+                    sections defined in the app, or libraries.
 
                     To make the target profileable, add the following in your target app's
                     main AndroidManifest.xml, within the application tag:
@@ -222,7 +219,7 @@ private fun macrobenchmark(
     // Always kill the process at beginning of test
     scope.killProcess()
 
-    userspaceTrace("compile $packageName") {
+    inMemoryTrace("compile $packageName") {
         compilationMode.resetAndCompile(packageName, killProcessBlock = scope::killProcess) {
             setupBlock(scope)
             measureBlock(scope)
@@ -245,12 +242,12 @@ private fun macrobenchmark(
             val runIterations = if (Arguments.dryRunMode) 1 else iterations
             List(runIterations) { iteration ->
                 // Wake the device to ensure it stays awake with large iteration count
-                userspaceTrace("wake device") {
+                inMemoryTrace("wake device") {
                     scope.device.wakeUp()
                 }
 
                 scope.iteration = iteration
-                userspaceTrace("setupBlock") {
+                inMemoryTrace("setupBlock") {
                     setupBlock(scope)
                 }
 
@@ -276,7 +273,8 @@ private fun macrobenchmark(
                         },
                         useStackSamplingConfig = true
                     ),
-                    perfettoSdkConfig = perfettoSdkConfig
+                    perfettoSdkConfig = perfettoSdkConfig,
+                    inMemoryTracingLabel = "Macrobenchmark"
                 ) {
                     try {
                         trace("start metrics") {
@@ -308,7 +306,7 @@ private fun macrobenchmark(
 
                 val measurementList = loadTrace(PerfettoTrace(tracePath)) {
                     // Extracts the metrics using the perfetto trace processor
-                    userspaceTrace("extract metrics") {
+                    inMemoryTrace("extract metrics") {
                         metrics
                             // capture list of Measurements
                             .map {
@@ -332,10 +330,6 @@ private fun macrobenchmark(
                     highlightPackage = packageName
                 )
                 File(tracePath).apply {
-                    // Disabled currently, see b/194424816 and b/174007010
-                    // appendBytes(UserspaceTracing.commitToTrace().encode())
-                    UserspaceTracing.commitToTrace() // clear buffer
-
                     appendUiState(uiState)
                 }
                 Log.d(TAG, "Iteration $iteration captured $uiState")
@@ -408,7 +402,7 @@ fun macrobenchmarkWithStartupMode(
     measureBlock: MacrobenchmarkScope.() -> Unit
 ) {
     val perfettoSdkConfig =
-        if (Arguments.fullTracingEnable && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        if (Arguments.perfettoSdkTracingEnable && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             PerfettoSdkConfig(
                 packageName,
                 when (startupMode) {

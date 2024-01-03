@@ -317,7 +317,7 @@ public final class RoutesManager {
                             .setItems(items)
                             .setLinkedItemComponentName(
                                     new ComponentName(mContext, MainActivity.class))
-                            .setUseSystemOrdering(mRouteListingSystemOrderingPreferred)
+                            .setSystemOrderingEnabled(mRouteListingSystemOrderingPreferred)
                             .build();
         }
         mMediaRouter.setRouteListingPreference(routeListingPreference);

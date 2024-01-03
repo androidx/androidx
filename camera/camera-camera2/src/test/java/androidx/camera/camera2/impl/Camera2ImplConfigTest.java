@@ -24,7 +24,7 @@ import android.os.Build;
 import android.util.Range;
 
 import androidx.camera.core.impl.Config;
-import androidx.camera.testing.fakes.FakeConfig;
+import androidx.camera.testing.impl.fakes.FakeConfig;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

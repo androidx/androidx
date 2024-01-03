@@ -49,7 +49,7 @@ internal class EditingBuffer(
     /**
      * The inclusive selection start offset
      */
-    var selectionStart = selection.min
+    var selectionStart = selection.start
         private set(value) {
             require(value >= 0) { "Cannot set selectionStart to a negative value: $value" }
             field = value
@@ -58,7 +58,7 @@ internal class EditingBuffer(
     /**
      * The exclusive selection end offset
      */
-    var selectionEnd = selection.max
+    var selectionEnd = selection.end
         private set(value) {
             require(value >= 0) { "Cannot set selectionEnd to a negative value: $value" }
             field = value
@@ -135,23 +135,7 @@ internal class EditingBuffer(
     ) : this(AnnotatedString(text), selection)
 
     init {
-        val start = selection.min
-        val end = selection.max
-        if (start < 0 || start > text.length) {
-            throw IndexOutOfBoundsException(
-                "start ($start) offset is outside of text region ${text.length}"
-            )
-        }
-
-        if (end < 0 || end > text.length) {
-            throw IndexOutOfBoundsException(
-                "end ($end) offset is outside of text region ${text.length}"
-            )
-        }
-
-        if (start > end) {
-            throw IllegalArgumentException("Do not set reversed range: $start > $end")
-        }
+        checkRange(selection.start, selection.end)
     }
 
     fun replace(start: Int, end: Int, text: AnnotatedString) {
@@ -161,42 +145,30 @@ internal class EditingBuffer(
     /**
      * Replace the text and move the cursor to the end of inserted text.
      *
-     * This function cancels selection if there.
+     * This function cancels selection if there is any.
      *
      * @throws IndexOutOfBoundsException if start or end offset is outside of current buffer
      * @throws IllegalArgumentException if start is larger than end. (reversed range)
      */
     fun replace(start: Int, end: Int, text: String) {
+        checkRange(start, end)
+        val min = minOf(start, end)
+        val max = maxOf(start, end)
+
         changeTracker.trackChange(TextRange(start, end), text.length)
 
-        if (start < 0 || start > gapBuffer.length) {
-            throw IndexOutOfBoundsException(
-                "start ($start) offset is outside of text region ${gapBuffer.length}"
-            )
-        }
-
-        if (end < 0 || end > gapBuffer.length) {
-            throw IndexOutOfBoundsException(
-                "end ($end) offset is outside of text region ${gapBuffer.length}"
-            )
-        }
-
-        if (start > end) {
-            throw IllegalArgumentException("Do not set reversed range: $start > $end")
-        }
-
-        gapBuffer.replace(start, end, text)
+        gapBuffer.replace(min, max, text)
 
         // On Android, all text modification APIs also provides explicit cursor location. On the
-        // hand, desktop application usually doesn't. So, here tentatively move the cursor to the
-        // end offset of the editing area for desktop like application. In case of Android,
+        // other hand, desktop applications usually don't. So, here tentatively move the cursor to
+        // the end offset of the editing area for desktop like application. In case of Android,
         // implementation will call setSelection immediately after replace function to update this
         // tentative cursor location.
         selectionStart = start + text.length
         selectionEnd = start + text.length
 
-        // Similarly, if text modification happens, cancel ongoing composition. If caller want to
-        // change the composition text, it is caller responsibility to call setComposition again
+        // Similarly, if text modification happens, cancel ongoing composition. If caller wants to
+        // change the composition text, it is caller's responsibility to call setComposition again
         // to set composition range after replace function.
         compositionStart = NOWHERE
         compositionEnd = NOWHERE
@@ -209,17 +181,19 @@ internal class EditingBuffer(
      * Instead, preserve the selection with adjusting the deleted text.
      */
     fun delete(start: Int, end: Int) {
-        changeTracker.trackChange(TextRange(start, end), 0)
+        checkRange(start, end)
         val deleteRange = TextRange(start, end)
 
-        gapBuffer.replace(start, end, "")
+        changeTracker.trackChange(deleteRange, 0)
+
+        gapBuffer.replace(deleteRange.min, deleteRange.max, "")
 
         val newSelection = updateRangeAfterDelete(
             TextRange(selectionStart, selectionEnd),
             deleteRange
         )
-        selectionStart = newSelection.min
-        selectionEnd = newSelection.max
+        selectionStart = newSelection.start
+        selectionEnd = newSelection.end
 
         if (hasComposition()) {
             val compositionRange = TextRange(compositionStart, compositionEnd)
@@ -245,19 +219,7 @@ internal class EditingBuffer(
      * @throws IllegalArgumentException if start is larger than end. (reversed range)
      */
     fun setSelection(start: Int, end: Int) {
-        if (start < 0 || start > gapBuffer.length) {
-            throw IndexOutOfBoundsException(
-                "start ($start) offset is outside of text region ${gapBuffer.length}"
-            )
-        }
-        if (end < 0 || end > gapBuffer.length) {
-            throw IndexOutOfBoundsException(
-                "end ($end) offset is outside of text region ${gapBuffer.length}"
-            )
-        }
-        if (start > end) {
-            throw IllegalArgumentException("Do not set reversed range: $start > $end")
-        }
+        checkRange(start, end)
 
         selectionStart = start
         selectionEnd = end
@@ -315,6 +277,24 @@ internal class EditingBuffer(
     override fun toString(): String = gapBuffer.toString()
 
     fun toAnnotatedString(): AnnotatedString = AnnotatedString(toString())
+
+    private fun checkRange(start: Int, end: Int) {
+        if (start < 0 || start > gapBuffer.length) {
+            throw IndexOutOfBoundsException(
+                "start ($start) offset is outside of text region ${gapBuffer.length}"
+            )
+        }
+
+        if (end < 0 || end > gapBuffer.length) {
+            throw IndexOutOfBoundsException(
+                "end ($end) offset is outside of text region ${gapBuffer.length}"
+            )
+        }
+
+        if (start > end) {
+            println("Setting reversed range: $start > $end")
+        }
+    }
 }
 
 /**

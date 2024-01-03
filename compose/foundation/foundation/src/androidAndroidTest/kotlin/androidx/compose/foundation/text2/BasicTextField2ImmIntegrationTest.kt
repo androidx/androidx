@@ -114,6 +114,48 @@ internal class BasicTextField2ImmIntegrationTest {
     }
 
     @Test
+    fun stopsBeingTextEditor_whenChangedToReadOnly() {
+        val state = TextFieldState()
+        var readOnly by mutableStateOf(false)
+        rule.setContent {
+            hostView = LocalView.current
+            BasicTextField2(state, Modifier.testTag(Tag), readOnly = readOnly)
+        }
+        requestFocus(Tag)
+        rule.runOnIdle {
+            assertThat(hostView.onCheckIsTextEditor()).isTrue()
+        }
+
+        readOnly = true
+
+        rule.runOnIdle {
+            assertThat(hostView.onCheckIsTextEditor()).isFalse()
+            assertThat(hostView.onCreateInputConnection(EditorInfo())).isNull()
+        }
+    }
+
+    @Test
+    fun stopsBeingTextEditor_whenChangedToDisabled() {
+        val state = TextFieldState()
+        var enabled by mutableStateOf(true)
+        rule.setContent {
+            hostView = LocalView.current
+            BasicTextField2(state, Modifier.testTag(Tag), enabled = enabled)
+        }
+        requestFocus(Tag)
+        rule.runOnIdle {
+            assertThat(hostView.onCheckIsTextEditor()).isTrue()
+        }
+
+        enabled = false
+
+        rule.runOnIdle {
+            assertThat(hostView.onCheckIsTextEditor()).isFalse()
+            assertThat(hostView.onCreateInputConnection(EditorInfo())).isNull()
+        }
+    }
+
+    @Test
     fun staysTextEditor_whenFocusTransferred() {
         val state1 = TextFieldState()
         val state2 = TextFieldState()

@@ -157,6 +157,12 @@ class DifferentialMotionFlingHelper {
      */
     void onMotionEvent(MotionEvent event, int axis) {
         boolean flingParamsChanged = calculateFlingVelocityThresholds(event, axis);
+        if (mFlingVelocityThresholds[0] == Integer.MAX_VALUE) {
+            // Integer.MAX_VALUE means that the device does not support fling for the current
+            // configuration. Do not proceed any further.
+            return;
+        }
+
         float scaledVelocity =
                 getCurrentVelocity(event, axis) * mTarget.getScaledScrollFactor();
 

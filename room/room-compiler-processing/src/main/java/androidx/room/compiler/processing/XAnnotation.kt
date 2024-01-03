@@ -74,6 +74,9 @@ interface XAnnotation {
     /** All values declared in the annotation class. */
     val annotationValues: List<XAnnotationValue>
 
+    /** All default values declared in the annotation class. */
+    val defaultValues: List<XAnnotationValue>
+
     /** Returns the value of the given [methodName] as a type reference. */
     fun getAsType(methodName: String): XType = getAnnotationValue(methodName).asType()
 

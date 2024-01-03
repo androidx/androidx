@@ -514,6 +514,7 @@ public final class Action {
          *                               {@link #APP_ICON} or {@link #BACK}, or if an icon or
          *                               title is set on either {@link #APP_ICON} or {@link #BACK}
          */
+        @OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)
         @NonNull
         public Action build() {
             boolean isStandard = isStandardActionType(mType);
@@ -522,11 +523,10 @@ public final class Action {
                 throw new IllegalStateException("An action must have either an icon or a title");
             }
 
-            if ((mType == TYPE_APP_ICON || mType == TYPE_BACK)) {
+            if ((mType == TYPE_APP_ICON || mType == TYPE_BACK || mType == TYPE_COMPOSE_MESSAGE)) {
                 if (mOnClickDelegate != null) {
-                    throw new IllegalStateException(
-                            "An on-click listener can't be set on the standard back or "
-                                    + "app-icon action");
+                    throw new IllegalStateException(String.format(
+                            "An on-click listener can't be set on an action of type %s", mType));
                 }
 
                 if (mIcon != null || (mTitle != null && !TextUtils.isEmpty(mTitle.toString()))) {

@@ -209,9 +209,10 @@ class PreviewViewMeteringPointFactoryDeviceTest(
             SurfaceRequest.TransformationInfo.of(
                 cropRect,
                 rotationDegrees,
-                FAKE_TARGET_ROTATION, /*hasCameraTransform=*/
-                true, /*sensorToBufferTransform=*/
-                /*sensorToBufferTransform=*/Matrix()
+                FAKE_TARGET_ROTATION,
+                /*hasCameraTransform=*/true,
+                /*sensorToBufferTransform=*/Matrix(),
+                /*mirroring=*/false
             ),
             surfaceSize, isFrontCamera
         )

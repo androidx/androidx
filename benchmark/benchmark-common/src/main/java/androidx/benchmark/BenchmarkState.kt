@@ -77,21 +77,28 @@ class BenchmarkState internal constructor(
      * Constructor used for standard uses of BenchmarkState, e.g. in BenchmarkRule
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    constructor() : this(warmupCount = null, simplifiedTimingOnlyMode = false)
+    constructor(
+        config: MicrobenchmarkConfig? = null
+    ) : this(
+        warmupCount = null,
+        simplifiedTimingOnlyMode = false,
+        config = config
+    )
 
     internal constructor(
         warmupCount: Int? = null,
         measurementCount: Int? = null,
-        simplifiedTimingOnlyMode: Boolean = false
+        simplifiedTimingOnlyMode: Boolean = false,
+        config: MicrobenchmarkConfig? = null
     ) : this(
         MicrobenchmarkPhase.Config(
             dryRunMode = Arguments.dryRunMode,
             startupMode = Arguments.startupMode,
-            profiler = Arguments.profiler,
+            profiler = config?.profiler?.profiler ?: Arguments.profiler,
             warmupCount = warmupCount,
             measurementCount = Arguments.iterations ?: measurementCount,
             simplifiedTimingOnlyMode = simplifiedTimingOnlyMode,
-            cpuEventCountersMask = Arguments.cpuEventCounterMask
+            metrics = config?.metrics?.toTypedArray() ?: DEFAULT_METRICS
         )
     )
 
@@ -243,7 +250,7 @@ class BenchmarkState internal constructor(
 
         if (phaseIndex >= 0) {
             currentPhase.profiler?.stop()
-            UserspaceTracing.endSection()
+            InMemoryTracing.endSection()
             thermalThrottleSleepSeconds += currentPhase.thermalThrottleSleepSeconds
             if (currentPhase.loopMode.warmupManager == null && currentPhase.profiler == null) {
                 // Always save metrics, except during warmup / profiling
@@ -275,7 +282,7 @@ class BenchmarkState internal constructor(
 
         iterationsPerRepeat = iterationsPerRepeat.coerceAtLeast(currentLoopsPerMeasurement)
 
-        UserspaceTracing.beginSection(currentPhase.label)
+        InMemoryTracing.beginSection(currentPhase.label)
         val phaseProfilerResult = currentPhase.profiler?.start(traceUniqueName)
         if (phaseProfilerResult != null) {
             require(profilerResult == null) {
@@ -378,7 +385,7 @@ class BenchmarkState internal constructor(
         if (!value) {
             ThreadPriority.resetBumpedThread()
             if (phaseIndex >= 0 && phaseIndex <= phases.size) {
-                UserspaceTracing.endSection() // current phase cancelled, complete trace event
+                InMemoryTracing.endSection() // current phase cancelled, complete trace event
             }
             throw IllegalStateException(lazyMessage())
         }
@@ -543,6 +550,19 @@ class BenchmarkState internal constructor(
             TimeUnit.SECONDS.toNanos(Arguments.profilerSampleDurationSeconds)
 
         private var firstBenchmark = true
+
+        private val DEFAULT_METRICS: Array<MetricCapture> =
+            if (Arguments.cpuEventCounterMask != 0) {
+                arrayOf(
+                    TimeCapture(),
+                    CpuEventCounterCapture(
+                        MicrobenchmarkPhase.cpuEventCounter,
+                        Arguments.cpuEventCounterMask
+                    )
+                )
+            } else {
+                arrayOf(TimeCapture())
+            }
 
         @RequiresOptIn
         @Retention(AnnotationRetention.BINARY)

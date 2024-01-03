@@ -27,9 +27,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.ripple.rememberRipple
@@ -58,6 +62,66 @@ import kotlin.math.roundToInt
 
 // TODO: b/149825331 add documentation references to Scaffold here and samples for using
 // BottomNavigation inside a Scaffold
+/**
+ * <a href="https://material.io/components/bottom-navigation" class="external" target="_blank">Material Design bottom navigation</a>.
+ *
+ * Bottom navigation bars allow movement between primary destinations in an app.
+ *
+ * ![Bottom navigation image](https://developer.android.com/images/reference/androidx/compose/material/bottom-navigation.png)
+ *
+ * This particular overload provides ability to specify [WindowInsets]. Recommended value can be
+ * found in [BottomNavigationDefaults.windowInsets].
+ *
+ * BottomNavigation should contain multiple [BottomNavigationItem]s, each representing a singular
+ * destination.
+ *
+ * A simple example looks like:
+ *
+ * @sample androidx.compose.material.samples.BottomNavigationSample
+ *
+ * See [BottomNavigationItem] for configuration specific to each item, and not the overall
+ * BottomNavigation component.
+ *
+ * For more information, see [Bottom Navigation](https://material.io/components/bottom-navigation/)
+ *
+ * @param windowInsets a window insets that bottom navigation will respect.
+ * @param modifier optional [Modifier] for this BottomNavigation
+ * @param backgroundColor The background color for this BottomNavigation
+ * @param contentColor The preferred content color provided by this BottomNavigation to its
+ * children. Defaults to either the matching content color for [backgroundColor], or if
+ * [backgroundColor] is not a color from the theme, this will keep the same value set above this
+ * BottomNavigation.
+ * @param elevation elevation for this BottomNavigation
+ * @param content destinations inside this BottomNavigation, this should contain multiple
+ * [BottomNavigationItem]s
+ */
+@Composable
+fun BottomNavigation(
+    windowInsets: WindowInsets,
+    modifier: Modifier = Modifier,
+    backgroundColor: Color = MaterialTheme.colors.primarySurface,
+    contentColor: Color = contentColorFor(backgroundColor),
+    elevation: Dp = BottomNavigationDefaults.Elevation,
+    content: @Composable RowScope.() -> Unit
+) {
+    Surface(
+        color = backgroundColor,
+        contentColor = contentColor,
+        elevation = elevation,
+        modifier = modifier
+    ) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .windowInsetsPadding(windowInsets)
+                .height(BottomNavigationHeight)
+                .selectableGroup(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            content = content
+        )
+    }
+}
+
 /**
  * <a href="https://material.io/components/bottom-navigation" class="external" target="_blank">Material Design bottom navigation</a>.
  *
@@ -95,21 +159,7 @@ fun BottomNavigation(
     elevation: Dp = BottomNavigationDefaults.Elevation,
     content: @Composable RowScope.() -> Unit
 ) {
-    Surface(
-        color = backgroundColor,
-        contentColor = contentColor,
-        elevation = elevation,
-        modifier = modifier
-    ) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .height(BottomNavigationHeight)
-                .selectableGroup(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            content = content
-        )
-    }
+    BottomNavigation(ZeroInsets, modifier, backgroundColor, contentColor, elevation, content)
 }
 
 /**
@@ -205,6 +255,14 @@ object BottomNavigationDefaults {
      * Default elevation used for [BottomNavigation].
      */
     val Elevation = 8.dp
+
+    /**
+     * Recommended window insets to be used and consumed by bottom navigation
+     */
+    val windowInsets: WindowInsets
+        @Composable
+        get() = WindowInsets.systemBarsForVisualComponents
+            .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
 }
 
 /**
@@ -397,3 +455,5 @@ private val BottomNavigationItemHorizontalPadding = 12.dp
  * the text baseline and the bottom of the icon placed above it.
  */
 private val CombinedItemTextBaseline = 12.dp
+
+private val ZeroInsets = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp)

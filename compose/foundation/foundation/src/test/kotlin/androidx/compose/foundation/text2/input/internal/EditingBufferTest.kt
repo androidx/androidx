@@ -154,7 +154,15 @@ class EditingBufferTest {
     }
 
     @Test
-    fun setCompostion_and_cancelComposition() {
+    fun setSelection_allowReversedSelection() {
+        val eb = EditingBuffer("ABCDE", TextRange.Zero)
+        eb.setSelection(4, 2)
+
+        assertThat(eb.selection).isEqualTo(TextRange(4, 2))
+    }
+
+    @Test
+    fun setComposition_and_cancelComposition() {
         val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
         eb.setComposition(0, 5) // Make all text as composition
@@ -195,7 +203,7 @@ class EditingBufferTest {
     }
 
     @Test
-    fun setCompostion_and_commitComposition() {
+    fun setComposition_and_commitComposition() {
         val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
         eb.setComposition(0, 5) // Make all text as composition
@@ -334,6 +342,18 @@ class EditingBufferTest {
     }
 
     @Test
+    fun delete_covered_reversedSelection() {
+        // A[BC]DE
+        val eb = EditingBuffer("ABCDE", TextRange(3, 1))
+
+        eb.delete(0, 4)
+        // []E
+        assertThat(eb).hasChars("E")
+        assertThat(eb.selectionStart).isEqualTo(0)
+        assertThat(eb.selectionEnd).isEqualTo(0)
+    }
+
+    @Test
     fun delete_intersects_first_half_of_selection() {
         // AB[CD]E
         val eb = EditingBuffer("ABCDE", TextRange(2, 4))
@@ -346,11 +366,35 @@ class EditingBufferTest {
     }
 
     @Test
+    fun delete_intersects_first_half_of_reversedSelection() {
+        // AB[CD]E
+        val eb = EditingBuffer("ABCDE", TextRange(4, 2))
+
+        eb.delete(3, 1)
+        // A[D]E
+        assertThat(eb).hasChars("ADE")
+        assertThat(eb.selectionStart).isEqualTo(1)
+        assertThat(eb.selectionEnd).isEqualTo(2)
+    }
+
+    @Test
     fun delete_intersects_second_half_of_selection() {
         // A[BCD]EFG
         val eb = EditingBuffer("ABCDEFG", TextRange(1, 4))
 
         eb.delete(3, 5)
+        // A[BC]FG
+        assertThat(eb).hasChars("ABCFG")
+        assertThat(eb.selectionStart).isEqualTo(1)
+        assertThat(eb.selectionEnd).isEqualTo(3)
+    }
+
+    @Test
+    fun delete_intersects_second_half_of_reversedSelection() {
+        // A[BCD]EFG
+        val eb = EditingBuffer("ABCDEFG", TextRange(4, 1))
+
+        eb.delete(5, 3)
         // A[BC]FG
         assertThat(eb).hasChars("ABCFG")
         assertThat(eb.selectionStart).isEqualTo(1)
