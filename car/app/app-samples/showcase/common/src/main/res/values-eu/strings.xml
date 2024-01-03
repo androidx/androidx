@@ -176,7 +176,7 @@
     <string name="nav_map_template_demo_title" msgid="344985380763975398">"Nabigazioaren txantiloien (mapa soilik dutenak) demo-bertsioa"</string>
     <string name="nav_demos_title" msgid="72781206086461004">"Nabigazioaren demo-bertsioak"</string>
     <string name="navigation_alert_title" msgid="8306554249264200848">"Radar mugikorrak al daude oraindik?"</string>
-    <string name="navigation_alert_subtitle" msgid="3331130131492672264">"Duela 10 min jakinarazi da"</string>
+    <string name="navigation_alert_subtitle" msgid="3331130131492672264">"Duela 10 minutu jakinarazi da"</string>
     <string name="no_toll_card_permission" msgid="6789073114449712090">"Ez dago bidesarien txartela atzitzeko baimenik."</string>
     <string name="no_energy_level_permission" msgid="1684773185095107825">"Ez dago energia-maila atzitzeko baimenik."</string>
     <string name="no_speed_permission" msgid="5812532480922675390">"Ez dago abiadura atzitzeko baimenik."</string>
