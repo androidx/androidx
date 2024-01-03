@@ -17,7 +17,6 @@
 package androidx.paging
 
 import androidx.kruth.assertThat
-import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.PageStore.ProcessPageEventCallback
@@ -244,9 +243,7 @@ class PageStoreTest {
             callback = callback
         )
 
-        assertThat(callback.getAllAndClear()).isEqualTo(
-            events + listOf(StateEvent(APPEND, false, NotLoading.Incomplete))
-        )
+        assertThat(callback.getAllAndClear()).isEqualTo(events)
 
         // assert final list state
         val finalData = initialPages.subList(0, initialPages.size - pagesToDrop).flatten()
@@ -285,9 +282,7 @@ class PageStoreTest {
             callback = callback
         )
 
-        assertThat(callback.getAllAndClear()).isEqualTo(
-            events + listOf(StateEvent(PREPEND, false, NotLoading.Incomplete))
-        )
+        assertThat(callback.getAllAndClear()).isEqualTo(events)
 
         // assert final list state
         val finalData = initialPages.take(initialPages.size - pagesToDrop).reversed().flatten()
