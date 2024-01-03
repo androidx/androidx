@@ -53,16 +53,19 @@ package androidx.window.extensions.embedding {
 
   public interface ActivityEmbeddingComponent {
     method public default void clearActivityStackAttributesCalculator();
+    method public default void clearEmbeddingActivityWindowInfoCallback();
     method public void clearSplitAttributesCalculator();
     method public void clearSplitInfoCallback();
     method public default void finishActivityStacks(java.util.Set<android.os.IBinder!>);
     method public default android.os.IBinder? getActivityStackToken(String);
+    method public default androidx.window.extensions.embedding.EmbeddingActivityWindowInfo? getEmbeddingActivityWindowInfo(android.app.Activity);
     method public default androidx.window.extensions.embedding.ParentContainerInfo? getParentContainerInfo(android.os.IBinder);
     method public default void invalidateTopVisibleSplitAttributes();
     method public boolean isActivityEmbedded(android.app.Activity);
     method public default boolean pinTopActivityStack(int, androidx.window.extensions.embedding.SplitPinRule);
     method public default void registerActivityStackCallback(java.util.concurrent.Executor, androidx.window.extensions.core.util.function.Consumer<java.util.List<androidx.window.extensions.embedding.ActivityStack!>!>);
     method public default void setActivityStackAttributesCalculator(androidx.window.extensions.core.util.function.Function<androidx.window.extensions.embedding.ActivityStackAttributesCalculatorParams!,androidx.window.extensions.embedding.ActivityStackAttributes!>);
+    method public default void setEmbeddingActivityWindowInfoCallback(java.util.concurrent.Executor, androidx.window.extensions.core.util.function.Consumer<androidx.window.extensions.embedding.EmbeddingActivityWindowInfo!>);
     method public void setEmbeddingRules(java.util.Set<androidx.window.extensions.embedding.EmbeddingRule!>);
     method public default android.app.ActivityOptions setLaunchingActivityStack(android.app.ActivityOptions, android.os.IBinder);
     method public void setSplitAttributesCalculator(androidx.window.extensions.core.util.function.Function<androidx.window.extensions.embedding.SplitAttributesCalculatorParams!,androidx.window.extensions.embedding.SplitAttributes!>);
@@ -124,6 +127,14 @@ package androidx.window.extensions.embedding {
 
   public static class AnimationBackground.ColorBackground extends androidx.window.extensions.embedding.AnimationBackground {
     method @ColorInt public int getColor();
+  }
+
+  public class EmbeddingActivityWindowInfo {
+    method public android.app.Activity getActivity();
+    method public android.graphics.Rect getActivityBounds();
+    method public android.graphics.Rect getActivityStackBounds();
+    method public android.graphics.Rect getTaskBounds();
+    method public boolean isEmbedded();
   }
 
   public abstract class EmbeddingRule {
