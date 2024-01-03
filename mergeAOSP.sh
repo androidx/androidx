@@ -30,28 +30,28 @@ git checkout $CURRENT_COMMIT
 git merge $MERGE_BRANCH --no-commit --no-ff || true
 git branch -D $MERGE_BRANCH
 
-git checkout --no-overlay HEAD --ours -- './buildSrc'
-git checkout --no-overlay HEAD --ours -- './compose/*/build.gradle'
-git checkout --no-overlay HEAD --ours -- './.github'
-git checkout --no-overlay HEAD --ours -- './.idea'
-git checkout --no-overlay HEAD --ours -- './.run'
-git checkout --no-overlay HEAD --ours -- 'CONTRIBUTING.md'
-git checkout --no-overlay HEAD --ours -- 'README.md'
-git checkout --no-overlay HEAD --ours -- 'gradlew'
-git checkout --no-overlay HEAD --ours -- 'gradlew.bat'
-git checkout --no-overlay HEAD --ours -- 'gradle.properties'
-git checkout --no-overlay HEAD --ours -- './gradle/*'
-git checkout --no-overlay HEAD --ours -- 'build.gradle'
-git checkout --no-overlay HEAD --ours -- 'settings.gradle'
-git checkout --no-overlay HEAD --ours -- './collection/*/jvmMain/*'
-git checkout --no-overlay HEAD --ours -- './collection/*/jvmTest/*'
-git checkout --no-overlay HEAD --ours -- './compose/*/skikoMain/*'
-git checkout --no-overlay HEAD --ours -- './compose/*/desktopMain/*'
-git checkout --no-overlay HEAD --ours -- './compose/*/skikoTest/*'
-git checkout --no-overlay HEAD --ours -- './compose/*/desktopTest/*'
-git checkout --no-overlay HEAD --ours -- './compose/desktop/*'
-git checkout --no-overlay HEAD --theirs -- './*/api/*.txt'
-git checkout --no-overlay HEAD --theirs -- './*/api/*current.ignore'
+git checkout --no-overlay HEAD --ours -- './buildSrc' || true
+git checkout --no-overlay HEAD --ours -- './compose/*/build.gradle' || true
+git checkout --no-overlay HEAD --ours -- './.github' || true
+git checkout --no-overlay HEAD --ours -- './.idea' || true
+git checkout --no-overlay HEAD --ours -- './.run' || true
+git checkout --no-overlay HEAD --ours -- 'CONTRIBUTING.md' || true
+git checkout --no-overlay HEAD --ours -- 'README.md' || true
+git checkout --no-overlay HEAD --ours -- 'gradlew' || true
+git checkout --no-overlay HEAD --ours -- 'gradlew.bat' || true
+git checkout --no-overlay HEAD --ours -- 'gradle.properties' || true
+git checkout --no-overlay HEAD --ours -- './gradle/*' || true
+git checkout --no-overlay HEAD --ours -- 'build.gradle' || true
+git checkout --no-overlay HEAD --ours -- 'settings.gradle' || true
+git checkout --no-overlay HEAD --ours -- './collection/*/jvmMain/*' || true
+git checkout --no-overlay HEAD --ours -- './collection/*/jvmTest/*' || true
+git checkout --no-overlay HEAD --ours -- './compose/*/skikoMain/*' || true
+git checkout --no-overlay HEAD --ours -- './compose/*/desktopMain/*' || true
+git checkout --no-overlay HEAD --ours -- './compose/*/skikoTest/*' || true
+git checkout --no-overlay HEAD --ours -- './compose/*/desktopTest/*' || true
+git checkout --no-overlay HEAD --ours -- './compose/desktop/*' || true
+git checkout --no-overlay HEAD --theirs -- './*/api/*.txt' || true
+git checkout --no-overlay HEAD --theirs -- './*/api/*current.ignore' || true
 
 #material3 only for now, there is a lot of issues with it right now, we'll fix them soon, and we shouldn't reset it after that
-git checkout --no-overlay HEAD --ours -- './compose/material3/*'
+git checkout --no-overlay HEAD --ours -- './compose/material3/*' || true
