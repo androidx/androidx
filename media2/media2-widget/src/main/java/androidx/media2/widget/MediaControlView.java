@@ -51,7 +51,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
-import androidx.core.view.ViewCompat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -359,7 +358,7 @@ public class MediaControlView extends MediaViewGroup {
         }
         mPlayer = new PlayerWrapper(controller, ContextCompat.getMainExecutor(getContext()),
                 new PlayerCallback());
-        if (ViewCompat.isAttachedToWindow(this)) {
+        if (this.isAttachedToWindow()) {
             mPlayer.attachCallback();
         }
     }
@@ -396,7 +395,7 @@ public class MediaControlView extends MediaViewGroup {
         }
         mPlayer = new PlayerWrapper(player, ContextCompat.getMainExecutor(getContext()),
                 new PlayerCallback());
-        if (ViewCompat.isAttachedToWindow(this)) {
+        if (this.isAttachedToWindow()) {
             mPlayer.attachCallback();
         }
     }

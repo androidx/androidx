@@ -595,7 +595,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
     init {
         setWillNotDraw(false)
         ViewCompat.setAccessibilityDelegate(this, AccessibilityDelegate())
-        ViewCompat.setImportantForAccessibility(this, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES)
+        setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES)
 
         context.withStyledAttributes(
             attrs,
@@ -1796,7 +1796,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
             info.className =
                 ACCESSIBILITY_CLASS_NAME
             info.setSource(host)
-            val parent = ViewCompat.getParentForAccessibility(host)
+            val parent = host.getParentForAccessibility()
             if (parent is View) {
                 info.setParent(parent as View)
             }
@@ -1808,9 +1808,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
                 val child = getChildAt(i)
                 if (!filter(child) && child.visibility == VISIBLE) {
                     // Force importance to "yes" since we can't read the value.
-                    ViewCompat.setImportantForAccessibility(
-                        child, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES
-                    )
+                    child.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES)
                     info.addChild(child)
                 }
             }

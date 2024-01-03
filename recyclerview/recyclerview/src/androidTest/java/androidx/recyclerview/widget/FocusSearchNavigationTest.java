@@ -77,9 +77,9 @@ public class FocusSearchNavigationTest {
     @Parameterized.Parameters(name = "orientation:{0},layoutDir:{1}")
     public static List<Object[]> params() {
         return Arrays.asList(
-                new Object[]{VERTICAL, ViewCompat.LAYOUT_DIRECTION_LTR},
-                new Object[]{HORIZONTAL, ViewCompat.LAYOUT_DIRECTION_LTR},
-                new Object[]{HORIZONTAL, ViewCompat.LAYOUT_DIRECTION_RTL}
+                new Object[]{VERTICAL, View.LAYOUT_DIRECTION_LTR},
+                new Object[]{HORIZONTAL, View.LAYOUT_DIRECTION_LTR},
+                new Object[]{HORIZONTAL, View.LAYOUT_DIRECTION_RTL}
         );
     }
 
@@ -118,7 +118,7 @@ public class FocusSearchNavigationTest {
         waitForIdleSync();
         assertThat("Assumption check", mRecyclerView.getLayoutManager().getLayoutDirection(),
                 is(mLayoutDir));
-        assertThat("Assumption check", ViewCompat.getLayoutDirection(mRecyclerView),
+        assertThat("Assumption check", mRecyclerView.getLayoutDirection(),
                 is(mLayoutDir));
     }
 

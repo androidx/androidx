@@ -1667,11 +1667,11 @@ public abstract class Transition implements Cloneable {
                     // Duplicate item IDs: cannot match by item ID.
                     View alreadyMatched = transitionValuesMaps.mItemIdValues.get(itemId);
                     if (alreadyMatched != null) {
-                        ViewCompat.setHasTransientState(alreadyMatched, false);
+                        alreadyMatched.setHasTransientState(false);
                         transitionValuesMaps.mItemIdValues.put(itemId, null);
                     }
                 } else {
-                    ViewCompat.setHasTransientState(view, true);
+                    view.setHasTransientState(true);
                     transitionValuesMaps.mItemIdValues.put(itemId, view);
                 }
             }
@@ -2073,13 +2073,13 @@ public abstract class Transition implements Cloneable {
             for (int i = 0; i < mStartValues.mItemIdValues.size(); ++i) {
                 View view = mStartValues.mItemIdValues.valueAt(i);
                 if (view != null) {
-                    ViewCompat.setHasTransientState(view, false);
+                    view.setHasTransientState(false);
                 }
             }
             for (int i = 0; i < mEndValues.mItemIdValues.size(); ++i) {
                 View view = mEndValues.mItemIdValues.valueAt(i);
                 if (view != null) {
-                    ViewCompat.setHasTransientState(view, false);
+                    view.setHasTransientState(false);
                 }
             }
             mEnded = true;

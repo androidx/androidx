@@ -32,13 +32,13 @@ import android.os.Build;
 import android.os.SystemClock;
 import android.util.DisplayMetrics;
 import android.util.SparseArray;
+import android.view.View;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.graphics.drawable.DrawableCompat;
-import androidx.core.view.ViewCompat;
 
 /**
  * A helper class that contains several {@link Drawable}s and selects which one to use.
@@ -94,7 +94,7 @@ public class DrawableContainerCompat extends Drawable implements Drawable.Callba
 
     private boolean needsMirroring() {
         return isAutoMirrored()
-                && (DrawableCompat.getLayoutDirection(this) == ViewCompat.LAYOUT_DIRECTION_RTL);
+                && (DrawableCompat.getLayoutDirection(this) == View.LAYOUT_DIRECTION_RTL);
     }
 
     @Override

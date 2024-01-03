@@ -3621,7 +3621,7 @@ class AndroidAccessibilityTest {
             assertThat(colAccessibilityNode.childCount).isEqualTo(2)
             assertThat(colSemanticsNode.replacedChildren.size).isEqualTo(2)
             assertThat(buttonHolder.importantForAccessibility)
-                .isEqualTo(ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES)
+                .isEqualTo(View.IMPORTANT_FOR_ACCESSIBILITY_YES)
             assertThat((buttonHolder.getChildAt(0) as Button).text)
                 .isEqualTo(buttonText)
         }

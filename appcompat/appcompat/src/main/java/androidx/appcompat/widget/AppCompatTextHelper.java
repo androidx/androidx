@@ -458,7 +458,7 @@ class AppCompatTextHelper {
             mFontTypeface = typeface;
             final TextView textView = textViewWeak.get();
             if (textView != null) {
-                if (ViewCompat.isAttachedToWindow(textView)) {
+                if (textView.isAttachedToWindow()) {
                     final int style = mStyle;
                     textView.post(new Runnable() {
                         @Override

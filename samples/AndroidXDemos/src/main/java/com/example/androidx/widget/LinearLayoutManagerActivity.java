@@ -16,7 +16,8 @@
 
 package com.example.androidx.widget;
 
-import androidx.core.view.ViewCompat;
+import android.view.View;
+
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSnapHelper;
@@ -78,14 +79,13 @@ public class LinearLayoutManagerActivity extends BaseLayoutManagerActivity<Linea
                 new ConfigToggle(this, R.string.checkbox_layout_dir) {
                     @Override
                     public boolean isChecked() {
-                        return ViewCompat.getLayoutDirection(mRecyclerView) ==
-                                ViewCompat.LAYOUT_DIRECTION_RTL;
+                        return mRecyclerView.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
                     }
 
                     @Override
                     public void onChange(boolean newValue) {
-                        ViewCompat.setLayoutDirection(mRecyclerView, newValue ?
-                                ViewCompat.LAYOUT_DIRECTION_RTL : ViewCompat.LAYOUT_DIRECTION_LTR);
+                        mRecyclerView.setLayoutDirection(newValue
+                                ? View.LAYOUT_DIRECTION_RTL : View.LAYOUT_DIRECTION_LTR);
                     }
                 },
                 new ConfigToggle(this, R.string.checkbox_stack_from_end) {

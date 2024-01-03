@@ -78,7 +78,7 @@ public abstract class FragmentTransitionImpl {
      * containing the bounds relative to the screen that the view is in.
      */
     protected void getBoundsOnScreen(View view, Rect epicenter) {
-        if (!ViewCompat.isAttachedToWindow(view)) {
+        if (!view.isAttachedToWindow()) {
             return;
         }
 

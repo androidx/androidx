@@ -18,9 +18,8 @@ package androidx.testutils
 
 import android.content.Context
 import android.content.res.Configuration
+import android.view.View
 import androidx.core.os.ConfigurationCompat
-import androidx.core.view.ViewCompat.LAYOUT_DIRECTION_LTR
-import androidx.core.view.ViewCompat.LAYOUT_DIRECTION_RTL
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -117,7 +116,9 @@ class LocaleTestUtilsTest {
         assertThat(
             "Layout direction should be ${if (expectRtl) "RTL" else "LTR"}",
             configuration.layoutDirection,
-            CoreMatchers.equalTo(if (expectRtl) LAYOUT_DIRECTION_RTL else LAYOUT_DIRECTION_LTR)
+            CoreMatchers.equalTo(
+                if (expectRtl) View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
+            )
         )
     }
 
@@ -127,6 +128,6 @@ class LocaleTestUtilsTest {
             configuration.language,
             CoreMatchers.equalTo(DEFAULT_LANGUAGE)
         )
-        expectRtlInDefaultLanguage = configuration.layoutDirection == LAYOUT_DIRECTION_RTL
+        expectRtlInDefaultLanguage = configuration.layoutDirection == View.LAYOUT_DIRECTION_RTL
     }
 }
