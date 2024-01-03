@@ -68,64 +68,34 @@ interface PointerMatcher {
         fun pointer(
             pointerType: PointerType,
             button: PointerButton? = null
-        ): PointerMatcher = object : PointerTypeAndButtonMatcher {
-            override val pointerType = pointerType
-            override val button = button
-        }
+        ): PointerMatcher = PointerTypeAndButtonMatcher(pointerType, button)
 
         @ExperimentalFoundationApi
-        fun mouse(button: PointerButton): PointerMatcher = MousePointerMatcher(button)
+        fun mouse(button: PointerButton): PointerMatcher = pointer(PointerType.Mouse, button)
 
         @ExperimentalFoundationApi
-        fun stylus(button: PointerButton? = null): PointerMatcher = StylusPointerMatcher(button)
+        fun stylus(button: PointerButton? = null): PointerMatcher =
+            pointer(PointerType.Stylus, button)
 
         @ExperimentalFoundationApi
-        val stylus: PointerMatcher = StylusPointerMatcher.Companion
+        val stylus: PointerMatcher = stylus(button = null)
 
         @ExperimentalFoundationApi
-        val touch: PointerMatcher = TouchPointerMatcher
+        val touch: PointerMatcher = PointerTypeAndButtonMatcher(PointerType.Touch)
 
         @ExperimentalFoundationApi
-        val eraser: PointerMatcher = EraserPointerMatcher
+        val eraser: PointerMatcher =
+            PointerTypeAndButtonMatcher(PointerType.Eraser, matchAllButtons = true)
 
-        private interface PointerTypeMatcher : PointerMatcher {
-            val pointerType: PointerType
-
+        private class PointerTypeAndButtonMatcher(
+            val pointerType: PointerType,
+            val button: PointerButton? = null,
+            val matchAllButtons: Boolean = false,
+        ) : PointerMatcher {
             override fun matches(event: PointerEvent): Boolean {
-                return event.changes.fastAll { it.type == pointerType }
+                return (matchAllButtons || (event.button == button))
+                    && event.changes.fastAll { it.type == pointerType }
             }
-        }
-
-        private interface PointerTypeAndButtonMatcher : PointerTypeMatcher {
-            val button: PointerButton?
-
-            override fun matches(event: PointerEvent): Boolean {
-                return super.matches(event) && event.button == button
-            }
-        }
-
-        private class MousePointerMatcher(
-            override val button: PointerButton
-        ) : PointerTypeAndButtonMatcher {
-            override val pointerType = PointerType.Mouse
-        }
-
-        private class StylusPointerMatcher(
-            override val button: PointerButton? = null
-        ) : PointerTypeAndButtonMatcher {
-            override val pointerType = PointerType.Stylus
-
-            companion object : PointerTypeMatcher {
-                override val pointerType = PointerType.Stylus
-            }
-        }
-
-        private object TouchPointerMatcher : PointerTypeMatcher {
-            override val pointerType = PointerType.Touch
-        }
-
-        private object EraserPointerMatcher : PointerTypeMatcher {
-            override val pointerType = PointerType.Eraser
         }
 
         private class CombinedPointerMatcher(val sources: List<PointerMatcher>) : PointerMatcher {
