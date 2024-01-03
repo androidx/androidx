@@ -89,7 +89,7 @@ public abstract class PagingDataPresenter<T : Any>(
 
         // for state updates from LoadStateUpdate events
         override fun onStateUpdate(source: LoadStates, mediator: LoadStates?) {
-            dispatchLoadStates(source, mediator)
+            combinedLoadStatesCollection.set(source, mediator)
         }
 
         // for state updates from Drop events
@@ -101,14 +101,6 @@ public abstract class PagingDataPresenter<T : Any>(
             // CombinedLoadStates is de-duplicated within set()
             combinedLoadStatesCollection.set(loadType, fromMediator, loadState)
         }
-    }
-
-    private fun dispatchLoadStates(source: LoadStates, mediator: LoadStates?) {
-        // CombinedLoadStates is de-duplicated within set()
-        combinedLoadStatesCollection.set(
-            sourceLoadStates = source,
-            remoteLoadStates = mediator
-        )
     }
 
     /**
@@ -180,9 +172,9 @@ public abstract class PagingDataPresenter<T : Any>(
                             presentPagingDataEvent(pageStore.processEvent(event))
 
                             // dispatch load states
-                            dispatchLoadStates(
-                                source = event.sourceLoadStates,
-                                mediator = event.mediatorLoadStates,
+                            combinedLoadStatesCollection.set(
+                                sourceLoadStates = event.sourceLoadStates,
+                                remoteLoadStates = event.mediatorLoadStates,
                             )
 
                             // If index points to a placeholder after transformations, resend it unless
@@ -232,17 +224,24 @@ public abstract class PagingDataPresenter<T : Any>(
                                 yield()
                             }
 
-                            // Process DROP to be shown to the UI
+                            // Process DROP and send to presenter
                             pageStore.processEvent(event, processPageEventCallback)
+
+                            // dispatch load states
+                            combinedLoadStatesCollection.set(
+                                type = event.loadType,
+                                remote = false,
+                                state = LoadState.NotLoading.Incomplete
+                            )
 
                             // Reset lastAccessedIndexUnfulfilled if a page is dropped, to avoid
                             // infinite loops when maxSize is insufficiently large.
                             lastAccessedIndexUnfulfilled = false
                         }
                         event is PageEvent.LoadStateUpdate ->
-                            processPageEventCallback.onStateUpdate(
-                                source = event.source,
-                                mediator = event.mediator,
+                            combinedLoadStatesCollection.set(
+                                sourceLoadStates = event.source,
+                                remoteLoadStates = event.mediator,
                             )
                     }
                     // Notify page updates after pageStore processes them.
@@ -493,7 +492,7 @@ public abstract class PagingDataPresenter<T : Any>(
         if (dispatchLoadStates) {
             // Dispatch LoadState updates as soon as we are done diffing, but after
             // setting new pageStore.
-            dispatchLoadStates(sourceLoadStates!!, mediatorLoadStates)
+            combinedLoadStatesCollection.set(sourceLoadStates!!, mediatorLoadStates)
         }
         if (newPageStore.size == 0) {
             // Send an initialize hint in case the new list is empty (no items or placeholders),

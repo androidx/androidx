@@ -16,7 +16,6 @@
 
 package androidx.paging
 
-import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
@@ -263,13 +262,6 @@ internal class PageStore<T : Any>(
             if (changeCount > 0) {
                 callback.onChanged(firstItemIndex, changeCount)
             }
-
-            // Dropping from prepend direction implies NotLoading(endOfPaginationReached = false).
-            callback.onStateUpdate(
-                loadType = PREPEND,
-                fromMediator = false,
-                loadState = NotLoading.Incomplete
-            )
         } else {
             val oldPlaceholdersAfter = placeholdersAfter
 
@@ -306,13 +298,6 @@ internal class PageStore<T : Any>(
                     count = changeCount
                 )
             }
-
-            // Dropping from append direction implies NotLoading(endOfPaginationReached = false).
-            callback.onStateUpdate(
-                loadType = APPEND,
-                fromMediator = false,
-                loadState = NotLoading.Incomplete
-            )
         }
     }
 
