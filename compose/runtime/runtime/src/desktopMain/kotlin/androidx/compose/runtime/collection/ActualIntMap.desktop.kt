@@ -16,7 +16,7 @@
 
 package androidx.compose.runtime.collection
 
-internal actual class IntMap<E> actual constructor() {
+internal actual class IntMap<E> actual constructor(initialCapacity: Int) {
 
     // TODO(o.k.): IntMap is supposed to avoid Integer boxing!
     // but after merging 1.4 changes we faced a crash in some iOS samples.
