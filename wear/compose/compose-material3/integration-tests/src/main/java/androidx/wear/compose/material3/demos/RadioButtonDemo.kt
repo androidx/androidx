@@ -129,6 +129,7 @@ private fun DemoRadioButton(
     content: (@Composable BoxScope.() -> Unit)? = null,
 ) {
     RadioButton(
+        modifier = Modifier.fillMaxWidth(),
         icon = content,
         label = {
             Text(
