@@ -423,9 +423,14 @@ internal class TextFieldSelectionManager(
                 dragTotalDistance += delta
 
                 currentDragPosition = dragBeginPosition + dragTotalDistance
+
+                // translate the inner text coordinates to decoration box
+                val layoutResult = state?.layoutResult ?: return
+                val translatedPosition =
+                    layoutResult.translateInnerToDecorationCoordinates(currentDragPosition!!)
                 updateSelection(
                     value = value,
-                    currentPosition = currentDragPosition!!,
+                    currentPosition = translatedPosition,
                     isStartOfSelection = false,
                     isStartHandle = isStartHandle,
                     adjustment = SelectionAdjustment.CharacterWithWordAccelerate,
@@ -816,7 +821,8 @@ internal class TextFieldSelectionManager(
      * Update the text field's selection based on new offsets.
      *
      * @param value the current [TextFieldValue]
-     * @param currentPosition the current position of the cursor/drag
+     * @param currentPosition the current position of the cursor/drag in the decoration box
+     * coordinates
      * @param isStartOfSelection whether this is the first updateSelection of a selection gesture.
      * If true, will ignore any previous selection context.
      * @param isStartHandle whether the start handle is being updated
