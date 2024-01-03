@@ -21,9 +21,12 @@ import androidx.annotation.VisibleForTesting
 import androidx.room.TypeConverter
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.DataInputStream
+import java.io.DataOutputStream
 import java.io.IOException
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
+import java.io.ObjectStreamConstants
 import java.util.Collections
 import java.util.Objects
 
@@ -202,7 +205,7 @@ class Data {
      * @throws IllegalStateException if the serialized payload is bigger than
      * [.MAX_DATA_BYTES]
      */
-    fun toByteArray(): ByteArray = toByteArrayInternal(this)
+    fun toByteArray(): ByteArray = toByteArrayInternalV1(this)
 
     /**
      * Returns `true` if the instance of [Data] has a non-null value corresponding to
@@ -512,7 +515,7 @@ class Data {
             val data = Data(values)
             // Make sure we catch Data objects that are too large at build() instead of later.  This
             // method will throw an exception if data is too big.
-            toByteArrayInternal(data)
+            toByteArrayInternalV1(data)
             return data
         }
     }
@@ -532,6 +535,40 @@ class Data {
         const val MAX_DATA_BYTES = 10 * 1024 // 10KB
 
         /**
+         * The list of supported types.
+         */
+        private const val TYPE_NULL: Byte = 0
+        private const val TYPE_BOOLEAN: Byte = 1
+        private const val TYPE_BYTE: Byte = 2
+        private const val TYPE_INTEGER: Byte = 3
+        private const val TYPE_LONG: Byte = 4
+        private const val TYPE_FLOAT: Byte = 5
+        private const val TYPE_DOUBLE: Byte = 6
+        private const val TYPE_STRING: Byte = 7
+        private const val TYPE_BOOLEAN_ARRAY: Byte = 8
+        private const val TYPE_BYTE_ARRAY: Byte = 9
+        private const val TYPE_INTEGER_ARRAY: Byte = 10
+        private const val TYPE_LONG_ARRAY: Byte = 11
+        private const val TYPE_FLOAT_ARRAY: Byte = 12
+        private const val TYPE_DOUBLE_ARRAY: Byte = 13
+        private const val TYPE_STRING_ARRAY: Byte = 14
+
+        /**
+         * Denotes `null` in a String array.
+         */
+        private const val NULL_STRING_V1 = "androidx.work.Data-95ed6082-b8e9-46e8-a73f-ff56f00f5d9d"
+
+        /**
+         * Magic number used in stream header.
+         */
+        private const val STREAM_MAGIC: Short = 0xabef.toShort()
+
+        /**
+         * Version number used in stream header.
+         */
+        private const val STREAM_VERSION: Short = 1
+
+        /**
          * Converts [Data] to a byte array for persistent storage.
          *
          * @param data The [Data] object to convert
@@ -541,8 +578,11 @@ class Data {
          */
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @TypeConverter
-        fun toByteArrayInternal(data: Data): ByteArray {
+        @Deprecated(
+            message = "This is kept for testing migration",
+            replaceWith = ReplaceWith("toByteArrayInternalV1")
+        )
+        fun toByteArrayInternalV0(data: Data): ByteArray {
             return try {
                 val stream = ByteArrayOutputStream().use { outputStream ->
                     ObjectOutputStream(outputStream).use { objectOutputStream ->
@@ -566,6 +606,115 @@ class Data {
             }
         }
 
+        @JvmStatic
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @TypeConverter
+        fun toByteArrayInternalV1(data: Data): ByteArray {
+            fun DataOutputStream.writeHeader() {
+                // We use our own magic and it's different from the
+                // `ObjectStreamConstants.STREAM_MAGIC` used in V0.
+                writeShort(STREAM_MAGIC.toInt())
+                writeShort(STREAM_VERSION.toInt())
+            }
+
+            fun DataOutputStream.writeArray(array: Array<*>) {
+                val type = when (array::class) {
+                    Array<Boolean>::class -> TYPE_BOOLEAN_ARRAY
+                    Array<Byte>::class -> TYPE_BYTE_ARRAY
+                    Array<Int>::class -> TYPE_INTEGER_ARRAY
+                    Array<Long>::class -> TYPE_LONG_ARRAY
+                    Array<Float>::class -> TYPE_FLOAT_ARRAY
+                    Array<Double>::class -> TYPE_DOUBLE_ARRAY
+                    Array<String>::class -> TYPE_STRING_ARRAY
+                    else -> {
+                        throw IllegalArgumentException(
+                            "Unsupported value type ${array::class.qualifiedName}")
+                    }
+                }
+                writeByte(type.toInt())
+                writeInt(array.size)
+                for (element in array) {
+                    when (type) {
+                        TYPE_BOOLEAN_ARRAY -> writeBoolean(element as? Boolean ?: false)
+                        TYPE_BYTE_ARRAY -> writeByte((element as? Byte)?.toInt() ?: 0)
+                        TYPE_INTEGER_ARRAY -> writeInt(element as? Int ?: 0)
+                        TYPE_LONG_ARRAY -> writeLong(element as? Long ?: 0L)
+                        TYPE_FLOAT_ARRAY -> writeFloat(element as? Float ?: 0f)
+                        TYPE_DOUBLE_ARRAY -> writeDouble(element as? Double ?: 0.0)
+                        TYPE_STRING_ARRAY -> writeUTF(element as? String ?: NULL_STRING_V1)
+                    }
+                }
+            }
+
+            fun DataOutputStream.writeEntry(key: String, value: Any?) {
+                // type + value
+                when (value) {
+                    null ->
+                        writeByte(TYPE_NULL.toInt())
+                    is Boolean -> {
+                        writeByte(TYPE_BOOLEAN.toInt())
+                        writeBoolean(value)
+                    }
+                    is Byte -> {
+                        writeByte(TYPE_BYTE.toInt())
+                        writeByte(value.toInt())
+                    }
+                    is Int -> {
+                        writeByte(TYPE_INTEGER.toInt())
+                        writeInt(value)
+                    }
+                    is Long -> {
+                        writeByte(TYPE_LONG.toInt())
+                        writeLong(value)
+                    }
+                    is Float -> {
+                        writeByte(TYPE_FLOAT.toInt())
+                        writeFloat(value)
+                    }
+                    is Double -> {
+                        writeByte(TYPE_DOUBLE.toInt())
+                        writeDouble(value)
+                    }
+                    is String -> {
+                        writeByte(TYPE_STRING.toInt())
+                        writeUTF(value)
+                    }
+                    is Array<*> -> {
+                        writeArray(value)
+                    }
+                    else -> {
+                        // Exhaustive check
+                        throw IllegalArgumentException(
+                            "Unsupported value type ${value::class.simpleName}")
+                    }
+                }
+                // key
+                writeUTF(key)
+            }
+
+            return try {
+                ByteArrayOutputStream().let { outputStream ->
+                    DataOutputStream(outputStream).use {
+                        it.apply {
+                            writeHeader()
+                            writeInt(data.size())
+                            for ((key, value) in data.values) {
+                                writeEntry(key, value)
+                            }
+                            flush()
+                        }
+                        check(it.size() <= MAX_DATA_BYTES) {
+                            "Data cannot occupy more than $MAX_DATA_BYTES bytes when serialized"
+                        }
+                        outputStream.toByteArray()
+                    }
+                }
+            } catch (e: IOException) {
+                loge(TAG, e) { "Error in Data#toByteArray: " }
+                ByteArray(0)
+            }
+        }
+
         /**
          * Converts a byte array to [Data].
          *
@@ -576,6 +725,84 @@ class Data {
         @JvmStatic
         @TypeConverter
         fun fromByteArray(bytes: ByteArray): Data {
+            fun ByteArrayInputStream.isObjectStream(): Boolean {
+                val header = ByteArray(2)
+                read(header)
+                val magic = ObjectStreamConstants.STREAM_MAGIC.toInt()
+                val magicLow = magic.toByte()
+                val magicHigh = (magic ushr 8).toByte()
+                val result = (header[0] == magicHigh) && (header[1] == magicLow)
+                reset()
+                return result
+            }
+            fun DataInputStream.readHeader() {
+                readShort().let { magic ->
+                    check(magic == STREAM_MAGIC) {
+                        "Magic number doesn't match: $magic"
+                    }
+                }
+                readShort().let { version ->
+                    check(version == STREAM_VERSION) {
+                        "Unsupported version number: $version"
+                    }
+                }
+            }
+            fun DataInputStream.readValue(type: Byte): Any? {
+                return when (type) {
+                    TYPE_NULL -> null
+                    TYPE_BOOLEAN -> readBoolean()
+                    TYPE_BYTE -> readByte()
+                    TYPE_INTEGER -> readInt()
+                    TYPE_LONG -> readLong()
+                    TYPE_FLOAT -> readFloat()
+                    TYPE_DOUBLE -> readDouble()
+                    TYPE_STRING -> readUTF()
+                    TYPE_BOOLEAN_ARRAY -> {
+                        Array(readInt()) {
+                            readBoolean()
+                        }
+                    }
+                    TYPE_BYTE_ARRAY -> {
+                        Array(readInt()) {
+                            readByte()
+                        }
+                    }
+                    TYPE_INTEGER_ARRAY -> {
+                        Array(readInt()) {
+                            readInt()
+                        }
+                    }
+                    TYPE_LONG_ARRAY -> {
+                        Array(readInt()) {
+                            readLong()
+                        }
+                    }
+                    TYPE_FLOAT_ARRAY -> {
+                        Array(readInt()) {
+                            readFloat()
+                        }
+                    }
+                    TYPE_DOUBLE_ARRAY -> {
+                        Array(readInt()) {
+                            readDouble()
+                        }
+                    }
+                    TYPE_STRING_ARRAY -> {
+                        Array(readInt()) {
+                            readUTF().let {
+                                if (it == NULL_STRING_V1) {
+                                    null
+                                } else {
+                                    it
+                                }
+                            }
+                        }
+                    }
+                    else -> {
+                        throw IllegalStateException("Unsupported type $type");
+                    }
+                }
+            }
             check(bytes.size <= MAX_DATA_BYTES) {
                 "Data cannot occupy more than $MAX_DATA_BYTES bytes when serialized"
             }
@@ -583,10 +810,26 @@ class Data {
 
             val map = mutableMapOf<String, Any?>()
             try {
-                ByteArrayInputStream(bytes).use { inputStream ->
-                    ObjectInputStream(inputStream).use { objectInputStream ->
-                        repeat(objectInputStream.readInt()) {
-                            map[objectInputStream.readUTF()] = objectInputStream.readObject()
+                ByteArrayInputStream(bytes).let { inputStream ->
+                    if (inputStream.isObjectStream()) { // V0
+                        ObjectInputStream(inputStream).use {
+                            it.apply {
+                                repeat(readInt()) {
+                                    map[readUTF()] = readObject()
+                                }
+                            }
+                        }
+                    } else { // V1
+                        DataInputStream(inputStream).use {
+                            it.apply {
+                                readHeader()
+                                repeat(readInt()) {
+                                    val type = readByte()
+                                    val value = readValue(type)
+                                    val key = readUTF()
+                                    map[key] = value
+                                }
+                            }
                         }
                     }
                 }
