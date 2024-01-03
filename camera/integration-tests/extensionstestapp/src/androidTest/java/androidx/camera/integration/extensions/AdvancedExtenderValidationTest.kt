@@ -100,4 +100,8 @@ class AdvancedExtenderValidationTest(config: CameraIdExtensionModePair) {
     @Test
     fun initSessionWithAnalysis_medianSize_canConfigureSession() =
         validation.initSessionWithAnalysis_medianSize_canConfigureSession()
+
+    @Test
+    fun validatePostviewSupport_sinceVersion_1_4() =
+        validation.validatePostviewSupport_sinceVersion_1_4()
 }

@@ -30,6 +30,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Pair;
 import android.util.Range;
+import android.util.Rational;
 import android.util.Size;
 import android.view.Surface;
 
@@ -38,6 +39,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageProcessingUtil;
+import androidx.camera.core.impl.utils.AspectRatioUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -130,7 +132,8 @@ public class LongCaptureAdvancedExtenderImpl implements AdvancedExtenderImpl {
         for (Size yuvSize : yuvSizes) {
             int area = yuvSize.getWidth() * yuvSize.getHeight();
             if (area <= captureSize.getWidth() * captureSize.getHeight()
-                    && area <= 1920 * 1080 /* 1080P */) {
+                    && area <= 1920 * 1080 /* 1080P */ && AspectRatioUtil.hasMatchingAspectRatio(
+                    captureSize, new Rational(yuvSize.getWidth(), yuvSize.getHeight()))) {
                 results.add(yuvSize);
             }
         }
