@@ -140,9 +140,8 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 }
             }
 
-            jbMain {
-                dependsOn(commonMain)
-            }
+            jbMain.dependsOn(commonMain)
+            jbTest.dependsOn(commonTest)
 
             jsMain {
                 dependencies {
@@ -151,20 +150,17 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             }
 
             jsNativeMain.dependsOn(jbMain)
-            jsWasmMain {
-                dependsOn(jsNativeMain)
-            }
-            jsMain {
-                dependsOn(jsWasmMain)
-            }
-            desktopMain {
-                dependsOn(jbMain)
-            }
+            jsWasmMain.dependsOn(jsNativeMain)
+            jsMain.dependsOn(jsWasmMain)
+            desktopMain.dependsOn(jbMain)
+
+            desktopTest.dependsOn(jbTest)
+            jsTest.dependsOn(jbTest)
+            nativeTest.dependsOn(jbTest)
 
             if (project.kotlinWasmEnabled.toBoolean()) {
-                wasmJsMain {
-                    dependsOn(jsWasmMain)
-                }
+                wasmJsMain.dependsOn(jsWasmMain)
+                wasmJsTest.dependsOn(jbTest)
             }
 
             nativeMain {
