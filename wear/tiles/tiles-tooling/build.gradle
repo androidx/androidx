@@ -15,7 +15,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":wear:protolayout:protolayout-proto"))
+    implementation(project(path: ":wear:protolayout:protolayout-proto", configuration: "shadow"))
     implementation(project(":wear:tiles:tiles"))
     implementation(project(":wear:tiles:tiles-renderer"))
     implementation(project(":wear:tiles:tiles-tooling-preview"))
