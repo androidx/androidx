@@ -1584,6 +1584,58 @@ class PagingDataPresenterTest {
     }
 
     @Test
+    fun appendDrop_loadStates() = appendDrop_loadStates(false)
+
+    @Test
+    fun appendDrop_loadStates_collectWithCachedIn() = appendDrop_loadStates(true)
+
+    private fun appendDrop_loadStates(collectWithCachedIn: Boolean) =
+        runTest(
+            collectWithCachedIn,
+            initialKey = 96,
+            config = PagingConfig(
+                pageSize = 1,
+                maxSize = 4,
+                enablePlaceholders = false
+            )
+        ) { presenter, _, _, _ ->
+        val collectLoadStates = launch { presenter.collectLoadStates() }
+
+        // initial REFRESH
+        advanceUntilIdle()
+
+        assertThat(presenter.snapshot()).containsExactlyElementsIn(96 until 99)
+        assertThat(presenter.newCombinedLoadStates()).containsExactly(
+            localLoadStatesOf(refreshLocal = Loading),
+            // ensure append has reached end of pagination
+            localLoadStatesOf(),
+        )
+
+        // trigger append to reach max page size
+        presenter[2]
+        advanceUntilIdle()
+
+        assertThat(presenter.snapshot()).containsExactlyElementsIn(96 until 100)
+        assertThat(presenter.newCombinedLoadStates()).containsExactly(
+            localLoadStatesOf(appendLocal = Loading),
+            localLoadStatesOf(appendLocal = NotLoading.Complete),
+        )
+
+        // trigger prepend and drop from append direction
+        presenter[0]
+        advanceUntilIdle()
+
+        assertThat(presenter.snapshot()).containsExactlyElementsIn(95 until 99)
+        assertThat(presenter.newCombinedLoadStates()).containsExactly(
+            localLoadStatesOf(prependLocal = Loading, appendLocal = NotLoading.Complete),
+            // page from the end is dropped so now appendLocal should be NotLoading.Incomplete
+            localLoadStatesOf(prependLocal = Loading),
+            localLoadStatesOf(),
+        )
+        collectLoadStates.cancel()
+    }
+
+    @Test
     fun prependInvalid_loadStates() = prependInvalid_loadStates(false)
 
     @Test
@@ -1642,6 +1694,59 @@ class PagingDataPresenterTest {
 
         collectLoadStates.cancel()
     }
+
+    @Test
+    fun prependDrop_loadStates() = prependDrop_loadStates(false)
+
+    @Test
+    fun prependDrop_loadStates_collectWithCachedIn() = prependDrop_loadStates(true)
+
+    private fun prependDrop_loadStates(collectWithCachedIn: Boolean) =
+        runTest(
+            collectWithCachedIn,
+            initialKey = 1,
+            config = PagingConfig(
+                pageSize = 1,
+                maxSize = 4,
+                enablePlaceholders = false
+            )
+        ) { presenter, _, _, _ ->
+            val collectLoadStates = launch { presenter.collectLoadStates() }
+
+            // initial REFRESH
+            advanceUntilIdle()
+
+            assertThat(presenter.snapshot()).containsExactlyElementsIn(1 until 4)
+            assertThat(presenter.newCombinedLoadStates()).containsExactly(
+                localLoadStatesOf(refreshLocal = Loading),
+                // ensure append has reached end of pagination
+                localLoadStatesOf(),
+            )
+
+            // trigger prepend to reach max page size
+            presenter[0]
+            advanceUntilIdle()
+
+            assertThat(presenter.snapshot()).containsExactlyElementsIn(0 until 4)
+            assertThat(presenter.newCombinedLoadStates()).containsExactly(
+                localLoadStatesOf(prependLocal = Loading),
+                localLoadStatesOf(prependLocal = NotLoading.Complete),
+            )
+
+            // trigger append and drop from prepend direction
+            presenter[3]
+            advanceUntilIdle()
+
+            assertThat(presenter.snapshot()).containsExactlyElementsIn(1 until 5)
+            assertThat(presenter.newCombinedLoadStates()).containsExactly(
+                localLoadStatesOf(prependLocal = NotLoading.Complete, appendLocal = Loading),
+                // first page is dropped so now prependLocal should be NotLoading.Incomplete
+                localLoadStatesOf(appendLocal = Loading),
+                localLoadStatesOf(),
+            )
+
+            collectLoadStates.cancel()
+        }
 
     @Test
     fun refreshInvalid_loadStates() = refreshInvalid_loadStates(false)
@@ -2211,6 +2316,7 @@ class PagingDataPresenterTest {
     private fun runTest(
         collectWithCachedIn: Boolean,
         initialKey: Int? = null,
+        config: PagingConfig = PagingConfig(pageSize = 3, enablePlaceholders = false),
         block: TestScope.(
             presenter: SimplePresenter,
             pagingSources: List<TestPagingSource>,
@@ -2220,7 +2326,7 @@ class PagingDataPresenterTest {
     ) = testScope.runTest {
         val pagingSources = mutableListOf<TestPagingSource>()
         val pager = Pager(
-            config = PagingConfig(pageSize = 3, enablePlaceholders = false),
+            config = config,
             initialKey = initialKey,
             pagingSourceFactory = {
                 TestPagingSource(
