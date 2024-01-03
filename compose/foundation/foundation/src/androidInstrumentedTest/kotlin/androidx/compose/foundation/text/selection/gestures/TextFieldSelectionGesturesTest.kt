@@ -64,19 +64,23 @@ internal abstract class TextFieldSelectionGesturesTest : AbstractSelectionGestur
         rule.waitForIdle()
         rule.onNodeWithTag(pointerAreaTag).performTouchInput { click(characterPosition(0)) }
         rule.waitForIdle()
+        asserter.applyAndAssert {
+            cursorHandleShown = true
+        }
+        asserter.cursorHandleShown = false
+        // most tests first action will start a selection, so leave cursor handle as false
     }
 
     @Test
     fun whenTouch_withLongPressOutOfBounds_nothingHappens() {
-        asserter.applyAndAssert {
-            cursorHandleShown = true
-        }
-
         performTouchGesture {
             longPress(topStart.nudge(yDirection = UP))
         }
 
-        asserter.assert()
+        asserter.applyAndAssert {
+            cursorHandleShown = true
+        }
+
         touchDragTo(topEnd.nudge(yDirection = UP))
         asserter.assert()
     }
@@ -86,12 +90,17 @@ internal abstract class TextFieldSelectionGesturesTest : AbstractSelectionGestur
         textFieldValue.value = TextFieldValue()
         rule.waitForIdle()
 
+        rule.onNodeWithTag(pointerAreaTag).performTouchInput { click() }
+
+        asserter.applyAndAssert {
+            textContent = ""
+        }
+
         performTouchGesture {
             longClick(center)
         }
 
         asserter.applyAndAssert {
-            textContent = ""
             textToolbarShown = true // paste will show up if clipboard is not empty
             hapticsCount++
         }
@@ -102,12 +111,17 @@ internal abstract class TextFieldSelectionGesturesTest : AbstractSelectionGestur
         textFieldValue.value = TextFieldValue()
         rule.waitForIdle()
 
+        rule.onNodeWithTag(pointerAreaTag).performTouchInput { click() }
+
+        asserter.applyAndAssert {
+            textContent = ""
+        }
+
         performTouchGesture {
             longPress(center)
         }
 
         asserter.applyAndAssert {
-            textContent = ""
             hapticsCount++
         }
 
@@ -130,6 +144,12 @@ internal abstract class TextFieldSelectionGesturesTest : AbstractSelectionGestur
     fun whenTouch_withNoText_thenLongPressAndDrag_thenAddText_longPressAndDragAgain() {
         textFieldValue.value = TextFieldValue()
         rule.waitForIdle()
+
+        rule.onNodeWithTag(pointerAreaTag).performTouchInput { click() }
+
+        asserter.applyAndAssert {
+            textContent = ""
+        }
 
         performTouchGesture {
             longPress(center)
@@ -525,14 +545,19 @@ internal abstract class TextFieldSelectionGesturesTest : AbstractSelectionGestur
         textFieldValue.value = TextFieldValue(content)
         rule.waitForIdle()
 
+        rule.onNodeWithTag(pointerAreaTag).performTouchInput { click(characterPosition(0)) }
+
+        asserter.applyAndAssert {
+            textContent = content
+            cursorHandleShown = true
+        }
+
         performTouchGesture {
             longPress(centerEnd)
         }
 
         asserter.applyAndAssert {
-            textContent = content
             selection = 6.collapsed
-            cursorHandleShown = true
             hapticsCount++
         }
 
@@ -679,14 +704,19 @@ internal abstract class TextFieldSelectionGesturesTest : AbstractSelectionGestur
         textFieldValue.value = TextFieldValue(content)
         rule.waitForIdle()
 
+        rule.onNodeWithTag(pointerAreaTag).performTouchInput { click(characterPosition(0)) }
+
+        asserter.applyAndAssert {
+            textContent = content
+            cursorHandleShown = true
+        }
+
         performTouchGesture {
             longPress(bottomEnd)
         }
 
         asserter.applyAndAssert {
-            textContent = content
             selection = 7.collapsed
-            cursorHandleShown = true
             hapticsCount++
         }
 
@@ -1101,14 +1131,21 @@ internal abstract class TextFieldSelectionGesturesTest : AbstractSelectionGestur
         textFieldValue.value = TextFieldValue(content)
         rule.waitForIdle()
 
+        rule.onNodeWithTag(pointerAreaTag).performTouchInput { click(characterPosition(0)) }
+
+        asserter.applyAndAssert {
+            textContent = content
+            cursorHandleShown = true
+        }
+
         performTouchGesture {
             longPress(characterPosition(content.lastIndex))
         }
 
         asserter.applyAndAssert {
-            textContent = content
             selection = 0 to content.length
             selectionHandlesShown = true
+            cursorHandleShown = false
             magnifierShown = true
             hapticsCount++
         }
