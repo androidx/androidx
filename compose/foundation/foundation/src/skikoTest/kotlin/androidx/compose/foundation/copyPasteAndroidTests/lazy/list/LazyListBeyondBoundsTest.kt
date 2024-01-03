@@ -16,6 +16,11 @@
 
 package androidx.compose.foundation.copyPasteAndroidTests.lazy.list
 
+import androidx.compose.foundation.assertThat
+import androidx.compose.foundation.containsExactly
+import androidx.compose.foundation.isEqualTo
+import androidx.compose.foundation.isFalse
+import androidx.compose.foundation.isLessThan
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -38,7 +43,6 @@ import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.L
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Right
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
-import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.node.LayoutAwareModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
@@ -46,14 +50,12 @@ import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SkikoComposeUiTest
-import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.test.runSkikoComposeUiTest
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.LayoutDirection.Ltr
 import androidx.compose.ui.unit.LayoutDirection.Rtl
-import androidx.kruth.assertThat
 import kotlin.test.Test
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)

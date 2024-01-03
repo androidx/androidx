@@ -23,7 +23,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
-// TODO: may be replace it with :internal-testutils-kmp?
+// TODO: may be replace it with :kruth or with the published androidx.kruth:1.1.0-SNAPSHOT?
 //  So tests copied from androidx will work properly
 
 internal class AssertThat<T>(val t: T?, val message: String? = null)
