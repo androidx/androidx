@@ -185,9 +185,13 @@ abstract class ImageCaptureBaseTest<A : CameraActivity>(
                 "The captured image rotation degrees [$imageRotationDegrees] was expected to be " +
                     "equal to [$sensorToTargetRotation], or the captured image's resolution " +
                     "[$imageSize] was expected to be equal to [$expectedResolution]"
-            )
-                .that(areRotationsEqual || areResolutionsEqual)
-                .isTrue()
+            ).that(areRotationsEqual || areResolutionsEqual).isTrue()
+
+            assertWithMessage(
+                "The captured image's resolution " +
+                    "[$imageSize] was expected to be equal to [$expectedResolution]"
+            ).that(expectedResolution.height * expectedResolution.width)
+                .isEqualTo(imageSize!!.height * imageSize.width)
 
             // Delete captured image
             scenario.withActivity { mCaptureResult?.delete() ?: Unit }

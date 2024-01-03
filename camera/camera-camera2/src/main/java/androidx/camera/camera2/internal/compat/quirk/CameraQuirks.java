@@ -58,6 +58,9 @@ public class CameraQuirks {
         if (JpegHalCorruptImageQuirk.load(cameraCharacteristicsCompat)) {
             quirks.add(new JpegHalCorruptImageQuirk());
         }
+        if (JpegCaptureDownsizingQuirk.load(cameraCharacteristicsCompat)) {
+            quirks.add(new JpegCaptureDownsizingQuirk());
+        }
         if (CamcorderProfileResolutionQuirk.load(cameraCharacteristicsCompat)) {
             quirks.add(new CamcorderProfileResolutionQuirk(cameraCharacteristicsCompat));
         }
