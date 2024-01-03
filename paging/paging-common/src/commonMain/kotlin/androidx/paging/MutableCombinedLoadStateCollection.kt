@@ -47,10 +47,10 @@ internal class MutableCombinedLoadStateCollection {
     fun set(type: LoadType, remote: Boolean, state: LoadState) =
         dispatchNewState { currState ->
             var source = currState?.source ?: LoadStates.IDLE
-            var mediator = currState?.mediator ?: LoadStates.IDLE
+            var mediator = currState?.mediator
 
             if (remote) {
-                mediator = mediator.modifyState(type, state)
+                mediator = LoadStates.IDLE.modifyState(type, state)
             } else {
                 source = source.modifyState(type, state)
             }
