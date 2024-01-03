@@ -284,6 +284,8 @@ internal class TextStringSimpleNode(
 
         setTextSubstitution { updatedText ->
             setSubstitution(updatedText.text)
+            // TODO: add test to cover the immediate semantics invalidation
+            invalidateSemantics()
 
             true
         }
