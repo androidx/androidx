@@ -201,7 +201,8 @@ public final class LayoutElementBuilders {
     /**
      * Truncate the text at the last line defined by {@code setMaxLines} in {@link Text} to fit in
      * the {@link Text} element's bounds, but add an ellipsis (i.e. ...) to the end of the text if
-     * it has been truncated.
+     * it has been truncated. Note that this will not add an ellipsis if the number of lines that
+     * fits into the available space is less than the {@code setMaxLines} in {@link Text}.
      *
      * @deprecated Use {@link #TEXT_OVERFLOW_ELLIPSIZE} instead.
      */
@@ -220,14 +221,10 @@ public final class LayoutElementBuilders {
 
     /**
      * Truncate the text to fit in the {@link Text} element's parent bounds, but add an ellipsis
-     * (i.e. ...) to the end of the text if it has been truncated. This will truncate the text even
-     * before {@code setMaxLines} in {@link Text} is reached if there's not enough space in the
-     * parent container. Note that, when this is used, the parent of the {@link Text} element this
-     * corresponds to shouldn't have its width and height set to wrapped, as it can lead to
-     * unexpected results.
+     * (i.e. ...) to the end of the text if it has been truncated.
      *
-     * <p>Note that, on {@link SpanText}, this will behave exactly the same way as
-     * TEXT_OVERFLOW_ELLIPSIZE_END.
+     * <p>Note that, when this is used, the parent of the {@link Text} element this corresponds to
+     * shouldn't have its width and height set to wrapped, as it can lead to unexpected results.
      */
     @RequiresSchemaVersion(major = 1, minor = 300)
     public static final int TEXT_OVERFLOW_ELLIPSIZE = 4;
