@@ -45,8 +45,8 @@ internal fun <T : Any> NullPaddedList<T>.computeDiff(
     val diffResult = DiffUtil.calculateDiff(
         object : DiffUtil.Callback() {
             override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
-                val oldItem = getFromStorage(oldItemPosition)
-                val newItem = newList.getFromStorage(newItemPosition)
+                val oldItem = getItem(oldItemPosition)
+                val newItem = newList.getItem(newItemPosition)
 
                 return when {
                     oldItem === newItem -> true
@@ -59,8 +59,8 @@ internal fun <T : Any> NullPaddedList<T>.computeDiff(
             override fun getNewListSize() = newSize
 
             override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                val oldItem = getFromStorage(oldItemPosition)
-                val newItem = newList.getFromStorage(newItemPosition)
+                val oldItem = getItem(oldItemPosition)
+                val newItem = newList.getItem(newItemPosition)
 
                 return when {
                     oldItem === newItem -> true
@@ -69,8 +69,8 @@ internal fun <T : Any> NullPaddedList<T>.computeDiff(
             }
 
             override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                val oldItem = getFromStorage(oldItemPosition)
-                val newItem = newList.getFromStorage(newItemPosition)
+                val oldItem = getItem(oldItemPosition)
+                val newItem = newList.getItem(newItemPosition)
 
                 return when {
                     oldItem === newItem -> true

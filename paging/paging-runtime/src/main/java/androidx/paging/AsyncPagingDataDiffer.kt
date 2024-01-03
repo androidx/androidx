@@ -162,35 +162,6 @@ constructor(
     internal var inGetItem: Boolean = false
 
     internal val presenter = object : PagingDataPresenter<T>(differCallback, mainDispatcher) {
-        // TODO("To be removed when all PageEvent types have moved to presentPagingDataEvent")
-        override suspend fun presentNewList(
-            previousList: NullPaddedList<T>,
-            newList: NullPaddedList<T>,
-            lastAccessedIndex: Int,
-            onListPresentable: () -> Unit,
-        ) {
-            when {
-                // fast path for no items -> some items
-                previousList.size == 0 -> {
-                    onListPresentable()
-                    differCallback.onInserted(0, newList.size)
-                }
-                // fast path for some items -> no items
-                newList.size == 0 -> {
-                    onListPresentable()
-                    differCallback.onRemoved(0, previousList.size)
-                }
-
-                else -> {
-                    val diffResult = withContext(workerDispatcher) {
-                        previousList.computeDiff(newList, diffCallback)
-                    }
-                    onListPresentable()
-                    previousList.dispatchDiff(updateCallback, newList, diffResult)
-                }
-            }
-        }
-
         /**
          * Insert the event's page to the storage, and dispatch associated callbacks for
          * change (placeholder becomes real item) or insert (real item is appended).
@@ -211,6 +182,25 @@ constructor(
          */
         override suspend fun presentPagingDataEvent(event: PagingDataEvent<T>) {
             when (event) {
+                is PagingDataEvent.Refresh -> event.apply {
+                    when {
+                        // fast path for no items -> some items
+                        previousList.size == 0 -> {
+                            differCallback.onInserted(0, newList.size)
+                        }
+                        // fast path for some items -> no items
+                        newList.size == 0 -> {
+                            differCallback.onRemoved(0, previousList.size)
+                        }
+
+                        else -> {
+                            val diffResult = withContext(workerDispatcher) {
+                                previousList.computeDiff(newList, diffCallback)
+                            }
+                            previousList.dispatchDiff(updateCallback, newList, diffResult)
+                        }
+                    }
+                }
                 is PagingDataEvent.Prepend -> event.apply {
                     val insertSize = inserted.size
 

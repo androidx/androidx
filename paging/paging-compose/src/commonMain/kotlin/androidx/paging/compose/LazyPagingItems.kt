@@ -29,7 +29,6 @@ import androidx.paging.DifferCallback
 import androidx.paging.ItemSnapshotList
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
-import androidx.paging.NullPaddedList
 import androidx.paging.PagingData
 import androidx.paging.PagingDataEvent
 import androidx.paging.PagingDataPresenter
@@ -95,16 +94,6 @@ public class LazyPagingItems<T : Any> internal constructor(
         cachedPagingData =
             if (flow is SharedFlow<PagingData<T>>) flow.replayCache.firstOrNull() else null
     ) {
-        override suspend fun presentNewList(
-            previousList: NullPaddedList<T>,
-            newList: NullPaddedList<T>,
-            lastAccessedIndex: Int,
-            onListPresentable: () -> Unit
-        ) {
-            onListPresentable()
-            updateItemSnapshotList()
-        }
-
         override suspend fun presentPagingDataEvent(
             event: PagingDataEvent<T>,
         ) {

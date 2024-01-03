@@ -2367,15 +2367,6 @@ private class SimplePresenter(
     mainContext = EmptyCoroutineContext,
     cachedPagingData = cachedPagingData
 ) {
-    override suspend fun presentNewList(
-        previousList: NullPaddedList<Int>,
-        newList: NullPaddedList<Int>,
-        lastAccessedIndex: Int,
-        onListPresentable: () -> Unit
-    ) {
-        onListPresentable()
-    }
-
     private val _localLoadStates = mutableListOf<CombinedLoadStates>()
 
     val nonNullLoadStateFlow = loadStateFlow.filterNotNull()
