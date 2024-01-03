@@ -68,12 +68,18 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(libs.kotlinStdlib)
             }
 
+            jbMain.dependsOn(commonMain)
+            nativeMain.dependsOn(jbMain)
+            jsMain.dependsOn(jbMain)
+            desktopMain.dependsOn(jbMain)
+
             if (project.kotlinWasmEnabled.toBoolean()) {
                 wasmJsMain {
                     dependencies {
                         implementation(libs.kotlinStdlib)
                     }
                 }
+                wasmJsMain.dependsOn(jbMain)
             }
 
             commonTest.dependencies {
