@@ -44,7 +44,7 @@ import androidx.compose.ui.util.fastAll
  */
 @ExperimentalFoundationApi
 @OptIn(ExperimentalComposeUiApi::class)
-interface PointerMatcher {
+fun interface PointerMatcher {
 
     @ExperimentalFoundationApi
     fun matches(event: PointerEvent): Boolean
