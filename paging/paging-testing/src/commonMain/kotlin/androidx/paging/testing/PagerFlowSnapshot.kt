@@ -22,7 +22,6 @@ import androidx.paging.DifferCallback
 import androidx.paging.ItemSnapshotList
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
-import androidx.paging.NullPaddedList
 import androidx.paging.Pager
 import androidx.paging.PagingData
 import androidx.paging.PagingDataEvent
@@ -72,37 +71,31 @@ public suspend fun <Value : Any> Flow<PagingData<Value>>.asSnapshot(
     val presenter = object : CompletablePagingDataPresenter<Value>(
         callback, coroutineContext
     ) {
-        override suspend fun presentNewList(
-            previousList: NullPaddedList<Value>,
-            newList: NullPaddedList<Value>,
-            lastAccessedIndex: Int,
-            onListPresentable: () -> Unit
-        ) {
-            onListPresentable()
-            /**
-             * On new generation, SnapshotLoader needs the latest [ItemSnapshotList]
-             * state so that it can initialize lastAccessedIndex to prepend/append from onwards.
-             *
-             * This initial lastAccessedIndex is necessary because initial load
-             * key may not be 0, for example when [Pager].initialKey != 0. We don't know which
-             * items are immediately displayed so we can only best-effort estimate that the middle
-             * item has been presented.
-             *
-             * Therefore we calculate the actual index based on
-             * [ItemSnapshotList.placeholdersBefore] + [1/2 initial load size].
-             *
-             * Any subsequent SnapshotLoader loads are based on the index tracked by
-             * [SnapshotLoader] internally.
-             */
-            val lastLoadedIndex = newList.placeholdersBefore + (newList.dataCount / 2)
-            loader.onDataSetChanged(
-                loader.generations.value,
-                LoaderCallback(LoadType.REFRESH, lastLoadedIndex, newList.size),
-                this@coroutineScope
-            )
-        }
-
         override suspend fun presentPagingDataEvent(event: PagingDataEvent<Value>) {
+            if (event is PagingDataEvent.Refresh) {
+                /**
+                 * On new generation, SnapshotLoader needs the latest [ItemSnapshotList]
+                 * state so that it can initialize lastAccessedIndex to prepend/append from onwards.
+                 *
+                 * This initial lastAccessedIndex is necessary because initial load
+                 * key may not be 0, for example when [Pager].initialKey != 0. We don't know which
+                 * items are immediately displayed so we can only best-effort estimate that the middle
+                 * item has been presented.
+                 *
+                 * Therefore we calculate the actual index based on
+                 * [ItemSnapshotList.placeholdersBefore] + [1/2 initial load size].
+                 *
+                 * Any subsequent SnapshotLoader loads are based on the index tracked by
+                 * [SnapshotLoader] internally.
+                 */
+                val lastLoadedIndex = event.newList.placeholdersBefore +
+                    (event.newList.dataCount / 2)
+                loader.onDataSetChanged(
+                    loader.generations.value,
+                    LoaderCallback(LoadType.REFRESH, lastLoadedIndex, event.newList.size),
+                    this@coroutineScope
+                )
+            }
             /**
              * We only care about callbacks for prepend inserts so that we can adjust
              * the lastAccessedIndex. For more detail, refer to docs on method

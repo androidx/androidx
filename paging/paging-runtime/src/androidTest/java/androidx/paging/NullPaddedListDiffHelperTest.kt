@@ -39,7 +39,7 @@ class NullPaddedListDiffHelperTest {
         private val data: List<String>,
         override val placeholdersAfter: Int
     ) : NullPaddedList<String> {
-        override fun getFromStorage(localIndex: Int): String = data[localIndex]
+        override fun getItem(index: Int): String = data[index]
         override val size: Int
             get() = placeholdersBefore + data.size + placeholdersAfter
         override val dataCount: Int

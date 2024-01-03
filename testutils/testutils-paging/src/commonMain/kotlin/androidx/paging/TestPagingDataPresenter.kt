@@ -24,15 +24,6 @@ class TestPagingDataPresenter<T : Any>(mainContext: CoroutineContext = Dispatche
 
     val currentList: List<T> get() = List(size) { i -> get(i)!! }
 
-    override suspend fun presentNewList(
-        previousList: NullPaddedList<T>,
-        newList: NullPaddedList<T>,
-        lastAccessedIndex: Int,
-        onListPresentable: () -> Unit,
-    ) {
-        onListPresentable()
-    }
-
     companion object {
         private val noopDifferCallback = object : DifferCallback {
             override fun onChanged(position: Int, count: Int) {}
