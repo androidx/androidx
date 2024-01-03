@@ -229,6 +229,7 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
      * called with false.
      * <!--@exportToFramework:else()-->
      */
+    // TODO(b/237388235): add enterprise permissions to javadocs after they're unhidden
     // @exportToFramework:startStrip()
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
@@ -422,6 +423,7 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
          * @see android.Manifest.permission#READ_HOME_APP_SEARCH_DATA
          * @see android.Manifest.permission#READ_ASSISTANT_APP_SEARCH_DATA
          */
+        // TODO(b/237388235): add enterprise permissions to javadocs after they're unhidden
         // Getter getRequiredPermissionsForSchemaTypeVisibility returns a map for all schemaTypes.
         @CanIgnoreReturnValue
         @SuppressLint("MissingGetterMatchingBuilder")

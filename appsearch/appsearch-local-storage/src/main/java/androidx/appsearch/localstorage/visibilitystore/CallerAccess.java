@@ -44,6 +44,11 @@ public class CallerAccess {
         return mCallingPackageName;
     }
 
+    /** Returns whether the caller should have default access to data in its own package. */
+    public boolean doesCallerHaveSelfAccess() {
+        return true;
+    }
+
     @Override
     public boolean equals(@Nullable Object o) {
         if (this == o) return true;
