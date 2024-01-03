@@ -77,17 +77,17 @@ internal abstract class BaseComposeScene(
     private inline fun <T> postponeInvalidation(crossinline block: () -> T): T {
         check(!isClosed) { "ComposeScene is closed" }
         isInvalidationDisabled = true
-        val result = try {
+        return try {
             // Try to get see the up-to-date state before running block
             // Note that this doesn't guarantee it, if sendApplyNotifications is called concurrently
             // in a different thread than this code.
             snapshotInvalidationTracker.sendAndPerformSnapshotChanges()
-            block()
+            snapshotInvalidationTracker.performSnapshotChangesSynchronously(block)
         } finally {
             isInvalidationDisabled = false
+        }.also {
+            invalidateIfNeeded()
         }
-        invalidateIfNeeded()
-        return result
     }
 
     @Volatile

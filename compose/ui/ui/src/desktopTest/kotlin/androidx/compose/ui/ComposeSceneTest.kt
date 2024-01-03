@@ -45,9 +45,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.focusProperties
@@ -68,6 +70,8 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.MeasurePolicy
+import androidx.compose.ui.layout.RootMeasurePolicy.measure
 import androidx.compose.ui.platform.renderingTest
 import androidx.compose.ui.test.InternalTestApi
 import androidx.compose.ui.test.junit4.DesktopScreenshotTestRule
@@ -77,6 +81,8 @@ import androidx.compose.ui.test.performKeyPress
 import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import java.awt.event.KeyEvent
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertFalse
@@ -170,6 +176,54 @@ class ComposeSceneTest {
         awaitNextRender()
         val after = surface.makeImageSnapshot().toComposeImageBitmap().toPixelMap().buffer
         assertThat(after).isNotEqualTo(before)
+    }
+
+    // Verify that when snapshot state changes in one of the render phases, the change is applied
+    // before the next phase, and is visible there.
+    // Note that it tests the same thing as `rendering of Text state change` is trying to, but at a
+    // lower-level, and without depending on the implementation of Text.
+    @Suppress("UNUSED_EXPRESSION")
+    @Test
+    fun stateChangesAppliedBetweenRenderPhases() = renderingTest(width = 400, height = 200) {
+        var value by mutableStateOf(0)
+        var compositionCount = 0
+        var layoutCount = 0
+        var drawCount = 0
+
+        var layoutScopeInvalidation by mutableStateOf(Unit, neverEqualPolicy())
+        var drawScopeInvalidation by mutableStateOf(Unit, neverEqualPolicy())
+
+        setContent {
+            value
+            compositionCount += 1
+            layoutScopeInvalidation = Unit
+            Layout(
+                modifier = remember {
+                    Modifier.graphicsLayer().drawBehind {
+                        drawScopeInvalidation
+                        drawCount += 1
+                    }
+                },
+                measurePolicy = remember {
+                    MeasurePolicy { measurables, constraints ->
+                        layoutScopeInvalidation
+                        drawScopeInvalidation = Unit
+                        layoutCount += 1
+                        measure(measurables, constraints)
+                    }
+                }
+            )
+        }
+
+        awaitNextRender()
+        assertEquals(compositionCount, layoutCount)
+        assertEquals(layoutCount, drawCount)
+
+        value = 1
+        awaitNextRender()
+        assertTrue(compositionCount >= 2)
+        assertTrue(layoutCount >= compositionCount, "Layout was performed less times than composition")
+        assertTrue(drawCount >= layoutCount, "Draw was performed less times than layout")
     }
 
     @Test(timeout = 5000)

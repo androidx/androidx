@@ -26,3 +26,5 @@ private external fun areObjectsOfSameTypeJsImpl(a: JsAny, b: JsAny): Boolean
 internal actual fun areObjectsOfSameType(a: Any, b: Any): Boolean {
     return a === b || a::class == b::class
 }
+
+internal actual fun getCurrentThreadId(): Long = 0

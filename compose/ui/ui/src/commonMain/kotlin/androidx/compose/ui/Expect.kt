@@ -46,3 +46,5 @@ internal expect fun InspectorInfo.tryPopulateReflectively(
 internal expect abstract class PlatformOptimizedCancellationException(
     message: String? = null
 ) : CancellationException
+
+internal expect fun getCurrentThreadId(): Long
