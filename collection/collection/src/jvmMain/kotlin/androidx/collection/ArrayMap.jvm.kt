@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+@file:JvmName("ArrayMapKt") // Workaround for b/313964643.
 @file:Suppress("NOTHING_TO_INLINE") // Aliases to public API.
 
 package androidx.collection
