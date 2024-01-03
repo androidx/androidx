@@ -789,11 +789,11 @@ interface ThreePaneScaffoldScope : PaneScaffoldScope {
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private class ThreePaneScaffoldScopeImpl : ThreePaneScaffoldScope, PaneScaffoldScopeImpl() {
-    override var paneAdaptedValue: PaneAdaptedValue = PaneAdaptedValue.Hidden
-    override var positionAnimationSpec: FiniteAnimationSpec<IntOffset>? = null
-    override var enterTransition: EnterTransition = EnterTransition.None
-    override var exitTransition: ExitTransition = ExitTransition.None
-    override var animationToolingLabel: String = ""
+    override var paneAdaptedValue by mutableStateOf(PaneAdaptedValue.Hidden)
+    override var positionAnimationSpec: FiniteAnimationSpec<IntOffset>? by mutableStateOf(null)
+    override var enterTransition by mutableStateOf(EnterTransition.None)
+    override var exitTransition by mutableStateOf(ExitTransition.None)
+    override var animationToolingLabel by mutableStateOf("")
 }
 
 /**
