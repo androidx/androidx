@@ -23,8 +23,6 @@ import android.view.ViewGroup;
 import android.view.accessibility.CaptioningManager;
 import android.view.accessibility.CaptioningManager.CaptioningChangeListener;
 
-import androidx.core.view.ViewCompat;
-
 /**
  * Abstract widget class to render a closed caption track.
  */
@@ -147,7 +145,7 @@ abstract class ClosedCaptionWidget extends ViewGroup implements SubtitleTrack.Re
      */
     private void manageChangeListener() {
         final boolean needsListener =
-                ViewCompat.isAttachedToWindow(this) && getVisibility() == View.VISIBLE;
+                this.isAttachedToWindow() && getVisibility() == View.VISIBLE;
         if (mHasChangeListener != needsListener) {
             mHasChangeListener = needsListener;
 

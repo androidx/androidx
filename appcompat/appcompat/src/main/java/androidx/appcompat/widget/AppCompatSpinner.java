@@ -61,7 +61,6 @@ import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.appcompat.view.menu.ShowableListMenu;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.view.TintableBackgroundView;
-import androidx.core.view.ViewCompat;
 import androidx.resourceinspection.annotation.AppCompatShadowedAttributes;
 
 
@@ -1084,7 +1083,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
          * Simplified version of the the hidden View.isVisibleToUser()
          */
         boolean isVisibleToUser(View view) {
-            return ViewCompat.isAttachedToWindow(view) && view.getGlobalVisibleRect(mVisibleRect);
+            return view.isAttachedToWindow() && view.getGlobalVisibleRect(mVisibleRect);
         }
 
         @Override

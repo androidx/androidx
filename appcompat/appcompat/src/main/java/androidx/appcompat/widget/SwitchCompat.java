@@ -1188,7 +1188,7 @@ public class SwitchCompat extends CompoundButton implements EmojiCompatConfigura
             setOffStateDescriptionOnRAndAbove();
         }
 
-        if (getWindowToken() != null && ViewCompat.isLaidOut(this)) {
+        if (getWindowToken() != null && isLaidOut()) {
             animateThumbToCheckedState(checked);
         } else {
             // Immediately move the thumb to the new position.

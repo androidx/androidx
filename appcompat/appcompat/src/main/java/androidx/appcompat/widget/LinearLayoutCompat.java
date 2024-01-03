@@ -1492,7 +1492,7 @@ public class LinearLayoutCompat extends ViewGroup {
                 if (gravity < 0) {
                     gravity = minorGravity;
                 }
-                final int layoutDirection = ViewCompat.getLayoutDirection(this);
+                final int layoutDirection = getLayoutDirection();
                 final int absoluteGravity = GravityCompat.getAbsoluteGravity(gravity,
                         layoutDirection);
                 switch (absoluteGravity & Gravity.HORIZONTAL_GRAVITY_MASK) {
@@ -1561,7 +1561,7 @@ public class LinearLayoutCompat extends ViewGroup {
         final int[] maxAscent = mMaxAscent;
         final int[] maxDescent = mMaxDescent;
 
-        final int layoutDirection = ViewCompat.getLayoutDirection(this);
+        final int layoutDirection = getLayoutDirection();
         switch (GravityCompat.getAbsoluteGravity(majorGravity, layoutDirection)) {
             case Gravity.RIGHT:
                 // mTotalLength contains the padding already

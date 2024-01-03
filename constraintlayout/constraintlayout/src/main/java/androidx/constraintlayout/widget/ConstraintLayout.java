@@ -2514,7 +2514,7 @@ public class ConstraintLayout extends ViewGroup {
         // public int endMargin = UNSET;
 
         // boolean isRtl = false;
-        // int layoutDirection = ViewCompat.LAYOUT_DIRECTION_LTR;
+        // int layoutDirection = View.LAYOUT_DIRECTION_LTR;
 
         boolean mWidthSet = true; // need to be set to false when we reactivate this in 3.0
         boolean mHeightSet = true; // need to be set to false when we reactivate this in 3.0

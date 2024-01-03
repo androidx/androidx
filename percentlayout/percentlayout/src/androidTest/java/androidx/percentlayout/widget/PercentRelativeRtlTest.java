@@ -21,7 +21,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import android.os.Build;
 import android.view.View;
 
-import androidx.core.view.ViewCompat;
 import androidx.percentlayout.test.R;
 import androidx.test.filters.LargeTest;
 
@@ -116,7 +115,7 @@ public class PercentRelativeRtlTest extends BaseInstrumentationTestCase<TestRela
     private void switchToRtl() {
         // Force the container to RTL mode
         onView(withId(R.id.container)).perform(
-                LayoutDirectionActions.setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_RTL));
+                LayoutDirectionActions.setLayoutDirection(View.LAYOUT_DIRECTION_RTL));
 
         // Force a full measure + layout pass on the container
         mPercentRelativeLayout.measure(

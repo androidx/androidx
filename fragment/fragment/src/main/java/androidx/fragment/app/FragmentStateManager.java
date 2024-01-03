@@ -580,7 +580,7 @@ class FragmentStateManager {
                 mFragment.mView.setVisibility(View.GONE);
             }
             // How I wish we could use doOnAttach
-            if (ViewCompat.isAttachedToWindow(mFragment.mView)) {
+            if (mFragment.mView.isAttachedToWindow()) {
                 ViewCompat.requestApplyInsets(mFragment.mView);
             } else {
                 final View fragmentView = mFragment.mView;

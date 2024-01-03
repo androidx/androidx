@@ -30,7 +30,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.core.view.ViewCompat;
 import androidx.palette.graphics.Palette;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -398,7 +397,7 @@ public class VideoView extends SelectiveLayout {
         }
         mPlayer = new PlayerWrapper(controller, ContextCompat.getMainExecutor(getContext()),
                 new PlayerCallback());
-        if (ViewCompat.isAttachedToWindow(this)) {
+        if (this.isAttachedToWindow()) {
             mPlayer.attachCallback();
         }
         if (this.isAggregatedVisible()) {
@@ -435,7 +434,7 @@ public class VideoView extends SelectiveLayout {
         }
         mPlayer = new PlayerWrapper(player, ContextCompat.getMainExecutor(getContext()),
                 new PlayerCallback());
-        if (ViewCompat.isAttachedToWindow(this)) {
+        if (this.isAttachedToWindow()) {
             mPlayer.attachCallback();
         }
         if (this.isAggregatedVisible()) {

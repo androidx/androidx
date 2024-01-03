@@ -21,9 +21,6 @@ import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.content.Intent
 import android.net.Uri
 import androidx.core.graphics.drawable.IconCompat
-import androidx.slice.SliceProvider
-import androidx.slice.SliceSpecs
-import androidx.slice.builders.ListBuilder.ICON_IMAGE
 import androidx.slice.builders.ktx.test.R
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
@@ -37,8 +34,8 @@ class SliceBuildersKtxTest {
     private val context = ApplicationProvider.getApplicationContext() as android.content.Context
 
     init {
-        SliceProvider.setSpecs(setOf(SliceSpecs.LIST))
-        SliceProvider.setClock { 0 }
+        androidx.slice.SliceProvider.setSpecs(setOf(androidx.slice.SliceSpecs.LIST))
+        androidx.slice.SliceProvider.setClock { 0 }
     }
 
     private fun pendingIntentToTestActivity() =
@@ -209,7 +206,7 @@ class SliceBuildersKtxTest {
             addAction(sliceAction2)
             gridRow {
                 icons.forEach {
-                    cell { addImage(it, ICON_IMAGE) }
+                    cell { addImage(it, androidx.slice.builders.ListBuilder.ICON_IMAGE) }
                 }
             }
         }
@@ -227,10 +224,12 @@ class SliceBuildersKtxTest {
             addGridRow(
                 GridRowBuilder().apply {
                     icons.forEach { icon ->
-                        GridRowBuilder.CellBuilder().addImage(icon, ICON_IMAGE)
+                        GridRowBuilder.CellBuilder().addImage(
+                            icon, androidx.slice.builders.ListBuilder.ICON_IMAGE
+                        )
                         addCell(
                             GridRowBuilder.CellBuilder().apply {
-                                addImage(icon, ICON_IMAGE)
+                                addImage(icon, androidx.slice.builders.ListBuilder.ICON_IMAGE)
                             }
                         )
                     }

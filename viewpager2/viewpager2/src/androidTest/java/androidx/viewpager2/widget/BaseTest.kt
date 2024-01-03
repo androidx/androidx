@@ -22,7 +22,6 @@ import android.util.Log
 import android.view.View
 import android.view.ViewConfiguration
 import android.view.accessibility.AccessibilityNodeInfo
-import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD
@@ -725,6 +724,6 @@ fun tryNTimes(n: Int, resetBlock: () -> Unit, tryBlock: () -> Unit) {
 }
 
 val View.isRtl: Boolean
-    get() = ViewCompat.getLayoutDirection(this) == ViewCompat.LAYOUT_DIRECTION_RTL
+    get() = getLayoutDirection() == View.LAYOUT_DIRECTION_RTL
 
 val ViewPager2.isHorizontal: Boolean get() = orientation == ORIENTATION_HORIZONTAL

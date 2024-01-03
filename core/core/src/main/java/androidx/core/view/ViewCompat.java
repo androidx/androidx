@@ -356,24 +356,36 @@ public class ViewCompat {
 
     /**
      * Horizontal layout direction of this view is from Left to Right.
+     *
+     * @deprecated Use {@link View#LAYOUT_DIRECTION_LTR} directly.
      */
+    @Deprecated
     public static final int LAYOUT_DIRECTION_LTR = 0;
 
     /**
      * Horizontal layout direction of this view is from Right to Left.
+     *
+     * @deprecated Use {@link View#LAYOUT_DIRECTION_RTL} directly.
      */
+    @Deprecated
     public static final int LAYOUT_DIRECTION_RTL = 1;
 
     /**
      * Horizontal layout direction of this view is inherited from its parent.
      * Use with {@link #setLayoutDirection}.
+     *
+     * @deprecated Use {@link View#LAYOUT_DIRECTION_INHERIT} directly.
      */
+    @Deprecated
     public static final int LAYOUT_DIRECTION_INHERIT = 2;
 
     /**
      * Horizontal layout direction of this view is from deduced from the default language
      * script for the locale. Use with {@link #setLayoutDirection}.
+     *
+     * @deprecated Use {@link View#LAYOUT_DIRECTION_LOCALE} directly.
      */
+    @Deprecated
     public static final int LAYOUT_DIRECTION_LOCALE = 3;
 
     /**
