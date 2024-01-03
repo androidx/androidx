@@ -54,7 +54,7 @@ package androidx.room {
     field public static final String VALUE_UNSPECIFIED = "[value-unspecified]";
   }
 
-  @IntDef({UNSPECIFIED, BINARY, NOCASE, RTRIM, LOCALIZED, UNICODE}) @RequiresApi(21) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public static @interface ColumnInfo.Collate {
+  @IntDef({androidx.room.ColumnInfo.UNSPECIFIED, androidx.room.ColumnInfo.BINARY, androidx.room.ColumnInfo.NOCASE, androidx.room.ColumnInfo.RTRIM, androidx.room.ColumnInfo.LOCALIZED, androidx.room.ColumnInfo.UNICODE}) @RequiresApi(21) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public static @interface ColumnInfo.Collate {
   }
 
   public static final class ColumnInfo.Companion {
@@ -73,7 +73,7 @@ package androidx.room {
     field public static final String VALUE_UNSPECIFIED = "[value-unspecified]";
   }
 
-  @IntDef({UNDEFINED, TEXT, INTEGER, REAL, BLOB}) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public static @interface ColumnInfo.SQLiteTypeAffinity {
+  @IntDef({androidx.room.ColumnInfo.UNDEFINED, androidx.room.ColumnInfo.TEXT, androidx.room.ColumnInfo.INTEGER, androidx.room.ColumnInfo.REAL, androidx.room.ColumnInfo.BLOB}) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public static @interface ColumnInfo.SQLiteTypeAffinity {
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface Dao {
@@ -167,7 +167,7 @@ package androidx.room {
     field public static final int SET_NULL = 3; // 0x3
   }
 
-  @IntDef({NO_ACTION, RESTRICT, SET_NULL, SET_DEFAULT, CASCADE}) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public static @interface ForeignKey.Action {
+  @IntDef({androidx.room.ForeignKey.NO_ACTION, androidx.room.ForeignKey.RESTRICT, androidx.room.ForeignKey.SET_NULL, androidx.room.ForeignKey.SET_DEFAULT, androidx.room.ForeignKey.CASCADE}) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public static @interface ForeignKey.Action {
   }
 
   public static final class ForeignKey.Companion {
@@ -292,6 +292,10 @@ package androidx.room {
   }
 
   public static final class OnConflictStrategy.Companion {
+    method @Deprecated public int getFAIL();
+    method @Deprecated public int getROLLBACK();
+    property @Deprecated public int FAIL;
+    property @Deprecated public int ROLLBACK;
     field public static final int ABORT = 3; // 0x3
     field @Deprecated public static final int FAIL = 4; // 0x4
     field public static final int IGNORE = 5; // 0x5

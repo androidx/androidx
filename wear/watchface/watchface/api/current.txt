@@ -347,7 +347,6 @@ package androidx.wear.watchface {
     method public androidx.wear.watchface.WatchFace setTapListener(androidx.wear.watchface.WatchFace.TapListener? tapListener);
     method public void setWatchFaceType(int);
     property public final androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle legacyWatchFaceStyle;
-    property @Deprecated public final androidx.wear.watchface.WatchFace.OverlayStyle overlayStyle;
     property public final java.time.Instant? overridePreviewReferenceInstant;
     property public final androidx.wear.watchface.Renderer renderer;
     property public final int watchFaceType;

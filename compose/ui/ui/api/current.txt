@@ -1866,7 +1866,6 @@ package androidx.compose.ui.input.pointer {
     method public int getType();
     method public long getUptimeMillis();
     method public boolean isConsumed();
-    property @Deprecated public final androidx.compose.ui.input.pointer.ConsumedData consumed;
     property @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public final java.util.List<androidx.compose.ui.input.pointer.HistoricalChange> historical;
     property public final long id;
     property public final boolean isConsumed;

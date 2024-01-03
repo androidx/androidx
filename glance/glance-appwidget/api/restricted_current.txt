@@ -67,7 +67,7 @@ package androidx.glance.appwidget {
   public final class GlanceAppWidgetKt {
     method public static suspend Object? provideContent(androidx.glance.appwidget.GlanceAppWidget, kotlin.jvm.functions.Function0<kotlin.Unit> content, kotlin.coroutines.Continuation<?>);
     method public static suspend Object? updateAll(androidx.glance.appwidget.GlanceAppWidget, android.content.Context context, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public static suspend inline <reified State> void updateIf(androidx.glance.appwidget.GlanceAppWidget, android.content.Context context, kotlin.jvm.functions.Function1<? super State,java.lang.Boolean> predicate);
+    method public static suspend inline <reified State> Object? updateIf(androidx.glance.appwidget.GlanceAppWidget, android.content.Context context, kotlin.jvm.functions.Function1<? super State,java.lang.Boolean> predicate, kotlin.coroutines.Continuation<? super kotlin.Unit>);
   }
 
   public final class GlanceAppWidgetManager {
