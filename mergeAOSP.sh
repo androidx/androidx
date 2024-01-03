@@ -20,8 +20,10 @@ CURRENT_COMMIT=$(git rev-parse --abbrev-ref HEAD)
 MERGE_BASE=$(git merge-base jetpack-compose/$PREVIOUS_VERSION jetpack-compose/$CURRENT_VERSION)
 MERGE_BRANCH=sync-androidx/revert/revert-${PREVIOUS_VERSION}_merge-${CURRENT_VERSION}
 git checkout $MERGE_BASE -b $MERGE_BRANCH
-git merge jetpack-compose/$PREVIOUS_VERSION --no-ff
+PREVIOUS_MERGE_RESULT=$(git merge jetpack-compose/$PREVIOUS_VERSION --no-ff)
+if [ "$PREVIOUS_MERGE_RESULT" != "Already up to date." ]; then
 git revert HEAD -m 1 --no-edit
+fi
 git merge jetpack-compose/$CURRENT_VERSION
 git checkout $CURRENT_COMMIT
 
