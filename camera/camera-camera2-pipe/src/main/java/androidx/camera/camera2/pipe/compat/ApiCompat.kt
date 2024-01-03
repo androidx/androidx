@@ -352,6 +352,20 @@ internal object Api31Compat {
 
     @JvmStatic
     @DoNotInline
+    fun newMultiResolutionStreamInfo(
+        streamWidth: Int,
+        streamHeight: Int,
+        physicalCameraId: String
+    ): MultiResolutionStreamInfo {
+        return MultiResolutionStreamInfo(
+            streamWidth,
+            streamHeight,
+            physicalCameraId
+        )
+    }
+
+    @JvmStatic
+    @DoNotInline
     fun createExtensionCaptureSession(
         cameraDevice: CameraDevice,
         extensionConfiguration: ExtensionSessionConfiguration
@@ -472,6 +486,28 @@ internal object Api33Compat {
         extension: Int
     ): Set<CaptureResult.Key<Any>> =
         extensionCharacteristics.getAvailableCaptureResultKeys(extension)
+
+    @JvmStatic
+    @DoNotInline
+    fun newImageReaderFromImageReaderBuilder(
+        width: Int,
+        height: Int,
+        imageFormat: Int? = null,
+        maxImages: Int? = null,
+        usage: Long? = null,
+        defaultDataSpace: Int? = null,
+        defaultHardwareBufferFormat: Int? = null
+    ): ImageReader {
+        return ImageReader.Builder(width, height).apply {
+            if (imageFormat != null) setImageFormat(imageFormat)
+            if (maxImages != null) setMaxImages(maxImages)
+            if (usage != null) setUsage(usage)
+            if (defaultDataSpace != null) setDefaultDataSpace(defaultDataSpace)
+            if (defaultHardwareBufferFormat != null) setDefaultHardwareBufferFormat(
+                defaultHardwareBufferFormat
+            )
+        }.build()
+    }
 }
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
