@@ -17,7 +17,6 @@
 package androidx.compose.material3.adaptive
 
 import androidx.compose.ui.graphics.toComposeRect
-import androidx.compose.ui.util.fastForEach
 import androidx.window.layout.FoldingFeature
 
 /**
@@ -28,7 +27,8 @@ import androidx.window.layout.FoldingFeature
 fun calculatePosture(foldingFeatures: List<FoldingFeature>): Posture {
     var isTableTop = false
     val hingeList = mutableListOf<HingeInfo>()
-    foldingFeatures.fastForEach {
+    @Suppress("ListIterator")
+    foldingFeatures.forEach {
         if (it.orientation == FoldingFeature.Orientation.HORIZONTAL &&
             it.state == FoldingFeature.State.HALF_OPENED) {
             isTableTop = true

@@ -421,7 +421,8 @@ private class ThreePaneContentMeasurePolicy(
                 val actualTop = layoutBounds.top + topContentPadding
                 val actualBottom = layoutBounds.bottom - bottomContentPadding
                 // Assume hinge bounds are sorted from left to right, non-overlapped.
-                scaffoldDirective.excludedBounds.fastForEach { hingeBound ->
+                @Suppress("ListIterator")
+                scaffoldDirective.excludedBounds.forEach { hingeBound ->
                     if (hingeBound.left <= actualLeft) {
                         // The hinge is at the left of the layout, adjust the left edge of
                         // the current partition to the actual displayable bounds.
@@ -431,7 +432,7 @@ private class ThreePaneContentMeasurePolicy(
                         // room for more partitions, adjust the right edge of the current
                         // partition to the actual displayable bounds.
                         actualRight = min(hingeBound.left, actualRight)
-                        return@fastForEach
+                        return@forEach
                     } else {
                         // The hinge is inside the layout, add the current partition to the list
                         // and move the left edge of the next partition to the right of the
