@@ -154,12 +154,13 @@ private fun DemoSplitToggleSwitch(enabled: Boolean, initiallyChecked: Boolean) {
     var checked by remember { mutableStateOf(initiallyChecked) }
     val context = LocalContext.current
     SplitToggleButton(
+        modifier = Modifier.fillMaxWidth(),
         label = {
             Text(
                 "Primary label",
                 modifier = Modifier.fillMaxWidth(),
                 maxLines = 3,
-                textAlign = TextAlign.Center,
+                textAlign = TextAlign.Start,
                 overflow = TextOverflow.Ellipsis
             )
         },

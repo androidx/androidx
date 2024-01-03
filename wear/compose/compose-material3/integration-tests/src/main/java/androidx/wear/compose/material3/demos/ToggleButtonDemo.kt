@@ -110,7 +110,7 @@ fun ToggleButtonDemo() {
                 enabled = true,
                 initiallyChecked = true,
                 primary = "8:15AM",
-                secondary = "Mon, Tue, Wed"
+                secondary = "Monday"
             )
         }
         item {
@@ -141,6 +141,7 @@ private fun DemoToggleCheckbox(
 ) {
     var checked by remember { mutableStateOf(initiallyChecked) }
     ToggleButton(
+        modifier = Modifier.fillMaxWidth(),
         label = {
             Text(
                 primary,
@@ -173,6 +174,7 @@ private fun DemoToggleCheckbox(
 private fun DemoToggleSwitch(enabled: Boolean, initiallyChecked: Boolean) {
     var checked by remember { mutableStateOf(initiallyChecked) }
     ToggleButton(
+        modifier = Modifier.fillMaxWidth(),
         label = {
             Text(
                 "Primary label",
