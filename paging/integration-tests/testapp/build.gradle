@@ -45,6 +45,9 @@ dependencies {
     // and androidTestImpl, for both AOSP and playground builds.
     implementation(project(":annotation:annotation"))
 
+    // Align dependencies in debugRuntimeClasspath and debugAndroidTestRuntimeClasspath.
+    androidTestImplementation(project(":annotation:annotation-experimental"))
+
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)

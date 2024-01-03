@@ -33,6 +33,10 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
     implementation("androidx.appcompat:appcompat:1.6.0")
     implementation("androidx.core:core-splashscreen:1.0.0")
+
+    // Manually align dependencies across debugRuntime and debugAndroidTestRuntime.
+    androidTestImplementation(project(":annotation:annotation-experimental"))
+
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)

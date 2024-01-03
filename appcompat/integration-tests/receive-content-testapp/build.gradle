@@ -34,6 +34,9 @@ dependencies {
     implementation(projectOrArtifact(":recyclerview:recyclerview"))
     implementation(libs.material)
 
+    // Align dependencies in debugRuntimeClasspath and debugAndroidTestRuntimeClasspath.
+    androidTestImplementation(project(":annotation:annotation-experimental"))
+
     androidTestImplementation("androidx.lifecycle:lifecycle-common:2.6.1")
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)
