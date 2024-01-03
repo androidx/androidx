@@ -4073,6 +4073,28 @@ class CompositionTests {
         }
     }
 
+    private val LocalNumber = compositionLocalOf { 0 }
+    @Composable fun Test(number: Int = LocalNumber.current) {
+        val remembered = remember(number) { number + 1 }
+        assertEquals(remembered, number + 1)
+    }
+
+    @Test
+    fun remember_defaultParamInRestartableFunction() = compositionTest {
+        var state by mutableIntStateOf(0)
+        compose {
+            CompositionLocalProvider(LocalNumber provides state) {
+                Test()
+            }
+        }
+
+        validate {}
+
+        state++
+        advance()
+        revalidate()
+    }
+
     private inline fun CoroutineScope.withGlobalSnapshotManager(block: CoroutineScope.() -> Unit) {
         val channel = Channel<Unit>(Channel.CONFLATED)
         val job = launch {
