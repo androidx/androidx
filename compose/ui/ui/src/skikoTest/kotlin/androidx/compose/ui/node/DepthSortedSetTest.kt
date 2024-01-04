@@ -195,6 +195,7 @@ class DepthSortedSetTest {
         override val autofill: Autofill? get() = throw IllegalStateException()
         override val density: Density get() = throw IllegalStateException()
         override val textInputService: TextInputService get() = throw IllegalStateException()
+        override val softwareKeyboardController get() = throw IllegalStateException()
         override suspend fun textInputSession(
             session: suspend PlatformTextInputSessionScope.() -> Nothing
         ) = throw IllegalStateException()
