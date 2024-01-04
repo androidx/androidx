@@ -76,17 +76,15 @@ internal expect fun SelectionHandle(
 
 @Composable
 internal fun SelectionHandle(
-    position: Offset,
+    offsetProvider: OffsetProvider,
     isStartHandle: Boolean,
     direction: ResolvedTextDirection,
     handlesCrossed: Boolean,
     modifier: Modifier,
-    content: @Composable (() -> Unit)?
 ) {
     SelectionHandle(
-        position, isStartHandle, direction,
+        offsetProvider, isStartHandle, direction,
         handlesCrossed, 0f, modifier,
-        content
     )
 }
 

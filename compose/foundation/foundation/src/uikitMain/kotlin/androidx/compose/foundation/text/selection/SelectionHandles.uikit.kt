@@ -54,31 +54,21 @@ private val RADIUS = 6.dp
  */
 private val THICKNESS = 2.dp
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 internal actual fun SelectionHandle(
-    position: Offset,
+    offsetProvider: OffsetProvider,
     isStartHandle: Boolean,
     direction: ResolvedTextDirection,
     handlesCrossed: Boolean,
     lineHeight: Float,
     modifier: Modifier,
-    content: @Composable (() -> Unit)?
 ) {
     val density = LocalDensity.current
     val paddingPx = with(density) { PADDING.toPx() }
     val radiusPx = with(density) { RADIUS.toPx() }
     val thicknessPx = with(density) { THICKNESS.toPx() }
     val isLeft = isLeft(isStartHandle, direction, handlesCrossed)
-    val y = if (isLeft) {
-        position.y - paddingPx - lineHeight - radiusPx * 2
-    } else {
-        position.y - paddingPx
-    }
 
-    val positionState: State<IntOffset> = rememberUpdatedState(
-        IntOffset(position.x.roundToInt(), y.roundToInt())
-    )
     val handleColor = LocalTextSelectionColors.current.handleColor
     Popup(
         popupPositionProvider = remember {
@@ -88,10 +78,21 @@ internal actual fun SelectionHandle(
                     windowSize: IntSize,
                     layoutDirection: LayoutDirection,
                     popupContentSize: IntSize
-                ) = IntOffset(
-                    x = anchorBounds.left + positionState.value.x - popupContentSize.width / 2,
-                    y = anchorBounds.top + positionState.value.y
-                )
+                ): IntOffset {
+                    val position = offsetProvider.provide()
+                    val y = if (isLeft) {
+                        position.y - paddingPx - lineHeight - radiusPx * 2
+                    } else {
+                        position.y - paddingPx
+                    }
+
+                    val positionRounded = IntOffset(position.x.roundToInt(), y.roundToInt())
+
+                    return IntOffset(
+                        x = anchorBounds.left + positionRounded.x - popupContentSize.width / 2,
+                        y = anchorBounds.top + positionRounded.y
+                    )
+                }
             }
         },
         properties = PopupProperties(
