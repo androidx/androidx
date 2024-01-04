@@ -41,7 +41,7 @@ dependencies {
     implementation("androidx.palette:palette:1.0.0")
     implementation("androidx.recyclerview:recyclerview:1.1.0")
     implementation("androidx.appcompat:appcompat-resources:1.2.0")
-    implementation "androidx.annotation:annotation-experimental:1.3.0"
+    implementation project(":annotation:annotation-experimental")
 
     testImplementation(libs.junit)
     testImplementation(libs.testCore)

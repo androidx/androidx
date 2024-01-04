@@ -48,6 +48,10 @@ dependencies {
     implementation('androidx.navigation:navigation-fragment-ktx:2.5.3')
     implementation('androidx.navigation:navigation-ui-ktx:2.5.3')
     implementation('androidx.recyclerview:recyclerview:1.2.1')
+
+    // Align dependencies in debugRuntimeClasspath and debugAndroidTestRuntimeClasspath.
+    androidTestImplementation(project(":annotation:annotation-experimental"))
+
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
 }

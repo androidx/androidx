@@ -98,6 +98,9 @@ dependencies {
     implementation 'androidx.compose.material:material-icons-extended:1.4.0'
     androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.1.1'
 
+    // Align dependencies in debugRuntimeClasspath and debugAndroidTestRuntimeClasspath.
+    androidTestImplementation(project(":annotation:annotation-experimental"))
+
     // Testing framework
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
