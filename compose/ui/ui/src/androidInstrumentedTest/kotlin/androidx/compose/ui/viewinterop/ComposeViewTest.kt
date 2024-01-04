@@ -17,6 +17,7 @@
 package androidx.compose.ui.viewinterop
 
 import android.content.Context
+import android.content.res.Configuration
 import android.os.Build
 import android.view.ContextThemeWrapper
 import android.view.View
@@ -48,6 +49,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.AbstractComposeView
+import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
@@ -59,6 +61,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.tests.R
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
@@ -781,6 +784,41 @@ class ComposeViewTest {
 
         rule.runOnIdle {
             composeView.assertCanScroll(right = true)
+        }
+    }
+
+    @Test
+    fun composeView_densityChange() {
+        lateinit var composeView: AndroidComposeView
+        lateinit var currentDensity: Density
+        rule.setContent {
+            composeView = LocalView.current as AndroidComposeView
+            currentDensity = LocalDensity.current
+            Box(Modifier.size(100.dp))
+        }
+
+        val density = rule.density
+        val newDensity = density.density * 2f
+
+        rule.runOnUiThread {
+            assertEquals(
+                composeView.width,
+                with(density) { 100.dp.roundToPx() }
+            )
+
+            rule.activity.resources.displayMetrics.density = newDensity
+            val newConfig = Configuration().apply {
+                setTo(rule.activity.resources.configuration)
+            }
+            composeView.dispatchConfigurationChanged(newConfig)
+        }
+
+        rule.runOnIdle {
+            assertEquals(currentDensity.density, newDensity)
+            assertEquals(
+                composeView.width,
+                with(Density(newDensity)) { 100.dp.roundToPx() }
+            )
         }
     }
 }
