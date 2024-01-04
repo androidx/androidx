@@ -63,6 +63,9 @@ dependencies {
         exclude(group:"androidx.test")
     }
 
+    // Align dependencies in debugRuntimeClasspath and debugAndroidTestRuntimeClasspath.
+    androidTestImplementation(project(":annotation:annotation-experimental"))
+
     // Testing framework
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.junit)

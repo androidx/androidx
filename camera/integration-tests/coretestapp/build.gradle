@@ -97,6 +97,9 @@ dependencies {
     // explicitly add runner here to force consistency with androidTestImplementation
     debugImplementation(libs.testRunner)
 
+    // Align dependencies in debugRuntimeClasspath and debugAndroidTestRuntimeClasspath.
+    androidTestImplementation(project(":annotation:annotation-experimental"))
+
     // Testing framework
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)

@@ -51,7 +51,7 @@ dependencies {
     implementation(libs.jsr250)
 
     // Force upgrade since 1.2.0 is not compatible with latest lint.
-    implementation("androidx.annotation:annotation-experimental:1.3.0")
+    implementation(project(":annotation:annotation-experimental"))
 
     testImplementation(project(":appactions:interaction:interaction-capabilities-core"))
     testImplementation(project(":appactions:interaction:interaction-capabilities-testing"))

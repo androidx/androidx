@@ -1135,6 +1135,7 @@ actual abstract class RoomDatabase {
          *
          * @return This builder instance.
          */
+        @OptIn(ExperimentalRoomApi::class)
         @Suppress("UnsafeOptInUsageError")
         open fun enableMultiInstanceInvalidation() = apply {
             this.multiInstanceInvalidationIntent = if (name != null) {

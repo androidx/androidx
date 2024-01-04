@@ -73,6 +73,9 @@ dependencies {
     implementation(libs.guavaAndroid)
     implementation("androidx.viewpager2:viewpager2:1.0.0")
 
+    // Align dependencies in debugRuntimeClasspath and debugAndroidTestRuntimeClasspath.
+    androidTestImplementation(project(":annotation:annotation-experimental"))
+
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)

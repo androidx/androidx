@@ -15,8 +15,6 @@
  */
 package androidx.room
 
-import androidx.annotation.RequiresOptIn
-
 /**
  * APIs marked with ExperimentalRoomApi are experimental and may change.
  */
