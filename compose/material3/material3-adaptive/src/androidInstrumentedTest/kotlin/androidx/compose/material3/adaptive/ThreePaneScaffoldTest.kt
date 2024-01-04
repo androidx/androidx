@@ -25,6 +25,9 @@ import androidx.compose.foundation.layout.union
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -105,6 +108,66 @@ class ThreePaneScaffoldTest {
         rule.onNodeWithTag("PrimaryPane").assertExists()
         rule.onNodeWithTag("SecondaryPane").assertExists()
         rule.onNodeWithTag("TertiaryPane").assertExists()
+    }
+
+    @Test
+    fun threePaneScaffold_scaffoldValueChangeWithSinglePane_expandedPanesAreChanged() {
+        var testScaffoldValue by mutableStateOf(
+            ThreePaneScaffoldValue(
+                PaneAdaptedValue.Expanded,
+                PaneAdaptedValue.Hidden,
+                PaneAdaptedValue.Hidden
+            )
+        )
+        rule.setContent {
+            SampleThreePaneScaffold(scaffoldValue = testScaffoldValue)
+        }
+
+        rule.onNodeWithTag("PrimaryPane").assertExists()
+        rule.onNodeWithTag("SecondaryPane").assertDoesNotExist()
+        rule.onNodeWithTag("TertiaryPane").assertDoesNotExist()
+
+        testScaffoldValue = ThreePaneScaffoldValue(
+            PaneAdaptedValue.Hidden,
+            PaneAdaptedValue.Expanded,
+            PaneAdaptedValue.Hidden
+        )
+
+        rule.waitForIdle()
+
+        rule.onNodeWithTag("PrimaryPane").assertDoesNotExist()
+        rule.onNodeWithTag("SecondaryPane").assertExists()
+        rule.onNodeWithTag("TertiaryPane").assertDoesNotExist()
+    }
+
+    @Test
+    fun threePaneScaffold_scaffoldValueChangeWithDualPane_expandedPanesAreChanged() {
+        var testScaffoldValue by mutableStateOf(
+            ThreePaneScaffoldValue(
+                PaneAdaptedValue.Expanded,
+                PaneAdaptedValue.Hidden,
+                PaneAdaptedValue.Expanded
+            )
+        )
+        rule.setContent {
+            SampleThreePaneScaffold(scaffoldValue = testScaffoldValue)
+        }
+
+        rule.onNodeWithTag("PrimaryPane").assertExists()
+        rule.onNodeWithTag("SecondaryPane").assertDoesNotExist()
+        rule.onNodeWithTag("TertiaryPane").assertExists()
+
+        testScaffoldValue = ThreePaneScaffoldValue(
+            PaneAdaptedValue.Expanded,
+            PaneAdaptedValue.Expanded,
+            PaneAdaptedValue.Hidden
+        )
+
+        rule.waitForIdle()
+
+        rule.onNodeWithTag("PrimaryPane").assertExists()
+        rule.onNodeWithTag("SecondaryPane").assertExists()
+        rule.onNodeWithTag("TertiaryPane").assertDoesNotExist()
     }
 }
 
