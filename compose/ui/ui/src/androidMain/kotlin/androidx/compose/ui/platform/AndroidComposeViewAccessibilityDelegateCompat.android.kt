@@ -1317,7 +1317,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                     // Unfortunately, talkback has a bug of using "checked", so we set state
                     // description here
                     if (role == Role.Switch && stateDescription == null) {
-                        stateDescription = view.context.resources.getString(R.string.on)
+                        stateDescription = view.context.resources.getString(R.string.state_on)
                     }
                 }
 
@@ -1325,7 +1325,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                     // Unfortunately, talkback has a bug of using "not checked", so we set state
                     // description here
                     if (role == Role.Switch && stateDescription == null) {
-                        stateDescription = view.context.resources.getString(R.string.off)
+                        stateDescription = view.context.resources.getString(R.string.state_off)
                     }
                 }
 

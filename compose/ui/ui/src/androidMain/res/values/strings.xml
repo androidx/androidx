@@ -19,9 +19,9 @@
     <!-- Spoken description of indeterminate state of a tri-state checkbox -->
     <string name="indeterminate">Partially checked</string>
     <!-- Spoken description of on state of a switch -->
-    <string name="on">On</string>
+    <string name="state_on">On</string>
     <!-- Spoken description of off state of a switch -->
-    <string name="off">Off</string>
+    <string name="state_off">Off</string>
     <!-- Spoken description naming a Switch Material UI widget -->
     <string name="switch_role">Switch</string>
     <!-- Spoken description of selected state of a selectable item -->
