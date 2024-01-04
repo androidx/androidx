@@ -3,19 +3,19 @@ package androidx.appactions.builtintypes.properties {
 
   @androidx.appsearch.annotation.Document(name="bitprop:ByDay") public final class ByDay {
     ctor public ByDay(androidx.appactions.builtintypes.types.DayOfWeek dayOfWeek);
-    method @androidx.appsearch.annotation.Document.StringProperty(serializer=DayOfWeekAsCanonicalUrlSerializer::class) public androidx.appactions.builtintypes.types.DayOfWeek? getAsDayOfWeek();
+    method @androidx.appsearch.annotation.Document.StringProperty(serializer=DayOfWeekAsCanonicalUrlSerializer::class) public androidx.appactions.builtintypes.types.DayOfWeek? asDayOfWeek();
     property @androidx.appsearch.annotation.Document.StringProperty(serializer=DayOfWeekAsCanonicalUrlSerializer::class) public final androidx.appactions.builtintypes.types.DayOfWeek? asDayOfWeek;
   }
 
   @androidx.appsearch.annotation.Document(name="bitprop:EndDate") public final class EndDate {
     ctor public EndDate(java.time.LocalDate date);
-    method @androidx.appsearch.annotation.Document.LongProperty(serializer=LocalDateAsEpochDaySerializer::class) public java.time.LocalDate? getAsDate();
+    method @androidx.appsearch.annotation.Document.LongProperty(serializer=LocalDateAsEpochDaySerializer::class) public java.time.LocalDate? asDate();
     property @androidx.appsearch.annotation.Document.LongProperty(serializer=LocalDateAsEpochDaySerializer::class) public final java.time.LocalDate? asDate;
   }
 
   @androidx.appsearch.annotation.Document(name="bitprop:EndTime") public final class EndTime {
     ctor public EndTime(java.time.LocalTime time);
-    method @androidx.appsearch.annotation.Document.LongProperty(serializer=LocalTimeAsNanoOfDaySerializer::class) public java.time.LocalTime? getAsTime();
+    method @androidx.appsearch.annotation.Document.LongProperty(serializer=LocalTimeAsNanoOfDaySerializer::class) public java.time.LocalTime? asTime();
     property @androidx.appsearch.annotation.Document.LongProperty(serializer=LocalTimeAsNanoOfDaySerializer::class) public final java.time.LocalTime? asTime;
   }
 
@@ -23,9 +23,9 @@ package androidx.appactions.builtintypes.properties {
     ctor public ExceptDate(java.time.Instant instant);
     ctor public ExceptDate(java.time.LocalDate date);
     ctor public ExceptDate(java.time.LocalDateTime localDateTime);
-    method @androidx.appsearch.annotation.Document.LongProperty(serializer=LocalDateAsEpochDaySerializer::class) public java.time.LocalDate? getAsDate();
-    method @androidx.appsearch.annotation.Document.LongProperty(serializer=InstantAsEpochMilliSerializer::class) public java.time.Instant? getAsInstant();
-    method @androidx.appsearch.annotation.Document.LongProperty(serializer=LocalDateTimeAsUtcEpochSecondSerializer::class) public java.time.LocalDateTime? getAsLocalDateTime();
+    method @androidx.appsearch.annotation.Document.LongProperty(serializer=LocalDateAsEpochDaySerializer::class) public java.time.LocalDate? asDate();
+    method @androidx.appsearch.annotation.Document.LongProperty(serializer=InstantAsEpochMilliSerializer::class) public java.time.Instant? asInstant();
+    method @androidx.appsearch.annotation.Document.LongProperty(serializer=LocalDateTimeAsUtcEpochSecondSerializer::class) public java.time.LocalDateTime? asLocalDateTime();
     method public <R> R mapWhen(androidx.appactions.builtintypes.properties.ExceptDate.Mapper<R> mapper);
     property @androidx.appsearch.annotation.Document.LongProperty(serializer=LocalDateAsEpochDaySerializer::class) public final java.time.LocalDate? asDate;
     property @androidx.appsearch.annotation.Document.LongProperty(serializer=InstantAsEpochMilliSerializer::class) public final java.time.Instant? asInstant;
@@ -41,25 +41,25 @@ package androidx.appactions.builtintypes.properties {
 
   @androidx.appsearch.annotation.Document(name="bitprop:Name") public final class Name {
     ctor public Name(String text);
-    method @androidx.appsearch.annotation.Document.StringProperty public String? getAsText();
+    method @androidx.appsearch.annotation.Document.StringProperty public String? asText();
     property @androidx.appsearch.annotation.Document.StringProperty public final String? asText;
   }
 
   @androidx.appsearch.annotation.Document(name="bitprop:RepeatFrequency") public final class RepeatFrequency {
     ctor public RepeatFrequency(java.time.Duration duration);
-    method @androidx.appsearch.annotation.Document.LongProperty(serializer=DurationAsNanosSerializer::class) public java.time.Duration? getAsDuration();
+    method @androidx.appsearch.annotation.Document.LongProperty(serializer=DurationAsNanosSerializer::class) public java.time.Duration? asDuration();
     property @androidx.appsearch.annotation.Document.LongProperty(serializer=DurationAsNanosSerializer::class) public final java.time.Duration? asDuration;
   }
 
   @androidx.appsearch.annotation.Document(name="bitprop:StartDate") public final class StartDate {
     ctor public StartDate(java.time.LocalDate date);
-    method @androidx.appsearch.annotation.Document.LongProperty(serializer=LocalDateAsEpochDaySerializer::class) public java.time.LocalDate? getAsDate();
+    method @androidx.appsearch.annotation.Document.LongProperty(serializer=LocalDateAsEpochDaySerializer::class) public java.time.LocalDate? asDate();
     property @androidx.appsearch.annotation.Document.LongProperty(serializer=LocalDateAsEpochDaySerializer::class) public final java.time.LocalDate? asDate;
   }
 
   @androidx.appsearch.annotation.Document(name="bitprop:StartTime") public final class StartTime {
     ctor public StartTime(java.time.LocalTime time);
-    method @androidx.appsearch.annotation.Document.LongProperty(serializer=LocalTimeAsNanoOfDaySerializer::class) public java.time.LocalTime? getAsTime();
+    method @androidx.appsearch.annotation.Document.LongProperty(serializer=LocalTimeAsNanoOfDaySerializer::class) public java.time.LocalTime? asTime();
     property @androidx.appsearch.annotation.Document.LongProperty(serializer=LocalTimeAsNanoOfDaySerializer::class) public final java.time.LocalTime? asTime;
   }
 
