@@ -111,14 +111,13 @@ public object RobolectricCameras {
                 emptySet()
             )
 
-        @Suppress("SyntheticAccessor") val callback = CameraStateCallback(cameraId)
+        val callback = CameraStateCallback(cameraId)
         cameraManager.openCamera(cameraId.value, callback, Handler())
 
         // Wait until the camera is "opened" by robolectric.
         shadowOf(Looper.myLooper()).idle()
         val cameraDevice = callback.camera!!
 
-        @Suppress("SyntheticAccessor")
         return FakeCamera(cameraId, characteristics, metadata, cameraDevice)
     }
 

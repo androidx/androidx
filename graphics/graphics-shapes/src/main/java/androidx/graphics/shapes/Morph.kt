@@ -78,35 +78,35 @@ class Morph(
         var maxX = Float.MIN_VALUE
         var maxY = Float.MIN_VALUE
         for (pair in morphMatch) {
-            if (pair.first.anchorX0 < minX) minX = pair.first.anchorX0
-            if (pair.first.anchorY0 < minY) minY = pair.first.anchorY0
-            if (pair.first.anchorX0 > maxX) maxX = pair.first.anchorX0
-            if (pair.first.anchorY0 > maxY) maxY = pair.first.anchorY0
+            if (pair.first.anchor0X < minX) minX = pair.first.anchor0X
+            if (pair.first.anchor0Y < minY) minY = pair.first.anchor0Y
+            if (pair.first.anchor0X > maxX) maxX = pair.first.anchor0X
+            if (pair.first.anchor0Y > maxY) maxY = pair.first.anchor0Y
 
-            if (pair.second.anchorX0 < minX) minX = pair.second.anchorX0
-            if (pair.second.anchorY0 < minY) minY = pair.second.anchorY0
-            if (pair.second.anchorX0 > maxX) maxX = pair.second.anchorX0
-            if (pair.second.anchorY0 > maxY) maxY = pair.second.anchorY0
+            if (pair.second.anchor0X < minX) minX = pair.second.anchor0X
+            if (pair.second.anchor0Y < minY) minY = pair.second.anchor0Y
+            if (pair.second.anchor0X > maxX) maxX = pair.second.anchor0X
+            if (pair.second.anchor0Y > maxY) maxY = pair.second.anchor0Y
 
-            if (pair.first.controlX0 < minX) minX = pair.first.controlX0
-            if (pair.first.controlY0 < minY) minY = pair.first.controlY0
-            if (pair.first.controlX0 > maxX) maxX = pair.first.controlX0
-            if (pair.first.controlY0 > maxY) maxY = pair.first.controlY0
+            if (pair.first.control0X < minX) minX = pair.first.control0X
+            if (pair.first.control0Y < minY) minY = pair.first.control0Y
+            if (pair.first.control0X > maxX) maxX = pair.first.control0X
+            if (pair.first.control0Y > maxY) maxY = pair.first.control0Y
 
-            if (pair.second.controlX0 < minX) minX = pair.second.controlX0
-            if (pair.second.controlY0 < minY) minY = pair.second.controlY0
-            if (pair.second.controlX0 > maxX) maxX = pair.second.controlX0
-            if (pair.second.controlY0 > maxY) maxY = pair.second.controlY0
+            if (pair.second.control0X < minX) minX = pair.second.control0X
+            if (pair.second.control0Y < minY) minY = pair.second.control0Y
+            if (pair.second.control0X > maxX) maxX = pair.second.control0X
+            if (pair.second.control0Y > maxY) maxY = pair.second.control0Y
 
-            if (pair.first.controlX1 < minX) minX = pair.first.controlX1
-            if (pair.first.controlY1 < minY) minY = pair.first.controlY1
-            if (pair.first.controlX1 > maxX) maxX = pair.first.controlX1
-            if (pair.first.controlY1 > maxY) maxY = pair.first.controlY1
+            if (pair.first.control1X < minX) minX = pair.first.control1X
+            if (pair.first.control1Y < minY) minY = pair.first.control1Y
+            if (pair.first.control1X > maxX) maxX = pair.first.control1X
+            if (pair.first.control1Y > maxY) maxY = pair.first.control1Y
 
-            if (pair.second.controlX1 < minX) minX = pair.second.controlX1
-            if (pair.second.controlY1 < minY) minY = pair.second.controlY1
-            if (pair.second.controlX1 > maxX) maxX = pair.second.controlX1
-            if (pair.second.controlY1 > maxY) maxY = pair.second.controlY1
+            if (pair.second.control1X < minX) minX = pair.second.control1X
+            if (pair.second.control1Y < minY) minY = pair.second.control1Y
+            if (pair.second.control1X > maxX) maxX = pair.second.control1X
+            if (pair.second.control1Y > maxY) maxY = pair.second.control1Y
             // Skip x3/y3 since every last point is the next curve's first point
         }
         bounds.set(minX, minY, maxX, maxY)
@@ -128,8 +128,8 @@ class Morph(
         // If the list is not empty, do an initial moveTo using the first element of the match.
         morphMatch.firstOrNull()?. let { first ->
             path.moveTo(
-                interpolate(first.first.anchorX0, first.second.anchorX0, progress),
-                interpolate(first.first.anchorY0, first.second.anchorY0, progress)
+                interpolate(first.first.anchor0X, first.second.anchor0X, progress),
+                interpolate(first.first.anchor0Y, first.second.anchor0Y, progress)
             )
         }
 
@@ -137,12 +137,12 @@ class Morph(
         for (i in 0..morphMatch.lastIndex) {
             val element = morphMatch[i]
             path.cubicTo(
-                interpolate(element.first.controlX0, element.second.controlX0, progress),
-                interpolate(element.first.controlY0, element.second.controlY0, progress),
-                interpolate(element.first.controlX1, element.second.controlX1, progress),
-                interpolate(element.first.controlY1, element.second.controlY1, progress),
-                interpolate(element.first.anchorX1, element.second.anchorX1, progress),
-                interpolate(element.first.anchorY1, element.second.anchorY1, progress),
+                interpolate(element.first.control0X, element.second.control0X, progress),
+                interpolate(element.first.control0Y, element.second.control0Y, progress),
+                interpolate(element.first.control1X, element.second.control1X, progress),
+                interpolate(element.first.control1Y, element.second.control1Y, progress),
+                interpolate(element.first.anchor1X, element.second.anchor1X, progress),
+                interpolate(element.first.anchor1Y, element.second.anchor1Y, progress),
             )
         }
         path.close()
@@ -333,19 +333,19 @@ class Morph(
             require(b1 == null && b2 == null)
 
             if (DEBUG) {
-                // Export as SVG path. Temporary while working with the Koru team.
+                // Export as SVG path
                 val showPoint: (PointF) -> String = {
                     "%.3f %.3f".format(it.x * 100, it.y * 100)
                 }
                 repeat(2) { listIx ->
                     val points = ret.map { if (listIx == 0) it.first else it.second }
                     debugLog(LOG_TAG) {
-                        "M " + showPoint(PointF(points.first().anchorX0,
-                            points.first().anchorY0)) + " " +
+                        "M " + showPoint(PointF(points.first().anchor0X,
+                            points.first().anchor0Y)) + " " +
                             points.joinToString(" ") {
-                                "C " + showPoint(PointF(it.controlX0, it.controlY0)) + ", " +
-                                    showPoint(PointF(it.controlX1, it.controlY1)) + ", " +
-                                    showPoint(PointF(it.anchorX1, it.anchorY1))
+                                "C " + showPoint(PointF(it.control0X, it.control0Y)) + ", " +
+                                    showPoint(PointF(it.control1X, it.control1Y)) + ", " +
+                                    showPoint(PointF(it.anchor1X, it.anchor1Y))
                             } + " Z"
                     }
                 }

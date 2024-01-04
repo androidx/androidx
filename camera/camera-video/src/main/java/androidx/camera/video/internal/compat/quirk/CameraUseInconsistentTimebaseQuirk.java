@@ -30,7 +30,7 @@ import java.util.Set;
 
 /**
  * <p>QuirkSummary
- *     Bug Id: 197805856, 280121263
+ *     Bug Id: 197805856, 280121263, 295060316
  *     Description: Quirk that denotes some devices use a timebase for camera frames that is
  *                  different than what is reported by
  *                  {@link android.hardware.camera2.CameraCharacteristics
@@ -50,8 +50,12 @@ public class CameraUseInconsistentTimebaseQuirk implements Quirk {
             "sm6375"
     ));
 
+    private static final Set<String> BUILD_MODEL_SET = new HashSet<>(Arrays.asList(
+            "m2007j20cg", "m2007j20ct"  // Xiaomi Poco X3 NFC
+    ));
+
     static boolean load() {
-        return usesAffectedSoc() || isAffectedSamsungDevice();
+        return usesAffectedSoc() || isAffectedSamsungDevice() || isAffectedModel();
     }
 
     private static boolean usesAffectedSoc() {
@@ -62,5 +66,9 @@ public class CameraUseInconsistentTimebaseQuirk implements Quirk {
     private static boolean isAffectedSamsungDevice() {
         return "SAMSUNG".equalsIgnoreCase(Build.BRAND)
                 && BUILD_HARDWARE_SET.contains(Build.HARDWARE.toLowerCase());
+    }
+
+    private static boolean isAffectedModel() {
+        return BUILD_MODEL_SET.contains(Build.MODEL.toLowerCase());
     }
 }

@@ -61,8 +61,8 @@ public class OutputsTest {
     @Test
     public fun sanitizeFilename() {
         assertEquals(
-            "testFilename[Thing[]]",
-            Outputs.sanitizeFilename("testFilename[Thing( )]")
+            "testFilename[one-Thing[],two-other]",
+            Outputs.sanitizeFilename("testFilename[one=Thing( ),two:other]")
         )
     }
 

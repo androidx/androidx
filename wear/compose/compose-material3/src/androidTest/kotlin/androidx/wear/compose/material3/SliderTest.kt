@@ -42,6 +42,7 @@ import com.google.common.truth.Truth
 import org.junit.Rule
 import org.junit.Test
 
+@OptIn(ExperimentalWearMaterial3Api::class)
 public class SliderTest {
     @get:Rule
     public val rule = createComposeRule()

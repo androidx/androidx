@@ -109,6 +109,11 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
                     "camerax.core.appConfig.availableCamerasLimiter",
                     CameraSelector.class);
 
+    static final Option<Long> OPTION_CAMERA_OPEN_RETRY_MAX_TIMEOUT_IN_MILLIS_WHILE_OCCUPIED =
+            Option.create(
+                    "camerax.core.appConfig.cameraOpenRetryMaxTimeoutInMsWhileOccupied",
+                    long.class);
+
     // *********************************************************************************************
 
     private final OptionsBundle mConfig;
@@ -189,6 +194,17 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
     @Nullable
     public CameraSelector getAvailableCamerasLimiter(@Nullable CameraSelector valueIfMissing) {
         return mConfig.retrieveOption(OPTION_AVAILABLE_CAMERAS_LIMITER, valueIfMissing);
+    }
+
+    /**
+     * Returns the camera open retry maximum timeout in milliseconds.
+     *
+     * @see Builder#setCameraOpenRetryMaxTimeoutInMsWhileOccupied(long)
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public long getCameraOpenRetryMaxTimeoutInMsWhileOccupied(long valueIfMissing) {
+        return mConfig.retrieveOption(OPTION_CAMERA_OPEN_RETRY_MAX_TIMEOUT_IN_MILLIS_WHILE_OCCUPIED,
+                valueIfMissing);
     }
 
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -361,6 +377,20 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
                 @NonNull CameraSelector availableCameraSelector) {
             getMutableConfig().insertOption(OPTION_AVAILABLE_CAMERAS_LIMITER,
                     availableCameraSelector);
+            return this;
+        }
+
+        /**
+         * Sets the camera open retry maximum timeout in milliseconds.
+         *
+         * By default, the retry maximum timeout is 30 minutes when in active resume mode.
+         *
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder setCameraOpenRetryMaxTimeoutInMsWhileOccupied(long valueIfMissing) {
+            getMutableConfig().insertOption(
+                    OPTION_CAMERA_OPEN_RETRY_MAX_TIMEOUT_IN_MILLIS_WHILE_OCCUPIED, valueIfMissing);
             return this;
         }
 

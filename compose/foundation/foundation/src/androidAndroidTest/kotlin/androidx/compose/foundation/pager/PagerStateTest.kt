@@ -540,6 +540,89 @@ class PagerStateTest(val config: ParamConfig) : BasePagerTest(config) {
     }
 
     @Test
+    fun targetPage_valueAfterScrollingAfterMidpoint() {
+        createPager(initialPage = 5, modifier = Modifier.fillMaxSize())
+
+        var previousCurrentPage = pagerState.currentPage
+
+        val forwardDelta = (pagerSize * 0.7f) * scrollForwardSign
+        onPager().performTouchInput {
+            down(layoutStart)
+            if (vertical) {
+                moveBy(Offset(0f, forwardDelta))
+            } else {
+                moveBy(Offset(forwardDelta, 0f))
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(pagerState.currentPage).isNotEqualTo(previousCurrentPage)
+            assertThat(pagerState.targetPage).isEqualTo(previousCurrentPage + 1)
+        }
+
+        onPager().performTouchInput { up() }
+
+        rule.runOnIdle {
+            previousCurrentPage = pagerState.currentPage
+        }
+
+        val backwardDelta = (pagerSize * 0.7f) * scrollForwardSign * -1
+        onPager().performTouchInput {
+            down(layoutEnd)
+            if (vertical) {
+                moveBy(Offset(0f, backwardDelta))
+            } else {
+                moveBy(Offset(backwardDelta, 0f))
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(pagerState.currentPage).isNotEqualTo(previousCurrentPage)
+            assertThat(pagerState.targetPage).isEqualTo(previousCurrentPage - 1)
+        }
+
+        onPager().performTouchInput { up() }
+    }
+
+    @Test
+    fun targetPage_valueAfterScrollingForwardAndBackward() {
+        createPager(initialPage = 5, modifier = Modifier.fillMaxSize())
+
+        val startCurrentPage = pagerState.currentPage
+
+        val forwardDelta = (pagerSize * 0.8f) * scrollForwardSign
+        onPager().performTouchInput {
+            down(layoutStart)
+            if (vertical) {
+                moveBy(Offset(0f, forwardDelta))
+            } else {
+                moveBy(Offset(forwardDelta, 0f))
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(pagerState.currentPage).isNotEqualTo(startCurrentPage)
+            assertThat(pagerState.targetPage).isEqualTo(startCurrentPage + 1)
+        }
+
+        val backwardDelta = (pagerSize * 0.2f) * scrollForwardSign * -1
+        onPager().performTouchInput {
+            if (vertical) {
+                moveBy(Offset(0f, backwardDelta))
+            } else {
+                moveBy(Offset(backwardDelta, 0f))
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(pagerState.currentPage).isNotEqualTo(startCurrentPage)
+            assertThat(pagerState.targetPage).isEqualTo(startCurrentPage)
+        }
+
+        onPager().performTouchInput { up() }
+    }
+
+    @Test
     fun settledPage_onAnimationScroll_shouldChangeOnScrollFinishedOnly() {
         // Arrange
         var settledPageChanges = 0

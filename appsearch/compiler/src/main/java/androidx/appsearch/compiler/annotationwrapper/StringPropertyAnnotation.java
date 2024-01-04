@@ -66,4 +66,10 @@ public abstract class StringPropertyAnnotation extends DataPropertyAnnotation {
      * Specifies how a property should be processed so that the document can be joined.
      */
     public abstract int getJoinableValueType();
+
+    @NonNull
+    @Override
+    public final Kind getDataPropertyKind() {
+        return Kind.STRING_PROPERTY;
+    }
 }

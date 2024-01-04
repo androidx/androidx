@@ -29,7 +29,6 @@ import kotlin.collections.joinToString
 import kotlin.collections.map
 import kotlin.collections.mutableMapOf
 import kotlin.collections.plusAssign
-import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmStatic
 
 /**
@@ -56,16 +55,8 @@ public interface Timer : Thing {
   public override fun toBuilder(): Builder<*>
 
   public companion object {
-    /**
-     * Returns a default implementation of [Builder].
-     *
-     * Has the specified [identifier] and [namespace] and no other properties set.
-     */
-    @JvmStatic
-    @JvmOverloads
-    @Document.BuilderProducer
-    public fun Builder(identifier: String = "", namespace: String = ""): Builder<*> =
-      TimerImpl.Builder().setIdentifier(identifier).setNamespace(namespace)
+    /** Returns a default implementation of [Builder]. */
+    @JvmStatic @Document.BuilderProducer public fun Builder(): Builder<*> = TimerImpl.Builder()
   }
 
   /**
@@ -88,6 +79,10 @@ public interface Timer : Thing {
  *
  * Allows for extension like:
  * ```kt
+ * @Document(
+ *   name = "MyTimer",
+ *   parent = [Timer::class],
+ * )
  * class MyTimer internal constructor(
  *   timer: Timer,
  *   val foo: String,
@@ -96,6 +91,8 @@ public interface Timer : Thing {
  *   MyTimer,
  *   MyTimer.Builder
  * >(timer) {
+ *
+ *   // No need to implement equals(), hashCode(), toString() or toBuilder()
  *
  *   override val selfTypeName =
  *     "MyTimer"
@@ -189,7 +186,9 @@ internal constructor(
 
   public final override fun toString(): String {
     val attributes = mutableMapOf<String, String>()
-    attributes["namespace"] = namespace
+    if (namespace.isNotEmpty()) {
+      attributes["namespace"] = namespace
+    }
     if (duration != null) {
       attributes["duration"] = duration.toString()
     }
@@ -197,7 +196,9 @@ internal constructor(
       attributes["disambiguatingDescription"] =
         disambiguatingDescription.toString(includeWrapperName = false)
     }
-    attributes["identifier"] = identifier
+    if (identifier.isNotEmpty()) {
+      attributes["identifier"] = identifier
+    }
     if (name != null) {
       attributes["name"] = name.toString(includeWrapperName = false)
     }
@@ -217,10 +218,13 @@ internal constructor(
    *     MyTimer.Builder>(...) {
    *
    *   class Builder
-   *   : Builder<
+   *   : AbstractTimer.Builder<
    *       Builder,
    *       MyTimer
    *   >() {
+   *
+   *     // No need to implement equals(), hashCode(), toString() or build()
+   *
    *     private var foo: String? = null
    *     private val bars = mutableListOf<Int>()
    *
@@ -352,7 +356,9 @@ internal constructor(
     @Suppress("BuilderSetStyle")
     public final override fun toString(): String {
       val attributes = mutableMapOf<String, String>()
-      attributes["namespace"] = namespace
+      if (namespace.isNotEmpty()) {
+        attributes["namespace"] = namespace
+      }
       if (duration != null) {
         attributes["duration"] = duration!!.toString()
       }
@@ -360,7 +366,9 @@ internal constructor(
         attributes["disambiguatingDescription"] =
           disambiguatingDescription!!.toString(includeWrapperName = false)
       }
-      attributes["identifier"] = identifier
+      if (identifier.isNotEmpty()) {
+        attributes["identifier"] = identifier
+      }
       if (name != null) {
         attributes["name"] = name!!.toString(includeWrapperName = false)
       }

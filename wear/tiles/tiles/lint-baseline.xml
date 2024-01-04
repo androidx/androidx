@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-beta05" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta05)" variant="all" version="8.1.0-beta05">
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
 
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="interface ResourcesCallback {"
-        errorLine2="^">
+        errorLine1="import androidx.wear.tiles.ResourcesData;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/wear/tiles/ResourcesCallback.aidl"/>
     </issue>
@@ -14,25 +14,21 @@
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
         errorLine1="parcelable ResourcesData;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine2="~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/wear/tiles/ResourcesData.aidl"/>
     </issue>
 
     <issue
         id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable ResourcesRequestData;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker">
         <location
             file="src/main/aidl/androidx/wear/tiles/ResourcesRequestData.aidl"/>
     </issue>
 
     <issue
         id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable TileAddEventData;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker">
         <location
             file="src/main/aidl/androidx/wear/tiles/TileAddEventData.aidl"/>
     </issue>
@@ -40,8 +36,8 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="interface TileCallback {"
-        errorLine2="^">
+        errorLine1="import androidx.wear.tiles.TileData;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/wear/tiles/TileCallback.aidl"/>
     </issue>
@@ -50,7 +46,7 @@
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
         errorLine1="parcelable TileData;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~">
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/wear/tiles/TileData.aidl"/>
     </issue>
@@ -66,9 +62,7 @@
 
     <issue
         id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable TileLeaveEventData;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker">
         <location
             file="src/main/aidl/androidx/wear/tiles/TileLeaveEventData.aidl"/>
     </issue>
@@ -76,8 +70,8 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="interface TileProvider {"
-        errorLine2="^">
+        errorLine1="import android.widget.RemoteViews;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/wear/tiles/TileProvider.aidl"/>
     </issue>
@@ -86,16 +80,14 @@
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
         errorLine1="parcelable TileRemoveEventData;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/wear/tiles/TileRemoveEventData.aidl"/>
     </issue>
 
     <issue
         id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable TileRequestData;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker">
         <location
             file="src/main/aidl/androidx/wear/tiles/TileRequestData.aidl"/>
     </issue>
@@ -104,7 +96,7 @@
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
         errorLine1="parcelable TileUpdateRequestData;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/wear/tiles/TileUpdateRequestData.aidl"/>
     </issue>
@@ -112,8 +104,8 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="interface TileUpdateRequesterService {"
-        errorLine2="^">
+        errorLine1="import android.content.ComponentName;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/wear/tiles/TileUpdateRequesterService.aidl"/>
     </issue>

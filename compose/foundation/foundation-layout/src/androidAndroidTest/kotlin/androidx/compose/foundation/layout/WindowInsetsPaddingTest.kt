@@ -340,7 +340,6 @@ class WindowInsetsPaddingTest {
         }
     }
 
-    @OptIn(ExperimentalLayoutApi::class)
     @Test
     fun consumedInsets() {
         lateinit var coordinates: LayoutCoordinates
@@ -417,7 +416,6 @@ class WindowInsetsPaddingTest {
         }
     }
 
-    @OptIn(ExperimentalLayoutApi::class)
     @Test
     fun withConsumedWindowInsets() {
         var top = 0
@@ -658,7 +656,6 @@ class WindowInsetsPaddingTest {
 
     // The consumedPaddingInsets() should remove the insets values so that they aren't consumed
     // further down the hierarchy.
-    @OptIn(ExperimentalLayoutApi::class)
     @Test
     fun consumedInsetsPadding() {
         lateinit var outer: LayoutCoordinates
@@ -708,7 +705,6 @@ class WindowInsetsPaddingTest {
     }
 
     // The consumedInsets() should remove only values that haven't been consumed.
-    @OptIn(ExperimentalLayoutApi::class)
     @Test
     fun consumedInsetsLimitedConsumption() {
         lateinit var outer: LayoutCoordinates
@@ -756,7 +752,6 @@ class WindowInsetsPaddingTest {
     }
 
     // When the insets change, the layout should be redrawn.
-    @OptIn(ExperimentalLayoutApi::class)
     @Test
     fun newInsetsCausesLayout() {
         lateinit var coordinates: LayoutCoordinates
@@ -846,7 +841,6 @@ class WindowInsetsPaddingTest {
         assertThat(bottomInset).isEqualTo(0)
     }
 
-    @OptIn(ExperimentalLayoutApi::class)
     @Test
     fun reuseModifier() {
         var consumed1 = WindowInsets(0, 0, 0, 0)

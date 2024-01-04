@@ -16,8 +16,6 @@
 
 package androidx.work;
 
-import android.annotation.SuppressLint;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.lifecycle.LifecycleOwner;
@@ -39,14 +37,12 @@ public interface Operation {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @SuppressWarnings("VariableNameSameAsType")
-    @SuppressLint("SyntheticAccessor")
     State.SUCCESS SUCCESS = new State.SUCCESS();
 
     /**
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @SuppressWarnings("VariableNameSameAsType")
-    @SuppressLint("SyntheticAccessor")
     State.IN_PROGRESS IN_PROGRESS = new State.IN_PROGRESS();
 
     /**

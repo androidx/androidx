@@ -34,7 +34,6 @@ import java.util.concurrent.TimeUnit
  * [SessionManager] is the entrypoint for Glance surfaces to start a session worker that will handle
  * their composition.
  *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface SessionManager {
@@ -62,8 +61,7 @@ interface SessionManager {
         get() = "KEY"
 }
 
-/** @suppress */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 val GlanceSessionManager: SessionManager = SessionManagerImpl(SessionWorker::class.java)
 
 internal class SessionManagerImpl(

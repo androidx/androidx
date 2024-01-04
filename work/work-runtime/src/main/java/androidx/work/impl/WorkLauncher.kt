@@ -17,6 +17,7 @@
 package androidx.work.impl
 
 import androidx.work.StopReason
+import androidx.work.WorkInfo
 import androidx.work.WorkerParameters
 import androidx.work.WorkerParameters.RuntimeExtras
 import androidx.work.impl.model.WorkSpec
@@ -40,13 +41,13 @@ interface WorkLauncher {
      * @param workSpecId The [WorkSpec] id to stop
      */
     fun stopWork(workSpecId: StartStopToken) {
-        stopWork(workSpecId, StopReason.Unknown)
+        stopWork(workSpecId, WorkInfo.STOP_REASON_UNKNOWN)
     }
 
-    fun stopWork(workSpecId: StartStopToken, reason: StopReason)
+    fun stopWork(workSpecId: StartStopToken, @StopReason reason: Int)
 
-    fun stopWorkWithReason(workSpecId: StartStopToken, reason: Int) =
-        stopWork(workSpecId, StopReason(reason))
+    fun stopWorkWithReason(workSpecId: StartStopToken, @StopReason reason: Int) =
+        stopWork(workSpecId, reason)
 }
 
 class WorkLauncherImpl(
@@ -58,7 +59,7 @@ class WorkLauncherImpl(
         workTaskExecutor.executeOnTaskThread(startWork)
     }
 
-    override fun stopWork(workSpecId: StartStopToken, reason: StopReason) {
+    override fun stopWork(workSpecId: StartStopToken, @StopReason reason: Int) {
         workTaskExecutor.executeOnTaskThread(
             StopWorkRunnable(processor, workSpecId, false, reason)
         )

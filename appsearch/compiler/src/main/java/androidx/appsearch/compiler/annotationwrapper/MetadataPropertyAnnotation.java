@@ -60,5 +60,11 @@ public enum MetadataPropertyAnnotation implements PropertyAnnotation {
     public String getSimpleClassName() {
         return mSimpleClassName;
     }
+
+    @Override
+    @NonNull
+    public PropertyAnnotation.Kind getPropertyKind() {
+        return Kind.METADATA_PROPERTY;
+    }
 }
 

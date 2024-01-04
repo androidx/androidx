@@ -37,7 +37,6 @@ class ExerciseTypeCapabilitiesTest {
             supportedGoals = emptyMap(),
             supportedMilestones = emptyMap(),
             supportsAutoPauseAndResume = true,
-            supportedExerciseEvents = setOf(ExerciseEventType.UNKNOWN),
             exerciseEventCapabilities =
             ImmutableMap.of(ExerciseEventType.UNKNOWN,
                TestEventCapabilities(false)

@@ -159,8 +159,6 @@ public abstract class AnnotationProcessorTestBase {
         boolean[] mArrUnboxBoolean; // 2b
         @Document.BytesProperty
         byte[][] mArrUnboxByteArr;  // 2b
-        @Document.BytesProperty
-        Byte[] mBoxByteArr;         // 2a
         @Document.StringProperty
         String[] mArrString;        // 2b
         @Document.DocumentProperty
@@ -211,7 +209,6 @@ public abstract class AnnotationProcessorTestBase {
             assertThat(otherGift.mArrBoxLong).isEqualTo(this.mArrBoxLong);
             assertThat(otherGift.mArrBoxInteger).isEqualTo(this.mArrBoxInteger);
             assertThat(otherGift.mArrString).isEqualTo(this.mArrString);
-            assertThat(otherGift.mBoxByteArr).isEqualTo(this.mBoxByteArr);
             assertThat(otherGift.mArrUnboxBoolean).isEqualTo(this.mArrUnboxBoolean);
             assertThat(otherGift.mArrUnboxByteArr).isEqualTo(this.mArrUnboxByteArr);
             assertThat(otherGift.mArrUnboxDouble).isEqualTo(this.mArrUnboxDouble);
@@ -265,7 +262,6 @@ public abstract class AnnotationProcessorTestBase {
             gift.mArrBoxInteger = new Integer[]{4, 5};
             gift.mArrBoxLong = new Long[]{6L, 7L};
             gift.mArrString = new String[]{"cat", "dog"};
-            gift.mBoxByteArr = new Byte[]{8, 9};
             gift.mArrUnboxBoolean = new boolean[]{false, true};
             gift.mArrUnboxByteArr = new byte[][]{{0, 1}, {2, 3}};
             gift.mArrUnboxDouble = new double[]{1.0, 0.0};
@@ -335,12 +331,57 @@ public abstract class AnnotationProcessorTestBase {
         }
     }
 
+    @Document
+    static class LongDoc {
+        @Document.Namespace
+        String mNamespace;
+
+        @Document.Id
+        String mId;
+
+        @Document.CreationTimestampMillis
+        Long mCreationTimestampMillis;
+
+        @Document.Score
+        Integer mScore;
+
+        @Document.TtlMillis
+        private Long mTtlMillis;
+
+        public Long getTtlMillis() {
+            return mTtlMillis;
+        }
+
+        public void setTtlMillis(Long ttlMillis) {
+            mTtlMillis = ttlMillis;
+        }
+
+        @Document.StringProperty(indexingType = INDEXING_TYPE_PREFIXES)
+        String mString;
+
+        @Override
+        public boolean equals(Object other) {
+            if (this == other) {
+                return true;
+            }
+            if (!(other instanceof LongDoc)) {
+                return false;
+            }
+            LongDoc otherDoc = (LongDoc) other;
+            assertThat(otherDoc.mId).isEqualTo(this.mId);
+            assertThat(otherDoc.mNamespace).isEqualTo(this.mNamespace);
+            assertThat(otherDoc.mString).isEqualTo(this.mString);
+            return true;
+        }
+    }
+
     @Test
     public void testAnnotationProcessor() throws Exception {
         //TODO(b/156296904) add test for int, float, GenericDocument, and class with
         // @Document annotation
-        mSession.setSchemaAsync(
-                new SetSchemaRequest.Builder().addDocumentClasses(Card.class, Gift.class).build())
+        mSession.setSchemaAsync(new SetSchemaRequest.Builder()
+                        .addDocumentClasses(Card.class, Gift.class)
+                        .build())
                 .get();
 
         // Create a Gift object and assign values.
@@ -469,6 +510,32 @@ public abstract class AnnotationProcessorTestBase {
                         new SetSchemaRequest.Builder()
                                 .addDocumentClasses(Card.class, CardAction.class)
                                 .build()));
+    }
+
+    @Test
+    public void testAnnotation_unsetNumberClasses() throws Exception {
+        // Test for a few kinds of non-primitive Document special properties. This shouldn't
+        // cause a NPE.
+        mSession.setSchemaAsync(new SetSchemaRequest.Builder()
+                        .addDocumentClasses(LongDoc.class)
+                        .build())
+                .get();
+
+        LongDoc doc = new LongDoc();
+        doc.mId = "id";
+        doc.mNamespace = "ns";
+        // Don't set any special fields
+
+        checkIsBatchResultSuccess(mSession.putAsync(
+                new PutDocumentsRequest.Builder().addDocuments(doc).build()));
+        SearchResults searchResults = mSession.search("", new SearchSpec.Builder()
+                .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(1);
+
+        // Convert GenericDocument to Gift and check values.
+        LongDoc outputDocument = documents.get(0).toDocumentClass(LongDoc.class);
+        assertThat(outputDocument).isEqualTo(doc);
     }
 
     @Test

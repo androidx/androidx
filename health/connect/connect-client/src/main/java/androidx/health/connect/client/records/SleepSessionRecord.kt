@@ -152,8 +152,6 @@ public class SleepSessionRecord(
 
     /**
      * Type of sleep stage.
-     *
-     * @suppress
      */
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(

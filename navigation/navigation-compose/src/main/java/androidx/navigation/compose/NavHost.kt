@@ -30,6 +30,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -319,13 +320,15 @@ public fun NavHost(
                     .content(this, currentEntry)
             }
         }
-        if (transition.currentState == transition.targetState) {
-            visibleEntries.forEach { entry ->
-                composeNavigator.onTransitionComplete(entry)
+        LaunchedEffect(transition.currentState, transition.targetState) {
+            if (transition.currentState == transition.targetState) {
+                visibleEntries.forEach { entry ->
+                    composeNavigator.onTransitionComplete(entry)
+                }
+                zIndices
+                    .filter { it.key != transition.targetState.id }
+                    .forEach { zIndices.remove(it.key) }
             }
-            zIndices
-                .filter { it.key != transition.targetState.id }
-                .forEach { zIndices.remove(it.key) }
         }
     }
 

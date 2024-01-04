@@ -28,7 +28,6 @@ import kotlinx.coroutines.channels.ClosedReceiveChannelException
  * [Session] is implemented by Glance surfaces in order to provide content for the
  * composition and process the results of recomposition.
  *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 abstract class Session(val key: String) {

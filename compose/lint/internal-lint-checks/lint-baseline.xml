@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.2.0-alpha14" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha14)" variant="all" version="8.2.0-alpha14">
+
+    <issue
+        id="LintImplUseUast"
+        message="Don&apos;t call `PsiMember#getContainingClass()`; you should use UAST instead and call `getContainingUClass()`"
+        errorLine1="                        &quot;constructor ${parent.containingClass?.name}&quot;"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/lint/PrimitiveInLambdaDetector.kt"/>
+    </issue>
+
+</issues>

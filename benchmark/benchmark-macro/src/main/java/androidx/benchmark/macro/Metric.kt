@@ -16,7 +16,6 @@
 
 package androidx.benchmark.macro
 
-import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
@@ -190,7 +189,6 @@ class FrameTimingMetric : Metric() {
     override fun start() {}
     override fun stop() {}
 
-    @SuppressLint("SyntheticAccessor")
     override fun getResult(
         captureInfo: CaptureInfo,
         traceSession: PerfettoTraceProcessor.Session
@@ -239,7 +237,6 @@ class StartupTimingMetric : Metric() {
     override fun stop() {
     }
 
-    @SuppressLint("SyntheticAccessor")
     override fun getResult(
         captureInfo: CaptureInfo,
         traceSession: PerfettoTraceProcessor.Session
@@ -435,7 +432,6 @@ class TraceSectionMetric(
     override fun stop() {
     }
 
-    @SuppressLint("SyntheticAccessor")
     override fun getResult(
         captureInfo: CaptureInfo,
         traceSession: PerfettoTraceProcessor.Session

@@ -23,7 +23,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Paragraph
 import androidx.compose.ui.text.SpanStyle
@@ -201,7 +201,10 @@ internal class TextFieldDelegate {
                         textFieldValue,
                         offsetMapping,
                         textLayoutResult.value,
-                        innerTextFieldCoordinates.positionInWindow(),
+                        { matrix ->
+                            innerTextFieldCoordinates.findRootCoordinates()
+                                .transformFrom(innerTextFieldCoordinates, matrix)
+                        },
                         innerTextFieldCoordinates.visibleBounds(),
                         innerTextFieldCoordinates.localBoundingBoxOf(
                             decorationBoxCoordinates,

@@ -56,6 +56,7 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.positionInRoot
@@ -1251,6 +1252,51 @@ class AnimatedContentTest {
 
         assertTrue(box1Disposed)
         assertTrue(box2EnterFinished)
+    }
+
+    /**
+     * This test checks that scaleInToFitContainer and scaleOutToFitContainer handle empty
+     * content correctly.
+     */
+    @Test
+    fun testAnimateToEmptyComposable() {
+        var isEmpty by mutableStateOf(false)
+        var targetSize: IntSize? = null
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                AnimatedContent(targetState = isEmpty,
+                    transitionSpec = {
+                        scaleInToFitContainer() togetherWith scaleOutToFitContainer()
+                    },
+                    modifier = Modifier.layout { measurable, constraints ->
+                        measurable.measure(constraints).run {
+                            if (isLookingAhead) {
+                                targetSize = IntSize(width, height)
+                            }
+                            layout(width, height) {
+                                place(0, 0)
+                            }
+                        }
+                    }
+                ) {
+                    if (!it) {
+                        Box(Modifier.size(200.dp))
+                    }
+                }
+            }
+        }
+        rule.runOnIdle {
+            assertEquals(IntSize(200, 200), targetSize)
+            isEmpty = true
+        }
+
+        rule.runOnIdle {
+            assertEquals(IntSize.Zero, targetSize)
+            isEmpty = !isEmpty
+        }
+        rule.runOnIdle {
+            assertEquals(IntSize(200, 200), targetSize)
+        }
     }
 
     @OptIn(InternalAnimationApi::class)

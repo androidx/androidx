@@ -561,7 +561,6 @@ internal class MockTime(var speed: Double, var minTime: Long, var maxTime: Long)
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@SuppressLint("SyntheticAccessor")
 public class WatchFaceImpl
 @UiThread
 constructor(

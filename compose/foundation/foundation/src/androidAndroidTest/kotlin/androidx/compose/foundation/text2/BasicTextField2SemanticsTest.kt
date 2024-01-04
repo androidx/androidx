@@ -9,8 +9,8 @@ import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.foundation.text.selection.isSelectionHandle
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldState
+import androidx.compose.foundation.text2.input.internal.selection.FakeClipboardManager
 import androidx.compose.foundation.text2.input.placeCursorAtEnd
-import androidx.compose.foundation.text2.selection.FakeClipboardManager
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -166,9 +166,9 @@ class BasicTextField2SemanticsTest {
             BasicTextField2(
                 state = state,
                 modifier = Modifier.testTag(Tag),
-                filter = { _, changes ->
+                inputTransformation = { _, changes ->
                     if (changes.length > 1) {
-                        val newText = changes.asSequence().joinToString("-")
+                        val newText = changes.asCharSequence().asSequence().joinToString("-")
                         changes.replace(0, changes.length, newText)
                     }
                 }
@@ -229,8 +229,9 @@ class BasicTextField2SemanticsTest {
             BasicTextField2(
                 state = state,
                 modifier = Modifier.testTag(Tag),
-                filter = { _, changes ->
-                    changes.replace(0, changes.length, changes.replace(Regex("a"), ""))
+                inputTransformation = { _, changes ->
+                    val newChange = changes.asCharSequence().replace(Regex("a"), "")
+                    changes.replace(0, changes.length, newChange)
                 }
             )
         }
@@ -374,7 +375,7 @@ class BasicTextField2SemanticsTest {
             BasicTextField2(
                 state = state,
                 modifier = Modifier.testTag(Tag),
-                filter = { _, changes ->
+                inputTransformation = { _, changes ->
                     changes.revertAllChanges()
                 }
             )
@@ -509,10 +510,11 @@ class BasicTextField2SemanticsTest {
                 BasicTextField2(
                     state = state,
                     modifier = Modifier.testTag(Tag),
-                    filter = { _, changes ->
+                    inputTransformation = { _, changes ->
                         // remove all 'l' characters
                         if (changes.changes.changeCount != 0) {
-                            changes.replace(0, changes.length, changes.replace(Regex("l"), ""))
+                            val newChange = changes.asCharSequence().replace(Regex("l"), "")
+                            changes.replace(0, changes.length, newChange)
                             changes.placeCursorAtEnd()
                         }
                     }
@@ -588,7 +590,7 @@ class BasicTextField2SemanticsTest {
                 BasicTextField2(
                     state = state,
                     modifier = Modifier.testTag(Tag),
-                    filter = { original, changes ->
+                    inputTransformation = { original, changes ->
                         // reject copy action collapsing the selection
                         if (changes.selectionInChars != original.selectionInChars) {
                             changes.revertAllChanges()
@@ -653,7 +655,7 @@ class BasicTextField2SemanticsTest {
                 BasicTextField2(
                     state = state,
                     modifier = Modifier.testTag(Tag),
-                    filter = { _, changes ->
+                    inputTransformation = { _, changes ->
                         changes.revertAllChanges()
                     }
                 )

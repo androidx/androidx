@@ -307,8 +307,8 @@ internal class AngleMeasurer(val centerX: Float, val centerY: Float) : Measurer 
      */
     override fun measureCubic(c: Cubic) =
         positiveModulo(
-            angle(c.anchorX1 - centerX, c.anchorY1 - centerY) -
-                angle(c.anchorX0 - centerX, c.anchorY0 - centerY),
+            angle(c.anchor1X - centerX, c.anchor1Y - centerY) -
+                angle(c.anchor0X - centerX, c.anchor0Y - centerY),
             TwoPi
         ).let {
             // Avoid an empty cubic to measure almost TwoPi
@@ -316,7 +316,7 @@ internal class AngleMeasurer(val centerX: Float, val centerY: Float) : Measurer 
         }
 
     override fun findCubicCutPoint(c: Cubic, m: Float): Float {
-        val angle0 = angle(c.anchorX0 - centerX, c.anchorY0 - centerY)
+        val angle0 = angle(c.anchor0X - centerX, c.anchor0Y - centerY)
         // TODO: use binary search.
         return findMinimum(0f, 1f, tolerance = 1e-5f) { t ->
             val curvePoint = c.pointOnCurve(t, tempPoint)

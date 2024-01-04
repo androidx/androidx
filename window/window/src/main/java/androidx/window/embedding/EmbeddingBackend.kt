@@ -25,7 +25,6 @@ import androidx.core.util.Consumer
 import java.util.concurrent.Executor
 
 /**
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface EmbeddingBackend {

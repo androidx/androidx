@@ -45,7 +45,6 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
     NavDestination(navGraphNavigator), Iterable<NavDestination> {
 
     public val nodes: SparseArrayCompat<NavDestination> = SparseArrayCompat<NavDestination>()
-        /** @suppress */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         get
     private var startDestId = 0
@@ -62,7 +61,6 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
         }
     }
 
-    /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public override fun matchDeepLink(navDeepLinkRequest: NavDeepLinkRequest): DeepLinkMatch? {
         // First search through any deep links directly added to this NavGraph
@@ -353,7 +351,6 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
         }
 
     public val startDestDisplayName: String
-        /** @suppress */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         get() {
             if (startDestIdName == null) {

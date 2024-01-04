@@ -5,7 +5,6 @@ import androidx.appsearch.app.DocumentClassFactory;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.exceptions.AppSearchException;
 import java.lang.Boolean;
-import java.lang.Byte;
 import java.lang.Class;
 import java.lang.Double;
 import java.lang.Float;
@@ -97,9 +96,6 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
             .build())
           .addProperty(new AppSearchSchema.BytesPropertyConfig.Builder("arrUnboxByteArr")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-            .build())
-          .addProperty(new AppSearchSchema.BytesPropertyConfig.Builder("boxByteArr")
-            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
             .build())
           .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("arrString")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
@@ -312,14 +308,6 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     if (arrUnboxByteArrCopy != null) {
       builder.setPropertyBytes("arrUnboxByteArr", arrUnboxByteArrCopy);
     }
-    Byte[] boxByteArrCopy = document.boxByteArr;
-    if (boxByteArrCopy != null) {
-      byte[] boxByteArrConv = new byte[boxByteArrCopy.length];
-      for (int i = 0 ; i < boxByteArrCopy.length ; i++) {
-        boxByteArrConv[i] = boxByteArrCopy[i];
-      }
-      builder.setPropertyBytes("boxByteArr", boxByteArrConv);
-    }
     String[] arrStringCopy = document.arrString;
     if (arrStringCopy != null) {
       builder.setPropertyString("arrString", arrStringCopy);
@@ -498,14 +486,6 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     }
     boolean[] arrUnboxBooleanConv = genericDoc.getPropertyBooleanArray("arrUnboxBoolean");
     byte[][] arrUnboxByteArrConv = genericDoc.getPropertyBytesArray("arrUnboxByteArr");
-    byte[] boxByteArrCopy = genericDoc.getPropertyBytes("boxByteArr");
-    Byte[] boxByteArrConv = null;
-    if (boxByteArrCopy != null) {
-      boxByteArrConv = new Byte[boxByteArrCopy.length];
-      for (int i = 0; i < boxByteArrCopy.length; i++) {
-        boxByteArrConv[i] = boxByteArrCopy[i];
-      }
-    }
     String[] arrStringConv = genericDoc.getPropertyStringArray("arrString");
     GenericDocument[] arrGiftCopy = genericDoc.getPropertyDocumentArray("arrGift");
     Gift[] arrGiftConv = null;
@@ -582,7 +562,6 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     document.arrBoxBoolean = arrBoxBooleanConv;
     document.arrUnboxBoolean = arrUnboxBooleanConv;
     document.arrUnboxByteArr = arrUnboxByteArrConv;
-    document.boxByteArr = boxByteArrConv;
     document.arrString = arrStringConv;
     document.arrGift = arrGiftConv;
     document.string = stringConv;

@@ -17,11 +17,15 @@
 package androidx.compose.ui.accessibility
 
 import android.view.ViewGroup
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.VerticalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.text.BasicText
@@ -365,6 +369,30 @@ class CollectionInfoTest {
             populateAccessibilityNodeInfoProperties(itemNode)
             Assert.assertEquals(index, info.collectionItemInfo.rowIndex)
         }
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test
+    fun testCollectionInfo_Pager() {
+        val pageCount = 20
+        val horizontalPagerTag = "horizontalPager"
+        val verticalPagerTag = "verticalPager"
+
+        setContent {
+            val state = rememberPagerState { pageCount }
+            HorizontalPager(state = state, Modifier.testTag(horizontalPagerTag)) {}
+            VerticalPager(state = state, Modifier.testTag(verticalPagerTag)) {}
+        }
+
+        var pager = rule.onNodeWithTag(horizontalPagerTag).fetchSemanticsNode()
+        populateAccessibilityNodeInfoProperties(pager)
+
+        Assert.assertEquals(info.collectionInfo.columnCount, pageCount)
+
+        pager = rule.onNodeWithTag(verticalPagerTag).fetchSemanticsNode()
+        populateAccessibilityNodeInfoProperties(pager)
+
+        Assert.assertEquals(info.collectionInfo.rowCount, pageCount)
     }
 
     private fun setContent(content: @Composable () -> Unit) {

@@ -44,15 +44,22 @@ enum class Navigation(val displayName: String, val action: @Composable () -> Uni
     FeaturedCarousel("Featured Carousel", { FeaturedCarouselContent() }),
     ImmersiveList("Immersive List", { ImmersiveListContent() }),
     TextField("Text Field", { TextFieldContent() }),
-    StickyHeader("Sticky Header", { StickyHeaderContent() }),
+    StickyHeader("Sticky Header", { StickyHeaderContent() });
+
+    fun toRouteValue(): String {
+        return "/${displayName.lowercase().replace(' ', '-')}";
+    }
 }
 
 @Composable
 internal fun TopNavigation(
+    initialSelectedTab: Navigation,
     updateSelectedTab: (Navigation) -> Unit = {},
 ) {
-    var selectedTabIndex by remember { mutableStateOf(0) }
     val tabs = Navigation.values().map { it.displayName }
+    var selectedTabIndex by remember {
+        mutableStateOf(Navigation.values().indexOf(initialSelectedTab))
+    }
 
     // Pill indicator
     PillIndicatorTabRow(

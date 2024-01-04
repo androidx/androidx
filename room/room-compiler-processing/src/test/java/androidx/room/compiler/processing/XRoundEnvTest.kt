@@ -297,22 +297,24 @@ class XRoundEnvTest {
             val annotatedElements =
                 testInvocation.roundEnv.getElementsAnnotatedWith(TopLevelAnnotation::class)
             val annotatedParams = annotatedElements.filterIsInstance<XExecutableParameterElement>()
-            val ctorProperty = annotatedParams.first { it.name == "ctorProperty" }
-            assertThat(ctorProperty.enclosingElement).isEqualTo(
-                typeElement.findPrimaryConstructor()
-            )
-            val ctorParam = annotatedParams.first { it.name == "ctorParam" }
-            assertThat(ctorParam.enclosingElement).isEqualTo(
-                typeElement.findPrimaryConstructor()
-            )
-            val setterParam = annotatedParams.first { it.name == "p0" || it.name == "arg0" }
-            assertThat(setterParam.enclosingElement).isEqualTo(
-                typeElement.getDeclaredMethodByJvmName("setProperty")
-            )
-            val methodParam = annotatedParams.first { it.name == "methodParam" }
-            assertThat(methodParam.enclosingElement).isEqualTo(
-                typeElement.getDeclaredMethodByJvmName("method")
-            )
+            assertThat(annotatedParams.map { it.name }).containsExactly(
+                "ctorProperty",
+                "ctorParam",
+                "p0",
+                "methodParam",
+            ).inOrder()
+            assertThat(annotatedParams.map { it.jvmName }).containsExactly(
+                "ctorProperty",
+                "ctorParam",
+                "p0",
+                "methodParam",
+            ).inOrder()
+            assertThat(annotatedParams.map { it.enclosingElement }).containsExactly(
+                typeElement.findPrimaryConstructor(),
+                typeElement.findPrimaryConstructor(),
+                typeElement.getDeclaredMethodByJvmName("setProperty"),
+                typeElement.getDeclaredMethodByJvmName("method"),
+            ).inOrder()
         }
     }
 

@@ -151,24 +151,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     private ViewModelStore mViewModelStore;
     private ViewModelProvider.Factory mDefaultFactory;
 
-    private final OnBackPressedDispatcher mOnBackPressedDispatcher =
-            new OnBackPressedDispatcher(new Runnable() {
-                @SuppressWarnings("deprecation")
-                @Override
-                public void run() {
-                    // Calling onBackPressed() on an Activity with its state saved can cause an
-                    // error on devices on API levels before 26. We catch that specific error
-                    // and throw all others.
-                    try {
-                        ComponentActivity.super.onBackPressed();
-                    } catch (IllegalStateException e) {
-                        if (!TextUtils.equals(e.getMessage(),
-                                "Can not perform this action after onSaveInstanceState")) {
-                            throw e;
-                        }
-                    }
-                }
-            });
+    private OnBackPressedDispatcher mOnBackPressedDispatcher = null;
 
     final ReportFullyDrawnExecutor mReportFullyDrawnExecutor = createFullyDrawnExecutor();
 
@@ -375,11 +358,6 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         mContextAwareHelper.dispatchOnContextAvailable(this);
         super.onCreate(savedInstanceState);
         ReportFragment.injectIfNeededIn(this);
-        if (Build.VERSION.SDK_INT >= 33) {
-            mOnBackPressedDispatcher.setOnBackInvokedDispatcher(
-                    Api33Impl.getOnBackInvokedDispatcher(this)
-            );
-        }
         if (mContentLayoutId != 0) {
             setContentView(mContentLayoutId);
         }
@@ -697,7 +675,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     @CallSuper
     @Deprecated
     public void onBackPressed() {
-        mOnBackPressedDispatcher.onBackPressed();
+        getOnBackPressedDispatcher().onBackPressed();
     }
 
     /**
@@ -708,6 +686,48 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     @NonNull
     @Override
     public final OnBackPressedDispatcher getOnBackPressedDispatcher() {
+        if (mOnBackPressedDispatcher == null) {
+            mOnBackPressedDispatcher = new OnBackPressedDispatcher(new Runnable() {
+                @SuppressWarnings("deprecation")
+                @Override
+                public void run() {
+                    // Calling onBackPressed() on an Activity with its state saved can cause an
+                    // error on devices on API levels before 26. We catch that specific error
+                    // and throw all others.
+                    try {
+                        ComponentActivity.super.onBackPressed();
+                    } catch (IllegalStateException e) {
+                        if (!TextUtils.equals(e.getMessage(),
+                                "Can not perform this action after onSaveInstanceState")) {
+                            throw e;
+                        }
+                    } catch (NullPointerException e) {
+                        if (!TextUtils.equals(e.getMessage(),
+                                "Attempt to invoke virtual method 'android.os.Handler "
+                                        + "android.app.FragmentHostCallback.getHandler()' on a "
+                                        + "null object reference")) {
+                            throw e;
+                        }
+                    }
+                }
+            });
+            getLifecycle().addObserver(new LifecycleEventObserver() {
+                @Override
+                public void onStateChanged(@NonNull LifecycleOwner lifecycleOwner,
+                        @NonNull Lifecycle.Event event) {
+                    if (event == Lifecycle.Event.ON_CREATE) {
+                        if (Build.VERSION.SDK_INT >= 33) {
+                            mOnBackPressedDispatcher.setOnBackInvokedDispatcher(
+                                    Api33Impl.getOnBackInvokedDispatcher(
+                                            (ComponentActivity) lifecycleOwner
+                                    )
+                            );
+                        }
+                    }
+                }
+            });
+
+        }
         return mOnBackPressedDispatcher;
     }
 

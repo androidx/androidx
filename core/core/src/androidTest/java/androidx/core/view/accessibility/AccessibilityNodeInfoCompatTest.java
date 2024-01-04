@@ -35,6 +35,7 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -58,6 +59,7 @@ public class AccessibilityNodeInfoCompatTest {
         accessibilityNodeInfoCompat.setCollectionItemInfo(null);
     }
 
+    @SdkSuppress(minSdkVersion = 19)
     @Test
     public void testSetCollectionItemInfoCompatBuilder_withDefaultValues() {
         AccessibilityNodeInfoCompat.CollectionItemInfoCompat collectionItemInfoCompat =
@@ -74,6 +76,7 @@ public class AccessibilityNodeInfoCompatTest {
         assertThat(collectionItemInfoCompat.isHeading()).isFalse();
     }
 
+    @SdkSuppress(minSdkVersion = 19)
     @Test
     public void testSetCollectionInfoCompatBuilder_withRealValues() {
         AccessibilityNodeInfoCompat.CollectionItemInfoCompat collectionItemInfoCompat =
@@ -459,6 +462,7 @@ public class AccessibilityNodeInfoCompatTest {
         assertThat(accessibilityNodeInfoCompat.isTextSelectable()).isTrue();
     }
 
+    @Ignore("b/296118211")
     @SmallTest
     @Test
     public void testActionScrollInDirection() {

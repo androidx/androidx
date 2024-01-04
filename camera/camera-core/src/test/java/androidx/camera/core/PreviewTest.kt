@@ -131,7 +131,8 @@ class PreviewTest {
         frontCamera = FakeCamera("front", null, FakeCameraInfoInternal(0, LENS_FACING_FRONT))
 
         val cameraFactoryProvider =
-            CameraFactory.Provider { _: Context?, _: CameraThreadConfig?, _: CameraSelector? ->
+            CameraFactory.Provider { _: Context?, _: CameraThreadConfig?,
+                _: CameraSelector?, _: Long? ->
                 val cameraFactory = FakeCameraFactory()
                 cameraFactory.insertDefaultBackCamera(
                     backCamera.cameraInfoInternal.cameraId

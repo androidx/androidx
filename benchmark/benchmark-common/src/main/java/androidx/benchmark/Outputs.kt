@@ -153,6 +153,8 @@ object Outputs {
             .replace(" ", "")
             .replace("(", "[")
             .replace(")", "]")
+            .replace("=", "-") // fix trace copying in AndroidX CI
+            .replace(":", "-") // avoid perm error when writing on API 33
     }
 
     fun testOutputFile(filename: String): File {

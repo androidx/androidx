@@ -310,7 +310,6 @@ public class WorkerWrapper implements Runnable {
             final String workDescription = mWorkDescription;
             mWorkerResultFuture.addListener(new Runnable() {
                 @Override
-                @SuppressLint("SyntheticAccessor")
                 public void run() {
                     try {
                         // If the ListenableWorker returns a null result treat it as a failure.

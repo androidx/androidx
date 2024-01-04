@@ -65,12 +65,12 @@ androidXMultiplatform {
         androidTest {
             dependsOn(commonTest)
             dependencies {
-                implementation("androidx.benchmark:benchmark-junit4:1.1.1")
+                implementation(projectOrArtifact(":benchmark:benchmark-junit4"))
                 implementation(libs.junit)
-                implementation("androidx.test.ext:junit:1.1.5")
-                implementation("androidx.test:core:1.5.0")
-                implementation("androidx.test:runner:1.5.2")
-                implementation("androidx.test:rules:1.5.0")
+                implementation(libs.testExtJunit)
+                implementation(libs.testCore)
+                implementation(libs.testRunner)
+                implementation(libs.testRules)
             }
         }
 
@@ -123,4 +123,7 @@ darwinBenchmark {
 
 android {
     namespace "androidx.collection.benchmark"
+    defaultConfig {
+        minSdkVersion 22 // b/294570164
+    }
 }

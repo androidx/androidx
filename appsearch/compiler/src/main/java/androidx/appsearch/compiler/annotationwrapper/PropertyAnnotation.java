@@ -30,6 +30,10 @@ import androidx.annotation.NonNull;
  * </ul>
  */
 public interface PropertyAnnotation {
+    enum Kind {
+        METADATA_PROPERTY, DATA_PROPERTY
+    }
+
     /**
      * The annotation class' simple name.
      *
@@ -48,4 +52,10 @@ public interface PropertyAnnotation {
     default String getQualifiedClassName() {
         return DOCUMENT_ANNOTATION_CLASS + "." + getSimpleClassName();
     }
+
+    /**
+     * The {@link Kind} of {@link PropertyAnnotation}.
+     */
+    @NonNull
+    Kind getPropertyKind();
 }

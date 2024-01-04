@@ -59,11 +59,13 @@ public class MultiPointerPredictor implements KalmanPredictor {
         int actionIndex = event.getActionIndex();
         int pointerId = event.getPointerId(actionIndex);
         if (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_POINTER_DOWN) {
-            SinglePointerPredictor predictor = new SinglePointerPredictor();
+            SinglePointerPredictor predictor = new SinglePointerPredictor(
+                    pointerId,
+                    event.getToolType(actionIndex)
+            );
             if (mReportRateMs > 0) {
                 predictor.setReportRate(mReportRateMs);
             }
-            predictor.initStrokePrediction(pointerId, event.getToolType(actionIndex));
             predictor.onTouchEvent(event);
             mPredictorMap.put(pointerId, predictor);
         } else if (action == MotionEvent.ACTION_UP) {

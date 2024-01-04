@@ -16,22 +16,24 @@
 
 package androidx.wear.compose.material3.demos
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material3.AppCard
 import androidx.wear.compose.material3.CardDefaults
-import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.ListHeader
-import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.samples.AppCardSample
 import androidx.wear.compose.material3.samples.AppCardWithIconSample
@@ -39,7 +41,6 @@ import androidx.wear.compose.material3.samples.CardSample
 import androidx.wear.compose.material3.samples.OutlinedAppCardSample
 import androidx.wear.compose.material3.samples.OutlinedCardSample
 import androidx.wear.compose.material3.samples.OutlinedTitleCardSample
-import androidx.wear.compose.material3.samples.R
 import androidx.wear.compose.material3.samples.TitleCardSample
 import androidx.wear.compose.material3.samples.TitleCardWithImageSample
 
@@ -56,6 +57,7 @@ fun CardDemo() {
         item { ListHeader { Text("App card") } }
         item { AppCardSample() }
         item { AppCardWithIconSample() }
+        item { AppCardWithImageDemo() }
         item { OutlinedAppCardSample() }
 
         item { ListHeader { Text("Title card") } }
@@ -63,31 +65,28 @@ fun CardDemo() {
         item { OutlinedTitleCardSample() }
 
         item { ListHeader { Text("Image card") } }
-        item {
-            AppCard(
-                onClick = { /* Do something */ },
-                appName = { Text("App name") },
-                appImage = {
-                    Icon(
-                        Icons.Filled.Favorite,
-                        contentDescription = "favourites",
-                        modifier = Modifier.size(CardDefaults.AppImageSize)
-                    )
-                },
-                title = { Text("Card title") },
-                time = { Text("now") },
-                colors = CardDefaults.imageCardColors(
-                    containerPainter = CardDefaults.imageWithScrimBackgroundPainter(
-                        backgroundImagePainter = painterResource(id = R.drawable.backgroundimage)
-                    ),
-                    contentColor = MaterialTheme.colorScheme.onSurface,
-                    titleColor = MaterialTheme.colorScheme.onSurface
-                ),
-                modifier = Modifier.semantics { contentDescription = "Background image" }
-            ) {
-                Text("Card content")
-            }
-        }
         item { TitleCardWithImageSample() }
+    }
+}
+
+@Composable
+private fun AppCardWithImageDemo() {
+    AppCard(
+        onClick = { /* Do something */ },
+        appName = { Text("App name") },
+        appImage = { StandardIcon(CardDefaults.AppImageSize) },
+        title = { Text("With image") },
+        time = { Text("now") },
+    ) {
+        Spacer(Modifier.height(6.dp))
+        Image(
+            modifier = Modifier
+                .padding(end = 28.dp)
+                .aspectRatio(16f / 9f)
+                .clip(RoundedCornerShape(16.dp)),
+            painter = painterResource(id = R.drawable.card_background),
+            contentScale = ContentScale.Crop,
+            contentDescription = null
+        )
     }
 }

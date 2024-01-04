@@ -331,6 +331,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     private var globalPosition: IntOffset = IntOffset(Int.MAX_VALUE, Int.MAX_VALUE)
 
     private val tmpPositionArray = intArrayOf(0, 0)
+    private val tmpMatrix = Matrix()
     private val viewToWindowMatrix = Matrix()
     private val windowToViewMatrix = Matrix()
 
@@ -381,7 +382,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         _inputModeManager.inputMode = if (touchMode) Touch else Keyboard
     }
 
-    private val legacyTextInputServiceAndroid = TextInputServiceAndroid(view)
+    private val legacyTextInputServiceAndroid = TextInputServiceAndroid(view, this)
 
     /**
      * The legacy text input service. This is only used for new text input sessions if
@@ -567,7 +568,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     private val matrixToWindow = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         CalculateMatrixToWindowApi29()
     } else {
-        CalculateMatrixToWindowApi21()
+        CalculateMatrixToWindowApi21(tmpMatrix)
     }
 
     /**
@@ -1610,6 +1611,12 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         )
     }
 
+    override fun localToScreen(localTransform: Matrix) {
+        recalculateWindowPosition()
+        localTransform.timesAssign(viewToWindowMatrix)
+        localTransform.preTranslate(windowPosition.x, windowPosition.y, tmpMatrix)
+    }
+
     override fun screenToLocal(positionOnScreen: Offset): Offset {
         recalculateWindowPosition()
         val x = positionOnScreen.x - windowPosition.x
@@ -2046,6 +2053,15 @@ private fun Matrix.preTransform(other: Matrix) {
     this[3, 3] = v33
 }
 
+/**
+ * Like [android.graphics.Matrix.preTranslate], for a Compose [Matrix]
+ */
+private fun Matrix.preTranslate(x: Float, y: Float, tmpMatrix: Matrix) {
+    tmpMatrix.reset()
+    tmpMatrix.translate(x, y)
+    preTransform(tmpMatrix)
+}
+
 // Taken from Matrix.kt
 private fun dot(m1: Matrix, row: Int, m2: Matrix, column: Int): Float {
     return m1[row, 0] * m2[0, column] +
@@ -2085,9 +2101,9 @@ private class CalculateMatrixToWindowApi29 : CalculateMatrixToWindow {
     }
 }
 
-private class CalculateMatrixToWindowApi21 : CalculateMatrixToWindow {
+private class CalculateMatrixToWindowApi21(private val tmpMatrix: Matrix) :
+    CalculateMatrixToWindow {
     private val tmpLocation = IntArray(2)
-    private val tmpMatrix = Matrix()
 
     override fun calculateMatrixToWindow(view: View, matrix: Matrix) {
         matrix.reset()
@@ -2126,9 +2142,7 @@ private class CalculateMatrixToWindowApi21 : CalculateMatrixToWindow {
      * Like [android.graphics.Matrix.preTranslate], for a Compose [Matrix]
      */
     private fun Matrix.preTranslate(x: Float, y: Float) {
-        tmpMatrix.reset()
-        tmpMatrix.translate(x, y)
-        preTransform(tmpMatrix)
+        preTranslate(x, y, tmpMatrix)
     }
 }
 

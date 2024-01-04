@@ -65,7 +65,6 @@ constructor(
         session: CameraCaptureSessionWrapper,
         surfaceMap: Map<StreamId, Surface>
     ): CaptureSequenceProcessor<*, CaptureSequence<Any>> {
-        @Suppress("SyntheticAccessor")
         return Camera2CaptureSequenceProcessor(
             session,
             threads,
@@ -213,7 +212,6 @@ internal class Camera2CaptureSequenceProcessor(
                     captureRequests.addAll(highSpeedRequestList)
                 }
 
-                @Suppress("SyntheticAccessor")
                 val metadata =
                     Camera2RequestMetadata(
                         session,
@@ -231,7 +229,6 @@ internal class Camera2CaptureSequenceProcessor(
             } else {
                 captureRequests.add(captureRequest)
 
-                @Suppress("SyntheticAccessor")
                 val metadata =
                     Camera2RequestMetadata(
                         session,
@@ -250,7 +247,6 @@ internal class Camera2CaptureSequenceProcessor(
         }
 
         // Create the captureSequence listener
-        @Suppress("SyntheticAccessor")
         return Camera2CaptureSequence(
             session.device.cameraId,
             isRepeating,
@@ -447,7 +443,6 @@ internal class Camera2CaptureSequenceProcessor(
 
 /** This class packages together information about a request that was submitted to the camera. */
 @RequiresApi(21)
-@Suppress("SyntheticAccessor") // Using an inline class generates a synthetic constructor
 internal class Camera2RequestMetadata(
     private val cameraCaptureSessionWrapper: CameraCaptureSessionWrapper,
     private val captureRequest: CaptureRequest,

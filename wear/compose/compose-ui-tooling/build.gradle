@@ -28,6 +28,7 @@ dependencies {
 
     implementation(libs.kotlinStdlibCommon)
     implementation(project(":compose:ui:ui-tooling-preview"))
+    implementation(project(":wear:wear-tooling-preview"))
 
     samples(project(":wear:compose:compose-material-samples"))
 }

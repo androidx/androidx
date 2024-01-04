@@ -106,6 +106,7 @@ import androidx.compose.ui.test.swipeWithVelocity
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -143,17 +144,24 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
             LazyColumnOrRow(Modifier.mainAxisSize(200.dp)) {
                 item {
                     Spacer(
-                        Modifier.mainAxisSize(40.dp)
+                        Modifier
+                            .mainAxisSize(40.dp)
                             .then(fillParentMaxCrossAxis())
                             .testTag(itemTestTag)
                     )
                 }
                 items(items) {
-                    Spacer(Modifier.mainAxisSize(40.dp).then(fillParentMaxCrossAxis()).testTag(it))
+                    Spacer(
+                        Modifier
+                            .mainAxisSize(40.dp)
+                            .then(fillParentMaxCrossAxis())
+                            .testTag(it))
                 }
                 itemsIndexed(indexedItems) { index, item ->
                     Spacer(
-                        Modifier.mainAxisSize(41.dp).then(fillParentMaxCrossAxis())
+                        Modifier
+                            .mainAxisSize(41.dp)
+                            .then(fillParentMaxCrossAxis())
                             .testTag("$index-$item")
                     )
                 }
@@ -187,7 +195,10 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
             LazyColumnOrRow {
                 items(emptyList<Any>()) { }
                 item {
-                    Spacer(Modifier.size(10.dp).testTag(itemTag))
+                    Spacer(
+                        Modifier
+                            .size(10.dp)
+                            .testTag(itemTag))
                 }
             }
         }
@@ -206,13 +217,16 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
                 items(items) {
                     if (it != null) {
                         Spacer(
-                            Modifier.mainAxisSize(101.dp)
+                            Modifier
+                                .mainAxisSize(101.dp)
                                 .then(fillParentMaxCrossAxis())
                                 .testTag(it)
                         )
                     } else {
                         Spacer(
-                            Modifier.mainAxisSize(101.dp).then(fillParentMaxCrossAxis())
+                            Modifier
+                                .mainAxisSize(101.dp)
+                                .then(fillParentMaxCrossAxis())
                                 .testTag(nullTestTag)
                         )
                     }
@@ -239,7 +253,10 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
                 LazyColumnOrRow(beyondBoundsItemCount = 0) {
                     items(items) {
                         Spacer(
-                            Modifier.mainAxisSize(101.dp).then(fillParentMaxCrossAxis()).testTag(it)
+                            Modifier
+                                .mainAxisSize(101.dp)
+                                .then(fillParentMaxCrossAxis())
+                                .testTag(it)
                         )
                     }
                 }
@@ -268,7 +285,10 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
                 LazyColumnOrRow(beyondBoundsItemCount = 1) {
                     items(items) {
                         Spacer(
-                            Modifier.mainAxisSize(101.dp).then(fillParentMaxCrossAxis()).testTag(it)
+                            Modifier
+                                .mainAxisSize(101.dp)
+                                .then(fillParentMaxCrossAxis())
+                                .testTag(it)
                         )
                     }
                 }
@@ -297,7 +317,10 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
                 LazyColumnOrRow(Modifier.testTag(LazyListTag)) {
                     items(items) {
                         Spacer(
-                            Modifier.mainAxisSize(101.dp).then(fillParentMaxCrossAxis()).testTag(it)
+                            Modifier
+                                .mainAxisSize(101.dp)
+                                .then(fillParentMaxCrossAxis())
+                                .testTag(it)
                         )
                     }
                 }
@@ -329,7 +352,10 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
                 LazyColumnOrRow(Modifier.testTag(LazyListTag)) {
                     items(items) {
                         Spacer(
-                            Modifier.mainAxisSize(101.dp).then(fillParentMaxCrossAxis()).testTag(it)
+                            Modifier
+                                .mainAxisSize(101.dp)
+                                .then(fillParentMaxCrossAxis())
+                                .testTag(it)
                         )
                     }
                 }
@@ -358,7 +384,10 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
                 LazyColumnOrRow(Modifier.testTag(LazyListTag)) {
                     items(items) {
                         Spacer(
-                            Modifier.mainAxisSize(101.dp).then(fillParentMaxCrossAxis()).testTag(it)
+                            Modifier
+                                .mainAxisSize(101.dp)
+                                .then(fillParentMaxCrossAxis())
+                                .testTag(it)
                         )
                     }
                 }
@@ -392,13 +421,19 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
                 LazyColumnOrRow(Modifier.testTag(LazyListTag)) {
                     items(listOf(1, 2)) {
                         if (it == 1) {
-                            Spacer(Modifier.size(50.dp).testTag(itemInsideLazyList))
+                            Spacer(
+                                Modifier
+                                    .size(50.dp)
+                                    .testTag(itemInsideLazyList))
                         } else {
                             Spacer(Modifier.size(if (sameSizeItems) 50.dp else 70.dp))
                         }
                     }
                 }
-                Spacer(Modifier.size(50.dp).testTag(itemOutsideLazyList))
+                Spacer(
+                    Modifier
+                        .size(50.dp)
+                        .testTag(itemOutsideLazyList))
             }
         }
 
@@ -448,7 +483,10 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
 
         rule.setContentWithTestViewConfiguration {
             // Fixed size to eliminate device size as a factor
-            Box(Modifier.testTag(LazyListTag).mainAxisSize(300.dp)) {
+            Box(
+                Modifier
+                    .testTag(LazyListTag)
+                    .mainAxisSize(300.dp)) {
                 LazyColumnOrRow(Modifier.fillMaxSize()) {
                     items(50) {
                         DisposableEffect(NeverEqualObject) {
@@ -499,19 +537,24 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
 
         rule.setContentWithTestViewConfiguration {
             LazyColumnOrRow(
-                Modifier.fillMaxCrossAxis()
+                Modifier
+                    .fillMaxCrossAxis()
                     .mainAxisSize(100.dp)
                     .testTag(LazyListTag)
             ) {
                 items(items) {
                     if (it == 3) {
                         Spacer(
-                            Modifier.testTag(thirdTag)
+                            Modifier
+                                .testTag(thirdTag)
                                 .then(fillParentMaxCrossAxis())
                                 .mainAxisSize(if (thirdHasSize) 60.dp else 0.dp)
                         )
                     } else {
-                        Spacer(Modifier.then(fillParentMaxCrossAxis()).mainAxisSize(60.dp))
+                        Spacer(
+                            Modifier
+                                .then(fillParentMaxCrossAxis())
+                                .mainAxisSize(60.dp))
                     }
                 }
             }
@@ -543,7 +586,10 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
             LazyColumnOrRow(Modifier.requiredSize(width = 100.dp, height = 150.dp)) {
                 items(listOf(0)) {
                     Spacer(
-                        Modifier.fillParentMaxWidth().requiredHeight(50.dp).testTag(firstItemTag)
+                        Modifier
+                            .fillParentMaxWidth()
+                            .requiredHeight(50.dp)
+                            .testTag(firstItemTag)
                     )
                 }
             }
@@ -560,7 +606,10 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
             LazyColumnOrRow(Modifier.requiredSize(width = 100.dp, height = 150.dp)) {
                 items(listOf(0)) {
                     Spacer(
-                        Modifier.requiredWidth(50.dp).fillParentMaxHeight().testTag(firstItemTag)
+                        Modifier
+                            .requiredWidth(50.dp)
+                            .fillParentMaxHeight()
+                            .testTag(firstItemTag)
                     )
                 }
             }
@@ -595,7 +644,8 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
             LazyColumnOrRow(Modifier.requiredSize(width = 100.dp, height = 150.dp)) {
                 items(listOf(0)) {
                     Spacer(
-                        Modifier.fillParentMaxWidth(0.7f)
+                        Modifier
+                            .fillParentMaxWidth(0.7f)
                             .requiredHeight(50.dp)
                             .testTag(firstItemTag)
                     )
@@ -614,7 +664,8 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
             LazyColumnOrRow(Modifier.requiredSize(width = 100.dp, height = 150.dp)) {
                 items(listOf(0)) {
                     Spacer(
-                        Modifier.requiredWidth(50.dp)
+                        Modifier
+                            .requiredWidth(50.dp)
                             .fillParentMaxHeight(0.3f)
                             .testTag(firstItemTag)
                     )
@@ -669,12 +720,55 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
     }
 
     @Test
+    fun itemFillingParentSizeParentRecomposed_noRemeasureOnReuse() {
+        var counter = 0
+        val modifier = Modifier.layout { measurable, constraints ->
+            counter++
+            val placeable = measurable.measure(constraints)
+            layout(placeable.width, placeable.height) {
+                placeable.place(IntOffset.Zero)
+            }
+        }
+
+        lateinit var state: LazyListState
+        rule.setContentWithTestViewConfiguration {
+            state = rememberLazyListState()
+            LazyColumnOrRow(state = state) {
+                items(2) {
+                    Spacer(
+                        Modifier
+                            .fillParentMaxSize()
+                            .run {
+                                then(if (it == 0) modifier else Modifier)
+                            }
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            runBlocking {
+                state.scrollToItem(1)
+                state.scrollToItem(0)
+            }
+        }
+
+        assertThat(counter).isEqualTo(1)
+    }
+
+    @Test
     fun whenNotAnymoreAvailableItemWasDisplayed() {
         var items by mutableStateOf((1..30).toList())
         rule.setContentWithTestViewConfiguration {
-            LazyColumnOrRow(Modifier.requiredSize(100.dp).testTag(LazyListTag)) {
+            LazyColumnOrRow(
+                Modifier
+                    .requiredSize(100.dp)
+                    .testTag(LazyListTag)) {
                 items(items) {
-                    Spacer(Modifier.requiredSize(20.dp).testTag("$it"))
+                    Spacer(
+                        Modifier
+                            .requiredSize(20.dp)
+                            .testTag("$it"))
                 }
             }
         }
@@ -696,9 +790,15 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
     fun whenFewDisplayedItemsWereRemoved() {
         var items by mutableStateOf((1..10).toList())
         rule.setContentWithTestViewConfiguration {
-            LazyColumnOrRow(Modifier.requiredSize(100.dp).testTag(LazyListTag)) {
+            LazyColumnOrRow(
+                Modifier
+                    .requiredSize(100.dp)
+                    .testTag(LazyListTag)) {
                 items(items) {
-                    Spacer(Modifier.requiredSize(20.dp).testTag("$it"))
+                    Spacer(
+                        Modifier
+                            .requiredSize(20.dp)
+                            .testTag("$it"))
                 }
             }
         }
@@ -721,11 +821,15 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         var items by mutableStateOf((1..10).toList())
         rule.setContentWithTestViewConfiguration {
             LazyColumnOrRow(
-                Modifier.requiredSizeIn(maxHeight = 100.dp, maxWidth = 100.dp)
+                Modifier
+                    .requiredSizeIn(maxHeight = 100.dp, maxWidth = 100.dp)
                     .testTag(LazyListTag)
             ) {
                 items(items) {
-                    Spacer(Modifier.requiredSize(20.dp).testTag("$it"))
+                    Spacer(
+                        Modifier
+                            .requiredSize(20.dp)
+                            .testTag("$it"))
                 }
             }
         }
@@ -754,9 +858,15 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
     fun scrollBackAndForth() {
         val items by mutableStateOf((1..20).toList())
         rule.setContentWithTestViewConfiguration {
-            LazyColumnOrRow(Modifier.requiredSize(100.dp).testTag(LazyListTag)) {
+            LazyColumnOrRow(
+                Modifier
+                    .requiredSize(100.dp)
+                    .testTag(LazyListTag)) {
                 items(items) {
-                    Spacer(Modifier.requiredSize(20.dp).testTag("$it"))
+                    Spacer(
+                        Modifier
+                            .requiredSize(20.dp)
+                            .testTag("$it"))
                 }
             }
         }
@@ -777,9 +887,15 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
     fun tryToScrollBackwardWhenAlreadyOnTop() {
         val items by mutableStateOf((1..20).toList())
         rule.setContentWithTestViewConfiguration {
-            LazyColumnOrRow(Modifier.requiredSize(100.dp).testTag(LazyListTag)) {
+            LazyColumnOrRow(
+                Modifier
+                    .requiredSize(100.dp)
+                    .testTag(LazyListTag)) {
                 items(items) {
-                    Spacer(Modifier.requiredSize(20.dp).testTag("$it"))
+                    Spacer(
+                        Modifier
+                            .requiredSize(20.dp)
+                            .testTag("$it"))
                 }
             }
         }
@@ -800,7 +916,10 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         var firstItemRecomposed = 0
         var secondItemRecomposed = 0
         rule.setContentWithTestViewConfiguration {
-            LazyColumnOrRow(Modifier.requiredSize(100.dp).testTag(LazyListTag)) {
+            LazyColumnOrRow(
+                Modifier
+                    .requiredSize(100.dp)
+                    .testTag(LazyListTag)) {
                 items(items) {
                     if (it.count == 1) {
                         firstItemRecomposed++
@@ -834,11 +953,16 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
             state = rememberLazyListState()
             state.prefetchingEnabled = false
             LazyColumnOrRow(
-                Modifier.requiredSize(100.dp).testTag(LazyListTag),
+                Modifier
+                    .requiredSize(100.dp)
+                    .testTag(LazyListTag),
                 state = state
             ) {
                 items(items) {
-                    Spacer(Modifier.requiredSize(20.dp).testTag("$it"))
+                    Spacer(
+                        Modifier
+                            .requiredSize(20.dp)
+                            .testTag("$it"))
                 }
             }
         }
@@ -863,11 +987,16 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         rule.setContent {
             state = rememberLazyListState()
             LazyColumnOrRow(
-                Modifier.requiredSize(100.dp).testTag(LazyListTag),
+                Modifier
+                    .requiredSize(100.dp)
+                    .testTag(LazyListTag),
                 state = state
             ) {
                 items(items) {
-                    Spacer(Modifier.requiredSize(20.dp).testTag("$it"))
+                    Spacer(
+                        Modifier
+                            .requiredSize(20.dp)
+                            .testTag("$it"))
                 }
             }
         }
@@ -884,11 +1013,16 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         rule.setContentWithTestViewConfiguration {
             state = rememberLazyListState()
             LazyColumnOrRow(
-                Modifier.requiredSize(100.dp).testTag(LazyListTag),
+                Modifier
+                    .requiredSize(100.dp)
+                    .testTag(LazyListTag),
                 state = state
             ) {
                 items(items) {
-                    Spacer(Modifier.requiredSize(20.dp).testTag("$it"))
+                    Spacer(
+                        Modifier
+                            .requiredSize(20.dp)
+                            .testTag("$it"))
                 }
             }
         }
@@ -921,11 +1055,16 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         rule.setContentWithTestViewConfiguration {
             state = rememberLazyListState()
             LazyColumnOrRow(
-                Modifier.requiredSize(100.dp).testTag(LazyListTag),
+                Modifier
+                    .requiredSize(100.dp)
+                    .testTag(LazyListTag),
                 state = state
             ) {
                 items(items) {
-                    Spacer(Modifier.requiredSize(20.dp).testTag("$it"))
+                    Spacer(
+                        Modifier
+                            .requiredSize(20.dp)
+                            .testTag("$it"))
                 }
             }
         }
@@ -948,9 +1087,15 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
     fun scroll_makeListSmaller_scroll() {
         var items by mutableStateOf((1..100).toList())
         rule.setContentWithTestViewConfiguration {
-            LazyColumnOrRow(Modifier.requiredSize(100.dp).testTag(LazyListTag)) {
+            LazyColumnOrRow(
+                Modifier
+                    .requiredSize(100.dp)
+                    .testTag(LazyListTag)) {
                 items(items) {
-                    Spacer(Modifier.requiredSize(10.dp).testTag("$it"))
+                    Spacer(
+                        Modifier
+                            .requiredSize(10.dp)
+                            .testTag("$it"))
                 }
             }
         }
@@ -978,11 +1123,16 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         rule.setContentWithTestViewConfiguration {
             state = rememberLazyListState(2, expectedOffset)
             LazyColumnOrRow(
-                Modifier.requiredSize(100.dp).testTag(LazyListTag),
+                Modifier
+                    .requiredSize(100.dp)
+                    .testTag(LazyListTag),
                 state = state
             ) {
                 items(items) {
-                    Spacer(Modifier.requiredSize(20.dp).testTag("$it"))
+                    Spacer(
+                        Modifier
+                            .requiredSize(20.dp)
+                            .testTag("$it"))
                 }
             }
         }
@@ -1003,11 +1153,16 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         restorationTester.setContent {
             state = rememberLazyListState()
             LazyColumnOrRow(
-                Modifier.requiredSize(100.dp).testTag(LazyListTag),
+                Modifier
+                    .requiredSize(100.dp)
+                    .testTag(LazyListTag),
                 state = state!!
             ) {
                 items(20) {
-                    Spacer(Modifier.requiredSize(20.dp).testTag("$it"))
+                    Spacer(
+                        Modifier
+                            .requiredSize(20.dp)
+                            .testTag("$it"))
                 }
             }
         }
@@ -1035,11 +1190,16 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         rule.setContentWithTestViewConfiguration {
             state = rememberLazyListState()
             LazyColumnOrRow(
-                Modifier.requiredSize(100.dp).testTag(LazyListTag),
+                Modifier
+                    .requiredSize(100.dp)
+                    .testTag(LazyListTag),
                 state = state
             ) {
                 items(20) {
-                    Spacer(Modifier.requiredSize(20.dp).testTag("$it"))
+                    Spacer(
+                        Modifier
+                            .requiredSize(20.dp)
+                            .testTag("$it"))
                 }
             }
         }
@@ -1059,12 +1219,15 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         val redrawCount = Array(6) { 0 }
         rule.setContentWithTestViewConfiguration {
             LazyColumnOrRow(
-                modifier = Modifier.requiredSize(100.dp).testTag(LazyListTag),
+                modifier = Modifier
+                    .requiredSize(100.dp)
+                    .testTag(LazyListTag),
                 beyondBoundsItemCount = 0
             ) {
                 items(items) {
                     Spacer(
-                        Modifier.requiredSize(20.dp)
+                        Modifier
+                            .requiredSize(20.dp)
                             .drawBehind { redrawCount[it]++ }
                     )
                 }
@@ -1089,12 +1252,15 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         val redrawCount = Array(6 + beyondBoundsItemCount) { 0 }
         rule.setContentWithTestViewConfiguration {
             LazyColumnOrRow(
-                modifier = Modifier.requiredSize(100.dp).testTag(LazyListTag),
+                modifier = Modifier
+                    .requiredSize(100.dp)
+                    .testTag(LazyListTag),
                 beyondBoundsItemCount = beyondBoundsItemCount
             ) {
                 items(items) {
                     Spacer(
-                        Modifier.requiredSize(20.dp)
+                        Modifier
+                            .requiredSize(20.dp)
                             .drawBehind { redrawCount[it]++ }
                     )
                 }
@@ -1117,10 +1283,14 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         val redrawCount = Array(2) { 0 }
         var stateUsedInDrawScope by mutableStateOf(false)
         rule.setContentWithTestViewConfiguration {
-            LazyColumnOrRow(Modifier.requiredSize(100.dp).testTag(LazyListTag)) {
+            LazyColumnOrRow(
+                Modifier
+                    .requiredSize(100.dp)
+                    .testTag(LazyListTag)) {
                 items(2) {
                     Spacer(
-                        Modifier.requiredSize(50.dp)
+                        Modifier
+                            .requiredSize(50.dp)
                             .drawBehind {
                                 redrawCount[it]++
                                 if (it == 1) {
@@ -1151,15 +1321,21 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         lateinit var state: LazyListState
         rule.setContentWithTestViewConfiguration {
             LazyColumnOrRow(
-                Modifier.mainAxisSize(itemSizeMinusOne).testTag(LazyListTag),
+                Modifier
+                    .mainAxisSize(itemSizeMinusOne)
+                    .testTag(LazyListTag),
                 state = rememberLazyListState().also { state = it }
             ) {
                 items(2) {
                     Spacer(
                         if (it == 0) {
-                            Modifier.crossAxisSize(30.dp).mainAxisSize(itemSizeMinusOne)
+                            Modifier
+                                .crossAxisSize(30.dp)
+                                .mainAxisSize(itemSizeMinusOne)
                         } else {
-                            Modifier.crossAxisSize(20.dp).mainAxisSize(itemSize)
+                            Modifier
+                                .crossAxisSize(20.dp)
+                                .mainAxisSize(itemSize)
                         }
                     )
                 }
@@ -1179,17 +1355,25 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         lateinit var state: LazyListState
         rule.setContentWithTestViewConfiguration {
             LazyColumnOrRow(
-                Modifier.mainAxisSize(itemSize * 1.75f).testTag(LazyListTag),
+                Modifier
+                    .mainAxisSize(itemSize * 1.75f)
+                    .testTag(LazyListTag),
                 state = rememberLazyListState().also { state = it }
             ) {
                 items(items) {
                     Spacer(
                         if (it == 0) {
-                            Modifier.crossAxisSize(30.dp).mainAxisSize(itemSize / 2)
+                            Modifier
+                                .crossAxisSize(30.dp)
+                                .mainAxisSize(itemSize / 2)
                         } else if (it == 1) {
-                            Modifier.crossAxisSize(20.dp).mainAxisSize(itemSize / 2)
+                            Modifier
+                                .crossAxisSize(20.dp)
+                                .mainAxisSize(itemSize / 2)
                         } else {
-                            Modifier.crossAxisSize(20.dp).mainAxisSize(itemSize)
+                            Modifier
+                                .crossAxisSize(20.dp)
+                                .mainAxisSize(itemSize)
                         }
                     )
                 }
@@ -1211,7 +1395,10 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         rule.setContentWithTestViewConfiguration {
             LazyColumnOrRow {
                 items(items) {
-                    Spacer(Modifier.requiredSize(itemSize).testTag(it))
+                    Spacer(
+                        Modifier
+                            .requiredSize(itemSize)
+                            .testTag(it))
                 }
             }
         }
@@ -1235,7 +1422,10 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         rule.setContentWithTestViewConfiguration {
             LazyColumnOrRow {
                 itemsIndexed(items) { index, item ->
-                    Spacer(Modifier.requiredSize(itemSize).testTag("$index*$item"))
+                    Spacer(
+                        Modifier
+                            .requiredSize(itemSize)
+                            .testTag("$index*$item"))
                 }
             }
         }
@@ -1257,7 +1447,10 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         val composedIndexes = mutableListOf<Int>()
         rule.setContent {
             state = rememberLazyListState()
-            LazyColumnOrRow(Modifier.fillMaxCrossAxis().mainAxisSize(10.dp), state) {
+            LazyColumnOrRow(
+                Modifier
+                    .fillMaxCrossAxis()
+                    .mainAxisSize(10.dp), state) {
                 items(count) { index ->
                     composedIndexes.add(index)
                     Box(Modifier.size(20.dp))
@@ -1346,7 +1539,11 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
     @Test
     fun doesNotClipHorizontalOverdraw() {
         rule.setContent {
-            Box(Modifier.size(60.dp).testTag("container").background(Color.Gray)) {
+            Box(
+                Modifier
+                    .size(60.dp)
+                    .testTag("container")
+                    .background(Color.Gray)) {
                 LazyColumnOrRow(
                     Modifier
                         .padding(20.dp)
@@ -1354,7 +1551,10 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
                     rememberLazyListState(1)
                 ) {
                     items(4) {
-                        Box(Modifier.size(20.dp).drawOutsideOfBounds())
+                        Box(
+                            Modifier
+                                .size(20.dp)
+                                .drawOutsideOfBounds())
                     }
                 }
             }
@@ -1494,7 +1694,10 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         lateinit var state: LazyListState
         rule.setContent {
             state = rememberLazyListState()
-            LazyColumnOrRow(Modifier.crossAxisSize(150.dp).mainAxisSize(100.dp), state) {
+            LazyColumnOrRow(
+                Modifier
+                    .crossAxisSize(150.dp)
+                    .mainAxisSize(100.dp), state) {
                 items(20) {
                     Box(Modifier.size(150.dp))
                 }
@@ -1595,7 +1798,10 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
                 state = LazyListState(firstVisibleItemIndex = Int.MAX_VALUE - 3)
             ) {
                 items(Int.MAX_VALUE) {
-                    Box(Modifier.size(itemSize).testTag("$it"))
+                    Box(
+                        Modifier
+                            .size(itemSize)
+                            .testTag("$it"))
                 }
             }
         }
@@ -1641,7 +1847,9 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
             ) {
                 items(5) {
                     Spacer(
-                        Modifier.size(itemSize).testTag("$it")
+                        Modifier
+                            .size(itemSize)
+                            .testTag("$it")
                     )
                 }
             }
@@ -1663,11 +1871,16 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         val itemSize = with(rule.density) { 30.toDp() }
         rule.setContentWithTestViewConfiguration {
             LazyColumnOrRow(
-                Modifier.mainAxisSize(itemSize * 3).testTag(LazyListTag),
+                Modifier
+                    .mainAxisSize(itemSize * 3)
+                    .testTag(LazyListTag),
                 userScrollEnabled = true,
             ) {
                 items(5) {
-                    Spacer(Modifier.size(itemSize).testTag("$it"))
+                    Spacer(
+                        Modifier
+                            .size(itemSize)
+                            .testTag("$it"))
                 }
             }
         }
@@ -1683,11 +1896,16 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         val itemSize = with(rule.density) { 30.toDp() }
         rule.setContentWithTestViewConfiguration {
             LazyColumnOrRow(
-                Modifier.mainAxisSize(itemSize * 3).testTag(LazyListTag),
+                Modifier
+                    .mainAxisSize(itemSize * 3)
+                    .testTag(LazyListTag),
                 userScrollEnabled = false,
             ) {
                 items(5) {
-                    Spacer(Modifier.size(itemSize).testTag("$it"))
+                    Spacer(
+                        Modifier
+                            .size(itemSize)
+                            .testTag("$it"))
                 }
             }
         }
@@ -1709,7 +1927,10 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
                 userScrollEnabled = false,
             ) {
                 items(5) {
-                    Spacer(Modifier.size(itemSize).testTag("$it"))
+                    Spacer(
+                        Modifier
+                            .size(itemSize)
+                            .testTag("$it"))
                 }
             }
         }
@@ -1725,11 +1946,16 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         val itemSize = with(rule.density) { 30.toDp() }
         rule.setContentWithTestViewConfiguration {
             LazyColumnOrRow(
-                Modifier.mainAxisSize(itemSize * 3).testTag(LazyListTag),
+                Modifier
+                    .mainAxisSize(itemSize * 3)
+                    .testTag(LazyListTag),
                 userScrollEnabled = false,
             ) {
                 items(5) {
-                    Spacer(Modifier.size(itemSize).testTag("$it"))
+                    Spacer(
+                        Modifier
+                            .size(itemSize)
+                            .testTag("$it"))
                 }
             }
         }
@@ -1761,7 +1987,10 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
             ) {
                 items(4) {
                     if (it != 1) {
-                        Box(Modifier.size(itemSize).testTag(it.toString()))
+                        Box(
+                            Modifier
+                                .size(itemSize)
+                                .testTag(it.toString()))
                     }
                 }
             }
@@ -1843,7 +2072,10 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
                         .background(Color.Black))
                 }
                 items(10) {
-                    Box(Modifier.background(Color.Red).fillMaxWidth()) {
+                    Box(
+                        Modifier
+                            .background(Color.Red)
+                            .fillMaxWidth()) {
                         BasicText(text = it.toString())
                     }
                 }
@@ -1952,7 +2184,9 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         rule.setContentWithTestViewConfiguration {
             state = rememberLazyListState()
             LazyColumnOrRow(
-                Modifier.testTag(LazyListTag).mainAxisSize(100.dp),
+                Modifier
+                    .testTag(LazyListTag)
+                    .mainAxisSize(100.dp),
                 state
             ) {
                 items(1000) {
@@ -1990,7 +2224,9 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
     fun zIndexOnItemAffectsDrawingOrder() {
         rule.setContentWithTestViewConfiguration {
             LazyColumnOrRow(
-                Modifier.size(6.dp).testTag(LazyListTag)
+                Modifier
+                    .size(6.dp)
+                    .testTag(LazyListTag)
             ) {
                 items(listOf(Color.Blue, Color.Green, Color.Red)) { color ->
                     Box(
@@ -2021,13 +2257,18 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
                 val state = rememberLazyListState()
                 LazyColumnOrRow(
                     state = state,
-                    modifier = Modifier.mainAxisSize(100.dp).fillMaxCrossAxis()
+                    modifier = Modifier
+                        .mainAxisSize(100.dp)
+                        .fillMaxCrossAxis()
                 ) {
                     items(20) {
                         val tag = it.toString()
                         BasicText(
                             text = tag,
-                            modifier = Modifier.mainAxisSize(30.dp).fillMaxCrossAxis().testTag(tag)
+                            modifier = Modifier
+                                .mainAxisSize(30.dp)
+                                .fillMaxCrossAxis()
+                                .testTag(tag)
                         )
                     }
                 }
@@ -2047,13 +2288,18 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
             val state = rememberLazyListState()
             LazyColumnOrRow(
                 state = state,
-                modifier = Modifier.mainAxisSize(100.dp).fillMaxCrossAxis()
+                modifier = Modifier
+                    .mainAxisSize(100.dp)
+                    .fillMaxCrossAxis()
             ) {
                 items(20) {
                     val tag = it.toString()
                     BasicText(
                         text = tag,
-                        modifier = Modifier.mainAxisSize(30.dp).fillMaxCrossAxis().testTag(tag)
+                        modifier = Modifier
+                            .mainAxisSize(30.dp)
+                            .fillMaxCrossAxis()
+                            .testTag(tag)
                     )
                 }
             }
@@ -2861,7 +3107,10 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
                 state = state
             ) {
                 items(3) { index ->
-                    Box(fillParentMaxMainAxis().crossAxisSize(1.dp).testTag("$index"))
+                    Box(
+                        fillParentMaxMainAxis()
+                            .crossAxisSize(1.dp)
+                            .testTag("$index"))
                 }
             }
         }

@@ -28,7 +28,6 @@ import kotlin.collections.joinToString
 import kotlin.collections.map
 import kotlin.collections.mutableMapOf
 import kotlin.collections.plusAssign
-import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmStatic
 
 /**
@@ -52,16 +51,10 @@ public interface CommonExecutionStatus : ExecutionStatus {
   public override fun toBuilder(): Builder<*>
 
   public companion object {
-    /**
-     * Returns a default implementation of [Builder].
-     *
-     * Has the specified [identifier] and [namespace] and no other properties set.
-     */
+    /** Returns a default implementation of [Builder]. */
     @JvmStatic
-    @JvmOverloads
     @Document.BuilderProducer
-    public fun Builder(identifier: String = "", namespace: String = ""): Builder<*> =
-      CommonExecutionStatusImpl.Builder().setIdentifier(identifier).setNamespace(namespace)
+    public fun Builder(): Builder<*> = CommonExecutionStatusImpl.Builder()
   }
 
   /**
@@ -81,6 +74,10 @@ public interface CommonExecutionStatus : ExecutionStatus {
  *
  * Allows for extension like:
  * ```kt
+ * @Document(
+ *   name = "MyCommonExecutionStatus",
+ *   parent = [CommonExecutionStatus::class],
+ * )
  * class MyCommonExecutionStatus internal constructor(
  *   commonExecutionStatus: CommonExecutionStatus,
  *   val foo: String,
@@ -89,6 +86,8 @@ public interface CommonExecutionStatus : ExecutionStatus {
  *   MyCommonExecutionStatus,
  *   MyCommonExecutionStatus.Builder
  * >(commonExecutionStatus) {
+ *
+ *   // No need to implement equals(), hashCode(), toString() or toBuilder()
  *
  *   override val selfTypeName =
  *     "MyCommonExecutionStatus"
@@ -177,12 +176,16 @@ internal constructor(
 
   public final override fun toString(): String {
     val attributes = mutableMapOf<String, String>()
-    attributes["namespace"] = namespace
+    if (namespace.isNotEmpty()) {
+      attributes["namespace"] = namespace
+    }
     if (disambiguatingDescription != null) {
       attributes["disambiguatingDescription"] =
         disambiguatingDescription.toString(includeWrapperName = false)
     }
-    attributes["identifier"] = identifier
+    if (identifier.isNotEmpty()) {
+      attributes["identifier"] = identifier
+    }
     if (name != null) {
       attributes["name"] = name.toString(includeWrapperName = false)
     }
@@ -202,10 +205,13 @@ internal constructor(
    *     MyCommonExecutionStatus.Builder>(...) {
    *
    *   class Builder
-   *   : Builder<
+   *   : AbstractCommonExecutionStatus.Builder<
    *       Builder,
    *       MyCommonExecutionStatus
    *   >() {
+   *
+   *     // No need to implement equals(), hashCode(), toString() or build()
+   *
    *     private var foo: String? = null
    *     private val bars = mutableListOf<Int>()
    *
@@ -329,12 +335,16 @@ internal constructor(
     @Suppress("BuilderSetStyle")
     public final override fun toString(): String {
       val attributes = mutableMapOf<String, String>()
-      attributes["namespace"] = namespace
+      if (namespace.isNotEmpty()) {
+        attributes["namespace"] = namespace
+      }
       if (disambiguatingDescription != null) {
         attributes["disambiguatingDescription"] =
           disambiguatingDescription!!.toString(includeWrapperName = false)
       }
-      attributes["identifier"] = identifier
+      if (identifier.isNotEmpty()) {
+        attributes["identifier"] = identifier
+      }
       if (name != null) {
         attributes["name"] = name!!.toString(includeWrapperName = false)
       }

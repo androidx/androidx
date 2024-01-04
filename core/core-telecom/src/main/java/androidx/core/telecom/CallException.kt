@@ -32,7 +32,7 @@ class CallException(
     }
 
     companion object {
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(ERROR_UNKNOWN_CODE, ERROR_CALLBACKS_CODE)
         annotation class CallErrorCode

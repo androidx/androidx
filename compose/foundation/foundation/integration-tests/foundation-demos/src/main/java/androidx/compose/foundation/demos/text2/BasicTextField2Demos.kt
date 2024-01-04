@@ -35,6 +35,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.Checkbox
 import androidx.compose.material.LocalTextStyle
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -46,7 +47,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -94,6 +98,55 @@ fun BasicTextField2Demos() {
         TagLine(tag = "BasicTextField2 Edit Controls")
         BasicTextField2EditControls()
     }
+}
+
+@Composable
+fun BasicTextField2ValueCallbackDemo() {
+    Column(
+        Modifier
+            .imePadding()
+            .verticalScroll(rememberScrollState())
+    ) {
+        TagLine("Simple string-only")
+        SimpleValueCallbackDemo()
+
+        TagLine("Simple TextFieldValue")
+        SimpleTextFieldValueCallbackDemo()
+
+        TagLine("Callback changes to caps")
+        CapitalizeValueCallbackDemo()
+    }
+}
+
+@Composable
+private fun SimpleValueCallbackDemo() {
+    var text by remember { mutableStateOf("") }
+    BasicTextField2(
+        value = text,
+        onValueChange = { text = it },
+        modifier = demoTextFieldModifiers
+    )
+}
+
+@Composable
+private fun SimpleTextFieldValueCallbackDemo() {
+    var value by remember { mutableStateOf(TextFieldValue()) }
+    BasicTextField2(
+        value = value,
+        onValueChange = { value = it },
+        modifier = demoTextFieldModifiers
+    )
+}
+
+@Composable
+private fun CapitalizeValueCallbackDemo() {
+    var text by remember { mutableStateOf("") }
+    BasicTextField2(
+        value = text,
+        onValueChange = { text = it.toUpperCase(Locale.current) },
+        modifier = demoTextFieldModifiers
+    )
+    Text(text = "Backing state: \"$text\"", style = MaterialTheme.typography.caption)
 }
 
 @OptIn(ExperimentalFoundationApi::class)

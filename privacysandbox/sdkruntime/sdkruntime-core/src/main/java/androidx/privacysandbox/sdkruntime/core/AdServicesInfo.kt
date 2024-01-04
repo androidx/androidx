@@ -27,7 +27,6 @@ import androidx.annotation.RestrictTo
  * Temporary replacement for BuildCompat.AD_SERVICES_EXTENSION_INT.
  * TODO(b/249981547) Replace with AD_SERVICES_EXTENSION_INT after new core library release
  *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 object AdServicesInfo {

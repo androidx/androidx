@@ -91,6 +91,13 @@ sealed interface PagerLayoutInfo {
     @Suppress("GetterSetterNames")
     @get:Suppress("GetterSetterNames")
     val reverseLayout: Boolean
+
+    /**
+     * Pages to compose and layout before and after the list of visible pages. This does not include
+     * the pages automatically composed and laid out by the pre-fetcher in the direction of the
+     * scroll during scroll events.
+     */
+    val beyondBoundsPageCount: Int
 }
 
 @ExperimentalFoundationApi

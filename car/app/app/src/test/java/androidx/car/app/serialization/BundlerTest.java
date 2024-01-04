@@ -25,6 +25,7 @@ import static org.mockito.Mockito.verify;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -48,6 +49,7 @@ import androidx.car.app.model.PlaceMarker;
 import androidx.car.app.model.Row;
 import androidx.car.app.serialization.Bundler.CycleDetectedBundlerException;
 import androidx.car.app.serialization.Bundler.TracedBundlerException;
+import androidx.core.app.Person;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.test.core.app.ApplicationProvider;
 
@@ -329,6 +331,35 @@ public class BundlerTest {
         } finally {
             bitmap.recycle();
         }
+    }
+
+    @Test
+    public void personSerialization() throws BundlerException {
+        IconCompat icon =
+                IconCompat.createWithBitmap(
+                        Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+                );
+        Uri uri = Uri.parse("http://foo.com/test/sender/uri");
+        Person person = new Person.Builder()
+                .setName("Person Name")
+                .setKey("sender_key")
+                .setKey("Foo Person")
+                .setIcon(icon)
+                .setUri(uri.toString())
+                .setBot(true)
+                .setImportant(true)
+                .build();
+
+        Bundle bundle = Bundler.toBundle(person);
+        Person reconstitutedPerson = (Person) Bundler.fromBundle(bundle);
+
+        assertThat(reconstitutedPerson.getName()).isEqualTo(person.getName());
+        assertThat(reconstitutedPerson.getKey()).isEqualTo(person.getKey());
+        assertThat(reconstitutedPerson.getKey()).isEqualTo(person.getKey());
+        assertThat(reconstitutedPerson.getIcon()).isNotNull();
+        assertThat(reconstitutedPerson.getUri()).isEqualTo(person.getUri());
+        assertThat(reconstitutedPerson.isBot()).isEqualTo(person.isBot());
+        assertThat(reconstitutedPerson.isImportant()).isEqualTo(person.isImportant());
     }
 
     @Test

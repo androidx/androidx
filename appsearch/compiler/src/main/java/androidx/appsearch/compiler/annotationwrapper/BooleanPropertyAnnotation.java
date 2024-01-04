@@ -47,4 +47,10 @@ public abstract class BooleanPropertyAnnotation extends DataPropertyAnnotation {
         return new AutoValue_BooleanPropertyAnnotation(
                 name.isEmpty() ? defaultName : name, (boolean) annotationParams.get("required"));
     }
+
+    @NonNull
+    @Override
+    public final Kind getDataPropertyKind() {
+        return Kind.BOOLEAN_PROPERTY;
+    }
 }

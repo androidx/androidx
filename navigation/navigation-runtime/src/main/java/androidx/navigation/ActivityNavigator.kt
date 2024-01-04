@@ -36,7 +36,6 @@ import java.util.regex.Pattern
  */
 @Navigator.Name("activity")
 public open class ActivityNavigator(
-    /** @suppress */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val context: Context
 ) : Navigator<ActivityNavigator.Destination>() {
@@ -400,7 +399,6 @@ public open class ActivityNavigator(
             return this
         }
 
-        /** @suppress */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public override fun supportsActions(): Boolean {
             return false

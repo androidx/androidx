@@ -78,6 +78,11 @@ dependencies {
         exclude group: "androidx.core"
         exclude group: "androidx.exifinterface"
     }
+    // camera-testing added as 'implementation' dependency to include camera-testing activity in APK
+    implementation(project(":camera:camera-testing")) {
+        // Ensure camera-testing does not pull in androidx.test dependencies
+        exclude(group:"androidx.test")
+    }
 
     // 3P library
     debugImplementation(libs.leakcanary)

@@ -24,8 +24,6 @@ import androidx.annotation.RequiresApi
 /**
  * Temporary replacement for BuildCompat.AD_SERVICES_EXTENSION_INT.
  * TODO(b/261755947) Replace with AD_SERVICES_EXTENSION_INT after new core library release
- *
- * @suppress
  */
 internal object AdServicesInfo {
 

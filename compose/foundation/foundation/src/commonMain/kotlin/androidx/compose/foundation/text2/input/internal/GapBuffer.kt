@@ -196,9 +196,8 @@ private class GapBuffer(initBuffer: CharArray, initGapStart: Int, initGapEnd: In
  * is requested, this class flush the buffer and create new String, then start new gap buffer.
  *
  * @param text The initial text
- * @suppress
  */
-internal class PartialGapBuffer(text: CharSequence) {
+internal class PartialGapBuffer(text: CharSequence) : CharSequence {
     internal companion object {
         const val BUF_SIZE = 255
         const val SURROUNDING_SIZE = 64
@@ -213,7 +212,7 @@ internal class PartialGapBuffer(text: CharSequence) {
     /**
      * The text length
      */
-    val length: Int
+    override val length: Int
         get() {
             val buffer = buffer ?: return text.length
             return text.length - (bufEnd - bufStart) + buffer.length()
@@ -285,7 +284,7 @@ internal class PartialGapBuffer(text: CharSequence) {
     /**
      * [] operator for the character at the index.
      */
-    operator fun get(index: Int): Char {
+    override operator fun get(index: Int): Char {
         val buffer = buffer ?: return text[index]
         if (index < bufStart) {
             return text[index]
@@ -297,6 +296,9 @@ internal class PartialGapBuffer(text: CharSequence) {
         return text[index - (gapBufLength - bufEnd + bufStart)]
     }
 
+    override fun subSequence(startIndex: Int, endIndex: Int): CharSequence =
+        toString().subSequence(startIndex, endIndex)
+
     override fun toString(): String {
         val b = buffer ?: return text.toString()
         val sb = StringBuilder()
@@ -304,5 +306,12 @@ internal class PartialGapBuffer(text: CharSequence) {
         b.append(sb)
         sb.append(text, bufEnd, text.length)
         return sb.toString()
+    }
+
+    /**
+     * Compares the contents of this buffer with the contents of [other].
+     */
+    fun contentEquals(other: CharSequence): Boolean {
+        return toString() == other.toString()
     }
 }

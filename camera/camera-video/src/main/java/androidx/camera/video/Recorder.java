@@ -2869,8 +2869,13 @@ public final class Recorder implements VideoOutput {
                                 // Toggle on pending status for the video file.
                                 contentValues.put(MediaStore.Video.Media.IS_PENDING, PENDING);
                             }
-                            outputUri = mediaStoreOutputOptions.getContentResolver().insert(
-                                    mediaStoreOutputOptions.getCollectionUri(), contentValues);
+                            try {
+                                outputUri = mediaStoreOutputOptions.getContentResolver().insert(
+                                        mediaStoreOutputOptions.getCollectionUri(), contentValues);
+                            } catch (RuntimeException e) {
+                                throw new IOException("Unable to create MediaStore entry by " + e,
+                                        e);
+                            }
                             if (outputUri == null) {
                                 throw new IOException("Unable to create MediaStore entry.");
                             }
@@ -3092,7 +3097,12 @@ public final class Recorder implements VideoOutput {
                 throw new AssertionError("One-time media muxer creation has already occurred for"
                         + " recording " + this);
             }
-            return mediaMuxerSupplier.get(muxerOutputFormat, outputUriCreatedCallback);
+
+            try {
+                return mediaMuxerSupplier.get(muxerOutputFormat, outputUriCreatedCallback);
+            } catch (RuntimeException e) {
+                throw new IOException("Failed to create MediaMuxer by " + e, e);
+            }
         }
 
         /**

@@ -24,7 +24,6 @@ import androidx.glance.GlanceModifier
 import androidx.glance.GlanceNode
 import androidx.glance.unit.Dimension
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class EmittableRow : EmittableWithChildren() {
     override var modifier: GlanceModifier = GlanceModifier

@@ -29,7 +29,6 @@ import kotlin.collections.map
 import kotlin.collections.mutableMapOf
 import kotlin.collections.plusAssign
 import kotlin.jvm.JvmField
-import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmStatic
 
 /**
@@ -65,16 +64,8 @@ public interface Alarm : Thing {
   public override fun toBuilder(): Builder<*>
 
   public companion object {
-    /**
-     * Returns a default implementation of [Builder].
-     *
-     * Has the specified [identifier] and [namespace] and no other properties set.
-     */
-    @JvmStatic
-    @JvmOverloads
-    @Document.BuilderProducer
-    public fun Builder(identifier: String = "", namespace: String = ""): Builder<*> =
-      AlarmImpl.Builder().setIdentifier(identifier).setNamespace(namespace)
+    /** Returns a default implementation of [Builder]. */
+    @JvmStatic @Document.BuilderProducer public fun Builder(): Builder<*> = AlarmImpl.Builder()
   }
 
   /**
@@ -99,16 +90,19 @@ public interface Alarm : Thing {
   }
 
   /**
-   * A canonical value that may be assigned to [DisambiguatingDescription] properties in the context
-   * of [Alarm].
+   * A canonical value that may be assigned to [Alarm.disambiguatingDescription].
    *
    * Represents an open enum. See [Companion] for the different possible variants. More variants may
    * be added over time.
    */
+  @Document(
+    name = "bit:Alarm:DisambiguatingDescriptionValue",
+    parent = [DisambiguatingDescription.CanonicalValue::class],
+  )
   public class DisambiguatingDescriptionValue
   private constructor(
-    public override val textValue: String,
-  ) : DisambiguatingDescription.CanonicalValue() {
+    textValue: String,
+  ) : DisambiguatingDescription.CanonicalValue(textValue) {
     public override fun toString(): String = """Alarm.DisambiguatingDescriptionValue($textValue)"""
 
     public companion object {
@@ -124,6 +118,10 @@ public interface Alarm : Thing {
  *
  * Allows for extension like:
  * ```kt
+ * @Document(
+ *   name = "MyAlarm",
+ *   parent = [Alarm::class],
+ * )
  * class MyAlarm internal constructor(
  *   alarm: Alarm,
  *   val foo: String,
@@ -132,6 +130,8 @@ public interface Alarm : Thing {
  *   MyAlarm,
  *   MyAlarm.Builder
  * >(alarm) {
+ *
+ *   // No need to implement equals(), hashCode(), toString() or toBuilder()
  *
  *   override val selfTypeName =
  *     "MyAlarm"
@@ -230,7 +230,9 @@ internal constructor(
 
   public final override fun toString(): String {
     val attributes = mutableMapOf<String, String>()
-    attributes["namespace"] = namespace
+    if (namespace.isNotEmpty()) {
+      attributes["namespace"] = namespace
+    }
     if (alarmSchedule != null) {
       attributes["alarmSchedule"] = alarmSchedule.toString()
     }
@@ -241,7 +243,9 @@ internal constructor(
       attributes["disambiguatingDescription"] =
         disambiguatingDescription.toString(includeWrapperName = false)
     }
-    attributes["identifier"] = identifier
+    if (identifier.isNotEmpty()) {
+      attributes["identifier"] = identifier
+    }
     if (name != null) {
       attributes["name"] = name.toString(includeWrapperName = false)
     }
@@ -261,10 +265,13 @@ internal constructor(
    *     MyAlarm.Builder>(...) {
    *
    *   class Builder
-   *   : Builder<
+   *   : AbstractAlarm.Builder<
    *       Builder,
    *       MyAlarm
    *   >() {
+   *
+   *     // No need to implement equals(), hashCode(), toString() or build()
+   *
    *     private var foo: String? = null
    *     private val bars = mutableListOf<Int>()
    *
@@ -414,7 +421,9 @@ internal constructor(
     @Suppress("BuilderSetStyle")
     public final override fun toString(): String {
       val attributes = mutableMapOf<String, String>()
-      attributes["namespace"] = namespace
+      if (namespace.isNotEmpty()) {
+        attributes["namespace"] = namespace
+      }
       if (alarmSchedule != null) {
         attributes["alarmSchedule"] = alarmSchedule!!.toString()
       }
@@ -425,7 +434,9 @@ internal constructor(
         attributes["disambiguatingDescription"] =
           disambiguatingDescription!!.toString(includeWrapperName = false)
       }
-      attributes["identifier"] = identifier
+      if (identifier.isNotEmpty()) {
+        attributes["identifier"] = identifier
+      }
       if (name != null) {
         attributes["name"] = name!!.toString(includeWrapperName = false)
       }

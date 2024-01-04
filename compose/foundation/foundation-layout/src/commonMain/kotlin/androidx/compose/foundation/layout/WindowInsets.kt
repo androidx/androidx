@@ -71,6 +71,8 @@ interface WindowInsets {
  * to avoid recomposition when [WindowInsets] can change.
  *
  * @sample androidx.compose.foundation.layout.samples.withConsumedInsetsSample
+ *
+ * Note: This API as experimental since it doesn't enforce the right consumption patterns.
  */
 @ExperimentalLayoutApi
 class MutableWindowInsets(initialInsets: WindowInsets = WindowInsets(0, 0, 0, 0)) : WindowInsets {

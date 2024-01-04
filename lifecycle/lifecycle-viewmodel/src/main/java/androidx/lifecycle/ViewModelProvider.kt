@@ -95,9 +95,6 @@ constructor(
         }
     }
 
-    /**
-     * @suppress
-     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public open class OnRequeryFactory {
         public open fun onRequery(viewModel: ViewModel) {}
@@ -213,7 +210,6 @@ constructor(
             private var sInstance: NewInstanceFactory? = null
 
             /**
-             * @suppress
              * Retrieve a singleton instance of NewInstanceFactory.
              *
              * @return A valid [NewInstanceFactory]

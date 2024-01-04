@@ -63,10 +63,10 @@ internal fun featureDistSquared(f1: RoundedPolygon.Feature, f2: RoundedPolygon.F
         debugLog(LOG_TAG) { "*** Feature distance ∞ for convex-vs-concave corners" }
         return Float.MAX_VALUE
     }
-    val c1x = (f1.cubics.first().anchorX0 + f1.cubics.last().anchorX1) / 2f
-    val c1y = (f1.cubics.first().anchorY0 + f1.cubics.last().anchorY1) / 2f
-    val c2x = (f2.cubics.first().anchorX0 + f2.cubics.last().anchorX1) / 2f
-    val c2y = (f2.cubics.first().anchorY0 + f2.cubics.last().anchorY1) / 2f
+    val c1x = (f1.cubics.first().anchor0X + f1.cubics.last().anchor1X) / 2f
+    val c1y = (f1.cubics.first().anchor0Y + f1.cubics.last().anchor1Y) / 2f
+    val c2x = (f2.cubics.first().anchor0X + f2.cubics.last().anchor1X) / 2f
+    val c2y = (f2.cubics.first().anchor0Y + f2.cubics.last().anchor1Y) / 2f
     val dx = c1x - c2x
     val dy = c1y - c2y
     return dx * dx + dy * dy

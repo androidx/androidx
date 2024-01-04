@@ -437,7 +437,6 @@ public class ComplicationSlotsManager(
      *
      * @param complicationSlotId The ID for the [ComplicationSlot] that was single tapped
      */
-    @SuppressWarnings("SyntheticAccessor")
     @UiThread
     internal fun onComplicationSlotSingleTapped(complicationSlotId: Int) {
         // Check if the complication is missing permissions.

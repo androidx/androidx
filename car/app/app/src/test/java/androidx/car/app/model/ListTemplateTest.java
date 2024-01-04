@@ -311,6 +311,7 @@ public class ListTemplateTest {
                         .setSingleList(getList())
                         .addAction(customAction)
                         .addAction(customAction)
+                        .addAction(customAction)
                         .build());
     }
 

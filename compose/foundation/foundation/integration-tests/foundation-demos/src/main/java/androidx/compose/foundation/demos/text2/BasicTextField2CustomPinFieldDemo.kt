@@ -30,7 +30,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text2.BasicTextField2
-import androidx.compose.foundation.text2.input.TextEditFilter
+import androidx.compose.foundation.text2.input.InputTransformation
 import androidx.compose.foundation.text2.input.TextFieldBuffer
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldState
@@ -158,21 +158,21 @@ private class PinState(val maxDigits: Int) {
     }
 
     /*internal*/ val textState = TextFieldState()
-    /*internal*/ val filter: TextEditFilter = OnlyDigitsFilter.then(
-        TextEditFilter.maxLengthInChars(maxDigits),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword)
-    )
+    /*internal*/ val filter: InputTransformation = OnlyDigitsTransformation
+        .then(InputTransformation.maxLengthInChars(maxDigits))
 
     fun clear() {
         textState.clearText()
     }
 
-    private object OnlyDigitsFilter : TextEditFilter {
-        override fun filter(
+    private object OnlyDigitsTransformation : InputTransformation {
+        override val keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword)
+
+        override fun transformInput(
             originalValue: TextFieldCharSequence,
             valueWithChanges: TextFieldBuffer
         ) {
-            if (!valueWithChanges.isDigitsOnly()) {
+            if (!valueWithChanges.asCharSequence().isDigitsOnly()) {
                 valueWithChanges.revertAllChanges()
             }
         }
@@ -190,17 +190,18 @@ private fun PinField(
 
     BasicTextField2(
         state = state.textState,
-        filter = state.filter,
+        inputTransformation = state.filter,
         modifier = modifier
             .border(1.dp, contentColor, RoundedCornerShape(8.dp))
             .padding(8.dp),
-        enabled = enabled
-    ) {
-        CompositionLocalProvider(LocalContentAlpha provides contentAlpha) {
-            // Ignore inner field, we'll draw it ourselves.
-            PinContents(state)
+        enabled = enabled,
+        decorationBox = {
+            CompositionLocalProvider(LocalContentAlpha provides contentAlpha) {
+                // Ignore inner field, we'll draw it ourselves.
+                PinContents(state)
+            }
         }
-    }
+    )
 }
 
 @Composable

@@ -56,7 +56,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun SwipeToRevealSample() {
     SwipeToReveal(
-        action = {
+        primaryAction = {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -93,7 +93,7 @@ fun SwipeToRevealWithRevealOffset() {
     val state = rememberRevealState()
     SwipeToReveal(
         state = state,
-        action = {
+        primaryAction = {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -159,7 +159,7 @@ fun SwipeToRevealWithExpandables() {
                 if (isExpanded) {
                     SwipeToReveal(
                         state = revealState,
-                        action = {
+                        primaryAction = {
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -177,7 +177,7 @@ fun SwipeToRevealWithExpandables() {
                                 )
                             }
                         },
-                        additionalAction = {
+                        secondaryAction = {
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()

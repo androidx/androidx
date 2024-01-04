@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -252,10 +251,10 @@ fun MultilineButtonDemo() {
             MultilineButton(enabled = false)
         }
         item {
-            MultilineButton(enabled = true, icon = { StandardIcon() })
+            MultilineButton(enabled = true, icon = { StandardIcon(ButtonDefaults.IconSize) })
         }
         item {
-            MultilineButton(enabled = false, icon = { StandardIcon() })
+            MultilineButton(enabled = false, icon = { StandardIcon(ButtonDefaults.IconSize) })
         }
         item {
             ListHeader {
@@ -269,10 +268,10 @@ fun MultilineButtonDemo() {
             Multiline3SlotButton(enabled = false)
         }
         item {
-            Multiline3SlotButton(enabled = true, icon = { StandardIcon() })
+            Multiline3SlotButton(enabled = true, icon = { StandardIcon(ButtonDefaults.IconSize) })
         }
         item {
-            Multiline3SlotButton(enabled = false, icon = { StandardIcon() })
+            Multiline3SlotButton(enabled = false, icon = { StandardIcon(ButtonDefaults.IconSize) })
         }
     }
 }
@@ -376,23 +375,5 @@ private fun Multiline3SlotButton(
         secondaryLabel = secondaryLabel,
         enabled = enabled,
         colors = colors,
-    )
-}
-
-@Composable
-private fun StandardIcon() {
-    Icon(
-        Icons.Filled.Favorite,
-        contentDescription = "Favorite icon",
-        modifier = Modifier.size(ButtonDefaults.IconSize)
-    )
-}
-
-@Composable
-private fun AvatarIcon() {
-    Icon(
-        Icons.Filled.AccountCircle,
-        contentDescription = "Account",
-        modifier = Modifier.size(ButtonDefaults.LargeIconSize)
     )
 }

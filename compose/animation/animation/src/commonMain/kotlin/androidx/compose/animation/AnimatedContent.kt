@@ -65,6 +65,7 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.layout.ScaleFactor
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
@@ -1188,7 +1189,10 @@ private class ScaleToFitInLookaheadNode(
             rootScope.currentSize
         }
         val resolvedScale =
-            contentScale.computeScaleFactor(contentSize.toSize(), sizeToReport.toSize())
+            if (contentSize.width == 0 || contentSize.height == 0) {
+                ScaleFactor(1f, 1f)
+            } else
+                contentScale.computeScaleFactor(contentSize.toSize(), sizeToReport.toSize())
         return layout(sizeToReport.width, sizeToReport.height) {
             val (x, y) = alignment.align(
                 IntSize(

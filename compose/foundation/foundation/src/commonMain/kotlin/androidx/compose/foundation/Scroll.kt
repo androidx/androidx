@@ -111,9 +111,11 @@ class ScrollState(initial: Int) : ScrollableState {
         }
 
     /**
-     * Size of the viewport on the scrollable axis, or 0 if still unknown.
+     * Size of the viewport on the scrollable axis, or 0 if still unknown. Note that this value
+     * is only populated after the first measure pass.
      */
-    internal var viewportSize: Int by mutableIntStateOf(0)
+    var viewportSize: Int by mutableIntStateOf(0)
+        internal set
 
     /**
      * [InteractionSource] that will be used to dispatch drag events when this

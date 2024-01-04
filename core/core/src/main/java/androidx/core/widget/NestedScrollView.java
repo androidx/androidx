@@ -56,6 +56,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.R;
 import androidx.core.view.AccessibilityDelegateCompat;
+import androidx.core.view.DifferentialMotionFlingHelper;
 import androidx.core.view.MotionEventCompat;
 import androidx.core.view.NestedScrollingChild3;
 import androidx.core.view.NestedScrollingChildHelper;
@@ -225,6 +226,14 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     private float mVerticalScrollFactor;
 
     private OnScrollChangeListener mOnScrollChangeListener;
+
+    @VisibleForTesting
+    final DifferentialMotionFlingTarget mDifferentialMotionFlingTarget =
+            new DifferentialMotionFlingTarget();
+
+    @VisibleForTesting
+    DifferentialMotionFlingHelper mDifferentialMotionFlingHelper =
+            new DifferentialMotionFlingHelper(getContext(), mDifferentialMotionFlingTarget);
 
     public NestedScrollView(@NonNull Context context) {
         this(context, null);
@@ -1316,10 +1325,12 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         if (motionEvent.getAction() == MotionEvent.ACTION_SCROLL && !mIsBeingDragged) {
             final float verticalScroll;
             final int x;
+            final int flingAxis;
 
             if (MotionEventCompat.isFromSource(motionEvent, InputDevice.SOURCE_CLASS_POINTER)) {
                 verticalScroll = motionEvent.getAxisValue(MotionEvent.AXIS_VSCROLL);
                 x = (int) motionEvent.getX();
+                flingAxis = MotionEvent.AXIS_VSCROLL;
             } else if (
                     MotionEventCompat.isFromSource(motionEvent, InputDevice.SOURCE_ROTARY_ENCODER)
             ) {
@@ -1327,9 +1338,11 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                 // Since a Wear rotary event doesn't have a true X and we want to support proper
                 // overscroll animations, we put the x at the center of the screen.
                 x = getWidth() / 2;
+                flingAxis = MotionEvent.AXIS_SCROLL;
             } else {
                 verticalScroll = 0;
                 x = 0;
+                flingAxis = 0;
             }
 
             if (verticalScroll != 0) {
@@ -1340,6 +1353,9 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                         MotionEventCompat.isFromSource(motionEvent, InputDevice.SOURCE_MOUSE);
 
                 scrollBy(-invertedDelta, x, ViewCompat.TYPE_NON_TOUCH, isSourceMouse);
+                if (flingAxis != 0) {
+                    mDifferentialMotionFlingHelper.onMotionEvent(motionEvent, flingAxis);
+                }
 
                 return true;
             }
@@ -1356,7 +1372,8 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                 || (mode == OVER_SCROLL_IF_CONTENT_SCROLLS && getScrollRange() > 0);
     }
 
-    private float getVerticalScrollFactorCompat() {
+    @VisibleForTesting
+    float getVerticalScrollFactorCompat() {
         if (mVerticalScrollFactor == 0) {
             TypedValue outValue = new TypedValue();
             final Context context = getContext();
@@ -2549,6 +2566,29 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
             event.setScrollY(nsvHost.getScrollY());
             AccessibilityRecordCompat.setMaxScrollX(event, nsvHost.getScrollX());
             AccessibilityRecordCompat.setMaxScrollY(event, nsvHost.getScrollRange());
+        }
+    }
+
+    class DifferentialMotionFlingTarget
+            implements DifferentialMotionFlingHelper.DifferentialMotionFlingTarget {
+        @Override
+        public boolean startDifferentialMotionFling(float velocity) {
+            if (velocity == 0) {
+                return false;
+            }
+            stopDifferentialMotionFling();
+            fling((int) velocity);
+            return true;
+        }
+
+        @Override
+        public void stopDifferentialMotionFling() {
+            mScroller.abortAnimation();
+        }
+
+        @Override
+        public float getScaledScrollFactor() {
+            return -getVerticalScrollFactorCompat();
         }
     }
 

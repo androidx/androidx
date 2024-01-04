@@ -16,75 +16,77 @@
 
 package androidx.bluetooth
 
-import android.bluetooth.BluetoothGattCharacteristic
+import android.bluetooth.BluetoothGattCharacteristic as FwkCharacteristic
 import androidx.annotation.RestrictTo
 import java.util.UUID
 
 /**
  * Represents a Bluetooth characteristic.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 class GattCharacteristic internal constructor(
-    internal var fwkCharacteristic: BluetoothGattCharacteristic
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY)
+    var fwkCharacteristic: FwkCharacteristic
 ) {
     companion object {
         /**
          * It permits broadcasts of the characteristic.
          */
-        const val PROPERTY_BROADCAST = BluetoothGattCharacteristic.PROPERTY_BROADCAST
+        const val PROPERTY_BROADCAST = FwkCharacteristic.PROPERTY_BROADCAST
         /**
          * It permits reads of the characteristic.
          */
-        const val PROPERTY_READ = BluetoothGattCharacteristic.PROPERTY_READ
+        const val PROPERTY_READ = FwkCharacteristic.PROPERTY_READ
 
         /**
          * It permits writes of the characteristic without response.
          */
         const val PROPERTY_WRITE_NO_RESPONSE =
-            BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE
+            FwkCharacteristic.PROPERTY_WRITE_NO_RESPONSE
 
         /**
          * It permits writes of the characteristic with response.
          */
-        const val PROPERTY_WRITE = BluetoothGattCharacteristic.PROPERTY_WRITE
+        const val PROPERTY_WRITE = FwkCharacteristic.PROPERTY_WRITE
 
         /**
          * It permits notifications of a characteristic value without acknowledgment.
          */
-        const val PROPERTY_NOTIFY = BluetoothGattCharacteristic.PROPERTY_NOTIFY
+        const val PROPERTY_NOTIFY = FwkCharacteristic.PROPERTY_NOTIFY
 
         /**
          * It permits indications of a characteristic value with acknowledgment.
          */
-        const val PROPERTY_INDICATE = BluetoothGattCharacteristic.PROPERTY_INDICATE
+        const val PROPERTY_INDICATE = FwkCharacteristic.PROPERTY_INDICATE
 
         /**
          * It permits signed writes to the characteristic value.
          */
-        const val PROPERTY_SIGNED_WRITE = BluetoothGattCharacteristic.PROPERTY_SIGNED_WRITE
+        const val PROPERTY_SIGNED_WRITE = FwkCharacteristic.PROPERTY_SIGNED_WRITE
 
         /**
          * Additional characteristic properties are defined.
          */
-        const val PROPERTY_EXTENDS_PROP = BluetoothGattCharacteristic.PROPERTY_EXTENDED_PROPS
+        const val PROPERTY_EXTENDS_PROP = FwkCharacteristic.PROPERTY_EXTENDED_PROPS
 
-        const val PERMISSION_READ: Int = BluetoothGattCharacteristic.PERMISSION_READ
-        const val PERMISSION_READ_ENCRYPTED: Int =
-            BluetoothGattCharacteristic.PERMISSION_READ_ENCRYPTED
-        const val PERMISSION_READ_ENCRYPTED_MITM: Int =
-            BluetoothGattCharacteristic.PERMISSION_READ_ENCRYPTED_MITM
-        const val PERMISSION_WRITE: Int = BluetoothGattCharacteristic.PERMISSION_WRITE
-        const val PERMISSION_WRITE_ENCRYPTED: Int =
-            BluetoothGattCharacteristic.PERMISSION_WRITE_ENCRYPTED
-        const val PERMISSION_WRITE_ENCRYPTED_MITM: Int =
-            BluetoothGattCharacteristic.PERMISSION_WRITE_ENCRYPTED_MITM
-        const val PERMISSION_WRITE_SIGNED: Int = BluetoothGattCharacteristic.PERMISSION_WRITE_SIGNED
-        const val PERMISSION_WRITE_SIGNED_MITM: Int =
-            BluetoothGattCharacteristic.PERMISSION_WRITE_SIGNED_MITM
-
-        const val WRITE_TYPE_DEFAULT: Int = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
-        const val WRITE_TYPE_SIGNED: Int = BluetoothGattCharacteristic.WRITE_TYPE_SIGNED
-        const val WRITE_TYPE_NO_RESPONSE: Int = BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
+        /**
+         * Creates a [GattCharacteristic] instance for a GATT server.
+         */
+        @JvmStatic
+        fun of(uuid: UUID, properties: Int): GattCharacteristic {
+            var permissions = 0
+            if ((properties and PROPERTY_READ) != 0) {
+                permissions = permissions or FwkCharacteristic.PERMISSION_READ
+            }
+            if ((properties and (PROPERTY_WRITE or PROPERTY_WRITE_NO_RESPONSE)) != 0) {
+                permissions = permissions or FwkCharacteristic.PERMISSION_WRITE
+            }
+            if ((properties and PROPERTY_SIGNED_WRITE) != 0) {
+                permissions = permissions or FwkCharacteristic.PERMISSION_WRITE_SIGNED
+            }
+            val fwkCharacteristic = FwkCharacteristic(uuid, properties, permissions)
+            return GattCharacteristic(fwkCharacteristic)
+        }
     }
 
     /**
@@ -102,17 +104,8 @@ class GattCharacteristic internal constructor(
     /**
      * The permissions for the characteristic.
      */
-    val permissions: Int
+    internal val permissions: Int
         get() = fwkCharacteristic.permissions
 
     internal var service: GattService? = null
-}
-
-/**
- * Creates a [GattCharacteristic] instance for a GATT server.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-fun GattCharacteristic(uuid: UUID, properties: Int, permissions: Int): GattCharacteristic {
-    val fwkCharacteristic = BluetoothGattCharacteristic(uuid, properties, permissions)
-    return GattCharacteristic(fwkCharacteristic)
 }

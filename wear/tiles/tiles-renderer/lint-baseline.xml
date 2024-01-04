@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.2.0-alpha14" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha14)" variant="all" version="8.2.0-alpha14">
+
+    <issue
+        id="UnspecifiedRegisterReceiverFlag"
+        message="`updateReceiver` \&#xA;is missing `RECEIVER_EXPORTED` or `RECEIVER_NOT_EXPORTED` flag for unprotected \&#xA;broadcasts registered for androidx.wear.tiles.action.REQUEST_TILE_UPDATE"
+        errorLine1="        context.registerReceiver(updateReceiver, i)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/tiles/manager/TileUiClient.kt"/>
+    </issue>
+
+</issues>

@@ -64,8 +64,8 @@ class ShapesTest {
         radius2: Float = radius1,
         center: PointF = Zero
     ) {
-        assertPointOnRadii(PointF(cubic.anchorX0, cubic.anchorY0), radius1, radius2, center)
-        assertPointOnRadii(PointF(cubic.anchorX1, cubic.anchorY1), radius1, radius2, center)
+        assertPointOnRadii(PointF(cubic.anchor0X, cubic.anchor0Y), radius1, radius2, center)
+        assertPointOnRadii(PointF(cubic.anchor1X, cubic.anchor1Y), radius1, radius2, center)
     }
 
     /**

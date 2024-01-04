@@ -19,6 +19,7 @@ package androidx.wear.tiles.tooling
 import android.app.Activity
 import android.os.Bundle
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.wear.tiles.tooling.test.R
 import org.junit.Assert.assertEquals
@@ -26,6 +27,8 @@ import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+
+private const val TEST_TILE_PREVIEWS_FILE = "androidx.wear.tiles.tooling.TestTilePreviewsKt"
 
 class TileServiceViewAdapterTest {
     @Suppress("DEPRECATION")
@@ -41,17 +44,69 @@ class TileServiceViewAdapterTest {
     }
 
     private fun initAndInflate(
-        className: String,
+        methodFqn: String,
     ) {
         activityTestRule.runOnUiThread {
-            tileServiceViewAdapter.init(className)
+            tileServiceViewAdapter.init(methodFqn)
             tileServiceViewAdapter.requestLayout()
         }
     }
 
     @Test
-    fun testTileServiceViewAdapter() {
-        initAndInflate("androidx.wear.tiles.tooling.TestTileService")
+    fun testTilePreview() {
+        initAndInflate("$TEST_TILE_PREVIEWS_FILE.TilePreview")
+
+        activityTestRule.runOnUiThread {
+            val textView =
+                (tileServiceViewAdapter.getChildAt(0) as ViewGroup)
+                    .getChildAt(0) as TextView
+            assertNotNull(textView)
+            assertEquals("Hello world!", textView.text.toString())
+        }
+    }
+
+    @Test
+    fun testTileLayoutPreview() {
+        initAndInflate("$TEST_TILE_PREVIEWS_FILE.TileLayoutPreview")
+
+        activityTestRule.runOnUiThread {
+            val textView =
+                (tileServiceViewAdapter.getChildAt(0) as ViewGroup)
+                    .getChildAt(0) as TextView
+            assertNotNull(textView)
+            assertEquals("Hello world!", textView.text.toString())
+        }
+    }
+
+    @Test
+    fun testTileLayoutElementPreview() {
+        initAndInflate("$TEST_TILE_PREVIEWS_FILE.TileLayoutElementPreview")
+
+        activityTestRule.runOnUiThread {
+            val textView =
+                ((tileServiceViewAdapter.getChildAt(0) as ViewGroup)
+                    .getChildAt(0) as FrameLayout).getChildAt(0) as TextView
+            assertNotNull(textView)
+            assertEquals("Hello world!", textView.text.toString())
+        }
+    }
+
+    @Test
+    fun testTilePreviewDeclaredWithPrivateMethod() {
+        initAndInflate("$TEST_TILE_PREVIEWS_FILE.TilePreviewWithPrivateVisibility")
+
+        activityTestRule.runOnUiThread {
+            val textView =
+                (tileServiceViewAdapter.getChildAt(0) as ViewGroup)
+                    .getChildAt(0) as TextView
+            assertNotNull(textView)
+            assertEquals("Hello world!", textView.text.toString())
+        }
+    }
+
+    @Test
+    fun testTilePreviewThatHasSharedFunctionName() {
+        initAndInflate("$TEST_TILE_PREVIEWS_FILE.duplicateFunctionName")
 
         activityTestRule.runOnUiThread {
             val textView =

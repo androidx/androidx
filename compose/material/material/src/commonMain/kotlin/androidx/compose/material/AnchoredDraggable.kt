@@ -529,7 +529,10 @@ internal class AnchoredDraggableState<T>(
             }
         } finally {
             val closest = anchors.closestAnchor(offset)
-            if (closest != null && abs(offset - anchors.positionOf(closest)) <= 0.5f) {
+            if (closest != null &&
+                abs(offset - anchors.positionOf(closest)) <= 0.5f &&
+                confirmValueChange.invoke(closest)
+            ) {
                 currentValue = closest
             }
         }
@@ -576,7 +579,10 @@ internal class AnchoredDraggableState<T>(
             } finally {
                 dragTarget = null
                 val closest = anchors.closestAnchor(offset)
-                if (closest != null && abs(offset - anchors.positionOf(closest)) <= 0.5f) {
+                if (closest != null &&
+                    abs(offset - anchors.positionOf(closest)) <= 0.5f &&
+                    confirmValueChange.invoke(closest)
+                ) {
                     currentValue = closest
                 }
             }

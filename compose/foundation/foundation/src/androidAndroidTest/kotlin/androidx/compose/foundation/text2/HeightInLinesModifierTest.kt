@@ -82,7 +82,7 @@ class HeightInLinesModifierTest {
 
     @Test
     fun minLines_shortInputText() {
-        var subjectLayout: TextLayoutResult? = null
+        var subjectLayout: (() -> TextLayoutResult?)? = null
         var subjectHeight: Int? = null
         var twoLineHeight: Int? = null
         val positionedLatch = CountDownLatch(1)
@@ -115,7 +115,7 @@ class HeightInLinesModifierTest {
 
         rule.runOnIdle {
             assertThat(subjectLayout).isNotNull()
-            assertThat(subjectLayout!!.lineCount).isEqualTo(1)
+            assertThat(subjectLayout!!.invoke()?.lineCount).isEqualTo(1)
             assertThat(subjectHeight!!).isEqualTo(twoLineHeight)
         }
     }
@@ -129,8 +129,8 @@ class HeightInLinesModifierTest {
 
         rule.runOnIdle {
             assertThat(textLayoutResult).isNotNull()
-            assertThat(textLayoutResult!!.lineCount).isEqualTo(1)
-            assertThat(textLayoutResult.size.height).isEqualTo(height)
+            assertThat(textLayoutResult!!.invoke()?.lineCount).isEqualTo(1)
+            assertThat(textLayoutResult()?.size?.height).isEqualTo(height)
         }
     }
 
@@ -141,7 +141,7 @@ class HeightInLinesModifierTest {
 
         rule.runOnIdle {
             assertThat(textLayoutResult).isNotNull()
-            assertThat(textLayoutResult!!.size.height).isEqualTo(height)
+            assertThat(textLayoutResult!!.invoke()?.size?.height).isEqualTo(height)
         }
     }
 
@@ -186,14 +186,14 @@ class HeightInLinesModifierTest {
         rule.runOnIdle {
             assertThat(textLayoutResult).isNotNull()
             // should be in the 20s, but use this to create invariant for the next assertion
-            assertThat(textLayoutResult!!.lineCount).isGreaterThan(2)
-            assertThat(textLayoutResult.size.height).isEqualTo(height)
+            assertThat(textLayoutResult!!.invoke()?.lineCount).isGreaterThan(2)
+            assertThat(textLayoutResult()?.size?.height).isEqualTo(height)
         }
     }
 
     @Test
     fun maxLines_longInputText() {
-        var subjectLayout: TextLayoutResult? = null
+        var subjectLayout: (() -> TextLayoutResult?)? = null
         var subjectHeight: Int? = null
         var twoLineHeight: Int? = null
         val positionedLatch = CountDownLatch(1)
@@ -227,7 +227,7 @@ class HeightInLinesModifierTest {
         rule.runOnIdle {
             assertThat(subjectLayout).isNotNull()
             // should be in the 20s, but use this to create invariant for the next assertion
-            assertThat(subjectLayout!!.lineCount).isGreaterThan(2)
+            assertThat(subjectLayout!!.invoke()?.lineCount).isGreaterThan(2)
             assertThat(subjectHeight!!).isEqualTo(twoLineHeight)
         }
     }
@@ -308,8 +308,8 @@ class HeightInLinesModifierTest {
     private fun setTextFieldWithMaxLines(
         text: String,
         lines: MultiLine
-    ): Pair<TextLayoutResult?, Int?> {
-        var textLayoutResult: TextLayoutResult? = null
+    ): Pair<(() -> TextLayoutResult?)?, Int?> {
+        var textLayoutResult: (() -> TextLayoutResult?)? = null
         var height: Int? = null
         val positionedLatch = CountDownLatch(1)
 
@@ -334,7 +334,7 @@ class HeightInLinesModifierTest {
     @Composable
     private fun HeightObservingText(
         onGlobalHeightPositioned: (Int) -> Unit,
-        onTextLayoutResult: Density.(TextLayoutResult) -> Unit,
+        onTextLayoutResult: Density.(getResult: () -> TextLayoutResult?) -> Unit,
         text: String,
         lineLimits: MultiLine,
         textStyle: TextStyle = TextStyle.Default

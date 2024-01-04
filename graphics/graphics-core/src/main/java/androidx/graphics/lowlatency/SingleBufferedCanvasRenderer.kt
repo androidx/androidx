@@ -21,8 +21,8 @@ import android.hardware.HardwareBuffer
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
+import androidx.graphics.utils.HandlerThreadExecutor
 import androidx.hardware.SyncFenceCompat
-import java.util.concurrent.Executor
 
 /**
  * Interface to provide an abstraction around implementations for a low latency hardware
@@ -37,6 +37,14 @@ internal interface SingleBufferedCanvasRenderer<T> {
 
         @WorkerThread
         fun onBufferReady(hardwareBuffer: HardwareBuffer, syncFenceCompat: SyncFenceCompat?)
+
+        @WorkerThread
+        fun onBufferCancelled(
+            hardwareBuffer: HardwareBuffer,
+            syncFenceCompat: SyncFenceCompat?
+        ) {
+            // NO-OP
+        }
     }
 
     /**
@@ -72,7 +80,7 @@ internal interface SingleBufferedCanvasRenderer<T> {
             width: Int,
             height: Int,
             bufferTransformer: BufferTransformer,
-            executor: Executor,
+            executor: HandlerThreadExecutor,
             bufferReadyListener: RenderCallbacks<T>
         ): SingleBufferedCanvasRenderer<T> {
             return if (Build.VERSION.SDK_INT >= 34) {

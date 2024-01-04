@@ -984,10 +984,14 @@ public final class ImageCapture extends UseCase {
         Log.d(TAG, String.format("createPipeline(cameraId: %s, streamSpec: %s)",
                 cameraId, streamSpec));
         Size resolution = streamSpec.getResolution();
-
-        checkState(mImagePipeline == null);
         boolean isVirtualCamera = !requireNonNull(getCamera()).getHasTransform()
                 || isSessionProcessorEnabledInCurrentCamera();
+        if (mImagePipeline != null) {
+            checkState(isVirtualCamera);
+            // On LEGACY devices, when the app is backgrounded, it will trigger StreamSharing's
+            // SessionConfig error callback and recreate children pipeline.
+            mImagePipeline.close();
+        }
         mImagePipeline = new ImagePipeline(config, resolution, getEffect(), isVirtualCamera);
 
         if (mTakePictureManager == null) {

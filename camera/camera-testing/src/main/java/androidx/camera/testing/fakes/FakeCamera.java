@@ -60,9 +60,9 @@ public class FakeCamera implements CameraInternal {
             new LiveDataObservable<>();
     private final CameraControlInternal mCameraControlInternal;
     private final CameraInfoInternal mCameraInfoInternal;
-    private String mCameraId;
-    private UseCaseAttachState mUseCaseAttachState;
-    private Set<UseCase> mAttachedUseCases = new HashSet<>();
+    private final String mCameraId;
+    private final UseCaseAttachState mUseCaseAttachState;
+    private final Set<UseCase> mAttachedUseCases = new HashSet<>();
     private State mState = State.CLOSED;
     private int mAvailableCameraCount = 1;
     private final List<UseCase> mUseCaseActiveHistory = new ArrayList<>();
@@ -309,21 +309,39 @@ public class FakeCamera implements CameraInternal {
         return mCameraInfoInternal;
     }
 
+    /**
+     * Returns a list of active use cases ordered chronologically according to
+     * {@link #onUseCaseActive} invocations.
+     */
     @NonNull
     public List<UseCase> getUseCaseActiveHistory() {
         return mUseCaseActiveHistory;
     }
 
+    /**
+     * Returns a list of inactive use cases ordered chronologically according to
+     * {@link #onUseCaseInactive} invocations.
+     */
     @NonNull
     public List<UseCase> getUseCaseInactiveHistory() {
         return mUseCaseInactiveHistory;
     }
 
+
+    /**
+     * Returns a list of updated use cases ordered chronologically according to
+     * {@link #onUseCaseUpdated} invocations.
+     */
     @NonNull
     public List<UseCase> getUseCaseUpdateHistory() {
         return mUseCaseUpdateHistory;
     }
 
+
+    /**
+     * Returns a list of reset use cases ordered chronologically according to
+     * {@link #onUseCaseReset} invocations.
+     */
     @NonNull
     public List<UseCase> getUseCaseResetHistory() {
         return mUseCaseResetHistory;
@@ -365,7 +383,7 @@ public class FakeCamera implements CameraInternal {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    void updateCaptureSessionConfig() {
+    private void updateCaptureSessionConfig() {
         SessionConfig.ValidatingBuilder validatingBuilder;
         validatingBuilder = mUseCaseAttachState.getActiveAndAttachedBuilder();
 

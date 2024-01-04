@@ -676,15 +676,15 @@ class ToGenericDocumentCodeGenerator {
                 case CREATION_TIMESTAMP_MILLIS:
                     method.addStatement(
                             "builder.setCreationTimestampMillis($L)",
-                            createAppSearchFieldRead(fieldName));
+                            createAppSearchFieldReadNumeric(fieldName));
                     break;
                 case TTL_MILLIS:
                     method.addStatement(
-                            "builder.setTtlMillis($L)", createAppSearchFieldRead(fieldName));
+                            "builder.setTtlMillis($L)", createAppSearchFieldReadNumeric(fieldName));
                     break;
                 case SCORE:
                     method.addStatement(
-                            "builder.setScore($L)", createAppSearchFieldRead(fieldName));
+                            "builder.setScore($L)", createAppSearchFieldReadNumeric(fieldName));
                     break;
             }
         }
@@ -699,5 +699,27 @@ class ToGenericDocumentCodeGenerator {
                 return CodeBlock.of("document.$N()", getter);
         }
         return null;
+    }
+
+    private CodeBlock createAppSearchFieldReadNumeric(@NonNull String fieldName) {
+        CodeBlock fieldRead = createAppSearchFieldRead(fieldName);
+
+        TypeMirror fieldType =
+                IntrospectionHelper.getPropertyType(mModel.getAllElements().get(fieldName));
+
+        String toPrimitiveMethod;
+        Object primitiveFallback;
+        if (fieldType.toString().equals("java.lang.Integer")) {
+            toPrimitiveMethod = "intValue";
+            primitiveFallback = 0;
+        } else if (fieldType.toString().equals("java.lang.Long")) {
+            toPrimitiveMethod = "longValue";
+            primitiveFallback = "0L";
+        } else {
+            return fieldRead;
+        }
+
+        return CodeBlock.of("($L != null) ? $L.$L() : $L",
+                fieldRead, fieldRead, toPrimitiveMethod, primitiveFallback);
     }
 }

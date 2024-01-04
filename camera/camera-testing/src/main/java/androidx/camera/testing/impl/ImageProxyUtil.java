@@ -16,8 +16,6 @@
 
 package androidx.camera.testing.impl;
 
-import android.annotation.SuppressLint;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageProxy;
@@ -81,7 +79,6 @@ public final class ImageProxyUtil {
             final int dataValue,
             final boolean incrementValue) {
         return new ImageProxy.PlaneProxy() {
-            @SuppressLint("SyntheticAccessor")
             final ByteBuffer mBuffer =
                     createBuffer(width, height, pixelStride, dataValue, incrementValue);
 

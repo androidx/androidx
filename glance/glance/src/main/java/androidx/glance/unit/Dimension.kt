@@ -25,7 +25,6 @@ import androidx.annotation.RestrictTo
  * These should only be used internally; developers should be using the width/height Modifiers
  * below rather than this class directly.
  *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 sealed class Dimension {

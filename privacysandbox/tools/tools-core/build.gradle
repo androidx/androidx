@@ -30,9 +30,9 @@ def compileSdk = AndroidXConfig.getDefaultAndroidConfig(project).getCompileSdk()
 
 dependencies {
     api(libs.kotlinStdlib)
-    api(libs.protobufLite)
+    api(libs.protobuf)
     api(libs.kotlinPoet)
-    implementation(libs.guavaAndroid)
+    implementation(libs.guava)
     implementation project(path: ':privacysandbox:tools:tools')
 
     testImplementation(libs.junit)

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-alpha11" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-alpha11)" variant="all" version="8.1.0-alpha11">
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
 
     <issue
         id="BanThreadSleep"
@@ -13,7 +13,7 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="interface IRemoteMediaBrowserCompat {"
+        errorLine1=""
         errorLine2="^">
         <location
             file="src/main/aidl/androidx/media2/test/common/IRemoteMediaBrowserCompat.aidl"/>
@@ -22,7 +22,7 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="interface IRemoteMediaController {"
+        errorLine1=""
         errorLine2="^">
         <location
             file="src/main/aidl/androidx/media2/test/common/IRemoteMediaController.aidl"/>
@@ -31,7 +31,7 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="interface IRemoteMediaControllerCompat {"
+        errorLine1="    void create(String controllerId, in Bundle token, boolean waitForConnection);"
         errorLine2="^">
         <location
             file="src/main/aidl/androidx/media2/test/common/IRemoteMediaControllerCompat.aidl"/>
@@ -40,7 +40,7 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="interface IRemoteMediaSession {"
+        errorLine1=""
         errorLine2="^">
         <location
             file="src/main/aidl/androidx/media2/test/common/IRemoteMediaSession.aidl"/>
@@ -49,7 +49,7 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="interface IRemoteMediaSessionCompat {"
+        errorLine1="// This is to avoid making dependency of testlib module on media library."
         errorLine2="^">
         <location
             file="src/main/aidl/androidx/media2/test/common/IRemoteMediaSessionCompat.aidl"/>

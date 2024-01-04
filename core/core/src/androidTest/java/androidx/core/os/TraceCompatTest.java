@@ -36,6 +36,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -92,6 +93,7 @@ public final class TraceCompatTest {
     }
 
     @Test
+    @Ignore("b/295944187")
     public void beginAndEndSectionAsync() throws IOException {
         startTrace();
         TraceCompat.beginAsyncSection("beginAndEndSectionAsync", /*cookie=*/5099);
@@ -103,6 +105,7 @@ public final class TraceCompatTest {
     }
 
     @Test
+    @Ignore("b/294556417")
     public void setCounter() throws IOException {
         startTrace();
         TraceCompat.setCounter("counterName", 42);

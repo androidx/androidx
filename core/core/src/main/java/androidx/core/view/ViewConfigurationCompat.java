@@ -30,6 +30,7 @@ import android.view.ViewConfiguration;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.core.util.Supplier;
 
 import java.lang.reflect.Method;
 
@@ -39,6 +40,15 @@ import java.lang.reflect.Method;
 @SuppressWarnings("JavaReflectionMemberAccess")
 public final class ViewConfigurationCompat {
     private static final String TAG = "ViewConfigCompat";
+
+    /** Value used as a minimum fling velocity, when fling is not supported. */
+    private static final int NO_FLING_MIN_VELOCITY = Integer.MAX_VALUE;
+
+    /** Value used as a maximum fling velocity, when fling is not supported. */
+    private static final int NO_FLING_MAX_VELOCITY = Integer.MIN_VALUE;
+
+    private static final int RESOURCE_ID_SUPPORTED_BUT_NOT_FOUND = 0;
+    private static final int RESOURCE_ID_NOT_SUPPORTED = -1;
 
     private static Method sGetScaledScrollFactorMethod;
 
@@ -230,17 +240,15 @@ public final class ViewConfigurationCompat {
         }
 
         if (!isInputDeviceInfoValid(inputDeviceId, axis, source)) {
-            return Integer.MAX_VALUE;
+            return NO_FLING_MIN_VELOCITY;
         }
 
         Resources res = context.getResources();
-        int platformResId = getPreApi34MinimumFlingVelocityResId(res, source, axis);
-        if (platformResId != 0) {
-            int minFlingVelocity = res.getDimensionPixelSize(platformResId);
-            return minFlingVelocity < 0 ? Integer.MAX_VALUE : minFlingVelocity;
-        }
-
-        return config.getScaledMinimumFlingVelocity();
+        return getCompatFlingVelocityThreshold(
+                res,
+                getPreApi34MinimumFlingVelocityResId(res, source, axis),
+                config::getScaledMinimumFlingVelocity,
+                NO_FLING_MIN_VELOCITY);
     }
 
     /**
@@ -265,17 +273,15 @@ public final class ViewConfigurationCompat {
         }
 
         if (!isInputDeviceInfoValid(inputDeviceId, axis, source)) {
-            return Integer.MIN_VALUE;
+            return NO_FLING_MAX_VELOCITY;
         }
 
         Resources res = context.getResources();
-        int platformResId = getPreApi34MaximumFlingVelocityResId(res, source, axis);
-        if (platformResId != 0) {
-            int maxFlingVelocity = res.getDimensionPixelSize(platformResId);
-            return maxFlingVelocity < 0 ? Integer.MIN_VALUE : maxFlingVelocity;
-        }
-
-        return config.getScaledMaximumFlingVelocity();
+        return getCompatFlingVelocityThreshold(
+                res,
+                getPreApi34MaximumFlingVelocityResId(res, source, axis),
+                config::getScaledMaximumFlingVelocity,
+                NO_FLING_MAX_VELOCITY);
     }
 
     private ViewConfigurationCompat() {
@@ -345,14 +351,16 @@ public final class ViewConfigurationCompat {
         if (source == InputDeviceCompat.SOURCE_ROTARY_ENCODER && axis == MotionEvent.AXIS_SCROLL) {
             return getPlatformResId(res, "config_viewMaxRotaryEncoderFlingVelocity", "dimen");
         }
-        return 0;
+        // A compat fling velocity threshold is not supported.
+        return RESOURCE_ID_NOT_SUPPORTED;
     }
 
     private static int getPreApi34MinimumFlingVelocityResId(Resources res, int source, int axis) {
         if (source == InputDeviceCompat.SOURCE_ROTARY_ENCODER && axis == MotionEvent.AXIS_SCROLL) {
             return getPlatformResId(res, "config_viewMinRotaryEncoderFlingVelocity", "dimen");
         }
-        return 0;
+        // A compat fling velocity threshold is not supported.
+        return RESOURCE_ID_NOT_SUPPORTED;
     }
 
     private static int getPlatformResId(Resources res, String name, String defType) {
@@ -362,5 +370,37 @@ public final class ViewConfigurationCompat {
     private static boolean isInputDeviceInfoValid(int id, int axis, int source) {
         InputDevice device = InputDevice.getDevice(id);
         return device != null && device.getMotionRange(axis, source) != null;
+    }
+
+    /**
+     * Provides a compat fling velocity threshold by looking up the value of the compat
+     * threshold specifier platform resource (provided via {@code platformResId}).
+     *
+     * <p>If the resource ID is not found, it returns the {@code noFlingThreshold}, to avoid
+     * forcing fling to older Android versions that did not intentionally add these compat
+     * resources. Exception is in the case of {@link #RESOURCE_ID_NOT_SUPPORTED}, where
+     * specifying a compat resource ID is not supported by the compat class, in which case we
+     * return the default fling velocity via the {@code defaultThresholdSupplier}.
+     */
+    private static int getCompatFlingVelocityThreshold(
+            Resources res,
+            int platformResId,
+            Supplier<Integer> defaultThresholdSupplier,
+            int noFlingThreshold) {
+        switch (platformResId) {
+            case RESOURCE_ID_NOT_SUPPORTED:
+                // Because compat fling velocity threshold is not supported, use the default fling
+                // velocity threshold.
+                return defaultThresholdSupplier.get();
+            case RESOURCE_ID_SUPPORTED_BUT_NOT_FOUND:
+                // A compat fling velocity threshold is supported, but the device has not added the
+                // compat resources. To not "force" fling on this device, block fling.
+                return noFlingThreshold;
+            default:
+                int threshold = res.getDimensionPixelSize(platformResId);
+                // Thresholds should be non-negative. A negative threshold is considered as
+                // "no-fling".
+                return threshold < 0 ? noFlingThreshold : threshold;
+        }
     }
 }

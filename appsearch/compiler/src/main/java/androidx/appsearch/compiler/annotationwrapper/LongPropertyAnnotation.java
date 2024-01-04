@@ -54,4 +54,10 @@ public abstract class LongPropertyAnnotation extends DataPropertyAnnotation {
      * Specifies how a property should be indexed.
      */
     public abstract int getIndexingType();
+
+    @NonNull
+    @Override
+    public final Kind getDataPropertyKind() {
+        return Kind.LONG_PROPERTY;
+    }
 }

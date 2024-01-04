@@ -94,7 +94,8 @@ class ExtraSupportedSurfaceCombinationsContainerDeviceTest(val cameraId: String)
                     CameraXExecutors.mainThreadExecutor(),
                     Handler(Looper.getMainLooper())
                 ),
-                null)
+                null,
+                -1L)
             return camera2CameraFactory.availableCameraIds
         }
     }

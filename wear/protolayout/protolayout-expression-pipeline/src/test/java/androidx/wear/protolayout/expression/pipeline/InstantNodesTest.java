@@ -65,10 +65,28 @@ public class InstantNodesTest {
 
         ArgumentCaptor<Runnable> receiverCaptor = ArgumentCaptor.forClass(Runnable.class);
         verify(notifier).setReceiver(any(), receiverCaptor.capture());
-        receiverCaptor.getValue().run(); // Ticking.
         assertThat(results).containsExactly(Instant.ofEpochSecond(1234567L));
 
         node.destroy();
         assertThat(timeSource.getRegisterConsumersCount()).isEqualTo(0);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testPlatformTimeSourceNode_noEpochTime() {
+        PlatformTimeUpdateNotifier notifier = mock(PlatformTimeUpdateNotifier.class);
+        DynamicTypeValueReceiverWithPreUpdate<Instant> downstream =
+                mock(DynamicTypeValueReceiverWithPreUpdate.class);
+
+        PlatformTimeSourceNode node = new PlatformTimeSourceNode(
+                /* epochTimePlatformDataSource= */ null, downstream);
+
+        node.preInit();
+        verify(downstream).onPreUpdate();
+
+        node.init();
+        verify(downstream).onInvalidated();
+
+        node.destroy();
     }
 }

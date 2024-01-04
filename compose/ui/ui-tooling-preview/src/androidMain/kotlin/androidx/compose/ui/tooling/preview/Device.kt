@@ -46,9 +46,17 @@ object Devices {
 
     const val AUTOMOTIVE_1024p = "id:automotive_1024p_landscape"
 
+    @Deprecated("Use [androidx.wear.tooling.preview.devices.WearDevices.LARGE_ROUND] from the " +
+        "wear:wear-tooling-preview library instead")
     const val WEAR_OS_LARGE_ROUND = "id:wearos_large_round"
+    @Deprecated("Use [androidx.wear.tooling.preview.devices.WearDevices.SMALL_ROUND] from the " +
+        "wear:wear-tooling-preview library instead")
     const val WEAR_OS_SMALL_ROUND = "id:wearos_small_round"
+    @Deprecated("Use [androidx.wear.tooling.preview.devices.WearDevices.SQUARE] from the " +
+        "wear:wear-tooling-preview library instead")
     const val WEAR_OS_SQUARE = "id:wearos_square"
+    @Deprecated("Use [androidx.wear.tooling.preview.devices.WearDevices.RECT] from the " +
+        "wear:wear-tooling-preview library instead")
     const val WEAR_OS_RECT = "id:wearos_rect"
 
     // Reference devices
@@ -69,6 +77,7 @@ object Devices {
  * @suppress
  */
 @Retention(AnnotationRetention.SOURCE)
+@Suppress("DEPRECATION")
 @StringDef(
     open = true,
     value = [

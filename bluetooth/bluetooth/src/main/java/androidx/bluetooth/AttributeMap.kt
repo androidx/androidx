@@ -20,8 +20,8 @@ import android.bluetooth.BluetoothGattCharacteristic as FwkCharacteristic
 import android.bluetooth.BluetoothGattService as FwkService
 
 internal class AttributeMap {
-    val services: MutableMap<FwkService, GattService> = mutableMapOf()
-    val characteristics: MutableMap<FwkCharacteristic, GattCharacteristic> =
+    private val services: MutableMap<FwkService, GattService> = mutableMapOf()
+    private val characteristics: MutableMap<FwkCharacteristic, GattCharacteristic> =
         mutableMapOf()
     fun updateWithFrameworkServices(services: List<FwkService>) {
         this.services.clear()

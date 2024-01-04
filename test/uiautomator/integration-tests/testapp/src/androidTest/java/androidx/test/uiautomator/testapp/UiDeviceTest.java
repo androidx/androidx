@@ -22,7 +22,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import android.app.UiAutomation;
 import android.graphics.Point;
 import android.view.KeyEvent;
 import android.view.Surface;
@@ -33,7 +32,6 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.BySelector;
-import androidx.test.uiautomator.Orientation;
 import androidx.test.uiautomator.UiDevice;
 import androidx.test.uiautomator.UiObject2;
 import androidx.test.uiautomator.Until;
@@ -356,59 +354,26 @@ public class UiDeviceTest extends BaseTest {
     }
 
     @Test
-    public void testSetOrientationLeft() throws Exception {
+    public void testSetOrientations() throws Exception {
         launchTestActivity(KeycodeTestActivity.class);
+
         try {
-            assertTrue(mDevice.isNaturalOrientation());
-            assertEquals(UiAutomation.ROTATION_FREEZE_0, mDevice.getDisplayRotation());
-
-            mDevice.setOrientationLeft();
-            assertFalse(mDevice.isNaturalOrientation());
-            assertEquals(UiAutomation.ROTATION_FREEZE_90, mDevice.getDisplayRotation());
-
             mDevice.setOrientationNatural();
-            assertTrue(mDevice.isNaturalOrientation());
-        } finally {
-            mDevice.unfreezeRotation();
-        }
-    }
-
-    @Test
-    public void testSetOrientationRight() throws Exception {
-        launchTestActivity(KeycodeTestActivity.class);
-        try {
-            assertTrue(mDevice.isNaturalOrientation());
-            assertEquals(UiAutomation.ROTATION_FREEZE_0, mDevice.getDisplayRotation());
-
-            mDevice.setOrientationRight();
-            assertFalse(mDevice.isNaturalOrientation());
-            assertEquals(UiAutomation.ROTATION_FREEZE_270, mDevice.getDisplayRotation());
-
-            mDevice.setOrientationNatural();
-            assertTrue(mDevice.isNaturalOrientation());
-        } finally {
-            mDevice.unfreezeRotation();
-        }
-    }
-
-    @Test
-    public void testSetOrientation() {
-        launchTestActivity(KeycodeTestActivity.class);
-
-        try {
-            mDevice.setOrientation(Orientation.ROTATION_0);
             assertEquals(Surface.ROTATION_0, mDevice.getDisplayRotation());
 
-            mDevice.setOrientation(Orientation.ROTATION_90);
+            mDevice.setOrientationLeft();
             assertEquals(Surface.ROTATION_90, mDevice.getDisplayRotation());
 
-            mDevice.setOrientation(Orientation.PORTRAIT);
+            mDevice.setOrientationRight();
+            assertEquals(Surface.ROTATION_270, mDevice.getDisplayRotation());
+
+            mDevice.setOrientationPortrait();
             assertTrue(mDevice.getDisplayHeight() >= mDevice.getDisplayWidth());
 
-            mDevice.setOrientation(Orientation.LANDSCAPE);
+            mDevice.setOrientationLandscape();
             assertTrue(mDevice.getDisplayHeight() <= mDevice.getDisplayWidth());
         } finally {
-            mDevice.setOrientation(Orientation.ROTATION_0);
+            mDevice.setOrientationNatural();
         }
     }
 

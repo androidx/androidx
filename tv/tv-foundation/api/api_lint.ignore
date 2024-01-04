@@ -1,4 +1,8 @@
 // Baseline format: 1.0
+GetterSetterNames: androidx.tv.foundation.TvScrollState#getCanScrollBackward():
+    Getter for boolean property `canScrollBackward` is named `getCanScrollBackward` but should match the property name. Use `@get:JvmName` to rename.
+GetterSetterNames: androidx.tv.foundation.TvScrollState#getCanScrollForward():
+    Getter for boolean property `canScrollForward` is named `getCanScrollForward` but should match the property name. Use `@get:JvmName` to rename.
 GetterSetterNames: androidx.tv.foundation.lazy.grid.TvLazyGridState#getCanScrollBackward():
     Getter for boolean property `canScrollBackward` is named `getCanScrollBackward` but should match the property name. Use `@get:JvmName` to rename.
 GetterSetterNames: androidx.tv.foundation.lazy.grid.TvLazyGridState#getCanScrollForward():

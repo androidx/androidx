@@ -210,6 +210,16 @@ class VirtualCamera implements CameraInternal {
     }
 
     /**
+     * Invokes {@link UseCase.StateChangeCallback#onUseCaseReset} for all children.
+     */
+    void resetChildren() {
+        checkMainThread();
+        for (UseCase useCase : mChildren) {
+            onUseCaseReset(useCase);
+        }
+    }
+
+    /**
      * Gets the callback for receiving parent camera's metadata.
      */
     @NonNull

@@ -77,24 +77,16 @@ fun Button(
     val borderStroke = border(enabled)?.value
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier
+        modifier = modifier
+            .semantics { role = Role.Button }
+            .size(buttonSize)
             .clip(shape) // Clip for the touch area (e.g. for Ripple).
             .clickable(
                 onClick = onClick,
                 enabled = enabled,
-                role = null, // provide the role via Modifier.semantics
                 interactionSource = interactionSource,
                 indication = rememberRipple(),
             )
-            .then(
-                // Make sure modifier ordering is clip > clickable > padding > size,
-                // so that the ripple applies to the entire button shape and size.
-                // Then, apply semantics to apply the default semantic role (can be overridden)
-                modifier
-                    .semantics { role = Role.Button }
-            )
-            .size(buttonSize)
-            .clip(shape) // Clip for the painted background area after size has been applied.
             .then(
                 if (borderStroke != null) Modifier.border(border = borderStroke, shape = shape)
                 else Modifier

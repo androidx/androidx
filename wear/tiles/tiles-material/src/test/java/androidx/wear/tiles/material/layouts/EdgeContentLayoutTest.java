@@ -26,8 +26,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.wear.tiles.material.CircularProgressIndicator;
-import androidx.wear.tiles.material.Text;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,16 +42,17 @@ public class EdgeContentLayoutTest {
                             .setScreenWidthDp(192)
                             .setScreenHeightDp(192)
                             .build();
-    private static final Text PRIMARY_LABEL = new Text.Builder(CONTEXT, "Primary label").build();
-    private static final Text SECONDARY_LABEL =
-            new Text.Builder(CONTEXT, "Secondary label").build();
+    private static final androidx.wear.tiles.material.Text PRIMARY_LABEL =
+            new androidx.wear.tiles.material.Text.Builder(CONTEXT, "Primary label").build();
+    private static final androidx.wear.tiles.material.Text SECONDARY_LABEL =
+            new androidx.wear.tiles.material.Text.Builder(CONTEXT, "Secondary label").build();
 
     @Test
     public void testAll() {
         androidx.wear.tiles.LayoutElementBuilders.LayoutElement content =
                 new androidx.wear.tiles.LayoutElementBuilders.Box.Builder().build();
-        CircularProgressIndicator progressIndicator =
-                new CircularProgressIndicator.Builder().build();
+        androidx.wear.tiles.material.CircularProgressIndicator progressIndicator =
+                new androidx.wear.tiles.material.CircularProgressIndicator.Builder().build();
         EdgeContentLayout layout =
                 new EdgeContentLayout.Builder(DEVICE_PARAMETERS)
                         .setContent(content)
@@ -77,8 +76,8 @@ public class EdgeContentLayoutTest {
 
     @Test
     public void testIndicatorOnly() {
-        CircularProgressIndicator progressIndicator =
-                new CircularProgressIndicator.Builder().build();
+        androidx.wear.tiles.material.CircularProgressIndicator progressIndicator =
+                new androidx.wear.tiles.material.CircularProgressIndicator.Builder().build();
         EdgeContentLayout layout =
                 new EdgeContentLayout.Builder(DEVICE_PARAMETERS)
                         .setEdgeContent(progressIndicator)

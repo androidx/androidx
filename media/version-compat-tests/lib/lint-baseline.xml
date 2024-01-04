@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
+<issues format="6" by="lint 8.2.0-alpha14" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha14)" variant="all" version="8.2.0-alpha14">
 
     <issue
         id="BanThreadSleep"
@@ -70,9 +70,7 @@
         errorLine1="            int methodId, Object arg, Context context, Parcelable token) {"
         errorLine2="                                      ~~~~~~~">
         <location
-            file="src/main/java/android/support/mediacompat/testlib/util/IntentUtil.java"
-            line="82"
-            column="39"/>
+            file="src/main/java/android/support/mediacompat/testlib/util/IntentUtil.java"/>
     </issue>
 
     <issue
@@ -81,9 +79,7 @@
         errorLine1="            int methodId, Object arg, Context context, Parcelable token) {"
         errorLine2="                                                       ~~~~~~~~~~">
         <location
-            file="src/main/java/android/support/mediacompat/testlib/util/IntentUtil.java"
-            line="82"
-            column="56"/>
+            file="src/main/java/android/support/mediacompat/testlib/util/IntentUtil.java"/>
     </issue>
 
     <issue
@@ -92,9 +88,7 @@
         errorLine1="            int methodId, Object arg, Context context, Parcelable token) {"
         errorLine2="                          ~~~~~~">
         <location
-            file="src/main/java/android/support/mediacompat/testlib/util/IntentUtil.java"
-            line="96"
-            column="27"/>
+            file="src/main/java/android/support/mediacompat/testlib/util/IntentUtil.java"/>
     </issue>
 
     <issue
@@ -103,9 +97,7 @@
         errorLine1="            int methodId, Object arg, Context context, Parcelable token) {"
         errorLine2="                                      ~~~~~~~">
         <location
-            file="src/main/java/android/support/mediacompat/testlib/util/IntentUtil.java"
-            line="96"
-            column="39"/>
+            file="src/main/java/android/support/mediacompat/testlib/util/IntentUtil.java"/>
     </issue>
 
     <issue
@@ -114,9 +106,7 @@
         errorLine1="            int methodId, Object arg, Context context, Parcelable token) {"
         errorLine2="                                                       ~~~~~~~~~~">
         <location
-            file="src/main/java/android/support/mediacompat/testlib/util/IntentUtil.java"
-            line="96"
-            column="56"/>
+            file="src/main/java/android/support/mediacompat/testlib/util/IntentUtil.java"/>
     </issue>
 
     <issue
@@ -125,9 +115,7 @@
         errorLine1="    public static void waitFor(final PollingCheckCondition condition) {"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/android/support/mediacompat/testlib/util/PollingCheck.java"
-            line="76"
-            column="38"/>
+            file="src/main/java/android/support/mediacompat/testlib/util/PollingCheck.java"/>
     </issue>
 
     <issue
@@ -136,9 +124,7 @@
         errorLine1="    public static void waitFor(long timeout, final PollingCheckCondition condition) {"
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/android/support/mediacompat/testlib/util/PollingCheck.java"
-            line="90"
-            column="52"/>
+            file="src/main/java/android/support/mediacompat/testlib/util/PollingCheck.java"/>
     </issue>
 
     <issue
@@ -147,9 +133,7 @@
         errorLine1="    public static void assertBundleEquals(Bundle expected, Bundle observed) {"
         errorLine2="                                          ~~~~~~">
         <location
-            file="src/main/java/android/support/mediacompat/testlib/util/TestUtil.java"
-            line="33"
-            column="43"/>
+            file="src/main/java/android/support/mediacompat/testlib/util/TestUtil.java"/>
     </issue>
 
     <issue
@@ -158,9 +142,7 @@
         errorLine1="    public static void assertBundleEquals(Bundle expected, Bundle observed) {"
         errorLine2="                                                           ~~~~~~">
         <location
-            file="src/main/java/android/support/mediacompat/testlib/util/TestUtil.java"
-            line="33"
-            column="60"/>
+            file="src/main/java/android/support/mediacompat/testlib/util/TestUtil.java"/>
     </issue>
 
 </issues>

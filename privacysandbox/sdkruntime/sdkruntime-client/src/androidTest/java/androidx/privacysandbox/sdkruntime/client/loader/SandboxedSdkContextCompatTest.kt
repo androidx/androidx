@@ -449,7 +449,7 @@ internal class SandboxedSdkContextCompatTest(
     companion object {
         private const val SDK_ROOT_FOLDER = "RuntimeEnabledSdksData"
         private const val SDK_SHARED_PREFERENCES_PREFIX = "RuntimeEnabledSdk"
-        private const val SDK_PACKAGE_NAME = "androidx.privacysandbox.sdkruntime.testsdk1"
+        private const val SDK_PACKAGE_NAME = "androidx.privacysandbox.sdkruntime.storageContextTest"
 
         @Parameterized.Parameters(name = "{0}")
         @JvmStatic

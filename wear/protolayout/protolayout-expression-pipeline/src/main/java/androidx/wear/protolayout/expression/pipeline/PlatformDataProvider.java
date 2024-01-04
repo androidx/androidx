@@ -35,8 +35,8 @@ public interface PlatformDataProvider {
     /**
      * Sets the receiver for receiving the platform data from this provider.
      *
-     * <p>Each provider is expected to have only one receiver. When a receiver has already been set,
-     * the implementation should throw an exception.
+     * <p>Calling this method while there is already a receiver set, should replace the previous
+     * receiver.
      *
      * <p>The implementation should periodically send the dynamic data values for the set of {@link
      * PlatformDataKey}s specified when registering this {@link PlatformDataProvider} in {@link

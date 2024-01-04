@@ -845,7 +845,6 @@ public class IntentSanitizer {
          *
          * @return the IntentSanitizer
          */
-        @SuppressLint("SyntheticAccessor")
         @NonNull
         public IntentSanitizer build() {
             if ((mAllowAnyComponent && mAllowSomeComponents)

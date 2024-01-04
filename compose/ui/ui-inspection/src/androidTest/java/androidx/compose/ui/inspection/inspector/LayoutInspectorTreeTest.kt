@@ -1272,8 +1272,6 @@ private class CompositionDataRecordImpl : CompositionDataRecord {
  *
  * @param compositionDataRecord [CompositionDataRecord] to record the SlotTable used in the
  * composition of [content]
- *
- * @suppress
  */
 @Composable
 @OptIn(InternalComposeApi::class)

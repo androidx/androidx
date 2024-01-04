@@ -13,6 +13,8 @@
 // limitations under the License.
 package androidx.appactions.builtintypes.properties
 
+import androidx.`annotation`.RestrictTo
+import androidx.`annotation`.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.appsearch.`annotation`.Document
 import java.util.Objects
 import kotlin.Any
@@ -42,17 +44,21 @@ internal constructor(
   /** The [String] variant, or null if constructed using a different variant. */
   @get:JvmName("asText") @get:Document.StringProperty public val asText: String? = null,
   /** The [CanonicalValue] variant, or null if constructed using a different variant. */
-  @get:JvmName("asCanonicalValue") public val asCanonicalValue: CanonicalValue? = null,
+  @get:JvmName("asCanonicalValue")
+  @get:Document.DocumentProperty
+  public val asCanonicalValue: CanonicalValue? = null,
   /** Required ctor param for the AppSearch compiler. */
   @Suppress("UNUSED_PARAMETER") identifier: String = "",
   /** Required ctor param for the AppSearch compiler. */
   @Suppress("UNUSED_PARAMETER") namespace: String = "",
 ) {
   @get:Document.Id
+  @get:JvmName("getIdentifier")
   internal val identifier: String
     get() = ""
 
   @get:Document.Namespace
+  @get:JvmName("getNamespace")
   internal val namespace: String
     get() = ""
 
@@ -120,7 +126,33 @@ internal constructor(
     public fun orElse(): R
   }
 
-  public abstract class CanonicalValue internal constructor() {
-    public abstract val textValue: String
+  /**
+   * Represents a canonical text value for [DisambiguatingDescription].
+   *
+   * @see androidx.appactions.builtintypes.types.Alarm.DisambiguatingDescriptionValue
+   */
+  @Document(name = "bitprop:DisambiguatingDescription:CanonicalValue")
+  public open class CanonicalValue
+  @RestrictTo(LIBRARY_GROUP)
+  constructor(
+    @get:Document.StringProperty public val textValue: String,
+  ) {
+    @get:RestrictTo(LIBRARY_GROUP)
+    @set:RestrictTo(LIBRARY_GROUP)
+    @Document.Id
+    public var identifier: String = ""
+
+    @get:RestrictTo(LIBRARY_GROUP)
+    @set:RestrictTo(LIBRARY_GROUP)
+    @Document.Namespace
+    public var namespace: String = ""
+
+    public override fun equals(other: Any?): Boolean {
+      if (this === other) return true
+      if (other !is CanonicalValue) return false
+      return textValue == other.textValue
+    }
+
+    public override fun hashCode(): Int = textValue.hashCode()
   }
 }

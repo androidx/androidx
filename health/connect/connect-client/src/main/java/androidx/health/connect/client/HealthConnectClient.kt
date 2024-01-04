@@ -331,7 +331,7 @@ interface HealthConnectClient {
             else "androidx.health.ACTION_HEALTH_CONNECT_SETTINGS"
 
         /**
-         * The Health Connect SDK is not unavailable on this device at the time. This can be due to
+         * The Health Connect SDK is unavailable on this device at the time. This can be due to
          * the device running a lower than required Android Version.
          *
          * Apps should hide any integration points to Health Connect in this case.
@@ -517,7 +517,6 @@ interface HealthConnectClient {
         /**
          * Tag used in SDK debug logs.
          *
-         * @suppress
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal const val HEALTH_CONNECT_CLIENT_TAG = "HealthConnectClient"

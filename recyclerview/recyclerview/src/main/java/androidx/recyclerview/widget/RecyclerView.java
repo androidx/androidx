@@ -72,6 +72,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.core.os.TraceCompat;
 import androidx.core.util.Preconditions;
 import androidx.core.view.AccessibilityDelegateCompat;
+import androidx.core.view.DifferentialMotionFlingHelper;
 import androidx.core.view.InputDeviceCompat;
 import androidx.core.view.MotionEventCompat;
 import androidx.core.view.NestedScrollingChild2;
@@ -7170,15 +7171,19 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 holder.clearReturnedFromScrapFlag();
             }
             recycleViewHolderInternal(holder);
-            // In most cases we dont need call endAnimation() because when view is detached,
-            // ViewPropertyAnimation will end. But if the animation is based on ObjectAnimator or
-            // if the ItemAnimator uses "pending runnable" and the ViewPropertyAnimation has not
-            // started yet, the ItemAnimatior on the view may not be cleared.
-            // In b/73552923, the View is removed by scroll pass while it's waiting in
-            // the "pending moving" list of DefaultItemAnimator and DefaultItemAnimator later in
-            // a post runnable, incorrectly performs postDelayed() on the detached view.
-            // To fix the issue, we issue endAnimation() here to make sure animation of this view
-            // finishes.
+            // If the ViewHolder is running ItemAnimator, we want the recycleView() in scroll pass
+            // to stop the ItemAnimator and put ViewHolder back in cache or Pool.
+            // There are three situations:
+            // 1. If the custom Adapter clears ViewPropertyAnimator in view detach like the
+            //    leanback (TV) app does, the ItemAnimator is likely to be stopped and
+            //    recycleViewHolderInternal will succeed.
+            // 2. If the custom Adapter clears ViewPropertyAnimator, but the ItemAnimator uses
+            //    "pending runnable" and ViewPropertyAnimator has not started yet, the ItemAnimator
+            //    on the view will not be cleared. See b/73552923.
+            // 3. If the custom Adapter does not clear ViewPropertyAnimator in view detach, the
+            //    ItemAnimator will not be cleared.
+            // Since both 2&3 lead to failure of recycleViewHolderInternal(), we just explicitly end
+            // the ItemAnimator, the callback of ItemAnimator.endAnimations() will recycle the View.
             //
             // Note the order: we must call endAnimation() after recycleViewHolderInternal()
             // to avoid recycle twice. If ViewHolder isRecyclable is false,
@@ -10871,6 +10876,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * <p>The base implementation will attempt to perform a standard programmatic scroll
          * to bring the given rect into view, within the padded area of the RecyclerView.</p>
          *
+         * @param parent    The parent RecyclerView.
          * @param child     The direct child making the request.
          * @param rect      The rectangle in the child's coordinates the child
          *                  wishes to be on the screen.
@@ -11847,6 +11853,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * in the order in which each listener was added, before any other touch processing
          * by the RecyclerView itself or child views occurs.</p>
          *
+         * @param rv The RecyclerView whose scroll state has changed.
          * @param e MotionEvent describing the touch event. All coordinates are in
          *          the RecyclerView's coordinate system.
          * @return true if this OnItemTouchListener wishes to begin intercepting touch events, false
@@ -11859,6 +11866,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * Process a touch event as part of a gesture that was claimed by returning true from
          * a previous call to {@link #onInterceptTouchEvent}.
          *
+         * @param rv The RecyclerView whose scroll state has changed.
          * @param e MotionEvent describing the touch event. All coordinates are in
          *          the RecyclerView's coordinate system.
          */
@@ -11886,15 +11894,18 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      * you update to a new version of the support library.
      */
     public static class SimpleOnItemTouchListener implements RecyclerView.OnItemTouchListener {
+        /** {@inheritDoc} */
         @Override
         public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
             return false;
         }
 
+        /** {@inheritDoc} */
         @Override
         public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
         }
 
+        /** {@inheritDoc} */
         @Override
         public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
         }
@@ -12137,10 +12148,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             this.itemView = itemView;
         }
 
-        void flagRemovedAndOffsetPosition(int mNewPosition, int offset, boolean applyToPreLayout) {
+        void flagRemovedAndOffsetPosition(int newPosition, int offset, boolean applyToPreLayout) {
             addFlags(ViewHolder.FLAG_REMOVED);
             offsetPosition(offset, applyToPreLayout);
-            mPosition = mNewPosition;
+            mPosition = newPosition;
         }
 
         void offsetPosition(int offset, boolean applyToPreLayout) {
@@ -14672,6 +14683,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * if you want to change the drawing order of children. By default, it
          * returns i.
          *
+         * @param childCount The total number of children.
          * @param i The current iteration.
          * @return The index of the child to draw this iteration.
          * @see RecyclerView#setChildDrawingOrderCallback(RecyclerView.ChildDrawingOrderCallback)

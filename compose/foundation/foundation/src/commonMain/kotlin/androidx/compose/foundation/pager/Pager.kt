@@ -81,11 +81,12 @@ import kotlinx.coroutines.launch
  * to add a padding before the first page or after the last one. Use [pageSpacing] to add spacing
  * between the pages.
  * @param pageSize Use this to change how the pages will look like inside this pager.
- * @param beyondBoundsPageCount Pages to load before and after the list of visible
+ * @param beyondBoundsPageCount Pages to compose and layout before and after the list of visible
  * pages. Note: Be aware that using a large value for [beyondBoundsPageCount] will cause a lot of
  * pages to be composed, measured and placed which will defeat the purpose of using lazy loading.
  * This should be used as an optimization to pre-load a couple of pages before and after the visible
- * ones.
+ * ones. This does not include the pages automatically composed and laid out by the pre-fetcher in
+ * the direction of the scroll during scroll events.
  * @param pageSpacing The amount of space to be used to separate the pages in this Pager
  * @param verticalAlignment How pages are aligned vertically in this Pager.
  * @param flingBehavior The [FlingBehavior] to be used for post scroll gestures.
@@ -107,7 +108,7 @@ fun HorizontalPager(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     pageSize: PageSize = PageSize.Fill,
-    beyondBoundsPageCount: Int = 0,
+    beyondBoundsPageCount: Int = PagerDefaults.BeyondBoundsPageCount,
     pageSpacing: Dp = 0.dp,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
     flingBehavior: SnapFlingBehavior = PagerDefaults.flingBehavior(state = state),
@@ -160,11 +161,12 @@ fun HorizontalPager(
  * to add a padding before the first page or after the last one. Use [pageSpacing] to add spacing
  * between the pages.
  * @param pageSize Use this to change how the pages will look like inside this pager.
- * @param beyondBoundsPageCount Pages to load before and after the list of visible
+ * @param beyondBoundsPageCount Pages to compose and layout before and after the list of visible
  * pages. Note: Be aware that using a large value for [beyondBoundsPageCount] will cause a lot of
  * pages to be composed, measured and placed which will defeat the purpose of using lazy loading.
  * This should be used as an optimization to pre-load a couple of pages before and after the visible
- * ones.
+ * ones. This does not include the pages automatically composed and laid out by the pre-fetcher in
+ *  * the direction of the scroll during scroll events.
  * @param pageSpacing The amount of space to be used to separate the pages in this Pager
  * @param verticalAlignment How pages are aligned vertically in this Pager.
  * @param flingBehavior The [FlingBehavior] to be used for post scroll gestures.
@@ -215,7 +217,7 @@ fun HorizontalPager(
     state: PagerState = rememberPagerState { pageCount },
     contentPadding: PaddingValues = PaddingValues(0.dp),
     pageSize: PageSize = PageSize.Fill,
-    beyondBoundsPageCount: Int = 0,
+    beyondBoundsPageCount: Int = PagerDefaults.BeyondBoundsPageCount,
     pageSpacing: Dp = 0.dp,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
     flingBehavior: SnapFlingBehavior = PagerDefaults.flingBehavior(state = state),
@@ -267,11 +269,12 @@ fun HorizontalPager(
  * to add a padding before the first page or after the last one. Use [pageSpacing] to add spacing
  * between the pages.
  * @param pageSize Use this to change how the pages will look like inside this pager.
- * @param beyondBoundsPageCount Pages to load before and after the list of visible
+ * @param beyondBoundsPageCount Pages to compose and layout before and after the list of visible
  * pages. Note: Be aware that using a large value for [beyondBoundsPageCount] will cause a lot of
  * pages to be composed, measured and placed which will defeat the purpose of using lazy loading.
  * This should be used as an optimization to pre-load a couple of pages before and after the visible
- * ones.
+ * ones. This does not include the pages automatically composed and laid out by the pre-fetcher in
+ *  * the direction of the scroll during scroll events.
  * @param pageSpacing The amount of space to be used to separate the pages in this Pager
  * @param horizontalAlignment How pages are aligned horizontally in this Pager.
  * @param flingBehavior The [FlingBehavior] to be used for post scroll gestures.
@@ -293,7 +296,7 @@ fun VerticalPager(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     pageSize: PageSize = PageSize.Fill,
-    beyondBoundsPageCount: Int = 0,
+    beyondBoundsPageCount: Int = PagerDefaults.BeyondBoundsPageCount,
     pageSpacing: Dp = 0.dp,
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     flingBehavior: SnapFlingBehavior = PagerDefaults.flingBehavior(state = state),
@@ -346,11 +349,12 @@ fun VerticalPager(
  * to add a padding before the first page or after the last one. Use [pageSpacing] to add spacing
  * between the pages.
  * @param pageSize Use this to change how the pages will look like inside this pager.
- * @param beyondBoundsPageCount Pages to load before and after the list of visible
+ * @param beyondBoundsPageCount Pages to compose and layout before and after the list of visible
  * pages. Note: Be aware that using a large value for [beyondBoundsPageCount] will cause a lot of
  * pages to be composed, measured and placed which will defeat the purpose of using lazy loading.
  * This should be used as an optimization to pre-load a couple of pages before and after the visible
- * ones.
+ * ones. This does not include the pages automatically composed and laid out by the pre-fetcher in
+ *  * the direction of the scroll during scroll events.
  * @param pageSpacing The amount of space to be used to separate the pages in this Pager
  * @param horizontalAlignment How pages are aligned horizontally in this Pager.
  * @param flingBehavior The [FlingBehavior] to be used for post scroll gestures.
@@ -400,7 +404,7 @@ fun VerticalPager(
     state: PagerState = rememberPagerState { pageCount },
     contentPadding: PaddingValues = PaddingValues(0.dp),
     pageSize: PageSize = PageSize.Fill,
-    beyondBoundsPageCount: Int = 0,
+    beyondBoundsPageCount: Int = PagerDefaults.BeyondBoundsPageCount,
     pageSpacing: Dp = 0.dp,
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     flingBehavior: SnapFlingBehavior = PagerDefaults.flingBehavior(state = state),
@@ -603,6 +607,13 @@ object PagerDefaults {
     ): NestedScrollConnection {
         return DefaultPagerNestedScrollConnection(state, orientation)
     }
+
+    /**
+     * The default value of beyondBoundsPageCount used to specify the number of pages to compose
+     * and layout before and after the visible pages. It does not include the pages automatically
+     * composed and laid out by the pre-fetcher in the direction of the scroll during scroll events.
+     */
+    const val BeyondBoundsPageCount = 0
 }
 
 /**

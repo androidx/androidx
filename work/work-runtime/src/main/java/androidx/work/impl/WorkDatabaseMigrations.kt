@@ -76,6 +76,13 @@ internal object WorkDatabaseVersions {
 
     // made input_merger_class_name non null
     const val VERSION_17 = 17
+    // next_schedule_time_override & next_schedule_time_override_generation were added
+    @Suppress("unused")
+    const val VERSION_18 = 18
+    // stop_reason added
+    const val VERSION_19 = 19
+    // default value of last_enqueue_time changed to -1
+    const val VERSION_20 = 20
 }
 
 private const val CREATE_SYSTEM_ID_INFO =
@@ -403,5 +410,11 @@ object Migration_16_17 : Migration(VERSION_16, VERSION_17) {
             "ON `WorkSpec` (`schedule_requested_at`)")
         db.execSQL("CREATE INDEX IF NOT EXISTS `index_WorkSpec_last_enqueue_time` ON" +
             "`WorkSpec` (`last_enqueue_time`)")
+    }
+}
+
+class AutoMigration_19_20 : AutoMigrationSpec {
+    override fun onPostMigrate(db: SupportSQLiteDatabase) {
+        db.execSQL("UPDATE WorkSpec SET `last_enqueue_time` = -1 WHERE `last_enqueue_time` = 0")
     }
 }

@@ -200,7 +200,8 @@ public final class Camera2CameraImplTest {
         mCamera2CameraImpl = new Camera2CameraImpl(
                 cameraManagerCompat, mCameraId, camera2CameraInfo, mCameraCoordinator,
                 mCameraStateRegistry, sCameraExecutor, sCameraHandler,
-                DisplayInfoManager.getInstance(ApplicationProvider.getApplicationContext())
+                DisplayInfoManager.getInstance(ApplicationProvider.getApplicationContext()),
+                -1L
         );
     }
 
@@ -1116,7 +1117,8 @@ public final class Camera2CameraImplTest {
                     cameraManagerCompat, mPairedCameraId, pairedCamera2CameraInfo,
                     mCameraCoordinator,
                     mCameraStateRegistry, sCameraExecutor, sCameraHandler,
-                    DisplayInfoManager.getInstance(ApplicationProvider.getApplicationContext()));
+                    DisplayInfoManager.getInstance(ApplicationProvider.getApplicationContext()),
+                    -1L);
             mCameraCoordinator.addConcurrentCameraIdsAndCameraSelectors(
                     new HashMap<String, CameraSelector>() {{
                         put(mCameraId, DEFAULT_BACK_CAMERA);

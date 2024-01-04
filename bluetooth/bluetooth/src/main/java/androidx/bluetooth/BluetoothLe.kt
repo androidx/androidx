@@ -39,7 +39,6 @@ import kotlinx.coroutines.flow.callbackFlow
 /**
  * Entry point for BLE related operations. This class provides a way to perform Bluetooth LE
  * operations such as scanning, advertising, and connection with a respective [BluetoothDevice].
- *
  */
 class BluetoothLe constructor(private val context: Context) {
 
@@ -53,8 +52,14 @@ class BluetoothLe constructor(private val context: Context) {
 
     @VisibleForTesting
     @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-    val client = GattClient(context)
-    private val server = GattServer(context)
+    val client: GattClient by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        GattClient(context)
+    }
+    @VisibleForTesting
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    val server: GattServer by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        GattServer(context)
+    }
 
     @VisibleForTesting
     @get:RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -62,30 +67,31 @@ class BluetoothLe constructor(private val context: Context) {
     var onStartScanListener: OnStartScanListener? = null
 
     /**
-     * Returns a _cold_ [Flow] to start Bluetooth LE Advertising. When the flow is successfully collected,
-     * the operation status [AdvertiseResult] will be delivered via the
-     * flow [kotlinx.coroutines.channels.Channel].
+     * Returns a _cold_ [Flow] to start Bluetooth LE Advertising.
+     * When the flow is successfully collected, the operation status [AdvertiseResult] will be
+     * delivered via the flow [kotlinx.coroutines.channels.Channel].
      *
-     * @param advertiseParams [AdvertiseParams] for Bluetooth LE advertising.
-     * @return A _cold_ [Flow] with [AdvertiseResult] status in the data stream.
+     * @param advertiseParams [AdvertiseParams] for Bluetooth LE advertising
+     * @return a _cold_ [Flow] with [AdvertiseResult] status in the data stream
      */
     @RequiresPermission("android.permission.BLUETOOTH_ADVERTISE")
-    fun advertise(advertiseParams: AdvertiseParams): Flow<Int> = callbackFlow {
+    fun advertise(advertiseParams: AdvertiseParams): Flow<@AdvertiseResult.ResultType Int> =
+        callbackFlow {
         val callback = object : AdvertiseCallback() {
             override fun onStartFailure(errorCode: Int) {
                 Log.d(TAG, "onStartFailure() called with: errorCode = $errorCode")
 
                 when (errorCode) {
-                    AdvertiseCallback.ADVERTISE_FAILED_DATA_TOO_LARGE ->
+                    ADVERTISE_FAILED_DATA_TOO_LARGE ->
                         trySend(AdvertiseResult.ADVERTISE_FAILED_DATA_TOO_LARGE)
 
-                    AdvertiseCallback.ADVERTISE_FAILED_FEATURE_UNSUPPORTED ->
+                    ADVERTISE_FAILED_FEATURE_UNSUPPORTED ->
                         trySend(AdvertiseResult.ADVERTISE_FAILED_FEATURE_UNSUPPORTED)
 
-                    AdvertiseCallback.ADVERTISE_FAILED_INTERNAL_ERROR ->
+                    ADVERTISE_FAILED_INTERNAL_ERROR ->
                         trySend(AdvertiseResult.ADVERTISE_FAILED_INTERNAL_ERROR)
 
-                    AdvertiseCallback.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS ->
+                    ADVERTISE_FAILED_TOO_MANY_ADVERTISERS ->
                         trySend(AdvertiseResult.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS)
                 }
             }
@@ -131,12 +137,12 @@ class BluetoothLe constructor(private val context: Context) {
     }
 
     /**
-     * Returns a _cold_ [Flow] to start Bluetooth LE scanning. Scanning is used to
-     * discover advertising devices nearby.
+     * Returns a _cold_ [Flow] to start Bluetooth LE scanning.
+     * Scanning is used to discover advertising devices nearby.
      *
-     * @param filters [ScanFilter]s for finding exact Bluetooth LE devices.
+     * @param filters [ScanFilter]s for finding exact Bluetooth LE devices
      *
-     * @return A _cold_ [Flow] of [ScanResult] that matches with the given scan filter.
+     * @return a _cold_ [Flow] of [ScanResult] that matches with the given scan filter
      */
     @RequiresPermission("android.permission.BLUETOOTH_SCAN")
     fun scan(filters: List<ScanFilter> = emptyList()): Flow<ScanResult> = callbackFlow {
@@ -165,20 +171,19 @@ class BluetoothLe constructor(private val context: Context) {
     /**
      * Scope for operations as a GATT client role.
      *
-     * @see connectGatt
+     * @see BluetoothLe.connectGatt
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     interface GattClientScope {
 
         /**
-         * Gets the services discovered from the remote device
+         * Gets the services discovered from the remote device.
          */
         fun getServices(): List<GattService>
 
         /**
          * Gets the service of the remote device by UUID.
          *
-         * If multiple instances of the same service exist, the first instance of the service
+         * If multiple instances of the same service exist, the first instance of the services
          * is returned.
          */
         fun getService(uuid: UUID): GattService?
@@ -187,7 +192,7 @@ class BluetoothLe constructor(private val context: Context) {
          * Reads the characteristic value from the server.
          *
          * @param characteristic a remote [GattCharacteristic] to read
-         * @return The value of the characteristic
+         * @return the value of the characteristic
          */
         suspend fun readCharacteristic(characteristic: GattCharacteristic):
             Result<ByteArray>
@@ -197,15 +202,11 @@ class BluetoothLe constructor(private val context: Context) {
          *
          * @param characteristic a remote [GattCharacteristic] to write
          * @param value a value to be written.
-         * @param writeType [GattCharacteristic.WRITE_TYPE_DEFAULT],
-         * [GattCharacteristic.WRITE_TYPE_NO_RESPONSE], or
-         * [GattCharacteristic.WRITE_TYPE_SIGNED].
          * @return the result of the write operation
          */
         suspend fun writeCharacteristic(
             characteristic: GattCharacteristic,
-            value: ByteArray,
-            writeType: Int
+            value: ByteArray
         ): Result<Unit>
 
         /**
@@ -214,8 +215,8 @@ class BluetoothLe constructor(private val context: Context) {
         fun subscribeToCharacteristic(characteristic: GattCharacteristic): Flow<ByteArray>
 
         /**
-         * Suspends the current coroutine until the pending operations are handled and the connection
-         * is closed, then it invokes the given [block] before resuming the coroutine.
+         * Suspends the current coroutine until the pending operations are handled and the
+         * connection is closed, then it invokes the given [block] before resuming the coroutine.
          */
         suspend fun awaitClose(block: () -> Unit)
     }
@@ -227,13 +228,13 @@ class BluetoothLe constructor(private val context: Context) {
      * The block may not be run if connection fails.
      *
      * @param device a [BluetoothDevice] to connect to
-     * @param block a block of code that is invoked after the connection is made.
+     * @param block a block of code that is invoked after the connection is made
      *
      * @return a result returned by the given block if the connection was successfully finished
-     *         or an failure with the corresponding reason.
+     *         or a failure with the corresponding reason
      *
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RequiresPermission("android.permission.BLUETOOTH_CONNECT")
     suspend fun <R> connectGatt(
         device: BluetoothDevice,
         block: suspend GattClientScope.() -> R
@@ -244,7 +245,7 @@ class BluetoothLe constructor(private val context: Context) {
     /**
      * Represents a client connection request from a remote device.
      *
-     * @property device The remote device connecting to the server.
+     * @property device the remote device connecting to the server
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     class GattServerConnectionRequest internal constructor(
@@ -255,16 +256,18 @@ class BluetoothLe constructor(private val context: Context) {
         /**
          * Accepts the connection request and handles incoming requests after that.
          *
-         * Requests before calling this should be saved.
+         * Requests from the client before calling this should be saved.
          *
          * @see GattServerScope
          */
-        suspend fun accept(block: GattServerScope.() -> Unit) {
+        suspend fun accept(block: suspend GattServerScope.() -> Unit) {
             return server.acceptConnection(this, block)
         }
 
         /**
          * Rejects the connection request.
+         *
+         * All the requests from the client will be rejected.
          */
         fun reject() {
             return server.rejectConnection(this)
@@ -296,8 +299,8 @@ class BluetoothLe constructor(private val context: Context) {
         /**
          * Notifies a client of a characteristic value change.
          *
-         * @param characteristic the updated characteristic.
-         * @param value the new value of the characteristic.
+         * @param characteristic the updated characteristic
+         * @param value the new value of the characteristic
          */
         fun notify(characteristic: GattCharacteristic, value: ByteArray)
     }
@@ -323,7 +326,7 @@ class BluetoothLe constructor(private val context: Context) {
      * Updates the services of the opened GATT server.
      * It will be ignored if there is no opened server.
      *
-     * @param services the new services that will be notified to the clients.
+     * @param services the new services that will be notified to the clients
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     fun updateServices(services: List<GattService>) {

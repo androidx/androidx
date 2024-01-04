@@ -75,6 +75,7 @@ internal fun LazyLayoutMeasureScope.measurePager(
             firstVisiblePage = null,
             firstVisiblePageOffset = 0,
             reverseLayout = false,
+            beyondBoundsPageCount = beyondBoundsPageCount,
             canScrollForward = false
         )
     } else {
@@ -388,6 +389,7 @@ internal fun LazyLayoutMeasureScope.measurePager(
             pageSize = pageAvailableSize,
             pageSpacing = spaceBetweenPages,
             afterContentPadding = afterContentPadding,
+            beyondBoundsPageCount = beyondBoundsPageCount,
             canScrollForward = index < pageCount || currentMainAxisOffset > maxOffset
         )
     }
@@ -509,7 +511,7 @@ private fun LazyLayoutMeasureScope.calculatePagesOffsets(
         val sizes = IntArray(pagesCount) { pageAvailableSize }
         val offsets = IntArray(pagesCount) { 0 }
 
-        val arrangement = spacedBy(pageAvailableSize.toDp())
+        val arrangement = spacedBy(spaceBetweenPages.toDp())
         if (orientation == Orientation.Vertical) {
             with(arrangement) { density.arrange(mainAxisLayoutSize, sizes, offsets) }
         } else {

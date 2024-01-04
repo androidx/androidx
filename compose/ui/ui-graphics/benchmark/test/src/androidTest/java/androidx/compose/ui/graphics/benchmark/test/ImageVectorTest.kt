@@ -19,8 +19,10 @@ package androidx.compose.ui.graphics.benchmark.test
 import android.os.Build
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
@@ -62,14 +64,23 @@ class ImageVectorTest {
         val xmlTestCase = XmlVectorTestCase()
         val programmaticTestCase = ProgrammaticVectorTestCase()
 
+        var firstRun by mutableStateOf(true)
         rule.setContent {
-            Column {
-                xmlTestCase.Content()
-                programmaticTestCase.Content()
+            Box {
+                if (firstRun) {
+                    xmlTestCase.Content()
+                } else {
+                    programmaticTestCase.Content()
+                }
             }
         }
 
         val xmlBitmap = rule.onNodeWithTag(xmlTestCase.testTag).captureToImage().asAndroidBitmap()
+
+        firstRun = false
+
+        rule.waitForIdle()
+
         val programmaticBitmap = rule.onNodeWithTag(programmaticTestCase.testTag).captureToImage()
             .asAndroidBitmap()
 

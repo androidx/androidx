@@ -20,11 +20,15 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.car.app.TestUtils;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarText;
+import androidx.car.app.serialization.Bundler;
+import androidx.car.app.serialization.BundlerException;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Test;
@@ -263,6 +267,18 @@ public class ConversationItemTest {
                         .createFullyPopulatedConversationItemBuilder()
                         .addAction(customAction)
                         .build());
+    }
+
+    @Test
+    public void toFromBundle_fullItem_keepsAllFields() throws BundlerException {
+        ConversationItem conversationItem =
+                TestConversationFactory.createFullyPopulatedConversationItem();
+
+        Bundle bundle = Bundler.toBundle(conversationItem);
+        ConversationItem reconstitutedConversationItem =
+                (ConversationItem) Bundler.fromBundle(bundle);
+
+        assertThat(reconstitutedConversationItem).isEqualTo(conversationItem);
     }
 
     private void assertEqual(ConversationItem item1, ConversationItem item2) {

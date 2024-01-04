@@ -34,9 +34,6 @@ android {
             shrinkResources true
         }
     }
-    lintOptions {
-        disable("SyntheticAccessor")
-    }
     namespace "androidx.camera.integration.viewfinder"
 }
 

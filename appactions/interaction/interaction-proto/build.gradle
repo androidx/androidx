@@ -92,8 +92,8 @@ android {
         }
     }
     lintOptions {
-        // protobuf generates unannotated and synthetic accessor methods
-        disable("UnknownNullness", "SyntheticAccessor")
+        // protobuf generates unannotated methods
+        disable("UnknownNullness")
     }
 }
 

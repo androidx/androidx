@@ -915,7 +915,8 @@ internal constructor(
     override fun validate() {
         super.validate()
         require(min <= max) { "min must be lower than or equal to max" }
-        require(value == PLACEHOLDER || value in min..max) { "value must be between min and max" }
+        require(value == PLACEHOLDER || Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+            value in min..max) { "From T API onwards, value must be between min and max" }
         require(max != Float.MAX_VALUE) { "Float.MAX_VALUE is reserved and can't be used for max" }
         require(monochromaticImage != null || smallImage != null || text != null || title != null) {
             "At least one of monochromaticImage, smallImage, text or title must be set"

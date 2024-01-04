@@ -61,7 +61,6 @@ fun GlanceModifier.clickable(
 ): GlanceModifier =
     this.then(ActionModifier(action(key, block)))
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class ActionModifier(val action: Action) : GlanceModifier.Element {
     override fun toString(): String {

@@ -18,6 +18,7 @@ package androidx.bluetooth
 
 import java.util.UUID
 import junit.framework.TestCase.assertEquals
+import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertNull
 import kotlin.test.assertFailsWith
 import org.junit.Test
@@ -75,6 +76,8 @@ class ScanFilterTest {
         assertEquals(serviceDataMask, scanFilter.serviceDataMask)
         assertEquals(serviceUuid, scanFilter.serviceUuid)
         assertEquals(serviceUuidMask, scanFilter.serviceUuidMask)
+
+        assertNotNull(scanFilter.fwkScanFilter)
     }
 
     @Test

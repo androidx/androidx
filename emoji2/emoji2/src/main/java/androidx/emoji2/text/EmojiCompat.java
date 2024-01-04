@@ -1718,7 +1718,6 @@ public class EmojiCompat {
             }
         }
 
-        @SuppressWarnings("SyntheticAccessor")
         void onMetadataLoadSuccess(@NonNull final MetadataRepo metadataRepo) {
             //noinspection ConstantConditions
             if (metadataRepo == null) {

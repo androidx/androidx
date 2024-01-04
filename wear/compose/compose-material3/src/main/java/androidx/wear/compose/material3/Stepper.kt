@@ -63,6 +63,7 @@ import kotlin.math.roundToInt
  * that defaults to [contentColor], unless specifically overridden.
  * @param content Content body for the Stepper.
  */
+@ExperimentalWearMaterial3Api
 @Composable
 fun Stepper(
     value: Float,
@@ -143,6 +144,7 @@ fun Stepper(
  * that defaults to [contentColor], unless specifically overridden.
  * @param content Content body for the Stepper.
  */
+@ExperimentalWearMaterial3Api
 @Composable
 fun Stepper(
     value: Int,
@@ -174,6 +176,7 @@ fun Stepper(
 /**
  * Defaults used by stepper.
  */
+@ExperimentalWearMaterial3Api
 public object StepperDefaults {
     /**
      * Decrease [ImageVector].

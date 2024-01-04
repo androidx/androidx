@@ -16,7 +16,6 @@
 
 package com.example.datastoresampleapp
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
@@ -83,7 +82,6 @@ class SettingsFragment() : PreferenceFragmentCompat() {
     }
 
     @Suppress("OPT_IN_MARKER_ON_OVERRIDE_WARNING")
-    @SuppressLint("SyntheticAccessor")
     @ExperimentalCoroutinesApi
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

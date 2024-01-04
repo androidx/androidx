@@ -22,6 +22,7 @@ import androidx.work.NetworkType
 import androidx.work.NetworkType.TEMPORARILY_UNMETERED
 import androidx.work.NetworkType.UNMETERED
 import androidx.work.StopReason
+import androidx.work.WorkInfo
 import androidx.work.impl.constraints.ConstraintListener
 import androidx.work.impl.constraints.ConstraintsState
 import androidx.work.impl.constraints.ConstraintsState.ConstraintsMet
@@ -37,7 +38,8 @@ import kotlinx.coroutines.flow.callbackFlow
 abstract class ConstraintController<T>(
     private val tracker: ConstraintTracker<T>
 ) {
-    abstract val reason: StopReason
+    @StopReason
+    abstract val reason: Int
     abstract fun hasConstraint(workSpec: WorkSpec): Boolean
     abstract fun isConstrained(value: T): Boolean
 
@@ -65,7 +67,7 @@ abstract class ConstraintController<T>(
  */
 class BatteryChargingController(tracker: ConstraintTracker<Boolean>) :
     ConstraintController<Boolean>(tracker) {
-    override val reason = StopReason.ConstraintCharging
+    override val reason = WorkInfo.STOP_REASON_CONSTRAINT_CHARGING
     override fun hasConstraint(workSpec: WorkSpec) = workSpec.constraints.requiresCharging()
 
     override fun isConstrained(value: Boolean) = !value
@@ -76,7 +78,7 @@ class BatteryChargingController(tracker: ConstraintTracker<Boolean>) :
  */
 class BatteryNotLowController(tracker: BatteryNotLowTracker) :
     ConstraintController<Boolean>(tracker) {
-    override val reason = StopReason.ConstraintBatteryNotLow
+    override val reason = WorkInfo.STOP_REASON_CONSTRAINT_BATTERY_NOT_LOW
     override fun hasConstraint(workSpec: WorkSpec) = workSpec.constraints.requiresBatteryNotLow()
 
     override fun isConstrained(value: Boolean) = !value
@@ -87,7 +89,7 @@ class BatteryNotLowController(tracker: BatteryNotLowTracker) :
  */
 class NetworkUnmeteredController(tracker: ConstraintTracker<NetworkState>) :
     ConstraintController<NetworkState>(tracker) {
-    override val reason = StopReason.ConstraintConnectivity
+    override val reason = WorkInfo.STOP_REASON_CONSTRAINT_CONNECTIVITY
     override fun hasConstraint(workSpec: WorkSpec): Boolean {
         val requiredNetworkType = workSpec.constraints.requiredNetworkType
         return requiredNetworkType == UNMETERED ||
@@ -102,7 +104,7 @@ class NetworkUnmeteredController(tracker: ConstraintTracker<NetworkState>) :
  */
 class StorageNotLowController(tracker: ConstraintTracker<Boolean>) :
     ConstraintController<Boolean>(tracker) {
-    override val reason = StopReason.ConstraintStorageNotLow
+    override val reason = WorkInfo.STOP_REASON_CONSTRAINT_STORAGE_NOT_LOW
     override fun hasConstraint(workSpec: WorkSpec) = workSpec.constraints.requiresStorageNotLow()
 
     override fun isConstrained(value: Boolean) = !value
@@ -113,7 +115,7 @@ class StorageNotLowController(tracker: ConstraintTracker<Boolean>) :
  */
 class NetworkNotRoamingController(tracker: ConstraintTracker<NetworkState>) :
     ConstraintController<NetworkState>(tracker) {
-    override val reason = StopReason.ConstraintConnectivity
+    override val reason = WorkInfo.STOP_REASON_CONSTRAINT_CONNECTIVITY
     override fun hasConstraint(workSpec: WorkSpec): Boolean {
         return workSpec.constraints.requiredNetworkType == NetworkType.NOT_ROAMING
     }
@@ -149,7 +151,7 @@ class NetworkNotRoamingController(tracker: ConstraintTracker<NetworkState>) :
  */
 class NetworkConnectedController(tracker: ConstraintTracker<NetworkState>) :
     ConstraintController<NetworkState>(tracker) {
-    override val reason = StopReason.ConstraintConnectivity
+    override val reason = WorkInfo.STOP_REASON_CONSTRAINT_CONNECTIVITY
     override fun hasConstraint(workSpec: WorkSpec) =
         workSpec.constraints.requiredNetworkType == NetworkType.CONNECTED
 
@@ -166,7 +168,7 @@ class NetworkConnectedController(tracker: ConstraintTracker<NetworkState>) :
  */
 class NetworkMeteredController(tracker: ConstraintTracker<NetworkState>) :
     ConstraintController<NetworkState>(tracker) {
-    override val reason = StopReason.ConstraintConnectivity
+    override val reason = WorkInfo.STOP_REASON_CONSTRAINT_CONNECTIVITY
     override fun hasConstraint(workSpec: WorkSpec) =
         workSpec.constraints.requiredNetworkType == NetworkType.METERED
 

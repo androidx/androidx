@@ -129,8 +129,8 @@ public class ViewConfigurationCompatTest {
                 rotaryEncoderDevice.getId(),
                 AXIS_SCROLL,
                 SOURCE_ROTARY_ENCODER,
-                /* minVel= */ 10,
-                /* maxVel= */ 20);
+                /* minVel= */ Integer.MAX_VALUE,
+                /* maxVel= */ Integer.MIN_VALUE);
     }
 
     @Test

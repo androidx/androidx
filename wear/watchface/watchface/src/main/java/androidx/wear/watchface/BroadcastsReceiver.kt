@@ -87,7 +87,6 @@ constructor(private val context: Context, private val observer: BroadcastEventOb
 
     internal val receiver: BroadcastReceiver =
         object : BroadcastReceiver() {
-            @SuppressWarnings("SyntheticAccessor")
             override fun onReceive(context: Context, intent: Intent) {
                 when (intent.action) {
                     Intent.ACTION_BATTERY_LOW -> observer.onActionBatteryLow()

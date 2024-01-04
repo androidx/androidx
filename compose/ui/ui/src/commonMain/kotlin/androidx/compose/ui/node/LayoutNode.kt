@@ -1332,6 +1332,7 @@ internal class LayoutNode(
     override fun onReuse() {
         require(isAttached) { "onReuse is only expected on attached node" }
         interopViewFactoryHolder?.onReuse()
+        subcompositionsState?.onReuse()
         if (deactivated) {
             deactivated = false
             // we don't need to reset state as it was done when deactivated
@@ -1346,12 +1347,14 @@ internal class LayoutNode(
 
     override fun onDeactivate() {
         interopViewFactoryHolder?.onDeactivate()
+        subcompositionsState?.onDeactivate()
         deactivated = true
         resetModifierState()
     }
 
     override fun onRelease() {
         interopViewFactoryHolder?.onRelease()
+        subcompositionsState?.onRelease()
         forEachCoordinatorIncludingInner { it.onRelease() }
     }
 

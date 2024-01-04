@@ -120,7 +120,6 @@ public abstract class PagedList<T : Any> internal constructor(
     /**
      * The [PagingSource] that provides data to this [PagedList].
      *
-     * @suppress
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public open val pagingSource: PagingSource<*, T>,
@@ -135,10 +134,6 @@ public abstract class PagedList<T : Any> internal constructor(
      */
     public val config: Config
 ) : AbstractList<T>() {
-    /**
-     * @suppress
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public companion object {
         /**
          * Create a [PagedList] which loads data from the provided data source on a background
@@ -157,7 +152,6 @@ public abstract class PagedList<T : Any> internal constructor(
          * @return The newly created [PagedList], which will page in data from the [PagingSource] as
          * needed.
          *
-         * @suppress
          */
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -901,9 +895,6 @@ public abstract class PagedList<T : Any> internal constructor(
         public open fun onItemAtEndLoaded(itemAtEnd: T) {}
     }
 
-    /**
-     * @suppress
-     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public abstract class LoadStateManager {
         public var refreshState: LoadState = LoadState.NotLoading.Incomplete
@@ -930,9 +921,6 @@ public abstract class PagedList<T : Any> internal constructor(
             onStateChanged(type, state)
         }
 
-        /**
-         * @suppress
-         */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // protected otherwise.
         public abstract fun onStateChanged(type: LoadType, state: LoadState)
 
@@ -943,9 +931,6 @@ public abstract class PagedList<T : Any> internal constructor(
         }
     }
 
-    /**
-     * @suppress
-     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // protected otherwise
     public fun getNullPaddedList(): NullPaddedList<T> = storage
 
@@ -956,7 +941,6 @@ public abstract class PagedList<T : Any> internal constructor(
      *
      * Used by list diffing to re-initialize loading near viewport.
      *
-     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun lastLoad(): Int = storage.lastLoadAroundIndex
@@ -1022,15 +1006,9 @@ public abstract class PagedList<T : Any> internal constructor(
      */
     public abstract val isDetached: Boolean
 
-    /**
-     * @suppress
-     */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public abstract fun dispatchCurrentLoadState(callback: (LoadType, LoadState) -> Unit)
 
-    /**
-     * @suppress
-     */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public abstract fun loadAroundInternal(index: Int)
 
@@ -1083,9 +1061,6 @@ public abstract class PagedList<T : Any> internal constructor(
     public val positionOffset: Int
         get() = storage.positionOffset
 
-    /**
-     * @suppress
-     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public open fun setInitialLoadState(loadType: LoadType, loadState: LoadState) {
     }
@@ -1105,9 +1080,6 @@ public abstract class PagedList<T : Any> internal constructor(
      */
     public open fun retry() {}
 
-    /**
-     * @suppress
-     */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public fun setRetryCallback(refreshRetryCallback: Runnable?) {
         this.refreshRetryCallback = refreshRetryCallback
@@ -1257,18 +1229,12 @@ public abstract class PagedList<T : Any> internal constructor(
         callbacks.reversed().forEach { it.get()?.onInserted(position, count) }
     }
 
-    /**
-     * @suppress
-     */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public fun notifyChanged(position: Int, count: Int) {
         if (count == 0) return
         callbacks.reversed().forEach { it.get()?.onChanged(position, count) }
     }
 
-    /**
-     * @suppress
-     */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public fun notifyRemoved(position: Int, count: Int) {
         if (count == 0) return
@@ -1312,7 +1278,6 @@ public fun <Key : Any, Value : Any> PagedList(
         .build()
 }
 
-/** @suppress */
 @Suppress("DEPRECATION")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun <Key : Any> PagedList.Config.toRefreshLoadParams(

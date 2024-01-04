@@ -56,6 +56,7 @@ import androidx.wear.compose.foundation.padding
 import androidx.wear.compose.material.TimeTextDefaults.CurvedTextSeparator
 import androidx.wear.compose.material.TimeTextDefaults.TextSeparator
 import androidx.wear.compose.material.TimeTextDefaults.timeFormat
+import androidx.wear.compose.materialcore.isRoundDevice
 import java.util.Calendar
 import java.util.Locale
 

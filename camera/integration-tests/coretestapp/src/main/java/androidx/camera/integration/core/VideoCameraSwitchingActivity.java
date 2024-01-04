@@ -17,11 +17,9 @@
 package androidx.camera.integration.core;
 
 import android.annotation.SuppressLint;
-import android.content.ContentValues;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
+import android.view.OrientationEventListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -35,16 +33,13 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.camera.testing.impl.E2ETestUtil;
 import androidx.camera.video.ExperimentalPersistentRecording;
-import androidx.camera.video.FileOutputOptions;
-import androidx.camera.video.MediaStoreOutputOptions;
 import androidx.camera.video.PendingRecording;
 import androidx.camera.video.Recorder;
 import androidx.camera.video.Recording;
 import androidx.camera.video.VideoCapture;
 import androidx.camera.video.VideoRecordEvent;
-import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
-import androidx.camera.video.internal.compat.quirk.MediaStoreVideoCannotWrite;
 import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -52,7 +47,6 @@ import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.io.File;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -75,6 +69,9 @@ public class VideoCameraSwitchingActivity extends AppCompatActivity {
     };
     private static final long DEFAULT_DURATION_MILLIS = 10000;
     private static final long DEFAULT_SWITCH_TIME_MILLIS = 5000;
+    private static final String VIDEO_FILE_PREFIX = "video";
+    private static final String INFO_FILE_PREFIX = "video_camera_switching_test_info";
+    private static final String KEY_DEVICE_ORIENTATION = "device_orientation";
 
     @NonNull
     private CameraSelector mCameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
@@ -97,6 +94,8 @@ public class VideoCameraSwitchingActivity extends AppCompatActivity {
     @Nullable
     private Recording mRecording;
     private boolean mNotYetSwitched = true;
+    private Integer mDeviceOrientation = null;
+    private OrientationEventListener mOrientationEventListener;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -118,6 +117,13 @@ public class VideoCameraSwitchingActivity extends AppCompatActivity {
             extraDurationMillis = bundle.getLong(INTENT_EXTRA_DURATION, INVALID_TIME_VALUE);
             extraSwitchTimeMillis = bundle.getLong(INTENT_EXTRA_SWITCH_TIME, INVALID_TIME_VALUE);
         }
+
+        mOrientationEventListener = new OrientationEventListener(this) {
+            @Override
+            public void onOrientationChanged(int i) {
+                mDeviceOrientation = i;
+            }
+        };
 
         mPreviewView = findViewById(R.id.camera_preview);
         mDurationText = findViewById(R.id.duration);
@@ -145,6 +151,18 @@ public class VideoCameraSwitchingActivity extends AppCompatActivity {
         } else {
             ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mOrientationEventListener.enable();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mOrientationEventListener.disable();
     }
 
     private void prepareCamera() {
@@ -209,15 +227,19 @@ public class VideoCameraSwitchingActivity extends AppCompatActivity {
         mDurationText.setClickable(false);
         mSwitchTimeText.setClickable(false);
 
+        // Export the test information whenever a new recording is started.
+        exportTestInformation();
+
+        final String videoFileName = generateFileName(VIDEO_FILE_PREFIX, true);
         final PendingRecording pendingRecording;
-        if (DeviceQuirks.get(MediaStoreVideoCannotWrite.class) != null) {
-            // Use FileOutputOption for devices in MediaStoreVideoCannotWrite Quirk.
-            pendingRecording = mVideoCapture.getOutput().prepareRecording(
-                    this, generateFileOutputOptions());
-        } else {
+        if (E2ETestUtil.canDeviceWriteToMediaStore()) {
             // Use MediaStoreOutputOptions for public share media storage.
-            pendingRecording = mVideoCapture.getOutput().prepareRecording(
-                    this, generateMediaStoreOutputOptions());
+            pendingRecording = mVideoCapture.getOutput().prepareRecording(this,
+                    E2ETestUtil.generateVideoMediaStoreOptions(this.getContentResolver(),
+                            videoFileName));
+        } else {
+            pendingRecording = mVideoCapture.getOutput().prepareRecording(this,
+                    E2ETestUtil.generateVideoFileOutputOptions(videoFileName, "mp4"));
         }
         mRecording = pendingRecording
                 .asPersistentRecording() // Perform the recording as a persistent recording.
@@ -250,30 +272,28 @@ public class VideoCameraSwitchingActivity extends AppCompatActivity {
                         });
     }
 
-    @NonNull
-    private FileOutputOptions generateFileOutputOptions() {
-        String videoFileName = "video_" + System.currentTimeMillis() + ".mp4";
-        File videoFolder = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_MOVIES);
-        if (!videoFolder.exists() && !videoFolder.mkdirs()) {
-            Logger.e(TAG, "Failed to create directory: " + videoFolder);
-        }
-        return new FileOutputOptions.Builder(new File(videoFolder, videoFileName)).build();
+    private void exportTestInformation() {
+        String information = KEY_DEVICE_ORIENTATION + ": " + mDeviceOrientation;
+        E2ETestUtil.writeTextToExternalFile(information,
+                generateFileName(INFO_FILE_PREFIX, false), "txt");
     }
 
     @NonNull
-    private MediaStoreOutputOptions generateMediaStoreOutputOptions() {
-        String videoFileName = "video_" + System.currentTimeMillis();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4");
-        contentValues.put(MediaStore.Video.Media.TITLE, videoFileName);
-        contentValues.put(MediaStore.Video.Media.DISPLAY_NAME, videoFileName);
-        contentValues.put(MediaStore.Video.Media.DATE_ADDED, System.currentTimeMillis() / 1000);
-        contentValues.put(MediaStore.Video.Media.DATE_TAKEN, System.currentTimeMillis());
-        return new MediaStoreOutputOptions.Builder(getContentResolver(),
-                MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
-                .setContentValues(contentValues)
-                .build();
+    private String generateFileName(@Nullable String prefix, boolean isUnique) {
+        if (!isUnique && !E2ETestUtil.isFileNameValid(prefix)) {
+            throw new IllegalArgumentException("Invalid arguments for generating file name.");
+        }
+        StringBuilder fileName = new StringBuilder();
+        if (E2ETestUtil.isFileNameValid(prefix)) {
+            fileName.append(prefix);
+            if (isUnique) {
+                fileName.append("_");
+            }
+        }
+        if (isUnique) {
+            fileName.append(System.currentTimeMillis());
+        }
+        return fileName.toString();
     }
 
     private boolean allPermissionsGranted() {

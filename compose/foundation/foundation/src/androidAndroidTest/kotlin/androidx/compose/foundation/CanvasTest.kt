@@ -164,7 +164,6 @@ class CanvasTest {
     }
 
     @Test
-    @OptIn(ExperimentalFoundationApi::class)
     fun canvas_contentDescription() {
         val testTag = "canvas"
         val contentDescription = "cd"

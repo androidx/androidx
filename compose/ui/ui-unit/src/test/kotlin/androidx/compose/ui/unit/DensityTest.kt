@@ -20,8 +20,12 @@ import androidx.compose.ui.geometry.Size
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
+/**
+ * Any tests for SP need to run in AndroidDensityTest, otherwise you will get a NoClassDefFoundError
+ * since the classes from core:core aren't available on the desktop where the unit test is run.
+ */
 class DensityTest {
-    val density = Density(2f, 3f)
+    private val density = Density(2f, 3f)
 
     @Test
     fun testValues() {
@@ -42,59 +46,13 @@ class DensityTest {
     }
 
     @Test
-    fun testDpToSp() = with(density) {
-        assertEquals(2.sp, 6.dp.toSp())
-    }
-
-    @Test
-    fun testTextUnitToPx() = with(density) {
-        assertEquals(6f, 1.sp.toPx(), 0.001f)
-    }
-
-    @Test(expected = IllegalStateException::class)
-    fun testTextUnitToPxFail() {
-        with(density) {
-            1.em.toPx()
-        }
-    }
-
-    @Test
-    fun testTextRoundUnitToPx() = with(density) {
-        assertEquals(6, 1.sp.roundToPx())
-        assertEquals(6, 1.05.sp.roundToPx())
-        assertEquals(6, .95.sp.roundToPx())
-    }
-
-    @Test(expected = IllegalStateException::class)
-    fun testTextUnitRoundToPxFail() {
-        with(density) {
-            1.em.roundToPx()
-        }
-    }
-
-    @Test
-    fun testTextUnitToDp() = with(density) {
-        assertEquals(3.dp, 1.sp.toDp())
-    }
-
-    @Test
     fun testIntToDp() = with(density) {
         assertEquals(1.dp, 2.toDp())
     }
 
     @Test
-    fun testIntToSp() = with(density) {
-        assertEquals(1.sp, 6.toSp())
-    }
-
-    @Test
     fun testFloatToDp() = with(density) {
         assertEquals(1.dp, 2f.toDp())
-    }
-
-    @Test
-    fun testFloatToSp() = with(density) {
-        assertEquals(1.sp, 6f.toSp())
     }
 
     @Test

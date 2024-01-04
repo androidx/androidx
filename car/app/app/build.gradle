@@ -131,7 +131,6 @@ class ProtocolApiTask extends DefaultTask {
                 '--source-path',
                 sourceDirs.filter { it.exists() }.join(File.pathSeparator),
                 '--format=v4',
-                '--output-kotlin-nulls=yes',
                 '--quiet'
         ]
         standardArgs.addAll(additionalArgs)

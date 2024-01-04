@@ -32,6 +32,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalTextInputService
 import androidx.compose.ui.platform.testTag
@@ -475,15 +476,14 @@ class CoreTextFieldInputServiceIntegrationTest {
         val value = TextFieldValue("abc\nefg", TextRange(6))
         lateinit var textLayoutResult: TextLayoutResult
         val focusRequester = FocusRequester()
+        val matrix = Matrix()
 
         setContent {
             Box(Modifier.offset { offset }) {
-                CoreTextField(
-                    value = value,
+                CoreTextField(value = value,
                     modifier = Modifier.focusRequester(focusRequester),
                     onValueChange = { },
-                    onTextLayout = { textLayoutResult = it }
-                )
+                    onTextLayout = { textLayoutResult = it })
             }
         }
 
@@ -491,7 +491,7 @@ class CoreTextFieldInputServiceIntegrationTest {
             assertThat(platformTextInputService.lastInputValue).isNull()
             assertThat(platformTextInputService.offsetMapping).isNull()
             assertThat(platformTextInputService.textLayoutResult).isNull()
-            assertThat(platformTextInputService.textLayoutPositionInWindow).isNull()
+            assertThat(platformTextInputService.textFieldToRootTransform).isNull()
             assertThat(platformTextInputService.innerTextFieldBounds).isNull()
             assertThat(platformTextInputService.decorationBoxBounds).isNull()
         }
@@ -505,8 +505,10 @@ class CoreTextFieldInputServiceIntegrationTest {
             assertThat(platformTextInputService.offsetMapping).isNotNull()
             assertThat(platformTextInputService.textLayoutResult).isNotNull()
             assertThat(platformTextInputService.textLayoutResult).isEqualTo(textLayoutResult)
-            assertThat(platformTextInputService.textLayoutPositionInWindow)
-                .isEqualTo(offset.toOffset())
+            platformTextInputService.textFieldToRootTransform!!.invoke(matrix)
+            assertThat(matrix.values).isEqualTo(Matrix().apply {
+                translate(offset.x.toFloat(), offset.y.toFloat())
+            }.values)
             assertThat(platformTextInputService.innerTextFieldBounds).isNotNull()
             assertThat(platformTextInputService.decorationBoxBounds).isNotNull()
         }
@@ -514,8 +516,10 @@ class CoreTextFieldInputServiceIntegrationTest {
         offset = IntOffset(10, 20)
 
         rule.runOnIdle {
-            assertThat(platformTextInputService.textLayoutPositionInWindow)
-                .isEqualTo(offset.toOffset())
+            platformTextInputService.textFieldToRootTransform!!.invoke(matrix)
+            assertThat(matrix.values).isEqualTo(Matrix().apply {
+                translate(offset.x.toFloat(), offset.y.toFloat())
+            }.values)
         }
     }
 
@@ -541,7 +545,7 @@ class CoreTextFieldInputServiceIntegrationTest {
 
         var offsetMapping: OffsetMapping? = null
         var textLayoutResult: TextLayoutResult? = null
-        var textLayoutPositionInWindow: Offset? = null
+        var textFieldToRootTransform: ((Matrix) -> Unit)? = null
         var innerTextFieldBounds: Rect? = null
         var decorationBoxBounds: Rect? = null
 
@@ -584,14 +588,14 @@ class CoreTextFieldInputServiceIntegrationTest {
             textFieldValue: TextFieldValue,
             offsetMapping: OffsetMapping,
             textLayoutResult: TextLayoutResult,
-            textLayoutPositionInWindow: Offset,
+            textFieldToRootTransform: (Matrix) -> Unit,
             innerTextFieldBounds: Rect,
             decorationBoxBounds: Rect
         ) {
             lastInputValue = textFieldValue
             this.offsetMapping = offsetMapping
             this.textLayoutResult = textLayoutResult
-            this.textLayoutPositionInWindow = textLayoutPositionInWindow
+            this.textFieldToRootTransform = textFieldToRootTransform
             this.innerTextFieldBounds = innerTextFieldBounds
             this.decorationBoxBounds = decorationBoxBounds
         }

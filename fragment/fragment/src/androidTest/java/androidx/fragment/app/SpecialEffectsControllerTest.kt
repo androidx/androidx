@@ -560,7 +560,9 @@ internal class InstantSpecialEffectsController(
 ) : SpecialEffectsController(container) {
     var executeOperationsCallCount = 0
 
-    override fun collectEffects(operations: List<Operation>, isPop: Boolean) {
+    override fun collectEffects(operations: List<Operation>, isPop: Boolean) { }
+
+    override fun commitEffects(operations: List<Operation>) {
         executeOperationsCallCount++
         operations.forEach(Operation::complete)
     }

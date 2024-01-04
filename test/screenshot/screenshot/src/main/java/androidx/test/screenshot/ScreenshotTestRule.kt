@@ -16,7 +16,6 @@
 
 package androidx.test.screenshot
 
-import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
@@ -76,7 +75,6 @@ internal enum class OutputFileType {
  *
  * @see Bitmap.assertAgainstGolden
  */
-@SuppressLint("SyntheticAccessor")
 open class ScreenshotTestRule(
     config: ScreenshotTestRuleConfig = ScreenshotTestRuleConfig()
 ) : TestRule {

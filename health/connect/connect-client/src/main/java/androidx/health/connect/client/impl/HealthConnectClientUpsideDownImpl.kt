@@ -64,7 +64,6 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 /**
  * Implements the [HealthConnectClient] with APIs in UpsideDownCake.
  *
- * @suppress
  */
 @RequiresApi(api = 34)
 class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionController {

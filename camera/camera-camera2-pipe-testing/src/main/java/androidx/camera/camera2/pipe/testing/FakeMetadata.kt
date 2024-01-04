@@ -144,7 +144,6 @@ class FakeFrameMetadata(
 /**
  * Utility class for interacting with objects require specific [TotalCaptureResult] metadata
  */
-@Suppress("SyntheticAccessor") // Using an inline class generates a synthetic constructor
 class FakeFrameInfo(
     override val metadata: FrameMetadata = FakeFrameMetadata(),
     override val requestMetadata: RequestMetadata = FakeRequestMetadata(),

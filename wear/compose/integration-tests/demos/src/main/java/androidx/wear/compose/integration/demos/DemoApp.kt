@@ -79,9 +79,11 @@ fun DemoApp(
     parentDemo: Demo?,
     onNavigateTo: (Demo) -> Unit,
     onNavigateBack: () -> Unit,
+    scrollStates: MutableList<ScalingLazyListState>,
 ) {
     val swipeToDismissState = swipeDismissStateWithNavigation(onNavigateBack)
-    DisplayDemo(swipeToDismissState, currentDemo, parentDemo, onNavigateTo, onNavigateBack)
+    DisplayDemo(
+        swipeToDismissState, currentDemo, parentDemo, onNavigateTo, onNavigateBack, scrollStates)
 }
 
 @Composable
@@ -90,7 +92,8 @@ private fun DisplayDemo(
     currentDemo: Demo,
     parentDemo: Demo?,
     onNavigateTo: (Demo) -> Unit,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    scrollStates: MutableList<ScalingLazyListState>,
 ) {
     SwipeToDismissBox(
         state = state,
@@ -98,7 +101,14 @@ private fun DisplayDemo(
         backgroundKey = parentDemo?.title ?: SwipeToDismissKeys.Background,
         contentKey = currentDemo.title,
     ) { isBackground ->
-        BoxDemo(state, if (isBackground) parentDemo else currentDemo, onNavigateTo, onNavigateBack)
+        BoxDemo(
+            state,
+            if (isBackground) parentDemo else currentDemo,
+            onNavigateTo,
+            onNavigateBack,
+            scrollStates.lastIndex - (if (isBackground) 1 else 0),
+            scrollStates,
+        )
     }
 }
 
@@ -107,7 +117,9 @@ private fun BoxScope.BoxDemo(
     state: SwipeToDismissBoxState,
     demo: Demo?,
     onNavigateTo: (Demo) -> Unit,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    scrollStateIndex: Int,
+    scrollStates: MutableList<ScalingLazyListState>,
 ) {
     when (demo) {
         is ActivityDemo<*> -> {
@@ -119,7 +131,7 @@ private fun BoxScope.BoxDemo(
         }
 
         is DemoCategory -> {
-            DisplayDemoList(demo, onNavigateTo)
+            DisplayDemoList(demo, onNavigateTo, scrollStateIndex, scrollStates)
         }
 
         else -> {
@@ -131,12 +143,17 @@ private fun BoxScope.BoxDemo(
 internal fun BoxScope.DisplayDemoList(
     category: DemoCategory,
     onNavigateTo: (Demo) -> Unit,
+    scrollStateIndex: Int,
+    scrollStates: MutableList<ScalingLazyListState>,
 ) {
+    val state = rememberScalingLazyListState()
+
     ScalingLazyColumnWithRSB(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
             .testTag(DemoListTag),
+        state = scrollStates[scrollStateIndex],
     ) {
         item {
             ListHeader {
@@ -153,7 +170,10 @@ internal fun BoxScope.DisplayDemoList(
         category.demos.forEach { demo ->
             item {
                 Chip(
-                    onClick = { onNavigateTo(demo) },
+                    onClick = {
+                        scrollStates.add(state)
+                        onNavigateTo(demo)
+                    },
                     colors = ChipDefaults.secondaryChipColors(),
                     label = {
                         Text(

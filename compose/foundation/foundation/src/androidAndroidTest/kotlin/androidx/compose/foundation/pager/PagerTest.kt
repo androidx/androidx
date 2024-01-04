@@ -20,6 +20,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
@@ -30,6 +31,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
+import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.launch
@@ -324,6 +326,19 @@ class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
 
         rule.waitForIdle()
         assertThat(previousFlingBehavior).isNotEqualTo(latestFlingBehavior)
+    }
+
+    @Test
+    fun pagerCreation_sumOfPageSizeIsSmallerThanPager_makeSurePagesAreAlignedToStartTop() {
+        // arrange and act
+        createPager(
+            modifier = Modifier.size(500.dp),
+            pageSize = { PageSize.Fixed(100.dp) },
+            pageCount = { 3 })
+
+        confirmPageIsInCorrectPosition(0, pageToVerifyPosition = 0)
+        confirmPageIsInCorrectPosition(0, pageToVerifyPosition = 1)
+        confirmPageIsInCorrectPosition(0, pageToVerifyPosition = 2)
     }
 
     companion object {

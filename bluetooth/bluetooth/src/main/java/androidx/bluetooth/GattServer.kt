@@ -18,17 +18,19 @@ package androidx.bluetooth
 
 import android.Manifest.permission.BLUETOOTH_CONNECT
 import android.annotation.SuppressLint
-import android.bluetooth.BluetoothDevice as FwkBluetoothDevice
+import android.bluetooth.BluetoothDevice as FwkDevice
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCharacteristic as FwkCharacteristic
 import android.bluetooth.BluetoothGattServer
 import android.bluetooth.BluetoothGattServerCallback
-import android.bluetooth.BluetoothGattService
+import android.bluetooth.BluetoothGattService as FwkService
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresPermission
+import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.channels.Channel
@@ -41,20 +43,22 @@ import kotlinx.coroutines.flow.receiveAsFlow
 /**
  * Class for handling operations as a GATT server role
  */
-internal class GattServer(private val context: Context) {
-    private interface GattServerImpl {
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+class GattServer(private val context: Context) {
+    interface FrameworkAdapter {
+        var gattServer: BluetoothGattServer?
         fun openGattServer(context: Context, callback: BluetoothGattServerCallback)
         fun closeGattServer()
         fun clearServices()
-        fun addService(service: BluetoothGattService)
+        fun addService(service: FwkService)
         fun notifyCharacteristicChanged(
-            device: FwkBluetoothDevice,
+            device: FwkDevice,
             characteristic: FwkCharacteristic,
             confirm: Boolean,
             value: ByteArray
         )
         fun sendResponse(
-            device: FwkBluetoothDevice,
+            device: FwkDevice,
             requestId: Int,
             status: Int,
             offset: Int,
@@ -78,20 +82,22 @@ internal class GattServer(private val context: Context) {
     }
 
     // Should be accessed only from the callback thread
-    private val sessions: MutableMap<FwkBluetoothDevice, Session> = mutableMapOf()
+    private val sessions: MutableMap<FwkDevice, Session> = mutableMapOf()
     private val attributeMap = AttributeMap()
 
     @SuppressLint("ObsoleteSdkInt")
-    private val impl: GattServerImpl =
-        if (Build.VERSION.SDK_INT >= 33) GattServerImplApi33()
-        else BaseGattServerImpl()
+    @VisibleForTesting
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    var fwkAdapter: FrameworkAdapter =
+        if (Build.VERSION.SDK_INT >= 33) FrameworkAdapterApi33()
+        else FrameworkAdapterBase()
 
     fun open(services: List<GattService>):
         Flow<BluetoothLe.GattServerConnectionRequest> = callbackFlow {
         attributeMap.updateWithServices(services)
         val callback = object : BluetoothGattServerCallback() {
             override fun onConnectionStateChange(
-                device: FwkBluetoothDevice,
+                device: FwkDevice,
                 status: Int,
                 newState: Int
             ) {
@@ -110,7 +116,7 @@ internal class GattServer(private val context: Context) {
             }
 
             override fun onCharacteristicReadRequest(
-                device: FwkBluetoothDevice,
+                device: FwkDevice,
                 requestId: Int,
                 offset: Int,
                 characteristic: FwkCharacteristic
@@ -128,7 +134,7 @@ internal class GattServer(private val context: Context) {
             }
 
             override fun onCharacteristicWriteRequest(
-                device: FwkBluetoothDevice,
+                device: FwkDevice,
                 requestId: Int,
                 characteristic: FwkCharacteristic,
                 preparedWrite: Boolean,
@@ -155,22 +161,22 @@ internal class GattServer(private val context: Context) {
                 }
             }
         }
-        impl.openGattServer(context, callback)
-        services.forEach { impl.addService(it.fwkService) }
+        fwkAdapter.openGattServer(context, callback)
+        services.forEach { fwkAdapter.addService(it.fwkService) }
 
         awaitClose {
-            impl.closeGattServer()
+            fwkAdapter.closeGattServer()
         }
     }
 
     fun updateServices(services: List<GattService>) {
-        impl.clearServices()
-        services.forEach { impl.addService(it.fwkService) }
+        fwkAdapter.clearServices()
+        services.forEach { fwkAdapter.addService(it.fwkService) }
     }
 
     suspend fun<R> acceptConnection(
         request: BluetoothLe.GattServerConnectionRequest,
-        block: BluetoothLe.GattServerScope.() -> R
+        block: suspend BluetoothLe.GattServerScope.() -> R
     ) = coroutineScope {
         val session = request.session
         if (!session.state.compareAndSet(Session.State.CONNECTING, Session.State.CONNECTED)) {
@@ -185,7 +191,7 @@ internal class GattServer(private val context: Context) {
                 characteristic: GattCharacteristic,
                 value: ByteArray
             ) {
-                impl.notifyCharacteristicChanged(
+                fwkAdapter.notifyCharacteristicChanged(
                     request.device.fwkDevice, characteristic.fwkCharacteristic, false, value)
             }
         }
@@ -200,34 +206,34 @@ internal class GattServer(private val context: Context) {
         }
     }
 
-    internal fun findActiveSessionWithDevice(device: FwkBluetoothDevice): Session? {
+    internal fun findActiveSessionWithDevice(device: FwkDevice): Session? {
         return sessions[device]?.takeIf {
             it.state.get() != Session.State.DISCONNECTED
         }
     }
 
-    internal fun addSession(device: FwkBluetoothDevice): Session {
+    internal fun addSession(device: FwkDevice): Session {
         return Session().apply {
             sessions[device] = this
         }
     }
 
-    internal fun removeSession(device: FwkBluetoothDevice) {
+    internal fun removeSession(device: FwkDevice) {
         sessions.remove(device)
     }
 
     internal fun sendResponse(
-        device: FwkBluetoothDevice,
+        device: FwkDevice,
         requestId: Int,
         status: Int,
         offset: Int,
         value: ByteArray?
     ) {
-        impl.sendResponse(device, requestId, status, offset, value)
+        fwkAdapter.sendResponse(device, requestId, status, offset, value)
     }
 
-    private open class BaseGattServerImpl : GattServerImpl {
-        internal var gattServer: BluetoothGattServer? = null
+    private open class FrameworkAdapterBase : FrameworkAdapter {
+        override var gattServer: BluetoothGattServer? = null
         private val isOpen = AtomicBoolean(false)
         @RequiresPermission(BLUETOOTH_CONNECT)
         override fun openGattServer(context: Context, callback: BluetoothGattServerCallback) {
@@ -250,14 +256,14 @@ internal class GattServer(private val context: Context) {
         }
 
         @RequiresPermission(BLUETOOTH_CONNECT)
-        override fun addService(service: BluetoothGattService) {
+        override fun addService(service: FwkService) {
             gattServer?.addService(service)
         }
 
         @Suppress("DEPRECATION")
         @RequiresPermission(BLUETOOTH_CONNECT)
         override fun notifyCharacteristicChanged(
-            device: FwkBluetoothDevice,
+            device: FwkDevice,
             characteristic: FwkCharacteristic,
             confirm: Boolean,
             value: ByteArray
@@ -268,7 +274,7 @@ internal class GattServer(private val context: Context) {
 
         @RequiresPermission(BLUETOOTH_CONNECT)
         override fun sendResponse(
-            device: android.bluetooth.BluetoothDevice,
+            device: FwkDevice,
             requestId: Int,
             status: Int,
             offset: Int,
@@ -278,10 +284,10 @@ internal class GattServer(private val context: Context) {
         }
     }
 
-    private open class GattServerImplApi33 : BaseGattServerImpl() {
+    private open class FrameworkAdapterApi33 : FrameworkAdapterBase() {
         @RequiresPermission(BLUETOOTH_CONNECT)
         override fun notifyCharacteristicChanged(
-            device: FwkBluetoothDevice,
+            device: FwkDevice,
             characteristic: FwkCharacteristic,
             confirm: Boolean,
             value: ByteArray

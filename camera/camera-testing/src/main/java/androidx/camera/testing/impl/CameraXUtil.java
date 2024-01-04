@@ -16,7 +16,6 @@
 
 package androidx.camera.testing.impl;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 
 import androidx.annotation.GuardedBy;
@@ -104,7 +103,6 @@ public class CameraXUtil {
                             completer.set(null);
                         }
 
-                        @SuppressLint("SyntheticAccessor")
                         @SuppressWarnings("FutureReturnValueIgnored")
                         @Override
                         public void onFailure(@NonNull Throwable t) {

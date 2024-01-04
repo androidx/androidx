@@ -1102,50 +1102,18 @@ public class WorkerWrapperTest extends DatabaseTest {
                 containsInAnyOrder(runtimeExtras.triggeredContentUris.toArray()));
     }
 
-    @Test
-    @SmallTest
-    public void testInterruptionWithoutCancellation_isMarkedOnRunningWorker() {
-        OneTimeWorkRequest work =
-                new OneTimeWorkRequest.Builder(InterruptionAwareWorker.class).build();
-        insertWork(work);
-
-        ListenableWorker worker = mConfiguration.getWorkerFactory().createWorkerWithDefaultFallback(
-                mContext.getApplicationContext(),
-                InterruptionAwareWorker.class.getName(),
-                new WorkerParameters(
-                        work.getId(),
-                        Data.EMPTY,
-                        work.getTags(),
-                        new WorkerParameters.RuntimeExtras(),
-                        1,
-                        0,
-                        mSynchronousExecutor,
-                        mWorkTaskExecutor,
-                        mConfiguration.getWorkerFactory(),
-                        mMockProgressUpdater,
-                        mMockForegroundUpdater));
-        assertThat(worker, is(notNullValue()));
-        assertThat(worker.isStopped(), is(false));
-
-        WorkerWrapper workerWrapper =
-                createBuilder(work.getStringId()).withWorker(worker).build();
-        mExecutorService.submit(workerWrapper);
-        workerWrapper.interrupt(0);
-        assertThat(worker.isStopped(), is(true));
-        assertThat(mWorkSpecDao.getState(work.getStringId()), is(ENQUEUED));
-    }
-
     // getStopReason() requires API level 31, but only because JobScheduler provides them
     // since API level 31, but in this isolated test we don't care.
     @SuppressLint("NewApi")
     @Test
     @SmallTest
-    public void testInterruptionWithCancellation_isMarkedOnRunningWorker() {
+    public void testInterruption_isMarkedOnRunningWorker() throws InterruptedException {
         OneTimeWorkRequest work =
                 new OneTimeWorkRequest.Builder(InterruptionAwareWorker.class).build();
         insertWork(work);
 
-        ListenableWorker worker = mConfiguration.getWorkerFactory().createWorkerWithDefaultFallback(
+        InterruptionAwareWorker worker = (InterruptionAwareWorker)
+                mConfiguration.getWorkerFactory().createWorkerWithDefaultFallback(
                 mContext.getApplicationContext(),
                 InterruptionAwareWorker.class.getName(),
                 new WorkerParameters(
@@ -1166,6 +1134,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         WorkerWrapper workerWrapper =
                 createBuilder(work.getStringId()).withWorker(worker).build();
         mExecutorService.submit(workerWrapper);
+        worker.doWorkLatch.await();
         workerWrapper.interrupt(STOP_REASON_CONSTRAINT_CHARGING);
         assertThat(worker.isStopped(), is(true));
         assertThat(worker.getStopReason(), is(STOP_REASON_CONSTRAINT_CHARGING));

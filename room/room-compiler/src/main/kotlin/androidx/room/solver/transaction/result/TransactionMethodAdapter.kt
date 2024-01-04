@@ -84,8 +84,7 @@ class TransactionMethodAdapter(
         daoName: XClassName,
         daoImplName: XClassName,
     ): XCodeBlock = when (callType) {
-        TransactionMethod.CallType.CONCRETE,
-        TransactionMethod.CallType.INHERITED_DEFAULT_JAVA8 -> {
+        TransactionMethod.CallType.CONCRETE -> {
             XCodeBlock.of(
                 language,
                 "%T.super.%N(",

@@ -127,6 +127,7 @@ class RetryingCameraStateOpenerTest {
             cameraAvailabilityMonitor,
             fakeTimeSource,
             fakeDevicePolicyManager,
+            cameraInteropConfig = null
         )
 
     @Test

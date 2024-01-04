@@ -31,6 +31,7 @@ internal class PagerMeasureResult(
     override val viewportStartOffset: Int,
     override val viewportEndOffset: Int,
     override val reverseLayout: Boolean,
+    override val beyondBoundsPageCount: Int,
     val consumedScroll: Float,
     val firstVisiblePage: MeasuredPage?,
     val firstVisiblePageOffset: Int,

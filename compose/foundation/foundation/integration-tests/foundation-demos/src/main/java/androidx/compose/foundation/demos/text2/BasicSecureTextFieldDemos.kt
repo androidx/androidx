@@ -89,8 +89,8 @@ fun NumberPasswordDemo() {
     val state = remember { TextFieldState() }
     BasicSecureTextField(
         state = state,
-        filter = { _, new ->
-            if (!new.isDigitsOnly()) {
+        inputTransformation = { _, new ->
+            if (!new.asCharSequence().isDigitsOnly()) {
                 new.revertAllChanges()
             }
         },

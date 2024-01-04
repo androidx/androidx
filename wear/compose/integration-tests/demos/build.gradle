@@ -28,9 +28,6 @@ android {
         targetSdk 30
         versionCode 16
         versionName "1.16"
-        // Change the APK name to match the *testapp regex we use to pick up APKs for testing as
-        // part of CI.
-        archivesBaseName = "wear-compose-demos-testapp"
     }
 
     buildTypes {
@@ -68,6 +65,9 @@ dependencies {
     implementation(project(':wear:compose:integration-tests:demos:common'))
     implementation(project(":wear:compose:compose-material3-integration-tests"))
 
+    androidTestImplementation(project(":activity:activity"))
+    androidTestImplementation(project(":activity:activity-compose"))
+    androidTestImplementation(project(":activity:activity-ktx"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRules)

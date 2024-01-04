@@ -352,6 +352,16 @@ class SandboxedSdkViewTest {
     }
 
     @Test
+    fun onConfigurationChangedTestSameConfiguration() {
+        addViewToLayout()
+        assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        activity.runOnUiThread {
+            activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
+        assertThat(configChangedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
+    }
+
+    @Test
     fun onSizeChangedTest() {
         addViewToLayout()
         assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()

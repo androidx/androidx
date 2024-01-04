@@ -744,10 +744,9 @@ public class AccessibilityNodeInfoCompat {
         @NonNull
         @OptIn(markerClass = androidx.core.os.BuildCompat.PrereleaseSdkCheck.class)
         public static final AccessibilityActionCompat ACTION_SCROLL_IN_DIRECTION =
-                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 34
-                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_IN_DIRECTION
-                        : null, android.R.id.accessibilityActionScrollInDirection, null, null,
-                        null);
+                new AccessibilityActionCompat(
+                        null, // Temporary to avoid weird class init issue (b/296118211)
+                        android.R.id.accessibilityActionScrollInDirection, null, null, null);
 
         final Object mAction;
         private final int mId;

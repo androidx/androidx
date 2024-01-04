@@ -18,7 +18,6 @@ package androidx.tv.material3
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -232,7 +231,7 @@ fun rememberDrawerState(initialValue: DrawerValue): DrawerState {
 }
 
 @Suppress("IllegalExperimentalApiUsage") // TODO (b/233188423): Address before moving to beta
-@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun DrawerSheet(
     modifier: Modifier = Modifier,

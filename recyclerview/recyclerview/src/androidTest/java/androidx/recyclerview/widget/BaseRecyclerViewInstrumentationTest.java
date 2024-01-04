@@ -321,7 +321,8 @@ abstract public class BaseRecyclerViewInstrumentationTest {
             public void run() {
                 RecyclerView.OnScrollListener listener = new RecyclerView.OnScrollListener() {
                     @Override
-                    public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                    public void onScrollStateChanged(@NonNull RecyclerView recyclerView,
+                            int newState) {
                         if (newState == SCROLL_STATE_IDLE) {
                             latch.countDown();
                             recyclerView.removeOnScrollListener(this);
@@ -336,6 +337,14 @@ abstract public class BaseRecyclerViewInstrumentationTest {
             }
         });
         assertTrue("should go idle in 10 seconds", latch.await(10, TimeUnit.SECONDS));
+
+        // Avoid thread-safety issues
+        // The scroll listener is not necessarily called after all relevant UI-thread changes, so
+        // we need to wait for the UI thread to finish what it's doing in order to avoid flakiness.
+        // Note that this runOnUiThread is a no-op if called from the UI thread, but that's okay
+        // because waitForIdleScroll doesn't work on the UI thread (the latch would deadlock if
+        // the scroll wasn't already idle).
+        mActivityRule.runOnUiThread(() -> {});
     }
 
     public boolean requestFocus(final View view, boolean waitForScroll) throws Throwable {
@@ -657,6 +666,11 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         }
 
         protected void layoutRange(RecyclerView.Recycler recycler, int start, int end) {
+            layoutRange(recycler, start, end, /* disappearingViewPositions= */ null);
+        }
+
+        protected void layoutRange(RecyclerView.Recycler recycler, int start, int end,
+                HashSet<Integer> disappearingViewPositions) {
             assertScrap(recycler);
             if (mDebug) {
                 Log.d(TAG, "will layout items from " + start + " to " + end);
@@ -680,7 +694,11 @@ abstract public class BaseRecyclerViewInstrumentationTest {
                 }
                 assertEquals("getViewForPosition should return correct position",
                         i, getPosition(view));
-                addView(view);
+                if (disappearingViewPositions != null && disappearingViewPositions.contains(i)) {
+                    addDisappearingView(view);
+                } else {
+                    addView(view);
+                }
                 measureChildWithMargins(view, 0, 0);
                 if (getLayoutDirection() == ViewCompat.LAYOUT_DIRECTION_RTL) {
                     layoutDecorated(view, getWidth() - getDecoratedMeasuredWidth(view), top,
@@ -860,6 +878,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         ViewAttachDetachCounter mAttachmentCounter = new ViewAttachDetachCounter();
         List<Item> mItems;
         @Nullable RecyclerView.LayoutParams mLayoutParams;
+        boolean mCancelViewPropertyAnimatorsInOnDetach;
 
         public TestAdapter(int count) {
             this(count, null);
@@ -895,6 +914,9 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         @Override
         public void onViewDetachedFromWindow(TestViewHolder holder) {
             super.onViewDetachedFromWindow(holder);
+            if (mCancelViewPropertyAnimatorsInOnDetach) {
+                holder.itemView.animate().cancel();
+            }
             mAttachmentCounter.onViewDetached(holder);
         }
 

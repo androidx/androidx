@@ -69,6 +69,7 @@ class DisablePackages(
             "com.google.android.as",
             "com.google.android.calculator",
             "com.google.android.calendar",
+            "com.google.android.carrier",
             "com.google.android.configupdater",
             "com.google.android.contacts",
             "com.google.android.deskclock",

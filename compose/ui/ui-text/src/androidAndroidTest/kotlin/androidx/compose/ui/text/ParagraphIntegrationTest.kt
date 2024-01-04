@@ -4358,9 +4358,15 @@ class ParagraphIntegrationTest {
             density = Density(density = 1f, fontScale = densityMultiplier)
         )
 
+        // Since Android uses non-linear font scaling, best we can do is check that the size fits a
+        // range.
         assertThat(doubleFontSizeParagraph.maxIntrinsicWidth)
-            .isEqualTo(paragraph.maxIntrinsicWidth * densityMultiplier)
-        assertThat(doubleFontSizeParagraph.height).isEqualTo(paragraph.height * densityMultiplier)
+            .isGreaterThan(paragraph.maxIntrinsicWidth)
+        assertThat(doubleFontSizeParagraph.maxIntrinsicWidth)
+            .isAtMost(paragraph.maxIntrinsicWidth * densityMultiplier)
+
+        assertThat(doubleFontSizeParagraph.height).isGreaterThan(paragraph.height)
+        assertThat(doubleFontSizeParagraph.height).isAtMost(paragraph.height * densityMultiplier)
     }
 
     @Test

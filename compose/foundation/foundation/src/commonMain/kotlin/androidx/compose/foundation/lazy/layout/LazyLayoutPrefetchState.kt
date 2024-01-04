@@ -22,6 +22,10 @@ import androidx.compose.ui.unit.Constraints
 
 /**
  * State for lazy items prefetching, used by lazy layouts to instruct the prefetcher.
+ *
+ * Note: this class is a part of [LazyLayout] harness that allows for building custom lazy
+ * layouts. LazyLayout and all corresponding APIs are still under development and are subject to
+ * change.
  */
 @ExperimentalFoundationApi
 @Stable

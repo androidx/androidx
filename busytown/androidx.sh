@@ -19,7 +19,7 @@ if ! impl/check_translations.sh; then
 else
   # Run Gradle
   # If/when we enable desktop, enable VerifyDependencyVersionsTask.kt/shouldVerifyConfiguration
-  if ! impl/build.sh buildOnServer createAllArchives checkExternalLicenses listTaskOutputs \
+  if ! impl/build.sh buildOnServer createAllArchives checkExternalLicenses listTaskOutputs exportSboms \
       -Pandroidx.enableComposeCompilerMetrics=true \
       -Pandroidx.enableComposeCompilerReports=true \
       -Pandroidx.constraints=true \

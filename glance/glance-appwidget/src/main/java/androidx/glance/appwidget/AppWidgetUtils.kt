@@ -177,8 +177,6 @@ internal fun logException(throwable: Throwable) {
 
 /**
  * [Tracing] contains methods for tracing sections of GlanceAppWidget.
- *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 object Tracing {

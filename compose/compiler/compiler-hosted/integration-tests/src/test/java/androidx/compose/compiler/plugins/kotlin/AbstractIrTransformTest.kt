@@ -134,6 +134,7 @@ abstract class AbstractIrTransformTest(useFir: Boolean) : AbstractCodegenTest(us
         expectedTransformed: String,
         dumpTree: Boolean = false,
         dumpClasses: Boolean = false,
+        validator: (element: IrElement) -> Unit = {},
     ) {
         // Setup for compile
         this.classFileFactory = null
@@ -159,7 +160,9 @@ abstract class AbstractIrTransformTest(useFir: Boolean) : AbstractCodegenTest(us
             source,
             expectedTransformed,
             "",
-            dumpTree = dumpTree
+            validator = validator,
+            dumpTree = dumpTree,
+            additionalPaths = listOf(classesDirectory.root)
         )
     }
 

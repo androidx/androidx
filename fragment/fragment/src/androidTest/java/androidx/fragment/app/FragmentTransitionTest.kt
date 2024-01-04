@@ -21,6 +21,8 @@ import android.transition.Transition
 import android.transition.TransitionSet
 import android.view.View
 import android.widget.TextView
+import android.window.BackEvent
+import androidx.activity.BackEventCompat
 import androidx.annotation.LayoutRes
 import androidx.annotation.RequiresApi
 import androidx.core.app.SharedElementCallback
@@ -1341,6 +1343,60 @@ class FragmentTransitionTest(
                 assertThat(fragment1.mView.visibility).isEqualTo(View.VISIBLE)
             }
         }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    fun replaceOperationWithTransitionsThenSystemBack() {
+        val fm1 = activityRule.activity.supportFragmentManager
+
+        val fragment1 = TransitionFragment(R.layout.scene1)
+        fm1.beginTransaction()
+            .replace(R.id.fragmentContainer, fragment1, "1")
+            .addToBackStack(null)
+            .commit()
+        activityRule.waitForExecution()
+
+        val fragment2 = TransitionFragment()
+
+        fm1.beginTransaction()
+            .replace(R.id.fragmentContainer, fragment2, "2")
+            .addToBackStack(null)
+            .commit()
+        activityRule.executePendingTransactions(fm1)
+
+        assertThat(fragment2.startTransitionCountDownLatch.await(1000, TimeUnit.MILLISECONDS))
+            .isTrue()
+        // We need to wait for the exit animation to end
+        assertThat(fragment1.endTransitionCountDownLatch.await(1000, TimeUnit.MILLISECONDS))
+            .isTrue()
+
+        val dispatcher = activityRule.activity.onBackPressedDispatcher
+        activityRule.runOnUiThread {
+            dispatcher.dispatchOnBackStarted(BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT))
+        }
+        activityRule.executePendingTransactions(fm1)
+
+        // We should not start any transitions when we get the started callback
+        fragment1.waitForNoTransition()
+
+        activityRule.runOnUiThread {
+            dispatcher.dispatchOnBackProgressed(
+                BackEventCompat(0.2F, 0.2F, 0.2F, BackEvent.EDGE_LEFT)
+            )
+            dispatcher.onBackPressed()
+        }
+        activityRule.executePendingTransactions(fm1)
+
+        fragment1.waitForTransition()
+        fragment2.waitForTransition()
+
+        assertThat(fragment2.isAdded).isFalse()
+        assertThat(fm1.findFragmentByTag("2"))
+            .isEqualTo(null)
+
+        // Make sure the original fragment was correctly readded to the container
+        assertThat(fragment1.requireView().parent).isNotNull()
     }
 
     private fun setupInitialFragment(): TransitionFragment {

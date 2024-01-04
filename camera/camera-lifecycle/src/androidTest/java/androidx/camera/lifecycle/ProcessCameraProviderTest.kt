@@ -468,7 +468,7 @@ class ProcessCameraProviderTest {
     @Test
     fun bindUseCases_withNotExistedLensFacingCamera() {
         val cameraFactoryProvider =
-            CameraFactory.Provider { _, _, _ ->
+            CameraFactory.Provider { _, _, _, _ ->
                 val cameraFactory = FakeCameraFactory()
                 cameraFactory.insertCamera(
                     CameraSelector.LENS_FACING_BACK,
@@ -857,7 +857,7 @@ class ProcessCameraProviderTest {
         cameraCoordinator.addConcurrentCameraIdsAndCameraSelectors(combination0)
         cameraCoordinator.addConcurrentCameraIdsAndCameraSelectors(combination1)
         val cameraFactoryProvider =
-            CameraFactory.Provider { _, _, _ ->
+            CameraFactory.Provider { _, _, _, _ ->
                 val cameraFactory = FakeCameraFactory()
                 cameraFactory.insertCamera(
                     CameraSelector.LENS_FACING_BACK,

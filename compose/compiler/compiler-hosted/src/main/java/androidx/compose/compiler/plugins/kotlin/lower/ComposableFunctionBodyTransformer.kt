@@ -872,9 +872,6 @@ class ComposableFunctionBodyTransformer(
 
         transformed = transformed.apply {
             transformChildrenVoid()
-            if (emitTraceMarkers) {
-                wrapWithTraceEvents(irFunctionSourceKey(), scope)
-            }
         }
 
         buildPreambleStatementsAndReturnIfSkippingPossible(
@@ -888,6 +885,12 @@ class ComposableFunctionBodyTransformer(
             defaultParam,
             defaultScope,
         )
+
+        // NOTE: It's important to do this _after_ the above call since it can change the
+        // value of `dirty.used`.
+        if (emitTraceMarkers) {
+            transformed.wrapWithTraceEvents(irFunctionSourceKey(), scope)
+        }
 
         if (!elideGroups) {
             scope.realizeGroup {
@@ -926,7 +929,7 @@ class ComposableFunctionBodyTransformer(
                         irSourceInformationMarkerEnd(body, scope)
                     else -> null
                 },
-                returnVar?.let { irReturn(declaration.symbol, irGet(it)) }
+                returnVar?.let { irReturnVar(declaration.symbol, it) }
             )
         )
         if (elideGroups && !hasExplicitGroups) {
@@ -1025,9 +1028,6 @@ class ComposableFunctionBodyTransformer(
         // are using the dispatchReceiverParameter or the extensionReceiverParameter
         val transformed = nonReturningBody.apply {
             transformChildrenVoid()
-            if (emitTraceMarkers) {
-                wrapWithTraceEvents(irFunctionSourceKey(), scope)
-            }
         }
         canSkipExecution = buildPreambleStatementsAndReturnIfSkippingPossible(
             body,
@@ -1040,6 +1040,12 @@ class ComposableFunctionBodyTransformer(
             null,
             Scope.ParametersScope(),
         )
+
+        // NOTE: It's important to do this _after_ the above call since it can change the
+        // value of `dirty.used`.
+        if (emitTraceMarkers) {
+            transformed.wrapWithTraceEvents(irFunctionSourceKey(), scope)
+        }
 
         val dirtyForSkipping = if (dirty.used && dirty is IrChangedBitMaskVariable) {
             skipPreamble.statements.addAll(0, dirty.asStatements())
@@ -1090,7 +1096,7 @@ class ComposableFunctionBodyTransformer(
                     *skipPreamble.statements.toTypedArray(),
                     *bodyPreamble.statements.toTypedArray(),
                     transformedBody,
-                    returnVar?.let { irReturn(declaration.symbol, irGet(it)) }
+                    returnVar?.let { irReturnVar(declaration.symbol, it) }
                 )
             )
         } else {
@@ -1105,7 +1111,7 @@ class ComposableFunctionBodyTransformer(
                     *bodyPreamble.statements.toTypedArray(),
                     transformed,
                     *bodyEpilogue.statements.toTypedArray(),
-                    returnVar?.let { irReturn(declaration.symbol, irGet(it)) }
+                    returnVar?.let { irReturnVar(declaration.symbol, it) }
                 )
             )
         }
@@ -1171,7 +1177,7 @@ class ComposableFunctionBodyTransformer(
 
         val endWithTraceEventEnd = {
             irComposite(statements = listOfNotNull(
-                irTraceEventEnd(),
+                if (traceEventMarkersEnabled) irTraceEventEnd() else null,
                 end()
             ))
         }
@@ -1187,10 +1193,6 @@ class ComposableFunctionBodyTransformer(
         // are using the dispatchReceiverParameter or the extensionReceiverParameter
         val transformed = nonReturningBody.apply {
             transformChildrenVoid()
-            wrapWithTraceEvents(
-                irFunctionSourceKey(),
-                scope,
-            )
         }
 
         val canSkipExecution = buildPreambleStatementsAndReturnIfSkippingPossible(
@@ -1205,6 +1207,12 @@ class ComposableFunctionBodyTransformer(
             defaultParam,
             defaultScope,
         )
+
+        // NOTE: It's important to do this _after_ the above call since it can change the
+        // value of `dirty.used`.
+        if (traceEventMarkersEnabled) {
+            transformed.wrapWithTraceEvents(irFunctionSourceKey(), scope)
+        }
 
         // if it has non-optional unstable params, the function can never skip, so we always
         // execute the body. Otherwise, we wrap the body in an if and only skip when certain
@@ -1279,7 +1287,7 @@ class ComposableFunctionBodyTransformer(
                 *skipPreamble.statements.toTypedArray(),
                 transformedBody,
                 if (returnVar == null) end() else null,
-                returnVar?.let { irReturn(declaration.symbol, irGet(it)) }
+                returnVar?.let { irReturnVar(declaration.symbol, it) }
             )
         )
 
@@ -2403,10 +2411,12 @@ class ComposableFunctionBodyTransformer(
         after: List<IrExpression> = emptyList()
     ): IrExpression {
         return if (after.isEmpty() || type.isNothing() || type.isUnit()) {
-            wrap(type, before, after)
+            wrap(startOffset, endOffset, type, before, after)
         } else {
             val tmpVar = irTemporary(this, nameHint = "group")
             tmpVar.wrap(
+                startOffset,
+                endOffset,
                 type,
                 before,
                 after + irGet(tmpVar)
@@ -2415,6 +2425,8 @@ class ComposableFunctionBodyTransformer(
     }
 
     private fun IrStatement.wrap(
+        startOffset: Int,
+        endOffset: Int,
         type: IrType,
         before: List<IrExpression> = emptyList(),
         after: List<IrExpression> = emptyList()
@@ -3465,6 +3477,8 @@ class ComposableFunctionBodyTransformer(
         } else {
             val tempVar = irTemporary(expression.value, nameHint = "return")
             tempVar.wrap(
+                expression.startOffset,
+                expression.endOffset,
                 expression.type,
                 after = listOf(
                     endBlock,

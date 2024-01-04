@@ -66,7 +66,7 @@ class ScannerAdapter(
         @SuppressLint("MissingPermission")
         fun bind(bluetoothDevice: BluetoothDevice) {
             currentBluetoothDevice = bluetoothDevice
-            textViewDeviceAddress.text = bluetoothDevice.address
+            textViewDeviceAddress.text = bluetoothDevice.id.toString()
             textViewDeviceName.text = bluetoothDevice.name
             textViewDeviceName.isVisible = bluetoothDevice.name.isNullOrEmpty().not()
         }

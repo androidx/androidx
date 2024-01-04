@@ -99,6 +99,7 @@ import kotlin.math.roundToInt
  * @param colors [InlineSliderColors] that will be used to resolve the background and content color
  * for this slider in different states.
  */
+@ExperimentalWearMaterial3Api
 @Composable
 fun InlineSlider(
     value: Float,
@@ -254,6 +255,7 @@ fun InlineSlider(
  * @param colors [InlineSliderColors] that will be used to resolve the background and content color
  * for this slider in different states.
  */
+@ExperimentalWearMaterial3Api
 @Composable
 fun InlineSlider(
     value: Int,
@@ -282,6 +284,7 @@ fun InlineSlider(
 }
 
 /** Defaults used by slider. */
+@ExperimentalWearMaterial3Api
 object InlineSliderDefaults {
     /**
      * Default slider measurements.
@@ -374,6 +377,7 @@ object InlineSliderDefaults {
  * @param disabledUnselectedBarColor The background color of the progress bar when disabled.
  * @param disabledBarSeparatorColor The color of separator between visible segments when disabled.
  */
+@ExperimentalWearMaterial3Api
 @Immutable
 class InlineSliderColors constructor(
     val containerColor: Color,
@@ -453,6 +457,7 @@ class InlineSliderColors constructor(
     }
 }
 
+@OptIn(ExperimentalWearMaterial3Api::class)
 internal fun DrawScope.drawSelectedProgressBar(
     color: Color,
     valueRatio: Float,
@@ -470,6 +475,7 @@ internal fun DrawScope.drawSelectedProgressBar(
     )
 }
 
+@OptIn(ExperimentalWearMaterial3Api::class)
 internal fun DrawScope.drawUnselectedProgressBar(
     color: Color,
     valueRatio: Float,
@@ -486,6 +492,7 @@ internal fun DrawScope.drawUnselectedProgressBar(
     )
 }
 
+@OptIn(ExperimentalWearMaterial3Api::class)
 internal fun DrawScope.drawProgressBarSeparator(color: Color, position: Float) {
     drawCircle(
         color = color,

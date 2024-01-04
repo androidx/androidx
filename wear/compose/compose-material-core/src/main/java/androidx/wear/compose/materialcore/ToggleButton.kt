@@ -102,23 +102,17 @@ fun ToggleButton(
     val borderStroke = border(enabled, checked)?.value
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier
+        modifier = modifier
+            .semantics { role = Role.Checkbox }
+            .size(toggleButtonSize)
             .clip(shape) // Clip for the touch area (e.g. for Ripple).
             .toggleable(
                 value = checked,
                 onValueChange = onCheckedChange,
                 enabled = enabled,
-                role = null, // // Provide the role via Modifier.semantics
                 interactionSource = interactionSource,
                 indication = rememberRipple()
             )
-            .then(
-                // Make sure modifier ordering is clip > toggleable > padding > size,
-                // so that the ripple applies to the entire button shape and size.
-                modifier.semantics { role = Role.Checkbox }
-            )
-            .size(toggleButtonSize)
-            .clip(shape) // Clip for the painted background area after size has been applied.
             .then(
                 if (borderStroke != null) Modifier.border(border = borderStroke, shape = shape)
                 else Modifier

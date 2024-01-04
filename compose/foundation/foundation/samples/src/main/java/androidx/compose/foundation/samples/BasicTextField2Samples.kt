@@ -26,7 +26,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text2.BasicTextField2
-import androidx.compose.foundation.text2.input.TextEditFilter
+import androidx.compose.foundation.text2.input.InputTransformation
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.delete
 import androidx.compose.foundation.text2.input.forEachChange
@@ -162,11 +162,12 @@ fun BasicTextField2StateEditSample() {
     }
 }
 
+// TODO convert to InputTransformation
 @Sampled
 @Composable
 fun BasicTextField2CustomFilterSample() {
     val state = remember { TextFieldState() }
-    BasicTextField2(state, filter = { _, new ->
+    BasicTextField2(state, inputTransformation = { _, new ->
         // A filter that always places newly-input text at the start of the string, after a
         // prompt character, like a shell.
         val promptChar = '>'
@@ -178,7 +179,7 @@ fun BasicTextField2CustomFilterSample() {
         }
 
         // Step one: Figure out the insertion point.
-        val newPromptChars = new.countPrefix(promptChar)
+        val newPromptChars = new.asCharSequence().countPrefix(promptChar)
         val insertionPoint = if (newPromptChars == 0) 0 else 1
 
         // Step two: Ensure text is placed at the insertion point.
@@ -204,14 +205,14 @@ fun BasicTextField2CustomFilterSample() {
 
 @Sampled
 fun BasicTextField2FilterChainingSample() {
-    val removeFirstEFilter = TextEditFilter { _, new ->
-        val index = new.indexOf('e')
+    val removeFirstEFilter = InputTransformation { _, new ->
+        val index = new.asCharSequence().indexOf('e')
         if (index != -1) {
             new.replace(index, index + 1, "")
         }
     }
-    val printECountFilter = TextEditFilter { _, new ->
-        println("found ${new.count { it == 'e' }} 'e's in the string")
+    val printECountFilter = InputTransformation { _, new ->
+        println("found ${new.asCharSequence().count { it == 'e' }} 'e's in the string")
     }
 
     // Returns a filter that always prints 0 e's.
@@ -225,9 +226,9 @@ fun BasicTextField2FilterChainingSample() {
 @Composable
 fun BasicTextField2ChangeIterationSample() {
     // Print a log message every time the text is changed.
-    BasicTextField2(state = rememberTextFieldState(), filter = { _, new ->
+    BasicTextField2(state = rememberTextFieldState(), inputTransformation = { _, new ->
         new.changes.forEachChange { sourceRange, replacedLength ->
-            val newString = new.substring(sourceRange)
+            val newString = new.asCharSequence().substring(sourceRange)
             println("""$replacedLength characters were replaced with "$newString"""")
         }
     })
@@ -238,7 +239,7 @@ fun BasicTextField2ChangeIterationSample() {
 fun BasicTextField2ChangeReverseIterationSample() {
     // Make a text field behave in "insert mode" – inserted text overwrites the text ahead of it
     // instead of being inserted.
-    BasicTextField2(state = rememberTextFieldState(), filter = { _, new ->
+    BasicTextField2(state = rememberTextFieldState(), inputTransformation = { _, new ->
         new.changes.forEachChangeReversed { range, originalRange ->
             if (!range.collapsed && originalRange.collapsed) {
                 // New text was inserted, delete the text ahead of it.

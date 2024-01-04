@@ -116,7 +116,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final String TAG = "FragmentManager";
 
-    static boolean USE_PREDICTIVE_BACK = false;
+    static boolean USE_PREDICTIVE_BACK = true;
 
     /**
      * Control whether FragmentManager uses the new state predictive back feature that allows
@@ -453,7 +453,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
     private boolean mExecutingActions;
 
     private final FragmentStore mFragmentStore = new FragmentStore();
-    ArrayList<BackStackRecord> mBackStack;
+    ArrayList<BackStackRecord> mBackStack = new ArrayList<>();
     private ArrayList<Fragment> mCreatedMenus;
     private final FragmentLayoutInflaterFactory mLayoutInflaterFactory =
             new FragmentLayoutInflaterFactory(this);
@@ -1024,7 +1024,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * Return the number of entries currently in the back stack.
      */
     public int getBackStackEntryCount() {
-        return mBackStack != null ? mBackStack.size() : 0;
+        return mBackStack.size() + (mTransitioningOp != null ? 1 : 0);
     }
 
     /**
@@ -1033,6 +1033,12 @@ public abstract class FragmentManager implements FragmentResultOwner {
      */
     @NonNull
     public BackStackEntry getBackStackEntryAt(int index) {
+        if (index == mBackStack.size()) {
+            if (mTransitioningOp == null) {
+                throw new IndexOutOfBoundsException();
+            }
+            return mTransitioningOp;
+        }
         return mBackStack.get(index);
     }
 
@@ -1081,7 +1087,6 @@ public abstract class FragmentManager implements FragmentResultOwner {
         }
     }
 
-    @SuppressLint("SyntheticAccessor")
     @Override
     public final void setFragmentResultListener(@NonNull final String requestKey,
             @NonNull final LifecycleOwner lifecycleOwner,
@@ -1460,19 +1465,17 @@ public abstract class FragmentManager implements FragmentResultOwner {
             }
         }
 
-        if (mBackStack != null) {
-            count = mBackStack.size();
-            if (count > 0) {
-                writer.print(prefix); writer.println("Back Stack:");
-                for (int i = 0; i < count; i++) {
-                    BackStackRecord bs = mBackStack.get(i);
-                    writer.print(prefix);
-                    writer.print("  #");
-                    writer.print(i);
-                    writer.print(": ");
-                    writer.println(bs.toString());
-                    bs.dump(innerPrefix, writer);
-                }
+        count = mBackStack.size();
+        if (count > 0) {
+            writer.print(prefix); writer.println("Back Stack:");
+            for (int i = 0; i < count; i++) {
+                BackStackRecord bs = mBackStack.get(i);
+                writer.print(prefix);
+                writer.print("  #");
+                writer.print(i);
+                writer.print(": ");
+                writer.println(bs.toString());
+                bs.dump(innerPrefix, writer);
             }
         }
 
@@ -2269,9 +2272,6 @@ public abstract class FragmentManager implements FragmentResultOwner {
     }
 
     void addBackStackState(BackStackRecord state) {
-        if (mBackStack == null) {
-            mBackStack = new ArrayList<>();
-        }
         mBackStack.add(state);
     }
 
@@ -2482,7 +2482,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * @return
      */
     private int findBackStackIndex(@Nullable String name, int id, boolean inclusive) {
-        if (mBackStack == null || mBackStack.isEmpty()) {
+        if (mBackStack.isEmpty()) {
             return -1;
         }
         if (name == null && id < 0) {
@@ -2581,16 +2581,14 @@ public abstract class FragmentManager implements FragmentResultOwner {
 
             // Now save back stack.
             BackStackRecordState[] backStack = null;
-            if (mBackStack != null) {
-                int size = mBackStack.size();
-                if (size > 0) {
-                    backStack = new BackStackRecordState[size];
-                    for (int i = 0; i < size; i++) {
-                        backStack[i] = new BackStackRecordState(mBackStack.get(i));
-                        if (isLoggingEnabled(Log.VERBOSE)) {
-                            Log.v(TAG, "saveAllState: adding back stack #" + i
-                                    + ": " + mBackStack.get(i));
-                        }
+            int size = mBackStack.size();
+            if (size > 0) {
+                backStack = new BackStackRecordState[size];
+                for (int i = 0; i < size; i++) {
+                    backStack[i] = new BackStackRecordState(mBackStack.get(i));
+                    if (isLoggingEnabled(Log.VERBOSE)) {
+                        Log.v(TAG, "saveAllState: adding back stack #" + i
+                                + ": " + mBackStack.get(i));
                     }
                 }
             }
@@ -2752,7 +2750,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
                 mBackStack.add(bse);
             }
         } else {
-            mBackStack = null;
+            mBackStack = new ArrayList<>();
         }
         mBackStackIndex.set(fms.mBackStackIndex);
 
@@ -2793,7 +2791,6 @@ public abstract class FragmentManager implements FragmentResultOwner {
     }
 
     @SuppressWarnings("deprecation")
-    @SuppressLint("SyntheticAccessor")
     void attachController(@NonNull FragmentHostCallback<?> host,
             @NonNull FragmentContainer container, @Nullable final Fragment parent) {
         if (mHost != null) throw new IllegalStateException("Already attached");
@@ -2922,7 +2919,6 @@ public abstract class FragmentManager implements FragmentResultOwner {
             mRequestPermissions = registry.register(keyPrefix + "RequestPermissions",
                     new ActivityResultContracts.RequestMultiplePermissions(),
                     new ActivityResultCallback<Map<String, Boolean>>() {
-                        @SuppressLint("SyntheticAccessor")
                         @Override
                         public void onActivityResult(Map<String, Boolean> result) {
                             String[] permissions = result.keySet().toArray(new String[0]);

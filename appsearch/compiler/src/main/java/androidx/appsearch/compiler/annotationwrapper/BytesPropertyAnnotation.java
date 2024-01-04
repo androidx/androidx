@@ -47,4 +47,10 @@ public abstract class BytesPropertyAnnotation extends DataPropertyAnnotation {
         return new AutoValue_BytesPropertyAnnotation(
                 name.isEmpty() ? defaultName : name, (boolean) annotationParams.get("required"));
     }
+
+    @NonNull
+    @Override
+    public final Kind getDataPropertyKind() {
+        return Kind.BYTES_PROPERTY;
+    }
 }

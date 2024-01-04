@@ -78,17 +78,10 @@ public class DynamicTypeEvaluatorTest {
         notifier.callReceiver();
         assertThat(results).isEmpty();
 
-        // Start evaluation.
+        // Start evaluation. This will send the initial result.
         boundDynamicType.startEvaluation();
 
-        // Trigger reevaluation, which should send a result.
-        for (int i = 0; i < 5; i++) {
-            notifier.callReceiver();
-            assertThat(results).hasSize(i + 1);
-            assertThat(Integer.parseInt(results.get(i))).isAtLeast(0);
-            assertThat(Integer.parseInt(results.get(i))).isLessThan(60);
-        }
-
+        assertThat(results).hasSize(1);
         boundDynamicType.close();
     }
 

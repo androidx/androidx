@@ -103,7 +103,6 @@ fun Modifier.focusable(
  *
  * @sample androidx.compose.foundation.samples.FocusableFocusGroupSample
  */
-@ExperimentalFoundationApi
 fun Modifier.focusGroup(): Modifier {
     return this
         .then(focusGroupInspectorInfo)

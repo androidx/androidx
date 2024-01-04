@@ -58,7 +58,6 @@ public final class ComplicationTextTemplate implements Parcelable, TimeDependent
             new Creator<ComplicationTextTemplate>() {
                 @Override
                 @NonNull
-                @SuppressLint("SyntheticAccessor")
                 public ComplicationTextTemplate createFromParcel(@NonNull Parcel in) {
                     return new ComplicationTextTemplate(in);
                 }
@@ -242,7 +241,6 @@ public final class ComplicationTextTemplate implements Parcelable, TimeDependent
          * as specified.
          */
         @NonNull
-        @SuppressLint("SyntheticAccessor")
         public ComplicationTextTemplate build() {
             if (mTexts.isEmpty()) {
                 throw new IllegalStateException("At least one text must be specified.");

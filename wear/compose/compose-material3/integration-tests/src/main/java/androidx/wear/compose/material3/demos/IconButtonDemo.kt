@@ -19,10 +19,7 @@ package androidx.wear.compose.material3.demos
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,7 +29,6 @@ import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.FilledIconButton
 import androidx.wear.compose.material3.FilledTonalIconButton
-import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.IconButton
 import androidx.wear.compose.material3.IconButtonDefaults
 import androidx.wear.compose.material3.ListHeader
@@ -63,7 +59,7 @@ fun IconButtonDemo() {
                     onClick = { },
                     enabled = false
                 ) {
-                    StandardIcon()
+                    StandardIcon(ButtonDefaults.IconSize)
                 }
             }
         }
@@ -80,7 +76,7 @@ fun IconButtonDemo() {
                     onClick = { },
                     enabled = false
                 ) {
-                    StandardIcon()
+                    StandardIcon(ButtonDefaults.IconSize)
                 }
             }
         }
@@ -97,7 +93,7 @@ fun IconButtonDemo() {
                     onClick = { },
                     enabled = false
                 ) {
-                    StandardIcon()
+                    StandardIcon(ButtonDefaults.IconSize)
                 }
             }
         }
@@ -114,7 +110,7 @@ fun IconButtonDemo() {
                     onClick = { },
                     enabled = false
                 ) {
-                    StandardIcon()
+                    StandardIcon(ButtonDefaults.IconSize)
                 }
             }
         }
@@ -152,15 +148,6 @@ fun IconButtonDemo() {
             }
         }
     }
-}
-
-@Composable
-private fun StandardIcon(iconSize: Dp = ButtonDefaults.IconSize) {
-    Icon(
-        Icons.Filled.Favorite,
-        contentDescription = "Favorite icon",
-        modifier = Modifier.requiredSize(iconSize)
-    )
 }
 
 @Composable

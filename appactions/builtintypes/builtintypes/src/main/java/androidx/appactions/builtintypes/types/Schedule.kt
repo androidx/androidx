@@ -47,7 +47,6 @@ import kotlin.collections.mutableListOf
 import kotlin.collections.mutableMapOf
 import kotlin.collections.plusAssign
 import kotlin.collections.toList
-import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmStatic
 
 /**
@@ -177,16 +176,8 @@ public interface Schedule : Intangible {
   public override fun toBuilder(): Builder<*>
 
   public companion object {
-    /**
-     * Returns a default implementation of [Builder].
-     *
-     * Has the specified [identifier] and [namespace] and no other properties set.
-     */
-    @JvmStatic
-    @JvmOverloads
-    @Document.BuilderProducer
-    public fun Builder(identifier: String = "", namespace: String = ""): Builder<*> =
-      ScheduleImpl.Builder().setIdentifier(identifier).setNamespace(namespace)
+    /** Returns a default implementation of [Builder]. */
+    @JvmStatic @Document.BuilderProducer public fun Builder(): Builder<*> = ScheduleImpl.Builder()
   }
 
   /**
@@ -327,6 +318,10 @@ public interface Schedule : Intangible {
  *
  * Allows for extension like:
  * ```kt
+ * @Document(
+ *   name = "MySchedule",
+ *   parent = [Schedule::class],
+ * )
  * class MySchedule internal constructor(
  *   schedule: Schedule,
  *   val foo: String,
@@ -335,6 +330,8 @@ public interface Schedule : Intangible {
  *   MySchedule,
  *   MySchedule.Builder
  * >(schedule) {
+ *
+ *   // No need to implement equals(), hashCode(), toString() or toBuilder()
  *
  *   override val selfTypeName =
  *     "MySchedule"
@@ -483,7 +480,9 @@ internal constructor(
 
   public final override fun toString(): String {
     val attributes = mutableMapOf<String, String>()
-    attributes["namespace"] = namespace
+    if (namespace.isNotEmpty()) {
+      attributes["namespace"] = namespace
+    }
     if (byDays.isNotEmpty()) {
       attributes["byDays"] = byDays.map { it.toString(includeWrapperName = false) }.toString()
     }
@@ -524,7 +523,9 @@ internal constructor(
       attributes["disambiguatingDescription"] =
         disambiguatingDescription.toString(includeWrapperName = false)
     }
-    attributes["identifier"] = identifier
+    if (identifier.isNotEmpty()) {
+      attributes["identifier"] = identifier
+    }
     if (name != null) {
       attributes["name"] = name.toString(includeWrapperName = false)
     }
@@ -544,10 +545,13 @@ internal constructor(
    *     MySchedule.Builder>(...) {
    *
    *   class Builder
-   *   : Builder<
+   *   : AbstractSchedule.Builder<
    *       Builder,
    *       MySchedule
    *   >() {
+   *
+   *     // No need to implement equals(), hashCode(), toString() or build()
+   *
    *     private var foo: String? = null
    *     private val bars = mutableListOf<Int>()
    *
@@ -837,7 +841,9 @@ internal constructor(
     @Suppress("BuilderSetStyle")
     public final override fun toString(): String {
       val attributes = mutableMapOf<String, String>()
-      attributes["namespace"] = namespace
+      if (namespace.isNotEmpty()) {
+        attributes["namespace"] = namespace
+      }
       if (byDays.isNotEmpty()) {
         attributes["byDays"] = byDays.map { it.toString(includeWrapperName = false) }.toString()
       }
@@ -878,7 +884,9 @@ internal constructor(
         attributes["disambiguatingDescription"] =
           disambiguatingDescription!!.toString(includeWrapperName = false)
       }
-      attributes["identifier"] = identifier
+      if (identifier.isNotEmpty()) {
+        attributes["identifier"] = identifier
+      }
       if (name != null) {
         attributes["name"] = name!!.toString(includeWrapperName = false)
       }

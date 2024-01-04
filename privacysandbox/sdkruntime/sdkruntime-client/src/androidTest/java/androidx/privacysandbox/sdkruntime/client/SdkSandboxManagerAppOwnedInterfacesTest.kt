@@ -139,7 +139,7 @@ class SdkSandboxManagerAppOwnedInterfacesTest {
     fun sdkController_getAppOwnedSdkSandboxInterfaces_returnsRegisteredAppOwnedInterfaces() {
         val localSdk = runBlocking {
             sandboxManagerCompat.loadSdk(
-                "androidx.privacysandbox.sdkruntime.test.v4",
+                TestSdkConfigs.forSdkName("v4").packageName,
                 Bundle()
             )
         }

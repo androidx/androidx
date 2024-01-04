@@ -58,10 +58,12 @@ internal constructor(
   @Suppress("UNUSED_PARAMETER") namespace: String = "",
 ) {
   @get:Document.Id
+  @get:JvmName("getIdentifier")
   internal val identifier: String
     get() = ""
 
   @get:Document.Namespace
+  @get:JvmName("getNamespace")
   internal val namespace: String
     get() = ""
 

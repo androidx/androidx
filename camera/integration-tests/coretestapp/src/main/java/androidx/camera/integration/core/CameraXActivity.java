@@ -228,6 +228,8 @@ public class CameraXActivity extends AppCompatActivity {
     private static final String INTENT_EXTRA_E2E_TEST_CASE = "e2e_test_case";
     // Launch the activity with the specified video quality.
     private static final String INTENT_EXTRA_VIDEO_QUALITY = "video_quality";
+    // Launch the activity with the specified video mirror mode.
+    private static final String INTENT_EXTRA_VIDEO_MIRROR_MODE = "video_mirror_mode";
     public static final String INTENT_EXTRA_CAMERA_IMPLEMENTATION = "camera_implementation";
     public static final String INTENT_EXTRA_CAMERA_IMPLEMENTATION_NO_HISTORY =
             "camera_implementation_no_history";
@@ -325,6 +327,7 @@ public class CameraXActivity extends AppCompatActivity {
     private Quality mVideoQuality;
     private DynamicRange mDynamicRange = DynamicRange.SDR;
     private final Set<DynamicRange> mSelectableDynamicRanges = new HashSet<>();
+    private int mVideoMirrorMode = MIRROR_MODE_ON_FRONT_ONLY;
 
     SessionMediaUriSet mSessionImagesUriSet = new SessionMediaUriSet();
     SessionMediaUriSet mSessionVideosUriSet = new SessionMediaUriSet();
@@ -1202,6 +1205,14 @@ public class CameraXActivity extends AppCompatActivity {
         mAnalysisToggle.setChecked((useCaseCombination & BIND_IMAGE_ANALYSIS) != 0L);
     }
 
+    private void updateVideoMirrorModeByIntent(@NonNull Intent intent) {
+        int mirrorMode = intent.getIntExtra(INTENT_EXTRA_VIDEO_MIRROR_MODE, -1);
+        if (mirrorMode != -1) {
+            Log.d(TAG, "updateVideoMirrorModeByIntent: mirrorMode = " + mirrorMode);
+            mVideoMirrorMode = mirrorMode;
+        }
+    }
+
     private void updateVideoQualityByIntent(@NonNull Intent intent) {
         Bundle bundle = intent.getExtras();
         if (bundle == null) {
@@ -1243,6 +1254,7 @@ public class CameraXActivity extends AppCompatActivity {
         OpenGLRenderer previewRenderer = mPreviewRenderer = new OpenGLRenderer();
         ViewStub viewFinderStub = findViewById(R.id.viewFinderStub);
         updatePreviewRatioAndScaleTypeByIntent(viewFinderStub);
+        updateVideoMirrorModeByIntent(getIntent());
 
         mViewFinder = OpenGLActivity.chooseViewFinder(getIntent().getExtras(), viewFinderStub,
                 previewRenderer);
@@ -1628,7 +1640,7 @@ public class CameraXActivity extends AppCompatActivity {
                 }
                 mRecorder = builder.build();
                 mVideoCapture = new VideoCapture.Builder<>(mRecorder)
-                        .setMirrorMode(MIRROR_MODE_ON_FRONT_ONLY)
+                        .setMirrorMode(mVideoMirrorMode)
                         .setDynamicRange(mDynamicRange)
                         .build();
             }

@@ -19,6 +19,7 @@ package androidx.bluetooth
 import android.bluetooth.BluetoothAdapter
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
+import java.util.Objects
 
 /**
  * Represents a Bluetooth address for a remote device.
@@ -67,5 +68,15 @@ class BluetoothAddress(val address: String, @AddressType var addressType: Int) {
             ADDRESS_TYPE_RANDOM_NON_RESOLVABLE -> addressType
             else -> ADDRESS_TYPE_UNKNOWN
         }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return other is BluetoothAddress &&
+            address == other.address &&
+            addressType == other.addressType
+    }
+
+    override fun hashCode(): Int {
+        return Objects.hash(address, addressType)
     }
 }

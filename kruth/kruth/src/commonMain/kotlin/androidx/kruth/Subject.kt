@@ -143,8 +143,22 @@ open class Subject<out T>(
         }
     }
 
-    protected fun failWithActual(vararg messages: String): Nothing {
-        asserter(withActual = true).fail(messages.joinToString(separator = "\n"))
+    protected fun failWithActual(vararg facts: Fact): Nothing {
+        asserter(withActual = true).fail(
+            Fact.makeMessage(
+                emptyList(),
+                facts.asList(),
+                )
+        )
+    }
+
+    protected fun failWithoutActual(vararg facts: Fact): Nothing {
+        asserter(withActual = false).fail(
+            Fact.makeMessage(
+                emptyList(),
+                facts.asList(),
+            )
+        )
     }
 
     @PublishedApi

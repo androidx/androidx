@@ -54,4 +54,10 @@ public abstract class DocumentPropertyAnnotation extends DataPropertyAnnotation 
      * Specifies whether fields in the nested document should be indexed.
      */
     public abstract boolean shouldIndexNestedProperties();
+
+    @NonNull
+    @Override
+    public final Kind getDataPropertyKind() {
+        return Kind.DOCUMENT_PROPERTY;
+    }
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
+<issues format="6" by="lint 8.2.0-alpha14" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha14)" variant="all" version="8.2.0-alpha14">
 
     <issue
         id="NewApi"
@@ -165,87 +165,6 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 19 (current min is 14): `EmojiTextWatcher`"
-        errorLine1="        mTextWatcher = new EmojiTextWatcher(editText);"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 19 (current min is 14): `onTextChanged`"
-        errorLine1="        mTextWatcher.onTextChanged(testString, 0, 0, 1);"
-        errorLine2="                     ~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 19 (current min is 14): `onTextChanged`"
-        errorLine1="        mTextWatcher.onTextChanged(testString, 0, 0, 1);"
-        errorLine2="                     ~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 19 (current min is 14): `onTextChanged`"
-        errorLine1="        mTextWatcher.onTextChanged(testString, 0, 0, 1);"
-        errorLine2="                     ~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 19 (current min is 14): `getEmojiReplaceStrategy`"
-        errorLine1="        assertEquals(EmojiCompat.REPLACE_STRATEGY_DEFAULT, mTextWatcher.getEmojiReplaceStrategy());"
-        errorLine2="                                                                        ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 19 (current min is 14): `onTextChanged`"
-        errorLine1="        mTextWatcher.onTextChanged(testString, 0, 0, 1);"
-        errorLine2="                     ~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 19 (current min is 14): `setEmojiReplaceStrategy`"
-        errorLine1="        mTextWatcher.setEmojiReplaceStrategy(EmojiCompat.REPLACE_STRATEGY_ALL);"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 19 (current min is 14): `onTextChanged`"
-        errorLine1="        mTextWatcher.onTextChanged(testString, 0, 0, 1);"
-        errorLine2="                     ~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 19 (current min is 14): `onTextChanged`"
-        errorLine1="        mTextWatcher.onTextChanged(testString, 0, 0, 1);"
-        errorLine2="                     ~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
         message="Call requires API level 19 (current min is 14): `EmojiTransformationMethod`"
         errorLine1="        mTransformationMethod = new EmojiTransformationMethod(mWrappedTransformationMethod);"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -323,6 +242,15 @@
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/emoji/widget/EmojiTransformationMethodTest.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 19 (current min is 14): `EmojiSpan`"
+        errorLine1="            return span instanceof EmojiSpan;"
+        errorLine2="                                   ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji/widget/SpannableBuilder.java"/>
     </issue>
 
     <issue

@@ -20,12 +20,11 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.cancelsTextSelection
 import androidx.compose.foundation.text2.BasicTextField2
-import androidx.compose.foundation.text2.input.TextEditFilter
+import androidx.compose.foundation.text2.input.InputTransformation
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.deselect
-import androidx.compose.foundation.text2.selection.TextFieldSelectionState
+import androidx.compose.foundation.text2.input.internal.selection.TextFieldSelectionState
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusEventModifierNode
 import androidx.compose.ui.focus.FocusManager
@@ -88,7 +87,7 @@ internal data class TextFieldDecoratorModifier(
     private val textFieldState: TextFieldState,
     private val textLayoutState: TextLayoutState,
     private val textFieldSelectionState: TextFieldSelectionState,
-    private val filter: TextEditFilter?,
+    private val filter: InputTransformation?,
     private val enabled: Boolean,
     private val readOnly: Boolean,
     private val keyboardOptions: KeyboardOptions,
@@ -132,7 +131,7 @@ internal class TextFieldDecoratorModifierNode(
     var textFieldState: TextFieldState,
     var textLayoutState: TextLayoutState,
     var textFieldSelectionState: TextFieldSelectionState,
-    var filter: TextEditFilter?,
+    var filter: InputTransformation?,
     var enabled: Boolean,
     var readOnly: Boolean,
     keyboardOptions: KeyboardOptions,
@@ -170,7 +169,7 @@ internal class TextFieldDecoratorModifierNode(
      * Manages key events. These events often are sourced by a hardware keyboard but it's also
      * possible that IME or some other platform system simulates a KeyEvent.
      */
-    private val textFieldKeyEventHandler = TextFieldKeyEventHandler().also {
+    private val textFieldKeyEventHandler = createTextFieldKeyEventHandler().also {
         it.setFilter(filter)
     }
 
@@ -223,7 +222,7 @@ internal class TextFieldDecoratorModifierNode(
         textFieldState: TextFieldState,
         textLayoutState: TextLayoutState,
         textFieldSelectionState: TextFieldSelectionState,
-        filter: TextEditFilter?,
+        filter: InputTransformation?,
         enabled: Boolean,
         readOnly: Boolean,
         keyboardOptions: KeyboardOptions,
@@ -414,20 +413,21 @@ internal class TextFieldDecoratorModifierNode(
     }
 
     override fun onPreKeyEvent(event: KeyEvent): Boolean {
-        val selection = textFieldState.text.selectionInChars
-        return if (!selection.collapsed && event.cancelsTextSelection()) {
-            textFieldSelectionState.deselect()
-            true
-        } else {
-            false
-        }
+        return textFieldKeyEventHandler.onPreKeyEvent(
+            event = event,
+            textFieldState = textFieldState,
+            textFieldSelectionState = textFieldSelectionState,
+            focusManager = currentValueOf(LocalFocusManager),
+            keyboardController = requireKeyboardController()
+        )
     }
 
     override fun onKeyEvent(event: KeyEvent): Boolean {
         return textFieldKeyEventHandler.onKeyEvent(
             event = event,
-            state = textFieldState,
+            textFieldState = textFieldState,
             textLayoutState = textLayoutState,
+            textFieldSelectionState = textFieldSelectionState,
             editable = enabled && !readOnly,
             singleLine = singleLine,
             onSubmit = { onImeActionPerformed(keyboardOptions.imeAction) }
@@ -471,7 +471,7 @@ internal class TextFieldDecoratorModifierNode(
 internal expect suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
     state: TextFieldState,
     imeOptions: ImeOptions,
-    filter: TextEditFilter?,
+    filter: InputTransformation?,
     onImeAction: ((ImeAction) -> Unit)?
 ): Nothing
 

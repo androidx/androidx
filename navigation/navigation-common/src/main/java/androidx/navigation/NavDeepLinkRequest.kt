@@ -31,7 +31,6 @@ public open class NavDeepLinkRequest {
     public open val uri: Uri?
     public open val action: String?
     public open val mimeType: String?
-    /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     constructor(
         /**
@@ -54,7 +53,6 @@ public open class NavDeepLinkRequest {
         mimeType: String?
     ) { this.uri = uri; this.action = action; this.mimeType = mimeType }
 
-    /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(intent: Intent) : this(intent.data, intent.action, intent.type)
 

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package androidx.sqlite.util
-import android.annotation.SuppressLint
 import android.util.Log
 import androidx.annotation.RestrictTo
 import java.io.File
@@ -56,7 +55,6 @@ class ProcessLock(
     private val processLock: Boolean
 ) {
     private val lockFile: File? = lockDir?.let { File(it, "$name.lck") }
-    @SuppressLint("SyntheticAccessor")
     private val threadLock: Lock = getThreadLock(name)
     private var lockChannel: FileChannel? = null
 

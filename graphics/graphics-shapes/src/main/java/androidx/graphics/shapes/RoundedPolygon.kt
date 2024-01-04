@@ -317,8 +317,8 @@ class RoundedPolygon {
             tempFeatures.add(Corner(cornerIndices, currVertex, roundedCorners[i].center,
                 convex))
             tempFeatures.add(Edge(listOf(cubics.size)))
-            cubics.add(Cubic.straightLine(corners[i].last().anchorX1, corners[i].last().anchorY1,
-                corners[(i + 1) % n].first().anchorX0, corners[(i + 1) % n].first().anchorY0))
+            cubics.add(Cubic.straightLine(corners[i].last().anchor1X, corners[i].last().anchor1Y,
+                corners[(i + 1) % n].first().anchor0X, corners[(i + 1) % n].first().anchor0Y))
         }
         features = tempFeatures
         cubicShape.updateCubics(cubics)
@@ -558,8 +558,8 @@ private class RoundedCorner(
         ).reverse()
         return listOf(
             flanking0,
-            Cubic.circularArc(center.x, center.y, flanking0.anchorX1, flanking0.anchorY1,
-                flanking2.anchorX0, flanking2.anchorY0),
+            Cubic.circularArc(center.x, center.y, flanking0.anchor1X, flanking0.anchor1Y,
+                flanking2.anchor0X, flanking2.anchor0Y),
             flanking2
         )
     }

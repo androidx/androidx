@@ -64,7 +64,7 @@ internal class ContentInViewNode(
     private var orientation: Orientation,
     private var scrollState: ScrollableState,
     private var reverseDirection: Boolean,
-    private var bringIntoViewScroller: BringIntoViewScroller
+    private var bringIntoViewSpec: BringIntoViewSpec
 ) : Modifier.Node(), BringIntoViewResponder, LayoutAwareModifierNode {
 
     /**
@@ -102,7 +102,7 @@ internal class ContentInViewNode(
     private var viewportSize = IntSize.Zero
     private var isAnimationRunning = false
     private val animationState =
-        UpdatableAnimationState(bringIntoViewScroller.scrollAnimationSpec)
+        UpdatableAnimationState(bringIntoViewSpec.scrollAnimationSpec)
 
     override fun calculateRectForParent(localRect: Rect): Rect {
         check(viewportSize != IntSize.Zero) {
@@ -299,13 +299,13 @@ internal class ContentInViewNode(
 
         val size = viewportSize.toSize()
         return when (orientation) {
-            Vertical -> bringIntoViewScroller.calculateScrollDistance(
+            Vertical -> bringIntoViewSpec.calculateScrollDistance(
                 rectangleToMakeVisible.top,
                 rectangleToMakeVisible.bottom - rectangleToMakeVisible.top,
                 size.height
             )
 
-            Horizontal -> bringIntoViewScroller.calculateScrollDistance(
+            Horizontal -> bringIntoViewSpec.calculateScrollDistance(
                 rectangleToMakeVisible.left,
                 rectangleToMakeVisible.right - rectangleToMakeVisible.left,
                 size.width
@@ -362,7 +362,7 @@ internal class ContentInViewNode(
         return when (orientation) {
             Vertical -> Offset(
                 x = 0f,
-                y = bringIntoViewScroller.calculateScrollDistance(
+                y = bringIntoViewSpec.calculateScrollDistance(
                     childBounds.top,
                     childBounds.bottom - childBounds.top,
                     size.height
@@ -370,7 +370,7 @@ internal class ContentInViewNode(
             )
 
             Horizontal -> Offset(
-                x = bringIntoViewScroller.calculateScrollDistance(
+                x = bringIntoViewSpec.calculateScrollDistance(
                     childBounds.left,
                     childBounds.right - childBounds.left,
                     size.width
@@ -394,12 +394,12 @@ internal class ContentInViewNode(
         orientation: Orientation,
         state: ScrollableState,
         reverseDirection: Boolean,
-        bringIntoViewScroller: BringIntoViewScroller
+        bringIntoViewSpec: BringIntoViewSpec
     ) {
         this.orientation = orientation
         this.scrollState = state
         this.reverseDirection = reverseDirection
-        this.bringIntoViewScroller = bringIntoViewScroller
+        this.bringIntoViewSpec = bringIntoViewSpec
     }
 
     /**

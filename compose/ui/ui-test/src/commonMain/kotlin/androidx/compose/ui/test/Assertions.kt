@@ -24,13 +24,16 @@ import androidx.compose.ui.semantics.SemanticsProperties
 /**
  * Asserts that the current semantics node is displayed on screen.
  *
+ * Specifically, the node must be composed, placed and at least a portion of its bounds must be
+ * visible on screen after clipping is applied.
+ *
  * Throws [AssertionError] if the node is not displayed.
  */
 fun SemanticsNodeInteraction.assertIsDisplayed(): SemanticsNodeInteraction {
     // TODO(b/143607231): check semantics hidden property
     // TODO(b/143608742): check the correct AndroidCraneView is visible
 
-    if (!checkIsDisplayed()) {
+    if (!checkIsDisplayed(assertIsFullyVisible = false)) {
         // TODO(b/133217292)
         throw AssertionError("Assert failed: The component is not displayed!")
     }
@@ -46,7 +49,7 @@ fun SemanticsNodeInteraction.assertIsNotDisplayed(): SemanticsNodeInteraction {
     // TODO(b/143607231): check semantics hidden property
     // TODO(b/143608742): check no AndroidCraneView contains the given component
 
-    if (checkIsDisplayed()) {
+    if (checkIsDisplayed(assertIsFullyVisible = true)) {
         // TODO(b/133217292)
         throw AssertionError("Assert failed: The component is displayed!")
     }
@@ -349,8 +352,10 @@ fun SemanticsNodeInteractionCollection.assertAll(
     return this
 }
 
-internal expect fun SemanticsNodeInteraction.checkIsDisplayed(): Boolean
+internal expect fun SemanticsNodeInteraction.checkIsDisplayed(
+    assertIsFullyVisible: Boolean
+): Boolean
 
 internal expect fun SemanticsNode.clippedNodeBoundsInWindow(): Rect
 
-internal expect fun SemanticsNode.isInScreenBounds(): Boolean
+internal expect fun SemanticsNode.isInScreenBounds(assertIsFullyVisible: Boolean): Boolean

@@ -17,10 +17,12 @@
 package androidx.wear.compose.material3
 
 import android.os.Build
+import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -71,16 +73,24 @@ class TextToggleButtonScreenshotTest {
         content = { sampleTextToggleButton(enabled = false, checked = false) }
     )
 
+    @Test
+    fun textToggleButtonWithOffset() = rule.verifyScreenshot(
+        methodName = testName.methodName,
+        screenshotRule = screenshotRule,
+        content = { sampleTextToggleButton(modifier = Modifier.offset(10.dp)) }
+    )
+
     @Composable
     private fun sampleTextToggleButton(
         enabled: Boolean = true,
-        checked: Boolean = true
+        checked: Boolean = true,
+        modifier: Modifier = Modifier
     ) {
         TextToggleButton(
             checked = checked,
             onCheckedChange = {},
             enabled = enabled,
-            modifier = Modifier.testTag(TEST_TAG)) {
+            modifier = modifier.testTag(TEST_TAG)) {
             Text(text = if (checked) "ON" else "OFF")
         }
     }

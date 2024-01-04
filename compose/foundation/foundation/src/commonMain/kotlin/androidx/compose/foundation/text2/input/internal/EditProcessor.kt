@@ -17,7 +17,7 @@
 package androidx.compose.foundation.text2.input.internal
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text2.input.TextEditFilter
+import androidx.compose.foundation.text2.input.InputTransformation
 import androidx.compose.foundation.text2.input.TextFieldBuffer
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.runtime.collection.mutableVectorOf
@@ -140,7 +140,7 @@ internal class EditProcessor(
      *
      * @return the [TextFieldValue] representation of the final buffer state.
      */
-    fun update(editCommands: List<EditCommand>, filter: TextEditFilter?) {
+    fun update(editCommands: List<EditCommand>, filter: InputTransformation?) {
         var lastCommand: EditCommand? = null
         mBuffer.changeTracker.clearChanges()
         try {
@@ -178,7 +178,7 @@ internal class EditProcessor(
                 sourceValue = oldValue,
                 initialChanges = mBuffer.changeTracker
             )
-            filter.filter(originalValue = oldValue, valueWithChanges = mutableValue)
+            filter.transformInput(originalValue = oldValue, valueWithChanges = mutableValue)
             // If neither the text nor the selection changed, we want to preserve the composition.
             // Otherwise, the IME will reset it anyway.
             val newValue = mutableValue.toTextFieldCharSequence(proposedValue.compositionInChars)

@@ -58,6 +58,7 @@ class TextInputServiceAndroidOnStateUpdateTest {
         val choreographer = Espresso.onIdle { Choreographer.getInstance() }
         textInputService = TextInputServiceAndroid(
                 view,
+                mock(),
                 inputMethodManager,
                 inputCommandProcessorExecutor = choreographer.asExecutor()
             )

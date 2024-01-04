@@ -33,7 +33,7 @@ class UpdatableAnimationStateTest {
     private val frameClock = TestFrameClock()
 
     @OptIn(ExperimentalFoundationApi::class)
-    private val state = UpdatableAnimationState(BringIntoViewScroller.DefaultScrollAnimationSpec)
+    private val state = UpdatableAnimationState(BringIntoViewSpec.DefaultScrollAnimationSpec)
 
     @Test
     fun animateToZero_doesNothing_whenValueIsZero() {

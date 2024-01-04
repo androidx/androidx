@@ -226,14 +226,14 @@ class ScannerFragment : Fragment() {
 
     @SuppressLint("MissingPermission")
     private fun addNewTab(bluetoothDevice: BluetoothDevice): Tab {
-        val deviceAddress = bluetoothDevice.address
+        val deviceId = bluetoothDevice.id.toString()
         val deviceName = bluetoothDevice.name
 
         val newTab = binding.tabLayout.newTab()
         newTab.setCustomView(R.layout.tab_item_device)
 
         val customView = newTab.customView
-        customView?.findViewById<TextView>(R.id.text_view_address)?.text = deviceAddress
+        customView?.findViewById<TextView>(R.id.text_view_device_id)?.text = deviceId
         val textViewName = customView?.findViewById<TextView>(R.id.text_view_name)
         textViewName?.text = deviceName
         textViewName?.isVisible = deviceName.isNullOrEmpty().not()
@@ -246,6 +246,7 @@ class ScannerFragment : Fragment() {
         return newTab
     }
 
+    @SuppressLint("MissingPermission")
     private fun connectTo(deviceConnection: DeviceConnection) {
         Log.d(TAG, "connectTo() called with: deviceConnection = $deviceConnection")
 
@@ -313,8 +314,7 @@ class ScannerFragment : Fragment() {
                                         connectScope.launch {
                                             val result = writeCharacteristic(
                                                 characteristic,
-                                                value,
-                                                GattCharacteristic.WRITE_TYPE_DEFAULT
+                                                value
                                             )
                                             Log.d(TAG, "writeCharacteristic() called with: " +
                                                 "result = $result")
