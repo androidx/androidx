@@ -23,6 +23,14 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// DO NOT MAKE CHANGES to the kotlin source file.
+//
+// This file was generated from a template in the template directory.
+// Make a change to the original template and run the generateCollections.sh script
+// to ensure the change is available on all versions of the map.
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
 internal class FloatSetTest {
     @Test
     fun emptyFloatSetConstructor() {
@@ -147,9 +155,9 @@ internal class FloatSetTest {
         val set = MutableFloatSet()
         set += 1f
         set += 2f
-        var element: Float = Float.NaN
-        var otherElement: Float = Float.NaN
-        set.forEach { if (element.isNaN()) element = it else otherElement = it }
+        var element: Float = -1f
+        var otherElement: Float = -1f
+        set.forEach { if (element == -1f) element = it else otherElement = it }
         assertEquals(element, set.first())
         set -= element
         assertEquals(otherElement, set.first())
@@ -333,8 +341,37 @@ internal class FloatSetTest {
         set += 1f
         set += 5f
         assertTrue(
-            "[1.0, 5.0]" == set.toString() ||
-                "[5.0, 1.0]" == set.toString()
+            "[${1f}, ${5f}]" == set.toString() ||
+                "[${5f}, ${1f}]" == set.toString()
+        )
+    }
+
+    @Test
+    fun joinToString() {
+        val set = floatSetOf(1f, 2f, 3f, 4f, 5f)
+        val order = IntArray(5)
+        var index = 0
+        set.forEach { element ->
+            order[index++] = element.toInt()
+        }
+        assertEquals(
+            "${order[0].toFloat()}, ${order[1].toFloat()}, ${order[2].toFloat()}, " +
+            "${order[3].toFloat()}, ${order[4].toFloat()}",
+            set.joinToString()
+        )
+        assertEquals(
+            "x${order[0].toFloat()}, ${order[1].toFloat()}, ${order[2].toFloat()}...",
+            set.joinToString(prefix = "x", postfix = "y", limit = 3)
+        )
+        assertEquals(
+            ">${order[0].toFloat()}-${order[1].toFloat()}-${order[2].toFloat()}-" +
+            "${order[3].toFloat()}-${order[4].toFloat()}<",
+            set.joinToString(separator = "-", prefix = ">", postfix = "<")
+        )
+        val names = arrayOf("one", "two", "three", "four", "five")
+        assertEquals(
+            "${names[order[0]]}, ${names[order[1]]}, ${names[order[2]]}...",
+            set.joinToString(limit = 3) { names[it.toInt()] }
         )
     }
 

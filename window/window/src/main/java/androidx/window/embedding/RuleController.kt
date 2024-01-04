@@ -27,6 +27,7 @@ import androidx.window.embedding.RuleController.Companion.parseRules
  * - [setRules]
  * - [parseRules]
  * - [clearRules]
+ * - [getRules]
  *
  * **Note** that this class is recommended to be configured in [androidx.startup.Initializer] or
  * [android.app.Application.onCreate], so that the rules are applied early in the application

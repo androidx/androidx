@@ -17,7 +17,9 @@
 package androidx.camera.camera2.pipe.compat
 
 import android.content.Context
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
+import android.os.Build
 import android.util.ArrayMap
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
@@ -105,7 +107,13 @@ constructor(
 
                 // Merge the camera specific and global cache blocklists together.
                 // this will prevent these values from being cached after first access.
-                val cameraBlocklist = cameraMetadataConfig.cameraCacheBlocklist[cameraId]
+                val cameraBlocklist =
+                    if (shouldBlockSensorOrientationCache(characteristics)) {
+                        (cameraMetadataConfig.cameraCacheBlocklist[cameraId] ?: emptySet()) +
+                            CameraCharacteristics.SENSOR_ORIENTATION
+                    } else {
+                        cameraMetadataConfig.cameraCacheBlocklist[cameraId]
+                    }
                 val cacheBlocklist =
                     if (cameraBlocklist == null) {
                         cameraMetadataConfig.cacheBlocklist
@@ -146,4 +154,9 @@ constructor(
     }
 
     private fun isMetadataRedacted(): Boolean = !permissions.hasCameraPermission
+
+    private fun shouldBlockSensorOrientationCache(characteristics: CameraCharacteristics): Boolean {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.S_V2 &&
+            characteristics[CameraCharacteristics.INFO_DEVICE_STATE_SENSOR_ORIENTATION_MAP] != null
+    }
 }

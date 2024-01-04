@@ -17,12 +17,12 @@
 package androidx.camera.camera2.internal;
 
 import static android.hardware.camera2.CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES;
-
+import static android.hardware.camera2.CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_OFF;
+import static android.hardware.camera2.CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_ON;
+import static android.hardware.camera2.CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION;
 import static androidx.camera.core.DynamicRange.HLG_10_BIT;
 import static androidx.camera.core.DynamicRange.SDR;
-
 import static com.google.common.truth.Truth.assertThat;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -678,6 +678,40 @@ public class Camera2CameraInfoImplTest {
         assertThat(resultFpsRanges1).isEmpty();
     }
 
+    /**
+     * Test for preview stabilization.
+     */
+    @Test
+    public void cameraInfo_isPreviewStabilizationSupported()
+            throws CameraAccessExceptionCompat {
+        init(/* hasAvailableCapabilities = */ false);
+
+        // Camera0
+        Camera2CameraInfoImpl cameraInfo0 = new Camera2CameraInfoImpl(CAMERA0_ID,
+                mCameraManagerCompat);
+
+
+        if (Build.VERSION.SDK_INT >= 33) {
+            assertThat(cameraInfo0.isPreviewStabilizationSupported()).isTrue();
+        } else {
+            assertThat(cameraInfo0.isPreviewStabilizationSupported()).isFalse();
+        }
+        assertThat(cameraInfo0.isVideoStabilizationSupported()).isTrue();
+
+        // Camera1
+        Camera2CameraInfoImpl cameraInfo1 = new Camera2CameraInfoImpl(CAMERA1_ID,
+                mCameraManagerCompat);
+
+        assertThat(cameraInfo1.isPreviewStabilizationSupported()).isFalse();
+        assertThat(cameraInfo0.isVideoStabilizationSupported()).isTrue();
+
+        // Camera2
+        Camera2CameraInfoImpl cameraInfo2 = new Camera2CameraInfoImpl(CAMERA2_ID,
+                mCameraManagerCompat);
+        assertThat(cameraInfo2.isPreviewStabilizationSupported()).isFalse();
+        assertThat(cameraInfo2.isVideoStabilizationSupported()).isFalse();
+    }
+
     @Test
     public void cameraInfo_checkDefaultCameraIntrinsicZoomRatio()
             throws CameraAccessExceptionCompat {
@@ -804,6 +838,24 @@ public class Camera2CameraInfoImplTest {
                     CAMERA0_DYNAMIC_RANGE_PROFILES);
         }
 
+        // Add video stabilization modes
+        if (Build.VERSION.SDK_INT >= 33) {
+            shadowCharacteristics0.set(
+                    CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES,
+                    new int[] {
+                            CONTROL_VIDEO_STABILIZATION_MODE_OFF,
+                            CONTROL_VIDEO_STABILIZATION_MODE_ON,
+                            CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
+                    });
+        } else {
+            shadowCharacteristics0.set(
+                    CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES,
+                    new int[] {
+                            CONTROL_VIDEO_STABILIZATION_MODE_OFF,
+                            CONTROL_VIDEO_STABILIZATION_MODE_ON
+                    });
+        }
+
         // Mock the request capability
         if (hasAvailableCapabilities) {
             shadowCharacteristics0.set(REQUEST_AVAILABLE_CAPABILITIES,
@@ -836,6 +888,14 @@ public class Camera2CameraInfoImplTest {
         // Mock the flash unit availability
         shadowCharacteristics1.set(
                 CameraCharacteristics.FLASH_INFO_AVAILABLE, CAMERA1_FLASH_INFO_BOOLEAN);
+
+        // Add video stabilization modes
+        shadowCharacteristics1.set(
+                CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES,
+                new int[] {
+                        CONTROL_VIDEO_STABILIZATION_MODE_OFF,
+                        CONTROL_VIDEO_STABILIZATION_MODE_ON
+                });
 
         // Mock the supported resolutions
         {
@@ -886,6 +946,13 @@ public class Camera2CameraInfoImplTest {
         shadowCharacteristics2.set(
                 CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES,
                 CAMERA2_AE_FPS_RANGES);
+
+        // Add video stabilization modes
+        shadowCharacteristics2.set(
+                CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES,
+                new int[] {
+                        CONTROL_VIDEO_STABILIZATION_MODE_OFF
+                });
 
         // Add the camera to the camera service
         ((ShadowCameraManager)

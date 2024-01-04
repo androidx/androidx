@@ -43,6 +43,7 @@ import java.util.ArrayList;
  */
 @RestrictTo(LIBRARY)
 @RequiresApi(19)
+@Deprecated
 public abstract class TemplateBuilderImpl {
 
     private Slice.Builder mSliceBuilder;

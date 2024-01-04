@@ -249,15 +249,20 @@ internal fun SelectionLayoutBuilder.appendSelectableInfo(
         getOffsetForPosition(previousHandlePosition, textLayoutResult)
     }
 
-    val startHandleDirection = getDirection(startPosition, bounds)
-    val endHandleDirection = getDirection(endPosition, bounds)
+    val startXHandleDirection = getXDirection(startPosition, bounds)
+    val endXHandleDirection = getXDirection(endPosition, bounds)
+
+    val startYHandleDirection = getYDirection(startPosition, bounds)
+    val endYHandleDirection = getYDirection(endPosition, bounds)
 
     appendInfo(
         selectableId = selectableId,
         rawStartHandleOffset = rawStartHandleOffset,
-        startHandleDirection = startHandleDirection,
+        startXHandleDirection = startXHandleDirection,
+        startYHandleDirection = startYHandleDirection,
         rawEndHandleOffset = rawEndHandleOffset,
-        endHandleDirection = endHandleDirection,
+        endXHandleDirection = endXHandleDirection,
+        endYHandleDirection = endYHandleDirection,
         rawPreviousHandleOffset = rawPreviousHandleOffset,
         textLayoutResult = textLayoutResult,
     )
@@ -280,7 +285,13 @@ private fun Selection.AnchorInfo.getPreviousAdjustedOffset(
     }
 }
 
-private fun getDirection(position: Offset, bounds: Rect): Direction = when {
+private fun getXDirection(position: Offset, bounds: Rect): Direction = when {
+    position.x < bounds.left -> Direction.BEFORE
+    position.x > bounds.right -> Direction.AFTER
+    else -> Direction.ON
+}
+
+private fun getYDirection(position: Offset, bounds: Rect): Direction = when {
     position.y < bounds.top -> Direction.BEFORE
     position.y > bounds.bottom -> Direction.AFTER
     else -> Direction.ON

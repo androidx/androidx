@@ -30,6 +30,162 @@ import org.junit.Test
 // and relevant to unit tests
 class UnitTestAssertionExtensionsTest {
     @Test
+    fun assertHasTextEqualTo_matching() {
+        val nodeAssertion = getGlanceNodeAssertionFor(
+            emittable = EmittableColumn().apply {
+                children.add(EmittableText().apply {
+                    text = "test text"
+                    modifier = GlanceModifier.semantics { testTag = "test-tag" }
+                })
+            },
+            onNodeMatcher = hasTestTag("test-tag")
+        )
+
+        nodeAssertion.assertHasTextEqualTo("test text")
+    }
+
+    @Test
+    fun assertHasTextEqualTo_ignoreCase_matching() {
+        val nodeAssertion = getGlanceNodeAssertionFor(
+            emittable = EmittableColumn().apply {
+                children.add(EmittableText().apply {
+                    text = "test text"
+                    modifier = GlanceModifier.semantics { testTag = "test-tag" }
+                })
+            },
+            onNodeMatcher = hasTestTag("test-tag")
+        )
+
+        nodeAssertion.assertHasTextEqualTo(text = "TEST TEXT", ignoreCase = true)
+    }
+
+    @Test
+    fun assertHasTextEqualTo_notMatching_assertionError() {
+        val nodeAssertion = getGlanceNodeAssertionFor(
+            emittable = EmittableColumn().apply {
+                children.add(EmittableText().apply {
+                    text = "test text"
+                    modifier = GlanceModifier.semantics { testTag = "test-tag" }
+                })
+            },
+            onNodeMatcher = hasTestTag("test-tag")
+        )
+
+        val assertionError = assertThrows(AssertionError::class.java) {
+            nodeAssertion.assertHasTextEqualTo("non-existing text")
+        }
+
+        assertThat(assertionError)
+            .hasMessageThat()
+            .contains(
+                "Failed to assert condition: " +
+                    "(text == 'non-existing text' (ignoreCase: 'false'))"
+            )
+    }
+
+    @Test
+    fun assertHasTextEqualTo_ignoreCaseAndNotMatching_assertionError() {
+        val nodeAssertion = getGlanceNodeAssertionFor(
+            emittable = EmittableColumn().apply {
+                children.add(EmittableText().apply {
+                    text = "test text"
+                    modifier = GlanceModifier.semantics { testTag = "test-tag" }
+                })
+            },
+            onNodeMatcher = hasTestTag("test-tag")
+        )
+
+        val assertionError = assertThrows(AssertionError::class.java) {
+            nodeAssertion.assertHasTextEqualTo("NON-EXISTING TEXT", ignoreCase = true)
+        }
+
+        assertThat(assertionError)
+            .hasMessageThat()
+            .contains(
+                "Failed to assert condition: " +
+                    "(text == 'NON-EXISTING TEXT' (ignoreCase: 'true'))"
+            )
+    }
+
+    @Test
+    fun assertHasText_matching() {
+        val nodeAssertion = getGlanceNodeAssertionFor(
+            emittable = EmittableColumn().apply {
+                children.add(EmittableText().apply {
+                    text = "test text"
+                    modifier = GlanceModifier.semantics { testTag = "test-tag" }
+                })
+            },
+            onNodeMatcher = hasTestTag("test-tag")
+        )
+
+        nodeAssertion.assertHasText(text = "text")
+    }
+
+    @Test
+    fun assertHasText_ignoreCase_matching() {
+        val nodeAssertion = getGlanceNodeAssertionFor(
+            emittable = EmittableColumn().apply {
+                children.add(EmittableText().apply {
+                    text = "test text"
+                    modifier = GlanceModifier.semantics { testTag = "test-tag" }
+                })
+            },
+            onNodeMatcher = hasTestTag("test-tag")
+        )
+
+        nodeAssertion.assertHasText(text = "TEXT", ignoreCase = true)
+    }
+
+    @Test
+    fun assertHasText_notMatching_assertionError() {
+        val nodeAssertion = getGlanceNodeAssertionFor(
+            emittable = EmittableColumn().apply {
+                children.add(EmittableText().apply {
+                    text = "test text"
+                    modifier = GlanceModifier.semantics { testTag = "test-tag" }
+                })
+            },
+            onNodeMatcher = hasTestTag("test-tag")
+        )
+
+        val assertionError = assertThrows(AssertionError::class.java) {
+            nodeAssertion.assertHasText("non-existing")
+        }
+
+        assertThat(assertionError)
+            .hasMessageThat()
+            .contains(
+                "Failed to assert condition: " +
+                    "(contains text 'non-existing' (ignoreCase: 'false') as substring)"
+            )
+    }
+
+    @Test
+    fun assertHasText_ignoreCaseAndNotMatching_assertionError() {
+        val nodeAssertion = getGlanceNodeAssertionFor(
+            emittable = EmittableColumn().apply {
+                children.add(EmittableText().apply {
+                    text = "test text"
+                    modifier = GlanceModifier.semantics { testTag = "test-tag" }
+                })
+            },
+            onNodeMatcher = hasTestTag("test-tag")
+        )
+
+        val assertionError = assertThrows(AssertionError::class.java) {
+            nodeAssertion.assertHasText(text = "NON-EXISTING", ignoreCase = true)
+        }
+
+        assertThat(assertionError)
+            .hasMessageThat()
+            .contains(
+                "Failed to assert condition: " +
+                    "(contains text 'NON-EXISTING' (ignoreCase: 'true') as substring)"
+            )
+    }
+
+    @Test
     fun assertHasTestTag_matching() {
         val nodeAssertion = getGlanceNodeAssertionFor(
             emittable = EmittableColumn().apply {
@@ -66,6 +222,99 @@ class UnitTestAssertionExtensionsTest {
     }
 
     @Test
+    fun assertHasContentDescriptionEqualTo_matching() {
+        val nodeAssertion = getGlanceNodeAssertionFor(
+            emittable = EmittableColumn().apply {
+                children.add(EmittableText().apply {
+                    text = "test text"
+                    modifier = GlanceModifier.semantics {
+                        testTag = "test-tag"
+                        contentDescription = "test text description"
+                    }
+                })
+            },
+            onNodeMatcher = hasTestTag("test-tag")
+        )
+
+        nodeAssertion.assertHasContentDescriptionEqualTo("test text description")
+    }
+
+    @Test
+    fun assertHasContentDescriptionEqualTo_ignoreCaseMatching() {
+        val nodeAssertion = getGlanceNodeAssertionFor(
+            emittable = EmittableColumn().apply {
+                children.add(EmittableText().apply {
+                    text = "test text"
+                    modifier = GlanceModifier.semantics {
+                        testTag = "test-tag"
+                        contentDescription = "test text description"
+                    }
+                })
+            },
+            onNodeMatcher = hasTestTag("test-tag")
+        )
+
+        nodeAssertion.assertHasContentDescriptionEqualTo(
+            value = "TEST TEXT DESCRIPTION",
+            ignoreCase = true
+        )
+    }
+
+    @Test
+    fun assertHasContentDescriptionEqualTo_notMatching_assertionError() {
+        val nodeAssertion = getGlanceNodeAssertionFor(
+            emittable = EmittableColumn().apply {
+                children.add(EmittableText().apply {
+                    text = "test text"
+                    modifier = GlanceModifier.semantics { testTag = "test-tag" }
+                })
+            },
+            onNodeMatcher = hasTestTag("test-tag")
+        )
+
+        val assertionError = assertThrows(AssertionError::class.java) {
+            nodeAssertion.assertHasContentDescriptionEqualTo("text description")
+        }
+
+        assertThat(assertionError)
+            .hasMessageThat()
+            .contains(
+                "Failed to assert condition: " +
+                    "(ContentDescription == 'text description' (ignoreCase: 'false'))"
+            )
+    }
+
+    @Test
+    fun assertHasContentDescriptionEqualTo_ignoreCaseAndNotMatching_assertionError() {
+        val nodeAssertion = getGlanceNodeAssertionFor(
+            emittable = EmittableColumn().apply {
+                children.add(EmittableText().apply {
+                    text = "test text"
+                    modifier = GlanceModifier.semantics {
+                        testTag = "test-tag"
+                        contentDescription = "test text description"
+                    }
+                })
+            },
+            onNodeMatcher = hasTestTag("test-tag")
+        )
+
+        val assertionError = assertThrows(AssertionError::class.java) {
+            nodeAssertion.assertHasContentDescriptionEqualTo(
+                value = "TEST DESCRIPTION",
+                ignoreCase = true
+            )
+        }
+
+        assertThat(assertionError)
+            .hasMessageThat()
+            .contains(
+                "Failed to assert condition: " +
+                    "(ContentDescription == 'TEST DESCRIPTION' (ignoreCase: 'true'))"
+            )
+    }
+
+    @Test
     fun assertHasContentDescription_matching() {
         val nodeAssertion = getGlanceNodeAssertionFor(
             emittable = EmittableColumn().apply {
@@ -80,7 +329,28 @@ class UnitTestAssertionExtensionsTest {
             onNodeMatcher = hasTestTag("test-tag")
         )
 
-        nodeAssertion.assertHasContentDescription("test text description")
+        nodeAssertion.assertHasContentDescription("text")
+    }
+
+    @Test
+    fun assertHasContentDescription_ignoreCaseMatching() {
+        val nodeAssertion = getGlanceNodeAssertionFor(
+            emittable = EmittableColumn().apply {
+                children.add(EmittableText().apply {
+                    text = "test text"
+                    modifier = GlanceModifier.semantics {
+                        testTag = "test-tag"
+                        contentDescription = "test text description"
+                    }
+                })
+            },
+            onNodeMatcher = hasTestTag("test-tag")
+        )
+
+        nodeAssertion.assertHasContentDescription(
+            value = "TEXT",
+            ignoreCase = true
+        )
     }
 
     @Test
@@ -103,7 +373,39 @@ class UnitTestAssertionExtensionsTest {
             .hasMessageThat()
             .contains(
                 "Failed to assert condition: " +
-                    "(ContentDescription = 'test text description' (ignoreCase: 'false'))"
+                    "(ContentDescription contains 'test text description' " +
+                    "(ignoreCase: 'false') as substring)"
+            )
+    }
+
+    @Test
+    fun assertHasContentDescription_ignoreCaseAndNotMatching_assertionError() {
+        val nodeAssertion = getGlanceNodeAssertionFor(
+            emittable = EmittableColumn().apply {
+                children.add(EmittableText().apply {
+                    text = "test text"
+                    modifier = GlanceModifier.semantics {
+                        testTag = "test-tag"
+                        contentDescription = "text"
+                    }
+                })
+            },
+            onNodeMatcher = hasTestTag("test-tag")
+        )
+
+        val assertionError = assertThrows(AssertionError::class.java) {
+            nodeAssertion.assertHasContentDescription(
+                value = "TEXT DESCRIPTION",
+                ignoreCase = true
+            )
+        }
+
+        assertThat(assertionError)
+            .hasMessageThat()
+            .contains(
+                "Failed to assert condition: " +
+                    "(ContentDescription contains 'TEXT DESCRIPTION' (ignoreCase: 'true') " +
+                    "as substring)"
             )
     }
 }

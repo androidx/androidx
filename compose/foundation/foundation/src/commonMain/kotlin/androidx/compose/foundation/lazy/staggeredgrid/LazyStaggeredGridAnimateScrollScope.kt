@@ -36,10 +36,13 @@ internal class LazyStaggeredGridAnimateScrollScope(
 
     override val itemCount: Int get() = state.layoutInfo.totalItemsCount
 
-    override fun getOffsetForItem(index: Int): Int? =
-        state.layoutInfo.findVisibleItem(index)?.offset?.let {
+    override fun getVisibleItemScrollOffset(index: Int): Int {
+        val searchedIndex = state.layoutInfo.visibleItemsInfo.binarySearch { it.index - index }
+        val item = state.layoutInfo.visibleItemsInfo[searchedIndex]
+        return item.offset.let {
             if (state.isVertical) it.y else it.x
         }
+    }
 
     override fun ScrollScope.snapToItem(index: Int, scrollOffset: Int) {
         with(state) {
@@ -47,12 +50,12 @@ internal class LazyStaggeredGridAnimateScrollScope(
         }
     }
 
-    override fun expectedDistanceTo(index: Int, targetScrollOffset: Int): Float {
-        val averageMainAxisItemSize = averageItemSize
+    override fun calculateDistanceTo(targetIndex: Int, targetItemOffset: Int): Float {
+        val averageMainAxisItemSize = visibleItemsAverageSize
 
-        val lineDiff = index / state.laneCount - firstVisibleItemIndex / state.laneCount
-        var coercedOffset = minOf(abs(targetScrollOffset), averageMainAxisItemSize)
-        if (targetScrollOffset < 0) coercedOffset *= -1
+        val lineDiff = targetIndex / state.laneCount - firstVisibleItemIndex / state.laneCount
+        var coercedOffset = minOf(abs(targetItemOffset), averageMainAxisItemSize)
+        if (targetItemOffset < 0) coercedOffset *= -1
         return averageMainAxisItemSize * lineDiff.toFloat() +
             coercedOffset - firstVisibleItemScrollOffset
     }
@@ -61,7 +64,7 @@ internal class LazyStaggeredGridAnimateScrollScope(
         state.scroll(block = block)
     }
 
-    override val averageItemSize: Int
+    override val visibleItemsAverageSize: Int
         get() {
             val layoutInfo = state.layoutInfo
             val visibleItems = layoutInfo.visibleItemsInfo

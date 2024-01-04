@@ -19,8 +19,8 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.annotation.RestrictTo
 import androidx.health.connect.client.HealthConnectClient.Companion.DEFAULT_PROVIDER_PACKAGE_NAME
 import androidx.health.connect.client.contracts.HealthPermissionsRequestContract
-import androidx.health.connect.client.permission.HealthDataRequestPermissionsInternal
 import androidx.health.connect.client.permission.HealthPermission
+import androidx.health.connect.client.permission.HealthPermissionsRequestAppContract
 
 @JvmDefaultWithCompatibility
 /** Interface for operations related to permissions. */
@@ -54,7 +54,7 @@ interface PermissionController {
         fun createRequestPermissionResultContractLegacy(
             providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME
         ): ActivityResultContract<Set<String>, Set<String>> {
-            return HealthDataRequestPermissionsInternal(providerPackageName = providerPackageName)
+            return HealthPermissionsRequestAppContract(providerPackageName = providerPackageName)
         }
 
         /**

@@ -239,7 +239,7 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     Long[] arrBoxLongCopy = document.arrBoxLong;
     if (arrBoxLongCopy != null) {
       long[] arrBoxLongConv = new long[arrBoxLongCopy.length];
-      for (int i = 0 ; i < arrBoxLongCopy.length ; i++) {
+      for (int i = 0; i < arrBoxLongCopy.length; i++) {
         arrBoxLongConv[i] = arrBoxLongCopy[i];
       }
       builder.setPropertyLong("arrBoxLong", arrBoxLongConv);
@@ -251,7 +251,7 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     Integer[] arrBoxIntegerCopy = document.arrBoxInteger;
     if (arrBoxIntegerCopy != null) {
       long[] arrBoxIntegerConv = new long[arrBoxIntegerCopy.length];
-      for (int i = 0 ; i < arrBoxIntegerCopy.length ; i++) {
+      for (int i = 0; i < arrBoxIntegerCopy.length; i++) {
         arrBoxIntegerConv[i] = arrBoxIntegerCopy[i];
       }
       builder.setPropertyLong("arrBoxInteger", arrBoxIntegerConv);
@@ -259,7 +259,7 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     int[] arrUnboxIntCopy = document.arrUnboxInt;
     if (arrUnboxIntCopy != null) {
       long[] arrUnboxIntConv = new long[arrUnboxIntCopy.length];
-      for (int i = 0 ; i < arrUnboxIntCopy.length ; i++) {
+      for (int i = 0; i < arrUnboxIntCopy.length; i++) {
         arrUnboxIntConv[i] = arrUnboxIntCopy[i];
       }
       builder.setPropertyLong("arrUnboxInt", arrUnboxIntConv);
@@ -267,7 +267,7 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     Double[] arrBoxDoubleCopy = document.arrBoxDouble;
     if (arrBoxDoubleCopy != null) {
       double[] arrBoxDoubleConv = new double[arrBoxDoubleCopy.length];
-      for (int i = 0 ; i < arrBoxDoubleCopy.length ; i++) {
+      for (int i = 0; i < arrBoxDoubleCopy.length; i++) {
         arrBoxDoubleConv[i] = arrBoxDoubleCopy[i];
       }
       builder.setPropertyDouble("arrBoxDouble", arrBoxDoubleConv);
@@ -279,7 +279,7 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     Float[] arrBoxFloatCopy = document.arrBoxFloat;
     if (arrBoxFloatCopy != null) {
       double[] arrBoxFloatConv = new double[arrBoxFloatCopy.length];
-      for (int i = 0 ; i < arrBoxFloatCopy.length ; i++) {
+      for (int i = 0; i < arrBoxFloatCopy.length; i++) {
         arrBoxFloatConv[i] = arrBoxFloatCopy[i];
       }
       builder.setPropertyDouble("arrBoxFloat", arrBoxFloatConv);
@@ -287,7 +287,7 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     float[] arrUnboxFloatCopy = document.arrUnboxFloat;
     if (arrUnboxFloatCopy != null) {
       double[] arrUnboxFloatConv = new double[arrUnboxFloatCopy.length];
-      for (int i = 0 ; i < arrUnboxFloatCopy.length ; i++) {
+      for (int i = 0; i < arrUnboxFloatCopy.length; i++) {
         arrUnboxFloatConv[i] = arrUnboxFloatCopy[i];
       }
       builder.setPropertyDouble("arrUnboxFloat", arrUnboxFloatConv);
@@ -295,7 +295,7 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     Boolean[] arrBoxBooleanCopy = document.arrBoxBoolean;
     if (arrBoxBooleanCopy != null) {
       boolean[] arrBoxBooleanConv = new boolean[arrBoxBooleanCopy.length];
-      for (int i = 0 ; i < arrBoxBooleanCopy.length ; i++) {
+      for (int i = 0; i < arrBoxBooleanCopy.length; i++) {
         arrBoxBooleanConv[i] = arrBoxBooleanCopy[i];
       }
       builder.setPropertyBoolean("arrBoxBoolean", arrBoxBooleanConv);

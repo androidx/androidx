@@ -99,7 +99,9 @@ internal class ContentInViewNode(
     private var trackingFocusedChild = false
 
     /** The size of the scrollable container. */
-    private var viewportSize = IntSize.Zero
+    internal var viewportSize = IntSize.Zero
+        private set
+
     private var isAnimationRunning = false
     private val animationState =
         UpdatableAnimationState(bringIntoViewSpec.scrollAnimationSpec)

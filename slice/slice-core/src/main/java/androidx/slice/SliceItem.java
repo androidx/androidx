@@ -86,9 +86,14 @@ import java.util.List;
  * The hints that a {@link SliceItem} are a set of strings which annotate
  * the content. The hints that are guaranteed to be understood by the system
  * are defined on {@link Slice}.
+ *
+ * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+ * forward. If you are looking for a framework that handles communication across apps,
+ * consider using {@link android.app.appsearch.AppSearchManager}.
  */
 @VersionedParcelize(allowSerialization = true, ignoreParcelables = true, isCustom = true)
 @RequiresApi(19)
+@Deprecated
 public final class SliceItem extends CustomVersionedParcelable {
 
     private static final String HINTS = "hints";

@@ -77,6 +77,10 @@ public class GenericDocument {
     private static final String TTL_MILLIS_FIELD = "ttlMillis";
     private static final String CREATION_TIMESTAMP_MILLIS_FIELD = "creationTimestampMillis";
     private static final String NAMESPACE_FIELD = "namespace";
+    private static final String PARENT_TYPES_FIELD = "parentTypes";
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String PARENT_TYPES_SYNTHETIC_PROPERTY = "$$__AppSearch__parentTypes";
 
     /**
      * The maximum number of indexed properties a document can have.
@@ -187,6 +191,22 @@ public class GenericDocument {
     @NonNull
     public String getSchemaType() {
         return mSchemaType;
+    }
+
+    /**
+     * Returns the list of parent types of the {@link GenericDocument}'s type.
+     *
+     * <p>It is guaranteed that child types appear before parent types in the list.
+     * <!--@exportToFramework:hide-->
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Nullable
+    public List<String> getParentTypes() {
+        List<String> result = mBundle.getStringArrayList(PARENT_TYPES_FIELD);
+        if (result == null) {
+            return null;
+        }
+        return Collections.unmodifiableList(result);
     }
 
     /**
@@ -979,6 +999,10 @@ public class GenericDocument {
         builder.append("id: \"").append(getId()).append("\",\n");
         builder.append("score: ").append(getScore()).append(",\n");
         builder.append("schemaType: \"").append(getSchemaType()).append("\",\n");
+        List<String> parentTypes = getParentTypes();
+        if (parentTypes != null) {
+            builder.append("parentTypes: ").append(parentTypes).append("\n");
+        }
         builder
                 .append("creationTimestampMillis: ")
                 .append(getCreationTimestampMillis())
@@ -1166,6 +1190,23 @@ public class GenericDocument {
             Preconditions.checkNotNull(schemaType);
             resetIfBuilt();
             mBundle.putString(GenericDocument.SCHEMA_TYPE_FIELD, schemaType);
+            return mBuilderTypeInstance;
+        }
+
+        /**
+         * Sets the list of parent types of the {@link GenericDocument}'s type.
+         *
+         * <p>Child types must appear before parent types in the list.
+         * <!--@exportToFramework:hide-->
+         */
+        @CanIgnoreReturnValue
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @NonNull
+        public BuilderType setParentTypes(@NonNull List<String> parentTypes) {
+            Preconditions.checkNotNull(parentTypes);
+            resetIfBuilt();
+            mBundle.putStringArrayList(GenericDocument.PARENT_TYPES_FIELD,
+                    new ArrayList<>(parentTypes));
             return mBuilderTypeInstance;
         }
 

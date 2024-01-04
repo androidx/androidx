@@ -27,11 +27,6 @@ import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.util.fastFilter
-import androidx.compose.ui.util.fastFirst
-import androidx.compose.ui.util.fastFlatMap
-import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.fastMap
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -89,7 +84,6 @@ class GlanceAppWidgetManager(private val context: Context) {
         val packageName = context.packageName
         val receivers = prefs[providersKey] ?: return State()
         return State(
-            @Suppress("ListIterator")
             receivers.mapNotNull { receiverName ->
                 val comp = ComponentName(packageName, receiverName)
                 val providerName = prefs[providerKey(receiverName)] ?: return@mapNotNull null
@@ -108,7 +102,7 @@ class GlanceAppWidgetManager(private val context: Context) {
         val state = getState()
         val providerName = requireNotNull(provider.canonicalName) { "no canonical provider name" }
         val receivers = state.providerNameToReceivers[providerName] ?: return emptyList()
-        return receivers.fastFlatMap { receiver ->
+        return receivers.flatMap { receiver ->
             appWidgetManager.getAppWidgetIds(receiver).map { AppWidgetId(it) }
         }
     }
@@ -202,7 +196,7 @@ class GlanceAppWidgetManager(private val context: Context) {
             val target = ComponentName(context.packageName, receiver.name)
             val previewBundle = Bundle().apply {
                 if (preview != null) {
-                    val info = appWidgetManager.installedProviders.fastFirst {
+                    val info = appWidgetManager.installedProviders.first {
                         it.provider == target
                     }
                     val snapshot = preview.compose(
@@ -228,10 +222,9 @@ class GlanceAppWidgetManager(private val context: Context) {
     /** Check which receivers still exist, and clean the data store to only keep those. */
     internal suspend fun cleanReceivers() {
         val packageName = context.packageName
-        @Suppress("ListIterator")
         val receivers = appWidgetManager.installedProviders
-            .fastFilter { it.provider.packageName == packageName }
-            .fastMap { it.provider.className }
+            .filter { it.provider.packageName == packageName }
+            .map { it.provider.className }
             .toSet()
         dataStore.updateData { prefs ->
             val knownReceivers = prefs[providersKey] ?: return@updateData prefs
@@ -239,7 +232,7 @@ class GlanceAppWidgetManager(private val context: Context) {
             if (toRemove.isEmpty()) return@updateData prefs
             prefs.toMutablePreferences().apply {
                 this[providersKey] = knownReceivers - toRemove
-                toRemove.fastForEach { receiver -> remove(providerKey(receiver)) }
+                toRemove.forEach { receiver -> remove(providerKey(receiver)) }
             }.toPreferences()
         }
     }

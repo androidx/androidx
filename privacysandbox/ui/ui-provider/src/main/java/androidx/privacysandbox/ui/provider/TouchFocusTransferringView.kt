@@ -25,11 +25,12 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
 import androidx.core.view.GestureDetectorCompat
+import kotlin.math.abs
 
 /**
  * A container [ViewGroup] that delegates touch events to the host or the UI provider.
  *
- * Touch events will first be passed to a scroll detector. If a scroll or fling
+ * Touch events will first be passed to a scroll detector. If a vertical scroll or fling
  * is detected, the gesture will be transferred to the host. Otherwise, the touch event will pass
  * through and be handled by the provider of UI.
  *
@@ -61,7 +62,7 @@ internal class TouchFocusTransferringView(
     /**
      * Handles intercepted touch events before they reach the UI provider.
      *
-     * If a scroll or fling event is caught, this is indicated by the [isScrolling] var.
+     * If a vertical scroll or fling event is caught, this is indicated by the [isScrolling] var.
      */
     private class ScrollDetector(context: Context) : GestureDetector.SimpleOnGestureListener() {
 
@@ -71,8 +72,12 @@ internal class TouchFocusTransferringView(
         private val gestureDetector: GestureDetectorCompat = GestureDetectorCompat(context, this)
 
         override fun onScroll(e1: MotionEvent?, e2: MotionEvent, dX: Float, dY: Float): Boolean {
-            isScrolling = true
-            return false
+            // A scroll is vertical if its y displacement is greater than its x displacement.
+            if (abs(dY) > abs(dX)) {
+                isScrolling = true
+                return false
+            }
+            return true
         }
 
         override fun onFling(
@@ -81,8 +86,12 @@ internal class TouchFocusTransferringView(
             velocityX: Float,
             velocityY: Float
         ): Boolean {
-            isScrolling = true
-            return false
+            // A fling is vertical if its y velocity is greater than its x velocity.
+            if (abs(velocityY) > abs(velocityX)) {
+                isScrolling = true
+                return false
+            }
+            return true
         }
 
         fun onTouchEvent(ev: MotionEvent) {

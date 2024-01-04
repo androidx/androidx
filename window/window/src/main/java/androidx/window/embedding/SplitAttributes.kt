@@ -21,6 +21,7 @@ import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
+import androidx.window.WindowSdkExtensions
 import androidx.window.core.SpecificationComputer.Companion.startSpecification
 import androidx.window.core.VerificationMode
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LOCALE
@@ -307,7 +308,8 @@ class SplitAttributes @RestrictTo(LIBRARY_GROUP) constructor(
              * <img width="70%" height="70%" src="/images/guide/topics/large-screens/activity-embedding/reference-docs/a_to_a_b_ttb.png" alt="Activity A starts activity B to the bottom."/>
              *
              * If the horizontal layout direction is not supported on the
-             * device, layout direction falls back to `LOCALE`.
+             * device that [WindowSdkExtensions.extensionVersion] is less than 2, layout direction
+             * falls back to `LOCALE`.
              *
              * See also [layoutDirection].
              */
@@ -323,7 +325,8 @@ class SplitAttributes @RestrictTo(LIBRARY_GROUP) constructor(
              * <img width="70%" height="70%" src="/images/guide/topics/large-screens/activity-embedding/reference-docs/a_to_a_b_btt.png" alt="Activity A starts activity B to the top."/>
              *
              * If the horizontal layout direction is not supported on the
-             * device, layout direction falls back to `LOCALE`.
+             * device that [WindowSdkExtensions.extensionVersion] is less than 2, layout direction
+             * falls back to `LOCALE`.
              *
              * See also [layoutDirection].
              */

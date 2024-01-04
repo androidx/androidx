@@ -171,6 +171,7 @@ class FragmentNavigatorTest {
         assertWithMessage("Replacement Fragment should be the primary navigation Fragment")
             .that(fragmentManager.primaryNavigationFragment)
             .isSameInstanceAs(replacementFragment)
+        assertThat(navigatorState.transitionsInProgress.value).isEmpty()
     }
 
     @UiThreadTest
@@ -359,6 +360,7 @@ class FragmentNavigatorTest {
         assertWithMessage("Fragment should be the primary navigation Fragment after pop")
             .that(fragmentManager.primaryNavigationFragment)
             .isSameInstanceAs(fragment)
+        assertThat(navigatorState.transitionsInProgress.value).isEmpty()
     }
 
     @UiThreadTest
@@ -528,6 +530,26 @@ class FragmentNavigatorTest {
         assertWithMessage("PrimaryFragment should be the correct type")
             .that(fragmentManager.primaryNavigationFragment)
             .isNotInstanceOf(EmptyFragment::class.java)
+        assertThat(navigatorState.transitionsInProgress.value).isEmpty()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testMultipleNavigateFragmentTransactionsThenPopMultiple() {
+        val entry = createBackStackEntry()
+        val secondEntry = createBackStackEntry(SECOND_FRAGMENT, clazz = Fragment::class)
+        val thirdEntry = createBackStackEntry(THIRD_FRAGMENT)
+
+        // Push 3 fragments
+        fragmentNavigator.navigate(listOf(entry, secondEntry, thirdEntry), null, null)
+        fragmentManager.executePendingTransactions()
+
+        // Now pop multiple fragments with savedState so that the secondEntry does not get
+        // marked complete by clear viewModel
+        fragmentNavigator.popBackStack(secondEntry, true)
+        fragmentManager.executePendingTransactions()
+        assertThat(navigatorState.backStack.value).containsExactly(entry)
+        assertThat(navigatorState.transitionsInProgress.value).isEmpty()
     }
 
     @UiThreadTest
@@ -1596,10 +1618,23 @@ class FragmentNavigatorTest {
             emptyActivity.onBackPressed()
         }
 
+        val countDownLatch3 = CountDownLatch(1)
+        activityRule.runOnUiThread {
+            entry1.lifecycle.addObserver(object : LifecycleEventObserver {
+                override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                    if (event == Lifecycle.Event.ON_RESUME) {
+                        // wait for animator to finish
+                        countDownLatch3.countDown()
+                    }
+                }
+            })
+        }
+        assertThat(countDownLatch3.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+
         // assert exit from entry2 and enter entry1
         assertThat(fragmentNavigator.backStack.value).containsExactly(entry1)
-        assertThat(entry1.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
-        assertThat(entry2.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+        assertThat(entry1.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(entry2.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
     }
 
     @LargeTest

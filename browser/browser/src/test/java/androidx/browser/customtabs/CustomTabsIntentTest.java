@@ -586,16 +586,17 @@ public class CustomTabsIntentTest {
     @Test
     public void testBackgroundInteraction() {
         Intent intent = new CustomTabsIntent.Builder().build().intent;
-        assertFalse(CustomTabsIntent.isBackgroundInteractionEnabled(intent));
+        assertTrue(CustomTabsIntent.isBackgroundInteractionEnabled(intent));
 
-        intent = new CustomTabsIntent.Builder()
-                .setBackgroundInteractionEnabled(false).build().intent;
-        assertFalse(CustomTabsIntent.isBackgroundInteractionEnabled(intent));
-
-        // The extra is set to true only when explicitly called to enable it.
         intent = new CustomTabsIntent.Builder()
                 .setBackgroundInteractionEnabled(true).build().intent;
         assertTrue(CustomTabsIntent.isBackgroundInteractionEnabled(intent));
+
+        // The extra (EXTRA_DISABLE_BACKGROUND_INTERACTION) is set to true
+        // only when explicitly called to disable it.
+        intent = new CustomTabsIntent.Builder()
+                .setBackgroundInteractionEnabled(false).build().intent;
+        assertFalse(CustomTabsIntent.isBackgroundInteractionEnabled(intent));
     }
 
     @Test

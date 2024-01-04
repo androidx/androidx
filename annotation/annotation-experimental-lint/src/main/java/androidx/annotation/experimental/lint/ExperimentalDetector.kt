@@ -35,12 +35,14 @@ import com.intellij.psi.JavaPsiFacade
 import com.intellij.psi.PsiAnnotation
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiClassType
+import com.intellij.psi.PsiComment
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiField
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiModifier
 import com.intellij.psi.PsiModifierListOwner
 import com.intellij.psi.PsiPackage
+import com.intellij.psi.PsiWhiteSpace
 import com.intellij.psi.impl.source.PsiClassReferenceType
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
@@ -643,21 +645,35 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
             else -> throw IllegalArgumentException("Unsupported element type")
         }
 
-        // If the element has a modifier list, e.g. not an anonymous class or lambda, then place the
-        // insertion point at the beginning of the modifiers list. This ensures that we don't insert
-        // the annotation in an invalid position, such as after the "public" or "fun" keywords. We
-        // also don't want to place it on the element range itself, since that would place it before
-        // the comments.
-        val elementLocation = context.getLocation(element.modifierList ?: element as UElement)
+        // If the element can include modifiers, e.g. not an anonymous class or lambda, find the
+        // where the list should start. This ensures that we don't insert the annotation in an
+        // invalid position, such as after the `public` or `fun` keywords. We also don't want to
+        // place it on the element range itself, since that would place it before the comments.
+        val elementSourcePsi = element.sourcePsi
+        val elementForInsert = if (elementSourcePsi is PsiModifierListOwner) {
+            elementSourcePsi.asIterable().firstOrNull { child ->
+                child !is PsiWhiteSpace && child !is PsiComment
+            } ?: throw IllegalArgumentException("Failed to locate element declaration")
+        } else {
+            element
+        }
 
         return fix()
-            .replace()
             .name("Add '$annotation' annotation to $elementLabel")
-            .range(elementLocation)
-            .beginning()
-            .shortenNames()
-            .with("$annotation ")
+            .annotate(annotation, true)
+            .range(context.getLocation(elementForInsert))
             .build()
+    }
+
+    /**
+     * Returns an iterable of child elements.
+     */
+    private fun PsiElement.asIterable(): Iterable<PsiElement> = object : Iterable<PsiElement> {
+        override fun iterator(): Iterator<PsiElement> = object : Iterator<PsiElement> {
+            private var current = firstChild
+            override fun hasNext(): Boolean = current != null
+            override fun next(): PsiElement = current.apply { current = nextSibling }
+        }
     }
 
     /**

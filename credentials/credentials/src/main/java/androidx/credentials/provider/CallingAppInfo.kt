@@ -61,9 +61,14 @@ class CallingAppInfo @JvmOverloads constructor(
      * Additionally, in order to get the origin, the credential provider must
      * provide an allowlist of privileged browsers/apps that it trusts.
      * This allowlist must be in the form of a valid, non-empty JSON. The
-     * origin will only be returned if the [packageName] and the fingerprints of certificates
-     * obtained from the [signingInfo] match with that of an app allowlisted
-     * in [privilegedAllowlist]. The format of this JSON must adhere to the following sample.
+     * origin will only be returned if the [packageName] and the SHA256 hash of the newest
+     * signature obtained from the [signingInfo], is present in the [privilegedAllowlist].
+     *
+     * Packages that are signed with multiple signers will only receive the origin if all of the
+     * signatures are present in the [privilegedAllowlist].
+     *
+     * The format of this [privilegedAllowlist] JSON must adhere to the following sample.
+     *
      * ```
      * {"apps": [
      *    {
@@ -134,23 +139,20 @@ class CallingAppInfo @JvmOverloads constructor(
         candidateApps: List<PrivilegedApp>
     ): Boolean {
         for (app in candidateApps) {
-            if (app.packageName == packageName &&
-                !app.fingerprints.intersect(getSignatureFingerprints(signingInfo)).isEmpty()
-            ) {
-                return true
+            if (app.packageName == packageName) {
+                return isAppPrivileged(app.fingerprints)
             }
         }
         return false
     }
 
-    private fun getSignatureFingerprints(signingInfo: SigningInfo): Set<String> {
-        val fingerprints = mutableSetOf<String>()
+    private fun isAppPrivileged(candidateFingerprints: Set<String>): Boolean {
         if (Build.VERSION.SDK_INT >= 28) {
-            return SignatureParserApi28(signingInfo).getSignatureFingerprints()
-        } else {
-            // TODO("Extend to <= 28 if needed")
+            return SignatureVerifierApi28(signingInfo)
+                .verifySignatureFingerprints(candidateFingerprints)
         }
-        return fingerprints
+        // TODO("Extend to <= 28 if needed")
+        return false
     }
 
     init {
@@ -158,19 +160,14 @@ class CallingAppInfo @JvmOverloads constructor(
     }
 
     @RequiresApi(28)
-    private class SignatureParserApi28(private val signingInfo: SigningInfo) {
-        fun getSignatureFingerprints(): Set<String> {
+    private class SignatureVerifierApi28(private val signingInfo: SigningInfo) {
+        private fun getSignatureFingerprints(): Set<String> {
             val fingerprints = mutableSetOf<String>()
-            if (signingInfo.hasMultipleSigners()) {
-                val signatures = signingInfo.apkContentsSigners
-                if (signatures != null) {
-                    fingerprints.addAll(convertToFingerprints(signatures))
-                }
-            } else {
-                val signatures = signingInfo.signingCertificateHistory
-                if (signatures != null) {
-                    fingerprints.addAll(convertToFingerprints(signatures))
-                }
+            if (signingInfo.hasMultipleSigners() && signingInfo.apkContentsSigners != null) {
+                fingerprints.addAll(convertToFingerprints(signingInfo.apkContentsSigners))
+            } else if (signingInfo.signingCertificateHistory != null) {
+                fingerprints.addAll(convertToFingerprints(
+                    arrayOf(signingInfo.signingCertificateHistory[0])))
             }
             return fingerprints
         }
@@ -183,6 +180,15 @@ class CallingAppInfo @JvmOverloads constructor(
                 fingerprints.add(digest.joinToString(":") { "%02X".format(it) })
             }
             return fingerprints
+        }
+
+        fun verifySignatureFingerprints(candidateSigFingerprints: Set<String>): Boolean {
+            val appSigFingerprints = getSignatureFingerprints()
+            return if (signingInfo.hasMultipleSigners()) {
+                candidateSigFingerprints.containsAll(appSigFingerprints)
+            } else {
+                candidateSigFingerprints.intersect(appSigFingerprints).isNotEmpty()
+            }
         }
     }
 }

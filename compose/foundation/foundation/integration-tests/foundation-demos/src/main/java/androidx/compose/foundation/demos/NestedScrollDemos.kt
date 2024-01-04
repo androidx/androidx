@@ -18,6 +18,8 @@ package androidx.compose.foundation.demos
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -106,6 +108,7 @@ private fun InnerColumn(outerOuterIndex: Int, outerIndex: Int) {
                 contentAlignment = Alignment.Center
             ) {
                 Text(
+                    modifier = Modifier.focusable(),
                     text = "$outerOuterIndex : $outerIndex : $innerIndex",
                     fontSize = 24.sp
                 )
@@ -145,9 +148,55 @@ fun NestedScrollConnectionSample() {
                 items(100) { index ->
                     Text("I'm item $index", modifier = Modifier
                         .fillMaxWidth()
+                        .focusable()
                         .padding(16.dp))
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun SimpleColumnNestedScrollSample() {
+    val scrollState = rememberScrollState()
+
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .background(Color.Red)
+            .verticalScroll(scrollState),
+        verticalArrangement = Arrangement.spacedBy(20.dp)
+    ) {
+        Text(
+            modifier = Modifier.fillMaxWidth(),
+            text = "Outer Scrollable Column"
+        )
+
+        for (i in 0 until 4) {
+            SimpleColumn("Inner Scrollable Column: $i")
+        }
+    }
+}
+
+@Composable
+fun SimpleColumn(label: String) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .height(200.dp)
+            .background(Color.Green)
+            .verticalScroll(rememberScrollState())
+    ) {
+        Text(
+            modifier = Modifier.fillMaxWidth(),
+            text = "$label INNER, scrollable only"
+        )
+
+        for (i in 0 until 20) {
+            Text(
+                modifier = Modifier.fillMaxWidth().focusable(),
+                text = "Text $i",
+            )
         }
     }
 }

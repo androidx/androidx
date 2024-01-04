@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
+<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 30 (current min is 21): `android.hardware.camera2.CameraCharacteristics#CONTROL_ZOOM_RATIO_RANGE`"
+        errorLine1="                    CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE).getUpper();"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/camera/camera2/internal/ZoomControlDeviceTest.java"/>
+    </issue>
 
     <issue
         id="BanThreadSleep"

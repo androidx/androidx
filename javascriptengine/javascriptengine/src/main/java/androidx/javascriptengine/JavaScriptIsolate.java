@@ -16,12 +16,20 @@
 
 package androidx.javascriptengine;
 
+import android.os.Binder;
+import android.os.RemoteException;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
+import androidx.annotation.RestrictTo;
+import androidx.core.util.Consumer;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolate;
+import org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolateClient;
 
 import java.util.Objects;
 import java.util.concurrent.Executor;
@@ -49,44 +57,106 @@ public final class JavaScriptIsolate implements AutoCloseable {
     private final Object mLock = new Object();
     private final CloseGuardHelper mGuard = CloseGuardHelper.create();
 
+    @NonNull
     final JavaScriptSandbox mJsSandbox;
 
     @GuardedBy("mLock")
     @NonNull
     private IsolateState mIsolateState;
 
-    JavaScriptIsolate(@NonNull IJsSandboxIsolate jsIsolateStub, @NonNull JavaScriptSandbox sandbox,
-            @NonNull IsolateStartupParameters settings) {
+    private final class JsSandboxIsolateClient extends IJsSandboxIsolateClient.Stub {
+        JsSandboxIsolateClient() {}
+
+        @Override
+        public void onTerminated(int status, String message) {
+            final long identity = Binder.clearCallingIdentity();
+            try {
+                // If we're already closed, this will do nothing
+                maybeSetIsolateDead(new TerminationInfo(status, message));
+            } finally {
+                Binder.restoreCallingIdentity(identity);
+            }
+        }
+    }
+
+    @NonNull
+    static JavaScriptIsolate create(@NonNull JavaScriptSandbox sandbox,
+            IsolateStartupParameters settings) throws RemoteException {
+        final JavaScriptIsolate isolate = new JavaScriptIsolate(sandbox);
+        isolate.initialize(settings);
+        return isolate;
+    }
+
+    private JavaScriptIsolate(@NonNull JavaScriptSandbox sandbox) {
+        mJsSandbox = sandbox;
         synchronized (mLock) {
+            mIsolateState = new IsolateClosedState("isolate not initialized");
+        }
+    }
+
+    // Create an isolate on the service side and complete initialization.
+    // This is done outside of the constructor to avoid leaking a partially constructed
+    // JavaScriptIsolate to the service (which would complicate thread-safety).
+    private void initialize(@NonNull IsolateStartupParameters settings) throws RemoteException {
+        synchronized (mLock) {
+            final IJsSandboxIsolateClient instanceCallback;
+            if (mJsSandbox.isFeatureSupported(
+                    JavaScriptSandbox.JS_FEATURE_ISOLATE_CLIENT)) {
+                instanceCallback = new JsSandboxIsolateClient();
+            } else {
+                instanceCallback = null;
+            }
+            IJsSandboxIsolate jsIsolateStub = mJsSandbox.createIsolateOnService(settings,
+                    instanceCallback);
             mIsolateState = new IsolateUsableState(this, jsIsolateStub,
                     settings.getMaxEvaluationReturnSizeBytes());
+            mGuard.open("close");
         }
-        mJsSandbox = sandbox;
-        mGuard.open("close");
-        // This should be at the end of the constructor.
     }
 
     /**
      * Changes the state to denote that the isolate is dead.
-     *
+     * <p>
      * {@link IsolateClosedState} takes precedence so it will not change state if the current state
-     * is {@link IsolateClosedState}
+     * is {@link IsolateClosedState}.
+     * <p>
+     * If the isolate is already dead, the existing dead state is preserved.
+     *
+     * @return true iff the state was changed to a new EnvironmentDeadState
      */
-    void maybeSetIsolateDead() {
+    boolean maybeSetIsolateDead(@NonNull TerminationInfo terminationInfo) {
         synchronized (mLock) {
-            mIsolateState = mIsolateState.setIsolateDead();
+            if (terminationInfo.getStatus() == TerminationInfo.STATUS_MEMORY_LIMIT_EXCEEDED) {
+                Log.e(TAG, "isolate exceeded its heap memory limit - killing sandbox");
+                mJsSandbox.kill();
+            }
+            final IsolateState oldState = mIsolateState;
+            if (oldState.canDie()) {
+                mIsolateState = new EnvironmentDeadState(terminationInfo);
+                oldState.onDied(terminationInfo);
+                return true;
+            }
         }
+        return false;
     }
 
     /**
      * Changes the state to denote that the sandbox is dead.
+     * <p>
+     * See {@link #maybeSetIsolateDead(TerminationInfo)} for additional information.
      *
-     * {@link IsolateClosedState} takes precedence so it will not change state if the current state
-     * is {@link IsolateClosedState}
+     * @return the generated termination info if it was set, or null if the state did not change.
      */
-    void maybeSetSandboxDead() {
+    @Nullable
+    TerminationInfo maybeSetSandboxDead() {
         synchronized (mLock) {
-            mIsolateState = mIsolateState.setSandboxDead();
+            final TerminationInfo terminationInfo =
+                    new TerminationInfo(TerminationInfo.STATUS_SANDBOX_DEAD, "sandbox dead");
+            if (maybeSetIsolateDead(terminationInfo)) {
+                return terminationInfo;
+            } else {
+                return null;
+            }
         }
     }
 
@@ -143,23 +213,28 @@ public final class JavaScriptIsolate implements AutoCloseable {
     /**
      * Closes the {@link JavaScriptIsolate} object and renders it unusable.
      * <p>
-     * Once closed, no more method calls should be made. Pending evaluations resolve with
-     * {@link IsolateTerminatedException} immediately.
+     * Once closed, no more method calls should be made. Pending evaluations will reject with
+     * an {@link IsolateTerminatedException} immediately.
      * <p>
      * If {@link JavaScriptSandbox#isFeatureSupported(String)} is {@code true} for {@link
-     * JavaScriptSandbox#JS_FEATURE_ISOLATE_TERMINATION}, then any pending evaluation is immediately
-     * terminated and memory is freed. If it is {@code false}, the isolate will not get cleaned
+     * JavaScriptSandbox#JS_FEATURE_ISOLATE_TERMINATION}, then any pending evaluations are
+     * terminated. If it is {@code false}, the isolate will not get cleaned
      * up until the pending evaluations have run to completion and will consume resources until
      * then.
+     * <p>
+     * Closing an isolate via this method does not wait on the isolate to clean up. Resources
+     * held by the isolate may remain in use for a duration after this method returns.
      */
     @Override
     public void close() {
         synchronized (mLock) {
             mIsolateState.close();
-            mIsolateState = new IsolateClosedState();
-            mJsSandbox.removeFromIsolateSet(this);
-            mGuard.close();
+            mIsolateState = new IsolateClosedState("isolate closed");
         }
+        // Do not hold mLock whilst calling into JavaScriptSandbox, as JavaScriptSandbox also has
+        // its own lock and may want to call into JavaScriptIsolate from another thread.
+        mJsSandbox.removeFromIsolateSet(this);
+        mGuard.close();
     }
 
     /**
@@ -294,6 +369,60 @@ public final class JavaScriptIsolate implements AutoCloseable {
     public void clearConsoleCallback() {
         synchronized (mLock) {
             mIsolateState.clearConsoleCallback();
+        }
+    }
+
+    /**
+     * Add a callback to listen for isolate crashes.
+     * <p>
+     * There is no guaranteed order to when these callbacks are triggered and unfinished
+     * evaluations' futures are rejected.
+     * <p>
+     * Registering a callback after the isolate has crashed will result in it being executed
+     * immediately on the supplied executor with the isolate's {@link TerminationInfo} as an
+     * argument.
+     * <p>
+     * Closing an isolate via {@link #close()} is not considered a crash, even if there are
+     * unresolved evaluations, and will not trigger termination callbacks.
+     *
+     * @param executor Executor with which to run callback.
+     * @param callback Consumer to be called with TerminationInfo when a crash occurs.
+     * @throws IllegalStateException if the callback is already registered (using any executor).
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public void addOnTerminatedCallback(@NonNull Executor executor,
+            @NonNull Consumer<TerminationInfo> callback) {
+        Objects.requireNonNull(executor);
+        Objects.requireNonNull(callback);
+        synchronized (mLock) {
+            mIsolateState.addOnTerminatedCallback(executor, callback);
+        }
+    }
+
+    /**
+     * Add a callback to listen for isolate crashes.
+     * <p>
+     * This is the same as calling {@link #addOnTerminatedCallback(Executor, Consumer)} using the
+     * main executor of the context used to create the {@link JavaScriptSandbox} object.
+     *
+     * @param callback Consumer to be called with TerminationInfo when a crash occurs.
+     * @throws IllegalStateException if the callback is already registered (using any executor).
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public void addOnTerminatedCallback(@NonNull Consumer<TerminationInfo> callback) {
+        addOnTerminatedCallback(mJsSandbox.getMainExecutor(), callback);
+    }
+
+    /**
+     * Remove a callback previously registered with addOnTerminatedCallback.
+     *
+     * @param callback The callback to unregister, if currently registered.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public void removeOnTerminatedCallback(@NonNull Consumer<TerminationInfo> callback) {
+        Objects.requireNonNull(callback);
+        synchronized (mLock) {
+            mIsolateState.removeOnTerminatedCallback(callback);
         }
     }
 }

@@ -718,6 +718,56 @@ object GuaranteedConfigurationsUtil {
         return surfaceCombinations
     }
 
+    /**
+     * Returns the minimally guaranteed stream combinations when one or more
+     * streams are configured as a 10-bit input.
+     */
+    @JvmStatic
+    fun get10BitSupportedCombinationList(): List<SurfaceCombination> {
+        return listOf(
+            // (PRIV, MAXIMUM)
+            SurfaceCombination().apply {
+                addSurfaceConfig(SurfaceConfig.create(ConfigType.PRIV, ConfigSize.MAXIMUM))
+            },
+            // (YUV, MAXIMUM)
+            SurfaceCombination().apply {
+                addSurfaceConfig(SurfaceConfig.create(ConfigType.YUV, ConfigSize.MAXIMUM))
+            },
+            // (PRIV, PREVIEW) + (JPEG, MAXIMUM)
+            SurfaceCombination().apply {
+                addSurfaceConfig(SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW))
+                addSurfaceConfig(SurfaceConfig.create(ConfigType.JPEG, ConfigSize.MAXIMUM))
+            },
+            // (PRIV, PREVIEW) + (YUV, MAXIMUM)
+            SurfaceCombination().apply {
+                addSurfaceConfig(SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW))
+                addSurfaceConfig(SurfaceConfig.create(ConfigType.YUV, ConfigSize.MAXIMUM))
+            },
+            // (YUV, PREVIEW) + (YUV, MAXIMUM)
+            SurfaceCombination().apply {
+                addSurfaceConfig(SurfaceConfig.create(ConfigType.YUV, ConfigSize.PREVIEW))
+                addSurfaceConfig(SurfaceConfig.create(ConfigType.YUV, ConfigSize.MAXIMUM))
+            },
+            // (PRIV, PREVIEW) + (PRIV, RECORD)
+            SurfaceCombination().apply {
+                addSurfaceConfig(SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW))
+                addSurfaceConfig(SurfaceConfig.create(ConfigType.PRIV, ConfigSize.RECORD))
+            },
+            // (PRIV, PREVIEW) + (PRIV, RECORD) + (YUV, RECORD)
+            SurfaceCombination().apply {
+                addSurfaceConfig(SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW))
+                addSurfaceConfig(SurfaceConfig.create(ConfigType.PRIV, ConfigSize.RECORD))
+                addSurfaceConfig(SurfaceConfig.create(ConfigType.YUV, ConfigSize.RECORD))
+            },
+            // (PRIV, PREVIEW) + (PRIV, RECORD) + (JPEG, RECORD)
+            SurfaceCombination().apply {
+                addSurfaceConfig(SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW))
+                addSurfaceConfig(SurfaceConfig.create(ConfigType.PRIV, ConfigSize.RECORD))
+                addSurfaceConfig(SurfaceConfig.create(ConfigType.JPEG, ConfigSize.RECORD))
+            },
+        )
+    }
+
     @JvmStatic
     fun generateConcurrentSupportedCombinationList(): List<SurfaceCombination> {
         val surfaceCombinations: MutableList<SurfaceCombination> = arrayListOf()

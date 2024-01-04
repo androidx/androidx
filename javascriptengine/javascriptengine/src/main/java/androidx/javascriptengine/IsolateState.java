@@ -17,6 +17,7 @@
 package androidx.javascriptengine;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.Consumer;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -24,17 +25,16 @@ import java.util.concurrent.Executor;
 
 /**
  * Interface for State design pattern.
- *
+ * <p>
  * Isolates can be in different states due to events within/outside the control of the developer.
  * This pattern allows us to extract out the state related behaviour without maintaining it all in
  * the JavaScriptIsolate class which proved to be error-prone and hard to read.
- *
+ * <p>
  * State specific behaviour are implemented in concrete classes that implements this interface.
- *
+ * <p>
  * Refer: https://en.wikipedia.org/wiki/State_pattern
  */
 interface IsolateState {
-
     @NonNull
     ListenableFuture<String> evaluateJavaScriptAsync(@NonNull String code);
 
@@ -49,7 +49,22 @@ interface IsolateState {
 
     void close();
 
-    IsolateState setIsolateDead();
+    /**
+     * Check whether the current state is permitted to transition to a dead state
+     *
+     * @return true iff a transition to a dead state is permitted.
+     */
+    boolean canDie();
 
-    IsolateState setSandboxDead();
+    /**
+     * Method to run after this state has been replaced by a dead state.
+     *
+     * @param terminationInfo The termination info describing the death.
+     */
+    default void onDied(@NonNull TerminationInfo terminationInfo) {}
+
+    void addOnTerminatedCallback(@NonNull Executor executor,
+            @NonNull Consumer<TerminationInfo> callback);
+
+    void removeOnTerminatedCallback(@NonNull Consumer<TerminationInfo> callback);
 }

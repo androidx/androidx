@@ -124,9 +124,9 @@ fun <X, Y> LiveData<X>.switchMap(
     val result = MediatorLiveData<Y>()
     var liveData: LiveData<Y>? = null
     if (isInitialized) {
-        liveData = transform(value as X)
-        if (liveData != null && liveData.isInitialized) {
-            result.value = liveData.value
+        val initialLiveData = transform(value as X)
+        if (initialLiveData != null && initialLiveData.isInitialized) {
+            result.value = initialLiveData.value
         }
     }
     result.addSource(this) { value: X ->

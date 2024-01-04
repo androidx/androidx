@@ -27,7 +27,10 @@ import androidx.benchmark.PropOverride
 import androidx.benchmark.Shell
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.LOG_TAG
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
+import androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes.RESULT_CODE_ALREADY_ENABLED
+import androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes.RESULT_CODE_SUCCESS
 import java.io.FileOutputStream
+import java.lang.RuntimeException
 
 /**
  * Wrapper for [PerfettoCapture] which does nothing below API 23.
@@ -64,8 +67,15 @@ class PerfettoCaptureWrapper {
             if (perfettoSdkConfig != null &&
                 Build.VERSION.SDK_INT >= 30
             ) {
-                val result = enableAndroidxTracingPerfetto(perfettoSdkConfig) ?: "Success"
-                Log.d(LOG_TAG, "Enable full tracing result=$result")
+                val (resultCode, message) = enableAndroidxTracingPerfetto(perfettoSdkConfig)
+                Log.d(LOG_TAG, "Enable full tracing result=$message")
+
+                if (resultCode !in arrayOf(RESULT_CODE_SUCCESS, RESULT_CODE_ALREADY_ENABLED)) {
+                    throw RuntimeException(
+                        "Issue while enabling Perfetto SDK tracing in" +
+                            " ${perfettoSdkConfig.targetPackage}: $message"
+                    )
+                }
             }
             start(config)
         }
@@ -76,8 +86,7 @@ class PerfettoCaptureWrapper {
     @RequiresApi(23)
     private fun stop(traceLabel: String): String {
         return Outputs.writeFile(
-            fileName = "${traceLabel}_${dateToFileName()}.perfetto-trace",
-            reportKey = "perfetto_trace_$traceLabel"
+            fileName = "${traceLabel}_${dateToFileName()}.perfetto-trace"
         ) {
             capture!!.stop(it.absolutePath)
             if (Outputs.forceFilesForShellAccessible) {

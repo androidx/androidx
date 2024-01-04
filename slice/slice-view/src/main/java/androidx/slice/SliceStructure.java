@@ -37,8 +37,13 @@ import androidx.annotation.RestrictTo;
  * specific content such as text or icons.
  *
  * Two structures can be compared using {@link #equals(Object)}.
+ *
+ * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+ * forward. If you are looking for a framework that handles communication across apps,
+ * consider using {@link android.app.appsearch.AppSearchManager}.
  */
 @RequiresApi(19)
+@Deprecated
 public class SliceStructure {
 
     private final String mStructure;

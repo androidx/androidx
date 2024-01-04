@@ -22,13 +22,17 @@ import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.processor.Context
 import loadTestSource
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestName
 
 class DatabaseKotlinCodeGenTest {
 
+    @get:Rule
+    val testName = TestName()
+
     @Test
     fun database_simple() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDatabase.kt",
             """
@@ -54,13 +58,12 @@ class DatabaseKotlinCodeGenTest {
         )
         runTest(
             sources = listOf(src),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun database_withFtsAndView() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDatabase.kt",
             """
@@ -121,13 +124,12 @@ class DatabaseKotlinCodeGenTest {
         )
         runTest(
             sources = listOf(src),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun database_internalVisibility() {
-        val testName = object {}.javaClass.enclosingMethod!!.name
         val src = Source.kotlin(
             "MyDatabase.kt",
             """
@@ -153,7 +155,7 @@ class DatabaseKotlinCodeGenTest {
         )
         runTest(
             sources = listOf(src),
-            expectedFilePath = getTestGoldenPath(testName)
+            expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 

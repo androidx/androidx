@@ -62,7 +62,7 @@ androidXMultiplatform {
             }
         }
 
-        androidTest {
+        androidInstrumentedTest {
             dependsOn(commonTest)
             dependencies {
                 implementation(projectOrArtifact(":benchmark:benchmark-junit4"))

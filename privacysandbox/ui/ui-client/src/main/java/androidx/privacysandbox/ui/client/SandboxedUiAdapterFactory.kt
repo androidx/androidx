@@ -133,6 +133,7 @@ object SandboxedUiAdapterFactory {
 
             override fun notifyZOrderChanged(isZOrderOnTop: Boolean) {
                 surfaceView.setZOrderOnTop(isZOrderOnTop)
+                remoteSessionController.notifyZOrderChanged(isZOrderOnTop)
             }
 
             override fun close() {

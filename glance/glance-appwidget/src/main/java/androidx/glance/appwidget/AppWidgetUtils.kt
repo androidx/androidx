@@ -32,8 +32,6 @@ import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastMap
-import androidx.compose.ui.util.fastMinByOrNull
 import androidx.glance.GlanceComposable
 import androidx.glance.GlanceId
 import java.util.concurrent.atomic.AtomicBoolean
@@ -87,7 +85,7 @@ internal fun Bundle.extractAllSizes(minSize: () -> DpSize): List<DpSize> {
     return if (sizes.isNullOrEmpty()) {
         estimateSizes(minSize)
     } else {
-        sizes.fastMap { DpSize(it.width.dp, it.height.dp) }
+        sizes.map { DpSize(it.width.dp, it.height.dp) }
     }
 }
 
@@ -145,7 +143,7 @@ internal fun findBestSize(widgetSize: DpSize, layoutSizes: Collection<DpSize>): 
         } else {
             null
         }
-    }.fastMinByOrNull { it.second }?.first
+    }.minByOrNull { it.second }?.first
 
 /**
  * @return the minimum size as configured by the App Widget provider.

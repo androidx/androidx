@@ -39,7 +39,6 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
@@ -146,7 +145,6 @@ class ViewPagerActivityTest(private val lensFacing: Int, private val cameraXConf
     }
 
     // The test makes sure the TextureView surface texture keeps the same after switch.
-    @FlakyTest(bugId = 230873000)
     @Test
     fun testPreviewViewUpdateAfterSwitch() {
         launchActivity(lensFacing, cameraXConfig).use { scenario ->

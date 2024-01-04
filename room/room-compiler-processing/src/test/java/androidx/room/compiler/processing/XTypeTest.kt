@@ -39,6 +39,8 @@ import androidx.room.compiler.processing.util.kspResolver
 import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.devtools.ksp.getClassDeclarationByName
+import com.google.testing.junit.testparameterinjector.TestParameter
+import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeVariableName
@@ -56,9 +58,8 @@ import com.squareup.kotlinpoet.javapoet.KClassName
 import com.squareup.kotlinpoet.javapoet.KTypeVariableName
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
-@RunWith(JUnit4::class)
+@RunWith(TestParameterInjector::class)
 class XTypeTest {
     @Test
     fun typeArguments() {
@@ -1842,22 +1843,57 @@ class XTypeTest {
     }
 
     @Test
-    fun valueTypes() {
+    fun valueTypes(@TestParameter isPrecompiled: Boolean,) {
         val kotlinSrc = Source.kotlin(
             "KotlinClass.kt",
             """
             @JvmInline value class PackageName(val value: String)
+            @JvmInline value class MyResult<T>(val value: T)
 
             class KotlinClass {
+                // @JvmName disables name mangling for functions that use inline classes and
+                // make them visible to Java:
+                // https://kotlinlang.org/docs/inline-classes.html#calling-from-java-code
+                @JvmName("getResult")
+                fun getResult(): MyResult<String> = TODO()
+                @JvmName("setResult")
+                fun setResult(result: MyResult<String>) { }
                 fun getPackageNames(): Set<PackageName> = emptySet()
                 fun setPackageNames(pkgNames: Set<PackageName>) { }
             }
             """.trimIndent()
         )
         runProcessorTest(
-            sources = listOf(kotlinSrc)
+            sources = if (isPrecompiled) { emptyList() } else { listOf(kotlinSrc) },
+            classpath = if (isPrecompiled) { compileFiles(listOf(kotlinSrc)) } else { emptyList() }
         ) { invocation ->
             val kotlinElm = invocation.processingEnv.requireTypeElement("KotlinClass")
+
+            kotlinElm.getDeclaredMethodByJvmName("getResult").apply {
+                assertThat(returnType.asTypeName().java.toString())
+                    .isEqualTo("java.lang.Object")
+                if (invocation.isKsp) {
+                    assertThat(returnType.asTypeName().kotlin.toString())
+                        .isEqualTo("MyResult<kotlin.String>")
+                } else {
+                    // Can't generate Kotlin code with KAPT
+                    assertThat(returnType.asTypeName().kotlin.toString())
+                        .isEqualTo("androidx.room.compiler.codegen.Unavailable")
+                }
+            }
+            kotlinElm.getDeclaredMethodByJvmName("setResult").apply {
+                assertThat(parameters.single().type.asTypeName().java.toString())
+                    .isEqualTo("java.lang.Object")
+                if (invocation.isKsp) {
+                    assertThat(parameters.single().type.asTypeName().kotlin.toString())
+                        .isEqualTo("MyResult<kotlin.String>")
+                } else {
+                    // Can't generate Kotlin code with KAPT
+                    assertThat(parameters.single().type.asTypeName().kotlin.toString())
+                        .isEqualTo("androidx.room.compiler.codegen.Unavailable")
+                }
+            }
+
             kotlinElm.getMethodByJvmName("getPackageNames").apply {
                 assertThat(returnType.typeName.toString())
                     .isEqualTo("java.util.Set<PackageName>")

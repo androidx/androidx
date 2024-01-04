@@ -1,0 +1,731 @@
+/*
+ * Copyright 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.collection
+
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertSame
+import kotlin.test.assertTrue
+
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// DO NOT MAKE CHANGES to the kotlin source file.
+//
+// This file was generated from a template in the template directory.
+// Make a change to the original template and run the generateCollections.sh script
+// to ensure the change is available on all versions of the map.
+//
+// Note that there are 3 templates for maps, one for object-to-primitive, one
+// for primitive-to-object and one for primitive-to-primitive. Also, the
+// object-to-object is ScatterMap.kt, which doesn't have a template.
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+@Suppress("RemoveRedundantCallsOfConversionMethods")
+class ObjectPValueTest {
+    @Test
+    fun objectPValueMap() {
+        val map = MutableObjectPValueMap<String>()
+        assertEquals(7, map.capacity)
+        assertEquals(0, map.size)
+    }
+
+    @Test
+    fun emptyObjectPValueMap() {
+        val map = emptyObjectPValueMap<String>()
+        assertEquals(0, map.capacity)
+        assertEquals(0, map.size)
+
+        assertSame(emptyObjectPValueMap<String>(), map)
+    }
+
+    @Test
+    fun objectPValueMapFunction() {
+        val map = mutableObjectPValueMapOf<String>()
+        assertEquals(7, map.capacity)
+        assertEquals(0, map.size)
+    }
+
+    @Test
+    fun zeroCapacityHashMap() {
+        val map = MutableObjectPValueMap<String>(0)
+        assertEquals(0, map.capacity)
+        assertEquals(0, map.size)
+    }
+
+    @Test
+    fun objectPValueMapWithCapacity() {
+        // When unloading the suggested capacity, we'll fall outside of the
+        // expected bucket of 2047 entries, and we'll get 4095 instead
+        val map = MutableObjectPValueMap<String>(1800)
+        assertEquals(4095, map.capacity)
+        assertEquals(0, map.size)
+    }
+
+    @Test
+    fun objectPValueMapInitFunction() {
+        val map1 = objectPValueMapOf(
+            "Hello", 1ValueSuffix,
+        )
+        assertEquals(1, map1.size)
+        assertEquals(1ValueSuffix, map1["Hello"])
+
+        val map2 = objectPValueMapOf(
+            "Hello", 1ValueSuffix,
+            "Bonjour", 2ValueSuffix,
+        )
+        assertEquals(2, map2.size)
+        assertEquals(1ValueSuffix, map2["Hello"])
+        assertEquals(2ValueSuffix, map2["Bonjour"])
+
+        val map3 = objectPValueMapOf(
+            "Hello", 1ValueSuffix,
+            "Bonjour", 2ValueSuffix,
+            "Hallo", 3ValueSuffix,
+        )
+        assertEquals(3, map3.size)
+        assertEquals(1ValueSuffix, map3["Hello"])
+        assertEquals(2ValueSuffix, map3["Bonjour"])
+        assertEquals(3ValueSuffix, map3["Hallo"])
+
+        val map4 = objectPValueMapOf(
+            "Hello", 1ValueSuffix,
+            "Bonjour", 2ValueSuffix,
+            "Hallo", 3ValueSuffix,
+            "Konnichiwa", 4ValueSuffix,
+        )
+
+        assertEquals(4, map4.size)
+        assertEquals(1ValueSuffix, map4["Hello"])
+        assertEquals(2ValueSuffix, map4["Bonjour"])
+        assertEquals(3ValueSuffix, map4["Hallo"])
+        assertEquals(4ValueSuffix, map4["Konnichiwa"])
+
+        val map5 = objectPValueMapOf(
+            "Hello", 1ValueSuffix,
+            "Bonjour", 2ValueSuffix,
+            "Hallo", 3ValueSuffix,
+            "Konnichiwa", 4ValueSuffix,
+            "Ciao", 5ValueSuffix,
+        )
+
+        assertEquals(5, map5.size)
+        assertEquals(1ValueSuffix, map5["Hello"])
+        assertEquals(2ValueSuffix, map5["Bonjour"])
+        assertEquals(3ValueSuffix, map5["Hallo"])
+        assertEquals(4ValueSuffix, map5["Konnichiwa"])
+        assertEquals(5ValueSuffix, map5["Ciao"])
+    }
+
+    @Test
+    fun mutableObjectPValueMapInitFunction() {
+        val map1 = mutableObjectPValueMapOf(
+            "Hello", 1ValueSuffix,
+        )
+        assertEquals(1, map1.size)
+        assertEquals(1ValueSuffix, map1["Hello"])
+
+        val map2 = mutableObjectPValueMapOf(
+            "Hello", 1ValueSuffix,
+            "Bonjour", 2ValueSuffix,
+        )
+        assertEquals(2, map2.size)
+        assertEquals(1ValueSuffix, map2["Hello"])
+        assertEquals(2ValueSuffix, map2["Bonjour"])
+
+        val map3 = mutableObjectPValueMapOf(
+            "Hello", 1ValueSuffix,
+            "Bonjour", 2ValueSuffix,
+            "Hallo", 3ValueSuffix,
+        )
+        assertEquals(3, map3.size)
+        assertEquals(1ValueSuffix, map3["Hello"])
+        assertEquals(2ValueSuffix, map3["Bonjour"])
+        assertEquals(3ValueSuffix, map3["Hallo"])
+
+        val map4 = mutableObjectPValueMapOf(
+            "Hello", 1ValueSuffix,
+            "Bonjour", 2ValueSuffix,
+            "Hallo", 3ValueSuffix,
+            "Konnichiwa", 4ValueSuffix,
+        )
+
+        assertEquals(4, map4.size)
+        assertEquals(1ValueSuffix, map4["Hello"])
+        assertEquals(2ValueSuffix, map4["Bonjour"])
+        assertEquals(3ValueSuffix, map4["Hallo"])
+        assertEquals(4ValueSuffix, map4["Konnichiwa"])
+
+        val map5 = mutableObjectPValueMapOf(
+            "Hello", 1ValueSuffix,
+            "Bonjour", 2ValueSuffix,
+            "Hallo", 3ValueSuffix,
+            "Konnichiwa", 4ValueSuffix,
+            "Ciao", 5ValueSuffix,
+        )
+
+        assertEquals(5, map5.size)
+        assertEquals(1ValueSuffix, map5["Hello"])
+        assertEquals(2ValueSuffix, map5["Bonjour"])
+        assertEquals(3ValueSuffix, map5["Hallo"])
+        assertEquals(4ValueSuffix, map5["Konnichiwa"])
+        assertEquals(5ValueSuffix, map5["Ciao"])
+    }
+
+    @Test
+    fun addToMap() {
+        val map = MutableObjectPValueMap<String>()
+        map["Hello"] = 1ValueSuffix
+
+        assertEquals(1, map.size)
+        assertEquals(1ValueSuffix, map["Hello"])
+    }
+
+    @Test
+    fun addToSizedMap() {
+        val map = MutableObjectPValueMap<String>(12)
+        map["Hello"] = 1ValueSuffix
+
+        assertEquals(1, map.size)
+        assertEquals(1ValueSuffix, map["Hello"])
+    }
+
+    @Test
+    fun addToSmallMap() {
+        val map = MutableObjectPValueMap<String>(2)
+        map["Hello"] = 1ValueSuffix
+
+        assertEquals(1, map.size)
+        assertEquals(7, map.capacity)
+        assertEquals(1ValueSuffix, map["Hello"])
+    }
+
+    @Test
+    fun addToZeroCapacityMap() {
+        val map = MutableObjectPValueMap<String>(0)
+        map["Hello"] = 1ValueSuffix
+
+        assertEquals(1, map.size)
+        assertEquals(1ValueSuffix, map["Hello"])
+    }
+
+    @Test
+    fun replaceExistingKey() {
+        val map = MutableObjectPValueMap<String>()
+        map["Hello"] = 1ValueSuffix
+        map["Hello"] = 2ValueSuffix
+
+        assertEquals(1, map.size)
+        assertEquals(2ValueSuffix, map["Hello"])
+    }
+
+    @Test
+    fun put() {
+        val map = MutableObjectPValueMap<String>()
+
+        map.put("Hello", 1ValueSuffix)
+        assertEquals(1ValueSuffix, map["Hello"])
+        map.put("Hello", 2ValueSuffix)
+        assertEquals(2ValueSuffix, map["Hello"])
+    }
+
+    @Test
+    fun nullKey() {
+        val map = MutableObjectPValueMap<String?>()
+        map[null] = 1ValueSuffix
+
+        assertEquals(1, map.size)
+        assertEquals(1ValueSuffix, map[null])
+    }
+
+    @Test
+    fun findNonExistingKey() {
+        val map = MutableObjectPValueMap<String>()
+        map["Hello"] = 1ValueSuffix
+
+        assertFailsWith<NoSuchElementException> {
+            map["Bonjour"]
+        }
+    }
+
+    @Test
+    fun getOrDefault() {
+        val map = MutableObjectPValueMap<String>()
+        map["Hello"] = 1ValueSuffix
+
+        assertEquals(2ValueSuffix, map.getOrDefault("Bonjour", 2ValueSuffix))
+    }
+
+    @Test
+    fun getOrElse() {
+        val map = MutableObjectPValueMap<String>()
+        map["Hello"] = 1ValueSuffix
+
+        assertEquals(3ValueSuffix, map.getOrElse("Hallo") { 3ValueSuffix })
+    }
+
+    @Test
+    fun getOrPut() {
+        val map = MutableObjectPValueMap<String>()
+        map["Hello"] = 1ValueSuffix
+
+        var counter = 0
+        map.getOrPut("Hello") {
+            counter++
+            2ValueSuffix
+        }
+        assertEquals(1ValueSuffix, map["Hello"])
+        assertEquals(0, counter)
+
+        map.getOrPut("Bonjour") {
+            counter++
+            2ValueSuffix
+        }
+        assertEquals(2ValueSuffix, map["Bonjour"])
+        assertEquals(1, counter)
+
+        map.getOrPut("Bonjour") {
+            counter++
+            3ValueSuffix
+        }
+        assertEquals(2ValueSuffix, map["Bonjour"])
+        assertEquals(1, counter)
+
+        map.getOrPut("Hallo") {
+            counter++
+            3ValueSuffix
+        }
+        assertEquals(3ValueSuffix, map["Hallo"])
+        assertEquals(2, counter)
+    }
+
+    @Test
+    fun remove() {
+        val map = MutableObjectPValueMap<String?>()
+        map.remove("Hello")
+
+        map["Hello"] = 1ValueSuffix
+        map.remove("Hello")
+        assertEquals(0, map.size)
+
+        map[null] = 1ValueSuffix
+        map.remove(null)
+        assertEquals(0, map.size)
+    }
+
+    @Test
+    fun removeThenAdd() {
+        // Use a size of 6 to fit in a single entry in the metadata table
+        val map = MutableObjectPValueMap<String>(6)
+        map["Hello"] = 1ValueSuffix
+        map["Bonjour"] = 2ValueSuffix
+        map["Hallo"] = 3ValueSuffix
+        map["Konnichiwa"] = 4ValueSuffix
+        map["Ciao"] = 5ValueSuffix
+        map["Annyeong"] = 6ValueSuffix
+
+        // Removing all the entries will mark the medata as deleted
+        map.remove("Hello")
+        map.remove("Bonjour")
+        map.remove("Hallo")
+        map.remove("Konnichiwa")
+        map.remove("Ciao")
+        map.remove("Annyeong")
+
+        assertEquals(0, map.size)
+
+        val capacity = map.capacity
+
+        // Make sure reinserting an entry after filling the table
+        // with "Deleted" markers works
+        map["Hola"] = 7ValueSuffix
+
+        assertEquals(1, map.size)
+        assertEquals(capacity, map.capacity)
+    }
+
+    @Test
+    fun removeIf() {
+        val map = MutableObjectPValueMap<String>()
+        map["Hello"] = 1ValueSuffix
+        map["Bonjour"] = 2ValueSuffix
+        map["Hallo"] = 3ValueSuffix
+        map["Konnichiwa"] = 4ValueSuffix
+        map["Ciao"] = 5ValueSuffix
+        map["Annyeong"] = 6ValueSuffix
+
+        map.removeIf { key, _ -> key.startsWith('H') }
+
+        assertEquals(4, map.size)
+        assertEquals(2ValueSuffix, map["Bonjour"])
+        assertEquals(4ValueSuffix, map["Konnichiwa"])
+        assertEquals(5ValueSuffix, map["Ciao"])
+        assertEquals(6ValueSuffix, map["Annyeong"])
+    }
+
+    @Test
+    fun minus() {
+        val map = MutableObjectPValueMap<String>()
+        map["Hello"] = 1ValueSuffix
+        map["Bonjour"] = 2ValueSuffix
+        map["Hallo"] = 3ValueSuffix
+
+        map -= "Hello"
+
+        assertEquals(2, map.size)
+        assertFalse("Hello" in map)
+    }
+
+    @Test
+    fun minusArray() {
+        val map = MutableObjectPValueMap<String>()
+        map["Hello"] = 1ValueSuffix
+        map["Bonjour"] = 2ValueSuffix
+        map["Hallo"] = 3ValueSuffix
+
+        map -= arrayOf("Hallo", "Bonjour")
+
+        assertEquals(1, map.size)
+        assertFalse("Hallo" in map)
+        assertFalse("Bonjour" in map)
+    }
+
+    @Test
+    fun minusIterable() {
+        val map = MutableObjectPValueMap<String>()
+        map["Hello"] = 1ValueSuffix
+        map["Bonjour"] = 2ValueSuffix
+        map["Hallo"] = 3ValueSuffix
+
+        map -= listOf("Hallo", "Bonjour")
+
+        assertEquals(1, map.size)
+        assertFalse("Hallo" in map)
+        assertFalse("Bonjour" in map)
+    }
+
+    @Test
+    fun minusSequence() {
+        val map = MutableObjectPValueMap<String>()
+        map["Hello"] = 1ValueSuffix
+        map["Bonjour"] = 2ValueSuffix
+        map["Hallo"] = 3ValueSuffix
+
+        map -= listOf("Hallo", "Bonjour").asSequence()
+
+        assertEquals(1, map.size)
+        assertFalse("Hallo" in map)
+        assertFalse("Bonjour" in map)
+    }
+
+    @Test
+    fun conditionalRemove() {
+        val map = MutableObjectPValueMap<String?>()
+        assertFalse(map.remove("Hello", 1ValueSuffix))
+
+        map["Hello"] = 1ValueSuffix
+        assertTrue(map.remove("Hello", 1ValueSuffix))
+        assertEquals(0, map.size)
+    }
+
+    @Test
+    fun insertManyEntries() {
+        val map = MutableObjectPValueMap<String>()
+
+        for (i in 0 until 1700) {
+            map[i.toString()] = i.toPValue()
+        }
+
+        assertEquals(1700, map.size)
+    }
+
+    @Test
+    fun forEach() {
+        for (i in 0..48) {
+            val map = MutableObjectPValueMap<String>()
+
+            for (j in 0 until i) {
+                map[j.toString()] = j.toPValue()
+            }
+
+            var counter = 0
+            map.forEach { key, value ->
+                assertEquals(key, value.toInt().toString())
+                counter++
+            }
+
+            assertEquals(i, counter)
+        }
+    }
+
+    @Test
+    fun forEachKey() {
+        for (i in 0..48) {
+            val map = MutableObjectPValueMap<String>()
+
+            for (j in 0 until i) {
+                map[j.toString()] = j.toPValue()
+            }
+
+            var counter = 0
+            map.forEachKey { key ->
+                assertNotNull(key.toIntOrNull())
+                counter++
+            }
+
+            assertEquals(i, counter)
+        }
+    }
+
+    @Test
+    fun forEachValue() {
+        for (i in 0..48) {
+            val map = MutableObjectPValueMap<String>()
+
+            for (j in 0 until i) {
+                map[j.toString()] = j.toPValue()
+            }
+
+            var counter = 0
+            val values = BooleanArray(map.size)
+            map.forEachValue { value ->
+                values[value.toInt()] = true
+                counter++
+            }
+
+            assertEquals(i, counter)
+            values.forEach { assertTrue(it) }
+        }
+    }
+
+    @Test
+    fun clear() {
+        val map = MutableObjectPValueMap<String>()
+
+        for (i in 0 until 32) {
+            map[i.toString()] = i.toPValue()
+        }
+
+        val capacity = map.capacity
+        map.clear()
+
+        assertEquals(0, map.size)
+        assertEquals(capacity, map.capacity)
+    }
+
+    @Test
+    fun string() {
+        val map = MutableObjectPValueMap<String?>()
+        assertEquals("{}", map.toString())
+
+        map["Hello"] = 1ValueSuffix
+        map["Bonjour"] = 2ValueSuffix
+        val oneString = 1ValueSuffix.toString()
+        val twoString = 2ValueSuffix.toString()
+        assertTrue(
+            "{Hello=$oneString, Bonjour=$twoString}" == map.toString() ||
+                "{Bonjour=$twoString, Hello=$oneString}" == map.toString()
+        )
+
+        map.clear()
+        map[null] = 2ValueSuffix
+        assertEquals("{null=$twoString}", map.toString())
+
+        val selfAsKeyMap = MutableObjectPValueMap<Any>()
+        selfAsKeyMap[selfAsKeyMap] = 1ValueSuffix
+        assertEquals("{(this)=$oneString}", selfAsKeyMap.toString())
+    }
+
+    @Test
+    fun joinToString() {
+        val map = MutableObjectPValueMap<String?>()
+        repeat(5) {
+            map[it.toString()] = it.toPValue()
+        }
+        val order = IntArray(5)
+        var index = 0
+        map.forEach { _, value ->
+            order[index++] = value.toInt()
+        }
+        assertEquals(
+            "${order[0]}=${order[0].toPValue()}, ${order[1]}=${order[1].toPValue()}, " +
+            "${order[2]}=${order[2].toPValue()}, ${order[3]}=${order[3].toPValue()}, " +
+            "${order[4]}=${order[4].toPValue()}",
+            map.joinToString()
+        )
+        assertEquals(
+            "x${order[0]}=${order[0].toPValue()}, ${order[1]}=${order[1].toPValue()}, " +
+            "${order[2]}=${order[2].toPValue()}...",
+            map.joinToString(prefix = "x", postfix = "y", limit = 3)
+        )
+        assertEquals(
+            ">${order[0]}=${order[0].toPValue()}-${order[1]}=${order[1].toPValue()}-" +
+            "${order[2]}=${order[2].toPValue()}-${order[3]}=${order[3].toPValue()}-" +
+            "${order[4]}=${order[4].toPValue()}<",
+            map.joinToString(separator = "-", prefix = ">", postfix = "<")
+        )
+        val names = arrayOf("one", "two", "three", "four", "five")
+        assertEquals(
+            "${names[order[0]]}, ${names[order[1]]}, ${names[order[2]]}...",
+            map.joinToString(limit = 3) { _, value -> names[value.toInt()] }
+        )
+    }
+
+    @Test
+    fun equals() {
+        val map = MutableObjectPValueMap<String?>()
+        map["Hello"] = 1ValueSuffix
+        map[null] = 2ValueSuffix
+
+        assertFalse(map.equals(null))
+        assertEquals(map, map)
+
+        val map2 = MutableObjectPValueMap<String?>()
+        map2[null] = 2ValueSuffix
+
+        assertNotEquals(map, map2)
+
+        map2["Hello"] = 1ValueSuffix
+        assertEquals(map, map2)
+    }
+
+    @Test
+    fun containsKey() {
+        val map = MutableObjectPValueMap<String?>()
+        map["Hello"] = 1ValueSuffix
+        map[null] = 2ValueSuffix
+
+        assertTrue(map.containsKey("Hello"))
+        assertTrue(map.containsKey(null))
+        assertFalse(map.containsKey("Bonjour"))
+    }
+
+    @Test
+    fun contains() {
+        val map = MutableObjectPValueMap<String?>()
+        map["Hello"] = 1ValueSuffix
+        map[null] = 2ValueSuffix
+
+        assertTrue("Hello" in map)
+        assertTrue(null in map)
+        assertFalse("Bonjour" in map)
+    }
+
+    @Test
+    fun containsValue() {
+        val map = MutableObjectPValueMap<String?>()
+        map["Hello"] = 1ValueSuffix
+        map[null] = 2ValueSuffix
+
+        assertTrue(map.containsValue(1ValueSuffix))
+        assertTrue(map.containsValue(2ValueSuffix))
+        assertFalse(map.containsValue(3ValueSuffix))
+    }
+
+    @Test
+    fun empty() {
+        val map = MutableObjectPValueMap<String?>()
+        assertTrue(map.isEmpty())
+        assertFalse(map.isNotEmpty())
+        assertTrue(map.none())
+        assertFalse(map.any())
+
+        map["Hello"] = 1ValueSuffix
+
+        assertFalse(map.isEmpty())
+        assertTrue(map.isNotEmpty())
+        assertTrue(map.any())
+        assertFalse(map.none())
+    }
+
+    @Test
+    fun count() {
+        val map = MutableObjectPValueMap<String>()
+        assertEquals(0, map.count())
+
+        map["Hello"] = 1ValueSuffix
+        assertEquals(1, map.count())
+
+        map["Bonjour"] = 2ValueSuffix
+        map["Hallo"] = 3ValueSuffix
+        map["Konnichiwa"] = 4ValueSuffix
+        map["Ciao"] = 5ValueSuffix
+        map["Annyeong"] = 6ValueSuffix
+
+        assertEquals(2, map.count { key, _ -> key.startsWith("H") })
+        assertEquals(0, map.count { key, _ -> key.startsWith("W") })
+    }
+
+    @Test
+    fun any() {
+        val map = MutableObjectPValueMap<String>()
+        map["Hello"] = 1ValueSuffix
+        map["Bonjour"] = 2ValueSuffix
+        map["Hallo"] = 3ValueSuffix
+        map["Konnichiwa"] = 4ValueSuffix
+        map["Ciao"] = 5ValueSuffix
+        map["Annyeong"] = 6ValueSuffix
+
+        assertTrue(map.any { key, _ -> key.startsWith("K") })
+        assertFalse(map.any { key, _ -> key.startsWith("W") })
+    }
+
+    @Test
+    fun all() {
+        val map = MutableObjectPValueMap<String>()
+        map["Hello"] = 1ValueSuffix
+        map["Bonjour"] = 2ValueSuffix
+        map["Hallo"] = 3ValueSuffix
+        map["Konnichiwa"] = 4ValueSuffix
+        map["Ciao"] = 5ValueSuffix
+        map["Annyeong"] = 6ValueSuffix
+
+        assertTrue(map.all { key, value -> key.length >= 4 && value.toInt() >= 1 })
+        assertFalse(map.all { key, _ -> key.startsWith("W") })
+    }
+
+    @Test
+    fun trim() {
+        val map = MutableObjectPValueMap<String>()
+        assertEquals(7, map.trim())
+
+        map["Hello"] = 1ValueSuffix
+        map["Hallo"] = 3ValueSuffix
+
+        assertEquals(0, map.trim())
+
+        for (i in 0 until 1700) {
+            map[i.toString()] = i.toPValue()
+        }
+
+        assertEquals(2047, map.capacity)
+
+        // After removing these items, our capacity needs should go
+        // from 2047 down to 1023
+        for (i in 0 until 1700) {
+            if (i and 0x1 == 0x0) {
+                val s = i.toString()
+                map.remove(s)
+            }
+        }
+
+        assertEquals(1024, map.trim())
+        assertEquals(0, map.trim())
+    }
+}

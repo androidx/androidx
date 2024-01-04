@@ -1,0 +1,706 @@
+/*
+ * Copyright 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.collection
+
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
+import kotlin.test.assertSame
+import kotlin.test.assertTrue
+
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// DO NOT MAKE CHANGES to the kotlin source file.
+//
+// This file was generated from a template in the template directory.
+// Make a change to the original template and run the generateCollections.sh script
+// to ensure the change is available on all versions of the map.
+//
+// Note that there are 3 templates for maps, one for object-to-primitive, one
+// for primitive-to-object and one for primitive-to-primitive. Also, the
+// object-to-object is ScatterMap.kt, which doesn't have a template.
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+@Suppress("RemoveRedundantCallsOfConversionMethods")
+class PKeyPValueMapTest {
+    @Test
+    fun pKeyPValueMap() {
+        val map = MutablePKeyPValueMap()
+        assertEquals(7, map.capacity)
+        assertEquals(0, map.size)
+    }
+
+    @Test
+    fun testEmptyPKeyPValueMap() {
+        val map = emptyPKeyPValueMap()
+        assertEquals(0, map.capacity)
+        assertEquals(0, map.size)
+
+        assertSame(emptyPKeyPValueMap(), map)
+    }
+
+    @Test
+    fun pKeyPValueMapFunction() {
+        val map = mutablePKeyPValueMapOf()
+        assertEquals(7, map.capacity)
+        assertEquals(0, map.size)
+    }
+
+    @Test
+    fun zeroCapacityHashMap() {
+        val map = MutablePKeyPValueMap(0)
+        assertEquals(0, map.capacity)
+        assertEquals(0, map.size)
+    }
+
+    @Test
+    fun pKeyPValueMapWithCapacity() {
+        // When unloading the suggested capacity, we'll fall outside of the
+        // expected bucket of 2047 entries, and we'll get 4095 instead
+        val map = MutablePKeyPValueMap(1800)
+        assertEquals(4095, map.capacity)
+        assertEquals(0, map.size)
+    }
+
+    @Test
+    fun pKeyPValueMapInitFunction() {
+        val map1 = pKeyPValueMapOf(
+            1KeySuffix, 1ValueSuffix,
+        )
+        assertEquals(1, map1.size)
+        assertEquals(1ValueSuffix, map1[1KeySuffix])
+
+        val map2 = pKeyPValueMapOf(
+            1KeySuffix, 1ValueSuffix,
+            2KeySuffix, 2ValueSuffix,
+        )
+        assertEquals(2, map2.size)
+        assertEquals(1ValueSuffix, map2[1KeySuffix])
+        assertEquals(2ValueSuffix, map2[2KeySuffix])
+
+        val map3 = pKeyPValueMapOf(
+            1KeySuffix, 1ValueSuffix,
+            2KeySuffix, 2ValueSuffix,
+            3KeySuffix, 3ValueSuffix,
+        )
+        assertEquals(3, map3.size)
+        assertEquals(1ValueSuffix, map3[1KeySuffix])
+        assertEquals(2ValueSuffix, map3[2KeySuffix])
+        assertEquals(3ValueSuffix, map3[3KeySuffix])
+
+        val map4 = pKeyPValueMapOf(
+            1KeySuffix, 1ValueSuffix,
+            2KeySuffix, 2ValueSuffix,
+            3KeySuffix, 3ValueSuffix,
+            4KeySuffix, 4ValueSuffix,
+        )
+
+        assertEquals(4, map4.size)
+        assertEquals(1ValueSuffix, map4[1KeySuffix])
+        assertEquals(2ValueSuffix, map4[2KeySuffix])
+        assertEquals(3ValueSuffix, map4[3KeySuffix])
+        assertEquals(4ValueSuffix, map4[4KeySuffix])
+
+        val map5 = pKeyPValueMapOf(
+            1KeySuffix, 1ValueSuffix,
+            2KeySuffix, 2ValueSuffix,
+            3KeySuffix, 3ValueSuffix,
+            4KeySuffix, 4ValueSuffix,
+            5KeySuffix, 5ValueSuffix,
+        )
+
+        assertEquals(5, map5.size)
+        assertEquals(1ValueSuffix, map5[1KeySuffix])
+        assertEquals(2ValueSuffix, map5[2KeySuffix])
+        assertEquals(3ValueSuffix, map5[3KeySuffix])
+        assertEquals(4ValueSuffix, map5[4KeySuffix])
+        assertEquals(5ValueSuffix, map5[5KeySuffix])
+    }
+
+    @Test
+    fun mutablePKeyPValueMapInitFunction() {
+        val map1 = mutablePKeyPValueMapOf(
+            1KeySuffix, 1ValueSuffix,
+        )
+        assertEquals(1, map1.size)
+        assertEquals(1ValueSuffix, map1[1KeySuffix])
+
+        val map2 = mutablePKeyPValueMapOf(
+            1KeySuffix, 1ValueSuffix,
+            2KeySuffix, 2ValueSuffix,
+        )
+        assertEquals(2, map2.size)
+        assertEquals(1ValueSuffix, map2[1KeySuffix])
+        assertEquals(2ValueSuffix, map2[2KeySuffix])
+
+        val map3 = mutablePKeyPValueMapOf(
+            1KeySuffix, 1ValueSuffix,
+            2KeySuffix, 2ValueSuffix,
+            3KeySuffix, 3ValueSuffix,
+        )
+        assertEquals(3, map3.size)
+        assertEquals(1ValueSuffix, map3[1KeySuffix])
+        assertEquals(2ValueSuffix, map3[2KeySuffix])
+        assertEquals(3ValueSuffix, map3[3KeySuffix])
+
+        val map4 = mutablePKeyPValueMapOf(
+            1KeySuffix, 1ValueSuffix,
+            2KeySuffix, 2ValueSuffix,
+            3KeySuffix, 3ValueSuffix,
+            4KeySuffix, 4ValueSuffix,
+        )
+
+        assertEquals(4, map4.size)
+        assertEquals(1ValueSuffix, map4[1KeySuffix])
+        assertEquals(2ValueSuffix, map4[2KeySuffix])
+        assertEquals(3ValueSuffix, map4[3KeySuffix])
+        assertEquals(4ValueSuffix, map4[4KeySuffix])
+
+        val map5 = mutablePKeyPValueMapOf(
+            1KeySuffix, 1ValueSuffix,
+            2KeySuffix, 2ValueSuffix,
+            3KeySuffix, 3ValueSuffix,
+            4KeySuffix, 4ValueSuffix,
+            5KeySuffix, 5ValueSuffix,
+        )
+
+        assertEquals(5, map5.size)
+        assertEquals(1ValueSuffix, map5[1KeySuffix])
+        assertEquals(2ValueSuffix, map5[2KeySuffix])
+        assertEquals(3ValueSuffix, map5[3KeySuffix])
+        assertEquals(4ValueSuffix, map5[4KeySuffix])
+        assertEquals(5ValueSuffix, map5[5KeySuffix])
+    }
+
+    @Test
+    fun addToMap() {
+        val map = MutablePKeyPValueMap()
+        map[1KeySuffix] = 1ValueSuffix
+
+        assertEquals(1, map.size)
+        assertEquals(1ValueSuffix, map[1KeySuffix])
+    }
+
+    @Test
+    fun addToSizedMap() {
+        val map = MutablePKeyPValueMap(12)
+        map[1KeySuffix] = 1ValueSuffix
+
+        assertEquals(1, map.size)
+        assertEquals(1ValueSuffix, map[1KeySuffix])
+    }
+
+    @Test
+    fun addToSmallMap() {
+        val map = MutablePKeyPValueMap(2)
+        map[1KeySuffix] = 1ValueSuffix
+
+        assertEquals(1, map.size)
+        assertEquals(7, map.capacity)
+        assertEquals(1ValueSuffix, map[1KeySuffix])
+    }
+
+    @Test
+    fun addToZeroCapacityMap() {
+        val map = MutablePKeyPValueMap(0)
+        map[1KeySuffix] = 1ValueSuffix
+
+        assertEquals(1, map.size)
+        assertEquals(1ValueSuffix, map[1KeySuffix])
+    }
+
+    @Test
+    fun replaceExistingKey() {
+        val map = MutablePKeyPValueMap()
+        map[1KeySuffix] = 1ValueSuffix
+        map[1KeySuffix] = 2ValueSuffix
+
+        assertEquals(1, map.size)
+        assertEquals(2ValueSuffix, map[1KeySuffix])
+    }
+
+    @Test
+    fun put() {
+        val map = MutablePKeyPValueMap()
+
+        map.put(1KeySuffix, 1ValueSuffix)
+        assertEquals(1ValueSuffix, map[1KeySuffix])
+        map.put(1KeySuffix, 2ValueSuffix)
+        assertEquals(2ValueSuffix, map[1KeySuffix])
+    }
+
+    @Test
+    fun findNonExistingKey() {
+        val map = MutablePKeyPValueMap()
+        map[1KeySuffix] = 1ValueSuffix
+
+        assertFailsWith<NoSuchElementException> {
+            map[2KeySuffix]
+        }
+    }
+
+    @Test
+    fun getOrDefault() {
+        val map = MutablePKeyPValueMap()
+        map[1KeySuffix] = 1ValueSuffix
+
+        assertEquals(2ValueSuffix, map.getOrDefault(2KeySuffix, 2ValueSuffix))
+    }
+
+    @Test
+    fun getOrElse() {
+        val map = MutablePKeyPValueMap()
+        map[1KeySuffix] = 1ValueSuffix
+
+        assertEquals(3ValueSuffix, map.getOrElse(3KeySuffix) { 3ValueSuffix })
+    }
+
+    @Test
+    fun getOrPut() {
+        val map = MutablePKeyPValueMap()
+        map[1KeySuffix] = 1ValueSuffix
+
+        var counter = 0
+        map.getOrPut(1KeySuffix) {
+            counter++
+            2ValueSuffix
+        }
+        assertEquals(1ValueSuffix, map[1KeySuffix])
+        assertEquals(0, counter)
+
+        map.getOrPut(2KeySuffix) {
+            counter++
+            2ValueSuffix
+        }
+        assertEquals(2ValueSuffix, map[2KeySuffix])
+        assertEquals(1, counter)
+
+        map.getOrPut(2KeySuffix) {
+            counter++
+            3ValueSuffix
+        }
+        assertEquals(2ValueSuffix, map[2KeySuffix])
+        assertEquals(1, counter)
+
+        map.getOrPut(3KeySuffix) {
+            counter++
+            3ValueSuffix
+        }
+        assertEquals(3ValueSuffix, map[3KeySuffix])
+        assertEquals(2, counter)
+    }
+
+    @Test
+    fun remove() {
+        val map = MutablePKeyPValueMap()
+        map.remove(1KeySuffix)
+
+        map[1KeySuffix] = 1ValueSuffix
+        map.remove(1KeySuffix)
+        assertEquals(0, map.size)
+    }
+
+    @Test
+    fun removeThenAdd() {
+        // Use a size of 6 to fit in a single entry in the metadata table
+        val map = MutablePKeyPValueMap(6)
+        map[1KeySuffix] = 1ValueSuffix
+        map[2KeySuffix] = 2ValueSuffix
+        map[3KeySuffix] = 3ValueSuffix
+        map[4KeySuffix] = 4ValueSuffix
+        map[5KeySuffix] = 5ValueSuffix
+        map[6KeySuffix] = 6ValueSuffix
+
+        // Removing all the entries will mark the medata as deleted
+        map.remove(1KeySuffix)
+        map.remove(2KeySuffix)
+        map.remove(3KeySuffix)
+        map.remove(4KeySuffix)
+        map.remove(5KeySuffix)
+        map.remove(6KeySuffix)
+
+        assertEquals(0, map.size)
+
+        val capacity = map.capacity
+
+        // Make sure reinserting an entry after filling the table
+        // with "Deleted" markers works
+        map[7KeySuffix] = 7ValueSuffix
+
+        assertEquals(1, map.size)
+        assertEquals(capacity, map.capacity)
+    }
+
+    @Test
+    fun removeIf() {
+        val map = MutablePKeyPValueMap()
+        map[1KeySuffix] = 1ValueSuffix
+        map[2KeySuffix] = 2ValueSuffix
+        map[3KeySuffix] = 3ValueSuffix
+        map[4KeySuffix] = 4ValueSuffix
+        map[5KeySuffix] = 5ValueSuffix
+        map[6KeySuffix] = 6ValueSuffix
+
+        map.removeIf { key, _ -> key == 1KeySuffix || key == 3KeySuffix }
+
+        assertEquals(4, map.size)
+        assertEquals(2ValueSuffix, map[2KeySuffix])
+        assertEquals(4ValueSuffix, map[4KeySuffix])
+        assertEquals(5ValueSuffix, map[5KeySuffix])
+        assertEquals(6ValueSuffix, map[6KeySuffix])
+    }
+
+    @Test
+    fun minus() {
+        val map = MutablePKeyPValueMap()
+        map[1KeySuffix] = 1ValueSuffix
+        map[2KeySuffix] = 2ValueSuffix
+        map[3KeySuffix] = 3ValueSuffix
+
+        map -= 1KeySuffix
+
+        assertEquals(2, map.size)
+        assertFalse(1KeySuffix in map)
+    }
+
+    @Test
+    fun minusArray() {
+        val map = MutablePKeyPValueMap()
+        map[1KeySuffix] = 1ValueSuffix
+        map[2KeySuffix] = 2ValueSuffix
+        map[3KeySuffix] = 3ValueSuffix
+
+        map -= pKeyArrayOf(3KeySuffix, 2KeySuffix)
+
+        assertEquals(1, map.size)
+        assertFalse(3KeySuffix in map)
+        assertFalse(2KeySuffix in map)
+    }
+
+    @Test
+    fun minusSet() {
+        val map = MutablePKeyPValueMap()
+        map[1KeySuffix] = 1ValueSuffix
+        map[2KeySuffix] = 2ValueSuffix
+        map[3KeySuffix] = 3ValueSuffix
+
+        map -= pKeySetOf(3KeySuffix, 2KeySuffix)
+
+        assertEquals(1, map.size)
+        assertFalse(3KeySuffix in map)
+        assertFalse(2KeySuffix in map)
+    }
+
+    @Test
+    fun minusList() {
+        val map = MutablePKeyPValueMap()
+        map[1KeySuffix] = 1ValueSuffix
+        map[2KeySuffix] = 2ValueSuffix
+        map[3KeySuffix] = 3ValueSuffix
+
+        map -= pKeyListOf(3KeySuffix, 2KeySuffix)
+
+        assertEquals(1, map.size)
+        assertFalse(3KeySuffix in map)
+        assertFalse(2KeySuffix in map)
+    }
+
+    @Test
+    fun conditionalRemove() {
+        val map = MutablePKeyPValueMap()
+        assertFalse(map.remove(1KeySuffix, 1ValueSuffix))
+
+        map[1KeySuffix] = 1ValueSuffix
+        assertTrue(map.remove(1KeySuffix, 1ValueSuffix))
+        assertEquals(0, map.size)
+    }
+
+    @Test
+    fun insertManyEntries() {
+        val map = MutablePKeyPValueMap()
+
+        for (i in 0 until 1700) {
+            map[i.toPKey()] = i.toPValue()
+        }
+
+        assertEquals(1700, map.size)
+    }
+
+    @Test
+    fun forEach() {
+        for (i in 0..48) {
+            val map = MutablePKeyPValueMap()
+
+            for (j in 0 until i) {
+                map[j.toPKey()] = j.toPValue()
+            }
+
+            var counter = 0
+            map.forEach { key, value ->
+                assertEquals(key, value.toPKey())
+                counter++
+            }
+
+            assertEquals(i, counter)
+        }
+    }
+
+    @Test
+    fun forEachKey() {
+        for (i in 0..48) {
+            val map = MutablePKeyPValueMap()
+
+            for (j in 0 until i) {
+                map[j.toPKey()] = j.toPValue()
+            }
+
+            var counter = 0
+            val keys = BooleanArray(map.size)
+            map.forEachKey { key ->
+                keys[key.toInt()] = true
+                counter++
+            }
+
+            assertEquals(i, counter)
+            keys.forEach { assertTrue(it) }
+        }
+    }
+
+    @Test
+    fun forEachValue() {
+        for (i in 0..48) {
+            val map = MutablePKeyPValueMap()
+
+            for (j in 0 until i) {
+                map[j.toPKey()] = j.toPValue()
+            }
+
+            var counter = 0
+            val values = BooleanArray(map.size)
+            map.forEachValue { value ->
+                values[value.toInt()] = true
+                counter++
+            }
+
+            assertEquals(i, counter)
+            values.forEach { assertTrue(it) }
+        }
+    }
+
+    @Test
+    fun clear() {
+        val map = MutablePKeyPValueMap()
+
+        for (i in 0 until 32) {
+            map[i.toPKey()] = i.toPValue()
+        }
+
+        val capacity = map.capacity
+        map.clear()
+
+        assertEquals(0, map.size)
+        assertEquals(capacity, map.capacity)
+    }
+
+    @Test
+    fun string() {
+        val map = MutablePKeyPValueMap()
+        assertEquals("{}", map.toString())
+
+        map[1KeySuffix] = 1ValueSuffix
+        map[2KeySuffix] = 2ValueSuffix
+        val oneValueString = 1ValueSuffix.toString()
+        val twoValueString = 2ValueSuffix.toString()
+        val oneKeyString = 1KeySuffix.toString()
+        val twoKeyString = 2KeySuffix.toString()
+        assertTrue(
+            "{$oneKeyString=$oneValueString, $twoKeyString=$twoValueString}" == map.toString() ||
+                "{$twoKeyString=$twoValueString, $oneKeyString=$oneValueString}" == map.toString()
+        )
+    }
+
+    @Test
+    fun joinToString() {
+        val map = MutablePKeyPValueMap()
+        repeat(5) {
+            map[it.toPKey()] = it.toPValue()
+        }
+        val order = IntArray(5)
+        var index = 0
+        map.forEach { key, _ ->
+            order[index++] = key.toInt()
+        }
+        assertEquals(
+            "${order[0].toPKey()}=${order[0].toPValue()}, ${order[1].toPKey()}=" +
+            "${order[1].toPValue()}, ${order[2].toPKey()}=${order[2].toPValue()}," +
+            " ${order[3].toPKey()}=${order[3].toPValue()}, ${order[4].toPKey()}=" +
+            "${order[4].toPValue()}",
+            map.joinToString()
+        )
+        assertEquals(
+            "x${order[0].toPKey()}=${order[0].toPValue()}, ${order[1].toPKey()}=" +
+            "${order[1].toPValue()}, ${order[2].toPKey()}=${order[2].toPValue()}...",
+            map.joinToString(prefix = "x", postfix = "y", limit = 3)
+        )
+        assertEquals(
+            ">${order[0].toPKey()}=${order[0].toPValue()}-${order[1].toPKey()}=" +
+            "${order[1].toPValue()}-${order[2].toPKey()}=${order[2].toPValue()}-" +
+            "${order[3].toPKey()}=${order[3].toPValue()}-${order[4].toPKey()}=" +
+            "${order[4].toPValue()}<",
+            map.joinToString(separator = "-", prefix = ">", postfix = "<")
+        )
+        val names = arrayOf("one", "two", "three", "four", "five")
+        assertEquals(
+            "${names[order[0]]}, ${names[order[1]]}, ${names[order[2]]}...",
+            map.joinToString(limit = 3) { key, _ -> names[key.toInt()] }
+        )
+    }
+
+    @Test
+    fun equals() {
+        val map = MutablePKeyPValueMap()
+        map[1KeySuffix] = 1ValueSuffix
+
+        assertFalse(map.equals(null))
+        assertEquals(map, map)
+
+        val map2 = MutablePKeyPValueMap()
+        assertNotEquals(map, map2)
+
+        map2[1KeySuffix] = 1ValueSuffix
+        assertEquals(map, map2)
+    }
+
+    @Test
+    fun containsKey() {
+        val map = MutablePKeyPValueMap()
+        map[1KeySuffix] = 1ValueSuffix
+
+        assertTrue(map.containsKey(1KeySuffix))
+        assertFalse(map.containsKey(2KeySuffix))
+    }
+
+    @Test
+    fun contains() {
+        val map = MutablePKeyPValueMap()
+        map[1KeySuffix] = 1ValueSuffix
+
+        assertTrue(1KeySuffix in map)
+        assertFalse(2KeySuffix in map)
+    }
+
+    @Test
+    fun containsValue() {
+        val map = MutablePKeyPValueMap()
+        map[1KeySuffix] = 1ValueSuffix
+
+        assertTrue(map.containsValue(1ValueSuffix))
+        assertFalse(map.containsValue(3ValueSuffix))
+    }
+
+    @Test
+    fun empty() {
+        val map = MutablePKeyPValueMap()
+        assertTrue(map.isEmpty())
+        assertFalse(map.isNotEmpty())
+        assertTrue(map.none())
+        assertFalse(map.any())
+
+        map[1KeySuffix] = 1ValueSuffix
+
+        assertFalse(map.isEmpty())
+        assertTrue(map.isNotEmpty())
+        assertTrue(map.any())
+        assertFalse(map.none())
+    }
+
+    @Test
+    fun count() {
+        val map = MutablePKeyPValueMap()
+        assertEquals(0, map.count())
+
+        map[1KeySuffix] = 1ValueSuffix
+        assertEquals(1, map.count())
+
+        map[2KeySuffix] = 2ValueSuffix
+        map[3KeySuffix] = 3ValueSuffix
+        map[4KeySuffix] = 4ValueSuffix
+        map[5KeySuffix] = 5ValueSuffix
+        map[6KeySuffix] = 6ValueSuffix
+
+        assertEquals(2, map.count { key, _ -> key <= 2KeySuffix })
+        assertEquals(0, map.count { key, _ -> key < 0KeySuffix })
+    }
+
+    @Test
+    fun any() {
+        val map = MutablePKeyPValueMap()
+        map[1KeySuffix] = 1ValueSuffix
+        map[2KeySuffix] = 2ValueSuffix
+        map[3KeySuffix] = 3ValueSuffix
+        map[4KeySuffix] = 4ValueSuffix
+        map[5KeySuffix] = 5ValueSuffix
+        map[6KeySuffix] = 6ValueSuffix
+
+        assertTrue(map.any { key, _ -> key == 4KeySuffix })
+        assertFalse(map.any { key, _ -> key < 0KeySuffix })
+    }
+
+    @Test
+    fun all() {
+        val map = MutablePKeyPValueMap()
+        map[1KeySuffix] = 1ValueSuffix
+        map[2KeySuffix] = 2ValueSuffix
+        map[3KeySuffix] = 3ValueSuffix
+        map[4KeySuffix] = 4ValueSuffix
+        map[5KeySuffix] = 5ValueSuffix
+        map[6KeySuffix] = 6ValueSuffix
+
+        assertTrue(map.all { key, value -> key > 0KeySuffix && value >= 1ValueSuffix })
+        assertFalse(map.all { key, _ -> key < 6KeySuffix })
+    }
+
+    @Test
+    fun trim() {
+        val map = MutablePKeyPValueMap()
+        assertEquals(7, map.trim())
+
+        map[1KeySuffix] = 1ValueSuffix
+        map[3KeySuffix] = 3ValueSuffix
+
+        assertEquals(0, map.trim())
+
+        for (i in 0 until 1700) {
+            map[i.toPKey()] = i.toPValue()
+        }
+
+        assertEquals(2047, map.capacity)
+
+        // After removing these items, our capacity needs should go
+        // from 2047 down to 1023
+        for (i in 0 until 1700) {
+            if (i and 0x1 == 0x0) {
+                val s = i.toPKey()
+                map.remove(s)
+            }
+        }
+
+        assertEquals(1024, map.trim())
+        assertEquals(0, map.trim())
+    }
+}

@@ -298,6 +298,17 @@ public interface CameraInfo {
     }
 
     /**
+     * Returns {@link PreviewCapabilities} to query preview stream related device capability.
+     *
+     * @return {@link PreviewCapabilities}
+     */
+    @NonNull
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    default PreviewCapabilities getPreviewCapabilities() {
+        return PreviewCapabilities.EMPTY;
+    }
+
+    /**
      * Returns if {@link ImageFormat#PRIVATE} reprocessing is supported on the device.
      *
      * @return true if supported, otherwise false.

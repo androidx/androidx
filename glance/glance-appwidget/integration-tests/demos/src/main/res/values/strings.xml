@@ -37,5 +37,7 @@
     <string name="default_state_widget_name">Default State Widget</string>
     <string name="progress_indicator_widget_name">ProgressBar Widget</string>
     <string name="default_color_widget_name">Theme and Color Widget</string>
-
+    <string name="buttons_widget_name">Buttons Demo Widget</string>
+    <string name="tint_widget">Tint widget</string>
+    <string name="title_bar_widget">Title Bar Widget</string>
 </resources>

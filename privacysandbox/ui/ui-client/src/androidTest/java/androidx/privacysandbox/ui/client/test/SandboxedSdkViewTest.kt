@@ -20,6 +20,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
+import android.graphics.Rect
 import android.os.Build
 import android.os.IBinder
 import android.view.SurfaceView
@@ -27,15 +28,22 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import androidx.annotation.RequiresApi
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionStateChangedListener
 import androidx.privacysandbox.ui.client.view.SandboxedSdkView
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.Until
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
@@ -45,7 +53,6 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assume
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -58,6 +65,8 @@ class SandboxedSdkViewTest {
 
     companion object {
         const val TIMEOUT = 1000.toLong()
+        // Longer timeout used for expensive operations like device rotation.
+        const val UI_INTENSIVE_TIMEOUT = 2000.toLong()
     }
 
     private lateinit var context: Context
@@ -183,7 +192,7 @@ class SandboxedSdkViewTest {
         Assume.assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
         context = InstrumentationRegistry.getInstrumentation().targetContext
         activity = activityScenarioRule.withActivity { this }
-        view = SandboxedSdkView(context)
+        view = SandboxedSdkView(activity)
         stateChangedListener = StateChangedListener()
         view.addStateChangedListener(stateChangedListener)
 
@@ -279,13 +288,13 @@ class SandboxedSdkViewTest {
         assertThat(adapter.isZOrderOnTop).isTrue()
 
         // When state changes to false, the provider should be notified.
-        view.setZOrderOnTopAndEnableUserInteraction(false)
+        view.orderProviderUiAboveClientUi(false)
         assertThat(session.zOrderChangedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
         assertThat(adapter.isZOrderOnTop).isFalse()
 
         // When state changes back to true, the provider should be notified.
         session.zOrderChangedLatch = CountDownLatch(1)
-        view.setZOrderOnTopAndEnableUserInteraction(true)
+        view.orderProviderUiAboveClientUi(true)
         assertThat(session.zOrderChangedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
         assertThat(adapter.isZOrderOnTop).isTrue()
     }
@@ -302,14 +311,14 @@ class SandboxedSdkViewTest {
 
         // When Z-order state is unchanged, the provider should not be notified.
         session.zOrderChangedLatch = CountDownLatch(1)
-        view.setZOrderOnTopAndEnableUserInteraction(true)
+        view.orderProviderUiAboveClientUi(true)
         assertThat(session.zOrderChangedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
         assertThat(adapter.isZOrderOnTop).isTrue()
     }
 
     @Test
     fun setZOrderNotOnTopBeforeOpeningSession() {
-        view.setZOrderOnTopAndEnableUserInteraction(false)
+        view.orderProviderUiAboveClientUi(false)
         addViewToLayout()
         assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
         val session = testSandboxedUiAdapter.testSession!!
@@ -324,7 +333,7 @@ class SandboxedSdkViewTest {
         testSandboxedUiAdapter.delayOpenSessionCallback = true
         addViewToLayout()
         assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
-        view.setZOrderOnTopAndEnableUserInteraction(false)
+        view.orderProviderUiAboveClientUi(false)
         val session = testSandboxedUiAdapter.testSession!!
         assertThat(session.zOrderChangedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
         activity.runOnUiThread {
@@ -338,17 +347,19 @@ class SandboxedSdkViewTest {
     }
 
     @Test
-    @Ignore("b/272324246")
     fun onConfigurationChangedTest() {
         addViewToLayout()
-
-        openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)
-        assertTrue(openSessionLatch.count == 0.toLong())
-        activity.runOnUiThread {
-            activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-        }
-        configChangedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)
-        assertTrue(configChangedLatch.count == 0.toLong())
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        // newWindow() will be triggered by a window state change, even if the activity handles
+        // orientation changes without recreating the activity.
+        device.performActionAndWait({
+            device.setOrientationLeft()
+        }, Until.newWindow(), UI_INTENSIVE_TIMEOUT)
+        assertThat(configChangedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        device.performActionAndWait({
+            device.setOrientationNatural()
+        }, Until.newWindow(), UI_INTENSIVE_TIMEOUT)
     }
 
     @Test
@@ -358,7 +369,7 @@ class SandboxedSdkViewTest {
         activity.runOnUiThread {
             activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
-        assertThat(configChangedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
+        assertThat(configChangedLatch.await(UI_INTENSIVE_TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
     }
 
     @Test
@@ -460,6 +471,33 @@ class SandboxedSdkViewTest {
         addViewToLayout()
         assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
         assertThat(testSandboxedUiAdapter.inputToken).isEqualTo(token)
+    }
+
+    @Test
+    fun getBoundingParent_withoutScrollParent() {
+        addViewToLayout()
+        onView(withId(R.id.mainlayout)).check(matches(isDisplayed()))
+        val boundingRect = Rect()
+        assertThat(view.getBoundingParent(boundingRect)).isTrue()
+        val rootView: ViewGroup = activity.findViewById(android.R.id.content)
+        val rootRect = Rect()
+        rootView.getGlobalVisibleRect(rootRect)
+        assertThat(boundingRect).isEqualTo(rootRect)
+    }
+
+    @Test
+    fun getBoundingParent_withScrollParent() {
+        val scrollViewRect = Rect()
+        val scrollView = activity.findViewById<ScrollView>(R.id.scroll_view)
+        activity.runOnUiThread {
+            scrollView.visibility = View.VISIBLE
+            scrollView.addView(view)
+        }
+        onView(withId(R.id.scroll_view)).check(matches(isDisplayed()))
+        assertThat(scrollView.getGlobalVisibleRect(scrollViewRect)).isTrue()
+        val boundingRect = Rect()
+        assertThat(view.getBoundingParent(boundingRect)).isTrue()
+        assertThat(scrollViewRect).isEqualTo(boundingRect)
     }
 
     /**

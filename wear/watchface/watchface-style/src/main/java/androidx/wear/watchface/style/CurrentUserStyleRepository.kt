@@ -722,6 +722,15 @@ public class CurrentUserStyleRepository(public val schema: UserStyleSchema) {
         mutableUserStyle.value = newUserStyle
     }
 
+    /** Sets the user style, and returns a restoration function. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun updateUserStyleForScreenshot(newUserStyle: UserStyle): AutoCloseable {
+        val originalStyle = userStyle.value
+        updateUserStyle(newUserStyle)
+        // Avoid overwriting a change made by someone else.
+        return AutoCloseable { mutableUserStyle.compareAndSet(newUserStyle, originalStyle) }
+    }
+
     @Suppress("Deprecation") // userStyleSettings
     internal fun validateUserStyle(userStyle: UserStyle) {
         for ((key, value) in userStyle) {

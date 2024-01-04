@@ -178,6 +178,45 @@ class HealthConnectClientTest {
         }
     }
 
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.P])
+    fun getHealthConnectManageDataAction_unsupportedClient_returnsDefaultIntent() {
+        installPackage(
+            context,
+            HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME,
+            versionCode = HealthConnectClient.DEFAULT_PROVIDER_MIN_VERSION_CODE,
+            enabled = true
+        )
+
+        assertThat(HealthConnectClient.getHealthConnectManageDataAction(context)).isEqualTo(
+            HealthConnectClient.ACTION_HEALTH_CONNECT_SETTINGS
+        )
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.P])
+    fun getHealthConnectManageDataAction_supportedClient() {
+        installPackage(
+            context,
+            HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME,
+            versionCode = HealthConnectClient.ACTION_MANAGE_DATA_MIN_SUPPORTED_VERSION_CODE,
+            enabled = true
+        )
+        installService(context, HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME)
+
+        assertThat(HealthConnectClient.getHealthConnectManageDataAction(context)).isEqualTo(
+            "androidx.health.ACTION_MANAGE_HEALTH_DATA"
+        )
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    fun getHealthConnectManageDataAction_platformSupported() {
+        assertThat(HealthConnectClient.getHealthConnectManageDataAction(context)).isEqualTo(
+            "android.health.connect.action.MANAGE_HEALTH_DATA"
+        )
+    }
+
     private fun installPackage(
         context: Context,
         packageName: String,

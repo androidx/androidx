@@ -60,6 +60,7 @@ import java.util.Set;
  */
 @RestrictTo(LIBRARY)
 @RequiresApi(19)
+@Deprecated
 public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBuilder {
     boolean mIsError;
     private Set<String> mKeywords;

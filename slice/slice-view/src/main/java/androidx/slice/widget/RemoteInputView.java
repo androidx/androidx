@@ -63,6 +63,7 @@ import androidx.slice.view.R;
 @SuppressWarnings("AppCompatCustomView")
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(21)
+@Deprecated
 public class RemoteInputView extends LinearLayout implements View.OnClickListener, TextWatcher {
 
     private static final String TAG = "RemoteInput";

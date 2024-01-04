@@ -15,7 +15,6 @@
  */
 package androidx.collection
 
-import kotlin.math.roundToInt
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -23,6 +22,13 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// DO NOT MAKE CHANGES to the kotlin source file.
+//
+// This file was generated from a template in the template directory.
+// Make a change to the original template and run the generateCollections.sh script
+// to ensure the change is available on all versions of the map.
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 internal class FloatListTest {
     private val list: MutableFloatList = mutableFloatListOf(1f, 2f, 3f, 4f, 5f)
 
@@ -81,8 +87,29 @@ internal class FloatListTest {
 
     @Test
     fun string() {
-        assertEquals("[1.0, 2.0, 3.0, 4.0, 5.0]", list.toString())
+        assertEquals("[${1f}, ${2f}, ${3f}, ${4f}, ${5f}]", list.toString())
         assertEquals("[]", mutableFloatListOf().toString())
+    }
+
+    @Test
+    fun joinToString() {
+        assertEquals("${1f}, ${2f}, ${3f}, ${4f}, ${5f}", list.joinToString())
+        assertEquals(
+            "x${1f}, ${2f}, ${3f}...",
+            list.joinToString(prefix = "x", postfix = "y", limit = 3)
+        )
+        assertEquals(
+            ">${1f}-${2f}-${3f}-${4f}-${5f}<",
+            list.joinToString(separator = "-", prefix = ">", postfix = "<")
+        )
+        assertEquals("one, two, three...", list.joinToString(limit = 3) {
+            when (it.toInt()) {
+                1 -> "one"
+                2 -> "two"
+                3 -> "three"
+                else -> "whoops"
+            }
+        })
     }
 
     @Test
@@ -335,7 +362,7 @@ internal class FloatListTest {
 
     @Test
     fun fold() {
-        assertEquals("12345", list.fold("") { acc, i -> acc + i.roundToInt().toString() })
+        assertEquals("12345", list.fold("") { acc, i -> acc + i.toInt().toString() })
     }
 
     @Test
@@ -343,14 +370,14 @@ internal class FloatListTest {
         assertEquals(
             "01-12-23-34-45-",
             list.foldIndexed("") { index, acc, i ->
-                "$acc$index${i.roundToInt()}-"
+                "$acc$index${i.toInt()}-"
             }
         )
     }
 
     @Test
     fun foldRight() {
-        assertEquals("54321", list.foldRight("") { i, acc -> acc + i.roundToInt().toString() })
+        assertEquals("54321", list.foldRight("") { i, acc -> acc + i.toInt().toString() })
     }
 
     @Test
@@ -358,7 +385,7 @@ internal class FloatListTest {
         assertEquals(
             "45-34-23-12-01-",
             list.foldRightIndexed("") { index, i, acc ->
-                "$acc$index${i.roundToInt()}-"
+                "$acc$index${i.toInt()}-"
             }
         )
     }

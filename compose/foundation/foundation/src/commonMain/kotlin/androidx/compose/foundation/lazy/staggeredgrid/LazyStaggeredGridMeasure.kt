@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
+import androidx.compose.ui.util.fastForEachReversed
 import androidx.compose.ui.util.fastMaxOfOrNull
 import androidx.compose.ui.util.packInts
 import androidx.compose.ui.util.unpackInt1
@@ -756,7 +757,8 @@ private fun LazyStaggeredGridMeasureContext.measure(
                         firstItemIndices[lane] > itemIndex
                     }
                 }
-            }
+            },
+            beforeVisibleBounds = true
         )
 
         val visibleItems = calculateVisibleItems(
@@ -788,7 +790,8 @@ private fun LazyStaggeredGridMeasureContext.measure(
                         currentItemIndices[lane] < itemIndex
                     }
                 }
-            }
+            },
+            beforeVisibleBounds = false
         )
 
         val positionedItems = mutableListOf<LazyStaggeredGridMeasuredItem>()
@@ -886,11 +889,12 @@ private fun LazyStaggeredGridMeasureContext.calculateVisibleItems(
 @ExperimentalFoundationApi
 private inline fun LazyStaggeredGridMeasureContext.calculateExtraItems(
     position: (LazyStaggeredGridMeasuredItem) -> Unit,
-    filter: (itemIndex: Int) -> Boolean
+    filter: (itemIndex: Int) -> Boolean,
+    beforeVisibleBounds: Boolean
 ): List<LazyStaggeredGridMeasuredItem> {
     var result: MutableList<LazyStaggeredGridMeasuredItem>? = null
 
-    pinnedItems.fastForEach { index ->
+    pinnedItems.fastForEach(beforeVisibleBounds) { index ->
         if (filter(index)) {
             val spanRange = itemProvider.getSpanRange(index, 0)
             if (result == null) {
@@ -903,6 +907,10 @@ private inline fun LazyStaggeredGridMeasureContext.calculateExtraItems(
     }
 
     return result ?: emptyList()
+}
+
+private inline fun <T> List<T>.fastForEach(reverse: Boolean = false, action: (T) -> Unit) {
+    if (reverse) fastForEachReversed(action) else fastForEach(action)
 }
 
 @JvmInline

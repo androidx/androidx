@@ -308,6 +308,20 @@ limitations under the License.
         app:layout_constraintLeft_toRightOf="@id/plus_ev_toggle"
         app:layout_constraintTop_toBottomOf="@id/VideoToggle" />
 
+    <ToggleButton
+        android:id="@+id/preview_stabilization"
+        android:layout_width="46dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="1dp"
+        android:background="@android:drawable/btn_default"
+        android:textOff="@string/toggle_preview_stabilization_off"
+        android:textOn="@string/toggle_preview_stabilization_on"
+        android:textSize="11dp"
+        android:translationZ="1dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/direction_toggle" />
+
     <Button
         android:id="@+id/video_quality"
         android:layout_width="46dp"

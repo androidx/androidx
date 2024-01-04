@@ -3426,13 +3426,17 @@ class CompositionTests {
     @Test // regression test for 264467571
     fun test_returnConditionally_fromNodeLambda_local_initial_return() = compositionTest {
         var condition by mutableStateOf(true)
+
         compose {
+            currentComposer.disableSourceInformation()
             Text("Before outer")
             InlineLinear {
                 Text("Before inner")
                 InlineLinear inner@{
                     Text("Before return")
-                    if (condition) return@inner
+                    if (condition) {
+                        return@inner
+                    }
                     Text("After return")
                 }
                 Text("After inner")
@@ -3465,6 +3469,7 @@ class CompositionTests {
     fun test_returnConditionally_fromNodeLambda_local_initial_no_return() = compositionTest {
         var condition by mutableStateOf(true)
         compose {
+            currentComposer.disableSourceInformation()
             Text("Before outer")
             InlineLinear {
                 Text("Before inner")
@@ -3503,6 +3508,7 @@ class CompositionTests {
     fun test_returnConditionally_fromNodeLambda_nonLocal_initial_return() = compositionTest {
         var condition by mutableStateOf(true)
         compose {
+            currentComposer.disableSourceInformation()
             Text("Before outer")
             InlineLinear outer@{
                 Text("Before inner")
@@ -3541,6 +3547,7 @@ class CompositionTests {
     fun test_returnConditionally_fromNodeLambda_nonLocal_initial_no_return() = compositionTest {
         var condition by mutableStateOf(true)
         compose {
+            currentComposer.disableSourceInformation()
             Text("Before outer")
             InlineLinear outer@{
                 Text("Before inner")
@@ -3580,6 +3587,7 @@ class CompositionTests {
         compositionTest {
             var condition by mutableStateOf(true)
             compose {
+                currentComposer.disableSourceInformation()
                 Text("Before outer")
                 InlineLinear outer@{
                     Text("Before inner")

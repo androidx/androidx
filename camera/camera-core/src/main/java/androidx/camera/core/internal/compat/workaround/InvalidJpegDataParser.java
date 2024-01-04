@@ -18,6 +18,7 @@ package androidx.camera.core.internal.compat.workaround;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.core.internal.compat.quirk.LargeJpegImageQuirk;
 
@@ -41,12 +42,23 @@ public class InvalidJpegDataParser {
             return bytes.length;
         }
 
+        int jfifEoiMarkEndPosition = getJfifEoiMarkEndPosition(bytes);
+
+        return jfifEoiMarkEndPosition != -1 ? jfifEoiMarkEndPosition : bytes.length;
+    }
+
+    /**
+     * Returns the end position of JFIF EOI mark. Returns -1 while JFIF EOI mark can't be found
+     * in the provided byte array.
+     */
+    @VisibleForTesting
+    public static int getJfifEoiMarkEndPosition(@NonNull byte[] bytes) {
         // Parses the JFIF segments from the start of the JPEG image data
         int markPosition = 0x2;
         while (true) {
             // Breaks the while-loop and return null if the mark byte can't be correctly found.
             if (markPosition + 4 > bytes.length || bytes[markPosition] != ((byte) 0xff)) {
-                return bytes.length;
+                return -1;
             }
 
             int segmentLength =
@@ -65,7 +77,7 @@ public class InvalidJpegDataParser {
         while (true) {
             // Breaks the while-loop and return null if EOI mark can't be found
             if (eoiPosition + 2 > bytes.length) {
-                return bytes.length;
+                return -1;
             }
 
             if (bytes[eoiPosition] == ((byte) 0xff) && bytes[eoiPosition + 1] == ((byte) 0xd9)) {

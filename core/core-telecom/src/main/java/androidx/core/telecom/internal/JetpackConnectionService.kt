@@ -44,10 +44,10 @@ internal class JetpackConnectionService : ConnectionService() {
         val callChannel: CallChannels,
         val coroutineContext: CoroutineContext,
         val completableDeferred: CompletableDeferred<CallSessionLegacy>?,
-        val onAnswer: suspend (callType: Int) -> Boolean,
-        val onDisconnect: suspend (disconnectCause: DisconnectCause) -> Boolean,
-        val onSetActive: suspend () -> Boolean,
-        val onSetInactive: suspend () -> Boolean,
+        val onAnswer: suspend (callType: Int) -> Unit,
+        val onDisconnect: suspend (disconnectCause: DisconnectCause) -> Unit,
+        val onSetActive: suspend () -> Unit,
+        val onSetInactive: suspend () -> Unit,
         val execution: CompletableDeferred<Unit>
     )
 

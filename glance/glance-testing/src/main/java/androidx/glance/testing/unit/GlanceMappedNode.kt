@@ -19,6 +19,7 @@ package androidx.glance.testing.unit
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope
 import androidx.glance.Emittable
+import androidx.glance.EmittableLazyItemWithChildren
 import androidx.glance.EmittableWithChildren
 import androidx.glance.testing.GlanceNode
 
@@ -59,13 +60,22 @@ class GlanceMappedNode(private val mappedNode: MappedNode) : GlanceNode<MappedNo
     @RestrictTo(Scope.LIBRARY_GROUP)
     override fun children(): List<GlanceNode<MappedNode>> {
         val emittable = mappedNode.emittable
-        @Suppress("ListIterator")
         if (emittable is EmittableWithChildren) {
-            return emittable.children.map { child ->
-                GlanceMappedNode(child)
-            }
+            return emittable.toMappedNodes()
         }
         return emptyList()
+    }
+
+    private fun EmittableWithChildren.toMappedNodes(): List<GlanceMappedNode> {
+        val mappedNodes = mutableListOf<GlanceMappedNode>()
+        children.forEach { child ->
+            if (child is EmittableLazyItemWithChildren) {
+                mappedNodes.addAll(child.toMappedNodes())
+            } else {
+                mappedNodes.add(GlanceMappedNode(child))
+            }
+        }
+        return mappedNodes.toList()
     }
 
     @RestrictTo(Scope.LIBRARY_GROUP)

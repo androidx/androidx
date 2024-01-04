@@ -25,6 +25,8 @@ import androidx.glance.EmittableCheckable
 import androidx.glance.action.ActionModifier
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.actionParametersOf
+import androidx.glance.appwidget.EmittableCircularProgressIndicator
+import androidx.glance.appwidget.EmittableLinearProgressIndicator
 import androidx.glance.appwidget.action.SendBroadcastActionAction
 import androidx.glance.appwidget.action.SendBroadcastClassAction
 import androidx.glance.appwidget.action.SendBroadcastComponentAction
@@ -33,6 +35,7 @@ import androidx.glance.appwidget.action.StartActivityIntentAction
 import androidx.glance.appwidget.action.StartServiceClassAction
 import androidx.glance.appwidget.action.StartServiceComponentAction
 import androidx.glance.appwidget.action.StartServiceIntentAction
+import androidx.glance.testing.GlanceNodeAssertionsProvider
 import androidx.glance.testing.GlanceNodeMatcher
 import androidx.glance.testing.unit.MappedNode
 
@@ -40,7 +43,8 @@ import androidx.glance.testing.unit.MappedNode
  * Returns a matcher that matches if a node is checkable (e.g. radio button, switch, checkbox)
  * and is checked.
  *
- * This can be passed in "onNode" and "onNodeAll" functions on assertion providers to filter out
+ * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
  * matching node(s) or in assertions to validate that node(s) satisfy the condition.
  */
 fun isChecked(): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
@@ -54,7 +58,8 @@ fun isChecked(): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
  * Returns a matcher that matches if a node is checkable (e.g. radio button, switch, checkbox)
  * but is not checked.
  *
- * This can be passed in "onNode" and "onNodeAll" functions on assertion providers to filter out
+ * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
  * matching node(s) or in assertions to validate that node(s) satisfy the condition.
  */
 fun isNotChecked(): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
@@ -67,7 +72,8 @@ fun isNotChecked(): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
 /**
  * Returns a matcher that matches if a node has a clickable set with action that starts an activity.
  *
- * This can be passed in "onNode" and "onNodeAll" functions on assertion providers to filter out
+ * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
  * matching node(s) or in assertions to validate that node(s) satisfy the condition.
  *
  * @param intent the intent for launching an activity that is expected to have been passed in the
@@ -110,7 +116,8 @@ fun hasStartActivityClickAction(
 /**
  * Returns a matcher that matches if a node has a clickable set with action that starts a service.
  *
- * This can be passed in "onNode" and "onNodeAll" functions on assertion providers to filter out
+ * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
  * matching node(s) or in assertions to validate that node(s) satisfy the condition.
  *
  * @param serviceClass class of the service to launch that is expected to have been passed in the
@@ -143,7 +150,8 @@ fun hasStartServiceAction(
 /**
  * Returns a matcher that matches if a node has a clickable set with action that starts a service.
  *
- * This can be passed in "onNode" and "onNodeAll" functions on assertion providers to filter out
+ * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
  * matching node(s) or in assertions to validate that node(s) satisfy the condition.
  *
  * @param componentName component of the service to launch that is expected to have been passed in
@@ -176,7 +184,8 @@ internal fun hasStartServiceAction(
 /**
  * Returns a matcher that matches if a node has a clickable set with action that starts a service.
  *
- * This can be passed in "onNode" and "onNodeAll" functions on assertion providers to filter out
+ * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
  * matching node(s) or in assertions to validate that node(s) satisfy the condition.
  *
  * @param intent the intent for launching the service that is expected to have been passed in
@@ -209,7 +218,8 @@ fun hasStartServiceAction(
 /**
  * Returns a matcher that matches if a node has a clickable set with action that sends a broadcast.
  *
- * This can be passed in "onNode" and "onNodeAll" functions on assertion providers to filter out
+ * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
  * matching node(s) or in assertions to validate that node(s) satisfy the condition.
  *
  * @param receiverClass class of the broadcast receiver that is expected to have been passed in the
@@ -234,7 +244,8 @@ fun hasSendBroadcastAction(
 /**
  * Returns a matcher that matches if a node has a clickable set with action that sends a broadcast.
  *
- * This can be passed in "onNode" and "onNodeAll" functions on assertion providers to filter out
+ * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
  * matching node(s) or in assertions to validate that node(s) satisfy the condition.
  *
  * @param intentAction the intent action of the broadcast receiver that is expected to  have been
@@ -271,7 +282,8 @@ fun hasSendBroadcastAction(
 /**
  * Returns a matcher that matches if a node has a clickable set with action that sends a broadcast.
  *
- * This can be passed in "onNode" and "onNodeAll" functions on assertion providers to filter out
+ * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
  * matching node(s) or in assertions to validate that node(s) satisfy the condition.
  *
  * @param componentName [ComponentName] of the target broadcast receiver that is expected to have
@@ -296,7 +308,8 @@ fun hasSendBroadcastAction(
 /**
  * Returns a matcher that matches if a node has a clickable set with action that sends a broadcast.
  *
- * This can be passed in "onNode" and "onNodeAll" functions on assertion providers to filter out
+ * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
  * matching node(s) or in assertions to validate that node(s) satisfy the condition.
  *
  * @param intent the intent for sending broadcast  that is expected to  have been passed in the
@@ -316,4 +329,53 @@ fun hasSendBroadcastAction(
         }
         false
     }
+}
+
+/**
+ * Returns a matcher that matches if a given node is a linear progress indicator with given progress
+ * value.
+ *
+ * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
+ * matching node(s) or in assertions to validate that node(s) satisfy the condition.
+ *
+ * @param progress the expected value of the current progress
+ */
+fun isLinearProgressIndicator(
+    /*@FloatRange(from = 0.0, to = 1.0)*/
+    progress: Float
+): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
+    description = "is a linear progress indicator with progress value: $progress"
+) { node ->
+    val emittable = node.value.emittable
+    emittable is EmittableLinearProgressIndicator &&
+        !emittable.indeterminate &&
+        emittable.progress == progress
+}
+
+/**
+ * Returns a matcher that matches if a given node is an indeterminate progress bar.
+ *
+ * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
+ * matching node(s) or in assertions to validate that node(s) satisfy the condition.
+ */
+fun isIndeterminateLinearProgressIndicator(): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
+    description = "is an indeterminate linear progress indicator"
+) { node ->
+    val emittable = node.value.emittable
+    emittable is EmittableLinearProgressIndicator && emittable.indeterminate
+}
+
+/**
+ * Returns a matcher that matches if a given node is an indeterminate circular progress indicator.
+ *
+ * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
+ * matching node(s) or in assertions to validate that node(s) satisfy the condition.
+ */
+fun isIndeterminateCircularProgressIndicator(): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
+    description = "is an indeterminate circular progress indicator"
+) { node ->
+    node.value.emittable is EmittableCircularProgressIndicator
 }

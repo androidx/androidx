@@ -43,6 +43,7 @@ import androidx.camera.camera2.pipe.integration.config.UseCaseCameraComponent
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraConfig
 import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
+import androidx.camera.core.DynamicRange
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.CameraMode
@@ -457,7 +458,12 @@ class UseCaseManager @Inject constructor(
             )
         }
 
-        return supportedSurfaceCombination.checkSupported(CameraMode.DEFAULT, surfaceConfigs)
+        return supportedSurfaceCombination.checkSupported(
+            SupportedSurfaceCombination.FeatureSettings(
+                CameraMode.DEFAULT,
+                DynamicRange.BIT_DEPTH_8_BIT
+            ), surfaceConfigs
+        )
     }
 
     private fun Collection<UseCase>.surfaceCount(): Int =

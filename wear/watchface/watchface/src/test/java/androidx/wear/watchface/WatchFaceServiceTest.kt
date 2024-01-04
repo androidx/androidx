@@ -57,6 +57,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.watchface.complications.SystemDataSources
+import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationDisplayPolicies
 import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.ComplicationPersistencePolicies
@@ -70,6 +71,7 @@ import androidx.wear.watchface.complications.data.PlainComplicationText
 import androidx.wear.watchface.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.complications.data.TimeDifferenceComplicationText
 import androidx.wear.watchface.complications.data.TimeDifferenceStyle
+import androidx.wear.watchface.complications.data.toApiComplicationData
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.control.HeadlessWatchFaceImpl
@@ -142,6 +144,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verifyNoMoreInteractions
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowBuild
 
 private const val INTERACTIVE_UPDATE_RATE_MS = 16L
 private const val LEFT_COMPLICATION_ID = 1000
@@ -728,6 +731,7 @@ public class WatchFaceServiceTest {
 
     @Before
     public fun setUp() {
+        ShadowBuild.setType("userdebug")
         Assume.assumeTrue("This test suite assumes API 26", Build.VERSION.SDK_INT >= 26)
 
         `when`(handler.getLooper()).thenReturn(Looper.myLooper())
@@ -758,9 +762,11 @@ public class WatchFaceServiceTest {
                  (TODO: b/264994539) - Explicitly releasing the mSurfaceControl field,
                  accessed via reflection. Remove when a proper fix is found
                 */
-                val mSurfaceControlObject: Field = WatchFaceService.EngineWrapper::class
-                    .java.superclass // android.service.wallpaper.WallpaperService$Engine
-                    .getDeclaredField("mSurfaceControl")
+                val mSurfaceControlObject: Field =
+                    WatchFaceService.EngineWrapper::class
+                        .java
+                        .superclass // android.service.wallpaper.WallpaperService$Engine
+                        .getDeclaredField("mSurfaceControl")
                 mSurfaceControlObject.isAccessible = true
                 (mSurfaceControlObject.get(engineWrapper) as SurfaceControl).release()
             }
@@ -1317,11 +1323,7 @@ public class WatchFaceServiceTest {
                 null
             )
         verify(tapListener)
-            .onTapEvent(
-                TapType.UP,
-                TapEvent(10, 200, Instant.ofEpochMilli(looperTimeMillis)),
-                null
-            )
+            .onTapEvent(TapType.UP, TapEvent(10, 200, Instant.ofEpochMilli(looperTimeMillis)), null)
     }
 
     @Test
@@ -2854,6 +2856,95 @@ public class WatchFaceServiceTest {
         assertThat(rightComplicationData.type).isEqualTo(WireComplicationData.TYPE_SHORT_TEXT)
         assertThat(rightComplicationData.shortText?.getTextAt(context.resources, 0))
             .isEqualTo("TYPE_SHORT_TEXT")
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.O_MR1])
+    public fun updateComplicationData_appendsToHistory() {
+        initWallpaperInteractiveWatchFaceInstance(complicationSlots = listOf(leftComplication))
+        // Validate that the history is initially empty.
+        assertThat(leftComplication.complicationHistory!!).isEmpty()
+        val longTextComplication =
+            WireComplicationData.Builder(WireComplicationData.TYPE_LONG_TEXT)
+                .setLongText(WireComplicationText.plainText("TYPE_LONG_TEXT"))
+                .build()
+
+        interactiveWatchFaceInstance.updateComplicationData(
+            listOf(IdAndComplicationDataWireFormat(LEFT_COMPLICATION_ID, longTextComplication))
+        )
+
+        assertThat(leftComplication.complicationHistory.map { it.complicationData })
+            .containsExactly(longTextComplication.toApiComplicationData())
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.O_MR1])
+    public fun setComplicationDataUpdateForScreenshot_restoresAndDoesNotChangeHistoryOrDirtyFlag() {
+        // Arrange
+        val firstTimelineData: ComplicationData =
+            WireComplicationData.Builder(WireComplicationData.TYPE_LONG_TEXT)
+                .setLongText(WireComplicationText.plainText("first timeline data"))
+                .build()
+                .also {
+                    it.timelineStartEpochSecond = 1000L
+                    it.timelineEndEpochSecond = 2000L
+                }
+                .toApiComplicationData()
+        val secondTimelineData: ComplicationData =
+            WireComplicationData.Builder(WireComplicationData.TYPE_LONG_TEXT)
+                .setLongText(WireComplicationText.plainText("second timeline data"))
+                .build()
+                .also {
+                    it.timelineStartEpochSecond = 2000L
+                    it.timelineEndEpochSecond = 3000L
+                }
+                .toApiComplicationData()
+        val wrapperTimelineData: ComplicationData =
+            WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
+                .build()
+                .also {
+                    it.timelineStartEpochSecond = 0L
+                    it.timelineEndEpochSecond = 1000L
+                    it.setTimelineEntryCollection(
+                        listOf(
+                            firstTimelineData.asWireComplicationData(),
+                            secondTimelineData.asWireComplicationData(),
+                        )
+                    )
+                }
+                .toApiComplicationData()
+        val screenshotData: ComplicationData =
+            WireComplicationData.Builder(WireComplicationData.TYPE_LONG_TEXT)
+                .setLongText(WireComplicationText.plainText("screenshot"))
+                .build()
+                .toApiComplicationData()
+        initWallpaperInteractiveWatchFaceInstance(complicationSlots = listOf(leftComplication))
+        complicationSlotsManager.onComplicationDataUpdate(
+            leftComplication.id,
+            wrapperTimelineData,
+            Instant.ofEpochSecond(1000)
+        )
+        leftComplication.dataDirty = false
+
+        // Act
+        val actualScreenshotData =
+            complicationSlotsManager
+                .setComplicationDataForScreenshot(
+                    mapOf(LEFT_COMPLICATION_ID to screenshotData),
+                    Instant.ofEpochSecond(4000) // Also restored.
+                )
+                .use { leftComplication.complicationData.value }
+
+        // Assert
+        assertThat(actualScreenshotData).isEqualTo(screenshotData)
+        assertThat(leftComplication.complicationData.value).isEqualTo(firstTimelineData)
+        // History and dirty flag unchanged for screenshots
+        assertThat(leftComplication.complicationHistory!!.map { it.complicationData })
+            .containsExactly(wrapperTimelineData)
+        assertThat(leftComplication.dataDirty).isFalse()
+        // Timeline preserved
+        complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(2000L))
+        assertThat(leftComplication.complicationData.value).isEqualTo(secondTimelineData)
     }
 
     @Test

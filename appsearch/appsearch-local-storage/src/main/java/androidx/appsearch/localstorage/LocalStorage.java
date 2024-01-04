@@ -339,8 +339,10 @@ public class LocalStorage {
         AppSearchImpl.syncLoggingLevelToIcing();
         mAppSearchImpl = AppSearchImpl.create(
                 icingDir,
-                new UnlimitedLimitConfig(),
-                new DefaultIcingOptionsConfig(),
+                new AppSearchConfigImpl(
+                        new UnlimitedLimitConfig(),
+                        new DefaultIcingOptionsConfig()
+                ),
                 initStatsBuilder,
                 new JetpackOptimizeStrategy(),
                 /*visibilityChecker=*/null);

@@ -121,10 +121,15 @@ public class DialogFragmentNavigator(
         }
         val beforePopList = state.backStack.value
         // Get the set of entries that are going to be popped
+        val popUpToIndex = beforePopList.indexOf(popUpTo)
         val poppedList = beforePopList.subList(
-            beforePopList.indexOf(popUpTo),
+            popUpToIndex,
             beforePopList.size
         )
+        // track transitioning state of incoming entry
+        val incomingEntry = beforePopList.elementAtOrNull(popUpToIndex - 1)
+        val incomingEntryTransitioning = state.transitionsInProgress.value.contains(incomingEntry)
+
         // Now go through the list in reversed order (i.e., starting from the most recently added)
         // and dismiss each dialog
         for (entry in poppedList.reversed()) {
@@ -134,6 +139,10 @@ public class DialogFragmentNavigator(
             }
         }
         state.popWithTransition(popUpTo, savedState)
+        // if incoming entry was marked as transitioning by popWithTransition, mark it as complete
+        if (incomingEntry != null && !incomingEntryTransitioning) {
+            state.markTransitionComplete(incomingEntry)
+        }
     }
 
     public override fun createDestination(): Destination {
@@ -159,7 +168,13 @@ public class DialogFragmentNavigator(
     ) {
         val dialogFragment = createDialogFragment(entry)
         dialogFragment.show(fragmentManager, entry.id)
+        val outGoingEntry = state.backStack.value.lastOrNull()
+        val outGoingEntryTransitioning = state.transitionsInProgress.value.contains(outGoingEntry)
         state.pushWithTransition(entry)
+        // if outgoing entry was put in Transition by push, mark complete here
+        if (outGoingEntry != null && !outGoingEntryTransitioning) {
+            state.markTransitionComplete(outGoingEntry)
+        }
     }
 
     override fun onLaunchSingleTop(backStackEntry: NavBackStackEntry) {

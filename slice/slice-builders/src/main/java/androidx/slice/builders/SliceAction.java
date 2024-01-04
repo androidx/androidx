@@ -36,8 +36,13 @@ import androidx.slice.core.SliceActionImpl;
 /**
  * Class representing an action, supports tappable icons, custom toggle icons, and default
  * toggles, as well as date and time pickers.
+ *
+ * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+ * forward. If you are looking for a framework that handles communication across apps,
+ * consider using {@link android.app.appsearch.AppSearchManager}.
  */
 @RequiresApi(19)
+@Deprecated
 public class SliceAction implements androidx.slice.core.SliceAction {
 
     private final SliceActionImpl mSliceAction;

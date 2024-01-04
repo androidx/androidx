@@ -64,6 +64,7 @@ import androidx.slice.SliceItem;
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 @RequiresApi(19)
+@Deprecated
 public class SliceActionImpl implements SliceAction {
 
     // Either mAction or mActionItem must be non-null.

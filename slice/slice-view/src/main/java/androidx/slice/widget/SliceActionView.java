@@ -56,6 +56,7 @@ import androidx.slice.view.R;
 @SuppressWarnings("AppCompatCustomView")
 @RestrictTo(LIBRARY)
 @RequiresApi(19)
+@Deprecated
 public class SliceActionView extends FrameLayout implements View.OnClickListener,
         CompoundButton.OnCheckedChangeListener {
     private static final String TAG = "SliceActionView";

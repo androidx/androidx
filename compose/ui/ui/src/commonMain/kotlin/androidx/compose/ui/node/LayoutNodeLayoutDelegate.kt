@@ -244,6 +244,13 @@ internal class LayoutNodeLayoutDelegate(
     internal var lookaheadPassDelegate: LookaheadPassDelegate? = null
         private set
 
+    // Used by performMeasureBlock so that we don't have to allocate a lambda on every call
+    private var performMeasureConstraints = Constraints()
+
+    private val performMeasureBlock: () -> Unit = {
+        outerCoordinator.measure(performMeasureConstraints)
+    }
+
     fun onCoordinatesUsed() {
         val state = layoutNode.layoutState
         if (state == LayoutState.LayingOut || state == LayoutState.LookaheadLayingOut) {
@@ -349,6 +356,20 @@ internal class LayoutNodeLayoutDelegate(
         var layingOutChildren = false
             private set
 
+        private val layoutChildrenBlock: () -> Unit = {
+            clearPlaceOrder()
+            forEachChildAlignmentLinesOwner {
+                it.alignmentLines.usedDuringParentLayout = false
+            }
+            innerCoordinator.measureResult.placeChildren()
+
+            checkChildrenPlaceOrderForUpdates()
+            forEachChildAlignmentLinesOwner {
+                it.alignmentLines.previousUsedDuringParentLayout =
+                    it.alignmentLines.usedDuringParentLayout
+            }
+        }
+
         override fun layoutChildren() {
             layingOutChildren = true
             alignmentLines.recalculateQueryOwner()
@@ -370,20 +391,9 @@ internal class LayoutNodeLayoutDelegate(
                     val owner = requireOwner()
                     owner.snapshotObserver.observeLayoutSnapshotReads(
                         this,
-                        affectsLookahead = false
-                    ) {
-                        clearPlaceOrder()
-                        forEachChildAlignmentLinesOwner {
-                            it.alignmentLines.usedDuringParentLayout = false
-                        }
-                        innerCoordinator.measureResult.placeChildren()
-
-                        checkChildrenPlaceOrderForUpdates()
-                        forEachChildAlignmentLinesOwner {
-                            it.alignmentLines.previousUsedDuringParentLayout =
-                                it.alignmentLines.usedDuringParentLayout
-                        }
-                    }
+                        affectsLookahead = false,
+                        block = layoutChildrenBlock
+                    )
                 }
                 layoutState = oldLayoutState
 
@@ -463,6 +473,29 @@ internal class LayoutNodeLayoutDelegate(
             private set
 
         private var onNodePlacedCalled = false
+
+        // Used by placeOuterBlock to avoid allocating the lambda on every call
+        private var placeOuterCoordinatorLayerBlock: (GraphicsLayerScope.() -> Unit)? = null
+        private var placeOuterCoordinatorPosition = IntOffset.Zero
+        private var placeOuterCoordinatorZIndex = 0f
+
+        private val placeOuterCoordinatorBlock: () -> Unit = {
+            with(PlacementScope) {
+                val layerBlock = placeOuterCoordinatorLayerBlock
+                if (layerBlock == null) {
+                    outerCoordinator.place(
+                        placeOuterCoordinatorPosition,
+                        placeOuterCoordinatorZIndex
+                    )
+                } else {
+                    outerCoordinator.placeWithLayer(
+                        placeOuterCoordinatorPosition,
+                        placeOuterCoordinatorZIndex,
+                        layerBlock
+                    )
+                }
+            }
+        }
 
         /**
          * Invoked when the parent placed the node. It will trigger the layout.
@@ -701,17 +734,13 @@ internal class LayoutNodeLayoutDelegate(
             } else {
                 alignmentLines.usedByModifierLayout = false
                 coordinatesAccessedDuringModifierPlacement = false
+                placeOuterCoordinatorLayerBlock = layerBlock
+                placeOuterCoordinatorPosition = position
+                placeOuterCoordinatorZIndex = zIndex
                 owner.snapshotObserver.observeLayoutModifierSnapshotReads(
-                    layoutNode, affectsLookahead = false
-                ) {
-                    with(PlacementScope) {
-                        if (layerBlock == null) {
-                            outerCoordinator.place(position, zIndex)
-                        } else {
-                            outerCoordinator.placeWithLayer(position, zIndex, layerBlock)
-                        }
-                    }
-                }
+                    layoutNode, affectsLookahead = false, block = placeOuterCoordinatorBlock
+                )
+                placeOuterCoordinatorLayerBlock = null
             }
 
             layoutState = LayoutState.Idle
@@ -1548,12 +1577,12 @@ internal class LayoutNodeLayoutDelegate(
         }
         layoutState = LayoutState.Measuring
         measurePending = false
+        performMeasureConstraints = constraints
         layoutNode.requireOwner().snapshotObserver.observeMeasureSnapshotReads(
             layoutNode,
-            affectsLookahead = false
-        ) {
-            outerCoordinator.measure(constraints)
-        }
+            affectsLookahead = false,
+            performMeasureBlock
+        )
         // The resulting layout state might be Ready. This can happen when the layout node's
         // own modifier is querying an alignment line during measurement, therefore we
         // need to also layout the layout node.

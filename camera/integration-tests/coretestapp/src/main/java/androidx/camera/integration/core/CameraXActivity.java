@@ -25,21 +25,24 @@ import static androidx.camera.core.ImageCapture.FLASH_MODE_AUTO;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_ON;
 import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY;
+import static androidx.camera.testing.impl.FileUtil.canDeviceWriteToMediaStore;
+import static androidx.camera.testing.impl.FileUtil.createParentFolder;
+import static androidx.camera.testing.impl.FileUtil.generateVideoFileOutputOptions;
+import static androidx.camera.testing.impl.FileUtil.generateVideoMediaStoreOptions;
+import static androidx.camera.testing.impl.FileUtil.getAbsolutePathFromUri;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_DURATION_LIMIT_REACHED;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_INSUFFICIENT_STORAGE;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE;
+import static java.util.Objects.requireNonNull;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.database.Cursor;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.display.DisplayManager;
 import android.media.MediaScannerConnection;
@@ -126,8 +129,6 @@ import androidx.camera.video.RecordingStats;
 import androidx.camera.video.VideoCapabilities;
 import androidx.camera.video.VideoCapture;
 import androidx.camera.video.VideoRecordEvent;
-import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
-import androidx.camera.video.internal.compat.quirk.MediaStoreVideoCannotWrite;
 import androidx.core.content.ContextCompat;
 import androidx.core.math.MathUtils;
 import androidx.core.util.Consumer;
@@ -320,6 +321,8 @@ public class CameraXActivity extends AppCompatActivity {
     private Button mZoomIn2XToggle;
     private Button mZoomResetToggle;
     private Toast mEvToast = null;
+    private Toast mPSToast = null;
+    private ToggleButton mPreviewStabilizationToggle;
 
     private OpenGLRenderer mPreviewRenderer;
     private DisplayManager.DisplayListener mDisplayListener;
@@ -328,6 +331,7 @@ public class CameraXActivity extends AppCompatActivity {
     private DynamicRange mDynamicRange = DynamicRange.SDR;
     private final Set<DynamicRange> mSelectableDynamicRanges = new HashSet<>();
     private int mVideoMirrorMode = MIRROR_MODE_ON_FRONT_ONLY;
+    private boolean mIsPreviewStabilizationOn = false;
 
     SessionMediaUriSet mSessionImagesUriSet = new SessionMediaUriSet();
     SessionMediaUriSet mSessionVideosUriSet = new SessionMediaUriSet();
@@ -357,6 +361,9 @@ public class CameraXActivity extends AppCompatActivity {
 
         @Override
         public void onSuccess(@Nullable Integer result) {
+            if (result == null) {
+                return;
+            }
             CameraInfo cameraInfo = getCameraInfo();
             if (cameraInfo != null) {
                 ExposureState exposureState = cameraInfo.getExposureState();
@@ -478,7 +485,7 @@ public class CameraXActivity extends AppCompatActivity {
     @VisibleForTesting
     public void resetViewIdlingResource() {
         mPreviewFrameCount.set(0);
-        // Make the view idling resource non-idle, until required framecount achieved.
+        // Make the view idling resource non-idle, until required frame count achieved.
         if (mViewIdlingResource.isIdleNow()) {
             mViewIdlingResource.increment();
         }
@@ -541,6 +548,7 @@ public class CameraXActivity extends AppCompatActivity {
         return mPhotoToggle.isChecked() && cameraInfo != null && cameraInfo.hasFlashUnit();
     }
 
+    @SuppressLint("RestrictedApiAndroidX")
     private boolean isFlashTestSupported(@ImageCapture.FlashMode int flashMode) {
         switch (flashMode) {
             case FLASH_MODE_OFF:
@@ -548,7 +556,8 @@ public class CameraXActivity extends AppCompatActivity {
             case FLASH_MODE_AUTO:
                 CameraInfo cameraInfo = getCameraInfo();
                 if (cameraInfo instanceof CameraInfoInternal) {
-                    Quirks deviceQuirks = DeviceQuirks.getAll();
+                    Quirks deviceQuirks =
+                            androidx.camera.camera2.internal.compat.quirk.DeviceQuirks.getAll();
                     Quirks cameraQuirks = ((CameraInfoInternal) cameraInfo).getCameraQuirks();
                     if (deviceQuirks.contains(CrashWhenTakingPhotoWithAutoFlashAEModeQuirk.class)
                             || cameraQuirks.contains(ImageCaptureFailWithAutoFlashQuirk.class)
@@ -594,14 +603,17 @@ public class CameraXActivity extends AppCompatActivity {
                 case IDLE:
                     createDefaultVideoFolderIfNotExist();
                     final PendingRecording pendingRecording;
-                    if (DeviceQuirks.get(MediaStoreVideoCannotWrite.class) != null) {
-                        // Use FileOutputOption for devices in MediaStoreVideoCannotWrite Quirk.
-                        pendingRecording = getVideoCapture().getOutput().prepareRecording(
-                                this, getNewVideoFileOutputOptions());
-                    } else {
+                    String fileName = "video_" + System.currentTimeMillis();
+                    String extension = "mp4";
+                    if (canDeviceWriteToMediaStore()) {
                         // Use MediaStoreOutputOptions for public share media storage.
                         pendingRecording = getVideoCapture().getOutput().prepareRecording(
-                                this, getNewVideoOutputMediaStoreOptions());
+                                this,
+                                generateVideoMediaStoreOptions(getContentResolver(), fileName));
+                    } else {
+                        // Use FileOutputOption for devices in MediaStoreVideoCannotWrite Quirk.
+                        pendingRecording = getVideoCapture().getOutput().prepareRecording(
+                                this, generateVideoFileOutputOptions(fileName, extension));
                     }
 
                     resetVideoSavedIdlingResource();
@@ -804,32 +816,6 @@ public class CameraXActivity extends AppCompatActivity {
         }
     }
 
-    @NonNull
-    private MediaStoreOutputOptions getNewVideoOutputMediaStoreOptions() {
-        String videoFileName = "video_" + System.currentTimeMillis();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4");
-        contentValues.put(MediaStore.Video.Media.TITLE, videoFileName);
-        contentValues.put(MediaStore.Video.Media.DISPLAY_NAME, videoFileName);
-        contentValues.put(MediaStore.Video.Media.DATE_ADDED, System.currentTimeMillis() / 1000);
-        contentValues.put(MediaStore.Video.Media.DATE_TAKEN, System.currentTimeMillis());
-        return new MediaStoreOutputOptions.Builder(getContentResolver(),
-                MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
-                .setContentValues(contentValues)
-                .build();
-    }
-
-    @NonNull
-    private FileOutputOptions getNewVideoFileOutputOptions() {
-        String videoFileName = "video_" + System.currentTimeMillis() + ".mp4";
-        File videoFolder = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_MOVIES);
-        if (!videoFolder.exists() && !videoFolder.mkdirs()) {
-            Log.e(TAG, "Failed to create directory: " + videoFolder);
-        }
-        return new FileOutputOptions.Builder(new File(videoFolder, videoFileName)).build();
-    }
-
     private void updateRecordingStats(@NonNull RecordingStats stats) {
         double durationMs = TimeUnit.NANOSECONDS.toMillis(stats.getRecordedDurationNanos());
         // Show megabytes in International System of Units (SI)
@@ -888,7 +874,7 @@ public class CameraXActivity extends AppCompatActivity {
                                                 Toast.LENGTH_SHORT).show());
                                         if (mSessionImagesUriSet != null) {
                                             mSessionImagesUriSet.add(
-                                                    Objects.requireNonNull(
+                                                    requireNonNull(
                                                             outputFileResults.getSavedUri()));
                                         }
                                     }
@@ -954,7 +940,7 @@ public class CameraXActivity extends AppCompatActivity {
                     Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
                 }
             } catch (IllegalArgumentException e) {
-                Toast.makeText(this, "Failed to swich Camera. Error:" + e.getMessage(),
+                Toast.makeText(this, "Failed to switch Camera. Error:" + e.getMessage(),
                         Toast.LENGTH_SHORT).show();
             }
         });
@@ -1006,8 +992,8 @@ public class CameraXActivity extends AppCompatActivity {
 
     private void setUpTorchButton() {
         mTorchButton.setOnClickListener(v -> {
-            Objects.requireNonNull(getCameraInfo());
-            Objects.requireNonNull(getCameraControl());
+            requireNonNull(getCameraInfo());
+            requireNonNull(getCameraControl());
             Integer torchState = getCameraInfo().getTorchState().getValue();
             boolean toggledState = !Objects.equals(torchState, TorchState.ON);
             Log.d(TAG, "Set camera torch: " + toggledState);
@@ -1027,8 +1013,8 @@ public class CameraXActivity extends AppCompatActivity {
 
     private void setUpEVButton() {
         mPlusEV.setOnClickListener(v -> {
-            Objects.requireNonNull(getCameraInfo());
-            Objects.requireNonNull(getCameraControl());
+            requireNonNull(getCameraInfo());
+            requireNonNull(getCameraControl());
 
             ExposureState exposureState = getCameraInfo().getExposureState();
             Range<Integer> range = exposureState.getExposureCompensationRange();
@@ -1046,8 +1032,8 @@ public class CameraXActivity extends AppCompatActivity {
         });
 
         mDecEV.setOnClickListener(v -> {
-            Objects.requireNonNull(getCameraInfo());
-            Objects.requireNonNull(getCameraControl());
+            requireNonNull(getCameraInfo());
+            requireNonNull(getCameraControl());
 
             ExposureState exposureState = getCameraInfo().getExposureState();
             Range<Integer> range = exposureState.getExposureCompensationRange();
@@ -1071,6 +1057,14 @@ public class CameraXActivity extends AppCompatActivity {
         }
         mEvToast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
         mEvToast.show();
+    }
+
+    void showPreviewStabilizationToast(String message) {
+        if (mPSToast != null) {
+            mPSToast.cancel();
+        }
+        mPSToast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
+        mPSToast.show();
     }
 
     private void updateAppUIForE2ETest(@NonNull String testCase) {
@@ -1118,19 +1112,19 @@ public class CameraXActivity extends AppCompatActivity {
                 ViewGroup.LayoutParams lp = viewFinderStub.getLayoutParams();
                 if (orientation == Configuration.ORIENTATION_PORTRAIT) {
                     lp.width = displayMetrics.widthPixels;
-                    lp.height = (int) (displayMetrics.widthPixels / ratio.getDenominator()
-                            * ratio.getNumerator());
+                    lp.height = displayMetrics.widthPixels / ratio.getDenominator()
+                            * ratio.getNumerator();
                 } else {
                     lp.height = displayMetrics.heightPixels;
-                    lp.width = (int) (displayMetrics.heightPixels / ratio.getDenominator()
-                            * ratio.getNumerator());
+                    lp.width = displayMetrics.heightPixels / ratio.getDenominator()
+                            * ratio.getNumerator();
                 }
                 viewFinderStub.setLayoutParams(lp);
             }
         }
     }
 
-    @SuppressLint("NullAnnotationGroup")
+    @SuppressLint({"NullAnnotationGroup", "RestrictedApiAndroidX"})
     @OptIn(markerClass = androidx.camera.core.ExperimentalZeroShutterLag.class)
     private void updateButtonsUi() {
         mRecordUi.setEnabled(mVideoToggle.isChecked());
@@ -1140,6 +1134,8 @@ public class CameraXActivity extends AppCompatActivity {
                 && getCameraInfo().isZslSupported() ? View.VISIBLE : View.GONE);
         mZslToggle.setEnabled(mPhotoToggle.isChecked());
         mCameraDirectionButton.setEnabled(getCameraInfo() != null);
+        mPreviewStabilizationToggle.setEnabled(mCamera != null
+                && mCamera.getCameraInfo().getPreviewCapabilities().isStabilizationSupported());
         mTorchButton.setEnabled(isFlashAvailable());
         // Flash button
         mFlashButton.setEnabled(mPhotoToggle.isChecked() && isFlashAvailable());
@@ -1182,6 +1178,7 @@ public class CameraXActivity extends AppCompatActivity {
         setUpTorchButton();
         setUpEVButton();
         setUpZoomButton();
+        setUpPreviewStabilizationButton();
         mCaptureQualityToggle.setOnCheckedChangeListener(mOnCheckedChangeListener);
         mZslToggle.setOnCheckedChangeListener(mOnCheckedChangeListener);
     }
@@ -1277,6 +1274,7 @@ public class CameraXActivity extends AppCompatActivity {
         mPlusEV = findViewById(R.id.plus_ev_toggle);
         mDecEV = findViewById(R.id.dec_ev_toggle);
         mZslToggle = findViewById(R.id.zsl_toggle);
+        mPreviewStabilizationToggle = findViewById(R.id.preview_stabilization);
         mZoomSeekBar = findViewById(R.id.seekBar);
         mZoomRatioLabel = findViewById(R.id.zoomRatio);
         mZoomIn2XToggle = findViewById(R.id.zoom_in_2x_toggle);
@@ -1327,7 +1325,7 @@ public class CameraXActivity extends AppCompatActivity {
         };
 
         DisplayManager dpyMgr =
-                Objects.requireNonNull((DisplayManager) getSystemService(Context.DISPLAY_SERVICE));
+                requireNonNull(ContextCompat.getSystemService(this, DisplayManager.class));
         dpyMgr.registerDisplayListener(mDisplayListener, new Handler(Looper.getMainLooper()));
 
         StrictMode.VmPolicy vmPolicy =
@@ -1444,7 +1442,7 @@ public class CameraXActivity extends AppCompatActivity {
     public void onDestroy() {
         super.onDestroy();
         DisplayManager dpyMgr =
-                Objects.requireNonNull((DisplayManager) getSystemService(Context.DISPLAY_SERVICE));
+                requireNonNull(ContextCompat.getSystemService(this, DisplayManager.class));
         dpyMgr.unregisterDisplayListener(mDisplayListener);
         mPreviewRenderer.shutdown();
         mImageCaptureExecutorService.shutdown();
@@ -1575,23 +1573,22 @@ public class CameraXActivity extends AppCompatActivity {
         // Remove ImageAnalysis to check whether the new use cases combination can be supported.
         if (mAnalysisToggle.isChecked()) {
             mAnalysisToggle.setChecked(false);
-            if (isCheckedUseCasesCombinationSupported()) {
-                return;
-            }
+            // No need to do further use case combination check since Preview + ImageCapture
+            // should be always supported.
         }
-
-        // Preview + ImageCapture should be always supported.
     }
 
     /**
      * Builds all use cases based on current settings and return as an array.
      */
+    @SuppressLint("RestrictedApiAndroidX")
     private List<UseCase> buildUseCases() {
         List<UseCase> useCases = new ArrayList<>();
         if (mPreviewToggle.isChecked()) {
             Preview preview = new Preview.Builder()
                     .setTargetName("Preview")
                     .setTargetAspectRatio(mTargetAspectRatio)
+                    .setPreviewStabilizationEnabled(mIsPreviewStabilizationOn)
                     .build();
             resetViewIdlingResource();
             // Use the listener of the future to make sure the Preview setup the new surface.
@@ -1685,7 +1682,7 @@ public class CameraXActivity extends AppCompatActivity {
                             new ActivityResultContracts.RequestMultiplePermissions(),
                             result -> {
                                 for (String permission : REQUIRED_PERMISSIONS) {
-                                    if (!Objects.requireNonNull(result.get(permission))) {
+                                    if (!requireNonNull(result.get(permission))) {
                                         Toast.makeText(getApplicationContext(),
                                                         "Camera permission denied.",
                                                         Toast.LENGTH_SHORT)
@@ -1718,10 +1715,8 @@ public class CameraXActivity extends AppCompatActivity {
     void createDefaultPictureFolderIfNotExist() {
         File pictureFolder = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES);
-        if (!pictureFolder.exists()) {
-            if (!pictureFolder.mkdir()) {
-                Log.e(TAG, "Failed to create directory: " + pictureFolder);
-            }
+        if (createParentFolder(pictureFolder)) {
+            Log.e(TAG, "Failed to create directory: " + pictureFolder);
         }
     }
 
@@ -1730,17 +1725,8 @@ public class CameraXActivity extends AppCompatActivity {
         String videoFilePath =
                 getAbsolutePathFromUri(getApplicationContext().getContentResolver(),
                         MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
-
-        // If cannot get the video path, just skip checking and create folder.
-        if (videoFilePath == null) {
-            return;
-        }
-        File videoFile = new File(videoFilePath);
-
-        if (videoFile.getParentFile() != null && !videoFile.getParentFile().exists()) {
-            if (!videoFile.getParentFile().mkdir()) {
-                Log.e(TAG, "Failed to create directory: " + videoFile);
-            }
+        if (videoFilePath == null || !createParentFolder(videoFilePath)) {
+            Log.e(TAG, "Failed to create parent directory for: " + videoFilePath);
         }
     }
 
@@ -1776,13 +1762,14 @@ public class CameraXActivity extends AppCompatActivity {
     ScaleGestureDetector.SimpleOnScaleGestureListener mScaleGestureListener =
             new ScaleGestureDetector.SimpleOnScaleGestureListener() {
                 @Override
-                public boolean onScale(ScaleGestureDetector detector) {
+                public boolean onScale(@NonNull ScaleGestureDetector detector) {
                     if (mCamera == null) {
                         return true;
                     }
 
                     CameraInfo cameraInfo = mCamera.getCameraInfo();
-                    float newZoom = cameraInfo.getZoomState().getValue().getZoomRatio()
+                    float newZoom =
+                            requireNonNull(cameraInfo.getZoomState().getValue()).getZoomRatio()
                             * detector.getScaleFactor();
                     setZoomRatio(newZoom);
                     return true;
@@ -1792,7 +1779,7 @@ public class CameraXActivity extends AppCompatActivity {
     GestureDetector.OnGestureListener onTapGestureListener =
             new GestureDetector.SimpleOnGestureListener() {
                 @Override
-                public boolean onSingleTapUp(MotionEvent e) {
+                public boolean onSingleTapUp(@NonNull MotionEvent e) {
                     if (mCamera == null) {
                         return false;
                     }
@@ -1832,7 +1819,8 @@ public class CameraXActivity extends AppCompatActivity {
 
         mZoomSeekBar.setMax(MAX_SEEKBAR_VALUE);
         mZoomSeekBar.setProgress(
-                (int) (cameraInfo.getZoomState().getValue().getLinearZoom() * MAX_SEEKBAR_VALUE));
+                (int) (requireNonNull(cameraInfo.getZoomState().getValue()).getLinearZoom()
+                        * MAX_SEEKBAR_VALUE));
         mZoomSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -1882,13 +1870,23 @@ public class CameraXActivity extends AppCompatActivity {
     private boolean is2XZoomSupported() {
         CameraInfo cameraInfo = getCameraInfo();
         return cameraInfo != null
-                && cameraInfo.getZoomState().getValue().getMaxZoomRatio() >= 2.0f;
+                && requireNonNull(cameraInfo.getZoomState().getValue()).getMaxZoomRatio() >= 2.0f;
     }
 
     private void setUpZoomButton() {
         mZoomIn2XToggle.setOnClickListener(v -> setZoomRatio(2.0f));
 
         mZoomResetToggle.setOnClickListener(v -> setZoomRatio(1.0f));
+    }
+
+    private void setUpPreviewStabilizationButton() {
+        mPreviewStabilizationToggle.setOnClickListener(v -> {
+            mIsPreviewStabilizationOn = !mIsPreviewStabilizationOn;
+            if (mIsPreviewStabilizationOn) {
+                showPreviewStabilizationToast("Preview Stabilization On, FOV changes");
+            }
+            tryBindUseCases();
+        });
     }
 
     void setZoomRatio(float newZoom) {
@@ -1899,7 +1897,7 @@ public class CameraXActivity extends AppCompatActivity {
         CameraInfo cameraInfo = mCamera.getCameraInfo();
         CameraControl cameraControl = mCamera.getCameraControl();
         float clampedNewZoom = MathUtils.clamp(newZoom,
-                cameraInfo.getZoomState().getValue().getMinZoomRatio(),
+                requireNonNull(cameraInfo.getZoomState().getValue()).getMinZoomRatio(),
                 cameraInfo.getZoomState().getValue().getMaxZoomRatio());
 
         Log.d(TAG, "setZoomRatio ratio: " + clampedNewZoom);
@@ -1928,34 +1926,6 @@ public class CameraXActivity extends AppCompatActivity {
             boolean scaleEventProcessed = scaleDetector.onTouchEvent(e);
             return tapEventProcessed || scaleEventProcessed;
         });
-    }
-
-    /** Gets the absolute path from a Uri. */
-    @Nullable
-    public String getAbsolutePathFromUri(@NonNull ContentResolver resolver,
-            @NonNull Uri contentUri) {
-        Cursor cursor = null;
-        try {
-            // We should include in any Media collections.
-            String[] proj;
-            int columnIndex;
-            // MediaStore.Video.Media.DATA was deprecated in API level 29.
-            proj = new String[]{MediaStore.Video.Media.DATA};
-            cursor = resolver.query(contentUri, proj, null, null, null);
-            columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA);
-
-            cursor.moveToFirst();
-            return cursor.getString(columnIndex);
-        } catch (RuntimeException e) {
-            Log.e(TAG, String.format(
-                    "Failed in getting absolute path for Uri %s with Exception %s",
-                    contentUri, e));
-            return "";
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
     }
 
     private class SessionMediaUriSet {

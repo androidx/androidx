@@ -28,14 +28,23 @@ package androidx.collection
 
 import kotlin.contracts.contract
 import kotlin.jvm.JvmField
+import kotlin.jvm.JvmOverloads
 
-// This is a copy of ScatterSet, but with Int elements
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// DO NOT MAKE CHANGES to the kotlin source file.
+//
+// This file was generated from a template in the template directory.
+// Make a change to the original template and run the generateCollections.sh script
+// to ensure the change is available on all versions of the map.
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+// This is a copy of ScatterSet, but with primitive elements
 
 // Default empty set to avoid allocations
 private val EmptyIntSet = MutableIntSet(0)
 
 // An empty array of ints
-private val EmptyIntArray = IntArray(0)
+internal val EmptyIntArray = IntArray(0)
 
 /**
  * Returns an empty, read-only [IntSet].
@@ -313,6 +322,71 @@ public sealed class IntSet {
     public operator fun contains(element: Int): Boolean = findElementIndex(element) >= 0
 
     /**
+     * Creates a String from the elements separated by [separator] and using [prefix] before
+     * and [postfix] after, if supplied.
+     *
+     * When a non-negative value of [limit] is provided, a maximum of [limit] items are used
+     * to generate the string. If the collection holds more than [limit] items, the string
+     * is terminated with [truncated].
+     */
+    @JvmOverloads
+    public fun joinToString(
+        separator: CharSequence = ", ",
+        prefix: CharSequence = "",
+        postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
+        limit: Int = -1,
+        truncated: CharSequence = "...",
+    ): String = buildString {
+        append(prefix)
+        var index = 0
+        this@IntSet.forEach { element ->
+            if (index == limit) {
+                append(truncated)
+                return@buildString
+            }
+            if (index != 0) {
+                append(separator)
+            }
+            append(element)
+            index++
+        }
+        append(postfix)
+    }
+
+    /**
+     * Creates a String from the elements separated by [separator] and using [prefix] before
+     * and [postfix] after, if supplied. [transform] dictates how each element will be represented.
+     *
+     * When a non-negative value of [limit] is provided, a maximum of [limit] items are used
+     * to generate the string. If the collection holds more than [limit] items, the string
+     * is terminated with [truncated].
+     */
+    @JvmOverloads
+    public inline fun joinToString(
+        separator: CharSequence = ", ",
+        prefix: CharSequence = "",
+        postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
+        limit: Int = -1,
+        truncated: CharSequence = "...",
+        crossinline transform: (Int) -> CharSequence
+    ): String = buildString {
+        append(prefix)
+        var index = 0
+        this@IntSet.forEach { element ->
+            if (index == limit) {
+                append(truncated)
+                return@buildString
+            }
+            if (index != 0) {
+                append(separator)
+            }
+            append(transform(element))
+            index++
+        }
+        append(postfix)
+    }
+
+    /**
      * Returns the hash code value for this set. The hash code of a set is defined to be the
      * sum of the hash codes of the elements in the set.
      */
@@ -358,23 +432,7 @@ public sealed class IntSet {
      * Returns a string representation of this set. The set is denoted in the
      * string by the `{}`. Each element is separated by `, `.
      */
-    public override fun toString(): String {
-        if (isEmpty()) {
-            return "[]"
-        }
-
-        val s = StringBuilder().append('[')
-        val last = _size - 1
-        var index = 0
-        forEach { element ->
-            s.append(element)
-            if (index++ < last) {
-                s.append(',').append(' ')
-            }
-        }
-
-        return s.append(']').toString()
-    }
+    override fun toString(): String = joinToString(prefix = "[", postfix = "]")
 
     /**
      * Scans the set to find the index in the backing arrays of the
@@ -770,7 +828,7 @@ public class MutableIntSet(
  * Returns the hash code of [k]. This follows the [HashSet] default behavior on Android
  * of returning [Object.hashcode()] with the higher bits of hash spread to the lower bits.
  */
-private inline fun hash(k: Int): Int {
+internal inline fun hash(k: Int): Int {
     val hash = k.hashCode()
     return hash xor (hash ushr 16)
 }

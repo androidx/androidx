@@ -18,7 +18,7 @@ package androidx.privacysandbox.ads.adservices.java.endtoend.topics;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo;
+import androidx.privacysandbox.ads.adservices.java.VersionCompatUtil;
 import androidx.privacysandbox.ads.adservices.java.endtoend.TestUtil;
 import androidx.privacysandbox.ads.adservices.java.topics.TopicsManagerFutures;
 import androidx.privacysandbox.ads.adservices.topics.GetTopicsRequest;
@@ -73,6 +73,10 @@ public class TopicsManagerTest {
         mTestUtil.shouldForceUseBundledFiles(true);
         // Enable verbose logging.
         mTestUtil.enableVerboseLogging();
+
+        if (VersionCompatUtil.INSTANCE.isSWithMinExtServicesVersion(9)) {
+            mTestUtil.enableBackCompat();
+        }
     }
 
     @After
@@ -84,13 +88,19 @@ public class TopicsManagerTest {
         mTestUtil.overrideAllowlists(false);
         mTestUtil.enableEnrollmentCheck(false);
         mTestUtil.shouldForceUseBundledFiles(false);
+        if (VersionCompatUtil.INSTANCE.isSWithMinExtServicesVersion(9)) {
+            mTestUtil.disableBackCompat();
+        }
     }
 
     @Ignore // b/278931615
     @Test
     public void testTopicsManager_runClassifier() throws Exception {
-        // Skip the test if SDK extension 4 is not present.
-        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 4);
+        // Skip the test if the right SDK extension is not present.
+        Assume.assumeTrue(
+                VersionCompatUtil.INSTANCE.isTestableVersion(
+                        /* minAdServicesVersion=*/ 4,
+                        /* minExtServicesVersion=*/ 9));
 
         TopicsManagerFutures topicsManager =
                 TopicsManagerFutures.from(ApplicationProvider.getApplicationContext());

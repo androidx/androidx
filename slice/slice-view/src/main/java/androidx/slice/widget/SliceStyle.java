@@ -44,6 +44,7 @@ import java.util.List;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
+@Deprecated
 public class SliceStyle {
     private int mTintColor = -1;
     private final int mTitleColor;

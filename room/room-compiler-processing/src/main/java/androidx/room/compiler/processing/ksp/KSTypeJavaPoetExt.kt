@@ -179,7 +179,10 @@ private fun KSType.asJTypeName(
 ): JTypeName {
     return if (declaration is KSTypeAlias) {
         replaceTypeAliases(resolver).asJTypeName(resolver, typeResolutionContext)
-    } else if (this.arguments.isNotEmpty() && !resolver.isJavaRawType(this)) {
+    } else if (this.arguments.isNotEmpty() && !resolver.isJavaRawType(this) &&
+            // Excluding generic value classes otherwise we may generate something
+            // like `Object<String>`.
+            !declaration.isValueClass()) {
         val args: Array<JTypeName> = this.arguments
             .map { typeArg -> typeArg.asJTypeName(resolver, typeResolutionContext) }
             .map { it.tryBox() }

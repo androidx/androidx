@@ -75,7 +75,7 @@ androidXMultiplatform {
                 implementation(libs.okio)
             }
         }
-        androidAndroidTest {
+        androidInstrumentedTest {
             dependsOn(jvmTest)
             dependencies {
                 implementation(libs.junit)

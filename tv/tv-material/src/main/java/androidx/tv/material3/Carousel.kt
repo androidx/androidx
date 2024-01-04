@@ -291,7 +291,8 @@ private fun Modifier.handleKeyEvents(
                     KeyEventPropagation.StopPropagation
                 }
 
-            !focusManager.moveFocus(direction) -> {
+            !focusManager.moveFocus(direction) &&
+                currentCarouselBoxFocusState()?.hasFocus == true -> {
                 // if focus search was unsuccessful, interpret as input for slide change
                 updateItemBasedOnLayout(direction, isLtr)
                 KeyEventPropagation.StopPropagation

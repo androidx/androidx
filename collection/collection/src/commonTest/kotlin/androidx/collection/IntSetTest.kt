@@ -23,6 +23,14 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// DO NOT MAKE CHANGES to the kotlin source file.
+//
+// This file was generated from a template in the template directory.
+// Make a change to the original template and run the generateCollections.sh script
+// to ensure the change is available on all versions of the map.
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
 internal class IntSetTest {
     @Test
     fun emptyIntSetConstructor() {
@@ -147,9 +155,9 @@ internal class IntSetTest {
         val set = MutableIntSet()
         set += 1
         set += 2
-        var element: Int = Int.MIN_VALUE
-        var otherElement: Int = Int.MIN_VALUE
-        set.forEach { if (element == Int.MIN_VALUE) element = it else otherElement = it }
+        var element: Int = -1
+        var otherElement: Int = -1
+        set.forEach { if (element == -1) element = it else otherElement = it }
         assertEquals(element, set.first())
         set -= element
         assertEquals(otherElement, set.first())
@@ -333,8 +341,37 @@ internal class IntSetTest {
         set += 1
         set += 5
         assertTrue(
-            "[1, 5]" == set.toString() ||
-                "[5, 1]" == set.toString()
+            "[${1}, ${5}]" == set.toString() ||
+                "[${5}, ${1}]" == set.toString()
+        )
+    }
+
+    @Test
+    fun joinToString() {
+        val set = intSetOf(1, 2, 3, 4, 5)
+        val order = IntArray(5)
+        var index = 0
+        set.forEach { element ->
+            order[index++] = element.toInt()
+        }
+        assertEquals(
+            "${order[0].toInt()}, ${order[1].toInt()}, ${order[2].toInt()}, " +
+            "${order[3].toInt()}, ${order[4].toInt()}",
+            set.joinToString()
+        )
+        assertEquals(
+            "x${order[0].toInt()}, ${order[1].toInt()}, ${order[2].toInt()}...",
+            set.joinToString(prefix = "x", postfix = "y", limit = 3)
+        )
+        assertEquals(
+            ">${order[0].toInt()}-${order[1].toInt()}-${order[2].toInt()}-" +
+            "${order[3].toInt()}-${order[4].toInt()}<",
+            set.joinToString(separator = "-", prefix = ">", postfix = "<")
+        )
+        val names = arrayOf("one", "two", "three", "four", "five")
+        assertEquals(
+            "${names[order[0]]}, ${names[order[1]]}, ${names[order[2]]}...",
+            set.joinToString(limit = 3) { names[it.toInt()] }
         )
     }
 

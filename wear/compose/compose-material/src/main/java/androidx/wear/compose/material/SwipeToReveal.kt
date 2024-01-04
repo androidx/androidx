@@ -55,6 +55,9 @@ import kotlin.math.abs
 /**
  * [SwipeToReveal] Material composable for Chips. This provides the default style for consistency.
  *
+ * Example of [SwipeToRevealChip] with primary and secondary actions
+ * @sample androidx.wear.compose.material.samples.SwipeToRevealChipSample
+ *
  * @param primaryAction A [SwipeToRevealAction] instance to describe the primary action when
  * swiping. See [SwipeToRevealDefaults.primaryAction]. The action will be triggered on click or a
  * full swipe.
@@ -104,6 +107,9 @@ public fun SwipeToRevealChip(
 
 /**
  * [SwipeToReveal] Material composable for Cards. This provides the default style for consistency.
+ *
+ * Example of [SwipeToRevealCard] with primary and secondary actions
+ * @sample androidx.wear.compose.material.samples.SwipeToRevealCardSample
  *
  * @param primaryAction A [SwipeToRevealAction] instance to describe the primary action when
  * swiping. See [SwipeToRevealDefaults.primaryAction]. The action will be triggered on click or a

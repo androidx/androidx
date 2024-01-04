@@ -140,8 +140,13 @@ import java.util.Set;
  * @see androidx.slice.SliceProvider
  * @see androidx.slice.SliceProvider#onBindSlice(Uri)
  * @see androidx.slice.widget.SliceView
+ *
+ * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+ * forward. If you are looking for a framework that handles communication across apps,
+ * consider using {@link android.app.appsearch.AppSearchManager}.
  */
 @RequiresApi(19)
+@Deprecated
 public class ListBuilder extends TemplateSliceBuilder {
 
     private boolean mHasSeeMore;
@@ -565,7 +570,12 @@ public class ListBuilder extends TemplateSliceBuilder {
      * A range row supports displaying a horizontal progress indicator.
      *
      * @see ListBuilder#addRange(RangeBuilder)
+     *
+     * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+     * forward. If you are looking for a framework that handles communication across apps,
+     * consider using {@link android.app.appsearch.AppSearchManager}.
      */
+    @Deprecated
     public static class RangeBuilder {
 
         private int mValue;
@@ -817,8 +827,13 @@ public class ListBuilder extends TemplateSliceBuilder {
      * An star rating row supports displaying a horizontal tappable stars allowing rating input.
      *
      * @see ListBuilder#addRating(RatingBuilder)
+     *
+     * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+     * forward. If you are looking for a framework that handles communication across apps,
+     * consider using {@link android.app.appsearch.AppSearchManager}.
      */
     @SuppressLint("MissingBuildMethod")
+    @Deprecated
     public static final class RatingBuilder {
         /**
          */
@@ -1085,7 +1100,12 @@ public class ListBuilder extends TemplateSliceBuilder {
      * An input range row supports displaying a horizontal slider allowing slider input.
      *
      * @see ListBuilder#addInputRange(InputRangeBuilder)
+     *
+     * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+     * forward. If you are looking for a framework that handles communication across apps,
+     * consider using {@link android.app.appsearch.AppSearchManager}.
      */
+    @Deprecated
     public static class InputRangeBuilder {
 
         private int mMin = 0;
@@ -1481,7 +1501,12 @@ public class ListBuilder extends TemplateSliceBuilder {
      * </ul>
      *
      * @see ListBuilder#addRow(RowBuilder)
+     *
+     * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+     * forward. If you are looking for a framework that handles communication across apps,
+     * consider using {@link android.app.appsearch.AppSearchManager}.
      */
+    @Deprecated
     public static class RowBuilder {
 
         private final Uri mUri;
@@ -2007,7 +2032,12 @@ public class ListBuilder extends TemplateSliceBuilder {
      * @see ListBuilder#setHeader(HeaderBuilder)
      * @see ListBuilder#addAction(SliceAction)
      * @see SliceAction
+     *
+     * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+     * forward. If you are looking for a framework that handles communication across apps,
+     * consider using {@link android.app.appsearch.AppSearchManager}.
      */
+    @Deprecated
     public static class HeaderBuilder {
         private final Uri mUri;
         private CharSequence mTitle;

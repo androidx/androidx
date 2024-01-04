@@ -22,8 +22,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.InputTransformation
-import androidx.compose.foundation.text2.input.TextFieldState
-import androidx.compose.foundation.text2.input.deselect
 import androidx.compose.foundation.text2.input.internal.selection.TextFieldSelectionState
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusEventModifierNode
@@ -66,6 +64,7 @@ import androidx.compose.ui.semantics.setSelection
 import androidx.compose.ui.semantics.setText
 import androidx.compose.ui.semantics.textSelectionRange
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -84,7 +83,7 @@ import kotlinx.coroutines.launch
  */
 @OptIn(ExperimentalFoundationApi::class)
 internal data class TextFieldDecoratorModifier(
-    private val textFieldState: TextFieldState,
+    private val textFieldState: TransformedTextFieldState,
     private val textLayoutState: TextLayoutState,
     private val textFieldSelectionState: TextFieldSelectionState,
     private val filter: InputTransformation?,
@@ -128,7 +127,7 @@ internal data class TextFieldDecoratorModifier(
 /** Modifier node for [TextFieldDecoratorModifier]. */
 @OptIn(ExperimentalFoundationApi::class)
 internal class TextFieldDecoratorModifierNode(
-    var textFieldState: TextFieldState,
+    var textFieldState: TransformedTextFieldState,
     var textLayoutState: TextLayoutState,
     var textFieldSelectionState: TextFieldSelectionState,
     var filter: InputTransformation?,
@@ -169,9 +168,7 @@ internal class TextFieldDecoratorModifierNode(
      * Manages key events. These events often are sourced by a hardware keyboard but it's also
      * possible that IME or some other platform system simulates a KeyEvent.
      */
-    private val textFieldKeyEventHandler = createTextFieldKeyEventHandler().also {
-        it.setFilter(filter)
-    }
+    private val textFieldKeyEventHandler = createTextFieldKeyEventHandler()
 
     private val keyboardActionScope = object : KeyboardActionScope {
         private val focusManager: FocusManager
@@ -219,7 +216,7 @@ internal class TextFieldDecoratorModifierNode(
      * Updates all the related properties and invalidates internal state based on the changes.
      */
     fun updateNode(
-        textFieldState: TextFieldState,
+        textFieldState: TransformedTextFieldState,
         textLayoutState: TextLayoutState,
         textFieldSelectionState: TextFieldSelectionState,
         filter: InputTransformation?,
@@ -270,8 +267,6 @@ internal class TextFieldDecoratorModifierNode(
             invalidateSemantics()
         }
 
-        textFieldKeyEventHandler.setFilter(filter)
-
         if (textFieldSelectionState != previousTextFieldSelectionState) {
             pointerInputNode.resetPointerInputHandler()
         }
@@ -282,54 +277,57 @@ internal class TextFieldDecoratorModifierNode(
 
     // This function is called inside a snapshot observer.
     override fun SemanticsPropertyReceiver.applySemantics() {
-        val text = textFieldState.text
+        val text = textFieldState.untransformedText
         val selection = text.selectionInChars
+        editableText = AnnotatedString(text.toString())
+        textSelectionRange = selection
 
         getTextLayoutResult {
             textLayoutState.layoutResult?.let { result -> it.add(result) } ?: false
         }
-        editableText = AnnotatedString(text.toString())
-        textSelectionRange = selection
         if (!enabled) disabled()
 
         setText { newText ->
             if (readOnly || !enabled) return@setText false
 
-            textFieldState.editAsUser(filter) {
-                deleteAll()
-                commitText(newText.toString(), 1)
-            }
+            textFieldState.replaceAll(newText)
             true
         }
-        setSelection { start, end, _ ->
-            // BasicTextField2 doesn't have VisualTransformation for the time being and
-            // probably won't have something that uses offsetMapping design. We can safely
-            // skip relativeToOriginalText flag. Assume it's always true.
-
-            if (!enabled) {
-                false
-            } else if (start == selection.start && end == selection.end) {
-                false
-            } else if (start.coerceAtMost(end) >= 0 &&
-                start.coerceAtLeast(end) <= text.length
-            ) {
-                textFieldState.editAsUser(filter) {
-                    setSelection(start, end)
-                }
-                true
+        @Suppress("NAME_SHADOWING")
+        setSelection { start, end, relativeToOriginal ->
+            val text = if (relativeToOriginal) {
+                textFieldState.untransformedText
             } else {
-                false
+                textFieldState.text
             }
+            val selection = text.selectionInChars
+
+            if (!enabled ||
+                minOf(start, end) < 0 ||
+                maxOf(start, end) > text.length
+            ) {
+                return@setSelection false
+            }
+
+            // Selection is already selected, don't need to do any work.
+            if (start == selection.start && end == selection.end) {
+                return@setSelection true
+            }
+
+            val selectionRange = TextRange(start, end)
+            if (relativeToOriginal) {
+                textFieldState.selectUntransformedCharsIn(selectionRange)
+            } else {
+                textFieldState.selectCharsIn(selectionRange)
+            }
+            return@setSelection true
         }
         insertTextAtCursor { newText ->
             if (readOnly || !enabled) return@insertTextAtCursor false
 
-            textFieldState.editAsUser(filter) {
-                // Finish composing text first because when the field is focused the IME
-                // might set composition.
-                commitComposition()
-                commitText(newText.toString(), 1)
-            }
+            // Finish composing text first because when the field is focused the IME
+            // might set composition.
+            textFieldState.replaceSelectedText(newText, clearComposition = true)
             true
         }
         onImeAction(keyboardOptions.imeAction) {
@@ -381,7 +379,7 @@ internal class TextFieldDecoratorModifierNode(
             }
         } else {
             disposeInputSession()
-            textFieldState.deselect()
+            textFieldState.collapseSelectionToMax()
         }
     }
 
@@ -419,7 +417,6 @@ internal class TextFieldDecoratorModifierNode(
         return textFieldKeyEventHandler.onKeyEvent(
             event = event,
             textFieldState = textFieldState,
-            inputTransformation = filter,
             textLayoutState = textLayoutState,
             textFieldSelectionState = textFieldSelectionState,
             editable = enabled && !readOnly,
@@ -441,7 +438,6 @@ internal class TextFieldDecoratorModifierNode(
                 platformSpecificTextInputSession(
                     textFieldState,
                     keyboardOptions.toImeOptions(singleLine),
-                    filter = filter,
                     onImeAction = onImeActionPerformed
                 )
             }
@@ -461,11 +457,9 @@ internal class TextFieldDecoratorModifierNode(
 /**
  * Runs platform-specific text input logic.
  */
-@OptIn(ExperimentalFoundationApi::class)
 internal expect suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
-    state: TextFieldState,
+    state: TransformedTextFieldState,
     imeOptions: ImeOptions,
-    filter: InputTransformation?,
     onImeAction: ((ImeAction) -> Unit)?
 ): Nothing
 

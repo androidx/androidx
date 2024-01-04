@@ -754,8 +754,12 @@ public class UiObject2 implements Searchable {
                     bounds, swipeDirection, segment, speed, getDisplayId()).pause(250);
 
             // Perform the gesture and return early if we reached the end
-            if (mGestureController.performGestureAndWait(
-                    Until.scrollFinished(direction), SCROLL_TIMEOUT, swipe)) {
+            Boolean scrollFinishedResult = mGestureController.performGestureAndWait(
+                    Until.scrollFinished(direction), SCROLL_TIMEOUT, swipe);
+            if (!Boolean.FALSE.equals(scrollFinishedResult)) {
+                if (scrollFinishedResult == null) {
+                    Log.i(TAG, "No scroll event received after scroll.");
+                }
                 return false;
             }
         }
@@ -919,8 +923,12 @@ public class UiObject2 implements Searchable {
         // Perform the gesture and return true if we did not reach the end
         Log.d(TAG, String.format("Flinging %s (bounds=%s) at %dpx/s.",
                 direction.name().toLowerCase(), bounds, speed));
-        return !mGestureController.performGestureAndWait(
+        Boolean scrollFinishedResult = mGestureController.performGestureAndWait(
                 Until.scrollFinished(direction), FLING_TIMEOUT, swipe);
+        if (scrollFinishedResult == null) {
+            Log.i(TAG, "No scroll event received after fling.");
+        }
+        return Boolean.FALSE.equals(scrollFinishedResult);
     }
 
     /** Sets this object's text content if it is an editable field. */

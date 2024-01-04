@@ -21,6 +21,7 @@ import android.telecom.Call
 import android.telecom.DisconnectCause
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
+import androidx.core.telecom.CallControlResult
 import androidx.core.telecom.CallControlScope
 import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.internal.utils.Utils
@@ -36,7 +37,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -293,12 +296,14 @@ class BasicCallControlsTest : BaseTelecomTest() {
                     val call = TestUtils.waitOnInCallServiceToReachXCalls(1)
                     assertNotNull("The returned Call object is <NULL>", call)
                     if (callAttributesCompat.isOutgoingCall()) {
-                        assertTrue(setActive())
+                        assertEquals(CallControlResult.Success(), setActive())
                     } else {
-                        assertTrue(answer(CallAttributesCompat.CALL_TYPE_AUDIO_CALL))
+                        assertEquals(CallControlResult.Success(),
+                            answer(CallAttributesCompat.CALL_TYPE_AUDIO_CALL))
                     }
                     TestUtils.waitOnCallState(call!!, Call.STATE_ACTIVE)
-                    assertTrue(disconnect(DisconnectCause(DisconnectCause.LOCAL)))
+                    assertEquals(CallControlResult.Success(),
+                        disconnect(DisconnectCause(DisconnectCause.LOCAL)))
                 }
             }
         }
@@ -312,12 +317,15 @@ class BasicCallControlsTest : BaseTelecomTest() {
                     val call = TestUtils.waitOnInCallServiceToReachXCalls(1)
                     assertNotNull("The returned Call object is <NULL>", call)
                     repeat(NUM_OF_TIMES_TO_TOGGLE) {
-                        assertTrue(setActive())
+                        assertEquals(CallControlResult.Success(), setActive())
                         TestUtils.waitOnCallState(call!!, Call.STATE_ACTIVE)
-                        assertTrue(setInactive())
+                        assertEquals(CallControlResult.Success(), setInactive())
                         TestUtils.waitOnCallState(call, Call.STATE_HOLDING)
                     }
-                    assertTrue(disconnect(DisconnectCause(DisconnectCause.LOCAL)))
+                    assertEquals(
+                        CallControlResult.Success(),
+                        disconnect(DisconnectCause(DisconnectCause.LOCAL))
+                    )
                 }
             }
         }
@@ -329,10 +337,13 @@ class BasicCallControlsTest : BaseTelecomTest() {
                 launch {
                     val call = TestUtils.waitOnInCallServiceToReachXCalls(1)
                     assertNotNull("The returned Call object is <NULL>", call)
-                    assertTrue(setActive())
+                    assertEquals(CallControlResult.Success(), setActive())
                     TestUtils.waitOnCallState(call!!, Call.STATE_ACTIVE)
-                    assertFalse(setInactive()) // API under test / expect failure
-                    assertTrue(disconnect(DisconnectCause(DisconnectCause.LOCAL)))
+                    assertNotEquals(CallControlResult.Success(), setInactive())
+                    assertEquals(
+                        CallControlResult.Success(),
+                        disconnect(DisconnectCause(DisconnectCause.LOCAL))
+                    )
                 }
             }
         }
@@ -357,11 +368,17 @@ class BasicCallControlsTest : BaseTelecomTest() {
                             getAnotherEndpoint(currentEndpoint, availableEndpointsList)
                         assertNotNull(anotherEndpoint)
                         // set the call active
-                        assertTrue(setActive())
+                        assertEquals(CallControlResult.Success(), setActive())
                         // request an endpoint switch
-                        assertTrue(requestEndpointChange(anotherEndpoint!!))
+                        assertEquals(
+                            CallControlResult.Success(),
+                            requestEndpointChange(anotherEndpoint!!)
+                        )
                     }
-                    assertTrue(disconnect(DisconnectCause(DisconnectCause.LOCAL)))
+                    assertEquals(
+                        CallControlResult.Success(),
+                        disconnect(DisconnectCause(DisconnectCause.LOCAL))
+                    )
                 }
             }
         }
@@ -382,7 +399,7 @@ class BasicCallControlsTest : BaseTelecomTest() {
                 launch {
                     val call = TestUtils.waitOnInCallServiceToReachXCalls(1)
                     assertNotNull("The returned Call object is <NULL>", call)
-                    assertTrue(setActive())
+                    assertEquals(CallControlResult.Success(), setActive())
                     TestUtils.waitOnCallState(call!!, Call.STATE_ACTIVE)
                     // Grab initial mute state
                     val initialMuteState = isMuted.first()
@@ -405,7 +422,8 @@ class BasicCallControlsTest : BaseTelecomTest() {
                     }
                     // Ensure that the updated mute state was collected
                     assertTrue(muteStateChanged)
-                    assertTrue(disconnect(DisconnectCause(DisconnectCause.LOCAL)))
+                    assertEquals(CallControlResult.Success(),
+                        disconnect(DisconnectCause(DisconnectCause.LOCAL)))
                 }
             }
         }

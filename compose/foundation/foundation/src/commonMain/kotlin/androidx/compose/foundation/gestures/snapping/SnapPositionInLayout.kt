@@ -17,7 +17,6 @@
 package androidx.compose.foundation.gestures.snapping
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.ui.unit.Density
 
 /**
  * Describes the general positioning of a given snap item in its containing layout.
@@ -30,7 +29,7 @@ fun interface SnapPositionInLayout {
      * align the item with a position within the container. As a base line, if we wanted to align
      * the start of the container and the start of the item, we would return 0 in this function.
      */
-    fun Density.position(layoutSize: Int, itemSize: Int, itemIndex: Int): Int
+    fun position(layoutSize: Int, itemSize: Int, itemIndex: Int): Int
 
     companion object {
         /**
@@ -42,7 +41,7 @@ fun interface SnapPositionInLayout {
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-internal fun Density.calculateDistanceToDesiredSnapPosition(
+internal fun calculateDistanceToDesiredSnapPosition(
     mainAxisViewPortSize: Int,
     beforeContentPadding: Int,
     afterContentPadding: Int,

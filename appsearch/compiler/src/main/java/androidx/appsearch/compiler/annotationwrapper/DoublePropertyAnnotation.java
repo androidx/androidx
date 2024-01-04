@@ -16,11 +16,13 @@
 
 package androidx.appsearch.compiler.annotationwrapper;
 
+import static androidx.appsearch.compiler.IntrospectionHelper.APPSEARCH_SCHEMA_CLASS;
 import static androidx.appsearch.compiler.IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS;
 
 import androidx.annotation.NonNull;
 
 import com.google.auto.value.AutoValue;
+import com.squareup.javapoet.ClassName;
 
 import java.util.Map;
 
@@ -29,11 +31,14 @@ import java.util.Map;
  */
 @AutoValue
 public abstract class DoublePropertyAnnotation extends DataPropertyAnnotation {
-    public static final String SIMPLE_CLASS_NAME = "DoubleProperty";
-    public static final String CLASS_NAME = DOCUMENT_ANNOTATION_CLASS + "." + SIMPLE_CLASS_NAME;
+    public static final ClassName CLASS_NAME =
+            DOCUMENT_ANNOTATION_CLASS.nestedClass("DoubleProperty");
+
+    public static final ClassName CONFIG_CLASS =
+            APPSEARCH_SCHEMA_CLASS.nestedClass("DoublePropertyConfig");
 
     public DoublePropertyAnnotation() {
-        super(SIMPLE_CLASS_NAME);
+        super(CLASS_NAME, CONFIG_CLASS, /* genericDocSetterName= */"setPropertyDouble");
     }
 
     /**

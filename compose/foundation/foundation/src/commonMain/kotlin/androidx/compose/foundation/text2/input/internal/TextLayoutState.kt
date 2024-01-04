@@ -17,8 +17,6 @@
 package androidx.compose.foundation.text2.input.internal
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text2.input.CodepointTransformation
-import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
@@ -65,15 +63,13 @@ internal class TextLayoutState {
      * @see layoutWithNewMeasureInputs
      */
     fun updateNonMeasureInputs(
-        textFieldState: TextFieldState,
-        codepointTransformation: CodepointTransformation?,
+        textFieldState: TransformedTextFieldState,
         textStyle: TextStyle,
         singleLine: Boolean,
         softWrap: Boolean,
     ) {
         layoutCache.updateNonMeasureInputs(
             textFieldState = textFieldState,
-            codepointTransformation = codepointTransformation,
             textStyle = textStyle,
             singleLine = singleLine,
             softWrap = softWrap,

@@ -173,6 +173,20 @@ class TransformationsTest {
     }
 
     @Test
+    fun testSwitchMap_sameLiveData() {
+        val initialValue = "value"
+        val modifiedValue = "modifiedValue"
+        val observer = mock(Observer::class.java) as Observer<in String?>
+        val original = MutableLiveData(true)
+        val source = MutableLiveData(initialValue)
+        val switchMapLiveData = original.switchMap { source }
+        switchMapLiveData.observe(owner, observer)
+        source.value = modifiedValue
+        verify(observer).onChanged(modifiedValue)
+        assertThat(switchMapLiveData.value, `is`(modifiedValue))
+    }
+
+    @Test
     fun testNoRedispatchSwitchMap() {
         val trigger: LiveData<Int> = MutableLiveData()
         val first: LiveData<String> = MutableLiveData()

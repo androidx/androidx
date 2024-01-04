@@ -41,6 +41,7 @@ import java.util.List;
  */
 @RestrictTo(LIBRARY)
 @RequiresApi(19)
+@Deprecated
 public class SelectionBuilderListV2Impl extends SelectionBuilderImpl {
     public SelectionBuilderListV2Impl(Slice.Builder parentSliceBuilder,
                                   SelectionBuilder selectionBuilder) {

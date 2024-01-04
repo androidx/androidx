@@ -22,8 +22,6 @@ import android.view.KeyEvent.KEYCODE_DPAD_DOWN
 import android.view.KeyEvent.KEYCODE_DPAD_LEFT
 import android.view.KeyEvent.KEYCODE_DPAD_RIGHT
 import android.view.KeyEvent.KEYCODE_DPAD_UP
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.internal.selection.TextFieldSelectionState
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
@@ -37,12 +35,11 @@ import androidx.compose.ui.platform.SoftwareKeyboardController
 internal actual fun createTextFieldKeyEventHandler(): TextFieldKeyEventHandler =
     AndroidTextFieldKeyEventHandler()
 
-@OptIn(ExperimentalFoundationApi::class)
 internal class AndroidTextFieldKeyEventHandler : TextFieldKeyEventHandler() {
 
     override fun onPreKeyEvent(
         event: KeyEvent,
-        textFieldState: TextFieldState,
+        textFieldState: TransformedTextFieldState,
         textFieldSelectionState: TextFieldSelectionState,
         focusManager: FocusManager,
         keyboardController: SoftwareKeyboardController

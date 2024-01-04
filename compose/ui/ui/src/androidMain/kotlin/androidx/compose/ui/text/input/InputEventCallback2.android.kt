@@ -58,7 +58,7 @@ internal interface InputEventCallback2 {
     /**
      * Called when IME closed the input connection.
      *
-     * @param ic a closed input connection
+     * @param inputConnection a closed input connection
      */
-    fun onConnectionClosed(ic: RecordingInputConnection)
+    fun onConnectionClosed(inputConnection: RecordingInputConnection)
 }

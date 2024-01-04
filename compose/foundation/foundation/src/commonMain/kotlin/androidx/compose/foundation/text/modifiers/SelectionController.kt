@@ -52,7 +52,9 @@ internal open class StaticTextSelectionParams(
     }
 
     open val shouldClip: Boolean
-        get() = textLayoutResult?.layoutInput?.overflow == TextOverflow.Visible
+        get() = textLayoutResult?.let {
+            it.layoutInput.overflow != TextOverflow.Visible && it.hasVisualOverflow
+        } ?: false
 
     // if this copy shows up in traces, this class may become mutable
     fun copy(
@@ -118,6 +120,7 @@ internal class SelectionController(
 
     fun updateGlobalPosition(coordinates: LayoutCoordinates) {
         params = params.copy(layoutCoordinates = coordinates)
+        selectionRegistrar.notifyPositionChange(selectableId)
     }
 
     fun draw(drawScope: DrawScope) {

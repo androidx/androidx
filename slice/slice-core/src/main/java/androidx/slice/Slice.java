@@ -90,9 +90,14 @@ import java.util.Set;
  * <p>Slices are constructed using {@link androidx.slice.builders.TemplateSliceBuilder}s
  * in a tree structure that provides the OS some information about how the content should be
  * displayed.
+ *
+ * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+ * forward. If you are looking for a framework that handles communication across apps,
+ * consider using {@link android.app.appsearch.AppSearchManager}.
  */
 @VersionedParcelize(allowSerialization = true, isCustom = true)
 @RequiresApi(19)
+@Deprecated
 public final class Slice extends CustomVersionedParcelable implements VersionedParcelable {
 
     /**

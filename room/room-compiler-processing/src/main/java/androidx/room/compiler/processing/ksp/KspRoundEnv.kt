@@ -19,6 +19,7 @@ package androidx.room.compiler.processing.ksp
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XRoundEnv
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
+import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
@@ -40,6 +41,7 @@ internal class KspRoundEnv(
         )
     }
 
+    @OptIn(KspExperimental::class)
     override fun getElementsAnnotatedWith(annotationQualifiedName: String): Set<XElement> {
         if (annotationQualifiedName == "*") {
             return emptySet()
@@ -51,6 +53,7 @@ internal class KspRoundEnv(
                         is KSPropertyDeclaration -> {
                            add(KspFieldElement.create(env, symbol))
                         }
+
                         is KSClassDeclaration -> {
                             when (symbol.classKind) {
                                 ClassKind.ENUM_ENTRY ->
@@ -58,9 +61,11 @@ internal class KspRoundEnv(
                                 else -> add(KspTypeElement.create(env, symbol))
                             }
                         }
+
                         is KSFunctionDeclaration -> {
                             add(KspExecutableElement.create(env, symbol))
                         }
+
                         is KSPropertyAccessor -> {
                             if (symbol.receiver.isStatic() &&
                                 symbol.receiver.parentDeclaration is KSClassDeclaration &&
@@ -89,20 +94,27 @@ internal class KspRoundEnv(
                                 )
                             }
                         }
+
                         is KSValueParameter -> {
                             add(KspExecutableParameterElement.create(env, symbol))
                         }
+
                         else ->
                             error("Unsupported $symbol with annotation $annotationQualifiedName")
                     }
                 }
-            }
-            .filter {
-                // Due to the bug in https://github.com/google/ksp/issues/1198, KSP may incorrectly
-                // copy annotations from a constructor KSValueParameter to its KSPropertyDeclaration
-                // which we remove manually, so check here to make sure this is in sync with the
-                // actual annotations on the element.
-                it.getAllAnnotations().any { it.qualifiedName == annotationQualifiedName }
-            }.toSet()
+
+            env.resolver.getPackagesWithAnnotation(annotationQualifiedName)
+                .forEach { packageName ->
+                    add(KspPackageElement(env, packageName))
+                }
+        }
+        .filter {
+            // Due to the bug in https://github.com/google/ksp/issues/1198, KSP may incorrectly
+            // copy annotations from a constructor KSValueParameter to its KSPropertyDeclaration
+            // which we remove manually, so check here to make sure this is in sync with the
+            // actual annotations on the element.
+            it.getAllAnnotations().any { it.qualifiedName == annotationQualifiedName }
+        }.toSet()
     }
 }

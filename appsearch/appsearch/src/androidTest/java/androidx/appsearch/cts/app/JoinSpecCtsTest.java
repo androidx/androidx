@@ -23,6 +23,7 @@ import androidx.appsearch.app.SearchSpec;
 
 import org.junit.Test;
 
+/*@exportToFramework:SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)*/
 public class JoinSpecCtsTest {
 
     @Test

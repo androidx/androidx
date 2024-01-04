@@ -16,6 +16,7 @@
 
 package androidx.camera.video;
 
+import android.hardware.camera2.CaptureRequest;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
@@ -114,6 +115,17 @@ public interface VideoCapabilities {
     boolean isQualitySupported(@NonNull Quality quality, @NonNull DynamicRange dynamicRange);
 
     /**
+     * Returns if video stabilization is supported on the device.
+     *
+     * @return true if {@link CaptureRequest#CONTROL_VIDEO_STABILIZATION_MODE_ON} is supported,
+     * otherwise false.
+     *
+     * @see CaptureRequest#CONTROL_VIDEO_STABILIZATION_MODE
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    boolean isStabilizationSupported();
+
+    /**
      * Gets the corresponding {@link VideoValidatedEncoderProfilesProxy} of the input quality and
      * dynamic range.
      *
@@ -191,6 +203,11 @@ public interface VideoCapabilities {
         @Override
         public boolean isQualitySupported(@NonNull Quality quality,
                 @NonNull DynamicRange dynamicRange) {
+            return false;
+        }
+
+        @Override
+        public boolean isStabilizationSupported() {
             return false;
         }
     };

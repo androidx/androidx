@@ -16,10 +16,12 @@
 
 package androidx.appsearch.compiler.annotationwrapper;
 
-import static java.util.Objects.requireNonNull;
+import static androidx.appsearch.compiler.IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.squareup.javapoet.ClassName;
 
 import java.util.Arrays;
 
@@ -29,11 +31,13 @@ import javax.lang.model.element.AnnotationMirror;
  * An annotation for a metadata property e.g. {@code @Document.Id}.
  */
 public enum MetadataPropertyAnnotation implements PropertyAnnotation {
-    ID(/* simpleClassName= */"Id"),
-    NAMESPACE(/* simpleClassName= */"Namespace"),
-    CREATION_TIMESTAMP_MILLIS(/* simpleClassName= */"CreationTimestampMillis"),
-    TTL_MILLIS(/* simpleClassName= */"TtlMillis"),
-    SCORE(/* simpleClassName= */"Score");
+    ID(/* simpleClassName= */"Id", /* genericDocSetterName= */"setId"),
+    NAMESPACE(/* simpleClassName= */"Namespace", /* genericDocSetterName= */"setNamespace"),
+    CREATION_TIMESTAMP_MILLIS(
+            /* simpleClassName= */"CreationTimestampMillis",
+            /* genericDocSetterName= */"setCreationTimestampMillis"),
+    TTL_MILLIS(/* simpleClassName= */"TtlMillis", /* genericDocSetterName= */"setTtlMillis"),
+    SCORE(/* simpleClassName= */"Score", /* genericDocSetterName= */"setScore");
 
     /**
      * Attempts to parse an {@link AnnotationMirror} into a {@link MetadataPropertyAnnotation},
@@ -43,28 +47,42 @@ public enum MetadataPropertyAnnotation implements PropertyAnnotation {
     public static MetadataPropertyAnnotation tryParse(@NonNull AnnotationMirror annotation) {
         String qualifiedClassName = annotation.getAnnotationType().toString();
         return Arrays.stream(values())
-                .filter(val -> val.getQualifiedClassName().equals(qualifiedClassName))
+                .filter(val -> val.getClassName().canonicalName().equals(qualifiedClassName))
                 .findFirst()
                 .orElse(null);
     }
 
     @NonNull
-    private final String mSimpleClassName;
+    @SuppressWarnings("ImmutableEnumChecker") // ClassName is an immutable third-party type
+    private final ClassName mClassName;
 
-    MetadataPropertyAnnotation(@NonNull String simpleClassName) {
-        mSimpleClassName = requireNonNull(simpleClassName);
+    @NonNull
+    private final String mGenericDocSetterName;
+
+    MetadataPropertyAnnotation(
+            @NonNull String simpleClassName, @NonNull String genericDocSetterName) {
+        mClassName = DOCUMENT_ANNOTATION_CLASS.nestedClass(simpleClassName);
+        mGenericDocSetterName = genericDocSetterName;
     }
 
     @Override
     @NonNull
-    public String getSimpleClassName() {
-        return mSimpleClassName;
+    public ClassName getClassName() {
+        return mClassName;
     }
+
+
 
     @Override
     @NonNull
     public PropertyAnnotation.Kind getPropertyKind() {
         return Kind.METADATA_PROPERTY;
+    }
+
+    @NonNull
+    @Override
+    public String getGenericDocSetterName() {
+        return mGenericDocSetterName;
     }
 }
 

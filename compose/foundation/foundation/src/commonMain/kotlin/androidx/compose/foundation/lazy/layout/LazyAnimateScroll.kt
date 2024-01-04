@@ -20,6 +20,7 @@ import androidx.compose.animation.core.AnimationState
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.animateTo
 import androidx.compose.animation.core.copy
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
@@ -43,30 +44,73 @@ private inline fun debugLog(generateMsg: () -> String) {
 }
 
 /**
- * Abstraction over animated scroll for using [animateScrollToItem] in different layouts.
- * todo(b/243786897): revisit this API and make it public
+ * A scope to allow customization of animated scroll in LazyLayouts. This scope contains all needed
+ * information to perform an animatedScroll in a scrollable LazyLayout.
  */
+@ExperimentalFoundationApi
 internal interface LazyLayoutAnimateScrollScope {
 
+    /**
+     * The index of the first visible item in the lazy layout.
+     */
     val firstVisibleItemIndex: Int
 
+    /**
+     * The offset of the first visible item.
+     */
     val firstVisibleItemScrollOffset: Int
 
+    /**
+     * The last visible item in the LazyLayout, lastVisibleItemIndex - firstVisibleItemOffset + 1
+     * is the number of visible items.
+     */
     val lastVisibleItemIndex: Int
 
+    /**
+     * The total item count.
+     */
     val itemCount: Int
 
-    val averageItemSize: Int
+    /**
+     * The average size of visible items.
+     */
+    val visibleItemsAverageSize: Int
 
-    fun getOffsetForItem(index: Int): Int?
+    /**
+     * Retrieves the scroll offset for an item that is currently visible.
+     */
+    fun getVisibleItemScrollOffset(index: Int): Int
 
+    /**
+     * Immediately scroll to [index] and settle in [scrollOffset].
+     */
     fun ScrollScope.snapToItem(index: Int, scrollOffset: Int)
 
-    fun expectedDistanceTo(index: Int, targetScrollOffset: Int): Float
+    /**
+     * The "expected" distance to [targetIndex]. This means, how far one needs to scroll to have
+     * [targetIndex] be the [firstVisibleItemIndex] and [firstVisibleItemScrollOffset] be
+     * [targetItemOffset]. In other words, how far one needs to scroll to reach [targetIndex].
+     */
+    fun calculateDistanceTo(targetIndex: Int, targetItemOffset: Int): Float
 
+    /**
+     * Call this function to take control of scrolling and gain the ability to send scroll events
+     * via [ScrollScope.scrollBy] and [ScrollScope.snapToItem]. All actions that change the logical
+     * scroll position must be performed within a [scroll] block (even if they don't call any other
+     * methods on this object) in order to guarantee that mutual exclusion is enforced.
+     *
+     * If [scroll] is called from elsewhere, this will be canceled.
+     */
     suspend fun scroll(block: suspend ScrollScope.() -> Unit)
 }
 
+@Suppress("PrimitiveInLambda")
+@OptIn(ExperimentalFoundationApi::class)
+internal fun LazyLayoutAnimateScrollScope.isItemVisible(index: Int): Boolean {
+    return index in firstVisibleItemIndex..lastVisibleItemIndex
+}
+
+@OptIn(ExperimentalFoundationApi::class)
 internal suspend fun LazyLayoutAnimateScrollScope.animateScrollToItem(
     index: Int,
     scrollOffset: Int,
@@ -82,8 +126,9 @@ internal suspend fun LazyLayoutAnimateScrollScope.animateScrollToItem(
             val minDistancePx = with(density) { MinimumDistance.toPx() }
             var loop = true
             var anim = AnimationState(0f)
-            val targetItemInitialOffset = getOffsetForItem(index)
-            if (targetItemInitialOffset != null) {
+
+            if (isItemVisible(index)) {
+                val targetItemInitialOffset = getVisibleItemScrollOffset(index)
                 // It's already visible, just animate directly
                 throw ItemFoundInScroll(targetItemInitialOffset, anim)
             }
@@ -119,7 +164,7 @@ internal suspend fun LazyLayoutAnimateScrollScope.animateScrollToItem(
 
             var loops = 1
             while (loop && itemCount > 0) {
-                val expectedDistance = expectedDistanceTo(index, scrollOffset)
+                val expectedDistance = calculateDistanceTo(index, scrollOffset)
                 val target = if (abs(expectedDistance) < targetDistancePx) {
                     val absTargetPx = maxOf(abs(expectedDistance), minDistancePx)
                     if (forward) absTargetPx else -absTargetPx
@@ -140,9 +185,7 @@ internal suspend fun LazyLayoutAnimateScrollScope.animateScrollToItem(
                     sequentialAnimation = (anim.velocity != 0f)
                 ) {
                     // If we haven't found the item yet, check if it's visible.
-                    var targetItemOffset = getOffsetForItem(index)
-
-                    if (targetItemOffset == null) {
+                    if (!isItemVisible(index)) {
                         // Springs can overshoot their target, clamp to the desired range
                         val coercedValue = if (target > 0) {
                             value.coerceAtMost(target)
@@ -155,8 +198,7 @@ internal suspend fun LazyLayoutAnimateScrollScope.animateScrollToItem(
                         }
 
                         val consumed = scrollBy(delta)
-                        targetItemOffset = getOffsetForItem(index)
-                        if (targetItemOffset != null) {
+                        if (isItemVisible(index)) {
                             debugLog { "Found the item after performing scrollBy()" }
                         } else if (!isOvershot()) {
                             if (delta != consumed) {
@@ -218,7 +260,8 @@ internal suspend fun LazyLayoutAnimateScrollScope.animateScrollToItem(
                         loop = false
                         cancelAnimation()
                         return@animateTo
-                    } else if (targetItemOffset != null) {
+                    } else if (isItemVisible(index)) {
+                        val targetItemOffset = getVisibleItemScrollOffset(index)
                         debugLog { "Found item" }
                         throw ItemFoundInScroll(targetItemOffset, anim)
                     }

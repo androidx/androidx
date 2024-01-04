@@ -17,6 +17,7 @@
 package androidx.glance.session
 
 import android.content.Context
+import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 import androidx.glance.EmittableWithChildren
@@ -86,5 +87,13 @@ abstract class Session(val key: String) {
 
     fun close() {
         eventChannel.close()
+    }
+
+    /**
+     * Called when there is an error in the composition. The session will be closed immediately
+     * after this.
+     */
+    open suspend fun onCompositionError(context: Context, throwable: Throwable) {
+        Log.e("GlanceSession", "Error running composition", throwable)
     }
 }

@@ -36,8 +36,7 @@ import kotlin.reflect.KClass
  * This allows all fields to be accessed and return reasonable values on all OS versions.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-internal class Camera2CameraMetadata
-constructor(
+internal class Camera2CameraMetadata(
     override val camera: CameraId,
     override val isRedacted: Boolean,
     private val characteristics: CameraCharacteristics,

@@ -22,6 +22,7 @@ import androidx.appsearch.app.SearchSuggestionResult;
 
 import org.junit.Test;
 
+/*@exportToFramework:SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)*/
 public class SearchSuggestionResultCtsTest {
     @Test
     public void testBuildDefaultSearchSuggestionResult() {

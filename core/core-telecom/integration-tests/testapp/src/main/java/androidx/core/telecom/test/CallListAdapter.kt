@@ -24,6 +24,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.core.telecom.CallControlResult
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -32,8 +33,8 @@ import kotlinx.coroutines.launch
 @RequiresApi(34)
 class CallListAdapter(private var mList: ArrayList<CallRow>?) :
     RecyclerView.Adapter<CallListAdapter.ViewHolder>() {
-
     var mCallIdToViewHolder: MutableMap<String, ViewHolder> = mutableMapOf()
+    private val CONTROL_ACTION_FAILED_MSG = "CurrentState=[FAILED-T]"
 
     class ViewHolder(ItemView: View) : RecyclerView.ViewHolder(ItemView) {
         // TextViews
@@ -78,16 +79,28 @@ class CallListAdapter(private var mList: ArrayList<CallRow>?) :
 
             holder.activeButton.setOnClickListener {
                 CoroutineScope(Dispatchers.Main).launch {
-                    if (ItemsViewModel.callObject.mCallControl!!.setActive()) {
-                        holder.currentState.text = "CurrentState=[active]"
+                    when (ItemsViewModel.callObject.mCallControl!!.setActive()) {
+                        is CallControlResult.Success -> {
+                            holder.currentState.text = "CurrentState=[active]"
+                        }
+
+                        is CallControlResult.Error -> {
+                            holder.currentState.text = CONTROL_ACTION_FAILED_MSG
+                        }
                     }
                 }
             }
 
             holder.holdButton.setOnClickListener {
                 CoroutineScope(Dispatchers.Main).launch {
-                    if (ItemsViewModel.callObject.mCallControl!!.setInactive()) {
-                        holder.currentState.text = "CurrentState=[onHold]"
+                    when (ItemsViewModel.callObject.mCallControl!!.setInactive()) {
+                        is CallControlResult.Success -> {
+                            holder.currentState.text = "CurrentState=[onHold]"
+                        }
+
+                        is CallControlResult.Error -> {
+                            holder.currentState.text = CONTROL_ACTION_FAILED_MSG
+                        }
                     }
                 }
             }
@@ -121,11 +134,15 @@ class CallListAdapter(private var mList: ArrayList<CallRow>?) :
                     val speakerEndpoint = ItemsViewModel.callObject
                         .getEndpointType(CallEndpoint.TYPE_SPEAKER)
                     if (speakerEndpoint != null) {
-                        val success = ItemsViewModel.callObject.mCallControl?.requestEndpointChange(
+                        when (ItemsViewModel.callObject.mCallControl!!.requestEndpointChange(
                             speakerEndpoint
-                        )
-                        if (success == true) {
-                            holder.currentEndpoint.text = "currentEndpoint=[speaker]"
+                        )) {
+                            is CallControlResult.Success -> {
+                                holder.currentState.text = "CurrentState=[speaker]"
+                            }
+                            is CallControlResult.Error -> {
+                                holder.currentState.text = CONTROL_ACTION_FAILED_MSG
+                            }
                         }
                     }
                 }
@@ -136,12 +153,17 @@ class CallListAdapter(private var mList: ArrayList<CallRow>?) :
                     val bluetoothEndpoint = ItemsViewModel.callObject
                         .getEndpointType(CallEndpoint.TYPE_BLUETOOTH)
                     if (bluetoothEndpoint != null) {
-                        val success = ItemsViewModel.callObject.mCallControl?.requestEndpointChange(
+                        when (ItemsViewModel.callObject.mCallControl!!.requestEndpointChange(
                             bluetoothEndpoint
-                        )
-                        if (success == true) {
-                            holder.currentEndpoint.text =
-                                "currentEndpoint=[BT:${bluetoothEndpoint.name}]"
+                        )) {
+                            is CallControlResult.Success -> {
+                                holder.currentEndpoint.text =
+                                    "currentEndpoint=[BT:${bluetoothEndpoint.name}]"
+                            }
+                            is CallControlResult.Error -> {
+                                // e.g. tear down call and
+                                holder.currentState.text = CONTROL_ACTION_FAILED_MSG
+                            }
                         }
                     }
                 }

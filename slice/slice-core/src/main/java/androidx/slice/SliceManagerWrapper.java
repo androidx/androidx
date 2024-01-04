@@ -36,6 +36,7 @@ import java.util.Set;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(api = 28)
+@Deprecated
 class SliceManagerWrapper extends SliceManager {
 
     private final android.app.slice.SliceManager mManager;

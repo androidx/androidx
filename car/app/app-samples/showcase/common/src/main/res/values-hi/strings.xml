@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"सूची टैब"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"लंबे टैब टाइटल वाले ग्रिड टैब"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"खोज टैब"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"टैब लोड हो रहा है"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"टैब टेंप्लेट लोड करने का डेमो"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"बिना किसी टैब वाले टैब टेंप्लेट का डेमो"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"अनजान होस्ट के लिए इमेज नहीं दिखाई जा सकतीं"</string>

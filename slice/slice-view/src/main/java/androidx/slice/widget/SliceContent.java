@@ -53,8 +53,13 @@ import androidx.slice.core.SliceQuery;
 
 /**
  * Base class representing content that can be displayed.
+ *
+ * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+ * forward. If you are looking for a framework that handles communication across apps,
+ * consider using {@link android.app.appsearch.AppSearchManager}.
  */
 @RequiresApi(19)
+@Deprecated
 public class SliceContent {
 
     /**

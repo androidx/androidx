@@ -396,7 +396,8 @@ internal class Node(val modifierNode: Modifier.Node) : NodeParent() {
                     historical.add(
                         HistoricalChange(
                             it.uptimeMillis,
-                            coordinates!!.localPositionOf(parentCoordinates, it.position)
+                            coordinates!!.localPositionOf(parentCoordinates, it.position),
+                            it.originalEventPosition
                         )
                     )
                 }

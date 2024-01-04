@@ -77,6 +77,9 @@ class NavControllerWithFragmentTest {
         assertWithMessage("New Entry should be RESUMED")
             .that(navController.currentBackStackEntry!!.lifecycle.currentState)
             .isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(navController.visibleEntries.value).containsExactly(
+            navController.currentBackStackEntry!!
+        )
     }
 
     @Test
@@ -217,6 +220,7 @@ class NavControllerWithFragmentTest {
         // ensure original Fragment is dismissed and backStacks are in sync
         assertThat(navigator.backStack.value.size).isEqualTo(1)
         assertThat(fm.fragments.size).isEqualTo(2) // start + dialog fragment
+        assertThat(navController.visibleEntries.value.size).isEqualTo(2)
     }
 
     @Test
@@ -310,6 +314,9 @@ class NavControllerWithFragmentTest {
         fm?.executePendingTransactions()
 
         assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo("first")
+        assertThat(navController.visibleEntries.value).containsExactly(
+            navController.currentBackStackEntry
+        )
     }
 
     @LargeTest
@@ -335,6 +342,9 @@ class NavControllerWithFragmentTest {
         onBackPressedDispatcher.onBackPressed()
 
         assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo("third")
+        assertThat(navController.visibleEntries.value).containsExactly(
+            navController.currentBackStackEntry!!
+        )
     }
 
     @LargeTest
@@ -364,6 +374,9 @@ class NavControllerWithFragmentTest {
         onBackPressedDispatcher.onBackPressed()
 
         assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo("fourth")
+        assertThat(navController.visibleEntries.value).containsExactly(
+            navController.currentBackStackEntry!!
+        )
     }
 
     private fun withNavigationActivity(

@@ -20,7 +20,6 @@ import static androidx.appsearch.compiler.IntrospectionHelper.DOCUMENT_ANNOTATIO
 import static androidx.appsearch.compiler.IntrospectionHelper.getDocumentAnnotation;
 import static androidx.appsearch.compiler.IntrospectionHelper.getPropertyType;
 import static androidx.appsearch.compiler.IntrospectionHelper.validateIsGetter;
-
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 
@@ -360,7 +359,7 @@ public abstract class AnnotatedGetterOrField {
         List<? extends AnnotationMirror> annotations =
                 element.getAnnotationMirrors().stream()
                         .filter(ann -> ann.getAnnotationType().toString().startsWith(
-                                DOCUMENT_ANNOTATION_CLASS)).toList();
+                                DOCUMENT_ANNOTATION_CLASS.canonicalName())).toList();
         if (annotations.isEmpty()) {
             return null;
         }
@@ -533,7 +532,7 @@ public abstract class AnnotatedGetterOrField {
                 .anyMatch(expectedType -> typeUtils.isSameType(expectedType, target));
         if (!isValid) {
             String error = "@"
-                    + getterOrField.getAnnotation().getSimpleClassName()
+                    + getterOrField.getAnnotation().getClassName().simpleName()
                     + " must only be placed on a getter/field of type "
                     + (allowRepeated ? "or array or collection of " : "")
                     + expectedTypes.stream().map(TypeMirror::toString).collect(joining("|"));

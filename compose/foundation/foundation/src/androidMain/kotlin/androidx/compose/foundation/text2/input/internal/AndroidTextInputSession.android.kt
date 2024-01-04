@@ -26,9 +26,7 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text2.input.InputTransformation
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
-import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.ui.platform.PlatformTextInputSession
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
@@ -39,7 +37,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.suspendCancellableCoroutine
 import org.jetbrains.annotations.TestOnly
 
 /** Enable to print logs during debugging, see [logDebug]. */
@@ -70,10 +67,10 @@ internal fun setInputConnectionInterceptorForTests(
     inputConnectionInterceptor = interceptor
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
-    state: TextFieldState,
+    state: TransformedTextFieldState,
     imeOptions: ImeOptions,
-    filter: InputTransformation?,
     onImeAction: ((ImeAction) -> Unit)?
 ): Nothing {
     val composeImm = ComposeInputMethodManager(view)
@@ -93,7 +90,9 @@ internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSe
                     )
                 }
 
-                if (!old.contentEquals(new)) {
+                // No need to restart the IME if keyboard type is configured as Password. IME
+                // should not keep an internal input state if the content needs to be secured.
+                if (!old.contentEquals(new) && imeOptions.keyboardType != KeyboardType.Password) {
                     composeImm.restartInput()
                 }
             }
@@ -107,8 +106,7 @@ internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSe
                     get() = state.text
 
                 override fun requestEdit(block: EditingBuffer.() -> Unit) {
-                    state.editAsUser(
-                        inputTransformation = filter,
+                    state.editUntransformedTextAsUser(
                         notifyImeOfChanges = false,
                         block = block
                     )
@@ -229,21 +227,6 @@ internal fun EditorInfo.update(textFieldValue: TextFieldCharSequence, imeOptions
     EditorInfoCompat.setInitialSurroundingText(this, textFieldValue)
 
     this.imeOptions = this.imeOptions or EditorInfo.IME_FLAG_NO_FULLSCREEN
-}
-
-/**
- * Adds [notifyImeListener] to this [TextFieldState] and then suspends until cancelled, removing the
- * listener before continuing.
- */
-private suspend inline fun TextFieldState.collectImeNotifications(
-    notifyImeListener: TextFieldState.NotifyImeListener
-): Nothing {
-    suspendCancellableCoroutine<Nothing> { continuation ->
-        addNotifyImeListener(notifyImeListener)
-        continuation.invokeOnCancellation {
-            removeNotifyImeListener(notifyImeListener)
-        }
-    }
 }
 
 private fun hasFlag(bits: Int, flag: Int): Boolean = (bits and flag) == flag

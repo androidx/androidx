@@ -31,6 +31,7 @@ import java.lang.annotation.Retention;
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 @RequiresApi(19)
+@Deprecated
 public class SliceHints {
 
     /**

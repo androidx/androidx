@@ -16,12 +16,8 @@
 
 package androidx.compose.foundation.demos.snapping
 
-import androidx.compose.animation.core.DecayAnimationSpec
-import androidx.compose.animation.core.calculateTargetValue
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.FlingBehavior
-import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -32,6 +28,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.integration.demos.common.ComposableDemo
 import androidx.compose.integration.demos.common.DemoCategory
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -42,45 +39,21 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlin.math.absoluteValue
-import kotlin.math.sign
 
 val SnappingDemos = listOf(
     DemoCategory("Lazy List Snapping", LazyListSnappingDemos),
     DemoCategory("Scrollable Row Snapping", RowSnappingDemos),
     DemoCategory("Lazy Grid Snapping", LazyGridSnappingDemos),
+    ComposableDemo("Non Item based Snapping") {
+        NonItemBasedLayout()
+    },
 )
 
-@OptIn(ExperimentalFoundationApi::class)
-internal class MultiPageSnappingLayoutInfoProvider(
-    private val baseSnapLayoutInfoProvider: SnapLayoutInfoProvider,
-    private val decayAnimationSpec: DecayAnimationSpec<Float>
-) : SnapLayoutInfoProvider by baseSnapLayoutInfoProvider {
-    override fun Density.calculateApproachOffset(initialVelocity: Float): Float {
-        val offset = decayAnimationSpec.calculateTargetValue(0f, initialVelocity)
-        val finalDecayedOffset = (offset.absoluteValue - calculateSnapStepSize()).coerceAtLeast(0f)
-        return finalDecayedOffset * initialVelocity.sign
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-internal class ViewPortBasedSnappingLayoutInfoProvider(
-    private val baseSnapLayoutInfoProvider: SnapLayoutInfoProvider,
-    private val decayAnimationSpec: DecayAnimationSpec<Float>,
-    private val viewPortStep: () -> Float
-) : SnapLayoutInfoProvider by baseSnapLayoutInfoProvider {
-    override fun Density.calculateApproachOffset(initialVelocity: Float): Float {
-        val offset = decayAnimationSpec.calculateTargetValue(0f, initialVelocity)
-        val viewPortOffset = viewPortStep()
-        return offset.coerceIn(-viewPortOffset, viewPortOffset)
-    }
-}
-
+@Suppress("PrimitiveInLambda")
 @Composable
 internal fun SnappingDemoMainLayout(
     lazyListState: LazyListState,

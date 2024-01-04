@@ -162,7 +162,7 @@
     <string name="go_straight" msgid="2301747728609198718">"ನೇರವಾಗಿ ಹೋಗಿ"</string>
     <string name="turn_right" msgid="4710562732720109969">"ಬಲಕ್ಕೆ ತಿರುಗಿ"</string>
     <string name="take_520" msgid="3804796387195842741">"520 ಗೆ ಹೋಗಿ"</string>
-    <string name="gas_station" msgid="1203313937444666161">"ಗ್ಯಾಸ್ ಸ್ಟೇಶನ್"</string>
+    <string name="gas_station" msgid="1203313937444666161">"ಪೆಟ್ರೋಲ್ ಬಂಕ್"</string>
     <string name="short_route" msgid="4831864276538141265">"ಕಡಿಮೆ ದೂರದ ಮಾರ್ಗ"</string>
     <string name="less_busy" msgid="310625272281710983">"ಕಡಿಮೆ ಟ್ರಾಫಿಕ್"</string>
     <string name="hov_friendly" msgid="6956152104754594971">"HOV ಸ್ನೇಹಿ"</string>
@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"ಪಟ್ಟಿ ಟ್ಯಾಬ್"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"ಲಾಂಗ್ ಟ್ಯಾಬ್ ಶೀರ್ಷಿಕೆಯೊಂದಿಗೆ ಗ್ರಿಡ್ ಟ್ಯಾಬ್"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"ಹುಡುಕಾಟ ಟ್ಯಾಬ್"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"ಟ್ಯಾಬ್ ಅನ್ನು ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"ಟ್ಯಾಬ್ ಟೆಂಪ್ಲೇಟ್‌‌ ಲೋಡ್ ಆಗುತ್ತಿರುವ ಡೆಮೋ"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"ಟ್ಯಾಬ್ ಟೆಂಪ್ಲೇಟ್‌‌ ಯಾವುದೇ ಟ್ಯಾಬ್‌ಗಳ ಡೆಮೋ ಇಲ್ಲ"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"ಅಪರಿಚಿತ ಹೋಸ್ಟ್‌ಗಾಗಿ ಚಿತ್ರಗಳನ್ನು ಪ್ರದರ್ಶಿಸಲಾಗುವುದಿಲ್ಲ"</string>

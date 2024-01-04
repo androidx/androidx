@@ -126,8 +126,9 @@ public open class NavController(
      * whenever they change. If there is no visible [NavBackStackEntry], this will be set to an
      * empty list.
      *
-     * - `CREATED` entries are listed first and include all entries that have been popped from
-     * the back stack and are in the process of completing their exit transition
+     * - `CREATED` entries are listed first and include all entries that are in the process of
+     * completing their exit transition. Note that this can include entries that have been
+     * popped off the Navigation back stack.
      * - `STARTED` entries on the back stack are next and include all entries that are running
      * their enter transition and entries whose destination is partially covered by a
      * `FloatingWindow` destination

@@ -567,5 +567,9 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
             if (isColdStartupTracing) InitialProcessState.NotAlive else InitialProcessState.Alive,
             provideBinariesIfMissing
         )
-    )
+    ).let { (resultCode, message) ->
+        // Maps the response into the old contract of [enableAndroidxTracingPerfetto], where for
+        // success we get a [null] response; otherwise an error message
+        if (resultCode == RESULT_CODE_SUCCESS) null else message
+    }
 }

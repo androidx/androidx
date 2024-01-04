@@ -45,6 +45,7 @@ import androidx.versionedparcelable.VersionedParcelize;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @VersionedParcelize(allowSerialization = true)
 @RequiresApi(19)
+@Deprecated
 public final class SliceSpec implements VersionedParcelable {
 
     @ParcelField(1)

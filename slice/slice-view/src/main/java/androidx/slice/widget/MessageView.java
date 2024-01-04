@@ -40,6 +40,7 @@ import java.util.List;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
+@Deprecated
 public class MessageView extends SliceChildView {
 
     private TextView mDetails;

@@ -5,6 +5,8 @@ import androidx.appsearch.app.DocumentClassFactory;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.exceptions.AppSearchException;
 import java.lang.Class;
+import java.lang.Integer;
+import java.lang.Long;
 import java.lang.Override;
 import java.lang.String;
 import java.util.Collections;
@@ -41,9 +43,18 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   public GenericDocument toGenericDocument(Gift document) throws AppSearchException {
     GenericDocument.Builder<?> builder =
         new GenericDocument.Builder<>(document.mNamespace, document.mId, SCHEMA_NAME);
-    builder.setCreationTimestampMillis((document.mCreationTimestampMillis != null) ? document.mCreationTimestampMillis.longValue() : 0L);
-    builder.setTtlMillis((document.getTtlMillis() != null) ? document.getTtlMillis().longValue() : 0L);
-    builder.setScore((document.mScore != null) ? document.mScore.intValue() : 0);
+    Long mCreationTimestampMillisCopy = document.mCreationTimestampMillis;
+    if (mCreationTimestampMillisCopy != null) {
+      builder.setCreationTimestampMillis(mCreationTimestampMillisCopy);
+    }
+    Integer mScoreCopy = document.mScore;
+    if (mScoreCopy != null) {
+      builder.setScore(mScoreCopy);
+    }
+    Long mTtlMillisCopy = document.getTtlMillis();
+    if (mTtlMillisCopy != null) {
+      builder.setTtlMillis(mTtlMillisCopy);
+    }
     String mStringCopy = document.mString;
     if (mStringCopy != null) {
       builder.setPropertyString("string", mStringCopy);

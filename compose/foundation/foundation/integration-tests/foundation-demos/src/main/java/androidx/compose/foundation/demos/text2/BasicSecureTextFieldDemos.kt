@@ -30,8 +30,10 @@ import androidx.compose.foundation.text2.BasicSecureTextField
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.TextObfuscationMode
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Button
 import androidx.compose.material.Icon
 import androidx.compose.material.IconToggleButton
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Warning
@@ -42,6 +44,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -55,6 +59,11 @@ fun BasicSecureTextFieldDemos() {
             .imePadding()
             .verticalScroll(rememberScrollState())
     ) {
+        val clipboardManager = LocalClipboardManager.current
+        Button(onClick = { clipboardManager.setText(AnnotatedString("\uD801\uDC37")) }) {
+            Text("Copy surrogate pair \"\uD801\uDC37\"")
+        }
+
         TagLine(tag = "Visible")
         BasicSecureTextFieldDemo(TextObfuscationMode.Visible)
 

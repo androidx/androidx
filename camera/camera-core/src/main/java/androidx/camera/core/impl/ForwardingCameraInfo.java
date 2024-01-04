@@ -27,6 +27,7 @@ import androidx.camera.core.DynamicRange;
 import androidx.camera.core.ExperimentalZeroShutterLag;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.FocusMeteringAction;
+import androidx.camera.core.PreviewCapabilities;
 import androidx.camera.core.ZoomState;
 import androidx.lifecycle.LiveData;
 
@@ -191,5 +192,21 @@ public class ForwardingCameraInfo implements CameraInfoInternal {
     @Override
     public CameraSelector getCameraSelector() {
         return mCameraInfoInternal.getCameraSelector();
+    }
+
+    @Override
+    public boolean isPreviewStabilizationSupported() {
+        return mCameraInfoInternal.isPreviewStabilizationSupported();
+    }
+
+    @Override
+    public boolean isVideoStabilizationSupported() {
+        return mCameraInfoInternal.isVideoStabilizationSupported();
+    }
+
+    @NonNull
+    @Override
+    public PreviewCapabilities getPreviewCapabilities() {
+        return mCameraInfoInternal.getPreviewCapabilities();
     }
 }

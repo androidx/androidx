@@ -23,26 +23,22 @@ import androidx.glance.layout.ContentScale
 import androidx.glance.unit.ColorProvider
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class BackgroundModifier private constructor(
-    val colorProvider: ColorProvider?,
-    val imageProvider: ImageProvider?,
-    val contentScale: ContentScale = ContentScale.FillBounds,
-) : GlanceModifier.Element {
-    init {
-        require((colorProvider != null) xor (imageProvider != null)) {
-            "Exactly one of colorProvider and imageProvider must be non-null"
-        }
+sealed interface BackgroundModifier : GlanceModifier.Element {
+
+    class Color(val colorProvider: ColorProvider) : BackgroundModifier {
+        override fun toString() =
+            "BackgroundModifier(colorProvider=$colorProvider)"
     }
 
-    constructor(colorProvider: ColorProvider) :
-        this(colorProvider = colorProvider, imageProvider = null)
-
-    constructor(imageProvider: ImageProvider, contentScale: ContentScale) :
-        this(colorProvider = null, imageProvider = imageProvider, contentScale = contentScale)
-
-    override fun toString() =
-        "BackgroundModifier(colorProvider=$colorProvider, imageProvider=$imageProvider, " +
-            "contentScale=$contentScale)"
+    class Image(
+        val imageProvider: ImageProvider?,
+        val contentScale: ContentScale = ContentScale.FillBounds,
+        val colorFilter: ColorFilter? = null
+    ) : BackgroundModifier {
+        override fun toString() =
+            "BackgroundModifier(colorFilter=$colorFilter, imageProvider=$imageProvider, " +
+                "contentScale=$contentScale)"
+    }
 }
 
 /**
@@ -67,7 +63,7 @@ fun GlanceModifier.background(@ColorRes color: Int): GlanceModifier =
  * the element.
  */
 fun GlanceModifier.background(colorProvider: ColorProvider): GlanceModifier =
-    this.then(BackgroundModifier(colorProvider))
+    this.then(BackgroundModifier.Color(colorProvider))
 
 /**
  * Apply a background image to the element this modifier is attached to.
@@ -76,4 +72,20 @@ fun GlanceModifier.background(
     imageProvider: ImageProvider,
     contentScale: ContentScale = ContentScale.FillBounds
 ): GlanceModifier =
-    this.then(BackgroundModifier(imageProvider, contentScale))
+    this.then(BackgroundModifier.Image(imageProvider, contentScale))
+
+/**
+ * Apply a background image to the element this modifier is attached to.
+ */
+fun GlanceModifier.background(
+    imageProvider: ImageProvider,
+    tint: ColorFilter?,
+    contentScale: ContentScale = ContentScale.FillBounds,
+    ): GlanceModifier =
+    this.then(
+        BackgroundModifier.Image(
+            imageProvider = imageProvider,
+            contentScale = contentScale,
+            colorFilter = tint
+        )
+    )

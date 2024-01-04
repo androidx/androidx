@@ -18,7 +18,6 @@ package androidx.camera.camera2.internal;
 
 import static android.content.pm.PackageManager.FEATURE_CAMERA_CONCURRENT;
 import static android.hardware.camera2.CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES;
-
 import static androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_1080P;
 import static androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_480P;
 import static androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_VGA;
@@ -95,6 +94,8 @@ final class SupportedSurfaceCombination {
     private final List<SurfaceCombination> mSurfaceCombinations = new ArrayList<>();
     private final List<SurfaceCombination> mUltraHighSurfaceCombinations = new ArrayList<>();
     private final List<SurfaceCombination> mConcurrentSurfaceCombinations = new ArrayList<>();
+    private final List<SurfaceCombination> mPreviewStabilizationSurfaceCombinations =
+            new ArrayList<>();
     private final Map<FeatureSettings, List<SurfaceCombination>>
             mFeatureSettingsToSupportedCombinationsMap = new HashMap<>();
     private final List<SurfaceCombination> mSurfaceCombinations10Bit = new ArrayList<>();
@@ -110,6 +111,7 @@ final class SupportedSurfaceCombination {
     private boolean mIsConcurrentCameraModeSupported = false;
     private boolean mIsStreamUseCaseSupported = false;
     private boolean mIsUltraHighResolutionSensorSupported = false;
+    private boolean mIsPreviewStabilizationSupported = false;
     @VisibleForTesting
     SurfaceSizeDefinition mSurfaceSizeDefinition;
     List<Integer> mSurfaceSizeDefinitionFormats = new ArrayList<>();
@@ -182,6 +184,12 @@ final class SupportedSurfaceCombination {
         mIsStreamUseCaseSupported = StreamUseCaseUtil.isStreamUseCaseSupported(mCharacteristics);
         if (mIsStreamUseCaseSupported) {
             generateStreamUseCaseSupportedCombinationList();
+        }
+
+        mIsPreviewStabilizationSupported =
+                VideoStabilizationUtil.isPreviewStabilizationSupported(mCharacteristics);
+        if (mIsPreviewStabilizationSupported) {
+            generatePreviewStabilizationSupportedCombinationList();
         }
 
         generateSurfaceSizeDefinition();
@@ -267,7 +275,8 @@ final class SupportedSurfaceCombination {
                     supportedSurfaceCombinations.addAll(mSurfaceCombinations);
                     break;
                 default:
-                    supportedSurfaceCombinations.addAll(mSurfaceCombinations);
+                    supportedSurfaceCombinations.addAll(featureSettings.isPreviewStabilizationOn()
+                            ? mPreviewStabilizationSurfaceCombinations : mSurfaceCombinations);
                     break;
             }
         } else if (featureSettings.getRequiredMaxBitDepth() == DynamicRange.BIT_DEPTH_10_BIT) {
@@ -521,6 +530,7 @@ final class SupportedSurfaceCombination {
      * @param attachedSurfaces                  the existing surfaces.
      * @param newUseCaseConfigsSupportedSizeMap newly added UseCaseConfig to supported output
      *                                          sizes map.
+     * @param isPreviewStabilizationOn          whether the preview stabilization is enabled.
      * @return the suggested stream specifications, which is a pair of mappings. The first
      * mapping is from UseCaseConfig to the suggested stream specification representing new
      * UseCases. The second mapping is from attachedSurfaceInfo to the suggested stream
@@ -536,7 +546,8 @@ final class SupportedSurfaceCombination {
             getSuggestedStreamSpecifications(
             @CameraMode.Mode int cameraMode,
             @NonNull List<AttachedSurfaceInfo> attachedSurfaces,
-            @NonNull Map<UseCaseConfig<?>, List<Size>> newUseCaseConfigsSupportedSizeMap) {
+            @NonNull Map<UseCaseConfig<?>, List<Size>> newUseCaseConfigsSupportedSizeMap,
+            boolean isPreviewStabilizationOn) {
         // Refresh Preview Size based on current display configurations.
         refreshPreviewSize();
         List<SurfaceConfig> surfaceConfigs = new ArrayList<>();
@@ -553,7 +564,8 @@ final class SupportedSurfaceCombination {
                 mDynamicRangeResolver.resolveAndValidateDynamicRanges(attachedSurfaces,
                         newUseCaseConfigs, useCasesPriorityOrder);
         int requiredMaxBitDepth = getRequiredMaxBitDepth(resolvedDynamicRanges);
-        FeatureSettings featureSettings = FeatureSettings.of(cameraMode, requiredMaxBitDepth);
+        FeatureSettings featureSettings = FeatureSettings.of(cameraMode, requiredMaxBitDepth,
+                isPreviewStabilizationOn);
         if (cameraMode != CameraMode.DEFAULT
                 && requiredMaxBitDepth == DynamicRange.BIT_DEPTH_10_BIT) {
             throw new IllegalArgumentException(String.format("No supported surface combination is "
@@ -1104,6 +1116,13 @@ final class SupportedSurfaceCombination {
         }
     }
 
+    private void generatePreviewStabilizationSupportedCombinationList() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            mPreviewStabilizationSurfaceCombinations.addAll(
+                    GuaranteedConfigurationsUtil.getPreviewStabilizationSupportedCombinationList());
+        }
+    }
+
     private void checkCustomization() {
         // TODO(b/119466260): Integrate found feasible stream combinations into supported list
     }
@@ -1334,9 +1353,10 @@ final class SupportedSurfaceCombination {
     abstract static class FeatureSettings {
         @NonNull
         static FeatureSettings of(@CameraMode.Mode int cameraMode,
-                @RequiredMaxBitDepth int requiredMaxBitDepth) {
+                @RequiredMaxBitDepth int requiredMaxBitDepth,
+                boolean isPreviewStabilizationOn) {
             return new AutoValue_SupportedSurfaceCombination_FeatureSettings(
-                    cameraMode, requiredMaxBitDepth);
+                    cameraMode, requiredMaxBitDepth, isPreviewStabilizationOn);
         }
 
         /**
@@ -1364,5 +1384,10 @@ final class SupportedSurfaceCombination {
          * {@link CameraCharacteristics#REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT}.
          */
         abstract @RequiredMaxBitDepth int getRequiredMaxBitDepth();
+
+        /**
+         * Whether the preview stabilization is enabled.
+         */
+        abstract boolean isPreviewStabilizationOn();
     }
 }

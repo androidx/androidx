@@ -19,8 +19,8 @@ package androidx.compose.foundation.text2.input.internal.selection
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.selection.visibleBounds
-import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.internal.TextLayoutState
+import androidx.compose.foundation.text2.input.internal.TransformedTextFieldState
 import androidx.compose.foundation.text2.input.internal.coerceIn
 import androidx.compose.foundation.text2.input.internal.fromInnerToDecoration
 import androidx.compose.ui.geometry.Offset
@@ -35,14 +35,13 @@ import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.unit.IntSize
 import kotlin.math.absoluteValue
 
-@OptIn(ExperimentalFoundationApi::class)
 internal abstract class TextFieldMagnifierNode : DelegatingNode(),
     OnGloballyPositionedModifier,
     DrawModifierNode,
     SemanticsModifierNode {
 
     abstract fun update(
-        textFieldState: TextFieldState,
+        textFieldState: TransformedTextFieldState,
         textFieldSelectionState: TextFieldSelectionState,
         textLayoutState: TextLayoutState,
         isFocused: Boolean
@@ -55,10 +54,9 @@ internal abstract class TextFieldMagnifierNode : DelegatingNode(),
     override fun SemanticsPropertyReceiver.applySemantics() {}
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Suppress("ModifierFactoryExtensionFunction", "ModifierFactoryReturnType")
 internal expect fun textFieldMagnifierNode(
-    textFieldState: TextFieldState,
+    textFieldState: TransformedTextFieldState,
     textFieldSelectionState: TextFieldSelectionState,
     textLayoutState: TextLayoutState,
     isFocused: Boolean
@@ -66,7 +64,7 @@ internal expect fun textFieldMagnifierNode(
 
 @OptIn(ExperimentalFoundationApi::class)
 internal fun calculateSelectionMagnifierCenterAndroid(
-    textFieldState: TextFieldState,
+    textFieldState: TransformedTextFieldState,
     selectionState: TextFieldSelectionState,
     textLayoutState: TextLayoutState,
     magnifierSize: IntSize

@@ -73,31 +73,34 @@ private val invalidNoEoiData = listOf(
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class InvalidJpegDataParserTest(
+    private val brand: String,
     private val model: String,
     private val data: ByteArray,
     private val validDataLength: Int,
-    ) {
+) {
 
     companion object {
         @JvmStatic
-        @ParameterizedRobolectricTestRunner.Parameters(name = "model={0}, data={1}, length={2}")
+        @ParameterizedRobolectricTestRunner.Parameters(
+            name = "brand={0}, model={1}, data={2}, length={3}")
         fun data() = mutableListOf<Array<Any?>>().apply {
-            add(arrayOf("SM-A520F", problematicJpegByteArray, 18))
-            add(arrayOf("SM-A520F", problematicJpegByteArray2, 18))
-            add(arrayOf("SM-A520F", correctJpegByteArray1, 18))
-            add(arrayOf("SM-A520F", correctJpegByteArray2, 18))
-            add(arrayOf("SM-A520F", invalidVeryShortData, 2))
-            add(arrayOf("SM-A520F", invalidNoSosData, 28))
-            add(arrayOf("SM-A520F", invalidNoEoiData, 28))
-            add(arrayOf("fake-model", problematicJpegByteArray, 42))
-            add(arrayOf("fake-model", problematicJpegByteArray2, 64))
-            add(arrayOf("fake-model", correctJpegByteArray1, 28))
-            add(arrayOf("fake-model", correctJpegByteArray2, 18))
+            add(arrayOf("SAMSUNG", "SM-A520F", problematicJpegByteArray, 18))
+            add(arrayOf("SAMSUNG", "SM-A520F", problematicJpegByteArray2, 18))
+            add(arrayOf("SAMSUNG", "SM-A520F", correctJpegByteArray1, 18))
+            add(arrayOf("SAMSUNG", "SM-A520F", correctJpegByteArray2, 18))
+            add(arrayOf("SAMSUNG", "SM-A520F", invalidVeryShortData, 2))
+            add(arrayOf("SAMSUNG", "SM-A520F", invalidNoSosData, 28))
+            add(arrayOf("SAMSUNG", "SM-A520F", invalidNoEoiData, 28))
+            add(arrayOf("fake-brand", "fake-model", problematicJpegByteArray, 42))
+            add(arrayOf("fake-brand", "fake-model", problematicJpegByteArray2, 64))
+            add(arrayOf("fake-brand", "fake-model", correctJpegByteArray1, 28))
+            add(arrayOf("fake-brand", "fake-model", correctJpegByteArray2, 18))
         }
     }
 
     @Test
     fun canGetValidJpegDataLength() {
+        ReflectionHelpers.setStaticField(Build::class.java, "BRAND", brand)
         ReflectionHelpers.setStaticField(Build::class.java, "MODEL", model)
         assertThat(InvalidJpegDataParser().getValidDataLength(data)).isEqualTo(validDataLength)
     }

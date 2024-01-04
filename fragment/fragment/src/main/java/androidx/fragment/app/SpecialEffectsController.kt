@@ -37,8 +37,6 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
     private val runningOperations = mutableListOf<Operation>()
     private var operationDirectionIsPop = false
     private var isContainerPostponed = false
-    // We have a call to executePendingTransactions in a handler
-    private var pendingExecute = false
 
     /**
      * Checks what [lifecycle impact][Operation.LifecycleImpact] of special effect for the
@@ -180,11 +178,10 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
             // associated with the last entering Operation is postponed
             isContainerPostponed = lastEnteringFragment?.isPostponed ?: false
         }
-        pendingExecute = true
     }
 
     fun isPendingExecute(): Boolean {
-        return pendingExecute
+        return pendingOperations.isNotEmpty()
     }
 
     fun forcePostponedExecutePendingOperations() {
@@ -205,7 +202,6 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
             // No operations should execute while the container is postponed
             return
         }
-        pendingExecute = false
         // If the container is not attached to the window, ignore the special effect
         // since none of the special effect systems will run them anyway.
         if (!ViewCompat.isAttachedToWindow(container)) {

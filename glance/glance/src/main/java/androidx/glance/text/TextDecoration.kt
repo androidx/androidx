@@ -17,8 +17,6 @@
 package androidx.glance.text
 
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.util.fastFold
-import androidx.compose.ui.util.fastJoinToString
 
 /**
  * Defines a horizontal line to be drawn on the text.
@@ -46,7 +44,7 @@ value class TextDecoration internal constructor(private val mask: Int) {
          * @param decorations The decorations to be added
          */
         fun combine(decorations: List<TextDecoration>): TextDecoration {
-            val mask = decorations.fastFold(0) { acc, decoration ->
+            val mask = decorations.fold(0) { acc, decoration ->
                 acc or decoration.mask
             }
             return TextDecoration(mask)
@@ -83,6 +81,6 @@ value class TextDecoration internal constructor(private val mask: Int) {
         if ((values.size == 1)) {
             return "TextDecoration.${values[0]}"
         }
-        return "TextDecoration[${values.fastJoinToString(separator = ", ")}]"
+        return "TextDecoration[${values.joinToString(separator = ", ")}]"
     }
 }

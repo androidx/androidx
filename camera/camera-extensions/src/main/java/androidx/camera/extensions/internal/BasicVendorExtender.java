@@ -314,11 +314,23 @@ public class BasicVendorExtender implements VendorExtender {
     @Override
     public Size[] getSupportedYuvAnalysisResolutions() {
         ImageAnalysisAvailability imageAnalysisAvailability = new ImageAnalysisAvailability();
-        if (imageAnalysisAvailability.isUnavailable(mCameraId, mMode)) {
+        boolean hasPreviewProcessor = mPreviewExtenderImpl.getProcessorType()
+                == PreviewExtenderImpl.ProcessorType.PROCESSOR_TYPE_IMAGE_PROCESSOR;
+        boolean hasImageCaptureProcessor = mImageCaptureExtenderImpl.getCaptureProcessor() != null;
+        if (!imageAnalysisAvailability.isAvailable(mCameraId, getHardwareLevel(), mMode,
+                hasPreviewProcessor, hasImageCaptureProcessor)) {
             return new Size[0];
         }
         Preconditions.checkNotNull(mCameraInfo, "VendorExtender#init() must be called first");
         return getOutputSizes(ImageFormat.YUV_420_888);
+    }
+
+    private int getHardwareLevel() {
+        Integer hardwareLevel =
+                mCameraCharacteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
+
+        return hardwareLevel != null ? hardwareLevel :
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
     }
 
     @NonNull

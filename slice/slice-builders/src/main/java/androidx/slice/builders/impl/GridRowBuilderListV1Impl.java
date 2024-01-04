@@ -45,6 +45,7 @@ import java.util.List;
  */
 @RestrictTo(LIBRARY)
 @RequiresApi(19)
+@Deprecated
 public class GridRowBuilderListV1Impl extends TemplateBuilderImpl {
 
     private SliceAction mPrimaryAction;

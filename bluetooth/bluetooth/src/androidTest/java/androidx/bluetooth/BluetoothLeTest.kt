@@ -24,7 +24,6 @@ import androidx.test.rule.GrantPermissionRule
 import java.util.UUID
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assume
 import org.junit.Before
@@ -71,10 +70,9 @@ class BluetoothLeTest {
     fun advertise() = runTest {
         val advertiseParams = AdvertiseParams()
 
-        val advertiseResultStarted = bluetoothLe.advertise(advertiseParams)
-            .first()
-
-        assertEquals(AdvertiseResult.ADVERTISE_STARTED, advertiseResultStarted)
+        bluetoothLe.advertise(advertiseParams) {
+            assertEquals(BluetoothLe.ADVERTISE_STARTED, it)
+        }
     }
 
     @Test
@@ -86,9 +84,8 @@ class BluetoothLeTest {
             serviceData = mapOf(parcelUuid to serviceData)
         )
 
-        val advertiseResultStarted = bluetoothLe.advertise(advertiseParams)
-            .first()
-
-        assertEquals(AdvertiseResult.ADVERTISE_FAILED_DATA_TOO_LARGE, advertiseResultStarted)
+        bluetoothLe.advertise(advertiseParams) {
+            assertEquals(BluetoothLe.ADVERTISE_FAILED_DATA_TOO_LARGE, it)
+        }
     }
 }

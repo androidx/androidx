@@ -17,7 +17,7 @@
 package androidx.tv.material3
 
 /**
- * [NavigationDrawerScope] is used to provide the isActivated state to the NavigationDrawerItem
+ * [NavigationDrawerScope] is used to provide the isActivated state to the [NavigationDrawerItem]
  * composable
  */
 @ExperimentalTvMaterial3Api // TODO (b/263353219): Remove this before launching beta
@@ -25,10 +25,10 @@ interface NavigationDrawerScope {
     /**
      * Whether any item within the [NavigationDrawer] or [ModalNavigationDrawer] is focused
      */
-    val isActivated: Boolean
+    val doesNavigationDrawerHaveFocus: Boolean
 }
 
 @OptIn(ExperimentalTvMaterial3Api::class)
-internal class NavigationDrawerScopeImpl constructor(
-    override val isActivated: Boolean
+internal class NavigationDrawerScopeImpl(
+    override val doesNavigationDrawerHaveFocus: Boolean
 ) : NavigationDrawerScope

@@ -112,8 +112,10 @@ public class AppSearchImplTest {
         mAppSearchDir = mTemporaryFolder.newFolder();
         mAppSearchImpl = AppSearchImpl.create(
                 mAppSearchDir,
-                new UnlimitedLimitConfig(),
-                new DefaultIcingOptionsConfig(),
+                new AppSearchConfigImpl(
+                        new UnlimitedLimitConfig(),
+                        new DefaultIcingOptionsConfig()
+                ),
                 /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
@@ -498,7 +500,8 @@ public class AppSearchImplTest {
         InitializeStats.Builder initStatsBuilder = new InitializeStats.Builder();
         mAppSearchImpl.close();
         mAppSearchImpl = AppSearchImpl.create(
-                mAppSearchDir, new UnlimitedLimitConfig(), new DefaultIcingOptionsConfig(),
+                mAppSearchDir, new AppSearchConfigImpl(new UnlimitedLimitConfig(),
+                        new DefaultIcingOptionsConfig()),
                 initStatsBuilder, ALWAYS_OPTIMIZE, /*visibilityChecker=*/null);
 
         // Check recovery state
@@ -728,8 +731,10 @@ public class AppSearchImplTest {
                 (callerAccess, packageName, prefixedSchema, visibilityStore) -> true;
         mAppSearchImpl = AppSearchImpl.create(
                 tempFolder,
-                new UnlimitedLimitConfig(),
-                new DefaultIcingOptionsConfig(),
+                new AppSearchConfigImpl(
+                        new UnlimitedLimitConfig(),
+                        new DefaultIcingOptionsConfig()
+                ),
                 /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE,
                 mockVisibilityChecker);
@@ -902,8 +907,10 @@ public class AppSearchImplTest {
                 (callerAccess, packageName, prefixedSchema, visibilityStore) -> true;
         mAppSearchImpl = AppSearchImpl.create(
                 tempFolder,
-                new UnlimitedLimitConfig(),
-                new DefaultIcingOptionsConfig(),
+                new AppSearchConfigImpl(
+                        new UnlimitedLimitConfig(),
+                        new DefaultIcingOptionsConfig()
+                ),
                 /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE,
                 mockVisibilityChecker);
@@ -2861,8 +2868,10 @@ public class AppSearchImplTest {
         // That document should be visible even from another instance.
         AppSearchImpl appSearchImpl2 = AppSearchImpl.create(
                 mAppSearchDir,
-                new UnlimitedLimitConfig(),
-                new DefaultIcingOptionsConfig(),
+                new AppSearchConfigImpl(
+                        new UnlimitedLimitConfig(),
+                        new DefaultIcingOptionsConfig()
+                ),
                 /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
@@ -2931,8 +2940,10 @@ public class AppSearchImplTest {
         // Only the second document should be retrievable from another instance.
         AppSearchImpl appSearchImpl2 = AppSearchImpl.create(
                 mAppSearchDir,
-                new UnlimitedLimitConfig(),
-                new DefaultIcingOptionsConfig(),
+                new AppSearchConfigImpl(
+                        new UnlimitedLimitConfig(),
+                        new DefaultIcingOptionsConfig()
+                ),
                 /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
@@ -3008,8 +3019,10 @@ public class AppSearchImplTest {
         // Only the second document should be retrievable from another instance.
         AppSearchImpl appSearchImpl2 = AppSearchImpl.create(
                 mAppSearchDir,
-                new UnlimitedLimitConfig(),
-                new DefaultIcingOptionsConfig(),
+                new AppSearchConfigImpl(
+                        new UnlimitedLimitConfig(),
+                        new DefaultIcingOptionsConfig()
+                ),
                 /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
@@ -3120,8 +3133,7 @@ public class AppSearchImplTest {
         // Create a new mAppSearchImpl with a lower limit
         mAppSearchImpl.close();
         mAppSearchImpl = AppSearchImpl.create(
-                mTemporaryFolder.newFolder(),
-                new LimitConfig() {
+                mTemporaryFolder.newFolder(), new AppSearchConfigImpl(new LimitConfig() {
                     @Override
                     public int getMaxDocumentSizeBytes() {
                         return 80;
@@ -3136,8 +3148,7 @@ public class AppSearchImplTest {
                     public int getMaxSuggestionCount() {
                         return Integer.MAX_VALUE;
                     }
-                },
-                new DefaultIcingOptionsConfig(),
+                }, new DefaultIcingOptionsConfig()),
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
 
@@ -3201,8 +3212,7 @@ public class AppSearchImplTest {
         mAppSearchImpl.close();
         File tempFolder = mTemporaryFolder.newFolder();
         mAppSearchImpl = AppSearchImpl.create(
-                tempFolder,
-                new LimitConfig() {
+                tempFolder, new AppSearchConfigImpl(new LimitConfig() {
                     @Override
                     public int getMaxDocumentSizeBytes() {
                         return 80;
@@ -3217,8 +3227,7 @@ public class AppSearchImplTest {
                     public int getMaxSuggestionCount() {
                         return Integer.MAX_VALUE;
                     }
-                },
-                new DefaultIcingOptionsConfig(),
+                }, new DefaultIcingOptionsConfig()),
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
 
@@ -3260,8 +3269,7 @@ public class AppSearchImplTest {
         // Close and reinitialize AppSearchImpl
         mAppSearchImpl.close();
         mAppSearchImpl = AppSearchImpl.create(
-                tempFolder,
-                new LimitConfig() {
+                tempFolder, new AppSearchConfigImpl(new LimitConfig() {
                     @Override
                     public int getMaxDocumentSizeBytes() {
                         return 80;
@@ -3276,8 +3284,7 @@ public class AppSearchImplTest {
                     public int getMaxSuggestionCount() {
                         return Integer.MAX_VALUE;
                     }
-                },
-                new DefaultIcingOptionsConfig(),
+                }, new DefaultIcingOptionsConfig()),
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
 
@@ -3299,8 +3306,7 @@ public class AppSearchImplTest {
         // Create a new mAppSearchImpl with a lower limit
         mAppSearchImpl.close();
         mAppSearchImpl = AppSearchImpl.create(
-                mTemporaryFolder.newFolder(),
-                new LimitConfig() {
+                mTemporaryFolder.newFolder(), new AppSearchConfigImpl(new LimitConfig() {
                     @Override
                     public int getMaxDocumentSizeBytes() {
                         return Integer.MAX_VALUE;
@@ -3315,8 +3321,7 @@ public class AppSearchImplTest {
                     public int getMaxSuggestionCount() {
                         return Integer.MAX_VALUE;
                     }
-                },
-                new DefaultIcingOptionsConfig(),
+                }, new DefaultIcingOptionsConfig()),
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
 
@@ -3414,8 +3419,7 @@ public class AppSearchImplTest {
         mAppSearchImpl.close();
         File tempFolder = mTemporaryFolder.newFolder();
         mAppSearchImpl = AppSearchImpl.create(
-                tempFolder,
-                new LimitConfig() {
+                tempFolder, new AppSearchConfigImpl(new LimitConfig() {
                     @Override
                     public int getMaxDocumentSizeBytes() {
                         return Integer.MAX_VALUE;
@@ -3430,8 +3434,7 @@ public class AppSearchImplTest {
                     public int getMaxSuggestionCount() {
                         return Integer.MAX_VALUE;
                     }
-                },
-                new DefaultIcingOptionsConfig(),
+                }, new DefaultIcingOptionsConfig()),
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
 
@@ -3512,8 +3515,7 @@ public class AppSearchImplTest {
         // Reinitialize to make sure packages are parsed correctly on init
         mAppSearchImpl.close();
         mAppSearchImpl = AppSearchImpl.create(
-                tempFolder,
-                new LimitConfig() {
+                tempFolder, new AppSearchConfigImpl(new LimitConfig() {
                     @Override
                     public int getMaxDocumentSizeBytes() {
                         return Integer.MAX_VALUE;
@@ -3528,8 +3530,7 @@ public class AppSearchImplTest {
                     public int getMaxSuggestionCount() {
                         return Integer.MAX_VALUE;
                     }
-                },
-                new DefaultIcingOptionsConfig(),
+                }, new DefaultIcingOptionsConfig()),
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
 
@@ -3571,8 +3572,7 @@ public class AppSearchImplTest {
         // Create a new mAppSearchImpl with a lower limit
         mAppSearchImpl.close();
         mAppSearchImpl = AppSearchImpl.create(
-                mTemporaryFolder.newFolder(),
-                new LimitConfig() {
+                mTemporaryFolder.newFolder(), new AppSearchConfigImpl(new LimitConfig() {
                     @Override
                     public int getMaxDocumentSizeBytes() {
                         return Integer.MAX_VALUE;
@@ -3587,8 +3587,7 @@ public class AppSearchImplTest {
                     public int getMaxSuggestionCount() {
                         return Integer.MAX_VALUE;
                     }
-                },
-                new DefaultIcingOptionsConfig(),
+                }, new DefaultIcingOptionsConfig()),
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
 
@@ -3726,8 +3725,7 @@ public class AppSearchImplTest {
         // Create a new mAppSearchImpl with a lower limit
         mAppSearchImpl.close();
         mAppSearchImpl = AppSearchImpl.create(
-                mTemporaryFolder.newFolder(),
-                new LimitConfig() {
+                mTemporaryFolder.newFolder(), new AppSearchConfigImpl(new LimitConfig() {
                     @Override
                     public int getMaxDocumentSizeBytes() {
                         return Integer.MAX_VALUE;
@@ -3742,8 +3740,7 @@ public class AppSearchImplTest {
                     public int getMaxSuggestionCount() {
                         return Integer.MAX_VALUE;
                     }
-                },
-                new DefaultIcingOptionsConfig(),
+                }, new DefaultIcingOptionsConfig()),
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
 
@@ -3811,8 +3808,7 @@ public class AppSearchImplTest {
         mAppSearchImpl.close();
         File tempFolder = mTemporaryFolder.newFolder();
         mAppSearchImpl = AppSearchImpl.create(
-                tempFolder,
-                new LimitConfig() {
+                tempFolder, new AppSearchConfigImpl(new LimitConfig() {
                     @Override
                     public int getMaxDocumentSizeBytes() {
                         return Integer.MAX_VALUE;
@@ -3827,8 +3823,7 @@ public class AppSearchImplTest {
                     public int getMaxSuggestionCount() {
                         return Integer.MAX_VALUE;
                     }
-                },
-                new DefaultIcingOptionsConfig(),
+                }, new DefaultIcingOptionsConfig()),
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
 
@@ -3870,8 +3865,7 @@ public class AppSearchImplTest {
         // Reinitialize to make sure replacements are correctly accounted for by init
         mAppSearchImpl.close();
         mAppSearchImpl = AppSearchImpl.create(
-                tempFolder,
-                new LimitConfig() {
+                tempFolder, new AppSearchConfigImpl(new LimitConfig() {
                     @Override
                     public int getMaxDocumentSizeBytes() {
                         return Integer.MAX_VALUE;
@@ -3886,8 +3880,7 @@ public class AppSearchImplTest {
                     public int getMaxSuggestionCount() {
                         return Integer.MAX_VALUE;
                     }
-                },
-                new DefaultIcingOptionsConfig(),
+                }, new DefaultIcingOptionsConfig()),
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
 
@@ -3918,8 +3911,7 @@ public class AppSearchImplTest {
         mAppSearchImpl.close();
         File tempFolder = mTemporaryFolder.newFolder();
         mAppSearchImpl = AppSearchImpl.create(
-                tempFolder,
-                new LimitConfig() {
+                tempFolder, new AppSearchConfigImpl(new LimitConfig() {
                     @Override
                     public int getMaxDocumentSizeBytes() {
                         return Integer.MAX_VALUE;
@@ -3934,8 +3926,7 @@ public class AppSearchImplTest {
                     public int getMaxSuggestionCount() {
                         return 2;
                     }
-                },
-                new DefaultIcingOptionsConfig(),
+                }, new DefaultIcingOptionsConfig()),
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
 
@@ -4036,8 +4027,10 @@ public class AppSearchImplTest {
                 (callerAccess, packageName, prefixedSchema, visibilityStore) -> false;
         mAppSearchImpl = AppSearchImpl.create(
                 tempFolder,
-                new UnlimitedLimitConfig(),
-                new DefaultIcingOptionsConfig(),
+                new AppSearchConfigImpl(
+                        new UnlimitedLimitConfig(),
+                        new DefaultIcingOptionsConfig()
+                ),
                 /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE,
                 mockVisibilityChecker);
@@ -4087,8 +4080,10 @@ public class AppSearchImplTest {
                 (callerAccess, packageName, prefixedSchema, visibilityStore) -> true;
         mAppSearchImpl = AppSearchImpl.create(
                 tempFolder,
-                new UnlimitedLimitConfig(),
-                new DefaultIcingOptionsConfig(),
+                new AppSearchConfigImpl(
+                        new UnlimitedLimitConfig(),
+                        new DefaultIcingOptionsConfig()
+                ),
                 /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE,
                 mockVisibilityChecker);
@@ -4136,8 +4131,10 @@ public class AppSearchImplTest {
                 (callerAccess, packageName, prefixedSchema, visibilityStore) -> true;
         mAppSearchImpl = AppSearchImpl.create(
                 tempFolder,
-                new UnlimitedLimitConfig(),
-                new DefaultIcingOptionsConfig(),
+                new AppSearchConfigImpl(
+                        new UnlimitedLimitConfig(),
+                        new DefaultIcingOptionsConfig()
+                ),
                 /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE,
                 mockVisibilityChecker);
@@ -4187,8 +4184,10 @@ public class AppSearchImplTest {
                         callerAccess.getCallingPackageName().equals("visiblePackage");
         mAppSearchImpl = AppSearchImpl.create(
                 tempFolder,
-                new UnlimitedLimitConfig(),
-                new DefaultIcingOptionsConfig(),
+                new AppSearchConfigImpl(
+                        new UnlimitedLimitConfig(),
+                        new DefaultIcingOptionsConfig()
+                ),
                 /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE,
                 mockVisibilityChecker);
@@ -4530,8 +4529,10 @@ public class AppSearchImplTest {
         mAppSearchImpl.close();
         mAppSearchImpl = AppSearchImpl.create(
                 mAppSearchDir,
-                new UnlimitedLimitConfig(),
-                new DefaultIcingOptionsConfig(),
+                new AppSearchConfigImpl(
+                        new UnlimitedLimitConfig(),
+                        new DefaultIcingOptionsConfig()
+                ),
                 /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
@@ -4569,8 +4570,10 @@ public class AppSearchImplTest {
         mAppSearchImpl.close();
         mAppSearchImpl = AppSearchImpl.create(
                 mAppSearchDir,
-                new UnlimitedLimitConfig(),
-                new DefaultIcingOptionsConfig(),
+                new AppSearchConfigImpl(
+                        new UnlimitedLimitConfig(),
+                        new DefaultIcingOptionsConfig()
+                ),
                 /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
@@ -4600,8 +4603,10 @@ public class AppSearchImplTest {
                 (callerAccess, packageName, prefixedSchema, visibilityStore) -> true;
         mAppSearchImpl = AppSearchImpl.create(
                 tempFolder,
-                new UnlimitedLimitConfig(),
-                new DefaultIcingOptionsConfig(),
+                new AppSearchConfigImpl(
+                        new UnlimitedLimitConfig(),
+                        new DefaultIcingOptionsConfig()
+                ),
                 /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE,
                 mockVisibilityChecker);
@@ -4696,8 +4701,10 @@ public class AppSearchImplTest {
                         -> prefixedSchema.endsWith("VisibleType");
         mAppSearchImpl = AppSearchImpl.create(
                 tempFolder,
-                new UnlimitedLimitConfig(),
-                new DefaultIcingOptionsConfig(),
+                new AppSearchConfigImpl(
+                        new UnlimitedLimitConfig(),
+                        new DefaultIcingOptionsConfig()
+                ),
                 /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE,
                 mockVisibilityChecker);
@@ -4783,8 +4790,10 @@ public class AppSearchImplTest {
         mAppSearchImpl.close();
         mAppSearchImpl = AppSearchImpl.create(
                 mAppSearchDir,
-                new UnlimitedLimitConfig(),
-                new DefaultIcingOptionsConfig(),
+                new AppSearchConfigImpl(
+                        new UnlimitedLimitConfig(),
+                        new DefaultIcingOptionsConfig()
+                ),
                 /*initStatsBuilder=*/null,
                 ALWAYS_OPTIMIZE,
                 rejectChecker);
@@ -4885,8 +4894,10 @@ public class AppSearchImplTest {
         mAppSearchImpl.close();
         mAppSearchImpl = AppSearchImpl.create(
                 mAppSearchDir,
-                new UnlimitedLimitConfig(),
-                new DefaultIcingOptionsConfig(),
+                new AppSearchConfigImpl(
+                        new UnlimitedLimitConfig(),
+                        new DefaultIcingOptionsConfig()
+                ),
                 /*initStatsBuilder=*/null,
                 ALWAYS_OPTIMIZE,
                 visibilityChecker);
@@ -4945,8 +4956,10 @@ public class AppSearchImplTest {
         mAppSearchImpl.close();
         mAppSearchImpl = AppSearchImpl.create(
                 mAppSearchDir,
-                new UnlimitedLimitConfig(),
-                new DefaultIcingOptionsConfig(),
+                new AppSearchConfigImpl(
+                        new UnlimitedLimitConfig(),
+                        new DefaultIcingOptionsConfig()
+                ),
                 /*initStatsBuilder=*/null,
                 ALWAYS_OPTIMIZE,
                 rejectChecker);
@@ -5271,8 +5284,10 @@ public class AppSearchImplTest {
         mAppSearchImpl.close();
         mAppSearchImpl = AppSearchImpl.create(
                 mAppSearchDir,
-                new UnlimitedLimitConfig(),
-                new DefaultIcingOptionsConfig(),
+                new AppSearchConfigImpl(
+                        new UnlimitedLimitConfig(),
+                        new DefaultIcingOptionsConfig()
+                ),
                 /*initStatsBuilder=*/null,
                 ALWAYS_OPTIMIZE,
                 visibilityChecker);
@@ -5427,8 +5442,10 @@ public class AppSearchImplTest {
         mAppSearchImpl.close();
         mAppSearchImpl = AppSearchImpl.create(
                 mAppSearchDir,
-                new UnlimitedLimitConfig(),
-                new DefaultIcingOptionsConfig(),
+                new AppSearchConfigImpl(
+                        new UnlimitedLimitConfig(),
+                        new DefaultIcingOptionsConfig()
+                ),
                 /*initStatsBuilder=*/null,
                 ALWAYS_OPTIMIZE,
                 visibilityChecker);
@@ -5514,8 +5531,10 @@ public class AppSearchImplTest {
         mAppSearchImpl.close();
         mAppSearchImpl = AppSearchImpl.create(
                 mAppSearchDir,
-                new UnlimitedLimitConfig(),
-                new DefaultIcingOptionsConfig(),
+                new AppSearchConfigImpl(
+                        new UnlimitedLimitConfig(),
+                        new DefaultIcingOptionsConfig()
+                ),
                 /*initStatsBuilder=*/null,
                 ALWAYS_OPTIMIZE,
                 visibilityChecker);
@@ -5605,8 +5624,10 @@ public class AppSearchImplTest {
         mAppSearchImpl.close();
         mAppSearchImpl = AppSearchImpl.create(
                 mAppSearchDir,
-                new UnlimitedLimitConfig(),
-                new DefaultIcingOptionsConfig(),
+                new AppSearchConfigImpl(
+                        new UnlimitedLimitConfig(),
+                        new DefaultIcingOptionsConfig()
+                ),
                 /*initStatsBuilder=*/null,
                 ALWAYS_OPTIMIZE,
                 visibilityChecker);

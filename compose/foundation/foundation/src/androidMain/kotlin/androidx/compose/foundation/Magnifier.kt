@@ -20,7 +20,6 @@ import android.os.Build
 import android.view.View
 import android.widget.Magnifier
 import androidx.annotation.ChecksSdkIntAtLeast
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -62,145 +61,13 @@ internal val MagnifierPositionInRoot =
     SemanticsPropertyKey<() -> Offset>("MagnifierPositionInRoot")
 
 /**
- * Specifies how a [magnifier] should create the underlying [Magnifier] widget. These properties
- * should not be changed while a magnifier is showing, since the magnifier will be dismissed and
- * recreated with the new properties which will cause it to disappear for at least a frame.
- *
- * Not all magnifier features are supported on all platforms. The [isSupported] property will return
- * false for styles that cannot be fully supported on the given platform.
- *
- * @param size See [Magnifier.Builder.setSize]. Only supported on API 29+.
- * @param cornerRadius See [Magnifier.Builder.setCornerRadius]. Only supported on API 29+.
- * @param elevation See [Magnifier.Builder.setElevation]. Only supported on API 29+.
- * @param clippingEnabled See [Magnifier.Builder.setClippingEnabled]. Only supported on API 29+.
- * @param fishEyeEnabled Configures the magnifier to distort the magnification at the edges to
- * look like a fisheye lens. Not currently supported.
- */
-@ExperimentalFoundationApi
-@Stable
-class MagnifierStyle internal constructor(
-    internal val useTextDefault: Boolean,
-    internal val size: DpSize,
-    internal val cornerRadius: Dp,
-    internal val elevation: Dp,
-    internal val clippingEnabled: Boolean,
-    internal val fishEyeEnabled: Boolean
-) {
-    @ExperimentalFoundationApi
-    constructor(
-        size: DpSize = DpSize.Unspecified,
-        cornerRadius: Dp = Dp.Unspecified,
-        elevation: Dp = Dp.Unspecified,
-        clippingEnabled: Boolean = true,
-        fishEyeEnabled: Boolean = false
-    ) : this(
-        useTextDefault = false,
-        size = size,
-        cornerRadius = cornerRadius,
-        elevation = elevation,
-        clippingEnabled = clippingEnabled,
-        fishEyeEnabled = fishEyeEnabled,
-    )
-
-    /**
-     * Returns true if this style is supported by this version of the platform.
-     * When false is returned, it may be either because the [Magnifier] widget is not supported at
-     * all because the platform is too old, or because a particular style flag (e.g.
-     * [fishEyeEnabled]) is not supported on the current platform.
-     * [Default] and [TextDefault] styles are supported on all platforms with SDK version 28 and
-     * higher.
-     */
-    val isSupported: Boolean
-        get() = isStyleSupported(this)
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is MagnifierStyle) return false
-
-        if (useTextDefault != other.useTextDefault) return false
-        if (size != other.size) return false
-        if (cornerRadius != other.cornerRadius) return false
-        if (elevation != other.elevation) return false
-        if (clippingEnabled != other.clippingEnabled) return false
-        if (fishEyeEnabled != other.fishEyeEnabled) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = useTextDefault.hashCode()
-        result = 31 * result + size.hashCode()
-        result = 31 * result + cornerRadius.hashCode()
-        result = 31 * result + elevation.hashCode()
-        result = 31 * result + clippingEnabled.hashCode()
-        result = 31 * result + fishEyeEnabled.hashCode()
-        return result
-    }
-
-    override fun toString(): String {
-        return if (useTextDefault) {
-            "MagnifierStyle.TextDefault"
-        } else {
-            "MagnifierStyle(" +
-                "size=$size, " +
-                "cornerRadius=$cornerRadius, " +
-                "elevation=$elevation, " +
-                "clippingEnabled=$clippingEnabled, " +
-                "fishEyeEnabled=$fishEyeEnabled" +
-                ")"
-        }
-    }
-
-    companion object {
-        /** A [MagnifierStyle] with all default values. */
-        @ExperimentalFoundationApi
-        val Default = MagnifierStyle()
-
-        /**
-         * A [MagnifierStyle] that uses the system defaults for text magnification.
-         *
-         * Different versions of Android may use different magnifier styles for magnifying text, so
-         * using this configuration ensures that the correct style is used to match the system.
-         */
-        @ExperimentalFoundationApi
-        val TextDefault = MagnifierStyle(
-            useTextDefault = true,
-            size = Default.size,
-            cornerRadius = Default.cornerRadius,
-            elevation = Default.elevation,
-            clippingEnabled = Default.clippingEnabled,
-            fishEyeEnabled = Default.fishEyeEnabled,
-        )
-
-        internal fun isStyleSupported(
-            style: MagnifierStyle,
-            sdkVersion: Int = Build.VERSION.SDK_INT
-        ): Boolean {
-            return if (!isPlatformMagnifierSupported(sdkVersion)) {
-                // Older platform versions don't support magnifier at all.
-                false
-            } else if (style.fishEyeEnabled) {
-                // TODO(b/202451044) Add fisheye support once platform APIs are exposed.
-                false
-            } else if (style.useTextDefault || style == Default) {
-                // Default styles are always available on all platforms that support magnifier.
-                true
-            } else {
-                // Custom styles aren't supported on API 28.
-                sdkVersion >= 29
-            }
-        }
-    }
-}
-
-/**
  * Shows a [Magnifier] widget that shows an enlarged version of the content at [sourceCenter]
  * relative to the current layout node.
  *
  * This function returns a no-op modifier on API levels below P (28), since the framework does not
  * support the [Magnifier] widget on those levels. However, even on higher API levels, not all
- * magnifier features are supported on all platforms. To check whether a given [MagnifierStyle] is
- * supported by the current platform, check the [MagnifierStyle.isSupported] property.
+ * magnifier features are supported on all platforms. Please refer to parameter explanations below
+ * to learn more about supported features on different platform versions.
  *
  * This function does not allow configuration of [source bounds][Magnifier.Builder.setSourceBounds]
  * since the magnifier widget does not support constraining to the bounds of composables.
@@ -215,29 +82,69 @@ class MagnifierStyle internal constructor(
  * the layout node this modifier is applied to. If [unspecified][DpOffset.Unspecified], the
  * magnifier widget will be placed at a default offset relative to [sourceCenter]. The value of that
  * offset is specified by the system.
- * @param zoom See [Magnifier.setZoom]. Not supported on SDK levels < Q.
- * @param style The [MagnifierStyle] to use to configure the magnifier widget.
  * @param onSizeChanged An optional callback that will be invoked when the magnifier widget is
- * initialized to report on its actual size. This can be useful if one of the default
- * [MagnifierStyle]s is used to find out what size the system decided to use for the widget.
+ * initialized to report on its actual size. This can be useful when [size] parameter is left
+ * unspecified.
+ * @param zoom See [Magnifier.setZoom]. Only supported on API 29+.
+ * @param size See [Magnifier.Builder.setSize]. Only supported on API 29+.
+ * @param cornerRadius See [Magnifier.Builder.setCornerRadius]. Only supported on API 29+.
+ * @param elevation See [Magnifier.Builder.setElevation]. Only supported on API 29+.
+ * @param clippingEnabled See [Magnifier.Builder.setClippingEnabled]. Only supported on API 29+.
  */
-@ExperimentalFoundationApi
 fun Modifier.magnifier(
     sourceCenter: Density.() -> Offset,
     magnifierCenter: Density.() -> Offset = { Offset.Unspecified },
+    onSizeChanged: ((DpSize) -> Unit)? = null,
     zoom: Float = Float.NaN,
-    style: MagnifierStyle = MagnifierStyle.Default,
-    onSizeChanged: ((DpSize) -> Unit)? = null
+    size: DpSize = DpSize.Unspecified,
+    cornerRadius: Dp = Dp.Unspecified,
+    elevation: Dp = Dp.Unspecified,
+    clippingEnabled: Boolean = true
+): Modifier {
+    return magnifier(
+        sourceCenter = sourceCenter,
+        magnifierCenter = magnifierCenter,
+        onSizeChanged = onSizeChanged,
+        zoom = zoom,
+        useTextDefault = false,
+        size = size,
+        cornerRadius = cornerRadius,
+        elevation = elevation,
+        clippingEnabled = clippingEnabled
+    )
+}
+
+/**
+ * For testing and internal Text usage purposes.
+ *
+ * TextField and SelectionManager uses this internal API to pass `useTextDefault` as true.
+ */
+internal fun Modifier.magnifier(
+    sourceCenter: Density.() -> Offset,
+    magnifierCenter: Density.() -> Offset = { Offset.Unspecified },
+    onSizeChanged: ((DpSize) -> Unit)? = null,
+    zoom: Float = Float.NaN,
+    useTextDefault: Boolean = false,
+    size: DpSize = DpSize.Unspecified,
+    cornerRadius: Dp = Dp.Unspecified,
+    elevation: Dp = Dp.Unspecified,
+    clippingEnabled: Boolean = true,
+    platformMagnifierFactory: PlatformMagnifierFactory? = null
 ): Modifier {
     return if (isPlatformMagnifierSupported()) {
         then(
             MagnifierElement(
                 sourceCenter = sourceCenter,
                 magnifierCenter = magnifierCenter,
-                zoom = zoom,
-                style = style,
                 onSizeChanged = onSizeChanged,
-                platformMagnifierFactory = PlatformMagnifierFactory.getForCurrentPlatform()
+                useTextDefault = useTextDefault,
+                zoom = zoom,
+                size = size,
+                cornerRadius = cornerRadius,
+                elevation = elevation,
+                clippingEnabled = clippingEnabled,
+                platformMagnifierFactory = platformMagnifierFactory
+                    ?: PlatformMagnifierFactory.getForCurrentPlatform() // this doesn't do an alloc
             )
         )
     } else {
@@ -251,50 +158,25 @@ fun Modifier.magnifier(
                 properties["sourceCenter"] = sourceCenter
                 properties["magnifierCenter"] = magnifierCenter
                 properties["zoom"] = zoom
-                properties["style"] = style
+                properties["size"] = size
+                properties["cornerRadius"] = cornerRadius
+                properties["elevation"] = elevation
+                properties["clippingEnabled"] = clippingEnabled
             }
         ) { this }
     }
 }
 
-/**
- * For testing purposes.
- */
-@OptIn(ExperimentalFoundationApi::class)
-internal fun Modifier.magnifier(
-    sourceCenter: Density.() -> Offset,
-    magnifierCenter: Density.() -> Offset = { Offset.Unspecified },
-    zoom: Float = Float.NaN,
-    style: MagnifierStyle = MagnifierStyle.Default,
-    onSizeChanged: ((DpSize) -> Unit)? = null,
-    platformMagnifierFactory: PlatformMagnifierFactory
-): Modifier {
-    return if (isPlatformMagnifierSupported()) {
-        then(
-            MagnifierElement(
-                sourceCenter = sourceCenter,
-                magnifierCenter = magnifierCenter,
-                zoom = zoom,
-                style = style,
-                onSizeChanged = onSizeChanged,
-                platformMagnifierFactory = platformMagnifierFactory
-            )
-        )
-    } else {
-        // Magnifier is only supported in >=28. So avoid doing all the work to manage the magnifier
-        // state if it's not needed.
-        // TODO(b/202739980) Investigate supporting Magnifier on earlier versions.
-        Modifier
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
 internal class MagnifierElement(
     private val sourceCenter: Density.() -> Offset,
     private val magnifierCenter: Density.() -> Offset = { Offset.Unspecified },
-    private val zoom: Float = Float.NaN,
-    private val style: MagnifierStyle = MagnifierStyle.Default,
     private val onSizeChanged: ((DpSize) -> Unit)? = null,
+    private val zoom: Float = Float.NaN,
+    private val useTextDefault: Boolean = false,
+    private val size: DpSize = DpSize.Unspecified,
+    private val cornerRadius: Dp = Dp.Unspecified,
+    private val elevation: Dp = Dp.Unspecified,
+    private val clippingEnabled: Boolean = true,
     private val platformMagnifierFactory: PlatformMagnifierFactory
 ) : ModifierNodeElement<MagnifierNode>() {
 
@@ -303,7 +185,11 @@ internal class MagnifierElement(
             sourceCenter = sourceCenter,
             magnifierCenter = magnifierCenter,
             zoom = zoom,
-            style = style,
+            useTextDefault = useTextDefault,
+            size = size,
+            cornerRadius = cornerRadius,
+            elevation = elevation,
+            clippingEnabled = clippingEnabled,
             onSizeChanged = onSizeChanged,
             platformMagnifierFactory = platformMagnifierFactory
         )
@@ -314,7 +200,11 @@ internal class MagnifierElement(
             sourceCenter = sourceCenter,
             magnifierCenter = magnifierCenter,
             zoom = zoom,
-            style = style,
+            useTextDefault = useTextDefault,
+            size = size,
+            cornerRadius = cornerRadius,
+            elevation = elevation,
+            clippingEnabled = clippingEnabled,
             onSizeChanged = onSizeChanged,
             platformMagnifierFactory = platformMagnifierFactory
         )
@@ -327,7 +217,11 @@ internal class MagnifierElement(
         if (sourceCenter != other.sourceCenter) return false
         if (magnifierCenter != other.magnifierCenter) return false
         if (zoom != other.zoom) return false
-        if (style != other.style) return false
+        if (useTextDefault != other.useTextDefault) return false
+        if (size != other.size) return false
+        if (cornerRadius != other.cornerRadius) return false
+        if (elevation != other.elevation) return false
+        if (clippingEnabled != other.clippingEnabled) return false
         if (onSizeChanged != other.onSizeChanged) return false
         if (platformMagnifierFactory != other.platformMagnifierFactory) return false
 
@@ -338,7 +232,11 @@ internal class MagnifierElement(
         var result = sourceCenter.hashCode()
         result = 31 * result + magnifierCenter.hashCode()
         result = 31 * result + zoom.hashCode()
-        result = 31 * result + style.hashCode()
+        result = 31 * result + useTextDefault.hashCode()
+        result = 31 * result + size.hashCode()
+        result = 31 * result + cornerRadius.hashCode()
+        result = 31 * result + elevation.hashCode()
+        result = 31 * result + clippingEnabled.hashCode()
         result = 31 * result + (onSizeChanged?.hashCode() ?: 0)
         result = 31 * result + platformMagnifierFactory.hashCode()
         return result
@@ -349,17 +247,23 @@ internal class MagnifierElement(
         properties["sourceCenter"] = sourceCenter
         properties["magnifierCenter"] = magnifierCenter
         properties["zoom"] = zoom
-        properties["style"] = style
+        properties["size"] = size
+        properties["cornerRadius"] = cornerRadius
+        properties["elevation"] = elevation
+        properties["clippingEnabled"] = clippingEnabled
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 internal class MagnifierNode(
     var sourceCenter: Density.() -> Offset,
     var magnifierCenter: Density.() -> Offset = { Offset.Unspecified },
-    var zoom: Float = Float.NaN,
-    var style: MagnifierStyle = MagnifierStyle.Default,
     var onSizeChanged: ((DpSize) -> Unit)? = null,
+    var zoom: Float = Float.NaN,
+    var useTextDefault: Boolean = false,
+    var size: DpSize = DpSize.Unspecified,
+    var cornerRadius: Dp = Dp.Unspecified,
+    var elevation: Dp = Dp.Unspecified,
+    var clippingEnabled: Boolean = true,
     var platformMagnifierFactory: PlatformMagnifierFactory =
         PlatformMagnifierFactory.getForCurrentPlatform()
 ) : Modifier.Node(),
@@ -406,18 +310,29 @@ internal class MagnifierNode(
         sourceCenter: Density.() -> Offset,
         magnifierCenter: Density.() -> Offset,
         zoom: Float,
-        style: MagnifierStyle,
+        useTextDefault: Boolean,
+        size: DpSize,
+        cornerRadius: Dp,
+        elevation: Dp,
+        clippingEnabled: Boolean,
         onSizeChanged: ((DpSize) -> Unit)?,
         platformMagnifierFactory: PlatformMagnifierFactory
     ) {
         val previousZoom = this.zoom
-        val previousStyle = this.style
+        val previousSize = this.size
+        val previousCornerRadius = this.cornerRadius
+        val previousElevation = this.elevation
+        val previousClippingEnabled = this.clippingEnabled
         val previousPlatformMagnifierFactory = this.platformMagnifierFactory
 
         this.sourceCenter = sourceCenter
         this.magnifierCenter = magnifierCenter
         this.zoom = zoom
-        this.style = style
+        this.useTextDefault = useTextDefault
+        this.size = size
+        this.cornerRadius = cornerRadius
+        this.elevation = elevation
+        this.clippingEnabled = clippingEnabled
         this.onSizeChanged = onSizeChanged
         this.platformMagnifierFactory = platformMagnifierFactory
 
@@ -425,10 +340,15 @@ internal class MagnifierNode(
         // if the zoom changes between recompositions we don't need to recreate the magnifier. On
         // older platforms, the zoom can only be set initially, so we use the zoom itself as a key
         // so the magnifier gets recreated if it changes.
-        if (magnifier == null ||
+        if (
+            magnifier == null ||
             (zoom != previousZoom && !platformMagnifierFactory.canUpdateZoom) ||
-            style != previousStyle ||
-            platformMagnifierFactory != previousPlatformMagnifierFactory) {
+            size != previousSize ||
+            cornerRadius != previousCornerRadius ||
+            elevation != previousElevation ||
+            clippingEnabled != previousClippingEnabled ||
+            platformMagnifierFactory != previousPlatformMagnifierFactory
+        ) {
             recreateMagnifier()
         }
         updateMagnifier()
@@ -462,7 +382,16 @@ internal class MagnifierNode(
         magnifier?.dismiss()
         val view = view ?: return
         val density = density ?: return
-        magnifier = platformMagnifierFactory.create(style, view, density, zoom)
+        magnifier = platformMagnifierFactory.create(
+            view = view,
+            useTextDefault = useTextDefault,
+            size = size,
+            cornerRadius = cornerRadius,
+            elevation = elevation,
+            clippingEnabled = clippingEnabled,
+            density = density,
+            initialZoom = zoom
+        )
         updateSizeIfNecessary()
     }
 

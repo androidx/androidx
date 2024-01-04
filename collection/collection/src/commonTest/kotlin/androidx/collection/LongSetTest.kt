@@ -23,6 +23,14 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// DO NOT MAKE CHANGES to the kotlin source file.
+//
+// This file was generated from a template in the template directory.
+// Make a change to the original template and run the generateCollections.sh script
+// to ensure the change is available on all versions of the map.
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
 internal class LongSetTest {
     @Test
     fun emptyLongSetConstructor() {
@@ -147,9 +155,9 @@ internal class LongSetTest {
         val set = MutableLongSet()
         set += 1L
         set += 2L
-        var element: Long = Long.MIN_VALUE
-        var otherElement: Long = Long.MIN_VALUE
-        set.forEach { if (element == Long.MIN_VALUE) element = it else otherElement = it }
+        var element: Long = -1L
+        var otherElement: Long = -1L
+        set.forEach { if (element == -1L) element = it else otherElement = it }
         assertEquals(element, set.first())
         set -= element
         assertEquals(otherElement, set.first())
@@ -333,8 +341,37 @@ internal class LongSetTest {
         set += 1L
         set += 5L
         assertTrue(
-            "[1, 5]" == set.toString() ||
-                "[5, 1]" == set.toString()
+            "[${1L}, ${5L}]" == set.toString() ||
+                "[${5L}, ${1L}]" == set.toString()
+        )
+    }
+
+    @Test
+    fun joinToString() {
+        val set = longSetOf(1L, 2L, 3L, 4L, 5L)
+        val order = IntArray(5)
+        var index = 0
+        set.forEach { element ->
+            order[index++] = element.toInt()
+        }
+        assertEquals(
+            "${order[0].toLong()}, ${order[1].toLong()}, ${order[2].toLong()}, " +
+            "${order[3].toLong()}, ${order[4].toLong()}",
+            set.joinToString()
+        )
+        assertEquals(
+            "x${order[0].toLong()}, ${order[1].toLong()}, ${order[2].toLong()}...",
+            set.joinToString(prefix = "x", postfix = "y", limit = 3)
+        )
+        assertEquals(
+            ">${order[0].toLong()}-${order[1].toLong()}-${order[2].toLong()}-" +
+            "${order[3].toLong()}-${order[4].toLong()}<",
+            set.joinToString(separator = "-", prefix = ">", postfix = "<")
+        )
+        val names = arrayOf("one", "two", "three", "four", "five")
+        assertEquals(
+            "${names[order[0]]}, ${names[order[1]]}, ${names[order[2]]}...",
+            set.joinToString(limit = 3) { names[it.toInt()] }
         )
     }
 

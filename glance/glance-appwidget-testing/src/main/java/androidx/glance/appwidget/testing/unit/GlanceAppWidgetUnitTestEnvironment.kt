@@ -34,8 +34,10 @@ import androidx.glance.appwidget.LocalAppWidgetOptions
 import androidx.glance.appwidget.RemoteViewsRoot
 import androidx.glance.session.globalSnapshotMonitor
 import androidx.glance.testing.GlanceNodeAssertion
+import androidx.glance.testing.GlanceNodeAssertionCollection
 import androidx.glance.testing.GlanceNodeMatcher
 import androidx.glance.testing.TestContext
+import androidx.glance.testing.matcherToSelector
 import androidx.glance.testing.unit.GlanceMappedNode
 import androidx.glance.testing.unit.MappedNode
 import kotlin.time.Duration
@@ -47,7 +49,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 
-internal val DEFAULT_TIMEOUT = 10.seconds
+internal val DEFAULT_TIMEOUT = 1.seconds
 
 /**
  * An implementation of [GlanceAppWidgetUnitTest] that provides APIs to run composition for
@@ -154,10 +156,21 @@ internal class GlanceAppWidgetUnitTestEnvironment(
     ): GlanceNodeAssertion<MappedNode, GlanceMappedNode> {
         // Always let all the enqueued tasks finish before inspecting the tree.
         testScope.testScheduler.runCurrent()
-        // Calling onNode resets the previously matched nodes and starts a new matching chain.
-        testContext.reset()
+        check(testContext.hasNodes()) {
+            "No nodes found to perform the assertions. Provide the composable to be tested " +
+                "using `provideComposable` function before performing assertions."
+        }
         // Delegates matching to the next assertion.
-        return GlanceNodeAssertion(matcher, testContext)
+        return GlanceNodeAssertion(testContext, matcher.matcherToSelector())
+    }
+
+    override fun onAllNodes(
+        matcher: GlanceNodeMatcher<MappedNode>
+    ): GlanceNodeAssertionCollection<MappedNode, GlanceMappedNode> {
+        // Always let all the enqueued tasks finish before inspecting the tree.
+        testScope.testScheduler.runCurrent()
+        // Delegates matching to the next assertion.
+        return GlanceNodeAssertionCollection(testContext, matcher.matcherToSelector())
     }
 
     override fun setAppWidgetSize(size: DpSize) {

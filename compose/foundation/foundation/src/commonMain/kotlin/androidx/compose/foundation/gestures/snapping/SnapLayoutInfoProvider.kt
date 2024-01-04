@@ -17,21 +17,22 @@
 package androidx.compose.foundation.gestures.snapping
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.ui.unit.Density
 
 /**
  * Provides information about the layout that is using a SnapFlingBehavior.
  * The provider should give the following information:
- * 1) Snapping bounds, the previous and the next snap position offset.
- * 2) Snap Step Size, the minimum size that the SnapFlingBehavior can animate.
- * 3) Approach offset calculation, an offset to be consumed before snapping to a defined bound.
+ * 1) Snapping offset: The next snap position offset.
+ * 2) Approach offset: An offset to be consumed before snapping to a defined bound.
+ *
+ * In snapping, the approach offset and the snapping offset can be used to control how a snapping
+ * animation will look in a given SnappingLayout. The complete snapping animation can be split
+ * into 2 phases: Approach and Snapping. In the Approach phase, we'll use an animation to consume
+ * all of the offset provided by [calculateApproachOffset]. In the snapping phase,
+ * [SnapFlingBehavior] will use an animation to consume all of the offset
+ * provided by [calculateSnappingOffset].
  */
 @ExperimentalFoundationApi
 interface SnapLayoutInfoProvider {
-    /**
-     * The minimum offset that snapping will use to animate.(e.g. an item size)
-     */
-    fun Density.calculateSnapStepSize(): Float
 
     /**
      * Calculate the distance to navigate before settling into the next snapping bound.
@@ -39,7 +40,7 @@ interface SnapLayoutInfoProvider {
      * @param initialVelocity The current fling movement velocity. You can use this tho calculate a
      * velocity based offset.
      */
-    fun Density.calculateApproachOffset(initialVelocity: Float): Float
+    fun calculateApproachOffset(initialVelocity: Float): Float
 
     /**
      * Given a target placement in a layout, the snapping offset is the next snapping position
@@ -50,5 +51,5 @@ interface SnapLayoutInfoProvider {
      * @param currentVelocity The current fling movement velocity. This may change throughout the
      * fling animation.
      */
-    fun Density.calculateSnappingOffset(currentVelocity: Float): Float
+    fun calculateSnappingOffset(currentVelocity: Float): Float
 }

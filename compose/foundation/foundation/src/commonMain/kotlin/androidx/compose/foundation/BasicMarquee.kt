@@ -136,6 +136,7 @@ val DefaultMarqueeVelocity: Dp = 30.dp
  * Note: this modifier and corresponding APIs are experimental pending some refinements in the API
  * surface, mostly related to customisation params.
  */
+@Stable
 @ExperimentalFoundationApi
 fun Modifier.basicMarquee(
     iterations: Int = DefaultMarqueeIterations,

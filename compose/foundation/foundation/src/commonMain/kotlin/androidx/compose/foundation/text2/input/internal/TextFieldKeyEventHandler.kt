@@ -24,8 +24,6 @@ import androidx.compose.foundation.text.cancelsTextSelection
 import androidx.compose.foundation.text.isTypedEvent
 import androidx.compose.foundation.text.platformDefaultKeyMapping
 import androidx.compose.foundation.text.showCharacterPalette
-import androidx.compose.foundation.text2.input.InputTransformation
-import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.internal.TextFieldPreparedSelection.Companion.NoCharacterFound
 import androidx.compose.foundation.text2.input.internal.selection.TextFieldSelectionState
 import androidx.compose.ui.focus.FocusManager
@@ -51,15 +49,10 @@ internal abstract class TextFieldKeyEventHandler {
     private val preparedSelectionState = TextFieldPreparedSelectionState()
     private val deadKeyCombiner = DeadKeyCombiner()
     private val keyMapping = platformDefaultKeyMapping
-    private var filter: InputTransformation? = null
-
-    fun setFilter(filter: InputTransformation?) {
-        this.filter = filter
-    }
 
     open fun onPreKeyEvent(
         event: KeyEvent,
-        textFieldState: TextFieldState,
+        textFieldState: TransformedTextFieldState,
         textFieldSelectionState: TextFieldSelectionState,
         focusManager: FocusManager,
         keyboardController: SoftwareKeyboardController
@@ -75,8 +68,7 @@ internal abstract class TextFieldKeyEventHandler {
 
     open fun onKeyEvent(
         event: KeyEvent,
-        textFieldState: TextFieldState,
-        inputTransformation: InputTransformation?,
+        textFieldState: TransformedTextFieldState,
         textLayoutState: TextLayoutState,
         textFieldSelectionState: TextFieldSelectionState,
         editable: Boolean,
@@ -92,7 +84,7 @@ internal abstract class TextFieldKeyEventHandler {
             if (codePoint != null) {
                 val text = StringBuilder(2).appendCodePointX(codePoint).toString()
                 return if (editable) {
-                    textFieldState.editAsUser(filter) {
+                    textFieldState.editUntransformedTextAsUser {
                         commitComposition()
                         commitText(text, 1)
                     }
@@ -131,7 +123,7 @@ internal abstract class TextFieldKeyEventHandler {
                 KeyCommand.HOME -> moveCursorToHome()
                 KeyCommand.END -> moveCursorToEnd()
                 KeyCommand.DELETE_PREV_CHAR ->
-                    textFieldState.editAsUser(filter) {
+                    textFieldState.editUntransformedTextAsUser {
                         if (!deleteIfSelected()) {
                             deleteSurroundingText(
                                 selection.end - getPrecedingCharacterIndex(),
@@ -142,7 +134,7 @@ internal abstract class TextFieldKeyEventHandler {
                 KeyCommand.DELETE_NEXT_CHAR -> {
                     // Note that some software keyboards, such as Samsung, go through this code
                     // path instead of making calls on the InputConnection directly.
-                    textFieldState.editAsUser(filter) {
+                    textFieldState.editUntransformedTextAsUser {
                         if (!deleteIfSelected()) {
                             val nextCharacterIndex = getNextCharacterIndex()
                             // If there's no next character, it means the cursor is at the end of the
@@ -155,7 +147,7 @@ internal abstract class TextFieldKeyEventHandler {
                 }
 
                 KeyCommand.DELETE_PREV_WORD ->
-                    textFieldState.editAsUser(filter) {
+                    textFieldState.editUntransformedTextAsUser {
                         if (!deleteIfSelected()) {
                             getPreviousWordOffset()?.let {
                                 deleteSurroundingText(selection.end - it, 0)
@@ -163,7 +155,7 @@ internal abstract class TextFieldKeyEventHandler {
                         }
                     }
                 KeyCommand.DELETE_NEXT_WORD ->
-                    textFieldState.editAsUser(filter) {
+                    textFieldState.editUntransformedTextAsUser {
                         if (!deleteIfSelected()) {
                             getNextWordOffset()?.let {
                                 deleteSurroundingText(0, it - selection.end)
@@ -171,7 +163,7 @@ internal abstract class TextFieldKeyEventHandler {
                         }
                     }
                 KeyCommand.DELETE_FROM_LINE_START ->
-                    textFieldState.editAsUser(filter) {
+                    textFieldState.editUntransformedTextAsUser {
                         if (!deleteIfSelected()) {
                             getLineStartByOffset()?.let {
                                 deleteSurroundingText(selection.end - it, 0)
@@ -179,7 +171,7 @@ internal abstract class TextFieldKeyEventHandler {
                         }
                     }
                 KeyCommand.DELETE_TO_LINE_END ->
-                    textFieldState.editAsUser(filter) {
+                    textFieldState.editUntransformedTextAsUser {
                         if (!deleteIfSelected()) {
                             getLineEndByOffset()?.let {
                                 deleteSurroundingText(0, it - selection.end)
@@ -188,7 +180,7 @@ internal abstract class TextFieldKeyEventHandler {
                     }
                 KeyCommand.NEW_LINE ->
                     if (!singleLine) {
-                        textFieldState.editAsUser(filter) {
+                        textFieldState.editUntransformedTextAsUser {
                             commitComposition()
                             commitText("\n", 1)
                         }
@@ -198,7 +190,7 @@ internal abstract class TextFieldKeyEventHandler {
 
                 KeyCommand.TAB ->
                     if (!singleLine) {
-                        textFieldState.editAsUser(filter) {
+                        textFieldState.editUntransformedTextAsUser {
                             commitComposition()
                             commitText("\t", 1)
                         }
@@ -225,25 +217,21 @@ internal abstract class TextFieldKeyEventHandler {
                 KeyCommand.SELECT_END -> moveCursorToEnd().selectMovement()
                 KeyCommand.DESELECT -> deselect()
                 KeyCommand.UNDO -> {
-                    // undoManager?.makeSnapshot(value)
-                    // undoManager?.undo()?.let { this@TextFieldKeyInput.onValueChange(it) }
+                    textFieldState.undo()
                 }
-
                 KeyCommand.REDO -> {
-                    // undoManager?.redo()?.let { this@TextFieldKeyInput.onValueChange(it) }
+                    textFieldState.redo()
                 }
-
                 KeyCommand.CHARACTER_PALETTE -> {
                     showCharacterPalette()
                 }
             }
         }
-        // undoManager?.forceNextSnapshot()
         return consumed
     }
 
     private inline fun preparedSelectionContext(
-        state: TextFieldState,
+        state: TransformedTextFieldState,
         textLayoutState: TextLayoutState,
         block: TextFieldPreparedSelection.() -> Unit
     ) {
@@ -255,9 +243,7 @@ internal abstract class TextFieldKeyEventHandler {
         preparedSelection.block()
         if (preparedSelection.selection != preparedSelection.initialValue.selectionInChars) {
             // selection changes are applied atomically at the end of context evaluation
-            state.editAsUser(filter) {
-                setSelection(preparedSelection.selection.start, preparedSelection.selection.end)
-            }
+            state.selectCharsIn(preparedSelection.selection)
         }
     }
 }

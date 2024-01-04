@@ -130,7 +130,12 @@ import java.util.Set;
  * </pre>
  *
  * @see Slice
+ *
+ * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+ * forward. If you are looking for a framework that handles communication across apps,
+ * consider using {@link android.app.appsearch.AppSearchManager}.
  */
+@Deprecated
 public abstract class SliceProvider extends ContentProvider implements
         CoreComponentFactory.CompatWrapped {
 

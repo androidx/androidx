@@ -101,7 +101,11 @@ public final class SchemaToProtoConverter {
                         .setValueType(
                                 convertJoinableValueTypeToProto(
                                         stringProperty.getJoinableValueType()))
+                        // @exportToFramework:startStrip()
+                        // Do not call this in framework as it will populate the proto field and
+                        // fail comparison tests.
                         .setPropagateDelete(stringProperty.getDeletionPropagation())
+                        // @exportToFramework:endStrip()
                         .build();
                 builder.setJoinableConfig(joinableConfig);
             }

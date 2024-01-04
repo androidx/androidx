@@ -25,6 +25,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.Outputs
+import androidx.benchmark.Outputs.dateToFileName
 import androidx.benchmark.Shell
 import androidx.benchmark.macro.MacrobenchmarkScope.Companion.Api24ContextHelper.createDeviceProtectedStorageContextCompat
 import androidx.benchmark.macro.perfetto.forceTrace
@@ -154,7 +155,7 @@ public class MacrobenchmarkScope(
                 ))
             ) {
             isMethodTracing = true
-            val tracePath = methodTracePath(packageName, iteration ?: 0)
+            val tracePath = methodTraceRecordPath(packageName)
             "--start-profiler \"$tracePath\" --streaming"
         } else {
             ""
@@ -310,14 +311,13 @@ public class MacrobenchmarkScope(
      *
      * @return a [Pair] representing the label, and the absolute path of the method trace.
      */
-    @SuppressLint("BanThreadSleep") // Need to sleep to wait for the traces to be flushed.
-    internal fun stopMethodTracing(): Pair<String, String> {
+    internal fun stopMethodTracing(uniqueLabel: String): Pair<String, String> {
         Shell.executeScriptSilent("am profile stop $packageName")
         // Wait for the profiles to get dumped :(
         // ART Method tracing has a buffer size of 8M, so 1 second should be enough
         // to dump the contents of the buffer.
-        val currentIteration = iteration ?: 0
-        val tracePath = methodTracePath(packageName, currentIteration)
+
+        val tracePath = methodTraceRecordPath(packageName)
         // Using 50 ms as a poll duration for a max of 20 iterations. This is because
         // we don't want to wait for longer than 1s. Also, anecdotally when polling from the
         // shell I found a stable iteration count of 3 to be sufficient.
@@ -327,19 +327,23 @@ public class MacrobenchmarkScope(
             stableIterations = 3,
             pollDurationMs = 50L
         )
-        val fileName = methodTraceName(packageName, currentIteration)
+        // unique label so source is clear, dateToFileName so each run of test is unique on host
+        val outputFileName = "$uniqueLabel-method-${dateToFileName()}.trace"
         val stagingFile = File.createTempFile("methodTrace", null, Outputs.dirUsableByAppAndShell)
         // Staging location before we write it again using Outputs.writeFile(...)
+        // NOTE: staging copy may be unnecessary if we just use a single `cp`
         Shell.executeScriptSilent("cp '$tracePath' '$stagingFile'")
-        // Report(
-        val outputPath = Outputs.writeFile(fileName, fileName) {
+
+        // Report file
+        val outputPath = Outputs.writeFile(outputFileName) {
             Log.d(TAG, "Writing method traces to ${it.absolutePath}")
             stagingFile.copyTo(it, overwrite = true)
+
             // Cleanup
             stagingFile.delete()
             Shell.executeScriptSilent("rm \"$tracePath\"")
         }
-        return fileName to outputPath
+        return "MethodTrace iteration ${this.iteration ?: 0}" to outputPath
     }
 
     /**
@@ -416,12 +420,11 @@ public class MacrobenchmarkScope(
             return shaderDirectory.absolutePath.replace(context.packageName, packageName)
         }
 
-        fun methodTracePath(packageName: String, iteration: Int): String {
-            return "/data/local/tmp/${methodTraceName(packageName, iteration)}"
-        }
-
-        fun methodTraceName(packageName: String, iteration: Int): String {
-            return "$packageName-$iteration-method.trace"
+        /**
+         * Path for method trace during record, before fully flushed/stopped, move to outputs
+         */
+        fun methodTraceRecordPath(packageName: String): String {
+            return "/data/local/tmp/$packageName-method.trace"
         }
 
         @RequiresApi(Build.VERSION_CODES.N)

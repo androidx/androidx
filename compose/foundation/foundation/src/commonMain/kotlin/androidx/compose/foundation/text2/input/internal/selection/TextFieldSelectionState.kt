@@ -30,13 +30,12 @@ import androidx.compose.foundation.text.selection.getSelectionHandleCoordinates
 import androidx.compose.foundation.text.selection.getTextFieldSelectionLayout
 import androidx.compose.foundation.text.selection.isPrecisePointer
 import androidx.compose.foundation.text.selection.visibleBounds
-import androidx.compose.foundation.text2.input.InputTransformation
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
-import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.getSelectedText
-import androidx.compose.foundation.text2.input.internal.EditingBuffer
 import androidx.compose.foundation.text2.input.internal.TextLayoutState
+import androidx.compose.foundation.text2.input.internal.TransformedTextFieldState
 import androidx.compose.foundation.text2.input.internal.coerceIn
+import androidx.compose.foundation.text2.input.internal.undo.TextFieldEditUndoBehavior
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -70,12 +69,11 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 internal class TextFieldSelectionState(
-    private val textFieldState: TextFieldState,
+    private val textFieldState: TransformedTextFieldState,
     private val textLayoutState: TextLayoutState,
-    private var inputTransformation: InputTransformation?,
     private var density: Density,
     private var editable: Boolean,
-    var isFocused: Boolean
+    var isFocused: Boolean,
 ) {
     /**
      * [HapticFeedback] handle to perform haptic feedback.
@@ -271,14 +269,12 @@ internal class TextFieldSelectionState(
         hapticFeedBack: HapticFeedback,
         clipboardManager: ClipboardManager,
         textToolbar: TextToolbar,
-        inputTransformation: InputTransformation?,
         density: Density,
         editable: Boolean,
     ) {
         this.hapticFeedBack = hapticFeedBack
         this.clipboardManager = clipboardManager
         this.textToolbar = textToolbar
-        this.inputTransformation = inputTransformation
         this.density = density
         this.editable = editable
     }
@@ -415,9 +411,7 @@ internal class TextFieldSelectionState(
                     val cursorIndex = textLayoutState.getOffsetForPosition(offset)
                     // update the state
                     if (cursorIndex >= 0) {
-                        editAsUser {
-                            selectCharsIn(TextRange(cursorIndex))
-                        }
+                        textFieldState.placeCursorBeforeCharAt(cursorIndex)
                     }
                 }
             },
@@ -441,9 +435,7 @@ internal class TextFieldSelectionState(
                     isStartHandle = false,
                     adjustment = SelectionAdjustment.Word,
                 )
-                editAsUser {
-                    selectCharsIn(newSelection)
-                }
+                textFieldState.selectCharsIn(newSelection)
             }
         )
     }
@@ -487,9 +479,7 @@ internal class TextFieldSelectionState(
                     change.consume()
                     // TODO: only perform haptic feedback if filter does not override the change
                     hapticFeedBack?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                    editAsUser {
-                        selectCharsIn(newSelection)
-                    }
+                    textFieldState.selectCharsIn(newSelection)
                 }
             )
         } finally {
@@ -529,9 +519,7 @@ internal class TextFieldSelectionState(
                     val offset = textLayoutState.getOffsetForPosition(dragStartOffset)
 
                     hapticFeedBack?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                    editAsUser {
-                        selectCharsIn(TextRange(offset))
-                    }
+                    textFieldState.placeCursorBeforeCharAt(offset)
                     showCursorHandle = true
                     showCursorHandleToolbar = true
                 } else {
@@ -549,9 +537,7 @@ internal class TextFieldSelectionState(
                         isStartHandle = false,
                         adjustment = SelectionAdjustment.CharacterWithWordAccelerate,
                     )
-                    editAsUser {
-                        selectCharsIn(newSelection)
-                    }
+                    textFieldState.selectCharsIn(newSelection)
                     showCursorHandle = false
                     // For touch, set the begin offset to the adjusted selection.
                     // When char based selection is used, we want to ensure we snap the
@@ -645,9 +631,7 @@ internal class TextFieldSelectionState(
                 // Do not allow selection to collapse on itself while dragging. Selection can
                 // reverse but does not collapse.
                 if (prevSelection.collapsed || !newSelection.collapsed) {
-                    editAsUser {
-                        selectCharsIn(newSelection)
-                    }
+                    textFieldState.selectCharsIn(newSelection)
                 }
                 updateHandleDragging(
                     handle = actingHandle,
@@ -719,9 +703,7 @@ internal class TextFieldSelectionState(
                     // Do not allow selection to collapse on itself while dragging selection
                     // handles. Selection can reverse but does not collapse.
                     if (prevSelection.collapsed || !newSelection.collapsed) {
-                        editAsUser {
-                            selectCharsIn(newSelection)
-                        }
+                        textFieldState.selectCharsIn(newSelection)
                     }
                 }
             )
@@ -951,11 +933,7 @@ internal class TextFieldSelectionState(
 
         clipboardManager?.setText(AnnotatedString(text.getSelectedText().toString()))
 
-        editAsUser {
-            replace(selection.min, selection.max, "")
-            selectCharsIn(TextRange(selection.min))
-        }
-        // TODO(halilibo): undoManager force snapshot
+        textFieldState.deleteSelectedText()
     }
 
     /**
@@ -976,9 +954,7 @@ internal class TextFieldSelectionState(
 
         if (!cancelSelection) return
 
-        editAsUser {
-            selectCharsIn(TextRange(selection.max))
-        }
+        textFieldState.collapseSelectionToMax()
     }
 
     /**
@@ -993,16 +969,10 @@ internal class TextFieldSelectionState(
     fun paste() {
         val clipboardText = clipboardManager?.getText()?.text ?: return
 
-        editAsUser {
-            val selection = textFieldState.text.selectionInChars
-            replace(
-                selection.min,
-                selection.max,
-                clipboardText
-            )
-            selectCharsIn(TextRange(selection.min + clipboardText.length))
-        }
-        // TODO(halilibo): undoManager force snapshot
+        textFieldState.replaceSelectedText(
+            clipboardText,
+            undoBehavior = TextFieldEditUndoBehavior.NeverMerge
+        )
     }
 
     /**
@@ -1038,7 +1008,7 @@ internal class TextFieldSelectionState(
 
         val selectAll: (() -> Unit)? = if (selection.length != textFieldState.text.length) {
             {
-                editAsUser { selectCharsIn(TextRange(0, length)) }
+                textFieldState.selectAll()
                 showCursorHandleToolbar = false
             }
         } else null
@@ -1053,22 +1023,12 @@ internal class TextFieldSelectionState(
     }
 
     fun deselect() {
-        val selection = textFieldState.text.selectionInChars
-        if (!selection.collapsed) {
-            editAsUser {
-                selectCharsIn(TextRange(selection.end))
-            }
+        if (!textFieldState.text.selectionInChars.collapsed) {
+            textFieldState.collapseSelectionToEnd()
         }
 
         showCursorHandle = false
         showCursorHandleToolbar = false
-    }
-
-    /**
-     * Edits the TextFieldState content with a filter applied if available.
-     */
-    private fun editAsUser(block: EditingBuffer.() -> Unit) {
-        textFieldState.editAsUser(inputTransformation, block = block)
     }
 
     private fun hideTextToolbar() {
@@ -1161,10 +1121,6 @@ internal class TextFieldSelectionState(
 }
 
 private fun TextRange.reverse() = TextRange(end, start)
-
-private fun EditingBuffer.selectCharsIn(range: TextRange) {
-    setSelection(range.start, range.end)
-}
 
 private const val DEBUG = false
 private const val DEBUG_TAG = "TextFieldSelectionState"

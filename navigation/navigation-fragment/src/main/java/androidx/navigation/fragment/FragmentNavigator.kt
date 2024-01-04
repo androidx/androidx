@@ -85,16 +85,14 @@ public open class FragmentNavigator(
                 entry.id == fragment.tag
             }
             if (entry != null) {
-                if (!state.backStack.value.contains(entry)) {
-                    if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
-                        Log.v(
-                            TAG,
-                            "Marking transition complete for entry $entry " +
-                                "due to fragment $source lifecycle reaching DESTROYED"
-                        )
-                    }
-                    state.markTransitionComplete(entry)
+                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                    Log.v(
+                        TAG,
+                        "Marking transition complete for entry $entry " +
+                            "due to fragment $source lifecycle reaching DESTROYED"
+                    )
                 }
+                state.markTransitionComplete(entry)
             }
         }
     }
@@ -113,19 +111,16 @@ public open class FragmentNavigator(
                 }
                 state.markTransitionComplete(entry)
             }
-            // Once the lifecycle reaches DESTROYED, if the entry is not in the back stack, we can
-            // mark the transition complete
+            // Once the lifecycle reaches DESTROYED, we can mark the transition complete
             if (event == Lifecycle.Event.ON_DESTROY) {
-                if (!state.backStack.value.contains(entry)) {
-                    if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
-                        Log.v(
-                            TAG,
-                            "Marking transition complete for entry $entry due " +
-                                "to fragment $owner view lifecycle reaching DESTROYED"
-                        )
-                    }
-                    state.markTransitionComplete(entry)
+                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                    Log.v(
+                        TAG,
+                        "Marking transition complete for entry $entry due " +
+                            "to fragment $owner view lifecycle reaching DESTROYED"
+                    )
                 }
+                state.markTransitionComplete(entry)
             }
         }
     }

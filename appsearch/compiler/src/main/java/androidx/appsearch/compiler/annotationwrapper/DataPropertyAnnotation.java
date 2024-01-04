@@ -20,6 +20,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appsearch.compiler.IntrospectionHelper;
 
+import com.squareup.javapoet.ClassName;
+
 import java.util.Map;
 
 import javax.lang.model.element.AnnotationMirror;
@@ -44,10 +46,21 @@ public abstract class DataPropertyAnnotation implements PropertyAnnotation {
     }
 
     @NonNull
-    private final String mSimpleClassName;
+    private final ClassName mClassName;
 
-    DataPropertyAnnotation(@NonNull String simpleClassName) {
-        mSimpleClassName = simpleClassName;
+    @NonNull
+    private final ClassName mConfigClassName;
+
+    @NonNull
+    private final String mGenericDocSetterName;
+
+    DataPropertyAnnotation(
+            @NonNull ClassName className,
+            @NonNull ClassName configClassName,
+            @NonNull String genericDocSetterName) {
+        mClassName = className;
+        mConfigClassName = configClassName;
+        mGenericDocSetterName = genericDocSetterName;
     }
 
     /**
@@ -63,22 +76,21 @@ public abstract class DataPropertyAnnotation implements PropertyAnnotation {
             @NonNull IntrospectionHelper helper) {
         Map<String, Object> annotationParams = helper.getAnnotationParams(annotation);
         String qualifiedClassName = annotation.getAnnotationType().toString();
-        switch (qualifiedClassName) {
-            case BooleanPropertyAnnotation.CLASS_NAME:
-                return BooleanPropertyAnnotation.parse(annotationParams, defaultName);
-            case BytesPropertyAnnotation.CLASS_NAME:
-                return BytesPropertyAnnotation.parse(annotationParams, defaultName);
-            case DocumentPropertyAnnotation.CLASS_NAME:
-                return DocumentPropertyAnnotation.parse(annotationParams, defaultName);
-            case DoublePropertyAnnotation.CLASS_NAME:
-                return DoublePropertyAnnotation.parse(annotationParams, defaultName);
-            case LongPropertyAnnotation.CLASS_NAME:
-                return LongPropertyAnnotation.parse(annotationParams, defaultName);
-            case StringPropertyAnnotation.CLASS_NAME:
-                return StringPropertyAnnotation.parse(annotationParams, defaultName);
-            default:
-                return null;
+        if (qualifiedClassName.equals(BooleanPropertyAnnotation.CLASS_NAME.canonicalName())) {
+            return BooleanPropertyAnnotation.parse(annotationParams, defaultName);
+        } else if (qualifiedClassName.equals(BytesPropertyAnnotation.CLASS_NAME.canonicalName())) {
+            return BytesPropertyAnnotation.parse(annotationParams, defaultName);
+        } else if (qualifiedClassName.equals(
+                DocumentPropertyAnnotation.CLASS_NAME.canonicalName())) {
+            return DocumentPropertyAnnotation.parse(annotationParams, defaultName);
+        } else if (qualifiedClassName.equals(DoublePropertyAnnotation.CLASS_NAME.canonicalName())) {
+            return DoublePropertyAnnotation.parse(annotationParams, defaultName);
+        } else if (qualifiedClassName.equals(LongPropertyAnnotation.CLASS_NAME.canonicalName())) {
+            return LongPropertyAnnotation.parse(annotationParams, defaultName);
+        } else if (qualifiedClassName.equals(StringPropertyAnnotation.CLASS_NAME.canonicalName())) {
+            return StringPropertyAnnotation.parse(annotationParams, defaultName);
         }
+        return null;
     }
 
     /**
@@ -94,8 +106,25 @@ public abstract class DataPropertyAnnotation implements PropertyAnnotation {
 
     @NonNull
     @Override
-    public final String getSimpleClassName() {
-        return mSimpleClassName;
+    public final ClassName getClassName() {
+        return mClassName;
+    }
+
+    /**
+     * The class used to configure data properties of this kind.
+     *
+     * <p>For example, {@link androidx.appsearch.app.AppSearchSchema.StringPropertyConfig} for
+     * {@link StringPropertyAnnotation}.
+     */
+    @NonNull
+    public final ClassName getConfigClassName() {
+        return mConfigClassName;
+    }
+
+    @NonNull
+    @Override
+    public final String getGenericDocSetterName() {
+        return mGenericDocSetterName;
     }
 
     @NonNull

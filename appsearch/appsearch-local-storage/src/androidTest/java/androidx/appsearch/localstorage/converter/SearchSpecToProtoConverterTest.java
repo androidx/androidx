@@ -25,6 +25,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.appsearch.app.JoinSpec;
 import androidx.appsearch.app.SearchSpec;
+import androidx.appsearch.localstorage.AppSearchConfigImpl;
 import androidx.appsearch.localstorage.AppSearchImpl;
 import androidx.appsearch.localstorage.DefaultIcingOptionsConfig;
 import androidx.appsearch.localstorage.IcingOptionsConfig;
@@ -71,8 +72,10 @@ public class SearchSpecToProtoConverterTest {
     public void setUp() throws Exception {
         mAppSearchImpl = AppSearchImpl.create(
                 mTemporaryFolder.newFolder(),
-                new UnlimitedLimitConfig(),
-                mDefaultIcingOptionsConfig,
+                new AppSearchConfigImpl(
+                        new UnlimitedLimitConfig(),
+                        mDefaultIcingOptionsConfig
+                ),
                 /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
@@ -493,6 +496,58 @@ public class SearchSpecToProtoConverterTest {
         assertThat(nestedResultSpecProto.getTypePropertyMasks(0).getSchemaType()).isEqualTo(
                 "aiai$database/ContactAction");
         assertThat(nestedResultSpecProto.getTypePropertyMasks(0).getPaths(0)).isEqualTo("type");
+    }
+
+    @Test
+    public void testToSearchSpecProto_propertyFilter_withJoinSpec_packageFilter() throws Exception {
+        String personPrefix = PrefixUtil.createPrefix("contacts", "database");
+        String actionPrefix = PrefixUtil.createPrefix("aiai", "database");
+
+        SchemaTypeConfigProto configProto = SchemaTypeConfigProto.getDefaultInstance();
+        Map<String, Map<String, SchemaTypeConfigProto>> schemaMap = ImmutableMap.of(
+                personPrefix, ImmutableMap.of(personPrefix + "Person", configProto),
+                actionPrefix, ImmutableMap.of(actionPrefix + "ContactAction", configProto));
+        Map<String, Set<String>> namespaceMap = ImmutableMap.of(
+                personPrefix, ImmutableSet.of(personPrefix + "namespaceA"),
+                actionPrefix, ImmutableSet.of(actionPrefix + "namespaceA"));
+
+        SearchSpec nestedSearchSpec = new SearchSpec.Builder()
+                .setResultGrouping(SearchSpec.GROUPING_TYPE_PER_PACKAGE, 10)
+                .addFilterProperties("ContactAction", ImmutableList.of("type"))
+                .build();
+
+        // Create a JoinSpec object and set it in the converter
+        JoinSpec joinSpec = new JoinSpec.Builder("childPropertyExpression")
+                .setNestedSearch("nestedQuery", nestedSearchSpec)
+                .build();
+
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setJoinSpec(joinSpec)
+                .setResultGrouping(SearchSpec.GROUPING_TYPE_PER_PACKAGE, 10)
+                .addFilterProperties("Person", ImmutableList.of("name"))
+                .build();
+
+        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(
+                /*queryExpression=*/"query",
+                searchSpec,
+                /*prefixes=*/ImmutableSet.of(personPrefix, actionPrefix),
+                namespaceMap,
+                schemaMap,
+                mDefaultIcingOptionsConfig);
+
+        SearchSpecProto searchSpecProto = converter.toSearchSpecProto();
+
+        assertThat(searchSpecProto.getTypePropertyFiltersCount()).isEqualTo(1);
+        assertThat(searchSpecProto.getTypePropertyFilters(0).getSchemaType()).isEqualTo(
+                "contacts$database/Person");
+        assertThat(searchSpecProto.getTypePropertyFilters(0).getPaths(0)).isEqualTo("name");
+
+        SearchSpecProto nestedSearchSpecProto =
+                searchSpecProto.getJoinSpec().getNestedSpec().getSearchSpec();
+        assertThat(nestedSearchSpecProto.getTypePropertyFiltersCount()).isEqualTo(1);
+        assertThat(nestedSearchSpecProto.getTypePropertyFilters(0).getSchemaType()).isEqualTo(
+                "aiai$database/ContactAction");
+        assertThat(nestedSearchSpecProto.getTypePropertyFilters(0).getPaths(0)).isEqualTo("type");
     }
 
     @Test

@@ -20,34 +20,29 @@ package androidx.window.embedding
 import android.app.Activity
 import android.app.ActivityOptions
 import android.content.Context
+import androidx.window.RequiresWindowSdkExtension
+import androidx.window.WindowSdkExtensions
 import androidx.window.core.ExperimentalWindowApi
-import androidx.window.core.ExtensionsUtil
-import androidx.window.extensions.WindowExtensions
 
 /**
  * Sets the launching [ActivityStack] to the given [android.app.ActivityOptions].
  *
  * If the device doesn't support setting launching, [UnsupportedOperationException] will be thrown.
- * @see isSetLaunchingActivityStackSupported
  *
  * @param context The [android.content.Context] that is going to be used for launching
  * activity with this [android.app.ActivityOptions], which is usually be the [android.app.Activity]
  * of the app that hosts the task.
  * @param activityStack The target [ActivityStack] for launching.
- * @throws UnsupportedOperationException if this device doesn't support this API.
+ * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion] is less than 3.
  */
 @ExperimentalWindowApi
+@RequiresWindowSdkExtension(3)
 fun ActivityOptions.setLaunchingActivityStack(
     context: Context,
     activityStack: ActivityStack
 ): ActivityOptions = let {
-    if (!isSetLaunchingActivityStackSupported()) {
-        throw UnsupportedOperationException("#setLaunchingActivityStack is not " +
-            "supported on the device.")
-    } else {
-        ActivityEmbeddingController.getInstance(context)
-            .setLaunchingActivityStack(this, activityStack.token)
-    }
+    ActivityEmbeddingController.getInstance(context)
+        .setLaunchingActivityStack(this, activityStack.token)
 }
 
 /**
@@ -57,13 +52,12 @@ fun ActivityOptions.setLaunchingActivityStack(
  *
  * If the device doesn't support setting launching or no available [ActivityStack]
  * can be found from the given [activity], [UnsupportedOperationException] will be thrown.
- * @see isSetLaunchingActivityStackSupported
  *
  * @param activity The existing [android.app.Activity] on the target [ActivityStack].
- * @throws UnsupportedOperationException if this device doesn't support this API or no
- * available [ActivityStack] can be found.
+ * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion] is less than 3.
  */
 @ExperimentalWindowApi
+@RequiresWindowSdkExtension(3)
 fun ActivityOptions.setLaunchingActivityStack(activity: Activity): ActivityOptions {
     val activityStack =
         ActivityEmbeddingController.getInstance(activity).getActivityStack(activity)
@@ -73,13 +67,4 @@ fun ActivityOptions.setLaunchingActivityStack(activity: Activity): ActivityOptio
         throw UnsupportedOperationException("No available ActivityStack found. " +
             "The given activity may not be embedded.")
     }
-}
-
-/**
- * Return `true` if the [setLaunchingActivityStack] APIs is supported and can be used
- * to set the launching [ActivityStack]. Otherwise, return `false`.
- */
-@ExperimentalWindowApi
-fun ActivityOptions.isSetLaunchingActivityStackSupported(): Boolean {
-    return ExtensionsUtil.safeVendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_3
 }

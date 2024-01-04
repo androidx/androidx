@@ -33,6 +33,7 @@ import androidx.slice.builders.SelectionBuilder;
  */
 @RestrictTo(LIBRARY)
 @RequiresApi(19)
+@Deprecated
 public class SelectionBuilderBasicImpl extends SelectionBuilderImpl {
     public SelectionBuilderBasicImpl(Slice.Builder sliceBuilder,
                                      SelectionBuilder selectionBuilder) {

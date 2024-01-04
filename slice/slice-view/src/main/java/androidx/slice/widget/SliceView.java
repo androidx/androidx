@@ -94,8 +94,13 @@ import java.util.Set;
  *
  * @see Slice
  * @see SliceLiveData
+ *
+ * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+ * forward. If you are looking for a framework that handles communication across apps,
+ * consider using {@link android.app.appsearch.AppSearchManager}.
  */
 @RequiresApi(19)
+@Deprecated
 public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClickListener {
 
     private static final String TAG = "SliceView";
@@ -104,7 +109,12 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
      * Implement this interface to be notified of interactions with the slice displayed
      * in this view.
      * @see EventInfo
+     *
+     * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+     * forward. If you are looking for a framework that handles communication across apps,
+     * consider using {@link android.app.appsearch.AppSearchManager}.
      */
+    @Deprecated
     public interface OnSliceActionListener {
         /**
          * Called when an interaction has occurred with an element in this view.

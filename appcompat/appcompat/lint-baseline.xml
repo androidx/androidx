@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
+<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
 
     <issue
         id="NewApi"
@@ -75,6 +75,24 @@
 
     <issue
         id="NewApi"
+        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
+        errorLine1="        delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_YES"
+        errorLine2="                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appcompat/app/NightModeLocalBeforeAttachBaseActivity.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 17 (current min is 14): `setLocalNightMode`"
+        errorLine1="        delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_YES"
+        errorLine2="                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appcompat/app/NightModeLocalBeforeAttachBaseActivity.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
         message="Call requires API level 17 (current min is 16): `android.content.res.Configuration#setLayoutDirection`"
         errorLine1="        configuration.setLayoutDirection(locale)"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~">
@@ -87,6 +105,15 @@
         message="Call requires API level 17 (current min is 16): `android.content.res.Configuration#setLocale`"
         errorLine1="        configuration.setLocale(locale)"
         errorLine2="                      ~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appcompat/app/NightModeRtlTestUtilsRegressionTestCase.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 17 (current min is 16): `android.content.res.Configuration#getLayoutDirection`"
+        errorLine1="        assertEquals(TextUtils.getLayoutDirectionFromLocale(CUSTOM_LOCALE), config.layoutDirection)"
+        errorLine2="                                                                                   ~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/appcompat/app/NightModeRtlTestUtilsRegressionTestCase.kt"/>
     </issue>

@@ -303,15 +303,18 @@ internal class DraggableNode(
     private val _canDrag: (PointerInputChange) -> Boolean = { canDrag(it) }
     private val _startDragImmediately: () -> Boolean = { startDragImmediately() }
     private val velocityTracker = VelocityTracker()
+    private var isListeningForEvents = false
 
-    /**
-     * To preserve the original behavior we had (before the Modifier.Node migration) we need to
-     * scope the DragStopped and DragCancel methods to the node's coroutine scope instead of using
-     * the one provided by the pointer input modifier, this is to ensure that even when the pointer
-     * input scope is reset we will continue any coroutine scope scope that we started from these
-     * methods while the pointer input scope was active.
-     */
-    override fun onAttach() {
+    private fun startListeningForEvents() {
+        isListeningForEvents = true
+
+        /**
+         * To preserve the original behavior we had (before the Modifier.Node migration) we need to
+         * scope the DragStopped and DragCancel methods to the node's coroutine scope instead of using
+         * the one provided by the pointer input modifier, this is to ensure that even when the pointer
+         * input scope is reset we will continue any coroutine scope scope that we started from these
+         * methods while the pointer input scope was active.
+         */
         coroutineScope.launch {
             while (isActive) {
                 var event = channel.receive()
@@ -349,6 +352,13 @@ internal class DraggableNode(
                             velocityTracker,
                             orientation
                         )?.let {
+                            /**
+                             * The gesture crossed the touch slop, events are now relevant
+                             * and should be propagated
+                             */
+                            if (!isListeningForEvents) {
+                                startListeningForEvents()
+                            }
                             var isDragSuccessful = false
                             try {
                                 isDragSuccessful = awaitDrag(
@@ -391,6 +401,7 @@ internal class DraggableNode(
     private var dragInteraction: DragInteraction.Start? = null
 
     override fun onDetach() {
+        isListeningForEvents = false
         disposeInteractionSource()
     }
 

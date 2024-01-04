@@ -138,24 +138,19 @@ internal class EditingBuffer(
         checkRange(selection.start, selection.end)
     }
 
-    fun replace(start: Int, end: Int, text: AnnotatedString) {
-        replace(start, end, text.text)
-    }
-
     /**
      * Replace the text and move the cursor to the end of inserted text.
      *
      * This function cancels selection if there is any.
      *
      * @throws IndexOutOfBoundsException if start or end offset is outside of current buffer
-     * @throws IllegalArgumentException if start is larger than end. (reversed range)
      */
-    fun replace(start: Int, end: Int, text: String) {
+    fun replace(start: Int, end: Int, text: CharSequence) {
         checkRange(start, end)
         val min = minOf(start, end)
         val max = maxOf(start, end)
 
-        changeTracker.trackChange(TextRange(start, end), text.length)
+        changeTracker.trackChange(start, end, text.length)
 
         gapBuffer.replace(min, max, text)
 
@@ -164,8 +159,8 @@ internal class EditingBuffer(
         // the end offset of the editing area for desktop like application. In case of Android,
         // implementation will call setSelection immediately after replace function to update this
         // tentative cursor location.
-        selectionStart = start + text.length
-        selectionEnd = start + text.length
+        selectionStart = min + text.length
+        selectionEnd = min + text.length
 
         // Similarly, if text modification happens, cancel ongoing composition. If caller wants to
         // change the composition text, it is caller's responsibility to call setComposition again
@@ -184,7 +179,7 @@ internal class EditingBuffer(
         checkRange(start, end)
         val deleteRange = TextRange(start, end)
 
-        changeTracker.trackChange(deleteRange, 0)
+        changeTracker.trackChange(start, end, 0)
 
         gapBuffer.replace(deleteRange.min, deleteRange.max, "")
 

@@ -212,7 +212,7 @@ class SupportedSurfaceCombinationTest {
         GuaranteedConfigurationsUtil.getLegacySupportedCombinationList().forEach {
             assertThat(
                 supportedSurfaceCombination.checkSupported(
-                    FeatureSettings.of(CameraMode.DEFAULT, BIT_DEPTH_8_BIT),
+                    FeatureSettings.of(CameraMode.DEFAULT, BIT_DEPTH_8_BIT, false),
                     it.surfaceConfigList
                 )
             ).isTrue()
@@ -228,7 +228,7 @@ class SupportedSurfaceCombinationTest {
         GuaranteedConfigurationsUtil.getLimitedSupportedCombinationList().forEach {
             assertThat(
                 supportedSurfaceCombination.checkSupported(
-                    FeatureSettings.of(CameraMode.DEFAULT, BIT_DEPTH_8_BIT),
+                    FeatureSettings.of(CameraMode.DEFAULT, BIT_DEPTH_8_BIT, false),
                     it.surfaceConfigList
                 )
             ).isFalse()
@@ -244,7 +244,7 @@ class SupportedSurfaceCombinationTest {
         GuaranteedConfigurationsUtil.getFullSupportedCombinationList().forEach {
             assertThat(
                 supportedSurfaceCombination.checkSupported(
-                    FeatureSettings.of(CameraMode.DEFAULT, BIT_DEPTH_8_BIT),
+                    FeatureSettings.of(CameraMode.DEFAULT, BIT_DEPTH_8_BIT, false),
                     it.surfaceConfigList
                 )
             ).isFalse()
@@ -260,7 +260,7 @@ class SupportedSurfaceCombinationTest {
         GuaranteedConfigurationsUtil.getLevel3SupportedCombinationList().forEach {
             assertThat(
                 supportedSurfaceCombination.checkSupported(
-                    FeatureSettings.of(CameraMode.DEFAULT, BIT_DEPTH_8_BIT),
+                    FeatureSettings.of(CameraMode.DEFAULT, BIT_DEPTH_8_BIT, false),
                     it.surfaceConfigList
                 )
             ).isFalse()
@@ -278,7 +278,7 @@ class SupportedSurfaceCombinationTest {
         GuaranteedConfigurationsUtil.getLimitedSupportedCombinationList().forEach {
             assertThat(
                 supportedSurfaceCombination.checkSupported(
-                    FeatureSettings.of(CameraMode.DEFAULT, BIT_DEPTH_8_BIT),
+                    FeatureSettings.of(CameraMode.DEFAULT, BIT_DEPTH_8_BIT, false),
                     it.surfaceConfigList
                 )
             ).isTrue()
@@ -296,7 +296,7 @@ class SupportedSurfaceCombinationTest {
         GuaranteedConfigurationsUtil.getFullSupportedCombinationList().forEach {
             assertThat(
                 supportedSurfaceCombination.checkSupported(
-                    FeatureSettings.of(CameraMode.DEFAULT, BIT_DEPTH_8_BIT),
+                    FeatureSettings.of(CameraMode.DEFAULT, BIT_DEPTH_8_BIT, false),
                     it.surfaceConfigList
                 )
             ).isFalse()
@@ -314,7 +314,7 @@ class SupportedSurfaceCombinationTest {
         GuaranteedConfigurationsUtil.getLevel3SupportedCombinationList().forEach {
             assertThat(
                 supportedSurfaceCombination.checkSupported(
-                    FeatureSettings.of(CameraMode.DEFAULT, BIT_DEPTH_8_BIT),
+                    FeatureSettings.of(CameraMode.DEFAULT, BIT_DEPTH_8_BIT, false),
                     it.surfaceConfigList
                 )
             ).isFalse()
@@ -332,7 +332,7 @@ class SupportedSurfaceCombinationTest {
         GuaranteedConfigurationsUtil.getFullSupportedCombinationList().forEach {
             assertThat(
                 supportedSurfaceCombination.checkSupported(
-                    FeatureSettings.of(CameraMode.DEFAULT, BIT_DEPTH_8_BIT),
+                    FeatureSettings.of(CameraMode.DEFAULT, BIT_DEPTH_8_BIT, false),
                     it.surfaceConfigList
                 )
             ).isTrue()
@@ -350,7 +350,7 @@ class SupportedSurfaceCombinationTest {
         GuaranteedConfigurationsUtil.getLevel3SupportedCombinationList().forEach {
             assertThat(
                 supportedSurfaceCombination.checkSupported(
-                    FeatureSettings.of(CameraMode.DEFAULT, BIT_DEPTH_8_BIT),
+                    FeatureSettings.of(CameraMode.DEFAULT, BIT_DEPTH_8_BIT, false),
                     it.surfaceConfigList
                 )
             ).isFalse()
@@ -369,7 +369,7 @@ class SupportedSurfaceCombinationTest {
         GuaranteedConfigurationsUtil.getLimitedSupportedCombinationList().forEach {
             assertThat(
                 supportedSurfaceCombination.checkSupported(
-                    FeatureSettings.of(CameraMode.DEFAULT, BIT_DEPTH_8_BIT),
+                    FeatureSettings.of(CameraMode.DEFAULT, BIT_DEPTH_8_BIT, false),
                     it.surfaceConfigList
                 )
             ).isTrue()
@@ -388,7 +388,7 @@ class SupportedSurfaceCombinationTest {
         GuaranteedConfigurationsUtil.getLegacySupportedCombinationList().forEach {
             assertThat(
                 supportedSurfaceCombination.checkSupported(
-                    FeatureSettings.of(CameraMode.DEFAULT, BIT_DEPTH_8_BIT),
+                    FeatureSettings.of(CameraMode.DEFAULT, BIT_DEPTH_8_BIT, false),
                     it.surfaceConfigList
                 )
             ).isTrue()
@@ -407,7 +407,7 @@ class SupportedSurfaceCombinationTest {
         GuaranteedConfigurationsUtil.getFullSupportedCombinationList().forEach {
             assertThat(
                 supportedSurfaceCombination.checkSupported(
-                    FeatureSettings.of(CameraMode.DEFAULT, BIT_DEPTH_8_BIT),
+                    FeatureSettings.of(CameraMode.DEFAULT, BIT_DEPTH_8_BIT, false),
                     it.surfaceConfigList
                 )
             ).isTrue()
@@ -426,7 +426,7 @@ class SupportedSurfaceCombinationTest {
         GuaranteedConfigurationsUtil.getRAWSupportedCombinationList().forEach {
             assertThat(
                 supportedSurfaceCombination.checkSupported(
-                    FeatureSettings.of(CameraMode.DEFAULT, BIT_DEPTH_8_BIT),
+                    FeatureSettings.of(CameraMode.DEFAULT, BIT_DEPTH_8_BIT, false),
                     it.surfaceConfigList
                 )
             ).isTrue()
@@ -444,7 +444,7 @@ class SupportedSurfaceCombinationTest {
         GuaranteedConfigurationsUtil.getLevel3SupportedCombinationList().forEach {
             assertThat(
                 supportedSurfaceCombination.checkSupported(
-                    FeatureSettings.of(CameraMode.DEFAULT, BIT_DEPTH_8_BIT),
+                    FeatureSettings.of(CameraMode.DEFAULT, BIT_DEPTH_8_BIT, false),
                     it.surfaceConfigList
                 )
             ).isTrue()
@@ -465,7 +465,7 @@ class SupportedSurfaceCombinationTest {
         GuaranteedConfigurationsUtil.getConcurrentSupportedCombinationList().forEach {
             assertThat(
                 supportedSurfaceCombination.checkSupported(
-                    FeatureSettings.of(CameraMode.CONCURRENT_CAMERA, BIT_DEPTH_8_BIT),
+                    FeatureSettings.of(CameraMode.CONCURRENT_CAMERA, BIT_DEPTH_8_BIT, false),
                     it.surfaceConfigList
                 )
             ).isTrue()
@@ -490,8 +490,27 @@ class SupportedSurfaceCombinationTest {
             assertThat(
                 supportedSurfaceCombination.checkSupported(
                     FeatureSettings.of(
-                        CameraMode.ULTRA_HIGH_RESOLUTION_CAMERA, BIT_DEPTH_8_BIT
+                        CameraMode.ULTRA_HIGH_RESOLUTION_CAMERA, BIT_DEPTH_8_BIT, false
                     ),
+                    it.surfaceConfigList
+                )
+            ).isTrue()
+        }
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
+    fun checkPreviewStabilizationSurfaceCombinationSupportedWhenEnabled() {
+        setupCameraAndInitCameraX(
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+        GuaranteedConfigurationsUtil.getPreviewStabilizationSupportedCombinationList().forEach {
+            assertThat(
+                supportedSurfaceCombination.checkSupported(
+                    FeatureSettings.of(CameraMode.DEFAULT, BIT_DEPTH_8_BIT, true),
                     it.surfaceConfigList
                 )
             ).isTrue()
@@ -1451,7 +1470,8 @@ class SupportedSurfaceCombinationTest {
         val resultPair = supportedSurfaceCombination.getSuggestedStreamSpecifications(
             cameraMode,
             attachedSurfaceInfoList,
-            useCaseConfigToOutputSizesMap
+            useCaseConfigToOutputSizesMap,
+            false
         )
         val suggestedStreamSpecsForNewUseCases = resultPair.first
         val suggestedStreamSpecsForOldSurfaces = resultPair.second
@@ -1564,7 +1584,7 @@ class SupportedSurfaceCombinationTest {
         GuaranteedConfigurationsUtil.get10BitSupportedCombinationList().forEach {
             assertThat(
                 supportedSurfaceCombination.checkSupported(
-                    FeatureSettings.of(CameraMode.DEFAULT, BIT_DEPTH_10_BIT),
+                    FeatureSettings.of(CameraMode.DEFAULT, BIT_DEPTH_10_BIT, false),
                     it.surfaceConfigList
                 )
             ).isTrue()
@@ -3326,6 +3346,19 @@ class SupportedSurfaceCombinationTest {
                 )
                 set(CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES, uc)
             }
+
+            val vs: IntArray
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                vs = intArrayOf(
+                    CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_OFF,
+                    CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_ON,
+                    CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION)
+            } else {
+                vs = intArrayOf(
+                    CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_OFF,
+                    CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_ON)
+            }
+            set(CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES, vs)
 
             capabilities?.let {
                 set(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES, it)

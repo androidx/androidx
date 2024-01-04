@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="cli" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
+<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="cli" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
 
     <issue
         id="BanHideTag"
@@ -16,7 +16,7 @@
         errorLine1="                Thread.sleep(sleepTime)"
         errorLine2="                       ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/ui/input/pointer/AndroidPointerInputTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/input/pointer/AndroidPointerInputTest.kt"/>
     </issue>
 
     <issue
@@ -122,15 +122,6 @@
         id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;canScroll&apos; with type Function2&lt;? super ScrollAxisRange, ? super Float, ? extends Boolean>."
         errorLine1="                // Will the scrollable scroll when ScrollBy is invoked with the given [amount]?"
-        errorLine2="                ^">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeViewAccessibilityDelegateCompat.android.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;scrollAction&apos; with type AccessibilityAction&lt;Function2&lt;? super Float, ? super Float, ? extends Boolean>>."
-        errorLine1="                val scrollAction ="
         errorLine2="                ^">
         <location
             file="src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeViewAccessibilityDelegateCompat.android.kt"/>

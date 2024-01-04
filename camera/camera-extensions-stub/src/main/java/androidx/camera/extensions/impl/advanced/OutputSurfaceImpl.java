@@ -29,7 +29,7 @@ import androidx.annotation.Nullable;
  */
 public interface OutputSurfaceImpl {
     /**
-     * Gets the surface.
+     * Gets the surface. It returns null if output surface is not specified.
      */
     @Nullable
     Surface getSurface();

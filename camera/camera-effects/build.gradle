@@ -24,6 +24,7 @@ plugins {
 dependencies {
     api(project(":camera:camera-core"))
     implementation(libs.autoValueAnnotations)
+    implementation("androidx.concurrent:concurrent-futures:1.0.0")
 
     annotationProcessor(libs.autoValue)
 

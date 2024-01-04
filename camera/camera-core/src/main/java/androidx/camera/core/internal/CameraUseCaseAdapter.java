@@ -25,7 +25,6 @@ import static androidx.camera.core.streamsharing.StreamSharing.getCaptureTypes;
 import static androidx.camera.core.streamsharing.StreamSharing.isStreamSharing;
 import static androidx.core.util.Preconditions.checkArgument;
 import static androidx.core.util.Preconditions.checkState;
-
 import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 
@@ -62,6 +61,7 @@ import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CameraMode;
 import androidx.camera.core.impl.Config;
+import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.core.impl.RestrictedCameraControl;
 import androidx.camera.core.impl.RestrictedCameraControl.CameraOperation;
 import androidx.camera.core.impl.RestrictedCameraInfo;
@@ -71,6 +71,7 @@ import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
+import androidx.camera.core.impl.stabilization.StabilizationMode;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.streamsharing.StreamSharing;
 import androidx.core.util.Preconditions;
@@ -677,6 +678,7 @@ public final class CameraUseCaseAdapter implements Camera {
             SupportedOutputSizesSorter supportedOutputSizesSorter = new SupportedOutputSizesSorter(
                     cameraInfoInternal,
                     sensorRect != null ? rectToSize(sensorRect) : null);
+            boolean isPreviewStabilizationOn = false;
             for (UseCase useCase : newUseCases) {
                 ConfigPair configPair = configPairMap.get(useCase);
                 // Combine with default configuration.
@@ -687,6 +689,12 @@ public final class CameraUseCaseAdapter implements Camera {
                 configToSupportedSizesMap.put(combinedUseCaseConfig,
                         supportedOutputSizesSorter.getSortedSupportedOutputSizes(
                                 combinedUseCaseConfig));
+
+                if (useCase.getCurrentConfig() instanceof PreviewConfig) {
+                    isPreviewStabilizationOn =
+                            ((PreviewConfig) useCase.getCurrentConfig())
+                                    .getPreviewStabilizationMode() == StabilizationMode.ON;
+                }
             }
 
             // Get suggested stream specifications and update the use case session configuration
@@ -695,7 +703,8 @@ public final class CameraUseCaseAdapter implements Camera {
                     mCameraDeviceSurfaceManager.getSuggestedStreamSpecs(
                             cameraMode,
                             cameraId, existingSurfaces,
-                            configToSupportedSizesMap);
+                            configToSupportedSizesMap,
+                            isPreviewStabilizationOn);
 
             for (Map.Entry<UseCaseConfig<?>, UseCase> entry : configToUseCaseMap.entrySet()) {
                 suggestedStreamSpecs.put(entry.getValue(),

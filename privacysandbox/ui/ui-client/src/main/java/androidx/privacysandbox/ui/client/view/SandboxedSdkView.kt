@@ -18,13 +18,22 @@ package androidx.privacysandbox.ui.client.view
 
 import android.content.Context
 import android.content.res.Configuration
+import android.graphics.Rect
 import android.os.Build
 import android.os.IBinder
 import android.util.AttributeSet
+import android.view.SurfaceControl
+import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewParent
+import android.view.ViewTreeObserver
 import androidx.annotation.RequiresApi
+import androidx.annotation.VisibleForTesting
+import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState.Active
+import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState.Idle
+import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState.Loading
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.math.min
@@ -95,6 +104,24 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
         visibility = GONE
     }
 
+    // This will only be invoked when the content view has been set and the window is attached.
+    private val surfaceChangedCallback = object : SurfaceHolder.Callback {
+        override fun surfaceCreated(p0: SurfaceHolder) {
+            setClippingBounds(true)
+            viewTreeObserver.addOnGlobalLayoutListener(globalLayoutChangeListener)
+        }
+
+        override fun surfaceChanged(p0: SurfaceHolder, p1: Int, p2: Int, p3: Int) {
+        }
+
+        override fun surfaceDestroyed(p0: SurfaceHolder) {
+        }
+    }
+
+    // This will only be invoked when the content view has been set and the window is attached.
+    private val globalLayoutChangeListener =
+        ViewTreeObserver.OnGlobalLayoutListener { setClippingBounds() }
+
     private var adapter: SandboxedUiAdapter? = null
     private var client: Client? = null
     private var isZOrderOnTop = true
@@ -103,6 +130,8 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
     private var requestedHeight = -1
     private var isTransitionGroupSet = false
     private var windowInputToken: IBinder? = null
+    private var currentClippingBounds = Rect()
+    private var currentConfig = context.resources.configuration
     internal val stateListenerManager: StateListenerManager = StateListenerManager()
 
     /**
@@ -133,15 +162,70 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
     /**
      * Sets the Z-ordering of the [SandboxedSdkView]'s surface, relative to its window.
      *
-     * When [setOnTop] is true, every [android.view.MotionEvent] on the [SandboxedSdkView] will be
-     * sent to the UI provider. When [setOnTop] is false, every [android.view.MotionEvent] will be
-     * sent to the client. By default, motion events are sent to the UI provider.
+     * When [providerUiOnTop] is true, every [android.view.MotionEvent] on the [SandboxedSdkView]
+     * will be sent to the UI provider. When [providerUiOnTop] is false, every
+     * [android.view.MotionEvent] will be sent to the client. By default, motion events are sent to
+     * the UI provider.
      */
-    fun setZOrderOnTopAndEnableUserInteraction(setOnTop: Boolean) {
-        if (setOnTop == isZOrderOnTop) return
-        client?.notifyZOrderChanged(setOnTop)
-        isZOrderOnTop = setOnTop
+    fun orderProviderUiAboveClientUi(providerUiOnTop: Boolean) {
+        if (providerUiOnTop == isZOrderOnTop) return
+        client?.notifyZOrderChanged(providerUiOnTop)
+        isZOrderOnTop = providerUiOnTop
         checkClientOpenSession()
+    }
+
+    internal fun setClippingBounds(forceUpdate: Boolean = false) {
+        checkNotNull(contentView)
+        check(isAttachedToWindow)
+
+        val updateRequired = getBoundingParent(currentClippingBounds) || forceUpdate
+        if (!updateRequired) {
+            return
+        }
+
+        val sv: SurfaceView = contentView as SurfaceView
+        val attachedSurfaceControl = checkNotNull(sv.rootSurfaceControl) {
+            "attachedSurfaceControl should be non-null if the window is attached"
+        }
+        val name = "clippingBounds-${System.currentTimeMillis()}"
+        val clippingBoundsSurfaceControl =
+            SurfaceControl.Builder().setName(name)
+                .build()
+        val reparentSurfaceControlTransaction = SurfaceControl.Transaction()
+            .reparent(sv.surfaceControl, clippingBoundsSurfaceControl)
+
+        val reparentClippingBoundsTransaction =
+            checkNotNull(
+                attachedSurfaceControl.buildReparentTransaction(clippingBoundsSurfaceControl)) {
+                "Reparent transaction should be non-null if the window is attached"
+            }
+        reparentClippingBoundsTransaction.setCrop(
+            clippingBoundsSurfaceControl, currentClippingBounds)
+        reparentClippingBoundsTransaction.setVisibility(
+            clippingBoundsSurfaceControl, true)
+        reparentSurfaceControlTransaction.merge(reparentClippingBoundsTransaction)
+        attachedSurfaceControl.applyTransactionOnDraw(reparentSurfaceControlTransaction)
+    }
+
+    /**
+     * Computes the window space coordinates for the bounding parent of this view, and stores the
+     * result in [rect].
+     *
+     * Returns true if the coordinates have changed, false otherwise.
+     */
+    @VisibleForTesting
+    internal fun getBoundingParent(rect: Rect): Boolean {
+        val prevBounds = Rect(rect)
+        var viewParent: ViewParent? = parent
+        while (viewParent != null && viewParent is View) {
+            val v = viewParent as View
+            if (v.isScrollContainer || v.id == android.R.id.content) {
+                v.getGlobalVisibleRect(rect)
+                return prevBounds != rect
+            }
+            viewParent = viewParent.getParent()
+        }
+        return false
     }
 
     private fun checkClientOpenSession() {
@@ -197,9 +281,15 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     private fun removeContentView() {
+        removeCallbacks()
         if (childCount == 1) {
             super.removeViewAt(0)
         }
+    }
+
+    private fun removeCallbacks() {
+        (contentView as? SurfaceView)?.holder?.removeCallback(surfaceChangedCallback)
+        viewTreeObserver.removeOnGlobalLayoutListener(globalLayoutChangeListener)
     }
 
     internal fun setContentView(contentView: View) {
@@ -219,6 +309,10 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
         viewTreeObserver.registerFrameCommitCallback {
             stateListenerManager.currentUiSessionState =
                 SandboxedSdkUiSessionState.Active
+        }
+
+        if (contentView is SurfaceView) {
+            contentView.holder.addCallback(surfaceChangedCallback)
         }
     }
 
@@ -293,6 +387,7 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
         client?.close()
         client = null
         windowInputToken = null
+        removeCallbacks()
         super.onDetachedFromWindow()
     }
 
@@ -309,9 +404,11 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
 
     override fun onConfigurationChanged(config: Configuration?) {
         requireNotNull(config) { "Config cannot be null" }
-        if (context.resources.configuration == config)
+        if (config == currentConfig) {
             return
+        }
         super.onConfigurationChanged(config)
+        currentConfig = config
         client?.notifyConfigurationChanged(config)
         checkClientOpenSession()
     }

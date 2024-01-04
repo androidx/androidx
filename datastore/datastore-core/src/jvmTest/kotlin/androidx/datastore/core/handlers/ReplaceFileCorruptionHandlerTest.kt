@@ -27,7 +27,6 @@ import java.io.IOException
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -60,7 +59,7 @@ class ReplaceFileCorruptionHandlerTest {
                 TestingSerializer(TestingSerializerConfig(failReadWithCorruptionException = true))
             ) { testFile },
             corruptionHandler = ReplaceFileCorruptionHandler<Byte> { 10 },
-            scope = this
+            scope = backgroundScope
         )
 
         assertThat(store.data.first()).isEqualTo(10)
@@ -79,7 +78,7 @@ class ReplaceFileCorruptionHandlerTest {
                 )
             ) { testFile },
             corruptionHandler = ReplaceFileCorruptionHandler<Byte> { 10 },
-            scope = this
+            scope = backgroundScope
         )
 
         assertThat(store.updateData { it.inc() }).isEqualTo(11)
@@ -98,7 +97,7 @@ class ReplaceFileCorruptionHandlerTest {
                 )
             ) { testFile },
             corruptionHandler = ReplaceFileCorruptionHandler<Byte> { 10 },
-            scope = this
+            scope = backgroundScope
         )
 
         val plus1 = async { store.updateData { it.inc() } }
@@ -125,7 +124,7 @@ class ReplaceFileCorruptionHandlerTest {
                 )
             ) { testFile },
             corruptionHandler = ReplaceFileCorruptionHandler<Byte> { 10 },
-            scope = this
+            scope = backgroundScope
         )
 
         assertThrows<IOException> { store.data.first() }
@@ -135,12 +134,12 @@ class ReplaceFileCorruptionHandlerTest {
     }
 
     private suspend fun preSeedData(file: File, byte: Byte) {
-        coroutineScope {
+        runTest {
             DataStoreImpl(
                 FileStorage(
                     TestingSerializer()
                 ) { file },
-                scope = this
+                scope = backgroundScope
             ).updateData { byte }
         }
     }

@@ -86,7 +86,9 @@ class TintColorFilterParams(val colorProvider: ColorProvider) : ColorFilterParam
 /**
  * Effects used to modify the color of an image.
  */
-class ColorFilter internal constructor(internal val colorFilterParams: ColorFilterParams) {
+class ColorFilter internal constructor(
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val colorFilterParams: ColorFilterParams
+) {
     companion object {
         /**
          * Set a tinting option for the image using the platform-specific default blending mode.

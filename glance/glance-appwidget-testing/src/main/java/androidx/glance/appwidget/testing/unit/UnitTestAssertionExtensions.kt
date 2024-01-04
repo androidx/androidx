@@ -28,7 +28,8 @@ import androidx.glance.testing.unit.GlanceMappedNode
 import androidx.glance.testing.unit.MappedNode
 
 // This file contains (appWidget-specific) convenience assertion shorthands for unit tests that
-// delegate calls to "assert(matcher)". For assertions common to surfaces, see AssertionExtension
+// delegate calls to "assert(matcher)". For assertions common to surfaces, see equivalent file in
+// base layer testing library.
 
 internal typealias UnitTestAssertion = GlanceNodeAssertion<MappedNode, GlanceMappedNode>
 
@@ -115,7 +116,7 @@ fun UnitTestAssertion.assertHasStartServiceClickAction(
  * Asserts that a given node has a clickable set with action that sends a broadcast.
  *
  * @param receiverClass class of the broadcast receiver that is expected to have been passed in the
- *                      actionSendBroadcast` method call.
+ *                      `actionSendBroadcast` method call.
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
 fun UnitTestAssertion.assertHasSendBroadcastClickAction(
@@ -128,7 +129,7 @@ fun UnitTestAssertion.assertHasSendBroadcastClickAction(
  * @param intentAction the intent action of the broadcast receiver that is expected to  have been
  *                     passed in the `actionSendBroadcast` method call.
  * @param componentName optional [ComponentName] of the target broadcast receiver that is expected
- *                      to have been passed in the actionSendBroadcast` method call.
+ *                      to have been passed in the `actionSendBroadcast` method call.
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
 fun UnitTestAssertion.assertHasSendBroadcastClickAction(
@@ -140,7 +141,7 @@ fun UnitTestAssertion.assertHasSendBroadcastClickAction(
  * Asserts that a given node has a clickable set with action that sends a broadcast.
  *
  * @param componentName [ComponentName] of the target broadcast receiver that is expected to have
- *                      been passed in the actionSendBroadcast` method call.
+ *                      been passed in the `actionSendBroadcast` method call.
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
 fun UnitTestAssertion.assertHasSendBroadcastClickAction(

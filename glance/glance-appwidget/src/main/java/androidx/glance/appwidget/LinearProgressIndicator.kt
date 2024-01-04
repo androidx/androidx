@@ -16,6 +16,7 @@
 
 package androidx.glance.appwidget
 
+import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.glance.Emittable
@@ -76,7 +77,8 @@ fun LinearProgressIndicator(
     )
 }
 
-internal class EmittableLinearProgressIndicator : Emittable {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class EmittableLinearProgressIndicator : Emittable {
     override var modifier: GlanceModifier = GlanceModifier
     var progress: Float = 0.0f
     var indeterminate: Boolean = false

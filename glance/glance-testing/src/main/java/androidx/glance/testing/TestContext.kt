@@ -23,13 +23,66 @@ import androidx.annotation.RestrictTo
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class TestContext<R, T : GlanceNode<R>> {
+    // e.g. RemoteViewsRoot
+    var rootGlanceNode: T? = null
+    private var allNodes: List<GlanceNode<R>> = emptyList()
+
     /**
-     * To be called on every onNode to restart matching and clear cache.
+     * Returns all nodes in single flat list (either from cache or by traversing the hierarchy from
+     * root glance node).
      */
-    fun reset() {
-        cachedMatchedNodes = emptyList()
+    private fun getAllNodes(): List<GlanceNode<R>> {
+        val rootGlanceNode =
+            checkNotNull(rootGlanceNode) { "No root GlanceNode found." }
+        if (this.allNodes.isEmpty()) {
+            val allNodes = mutableListOf<GlanceNode<R>>()
+
+            fun collectAllNodesRecursive(currentNode: GlanceNode<R>) {
+                allNodes.add(currentNode)
+                val children = currentNode.children()
+                for (index in children.indices) {
+                    collectAllNodesRecursive(children[index])
+                }
+            }
+
+            collectAllNodesRecursive(rootGlanceNode)
+            this.allNodes = allNodes.toList()
+        }
+
+        return this.allNodes
     }
 
-    var rootGlanceNode: T? = null
-    var cachedMatchedNodes: List<GlanceNode<R>> = emptyList()
+    /**
+     * Finds nodes matching the given selector from the list of all nodes in the hierarchy.
+     *
+     * @throws AssertionError if provided selector results in an error due to no match.
+     */
+    fun findMatchingNodes(
+        selector: GlanceNodeSelector<R>,
+        errorMessageOnFail: String
+    ): List<GlanceNode<R>> {
+        val allNodes = getAllNodes()
+        val selectionResult = selector.map(allNodes)
+
+        if (selectionResult.errorMessageOnNoMatch != null) {
+            throw AssertionError(
+                buildErrorMessageWithReason(
+                    errorMessageOnFail = errorMessageOnFail,
+                    reason = selectionResult.errorMessageOnNoMatch
+                )
+            )
+        }
+
+        return selectionResult.selectedNodes
+    }
+
+    /**
+     * Returns true if root has glance nodes after composition to be able to perform assertions on.
+     *
+     * Can be false if either composable function produced no glance elements or composable function
+     * was not provided..
+     */
+    fun hasNodes(): Boolean {
+        return rootGlanceNode?.children()?.isNotEmpty() ?: false
+    }
 }

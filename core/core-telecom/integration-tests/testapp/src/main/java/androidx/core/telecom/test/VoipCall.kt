@@ -33,28 +33,24 @@ class VoipCall {
     var mIsMuted = false
     var mTelecomCallId: String = ""
 
-    val mOnSetActiveLambda: suspend () -> Boolean = {
+    val mOnSetActiveLambda: suspend () -> Unit = {
         Log.i(TAG, "onSetActive: completing")
         mAdapter?.updateCallState(mTelecomCallId, "Active")
-        true
     }
 
-    val mOnSetInActiveLambda: suspend () -> Boolean = {
+    val mOnSetInActiveLambda: suspend () -> Unit = {
         Log.i(TAG, "onSetInactive: completing")
         mAdapter?.updateCallState(mTelecomCallId, "Inactive")
-        true
     }
 
-    val mOnAnswerLambda: suspend (type: Int) -> Boolean = {
+    val mOnAnswerLambda: suspend (type: Int) -> Unit = {
         Log.i(TAG, "onAnswer: callType=[$it]")
         mAdapter?.updateCallState(mTelecomCallId, "Answered")
-        true
     }
 
-    val mOnDisconnectLambda: suspend (cause: DisconnectCause) -> Boolean = {
+    val mOnDisconnectLambda: suspend (cause: DisconnectCause) -> Unit = {
         Log.i(TAG, "onDisconnect: disconnectCause=[$it]")
         mAdapter?.updateCallState(mTelecomCallId, "Disconnected")
-        true
     }
 
     fun setCallControl(callControl: CallControlScope) {

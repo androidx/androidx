@@ -37,21 +37,25 @@ import androidx.core.content.pm.PackageInfoCompat;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolate;
+import org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolateClient;
 import org.chromium.android_webview.js_sandbox.common.IJsSandboxService;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.concurrent.GuardedBy;
 
@@ -88,14 +92,24 @@ public final class JavaScriptSandbox implements AutoCloseable {
     private final Object mLock = new Object();
     private final CloseGuardHelper mGuard = CloseGuardHelper.create();
 
+    // This is null iff the sandbox is closed.
     @Nullable
     @GuardedBy("mLock")
     private IJsSandboxService mJsSandboxService;
 
-    private final ConnectionSetup mConnection;
+    // Don't use mLock for the connection, allowing it to be severed at any time, regardless of
+    // the status of the main mLock. Use an AtomicReference instead.
+    //
+    // The underlying ConnectionSetup is nullable, and is null iff the service has been unbound
+    // (which should also imply dead or closed).
+    @NonNull
+    private final AtomicReference<ConnectionSetup> mConnection;
+    @NonNull
+    private final Context mContext;
 
     @GuardedBy("mLock")
-    private final HashSet<JavaScriptIsolate> mActiveIsolateSet = new HashSet<>();
+    @NonNull
+    private Set<JavaScriptIsolate> mActiveIsolateSet;
 
     final ExecutorService mThreadPoolTaskExecutor =
             Executors.newCachedThreadPool(new ThreadFactory() {
@@ -120,6 +134,7 @@ public final class JavaScriptSandbox implements AutoCloseable {
                     JS_FEATURE_ISOLATE_MAX_HEAP_SIZE,
                     JS_FEATURE_EVALUATE_WITHOUT_TRANSACTION_LIMIT,
                     JS_FEATURE_CONSOLE_MESSAGING,
+                    JS_FEATURE_ISOLATE_CLIENT,
             })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -198,6 +213,15 @@ public final class JavaScriptSandbox implements AutoCloseable {
      */
     public static final String JS_FEATURE_CONSOLE_MESSAGING = "JS_FEATURE_CONSOLE_MESSAGING";
 
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * <p>
+     * When this feature is present, the service can be provided with a Binder interface for
+     * calling into the client, independent of callbacks.
+     */
+    static final String JS_FEATURE_ISOLATE_CLIENT =
+            "JS_FEATURE_ISOLATE_CLIENT";
+
     // This set must not be modified after JavaScriptSandbox construction.
     @NonNull
     private final HashSet<String> mClientSideFeatureSet;
@@ -207,7 +231,8 @@ public final class JavaScriptSandbox implements AutoCloseable {
         private CallbackToFutureAdapter.Completer<JavaScriptSandbox> mCompleter;
         @Nullable
         private JavaScriptSandbox mJsSandbox;
-        final Context mContext;
+        @NonNull
+        private final Context mContext;
 
         @Override
         @SuppressWarnings("NullAway")
@@ -222,7 +247,7 @@ public final class JavaScriptSandbox implements AutoCloseable {
             IJsSandboxService jsSandboxService =
                     IJsSandboxService.Stub.asInterface(service);
             try {
-                mJsSandbox = new JavaScriptSandbox(this, jsSandboxService);
+                mJsSandbox = new JavaScriptSandbox(mContext, this, jsSandboxService);
             } catch (RemoteException e) {
                 runShutdownTasks(e);
                 return;
@@ -386,12 +411,14 @@ public final class JavaScriptSandbox implements AutoCloseable {
 
     // We prevent direct initializations of this class.
     // Use JavaScriptSandbox.createConnectedInstance().
-    JavaScriptSandbox(@NonNull ConnectionSetup connectionSetup,
+    JavaScriptSandbox(@NonNull Context context, @NonNull ConnectionSetup connectionSetup,
             @NonNull IJsSandboxService jsSandboxService) throws RemoteException {
-        mConnection = connectionSetup;
+        mContext = context;
+        mConnection = new AtomicReference<>(connectionSetup);
         mJsSandboxService = jsSandboxService;
         final List<String> features = mJsSandboxService.getSupportedFeatures();
         mClientSideFeatureSet = buildClientSideFeatureSet(features);
+        mActiveIsolateSet = new HashSet<>();
         mGuard.open("close");
         // This should be at the end of the constructor.
     }
@@ -415,27 +442,39 @@ public final class JavaScriptSandbox implements AutoCloseable {
     public JavaScriptIsolate createIsolate(@NonNull IsolateStartupParameters settings) {
         Objects.requireNonNull(settings);
         synchronized (mLock) {
-            if (mJsSandboxService == null) {
+            // TODO(b/290750354, b/290749782): Implement separate closed vs dead state and use
+            //  that instead of a mConnection nullness check.
+            if (mJsSandboxService == null || mConnection.get() == null) {
                 throw new IllegalStateException(
                         "Attempting to createIsolate on a service that isn't connected");
             }
-            IJsSandboxIsolate isolateStub;
+            final JavaScriptIsolate isolate;
             try {
-                if (settings.getMaxHeapSizeBytes()
-                        == IsolateStartupParameters.DEFAULT_ISOLATE_HEAP_SIZE) {
-                    isolateStub = mJsSandboxService.createIsolate();
-                } else {
-                    isolateStub = mJsSandboxService.createIsolateWithMaxHeapSizeBytes(
-                            settings.getMaxHeapSizeBytes());
-                    if (isolateStub == null) {
-                        throw new RuntimeException(
-                                "Service implementation doesn't support setting maximum heap size");
-                    }
-                }
+                isolate = JavaScriptIsolate.create(this, settings);
             } catch (RemoteException e) {
+                // TODO(b/286055647): Handle sandbox dying during createIsolate more sensibly.
                 throw new RuntimeException(e);
             }
-            return createJsIsolateLocked(isolateStub, settings);
+            mActiveIsolateSet.add(isolate);
+            return isolate;
+        }
+    }
+
+    // In practice, this method should only be called whilst already holding mLock, but it is
+    // called via JavaScriptIsolate and this constraint cannot be cleanly expressed via GuardedBy.
+    IJsSandboxIsolate createIsolateOnService(@NonNull IsolateStartupParameters settings,
+            @Nullable IJsSandboxIsolateClient isolateInstanceCallback) throws RemoteException {
+        synchronized (mLock) {
+            Objects.requireNonNull(mJsSandboxService);
+            if (isFeatureSupported(JavaScriptSandbox.JS_FEATURE_ISOLATE_CLIENT)) {
+                return mJsSandboxService.createIsolate2(settings.getMaxHeapSizeBytes(),
+                        isolateInstanceCallback);
+            } else if (isFeatureSupported(JavaScriptSandbox.JS_FEATURE_ISOLATE_MAX_HEAP_SIZE)) {
+                return mJsSandboxService.createIsolateWithMaxHeapSizeBytes(
+                        settings.getMaxHeapSizeBytes());
+            } else {
+                return mJsSandboxService.createIsolate();
+            }
         }
     }
 
@@ -459,17 +498,10 @@ public final class JavaScriptSandbox implements AutoCloseable {
         if (features.contains(IJsSandboxService.CONSOLE_MESSAGING)) {
             featureSet.add(JS_FEATURE_CONSOLE_MESSAGING);
         }
+        if (features.contains(IJsSandboxService.ISOLATE_CLIENT + ":DEV")) {
+            featureSet.add(JS_FEATURE_ISOLATE_CLIENT);
+        }
         return featureSet;
-    }
-
-    @GuardedBy("mLock")
-    @NonNull
-    @SuppressWarnings("NullAway")
-    private JavaScriptIsolate createJsIsolateLocked(@NonNull IJsSandboxIsolate isolateStub,
-            @NonNull IsolateStartupParameters settings) {
-        JavaScriptIsolate isolate = new JavaScriptIsolate(isolateStub, this, settings);
-        mActiveIsolateSet.add(isolate);
-        return isolate;
     }
 
     /**
@@ -512,28 +544,51 @@ public final class JavaScriptSandbox implements AutoCloseable {
             if (mJsSandboxService == null) {
                 return;
             }
-            // This is the closest thing to a .close() method for ExecutorServices. This doesn't
-            // force the threads or their Runnables to immediately terminate, but will ensure
-            // that once the
-            // worker threads finish their current runnable (if any) that the thread pool terminates
-            // them, preventing a leak of threads.
-            mThreadPoolTaskExecutor.shutdownNow();
-            notifyIsolatesAboutClosureLocked();
-            mConnection.mContext.unbindService(mConnection);
+            unbindService();
             // Currently we consider that we are ready for a new connection once we unbind. This
             // might not be true if the process is not immediately killed by ActivityManager once it
             // is unbound.
             sIsReadyToConnect.set(true);
             mJsSandboxService = null;
         }
+        notifyIsolatesAboutClosure();
+        // This is the closest thing to a .close() method for ExecutorServices. This doesn't
+        // force the threads or their Runnables to immediately terminate, but will ensure
+        // that once the worker threads finish their current runnable (if any) that the thread
+        // pool terminates them, preventing a leak of threads.
+        mThreadPoolTaskExecutor.shutdownNow();
     }
 
-    @GuardedBy("mLock")
-    private void notifyIsolatesAboutClosureLocked() {
-        for (JavaScriptIsolate ele : mActiveIsolateSet) {
-            ele.maybeSetSandboxDead();
+    // Unbind the service if it hasn't been unbound already.
+    private void unbindService() {
+        final ConnectionSetup connection = mConnection.getAndSet(null);
+        if (connection != null) {
+            mContext.unbindService(connection);
         }
-        mActiveIsolateSet.clear();
+    }
+
+    // Kill the sandbox immediately.
+    //
+    // This will unbind the sandbox service so that any future IPC will fail immediately.
+    // However, isolates will be notified asynchronously, from the main thread.
+    void kill() {
+        unbindService();
+        // TODO(b/290750354, b/290749782): Implement separate closed vs dead state.
+        getMainExecutor().execute(this::close);
+    }
+
+    private void notifyIsolatesAboutClosure() {
+        // Do not hold mLock whilst calling into JavaScriptIsolate, as JavaScriptIsolate also has
+        // its own lock and may want to call into JavaScriptSandbox from another thread.
+        final Set<JavaScriptIsolate> activeIsolateSet;
+        synchronized (mLock) {
+            activeIsolateSet = mActiveIsolateSet;
+            mActiveIsolateSet = Collections.emptySet();
+        }
+        for (JavaScriptIsolate isolate : activeIsolateSet) {
+            isolate.maybeSetIsolateDead(new TerminationInfo(TerminationInfo.STATUS_SANDBOX_DEAD,
+                    "sandbox closed"));
+        }
     }
 
     @Override
@@ -553,6 +608,6 @@ public final class JavaScriptSandbox implements AutoCloseable {
 
     @NonNull
     Executor getMainExecutor() {
-        return ContextCompat.getMainExecutor(mConnection.mContext);
+        return ContextCompat.getMainExecutor(mContext);
     }
 }

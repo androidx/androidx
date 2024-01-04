@@ -28,6 +28,8 @@ import androidx.glance.action.actionParametersOf
 import androidx.glance.semantics.SemanticsModifier
 import androidx.glance.semantics.SemanticsProperties
 import androidx.glance.semantics.SemanticsPropertyKey
+import androidx.glance.testing.GlanceNode
+import androidx.glance.testing.GlanceNodeAssertionsProvider
 import androidx.glance.testing.GlanceNodeMatcher
 
 // This file contains common filters that can be passed in "onNode", "onAllNodes" or
@@ -37,7 +39,8 @@ import androidx.glance.testing.GlanceNodeMatcher
 /**
  * Returns a matcher that matches if a node is annotated by the given test tag.
  *
- * <p>This can be passed in "onNode" and "onNodeAll" functions on assertion providers to filter out
+ * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
  * matching node(s) or in assertions to validate that node(s) satisfy the condition.
  *
  * @param testTag value to match against the free form string specified in the `testTag` semantics
@@ -59,31 +62,67 @@ private fun <T> hasSemanticsPropertyValue(
 }
 
 /**
- * Returns whether the node matches content description with the provided [value]
+ * Returns whether the content description set directly on the node contains the provided [value].
  *
- * @param value value to match as one of the items in the list of content descriptions.
- * @param substring whether to use substring matching.
- * @param ignoreCase whether case should be ignored.
+ * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
+ * matching node(s) or in assertions to validate that node(s) satisfy the condition.
+ *
+ * @param value value that should be substring of the content description set directly on the node.
+ * @param ignoreCase whether case should be ignored. Default is case sensitive.
  *
  * @see SemanticsProperties.ContentDescription
  */
 @JvmOverloads
 fun hasContentDescription(
     value: String,
-    substring: Boolean = false,
     ignoreCase: Boolean = false
 ): GlanceNodeMatcher<MappedNode> =
     GlanceNodeMatcher(
-        description = if (substring) {
+        description =
             "${SemanticsProperties.ContentDescription.name} contains '$value'" +
-                " (ignoreCase: '$ignoreCase')"
-        } else {
-            "${SemanticsProperties.ContentDescription.name} = '$value' (ignoreCase: '$ignoreCase')"
-        }
+                " (ignoreCase: '$ignoreCase') as substring"
     ) { node ->
         node.value.emittable.modifier.any {
             it is SemanticsModifier &&
-                hasContentDescription(it, value, substring, ignoreCase)
+                hasContentDescription(
+                    semanticsModifier = it,
+                    value = value,
+                    substring = true,
+                    ignoreCase = ignoreCase)
+        }
+    }
+
+/**
+ * Returns whether the content description set directly on the node is equal to the provided
+ * [value].
+ *
+ * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
+ * matching node(s) or in assertions to validate that node(s) satisfy the condition.
+ *
+ * @param value value that should match exactly with content description set directly on the node.
+ * @param ignoreCase whether case should be ignored. Default is case sensitive.
+ *
+ * @see SemanticsProperties.ContentDescription
+ */
+@JvmOverloads
+fun hasContentDescriptionEqualTo(
+    value: String,
+    ignoreCase: Boolean = false
+): GlanceNodeMatcher<MappedNode> =
+    GlanceNodeMatcher(
+        description =
+        "${SemanticsProperties.ContentDescription.name} == '$value' (ignoreCase: '$ignoreCase')"
+    ) { node ->
+        node.value.emittable.modifier.any {
+            it is SemanticsModifier &&
+                hasContentDescription(
+                    semanticsModifier = it,
+                    value = value,
+                    substring = false,
+                    ignoreCase = ignoreCase
+                )
         }
     }
 
@@ -93,7 +132,6 @@ private fun hasContentDescription(
     substring: Boolean = false,
     ignoreCase: Boolean = false
 ): Boolean {
-    @Suppress("ListIterator")
     val contentDescription =
         semanticsModifier.configuration.getOrNull(SemanticsProperties.ContentDescription)
             ?.joinToString()
@@ -106,43 +144,54 @@ private fun hasContentDescription(
 }
 
 /**
- * Returns a matcher that matches if text on node matches the provided text.
+ * Returns a matcher that matches if text on node contains the provided text as its substring.
  *
- * This can be passed in "onNode" and "onNodeAll" functions on assertion providers to filter out
+ * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
  * matching node(s) or in assertions to validate that node(s) satisfy the condition.
  *
- * @param text value to match.
- * @param substring whether to perform substring matching
- * @param ignoreCase whether to perform case insensitive matching
+ * @param text value that should be matched as a substring of the node's text.
+ * @param ignoreCase whether to perform case insensitive matching. Defaults to case sensitive
+ *                   matching.
  */
 @JvmOverloads
 fun hasText(
     text: String,
-    substring: Boolean = false,
     ignoreCase: Boolean = false
 ): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
-    if (substring) {
-        "contains '$text' (ignoreCase: $ignoreCase) as substring"
-    } else {
-        "has text = '$text' (ignoreCase: '$ignoreCase')"
-    }
+    description = "contains text '$text' (ignoreCase: '$ignoreCase') as substring"
 ) { node ->
     val emittable = node.value.emittable
-    if (emittable is EmittableWithText) {
-        if (substring) {
-            emittable.text.contains(text, ignoreCase)
-        } else {
-            emittable.text.equals(text, ignoreCase)
-        }
-    } else {
-        false
-    }
+    emittable is EmittableWithText && emittable.text.contains(text, ignoreCase)
+}
+
+/**
+ * Returns a matcher that matches if node is a text node and its text is equal to the provided text.
+ *
+ * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
+ * matching node(s) or in assertions to validate that node(s) satisfy the condition.
+ *
+ * @param text value that should exactly match the node's text.
+ * @param ignoreCase whether to perform case insensitive matching. Defaults to case sensitive
+ *                   matching.
+ */
+@JvmOverloads
+fun hasTextEqualTo(
+    text: String,
+    ignoreCase: Boolean = false
+): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
+    description = "text == '$text' (ignoreCase: '$ignoreCase')"
+) { node ->
+    val emittable = node.value.emittable
+    emittable is EmittableWithText && emittable.text.equals(text, ignoreCase)
 }
 
 /**
  * Returns a matcher that matches if the given node has clickable modifier set.
  *
- * This can be passed in "onNode" and "onNodeAll" functions on assertion providers to filter out
+ * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
  * matching node(s) or in assertions to validate that node(s) satisfy the condition.
  */
 fun hasClickAction(): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
@@ -157,7 +206,8 @@ fun hasClickAction(): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
  * Returns a matcher that matches if the given node doesn't have a clickable modifier or `onClick`
  * set.
  *
- * This can be passed in "onNode" and "onNodeAll" functions on assertion providers to filter out
+ * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
  * matching node(s) or in assertions to validate that node(s) satisfy the condition.
  */
 fun hasNoClickAction(): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
@@ -172,7 +222,8 @@ fun hasNoClickAction(): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
  * Returns a matcher that matches if a given node has a clickable set with action that starts an
  * activity.
  *
- * This can be passed in "onNode" and "onNodeAll" functions on assertion providers to filter out
+ * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
  * matching node(s) or in assertions to validate that node(s) satisfy the condition.
  *
  * @param activityClass class of the activity that is expected to have been passed in the
@@ -214,10 +265,39 @@ fun <T : Activity> hasStartActivityClickAction(
 }
 
 /**
+ * Returns a matcher that matches if a given node has a descendant node somewhere in its
+ * sub-hierarchy that the matches the provided matcher.
+ *
+ * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
+ * matching node(s) or in assertions to validate that node(s) satisfy the condition.
+ *
+ * @param matcher a matcher that needs to be satisfied for the descendant node to be matched
+ */
+fun hasAnyDescendant(matcher: GlanceNodeMatcher<MappedNode>): GlanceNodeMatcher<MappedNode> {
+
+    fun checkIfSubtreeMatchesRecursive(
+        matcher: GlanceNodeMatcher<MappedNode>,
+        node: GlanceNode<MappedNode>
+    ): Boolean {
+        if (matcher.matchesAny(node.children())) {
+            return true
+        }
+
+        return node.children().any { checkIfSubtreeMatchesRecursive(matcher, it) }
+    }
+
+    return GlanceNodeMatcher("hasAnyDescendantThat(${matcher.description})") {
+        checkIfSubtreeMatchesRecursive(matcher, it)
+    }
+}
+
+/**
  * Returns a matcher that matches if a given node has a clickable set with action that starts an
  * activity.
  *
- * This can be passed in "onNode" and "onNodeAll" functions on assertion providers to filter out
+ * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
  * matching node(s) or in assertions to validate that node(s) satisfy the condition.
  *
  * @param componentName component of the activity that is expected to have been passed in the

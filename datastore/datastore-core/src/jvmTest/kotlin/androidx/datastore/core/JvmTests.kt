@@ -25,6 +25,7 @@ import java.io.InputStream
 import java.io.OutputStream
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
 @InternalCoroutinesApi
@@ -37,7 +38,7 @@ class CloseDownstreamOnCloseJavaTest : CloseDownstreamOnCloseTest<JavaIOFile>(Fi
 class SingleProcessDataStoreJavaTest : SingleProcessDataStoreTest<JavaIOFile>(FileTestIO()) {
 
     @Test
-    fun testMutatingDataStoreFails() = doTest {
+    fun testMutatingDataStoreFails() = runTest {
         val dataStore = DataStoreFactory.create(
             serializer = ByteWrapperSerializer(),
             scope = dataStoreScope
@@ -53,7 +54,7 @@ class SingleProcessDataStoreJavaTest : SingleProcessDataStoreTest<JavaIOFile>(Fi
     }
 
     @Test
-    fun testClosingOutputStreamDoesntCloseUnderlyingStream() = doTest {
+    fun testClosingOutputStreamDoesntCloseUnderlyingStream() = runTest {
         val delegate = TestingSerializer()
         val serializer = object : Serializer<Byte> by delegate {
             override suspend fun writeTo(t: Byte, output: OutputStream) {
@@ -74,7 +75,7 @@ class SingleProcessDataStoreJavaTest : SingleProcessDataStoreTest<JavaIOFile>(Fi
     }
 
     @Test
-    fun testReadUnreadableFile() = doTest {
+    fun testReadUnreadableFile() = runTest {
         // ensure the file exists by writing into it
         testFile.file.writeText("")
         testFile.file.setReadable(false)
@@ -87,7 +88,7 @@ class SingleProcessDataStoreJavaTest : SingleProcessDataStoreTest<JavaIOFile>(Fi
     }
 
     @Test
-    fun testReadAfterTransientBadRead() = doTest {
+    fun testReadAfterTransientBadRead() = runTest {
         // ensure the file exists by writing into it
         testFile.file.writeText("")
         testFile.file.setReadable(false)

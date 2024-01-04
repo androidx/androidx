@@ -18,13 +18,12 @@ package androidx.appsearch.app;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertThrows;
-
 import android.os.Bundle;
 import android.os.Parcel;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /** Tests for private APIs of {@link GenericDocument}. */
@@ -68,46 +67,42 @@ public class GenericDocumentInternalTest {
     }
 
     @Test
-    public void testPropertyParcel_onePropertySet_success() {
-        String[] stringValues = {"a", "b"};
-        long[] longValues = {1L, 2L};
-        double[] doubleValues = {1.0, 2.0};
-        boolean[] booleanValues = {true, false};
-        byte[][] bytesValues = {new byte[1]};
-        Bundle[] bundleValues = {new Bundle()};
+    public void testRecreateFromParcelWithParentTypes() {
+        GenericDocument inDoc = new GenericDocument.Builder<>("namespace", "id1", "schema1")
+                .setParentTypes(new ArrayList<>(Arrays.asList("Class1", "Class2")))
+                .setScore(42)
+                .setPropertyString("propString", "Hello")
+                .setPropertyBytes("propBytes", new byte[][]{{1, 2}})
+                .setPropertyDocument(
+                        "propDocument",
+                        new GenericDocument.Builder<>("namespace", "id2", "schema2")
+                                .setPropertyString("propString", "Goodbye")
+                                .setPropertyBytes("propBytes", new byte[][]{{3, 4}})
+                                .build())
+                .build();
 
-        assertThat(new PropertyParcel.Builder("name").setStringValues(
-                stringValues).build().getStringValues()).isEqualTo(
-                Arrays.copyOf(stringValues, stringValues.length));
-        assertThat(new PropertyParcel.Builder("name").setLongValues(
-                longValues).build().getLongValues()).isEqualTo(
-                Arrays.copyOf(longValues, longValues.length));
-        assertThat(new PropertyParcel.Builder("name").setDoubleValues(
-                doubleValues).build().getDoubleValues()).isEqualTo(
-                Arrays.copyOf(doubleValues, doubleValues.length));
-        assertThat(new PropertyParcel.Builder("name").setBooleanValues(
-                booleanValues).build().getBooleanValues()).isEqualTo(
-                Arrays.copyOf(booleanValues, booleanValues.length));
-        assertThat(new PropertyParcel.Builder("name").setBytesValues(
-                bytesValues).build().getBytesValues()).isEqualTo(
-                Arrays.copyOf(bytesValues, bytesValues.length));
-        assertThat(new PropertyParcel.Builder("name").setDocumentValues(
-                bundleValues).build().getDocumentValues()).isEqualTo(
-                Arrays.copyOf(bundleValues, bundleValues.length));
-    }
+        // Serialize the document
+        Parcel inParcel = Parcel.obtain();
+        inParcel.writeBundle(inDoc.getBundle());
+        byte[] data = inParcel.marshall();
+        inParcel.recycle();
 
-    @Test
-    public void testPropertyParcel_moreThanOnePropertySet_exceptionThrown() {
-        String[] stringValues = {"a", "b"};
-        long[] longValues = {1L, 2L};
-        PropertyParcel.Builder propertyParcelBuilder =
-                new PropertyParcel.Builder("name")
-                        .setStringValues(stringValues)
-                        .setLongValues(longValues);
+        // Deserialize the document
+        Parcel outParcel = Parcel.obtain();
+        outParcel.unmarshall(data, 0, data.length);
+        outParcel.setDataPosition(0);
+        Bundle outBundle = outParcel.readBundle();
+        outParcel.recycle();
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> propertyParcelBuilder.build());
-
-        assertThat(exception.getMessage()).contains("One and only one type array");
+        // Compare results
+        GenericDocument outDoc = new GenericDocument(outBundle);
+        assertThat(inDoc).isEqualTo(outDoc);
+        assertThat(outDoc.getParentTypes()).isEqualTo(Arrays.asList("Class1", "Class2"));
+        assertThat(outDoc.getPropertyString("propString")).isEqualTo("Hello");
+        assertThat(outDoc.getPropertyBytesArray("propBytes")).isEqualTo(new byte[][]{{1, 2}});
+        assertThat(outDoc.getPropertyDocument("propDocument").getPropertyString("propString"))
+                .isEqualTo("Goodbye");
+        assertThat(outDoc.getPropertyDocument("propDocument").getPropertyBytesArray("propBytes"))
+                .isEqualTo(new byte[][]{{3, 4}});
     }
 }

@@ -29,6 +29,7 @@ import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.Until
 import androidx.testutils.createCompilationParams
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -51,6 +52,7 @@ class PagerAsCarouselBenchmark(
     }
 
     @Test
+    @Ignore("b/299155975")
     fun scroll() {
         val carousel = device.findObject(By.desc(ContentDescription))
         benchmarkRule.performRepeatedScroll(PackageName, compilationMode, Action, carousel) {

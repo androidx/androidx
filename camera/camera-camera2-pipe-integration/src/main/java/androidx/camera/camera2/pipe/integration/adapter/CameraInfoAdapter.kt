@@ -210,6 +210,14 @@ class CameraInfoAdapter @Inject constructor(
         return setOf(SDR)
     }
 
+    override fun isPreviewStabilizationSupported(): Boolean {
+        return false
+    }
+
+    override fun isVideoStabilizationSupported(): Boolean {
+        return false
+    }
+
     private fun profileSetToDynamicRangeSet(profileSet: Set<Long>): Set<DynamicRange> {
         return profileSet.map { profileToDynamicRange(it) }.toSet()
     }

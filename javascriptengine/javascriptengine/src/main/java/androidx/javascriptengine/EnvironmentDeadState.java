@@ -18,6 +18,7 @@ package androidx.javascriptengine;
 
 import androidx.annotation.NonNull;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
+import androidx.core.util.Consumer;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -25,15 +26,19 @@ import java.util.concurrent.Executor;
 
 /**
  * Covers the case where the environment is dead.
- *
+ * <p>
  * This state covers cases where the developer explicitly closes the sandbox or sandbox/isolate
  * being dead outside of the control of the developer.
+ * <p>
+ * Although being in this state is considered terminated from the app perspective, the service
+ * side may still technically be running.
  */
 final class EnvironmentDeadState implements IsolateState {
-    private final JavaScriptException mException;
+    @NonNull
+    private final TerminationInfo mTerminationInfo;
 
-    EnvironmentDeadState(JavaScriptException e) {
-        mException = e;
+    EnvironmentDeadState(@NonNull TerminationInfo terminationInfo) {
+        mTerminationInfo = terminationInfo;
     }
 
     @NonNull
@@ -41,7 +46,7 @@ final class EnvironmentDeadState implements IsolateState {
     public ListenableFuture<String> evaluateJavaScriptAsync(@NonNull String code) {
         return CallbackToFutureAdapter.getFuture(completer -> {
             final String futureDebugMessage = "evaluateJavascript Future";
-            completer.setException(mException);
+            completer.setException(mTerminationInfo.toJavaScriptException());
             return futureDebugMessage;
         });
     }
@@ -69,12 +74,16 @@ final class EnvironmentDeadState implements IsolateState {
     }
 
     @Override
-    public IsolateState setSandboxDead() {
-        return new EnvironmentDeadState(new SandboxDeadException());
+    public boolean canDie() {
+        return false;
     }
 
     @Override
-    public IsolateState setIsolateDead() {
-        return this;
+    public void addOnTerminatedCallback(@NonNull Executor executor,
+            @NonNull Consumer<TerminationInfo> callback) {
+        executor.execute(() -> callback.accept(mTerminationInfo));
     }
+
+    @Override
+    public void removeOnTerminatedCallback(@NonNull Consumer<TerminationInfo> callback) {}
 }

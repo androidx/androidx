@@ -21,6 +21,7 @@ package androidx.compose.foundation.text2.input
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.input.internal.EditingBuffer
+import androidx.compose.foundation.text2.input.internal.undo.TextFieldEditUndoBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collection.mutableVectorOf
@@ -59,10 +60,21 @@ internal fun TextFieldState(initialValue: TextFieldValue): TextFieldState {
  */
 @ExperimentalFoundationApi
 @Stable
-class TextFieldState(
-    initialText: String = "",
-    initialSelectionInChars: TextRange = TextRange.Zero
+class TextFieldState internal constructor(
+    initialText: String,
+    initialSelectionInChars: TextRange,
+    initialTextUndoManager: TextUndoManager
 ) {
+
+    constructor(
+        initialText: String = "",
+        initialSelectionInChars: TextRange = TextRange.Zero
+    ) : this(initialText, initialSelectionInChars, TextUndoManager())
+
+    /**
+     * Manages the history of edit operations that happen in this [TextFieldState].
+     */
+    internal val textUndoManager: TextUndoManager = initialTextUndoManager
 
     /**
      * The editing buffer used for applying editor commands from IME. All edits coming from gestures
@@ -116,6 +128,13 @@ class TextFieldState(
     override fun toString(): String =
         "TextFieldState(selectionInChars=${text.selectionInChars}, text=\"$text\")"
 
+    /**
+     * Undo history controller for this TextFieldState.
+     */
+    // TextField does not implement UndoState because Undo related APIs should be able to remain
+    // separately experimental than TextFieldState
+    internal val undoState: UndoState = UndoState(this)
+
     @Suppress("ShowingMemberInHiddenClass")
     @PublishedApi
     internal fun startEdit(value: TextFieldCharSequence): TextFieldBuffer =
@@ -137,6 +156,7 @@ class TextFieldState(
             val finalValue = newValue.toTextFieldCharSequence()
             resetStateAndNotifyIme(finalValue)
         }
+        textUndoManager.clearHistory()
     }
 
     /**
@@ -148,6 +168,11 @@ class TextFieldState(
      * thread, or global snapshot. Also, this function is defined as inline for performance gains,
      * and it's not actually safe to early return from [block].
      *
+     * Also all user edits should be recorded by [textUndoManager] since reverting to a previous
+     * state requires all edit operations to be executed in reverse. However, some commands like
+     * cut, and paste should be atomic operations that do not merge with previous or next operations
+     * in the Undo stack. This can be controlled by [undoBehavior].
+     *
      * @param inputTransformation [InputTransformation] to run after [block] is applied
      * @param notifyImeOfChanges Whether IME should be notified of these changes. Only pass false to
      * this argument if the source of the changes is IME itself.
@@ -156,6 +181,7 @@ class TextFieldState(
     internal inline fun editAsUser(
         inputTransformation: InputTransformation?,
         notifyImeOfChanges: Boolean = true,
+        undoBehavior: TextFieldEditUndoBehavior = TextFieldEditUndoBehavior.MergeIfPossible,
         block: EditingBuffer.() -> Unit
     ) {
         val previousValue = text
@@ -170,12 +196,40 @@ class TextFieldState(
             return
         }
 
-        commitEditAsUser(inputTransformation, notifyImeOfChanges)
+        commitEditAsUser(previousValue, inputTransformation, notifyImeOfChanges, undoBehavior)
+    }
+
+    /**
+     * Edits the contents of this [TextFieldState] without going through an [InputTransformation],
+     * or recording the changes to the [textUndoManager]. IME would still be notified of any changes
+     * committed by [block].
+     *
+     * This method of editing is not recommended for majority of use cases. It is originally added
+     * to support applying of undo/redo actions without clearing the history. Also, it doesn't
+     * allocate an additional buffer like [edit] method because changes are ignored and it's not
+     * a public API.
+     */
+    internal inline fun editWithNoSideEffects(block: EditingBuffer.() -> Unit) {
+        val previousValue = text
+
+        mainBuffer.changeTracker.clearChanges()
+        mainBuffer.block()
+
+        val afterEditValue = TextFieldCharSequence(
+            text = mainBuffer.toString(),
+            selection = mainBuffer.selection,
+            composition = mainBuffer.composition
+        )
+
+        text = afterEditValue
+        notifyIme(previousValue, afterEditValue)
     }
 
     private fun commitEditAsUser(
+        previousValue: TextFieldCharSequence,
         inputTransformation: InputTransformation?,
-        notifyImeOfChanges: Boolean
+        notifyImeOfChanges: Boolean,
+        undoBehavior: TextFieldEditUndoBehavior
     ) {
         val afterEditValue = TextFieldCharSequence(
             text = mainBuffer.toString(),
@@ -189,12 +243,13 @@ class TextFieldState(
             if (notifyImeOfChanges) {
                 notifyIme(oldValue, afterEditValue)
             }
+            recordEditForUndo(previousValue, text, mainBuffer.changeTracker, undoBehavior)
             return
         }
 
         val oldValue = text
 
-        // if only difference is composition, don't run filter
+        // if only difference is composition, don't run filter, don't send it to undo manager
         if (afterEditValue.contentEquals(oldValue) &&
             afterEditValue.selectionInChars == oldValue.selectionInChars
         ) {
@@ -226,6 +281,41 @@ class TextFieldState(
             }
         } else {
             resetStateAndNotifyIme(afterFilterValue)
+        }
+        // mutableValue contains all the changes from user and the filter.
+        recordEditForUndo(previousValue, text, mutableValue.changes, undoBehavior)
+    }
+
+    /**
+     * Records the difference between [previousValue] and [postValue], defined by [changes],
+     * into [textUndoManager] according to the strategy defined by [undoBehavior].
+     */
+    private fun recordEditForUndo(
+        previousValue: TextFieldCharSequence,
+        postValue: TextFieldCharSequence,
+        changes: TextFieldBuffer.ChangeList,
+        undoBehavior: TextFieldEditUndoBehavior
+    ) {
+        when (undoBehavior) {
+            TextFieldEditUndoBehavior.ClearHistory -> {
+                textUndoManager.clearHistory()
+            }
+            TextFieldEditUndoBehavior.MergeIfPossible -> {
+                textUndoManager.recordChanges(
+                    pre = previousValue,
+                    post = postValue,
+                    changes = changes,
+                    allowMerge = true
+                )
+            }
+            TextFieldEditUndoBehavior.NeverMerge -> {
+                textUndoManager.recordChanges(
+                    pre = previousValue,
+                    post = postValue,
+                    changes = changes,
+                    allowMerge = false
+                )
+            }
         }
     }
 
@@ -325,20 +415,29 @@ class TextFieldState(
     // Preserve nullability since this is public API.
     @Suppress("RedundantNullableReturnType")
     object Saver : androidx.compose.runtime.saveable.Saver<TextFieldState, Any> {
-        override fun SaverScope.save(value: TextFieldState): Any? = listOf(
-            value.text.toString(),
-            value.text.selectionInChars.start,
-            value.text.selectionInChars.end
-        )
+
+        override fun SaverScope.save(value: TextFieldState): Any? {
+            return listOf(
+                value.text.toString(),
+                value.text.selectionInChars.start,
+                value.text.selectionInChars.end,
+                with(TextUndoManager.Companion.Saver) {
+                    save(value.textUndoManager)
+                }
+            )
+        }
 
         override fun restore(value: Any): TextFieldState? {
-            val (text, selectionStart, selectionEnd) = value as List<*>
+            val (text, selectionStart, selectionEnd, savedTextUndoManager) = value as List<*>
             return TextFieldState(
                 initialText = text as String,
                 initialSelectionInChars = TextRange(
                     start = selectionStart as Int,
                     end = selectionEnd as Int
-                )
+                ),
+                initialTextUndoManager = with(TextUndoManager.Companion.Saver) {
+                    restore(savedTextUndoManager!!)
+                }!!
             )
         }
     }
@@ -459,13 +558,4 @@ suspend fun TextFieldState.forEachTextValue(
 ): Nothing {
     textAsFlow().collectLatest(block)
     error("textAsFlow expected not to complete without exception")
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-internal fun TextFieldState.deselect() {
-    if (!text.selectionInChars.collapsed) {
-        edit {
-            selectCharsIn(TextRange(text.selectionInChars.max))
-        }
-    }
 }

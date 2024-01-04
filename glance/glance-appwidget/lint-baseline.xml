@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-alpha14" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha14)" variant="all" version="8.2.0-alpha14">
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="cli" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
 
     <issue
         id="BanThreadSleep"
@@ -26,6 +26,465 @@
         errorLine2="                   ~~~~~">
         <location
             file="src/androidTest/kotlin/androidx/glance/appwidget/CoroutineBroadcastReceiverTest.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        it.children.addAll(children.map { it.copy() })"
+        errorLine2="                                    ~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/AndroidRemoteViews.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                    lambdas[event.key]?.forEach { it.block() }"
+        errorLine2="                                        ~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/AppWidgetSession.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        sizes.map { DpSize(it.width.dp, it.height.dp) }"
+        errorLine2="              ~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/AppWidgetUtils.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    }.minByOrNull { it.second }?.first"
+        errorLine2="      ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/AppWidgetUtils.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            rv.setContentDescription(viewDef.mainViewId, contentDescription.joinToString())"
+        errorLine2="                                                                            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/ApplyModifiers.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    manager.getGlanceIds(javaClass).forEach { update(context, it) }"
+        errorLine2="                                    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/GlanceAppWidget.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    manager.getGlanceIds(javaClass).forEach { glanceId ->"
+        errorLine2="                                    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/GlanceAppWidget.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            }.toMap()"
+        errorLine2="              ~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/GlanceAppWidgetManager.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        return receivers.flatMap { receiver ->"
+        errorLine2="                         ~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/GlanceAppWidgetManager.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                    val info = appWidgetManager.installedProviders.first {"
+        errorLine2="                                                                   ~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/GlanceAppWidgetManager.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            .filter { it.provider.packageName == packageName }"
+        errorLine2="             ~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/GlanceAppWidgetManager.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            .map { it.provider.className }"
+        errorLine2="             ~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/GlanceAppWidgetManager.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            .toSet()"
+        errorLine2="             ~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/GlanceAppWidgetManager.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                toRemove.forEach { receiver -> remove(providerKey(receiver)) }"
+        errorLine2="                         ~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/GlanceAppWidgetManager.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        if (children.any { it.shouldIgnoreResult() }) return true"
+        errorLine2="                     ~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/IgnoreResult.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        .forEach {"
+        errorLine2="         ~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/LayoutSelection.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        itemList.forEachIndexed { index, (itemId, composable) ->"
+        errorLine2="                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/lazy/LazyList.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        it.children.addAll(children.map { it.copy() })"
+        errorLine2="                                    ~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/lazy/LazyList.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        it.children.addAll(children.map { it.copy() })"
+        errorLine2="                                    ~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/lazy/LazyList.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        element.children.foldIndexed(false) { position, previous, itemEmittable ->"
+        errorLine2="                         ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/translators/LazyListTranslator.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        itemList.forEachIndexed { index, (itemId, composable) ->"
+        errorLine2="                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/lazy/LazyVerticalGrid.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        it.children.addAll(children.map { it.copy() })"
+        errorLine2="                                    ~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/lazy/LazyVerticalGrid.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        it.children.addAll(children.map { it.copy() })"
+        errorLine2="                                    ~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/lazy/LazyVerticalGrid.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        element.children.foldIndexed(false) { position, previous, itemEmittable ->"
+        errorLine2="                         ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/translators/LazyVerticalGridTranslator.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    if (container.children.isNotEmpty() &amp;&amp; container.children.all { it is EmittableSizeBox }) {"
+        errorLine2="                                                              ~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/NormalizeCompositionTree.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        for (item in container.children) {"
+        errorLine2="                  ~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/NormalizeCompositionTree.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    children.forEach { child ->"
+        errorLine2="             ~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/NormalizeCompositionTree.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        children.any { child ->"
+        errorLine2="                 ~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/NormalizeCompositionTree.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        children.any { child ->"
+        errorLine2="                 ~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/NormalizeCompositionTree.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    children.forEachIndexed { index, child ->"
+        errorLine2="             ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/NormalizeCompositionTree.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    children.foldIndexed("
+        errorLine2="             ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/NormalizeCompositionTree.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    fold(GlanceModifier) { acc: GlanceModifier, mod: GlanceModifier? ->"
+        errorLine2="    ~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/NormalizeCompositionTree.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val layoutIdCount = views.map { it.layoutId }.distinct().count()"
+        errorLine2="                                                      ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/RemoteCollectionItems.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                viewTypeCount = views.map { it.layoutId }.distinct().count()"
+        errorLine2="                                      ~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/RemoteCollectionItems.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                viewTypeCount = views.map { it.layoutId }.distinct().count()"
+        errorLine2="                                                          ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/RemoteCollectionItems.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        it.children.addAll(children.map { it.copy() })"
+        errorLine2="                                    ~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/RemoteViewsRoot.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    if (children.all { it is EmittableSizeBox }) {"
+        errorLine2="                 ~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/RemoteViewsTranslator.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val views = children.map { child ->"
+        errorLine2="                             ~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/RemoteViewsTranslator.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                    Api31Impl.createRemoteViews(views.toMap())"
+        errorLine2="                                                      ~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/RemoteViewsTranslator.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                    combineLandscapeAndPortrait(views.map { it.second })"
+        errorLine2="                                                      ~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/RemoteViewsTranslator.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    element.children.forEach {"
+        errorLine2="                     ~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/RemoteViewsTranslator.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    check(children.count { it is EmittableRadioButton &amp;&amp; it.checked } &lt;= 1) {"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/RemoteViewsTranslator.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            element.children.forEachIndexed { index, child ->"
+        errorLine2="                             ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/RemoteViewsTranslator.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    children.take(10).forEachIndexed { index, child ->"
+        errorLine2="             ~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/RemoteViewsTranslator.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    children.take(10).forEachIndexed { index, child ->"
+        errorLine2="                      ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/RemoteViewsTranslator.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        it.children.addAll(children.map { it.copy() })"
+        errorLine2="                                    ~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/SizeBox.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                .map { findBestSize(it, sizeMode.sizes) ?: smallestSize }"
+        errorLine2="                 ~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/SizeBox.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    sizes.distinct().map { size ->"
+        errorLine2="                     ~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/SizeBox.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    spans.forEach { span ->"
+        errorLine2="          ~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/translators/TextTranslator.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            val layouts = config.layoutList.associate {"
+        errorLine2="                                            ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/WidgetLayout.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            addAllChildren(element.children.map { createNode(context, it) })"
+        errorLine2="                                            ~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/WidgetLayout.kt"/>
     </issue>
 
     <issue

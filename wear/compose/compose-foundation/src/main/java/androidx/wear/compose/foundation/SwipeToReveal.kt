@@ -51,6 +51,9 @@ import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
@@ -183,6 +186,7 @@ public class RevealState internal constructor(
     positionalThreshold: Density.(totalDistance: Float) -> Float,
     internal val anchors: Map<RevealValue, Float>,
     internal val coroutineScope: CoroutineScope,
+    internal val nestedScrollDispatcher: NestedScrollDispatcher
 ) {
     /**
      * [SwipeableV2State] internal instance for the state.
@@ -197,6 +201,7 @@ public class RevealState internal constructor(
             )
         },
         positionalThreshold = positionalThreshold,
+        nestedScrollDispatcher = nestedScrollDispatcher
     )
 
     public var lastActionType by mutableStateOf(RevealActionType.None)
@@ -340,9 +345,10 @@ public fun rememberRevealState(
     confirmValueChange: (RevealValue) -> Boolean = { true },
     positionalThreshold: Density.(totalDistance: Float) -> Float =
         SwipeToRevealDefaults.defaultThreshold(),
-    anchors: Map<RevealValue, Float> = createAnchors()
+    anchors: Map<RevealValue, Float> = createAnchors(),
 ): RevealState {
     val coroutineScope = rememberCoroutineScope()
+    val nestedScrollDispatcher = remember { NestedScrollDispatcher() }
     return remember(initialValue, animationSpec) {
         RevealState(
             initialValue = initialValue,
@@ -350,7 +356,8 @@ public fun rememberRevealState(
             confirmValueChange = confirmValueChange,
             positionalThreshold = positionalThreshold,
             anchors = anchors,
-            coroutineScope = coroutineScope
+            coroutineScope = coroutineScope,
+            nestedScrollDispatcher = nestedScrollDispatcher
         )
     }
 }
@@ -404,6 +411,8 @@ public fun SwipeToReveal(
     content: @Composable () -> Unit
 ) {
     val revealScope = remember(state) { RevealScopeImpl(state) }
+    // A no-op NestedScrollConnection which does not consume scroll/fling events
+    val noOpNestedScrollConnection = remember { object : NestedScrollConnection {} }
     Box(
         modifier = modifier
             .swipeableV2(
@@ -421,6 +430,10 @@ public fun SwipeToReveal(
                 // Multiply the anchor with -1f to get the actual swipeable anchor
                 -state.swipeAnchors[value]!! * swipeableWidth
             }
+            // NestedScrollDispatcher sends the scroll/fling events from the node to its parent
+            // and onwards including the modifier chain. Apply it in the end to let nested scroll
+            // connection applied before this modifier consume the scroll/fling events.
+            .nestedScroll(noOpNestedScrollConnection, state.nestedScrollDispatcher)
     ) {
         val swipeCompleted by remember {
             derivedStateOf { state.currentValue == RevealValue.Revealed }

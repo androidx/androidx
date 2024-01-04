@@ -188,13 +188,16 @@ internal class DefaultSpecialEffectsController(
         firstOut: Operation?,
         lastIn: Operation?
     ) {
-        // First verify that we can run all transitions together
-        val transitionImpl = transitionInfos.filterNot { transitionInfo ->
+        val filteredInfos = transitionInfos.filterNot { transitionInfo ->
             // If there is no change in visibility, we can skip the TransitionInfo
             transitionInfo.isVisibilityUnchanged
         }.filter { transitionInfo ->
             transitionInfo.handlingImpl != null
-        }.fold(null as FragmentTransitionImpl?) { chosenImpl, transitionInfo ->
+        }
+        // First verify that we can run all transitions together
+        val transitionImpl = filteredInfos.fold(
+            null as FragmentTransitionImpl?
+        ) { chosenImpl, transitionInfo ->
             val handlingImpl = transitionInfo.handlingImpl
             require(chosenImpl == null || handlingImpl === chosenImpl) {
                 "Mixing framework transitions and AndroidX transitions is not allowed. Fragment " +
@@ -215,7 +218,7 @@ internal class DefaultSpecialEffectsController(
         var exitingNames = ArrayList<String>()
         val firstOutViews = ArrayMap<String, View>()
         val lastInViews = ArrayMap<String, View>()
-        for (transitionInfo: TransitionInfo in transitionInfos) {
+        for (transitionInfo: TransitionInfo in filteredInfos) {
             val hasSharedElementTransition = transitionInfo.hasSharedElementTransition()
             // Compute the shared element transition between the firstOut and lastIn Fragments
             if (hasSharedElementTransition && (firstOut != null) && (lastIn != null)) {
@@ -344,12 +347,12 @@ internal class DefaultSpecialEffectsController(
         }
 
         val transitionEffect = TransitionEffect(
-            transitionInfos, firstOut, lastIn, transitionImpl, sharedElementTransition,
+            filteredInfos, firstOut, lastIn, transitionImpl, sharedElementTransition,
             sharedElementFirstOutViews, sharedElementLastInViews, sharedElementNameMapping,
             enteringNames, exitingNames, firstOutViews, lastInViews, isPop
         )
 
-        transitionInfos.forEach { transitionInfo ->
+        filteredInfos.forEach { transitionInfo ->
             transitionInfo.operation.addEffect(transitionEffect)
         }
     }
@@ -700,7 +703,134 @@ internal class DefaultSpecialEffectsController(
     ) : Effect() {
         val transitionSignal = CancellationSignal()
 
+        var controller: Any? = null
+
+        override val isSeekingSupported: Boolean
+            get() = transitionImpl.isSeekingSupported &&
+                transitionInfos.all {
+                    Build.VERSION.SDK_INT >= 34 &&
+                        it.transition != null &&
+                        transitionImpl.isSeekingSupported(it.transition)
+                }
+
+        val transitioning: Boolean
+            get() = transitionInfos.all {
+                it.operation.fragment.mTransitioning
+            }
+
+        override fun onStart(container: ViewGroup) {
+            // If the container has never been laid out, transitions will not start so
+            // so lets instantly complete them.
+            if (!ViewCompat.isLaidOut(container)) {
+                transitionInfos.forEach { transitionInfo: TransitionInfo ->
+                    val operation: Operation = transitionInfo.operation
+                    if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                        Log.v(FragmentManager.TAG,
+                            "SpecialEffectsController: Container $container has not been " +
+                                "laid out. Skipping onStart for operation $operation")
+                    }
+                }
+                return
+            }
+            if (isSeekingSupported && transitioning) {
+                // We need to set the listener before we create the controller, but we need the
+                // controller to do the desired cancel behavior (animateToStart). So we use this
+                // lambda to set the proper cancel behavior to pass into the listener before the
+                // function is created.
+                var seekCancelLambda: (() -> Unit)? = null
+                // Now set up our completion signal on the completely merged transition set
+                val (enteringViews, mergedTransition) =
+                    createMergedTransition(container, lastIn, firstOut)
+                transitionInfos.map { it.operation }.forEach { operation ->
+                    val cancelRunnable = Runnable { seekCancelLambda?.invoke() }
+                    transitionImpl.setListenerForTransitionEnd(
+                        operation.fragment,
+                        mergedTransition,
+                        transitionSignal,
+                        cancelRunnable,
+                        Runnable {
+                            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                                Log.v(FragmentManager.TAG,
+                                    "Transition for operation $operation has completed")
+                            }
+                            operation.completeEffect(this)
+                        })
+                }
+
+                runTransition(enteringViews, container) {
+                    controller =
+                        transitionImpl.controlDelayedTransition(container, mergedTransition)
+                    // If we fail to create a controller, it must be because of the container or
+                    // the transition so we should throw an error.
+                    check(controller != null) {
+                        "Unable to start transition $mergedTransition for container $container."
+                    }
+                    seekCancelLambda = { transitionImpl.animateToStart(controller!!) }
+                    if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                        Log.v(FragmentManager.TAG,
+                            "Started executing operations from $firstOut to $lastIn")
+                    }
+                }
+            }
+        }
+
+        override fun onProgress(backEvent: BackEventCompat, container: ViewGroup) {
+            controller?.let { transitionImpl.setCurrentPlayTime(it, backEvent.progress) }
+        }
+
         override fun onCommit(container: ViewGroup) {
+            // If the container has never been laid out, transitions will not start so
+            // so lets instantly complete them.
+            if (!ViewCompat.isLaidOut(container)) {
+                transitionInfos.forEach { transitionInfo: TransitionInfo ->
+                    val operation: Operation = transitionInfo.operation
+                    if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                        Log.v(FragmentManager.TAG,
+                            "SpecialEffectsController: Container $container has not been " +
+                                "laid out. Completing operation $operation")
+                    }
+                    transitionInfo.operation.completeEffect(this)
+                }
+                return
+            }
+            if (controller != null) {
+                transitionImpl.animateToEnd(controller!!)
+                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                    Log.v(FragmentManager.TAG,
+                        "Ending execution of operations from $firstOut to $lastIn")
+                }
+            } else {
+                val (enteringViews, mergedTransition) =
+                    createMergedTransition(container, lastIn, firstOut)
+                // Now set up our completion signal on the completely merged transition set
+                transitionInfos.map { it.operation }.forEach { operation ->
+                    transitionImpl.setListenerForTransitionEnd(
+                        operation.fragment,
+                        mergedTransition,
+                        transitionSignal,
+                        Runnable {
+                            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                                Log.v(FragmentManager.TAG,
+                                    "Transition for operation $operation has completed")
+                            }
+                            operation.completeEffect(this)
+                        })
+                }
+                runTransition(enteringViews, container) {
+                    transitionImpl.beginDelayedTransition(container, mergedTransition)
+                }
+                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                    Log.v(FragmentManager.TAG,
+                        "Completed executing operations from $firstOut to $lastIn")
+                }
+            }
+        }
+
+        private fun createMergedTransition(
+            container: ViewGroup,
+            lastIn: Operation?,
+            firstOut: Operation?
+        ): Pair<ArrayList<View>, Any> {
             // Every transition needs to target at least one View so that they
             // don't interfere with one another. This is the view we use
             // in cases where there are no real views to target
@@ -772,26 +902,13 @@ internal class DefaultSpecialEffectsController(
             // Now iterate through the set of transitions and merge them together
             for (transitionInfo: TransitionInfo in transitionInfos) {
                 val operation: Operation = transitionInfo.operation
-                if (transitionInfo.isVisibilityUnchanged) {
-                    // No change in visibility, so we can immediately complete the transition
-                    transitionInfo.operation.completeEffect(this)
-                    continue
-                }
                 val transition = transitionImpl.cloneTransition(transitionInfo.transition)
-                val involvedInSharedElementTransition = (sharedElementTransition != null &&
-                    (operation === firstOut || operation === lastIn))
-                if (transition == null) {
-                    // Nothing more to do if the transition is null
-                    if (!involvedInSharedElementTransition) {
-                        // Only complete the transition if this fragment isn't involved
-                        // in the shared element transition (as otherwise we need to wait
-                        // for that to finish)
-                        transitionInfo.operation.completeEffect(this)
-                    }
-                } else {
+                if (transition != null) {
                     // Target the Transition to *only* the set of transitioning views
                     val transitioningViews = ArrayList<View>()
                     captureTransitioningViews(transitioningViews, operation.fragment.mView)
+                    val involvedInSharedElementTransition = (sharedElementTransition != null &&
+                        (operation === firstOut || operation === lastIn))
                     if (involvedInSharedElementTransition) {
                         // Remove all of the shared element views from the transition
                         if (operation === firstOut) {
@@ -804,8 +921,10 @@ internal class DefaultSpecialEffectsController(
                         transitionImpl.addTarget(transition, nonExistentView)
                     } else {
                         transitionImpl.addTargets(transition, transitioningViews)
-                        transitionImpl.scheduleRemoveTargets(transition, transition,
-                            transitioningViews, null, null, null, null)
+                        transitionImpl.scheduleRemoveTargets(
+                            transition, transition,
+                            transitioningViews, null, null, null, null
+                        )
                         if (operation.finalState === Operation.State.GONE) {
                             // We're hiding the Fragment. This requires a bit of extra work
                             // First, we need to avoid immediately applying the container change as
@@ -815,8 +934,10 @@ internal class DefaultSpecialEffectsController(
                             // essentially doing what applyState() would do for us
                             val transitioningViewsToHide = ArrayList(transitioningViews)
                             transitioningViewsToHide.remove(operation.fragment.mView)
-                            transitionImpl.scheduleHideFragmentView(transition,
-                                operation.fragment.mView, transitioningViewsToHide)
+                            transitionImpl.scheduleHideFragmentView(
+                                transition,
+                                operation.fragment.mView, transitioningViewsToHide
+                            )
                             // This OneShotPreDrawListener gets fired before the delayed start of
                             // the Transition and changes the visibility of any exiting child views
                             // that *ARE NOT* shared element transitions. The TransitionManager then
@@ -840,11 +961,13 @@ internal class DefaultSpecialEffectsController(
                     if (transitionInfo.isOverlapAllowed) {
                         // Overlap is allowed, so add them to the mergeTransition set
                         mergedTransition = transitionImpl.mergeTransitionsTogether(
-                            mergedTransition, transition, null)
+                            mergedTransition, transition, null
+                        )
                     } else {
                         // Overlap is not allowed, add them to the mergedNonOverlappingTransition
                         mergedNonOverlappingTransition = transitionImpl.mergeTransitionsTogether(
-                            mergedNonOverlappingTransition, transition, null)
+                            mergedNonOverlappingTransition, transition, null
+                        )
                     }
                 }
             }
@@ -854,51 +977,14 @@ internal class DefaultSpecialEffectsController(
             mergedTransition = transitionImpl.mergeTransitionsInSequence(mergedTransition,
                 mergedNonOverlappingTransition, sharedElementTransition)
 
-            // If there's no transitions playing together, no non-overlapping transitions,
-            // and no shared element transitions, mergedTransition will be null and
-            // there's nothing else we need to do
-            if (mergedTransition == null) {
-                return
-            }
-            // Now set up our completion signal on the completely merged transition set
-            transitionInfos.filterNot { transitionInfo ->
-                // If there's change in visibility, we've already completed the transition
-                transitionInfo.isVisibilityUnchanged
-            }.forEach { transitionInfo: TransitionInfo ->
-                val transition: Any? = transitionInfo.transition
-                val operation: Operation = transitionInfo.operation
-                val involvedInSharedElementTransition = sharedElementTransition != null &&
-                    (operation === firstOut || operation === lastIn)
-                if (transition != null || involvedInSharedElementTransition) {
-                    // If the container has never been laid out, transitions will not start so
-                    // so lets instantly complete them.
-                    if (!ViewCompat.isLaidOut(container)) {
-                        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
-                            Log.v(FragmentManager.TAG,
-                                "SpecialEffectsController: Container $container has not been " +
-                                    "laid out. Completing operation $operation")
-                        }
-                        transitionInfo.operation.completeEffect(this)
-                    } else {
-                        transitionImpl.setListenerForTransitionEnd(
-                            transitionInfo.operation.fragment,
-                            mergedTransition,
-                            transitionSignal,
-                            Runnable {
-                                transitionInfo.operation.completeEffect(this)
-                                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
-                                    Log.v(FragmentManager.TAG,
-                                        "Transition for operation $operation has completed")
-                                }
-                            })
-                    }
-                }
-            }
-            // Transitions won't run if the container isn't laid out so
-            // we can return early here to avoid doing unnecessary work.
-            if (!ViewCompat.isLaidOut(container)) {
-                return
-            }
+            return Pair(enteringViews, mergedTransition)
+        }
+
+        private fun runTransition(
+            enteringViews: ArrayList<View>,
+            container: ViewGroup,
+            executeTransition: (() -> Unit)
+        ) {
             // First, hide all of the entering views so they're in
             // the correct initial state
             setViewVisibility(enteringViews, View.INVISIBLE)
@@ -917,7 +1003,7 @@ internal class DefaultSpecialEffectsController(
                 }
             }
             // Now actually start the transition
-            transitionImpl.beginDelayedTransition(container, mergedTransition)
+            executeTransition.invoke()
             transitionImpl.setNameOverridesReordered(container, sharedElementFirstOutViews,
                 sharedElementLastInViews, inNames, sharedElementNameMapping)
             // Then, show all of the entering views, putting them into
@@ -925,11 +1011,6 @@ internal class DefaultSpecialEffectsController(
             setViewVisibility(enteringViews, View.VISIBLE)
             transitionImpl.swapSharedElementTargets(sharedElementTransition,
                 sharedElementFirstOutViews, sharedElementLastInViews)
-
-            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
-                Log.v(FragmentManager.TAG,
-                    "Completed executing operations from $firstOut to $lastIn")
-            }
         }
 
         override fun onCancel(container: ViewGroup) {

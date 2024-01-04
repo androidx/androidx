@@ -33,7 +33,7 @@ class AdvertiseParamsTest {
         assertEquals(false, advertiseParams.shouldIncludeDeviceName)
         assertEquals(false, advertiseParams.isConnectable)
         assertEquals(false, advertiseParams.isDiscoverable)
-        assertEquals(0, advertiseParams.timeoutMillis)
+        assertEquals(0, advertiseParams.durationMillis)
         assertEquals(0, advertiseParams.manufacturerData.size)
         assertEquals(0, advertiseParams.serviceData.size)
         assertEquals(0, advertiseParams.serviceUuids.size)

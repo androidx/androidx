@@ -1279,7 +1279,7 @@ internal class ComposerImpl(
     private var reusingGroup = -1
     private var childrenComposing: Int = 0
     private var compositionToken: Int = 0
-    private var sourceInformationEnabled = true
+    private var sourceInformationEnabled = false
     private val derivedStateObserver = object : DerivedStateObserver {
         override fun start(derivedState: DerivedState<*>) {
             childrenComposing++
@@ -1459,6 +1459,12 @@ internal class ComposerImpl(
         if (!forceRecomposeScopes) {
             forceRecomposeScopes = parentContext.collectingParameterInformation
         }
+
+        // Propagate collecting source information
+        if (!sourceInformationEnabled) {
+            sourceInformationEnabled = parentContext.collectingSourceInformation
+        }
+
         parentProvider.read(LocalInspectionTables)?.let {
             it.add(slotTable)
             parentContext.recordInspectionTable(it)
@@ -1545,11 +1551,13 @@ internal class ComposerImpl(
         private set
 
     /**
-     * Start collecting parameter information. This enables the tools API to always be able to
-     * determine the parameter values of composable calls.
+     * Start collecting parameter information and line number information. This enables the tools
+     * API to always be able to determine the parameter values of composable calls as well as the
+     * source location of calls.
      */
     override fun collectParameterInformation() {
         forceRecomposeScopes = true
+        sourceInformationEnabled = true
     }
 
     @OptIn(InternalComposeApi::class)
@@ -2116,6 +2124,7 @@ internal class ComposerImpl(
                 CompositionContextImpl(
                     compoundKeyHash,
                     forceRecomposeScopes,
+                    sourceInformationEnabled,
                     (composition as? CompositionImpl)?.observerHolder
                 )
             )
@@ -3159,20 +3168,22 @@ internal class ComposerImpl(
     @ComposeCompilerApi
     override fun sourceInformation(sourceInformation: String) {
         if (inserting && sourceInformationEnabled) {
-            writer.insertAux(sourceInformation)
+            writer.recordGroupSourceInformation(sourceInformation)
         }
     }
 
     @ComposeCompilerApi
     override fun sourceInformationMarkerStart(key: Int, sourceInformation: String) {
-        if (sourceInformationEnabled)
-            start(key, objectKey = null, kind = GroupKind.Group, data = sourceInformation)
+        if (inserting && sourceInformationEnabled) {
+            writer.recordGrouplessCallSourceInformationStart(key, sourceInformation)
+        }
     }
 
     @ComposeCompilerApi
     override fun sourceInformationMarkerEnd() {
-        if (sourceInformationEnabled)
-            end(isNode = false)
+        if (inserting && sourceInformationEnabled) {
+            writer.recordGrouplessCallSourceInformationEnd()
+        }
     }
 
     override fun disableSourceInformation() {
@@ -3504,6 +3515,7 @@ internal class ComposerImpl(
     private inner class CompositionContextImpl(
         override val compoundHashKey: Int,
         override val collectingParameterInformation: Boolean,
+        override val collectingSourceInformation: Boolean,
         override val observerHolder: CompositionObserverHolder?
     ) : CompositionContext() {
         var inspectionTables: MutableSet<MutableSet<CompositionData>>? = null

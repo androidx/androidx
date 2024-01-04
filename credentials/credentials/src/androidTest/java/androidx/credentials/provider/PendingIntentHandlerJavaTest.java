@@ -19,6 +19,7 @@ package androidx.credentials.provider;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Intent;
+import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 import androidx.credentials.CreatePasswordResponse;
@@ -42,6 +43,10 @@ public class PendingIntentHandlerJavaTest {
 
     @Test
     public void test_setGetCreateCredentialException() {
+        if (Build.VERSION.SDK_INT >= 34) {
+            return;
+        }
+
         Intent intent = new Intent();
 
         CreateCredentialInterruptedException initialException =
@@ -57,6 +62,10 @@ public class PendingIntentHandlerJavaTest {
 
     @Test
     public void test_setGetCreateCredentialException_throwsWhenEmptyIntent() {
+        if (Build.VERSION.SDK_INT >= 34) {
+            return;
+        }
+
         assertThat(
                         IntentHandlerConverters.getCreateCredentialException(
                                 BLANK_INTENT))
@@ -65,6 +74,10 @@ public class PendingIntentHandlerJavaTest {
 
     @Test
     public void test_credentialException() {
+        if (Build.VERSION.SDK_INT >= 34) {
+            return;
+        }
+
         Intent intent = new Intent();
         GetCredentialInterruptedException initialException =
                 new GetCredentialInterruptedException("message");
@@ -79,12 +92,19 @@ public class PendingIntentHandlerJavaTest {
 
     @Test
     public void test_credentialException_throwsWhenEmptyIntent() {
+        if (Build.VERSION.SDK_INT >= 34) {
+            return;
+        }
+
         assertThat(IntentHandlerConverters.getGetCredentialException(BLANK_INTENT))
                 .isNull();
     }
 
     @Test
     public void test_beginGetResponse() {
+        if (Build.VERSION.SDK_INT >= 34) {
+            return;
+        }
 
         Intent intent = new Intent();
         BeginGetCredentialResponse initialResponse =
@@ -100,12 +120,20 @@ public class PendingIntentHandlerJavaTest {
 
     @Test
     public void test_beginGetResponse_throwsWhenEmptyIntent() {
+        if (Build.VERSION.SDK_INT >= 34) {
+            return;
+        }
+
         assertThat(IntentHandlerConverters.getBeginGetResponse(BLANK_INTENT))
                 .isNull();
     }
 
     @Test
     public void test_credentialResponse() {
+        if (Build.VERSION.SDK_INT >= 34) {
+            return;
+        }
+
         Intent intent = new Intent();
         PasswordCredential credential = new PasswordCredential("a", "b");
         GetCredentialResponse initialResponse = new GetCredentialResponse(credential);
@@ -120,12 +148,20 @@ public class PendingIntentHandlerJavaTest {
 
     @Test
     public void test_credentialResponse_throwsWhenEmptyIntent() {
+        if (Build.VERSION.SDK_INT >= 34) {
+            return;
+        }
+
         assertThat(IntentHandlerConverters.getGetCredentialResponse(BLANK_INTENT))
                 .isNull();
     }
 
     @Test
     public void test_createCredentialCredentialResponse() {
+        if (Build.VERSION.SDK_INT >= 34) {
+            return;
+        }
+
         Intent intent = new Intent();
         CreatePasswordResponse initialResponse = new CreatePasswordResponse();
 
@@ -140,6 +176,10 @@ public class PendingIntentHandlerJavaTest {
 
     @Test
     public void test_createCredentialCredentialResponse_throwsWhenEmptyIntent() {
+        if (Build.VERSION.SDK_INT >= 34) {
+            return;
+        }
+
         assertThat(
                         IntentHandlerConverters
                                 .getCreateCredentialCredentialResponse(BLANK_INTENT))

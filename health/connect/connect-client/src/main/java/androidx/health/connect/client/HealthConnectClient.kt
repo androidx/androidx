@@ -320,6 +320,13 @@ interface HealthConnectClient {
             "androidx.health.ACTION_HEALTH_CONNECT_SETTINGS"
 
         /**
+         * The minimum version code of the default provider APK that supports manage data intent
+         * action.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        internal const val ACTION_MANAGE_DATA_MIN_SUPPORTED_VERSION_CODE = 82932
+
+        /**
          * Intent action to open Health Connect settings on this phone. Developers should use this
          * if they want to re-direct the user to Health Connect.
          */
@@ -461,6 +468,29 @@ interface HealthConnectClient {
             )
         }
 
+        /**
+         * Intent action to open Health Connect data management screen on this phone. Developers
+         * should use this if they want to re-direct the user to Health Connect data management.
+         *
+         * @param context the context
+         * @return Intent action to open Health Connect data management screen.
+         */
+        @JvmStatic
+        fun getHealthConnectManageDataAction(context: Context): String {
+            val action = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                "android.health.connect.action.MANAGE_HEALTH_DATA"
+            } else if (isProviderAvailable(
+                    context = context,
+                    providerVersionCode = ACTION_MANAGE_DATA_MIN_SUPPORTED_VERSION_CODE
+                )
+            ) {
+                "androidx.health.ACTION_MANAGE_HEALTH_DATA"
+            } else {
+                ACTION_HEALTH_CONNECT_SETTINGS
+            }
+            return action
+        }
+
         @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.P)
         internal fun isSdkVersionSufficient() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
 
@@ -471,11 +501,16 @@ interface HealthConnectClient {
         internal fun isProviderAvailable(
             context: Context,
             providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
+            providerVersionCode: Int = DEFAULT_PROVIDER_MIN_VERSION_CODE
         ): Boolean {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 return true
             }
-            return isPackageInstalled(context.packageManager, providerPackageName)
+            return isPackageInstalled(
+                context.packageManager,
+                providerPackageName,
+                providerVersionCode
+            )
         }
 
         internal fun isProviderAvailableLegacy(
@@ -488,6 +523,7 @@ interface HealthConnectClient {
         private fun isPackageInstalled(
             packageManager: PackageManager,
             packageName: String,
+            versionCode: Int = DEFAULT_PROVIDER_MIN_VERSION_CODE
         ): Boolean {
             val packageInfo: PackageInfo =
                 try {
@@ -498,8 +534,7 @@ interface HealthConnectClient {
                 }
             return packageInfo.applicationInfo.enabled &&
                 (packageName != DEFAULT_PROVIDER_PACKAGE_NAME ||
-                    PackageInfoCompat.getLongVersionCode(packageInfo) >=
-                        DEFAULT_PROVIDER_MIN_VERSION_CODE) &&
+                    PackageInfoCompat.getLongVersionCode(packageInfo) >= versionCode) &&
                 hasBindableService(packageManager, packageName)
         }
 

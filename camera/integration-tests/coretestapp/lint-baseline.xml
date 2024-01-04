@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
+<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="cli" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
 
     <issue
         id="BanThreadSleep"
@@ -12,108 +12,90 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="CameraInfoInternal can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="                if (cameraInfo instanceof CameraInfoInternal) {"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~">
+        message="FileUtil.canDeviceWriteToMediaStore can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                    if (canDeviceWriteToMediaStore()) {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
     </issue>
 
     <issue
         id="RestrictedApiAndroidX"
-        message="DeviceQuirks.getAll can only be called from within the same library (androidx.camera:camera-video)"
-        errorLine1="                    Quirks deviceQuirks = DeviceQuirks.getAll();"
-        errorLine2="                                                       ~~~~~~">
+        message="FileUtil.generateVideoMediaStoreOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                                generateVideoMediaStoreOptions(getContentResolver(), fileName));"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
     </issue>
 
     <issue
         id="RestrictedApiAndroidX"
-        message="CameraInfoInternal can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="                    Quirks cameraQuirks = ((CameraInfoInternal) cameraInfo).getCameraQuirks();"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~">
+        message="FileUtil.generateVideoMediaStoreOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                                generateVideoMediaStoreOptions(getContentResolver(), fileName));"
+        errorLine2="                                                               ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
     </issue>
 
     <issue
         id="RestrictedApiAndroidX"
-        message="CameraInfoInternal.getCameraQuirks can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="                    Quirks cameraQuirks = ((CameraInfoInternal) cameraInfo).getCameraQuirks();"
-        errorLine2="                                                                            ~~~~~~~~~~~~~~~">
+        message="FileUtil.generateVideoMediaStoreOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                                generateVideoMediaStoreOptions(getContentResolver(), fileName));"
+        errorLine2="                                                                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
     </issue>
 
     <issue
         id="RestrictedApiAndroidX"
-        message="Quirks.contains can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="                    if (deviceQuirks.contains(CrashWhenTakingPhotoWithAutoFlashAEModeQuirk.class)"
-        errorLine2="                                     ~~~~~~~~">
+        message="FileUtil.generateVideoFileOutputOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                                this, generateVideoFileOutputOptions(fileName, extension));"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
     </issue>
 
     <issue
         id="RestrictedApiAndroidX"
-        message="Quirks.contains can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="                    if (deviceQuirks.contains(CrashWhenTakingPhotoWithAutoFlashAEModeQuirk.class)"
-        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="FileUtil.generateVideoFileOutputOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                                this, generateVideoFileOutputOptions(fileName, extension));"
+        errorLine2="                                                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
     </issue>
 
     <issue
         id="RestrictedApiAndroidX"
-        message="Quirks.contains can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="                            || cameraQuirks.contains(ImageCaptureFailWithAutoFlashQuirk.class)"
-        errorLine2="                                            ~~~~~~~~">
+        message="FileUtil.generateVideoFileOutputOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                                this, generateVideoFileOutputOptions(fileName, extension));"
+        errorLine2="                                                                               ~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
     </issue>
 
     <issue
         id="RestrictedApiAndroidX"
-        message="Quirks.contains can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="                            || cameraQuirks.contains(ImageCaptureFailWithAutoFlashQuirk.class)"
-        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="FileUtil.getAbsolutePathFromUri can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                        videoFilePath = getAbsolutePathFromUri("
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
     </issue>
 
     <issue
         id="RestrictedApiAndroidX"
-        message="Quirks.contains can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="                            || cameraQuirks.contains(ImageCaptureFlashNotFireQuirk.class)) {"
-        errorLine2="                                            ~~~~~~~~">
+        message="FileUtil.getAbsolutePathFromUri can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                                getApplicationContext().getContentResolver(),"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
     </issue>
 
     <issue
         id="RestrictedApiAndroidX"
-        message="Quirks.contains can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="                            || cameraQuirks.contains(ImageCaptureFlashNotFireQuirk.class)) {"
-        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="DeviceQuirks.get can only be called from within the same library (androidx.camera:camera-video)"
-        errorLine1="                    if (DeviceQuirks.get(MediaStoreVideoCannotWrite.class) != null) {"
-        errorLine2="                                     ~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="DeviceQuirks.get can only be called from within the same library (androidx.camera:camera-video)"
-        errorLine1="                    if (DeviceQuirks.get(MediaStoreVideoCannotWrite.class) != null) {"
-        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="FileUtil.getAbsolutePathFromUri can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                                uri"
+        errorLine2="                                ~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
     </issue>
@@ -183,11 +165,227 @@
 
     <issue
         id="RestrictedApiAndroidX"
+        message="FileUtil.createParentFolder can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        if (createParentFolder(pictureFolder)) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.createParentFolder can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        if (createParentFolder(pictureFolder)) {"
+        errorLine2="                               ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.getAbsolutePathFromUri can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                getAbsolutePathFromUri(getApplicationContext().getContentResolver(),"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.getAbsolutePathFromUri can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                getAbsolutePathFromUri(getApplicationContext().getContentResolver(),"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.getAbsolutePathFromUri can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                        MediaStore.Video.Media.EXTERNAL_CONTENT_URI);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.createParentFolder can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        if (videoFilePath == null || !createParentFolder(videoFilePath)) {"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.createParentFolder can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        if (videoFilePath == null || !createParentFolder(videoFilePath)) {"
+        errorLine2="                                                         ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
         message="CameraXExecutors.mainThreadExecutor can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                            CameraXExecutors.mainThreadExecutor());"
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.createParentFolder can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        if (!createParentFolder(pictureFolder)) {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXService.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.createParentFolder can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        if (!createParentFolder(pictureFolder)) {"
+        errorLine2="                                ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXService.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.canDeviceWriteToMediaStore can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            if (canDeviceWriteToMediaStore()) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXService.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.generateVideoMediaStoreOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                        generateVideoMediaStoreOptions(getContentResolver(), fileName));"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXService.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.generateVideoMediaStoreOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                        generateVideoMediaStoreOptions(getContentResolver(), fileName));"
+        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXService.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.generateVideoMediaStoreOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                        generateVideoMediaStoreOptions(getContentResolver(), fileName));"
+        errorLine2="                                                                             ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXService.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.generateVideoFileOutputOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                        this, generateVideoFileOutputOptions(fileName, extension));"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXService.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.generateVideoFileOutputOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                        this, generateVideoFileOutputOptions(fileName, extension));"
+        errorLine2="                                                             ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXService.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.generateVideoFileOutputOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                        this, generateVideoFileOutputOptions(fileName, extension));"
+        errorLine2="                                                                       ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXService.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.getAbsolutePathFromUri can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        String videoFilePath = getAbsolutePathFromUri(getContentResolver(),"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXService.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.getAbsolutePathFromUri can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        String videoFilePath = getAbsolutePathFromUri(getContentResolver(),"
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXService.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.getAbsolutePathFromUri can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                MediaStore.Video.Media.EXTERNAL_CONTENT_URI);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXService.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.createParentFolder can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        if (videoFilePath == null || !createParentFolder(videoFilePath)) {"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXService.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.createParentFolder can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        if (videoFilePath == null || !createParentFolder(videoFilePath)) {"
+        errorLine2="                                                         ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXService.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.getAbsolutePathFromUri can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                        videoFilePath = getAbsolutePathFromUri("
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXService.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.getAbsolutePathFromUri can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                                getApplicationContext().getContentResolver(),"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXService.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.getAbsolutePathFromUri can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                                uri"
+        errorLine2="                                ~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXService.java"/>
     </issue>
 
     <issue
@@ -264,34 +462,34 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="E2ETestUtil.canDeviceWriteToMediaStore can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        if (E2ETestUtil.canDeviceWriteToMediaStore()) {"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="FileUtil.canDeviceWriteToMediaStore can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        if (FileUtil.canDeviceWriteToMediaStore()) {"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
     </issue>
 
     <issue
         id="RestrictedApiAndroidX"
-        message="E2ETestUtil.generateVideoMediaStoreOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="                    E2ETestUtil.generateVideoMediaStoreOptions(this.getContentResolver(),"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="FileUtil.generateVideoMediaStoreOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                    FileUtil.generateVideoMediaStoreOptions(this.getContentResolver(),"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
     </issue>
 
     <issue
         id="RestrictedApiAndroidX"
-        message="E2ETestUtil.generateVideoMediaStoreOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="                    E2ETestUtil.generateVideoMediaStoreOptions(this.getContentResolver(),"
-        errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="FileUtil.generateVideoMediaStoreOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                    FileUtil.generateVideoMediaStoreOptions(this.getContentResolver(),"
+        errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
     </issue>
 
     <issue
         id="RestrictedApiAndroidX"
-        message="E2ETestUtil.generateVideoMediaStoreOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        message="FileUtil.generateVideoMediaStoreOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                            videoFileName));"
         errorLine2="                            ~~~~~~~~~~~~~">
         <location
@@ -300,52 +498,52 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="E2ETestUtil.generateVideoFileOutputOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="                    E2ETestUtil.generateVideoFileOutputOptions(videoFileName, &quot;mp4&quot;));"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="FileUtil.generateVideoFileOutputOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                    FileUtil.generateVideoFileOutputOptions(videoFileName, &quot;mp4&quot;));"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
     </issue>
 
     <issue
         id="RestrictedApiAndroidX"
-        message="E2ETestUtil.generateVideoFileOutputOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="                    E2ETestUtil.generateVideoFileOutputOptions(videoFileName, &quot;mp4&quot;));"
-        errorLine2="                                                               ~~~~~~~~~~~~~">
+        message="FileUtil.generateVideoFileOutputOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                    FileUtil.generateVideoFileOutputOptions(videoFileName, &quot;mp4&quot;));"
+        errorLine2="                                                            ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
     </issue>
 
     <issue
         id="RestrictedApiAndroidX"
-        message="E2ETestUtil.generateVideoFileOutputOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="                    E2ETestUtil.generateVideoFileOutputOptions(videoFileName, &quot;mp4&quot;));"
-        errorLine2="                                                                              ~~~~~">
+        message="FileUtil.generateVideoFileOutputOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                    FileUtil.generateVideoFileOutputOptions(videoFileName, &quot;mp4&quot;));"
+        errorLine2="                                                                           ~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
     </issue>
 
     <issue
         id="RestrictedApiAndroidX"
-        message="E2ETestUtil.writeTextToExternalFile can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        E2ETestUtil.writeTextToExternalFile(information,"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~">
+        message="FileUtil.writeTextToExternalFile can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        FileUtil.writeTextToExternalFile(information,"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
     </issue>
 
     <issue
         id="RestrictedApiAndroidX"
-        message="E2ETestUtil.writeTextToExternalFile can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        E2ETestUtil.writeTextToExternalFile(information,"
-        errorLine2="                                            ~~~~~~~~~~~">
+        message="FileUtil.writeTextToExternalFile can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        FileUtil.writeTextToExternalFile(information,"
+        errorLine2="                                         ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
     </issue>
 
     <issue
         id="RestrictedApiAndroidX"
-        message="E2ETestUtil.writeTextToExternalFile can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        message="FileUtil.writeTextToExternalFile can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                generateFileName(INFO_FILE_PREFIX, false), &quot;txt&quot;);"
         errorLine2="                ~~~~~~~~~~~~~~~~">
         <location
@@ -354,7 +552,7 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="E2ETestUtil.writeTextToExternalFile can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        message="FileUtil.writeTextToExternalFile can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                generateFileName(INFO_FILE_PREFIX, false), &quot;txt&quot;);"
         errorLine2="                                                           ~~~~~">
         <location
@@ -363,36 +561,36 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="E2ETestUtil.isFileNameValid can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        if (!isUnique &amp;&amp; !E2ETestUtil.isFileNameValid(prefix)) {"
-        errorLine2="                                      ~~~~~~~~~~~~~~~">
+        message="FileUtil.isFileNameValid can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        if (!isUnique &amp;&amp; !FileUtil.isFileNameValid(prefix)) {"
+        errorLine2="                                   ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
     </issue>
 
     <issue
         id="RestrictedApiAndroidX"
-        message="E2ETestUtil.isFileNameValid can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        if (!isUnique &amp;&amp; !E2ETestUtil.isFileNameValid(prefix)) {"
-        errorLine2="                                                      ~~~~~~">
+        message="FileUtil.isFileNameValid can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        if (!isUnique &amp;&amp; !FileUtil.isFileNameValid(prefix)) {"
+        errorLine2="                                                   ~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
     </issue>
 
     <issue
         id="RestrictedApiAndroidX"
-        message="E2ETestUtil.isFileNameValid can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        if (E2ETestUtil.isFileNameValid(prefix)) {"
-        errorLine2="                        ~~~~~~~~~~~~~~~">
+        message="FileUtil.isFileNameValid can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        if (FileUtil.isFileNameValid(prefix)) {"
+        errorLine2="                     ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
     </issue>
 
     <issue
         id="RestrictedApiAndroidX"
-        message="E2ETestUtil.isFileNameValid can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        if (E2ETestUtil.isFileNameValid(prefix)) {"
-        errorLine2="                                        ~~~~~~">
+        message="FileUtil.isFileNameValid can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        if (FileUtil.isFileNameValid(prefix)) {"
+        errorLine2="                                     ~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
     </issue>

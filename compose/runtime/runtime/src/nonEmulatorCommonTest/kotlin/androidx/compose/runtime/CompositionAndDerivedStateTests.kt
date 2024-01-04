@@ -252,6 +252,8 @@ class CompositionAndDerivedStateTests {
             }
         }
 
+        verifyConsistent()
+
         expect(useD)
 
         // Modify A
@@ -265,6 +267,7 @@ class CompositionAndDerivedStateTests {
             use = newUse
             a++
             expectChanges()
+            verifyConsistent()
             revalidate()
             expect(newUse, previous)
         }

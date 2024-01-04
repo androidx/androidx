@@ -50,6 +50,7 @@ import java.util.ArrayList;
 @VersionedParcelize(allowSerialization = true, ignoreParcelables = true,
         factory = SliceItemHolder.SliceItemPool.class)
 @RequiresApi(19)
+@Deprecated
 public class SliceItemHolder implements VersionedParcelable {
 
     public static final Object sSerializeLock = new Object();

@@ -24,11 +24,10 @@ import java.util.Objects
 /**
  * Represents a Bluetooth address for a remote device.
  *
- * @property address valid Bluetooth MAC address
- * @property addressType valid address type
- *
+ * @property address a valid Bluetooth MAC address
+ * @property addressType a valid address type
  */
-class BluetoothAddress(val address: String, @AddressType var addressType: Int) {
+class BluetoothAddress(val address: String, @AddressType val addressType: Int) {
     companion object {
         /** Address type is public and registered with the IEEE. */
         const val ADDRESS_TYPE_PUBLIC: Int = 0
@@ -61,12 +60,13 @@ class BluetoothAddress(val address: String, @AddressType var addressType: Int) {
             throw IllegalArgumentException("$address is not a valid Bluetooth address")
         }
 
-        addressType = when (addressType) {
+        when (addressType) {
             ADDRESS_TYPE_PUBLIC,
             ADDRESS_TYPE_RANDOM_STATIC,
             ADDRESS_TYPE_RANDOM_RESOLVABLE,
-            ADDRESS_TYPE_RANDOM_NON_RESOLVABLE -> addressType
-            else -> ADDRESS_TYPE_UNKNOWN
+            ADDRESS_TYPE_RANDOM_NON_RESOLVABLE,
+            ADDRESS_TYPE_UNKNOWN -> Unit
+            else -> throw IllegalArgumentException("$addressType is not a valid address type")
         }
     }
 

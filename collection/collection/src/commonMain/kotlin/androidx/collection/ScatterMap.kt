@@ -28,6 +28,7 @@ package androidx.collection
 
 import androidx.collection.internal.EMPTY_OBJECTS
 import kotlin.jvm.JvmField
+import kotlin.jvm.JvmOverloads
 import kotlin.math.max
 
 // A "flat" hash map based on abseil's flat_hash_map
@@ -482,6 +483,47 @@ public sealed class ScatterMap<K, V> {
     }
 
     /**
+     * Creates a String from the elements separated by [separator] and using [prefix] before
+     * and [postfix] after, if supplied.
+     *
+     * When a non-negative value of [limit] is provided, a maximum of [limit] items are used
+     * to generate the string. If the collection holds more than [limit] items, the string
+     * is terminated with [truncated].
+     *
+     * [transform] may be supplied to convert each element to a custom String.
+     */
+    @JvmOverloads
+    public fun joinToString(
+        separator: CharSequence = ", ",
+        prefix: CharSequence = "",
+        postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
+        limit: Int = -1,
+        truncated: CharSequence = "...",
+        transform: ((key: K, value: V) -> CharSequence)? = null
+    ): String = buildString {
+        append(prefix)
+        var index = 0
+        this@ScatterMap.forEach { key, value ->
+            if (index == limit) {
+                append(truncated)
+                return@buildString
+            }
+            if (index != 0) {
+                append(separator)
+            }
+            if (transform == null) {
+                append(key)
+                append('=')
+                append(value)
+            } else {
+                append(transform(key, value))
+            }
+            index++
+        }
+        append(postfix)
+    }
+
+    /**
      * Returns the hash code value for this map. The hash code the sum of the hash
      * codes of each key/value pair.
      */
@@ -819,16 +861,9 @@ public class MutableScatterMap<K, V>(
      * or `null` if the key was not present in the map.
      */
     public fun put(key: K, value: V): V? {
-        var index = findInsertIndex(key)
-        val oldValue = if (index < 0) {
-            index = -index
-            // New entry, we must add the key
-            keys[index] = key
-            null
-        } else {
-            // Existing entry, we can keep the key
-            values[index]
-        }
+        val index = findAbsoluteInsertIndex(key)
+        val oldValue = values[index]
+        keys[index] = key
         values[index] = value
 
         @Suppress("UNCHECKED_CAST")
@@ -995,6 +1030,24 @@ public class MutableScatterMap<K, V>(
         }
     }
 
+    /**
+     * Removes the specified [keys] and their associated value from the map.
+     */
+    public inline operator fun minusAssign(keys: ScatterSet<K>) {
+        keys.forEach { key ->
+            remove(key)
+        }
+    }
+
+    /**
+     * Removes the specified [keys] and their associated value from the map.
+     */
+    public inline operator fun minusAssign(keys: ObjectList<K>) {
+        keys.forEach { key ->
+            remove(key)
+        }
+    }
+
     private fun removeValueAt(index: Int): V? {
         _size -= 1
 
@@ -1069,52 +1122,6 @@ public class MutableScatterMap<K, V>(
         writeMetadata(index, hash2.toLong())
 
         return index
-    }
-
-    /**
-     * Equivalent of [findInsertIndex] but the returned index is *negative*
-     * if insertion requires a new mapping, and positive if the value takes
-     * place of an existing mapping.
-     */
-    private fun findInsertIndex(key: K): Int {
-        val hash = hash(key)
-        val hash1 = h1(hash)
-        val hash2 = h2(hash)
-
-        val probeMask = _capacity
-        var probeOffset = hash1 and probeMask
-        var probeIndex = 0
-
-        while (true) {
-            val g = group(metadata, probeOffset)
-            var m = g.match(hash2)
-            while (m.hasNext()) {
-                val index = (probeOffset + m.get()) and probeMask
-                if (keys[index] == key) {
-                    return index
-                }
-                m = m.next()
-            }
-
-            if (g.maskEmpty() != 0L) {
-                break
-            }
-
-            probeIndex += GroupWidth
-            probeOffset = (probeOffset + probeIndex) and probeMask
-        }
-
-        var index = findFirstAvailableSlot(hash1)
-        if (growthLimit == 0 && !isDeleted(metadata, index)) {
-            adjustStorage()
-            index = findFirstAvailableSlot(hash1)
-        }
-
-        _size += 1
-        growthLimit -= if (isEmpty(metadata, index)) 1 else 0
-        writeMetadata(index, hash2.toLong())
-
-        return -index
     }
 
     /**

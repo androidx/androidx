@@ -26,14 +26,21 @@ import androidx.compose.ui.unit.sp
 import androidx.glance.Button
 import androidx.glance.ButtonDefaults
 import androidx.glance.GlanceModifier
+import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
 import androidx.glance.action.actionStartActivity
+import androidx.glance.appwidget.component.CircleIconButton
+import androidx.glance.appwidget.component.FilledButton
+import androidx.glance.appwidget.component.OutlineButton
+import androidx.glance.appwidget.component.SquareIconButton
+import androidx.glance.appwidget.component.TitleBar
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.test.R
 import androidx.glance.background
 import androidx.glance.color.ColorProvider
+import androidx.glance.color.colorProviders
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
@@ -589,6 +596,98 @@ class GlanceAppWidgetReceiverScreenshotTest {
         mHostRule.waitForListViewChildCount(count)
         mScreenshotRule.checkScreenshot(mHostRule.mHostView, "lazyColumn_alignment_start")
     }
+
+    @Test
+    fun buttonTests_createFilledButton() {
+        TestGlanceAppWidget.uiDefinition = { ButtonComponentsScreenshotTests.FilledButtonTest() }
+        mHostRule.startHost()
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "buttonTests_createFilledButton")
+    }
+
+    @Test
+    fun buttonTests_createOutlineButton() {
+        TestGlanceAppWidget.uiDefinition = { ButtonComponentsScreenshotTests.OutlineButtonTest() }
+        mHostRule.startHost()
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "buttonTests_createOutlineButton")
+    }
+
+    @Test
+    fun buttonTests_createSquareButton() {
+        TestGlanceAppWidget.uiDefinition = { ButtonComponentsScreenshotTests.SquareButtonTest() }
+        mHostRule.startHost()
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "buttonTests_createSquareButton")
+    }
+
+    @Test
+    fun buttonTests_createCircleButton() {
+        TestGlanceAppWidget.uiDefinition = { ButtonComponentsScreenshotTests.CircleButtonTest() }
+        mHostRule.startHost()
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "buttonTests_createCircleButton")
+    }
+
+    @Test
+    fun buttonTests_buttonDefaultColors() {
+        TestGlanceAppWidget.uiDefinition = {
+            ButtonComponentsScreenshotTests.ButtonDefaultColorsTest()
+        }
+        mHostRule.startHost()
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "buttonTests_buttonDefaultColors")
+    }
+
+    @Test
+    fun topbarTests_createBarWithIconTextTwoActions() {
+        TestGlanceAppWidget.uiDefinition = {
+            TopBarUi()
+        }
+        mHostRule.startHost()
+        mScreenshotRule.checkScreenshot(
+            mHostRule.mHostView,
+            "topbarTests_createBarWithIconTextTwoActions"
+        )
+    }
+
+    @WithRtl
+    @Test
+    fun topbarTests_createBarWithIconTextTwoActions_rtl() {
+        TestGlanceAppWidget.uiDefinition = {
+            TopBarUi()
+        }
+        mHostRule.startHost()
+        mScreenshotRule.checkScreenshot(
+            mHostRule.mHostView,
+            "topbarTests_createBarWithIconTextTwoActions_rtl"
+        )
+    }
+
+    @Composable
+    private fun TopBarUi() {
+        val fg = ColorProvider(Color.Magenta)
+        val bg = ColorProvider(Color.Cyan)
+
+        val actionButton = @Composable {
+            CircleIconButton(
+                imageProvider = ImageProvider(R.drawable.filled_oval),
+                contentDescription = null,
+                backgroundColor = null,
+                contentColor = fg,
+                onClick = {})
+        }
+
+        Box(
+            GlanceModifier.padding(4.dp).background(Color.Black)
+        ) {
+            TitleBar(
+                modifier = GlanceModifier.background(bg).fillMaxWidth(),
+                startIcon = ImageProvider(R.drawable.filled_oval),
+                title = "Lead icon; title; 2 btns",
+                contentColor = fg,
+                actions = {
+                    actionButton()
+                    Spacer(GlanceModifier.size(8.dp))
+                    actionButton()
+                })
+        }
+    }
 }
 
 @Composable
@@ -870,5 +969,168 @@ private fun RadioButtonScreenshotTest() {
                 uncheckedColor = Color.Green
             )
         )
+    }
+}
+
+// Tests the opinionated button components
+private object ButtonComponentsScreenshotTests {
+
+    private val onClick: () -> Unit = {}
+
+    // a filled square
+    private val icon = ImageProvider(R.drawable.filled_oval)
+
+    private val buttonBg = ColorProvider(Color.Black)
+    private val buttonFg = ColorProvider(Color.White)
+
+    @Composable
+    private fun colors() = ButtonDefaults.buttonColors(
+        backgroundColor = buttonBg,
+        contentColor = buttonFg
+    )
+
+    @Composable
+    private fun Space() = Spacer(GlanceModifier.size(16.dp))
+
+    /**
+     * A rectangular magenta background
+     */
+    @Composable
+    private fun Background(content: @Composable () -> Unit) {
+        Box(
+            modifier = GlanceModifier.wrapContentSize().padding(16.dp).background(Color.Magenta),
+            content = content
+        )
+    }
+
+    @Composable
+    fun FilledButtonTest() {
+        Background {
+            Column {
+                FilledButton(
+                    text = "Filled button\nbg 0x00, fg 0xff",
+                    onClick = onClick,
+                    icon = null,
+                    colors = colors()
+                )
+                Space()
+                FilledButton(
+                    text = "Filled btn + icon\nbg 0x00, fg 0xff",
+                    onClick = onClick,
+                    icon = icon,
+                    colors = colors()
+                )
+            }
+        }
+    }
+
+    @Composable
+    fun OutlineButtonTest() {
+        Background {
+            Column {
+                OutlineButton(
+                    text = "Outline Button\nfg 0xff",
+                    onClick = onClick,
+                    icon = null,
+                    contentColor = buttonFg
+                )
+                Space()
+                OutlineButton(
+                    text = "Outline btn + icon\nfg 0xff",
+                    onClick = onClick,
+                    icon = icon,
+                    contentColor = buttonFg
+                )
+            }
+        }
+    }
+
+    @Composable
+    fun SquareButtonTest() {
+        Background {
+            // square button with rounded corners, icon (a square w/sharp corners)  in center.
+            SquareIconButton(
+                imageProvider = icon,
+                contentDescription = null,
+                onClick = onClick,
+                backgroundColor = buttonBg,
+                contentColor = buttonFg
+            )
+        }
+    }
+
+    @Composable
+    fun CircleButtonTest() {
+        Background {
+            Column {
+                // Circle button with icon
+                CircleIconButton(
+                    imageProvider = icon,
+                    contentDescription = null,
+                    onClick = onClick,
+                    backgroundColor = buttonBg,
+                    contentColor = buttonFg
+                )
+                Space()
+                // Icon only, no background
+                CircleIconButton(
+                    imageProvider = icon,
+                    contentDescription = null,
+                    onClick = onClick,
+                    backgroundColor = null,
+                    contentColor = buttonFg
+                )
+            }
+        }
+    }
+
+    /**
+     * Tests that buttons inherit the expected colors from their theme.
+     */
+    @Composable
+    fun ButtonDefaultColorsTest() {
+        val unused = ColorProvider(Color.Cyan)
+
+        val colors = colorProviders(
+            primary = ColorProvider(Color.Green),
+            onPrimary = ColorProvider(Color.Black),
+            surface = ColorProvider(Color.Gray),
+            onSurface = ColorProvider(Color.Red),
+            background = ColorProvider(Color.DarkGray),
+            error = unused,
+            errorContainer = unused,
+            inverseOnSurface = unused,
+            inversePrimary = unused,
+            inverseSurface = unused,
+            onBackground = unused,
+            onError = unused,
+            onErrorContainer = unused,
+            onPrimaryContainer = unused,
+            onSecondary = unused,
+            onSecondaryContainer = unused,
+            onSurfaceVariant = unused,
+            onTertiary = unused,
+            onTertiaryContainer = unused,
+            outline = unused,
+            primaryContainer = unused,
+            secondary = unused,
+            secondaryContainer = unused,
+            surfaceVariant = unused,
+            tertiary = unused,
+            tertiaryContainer = unused,
+        )
+
+        GlanceTheme(
+            colors = colors
+        ) {
+            Column {
+                FilledButton("Filled button", icon = icon, onClick = onClick)
+                // [OutlineButton] does not have a default color, so not important to test here
+                Space()
+                SquareIconButton(imageProvider = icon, contentDescription = null, onClick = onClick)
+                Space()
+                CircleIconButton(imageProvider = icon, contentDescription = null, onClick = onClick)
+            }
+        }
     }
 }

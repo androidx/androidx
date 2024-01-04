@@ -67,38 +67,9 @@ open class Cubic internal constructor(internal val points: FloatArray = FloatArr
      */
     val anchor1Y get() = points[7]
 
-    /**
-     * This class holds the anchor and control point data for a single cubic Bézier curve,
-     * with anchor points ([anchor0X], [anchor0Y]) and ([anchor1X], [anchor1Y]) at either end
-     * and control points ([control0X], [control0Y]) and ([control1X], [control1Y]) determining
-     * the slope of the curve between the anchor points.
-     *
-     * This object is immutable.
-     *
-     * @param anchor0X the first anchor point x coordinate
-     * @param anchor0Y the first anchor point y coordinate
-     * @param control0X the first control point x coordinate
-     * @param control0Y the first control point y coordinate
-     * @param control1X the second control point x coordinate
-     * @param control1Y the second control point y coordinate
-     * @param anchor1X the second anchor point x coordinate
-     * @param anchor1Y the second anchor point y coordinate
-     */
-    constructor(
-        anchor0X: Float,
-        anchor0Y: Float,
-        control0X: Float,
-        control0Y: Float,
-        control1X: Float,
-        control1Y: Float,
-        anchor1X: Float,
-        anchor1Y: Float
-    ) : this(floatArrayOf(anchor0X, anchor0Y, control0X, control0Y,
-        control1X, control1Y, anchor1X, anchor1Y))
-
     internal constructor(anchor0: Point, control0: Point, control1: Point, anchor1: Point) :
-        this(anchor0.x, anchor0.y, control0.x, control0.y,
-            control1.x, control1.y, anchor1.x, anchor1.y)
+        this(floatArrayOf(anchor0.x, anchor0.y, control0.x, control0.y,
+            control1.x, control1.y, anchor1.x, anchor1.y))
 
     /**
      * Returns a point on the curve for parameter t, representing the proportional distance
@@ -254,6 +225,35 @@ open class Cubic internal constructor(internal val points: FloatArray = FloatArr
 }
 
 /**
+ * Create a Cubic that holds the anchor and control point data for a single Bézier curve,
+ * with anchor points ([anchor0X], [anchor0Y]) and ([anchor1X], [anchor1Y]) at either end
+ * and control points ([control0X], [control0Y]) and ([control1X], [control1Y]) determining
+ * the slope of the curve between the anchor points.
+ *
+ * The returned instance is immutable.
+ *
+ * @param anchor0X the first anchor point x coordinate
+ * @param anchor0Y the first anchor point y coordinate
+ * @param control0X the first control point x coordinate
+ * @param control0Y the first control point y coordinate
+ * @param control1X the second control point x coordinate
+ * @param control1Y the second control point y coordinate
+ * @param anchor1X the second anchor point x coordinate
+ * @param anchor1Y the second anchor point y coordinate
+ */
+fun Cubic(
+    anchor0X: Float,
+    anchor0Y: Float,
+    control0X: Float,
+    control0Y: Float,
+    control1X: Float,
+    control1Y: Float,
+    anchor1X: Float,
+    anchor1Y: Float
+) = Cubic(floatArrayOf(anchor0X, anchor0Y, control0X, control0Y,
+    control1X, control1Y, anchor1X, anchor1Y))
+
+/**
  * This interface is used refer to Points that can be modified, as a scope to
  * [PointTransformer]
  */
@@ -280,7 +280,6 @@ fun interface PointTransformer {
 }
 
 /**
-
  * This is a Mutable version of [Cubic], used mostly for performance critical paths so we can
  * avoid creating new [Cubic]s
  *

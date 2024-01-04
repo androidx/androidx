@@ -23,7 +23,6 @@ import com.android.tools.lint.checks.infrastructure.TestFiles.base64gzip
 import com.android.tools.lint.checks.infrastructure.TestFiles.kotlin
 import com.android.tools.lint.checks.infrastructure.TestLintResult
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
-import com.android.tools.lint.checks.infrastructure.TestMode
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -39,7 +38,6 @@ class RequiresOptInDetectorTest {
                 *testFiles
             )
             .issues(*ExperimentalDetector.ISSUES.toTypedArray())
-            .testModes(TestMode.PARTIAL)
             .run()
     }
 
@@ -442,6 +440,38 @@ No warnings.
         /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
+    }
+
+    @Test
+    fun regressionTestKotlin298322402() {
+        val input = arrayOf(
+            javaSample("sample.optin.ExperimentalJavaAnnotation"),
+            javaSample("sample.optin.AnnotatedJavaMembers"),
+            ktSample("sample.optin.RegressionTestKotlin298322402")
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+src/sample/optin/RegressionTestKotlin298322402.kt:22: Error: This declaration is opt-in and its usage should be marked with @sample.optin.ExperimentalJavaAnnotation or @OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class) [UnsafeOptInUsageError]
+        player.accessor
+               ~~~~~~~~
+1 errors, 0 warnings
+        """.trimIndent()
+
+        val expectedFix = """
+Fix for src/sample/optin/RegressionTestKotlin298322402.kt line 22: Add '@androidx.annotation.OptIn(sample.optin.ExperimentalJavaAnnotation::class)' annotation to 'testMethod':
+@@ -21 +21
++     @androidx.annotation.OptIn(ExperimentalJavaAnnotation::class)
+Fix for src/sample/optin/RegressionTestKotlin298322402.kt line 22: Add '@sample.optin.ExperimentalJavaAnnotation' annotation to 'testMethod':
+@@ -21 +21
++     @ExperimentalJavaAnnotation
+Fix for src/sample/optin/RegressionTestKotlin298322402.kt line 22: Add '@sample.optin.ExperimentalJavaAnnotation' annotation to containing class 'RegressionTestKotlin298322402':
+@@ -1 +1
++ @ExperimentalJavaAnnotation
+        """.trimIndent()
+        /* ktlint-enable max-line-length */
+
+        check(*input).expectFixDiffs(expectedFix).expect(expected)
     }
 
     /* ktlint-disable max-line-length */

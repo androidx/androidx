@@ -32,7 +32,6 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.util.fastForEach
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceComposable
 import androidx.glance.LocalContext
@@ -144,18 +143,16 @@ internal class AppWidgetSession(
         } catch (ex: CancellationException) {
             // Nothing to do
         } catch (throwable: Throwable) {
-            if (widget.errorUiLayout == 0) {
-                throw throwable
-            }
-            logException(throwable)
-            val rv = RemoteViews(context.packageName, widget.errorUiLayout)
-            appWidgetManager.updateAppWidget(id.appWidgetId, rv)
-            lastRemoteViews = rv
+            sendErrorLayoutIfPresent(context, throwable)
         } finally {
             layoutConfig.save()
             Tracing.endGlanceAppWidgetUpdate()
         }
         return true
+    }
+
+    override suspend fun onCompositionError(context: Context, throwable: Throwable) {
+        sendErrorLayoutIfPresent(context, throwable)
     }
 
     override suspend fun processEvent(context: Context, event: Any) {
@@ -184,7 +181,7 @@ internal class AppWidgetSession(
             is RunLambda -> {
                 if (DEBUG) Log.i(TAG, "Received RunLambda(${event.key}) action for session($key)")
                 Snapshot.withMutableSnapshot {
-                    lambdas[event.key]?.fastForEach { it.block() }
+                    lambdas[event.key]?.forEach { it.block() }
                 } ?: Log.w(TAG, "Triggering Action(${event.key}) for session($key) failed")
             }
             is WaitForReady -> event.resume.send(Unit)
@@ -213,6 +210,16 @@ internal class AppWidgetSession(
             sendEvent(it)
             it.resume.receive()
         }
+    }
+
+    private fun sendErrorLayoutIfPresent(context: Context, throwable: Throwable) {
+        if (widget.errorUiLayout == 0) {
+            throw throwable
+        }
+        logException(throwable)
+        val rv = RemoteViews(context.packageName, widget.errorUiLayout)
+        context.appWidgetManager.updateAppWidget(id.appWidgetId, rv)
+        lastRemoteViews = rv
     }
 
     // Event types that this session supports.

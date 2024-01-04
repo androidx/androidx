@@ -102,7 +102,9 @@ class LiveEditTests {
     }
 
     @Test
-    fun testNonRestartableFunctionPreservesParentAndSiblingState() = liveEditTest {
+    fun testNonRestartableFunctionPreservesParentAndSiblingState() = liveEditTest(
+        collectSourceInformation = SourceInfo.None
+    ) {
         EnsureStatePreservedButRecomposed("a")
         RestartGroup {
             Text("Hello World")
@@ -112,7 +114,9 @@ class LiveEditTests {
     }
 
     @Test
-    fun testMultipleNonRestartableFunctionPreservesParentAndSiblingState() = liveEditTest {
+    fun testMultipleNonRestartableFunctionPreservesParentAndSiblingState() = liveEditTest(
+        collectSourceInformation = SourceInfo.None
+    ) {
         RestartGroup {
             EnsureStatePreservedButRecomposed("a")
             Target("b", restartable = false)
@@ -136,7 +140,9 @@ class LiveEditTests {
     }
 
     @Test
-    fun testInlineComposableLambda() = liveEditTest {
+    fun testInlineComposableLambda() = liveEditTest(
+        collectSourceInformation = SourceInfo.None
+    ) {
         RestartGroup {
             InlineTarget("a")
             EnsureStatePreservedButRecomposed("b")
@@ -165,7 +171,10 @@ class LiveEditTests {
     @Test
     fun testThrowing_recomposition() {
         var recomposeCount = 0
-        liveEditTest(reloadCount = 2) {
+        liveEditTest(
+            reloadCount = 2,
+            collectSourceInformation = SourceInfo.None,
+        ) {
             RestartGroup {
                 MarkAsTarget()
 
@@ -216,7 +225,9 @@ class LiveEditTests {
     @Test
     fun testThrowing_recomposition_sideEffect() {
         var recomposeCount = 0
-        liveEditTest {
+        liveEditTest(
+            collectSourceInformation = SourceInfo.None
+        ) {
             RestartGroup {
                 MarkAsTarget()
 
@@ -286,7 +297,9 @@ class LiveEditTests {
     @Test
     fun testThrowing_recomposition_remembered() {
         var recomposeCount = 0
-        liveEditTest {
+        liveEditTest(
+            collectSourceInformation = SourceInfo.None,
+        ) {
             RestartGroup {
                 MarkAsTarget()
 
@@ -333,7 +346,10 @@ class LiveEditTests {
     fun testThrowing_invalidationsCarriedAfterCrash() {
         var recomposeCount = 0
         val state = mutableStateOf(0)
-        liveEditTest(reloadCount = 2) {
+        liveEditTest(
+            reloadCount = 2,
+            collectSourceInformation = SourceInfo.None,
+        ) {
             RestartGroup {
                 RestartGroup {
                     MarkAsTarget()
@@ -391,7 +407,10 @@ class LiveEditTests {
     @Test
     fun testThrowing_movableContent_recomposition() {
         var recomposeCount = 0
-        liveEditTest(reloadCount = 2) {
+        liveEditTest(
+            reloadCount = 2,
+            collectSourceInformation = SourceInfo.None,
+        ) {
             RestartGroup {
                 MarkAsTarget()
 
@@ -423,7 +442,10 @@ class LiveEditTests {
     @Test
     fun testThrowing_movableContent_throwAfterMove() {
         var recomposeCount = 0
-        liveEditTest(reloadCount = 2) {
+        liveEditTest(
+            reloadCount = 2,
+            collectSourceInformation = SourceInfo.None,
+        ) {
             expectError("throwInMovableContent", 1)
 
             val content = remember {
@@ -567,28 +589,71 @@ fun LiveEditTestScope.MarkAsTarget() {
     addTargetKey((currentComposer as ComposerImpl).parentKey())
 }
 
+enum class SourceInfo {
+    None,
+    Collect,
+    Both,
+}
+
 @OptIn(InternalComposeApi::class)
 fun liveEditTest(
     reloadCount: Int = 1,
+    collectSourceInformation: SourceInfo = SourceInfo.Both,
     fn: @Composable LiveEditTestScope.() -> Unit,
-) = compositionTest {
-    with(LiveEditTestScope()) {
-        addCheck {
-            (composition as? ControlledComposition)?.verifyConsistent()
-        }
+) {
+    if (
+        collectSourceInformation == SourceInfo.Both ||
+        collectSourceInformation == SourceInfo.Collect
+    ) {
+        compositionTest {
+            with(LiveEditTestScope()) {
+                addCheck {
+                    (composition as? ControlledComposition)?.verifyConsistent()
+                }
 
-        recordErrors {
-            compose { fn(this) }
-        }
+                recordErrors {
+                    compose {
+                        currentComposer.collectParameterInformation()
+                        fn(this)
+                    }
+                }
 
-        repeat(reloadCount) {
-            invalidateTargets()
-            recordErrors {
-                advance()
+                repeat(reloadCount) {
+                    invalidateTargets()
+                    recordErrors {
+                        advance()
+                    }
+                }
+
+                runChecks()
             }
         }
+    }
 
-        runChecks()
+    if (
+        collectSourceInformation == SourceInfo.Both ||
+        collectSourceInformation == SourceInfo.None
+    ) {
+        compositionTest {
+            with(LiveEditTestScope()) {
+                addCheck {
+                    (composition as? ControlledComposition)?.verifyConsistent()
+                }
+
+                recordErrors {
+                    compose { fn(this) }
+                }
+
+                repeat(reloadCount) {
+                    invalidateTargets()
+                    recordErrors {
+                        advance()
+                    }
+                }
+
+                runChecks()
+            }
+        }
     }
 }
 

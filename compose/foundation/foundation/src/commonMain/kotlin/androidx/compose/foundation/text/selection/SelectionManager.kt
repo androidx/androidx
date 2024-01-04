@@ -23,6 +23,7 @@ import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.TextDragObserver
 import androidx.compose.foundation.text.selection.Selection.AnchorInfo
+import androidx.compose.foundation.text2.input.internal.coerceIn
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -50,14 +51,14 @@ import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.TextToolbarStatus
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastAny
+import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastFold
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import kotlin.math.absoluteValue
-import kotlin.math.max
-import kotlin.math.min
 
 /**
  * A bridge class between user interaction to the text composables for text selection.
@@ -87,7 +88,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         set(value) {
             if (_isInTouchMode.value != value) {
                 _isInTouchMode.value = value
-                if (value && showToolbar) showSelectionToolbar() else hideSelectionToolbar()
+                updateSelectionToolbar()
             }
         }
 
@@ -162,7 +163,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                 if (previousPosition != positionInWindow) {
                     previousPosition = positionInWindow
                     updateHandleOffsets()
-                    updateSelectionToolbarPosition()
+                    updateSelectionToolbar()
                 }
             }
         }
@@ -241,12 +242,9 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
 
     init {
         selectionRegistrar.onPositionChangeCallback = { selectableId ->
-            if (
-                selectableId == selection?.start?.selectableId ||
-                selectableId == selection?.end?.selectableId
-            ) {
+            if (selectableId in selectionRegistrar.subselections) {
                 updateHandleOffsets()
-                updateSelectionToolbarPosition()
+                updateSelectionToolbar()
             }
         }
 
@@ -317,21 +315,25 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
 
         selectionRegistrar.onSelectableChangeCallback = { selectableKey ->
             if (selectableKey in selectionRegistrar.subselections) {
-                // clear the selection range of each Selectable.
+                // Clear the selection range of each Selectable.
                 onRelease()
                 selection = null
             }
         }
 
-        selectionRegistrar.afterSelectableUnsubscribe = { selectableKey ->
-            if (
-                selectableKey == selection?.start?.selectableId ||
-                selectableKey == selection?.end?.selectableId
-            ) {
+        selectionRegistrar.afterSelectableUnsubscribe = { selectableId ->
+            if (selectableId == selection?.start?.selectableId) {
                 // The selectable that contains a selection handle just unsubscribed.
-                // Hide selection handles for now
+                // Hide the associated selection handle
                 startHandlePosition = null
+            }
+            if (selectableId == selection?.end?.selectableId) {
                 endHandlePosition = null
+            }
+
+            if (selectableId in selectionRegistrar.subselections) {
+                // Unsubscribing the selectable may make the selection empty, which would hide it.
+                updateSelectionToolbar()
             }
         }
     }
@@ -351,46 +353,38 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         val endSelectable = selection?.end?.let(::getAnchorSelectable)
         val startLayoutCoordinates = startSelectable?.getLayoutCoordinates()
         val endLayoutCoordinates = endSelectable?.getLayoutCoordinates()
+
         if (
             selection == null ||
             containerCoordinates == null ||
             !containerCoordinates.isAttached ||
-            startLayoutCoordinates == null ||
-            endLayoutCoordinates == null
+            (startLayoutCoordinates == null && endLayoutCoordinates == null)
         ) {
             this.startHandlePosition = null
             this.endHandlePosition = null
             return
         }
 
-        val startHandlePosition = containerCoordinates.localPositionOf(
-            startLayoutCoordinates,
-            startSelectable.getHandlePosition(
-                selection = selection,
-                isStartHandle = true
-            )
-        )
-        val endHandlePosition = containerCoordinates.localPositionOf(
-            endLayoutCoordinates,
-            endSelectable.getHandlePosition(
-                selection = selection,
-                isStartHandle = false
-            )
-        )
-
         val visibleBounds = containerCoordinates.visibleBounds()
-
-        // set the new handle position only if the handle is in visible bounds or
-        // the handle is still dragging. If handle goes out of visible bounds during drag, handle
-        // popup is also removed from composition, halting the drag gesture. This affects multiple
-        // text selection when selected text is configured with maxLines=1 and overflow=clip.
-        this.startHandlePosition = startHandlePosition.takeIf {
-            visibleBounds.containsInclusive(startHandlePosition) ||
-                draggingHandle == Handle.SelectionStart
+        this.startHandlePosition = startLayoutCoordinates?.let { handleCoordinates ->
+            // Set the new handle position only if the handle is in visible bounds or
+            // the handle is still dragging. If handle goes out of visible bounds during drag,
+            // handle popup is also removed from composition, halting the drag gesture. This
+            // affects multiple text selection when selected text is configured with maxLines=1
+            // and overflow=clip.
+            val handlePosition = startSelectable.getHandlePosition(selection, isStartHandle = true)
+            val position = containerCoordinates.localPositionOf(handleCoordinates, handlePosition)
+            position.takeIf {
+                draggingHandle == Handle.SelectionStart || visibleBounds.containsInclusive(it)
+            }
         }
-        this.endHandlePosition = endHandlePosition.takeIf {
-            visibleBounds.containsInclusive(endHandlePosition) ||
-                draggingHandle == Handle.SelectionEnd
+
+        this.endHandlePosition = endLayoutCoordinates?.let { handleCoordinates ->
+            val handlePosition = endSelectable.getHandlePosition(selection, isStartHandle = false)
+            val position = containerCoordinates.localPositionOf(handleCoordinates, handlePosition)
+            position.takeIf {
+                draggingHandle == Handle.SelectionEnd || visibleBounds.containsInclusive(it)
+            }
         }
     }
 
@@ -448,61 +442,49 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
             return false
         }
 
-        var betweenSelectables = false
-        selectionRegistrar.sort(requireContainerCoordinates()).fastForEach {
-            if (
-                it.selectableId != selection.start.selectableId &&
-                it.selectableId != selection.end.selectableId &&
-                !betweenSelectables
-            ) {
-                // haven't found our selection yet, continue
-                return@fastForEach
-            }
-
-            betweenSelectables = true
-            if (!isCurrentSelectionEmpty(selection = selection, selectable = it)) {
-                return true
-            }
-
-            // short-circuit if this is the last selectable
-            if (it.selectableId == selection.end.selectableId && !selection.handlesCrossed ||
-                it.selectableId == selection.start.selectableId && selection.handlesCrossed
-            ) return false
+        if (selection.start.selectableId == selection.end.selectableId) {
+            // Selection is in the same selectable, but not the same anchors,
+            // so there must be some selected text.
+            return true
         }
-        return false
+
+        // All subselections associated with a selectable must be an empty selection.
+        return selectionRegistrar.sort(requireContainerCoordinates()).fastAny { selectable ->
+            selectionRegistrar.subselections[selectable.selectableId]
+                ?.run { start.offset != end.offset }
+                ?: false
+        }
     }
 
     internal fun getSelectedText(): AnnotatedString? {
-        val selectables = selectionRegistrar.sort(requireContainerCoordinates())
-        var selectedText: AnnotatedString? = null
+        if (selection == null || selectionRegistrar.subselections.isEmpty()) {
+            return null
+        }
 
-        selection?.let {
-            for (i in selectables.indices) {
-                val selectable = selectables[i]
-                // Continue if the current selectable is before the selection starts.
-                if (selectable.selectableId != it.start.selectableId &&
-                    selectable.selectableId != it.end.selectableId &&
-                    selectedText == null
-                ) continue
+        return buildAnnotatedString {
+            selectionRegistrar.sort(requireContainerCoordinates()).fastForEach { selectable ->
+                selectionRegistrar.subselections[selectable.selectableId]?.let { subSelection ->
+                    val currentText = selectable.getText()
+                    val currentSelectedText = if (subSelection.handlesCrossed) {
+                        currentText.subSequence(
+                            subSelection.end.offset,
+                            subSelection.start.offset
+                        )
+                    } else {
+                        currentText.subSequence(
+                            subSelection.start.offset,
+                            subSelection.end.offset
+                        )
+                    }
 
-                val currentSelectedText = getCurrentSelectedText(
-                    selectable = selectable,
-                    selection = it
-                )
-                selectedText = selectedText?.plus(currentSelectedText) ?: currentSelectedText
-
-                // Break if the current selectable is the last selected selectable.
-                if (selectable.selectableId == it.end.selectableId && !it.handlesCrossed ||
-                    selectable.selectableId == it.start.selectableId && it.handlesCrossed
-                ) break
+                    append(currentSelectedText)
+                }
             }
         }
-        return selectedText
     }
 
     internal fun copy() {
-        val selectedText = getSelectedText()
-        selectedText?.takeIf { it.isNotEmpty() }?.let { clipboardManager?.setText(it) }
+        getSelectedText()?.takeIf { it.isNotEmpty() }?.let { clipboardManager?.setText(it) }
     }
 
     /**
@@ -514,103 +496,114 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
     internal var showToolbar = false
         internal set(value) {
             field = value
-            if (value && isInTouchMode) showSelectionToolbar() else hideSelectionToolbar()
+            updateSelectionToolbar()
         }
 
+    private fun toolbarCopy() {
+        copy()
+        onRelease()
+    }
+
+    private fun updateSelectionToolbar() {
+        if (!hasFocus) {
+            return
+        }
+
+        val textToolbar = textToolbar ?: return
+        if (showToolbar && isInTouchMode && isNonEmptySelection()) {
+            val rect = getContentRect() ?: return
+            textToolbar.showMenu(rect = rect, onCopyRequested = ::toolbarCopy)
+        } else if (textToolbar.status == TextToolbarStatus.Shown) {
+            textToolbar.hide()
+        }
+    }
+
     /**
-     * This function get the selected region as a Rectangle region, and pass it to [TextToolbar]
-     * to make the FloatingToolbar show up in the proper place. In addition, this function passes
-     * the copy method as a callback when "copy" is clicked.
+     * Calculate selected region as [Rect].
+     * The result is the smallest [Rect] that encapsulates the entire selection,
+     * coerced into visible bounds.
      */
-    private fun showSelectionToolbar() {
-        if (hasFocus && isNonEmptySelection()) {
-            textToolbar?.showMenu(
-                getContentRect(),
-                onCopyRequested = {
-                    copy()
-                    onRelease()
+    private fun getContentRect(): Rect? {
+        selection ?: return null
+        val containerCoordinates = containerLayoutCoordinates ?: return null
+        if (!containerCoordinates.isAttached) return null
+        val visibleBounds = containerCoordinates.visibleBounds()
+
+        var anyExists = false
+        var rootLeft = Float.POSITIVE_INFINITY
+        var rootTop = Float.POSITIVE_INFINITY
+        var rootRight = Float.NEGATIVE_INFINITY
+        var rootBottom = Float.NEGATIVE_INFINITY
+
+        val sortedSelectables = selectionRegistrar.sort(requireContainerCoordinates())
+            .fastFilter {
+                it.selectableId in selectionRegistrar.subselections
+            }
+
+        if (sortedSelectables.isEmpty()) {
+            return null
+        }
+
+        val selectedSelectables = if (sortedSelectables.size == 1) {
+            sortedSelectables
+        } else {
+            listOf(sortedSelectables.first(), sortedSelectables.last())
+        }
+
+        selectedSelectables.fastForEach { selectable ->
+            val subSelection = selectionRegistrar.subselections[selectable.selectableId]
+                ?: return@fastForEach
+
+            val coordinates = selectable.getLayoutCoordinates()
+                ?: return@fastForEach
+
+            with(subSelection) {
+                if (start.offset == end.offset) {
+                    return@fastForEach
                 }
-            )
+
+                val minOffset = minOf(start.offset, end.offset)
+                val maxOffset = maxOf(start.offset, end.offset)
+
+                var left = Float.POSITIVE_INFINITY
+                var top = Float.POSITIVE_INFINITY
+                var right = Float.NEGATIVE_INFINITY
+                var bottom = Float.NEGATIVE_INFINITY
+                for (i in intArrayOf(minOffset, maxOffset)) {
+                    val rect = selectable.getBoundingBox(i)
+                    left = minOf(left, rect.left)
+                    top = minOf(top, rect.top)
+                    right = maxOf(right, rect.right)
+                    bottom = maxOf(bottom, rect.bottom)
+                }
+
+                val localTopLeft = Offset(left, top)
+                val localBottomRight = Offset(right, bottom)
+
+                val containerTopLeft =
+                    containerCoordinates.localPositionOf(coordinates, localTopLeft)
+                val containerBottomRight =
+                    containerCoordinates.localPositionOf(coordinates, localBottomRight)
+
+                val rootVisibleTopLeft =
+                    containerCoordinates.localToRoot(containerTopLeft.coerceIn(visibleBounds))
+                val rootVisibleBottomRight =
+                    containerCoordinates.localToRoot(containerBottomRight.coerceIn(visibleBounds))
+
+                rootLeft = minOf(rootLeft, rootVisibleTopLeft.x)
+                rootTop = minOf(rootTop, rootVisibleTopLeft.y)
+                rootRight = maxOf(rootRight, rootVisibleBottomRight.x)
+                rootBottom = maxOf(rootBottom, rootVisibleBottomRight.y)
+                anyExists = true
+            }
         }
-    }
 
-    private fun hideSelectionToolbar() {
-        if (hasFocus && textToolbar?.status == TextToolbarStatus.Shown) {
-            textToolbar?.hide()
+        if (!anyExists) {
+            return null
         }
-    }
 
-    private fun updateSelectionToolbarPosition() {
-        if (hasFocus && textToolbar?.status == TextToolbarStatus.Shown) {
-            showSelectionToolbar()
-        }
-    }
-
-    /**
-     * Calculate selected region as [Rect]. The top is the top of the first selected
-     * line, and the bottom is the bottom of the last selected line. The left is the leftmost
-     * handle's horizontal coordinates, and the right is the rightmost handle's coordinates.
-     */
-    private fun getContentRect(): Rect {
-        val selection = selection ?: return Rect.Zero
-        val startSelectable = getAnchorSelectable(selection.start)
-        val endSelectable = getAnchorSelectable(selection.end)
-        val startLayoutCoordinates = startSelectable?.getLayoutCoordinates() ?: return Rect.Zero
-        val endLayoutCoordinates = endSelectable?.getLayoutCoordinates() ?: return Rect.Zero
-
-        val localLayoutCoordinates = containerLayoutCoordinates
-        if (localLayoutCoordinates != null && localLayoutCoordinates.isAttached) {
-            var startOffset = localLayoutCoordinates.localPositionOf(
-                startLayoutCoordinates,
-                startSelectable.getHandlePosition(
-                    selection = selection,
-                    isStartHandle = true
-                )
-            )
-            var endOffset = localLayoutCoordinates.localPositionOf(
-                endLayoutCoordinates,
-                endSelectable.getHandlePosition(
-                    selection = selection,
-                    isStartHandle = false
-                )
-            )
-
-            startOffset = localLayoutCoordinates.localToRoot(startOffset)
-            endOffset = localLayoutCoordinates.localToRoot(endOffset)
-
-            val left = min(startOffset.x, endOffset.x)
-            val right = max(startOffset.x, endOffset.x)
-
-            var startTop = localLayoutCoordinates.localPositionOf(
-                startLayoutCoordinates,
-                Offset(
-                    0f,
-                    startSelectable.getBoundingBox(selection.start.offset).top
-                )
-            )
-
-            var endTop = localLayoutCoordinates.localPositionOf(
-                endLayoutCoordinates,
-                Offset(
-                    0.0f,
-                    endSelectable.getBoundingBox(selection.end.offset).top
-                )
-            )
-
-            startTop = localLayoutCoordinates.localToRoot(startTop)
-            endTop = localLayoutCoordinates.localToRoot(endTop)
-
-            val top = min(startTop.y, endTop.y)
-            val bottom = max(startOffset.y, endOffset.y) + (HandleHeight.value * 4.0).toFloat()
-
-            return Rect(
-                left,
-                top,
-                right,
-                bottom
-            )
-        }
-        return Rect.Zero
+        rootBottom += HandleHeight.value * 4
+        return Rect(rootLeft, rootTop, rootRight, rootBottom)
     }
 
     // This is for PressGestureDetector to cancel the selection.
@@ -999,70 +992,6 @@ private fun getMagnifierCenter(
         sourceCoordinates = selectableCoordinates,
         relativeToSource = Offset(textConstrainedX, lineCenterY)
     )
-}
-
-private fun isCurrentSelectionEmpty(
-    selectable: Selectable,
-    selection: Selection
-): Boolean {
-    val selectableId = selectable.selectableId
-    val startSelectableId = selection.start.selectableId
-    val endSelectableId = selection.end.selectableId
-
-    if (selectableId == startSelectableId && selectableId == endSelectableId) {
-        return selection.start.offset == selection.end.offset
-    }
-
-    val text = selectable.getText()
-    val handlesCrossed = selection.handlesCrossed
-    return when (selectableId) {
-        startSelectableId -> selection.start.offset == if (handlesCrossed) 0 else text.length
-        endSelectableId -> selection.end.offset == if (handlesCrossed) text.length else 0
-        else -> text.isEmpty()
-    }
-}
-
-internal fun getCurrentSelectedText(
-    selectable: Selectable,
-    selection: Selection
-): AnnotatedString {
-    val currentText = selectable.getText()
-
-    return if (
-        selectable.selectableId != selection.start.selectableId &&
-        selectable.selectableId != selection.end.selectableId
-    ) {
-        // Select the full text content if the current selectable is between the
-        // start and the end selectables.
-        currentText
-    } else if (
-        selectable.selectableId == selection.start.selectableId &&
-        selectable.selectableId == selection.end.selectableId
-    ) {
-        // Select partial text content if the current selectable is the start and
-        // the end selectable.
-        if (selection.handlesCrossed) {
-            currentText.subSequence(selection.end.offset, selection.start.offset)
-        } else {
-            currentText.subSequence(selection.start.offset, selection.end.offset)
-        }
-    } else if (selectable.selectableId == selection.start.selectableId) {
-        // Select partial text content if the current selectable is the start
-        // selectable.
-        if (selection.handlesCrossed) {
-            currentText.subSequence(0, selection.start.offset)
-        } else {
-            currentText.subSequence(selection.start.offset, currentText.length)
-        }
-    } else {
-        // Selectable partial text content if the current selectable is the end
-        // selectable.
-        if (selection.handlesCrossed) {
-            currentText.subSequence(selection.end.offset, currentText.length)
-        } else {
-            currentText.subSequence(0, selection.end.offset)
-        }
-    }
 }
 
 /** Returns the boundary of the visible area in this [LayoutCoordinates]. */

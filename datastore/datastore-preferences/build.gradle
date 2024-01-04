@@ -64,11 +64,11 @@ androidXMultiplatform {
         androidMain {
             dependsOn(jvmMain)
         }
-        androidTest {
+        androidUnitTest {
             dependsOn(jvmTest)
         }
-        androidAndroidTest {
-            dependsOn(androidTest)
+        androidInstrumentedTest {
+            dependsOn(androidUnitTest)
             dependencies {
                 implementation(libs.testRunner)
                 implementation(libs.testCore)

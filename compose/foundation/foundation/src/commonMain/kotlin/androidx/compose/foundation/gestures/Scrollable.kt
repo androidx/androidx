@@ -40,6 +40,13 @@ import androidx.compose.ui.focus.FocusProperties
 import androidx.compose.ui.focus.FocusPropertiesModifierNode
 import androidx.compose.ui.focus.FocusTargetModifierNode
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.KeyInputModifierNode
+import androidx.compose.ui.input.key.isCtrlPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -96,6 +103,7 @@ import kotlinx.coroutines.withContext
  * @param interactionSource [MutableInteractionSource] that will be used to emit
  * drag events when this scrollable is being dragged.
  */
+@Stable
 @OptIn(ExperimentalFoundationApi::class)
 fun Modifier.scrollable(
     state: ScrollableState,
@@ -149,6 +157,7 @@ fun Modifier.scrollable(
  * Note: This API is experimental as it brings support for some experimental features:
  * [overscrollEffect] and [bringIntoViewScroller].
  */
+@Stable
 @ExperimentalFoundationApi
 fun Modifier.scrollable(
     state: ScrollableState,
@@ -260,7 +269,8 @@ private class ScrollableNode(
     private var interactionSource: MutableInteractionSource?,
     bringIntoViewSpec: BringIntoViewSpec
 ) : DelegatingNode(), ObserverModifierNode, CompositionLocalConsumerModifierNode,
-    FocusPropertiesModifierNode {
+    FocusPropertiesModifierNode, KeyInputModifierNode {
+
     val nestedScrollDispatcher = NestedScrollDispatcher()
 
     // Place holder fling behavior, we'll initialize it when the density is available.
@@ -386,6 +396,56 @@ private class ScrollableNode(
     override fun applyFocusProperties(focusProperties: FocusProperties) {
         focusProperties.canFocus = false
     }
+
+    // Key handler for Page up/down scrolling behavior.
+    override fun onKeyEvent(event: KeyEvent): Boolean {
+        return if (enabled &&
+            (event.key == Key.PageDown || event.key == Key.PageUp) &&
+            (event.type == KeyEventType.KeyDown) &&
+            (!event.isCtrlPressed)
+            ) {
+            with(scrollingLogic) {
+                val scrollAmount: Offset = if (orientation == Orientation.Vertical) {
+                    val viewportHeight = contentInViewNode.viewportSize.height
+
+                    val yAmount = if (event.key == Key.PageUp) {
+                        viewportHeight.toFloat()
+                    } else {
+                        -viewportHeight.toFloat()
+                    }
+
+                    Offset(0f, yAmount)
+                } else {
+                    val viewportWidth = contentInViewNode.viewportSize.width
+
+                    val xAmount = if (event.key == Key.PageUp) {
+                        viewportWidth.toFloat()
+                    } else {
+                        -viewportWidth.toFloat()
+                    }
+
+                    Offset(xAmount, 0f)
+                }
+
+                // A coroutine is launched for every individual scroll event in the
+                // larger scroll gesture. If we see degradation in the future (that is,
+                // a fast scroll gesture on a slow device causes UI jank [not seen up to
+                // this point), we can switch to a more efficient solution where we
+                // lazily launch one coroutine (with the first event) and use a Channel
+                // to communicate the scroll amount to the UI thread.
+                coroutineScope.launch {
+                    scrollableState.scroll(MutatePriority.UserInput) {
+                        dispatchScroll(scrollAmount, Wheel)
+                    }
+                }
+            }
+            true
+        } else {
+            false
+        }
+    }
+
+    override fun onPreKeyEvent(event: KeyEvent) = false
 }
 
 /**

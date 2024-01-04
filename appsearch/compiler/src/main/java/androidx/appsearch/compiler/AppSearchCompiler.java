@@ -15,6 +15,8 @@
  */
 package androidx.appsearch.compiler;
 
+import static androidx.appsearch.compiler.IntrospectionHelper.APPSEARCH_ANNOTATION_PKG;
+import static androidx.appsearch.compiler.IntrospectionHelper.DOCUMENT_ANNOTATION_SIMPLE_CLASS_NAME;
 import static javax.lang.model.util.ElementFilter.typesIn;
 
 import androidx.annotation.NonNull;
@@ -47,7 +49,7 @@ import javax.tools.Diagnostic.Kind;
  *
  * <p>Only plain Java objects and AutoValue Document classes without builders are supported.
  */
-@SupportedAnnotationTypes({IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS})
+@SupportedAnnotationTypes({APPSEARCH_ANNOTATION_PKG + "." + DOCUMENT_ANNOTATION_SIMPLE_CLASS_NAME})
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @SupportedOptions({AppSearchCompiler.OUTPUT_DIR_OPTION})
 public class AppSearchCompiler extends BasicAnnotationProcessor {
@@ -80,7 +82,7 @@ public class AppSearchCompiler extends BasicAnnotationProcessor {
 
         @Override
         public ImmutableSet<String> annotations() {
-            return ImmutableSet.of(IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS);
+            return ImmutableSet.of(IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS.canonicalName());
         }
 
         @Override
@@ -88,7 +90,7 @@ public class AppSearchCompiler extends BasicAnnotationProcessor {
                 ImmutableSetMultimap<String, Element> elementsByAnnotation) {
             Set<TypeElement> documentElements =
                     typesIn(elementsByAnnotation.get(
-                            IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS));
+                            IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS.canonicalName()));
 
             ImmutableSet.Builder<Element> nextRound = new ImmutableSet.Builder<>();
             for (TypeElement document : documentElements) {

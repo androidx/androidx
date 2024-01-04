@@ -27,7 +27,6 @@ import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,7 +34,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalMetricApi::class)
-class AudioUnderrunBenchmark() {
+class AudioUnderrunBenchmark {
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
 
@@ -48,7 +47,6 @@ class AudioUnderrunBenchmark() {
     }
 
     @Test
-    @Ignore("b/297916125")
     fun start() {
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,

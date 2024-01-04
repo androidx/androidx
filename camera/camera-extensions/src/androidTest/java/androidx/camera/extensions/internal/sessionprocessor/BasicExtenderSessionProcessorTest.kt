@@ -23,6 +23,7 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
+import android.hardware.camera2.params.SessionConfiguration
 import android.media.Image
 import android.media.ImageWriter
 import android.os.Build
@@ -788,6 +789,10 @@ class BasicExtenderSessionProcessorTest(
 
         var onEnableSessionCaptureStage: CaptureStageImpl? = null
         var onDisableSessionCaptureStage: CaptureStageImpl? = null
+
+        override fun onSessionType(): Int {
+            return SessionConfiguration.SESSION_REGULAR
+        }
     }
 
     private class FakePreviewExtenderImpl(
@@ -902,13 +907,34 @@ class BasicExtenderSessionProcessorTest(
             fakeCaptureProcessorImpl?.close()
             recordInvoking("onDeInit")
         }
+
+        override fun onSessionType(): Int {
+            return SessionConfiguration.SESSION_REGULAR
+        }
+
+        override fun getSupportedPostviewResolutions(captureSize: Size):
+            MutableList<Pair<Int, Array<Size>>>? {
+            return null
+        }
+
+        override fun isCaptureProcessProgressAvailable(): Boolean {
+            return false
+        }
+
+        override fun getRealtimeCaptureLatency(): Pair<Long, Long>? {
+            return null;
+        }
+
+        override fun isPostviewAvailable(): Boolean {
+            return false
+        }
     }
 
     private class FakeCaptureProcessorImpl(
         val throwErrorOnProcess: Boolean = false
     ) : CaptureProcessorImpl {
         private var imageWriter: ImageWriter? = null
-        override fun process(results: MutableMap<Int, Pair<Image, TotalCaptureResult>>?) {
+        override fun process(results: MutableMap<Int, Pair<Image, TotalCaptureResult>>) {
             if (throwErrorOnProcess) {
                 throw RuntimeException("Process failed")
             }
@@ -917,8 +943,8 @@ class BasicExtenderSessionProcessorTest(
         }
 
         override fun process(
-            results: MutableMap<Int, Pair<Image, TotalCaptureResult>>?,
-            resultCallback: ProcessResultImpl?,
+            results: MutableMap<Int, Pair<Image, TotalCaptureResult>>,
+            resultCallback: ProcessResultImpl,
             executor: Executor?
         ) {
             process(results)
@@ -930,6 +956,19 @@ class BasicExtenderSessionProcessorTest(
 
         override fun onResolutionUpdate(size: Size) {}
         override fun onImageFormatUpdate(imageFormat: Int) {}
+
+        override fun onPostviewOutputSurface(surface: Surface) {}
+
+        override fun onResolutionUpdate(size: Size, postviewSize: Size) {}
+
+        override fun processWithPostview(
+            results: MutableMap<Int, Pair<Image, TotalCaptureResult>>,
+            resultCallback: ProcessResultImpl,
+            executor: Executor?
+        ) {
+            process(results, resultCallback, executor)
+        }
+
         fun close() {
             imageWriter?.close()
             imageWriter = null
@@ -938,15 +977,15 @@ class BasicExtenderSessionProcessorTest(
 
     private class FakePreviewImageProcessorImpl : PreviewImageProcessorImpl {
         private var imageWriter: ImageWriter? = null
-        override fun process(image: Image?, result: TotalCaptureResult?) {
+        override fun process(image: Image, result: TotalCaptureResult) {
             val emptyImage = imageWriter!!.dequeueInputImage()
             imageWriter!!.queueInputImage(emptyImage)
         }
 
         override fun process(
-            image: Image?,
-            result: TotalCaptureResult?,
-            resultCallback: ProcessResultImpl?,
+            image: Image,
+            result: TotalCaptureResult,
+            resultCallback: ProcessResultImpl,
             executor: Executor?
         ) {
             process(image, result)
@@ -958,6 +997,7 @@ class BasicExtenderSessionProcessorTest(
 
         override fun onResolutionUpdate(size: Size) {}
         override fun onImageFormatUpdate(imageFormat: Int) {}
+
         fun close() {
             imageWriter?.close()
             imageWriter = null

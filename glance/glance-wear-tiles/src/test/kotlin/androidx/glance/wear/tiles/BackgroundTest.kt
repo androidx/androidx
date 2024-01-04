@@ -19,9 +19,13 @@ package androidx.glance.wear.tiles
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.glance.BackgroundModifier
+import androidx.glance.ColorFilter
 import androidx.glance.GlanceModifier
+import androidx.glance.ImageProvider
+import androidx.glance.TintColorFilterParams
 import androidx.glance.background
 import androidx.glance.findModifier
+import androidx.glance.unit.ColorProvider
 import androidx.glance.unit.FixedColorProvider
 import androidx.glance.unit.ResourceColorProvider
 import androidx.glance.wear.tiles.test.R
@@ -32,9 +36,10 @@ import org.junit.Test
 class BackgroundTest {
     @Test
     fun canUseBackgroundModifier() {
-        val modifier = GlanceModifier.background(color = Color(0xFF223344))
+        val modifier: GlanceModifier = GlanceModifier.background(color = Color(0xFF223344))
 
-        val addedModifier = requireNotNull(modifier.findModifier<BackgroundModifier>())
+        val addedModifier: BackgroundModifier.Color =
+            requireNotNull(modifier.findModifier<BackgroundModifier.Color>())
 
         val modifierColors = addedModifier.colorProvider
         assertIs<FixedColorProvider>(modifierColors)
@@ -48,10 +53,30 @@ class BackgroundTest {
     fun canUseBackgroundModifier_resId() {
         val modifier = GlanceModifier.background(color = R.color.color1)
 
-        val addedModifier = requireNotNull(modifier.findModifier<BackgroundModifier>())
+        val addedModifier: BackgroundModifier.Color =
+            requireNotNull(modifier.findModifier<BackgroundModifier.Color>())
 
         val modifierColors = addedModifier.colorProvider
         assertIs<ResourceColorProvider>(modifierColors)
         assertThat(modifierColors.resId).isEqualTo(R.color.color1)
+    }
+
+    @Test
+    fun canUseBackgroundModifier_colorFilteredImage() {
+        fun tintColor() = ColorProvider(Color.Magenta)
+
+        val modifier = GlanceModifier.background(
+            ImageProvider(R.drawable.oval), ColorFilter.tint(
+                tintColor()
+            )
+        )
+
+        val addedModifier: BackgroundModifier.Image =
+            requireNotNull(modifier.findModifier<BackgroundModifier.Image>())
+
+        assertThat(
+            (addedModifier.colorFilter?.colorFilterParams as TintColorFilterParams).colorProvider)
+            .isEqualTo(tintColor()
+        )
     }
 }

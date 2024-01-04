@@ -117,7 +117,6 @@ object Outputs {
      */
     fun writeFile(
         fileName: String,
-        reportKey: String,
         reportOnRunEndOnly: Boolean = false,
         block: (file: File) -> Unit,
     ): String {
@@ -143,7 +142,7 @@ object Outputs {
         }
 
         InstrumentationResults.reportAdditionalFileToCopy(
-            key = reportKey,
+            key = sanitizedName,
             absoluteFilePath = destination.absolutePath,
             reportOnRunEndOnly = reportOnRunEndOnly
         )

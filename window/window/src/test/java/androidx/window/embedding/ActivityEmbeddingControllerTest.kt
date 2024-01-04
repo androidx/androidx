@@ -19,6 +19,7 @@ package androidx.window.embedding
 import android.app.Activity
 import android.content.Context
 import android.os.Binder
+import androidx.window.core.ExperimentalWindowApi
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -61,7 +62,7 @@ class ActivityEmbeddingControllerTest {
     }
 
     @Test
-    @OptIn(androidx.window.core.ExperimentalWindowApi::class)
+    @OptIn(ExperimentalWindowApi::class)
     fun testGetActivityStack() {
         val activityStack = ActivityStack(listOf(), true, Binder())
         whenever(mockEmbeddingBackend.getActivityStack(mockActivity)).thenReturn(activityStack)
@@ -70,19 +71,7 @@ class ActivityEmbeddingControllerTest {
     }
 
     @Test
-    @OptIn(androidx.window.core.ExperimentalWindowApi::class)
-    fun testIsFinishingActivityStacksSupported() {
-        whenever(mockEmbeddingBackend.isFinishActivityStacksSupported()).thenReturn(true)
-
-        assertTrue(activityEmbeddingController.isFinishingActivityStacksSupported())
-
-        whenever(mockEmbeddingBackend.isFinishActivityStacksSupported()).thenReturn(false)
-
-        assertFalse(activityEmbeddingController.isFinishingActivityStacksSupported())
-    }
-
-    @Test
-    @OptIn(androidx.window.core.ExperimentalWindowApi::class)
+    @OptIn(ExperimentalWindowApi::class)
     fun testFinishActivityStacks() {
         val activityStacks: Set<ActivityStack> = mock()
         activityEmbeddingController.finishActivityStacks(activityStacks)
@@ -91,7 +80,7 @@ class ActivityEmbeddingControllerTest {
     }
 
     @Test
-    @OptIn(androidx.window.core.ExperimentalWindowApi::class)
+    @OptIn(ExperimentalWindowApi::class)
     fun testGetInstance() {
         EmbeddingBackend.overrideDecorator(object : EmbeddingBackendDecorator {
             override fun decorate(embeddingBackend: EmbeddingBackend): EmbeddingBackend =

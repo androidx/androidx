@@ -39,6 +39,9 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
@@ -55,6 +58,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import kotlin.math.abs
 import kotlinx.coroutines.CancellationException
@@ -125,6 +129,9 @@ public fun <T> Modifier.swipeableV2(
             Orientation.Vertical -> verticalScrollAxisRange = range
         }
     }
+
+    // Update the orientation in the swipeable state
+    state.orientation = orientation
 
     return this.then(semantics).draggable(
         state = state.swipeDraggableState,
@@ -218,6 +225,7 @@ public class SwipeableV2State<T>(
     internal val positionalThreshold: Density.(totalDistance: Float) -> Float =
         SwipeableV2Defaults.PositionalThreshold,
     internal val velocityThreshold: Dp = SwipeableV2Defaults.VelocityThreshold,
+    private val nestedScrollDispatcher: NestedScrollDispatcher? = null
 ) {
 
     private val swipeMutex = InternalMutatorMutex()
@@ -240,6 +248,11 @@ public class SwipeableV2State<T>(
             this@SwipeableV2State.dispatchRawDelta(delta)
         }
     }
+
+    /**
+     * The orientation in which the swipeable can be swiped.
+     */
+    internal var orientation = Orientation.Horizontal
 
     /**
      * The current value of the [SwipeableV2State].
@@ -427,17 +440,29 @@ public class SwipeableV2State<T>(
      * Find the closest anchor taking into account the velocity and settle at it with an animation.
      */
     suspend fun settle(velocity: Float) {
+        var availableVelocity = velocity
+        // Dispatch the velocity to parent nodes for consuming
+        nestedScrollDispatcher?.let {
+            val consumedVelocity = nestedScrollDispatcher.dispatchPreFling(
+                if (orientation == Orientation.Horizontal) {
+                    Velocity(x = velocity, y = 0f)
+                } else {
+                    Velocity(x = 0f, y = velocity)
+                }
+            )
+            availableVelocity -= (consumedVelocity.x + consumedVelocity.y)
+        }
         val previousValue = this.currentValue
         val targetValue = computeTarget(
             offset = requireOffset(),
             currentValue = previousValue,
-            velocity = velocity
+            velocity = availableVelocity
         )
         if (confirmValueChange(targetValue)) {
-            animateTo(targetValue, velocity)
+            animateTo(targetValue, availableVelocity)
         } else {
             // If the user vetoed the state change, rollback to the previous state.
-            animateTo(previousValue, velocity)
+            animateTo(previousValue, availableVelocity)
         }
     }
 
@@ -447,14 +472,41 @@ public class SwipeableV2State<T>(
      * @return The delta the consumed by the [SwipeableV2State]
      */
     fun dispatchRawDelta(delta: Float): Float {
+        var remainingDelta = delta
+
+        // Dispatch the delta as a scroll event to parent node for consuming it
+        nestedScrollDispatcher?.let {
+            val consumedByParent = nestedScrollDispatcher.dispatchPreScroll(
+                available = offsetWithOrientation(remainingDelta),
+                source = NestedScrollSource.Drag
+            )
+            remainingDelta -= (consumedByParent.x + consumedByParent.y)
+        }
         val currentDragPosition = offset ?: 0f
-        val potentiallyConsumed = currentDragPosition + delta
+        val potentiallyConsumed = currentDragPosition + remainingDelta
         val clamped = potentiallyConsumed.coerceIn(minOffset, maxOffset)
         val deltaToConsume = clamped - currentDragPosition
         if (abs(deltaToConsume) >= 0) {
             offset = ((offset ?: 0f) + deltaToConsume).coerceIn(minOffset, maxOffset)
         }
-        return deltaToConsume
+
+        nestedScrollDispatcher?.let {
+            val consumedDelta = nestedScrollDispatcher.dispatchPostScroll(
+                consumed = offsetWithOrientation(deltaToConsume),
+                available = offsetWithOrientation(delta - deltaToConsume),
+                source = NestedScrollSource.Drag
+            )
+            remainingDelta -= (deltaToConsume + consumedDelta.x + consumedDelta.y)
+        }
+        return remainingDelta
+    }
+
+    private fun offsetWithOrientation(delta: Float): Offset {
+        return if (orientation == Orientation.Horizontal) {
+            Offset(x = delta, y = 0f)
+        } else {
+            Offset(x = 0f, y = delta)
+        }
     }
 
     private fun computeTarget(

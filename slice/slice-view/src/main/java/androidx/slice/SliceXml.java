@@ -59,6 +59,7 @@ import java.util.List;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
+@Deprecated
 class SliceXml {
 
     private static final String NAMESPACE = null;

@@ -41,12 +41,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-/**
- * Displays one or more ComplicationText objects in a template.
- *
- */
+/** Displays one or more ComplicationText objects in a template. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressLint("BanParcelableUsage")
 public final class ComplicationTextTemplate implements Parcelable, TimeDependentText {
@@ -194,6 +192,17 @@ public final class ComplicationTextTemplate implements Parcelable, TimeDependent
     @Override
     public int describeContents() {
         return 0;
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+        return "ComplicationTextTemplate{"
+                + "surroundingText="
+                + mSurroundingText
+                + ", complicationTexts="
+                + Arrays.toString(mComplicationTexts)
+                + "}";
     }
 
     /**

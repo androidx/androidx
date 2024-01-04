@@ -113,12 +113,14 @@ private fun KSTypeArgument.replaceTypeArgs(
  * Root package comes as <root> instead of "" so we work around it here.
  */
 internal fun KSDeclaration.getNormalizedPackageName(): String {
-    return packageName.asString().let {
-        if (it == "<root>") {
-            ""
-        } else {
-            it
-        }
+    return packageName.asString().getNormalizedPackageName()
+}
+
+internal fun String.getNormalizedPackageName(): String {
+    return if (this == "<root>") {
+        ""
+    } else {
+        this
     }
 }
 

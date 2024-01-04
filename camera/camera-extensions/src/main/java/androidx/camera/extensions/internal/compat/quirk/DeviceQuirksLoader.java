@@ -56,6 +56,10 @@ public class DeviceQuirksLoader {
             quirks.add(new ImageAnalysisUnavailableQuirk());
         }
 
+        if (ExtraSupportedSurfaceCombinationsQuirk.load()) {
+            quirks.add(new ExtraSupportedSurfaceCombinationsQuirk());
+        }
+
         return quirks;
     }
 }

@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.integration.demos
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -43,12 +44,15 @@ import androidx.wear.compose.foundation.ExpandableState
 import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.RevealActionType
 import androidx.wear.compose.foundation.RevealValue
+import androidx.wear.compose.foundation.SwipeToDismissBox
 import androidx.wear.compose.foundation.createAnchors
+import androidx.wear.compose.foundation.edgeSwipeToDismiss
 import androidx.wear.compose.foundation.expandableItem
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.rememberExpandableState
 import androidx.wear.compose.foundation.rememberExpandableStateMapping
 import androidx.wear.compose.foundation.rememberRevealState
+import androidx.wear.compose.foundation.rememberSwipeToDismissBoxState
 import androidx.wear.compose.material.AppCard
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
@@ -234,6 +238,45 @@ fun SwipeToRevealWithDifferentUndo() {
                     }
                 } else {
                     Spacer(modifier = Modifier.width(200.dp))
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalWearMaterialApi::class, ExperimentalWearFoundationApi::class)
+@Composable
+fun SwipeToRevealWithEdgeSwipeToDismiss(
+    navigateBack: () -> Unit
+) {
+    val swipeToDismissBoxState = rememberSwipeToDismissBoxState()
+    SwipeToDismissBox(
+        state = swipeToDismissBoxState,
+        onDismissed = navigateBack
+    ) {
+        ScalingLazyColumn(
+            contentPadding = PaddingValues(0.dp)
+        ) {
+            repeat(5) {
+                item {
+                    SwipeToRevealChip(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .edgeSwipeToDismiss(swipeToDismissBoxState),
+                        primaryAction = SwipeToRevealDefaults.primaryAction(
+                            icon = { Icon(SwipeToRevealDefaults.Delete, "Delete") },
+                            label = { Text("Delete") }),
+                        revealState = rememberRevealState()
+                    ) {
+                        Chip(
+                            onClick = { /*TODO*/ },
+                            colors = ChipDefaults.secondaryChipColors(),
+                            modifier = Modifier.fillMaxWidth(),
+                            label = {
+                                Text("S2R Chip with defaults")
+                            }
+                        )
+                    }
                 }
             }
         }

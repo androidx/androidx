@@ -293,8 +293,7 @@ internal object StackSamplingSimpleperf : Profiler() {
     override fun stop() {
         session!!.stopRecording()
         Outputs.writeFile(
-            fileName = outputRelativePath!!,
-            reportKey = "simpleperf_trace"
+            fileName = outputRelativePath!!
         ) {
             session!!.convertSimpleperfOutputToProto("simpleperf.data", it.absolutePath)
         }

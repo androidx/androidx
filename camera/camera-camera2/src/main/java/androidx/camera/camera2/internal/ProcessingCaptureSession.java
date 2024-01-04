@@ -452,7 +452,12 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
         switch (mProcessorState) {
             case ON_CAPTURE_SESSION_ENDED:
             case SESSION_INITIALIZED:
-                future.addListener(() -> mSessionProcessor.deInitSession(), mExecutor);
+                future.addListener(() -> {
+                    Logger.d(TAG, "== deInitSession (id=" + mInstanceId + ")");
+                    mSessionProcessor.deInitSession();
+                    // Use direct executor to ensure deInitSession is invoked as soon as session is
+                    // closed.
+                }, CameraXExecutors.directExecutor());
                 break;
             default:
                 break;
@@ -473,11 +478,12 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
     }
 
     void onConfigured(@NonNull CaptureSession captureSession) {
-        Preconditions.checkArgument(mProcessorState == ProcessorState.SESSION_INITIALIZED,
-                "Invalid state state:" + mProcessorState);
-
+        if (mProcessorState != ProcessorState.SESSION_INITIALIZED) {
+            return;
+        }
         mRequestProcessor = new Camera2RequestProcessor(captureSession,
                 getSessionProcessorSurfaceList(mProcessorSessionConfig.getSurfaces()));
+        Logger.d(TAG, "== onCaptureSessinStarted (id = " + mInstanceId + ")");
         mSessionProcessor.onCaptureSessionStart(mRequestProcessor);
         mProcessorState = ProcessorState.ON_CAPTURE_SESSION_STARTED;
 
@@ -534,6 +540,7 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
         Logger.d(TAG, "close (id=" + mInstanceId + ") state=" + mProcessorState);
 
         if (mProcessorState == ProcessorState.ON_CAPTURE_SESSION_STARTED) {
+            Logger.d(TAG, "== onCaptureSessionEnd (id = " + mInstanceId + ")");
             mSessionProcessor.onCaptureSessionEnd();
             if (mRequestProcessor != null) {
                 mRequestProcessor.close();

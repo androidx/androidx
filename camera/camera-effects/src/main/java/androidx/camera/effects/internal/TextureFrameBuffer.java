@@ -21,6 +21,7 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.effects.opengl.GlRenderer;
 
 /**
@@ -100,5 +101,11 @@ class TextureFrameBuffer {
             }
         }
         return requireNonNull(oldestFrame);
+    }
+
+    @VisibleForTesting
+    @NonNull
+    TextureFrame[] getFrames() {
+        return mFrames;
     }
 }

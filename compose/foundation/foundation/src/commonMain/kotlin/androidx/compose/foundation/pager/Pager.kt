@@ -373,8 +373,7 @@ object PagerDefaults {
                 lowVelocityAnimationSpec = lowVelocityAnimationSpec,
                 highVelocityAnimationSpec = highVelocityAnimationSpec,
                 snapAnimationSpec = snapAnimationSpec,
-                density = density,
-                shortSnapVelocityThreshold = snapVelocityThreshold
+                shortSnapVelocityThreshold = with(density) { snapVelocityThreshold.toPx() }
             )
         }
     }
@@ -496,7 +495,7 @@ private fun SnapLayoutInfoProvider(
             return this != Float.POSITIVE_INFINITY && this != Float.NEGATIVE_INFINITY
         }
 
-        override fun Density.calculateSnappingOffset(currentVelocity: Float): Float {
+        override fun calculateSnappingOffset(currentVelocity: Float): Float {
             var lowerBoundOffset = Float.NEGATIVE_INFINITY
             var upperBoundOffset = Float.POSITIVE_INFINITY
 
@@ -569,9 +568,7 @@ private fun SnapLayoutInfoProvider(
             }
         }
 
-        override fun Density.calculateSnapStepSize(): Float = layoutInfo.pageSize.toFloat()
-
-        override fun Density.calculateApproachOffset(initialVelocity: Float): Float {
+        override fun calculateApproachOffset(initialVelocity: Float): Float {
             debugLog { "Approach Velocity=$initialVelocity" }
             val effectivePageSizePx = pagerState.pageSize + pagerState.pageSpacing
 

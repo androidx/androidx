@@ -89,8 +89,8 @@ public class ConfigTest {
     }
 
     @Test
-    public void hasConflict_whenTwoValueAreALWAYSOVERRIDE() {
-        assertThat(Config.hasConflict(ALWAYS_OVERRIDE, ALWAYS_OVERRIDE)).isTrue();
+    public void noConflict_whenTwoValueAreALWAYSOVERRIDE() {
+        assertThat(Config.hasConflict(ALWAYS_OVERRIDE, ALWAYS_OVERRIDE)).isFalse();
     }
 
     @Test

@@ -32,6 +32,14 @@ annotation class SliceMarker
  * Two implicit receivers that are annotated with @SliceMarker are not accessible in the same scope,
  * ensuring a type-safe DSL.
  */
+@Deprecated(
+    """
+        Slice framework has been deprecated, it will not receive any updates moving forward.
+        If you are looking for a framework that handles communication across apps, 
+        consider using AppSearchManager.
+    """,
+    ReplaceWith("AppSearchManager", "android.app.appsearch"))
+@Suppress("DEPRECATION")
 @SliceMarker
 class ListBuilderDsl(context: Context, uri: Uri, ttl: Long) : ListBuilder(context, uri, ttl)
 
@@ -40,6 +48,14 @@ class ListBuilderDsl(context: Context, uri: Uri, ttl: Long) : ListBuilder(contex
  * Two implicit receivers that are annotated with @SliceMarker are not accessible in the same scope,
  * ensuring a type-safe DSL.
  */
+@Deprecated(
+    """
+        Slice framework has been deprecated, it will not receive any updates moving forward.
+        If you are looking for a framework that handles communication across apps, 
+        consider using AppSearchManager.
+    """,
+    ReplaceWith("AppSearchManager", "android.app.appsearch"))
+@Suppress("DEPRECATION")
 @SliceMarker
 class RowBuilderDsl : ListBuilder.RowBuilder()
 
@@ -48,6 +64,14 @@ class RowBuilderDsl : ListBuilder.RowBuilder()
  * Two implicit receivers that are annotated with @SliceMarker are not accessible in the same scope,
  * ensuring a type-safe DSL.
  */
+@Deprecated(
+    """
+        Slice framework has been deprecated, it will not receive any updates moving forward.
+        If you are looking for a framework that handles communication across apps, 
+        consider using AppSearchManager.
+    """,
+    ReplaceWith("AppSearchManager", "android.app.appsearch"))
+@Suppress("DEPRECATION")
 @SliceMarker
 class InputRangeBuilderDsl : ListBuilder.InputRangeBuilder()
 
@@ -56,6 +80,14 @@ class InputRangeBuilderDsl : ListBuilder.InputRangeBuilder()
  * Two implicit receivers that are annotated with @SliceMarker are not accessible in the same scope,
  * ensuring a type-safe DSL.
  */
+@Deprecated(
+    """
+        Slice framework has been deprecated, it will not receive any updates moving forward.
+        If you are looking for a framework that handles communication across apps, 
+        consider using AppSearchManager.
+    """,
+    ReplaceWith("AppSearchManager", "android.app.appsearch"))
+@Suppress("DEPRECATION")
 @SliceMarker
 class RangeBuilderDsl : ListBuilder.RangeBuilder()
 
@@ -64,6 +96,14 @@ class RangeBuilderDsl : ListBuilder.RangeBuilder()
  * Two implicit receivers that are annotated with @SliceMarker are not accessible in the same scope,
  * ensuring a type-safe DSL.
  */
+@Deprecated(
+    """
+        Slice framework has been deprecated, it will not receive any updates moving forward.
+        If you are looking for a framework that handles communication across apps, 
+        consider using AppSearchManager.
+    """,
+    ReplaceWith("AppSearchManager", "android.app.appsearch"))
+@Suppress("DEPRECATION")
 @SliceMarker
 class HeaderBuilderDsl : ListBuilder.HeaderBuilder()
 
@@ -94,6 +134,14 @@ class HeaderBuilderDsl : ListBuilder.HeaderBuilder()
  * </pre>
  * @see ListBuilder.build
  */
+@Deprecated(
+    """
+        Slice framework has been deprecated, it will not receive any updates moving forward.
+        If you are looking for a framework that handles communication across apps, 
+        consider using AppSearchManager.
+    """,
+    ReplaceWith("AppSearchManager", "android.app.appsearch"))
+@Suppress("DEPRECATION")
 inline fun list(
     context: Context,
     uri: Uri,
@@ -104,42 +152,98 @@ inline fun list(
 /**
  * @see ListBuilder.setHeader
  */
+@Deprecated(
+    """
+        Slice framework has been deprecated, it will not receive any updates moving forward.
+        If you are looking for a framework that handles communication across apps, 
+        consider using AppSearchManager.
+    """,
+    ReplaceWith("AppSearchManager", "android.app.appsearch"))
+@Suppress("DEPRECATION")
 inline fun ListBuilderDsl.header(buildHeader: HeaderBuilderDsl.() -> Unit) =
     setHeader(HeaderBuilderDsl().apply { buildHeader() })
 
 /**
  * @see ListBuilder.addGridRow
  */
+@Deprecated(
+    """
+        Slice framework has been deprecated, it will not receive any updates moving forward.
+        If you are looking for a framework that handles communication across apps, 
+        consider using AppSearchManager.
+    """,
+    ReplaceWith("AppSearchManager", "android.app.appsearch"))
+@Suppress("DEPRECATION")
 inline fun ListBuilderDsl.gridRow(buildGrid: GridRowBuilderDsl.() -> Unit) =
     addGridRow(GridRowBuilderDsl().apply { buildGrid() })
 
 /**
  * @see ListBuilder.addRow
  */
+@Deprecated(
+    """
+        Slice framework has been deprecated, it will not receive any updates moving forward.
+        If you are looking for a framework that handles communication across apps, 
+        consider using AppSearchManager.
+    """,
+    ReplaceWith("AppSearchManager", "android.app.appsearch"))
+@Suppress("DEPRECATION")
 inline fun ListBuilderDsl.row(buildRow: RowBuilderDsl.() -> Unit) =
     addRow(RowBuilderDsl().apply { buildRow() })
 
 /**
  * @see ListBuilder.setSeeMoreRow
  */
+@Deprecated(
+    """
+        Slice framework has been deprecated, it will not receive any updates moving forward.
+        If you are looking for a framework that handles communication across apps, 
+        consider using AppSearchManager.
+    """,
+    ReplaceWith("AppSearchManager", "android.app.appsearch"))
+@Suppress("DEPRECATION")
 inline fun ListBuilderDsl.seeMoreRow(buildRow: RowBuilderDsl.() -> Unit) =
     setSeeMoreRow(RowBuilderDsl().apply { buildRow() })
 
 /**
  * @see ListBuilder.addInputRange
  */
+@Deprecated(
+    """
+        Slice framework has been deprecated, it will not receive any updates moving forward.
+        If you are looking for a framework that handles communication across apps, 
+        consider using AppSearchManager.
+    """,
+    ReplaceWith("AppSearchManager", "android.app.appsearch"))
+@Suppress("DEPRECATION")
 inline fun ListBuilderDsl.inputRange(buildInputRange: InputRangeBuilderDsl.() -> Unit) =
     addInputRange(InputRangeBuilderDsl().apply { buildInputRange() })
 
 /**
  * @see ListBuilder.addRange
  */
+@Deprecated(
+    """
+        Slice framework has been deprecated, it will not receive any updates moving forward.
+        If you are looking for a framework that handles communication across apps, 
+        consider using AppSearchManager.
+    """,
+    ReplaceWith("AppSearchManager", "android.app.appsearch"))
+@Suppress("DEPRECATION")
 inline fun ListBuilderDsl.range(buildRange: RangeBuilderDsl.() -> Unit) =
     addRange(RangeBuilderDsl().apply { buildRange() })
 
 /**
  * Factory method to build a tappable [SliceAction].
  */
+@Deprecated(
+    """
+        Slice framework has been deprecated, it will not receive any updates moving forward.
+        If you are looking for a framework that handles communication across apps, 
+        consider using AppSearchManager.
+    """,
+    ReplaceWith("AppSearchManager", "android.app.appsearch"))
+@Suppress("DEPRECATION")
 fun tapSliceAction(
     pendingIntent: PendingIntent,
     icon: IconCompat,
@@ -150,6 +254,14 @@ fun tapSliceAction(
 /**
  * Factory method to build a toggleable [SliceAction].
  */
+@Deprecated(
+    """
+        Slice framework has been deprecated, it will not receive any updates moving forward.
+        If you are looking for a framework that handles communication across apps, 
+        consider using AppSearchManager.
+    """,
+    ReplaceWith("AppSearchManager", "android.app.appsearch"))
+@Suppress("DEPRECATION")
 fun toggleSliceAction(
     pendingIntent: PendingIntent,
     icon: IconCompat? = null,

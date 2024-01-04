@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="cli" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
-
-    <issue
-        id="NewApi"
-        message="Class requires API level 28 (current min is 21): `PlatformMagnifierImpl`"
-        errorLine1="                    ) as PlatformMagnifierFactoryApi28Impl.PlatformMagnifierImpl"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/foundation/PlatformMagnifierTest.kt"/>
-    </issue>
+<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
 
     <issue
         id="BanSuppressTag"
@@ -34,7 +25,7 @@
         errorLine1="            Thread.sleep(5)"
         errorLine2="                   ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/foundation/lazy/grid/LazyScrollTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/lazy/grid/LazyScrollTest.kt"/>
     </issue>
 
     <issue
@@ -43,7 +34,7 @@
         errorLine1="            Thread.sleep(5)"
         errorLine2="                   ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/foundation/lazy/list/LazyScrollTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/lazy/list/LazyScrollTest.kt"/>
     </issue>
 
     <issue
@@ -52,25 +43,7 @@
         errorLine1="            Thread.sleep(5)"
         errorLine2="                   ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridAnimatedScrollTest.kt"/>
-    </issue>
-
-    <issue
-        id="ExperimentalPropertyAnnotation"
-        message="This property does not have all required annotations to correctly mark it as experimental."
-        errorLine1="        @ExperimentalFoundationApi"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
-    </issue>
-
-    <issue
-        id="ExperimentalPropertyAnnotation"
-        message="This property does not have all required annotations to correctly mark it as experimental."
-        errorLine1="        @ExperimentalFoundationApi"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridAnimatedScrollTest.kt"/>
     </issue>
 
     <issue
@@ -152,24 +125,6 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/compose/foundation/text2/input/internal/AndroidTextInputSession.android.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method BasicSecureTextField has parameter &apos;onSubmit&apos; with type Function1&lt;? super ImeAction, Boolean>."
-        errorLine1="    onSubmit: ((ImeAction) -> Boolean)? = null,"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text2/BasicSecureTextField.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method KeyboardActions has parameter &apos;onSubmit&apos; with type Function1&lt;? super ImeAction, Boolean>."
-        errorLine1="private fun KeyboardActions(onSubmit: (ImeAction) -> Boolean) = KeyboardActions("
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text2/BasicSecureTextField.kt"/>
     </issue>
 
     <issue
@@ -1264,7 +1219,7 @@
     <issue
         id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method magnifier has parameter &apos;onSizeChanged&apos; with type Function1&lt;? super DpSize, Unit>."
-        errorLine1="    onSizeChanged: ((DpSize) -> Unit)? = null"
+        errorLine1="    onSizeChanged: ((DpSize) -> Unit)? = null,"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
@@ -1470,42 +1425,6 @@
 
     <issue
         id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method HorizontalPager has parameter &apos;key&apos; with type Function1&lt;? super Integer, ? extends Object>."
-        errorLine1="    key: ((index: Int) -> Any)? = null,"
-        errorLine2="         ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/Pager.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method HorizontalPager has parameter &apos;pageContent&apos; with type Function2&lt;? super PagerScope, ? super Integer, Unit>."
-        errorLine1="    pageContent: @Composable PagerScope.(page: Int) -> Unit"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/Pager.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method VerticalPager has parameter &apos;key&apos; with type Function1&lt;? super Integer, ? extends Object>."
-        errorLine1="    key: ((index: Int) -> Any)? = null,"
-        errorLine2="         ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/Pager.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method VerticalPager has parameter &apos;pageContent&apos; with type Function2&lt;? super PagerScope, ? super Integer, Unit>."
-        errorLine1="    pageContent: @Composable PagerScope.(page: Int) -> Unit"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/Pager.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method VerticalPager has parameter &apos;key&apos; with type Function1&lt;? super Integer, ? extends Object>."
         errorLine1="    key: ((index: Int) -> Any)? = null,"
         errorLine2="         ~~~~~~~~~~~~~~~~~~~~~~">
@@ -1686,15 +1605,6 @@
 
     <issue
         id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method adjustByBoundary has parameter &apos;boundaryFun&apos; with type Function1&lt;? super Integer, TextRange>."
-        errorLine1="            boundaryFun: (Int) -> TextRange"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionAdjustment.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method animatedSelectionMagnifier has parameter &apos;magnifierCenter&apos; with type Function0&lt;Offset>."
         errorLine1="    magnifierCenter: () -> Offset,"
         errorLine2="                     ~~~~~~~~~~~~">
@@ -1716,15 +1626,6 @@
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method detectNonConsumingTap has parameter &apos;onTap&apos; with type Function1&lt;? super Offset, Unit>."
         errorLine1="    private suspend fun PointerInputScope.detectNonConsumingTap(onTap: (Offset) -> Unit) {"
         errorLine2="                                                                       ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionManager.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;getMagnifierCenter&apos; with type Function2&lt;? super AnchorInfo, ? super Boolean, ? extends Offset>."
-        errorLine1="    fun getMagnifierCenter(anchor: AnchorInfo, isStartHandle: Boolean): Offset {"
-        errorLine2="    ^">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionManager.kt"/>
     </issue>

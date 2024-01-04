@@ -16,12 +16,14 @@
 
 package androidx.compose.foundation.lazy.grid
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateScrollScope
 import androidx.compose.ui.util.fastFirstOrNull
 import kotlin.math.abs
 import kotlin.math.max
 
+@OptIn(ExperimentalFoundationApi::class)
 internal class LazyGridAnimateScrollScope(
     private val state: LazyGridState
 ) : LazyLayoutAnimateScrollScope {
@@ -35,7 +37,10 @@ internal class LazyGridAnimateScrollScope(
 
     override val itemCount: Int get() = state.layoutInfo.totalItemsCount
 
-    override fun getOffsetForItem(index: Int): Int? =
+    override val visibleItemsAverageSize: Int
+        get() = calculateLineAverageMainAxisSize(state.layoutInfo, state.isVertical)
+
+    override fun getVisibleItemScrollOffset(index: Int): Int =
         state.layoutInfo.visibleItemsInfo
             .fastFirstOrNull {
                 it.index == index
@@ -45,22 +50,22 @@ internal class LazyGridAnimateScrollScope(
                 } else {
                     item.offset.x
                 }
-            }
+            } ?: 0
 
     override fun ScrollScope.snapToItem(index: Int, scrollOffset: Int) {
         state.snapToItemIndexInternal(index, scrollOffset)
     }
 
-    override fun expectedDistanceTo(index: Int, targetScrollOffset: Int): Float {
+    override fun calculateDistanceTo(targetIndex: Int, targetItemOffset: Int): Float {
         val slotsPerLine = state.slotsPerLine
-        val averageLineMainAxisSize = averageItemSize
-        val before = index < firstVisibleItemIndex
+        val averageLineMainAxisSize = visibleItemsAverageSize
+        val before = targetIndex < firstVisibleItemIndex
         val linesDiff =
-            (index - firstVisibleItemIndex + (slotsPerLine - 1) * if (before) -1 else 1) /
+            (targetIndex - firstVisibleItemIndex + (slotsPerLine - 1) * if (before) -1 else 1) /
                 slotsPerLine
 
-        var coercedOffset = minOf(abs(targetScrollOffset), averageLineMainAxisSize)
-        if (targetScrollOffset < 0) coercedOffset *= -1
+        var coercedOffset = minOf(abs(targetItemOffset), averageLineMainAxisSize)
+        if (targetItemOffset < 0) coercedOffset *= -1
         return (averageLineMainAxisSize * linesDiff).toFloat() +
             coercedOffset - firstVisibleItemScrollOffset
     }
@@ -112,7 +117,4 @@ internal class LazyGridAnimateScrollScope(
     override suspend fun scroll(block: suspend ScrollScope.() -> Unit) {
         state.scroll(block = block)
     }
-
-    override val averageItemSize: Int
-        get() = calculateLineAverageMainAxisSize(state.layoutInfo, state.isVertical)
 }

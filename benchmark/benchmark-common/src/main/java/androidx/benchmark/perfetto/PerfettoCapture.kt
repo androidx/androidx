@@ -18,6 +18,7 @@ package androidx.benchmark.perfetto
 
 import android.os.Build
 import android.util.JsonReader
+import androidx.annotation.CheckResult
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.Outputs
@@ -86,9 +87,15 @@ public class PerfettoCapture(
         helper.stopCollecting(destinationPath)
     }
 
-    /** Enables Perfetto SDK tracing in an app if present */
+    /**
+     * Enables Perfetto SDK tracing in the [PerfettoSdkConfig.targetPackage]
+     *
+     * @return a pair of [androidx.tracing.perfetto.handshake.protocol.ResultCode] and
+     * a user-friendly message explaining the code
+     */
     @RequiresApi(30) // TODO(234351579): Support API < 30
-    fun enableAndroidxTracingPerfetto(config: PerfettoSdkConfig): String? =
+    @CheckResult
+    fun enableAndroidxTracingPerfetto(config: PerfettoSdkConfig): Pair<Int, String> =
         enableAndroidxTracingPerfetto(
             targetPackage = config.targetPackage,
             provideBinariesIfMissing = config.provideBinariesIfMissing,
@@ -100,11 +107,18 @@ public class PerfettoCapture(
         )
 
     @RequiresApi(30) // TODO(234351579): Support API < 30
+    @CheckResult
+    /**
+     * Enables Perfetto SDK tracing in the [PerfettoSdkConfig.targetPackage]
+     *
+     * @return a pair of [androidx.tracing.perfetto.handshake.protocol.ResultCode] and
+     * a user-friendly message explaining the code
+     */
     private fun enableAndroidxTracingPerfetto(
         targetPackage: String,
         provideBinariesIfMissing: Boolean,
         isColdStartupTracing: Boolean
-    ): String? {
+    ): Pair<Int, String> {
         if (!isAbiSupported()) {
             throw IllegalStateException("Unsupported ABI (${Build.SUPPORTED_ABIS.joinToString()})")
         }
@@ -153,11 +167,11 @@ public class PerfettoCapture(
         }
 
         // process the response
-        return when (response.resultCode) {
+        val message = when (response.resultCode) {
             0 -> "The broadcast to enable tracing was not received. This most likely means " +
                 "that the app does not contain the `androidx.tracing.tracing-perfetto` " +
                 "library as its dependency."
-            RESULT_CODE_SUCCESS -> null
+            RESULT_CODE_SUCCESS -> "Success"
             RESULT_CODE_ALREADY_ENABLED -> "Perfetto SDK already enabled."
             RESULT_CODE_ERROR_BINARY_MISSING ->
                 "Perfetto SDK binary dependencies missing. " +
@@ -180,6 +194,7 @@ public class PerfettoCapture(
             RESULT_CODE_ERROR_OTHER -> "Error: ${response.message}."
             else -> throw RuntimeException("Unrecognized result code: ${response.resultCode}.")
         }
+        return response.resultCode to message
     }
 
     private fun constructLibrarySource(): PerfettoSdkHandshake.LibrarySource {

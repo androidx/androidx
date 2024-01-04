@@ -104,6 +104,8 @@ internal object Nodes {
     @JvmStatic
     inline val SoftKeyboardKeyInput
         get() = NodeKind<SoftKeyboardInterceptionModifierNode>(0b1 shl 17)
+    @JvmStatic
+    inline val Traversable get() = NodeKind<TraversableNode>(0b1 shl 18)
     // ...
 }
 
@@ -204,6 +206,9 @@ internal fun calculateNodeKindSetFrom(node: Modifier.Node): Int {
     }
     if (node is SoftKeyboardInterceptionModifierNode) {
         mask = mask or Nodes.SoftKeyboardKeyInput
+    }
+    if (node is TraversableNode) {
+        mask = mask or Nodes.Traversable
     }
     return mask
 }

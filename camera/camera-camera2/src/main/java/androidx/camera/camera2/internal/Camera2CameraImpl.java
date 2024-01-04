@@ -1122,7 +1122,7 @@ final class Camera2CameraImpl implements CameraInternal {
 
         try {
             mSupportedSurfaceCombination.getSuggestedStreamSpecifications(cameraMode,
-                    attachedSurfaces, useCaseConfigToSizeMap);
+                    attachedSurfaces, useCaseConfigToSizeMap, false);
         } catch (IllegalArgumentException e) {
             debugLog("Surface combination with metering repeating  not supported!", e);
             return false;
@@ -1480,7 +1480,11 @@ final class Camera2CameraImpl implements CameraInternal {
                 }
 
                 Logger.e(TAG, "Unable to configure camera " + Camera2CameraImpl.this, t);
-                resetCaptureSession(/*abortInFlightCaptures=*/false);
+
+                // Reset capture session if the latest capture session fails to open.
+                if (mCaptureSession == captureSession) {
+                    resetCaptureSession(/*abortInFlightCaptures=*/false);
+                }
             }
         }, mExecutor);
     }

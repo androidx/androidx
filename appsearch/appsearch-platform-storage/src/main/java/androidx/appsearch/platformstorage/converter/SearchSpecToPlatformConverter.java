@@ -127,6 +127,12 @@ public final class SearchSpecToPlatformConverter {
             }
             ApiHelperForU.setJoinSpec(platformBuilder, jetpackSearchSpec.getJoinSpec());
         }
+
+        if (!jetpackSearchSpec.getFilterProperties().isEmpty()) {
+            // TODO(b/296088047): Remove this once property filters become available.
+            throw new UnsupportedOperationException(Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES
+                    + " is not available on this AppSearch implementation.");
+        }
         return platformBuilder.build();
     }
 

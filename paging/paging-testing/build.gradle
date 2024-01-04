@@ -15,13 +15,19 @@
  */
 
 import androidx.build.LibraryType
+import androidx.build.KmpPlatformsKt
 import androidx.build.PlatformIdentifier
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import androidx.build.Publish
+import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
 }
+
+def macEnabled = KmpPlatformsKt.enableMac(project)
+def linuxEnabled = KmpPlatformsKt.enableLinux(project)
 
 androidXMultiplatform {
     jvm()
@@ -33,20 +39,71 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        androidMain {
+        commonMain {
             dependencies {
                 api(libs.kotlinStdlib)
                 implementation(project(":paging:paging-common"))
             }
         }
-        androidTest {
+
+        androidMain {
+            dependsOn(jvmMain)
+        }
+
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTest)
+                implementation(libs.kotlinCoroutinesTest)
+                implementation(project(":internal-testutils-paging"))
+                implementation(project(":kruth:kruth"))
+            }
+        }
+
+        jvmTest {
+            dependsOn(commonTest)
             dependencies {
                 implementation(libs.junit)
-                implementation(libs.kotlinCoroutinesTest)
-                implementation((libs.kotlinCoroutinesAndroid))
-                implementation(project(":internal-testutils-paging"))
-                implementation(libs.kotlinTest)
-                implementation(libs.truth)
+            }
+        }
+
+        androidInstrumentedTest {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(libs.testRunner)
+            }
+        }
+
+        if (macEnabled || linuxEnabled) {
+            nativeMain {
+                dependsOn(commonMain)
+                dependencies {
+                    implementation(libs.atomicFu)
+                }
+            }
+        }
+        if (macEnabled) {
+            darwinMain {
+                dependsOn(nativeMain)
+            }
+        }
+        if (linuxEnabled) {
+            linuxMain {
+                dependsOn(nativeMain)
+            }
+        }
+
+        targets.all { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet {
+                    def konanTargetFamily = target.konanTarget.family
+                    if (konanTargetFamily == Family.OSX || konanTargetFamily == Family.IOS) {
+                        dependsOn(darwinMain)
+                    } else if (konanTargetFamily == Family.LINUX) {
+                        dependsOn(linuxMain)
+                    } else {
+                        throw new GradleException("unknown native target ${target}")
+                    }
+                }
             }
         }
     }

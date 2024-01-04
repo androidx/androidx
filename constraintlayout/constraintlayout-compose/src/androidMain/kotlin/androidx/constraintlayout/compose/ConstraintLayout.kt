@@ -20,7 +20,7 @@ import android.annotation.SuppressLint
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import androidx.collection.PairIntInt
+import androidx.collection.IntIntPair
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.tween
@@ -2019,7 +2019,7 @@ internal open class Measurer(
     private fun measureWidget(
         constraintWidget: ConstraintWidget,
         constraints: Constraints
-    ): PairIntInt {
+    ): IntIntPair {
         val measurable = constraintWidget.companionWidget
         val widgetId = constraintWidget.stringId
         return when {
@@ -2042,15 +2042,15 @@ internal open class Measurer(
                     heightMode,
                     constraints.maxHeight
                 )
-                PairIntInt(constraintWidget.measuredWidth, constraintWidget.measuredHeight)
+                IntIntPair(constraintWidget.measuredWidth, constraintWidget.measuredHeight)
             }
             measurable is Measurable -> {
                 val result = measurable.measure(constraints).also { placeables[measurable] = it }
-                PairIntInt(result.width, result.height)
+                IntIntPair(result.width, result.height)
             }
             else -> {
                 Log.w("CCL", "Nothing to measure for widget: $widgetId")
-                PairIntInt(0, 0)
+                IntIntPair(0, 0)
             }
         }
     }

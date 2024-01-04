@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
+<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
 
     <issue
         id="NewApi"
@@ -8,6 +8,96 @@
         errorLine2="                                 ~~~~~~~~~~~~~~">
         <location
             file="src/test/java/androidx/room/InvalidationTrackerTest.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: RoomSQLiteQuery.NULL, RoomSQLiteQuery.LONG, RoomSQLiteQuery.DOUBLE, RoomSQLiteQuery.STRING, RoomSQLiteQuery.BLOB"
+        errorLine1="        bindingTypes = IntArray(limit)"
+        errorLine2="        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomSQLiteQuery.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: RoomSQLiteQuery.NULL, RoomSQLiteQuery.LONG, RoomSQLiteQuery.DOUBLE, RoomSQLiteQuery.STRING, RoomSQLiteQuery.BLOB"
+        errorLine1="            when (bindingTypes[index]) {"
+        errorLine2="                  ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomSQLiteQuery.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: RoomSQLiteQuery.NULL, RoomSQLiteQuery.LONG, RoomSQLiteQuery.DOUBLE, RoomSQLiteQuery.STRING, RoomSQLiteQuery.BLOB"
+        errorLine1="        bindingTypes[index] = NULL"
+        errorLine2="        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomSQLiteQuery.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: RoomSQLiteQuery.NULL, RoomSQLiteQuery.LONG, RoomSQLiteQuery.DOUBLE, RoomSQLiteQuery.STRING, RoomSQLiteQuery.BLOB"
+        errorLine1="        bindingTypes[index] = LONG"
+        errorLine2="        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomSQLiteQuery.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: RoomSQLiteQuery.NULL, RoomSQLiteQuery.LONG, RoomSQLiteQuery.DOUBLE, RoomSQLiteQuery.STRING, RoomSQLiteQuery.BLOB"
+        errorLine1="        bindingTypes[index] = DOUBLE"
+        errorLine2="        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomSQLiteQuery.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: RoomSQLiteQuery.NULL, RoomSQLiteQuery.LONG, RoomSQLiteQuery.DOUBLE, RoomSQLiteQuery.STRING, RoomSQLiteQuery.BLOB"
+        errorLine1="        bindingTypes[index] = STRING"
+        errorLine2="        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomSQLiteQuery.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: RoomSQLiteQuery.NULL, RoomSQLiteQuery.LONG, RoomSQLiteQuery.DOUBLE, RoomSQLiteQuery.STRING, RoomSQLiteQuery.BLOB"
+        errorLine1="        bindingTypes[index] = BLOB"
+        errorLine2="        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomSQLiteQuery.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: RoomSQLiteQuery.NULL, RoomSQLiteQuery.LONG, RoomSQLiteQuery.DOUBLE, RoomSQLiteQuery.STRING, RoomSQLiteQuery.BLOB"
+        errorLine1="        System.arraycopy(other.bindingTypes, 0, bindingTypes, 0, argCount)"
+        errorLine2="                               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomSQLiteQuery.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: RoomSQLiteQuery.NULL, RoomSQLiteQuery.LONG, RoomSQLiteQuery.DOUBLE, RoomSQLiteQuery.STRING, RoomSQLiteQuery.BLOB"
+        errorLine1="        System.arraycopy(other.bindingTypes, 0, bindingTypes, 0, argCount)"
+        errorLine2="                                                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomSQLiteQuery.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: RoomSQLiteQuery.NULL, RoomSQLiteQuery.LONG, RoomSQLiteQuery.DOUBLE, RoomSQLiteQuery.STRING, RoomSQLiteQuery.BLOB"
+        errorLine1="        Arrays.fill(bindingTypes, NULL)"
+        errorLine2="                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomSQLiteQuery.kt"/>
     </issue>
 
     <issue

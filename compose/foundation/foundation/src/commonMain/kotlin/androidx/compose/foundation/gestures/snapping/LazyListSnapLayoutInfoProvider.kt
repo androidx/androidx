@@ -26,10 +26,10 @@ import androidx.compose.foundation.lazy.LazyListLayoutInfo
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastSumBy
 import kotlin.math.absoluteValue
+import kotlin.math.floor
 import kotlin.math.sign
 
 /**
@@ -52,11 +52,17 @@ fun SnapLayoutInfoProvider(
         get() = lazyListState.layoutInfo
 
     // Decayed page snapping is the default
-    override fun Density.calculateApproachOffset(initialVelocity: Float): Float {
-        val decayAnimationSpec: DecayAnimationSpec<Float> = splineBasedDecay(this)
+    override fun calculateApproachOffset(initialVelocity: Float): Float {
+        val decayAnimationSpec: DecayAnimationSpec<Float> = splineBasedDecay(lazyListState.density)
         val offset =
             decayAnimationSpec.calculateTargetValue(NoDistance, initialVelocity).absoluteValue
-        val finalDecayOffset = (offset - calculateSnapStepSize()).coerceAtLeast(0f)
+
+        val estimatedNumberOfItemsInDecay = floor(offset.absoluteValue / averageItemSize())
+
+        // Decay to exactly half an item before the item where this decay would let us finish.
+        // The rest of the animation will be a snapping animation.
+        val approachOffset = estimatedNumberOfItemsInDecay * averageItemSize() - averageItemSize()
+        val finalDecayOffset = approachOffset.coerceAtLeast(0f)
         return if (finalDecayOffset == 0f) {
             finalDecayOffset
         } else {
@@ -64,7 +70,7 @@ fun SnapLayoutInfoProvider(
         }
     }
 
-    override fun Density.calculateSnappingOffset(currentVelocity: Float): Float {
+    override fun calculateSnappingOffset(currentVelocity: Float): Float {
         var lowerBoundOffset = Float.NEGATIVE_INFINITY
         var upperBoundOffset = Float.POSITIVE_INFINITY
 
@@ -94,7 +100,7 @@ fun SnapLayoutInfoProvider(
         return calculateFinalOffset(currentVelocity, lowerBoundOffset, upperBoundOffset)
     }
 
-    override fun Density.calculateSnapStepSize(): Float = with(layoutInfo) {
+    fun averageItemSize(): Float = with(layoutInfo) {
         if (visibleItemsInfo.isNotEmpty()) {
             visibleItemsInfo.fastSumBy { it.size } / visibleItemsInfo.size.toFloat()
         } else {

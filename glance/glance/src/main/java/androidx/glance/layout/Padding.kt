@@ -20,7 +20,6 @@ import androidx.annotation.DimenRes
 import androidx.annotation.RestrictTo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastFold
 import androidx.glance.GlanceModifier
 
 /**
@@ -194,7 +193,7 @@ fun GlanceModifier.collectPaddingInDp(resources: Resources) =
     collectPadding()?.toDp(resources)
 
 private fun List<Int>.toDp(resources: Resources) =
-    fastFold(0.dp) { acc, res ->
+    fold(0.dp) { acc, res ->
         acc + (resources.getDimension(res) / resources.displayMetrics.density).dp
     }
 

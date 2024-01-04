@@ -20,8 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.PopupPositionProvider
@@ -79,10 +78,9 @@ fun rememberBasicTooltipState(
     isPersistent: Boolean = true,
     mutatorMutex: MutatorMutex = BasicTooltipDefaults.GlobalMutatorMutex
 ): BasicTooltipState =
-    rememberSaveable(
+    remember(
         isPersistent,
-        mutatorMutex,
-        saver = BasicTooltipStateImpl.Saver
+        mutatorMutex
     ) {
         BasicTooltipStateImpl(
             initialIsVisible = initialIsVisible,
@@ -104,6 +102,7 @@ fun rememberBasicTooltipState(
  * @param mutatorMutex [MutatorMutex] used to ensure that for all of the tooltips associated
  * with the mutator mutex, only one will be shown on the screen at any time.
  */
+@Stable
 fun BasicTooltipState(
     initialIsVisible: Boolean = false,
     isPersistent: Boolean = true,
@@ -178,29 +177,6 @@ private class BasicTooltipStateImpl(
      */
     override fun onDispose() {
         job?.cancel()
-    }
-
-    companion object {
-        /**
-         * The default [Saver] implementation for [BasicTooltipStateImpl].
-         */
-        val Saver = Saver<BasicTooltipStateImpl, Any>(
-            save = {
-                   listOf(
-                       it.isVisible,
-                       it.isPersistent,
-                       it.mutatorMutex
-                   )
-            },
-            restore = {
-                val (isVisible, isPersistent, mutatorMutex) = it as List<*>
-                BasicTooltipStateImpl(
-                    initialIsVisible = isVisible as Boolean,
-                    isPersistent = isPersistent as Boolean,
-                    mutatorMutex = mutatorMutex as MutatorMutex,
-                )
-            }
-        )
     }
 }
 

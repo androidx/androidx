@@ -905,7 +905,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
         sessionConfigBuilder.clearSurfaces();
         DynamicRange dynamicRange = streamSpec.getDynamicRange();
-        if (!isStreamError) {
+        if (!isStreamError && mDeferrableSurface != null) {
             if (isStreamActive) {
                 sessionConfigBuilder.addSurface(mDeferrableSurface, dynamicRange);
             } else {

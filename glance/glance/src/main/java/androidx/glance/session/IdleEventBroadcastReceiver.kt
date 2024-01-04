@@ -34,7 +34,6 @@ internal class IdleEventBroadcastReceiver(val onIdle: () -> Unit) : BroadcastRec
             PowerManager.ACTION_DEVICE_LIGHT_IDLE_MODE_CHANGED,
             PowerManager.ACTION_LOW_POWER_STANDBY_ENABLED_CHANGED
         )
-        @Suppress("ListIterator")
         val filter = IntentFilter().apply {
             events.forEach { addAction(it) }
         }

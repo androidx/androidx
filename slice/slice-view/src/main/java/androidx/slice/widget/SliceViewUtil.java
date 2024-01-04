@@ -54,6 +54,7 @@ import java.util.Calendar;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
+@Deprecated
 public class SliceViewUtil {
 
     /**

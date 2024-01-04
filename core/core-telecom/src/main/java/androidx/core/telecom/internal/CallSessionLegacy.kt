@@ -26,8 +26,10 @@ import android.telecom.DisconnectCause
 import android.util.Log
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
+import androidx.core.telecom.CallControlResult
 import androidx.core.telecom.CallControlScope
 import androidx.core.telecom.CallEndpointCompat
+import androidx.core.telecom.CallException
 import androidx.core.telecom.internal.utils.EndpointUtils
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CompletableDeferred
@@ -41,10 +43,10 @@ internal class CallSessionLegacy(
     private val id: ParcelUuid,
     private val callChannels: CallChannels,
     private val coroutineContext: CoroutineContext,
-    val onAnswerCallback: suspend (callType: Int) -> Boolean,
-    val onDisconnectCallback: suspend (disconnectCause: DisconnectCause) -> Boolean,
-    val onSetActiveCallback: suspend () -> Boolean,
-    val onSetInactiveCallback: suspend () -> Boolean,
+    val onAnswerCallback: suspend (callType: Int) -> Unit,
+    val onDisconnectCallback: suspend (disconnectCause: DisconnectCause) -> Unit,
+    val onSetActiveCallback: suspend () -> Unit,
+    val onSetInactiveCallback: suspend () -> Unit,
     private val blockingSessionExecution: CompletableDeferred<Unit>
 ) : android.telecom.Connection() {
     // instance vars
@@ -114,40 +116,39 @@ internal class CallSessionLegacy(
         return id
     }
 
-    fun answer(videoState: Int): Boolean {
+    fun answer(videoState: Int): CallControlResult {
         setVideoState(videoState)
         setActive()
-        return true
+        return CallControlResult.Success()
     }
 
-    fun setConnectionActive(): Boolean {
+    fun setConnectionActive(): CallControlResult {
         setActive()
-        return true
+        return CallControlResult.Success()
     }
 
-    fun setConnectionInactive(): Boolean {
+    fun setConnectionInactive(): CallControlResult {
         return if (this.connectionCapabilities.and(CAPABILITY_SUPPORT_HOLD)
-            == CAPABILITY_SUPPORT_HOLD
-        ) {
+            == CAPABILITY_SUPPORT_HOLD) {
             setOnHold()
-            true
+            CallControlResult.Success()
         } else {
-            false
+            CallControlResult.Error(CallException.ERROR_CALL_DOES_NOT_SUPPORT_HOLD)
         }
     }
 
-    fun setConnectionDisconnect(cause: DisconnectCause): Boolean {
+    fun setConnectionDisconnect(cause: DisconnectCause): CallControlResult {
         setDisconnected(cause)
         destroy()
-        return true
+        return CallControlResult.Success()
     }
 
     // TODO:: verify the CallEndpoint change was successful. tracking bug: b/283324578
     @Suppress("deprecation")
-    fun requestEndpointChange(callEndpoint: CallEndpointCompat): Boolean {
+    fun requestEndpointChange(callEndpoint: CallEndpointCompat): CallControlResult {
         return if (Build.VERSION.SDK_INT < VERSION_CODES.P) {
             Api26PlusImpl.setAudio(callEndpoint, this)
-            true
+            CallControlResult.Success()
         } else {
             Api28PlusImpl.setAudio(callEndpoint, this, mCachedBluetoothDevices)
         }
@@ -172,17 +173,17 @@ internal class CallSessionLegacy(
             callEndpoint: CallEndpointCompat,
             connection: CallSessionLegacy,
             btCache: ArrayList<BluetoothDevice>
-        ): Boolean {
+        ): CallControlResult {
             if (callEndpoint.type == CallEndpointCompat.TYPE_BLUETOOTH) {
                 val btDevice = getBluetoothDeviceFromEndpoint(btCache, callEndpoint)
                 if (btDevice != null) {
                     connection.requestBluetoothAudio(btDevice)
-                    return true
+                    return CallControlResult.Success()
                 }
-                return false
+                return CallControlResult.Error(CallException.ERROR_BLUETOOTH_DEVICE_IS_NULL)
             } else {
                 connection.setAudioRoute(EndpointUtils.mapTypeToRoute(callEndpoint.type))
-                return true
+                return CallControlResult.Success()
             }
         }
 
@@ -210,8 +211,10 @@ internal class CallSessionLegacy(
             return null
         }
 
-        fun bluetoothDeviceMatchesEndpoint(btDevice: BluetoothDevice, endpoint: CallEndpointCompat):
-            Boolean {
+        fun bluetoothDeviceMatchesEndpoint(
+            btDevice: BluetoothDevice,
+            endpoint: CallEndpointCompat
+        ): Boolean {
             return (btDevice.address?.equals(endpoint.mMackAddress) ?: false)
         }
     }
@@ -225,74 +228,106 @@ internal class CallSessionLegacy(
         CoroutineScope(coroutineContext).launch {
             // Note the slight deviation here where onAnswer does not put the call into an ACTIVE
             // state as it does in the platform. This behavior is intentional for this path.
-            val clientCanAnswer: Boolean = onAnswerCallback(videoState)
-            if (clientCanAnswer) {
+            try {
+                onAnswerCallback(videoState)
                 setActive()
                 setVideoState(videoState)
-            } else {
-                // Disconnect cause consistent with platform behavior
-                setDisconnected(DisconnectCause(DisconnectCause.REJECTED))
+            } catch (e: Exception) {
+                handleCallbackFailure(e)
             }
         }
     }
 
     override fun onUnhold() {
         CoroutineScope(coroutineContext).launch {
-            val clientCanUnhold = onSetActiveCallback()
-            if (clientCanUnhold) {
+            try {
+                onSetActiveCallback()
                 setActive()
+            } catch (e: Exception) {
+                handleCallbackFailure(e)
             }
         }
     }
 
     override fun onHold() {
         CoroutineScope(coroutineContext).launch {
-            val clientCanHold = onSetInactiveCallback()
-            if (clientCanHold) {
+            try {
+                onSetInactiveCallback()
                 setOnHold()
+            } catch (e: Exception) {
+                handleCallbackFailure(e)
             }
         }
     }
 
+    private fun handleCallbackFailure(e: Exception) {
+        setConnectionDisconnect(DisconnectCause(DisconnectCause.LOCAL))
+        blockingSessionExecution.complete(Unit)
+        throw e
+    }
+
     override fun onDisconnect() {
         CoroutineScope(coroutineContext).launch {
-            onDisconnectCallback(
-                DisconnectCause(DisconnectCause.LOCAL)
-            )
-            setDisconnected(DisconnectCause(DisconnectCause.LOCAL))
-            blockingSessionExecution.complete(Unit)
+            try {
+                onDisconnectCallback(
+                    DisconnectCause(DisconnectCause.LOCAL)
+                )
+            } catch (e: Exception) {
+                throw e
+            } finally {
+                setConnectionDisconnect(DisconnectCause(DisconnectCause.LOCAL))
+                blockingSessionExecution.complete(Unit)
+            }
         }
     }
 
     override fun onReject(rejectReason: Int) {
         CoroutineScope(coroutineContext).launch {
-            if (state == Call.STATE_RINGING) {
-                onDisconnectCallback(
-                    DisconnectCause(DisconnectCause.REJECTED)
-                )
+            try {
+                if (state == Call.STATE_RINGING) {
+                    onDisconnectCallback(
+                        DisconnectCause(DisconnectCause.REJECTED)
+                    )
+                }
+            } catch (e: Exception) {
+                throw e
+            } finally {
                 setDisconnected(DisconnectCause(DisconnectCause.REJECTED))
+                blockingSessionExecution.complete(Unit)
             }
         }
     }
 
     override fun onReject(rejectMessage: String) {
         CoroutineScope(coroutineContext).launch {
-            if (state == Call.STATE_RINGING) {
-                onDisconnectCallback(
-                    DisconnectCause(DisconnectCause.REJECTED)
-                )
+            try {
+                if (state == Call.STATE_RINGING) {
+                    onDisconnectCallback(
+                        DisconnectCause(DisconnectCause.REJECTED)
+                    )
+                }
+            } catch (e: Exception) {
+                throw e
+            } finally {
                 setDisconnected(DisconnectCause(DisconnectCause.REJECTED))
+                blockingSessionExecution.complete(Unit)
             }
         }
     }
 
     override fun onReject() {
         CoroutineScope(coroutineContext).launch {
-            if (state == Call.STATE_RINGING) {
-                onDisconnectCallback(
-                    DisconnectCause(DisconnectCause.REJECTED)
-                )
+            try {
+                if (state == Call.STATE_RINGING) {
+                    onDisconnectCallback(
+                        DisconnectCause(DisconnectCause.REJECTED)
+                    )
+                }
+            } catch (e: Exception) {
+                throw e
+            } finally {
                 setDisconnected(DisconnectCause(DisconnectCause.REJECTED))
+                blockingSessionExecution.complete(Unit)
             }
         }
     }
@@ -314,25 +349,26 @@ internal class CallSessionLegacy(
             return session.getCallId()
         }
 
-        override suspend fun setActive(): Boolean {
+        override suspend fun setActive(): CallControlResult {
             return session.setConnectionActive()
         }
 
-        override suspend fun setInactive(): Boolean {
+        override suspend fun setInactive(): CallControlResult {
             return session.setConnectionInactive()
         }
 
-        override suspend fun answer(callType: Int): Boolean {
+        override suspend fun answer(callType: Int): CallControlResult {
             return session.answer(callType)
         }
 
-        override suspend fun disconnect(disconnectCause: DisconnectCause): Boolean {
+        override suspend fun disconnect(disconnectCause: DisconnectCause): CallControlResult {
             val result = session.setConnectionDisconnect(disconnectCause)
             blockingSessionExecution.complete(Unit)
             return result
         }
 
-        override suspend fun requestEndpointChange(endpoint: CallEndpointCompat): Boolean {
+        override suspend fun requestEndpointChange(endpoint: CallEndpointCompat):
+            CallControlResult {
             return session.requestEndpointChange(endpoint)
         }
 
@@ -343,7 +379,6 @@ internal class CallSessionLegacy(
         override val availableEndpoints: Flow<List<CallEndpointCompat>> =
             callChannels.availableEndpointChannel.receiveAsFlow()
 
-        override val isMuted: Flow<Boolean> =
-            callChannels.isMutedChannel.receiveAsFlow()
+        override val isMuted: Flow<Boolean> = callChannels.isMutedChannel.receiveAsFlow()
     }
 }

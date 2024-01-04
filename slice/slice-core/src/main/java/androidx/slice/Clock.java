@@ -25,6 +25,7 @@ import androidx.annotation.RestrictTo;
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 @RequiresApi(19)
+@Deprecated
 public interface Clock {
     long currentTimeMillis();
 }

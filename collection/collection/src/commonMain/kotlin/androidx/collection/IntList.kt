@@ -21,6 +21,15 @@ package androidx.collection
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.jvm.JvmField
+import kotlin.jvm.JvmOverloads
+
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// DO NOT MAKE CHANGES to the kotlin source file.
+//
+// This file was generated from a template in the template directory.
+// Make a change to the original template and run the generateCollections.sh script
+// to ensure the change is available on all versions of the map.
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 /**
  * [IntList] is a [List]-like collection for [Int] values. It allows retrieving
@@ -417,6 +426,67 @@ public sealed class IntList(initialCapacity: Int) {
     }
 
     /**
+     * Creates a String from the elements separated by [separator] and using [prefix] before
+     * and [postfix] after, if supplied.
+     *
+     * When a non-negative value of [limit] is provided, a maximum of [limit] items are used
+     * to generate the string. If the collection holds more than [limit] items, the string
+     * is terminated with [truncated].
+     */
+    @JvmOverloads
+    public fun joinToString(
+        separator: CharSequence = ", ",
+        prefix: CharSequence = "",
+        postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
+        limit: Int = -1,
+        truncated: CharSequence = "...",
+    ): String = buildString {
+        append(prefix)
+        this@IntList.forEachIndexed { index, element ->
+            if (index == limit) {
+                append(truncated)
+                return@buildString
+            }
+            if (index != 0) {
+                append(separator)
+            }
+            append(element)
+        }
+        append(postfix)
+    }
+
+    /**
+     * Creates a String from the elements separated by [separator] and using [prefix] before
+     * and [postfix] after, if supplied. [transform] dictates how each element will be represented.
+     *
+     * When a non-negative value of [limit] is provided, a maximum of [limit] items are used
+     * to generate the string. If the collection holds more than [limit] items, the string
+     * is terminated with [truncated].
+     */
+    @JvmOverloads
+    public inline fun joinToString(
+        separator: CharSequence = ", ",
+        prefix: CharSequence = "",
+        postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
+        limit: Int = -1,
+        truncated: CharSequence = "...",
+        crossinline transform: (Int) -> CharSequence
+    ): String = buildString {
+        append(prefix)
+        this@IntList.forEachIndexed { index, element ->
+            if (index == limit) {
+                append(truncated)
+                return@buildString
+            }
+            if (index != 0) {
+                append(separator)
+            }
+            append(transform(element))
+        }
+        append(postfix)
+    }
+
+    /**
      * Returns a hash code based on the contents of the [IntList].
      */
     override fun hashCode(): Int {
@@ -449,23 +519,7 @@ public sealed class IntList(initialCapacity: Int) {
      * Returns a String representation of the list, surrounded by "[]" and each element
      * separated by ", ".
      */
-    override fun toString(): String {
-        if (isEmpty()) {
-            return "[]"
-        }
-        val last = lastIndex
-        return buildString {
-            append('[')
-            val content = content
-            for (i in 0 until last) {
-                append(content[i])
-                append(',')
-                append(' ')
-            }
-            append(content[last])
-            append(']')
-        }
-    }
+    override fun toString(): String = joinToString(prefix = "[", postfix = "]")
 }
 
 /**
@@ -834,10 +888,6 @@ public class MutableIntList(
         content.sortDescending(fromIndex = 0, toIndex = _size)
     }
 }
-
-// Empty array used when nothing is allocated
-@Suppress("PrivatePropertyName")
-private val EmptyIntArray = IntArray(0)
 
 private val EmptyIntList: IntList = MutableIntList(0)
 

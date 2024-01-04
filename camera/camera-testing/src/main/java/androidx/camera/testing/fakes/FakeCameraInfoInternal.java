@@ -299,6 +299,16 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
         return mIntrinsicZoomRatio;
     }
 
+    @Override
+    public boolean isPreviewStabilizationSupported() {
+        return false;
+    }
+
+    @Override
+    public boolean isVideoStabilizationSupported() {
+        return false;
+    }
+
     /** Adds a quirk to the list of this camera's quirks. */
     @SuppressWarnings("unused")
     public void addCameraQuirk(@NonNull final Quirk quirk) {

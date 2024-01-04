@@ -24,7 +24,6 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.testutils.createCompilationParams
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,7 +45,6 @@ class RecyclerViewAsCarouselBenchmark(
     }
 
     @Test
-    @Ignore("b/297398943")
     fun scroll() {
         val carousel = device.findObject(
             By.res(

@@ -27,6 +27,7 @@ import java.lang.reflect.Array;
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 @RequiresApi(19)
+@Deprecated
 class ArrayUtils {
 
     public static <T> boolean contains(T[] array, T item) {

@@ -258,10 +258,10 @@ class ScannerFragment : Fragment() {
 
             try {
                 bluetoothLe.connectGatt(deviceConnection.bluetoothDevice) {
-                    Log.d(TAG, "connectGatt result: getServices() = ${getServices()}")
+                    Log.d(TAG, "connectGatt result: services() = $services")
 
                     deviceConnection.status = Status.CONNECTED
-                    deviceConnection.services = getServices()
+                    deviceConnection.services = services
                     launch(Dispatchers.Main) {
                         updateDeviceUI(deviceConnection)
                     }

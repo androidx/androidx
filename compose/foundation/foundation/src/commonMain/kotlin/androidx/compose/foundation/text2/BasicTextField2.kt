@@ -38,6 +38,7 @@ import androidx.compose.foundation.text.selection.SelectionHandleInfoKey
 import androidx.compose.foundation.text.textFieldMinSize
 import androidx.compose.foundation.text2.input.CodepointTransformation
 import androidx.compose.foundation.text2.input.InputTransformation
+import androidx.compose.foundation.text2.input.SingleLineCodepointTransformation
 import androidx.compose.foundation.text2.input.TextFieldLineLimits
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.MultiLine
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.SingleLine
@@ -46,6 +47,7 @@ import androidx.compose.foundation.text2.input.internal.TextFieldCoreModifier
 import androidx.compose.foundation.text2.input.internal.TextFieldDecoratorModifier
 import androidx.compose.foundation.text2.input.internal.TextFieldTextLayoutModifier
 import androidx.compose.foundation.text2.input.internal.TextLayoutState
+import androidx.compose.foundation.text2.input.internal.TransformedTextFieldState
 import androidx.compose.foundation.text2.input.internal.selection.TextFieldSelectionHandle2
 import androidx.compose.foundation.text2.input.internal.selection.TextFieldSelectionState
 import androidx.compose.foundation.text2.input.internal.syncTextFieldState
@@ -448,11 +450,19 @@ fun BasicTextField2(
     val isFocused = interactionSource.collectIsFocusedAsState().value
     val textLayoutState = remember { TextLayoutState() }
 
-    val textFieldSelectionState = remember(state, textLayoutState) {
+    val transformedState = remember(state, inputTransformation, codepointTransformation) {
+        // First prefer provided codepointTransformation if not null, e.g. BasicSecureTextField
+        // would send PasswordTransformation. Second, apply a SingleLineCodepointTransformation if
+        // text field is configured to be single line. Else, don't apply any visual transformation.
+        val appliedCodepointTransformation = codepointTransformation
+            ?: SingleLineCodepointTransformation.takeIf { singleLine }
+        TransformedTextFieldState(state, inputTransformation, appliedCodepointTransformation)
+    }
+
+    val textFieldSelectionState = remember(transformedState) {
         TextFieldSelectionState(
-            textFieldState = state,
+            textFieldState = transformedState,
             textLayoutState = textLayoutState,
-            inputTransformation = inputTransformation,
             density = density,
             editable = enabled && !readOnly,
             isFocused = isFocused
@@ -468,7 +478,6 @@ fun BasicTextField2(
             hapticFeedBack = currentHapticFeedback,
             clipboardManager = currentClipboardManager,
             textToolbar = currentTextToolbar,
-            inputTransformation = inputTransformation,
             density = density,
             editable = enabled && !readOnly,
         )
@@ -484,7 +493,7 @@ fun BasicTextField2(
         .then(
             // semantics + some focus + input session + touch to focus
             TextFieldDecoratorModifier(
-                textFieldState = state,
+                textFieldState = transformedState,
                 textLayoutState = textLayoutState,
                 textFieldSelectionState = textFieldSelectionState,
                 filter = inputTransformation,
@@ -534,7 +543,7 @@ fun BasicTextField2(
                         TextFieldCoreModifier(
                             isFocused = isFocused,
                             textLayoutState = textLayoutState,
-                            textFieldState = state,
+                            textFieldState = transformedState,
                             textFieldSelectionState = textFieldSelectionState,
                             cursorBrush = cursorBrush,
                             writeable = enabled && !readOnly,
@@ -546,8 +555,7 @@ fun BasicTextField2(
                 Box(
                     modifier = TextFieldTextLayoutModifier(
                         textLayoutState = textLayoutState,
-                        textFieldState = state,
-                        codepointTransformation = codepointTransformation,
+                        textFieldState = transformedState,
                         textStyle = textStyle,
                         singleLine = singleLine,
                         onTextLayout = onTextLayout

@@ -185,11 +185,11 @@ public final class CustomTabsIntent {
             "androidx.browser.customtabs.extra.TRANSLATE_LANGUAGE_TAG";
 
     /**
-     * Extra that, when set to false, disables interactions with the background app
-     * when a Partial Custom Tab is launched.
+     * Extra tha disables interactions with the background app when a Partial Custom Tab
+     * is launched.
      */
-    public static final String EXTRA_ENABLE_BACKGROUND_INTERACTION =
-            "androidx.browser.customtabs.extra.ENABLE_BACKGROUND_INTERACTION";
+    public static final String EXTRA_DISABLE_BACKGROUND_INTERACTION =
+            "androidx.browser.customtabs.extra.DISABLE_BACKGROUND_INTERACTION";
 
     /**
      * Extra that enables the client to add an additional action button to the toolbar.
@@ -1173,11 +1173,11 @@ public final class CustomTabsIntent {
          * Enables the interactions with the background app when a Partial Custom Tab is launched.
          *
          * @param enabled Whether the background interaction is enabled.
-         * @see CustomTabsIntent#EXTRA_ENABLE_BACKGROUND_INTERACTION
+         * @see CustomTabsIntent#EXTRA_DISABLE_BACKGROUND_INTERACTION
          */
         @NonNull
         public Builder setBackgroundInteractionEnabled(boolean enabled) {
-            mIntent.putExtra(EXTRA_ENABLE_BACKGROUND_INTERACTION, enabled);
+            mIntent.putExtra(EXTRA_DISABLE_BACKGROUND_INTERACTION, !enabled);
             return this;
         }
 
@@ -1456,10 +1456,10 @@ public final class CustomTabsIntent {
 
     /**
      * @return Whether the background interaction is enabled.
-     * @see CustomTabsIntent#EXTRA_ENABLE_BACKGROUND_INTERACTION
+     * @see CustomTabsIntent#EXTRA_DISABLE_BACKGROUND_INTERACTION
      */
     public static boolean isBackgroundInteractionEnabled(@NonNull Intent intent) {
-        return intent.getBooleanExtra(EXTRA_ENABLE_BACKGROUND_INTERACTION, false);
+        return !intent.getBooleanExtra(EXTRA_DISABLE_BACKGROUND_INTERACTION, false);
     }
 
     /**
