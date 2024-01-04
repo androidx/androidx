@@ -401,7 +401,7 @@ internal val AllOrientationsParams = mutableListOf<ParamConfig>().apply {
 internal val TestReverseLayout = listOf(false, true)
 internal val TestLayoutDirection = listOf(LayoutDirection.Rtl, LayoutDirection.Ltr)
 internal val TestPageSpacing = listOf(0.dp, 8.dp)
-@OptIn(ExperimentalFoundationApi::class)
+
 internal val TestSnapPosition = listOf(
     SnapPosition.Start to "Start",
     SnapPosition.Center to "Center",

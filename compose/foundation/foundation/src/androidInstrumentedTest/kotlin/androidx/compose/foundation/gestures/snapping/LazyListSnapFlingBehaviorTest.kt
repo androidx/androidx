@@ -20,7 +20,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
-import androidx.compose.foundation.gestures.snapping.SnapPosition.Companion.Center
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -448,7 +447,8 @@ class LazyListSnapFlingBehaviorTest(private val orientation: Orientation) :
                 itemSize = it.size,
                 itemOffset = it.offset,
                 itemIndex = it.index,
-                snapPosition = Center
+                snapPosition = SnapPosition.Center,
+                itemCount = layoutInfo.totalItemsCount
             )
             if (abs(distance) < minDistance) {
                 minDistance = abs(distance)

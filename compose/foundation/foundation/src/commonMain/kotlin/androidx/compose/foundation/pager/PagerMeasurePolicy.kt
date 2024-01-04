@@ -153,7 +153,8 @@ internal fun rememberPagerMeasurePolicy(
                 beforeContentPadding,
                 afterContentPadding,
                 state.currentPage,
-                state.currentPageOffsetFraction
+                state.currentPageOffsetFraction,
+                state.pageCount
             )
         }
 

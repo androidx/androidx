@@ -68,7 +68,7 @@ internal fun LazyLayoutMeasureScope.measurePager(
         "Starting Measure Pass..." +
             "\n CurrentPage = $currentPage" +
             "\n CurrentPageOffset = $currentPageOffset" +
-            "\n SnapPosition = ${snapPosition.string()}"
+            "\n SnapPosition = $snapPosition"
     }
 
     return if (pageCount <= 0) {
@@ -406,7 +406,8 @@ internal fun LazyLayoutMeasureScope.measurePager(
                 beforeContentPadding,
                 afterContentPadding,
                 pageSizeWithSpacing,
-                snapPosition
+                snapPosition,
+                pageCount
             )
 
         val snapOffset = snapPosition.position(
@@ -414,7 +415,8 @@ internal fun LazyLayoutMeasureScope.measurePager(
             pageAvailableSize,
             beforeContentPadding,
             afterContentPadding,
-            newCurrentPage?.index ?: 0
+            newCurrentPage?.index ?: 0,
+            pageCount
         )
 
         val currentPagePositionOffset = (newCurrentPage?.offset ?: 0)
@@ -514,14 +516,14 @@ private fun createPagesBeforeList(
     return list ?: emptyList()
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private fun calculateNewCurrentPage(
     viewportSize: Int,
     visiblePagesInfo: List<MeasuredPage>,
     beforeContentPadding: Int,
     afterContentPadding: Int,
     itemSize: Int,
-    snapPosition: SnapPosition
+    snapPosition: SnapPosition,
+    pageCount: Int
 ): MeasuredPage? {
     return visiblePagesInfo.fastMaxBy {
         -abs(
@@ -532,7 +534,8 @@ private fun calculateNewCurrentPage(
                 itemSize = itemSize,
                 itemOffset = it.offset,
                 itemIndex = it.index,
-                snapPosition = snapPosition
+                snapPosition = snapPosition,
+                itemCount = pageCount
             )
         )
     }
@@ -650,16 +653,6 @@ private fun LazyLayoutMeasureScope.calculatePagesOffsets(
         }
     }
     return positionedPages
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-private fun SnapPosition.string(): String {
-    return when (this) {
-        SnapPosition.Start -> "Start"
-        SnapPosition.End -> "End"
-        SnapPosition.Center -> "Center"
-        else -> "Custom"
-    }
 }
 
 internal const val MinPageOffset = -0.5f

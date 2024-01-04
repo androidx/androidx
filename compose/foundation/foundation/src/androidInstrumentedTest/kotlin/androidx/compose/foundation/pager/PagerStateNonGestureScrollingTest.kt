@@ -423,9 +423,18 @@ class PagerStateNonGestureScrollingTest(val config: ParamConfig) : BasePagerTest
     @Test
     fun currentPage_shouldUpdateWithSnapPositionInLayout() {
         // snap position is 200dp from edge of Pager
-        val customSnapPosition = SnapPosition { _, _, _, _, _ ->
-            with(rule.density) {
-                200.dp.roundToPx()
+        val customSnapPosition = object : SnapPosition {
+            override fun position(
+                layoutSize: Int,
+                itemSize: Int,
+                beforeContentPadding: Int,
+                afterContentPadding: Int,
+                itemIndex: Int,
+                itemCount: Int
+            ): Int {
+                return with(rule.density) {
+                    200.dp.roundToPx()
+                }
             }
         }
 
@@ -443,7 +452,7 @@ class PagerStateNonGestureScrollingTest(val config: ParamConfig) : BasePagerTest
 
         with(pagerState.layoutInfo) {
             val viewPortSize = if (vertical) viewportSize.height else viewportSize.width
-            Truth.assertThat(pagerState.currentPage).isEqualTo(visiblePagesInfo.fastMaxBy {
+            assertThat(pagerState.currentPage).isEqualTo(visiblePagesInfo.fastMaxBy {
                 -abs(
                     calculateDistanceToDesiredSnapPosition(
                         mainAxisViewPortSize = viewPortSize,
@@ -452,7 +461,8 @@ class PagerStateNonGestureScrollingTest(val config: ParamConfig) : BasePagerTest
                         itemSize = pageSize,
                         itemOffset = it.offset,
                         itemIndex = it.index,
-                        snapPosition = customSnapPosition
+                        snapPosition = customSnapPosition,
+                        itemCount = pagerState.pageCount
                     )
                 )
             }?.index)

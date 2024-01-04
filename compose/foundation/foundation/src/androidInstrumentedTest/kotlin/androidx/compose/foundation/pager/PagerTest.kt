@@ -361,7 +361,7 @@ class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
 
     @Test
     fun snapPositionChanges_shouldReLayoutPages() {
-        val snapPosition = mutableStateOf(SnapPosition.Start)
+        val snapPosition = mutableStateOf<SnapPosition>(SnapPosition.Start)
         rule.setContent {
             HorizontalOrVerticalPager(
                 modifier = Modifier
