@@ -77,8 +77,7 @@ class LazyListSlotsReuseTest {
         }
 
         onNodeWithTag("0")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
         onNodeWithTag("1")
             .assertIsDisplayed()
     }
@@ -112,11 +111,9 @@ class LazyListSlotsReuseTest {
         }
 
         onNodeWithTag("0")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
         onNodeWithTag("1")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
         onNodeWithTag("2")
             .assertIsDisplayed()
     }
@@ -146,8 +143,7 @@ class LazyListSlotsReuseTest {
 
         repeat(DefaultMaxItemsToRetain) {
             onNodeWithTag("$it")
-                .assertExists()
-                .assertIsNotDisplayed()
+                .assertIsDeactivated()
         }
         onNodeWithTag("$DefaultMaxItemsToRetain")
             .assertDoesNotExist()
@@ -194,11 +190,9 @@ class LazyListSlotsReuseTest {
 
         // in buffer
         onNodeWithTag("0")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
         onNodeWithTag("2")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
 
         // visible
         onNodeWithTag("3")
@@ -242,8 +236,7 @@ class LazyListSlotsReuseTest {
 
         // in buffer
         onNodeWithTag("3")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
 
         // visible
         onNodeWithTag("4")
@@ -276,11 +269,9 @@ class LazyListSlotsReuseTest {
 
         // in buffer
         onNodeWithTag("10")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
         onNodeWithTag("11")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
 
         // visible
         onNodeWithTag("8")
@@ -315,8 +306,7 @@ class LazyListSlotsReuseTest {
 
         // in buffer
         onNodeWithTag("8")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
 
         // visible
         onNodeWithTag("6")
@@ -393,11 +383,9 @@ class LazyListSlotsReuseTest {
             .assertIsDisplayed()
 
         onNodeWithTag("2")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
         onNodeWithTag("3")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
     }
 
     @Test
@@ -439,8 +427,7 @@ class LazyListSlotsReuseTest {
         // [DefaultMaxItemsToRetain] items of type 0 are left for reuse
         for (i in 0 until DefaultMaxItemsToRetain) {
             onNodeWithTag("$i")
-                .assertExists()
-                .assertIsNotDisplayed()
+                .assertIsDeactivated()
         }
         onNodeWithTag("$DefaultMaxItemsToRetain")
             .assertDoesNotExist()
@@ -448,8 +435,7 @@ class LazyListSlotsReuseTest {
         // and 7 items of type 1
         for (i in startOfType1 until startOfType1 + DefaultMaxItemsToRetain) {
             onNodeWithTag("$i")
-                .assertExists()
-                .assertIsNotDisplayed()
+                .assertIsDeactivated()
         }
         onNodeWithTag("${startOfType1 + DefaultMaxItemsToRetain}")
             .assertDoesNotExist()
@@ -491,11 +477,9 @@ class LazyListSlotsReuseTest {
         }
 
         onNodeWithTag("0")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
         onNodeWithTag("1")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
 
         runOnIdle {
             scope.launch {
@@ -505,8 +489,7 @@ class LazyListSlotsReuseTest {
         }
 
         onNodeWithTag("0")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
         onNodeWithTag("1")
             .assertDoesNotExist()
         onNodeWithTag("9")
