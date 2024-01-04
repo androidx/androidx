@@ -282,14 +282,6 @@ internal class TextFieldSelectionState(
         )
     }
 
-    val startSelectionHandle by derivedStateOf {
-        getSelectionHandleState(isStartHandle = true)
-    }
-
-    val endSelectionHandle by derivedStateOf {
-        getSelectionHandleState(isStartHandle = false)
-    }
-
     fun update(
         hapticFeedBack: HapticFeedback,
         clipboardManager: ClipboardManager,
@@ -917,7 +909,16 @@ internal class TextFieldSelectionState(
         )
     }
 
-    private fun getSelectionHandleState(isStartHandle: Boolean): TextFieldHandleState {
+    /**
+     * Calculates and returns the [TextFieldHandleState] of the requested selection handle which is
+     * specified by [isStartHandle]. Pass [includePosition] as false to omit the position from the
+     * result. This helps create a derived state which does not invalidate according position
+     * changes.
+     */
+    internal fun getSelectionHandleState(
+        isStartHandle: Boolean,
+        includePosition: Boolean
+    ): TextFieldHandleState {
         val handle = if (isStartHandle) Handle.SelectionStart else Handle.SelectionEnd
 
         val layoutResult = textLayoutState.layoutResult ?: return TextFieldHandleState.Hidden
@@ -944,8 +945,12 @@ internal class TextFieldSelectionState(
         // we let it stay on the screen to maintain gesture continuation. However, we still want
         // to coerce handle's position to visible bounds to not let it jitter while scrolling the
         // TextField as the selection is expanding.
-        val coercedPosition = textLayoutCoordinates?.visibleBounds()?.let { position.coerceIn(it) }
-            ?: position
+        val coercedPosition = if (includePosition) {
+            textLayoutCoordinates?.visibleBounds()?.let { position.coerceIn(it) }
+                ?: position
+        } else {
+            Offset.Unspecified
+        }
         return TextFieldHandleState(
             visible = true,
             position = coercedPosition,
