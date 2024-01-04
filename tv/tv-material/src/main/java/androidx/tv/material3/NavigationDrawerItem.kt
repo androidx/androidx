@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.Dp
@@ -57,10 +56,10 @@ import androidx.compose.ui.unit.Dp
  * different interaction states
  * @param border defines a border around the composable in different interaction states
  * @param glow defines a shadow to be shown behind the composable for different interaction states
- * @param interactionSource the [MutableInteractionSource] representing the stream of
- * [Interaction]s for this component. You can create and pass in your own [remember]ed instance
- * to observe [Interaction]s and customize the appearance / behavior of this composable in different
- * states
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this composable. You can use this to change the composable's
+ * appearance or preview the composable in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param content main content of this composable
  */
 @ExperimentalTvMaterial3Api // TODO (b/263353219): Remove this before launching beta
@@ -80,7 +79,7 @@ fun NavigationDrawerScope.NavigationDrawerItem(
     scale: NavigationDrawerItemScale = NavigationDrawerItemScale.None,
     border: NavigationDrawerItemBorder = NavigationDrawerItemDefaults.border(),
     glow: NavigationDrawerItemGlow = NavigationDrawerItemDefaults.glow(),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit,
 ) {
     val animatedWidth by animateDpAsState(
