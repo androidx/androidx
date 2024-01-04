@@ -174,7 +174,7 @@ internal class TextFieldSelectionManager(
     /**
      * The previous [SelectionLayout] where [SelectionLayout.shouldRecomputeSelection] was true.
      */
-    private var previousSelectionLayout: SelectionLayout? = null
+    internal var previousSelectionLayout: SelectionLayout? = null
 
     /**
      * [TextDragObserver] for long press and drag to select in TextField.

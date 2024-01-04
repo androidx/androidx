@@ -21,7 +21,7 @@ import androidx.compose.foundation.gestures.detectRepeatingTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.text.selection.SelectionAdjustment
 import androidx.compose.foundation.text.selection.TextFieldSelectionManager
-import androidx.compose.foundation.text.selection.getTextFieldSelection
+import androidx.compose.foundation.text.selection.getTextFieldSelectionLayout
 import androidx.compose.foundation.text.selection.isSelectionHandleInVisibleBound
 import androidx.compose.foundation.text.selection.selectionGestureInput
 import androidx.compose.runtime.Composable
@@ -219,11 +219,10 @@ private fun TextFieldSelectionManager.doRepeatingTapSelection(
     if (value.text.isEmpty()) return
     enterSelectionMode()
     state?.layoutResult?.let { layoutResult ->
-        val offset = layoutResult.getOffsetForPosition(touchPointOffset)
         updateSelection(
             value = value,
-            transformedStartOffset = offset,
-            transformedEndOffset = offset,
+            currentPosition = touchPointOffset,
+            isStartOfSelection = true,
             isStartHandle = false,
             adjustment = selectionAdjustment
         )
@@ -235,31 +234,62 @@ private fun TextFieldSelectionManager.doRepeatingTapSelection(
  */
 private fun TextFieldSelectionManager.updateSelection(
     value: TextFieldValue,
-    transformedStartOffset: Int,
-    transformedEndOffset: Int,
+    currentPosition: Offset,
+    isStartOfSelection: Boolean,
     isStartHandle: Boolean,
     adjustment: SelectionAdjustment
 ) {
-    val transformedSelection = TextRange(
+    val layoutResult = state?.layoutResult ?: return
+    val previousTransformedSelection = TextRange(
         offsetMapping.originalToTransformed(value.selection.start),
         offsetMapping.originalToTransformed(value.selection.end)
     )
 
-    val newTransformedSelection = getTextFieldSelection(
-        textLayoutResult = state?.layoutResult?.value,
-        rawStartOffset = transformedStartOffset,
-        rawEndOffset = transformedEndOffset,
-        previousHandleOffset = previousRawDragOffset,
-        previousSelection = if (transformedSelection.collapsed) null else transformedSelection,
-        isStartHandle = isStartHandle,
-        adjustment = adjustment
+    val currentOffset = layoutResult.getOffsetForPosition(
+        position = currentPosition,
+        coerceInVisibleBounds = false
     )
+
+    val rawStartHandleOffset = if (isStartHandle || isStartOfSelection) currentOffset else
+        previousTransformedSelection.start
+
+    val rawEndHandleOffset = if (!isStartHandle || isStartOfSelection) currentOffset else
+        previousTransformedSelection.end
+
+    val previousSelectionLayout = previousSelectionLayout // for smart cast
+    val rawPreviousHandleOffset = if (
+        isStartOfSelection ||
+        previousSelectionLayout == null ||
+        previousRawDragOffset == -1
+    ) {
+        -1
+    } else {
+        previousRawDragOffset
+    }
+
+    val selectionLayout = getTextFieldSelectionLayout(
+        layoutResult = layoutResult.value,
+        rawStartHandleOffset = rawStartHandleOffset,
+        rawEndHandleOffset = rawEndHandleOffset,
+        rawPreviousHandleOffset = rawPreviousHandleOffset,
+        previousSelectionRange = previousTransformedSelection,
+        isStartOfSelection = isStartOfSelection,
+        isStartHandle = isStartHandle,
+    )
+
+    if (!selectionLayout.shouldRecomputeSelection(previousSelectionLayout)) {
+        return
+    }
+
+    this.previousSelectionLayout = selectionLayout
+    previousRawDragOffset = currentOffset
+
+    val newTransformedSelection = adjustment.adjust(selectionLayout)
 
     val originalSelection = TextRange(
-        start = offsetMapping.transformedToOriginal(newTransformedSelection.start),
-        end = offsetMapping.transformedToOriginal(newTransformedSelection.end)
+        start = offsetMapping.transformedToOriginal(newTransformedSelection.start.offset),
+        end = offsetMapping.transformedToOriginal(newTransformedSelection.end.offset)
     )
-
     if (originalSelection == value.selection) return
 
     hapticFeedBack?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
