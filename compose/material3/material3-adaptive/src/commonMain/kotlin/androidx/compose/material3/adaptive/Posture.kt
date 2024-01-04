@@ -18,8 +18,6 @@ package androidx.compose.material3.adaptive
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.util.fastJoinToString
-import androidx.compose.ui.util.fastMapNotNull
 
 /**
  * Posture info that can help make layout adaptation decisions. For example when
@@ -59,8 +57,9 @@ class Posture(
     }
 
     override fun toString(): String {
+        @Suppress("ListIterator")
         return "Posture(isTabletop=$isTabletop, " +
-            "hinges=[${hingeList.fastJoinToString(", ")}])"
+            "hinges=[${hingeList.joinToString(", ")}])"
     }
 }
 
@@ -149,4 +148,5 @@ class HingeInfo(
 
 @ExperimentalMaterial3AdaptiveApi
 private inline fun List<HingeInfo>.getBounds(predicate: HingeInfo.() -> Boolean): List<Rect> =
-    fastMapNotNull { if (it.predicate()) it.bounds else null }
+    @Suppress("ListIterator")
+    mapNotNull { if (it.predicate()) it.bounds else null }
