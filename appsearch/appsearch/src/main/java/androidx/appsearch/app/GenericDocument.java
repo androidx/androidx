@@ -1199,6 +1199,7 @@ public class GenericDocument {
          *
          * <p>The number of namespaces per app should be kept small for efficiency reasons.
          */
+        @FlaggedApi(Flags.FLAG_ENABLE_GENERIC_DOCUMENT_BUILDER_HIDDEN_METHODS)
         @CanIgnoreReturnValue
         @NonNull
         public BuilderType setNamespace(@NonNull String namespace) {
@@ -1213,6 +1214,7 @@ public class GenericDocument {
          *
          * <p>Document IDs are unique within a namespace.
          */
+        @FlaggedApi(Flags.FLAG_ENABLE_GENERIC_DOCUMENT_BUILDER_HIDDEN_METHODS)
         @CanIgnoreReturnValue
         @NonNull
         public BuilderType setId(@NonNull String id) {
@@ -1228,6 +1230,7 @@ public class GenericDocument {
          * {@link AppSearchSchema} object previously provided to
          * {@link AppSearchSession#setSchemaAsync}.
          */
+        @FlaggedApi(Flags.FLAG_ENABLE_GENERIC_DOCUMENT_BUILDER_HIDDEN_METHODS)
         @CanIgnoreReturnValue
         @NonNull
         public BuilderType setSchemaType(@NonNull String schemaType) {
@@ -1465,6 +1468,7 @@ public class GenericDocument {
          *
          * @param name The name of the property to clear.
          */
+        @FlaggedApi(Flags.FLAG_ENABLE_GENERIC_DOCUMENT_BUILDER_HIDDEN_METHODS)
         @CanIgnoreReturnValue
         @NonNull
         public BuilderType clearProperty(@NonNull String name) {
