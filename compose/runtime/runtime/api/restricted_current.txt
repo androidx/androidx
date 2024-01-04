@@ -348,7 +348,9 @@ package androidx.compose.runtime {
   }
 
   public final class ExpectKt {
+    method @Deprecated public androidx.compose.runtime.MonotonicFrameClock getDefaultMonotonicFrameClock();
     method @kotlin.PublishedApi internal static inline <R> R synchronized(Object lock, kotlin.jvm.functions.Function0<? extends R> block);
+    property @Deprecated public androidx.compose.runtime.MonotonicFrameClock DefaultMonotonicFrameClock;
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.ERROR, message="This is an experimental API for Compose and is likely to change before becoming " + "stable.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER}) public @interface ExperimentalComposeApi {

@@ -95,3 +95,7 @@ DefaultValueChange: androidx.glance.appwidget.AppWidgetComposerKt#compose(androi
     Attempted to remove default value from parameter arg7 in androidx.glance.appwidget.AppWidgetComposerKt.compose
 DefaultValueChange: androidx.glance.appwidget.GlanceAppWidgetManager#requestPinGlanceAppWidget(Class<T>, androidx.glance.appwidget.GlanceAppWidget, Object, android.app.PendingIntent, kotlin.coroutines.Continuation<? super java.lang.Boolean>) parameter #4:
     Attempted to remove default value from parameter arg5 in androidx.glance.appwidget.GlanceAppWidgetManager.requestPinGlanceAppWidget
+
+
+RemovedMethod: androidx.glance.appwidget.GlanceAppWidgetKt#updateIf(androidx.glance.appwidget.GlanceAppWidget, android.content.Context, kotlin.jvm.functions.Function1<? super java.lang.State,java.lang.Boolean>):
+    Removed method androidx.glance.appwidget.GlanceAppWidgetKt.updateIf(androidx.glance.appwidget.GlanceAppWidget,android.content.Context,kotlin.jvm.functions.Function1<? super java.lang.State,java.lang.Boolean>)
