@@ -29,6 +29,8 @@ import android.hardware.camera2.TotalCaptureResult
 import android.media.Image
 import android.media.ImageWriter
 import android.os.Build
+import android.os.Handler
+import android.os.HandlerThread
 import android.os.Looper
 import android.view.Surface
 import androidx.annotation.RequiresApi
@@ -40,6 +42,7 @@ import androidx.camera.camera2.internal.compat.quirk.TorchFlashRequiredFor3aUpda
 import androidx.camera.camera2.internal.compat.quirk.UseTorchAsFlashQuirk
 import androidx.camera.camera2.internal.compat.workaround.OverrideAeModeForStillCapture
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
 import androidx.camera.core.ImageCapture.FLASH_MODE_AUTO
 import androidx.camera.core.ImageCapture.FLASH_MODE_OFF
 import androidx.camera.core.ImageCapture.FLASH_MODE_ON
@@ -353,19 +356,16 @@ class Camera2CapturePipelineTest {
         }
     }
 
-    @Ignore("b/318526226")
     @Test
     fun minLatency_screenFlashCapture_screenFlashTaskInvokedProperly() {
         screenFlash_screenFlashApisInvokedProperly(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
     }
 
-    @Ignore("b/318526226")
     @Test
     fun maxQuality_screenFlashCapture_screenFlashTaskInvokedProperly() {
         screenFlash_screenFlashApisInvokedProperly(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
     }
 
-    @Ignore("b/318526226")
     @Test
     fun maxQuality_screenFlashCapture_withFlashModeTorchQuirk_screenFlashTaskInvokedProperly() {
         screenFlash_screenFlashApisInvokedProperly(
@@ -378,39 +378,64 @@ class Camera2CapturePipelineTest {
         imageCaptureMode: Int,
         addFlashModeTorchQuirk: Boolean = false
     ) {
+        // Since the threads for CapturePipeline executor and scheduler are different here, need to
+        // be careful of some task not being executed yet by the time the scheduler is simulating
+        // the capture result required for the task. To solve this, we can make sure the executor is
+        // advanced until idle first. Should also improves runtime due to removing initial delay.
+        val thread = HandlerThread("Background").apply { start() }
+        val executor = CameraXExecutors.newHandlerExecutor(Handler(thread.looper))
         val cameraControl = createCameraControl(
-            addTorchFlashRequiredFor3aUpdateQuirk = addFlashModeTorchQuirk
+            addTorchFlashRequiredFor3aUpdateQuirk = addFlashModeTorchQuirk,
+            executor = executor,
         ).apply {
             flashMode = FLASH_MODE_SCREEN
-
-            // Act.
-            submitStillCaptureRequests(
-                listOf(singleRequest),
-                imageCaptureMode,
-                ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
-            )
         }
 
-        // Wait for a few repeating requests to be submitted for the initial flash mode confirmation
+        // Wait for a repeating request to be submitted for the initial flash mode confirmation
         // in Camera2CameraControlImpl#submitStillCaptureRequests
-        CountDownLatch(5).let {
+        thread.looper.advanceUntilIdle()
+        CountDownLatch(1).let {
             cameraControl.simulateRepeatingResult(
-                initialDelay = 100,
+                initialDelay = 0,
                 period = 50,
                 requestCountLatch = it,
-                scheduledRunnableExecutor = CameraXExecutors.mainThreadExecutor()
             )
             it.await(1, TimeUnit.SECONDS)
+            // TODO: Instead of waiting for 1 result explicitly to save time, we should probably
+            //  refactor the whole test structure here to use something like virtual time like in
+            //  coroutine testScope. Then we can just wait for a few results like in real scenarios.
+        }
+
+        // Act.
+        cameraControl.submitStillCaptureRequests(
+            listOf(singleRequest),
+            imageCaptureMode,
+            ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
+        )
+
+        if (imageCaptureMode == CAPTURE_MODE_MAXIMIZE_QUALITY) {
+            // AfTask requires an initial capture result preCapture
+            thread.looper.advanceUntilIdle()
+            CountDownLatch(1).let {
+                cameraControl.simulateRepeatingResult(
+                    initialDelay = 0,
+                    period = 50,
+                    requestCountLatch = it,
+                )
+                it.await(1, TimeUnit.SECONDS)
+            }
         }
 
         // Wait for main thread because ScreenFlashTask invokes callbacks in UI thread
-        Shadows.shadowOf(Looper.getMainLooper()).idleFor(1, TimeUnit.SECONDS)
+        thread.looper.advanceUntilIdle() // needed since main thread task posted asynchronously
+        Looper.getMainLooper().advanceUntilIdle()
 
         if (Build.VERSION.SDK_INT >= 28) {
             // Submit a repeating request for CONTROL_AE_MODE_ON_EXTERNAL_FLASH
-            CountDownLatch(5).let {
+            thread.looper.advanceUntilIdle()
+            CountDownLatch(1).let {
                 cameraControl.simulateRepeatingResult(
-                    initialDelay = 100,
+                    initialDelay = 0,
                     period = 50,
                     resultParameters = mapOf(CaptureResult.CONTROL_AE_MODE
                         to CaptureResult.CONTROL_AE_MODE_ON_EXTERNAL_FLASH),
@@ -422,9 +447,10 @@ class Camera2CapturePipelineTest {
 
         if (addFlashModeTorchQuirk) {
             // Submit a repeating request for FLASH_MODE_TORCH
-            CountDownLatch(5).let {
+            thread.looper.advanceUntilIdle()
+            CountDownLatch(1).let {
                 cameraControl.simulateRepeatingResult(
-                    initialDelay = 100,
+                    initialDelay = 0,
                     period = 50,
                     resultParameters = mapOf(CaptureResult.FLASH_MODE
                         to CaptureResult.FLASH_MODE_TORCH),
@@ -435,6 +461,7 @@ class Camera2CapturePipelineTest {
         }
 
         // Assert, verify AE precapture is triggered
+        thread.looper.advanceUntilIdle()
         immediateCompleteCapture.verifyRequestResult {
             it.requestContains(
                 CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,
@@ -443,9 +470,13 @@ class Camera2CapturePipelineTest {
         }
 
         // Submit a repeating request for convergence
-        CountDownLatch(5).let {
+        thread.looper.advanceUntilIdle()
+        CountDownLatch(
+            if (imageCaptureMode == CAPTURE_MODE_MAXIMIZE_QUALITY) 2 // one extra for the AF task
+            else 1
+        ).let {
             cameraControl.simulateRepeatingResult(
-                initialDelay = 100,
+                initialDelay = 0,
                 period = 50,
                 resultParameters = resultConverged,
                 requestCountLatch = it
@@ -453,10 +484,9 @@ class Camera2CapturePipelineTest {
             it.await(1, TimeUnit.SECONDS)
         }
 
-        // Wait for main thread because ScreenFlashTask invokes callbacks in UI thread
-        Shadows.shadowOf(Looper.getMainLooper()).idleFor(1, TimeUnit.SECONDS)
-
         // Assert, verify ScreenFlash APIs are invoked properly
+        thread.looper.advanceUntilIdle()
+        Looper.getMainLooper().advanceUntilIdle()
         assertThat(testScreenFlash.awaitClear(1000)).isTrue()
         assertThat(testScreenFlash.screenFlashEvents).isEqualTo(
             listOf(
@@ -474,6 +504,8 @@ class Camera2CapturePipelineTest {
                 )
             }
         }
+
+        thread.quitSafely()
     }
 
     @Test
@@ -1304,6 +1336,7 @@ class Camera2CapturePipelineTest {
         quirks: Quirks? = null,
         updateCallback: CameraControlInternal.ControlUpdateCallback = immediateCompleteCapture,
         addTorchFlashRequiredFor3aUpdateQuirk: Boolean = false,
+        executor: Executor = executorService,
     ): Camera2CameraControlImpl {
         val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
         val characteristics = cameraManager.getCameraCharacteristics(cameraId)
@@ -1324,7 +1357,7 @@ class Camera2CapturePipelineTest {
         return Camera2CameraControlImpl(
             characteristicsCompat,
             executorService,
-            executorService,
+            executor,
             updateCallback,
             cameraQuirk
         ).apply {
@@ -1518,5 +1551,12 @@ class Camera2CapturePipelineTest {
         cameraControl.mZslControl = zslControl
 
         return cameraControl
+    }
+
+    private fun Looper.advanceUntilIdle() {
+        val shadowLooper = Shadows.shadowOf(this)
+        while (!shadowLooper.isIdle) {
+            shadowLooper.idle()
+        }
     }
 }
