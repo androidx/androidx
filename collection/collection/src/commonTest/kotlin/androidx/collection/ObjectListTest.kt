@@ -23,7 +23,7 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-class ObjectListTest {
+internal class ObjectListTest {
     private val list: MutableObjectList<Int> = mutableObjectListOf(1, 2, 3, 4, 5)
 
     @Test

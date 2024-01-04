@@ -37,7 +37,7 @@ import kotlin.test.assertTrue
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 @Suppress("RemoveRedundantCallsOfConversionMethods")
-class LongIntMapTest {
+internal class LongIntMapTest {
     @Test
     fun longIntMap() {
         val map = MutableLongIntMap()
