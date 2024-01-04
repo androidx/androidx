@@ -136,6 +136,7 @@ internal class RenderNodeLayer(
         this.rotationX = scope.rotationX
         this.rotationY = scope.rotationY
         this.rotationZ = scope.rotationZ
+        this.cameraDistance = max(scope.cameraDistance, 0.001f)
         this.scaleX = scope.scaleX
         this.scaleY = scope.scaleY
         this.alpha = scope.alpha
