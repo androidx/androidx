@@ -22,7 +22,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
-class LongSetTest {
+internal class LongSetTest {
     @Test
     fun emptyLongSetConstructor() {
         val set = MutableLongSet()

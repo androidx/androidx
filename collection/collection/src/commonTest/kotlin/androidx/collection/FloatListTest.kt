@@ -23,7 +23,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
-class FloatListTest {
+internal class FloatListTest {
     private val list: MutableFloatList = mutableFloatListOf(1f, 2f, 3f, 4f, 5f)
 
     @Test

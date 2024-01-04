@@ -22,7 +22,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
-class IntListTest {
+internal class IntListTest {
     private val list: MutableIntList = mutableIntListOf(1, 2, 3, 4, 5)
 
     @Test

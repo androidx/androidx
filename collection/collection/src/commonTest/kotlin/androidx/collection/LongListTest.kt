@@ -22,7 +22,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
-class LongListTest {
+internal class LongListTest {
     private val list: MutableLongList = mutableLongListOf(1L, 2L, 3L, 4L, 5L)
 
     @Test

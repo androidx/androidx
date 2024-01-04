@@ -20,7 +20,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 
-class PairTest {
+internal class PairTest {
 
     @Test
     fun intCreation() {

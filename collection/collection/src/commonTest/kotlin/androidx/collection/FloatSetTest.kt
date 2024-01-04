@@ -22,7 +22,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
-class FloatSetTest {
+internal class FloatSetTest {
     @Test
     fun emptyFloatSetConstructor() {
         val set = MutableFloatSet()

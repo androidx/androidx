@@ -22,7 +22,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
-class IntSetTest {
+internal class IntSetTest {
     @Test
     fun emptyIntSetConstructor() {
         val set = MutableIntSet()
