@@ -16,14 +16,11 @@
 
 package androidx.compose.ui.draganddrop
 
-import androidx.collection.ArraySet
 import androidx.compose.ui.geometry.Offset
 
 actual class DragAndDropTransfer
 
-actual class DragAndDropEvent(
-    internal actual val interestedNodes: ArraySet<DragAndDropModifierNode>
-)
+actual class DragAndDropEvent
 
 internal actual val DragAndDropEvent.positionInRoot: Offset
     get() = TODO("Drag&drop isn't implemented")
