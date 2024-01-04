@@ -225,7 +225,7 @@ public abstract class PagingDataPresenter<T : Any>(
                             }
 
                             // Process DROP and send to presenter
-                            pageStore.processEvent(event, processPageEventCallback)
+                            pageStore.processEvent(event)
 
                             // dispatch load states
                             combinedLoadStatesCollection.set(

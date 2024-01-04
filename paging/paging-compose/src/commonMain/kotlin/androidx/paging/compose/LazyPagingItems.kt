@@ -62,24 +62,11 @@ public class LazyPagingItems<T : Any> internal constructor(
 ) {
     private val mainDispatcher = AndroidUiDispatcher.Main
 
+    // TODO to be removed when cleaning up PagingDataPresenter class
     private val differCallback: DifferCallback = object : DifferCallback {
-        override fun onChanged(position: Int, count: Int) {
-            if (count > 0) {
-                updateItemSnapshotList()
-            }
-        }
-
-        override fun onInserted(position: Int, count: Int) {
-            if (count > 0) {
-                updateItemSnapshotList()
-            }
-        }
-
-        override fun onRemoved(position: Int, count: Int) {
-            if (count > 0) {
-                updateItemSnapshotList()
-            }
-        }
+        override fun onChanged(position: Int, count: Int) { }
+        override fun onInserted(position: Int, count: Int) { }
+        override fun onRemoved(position: Int, count: Int) { }
     }
 
     /**
