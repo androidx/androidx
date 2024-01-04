@@ -16,20 +16,25 @@
 
 package androidx.compose.foundation.text
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.selection.HandlePopup
 import androidx.compose.foundation.text.selection.HandleReferencePoint
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.createHandleImage
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.isSpecified
 
 private const val Sqrt2 = 1.41421356f
 internal val CursorHandleHeight = 25.dp
@@ -39,27 +44,35 @@ internal val CursorHandleWidth = CursorHandleHeight * 2f / (1 + Sqrt2)
 internal actual fun CursorHandle(
     handlePosition: Offset,
     modifier: Modifier,
-    content: @Composable (() -> Unit)?
+    minTouchTargetSize: DpSize
 ) {
     HandlePopup(
         positionProvider = { handlePosition },
         handleReferencePoint = HandleReferencePoint.TopMiddle
     ) {
-        if (content == null) {
-            DefaultCursorHandle(modifier = modifier)
+        if (minTouchTargetSize.isSpecified) {
+            Box(
+                modifier = modifier.requiredSizeIn(
+                    minWidth = minTouchTargetSize.width,
+                    minHeight = minTouchTargetSize.height
+                ),
+                contentAlignment = Alignment.TopCenter
+            ) {
+                DefaultCursorHandle()
+            }
         } else {
-            content()
+            DefaultCursorHandle(modifier)
         }
     }
 }
 
 @Composable
 /*@VisibleForTesting*/
-internal fun DefaultCursorHandle(modifier: Modifier) {
+private fun DefaultCursorHandle(modifier: Modifier = Modifier) {
     Spacer(modifier.size(CursorHandleWidth, CursorHandleHeight).drawCursorHandle())
 }
 
-internal fun Modifier.drawCursorHandle() = composed {
+private fun Modifier.drawCursorHandle() = composed {
     val handleColor = LocalTextSelectionColors.current.handleColor
     this.then(
         Modifier.drawWithCache {
