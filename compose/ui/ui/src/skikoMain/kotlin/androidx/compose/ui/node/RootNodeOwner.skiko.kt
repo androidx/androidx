@@ -28,6 +28,7 @@ import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.focus.FocusOwnerImpl
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
@@ -480,4 +481,5 @@ private fun IntRect.toConstraints() =
 private object IdentityPositionCalculator: PositionCalculator {
     override fun screenToLocal(positionOnScreen: Offset): Offset = positionOnScreen
     override fun localToScreen(localPosition: Offset): Offset = localPosition
+    override fun localToScreen(localTransform: Matrix) = Unit
 }
