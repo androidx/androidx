@@ -1156,10 +1156,12 @@ package androidx.compose.foundation.lazy.staggeredgrid {
 
 package androidx.compose.foundation.pager {
 
-  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public sealed interface PageInfo {
+  public sealed interface PageInfo {
     method public int getIndex();
+    method public Object getKey();
     method public int getOffset();
     property public abstract int index;
+    property public abstract Object key;
     property public abstract int offset;
   }
 
@@ -1219,7 +1221,7 @@ package androidx.compose.foundation.pager {
     property public abstract java.util.List<androidx.compose.foundation.pager.PageInfo> visiblePagesInfo;
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public sealed interface PagerScope {
+  public sealed interface PagerScope {
   }
 
   @androidx.compose.runtime.Stable public interface PagerSnapDistance {
