@@ -402,20 +402,14 @@ class LazyGridSnapFlingBehaviorTest(private val orientation: Orientation) :
 
         // assert
         val initialTargetOffset = snapLayoutInfoProvider.calculateApproachOffset(velocity)
-        Truth.assertThat(scrollOffset[1]).isWithin(0.5f)
+        Truth.assertThat(scrollOffset.first()).isWithin(0.5f)
             .of(initialTargetOffset)
 
-        // act: wait for remaining offset to grow instead of decay, this indicates the last
-        // snap step will start
+        // act and assert: next calculated offset is the first value emitted by
+        // remainingScrollOffset this indicates the last snap step will start
         rule.mainClock.advanceTimeUntil {
-            scrollOffset.size > 2 &&
-                scrollOffset.last() > scrollOffset[scrollOffset.lastIndex - 1]
+            scrollOffset.last() == snapLayoutInfoProvider.calculateSnappingOffset(10000f)
         }
-
-        // assert: next calculated offset is the first value emitted by remainingScrollOffset
-        val finalRemainingOffset = snapLayoutInfoProvider.calculateSnappingOffset(10000f)
-        Truth.assertThat(scrollOffset.last()).isWithin(0.5f)
-            .of(finalRemainingOffset)
         rule.mainClock.autoAdvance = true
 
         // assert: value settles back to zero

@@ -333,6 +333,39 @@ internal class ScatterMapTest {
     }
 
     @Test
+    fun compute() {
+        val map = MutableScatterMap<String, String?>()
+        map["Hello"] = "World"
+
+        var computed = map.compute("Hello") { _, _ ->
+            "New World"
+        }
+        assertEquals("New World", map["Hello"])
+        assertEquals("New World", computed)
+
+        computed = map.compute("Bonjour") { _, _ ->
+            "Monde"
+        }
+        assertEquals("Monde", map["Bonjour"])
+        assertEquals("Monde", computed)
+
+        map.compute("Bonjour") { _, v ->
+            v ?: "Welt"
+        }
+        assertEquals("Monde", map["Bonjour"])
+
+        map.compute("Hallo") { _, _ ->
+            null
+        }
+        assertNull(map["Hallo"])
+
+        map.compute("Hallo") { _, v ->
+            v ?: "Welt"
+        }
+        assertEquals("Welt", map["Hallo"])
+    }
+
+    @Test
     fun remove() {
         val map = MutableScatterMap<String?, String?>()
         assertNull(map.remove("Hello"))

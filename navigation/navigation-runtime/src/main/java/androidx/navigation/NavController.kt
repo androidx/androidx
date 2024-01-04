@@ -1654,8 +1654,19 @@ public open class NavController(
             }
             combinedArgs.putAll(args)
         }
-        if (destId == 0 && finalNavOptions != null && finalNavOptions.popUpToId != -1) {
-            popBackStack(finalNavOptions.popUpToId, finalNavOptions.isPopUpToInclusive())
+        if (destId == 0 && finalNavOptions != null && (finalNavOptions.popUpToId != -1 ||
+                finalNavOptions.popUpToRoute != null)
+        ) {
+            when {
+                finalNavOptions.popUpToRoute != null ->
+                    popBackStack(
+                        finalNavOptions.popUpToRoute!!, finalNavOptions.isPopUpToInclusive()
+                    )
+                finalNavOptions.popUpToId != -1 ->
+                    popBackStack(
+                        finalNavOptions.popUpToId, finalNavOptions.isPopUpToInclusive()
+                    )
+            }
             return
         }
         require(destId != 0) {
@@ -1818,12 +1829,19 @@ public open class NavController(
         var launchSingleTop = false
         var navigated = false
         if (navOptions != null) {
-            if (navOptions.popUpToId != -1) {
-                popped = popBackStackInternal(
-                    navOptions.popUpToId,
-                    navOptions.isPopUpToInclusive(),
-                    navOptions.shouldPopUpToSaveState()
-                )
+            when {
+                navOptions.popUpToRoute != null ->
+                    popped = popBackStackInternal(
+                        navOptions.popUpToRoute!!,
+                        navOptions.isPopUpToInclusive(),
+                        navOptions.shouldPopUpToSaveState()
+                    )
+                navOptions.popUpToId != -1 ->
+                    popped = popBackStackInternal(
+                        navOptions.popUpToId,
+                        navOptions.isPopUpToInclusive(),
+                        navOptions.shouldPopUpToSaveState()
+                    )
             }
         }
         val finalArgs = node.addInDefaultArgs(args)

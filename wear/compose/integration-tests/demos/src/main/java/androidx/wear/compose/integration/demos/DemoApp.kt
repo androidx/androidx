@@ -154,6 +154,8 @@ internal fun BoxScope.DisplayDemoList(
             .fillMaxWidth()
             .testTag(DemoListTag),
         state = scrollStates[scrollStateIndex],
+        snap = false,
+        autoCentering = AutoCenteringParams(itemIndex = if (category.demos.size >= 2) 2 else 1),
     ) {
         item {
             ListHeader {
@@ -306,7 +308,7 @@ fun ScalingLazyColumnWithRSB(
         space = 4.dp,
         alignment = if (!reverseLayout) Alignment.Top else Alignment.Bottom
     ),
-    autoCentering: AutoCenteringParams? = null,
+    autoCentering: AutoCenteringParams? = AutoCenteringParams(),
     content: ScalingLazyListScope.() -> Unit
 ) {
     val flingBehavior = if (snap) ScalingLazyColumnDefaults.snapFlingBehavior(

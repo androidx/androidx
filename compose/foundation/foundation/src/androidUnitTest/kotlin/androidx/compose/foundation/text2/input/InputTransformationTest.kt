@@ -164,4 +164,56 @@ class InputTransformationTest {
 
         assertThat(chain.keyboardOptions).isSameInstanceAs(options2)
     }
+
+    @Test
+    fun byValue_reverts_whenReturnsCurrent() {
+        val transformation = InputTransformation.byValue { current, _ -> current }
+        val current = TextFieldCharSequence("a")
+        val proposed = TextFieldCharSequence("ab")
+        val buffer = TextFieldBuffer(sourceValue = current, initialValue = proposed)
+
+        transformation.transformInput(current, buffer)
+
+        assertThat(buffer.changes.changeCount).isEqualTo(0)
+        assertThat(buffer.toString()).isEqualTo(current.toString())
+    }
+
+    @Test
+    fun byValue_appliesChanges_whenReturnsSameContentAsCurrent() {
+        val transformation = InputTransformation.byValue { _, _ -> "a" }
+        val current = TextFieldCharSequence("a")
+        val proposed = TextFieldCharSequence("ab")
+        val buffer = TextFieldBuffer(sourceValue = current, initialValue = proposed)
+
+        transformation.transformInput(current, buffer)
+
+        assertThat(buffer.changes.changeCount).isEqualTo(1)
+        assertThat(buffer.toString()).isEqualTo(current.toString())
+    }
+
+    @Test
+    fun byValue_noops_whenReturnsProposed() {
+        val transformation = InputTransformation.byValue { _, _ -> "ab" }
+        val current = TextFieldCharSequence("a")
+        val proposed = TextFieldCharSequence("ab")
+        val buffer = TextFieldBuffer(sourceValue = current, initialValue = proposed)
+
+        transformation.transformInput(current, buffer)
+
+        assertThat(buffer.changes.changeCount).isEqualTo(0)
+        assertThat(buffer.toString()).isEqualTo(proposed.toString())
+    }
+
+    @Test
+    fun byValue_appliesChanges_whenDifferentCharSequenceReturned() {
+        val transformation = InputTransformation.byValue { _, _ -> "c" }
+        val current = TextFieldCharSequence("a")
+        val proposed = TextFieldCharSequence("ab")
+        val buffer = TextFieldBuffer(sourceValue = current, initialValue = proposed)
+
+        transformation.transformInput(current, buffer)
+
+        assertThat(buffer.changes.changeCount).isEqualTo(1)
+        assertThat(buffer.toString()).isEqualTo("c")
+    }
 }

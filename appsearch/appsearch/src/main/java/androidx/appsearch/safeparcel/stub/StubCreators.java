@@ -16,9 +16,9 @@
 package androidx.appsearch.safeparcel.stub;
 
 import androidx.annotation.RestrictTo;
-import androidx.appsearch.app.safeparcel.GenericDocumentParcel;
-import androidx.appsearch.app.safeparcel.PropertyConfigParcel;
-import androidx.appsearch.app.safeparcel.PropertyParcel;
+import androidx.appsearch.safeparcel.GenericDocumentParcel;
+import androidx.appsearch.safeparcel.PropertyConfigParcel;
+import androidx.appsearch.safeparcel.PropertyParcel;
 
 /**
  * Stub creators for any classes extending
@@ -73,5 +73,13 @@ public class StubCreators {
 
     /** Stub creator for {@link GenericDocumentParcel}. */
     public static class GenericDocumentParcelCreator extends AbstractCreator {
+    }
+
+    /** Stub creator for {@link androidx.appsearch.app.VisibilityPermissionDocument}. */
+    public static class VisibilityPermissionDocumentCreator extends AbstractCreator {
+    }
+
+    /** Stub creator for {@link androidx.appsearch.app.VisibilityDocument}. */
+    public static class VisibilityDocumentCreator extends AbstractCreator {
     }
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="cli" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
+<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
 
     <issue
         id="BanThreadSleep"
@@ -483,6 +483,213 @@
         message="Creating an unnecessary Iterator to iterate through a List"
         errorLine1="            addAllChildren(element.children.map { createNode(context, it) })"
         errorLine2="                                            ~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/WidgetLayout.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;DpSize> of extractAllSizes: replace with LongList"
+        errorLine1="internal fun Bundle.extractAllSizes(minSize: () -> DpSize): List&lt;DpSize> {"
+        errorLine2="                                                            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/AppWidgetUtils.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;DpSize> of estimateSizes: replace with LongList"
+        errorLine1="private fun Bundle.estimateSizes(minSize: () -> DpSize): List&lt;DpSize> {"
+        errorLine2="                                                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/AppWidgetUtils.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;DpSize> of extractOrientationSizes: replace with LongList"
+        errorLine1="internal fun Bundle.extractOrientationSizes() ="
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/AppWidgetUtils.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;DpSize> of sortedBySize: replace with LongList"
+        errorLine1="internal fun Collection&lt;DpSize>.sortedBySize() ="
+        errorLine2="                                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/AppWidgetUtils.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor InsertedViewInfo has parameter children with type Map&lt;Integer, ? extends Map&lt;SizeSelector, Integer>>: replace with IntObjectMap"
+        errorLine1="    val children: Map&lt;Int, Map&lt;SizeSelector, Int>> = emptyMap(),"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/LayoutSelection.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field children with type Map&lt;Integer, Map&lt;SizeSelector, Integer>>: replace with IntObjectMap"
+        errorLine1="    val children: Map&lt;Int, Map&lt;SizeSelector, Int>> = emptyMap(),"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/LayoutSelection.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type Map&lt;Integer, Map&lt;SizeSelector, Integer>> of getChildren: replace with IntObjectMap"
+        errorLine1="    val children: Map&lt;Int, Map&lt;SizeSelector, Int>> = emptyMap(),"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/LayoutSelection.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field LayoutMap with type Map&lt;LayoutType, Integer>: replace with ObjectIntMap"
+        errorLine1="/** Mapping from layout type to fixed layout (if any). */"
+        errorLine2="^">
+        <location
+            file="src/main/java/androidx/glance/appwidget/LayoutSelection.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable children with type Map&lt;SizeSelector, ? extends Integer>: replace with ObjectIntMap"
+        errorLine1="    val children = translationContext.parentContext.children[pos]"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/glance/appwidget/LayoutSelection.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable var6b5ab7c1 with type Map&lt;SizeSelector, ? extends Integer>: replace with ObjectIntMap"
+        errorLine1="    val children = translationContext.parentContext.children[pos]"
+        errorLine2="                   ^">
+        <location
+            file="src/main/java/androidx/glance/appwidget/LayoutSelection.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable childrenMapping with type Map&lt;Integer, ? extends Map&lt;SizeSelector, ? extends Integer>>: replace with IntObjectMap"
+        errorLine1="    val childrenMapping = generatedChildren[type]"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/glance/appwidget/LayoutSelection.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable var405c8518 with type Map&lt;Integer, ? extends Map&lt;SizeSelector, ? extends Integer>>: replace with IntObjectMap"
+        errorLine1="    val childrenMapping = generatedChildren[type]"
+        errorLine2="                          ^">
+        <location
+            file="src/main/java/androidx/glance/appwidget/LayoutSelection.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field ids with type ArrayList&lt;Long>: replace with LongList"
+        errorLine1="        private val ids = arrayListOf&lt;Long>()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/RemoteCollectionItems.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor Responsive has parameter sizes with type Set&lt;DpSize>: replace with LongSet"
+        errorLine1="    class Responsive(val sizes: Set&lt;DpSize>) : SizeMode {"
+        errorLine2="                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/SizeMode.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field sizes with type Set&lt;DpSize>: replace with LongSet"
+        errorLine1="    class Responsive(val sizes: Set&lt;DpSize>) : SizeMode {"
+        errorLine2="                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/SizeMode.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type Set&lt;DpSize> of getSizes: replace with LongSet"
+        errorLine1="    class Responsive(val sizes: Set&lt;DpSize>) : SizeMode {"
+        errorLine2="                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/SizeMode.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor LayoutConfiguration has parameter layoutConfig with type Map&lt;LayoutNode, Integer>: replace with ObjectIntMap"
+        errorLine1="    private val layoutConfig: MutableMap&lt;LayoutNode, Int>,"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/WidgetLayout.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field layoutConfig with type Map&lt;LayoutNode, Integer>: replace with ObjectIntMap"
+        errorLine1="    private val layoutConfig: MutableMap&lt;LayoutNode, Int>,"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/WidgetLayout.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor LayoutConfiguration has parameter usedLayoutIds with type Set&lt;Integer>: replace with IntSet"
+        errorLine1="    private val usedLayoutIds: MutableSet&lt;Int> = mutableSetOf(),"
+        errorLine2="                               ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/WidgetLayout.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field usedLayoutIds with type Set&lt;Integer>: replace with IntSet"
+        errorLine1="    private val usedLayoutIds: MutableSet&lt;Int> = mutableSetOf(),"
+        errorLine2="                               ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/WidgetLayout.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor LayoutConfiguration has parameter existingLayoutIds with type Set&lt;Integer>: replace with IntSet"
+        errorLine1="    private val existingLayoutIds: MutableSet&lt;Int> = mutableSetOf(),"
+        errorLine2="                                   ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/WidgetLayout.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field existingLayoutIds with type Set&lt;Integer>: replace with IntSet"
+        errorLine1="    private val existingLayoutIds: MutableSet&lt;Int> = mutableSetOf(),"
+        errorLine2="                                   ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/WidgetLayout.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable layouts with type Map&lt;LayoutNode, Integer>: replace with ObjectIntMap"
+        errorLine1="            val layouts = config.layoutList.associate {"
+        errorLine2="            ^">
         <location
             file="src/main/java/androidx/glance/appwidget/WidgetLayout.kt"/>
     </issue>

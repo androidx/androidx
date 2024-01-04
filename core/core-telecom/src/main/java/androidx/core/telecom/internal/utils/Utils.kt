@@ -77,6 +77,7 @@ internal class Utils {
             }
         }
 
+        @RequiresApi(VERSION_CODES.O)
         fun remapJetpackCapabilitiesToPlatformCapabilities(
             @CallsManager.Companion.Capability clientBitmapSelection: Int
         ): Int {
@@ -100,10 +101,12 @@ internal class Utils {
             return (bitMap.and(targetCapability)) == targetCapability
         }
 
+        @RequiresApi(VERSION_CODES.O)
         private fun hasJetpackVideoCallingCapability(bitMap: Int): Boolean {
             return hasCapability(CallsManager.CAPABILITY_SUPPORTS_VIDEO_CALLING, bitMap)
         }
 
+        @RequiresApi(VERSION_CODES.O)
         private fun hasJetpackSteamingCapability(bitMap: Int): Boolean {
             return hasCapability(CallsManager.CAPABILITY_SUPPORTS_CALL_STREAMING, bitMap)
         }

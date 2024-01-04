@@ -48,9 +48,12 @@ interface CameraMetadata : Metadata, UnsafeWrapper {
 
     val physicalCameraIds: Set<CameraId>
     val physicalRequestKeys: Set<CaptureRequest.Key<*>>
+    val supportedExtensions: Set<Int>
 
     suspend fun getPhysicalMetadata(cameraId: CameraId): CameraMetadata
     fun awaitPhysicalMetadata(cameraId: CameraId): CameraMetadata
+    suspend fun getExtensionMetadata(extension: Int): CameraExtensionMetadata
+    fun awaitExtensionMetadata(extension: Int): CameraExtensionMetadata
 
     companion object {
         /**

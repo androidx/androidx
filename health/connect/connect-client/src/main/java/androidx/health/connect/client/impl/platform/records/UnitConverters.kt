@@ -77,6 +77,9 @@ internal fun PlatformBloodGlucose.toSdkBloodGlucose(): BloodGlucose {
     return BloodGlucose.millimolesPerLiter(inMillimolesPerLiter)
 }
 
+internal fun PlatformEnergy.toNonDefaultSdkEnergy() =
+    takeIf { inCalories != Double.MIN_VALUE }?.toSdkEnergy()
+
 internal fun PlatformEnergy.toSdkEnergy(): Energy {
     return Energy.calories(inCalories)
 }
@@ -84,6 +87,9 @@ internal fun PlatformEnergy.toSdkEnergy(): Energy {
 internal fun PlatformLength.toSdkLength(): Length {
     return Length.meters(inMeters)
 }
+
+internal fun PlatformMass.toNonDefaultSdkMass() =
+    takeIf { inGrams != Double.MIN_VALUE }?.toSdkMass()
 
 internal fun PlatformMass.toSdkMass(): Mass {
     return Mass.grams(inGrams)

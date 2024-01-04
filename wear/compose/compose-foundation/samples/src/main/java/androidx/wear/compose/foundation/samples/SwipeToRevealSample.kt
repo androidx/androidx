@@ -17,6 +17,8 @@
 package androidx.wear.compose.foundation.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -34,6 +36,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.RevealValue
@@ -56,6 +62,15 @@ import kotlinx.coroutines.launch
 @Composable
 fun SwipeToRevealSample() {
     SwipeToReveal(
+        modifier = Modifier.semantics {
+            // Use custom actions to make the primary and secondary actions accessible
+            customActions = listOf(
+                CustomAccessibilityAction("Delete") {
+                    /* Add the primary action click handler */
+                    true
+                }
+            )
+        },
         primaryAction = {
             Box(
                 modifier = Modifier
@@ -89,9 +104,18 @@ fun SwipeToRevealSample() {
 @OptIn(ExperimentalWearFoundationApi::class)
 @Sampled
 @Composable
-fun SwipeToRevealWithRevealOffset() {
+fun SwipeToRevealWithDelayedText() {
     val state = rememberRevealState()
     SwipeToReveal(
+        modifier = Modifier.semantics {
+            // Use custom actions to make the primary and secondary actions accessible
+            customActions = listOf(
+                CustomAccessibilityAction("Delete") {
+                    /* Add the primary action click handler */
+                    true
+                }
+            )
+        },
         state = state,
         primaryAction = {
             Box(
@@ -104,8 +128,19 @@ fun SwipeToRevealWithRevealOffset() {
                     contentDescription = "Delete"
                 )
                 if (abs(state.offset) > revealOffset) {
-                    Spacer(Modifier.size(5.dp))
-                    Text("Clear")
+                    // Delay the text appearance so that it has enough space to be displayed
+                    val textAlpha = animateFloatAsState(
+                        targetValue = 1f,
+                        animationSpec = tween(
+                            durationMillis = 250,
+                            delayMillis = 250
+                        ),
+                        label = "PrimaryActionTextAlpha"
+                    )
+                    Box(modifier = Modifier.graphicsLayer { alpha = textAlpha.value }) {
+                        Spacer(Modifier.size(5.dp))
+                        Text("Clear")
+                    }
                 }
             }
         },
@@ -158,6 +193,18 @@ fun SwipeToRevealWithExpandables() {
                 val revealState = rememberRevealState()
                 if (isExpanded) {
                     SwipeToReveal(
+                        modifier = Modifier.semantics {
+                            // Use custom actions to make the primary and secondary actions
+                            // accessible
+                            customActions = listOf(
+                                CustomAccessibilityAction("Delete") {
+                                    coroutineScope.launch {
+                                        revealState.animateTo(RevealValue.Revealed)
+                                    }
+                                    true
+                                }
+                            )
+                        },
                         state = revealState,
                         primaryAction = {
                             Box(

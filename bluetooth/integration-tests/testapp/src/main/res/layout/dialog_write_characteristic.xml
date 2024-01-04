@@ -15,27 +15,16 @@
   limitations under the License.
   -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingStart="16dp"
     android:paddingTop="8dp"
     android:paddingEnd="16dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="0x"
-        android:textColor="@color/black"
-        android:textSize="21sp"
-        tools:ignore="HardcodedText" />
-
     <EditText
         android:id="@+id/edit_text_value"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        android:layout_marginEnd="4dp"
         android:hint="@string/value"
         android:inputType="text" />
 

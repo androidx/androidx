@@ -422,6 +422,23 @@ constructor(
                 )
             }
 
+        val extensionMode = checkNotNull(
+            graphConfig.sessionParameters
+                [CameraPipeKeys.camera2ExtensionMode] as? Int
+        ) {
+            "The CameraPipeKeys.camera2ExtensionMode must be set in the sessionParameters of the " +
+                "CameraGraph.Config when creating an Extension CameraGraph."
+        }
+
+        val cameraMetadata = camera2MetadataProvider.awaitCameraMetadata(cameraDevice.cameraId)
+
+        val supportedExtensions = cameraMetadata.supportedExtensions
+
+        check(extensionMode in supportedExtensions) {
+            "$cameraDevice does not support extension mode $extensionMode. Supported " +
+                "extensions are ${supportedExtensions.stream()}"
+        }
+
         val outputs = buildOutputConfigurations(
             graphConfig,
             streamGraph,
@@ -436,16 +453,6 @@ constructor(
         }
 
         check(graphConfig.input == null) { "Reprocessing is not supported for Extensions" }
-
-        val extensionMode = checkNotNull(
-            graphConfig.sessionParameters
-                [CameraPipeKeys.camera2ExtensionMode] as? Int
-        ) {
-            "The CameraPipeKeys.camera2ExtensionMode must be set in the sessionParameters of the " +
-                "CameraGraph.Config when creating an Extension CameraGraph."
-        }
-
-        // TODO: b/275575818 - check camera supports extension mode from metadata
 
         val extensionSessionState = ExtensionSessionState(captureSessionState)
 

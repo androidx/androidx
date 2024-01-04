@@ -37,4 +37,22 @@ internal class CompositeServiceSubjectModel {
     operator fun <T> set(key: Key<T>, value: T?) {
         data[key] = value
     }
+
+    /**
+     * Gets the value with [key] and atomically creates it if [key] is not set.
+     */
+    @Suppress("UNCHECKED_CAST")
+    fun <T> getOrPut(key: Key<T>, create: () -> T): T {
+        data[key]?.let {
+            return it as T
+        }
+        synchronized(this) {
+            data[key]?.let {
+                return it as T
+            }
+            return create().also {
+                data[key] = it
+            }
+        }
+    }
 }

@@ -192,14 +192,6 @@ public final class CustomTabsIntent {
             "androidx.browser.customtabs.extra.DISABLE_BACKGROUND_INTERACTION";
 
     /**
-     * Extra that enables the client to add an additional action button to the toolbar.
-     * If the bitmap icon does not fit on the toolbar then the action button will be
-     * added to the secondary toolbar.
-     */
-    public static final String EXTRA_SHOW_ON_TOOLBAR =
-            "android.support.customtabs.customaction.SHOW_ON_TOOLBAR";
-
-    /**
      * Extra that specifies the {@link PendingIntent} to be sent when the user swipes up from
      * the secondary (bottom) toolbar.
      */
@@ -1182,20 +1174,6 @@ public final class CustomTabsIntent {
         }
 
         /**
-         * Enables the client to add an additional action button to the toolbar. If the bitmap
-         * icon does not fit on the toolbar then the action button will be added to the secondary
-         * toolbar.
-         *
-         * @param enabled Whether the additional actions can be added to the toolbar.
-         * @see CustomTabsIntent#EXTRA_SHOW_ON_TOOLBAR
-         */
-        @NonNull
-        public Builder setShowOnToolbarEnabled(boolean enabled) {
-            mIntent.putExtra(EXTRA_SHOW_ON_TOOLBAR, enabled);
-            return this;
-        }
-
-        /**
          * Allow Custom Tabs to obtain the caller's identity i.e. package name.
          * @param enabled Whether the identity sharing is enabled.
          */
@@ -1460,14 +1438,6 @@ public final class CustomTabsIntent {
      */
     public static boolean isBackgroundInteractionEnabled(@NonNull Intent intent) {
         return !intent.getBooleanExtra(EXTRA_DISABLE_BACKGROUND_INTERACTION, false);
-    }
-
-    /**
-     * @return Whether the additional actions can be added to the toolbar.
-     * @see CustomTabsIntent#EXTRA_SHOW_ON_TOOLBAR
-     */
-    public static boolean isShowOnToolbarEnabled(@NonNull Intent intent) {
-        return intent.getBooleanExtra(EXTRA_SHOW_ON_TOOLBAR, false);
     }
 
     /**

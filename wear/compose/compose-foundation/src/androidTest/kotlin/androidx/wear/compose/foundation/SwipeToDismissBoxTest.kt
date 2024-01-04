@@ -17,6 +17,7 @@
 package androidx.wear.compose.foundation
 
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.horizontalScroll
@@ -54,6 +55,7 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
+import androidx.compose.ui.test.swipeWithVelocity
 import java.lang.Math.sin
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -81,6 +83,47 @@ class SwipeToDismissBoxTest {
     }
 
     @Test
+    fun composes_in_one_frame_without_pending_changes() {
+        var outerCounter = 0
+        var innerCounter = 0
+        var runTest by mutableStateOf(false)
+        rule.mainClock.autoAdvance = false
+        rule.setContent {
+            if (runTest) {
+                outerCounter++
+                val state = rememberSwipeToDismissBoxState()
+                SwipeToDismissBox(
+                    state = state,
+                    onDismissed = { },
+                ) { isBackground ->
+                    innerCounter++
+                    if (isBackground) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.Green)
+                        )
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.Red)
+                        )
+                    }
+                }
+            }
+        }
+
+        runTest = true
+
+        repeat(10) {
+            rule.mainClock.advanceTimeByFrame()
+            assertEquals("Outer", 1, outerCounter)
+            assertEquals("Inner", 1, innerCounter)
+        }
+    }
+
+    @Test
     fun dismisses_when_swiped_right() =
         verifySwipe(gesture = { swipeRight() }, expectedToDismiss = true)
 
@@ -91,10 +134,14 @@ class SwipeToDismissBoxTest {
 
     @Test
     fun does_not_dismiss_when_swipe_right_incomplete() =
-    // Execute a partial swipe over a longer-than-default duration so that there
+        // Execute a partial swipe over a longer-than-default duration so that there
         // is insufficient velocity to perform a 'fling'.
         verifySwipe(
-            gesture = { swipeRight(startX = 0f, endX = width / 4f, durationMillis = LONG_SWIPE) },
+            gesture = { swipeWithVelocity(
+                start = Offset(0f, centerY),
+                end = Offset(centerX / 2f, centerY),
+                endVelocity = 1.0f
+            ) },
             expectedToDismiss = false
         )
 
@@ -515,13 +562,10 @@ class SwipeToDismissBoxTest {
         var dismissed = false
         rule.setContent {
             val state = rememberSwipeToDismissBoxState()
-            LaunchedEffect(state.currentValue) {
-                dismissed =
-                    state.currentValue == SwipeToDismissValue.Dismissed
-            }
             SwipeToDismissBox(
                 state = state,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
+                onDismissed = { dismissed = true }
             ) {
                 MessageContent()
             }

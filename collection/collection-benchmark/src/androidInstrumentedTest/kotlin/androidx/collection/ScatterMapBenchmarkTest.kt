@@ -50,6 +50,11 @@ class ScatterMapBenchmarkTest(size: Int) {
         benchmark.runCollectionBenchmark(ScatterMapForEachBenchmark(sourceSet))
     }
 
+    @Test
+    fun compute() {
+        benchmark.runCollectionBenchmark(ScatterMapComputeBenchmark(sourceSet))
+    }
+
     companion object {
         @JvmStatic
         @Parameters(name = "size={0}")

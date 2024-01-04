@@ -183,10 +183,12 @@ internal class TextStringSimpleNode(
         textChanged: Boolean,
         layoutChanged: Boolean
     ) {
+        if (!isAttached) {
+            // no-up for !isAttached. The node will invalidate when attaching again.
+            return
+        }
         if (textChanged || (drawChanged && semanticsTextLayoutResult != null)) {
-            if (isAttached) {
-                invalidateSemantics()
-            }
+            invalidateSemantics()
         }
 
         if (textChanged || layoutChanged) {
@@ -199,9 +201,7 @@ internal class TextStringSimpleNode(
                 maxLines = maxLines,
                 minLines = minLines
             )
-            if (isAttached) {
-                invalidateMeasurement()
-            }
+            invalidateMeasurement()
             invalidateDraw()
         }
         if (drawChanged) {
@@ -388,6 +388,10 @@ internal class TextStringSimpleNode(
      * Optimized Text draw.
      */
     override fun ContentDrawScope.draw() {
+        if (!isAttached) {
+            // no-up for !isAttached. The node will invalidate when attaching again.
+            return
+        }
         val localParagraph = requireNotNull(layoutCache.paragraph) { "no paragraph" }
         drawIntoCanvas { canvas ->
             val willClip = layoutCache.didOverflow

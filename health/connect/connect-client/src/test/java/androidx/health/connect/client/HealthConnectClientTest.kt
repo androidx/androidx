@@ -123,11 +123,11 @@ class HealthConnectClientTest {
         installService(context, HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME)
 
         assertThat(
-                HealthConnectClient.getSdkStatus(
-                    context,
-                    HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME
-                )
+            HealthConnectClient.getSdkStatus(
+                context,
+                HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME
             )
+        )
             .isEqualTo(HealthConnectClient.SDK_AVAILABLE)
         assertThat(HealthConnectClient.getOrCreate(context))
             .isInstanceOf(HealthConnectClientImpl::class.java)
@@ -146,11 +146,11 @@ class HealthConnectClientTest {
         installService(context, HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME)
 
         assertThat(
-                HealthConnectClient.getSdkStatusLegacy(
-                    context,
-                    HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME
-                )
+            HealthConnectClient.getSdkStatusLegacy(
+                context,
+                HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME
             )
+        )
             .isEqualTo(HealthConnectClient.SDK_AVAILABLE)
         assertThat(HealthConnectClient.getOrCreateLegacy(context))
             .isInstanceOf(HealthConnectClientImpl::class.java)
@@ -180,15 +180,23 @@ class HealthConnectClientTest {
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.P])
+    fun getHealthConnectManageDataAction_noProvider_returnsDefaultIntent() {
+        assertThat(HealthConnectClient.getHealthConnectManageDataIntent(context).action).isEqualTo(
+            HealthConnectClient.ACTION_HEALTH_CONNECT_SETTINGS
+        )
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.P])
     fun getHealthConnectManageDataAction_unsupportedClient_returnsDefaultIntent() {
         installPackage(
             context,
             HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME,
-            versionCode = HealthConnectClient.DEFAULT_PROVIDER_MIN_VERSION_CODE,
+            versionCode = HealthConnectClient.DEFAULT_PROVIDER_MIN_VERSION_CODE - 1,
             enabled = true
         )
 
-        assertThat(HealthConnectClient.getHealthConnectManageDataAction(context)).isEqualTo(
+        assertThat(HealthConnectClient.getHealthConnectManageDataIntent(context).action).isEqualTo(
             HealthConnectClient.ACTION_HEALTH_CONNECT_SETTINGS
         )
     }
@@ -199,12 +207,13 @@ class HealthConnectClientTest {
         installPackage(
             context,
             HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME,
-            versionCode = HealthConnectClient.ACTION_MANAGE_DATA_MIN_SUPPORTED_VERSION_CODE,
+            versionCode = HealthConnectClient.DEFAULT_PROVIDER_MIN_VERSION_CODE,
             enabled = true
         )
+        installDataManagementHandler(context, HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME)
         installService(context, HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME)
 
-        assertThat(HealthConnectClient.getHealthConnectManageDataAction(context)).isEqualTo(
+        assertThat(HealthConnectClient.getHealthConnectManageDataIntent(context).action).isEqualTo(
             "androidx.health.ACTION_MANAGE_HEALTH_DATA"
         )
     }
@@ -212,7 +221,7 @@ class HealthConnectClientTest {
     @Test
     @Config(minSdk = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     fun getHealthConnectManageDataAction_platformSupported() {
-        assertThat(HealthConnectClient.getHealthConnectManageDataAction(context)).isEqualTo(
+        assertThat(HealthConnectClient.getHealthConnectManageDataIntent(context).action).isEqualTo(
             "android.health.connect.action.MANAGE_HEALTH_DATA"
         )
     }
@@ -231,6 +240,16 @@ class HealthConnectClientTest {
         packageInfo.applicationInfo.enabled = enabled
         val packageManager = context.packageManager
         Shadows.shadowOf(packageManager).installPackage(packageInfo)
+    }
+
+    private fun installDataManagementHandler(context: Context, packageName: String) {
+        val packageManager = context.packageManager
+        val componentName =
+            ComponentName(packageName, HealthConnectClient.ACTION_HEALTH_CONNECT_MANAGE_DATA)
+        val intentFilter = IntentFilter(HealthConnectClient.ACTION_HEALTH_CONNECT_MANAGE_DATA)
+        val shadowPackageManager = Shadows.shadowOf(packageManager)
+        shadowPackageManager.addActivityIfNotPresent(componentName)
+        shadowPackageManager.addIntentFilterForActivity(componentName, intentFilter)
     }
 
     private fun installService(context: Context, packageName: String) {

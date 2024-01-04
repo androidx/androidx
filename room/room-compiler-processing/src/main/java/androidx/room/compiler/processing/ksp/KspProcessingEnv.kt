@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XConstructorType
+import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XExecutableType
 import androidx.room.compiler.processing.XFiler
 import androidx.room.compiler.processing.XMessager
@@ -35,6 +36,8 @@ import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFile
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeAlias
 import com.google.devtools.ksp.symbol.KSTypeArgument
@@ -201,6 +204,18 @@ internal class KspProcessingEnv(
     override fun getArrayType(type: XType): KspArrayType {
         check(type is KspType)
         return arrayTypeFactory.createWithComponentType(type)
+    }
+
+    @OptIn(KspExperimental::class)
+    override fun getElementsFromPackage(packageName: String): List<XElement> {
+        return resolver.getDeclarationsFromPackage(packageName).map {
+            when (it) {
+                is KSClassDeclaration -> wrapClassDeclaration(it)
+                is KSPropertyDeclaration -> KspFieldElement.create(this, it)
+                is KSFunctionDeclaration -> KspMethodElement.create(this, it)
+                else -> error("Unknown element type")
+            }
+        }.toList()
     }
 
     /**

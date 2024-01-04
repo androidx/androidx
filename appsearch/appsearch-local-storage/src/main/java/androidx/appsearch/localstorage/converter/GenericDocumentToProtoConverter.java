@@ -151,14 +151,17 @@ public final class GenericDocumentToProtoConverter {
                         .setTtlMillis(proto.getTtlMs())
                         .setCreationTimestampMillis(proto.getCreationTimestampMs());
         String prefixedSchemaType = prefix + proto.getSchema();
-        List<String> parentSchemaTypes = getUnprefixedParentSchemaTypes(
-                prefixedSchemaType, schemaTypeMap);
-        if (!parentSchemaTypes.isEmpty()) {
-            if (config.shouldStoreParentInfoAsSyntheticProperty()) {
-                documentBuilder.setPropertyString(GenericDocument.PARENT_TYPES_SYNTHETIC_PROPERTY,
-                        parentSchemaTypes.toArray(new String[0]));
-            } else {
-                documentBuilder.setParentTypes(parentSchemaTypes);
+        if (config.shouldRetrieveParentInfo()) {
+            List<String> parentSchemaTypes =
+                    getUnprefixedParentSchemaTypes(prefixedSchemaType, schemaTypeMap);
+            if (!parentSchemaTypes.isEmpty()) {
+                if (config.shouldStoreParentInfoAsSyntheticProperty()) {
+                    documentBuilder.setPropertyString(
+                            GenericDocument.PARENT_TYPES_SYNTHETIC_PROPERTY,
+                            parentSchemaTypes.toArray(new String[0]));
+                } else {
+                    documentBuilder.setParentTypes(parentSchemaTypes);
+                }
             }
         }
 

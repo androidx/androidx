@@ -94,6 +94,10 @@ internal class JavacProcessingEnv(
             .map { wrapTypeElement(it) }
     }
 
+    override fun getElementsFromPackage(packageName: String): List<XElement> {
+        return getTypeElementsFromPackage(packageName)
+    }
+
     override fun findType(qName: String): XType? {
         // check for primitives first
         PRIMITIVE_TYPES[qName]?.let {

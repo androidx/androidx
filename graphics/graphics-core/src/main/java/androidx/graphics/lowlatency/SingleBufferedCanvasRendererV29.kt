@@ -18,14 +18,13 @@ package androidx.graphics.lowlatency
 
 import android.graphics.BlendMode
 import android.graphics.Color
-import android.graphics.RenderNode
+import android.graphics.ColorSpace
 import android.hardware.HardwareBuffer
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
 import androidx.graphics.MultiBufferedCanvasRenderer
 import androidx.graphics.RenderQueue
-import androidx.graphics.surface.SurfaceControlCompat
 import androidx.graphics.utils.HandlerThreadExecutor
 import androidx.hardware.SyncFenceCompat
 import java.util.concurrent.Executor
@@ -34,7 +33,7 @@ import java.util.concurrent.Executor
 internal class SingleBufferedCanvasRendererV29<T>(
     private val width: Int,
     private val height: Int,
-    private val bufferTransformer: BufferTransformer,
+    bufferTransformer: BufferTransformer,
     handlerThread: HandlerThreadExecutor,
     private val callbacks: SingleBufferedCanvasRenderer.RenderCallbacks<T>,
 ) : SingleBufferedCanvasRenderer<T> {
@@ -66,36 +65,10 @@ internal class SingleBufferedCanvasRendererV29<T>(
             }
         )
 
-    private val mTransform = android.graphics.Matrix().apply {
-        when (bufferTransformer.computedTransform) {
-            SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90 -> {
-                setRotate(270f)
-                postTranslate(0f, width.toFloat())
-            }
-            SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_180 -> {
-                setRotate(180f)
-                postTranslate(width.toFloat(), height.toFloat())
-            }
-            SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_270 -> {
-                setRotate(90f)
-                postTranslate(height.toFloat(), 0f)
-            }
-            else -> {
-                reset()
-            }
-        }
-    }
-
     private val mBufferedRenderer = MultiBufferedCanvasRenderer(
-        RenderNode("renderNode").apply {
-            setPosition(
-                0,
-                0,
-                bufferTransformer.glWidth,
-                bufferTransformer.glHeight)
-        },
         bufferTransformer.glWidth,
         bufferTransformer.glHeight,
+        bufferTransformer,
         usage = FrontBufferUtils.obtainHardwareBufferUsageFlags(),
         maxImages = 1
     )
@@ -110,12 +83,9 @@ internal class SingleBufferedCanvasRendererV29<T>(
 
         override fun execute() {
             mBufferedRenderer.record { canvas ->
-                canvas.save()
-                canvas.setMatrix(mTransform)
                 for (pendingParam in mPendingParams) {
                     callbacks.render(canvas, width, height, pendingParam)
                 }
-                canvas.restore()
                 mPendingParams.clear()
             }
         }
@@ -160,6 +130,10 @@ internal class SingleBufferedCanvasRendererV29<T>(
     override fun cancelPending() {
         mRenderQueue.cancelPending()
     }
+
+    override var colorSpace: ColorSpace
+        get() = mBufferedRenderer.colorSpace
+        set(value) { mBufferedRenderer.colorSpace = value }
 
     private companion object {
         const val RENDER = 0

@@ -1488,7 +1488,6 @@ public final class CameraUtil {
                 Logger.d(LOG_TAG, "++ Camera id: " + id);
                 try {
                     CameraCharacteristics c = manager.getCameraCharacteristics(id);
-                    Logger.d(LOG_TAG, id + " character: " + c);
                     if (c != null) {
                         Integer lensFacing = c.get(CameraCharacteristics.LENS_FACING);
                         Logger.d(LOG_TAG, id + " lensFacing: " + lensFacing);

@@ -35,6 +35,7 @@ import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LI
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_INSUFFICIENT_STORAGE;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE;
+
 import static java.util.Objects.requireNonNull;
 
 import android.Manifest;
@@ -1135,7 +1136,7 @@ public class CameraXActivity extends AppCompatActivity {
         mZslToggle.setEnabled(mPhotoToggle.isChecked());
         mCameraDirectionButton.setEnabled(getCameraInfo() != null);
         mPreviewStabilizationToggle.setEnabled(mCamera != null
-                && mCamera.getCameraInfo().getPreviewCapabilities().isStabilizationSupported());
+                && Preview.getPreviewCapabilities(getCameraInfo()).isStabilizationSupported());
         mTorchButton.setEnabled(isFlashAvailable());
         // Flash button
         mFlashButton.setEnabled(mPhotoToggle.isChecked() && isFlashAvailable());

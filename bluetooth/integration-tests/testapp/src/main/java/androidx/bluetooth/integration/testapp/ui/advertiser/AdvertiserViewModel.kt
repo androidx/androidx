@@ -65,6 +65,9 @@ class AdvertiserViewModel : ViewModel() {
     private val _gattServerServices = mutableListOf<GattService>()
     val gattServerServices: List<GattService> = _gattServerServices
 
+    private val gattServerServicesCharacteristicValueMap =
+        mutableMapOf<GattCharacteristic, ByteArray>()
+
     fun removeAdvertiseDataAtIndex(index: Int) {
         val manufacturerDataSize = manufacturerDatas.size
         val serviceDataSize = serviceDatas.size
@@ -90,5 +93,13 @@ class AdvertiserViewModel : ViewModel() {
                 add(characteristic)
             }
         )
+    }
+
+    fun readGattCharacteristicValue(characteristic: GattCharacteristic): ByteArray {
+        return gattServerServicesCharacteristicValueMap[characteristic] ?: ByteArray(0)
+    }
+
+    fun updateGattCharacteristicValue(characteristic: GattCharacteristic, value: ByteArray) {
+        gattServerServicesCharacteristicValueMap[characteristic] = value
     }
 }

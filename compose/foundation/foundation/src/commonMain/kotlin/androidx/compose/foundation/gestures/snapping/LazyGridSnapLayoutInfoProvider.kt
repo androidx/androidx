@@ -108,7 +108,7 @@ fun SnapLayoutInfoProvider(
         }
 
         return calculateFinalOffset(
-            currentVelocity,
+            with(lazyGridState.density) { calculateFinalSnappingItem(currentVelocity) },
             distanceFromItemBeforeTarget,
             distanceFromItemAfterTarget
         )

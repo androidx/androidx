@@ -191,7 +191,10 @@ public abstract class FragmentTransitionImpl {
     /**
      * Animate the transition to start.
      */
-    public void animateToStart(@NonNull Object transitionController) { }
+    public Runnable animateToStart(@NonNull Object transitionController,
+            @NonNull ViewGroup sceneRoot, @NonNull Runnable completeRunnable) {
+        return () -> { };
+    }
 
     /**
      * Prepares for setting the shared element names by gathering the names of the incoming

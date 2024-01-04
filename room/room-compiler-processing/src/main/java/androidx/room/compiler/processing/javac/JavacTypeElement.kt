@@ -276,6 +276,14 @@ internal sealed class JavacTypeElement(
         }
     }
 
+    override fun isFromJava(): Boolean {
+        return element.asType().kind != TypeKind.ERROR && !hasAnnotation(Metadata::class)
+    }
+
+    override fun isFromKotlin(): Boolean {
+        return element.asType().kind != TypeKind.ERROR && hasAnnotation(Metadata::class)
+    }
+
     class DefaultJavacTypeElement(
         env: JavacProcessingEnv,
         element: TypeElement

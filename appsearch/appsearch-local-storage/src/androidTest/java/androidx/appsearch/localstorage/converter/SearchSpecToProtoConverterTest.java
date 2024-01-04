@@ -498,6 +498,8 @@ public class SearchSpecToProtoConverterTest {
         assertThat(nestedResultSpecProto.getTypePropertyMasks(0).getPaths(0)).isEqualTo("type");
     }
 
+    // @exportToFramework:startStrip()
+    // TODO(b/274157614): Export this to framework when property filters are made public
     @Test
     public void testToSearchSpecProto_propertyFilter_withJoinSpec_packageFilter() throws Exception {
         String personPrefix = PrefixUtil.createPrefix("contacts", "database");
@@ -550,6 +552,7 @@ public class SearchSpecToProtoConverterTest {
         assertThat(nestedSearchSpecProto.getTypePropertyFilters(0).getPaths(0)).isEqualTo("type");
     }
 
+    // @exportToFramework:endStrip()
     @Test
     public void testToResultSpecProto_weight_withJoinSpec_packageFilter() throws Exception {
         String personPrefix = PrefixUtil.createPrefix("contacts", "database");

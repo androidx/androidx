@@ -20,6 +20,7 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.os.Build
+import androidx.camera.camera2.pipe.CameraExtensionMetadata
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.Metadata
@@ -112,13 +113,26 @@ class FlashAvailabilityCheckerTest(
         override val isRedacted: Boolean = false
 
         override val physicalCameraIds: Set<CameraId> = physicalMetadata.keys
+        override val supportedExtensions: Set<Int>
+            get() = TODO("b/299356087 - Add support for fake extension metadata")
+
         override suspend fun getPhysicalMetadata(cameraId: CameraId): CameraMetadata =
             physicalMetadata[cameraId]!!
 
         override fun awaitPhysicalMetadata(cameraId: CameraId): CameraMetadata =
             physicalMetadata[cameraId]!!
 
-        override fun <T : Any> unwrapAs(type: KClass<T>): T? = null
+        override suspend fun getExtensionMetadata(extension: Int): CameraExtensionMetadata {
+            TODO("b/299356087 - Add support for fake extension metadata")
+        }
+
+        override fun awaitExtensionMetadata(extension: Int): CameraExtensionMetadata {
+            TODO("b/299356087 - Add support for fake extension metadata")
+        }
+
+        override fun <T : Any> unwrapAs(type: KClass<T>): T? {
+            TODO("Not yet implemented")
+        }
     }
 
     companion object {

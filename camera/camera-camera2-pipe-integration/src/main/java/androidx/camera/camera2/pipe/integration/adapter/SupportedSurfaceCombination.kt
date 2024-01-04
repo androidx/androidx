@@ -85,9 +85,14 @@ class SupportedSurfaceCombination(
     private val hardwareLevel =
         cameraMetadata[CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL]
             ?: CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
+    private val availableStabilizationMode =
+        cameraMetadata[CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES]
+            ?: CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES
     private val concurrentSurfaceCombinations: MutableList<SurfaceCombination> = mutableListOf()
     private val surfaceCombinations: MutableList<SurfaceCombination> = mutableListOf()
     private val ultraHighSurfaceCombinations: MutableList<SurfaceCombination> = mutableListOf()
+    private val previewStabilizationSurfaceCombinations: MutableList<SurfaceCombination> =
+        mutableListOf()
     private val featureSettingsToSupportedCombinationsMap:
         MutableMap<FeatureSettings, List<SurfaceCombination>> = mutableMapOf()
     private val surfaceCombinations10Bit: MutableList<SurfaceCombination> = mutableListOf()
@@ -95,6 +100,7 @@ class SupportedSurfaceCombination(
     private var isBurstCaptureSupported = false
     private var isConcurrentCameraModeSupported = false
     private var isUltraHighResolutionSensorSupported = false
+    private var isPreviewStabilizationSupported = false
     internal lateinit var surfaceSizeDefinition: SurfaceSizeDefinition
     private val surfaceSizeDefinitionFormats = mutableListOf<Int>()
     private val streamConfigurationMapCompat = getStreamConfigurationMapCompat()
@@ -119,6 +125,10 @@ class SupportedSurfaceCombination(
 
         if (dynamicRangeResolver.is10BitDynamicRangeSupported()) {
             generate10BitSupportedCombinationList()
+        }
+
+        if (isPreviewStabilizationSupported) {
+            generatePreviewStabilizationSupportedCombinationList()
         }
         generateSurfaceSizeDefinition()
     }
@@ -162,7 +172,14 @@ class SupportedSurfaceCombination(
                     supportedSurfaceCombinations.addAll(surfaceCombinations)
                 }
 
-                else -> supportedSurfaceCombinations.addAll(surfaceCombinations)
+                else -> {
+                    supportedSurfaceCombinations.addAll(
+                        if (featureSettings.isPreviewStabilizationOn)
+                            previewStabilizationSurfaceCombinations
+                        else
+                            surfaceCombinations
+                    )
+                }
             }
         } else if (featureSettings.requiredMaxBitDepth == DynamicRange.BIT_DEPTH_10_BIT) {
             // For 10-bit outputs, only the default camera mode is currently supported.
@@ -200,6 +217,7 @@ class SupportedSurfaceCombination(
      * @param attachedSurfaces  the existing surfaces.
      * @param newUseCaseConfigsSupportedSizeMap newly added UseCaseConfig to supported output sizes
      * map.
+     * @param isPreviewStabilizationOn whether the preview stabilization is enabled.
      * @return the suggested stream specs, which is a mapping from UseCaseConfig to the suggested
      * stream specification.
      * @throws IllegalArgumentException if the suggested solution for newUseCaseConfigs cannot be
@@ -208,7 +226,8 @@ class SupportedSurfaceCombination(
     fun getSuggestedStreamSpecifications(
         cameraMode: Int,
         attachedSurfaces: List<AttachedSurfaceInfo>,
-        newUseCaseConfigsSupportedSizeMap: Map<UseCaseConfig<*>, List<Size>>
+        newUseCaseConfigsSupportedSizeMap: Map<UseCaseConfig<*>, List<Size>>,
+        isPreviewStabilizationOn: Boolean = false
     ): Pair<Map<UseCaseConfig<*>, StreamSpec>, Map<AttachedSurfaceInfo, StreamSpec>> {
         // Refresh Preview Size based on current display configurations.
         refreshPreviewSize()
@@ -225,7 +244,8 @@ class SupportedSurfaceCombination(
             newUseCaseConfigs, useCasesPriorityOrder
         )
         val requiredMaxBitDepth: Int = getRequiredMaxBitDepth(resolvedDynamicRanges)
-        val featureSettings = FeatureSettings(cameraMode, requiredMaxBitDepth)
+        val featureSettings = FeatureSettings(cameraMode, requiredMaxBitDepth,
+            isPreviewStabilizationOn)
         require(
             !(cameraMode != CameraMode.DEFAULT &&
                 requiredMaxBitDepth == DynamicRange.BIT_DEPTH_10_BIT)
@@ -818,6 +838,16 @@ class SupportedSurfaceCombination(
                     .REQUEST_AVAILABLE_CAPABILITIES_ULTRA_HIGH_RESOLUTION_SENSOR
             )
         }
+
+        // Preview Stabilization
+        val availablePreviewStabilizationModes: IntArray? =
+            cameraMetadata.get<IntArray>(
+                CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES)
+
+        availablePreviewStabilizationModes?.apply {
+            isPreviewStabilizationSupported = contains(
+                CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION)
+        }
     }
 
     /**
@@ -843,7 +873,13 @@ class SupportedSurfaceCombination(
 
     private fun generateConcurrentSupportedCombinationList() {
         concurrentSurfaceCombinations.addAll(
-            GuaranteedConfigurationsUtil.generateConcurrentSupportedCombinationList()
+            GuaranteedConfigurationsUtil.getConcurrentSupportedCombinationList()
+        )
+    }
+
+    private fun generatePreviewStabilizationSupportedCombinationList() {
+        previewStabilizationSurfaceCombinations.addAll(
+            GuaranteedConfigurationsUtil.getPreviewStabilizationSupportedCombinationList()
         )
     }
 
@@ -1181,10 +1217,11 @@ class SupportedSurfaceCombination(
      *           the camera. A value of [DynamicRange.BIT_DEPTH_10_BIT] corresponds to the camera
      *           capability
      *           [CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT].
-     *
+     * @param isPreviewStabilizationOn Whether the preview stabilization is enabled.
      */
     data class FeatureSettings(
         @CameraMode.Mode val cameraMode: Int,
-        val requiredMaxBitDepth: Int
+        val requiredMaxBitDepth: Int,
+        val isPreviewStabilizationOn: Boolean = false
     )
 }

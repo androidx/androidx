@@ -45,6 +45,7 @@ import androidx.camera.video.internal.BackupHdrProfileEncoderProfilesProvider;
 import androidx.camera.video.internal.DynamicRangeMatchedEncoderProfilesProvider;
 import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.video.internal.workaround.QualityResolutionModifiedEncoderProfilesProvider;
 import androidx.camera.video.internal.workaround.QualityValidatedEncoderProfilesProvider;
 import androidx.core.util.Preconditions;
 
@@ -76,7 +77,7 @@ public final class RecorderVideoCapabilities implements VideoCapabilities {
 
     private final EncoderProfilesProvider mProfilesProvider;
 
-    private boolean mIsStabilizationSupported = false;
+    private final boolean mIsStabilizationSupported;
 
     // Mappings of DynamicRange to recording capability information. The mappings are divided
     // into two collections based on the key's (DynamicRange) category, one for specified
@@ -103,19 +104,23 @@ public final class RecorderVideoCapabilities implements VideoCapabilities {
         EncoderProfilesProvider encoderProfilesProvider =
                 cameraInfoInternal.getEncoderProfilesProvider();
 
+        // Modify qualities' matching resolution to the value supported by camera.
+        Quirks deviceQuirks = DeviceQuirks.getAll();
+        encoderProfilesProvider = new QualityResolutionModifiedEncoderProfilesProvider(
+                encoderProfilesProvider, deviceQuirks);
+
         // Add backup HDR video information. In the initial version, only HLG10 profile is added.
         if (isHlg10SupportedByCamera(cameraInfoInternal)) {
             encoderProfilesProvider = new BackupHdrProfileEncoderProfilesProvider(
                     encoderProfilesProvider, backupVideoProfileValidator);
         }
 
-        // Workaround resolution quirk.
+        // Filter out qualities with unsupported resolutions.
         Quirks cameraQuirks = cameraInfoInternal.getCameraQuirks();
         encoderProfilesProvider = new ResolutionValidatedEncoderProfilesProvider(
                 encoderProfilesProvider, cameraQuirks);
 
-        // Workaround quality quirk.
-        Quirks deviceQuirks = DeviceQuirks.getAll();
+        // Filter out unsupported qualities.
         encoderProfilesProvider = new QualityValidatedEncoderProfilesProvider(
                 encoderProfilesProvider, cameraInfoInternal, deviceQuirks);
         mProfilesProvider = encoderProfilesProvider;

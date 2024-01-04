@@ -147,6 +147,48 @@ class LazyListFocusMoveTest(param: Param) {
     }
 
     @Test
+    fun moveFocusAmongVisibleItems_userScrollIsOff() {
+        // Arrange.
+        rule.setTestContent {
+            lazyList(50.dp, lazyListState, userScrollEnabled = false) {
+                item { FocusableBox(0) }
+                item { FocusableBox(1, initiallyFocused) }
+                item { FocusableBox(2) }
+            }
+        }
+        rule.runOnIdle { initiallyFocused.requestFocus() }
+
+        // Act.
+        val success = rule.runOnIdle {
+            focusManager.moveFocus(focusDirection)
+        }
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(success).apply { if (focusDirection == Enter) isFalse() else isTrue() }
+            when (focusDirection) {
+                Left -> when (layoutDirection) {
+                    Ltr -> assertThat(isFocused[if (reverseLayout) 2 else 0]).isTrue()
+                    Rtl -> assertThat(isFocused[if (reverseLayout) 0 else 2]).isTrue()
+                }
+
+                Right -> when (layoutDirection) {
+                    Ltr -> assertThat(isFocused[if (reverseLayout) 0 else 2]).isTrue()
+                    Rtl -> assertThat(isFocused[if (reverseLayout) 2 else 0]).isTrue()
+                }
+
+                Up -> assertThat(isFocused[if (reverseLayout) 2 else 0]).isTrue()
+                Down -> assertThat(isFocused[if (reverseLayout) 0 else 2]).isTrue()
+                Previous -> assertThat(isFocused[0]).isTrue()
+                Next -> assertThat(isFocused[2]).isTrue()
+                Enter -> assertThat(isFocused[1]).isTrue()
+                Exit -> assertThat(isLazyListFocused).isTrue()
+                else -> unsupportedDirection()
+            }
+        }
+    }
+
+    @Test
     fun moveFocusToItemThatIsJustBeyondBounds() {
         // Arrange.
         rule.setTestContent {
@@ -199,6 +241,43 @@ class LazyListFocusMoveTest(param: Param) {
                 Exit -> assertThat(isLazyListFocused).isTrue()
                 else -> unsupportedDirection()
             }
+        }
+    }
+
+    @Test
+    fun moveFocusToItemThatIsJustBeyondBounds_userScrollIsOff() {
+        // Arrange.
+        rule.setTestContent {
+            lazyList(30.dp, lazyListState, userScrollEnabled = false) {
+                items(5) { FocusableBox(it) }
+                item { FocusableBox(5, initiallyFocused) }
+                items(5) { FocusableBox(it + 6) }
+            }
+        }
+        rule.runOnIdle {
+            // Scroll so that the focused item is in the middle.
+            runBlocking { lazyListState.scrollToItem(4) }
+
+            // Move focus to the last visible item.
+            initiallyFocused.requestFocus()
+            when (focusDirection) {
+                Left, Right, Up, Down, Previous, Next -> focusManager.moveFocus(focusDirection)
+                Enter, Exit -> {
+                    // Do nothing
+                }
+
+                else -> unsupportedDirection()
+            }
+        }
+        val firstVisibleItemIndex = lazyListState.firstVisibleItemIndex
+        // Act.
+        rule.runOnIdle {
+            focusManager.moveFocus(focusDirection)
+        }
+
+        // Assert We Did Not Move
+        rule.runOnIdle {
+            assertThat(lazyListState.firstVisibleItemIndex).isEqualTo(firstVisibleItemIndex)
         }
     }
 
@@ -471,6 +550,7 @@ class LazyListFocusMoveTest(param: Param) {
     private fun lazyList(
         size: Dp,
         state: LazyListState = rememberLazyListState(),
+        userScrollEnabled: Boolean = true,
         content: LazyListScope.() -> Unit
     ) {
         when (focusDirection) {
@@ -481,7 +561,8 @@ class LazyListFocusMoveTest(param: Param) {
                     .focusable(),
                 state = state,
                 reverseLayout = reverseLayout,
-                content = content
+                content = content,
+                userScrollEnabled = userScrollEnabled
             )
 
             Up, Down -> LazyColumn(
@@ -491,7 +572,8 @@ class LazyListFocusMoveTest(param: Param) {
                     .focusable(),
                 state = state,
                 reverseLayout = reverseLayout,
-                content = content
+                content = content,
+                userScrollEnabled = userScrollEnabled
             )
 
             else -> unsupportedDirection()

@@ -21,10 +21,15 @@ package androidx.compose.foundation.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.InputTransformation
 import androidx.compose.foundation.text2.input.TextFieldState
@@ -37,6 +42,7 @@ import androidx.compose.foundation.text2.input.rememberTextFieldState
 import androidx.compose.foundation.text2.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.foundation.text2.input.textAsFlow
 import androidx.compose.foundation.text2.input.then
+import androidx.compose.material.Button
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
@@ -48,10 +54,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.substring
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
@@ -162,10 +171,9 @@ fun BasicTextField2StateEditSample() {
     }
 }
 
-// TODO convert to InputTransformation
 @Sampled
 @Composable
-fun BasicTextField2CustomFilterSample() {
+fun BasicTextField2CustomInputTransformationSample() {
     val state = remember { TextFieldState() }
     BasicTextField2(state, inputTransformation = { _, new ->
         // A filter that always places newly-input text at the start of the string, after a
@@ -204,7 +212,33 @@ fun BasicTextField2CustomFilterSample() {
 }
 
 @Sampled
-fun BasicTextField2FilterChainingSample() {
+@Composable
+fun BasicTextField2InputTransformationByValueReplaceSample() {
+    val state = remember { TextFieldState() }
+    BasicTextField2(
+        state,
+        // Convert tabs to spaces.
+        inputTransformation = InputTransformation.byValue { _, proposed ->
+            proposed.replace("""\t""".toRegex(), "  ")
+        }
+    )
+}
+
+@Sampled
+@Composable
+fun BasicTextField2InputTransformationByValueChooseSample() {
+    val state = remember { TextFieldState() }
+    BasicTextField2(
+        state,
+        // Reject whitespace.
+        inputTransformation = InputTransformation.byValue { current, proposed ->
+            if ("""\s""".toRegex() in proposed) current else proposed
+        }
+    )
+}
+
+@Sampled
+fun BasicTextField2InputTransformationChainingSample() {
     val removeFirstEFilter = InputTransformation { _, new ->
         val index = new.asCharSequence().indexOf('e')
         if (index != -1) {
@@ -323,5 +357,45 @@ fun BasicTextField2TextValuesSample() {
                 }
             }
         }
+    }
+}
+
+@Sampled
+@Composable
+fun BasicTextField2UndoSample() {
+    val state = rememberTextFieldState()
+
+    Column(Modifier.padding(8.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(
+                onClick = { state.undoState.undo() },
+                enabled = state.undoState.canUndo
+            ) {
+                Text("Undo")
+            }
+
+            Button(
+                onClick = { state.undoState.redo() },
+                enabled = state.undoState.canRedo
+            ) {
+                Text("Redo")
+            }
+
+            Button(
+                onClick = { state.undoState.clearHistory() },
+                enabled = state.undoState.canUndo || state.undoState.canRedo
+            ) {
+                Text("Clear History")
+            }
+        }
+
+        BasicTextField2(
+            state = state,
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(1.dp, Color.LightGray, RoundedCornerShape(6.dp))
+                .padding(8.dp),
+            textStyle = TextStyle(fontSize = 16.sp)
+        )
     }
 }

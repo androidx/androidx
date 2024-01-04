@@ -20,11 +20,13 @@ package androidx.camera.camera2.pipe.compat
 
 import android.content.Context
 import android.graphics.SurfaceTexture
+import android.hardware.camera2.CameraExtensionCharacteristics
 import android.os.Build
 import android.os.Looper
 import android.util.Size
 import android.view.Surface
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraExtensionMetadata
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraph.Flags.FinalizeSessionOnCloseBehavior
 import androidx.camera.camera2.pipe.CameraId
@@ -209,6 +211,26 @@ class FakeCamera2Module {
 
         override fun awaitCameraMetadata(cameraId: CameraId): CameraMetadata {
             return fakeCamera.metadata
+        }
+
+        override fun getCameraExtensionCharacteristics(
+            cameraId: CameraId
+        ): CameraExtensionCharacteristics {
+            TODO("b/299356087 - Add support for fake extension metadata")
+        }
+
+        override suspend fun getCameraExtensionMetadata(
+            cameraId: CameraId,
+            extension: Int
+        ): CameraExtensionMetadata {
+            TODO("b/299356087 - Add support for fake extension metadata")
+        }
+
+        override fun awaitCameraExtensionMetadata(
+            cameraId: CameraId,
+            extension: Int
+        ): CameraExtensionMetadata {
+            TODO("b/299356087 - Add support for fake extension metadata")
         }
     }
 }

@@ -240,7 +240,8 @@ public final class ExtensionsManager {
             }
 
             // Prior to 1.1 no additional initialization logic required
-            if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_1) < 0) {
+            if (ClientVersion.isMaximumCompatibleVersion(Version.VERSION_1_0)
+                    || ExtensionVersion.isMaximumCompatibleVersion(Version.VERSION_1_0)) {
                 return Futures.immediateFuture(
                         getOrCreateExtensionsManager(ExtensionsAvailability.LIBRARY_AVAILABLE,
                                 cameraProvider));

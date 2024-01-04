@@ -16,6 +16,9 @@
 
 package androidx.javascriptengine;
 
+import android.content.res.AssetFileDescriptor;
+import android.os.ParcelFileDescriptor;
+
 import androidx.annotation.NonNull;
 import androidx.core.util.Consumer;
 
@@ -43,6 +46,20 @@ final class IsolateClosedState implements IsolateState {
                 "Calling evaluateJavaScriptAsync() when " + mDescription);
     }
 
+    @NonNull
+    @Override
+    public ListenableFuture<String> evaluateJavaScriptAsync(@NonNull AssetFileDescriptor afd) {
+        throw new IllegalStateException(
+                "Calling evaluateJavaScriptAsync() when " + mDescription);
+    }
+
+    @NonNull
+    @Override
+    public ListenableFuture<String> evaluateJavaScriptAsync(@NonNull ParcelFileDescriptor pfd) {
+        throw new IllegalStateException(
+                "Calling evaluateJavaScriptAsync() when " + mDescription);
+    }
+
     @Override
     public void setConsoleCallback(@NonNull Executor executor,
             @NonNull JavaScriptConsoleCallback callback) {
@@ -63,7 +80,7 @@ final class IsolateClosedState implements IsolateState {
     }
 
     @Override
-    public boolean provideNamedData(@NonNull String name, @NonNull byte[] inputBytes) {
+    public void provideNamedData(@NonNull String name, @NonNull byte[] inputBytes) {
         throw new IllegalStateException(
                 "Calling provideNamedData() when " + mDescription);
     }

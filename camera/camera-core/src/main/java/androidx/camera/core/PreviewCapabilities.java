@@ -18,35 +18,24 @@ package androidx.camera.core;
 
 import android.hardware.camera2.CaptureRequest;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 
 /**
- * PreviewCapabilities is used to query preview stream capabilities on the device.
+ * PreviewCapabilities is used to query {@link Preview} use case capabilities on the device.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface PreviewCapabilities {
 
     /**
-     * Returns if preview stabilization is supported on the device.
+     * Returns if preview stabilization is supported on the device. Preview stabilization can be
+     * turned on via {@link Preview.Builder#setPreviewStabilizationEnabled(boolean)}.
      *
      * @return true if
      * {@link CaptureRequest#CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION} is supported,
      * otherwise false.
      *
+     * @see Preview.Builder#setPreviewStabilizationEnabled(boolean)
      * @see CaptureRequest#CONTROL_VIDEO_STABILIZATION_MODE
      */
     boolean isStabilizationSupported();
-
-
-    /** An empty implementation. */
-    @NonNull
-    PreviewCapabilities EMPTY = new PreviewCapabilities() {
-        @Override
-        public boolean isStabilizationSupported() {
-            return false;
-        }
-    };
 }

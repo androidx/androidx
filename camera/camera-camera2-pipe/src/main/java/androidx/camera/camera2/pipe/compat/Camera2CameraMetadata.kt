@@ -17,12 +17,14 @@
 package androidx.camera.camera2.pipe.compat
 
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraExtensionCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.os.Build
 import android.util.ArrayMap
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraExtensionMetadata
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.Metadata
@@ -47,7 +49,10 @@ internal class Camera2CameraMetadata(
     @GuardedBy("values")
     private val values = ArrayMap<CameraCharacteristics.Key<*>, Any?>()
 
-    // TODO: b/275575818 - this here may need a switch statement on the key
+    @GuardedBy("extensionCache")
+    private val extensionCache = ArrayMap<Int, CameraExtensionMetadata>()
+
+    // TODO: b/299356087 - this here may need a switch statement on the key
     @Suppress("UNCHECKED_CAST")
     override fun <T> get(key: Metadata.Key<T>): T? = metadata[key] as T?
 
@@ -106,6 +111,8 @@ internal class Camera2CameraMetadata(
         get() = _physicalCameraIds.value
     override val physicalRequestKeys: Set<CaptureRequest.Key<*>>
         get() = _physicalRequestKeys.value
+    override val supportedExtensions: Set<Int>
+        get() = _supportedExtensions.value
 
     override suspend fun getPhysicalMetadata(cameraId: CameraId): CameraMetadata {
         check(physicalCameraIds.contains(cameraId)) {
@@ -120,6 +127,51 @@ internal class Camera2CameraMetadata(
         }
         return metadataProvider.awaitCameraMetadata(cameraId)
     }
+
+    private fun getExtensionCharacteristics(): CameraExtensionCharacteristics {
+        return metadataProvider.getCameraExtensionCharacteristics(camera)
+    }
+
+    override suspend fun getExtensionMetadata(extension: Int): CameraExtensionMetadata {
+        val existing = synchronized(extensionCache) { extensionCache[extension] }
+        return if (existing != null) {
+            existing
+        } else {
+            val extensionMetadata = metadataProvider.getCameraExtensionMetadata(camera, extension)
+            synchronized(extensionCache) { extensionCache[extension] = extensionMetadata }
+            extensionMetadata
+        }
+    }
+
+    override fun awaitExtensionMetadata(extension: Int): CameraExtensionMetadata {
+        val existing = synchronized(extensionCache) { extensionCache[extension] }
+        return if (existing != null) {
+            existing
+        } else {
+            val extensionMetadata = metadataProvider.awaitCameraExtensionMetadata(camera, extension)
+            synchronized(extensionCache) { extensionCache[extension] = extensionMetadata }
+            extensionMetadata
+        }
+    }
+
+    private val _supportedExtensions: Lazy<Set<Int>> =
+        lazy(LazyThreadSafetyMode.PUBLICATION) {
+            try {
+                Debug.trace("Camera-$camera#supportedExtensions") {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        val extensionCharacteristics = getExtensionCharacteristics()
+                        Api31Compat.getSupportedExtensions(extensionCharacteristics).toSet()
+                    } else {
+                        emptySet()
+                    }
+                }
+            } catch (e: AssertionError) {
+                Log.warn(e) {
+                    "Failed to getSupportedExtensions from Camera-$camera"
+                }
+                emptySet()
+            }
+        }
 
     private val _keys: Lazy<Set<CameraCharacteristics.Key<*>>> =
         lazy(LazyThreadSafetyMode.PUBLICATION) {

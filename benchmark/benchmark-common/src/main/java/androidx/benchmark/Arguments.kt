@@ -16,6 +16,7 @@
 
 package androidx.benchmark
 
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.annotation.RestrictTo
@@ -70,6 +71,7 @@ object Arguments {
     internal val startupMode: Boolean
     internal val iterations: Int?
     internal val profiler: Profiler?
+    internal val profilerDefault: Boolean
     internal val profilerSampleFrequency: Int
     internal val profilerSampleDurationSeconds: Long
     internal val thermalThrottleSleepDurationSeconds: Long
@@ -84,9 +86,18 @@ object Arguments {
     private fun Bundle.getBenchmarkArgument(key: String, defaultValue: String? = null) =
         getString(prefix + key, defaultValue)
 
-    private fun Bundle.getProfiler(outputIsEnabled: Boolean): Profiler? {
+    private fun Bundle.getProfiler(outputIsEnabled: Boolean): Pair<Profiler?, Boolean> {
         val argumentName = "profiling.mode"
-        val argumentValue = getBenchmarkArgument(argumentName, "")
+        val argumentValue = getBenchmarkArgument(argumentName, "DEFAULT_VAL")
+        if (argumentValue == "DEFAULT_VAL") {
+            return if (Build.VERSION.SDK_INT > 21) {
+                MethodTracing to true
+            } else {
+                // Method tracing can corrupt the stack on API 21, see b/300658578
+                null to true
+            }
+        }
+
         val profiler = Profiler.getByName(argumentValue)
         if (profiler == null &&
             argumentValue.isNotEmpty() &&
@@ -95,13 +106,13 @@ object Arguments {
             argumentValue.trim().lowercase() != "none"
         ) {
             error = "Could not parse $prefix$argumentName=$argumentValue"
-            return null
+            return null to false
         }
         if (profiler?.requiresLibraryOutputDir == true && !outputIsEnabled) {
             error = "Output is not enabled, so cannot profile with mode $argumentValue"
-            return null
+            return null to false
         }
-        return profiler
+        return profiler to false
     }
 
     // note: initialization may happen at any time
@@ -165,7 +176,9 @@ object Arguments {
         enableCompilation =
             arguments.getBenchmarkArgument("compilation.enabled")?.toBoolean() ?: !dryRunMode
 
-        profiler = arguments.getProfiler(outputEnable)
+        val profilerState = arguments.getProfiler(outputEnable)
+        profiler = profilerState.first
+        profilerDefault = profilerState.second
         profilerSampleFrequency =
             arguments.getBenchmarkArgument("profiling.sampleFrequency")?.ifBlank { null }
                 ?.toInt()
@@ -213,11 +226,11 @@ object Arguments {
             arguments.getBenchmarkArgument("startupProfiles.enable")?.toBoolean() ?: true
     }
 
-    fun methodTracingEnabled(): Boolean {
+    fun macrobenchMethodTracingEnabled(): Boolean {
         return when {
             dryRunMode -> false
-            profiler == MethodTracing -> true
-            else -> false
+            profilerDefault -> false // don't enable tracing by default in macrobench
+            else -> profiler == MethodTracing
         }
     }
 

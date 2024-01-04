@@ -43,7 +43,7 @@ androidXMultiplatform {
             dependencies {
                 api(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
-                api("androidx.annotation:annotation:1.7.0-alpha02")
+                api("androidx.annotation:annotation:1.7.0")
             }
         }
 
@@ -76,8 +76,8 @@ androidXMultiplatform {
             dependsOn(commonTest)
             dependencies {
                 implementation(libs.junit)
-                implementation(libs.mockitoCore4)
-                implementation(libs.mockitoKotlin4)
+                implementation(libs.mockitoCore)
+                implementation(libs.mockitoKotlin)
                 implementation(project(":internal-testutils-common"))
                 implementation(project(":internal-testutils-ktx"))
             }

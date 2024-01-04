@@ -813,10 +813,9 @@ public final class AppSearchImpl implements Closeable {
                 // fake the id, they can only mess their own app. That's totally allowed and
                 // they can do this via the public API too.
                 String prefixedSchemaType = prefix + unPrefixedDocument.getId();
-                prefixedVisibilityDocuments.add(new VisibilityDocument(
-                        unPrefixedDocument.toBuilder()
-                                .setId(prefixedSchemaType)
-                                .build()));
+                prefixedVisibilityDocuments.add(
+                        new VisibilityDocument.Builder(
+                                unPrefixedDocument).setId(prefixedSchemaType).build());
                 // This schema has visibility settings. We should keep it from the removal list.
                 deprecatedVisibilityDocuments.remove(prefixedSchemaType);
             }
@@ -1035,10 +1034,6 @@ public final class AppSearchImpl implements Closeable {
             LogUtil.piiTrace(
                     TAG, "putDocument, response", putResultProto.getStatus(), putResultProto);
 
-            // Update caches
-            addToMap(mNamespaceMapLocked, prefix, finalDocument.getNamespace());
-            mDocumentCountMapLocked.put(packageName, newDocumentCount);
-
             // Logging stats
             if (pStatsBuilder != null) {
                 pStatsBuilder
@@ -1054,6 +1049,10 @@ public final class AppSearchImpl implements Closeable {
             }
 
             checkSuccess(putResultProto.getStatus());
+
+            // Only update caches if the document is successfully put to Icing.
+            addToMap(mNamespaceMapLocked, prefix, finalDocument.getNamespace());
+            mDocumentCountMapLocked.put(packageName, newDocumentCount);
 
             // Prepare notifications
             if (sendChangeNotifications) {

@@ -741,6 +741,7 @@ internal class DefaultSpecialEffectsController(
                 // Now set up our completion signal on the completely merged transition set
                 val (enteringViews, mergedTransition) =
                     createMergedTransition(container, lastIn, firstOut)
+                var animateToStartRunnable: Runnable? = null
                 transitionInfos.map { it.operation }.forEach { operation ->
                     val cancelRunnable = Runnable { seekCancelLambda?.invoke() }
                     transitionImpl.setListenerForTransitionEnd(
@@ -749,11 +750,24 @@ internal class DefaultSpecialEffectsController(
                         transitionSignal,
                         cancelRunnable,
                         Runnable {
-                            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
-                                Log.v(FragmentManager.TAG,
-                                    "Transition for operation $operation has completed")
+                            // If we are ended due to the transition being cancelled and calling
+                            // animateToStart, we need to cancel the transition to set transition
+                            // state back to the beginning before we complete the operation.
+                            if (animateToStartRunnable != null) {
+                                animateToStartRunnable?.run()
+                                transitionInfos.mapNotNull { it.operation.fragment.view }
+                                    .forEach { view ->
+                                        operation.finalState.applyState(view, container)
+                                    }
+                            } else {
+                                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                                    Log.v(
+                                        FragmentManager.TAG,
+                                        "Transition for operation $operation has completed"
+                                    )
+                                }
+                                operation.completeEffect(this)
                             }
-                            operation.completeEffect(this)
                         })
                 }
 
@@ -765,7 +779,25 @@ internal class DefaultSpecialEffectsController(
                     check(controller != null) {
                         "Unable to start transition $mergedTransition for container $container."
                     }
-                    seekCancelLambda = { transitionImpl.animateToStart(controller!!) }
+                    seekCancelLambda = {
+                        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                            Log.v(FragmentManager.TAG, "Animating to start")
+                        }
+                        animateToStartRunnable =
+                            transitionImpl.animateToStart(controller!!, container) {
+                                transitionInfos.map { it.operation }.forEach { operation ->
+                                    if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                                        Log.v(
+                                            FragmentManager.TAG,
+                                            "Transition for operation $operation has " +
+                                                "completed as result of cancellation"
+                                        )
+                                    }
+                                    operation.completeEffect(this)
+                                    animateToStartRunnable = null
+                                }
+                            }
+                    }
                     if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                         Log.v(FragmentManager.TAG,
                             "Started executing operations from $firstOut to $lastIn")
@@ -954,8 +986,22 @@ internal class DefaultSpecialEffectsController(
                         if (hasLastInEpicenter) {
                             transitionImpl.setEpicenter(transition, lastInEpicenterRect)
                         }
+                        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                            Log.v(FragmentManager.TAG, "Entering Transition: $transition")
+                            Log.v(FragmentManager.TAG, ">>>>> EnteringViews <<<<<")
+                            for (view: View in transitioningViews) {
+                                Log.v(FragmentManager.TAG, "View: $view")
+                            }
+                        }
                     } else {
                         transitionImpl.setEpicenter(transition, firstOutEpicenterView)
+                        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                            Log.v(FragmentManager.TAG, "Exiting Transition: $transition")
+                            Log.v(FragmentManager.TAG, ">>>>> ExitingViews <<<<<")
+                            for (view: View in transitioningViews) {
+                                Log.v(FragmentManager.TAG, "View: $view")
+                            }
+                        }
                     }
                     // Now determine how this transition should be merged together
                     if (transitionInfo.isOverlapAllowed) {
@@ -976,6 +1022,10 @@ internal class DefaultSpecialEffectsController(
             // runs after the mergedTransition set is complete
             mergedTransition = transitionImpl.mergeTransitionsInSequence(mergedTransition,
                 mergedNonOverlappingTransition, sharedElementTransition)
+
+            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                Log.v(FragmentManager.TAG, "Final merged transition: $mergedTransition")
+            }
 
             return Pair(enteringViews, mergedTransition)
         }

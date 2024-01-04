@@ -3077,6 +3077,121 @@ class NavControllerTest {
 
     @UiThreadTest
     @Test
+    @Suppress("DEPRECATION")
+    fun testNavigateOptionPopUpToFurthestRouteWithArg() {
+        val navController = createNavController()
+        val graph = navController.createGraph(id = 1, startDestination = 2) {
+            test(id = 2)
+            test(id = 3)
+        }
+        graph[3].apply {
+            route = "route/{arg}"
+            addArgument(
+                "arg",
+                NavArgumentBuilder().apply {
+                    type = NavType.StringType
+                }.build())
+        }
+        navController.graph = graph
+        // series of alternate navigation between two destinations
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(2)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        navController.navigate("route/arg1")
+        assertThat(navController.currentDestination?.route).isEqualTo("route/{arg}")
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        navController.navigate(2)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(2)
+        assertThat(navigator.backStack.size).isEqualTo(3)
+
+        navController.navigate("route/arg2")
+        assertThat(navController.currentDestination?.route).isEqualTo("route/{arg}")
+        assertThat(navigator.backStack.size).isEqualTo(4)
+
+        // now navigate with popUpTo the first time we navigated to route
+        val navOptions = navOptions { popUpTo("route/arg1") { inclusive = true } }
+        navController.navigate(2, null, navOptions)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(2)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+        assertThat(navigator.backStack.map { it.destination.id }).containsExactly(2, 2)
+    }
+
+    @UiThreadTest
+    @Test
+    @Suppress("DEPRECATION")
+    fun testNavigateOptionPopUpToClosestRouteWithArg() {
+        val navController = createNavController()
+        val graph = navController.createGraph(id = 1, startDestination = 2) {
+            test(id = 2)
+            test(id = 3)
+        }
+        graph[3].apply {
+            route = "route/{arg}"
+            addArgument(
+                "arg",
+                NavArgumentBuilder().apply {
+                    type = NavType.StringType
+                }.build())
+        }
+        navController.graph = graph
+        // series of alternate navigation between two destinations
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(2)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        navController.navigate("route/arg1")
+        assertThat(navController.currentDestination?.route).isEqualTo("route/{arg}")
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        navController.navigate(2)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(2)
+        assertThat(navigator.backStack.size).isEqualTo(3)
+
+        navController.navigate("route/arg2")
+        assertThat(navController.currentDestination?.route).isEqualTo("route/{arg}")
+        assertThat(navigator.backStack.size).isEqualTo(4)
+
+        // now navigate with popUpTo the second time we navigated to route
+        val navOptions = navOptions { popUpTo("route/arg2") { inclusive = true } }
+        navController.navigate(2, null, navOptions)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(2)
+        assertThat(navigator.backStack.size).isEqualTo(4)
+    }
+
+    @UiThreadTest
+    @Test
+    @Suppress("DEPRECATION")
+    fun testNavigateOptionPopUpToRouteWithoutArg() {
+        val navController = createNavController()
+        val graph = navController.createGraph(route = "nav_root", startDestination = "start_test") {
+            test("start_test")
+            test("second_test")
+        }
+
+        navController.graph = graph
+        // series of alternate navigation between two destinations
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navController.currentDestination?.route).isEqualTo("start_test")
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        navController.navigate("second_test")
+        assertThat(navController.currentDestination?.route).isEqualTo("second_test")
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        // now navigate with popUpTo
+        val navOptions = navOptions { popUpTo("second_test") { inclusive = true } }
+        navController.navigate("start_test", navOptions)
+        assertThat(navController.currentDestination?.route).isEqualTo("start_test")
+        assertThat(navigator.backStack.size).isEqualTo(2)
+        assertThat(navigator.backStack.map { it.destination.route }).containsExactly(
+            "start_test", "start_test"
+        )
+    }
+
+    @UiThreadTest
+    @Test
     fun testNavigateViaActionWithArgs() {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_arguments)

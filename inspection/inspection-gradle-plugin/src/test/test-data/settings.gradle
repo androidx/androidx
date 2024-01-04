@@ -1,0 +1,3 @@
+rootProject.name = "inspection-plugin-test"
+include "lib"
+include "lib-inspector"

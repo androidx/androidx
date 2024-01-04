@@ -280,13 +280,16 @@ public class UiDevice implements Searchable {
     }
 
     /**
-     * Retrieves a singleton instance of UiDevice
+     * Retrieves a singleton instance of UiDevice. A new instance will be created if
+     * instrumentation is also new.
      *
      * @return UiDevice instance
      */
     @NonNull
     public static UiDevice getInstance(@NonNull Instrumentation instrumentation) {
-        if (sInstance == null) {
+        if (sInstance == null || !instrumentation.equals(sInstance.mInstrumentation)) {
+            Log.i(TAG, String.format("Creating a new instance, old instance exists: %b",
+                    (sInstance != null)));
             sInstance = new UiDevice(instrumentation);
         }
         return sInstance;

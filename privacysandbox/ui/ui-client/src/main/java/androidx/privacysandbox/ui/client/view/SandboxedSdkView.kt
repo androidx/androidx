@@ -19,6 +19,7 @@ package androidx.privacysandbox.ui.client.view
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Rect
+import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.util.AttributeSet
@@ -130,6 +131,8 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
     private var requestedHeight = -1
     private var isTransitionGroupSet = false
     private var windowInputToken: IBinder? = null
+    private var previousWidth = -1
+    private var previousHeight = -1
     private var currentClippingBounds = Rect()
     private var currentConfig = context.resources.configuration
     internal val stateListenerManager: StateListenerManager = StateListenerManager()
@@ -268,7 +271,12 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     internal fun removeSurfaceViewAndOpenSession() {
-        windowInputToken = surfaceView.hostToken
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            windowInputToken = surfaceView.hostToken
+        } else {
+            // Since there is no SdkSandbox, we don't need windowInputToken for creating SCVH
+            windowInputToken = Binder()
+        }
         super.removeView(surfaceView)
         checkClientOpenSession()
     }
@@ -369,12 +377,21 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
-        // Child needs to receive coordinates that are relative to the parent.
-        getChildAt(0)?.layout(
-            /* l = */ 0,
-            /* t = */ 0,
-            /* r = */ right - left,
-            /* b = */ bottom - top)
+        // We will not call client?.notifyResized for the first onLayout call
+        // and the case in which the width and the height remain unchanged.
+        if ((previousWidth != (right - left) || previousHeight != (bottom - top)) &&
+            (previousWidth != -1 && previousHeight != -1)) {
+            client?.notifyResized(right - left, bottom - top)
+        } else {
+            // Child needs to receive coordinates that are relative to the parent.
+            getChildAt(0)?.layout(
+                /* left = */ 0,
+                /* top = */ 0,
+                /* right = */ right - left,
+                /* bottom = */ bottom - top)
+        }
+        previousHeight = height
+        previousWidth = width
         checkClientOpenSession()
     }
 
@@ -389,17 +406,6 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
         windowInputToken = null
         removeCallbacks()
         super.onDetachedFromWindow()
-    }
-
-    override fun onSizeChanged(
-        width: Int,
-        height: Int,
-        oldWidth: Int,
-        oldHeight: Int
-    ) {
-        super.onSizeChanged(width, height, oldWidth, oldHeight)
-        client?.notifyResized(width, height)
-        checkClientOpenSession()
     }
 
     override fun onConfigurationChanged(config: Configuration?) {

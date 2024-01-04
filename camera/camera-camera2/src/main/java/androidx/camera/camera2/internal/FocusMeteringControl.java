@@ -43,6 +43,7 @@ import androidx.camera.core.impl.CameraCaptureFailure;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CaptureConfig;
+import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -187,20 +188,20 @@ class FocusMeteringControl {
                 ? CaptureRequest.CONTROL_AF_MODE_AUTO
                 : getDefaultAfMode();
 
-        configBuilder.setCaptureRequestOption(
-                CaptureRequest.CONTROL_AF_MODE, mCameraControl.getSupportedAfMode(afMode));
+        configBuilder.setCaptureRequestOptionWithPriority(CaptureRequest.CONTROL_AF_MODE,
+                mCameraControl.getSupportedAfMode(afMode), Config.OptionPriority.REQUIRED);
 
         if (mAfRects.length != 0) {
-            configBuilder.setCaptureRequestOption(
-                    CaptureRequest.CONTROL_AF_REGIONS, mAfRects);
+            configBuilder.setCaptureRequestOptionWithPriority(CaptureRequest.CONTROL_AF_REGIONS,
+                    mAfRects, Config.OptionPriority.REQUIRED);
         }
         if (mAeRects.length != 0) {
-            configBuilder.setCaptureRequestOption(
-                    CaptureRequest.CONTROL_AE_REGIONS, mAeRects);
+            configBuilder.setCaptureRequestOptionWithPriority(CaptureRequest.CONTROL_AE_REGIONS,
+                    mAeRects, Config.OptionPriority.REQUIRED);
         }
         if (mAwbRects.length != 0) {
-            configBuilder.setCaptureRequestOption(
-                    CaptureRequest.CONTROL_AWB_REGIONS, mAwbRects);
+            configBuilder.setCaptureRequestOptionWithPriority(CaptureRequest.CONTROL_AWB_REGIONS,
+                    mAwbRects, Config.OptionPriority.REQUIRED);
         }
     }
 

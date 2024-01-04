@@ -16,6 +16,7 @@
 package androidx.appsearch.compiler;
 
 import static com.google.auto.common.MoreTypes.asTypeElement;
+
 import static java.util.stream.Collectors.toCollection;
 
 import androidx.annotation.NonNull;
@@ -36,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
@@ -106,6 +108,9 @@ public class IntrospectionHelper {
     final TypeMirror mBytePrimitiveArrayType;
     private final ProcessingEnvironment mEnv;
     private final Types mTypeUtils;
+
+    private final WeakHashMap<TypeElement, LinkedHashSet<ExecutableElement>> mAllMethodsCache =
+            new WeakHashMap<>();
 
     IntrospectionHelper(ProcessingEnvironment env) {
         mEnv = env;
@@ -249,13 +254,17 @@ public class IntrospectionHelper {
 
     /**
      * Returns all the methods within a class, whether inherited or declared directly.
+     *
+     * <p>Caches results internally, so it is cheap to call subsequently for the same input.
      */
     @NonNull
     public LinkedHashSet<ExecutableElement> getAllMethods(@NonNull TypeElement clazz) {
-        return mEnv.getElementUtils().getAllMembers(clazz).stream()
-                .filter(element -> element.getKind() == ElementKind.METHOD)
-                .map(element -> (ExecutableElement) element)
-                .collect(toCollection(LinkedHashSet::new));
+        return mAllMethodsCache.computeIfAbsent(
+                clazz,
+                type -> mEnv.getElementUtils().getAllMembers(type).stream()
+                        .filter(element -> element.getKind() == ElementKind.METHOD)
+                        .map(element -> (ExecutableElement) element)
+                        .collect(toCollection(LinkedHashSet::new)));
     }
 
     /**
@@ -343,11 +352,34 @@ public class IntrospectionHelper {
     public List<ProcessingException> validateIsGetterThatReturns(
             @NonNull ExecutableElement method, @NonNull TypeMirror expectedReturnType) {
         List<ProcessingException> errors = validateIsGetter(method);
-        if (!mTypeUtils.isSameType(method.getReturnType(), expectedReturnType)) {
+        if (!mTypeUtils.isAssignable(method.getReturnType(), expectedReturnType)) {
             errors.add(new ProcessingException(
                     "Getter cannot be used: Does not return " + expectedReturnType, method));
         }
         return errors;
+    }
+
+    /**
+     * Whether the method returns the specified type.
+     */
+    public boolean isReturnTypeMatching(
+            @NonNull ExecutableElement method, @NonNull TypeMirror type) {
+        TypeMirror target = method.getKind() == ElementKind.CONSTRUCTOR
+                ? method.getEnclosingElement().asType() : method.getReturnType();
+        return mTypeUtils.isSameType(type, target);
+    }
+
+    /**
+     * Whether the element is a static method that returns the class it's enclosed within.
+     */
+    public boolean isStaticFactoryMethod(@NonNull Element element) {
+        if (element.getKind() != ElementKind.METHOD
+                || !element.getModifiers().contains(Modifier.STATIC)) {
+            return false;
+        }
+        ExecutableElement method = (ExecutableElement) element;
+        TypeMirror enclosingType = method.getEnclosingElement().asType();
+        return mTypeUtils.isSameType(method.getReturnType(), enclosingType);
     }
 
     private static void generateClassHierarchyHelper(@NonNull TypeElement leafElement,

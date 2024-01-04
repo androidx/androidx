@@ -146,6 +146,19 @@ internal constructor(
          */
         const val PERMISSION_WRITE_EXERCISE_ROUTE = PERMISSION_PREFIX + "WRITE_EXERCISE_ROUTE"
 
+        /**
+         * A permission to read data in background.
+         *
+         * An attempt to read data in background without this permission may result
+         * in an error.
+         *
+         * @sample androidx.health.connect.client.samples.RequestBackgroundReadPermission
+         * @sample androidx.health.connect.client.samples.ReadRecordsInBackground
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY) // Hidden for now
+        const val PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND =
+            PERMISSION_PREFIX + "READ_HEALTH_DATA_IN_BACKGROUND"
+
         // Read permissions for ACTIVITY.
         internal const val READ_ACTIVE_CALORIES_BURNED =
             PERMISSION_PREFIX + "READ_ACTIVE_CALORIES_BURNED"

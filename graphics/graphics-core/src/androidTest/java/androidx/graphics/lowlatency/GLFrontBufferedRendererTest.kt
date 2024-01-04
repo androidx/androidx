@@ -225,6 +225,7 @@ class GLFrontBufferedRendererTest {
 
             override fun onMultiBufferedLayerRenderComplete(
                 frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                multiBufferedLayerSurfaceControl: SurfaceControlCompat,
                 transaction: SurfaceControlCompat.Transaction
             ) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -362,6 +363,7 @@ class GLFrontBufferedRendererTest {
 
             override fun onMultiBufferedLayerRenderComplete(
                 frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                multiBufferedLayerSurfaceControl: SurfaceControlCompat,
                 transaction: SurfaceControlCompat.Transaction
             ) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -579,6 +581,7 @@ class GLFrontBufferedRendererTest {
 
             override fun onMultiBufferedLayerRenderComplete(
                 frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                multiBufferedLayerSurfaceControl: SurfaceControlCompat,
                 transaction: SurfaceControlCompat.Transaction
             ) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -690,6 +693,7 @@ class GLFrontBufferedRendererTest {
 
             override fun onMultiBufferedLayerRenderComplete(
                 frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                multiBufferedLayerSurfaceControl: SurfaceControlCompat,
                 transaction: SurfaceControlCompat.Transaction
             ) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -990,6 +994,7 @@ class GLFrontBufferedRendererTest {
 
             override fun onMultiBufferedLayerRenderComplete(
                 frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                multiBufferedLayerSurfaceControl: SurfaceControlCompat,
                 transaction: SurfaceControlCompat.Transaction
             ) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -1573,6 +1578,7 @@ class GLFrontBufferedRendererTest {
 
             override fun onMultiBufferedLayerRenderComplete(
                 frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                multiBufferedLayerSurfaceControl: SurfaceControlCompat,
                 transaction: SurfaceControlCompat.Transaction
             ) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -1770,6 +1776,7 @@ class GLFrontBufferedRendererTest {
 
             override fun onMultiBufferedLayerRenderComplete(
                 frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                multiBufferedLayerSurfaceControl: SurfaceControlCompat,
                 transaction: SurfaceControlCompat.Transaction
             ) {
                 latch.countDown()

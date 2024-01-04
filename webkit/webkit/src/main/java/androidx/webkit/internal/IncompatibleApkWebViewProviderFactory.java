@@ -21,6 +21,7 @@ import android.webkit.WebView;
 import androidx.annotation.NonNull;
 
 import org.chromium.support_lib_boundary.DropDataContentProviderBoundaryInterface;
+import org.chromium.support_lib_boundary.ProfileStoreBoundaryInterface;
 import org.chromium.support_lib_boundary.ProxyControllerBoundaryInterface;
 import org.chromium.support_lib_boundary.ServiceWorkerControllerBoundaryInterface;
 import org.chromium.support_lib_boundary.StaticsBoundaryInterface;
@@ -85,6 +86,12 @@ public class IncompatibleApkWebViewProviderFactory implements WebViewProviderFac
     @NonNull
     @Override
     public DropDataContentProviderBoundaryInterface getDropDataProvider() {
+        throw new UnsupportedOperationException(UNSUPPORTED_EXCEPTION_EXPLANATION);
+    }
+
+    @NonNull
+    @Override
+    public ProfileStoreBoundaryInterface getProfileStore() {
         throw new UnsupportedOperationException(UNSUPPORTED_EXCEPTION_EXPLANATION);
     }
 }

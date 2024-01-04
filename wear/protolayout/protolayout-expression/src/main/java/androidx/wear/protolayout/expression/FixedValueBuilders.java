@@ -106,6 +106,26 @@ final class FixedValueBuilders {
             return "FixedInt32{" + "value=" + getValue() + "}";
         }
 
+        /**
+         * Returns true if the {@link DynamicDataBuilders.DynamicDataValue} contains an int
+         * value. Otherwise returns false.
+         */
+        @Override
+        public boolean hasIntValue(){
+            return true;
+        }
+
+        /**
+         * Returns the int value stored in this {@link DynamicDataBuilders.DynamicDataValue }.
+         *
+         * @throws IllegalStateException if the {@link DynamicDataBuilders.DynamicDataValue }
+         *     doesn't contain an int value.
+         */
+        @Override
+        public int getIntValue() {
+            return mImpl.getValue();
+        }
+
         /** Builder for {@link FixedInt32}. */
         public static final class Builder
                 implements DynamicBuilders.DynamicInt32.Builder,
@@ -206,6 +226,26 @@ final class FixedValueBuilders {
         @NonNull
         public String toString() {
             return "FixedString{" + "value=" + getValue() + "}";
+        }
+
+        /**
+         * Returns true if the {@link DynamicDataBuilders.DynamicDataValue} contains a String
+         * value. Otherwise returns false.
+         */
+        @Override
+        public boolean hasStringValue(){
+            return true;
+        }
+
+        /**
+         * Returns the String value stored in this {@link DynamicDataBuilders.DynamicDataValue }.
+         *
+         * @throws IllegalStateException if the {@link DynamicDataBuilders.DynamicDataValue }
+         *     doesn't contain a String value.
+         */
+        @Override
+        public @NonNull String getStringValue() {
+            return mImpl.getValue();
         }
 
         /** Builder for {@link FixedString}. */
@@ -313,6 +353,26 @@ final class FixedValueBuilders {
             return "FixedFloat{" + "value=" + getValue() + "}";
         }
 
+        /**
+         * Returns true if the {@link DynamicDataBuilders.DynamicDataValue} contains a float
+         * value. Otherwise returns false.
+         */
+        @Override
+        public boolean hasFloatValue(){
+            return true;
+        }
+
+        /**
+         * Returns the float value stored in this {@link DynamicDataBuilders.DynamicDataValue }.
+         *
+         * @throws IllegalStateException if the {@link DynamicDataBuilders.DynamicDataValue }
+         *     doesn't contain a float value.
+         */
+        @Override
+        public float getFloatValue() {
+            return mImpl.getValue();
+        }
+
         /** Builder for {@link FixedFloat}. */
         public static final class Builder
                 implements DynamicBuilders.DynamicFloat.Builder,
@@ -416,6 +476,26 @@ final class FixedValueBuilders {
             return "FixedBool{" + "value=" + getValue() + "}";
         }
 
+        /**
+         * Returns true if the {@link DynamicDataBuilders.DynamicDataValue} contains a boolean
+         * value. Otherwise returns false.
+         */
+        @Override
+        public boolean hasBoolValue(){
+            return true;
+        }
+
+        /**
+         * Returns the boolean value stored in this {@link DynamicDataBuilders.DynamicDataValue }.
+         *
+         * @throws IllegalStateException if the {@link DynamicDataBuilders.DynamicDataValue }
+         *     doesn't contain a boolean value.
+         */
+        @Override
+        public boolean getBoolValue() {
+            return mImpl.getValue();
+        }
+
         /** Builder for {@link FixedBool}. */
         public static final class Builder
                 implements DynamicBuilders.DynamicBool.Builder,
@@ -517,6 +597,26 @@ final class FixedValueBuilders {
         @NonNull
         public String toString() {
             return "FixedColor{" + "argb=" + getArgb() + "}";
+        }
+
+        /**
+         * Returns true if the {@link DynamicDataBuilders.DynamicDataValue} contains a color
+         * value. Otherwise returns false.
+         */
+        @Override
+        public  boolean hasColorValue(){
+            return true;
+        }
+
+        /**
+         * Returns the color value stored in this {@link DynamicDataBuilders.DynamicDataValue }.
+         *
+         * @throws IllegalStateException if the {@link DynamicDataBuilders.DynamicDataValue }
+         *     doesn't contain a color value.
+         */
+        @Override
+        public @ColorInt int getColorValue() {
+            return mImpl.getArgb();
         }
 
         /** Builder for {@link FixedColor}. */

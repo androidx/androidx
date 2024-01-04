@@ -103,4 +103,8 @@ internal class KspFileMemberContainer(
             }?.value?.toString() ?: fileName.replace(".kt", "Kt")
         }
     }
+
+    override fun isFromJava(): Boolean = false
+
+    override fun isFromKotlin(): Boolean = true
 }

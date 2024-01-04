@@ -567,16 +567,18 @@ private suspend fun AwaitPointerEventScope.onDragOrUp(
     pointerId: PointerId,
     onDrag: (PointerInputChange) -> Unit
 ): Boolean {
-    val motionFromChange: (PointerInputChange) -> Float = if (orientation == Orientation.Vertical) {
-        { it.positionChangeIgnoreConsumed().y }
-    } else {
-        { it.positionChangeIgnoreConsumed().x }
+    val hasDragged: (PointerInputChange) -> Boolean = {
+        if (orientation == Orientation.Vertical) {
+            it.positionChangeIgnoreConsumed().y
+        } else {
+            it.positionChangeIgnoreConsumed().x
+        } != 0f
     }
 
     return drag(
         pointerId = pointerId,
         onDrag = onDrag,
-        motionFromChange = motionFromChange,
+        hasDragged = hasDragged,
         motionConsumed = { it.isConsumed }
     )?.let(onDrag) != null
 }

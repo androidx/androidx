@@ -45,7 +45,7 @@
     <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"Δεν υπάρχουν διαθέσιμες συσκευές"</string>
     <string name="mr_chooser_wifi_warning_description_phone" msgid="2555886884770958244">"Βεβαιωθείτε ότι η άλλη συσκευή είναι συνδεδεμένη στο ίδιο δίκτυο Wi-Fi με αυτό το τηλέφωνο"</string>
     <string name="mr_chooser_wifi_warning_description_tablet" msgid="6038748488793588164">"Βεβαιωθείτε ότι η άλλη συσκευή είναι συνδεδεμένη στο ίδιο δίκτυο Wi-Fi με αυτό το tablet"</string>
-    <string name="mr_chooser_wifi_warning_description_tv" msgid="5845921667085074878">"Βεβαιωθείτε ότι η άλλη συσκευή είναι συνδεδεμένη στο ίδιο δίκτυο Wi-Fi με αυτήν την τηλεόραση"</string>
+    <string name="mr_chooser_wifi_warning_description_tv" msgid="5845921667085074878">"Βεβαιωθείτε ότι η άλλη συσκευή είναι συνδεδεμένη στο ίδιο δίκτυο Wi-Fi με αυτή την τηλεόραση"</string>
     <string name="mr_chooser_wifi_warning_description_watch" msgid="5255021372884233706">"Βεβαιωθείτε ότι η άλλη συσκευή είναι συνδεδεμένη στο ίδιο δίκτυο Wi-Fi με αυτό το ρολόι"</string>
     <string name="mr_chooser_wifi_warning_description_car" msgid="2998902945608081567">"Βεβαιωθείτε ότι η άλλη συσκευή είναι συνδεδεμένη στο ίδιο δίκτυο Wi-Fi με αυτό το αυτοκίνητο"</string>
     <string name="mr_chooser_wifi_warning_description_unknown" msgid="3459891599800041449">"Βεβαιωθείτε ότι η άλλη συσκευή είναι συνδεδεμένη στο ίδιο δίκτυο Wi-Fi με αυτήν τη συσκευή"</string>

@@ -37,6 +37,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import androidx.work.WorkManager
 import androidx.work.testing.WorkManagerTestInitHelper
+import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import java.lang.ref.WeakReference
 import java.util.concurrent.CountDownLatch
@@ -44,7 +45,9 @@ import java.util.concurrent.TimeUnit
 import kotlin.test.assertIs
 import kotlin.test.fail
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
 import org.junit.runner.Description
@@ -329,6 +332,40 @@ class AppWidgetHostRule(
     private fun runAndWaitForChildren(action: () -> Unit) {
         runAndObserveUntilDraw("Expected new children on HostView within 5 seconds", action) {
             mHostView.childCount > 0
+        }
+    }
+
+    /**
+     * Waits for given condition to be true and throws [AssertionError] with given message if not
+     * satisfied within the default timeout.
+     */
+    suspend fun waitAndTestForCondition(
+        errorMessage: String,
+        timeoutMs: Long = 600,
+        condition: (TestAppWidgetHostView) -> Boolean
+    ) {
+        val resume = Channel<Unit>(Channel.CONFLATED)
+        fun test() = condition(mHostView)
+        val onDrawListener = ViewTreeObserver.OnDrawListener {
+            if (test()) resume.trySend(Unit)
+        }
+
+        onHostActivity {
+            // If test is already true, do not wait for the next draw to resume
+            if (test()) resume.trySend(Unit)
+            mHostView.viewTreeObserver.addOnDrawListener(onDrawListener)
+        }
+        try {
+            val status = withTimeoutOrNull<Boolean?>(timeoutMs) {
+                resume.receive()
+                true
+            }
+
+            Truth.assertWithMessage(errorMessage).that(status).isEqualTo(true)
+        } finally {
+            onHostActivity {
+                mHostView.viewTreeObserver.removeOnDrawListener(onDrawListener)
+            }
         }
     }
 }

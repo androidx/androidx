@@ -17,6 +17,7 @@
 
 <resources>
     <string name="camerax_service">CameraX Service</string>
+    <string name="foreground_service_note">Foreground Service control is in the notification.\nLeave this activity and play on notification.</string>
     <string name="fps_counter_template">%1$s fps</string>
     <string name="toggle_preview_on">preview\non</string>
     <string name="toggle_preview_off">preview\noff</string>

@@ -51,7 +51,7 @@ import kotlinx.coroutines.job
  * Entry point for BLE related operations. This class provides a way to perform Bluetooth LE
  * operations such as scanning, advertising, and connection with a respective [BluetoothDevice].
  */
-class BluetoothLe constructor(private val context: Context) {
+class BluetoothLe(private val context: Context) {
 
     companion object {
         private const val TAG = "BluetoothLe"
@@ -159,8 +159,6 @@ class BluetoothLe constructor(private val context: Context) {
             }
         }
 
-        val bleAdvertiser = bluetoothAdapter?.bluetoothLeAdvertiser
-
         val advertiseSettings = with(AdvertiseSettings.Builder()) {
             setConnectable(advertiseParams.isConnectable)
             advertiseParams.durationMillis.let {
@@ -188,11 +186,18 @@ class BluetoothLe constructor(private val context: Context) {
             build()
         }
 
-        bleAdvertiser?.startAdvertising(advertiseSettings, advertiseData, callback)
+        val bleAdvertiser = bluetoothAdapter?.bluetoothLeAdvertiser
+
+        if (bleAdvertiser == null) {
+            result.complete(ADVERTISE_FAILED_FEATURE_UNSUPPORTED)
+        } else {
+            bleAdvertiser.startAdvertising(advertiseSettings, advertiseData, callback)
+        }
 
         coroutineContext.job.invokeOnCompletion {
             bleAdvertiser?.stopAdvertising(callback)
         }
+
         result.await().let {
             block?.invoke(it)
             if (it == ADVERTISE_STARTED) {
@@ -367,7 +372,7 @@ class BluetoothLe constructor(private val context: Context) {
          * @param characteristic the updated characteristic
          * @param value the new value of the characteristic
          *
-         * @return `true` if the notification sent successfully
+         * @return `true` if the notification sent successfully, otherwise `false`
          */
         suspend fun notify(characteristic: GattCharacteristic, value: ByteArray): Boolean
     }

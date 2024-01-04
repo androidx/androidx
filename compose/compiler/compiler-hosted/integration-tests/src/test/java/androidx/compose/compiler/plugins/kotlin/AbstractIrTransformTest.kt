@@ -126,6 +126,11 @@ abstract class AbstractIrTransformTest(useFir: Boolean) : AbstractCodegenTest(us
         context: IrPluginContext,
     )
 
+    @JvmField
+    @Rule
+    val goldenTransformRule =
+        GoldenTransformRule("src/test/resources/golden")
+
     fun verifyCrossModuleComposeIrTransform(
         @Language("kotlin")
         dependencySource: String,
@@ -166,17 +171,16 @@ abstract class AbstractIrTransformTest(useFir: Boolean) : AbstractCodegenTest(us
         )
     }
 
-    fun verifyComposeIrTransform(
+    fun transform(
         @Language("kotlin")
         source: String,
-        expectedTransformed: String,
         @Language("kotlin")
         extra: String = "",
         validator: (element: IrElement) -> Unit = { },
         dumpTree: Boolean = false,
         truncateTracingInfoMode: TruncateTracingInfoMode = TruncateTracingInfoMode.TRUNCATE_KEY,
         compilation: Compilation = JvmCompilation()
-    ) {
+    ): String {
         if (!compilation.enabled) {
             // todo indicate ignore?
             return
@@ -227,6 +231,7 @@ abstract class AbstractIrTransformTest(useFir: Boolean) : AbstractCodegenTest(us
                 when (truncateTracingInfoMode) {
                     TruncateTracingInfoMode.TRUNCATE_KEY ->
                         "traceEventStart(<>, ${it.groupValues[1]}, ${it.groupValues[2]}, <>)"
+
                     TruncateTracingInfoMode.KEEP_INFO_STRING ->
                         "traceEventStart(<>, ${it.groupValues[1]}, ${it.groupValues[2]}, " +
                             it.groupValues[3]
@@ -290,12 +295,44 @@ abstract class AbstractIrTransformTest(useFir: Boolean) : AbstractCodegenTest(us
         if (dumpTree) {
             println(irModule.dump())
         }
+
+        return actualTransformed
+    }
+
+    fun verifyComposeIrTransform(
+        @Language("kotlin")
+        source: String,
+        expectedTransformed: String,
+        @Language("kotlin")
+        extra: String = "",
+        validator: (element: IrElement) -> Unit = {},
+        dumpTree: Boolean = false,
+        truncateTracingInfoMode: TruncateTracingInfoMode = TruncateTracingInfoMode.TRUNCATE_KEY,
+        additionalPaths: List<File> = listOf(),
+    ) {
+        val actualTransformed =
+            transform(source, extra, validator, dumpTree, truncateTracingInfoMode, additionalPaths)
         assertEquals(
             expectedTransformed
                 .trimIndent()
                 .trimTrailingWhitespacesAndAddNewlineAtEOF(),
             actualTransformed
         )
+    }
+
+    fun verifyGoldenComposeIrTransform(
+        @Language("kotlin")
+        source: String,
+        @Language("kotlin")
+        extra: String = "",
+        validator: (element: IrElement) -> Unit = {},
+        dumpTree: Boolean = false,
+        truncateTracingInfoMode: TruncateTracingInfoMode = TruncateTracingInfoMode.TRUNCATE_KEY,
+        additionalPaths: List<File> = listOf(),
+    ) {
+        val actualTransformed =
+            transform(source, extra, validator, dumpTree, truncateTracingInfoMode, additionalPaths)
+        goldenTransformRule.verifyGolden(GoldenTransformTestInfo(source, actualTransformed))
     }
 
     private fun MatchResult.isNumber() = groupValues[1].isNotEmpty()
@@ -370,9 +407,11 @@ abstract class AbstractIrTransformTest(useFir: Boolean) : AbstractCodegenTest(us
                         ?: return "invalid source info at $current: '$sourceInfo'"
                     result += fragment
                 }
+
                 mr.isFileName() -> {
                     return result + ":" + sourceInfo.substring(mr.range.last + 1)
                 }
+
                 else -> {
                     result += mr.text
                     next()

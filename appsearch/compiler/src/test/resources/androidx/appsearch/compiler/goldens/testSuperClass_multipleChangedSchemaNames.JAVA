@@ -64,8 +64,8 @@ public final class $$__AppSearch__FooGift implements DocumentClassFactory<FooGif
 
   @Override
   public FooGift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
-    String idConv = genericDoc.getId();
     String namespaceConv = genericDoc.getNamespace();
+    String idConv = genericDoc.getId();
     String[] noteCopy = genericDoc.getPropertyStringArray("note");
     String noteConv = null;
     if (noteCopy != null && noteCopy.length != 0) {

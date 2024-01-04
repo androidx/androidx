@@ -64,8 +64,8 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
 
   @Override
   public Gift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
-    String mIdConv = genericDoc.getId();
     String mNamespaceConv = genericDoc.getNamespace();
+    String mIdConv = genericDoc.getId();
     long mCreationTimestampMillisConv = genericDoc.getCreationTimestampMillis();
     long mTtlMillisConv = genericDoc.getTtlMillis();
     int mScoreConv = genericDoc.getScore();

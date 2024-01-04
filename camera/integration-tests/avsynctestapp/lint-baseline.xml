@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
+<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
 
     <issue
         id="RestrictedApiAndroidX"
@@ -566,6 +566,60 @@
         errorLine2="                       ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable waveData with type List&lt;? extends Double>: replace with FloatList"
+        errorLine1="        val waveData = generateSineData(frequency, beepLengthInSec, sampleRate)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/model/AudioGenerator.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable samples with type List&lt;? extends Byte>: replace with IntList"
+        errorLine1="        val samples = toSamples(waveData, sampleWidth)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/model/AudioGenerator.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable res with type List&lt;Double>: replace with FloatList"
+        errorLine1="        val res = mutableListOf&lt;Double>()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/model/AudioGenerator.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method toSamples has parameter data with type List&lt;Double>: replace with FloatList"
+        errorLine1="        data: List&lt;Double>,"
+        errorLine2="              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/model/AudioGenerator.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;Byte> of toBytes: replace with IntList"
+        errorLine1="    fun Int.toBytes(sampleWidth: Int): List&lt;Byte> {"
+        errorLine2="                                       ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/model/AudioGenerator.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable res with type List&lt;Byte>: replace with IntList"
+        errorLine1="        val res = mutableListOf&lt;Byte>()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/model/AudioGenerator.kt"/>
     </issue>
 
 </issues>

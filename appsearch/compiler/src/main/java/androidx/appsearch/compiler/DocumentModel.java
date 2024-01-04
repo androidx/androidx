@@ -19,6 +19,7 @@ import static androidx.appsearch.compiler.IntrospectionHelper.BUILDER_PRODUCER_C
 import static androidx.appsearch.compiler.IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS;
 import static androidx.appsearch.compiler.IntrospectionHelper.generateClassHierarchy;
 import static androidx.appsearch.compiler.IntrospectionHelper.getDocumentAnnotation;
+
 import static java.util.stream.Collectors.groupingBy;
 
 import androidx.annotation.NonNull;
@@ -63,7 +64,7 @@ import javax.lang.model.util.Types;
 class DocumentModel {
 
     /** Enumeration of fields that must be handled specially (i.e. are not properties) */
-    enum SpecialField {ID, NAMESPACE, CREATION_TIMESTAMP_MILLIS, TTL_MILLIS, SCORE}
+    enum SpecialField {NAMESPACE, ID, CREATION_TIMESTAMP_MILLIS, TTL_MILLIS, SCORE}
 
     /** Determines how the annotation processor has decided to write the value of a field. */
     enum WriteKind {FIELD, SETTER, CREATION_METHOD}
@@ -108,7 +109,7 @@ class DocumentModel {
     private TypeElement mBuilderClass = null;
     private Set<ExecutableElement> mBuilderProducers = new LinkedHashSet<>();
 
-    private final List<AnnotatedGetterOrField> mAnnotatedGettersAndFields;
+    private final LinkedHashSet<AnnotatedGetterOrField> mAnnotatedGettersAndFields;
 
     @NonNull
     private final AnnotatedGetterOrField mIdAnnotatedGetterOrField;
@@ -118,6 +119,9 @@ class DocumentModel {
 
     @NonNull
     private final Map<AnnotatedGetterOrField, PropertyAccessor> mAccessors;
+
+    @NonNull
+    private final DocumentClassCreationInfo mDocumentClassCreationInfo;
 
     private DocumentModel(
             @NonNull ProcessingEnvironment env,
@@ -150,6 +154,8 @@ class DocumentModel {
 
         mAllMethods = mHelper.getAllMethods(clazz);
         mAccessors = inferPropertyAccessors(mAnnotatedGettersAndFields, mAllMethods, mHelper);
+        mDocumentClassCreationInfo =
+                DocumentClassCreationInfo.infer(clazz, mAnnotatedGettersAndFields, mHelper);
 
         // Scan methods and constructors. We will need this info when processing fields to
         // make sure the fields can be get and set.
@@ -176,7 +182,7 @@ class DocumentModel {
             boolean isAnnotated = false;
             for (AnnotationMirror annotation : child.getAnnotationMirrors()) {
                 if (annotation.getAnnotationType().toString().equals(
-                        IntrospectionHelper.BUILDER_PRODUCER_CLASS.canonicalName())) {
+                        BUILDER_PRODUCER_CLASS.canonicalName())) {
                     isAnnotated = true;
                     break;
                 }
@@ -218,7 +224,7 @@ class DocumentModel {
         }
     }
 
-    private static List<AnnotatedGetterOrField> scanAnnotatedGettersAndFields(
+    private static LinkedHashSet<AnnotatedGetterOrField> scanAnnotatedGettersAndFields(
             @NonNull TypeElement clazz,
             @NonNull ProcessingEnvironment env) throws ProcessingException {
         AnnotatedGetterAndFieldAccumulator accumulator = new AnnotatedGetterAndFieldAccumulator();
@@ -364,7 +370,7 @@ class DocumentModel {
      * {@link PropertyAnnotation}.
      */
     @NonNull
-    public List<AnnotatedGetterOrField> getAnnotatedGettersAndFields() {
+    public Set<AnnotatedGetterOrField> getAnnotatedGettersAndFields() {
         return mAnnotatedGettersAndFields;
     }
 
@@ -395,6 +401,11 @@ class DocumentModel {
                     "No such getter/field belongs to this DocumentModel: " + getterOrField);
         }
         return accessor;
+    }
+
+    @NonNull
+    public DocumentClassCreationInfo getDocumentClassCreationInfo() {
+        return mDocumentClassCreationInfo;
     }
 
     /**
@@ -492,7 +503,7 @@ class DocumentModel {
      */
     @NonNull
     private static Map<AnnotatedGetterOrField, PropertyAccessor> inferPropertyAccessors(
-            @NonNull List<AnnotatedGetterOrField> annotatedGettersAndFields,
+            @NonNull Collection<AnnotatedGetterOrField> annotatedGettersAndFields,
             @NonNull Collection<ExecutableElement> allMethods,
             @NonNull IntrospectionHelper helper) throws ProcessingException {
         Map<AnnotatedGetterOrField, PropertyAccessor> accessors = new HashMap<>();
@@ -1091,7 +1102,7 @@ class DocumentModel {
      *     </li>
      *     <li>
      *         Two annotated element do not have the same normalized name because this hinders with
-     *         downstream logic that tries to infer creation methods e.g.
+     *         downstream logic that tries to infer {@link CreationMethod}s e.g.
      *
      *         <pre>
      *         {@code
@@ -1108,6 +1119,8 @@ class DocumentModel {
      *         </pre>
      *     </li>
      * </ol>
+     *
+     * @see CreationMethod#inferParamAssociationsAndCreate
      */
     private static final class AnnotatedGetterAndFieldAccumulator {
         private final Map<String, AnnotatedGetterOrField> mJvmNameToGetterOrField =
@@ -1164,8 +1177,8 @@ class DocumentModel {
         }
 
         @NonNull
-        List<AnnotatedGetterOrField> getAccumulatedGettersAndFields() {
-            return mJvmNameToGetterOrField.values().stream().toList();
+        LinkedHashSet<AnnotatedGetterOrField> getAccumulatedGettersAndFields() {
+            return new LinkedHashSet<>(mJvmNameToGetterOrField.values());
         }
 
         /**

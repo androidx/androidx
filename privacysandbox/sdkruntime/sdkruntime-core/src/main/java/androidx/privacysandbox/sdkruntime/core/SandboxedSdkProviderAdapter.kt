@@ -32,6 +32,14 @@ import androidx.annotation.RequiresExtension
  */
 @SuppressLint("Override") // b/273473397
 @RequiresExtension(extension = AD_SERVICES, version = 4)
+// TODO(b/301437557) Remove after documentation migration to sdkruntime-provider
+@Deprecated(
+    message = "Use SandboxedSdkProviderAdapter from sdkruntime-provider library",
+    replaceWith = ReplaceWith(
+        expression = "SandboxedSdkProviderAdapter",
+        imports = arrayOf("androidx.privacysandbox.sdkruntime.provider.SandboxedSdkProviderAdapter")
+    )
+)
 class SandboxedSdkProviderAdapter internal constructor(
     private val classNameProvider: CompatClassNameProvider
 ) : SandboxedSdkProvider() {

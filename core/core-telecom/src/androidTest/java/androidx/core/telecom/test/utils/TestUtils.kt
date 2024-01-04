@@ -29,6 +29,7 @@ import android.telecom.PhoneAccountHandle
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
+import androidx.core.telecom.internal.CallCompat
 import androidx.core.telecom.internal.utils.BuildVersionAdapter
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.FileInputStream
@@ -56,6 +57,7 @@ object TestUtils {
     const val WAIT_ON_ASSERTS_TO_FINISH_TIMEOUT = 10000L
     const val WAIT_ON_CALL_STATE_TIMEOUT = 8000L
     const val WAIT_ON_IN_CALL_SERVICE_CALL_COUNT_TIMEOUT = 5000L
+    const val WAIT_ON_IN_CALL_SERVICE_CALL_COMPAT_COUNT_TIMEOUT = 5000L
     const val ALL_CALL_CAPABILITIES = (CallAttributesCompat.SUPPORTS_SET_INACTIVE
         or CallAttributesCompat.SUPPORTS_STREAM or CallAttributesCompat.SUPPORTS_TRANSFER)
     val VERIFICATION_TIMEOUT_MSG =
@@ -321,24 +323,56 @@ object TestUtils {
         }
     }
 
+    internal suspend fun waitOnInCallServiceToReachXCallCompats(targetCallCompatCount: Int):
+        CallCompat? {
+        var targetCallCompat: CallCompat? = null
+        try {
+            val callCompatList = MockInCallService.getService()?.mCallCompats
+            if (callCompatList != null) {
+                withTimeout(WAIT_ON_IN_CALL_SERVICE_CALL_COMPAT_COUNT_TIMEOUT) {
+                    while (isActive && callCompatList.size < targetCallCompatCount) {
+                        delay(1)
+                    }
+                    targetCallCompat = callCompatList.last()
+                }
+            }
+        } catch (e: TimeoutCancellationException) {
+            Log.i(LOG_TAG, "waitOnInCallServiceToReachXCallCompats: timeout reached")
+            dumpTelecom()
+            MockInCallService.destroyAllCalls()
+            throw AssertionError(
+                "Expected call count to be <$targetCallCompatCount> but the actual" +
+                    " call count was <${MockInCallService.getService()?.mCallCompats?.size}>"
+            )
+        }
+        return targetCallCompat
+    }
+
     /**
      * Helper to wait on the call detail extras to be populated from the connection service
      */
     suspend fun waitOnCallExtras(call: Call) {
         try {
-            withTimeout(TestUtils.WAIT_ON_CALL_STATE_TIMEOUT) {
-                while (isActive /* aka  within timeout window */ && (
-                        call.details?.extras == null || call.details.extras.isEmpty)) {
+            withTimeout(WAIT_ON_CALL_STATE_TIMEOUT) {
+                while (isActive /* aka  within timeout window */ && isCallDetailExtrasEmpty(call)) {
                     yield() // another mechanism to stop the while loop if the coroutine is dead
                     delay(1) // sleep x millisecond(s) instead of spamming check
                 }
             }
         } catch (e: TimeoutCancellationException) {
-            Log.i(TestUtils.LOG_TAG, "waitOnCallExtras: timeout reached")
-            TestUtils.dumpTelecom()
+            Log.i(LOG_TAG, "waitOnCallExtras: timeout reached")
+            dumpTelecom()
             MockInCallService.destroyAllCalls()
             throw AssertionError("Expected call detail extras to be non-null.")
         }
+    }
+
+    /**
+     * Helper used to determine if the call detail extras is empty or null, which is used as a basis
+     * for waiting in the voip app action tests (around capability exchange).
+     */
+    private fun isCallDetailExtrasEmpty(call: Call): Boolean {
+        return call.details?.extras == null || call.details.extras.isEmpty
     }
 
     /**

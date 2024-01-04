@@ -22,13 +22,13 @@
     "ConstPropertyName",
     "PrivatePropertyName",
     "NOTHING_TO_INLINE",
-    "UnusedImport"
+    "UnusedImport",
+    "ktlint:standard:import-ordering",
+    "ktlint:standard:max-line-length",
+    "ktlint:standard:no-unused-imports",
 )
 
 package PACKAGE
-
-/* ktlint-disable max-line-length */
-/* ktlint-disable import-ordering */
 
 import androidx.collection.PRIMITIVESet
 import androidx.collection.MutablePRIMITIVESet
@@ -39,45 +39,36 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.jvm.JvmInline
 
-/* ktlint-disable max-line-length */
-// To use this template, you must substitute several strings. You can copy this and search/replace
-// or use a sed command. These properties must be changed:
-// * PACKAGE - target package (e.g. androidx.compose.ui.ui.collection)
-// * VALUE_PKG - package in which the value class resides
-// * VALUE_CLASS - the value class contained in the set (e.g. Color or Offset)
-// * vALUE_CLASS - the value class, with the first letter lower case (e.g. color or offset)
-// * BACKING_PROPERTY - the field in VALUE_CLASS containing the backing primitive (e.g. packedValue)
-// * PRIMITIVE - the primitive type of the backing set (e.g. Long or Float)
-// * TO_PARAM - an operation done on the primitive to convert to the value class parameter
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// DO NOT MAKE CHANGES to this kotlin source file.
 //
-// For example, to create a ColorSet:
-// sed -e "s/PACKAGE/androidx.compose.ui.graphics/" -e "s/VALUE_CLASS/Color/g" \
-//     -e "s/vALUE_CLASS/color/g" -e "s/BACKING_PROPERTY/value.toLong()/g" -e "s/PRIMITIVE/Long/g" \
-//     -e "s/TO_PARAM/.toULong()/g" -e "s/VALUE_PKG/androidx.collection/g" \
-//     collection/collection/template/ValueClassSet.kt.template \
-//     > compose/ui/ui-graphics/src/commonMain/kotlin/androidx/compose/ui/graphics/ColorSet.kt
+// This file was generated from a template:
+//   collection/collection/template/ValueClassSet.kt.template
+// Make a change to the original template and run the generateValueClassCollections.sh script
+// to ensure the change is available on all versions of the set.
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 /**
  * Returns an empty, read-only [VALUE_CLASSSet].
  */
-internal inline fun emptyVALUE_CLASSSet(): VALUE_CLASSSet = VALUE_CLASSSet(emptyPRIMITIVESet())
+VISIBILITY inline fun emptyVALUE_CLASSSet(): VALUE_CLASSSet = VALUE_CLASSSet(emptyPRIMITIVESet())
 
 /**
  * Returns an empty, read-only [VALUE_CLASSSet].
  */
-internal inline fun vALUE_CLASSSetOf(): VALUE_CLASSSet = VALUE_CLASSSet(emptyPRIMITIVESet())
+VISIBILITY inline fun vALUE_CLASSSetOf(): VALUE_CLASSSet = VALUE_CLASSSet(emptyPRIMITIVESet())
 
 /**
  * Returns a new read-only [VALUE_CLASSSet] with only [element1] in it.
  */
-internal inline fun vALUE_CLASSSetOf(element1: VALUE_CLASS): VALUE_CLASSSet =
+VISIBILITY inline fun vALUE_CLASSSetOf(element1: VALUE_CLASS): VALUE_CLASSSet =
     VALUE_CLASSSet(mutablePRIMITIVESetOf(element1.BACKING_PROPERTY))
 
 /**
  * Returns a new read-only [VALUE_CLASSSet] with only [element1] and [element2] in it.
  */
 @Suppress("UNCHECKED_CAST")
-internal fun vALUE_CLASSSetOf(
+VISIBILITY fun vALUE_CLASSSetOf(
     element1: VALUE_CLASS,
     element2: VALUE_CLASS
 ): VALUE_CLASSSet =
@@ -92,7 +83,7 @@ internal fun vALUE_CLASSSetOf(
  * Returns a new read-only [VALUE_CLASSSet] with only [element1], [element2], and [element3] in it.
  */
 @Suppress("UNCHECKED_CAST")
-internal fun vALUE_CLASSSetOf(
+VISIBILITY fun vALUE_CLASSSetOf(
     element1: VALUE_CLASS,
     element2: VALUE_CLASS,
     element3: VALUE_CLASS
@@ -107,20 +98,20 @@ internal fun vALUE_CLASSSetOf(
 /**
  * Returns a new [MutableVALUE_CLASSSet].
  */
-internal fun mutableVALUE_CLASSSetOf(): MutableVALUE_CLASSSet = MutableVALUE_CLASSSet(
+VISIBILITY fun mutableVALUE_CLASSSetOf(): MutableVALUE_CLASSSet = MutableVALUE_CLASSSet(
     MutablePRIMITIVESet()
 )
 
 /**
  * Returns a new [MutableVALUE_CLASSSet] with only [element1] in it.
  */
-internal fun mutableVALUE_CLASSSetOf(element1: VALUE_CLASS): MutableVALUE_CLASSSet =
+VISIBILITY fun mutableVALUE_CLASSSetOf(element1: VALUE_CLASS): MutableVALUE_CLASSSet =
     MutableVALUE_CLASSSet(mutablePRIMITIVESetOf(element1.BACKING_PROPERTY))
 
 /**
  * Returns a new [MutableVALUE_CLASSSet] with only [element1] and [element2] in it.
  */
-internal fun mutableVALUE_CLASSSetOf(
+VISIBILITY fun mutableVALUE_CLASSSetOf(
     element1: VALUE_CLASS,
     element2: VALUE_CLASS
 ): MutableVALUE_CLASSSet =
@@ -134,7 +125,7 @@ internal fun mutableVALUE_CLASSSetOf(
 /**
  * Returns a new [MutableVALUE_CLASSSet] with only [element1], [element2], and [element3] in it.
  */
-internal fun mutableVALUE_CLASSSetOf(
+VISIBILITY fun mutableVALUE_CLASSSetOf(
     element1: VALUE_CLASS,
     element2: VALUE_CLASS,
     element3: VALUE_CLASS
@@ -164,7 +155,7 @@ internal fun mutableVALUE_CLASSSetOf(
  */
 @OptIn(ExperimentalContracts::class)
 @JvmInline
-internal value class VALUE_CLASSSet(val set: PRIMITIVESet) {
+VISIBILITY value class VALUE_CLASSSet(val set: PRIMITIVESet) {
     /**
      * Returns the number of elements that can be stored in this set
      * without requiring internal storage reallocation.
@@ -315,7 +306,7 @@ internal value class VALUE_CLASSSet(val set: PRIMITIVESet) {
  */
 @OptIn(ExperimentalContracts::class)
 @JvmInline
-internal value class MutableVALUE_CLASSSet(val set: MutablePRIMITIVESet) {
+VISIBILITY value class MutableVALUE_CLASSSet(val set: MutablePRIMITIVESet) {
     /**
      * Returns the number of elements that can be stored in this set
      * without requiring internal storage reallocation.

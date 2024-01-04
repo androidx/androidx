@@ -16,11 +16,17 @@
 
 package androidx.compose.ui.platform
 
+import androidx.annotation.RestrictTo
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.DelegatableNode
+import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.node.requireOwner
 import androidx.compose.ui.text.input.PlatformTextInputMethodRequest
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 
 /**
  * A modifier node that can connect to the platform's text input IME system. To initiate a text
@@ -86,6 +92,44 @@ interface PlatformTextInputSessionScope : PlatformTextInputSession, CoroutineSco
  * call [PlatformTextInputSession.startInputMethod] to actually show and initiate the connection with
  * the input method.
  */
+@OptIn(InternalComposeUiApi::class)
 suspend fun PlatformTextInputModifierNode.textInputSession(
     session: suspend PlatformTextInputSessionScope.() -> Nothing
-): Nothing = requireOwner().textInputSession(session)
+): Nothing {
+    require(node.isAttached) { "textInputSession called from an unattached node" }
+    val override = requireLayoutNode().compositionLocalMap[LocalPlatformTextInputMethodOverride]
+    val handler = override ?: requireOwner()
+    handler.textInputSession(session)
+}
+
+/**
+ * Composition local used to override the [PlatformTextInputSessionHandler] used by
+ * [textInputSession] for tests. Should only be set by `PlatformTextInputMethodTestOverride` in the
+ * ui-test module, and only ready by [textInputSession].
+ */
+@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@InternalComposeUiApi
+@get:InternalComposeUiApi
+val LocalPlatformTextInputMethodOverride =
+    staticCompositionLocalOf<PlatformTextInputSessionHandler?> { null }
+
+/**
+ * SAM interface used by [textInputSession] to start a text input session.
+ */
+@InternalComposeUiApi
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+interface PlatformTextInputSessionHandler {
+    /**
+     * Starts a new text input session and suspends until it's closed. For more information see
+     * [PlatformTextInputModifierNode.textInputSession].
+     *
+     * Implementations must ensure that new requests cancel any active request. They must also
+     * ensure that the previous request is finished running all cancellation tasks before starting
+     * the new session, to ensure that no session code overlaps (e.g. using [Job.cancelAndJoin]).
+     */
+    suspend fun textInputSession(
+        session: suspend PlatformTextInputSessionScope.() -> Nothing
+    ): Nothing
+}

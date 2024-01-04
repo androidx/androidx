@@ -11,6 +11,60 @@
     </issue>
 
     <issue
+        id="PrimitiveInCollection"
+        message="field map with type Map&lt;Integer, FocusableElementsTimePicker>: replace with IntObjectMap"
+        errorLine1="        private val map = FocusableElementsTimePicker.values().associateBy { it.index }"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/integration/demos/PickerDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field map with type Map&lt;Integer, FocusableElement12Hour>: replace with IntObjectMap"
+        errorLine1="        private val map = FocusableElement12Hour.values().associateBy { it.index }"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/integration/demos/PickerDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field map with type Map&lt;Integer, FocusableElementDatePicker>: replace with IntObjectMap"
+        errorLine1="        private val map = FocusableElementDatePicker.values().associateBy { it.index }"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/integration/demos/PickerDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable alignmentValues with type List&lt;? extends PositionIndicatorAlignment>: replace with IntList"
+        errorLine1="    val alignmentValues = listOf("
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/wear/compose/integration/demos/PositionIndicatorDemos.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable colors with type List&lt;? extends Color>: replace with LongList"
+        errorLine1="    val colors = listOf(Color.Blue, Color.Red, Color.Green, Color.Cyan, Color.Magenta)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/integration/demos/SwipeToDismissDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable items with type SnapshotStateList&lt;Integer>: replace with IntList"
+        errorLine1="    val items = remember { mutableStateListOf(1, 2) }"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/integration/demos/SwipeToDismissDemo.kt"/>
+    </issue>
+
+    <issue
         id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;pickerOption&apos; with type Function3&lt;? super PickerScope, ? super Integer, ? super Boolean, ? extends Unit>."
         errorLine1="        val pickerOption = pickerTextOption(textStyle) { &quot;%02d&quot;.format(it) }"

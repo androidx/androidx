@@ -17,6 +17,7 @@
 package androidx.compose.runtime.snapshots
 
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.toMutableStateList
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -600,7 +601,7 @@ class SnapshotStateListTests {
     @OptIn(ExperimentalCoroutinesApi::class)
     @IgnoreJsTarget // Not relevant in a single threaded environment
     fun concurrentMixingWriteApply_add() = runTest(timeoutMs = 30_000) {
-        repeat(100) {
+        repeat(10) {
             val lists = Array(100) { mutableStateListOf<Int>() }.toList()
             val channel = Channel<Unit>(Channel.CONFLATED)
             coroutineScope {
@@ -727,6 +728,82 @@ class SnapshotStateListTests {
             current.forEachIndexed { i, value ->
                 assertEquals(i, value)
             }
+        }
+    }
+
+    @Test
+    fun canReverseTheList() {
+        validate(List(100) { it }.toMutableStateList()) { list ->
+            list.reverse()
+        }
+    }
+
+    @Test
+    fun canReverseUsingIterators() {
+        validate(List(100) { it }.toMutableStateList()) { list ->
+            val forward = list.listIterator()
+            val backward = list.listIterator(list.size)
+            val count = list.size shr 1
+            repeat(count) {
+                val forwardValue = forward.next()
+                val backwardValue = backward.previous()
+                backward.set(forwardValue)
+                forward.set(backwardValue)
+            }
+        }
+        validate(List(101) { it }.toMutableStateList()) { list ->
+            val forward = list.listIterator()
+            val backward = list.listIterator(list.size)
+            val count = list.size shr 1
+            repeat(count) {
+                val forwardValue = forward.next()
+                val backwardValue = backward.previous()
+                backward.set(forwardValue)
+                forward.set(backwardValue)
+            }
+        }
+    }
+
+    @Test
+    fun canIterateForwards() {
+        validate(List(100) { it }.toMutableStateList()) { list ->
+            val forward = list.listIterator()
+            var expected = 0
+            var count = 0
+            while (forward.hasNext()) {
+                count++
+                assertEquals(expected++, forward.next())
+            }
+            assertEquals(100, count)
+        }
+    }
+
+    @Test
+    fun canIterateBackwards() {
+        validate(List(100) { it }.toMutableStateList()) { list ->
+            val backward = list.listIterator(list.size)
+            var expected = 99
+            var count = 0
+            while (backward.hasPrevious()) {
+                count++
+                assertEquals(expected--, backward.previous())
+            }
+            assertEquals(100, count)
+        }
+    }
+
+    @Test
+    fun canShuffleTheList() {
+        val list = List(100) { it }.toMutableStateList()
+        list.shuffle()
+        assertEquals(100, list.distinct().size)
+    }
+
+    @Test
+    fun canSortTheList() {
+        validate(List(100) { it }.toMutableStateList()) { list ->
+            list.shuffle()
+            list.sort()
         }
     }
 

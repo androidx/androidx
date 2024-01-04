@@ -73,8 +73,8 @@ import java.lang.annotation.Target;
  *
  * <p>Properties contain the document's data. They may be indexed or non-indexed (the default).
  * Only indexed properties can be searched for in queries. There is a limit of
- * {@link androidx.appsearch.app.GenericDocument#getMaxIndexedProperties} indexed properties in
- * one document.
+ * {@link androidx.appsearch.app.Features#getMaxIndexedProperties} indexed properties in one
+ * document.
  */
 @Documented
 @Retention(RetentionPolicy.CLASS)

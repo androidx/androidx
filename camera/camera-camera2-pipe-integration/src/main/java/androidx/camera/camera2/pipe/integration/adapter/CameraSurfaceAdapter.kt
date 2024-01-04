@@ -146,7 +146,8 @@ class CameraSurfaceAdapter(
         return supportedSurfaceCombinationMap[cameraId]!!.getSuggestedStreamSpecifications(
             cameraMode,
             existingSurfaces,
-            newUseCaseConfigsSupportedSizeMap
+            newUseCaseConfigsSupportedSizeMap,
+            isPreviewStabilizationOn
         )
     }
 }

@@ -467,10 +467,10 @@ internal expect suspend fun PlatformTextInputSession.platformSpecificTextInputSe
  * Returns a [KeyboardOptions] that is merged with [defaults], with this object's values taking
  * precedence.
  */
-// TODO KeyboardOptions can't actually be merged correctly in all cases, because its properties
-//  don't all have proper "unspecified" values. I think we can fix that in a backwards-compatible
-//  way, but it will require adding new API outside of the text2 package so we should hold off on
-//  making them until after the study.
+// TODO(b/295951492) KeyboardOptions can't actually be merged correctly in all cases, because its
+//  properties don't all have proper "unspecified" values. I think we can fix that in a
+//  backwards-compatible way, but it will require adding new API outside of the text2 package so we
+//  should hold off on making them until after the study.
 internal fun KeyboardOptions.withDefaultsFrom(defaults: KeyboardOptions?): KeyboardOptions {
     if (defaults == null) return this
     return KeyboardOptions(

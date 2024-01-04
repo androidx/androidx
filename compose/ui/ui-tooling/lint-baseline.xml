@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
+<issues format="6" by="lint 8.2.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-beta01)" variant="all" version="8.2.0-beta01">
 
     <issue
         id="BanThreadSleep"
@@ -17,6 +17,60 @@
         errorLine2="                   ~~~~~">
         <location
             file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/tooling/ComposeViewAdapterTest.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method setClockTimes has parameter animationTimeMillis with type Map&lt;ComposeAnimation, Long>: replace with ObjectLongMap"
+        errorLine1="    fun setClockTimes(animationTimeMillis: Map&lt;ComposeAnimation, Long>) {"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/tooling/animation/PreviewAnimationClock.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field states with type Set&lt;Integer>: replace with IntSet"
+        errorLine1="    override val states = emptySet&lt;Int>()"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/tooling/animation/UnsupportedComposeAnimation.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable values with type Map&lt;Long, ? extends T>: replace with LongObjectMap"
+        errorLine1="    val values: Map&lt;Long, T> by lazy {"
+        errorLine2="                ~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/tooling/animation/clock/Utils.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable values with type Map&lt;Long, T>: replace with LongObjectMap"
+        errorLine1="        val values: MutableMap&lt;Long, T> = mutableMapOf()"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/tooling/animation/clock/Utils.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable values with type Map&lt;Long, ? extends T>: replace with LongObjectMap"
+        errorLine1="    val values: Map&lt;Long, T> by lazy {"
+        errorLine2="                ~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/tooling/animation/clock/Utils.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable values with type Map&lt;Long, T>: replace with LongObjectMap"
+        errorLine1="        val values: MutableMap&lt;Long, T> = mutableMapOf()"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/tooling/animation/clock/Utils.kt"/>
     </issue>
 
     <issue

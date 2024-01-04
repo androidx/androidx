@@ -286,7 +286,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     /**
      * Returns whether video stabilization is enabled.
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public boolean isVideoStabilizationEnabled() {
         return getCurrentConfig().getVideoStabilizationMode() == StabilizationMode.ON;
     }
@@ -1797,9 +1796,12 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
          *
          * <p>This target will be used as a part of the heuristics for the algorithm that determines
          * the final frame rate range and resolution of all concurrently bound use cases.
+         *
          * <p>It is not guaranteed that this target frame rate will be the final range,
          * as other use cases as well as frame rate restrictions of the device may affect the
          * outcome of the algorithm that chooses the actual frame rate.
+         *
+         * <p>For supported frame rates, see {@link CameraInfo#getSupportedFrameRateRanges()}.
          *
          * @param targetFrameRate the target frame rate range.
          */
@@ -1812,10 +1814,56 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         /**
          * Enable video stabilization.
          *
+         * <p>It will enable stabilization for the video capture use case. However, it is not
+         * guaranteed the stabilization will be enabled for the preview use case. If you want to
+         * enable preview stabilization, use
+         * {@link Preview.Builder#setPreviewStabilizationEnabled(boolean)} instead.
+         *
+         * <p>Preview stabilization, where streams are stabilized with the same quality of
+         * stabilization for {@link Preview} and {@link VideoCapture} use cases, is enabled. This
+         * mode aims to give clients a 'what you see is what you get' effect. In this mode, the
+         * FoV reduction will be a maximum of 20 % both horizontally and vertically (10% from
+         * left, right, top, bottom) for the given zoom ratio / crop region. The resultant FoV
+         * will also be the same across all use cases (that have the same aspect ratio). This is
+         * the tradeoff between video stabilization and preview stabilization.
+         *
+         * <p>It is recommended to query the device capability via
+         * {@link VideoCapabilities#isStabilizationSupported()} before enabling this
+         * feature, otherwise HAL error might be thrown.
+         *
+         * <p> If both preview stabilization and video stabilization are enabled or disabled, the
+         * final result will be
+         *
+         * <p>
+         * <table>
+         * <tr> <th id="rb">Preview</th> <th id="rb">VideoCapture</th>   <th id="rb">Result</th>
+         * </tr>
+         * <tr> <td>ON</td> <td>ON</td> <td>Both Preview and VideoCapture will be stabilized,
+         * VideoCapture quality might be worse than only VideoCapture stabilized</td>
+         * </tr>
+         * <tr> <td>ON</td> <td>OFF</td> <td>None of Preview and VideoCapture will be
+         * stabilized</td>  </tr>
+         * <tr> <td>ON</td> <td>NOT SPECIFIED</td> <td>Both Preview and VideoCapture will be
+         * stabilized</td>  </tr>
+         * <tr> <td>OFF</td> <td>ON</td> <td>None of Preview and VideoCapture will be
+         * stabilized</td>  </tr>
+         * <tr> <td>OFF</td> <td>OFF</td> <td>None of Preview and VideoCapture will be
+         * stabilized</td>  </tr>
+         * <tr> <td>OFF</td> <td>NOT SPECIFIED</td> <td>None of Preview and VideoCapture will be
+         * stabilized</td>  </tr>
+         * <tr> <td>NOT SPECIFIED</td> <td>ON</td> <td>Only VideoCapture will be stabilized,
+         * Preview might be stabilized depending on devices</td>
+         * </tr>
+         * <tr> <td>NOT SPECIFIED</td> <td>OFF</td> <td>None of Preview and VideoCapture will be
+         * stabilized</td>  </tr>
+         * </table><br>
+         *
          * @param enabled True if enable, otherwise false.
          * @return the current Builder.
+         *
+         * @see VideoCapabilities#isStabilizationSupported()
+         * @see Preview.Builder#setPreviewStabilizationEnabled(boolean)
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public Builder<T> setVideoStabilizationEnabled(boolean enabled) {
             getMutableConfig().insertOption(OPTION_VIDEO_STABILIZATION_MODE,

@@ -95,6 +95,17 @@ fun TitleCardSample() {
 
 @Sampled
 @Composable
+fun TitleCardWithSubtitleAndTimeSample() {
+    TitleCard(
+        onClick = { /* Do something */ },
+        time = { Text("now") },
+        title = { Text("Title card") },
+        subtitle = { Text("Subtitle") }
+    )
+}
+
+@Sampled
+@Composable
 fun TitleCardWithImageSample() {
     TitleCard(
         onClick = { /* Do something */ },

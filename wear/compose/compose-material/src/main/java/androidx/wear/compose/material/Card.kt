@@ -19,15 +19,19 @@ package androidx.wear.compose.material
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -295,35 +299,38 @@ public fun TitleCard(
     timeColor: Color = contentColor,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    androidx.wear.compose.materialcore.TitleCard(
+    androidx.wear.compose.materialcore.Card(
         onClick = onClick,
         modifier = modifier,
         enabled = enabled,
+        containerPainter = backgroundPainter,
         border = null,
         contentPadding = CardDefaults.ContentPadding,
-        containerPainter = backgroundPainter,
         interactionSource = remember { MutableInteractionSource() },
-        shape = MaterialTheme.shapes.large,
-        title = {
-            CompositionLocalProvider(
-                LocalContentColor provides titleColor,
-                LocalTextStyle provides MaterialTheme.typography.title3,
+        role = null,
+        shape = MaterialTheme.shapes.large
+    ) {
+        Column {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                title()
-            }
-        },
-        time = {
-            time?.let {
-                Spacer(modifier = Modifier.weight(1.0f))
                 CompositionLocalProvider(
-                    LocalContentColor provides timeColor,
-                    LocalTextStyle provides MaterialTheme.typography.caption1,
+                    LocalContentColor provides titleColor,
+                    LocalTextStyle provides MaterialTheme.typography.title3,
                 ) {
-                    time()
+                    title()
+                }
+                time?.let {
+                    Spacer(modifier = Modifier.weight(1.0f))
+                    CompositionLocalProvider(
+                        LocalContentColor provides timeColor,
+                        LocalTextStyle provides MaterialTheme.typography.caption1,
+                    ) {
+                        time()
+                    }
                 }
             }
-        },
-        content = {
             Spacer(modifier = Modifier.height(2.dp))
             CompositionLocalProvider(
                 LocalContentColor provides contentColor,
@@ -332,7 +339,7 @@ public fun TitleCard(
                 content()
             }
         }
-    )
+    }
 }
 
 /**

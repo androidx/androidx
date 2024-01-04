@@ -1287,7 +1287,10 @@ class LazyStaggeredGridTest(
                 state
             ) {
                 items(3) { index ->
-                    Box(Modifier.size(itemSize).testTag("$index"))
+                    Box(
+                        Modifier
+                            .size(itemSize)
+                            .testTag("$index"))
                 }
             }
         }
@@ -1319,7 +1322,10 @@ class LazyStaggeredGridTest(
                 state
             ) {
                 item(span = StaggeredGridItemSpan.FullLine) {
-                    Box(Modifier.testTag("0").mainAxisSize(itemSizeDp))
+                    Box(
+                        Modifier
+                            .testTag("0")
+                            .mainAxisSize(itemSizeDp))
                 }
             }
         }
@@ -1344,11 +1350,17 @@ class LazyStaggeredGridTest(
                 state
             ) {
                 items(2) {
-                    Box(Modifier.testTag("$it").mainAxisSize(itemSizeDp))
+                    Box(
+                        Modifier
+                            .testTag("$it")
+                            .mainAxisSize(itemSizeDp))
                 }
 
                 item(span = StaggeredGridItemSpan.FullLine) {
-                    Box(Modifier.testTag("full").mainAxisSize(itemSizeDp))
+                    Box(
+                        Modifier
+                            .testTag("full")
+                            .mainAxisSize(itemSizeDp))
                 }
             }
         }
@@ -1391,11 +1403,17 @@ class LazyStaggeredGridTest(
                 state
             ) {
                 items(3) {
-                    Box(Modifier.testTag("$it").mainAxisSize(itemSizeDp + itemSizeDp * it / 2))
+                    Box(
+                        Modifier
+                            .testTag("$it")
+                            .mainAxisSize(itemSizeDp + itemSizeDp * it / 2))
                 }
 
                 item(span = StaggeredGridItemSpan.FullLine) {
-                    Box(Modifier.testTag("full").mainAxisSize(itemSizeDp))
+                    Box(
+                        Modifier
+                            .testTag("full")
+                            .mainAxisSize(itemSizeDp))
                 }
             }
         }
@@ -1454,7 +1472,10 @@ class LazyStaggeredGridTest(
                 }
 
                 item(span = StaggeredGridItemSpan.FullLine) {
-                    Box(Modifier.testTag("full").mainAxisSize(itemSizeDp))
+                    Box(
+                        Modifier
+                            .testTag("full")
+                            .mainAxisSize(itemSizeDp))
                 }
 
                 items(3) {
@@ -1466,7 +1487,10 @@ class LazyStaggeredGridTest(
                 }
 
                 item(span = StaggeredGridItemSpan.FullLine) {
-                    Box(Modifier.testTag("full-2").mainAxisSize(itemSizeDp))
+                    Box(
+                        Modifier
+                            .testTag("full-2")
+                            .mainAxisSize(itemSizeDp))
                 }
             }
         }
@@ -1520,7 +1544,10 @@ class LazyStaggeredGridTest(
                     }
 
                     item(span = StaggeredGridItemSpan.FullLine) {
-                        Box(Modifier.testTag("full-$repeatIndex").mainAxisSize(itemSizeDp))
+                        Box(
+                            Modifier
+                                .testTag("full-$repeatIndex")
+                                .mainAxisSize(itemSizeDp))
                     }
                 }
             }
@@ -1587,7 +1614,10 @@ class LazyStaggeredGridTest(
                     }
 
                     item(span = StaggeredGridItemSpan.FullLine) {
-                        Box(Modifier.testTag("full-$repeatIndex").mainAxisSize(itemSizeDp))
+                        Box(
+                            Modifier
+                                .testTag("full-$repeatIndex")
+                                .mainAxisSize(itemSizeDp))
                     }
                 }
             }
@@ -1898,7 +1928,10 @@ class LazyStaggeredGridTest(
                 state = state
             ) {
                 items(10) { index ->
-                    Box(Modifier.size(itemSizeDp).testTag(index.toString()))
+                    Box(
+                        Modifier
+                            .size(itemSizeDp)
+                            .testTag(index.toString()))
                 }
             }
         }
@@ -1926,7 +1959,10 @@ class LazyStaggeredGridTest(
                 }
 
                 items(10) { index ->
-                    Box(Modifier.size(itemSizeDp).testTag(index.toString()))
+                    Box(
+                        Modifier
+                            .size(itemSizeDp)
+                            .testTag(index.toString()))
                 }
             }
         }
@@ -1952,7 +1988,9 @@ class LazyStaggeredGridTest(
                 ) {
                     items(20) {
                         Spacer(
-                            modifier = Modifier.mainAxisSize(itemSizeDp).testTag(it.toString())
+                            modifier = Modifier
+                                .mainAxisSize(itemSizeDp)
+                                .testTag(it.toString())
                         )
                     }
                 }
@@ -1980,7 +2018,9 @@ class LazyStaggeredGridTest(
             ) {
                 items(20) {
                     Spacer(
-                        modifier = Modifier.mainAxisSize(itemSizeDp).testTag(it.toString())
+                        modifier = Modifier
+                            .mainAxisSize(itemSizeDp)
+                            .testTag(it.toString())
                     )
                 }
             }
@@ -1991,5 +2031,64 @@ class LazyStaggeredGridTest(
 
         rule.onNodeWithTag("10")
             .assertStartPositionInRootIsEqualTo(0.dp)
+    }
+
+    @Test
+    fun scrollToPreviouslyFullSpanItem() {
+        var firstItemVisible by mutableStateOf(false)
+        rule.setContent {
+            state = rememberLazyStaggeredGridState()
+            LazyStaggeredGrid(
+                lanes = 2,
+                state = state,
+                modifier = Modifier.axisSize(
+                    crossAxis = itemSizeDp * 2,
+                    mainAxis = itemSizeDp * 2
+                ),
+            ) {
+                if (firstItemVisible) {
+                    item {
+                        Spacer(
+                            modifier = Modifier
+                                .mainAxisSize(itemSizeDp)
+                                .testTag("first")
+                        )
+                    }
+                }
+
+                items(
+                    count = 20,
+                    span = {
+                        if (it == 10)
+                            StaggeredGridItemSpan.FullLine
+                        else
+                            StaggeredGridItemSpan.SingleLane
+                    }
+                ) {
+                    Spacer(
+                        modifier = Modifier
+                            .mainAxisSize(itemSizeDp)
+                            .testTag(it.toString())
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            runBlocking(AutoTestFrameClock()) {
+                state.scrollToItem(10)
+            }
+
+            firstItemVisible = true
+
+            runBlocking(AutoTestFrameClock()) {
+                state.scrollToItem(17)
+
+                state.scrollToItem(10)
+            }
+        }
+
+        rule.onNodeWithTag("9")
+            .assertMainAxisStartPositionInRootIsEqualTo(0.dp)
     }
 }

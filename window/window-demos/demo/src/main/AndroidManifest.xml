@@ -51,6 +51,22 @@
             android:supportsPictureInPicture="true"
             android:label="@string/display_features_no_config_change" />
         <activity
+            android:name=".DisplayFeaturesLetterboxPortraitSlimActivity"
+            android:exported="false"
+            android:resizeableActivity="false"
+            android:screenOrientation="portrait"
+            android:minAspectRatio="2"
+            android:maxAspectRatio="3"
+            android:label="@string/display_features_slim_portrait" />
+        <activity
+            android:name=".DisplayFeaturesLetterboxLandscapeSlimActivity"
+            android:exported="false"
+            android:resizeableActivity="false"
+            android:screenOrientation="landscape"
+            android:minAspectRatio="2"
+            android:maxAspectRatio="3"
+            android:label="@string/display_features_slim_landscape" />
+        <activity
             android:name=".SplitLayoutActivity"
             android:exported="false"
             android:label="@string/split_layout" />

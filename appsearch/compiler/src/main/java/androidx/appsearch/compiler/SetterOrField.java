@@ -40,4 +40,9 @@ public abstract class SetterOrField {
     public boolean isSetter() {
         return getElement().getKind() == ElementKind.METHOD;
     }
+
+    @NonNull
+    static SetterOrField create(@NonNull Element element) {
+        return new AutoValue_SetterOrField(element);
+    }
 }

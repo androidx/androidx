@@ -31,7 +31,7 @@ import androidx.bluetooth.BluetoothLe
 import androidx.bluetooth.GattCharacteristic
 import androidx.bluetooth.integration.testapp.R
 import androidx.bluetooth.integration.testapp.data.connection.DeviceConnection
-import androidx.bluetooth.integration.testapp.data.connection.OnClickCharacteristic
+import androidx.bluetooth.integration.testapp.data.connection.OnCharacteristicActionClick
 import androidx.bluetooth.integration.testapp.data.connection.Status
 import androidx.bluetooth.integration.testapp.databinding.FragmentScannerBinding
 import androidx.bluetooth.integration.testapp.ui.common.getColor
@@ -47,6 +47,7 @@ import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
@@ -105,21 +106,17 @@ class ScannerFragment : Fragment() {
         }
     }
 
-    private val onClickReadCharacteristic = object : OnClickCharacteristic {
+    private val onCharacteristicActionClick = object : OnCharacteristicActionClick {
         override fun onClick(
             deviceConnection: DeviceConnection,
-            characteristic: GattCharacteristic
+            characteristic: GattCharacteristic,
+            action: @OnCharacteristicActionClick.Action Int
         ) {
-            deviceConnection.onClickReadCharacteristic?.onClick(deviceConnection, characteristic)
-        }
-    }
-
-    private val onClickWriteCharacteristic = object : OnClickCharacteristic {
-        override fun onClick(
-            deviceConnection: DeviceConnection,
-            characteristic: GattCharacteristic
-        ) {
-            deviceConnection.onClickWriteCharacteristic?.onClick(deviceConnection, characteristic)
+            deviceConnection.onCharacteristicActionClick?.onClick(
+                deviceConnection,
+                characteristic,
+                action
+            )
         }
     }
 
@@ -150,8 +147,7 @@ class ScannerFragment : Fragment() {
             DividerItemDecoration(context, LinearLayoutManager.VERTICAL)
         )
 
-        deviceServicesAdapter =
-            DeviceServicesAdapter(null, onClickReadCharacteristic, onClickWriteCharacteristic)
+        deviceServicesAdapter = DeviceServicesAdapter(null, onCharacteristicActionClick)
         binding.recyclerViewDeviceServices.adapter = deviceServicesAdapter
         binding.recyclerViewDeviceServices.addItemDecoration(
             DividerItemDecoration(context, LinearLayoutManager.VERTICAL)
@@ -191,19 +187,33 @@ class ScannerFragment : Fragment() {
 
     @SuppressLint("MissingPermission")
     private fun startScan() {
+        Log.d(TAG, "startScan() called")
+
         scanJob = scanScope.launch {
+            Log.d(TAG, "bluetoothLe.scan() called")
+
             isScanning = true
 
-            bluetoothLe.scan()
-                .collect {
-                    Log.d(TAG, "ScanResult collected: $it")
+            try {
+                bluetoothLe.scan()
+                    .collect {
+                        Log.d(TAG, "bluetoothLe.scan() collected: ScanResult = $it")
 
-                    viewModel.addScanResultIfNew(it)
+                        viewModel.addScanResultIfNew(it)
+                    }
+            } catch (exception: Exception) {
+                isScanning = false
+
+                if (exception is CancellationException) {
+                    Log.e(TAG, "bluetoothLe.scan() CancellationException", exception)
                 }
+            }
         }
     }
 
     private fun onClickScanResult(bluetoothDevice: BluetoothDevice) {
+        Log.d(TAG, "onClickScanResult() called with: bluetoothDevice = $bluetoothDevice")
+
         isScanning = false
 
         val index = viewModel.addDeviceConnectionIfNew(bluetoothDevice)
@@ -226,6 +236,8 @@ class ScannerFragment : Fragment() {
 
     @SuppressLint("MissingPermission")
     private fun addNewTab(bluetoothDevice: BluetoothDevice): Tab {
+        Log.d(TAG, "addNewTab() called with: bluetoothDevice = $bluetoothDevice")
+
         val deviceId = bluetoothDevice.id.toString()
         val deviceName = bluetoothDevice.name
 
@@ -238,6 +250,8 @@ class ScannerFragment : Fragment() {
         textViewName?.text = deviceName
         textViewName?.isVisible = deviceName.isNullOrEmpty().not()
         customView?.findViewById<Button>(R.id.image_button_remove)?.setOnClickListener {
+            Log.d(TAG, "removeTab() called with: bluetoothDevice = $bluetoothDevice")
+
             viewModel.remove(bluetoothDevice)
             binding.tabLayout.removeTab(newTab)
         }
@@ -257,8 +271,13 @@ class ScannerFragment : Fragment() {
             }
 
             try {
+                Log.d(
+                    TAG, "bluetoothLe.connectGatt() called with: " +
+                        "deviceConnection.bluetoothDevice = ${deviceConnection.bluetoothDevice}"
+                )
+
                 bluetoothLe.connectGatt(deviceConnection.bluetoothDevice) {
-                    Log.d(TAG, "connectGatt result: services() = $services")
+                    Log.d(TAG, "bluetoothLe.connectGatt result: services() = $services")
 
                     deviceConnection.status = Status.CONNECTED
                     deviceConnection.services = services
@@ -266,81 +285,127 @@ class ScannerFragment : Fragment() {
                         updateDeviceUI(deviceConnection)
                     }
 
-                    // TODO(ofy) Improve this. Remove OnClickCharacteristic as it's not ideal
-                    // to hold so many OnClickCharacteristic and difficult to use with Compose.
-                    deviceConnection.onClickReadCharacteristic =
-                        object : OnClickCharacteristic {
+                    deviceConnection.onCharacteristicActionClick =
+                        object : OnCharacteristicActionClick {
                             override fun onClick(
                                 deviceConnection: DeviceConnection,
-                                characteristic: GattCharacteristic
+                                characteristic: GattCharacteristic,
+                                action: @OnCharacteristicActionClick.Action Int
                             ) {
-                                connectScope.launch {
-                                    val result = readCharacteristic(characteristic)
-                                    Log.d(TAG, "readCharacteristic() called with: result = $result")
+                                Log.d(
+                                    TAG,
+                                    "onClick() called with: " +
+                                        "deviceConnection = $deviceConnection, " +
+                                        "characteristic = $characteristic, " +
+                                        "action = $action"
+                                )
 
-                                    deviceConnection.storeValueFor(
-                                        characteristic,
-                                        result.getOrNull()
+                                when (action) {
+                                    OnCharacteristicActionClick.READ -> readCharacteristic(
+                                        this@connectGatt,
+                                        deviceConnection,
+                                        characteristic
                                     )
-                                    launch(Dispatchers.Main) {
-                                        updateDeviceUI(deviceConnection)
-                                    }
+
+                                    OnCharacteristicActionClick.WRITE -> writeCharacteristic(
+                                        this@connectGatt,
+                                        characteristic
+                                    )
+
+                                    OnCharacteristicActionClick.SUBSCRIBE ->
+                                        subscribeToCharacteristic(
+                                            this@connectGatt,
+                                            characteristic
+                                        )
                                 }
                             }
                         }
 
-                    // TODO(ofy) Improve this. Remove OnClickCharacteristic as it's not ideal
-                    // to hold so many OnClickCharacteristic and difficult to use with Compose.
-                    deviceConnection.onClickWriteCharacteristic =
-                        object : OnClickCharacteristic {
-                            override fun onClick(
-                                deviceConnection: DeviceConnection,
-                                characteristic: GattCharacteristic
-                            ) {
-                                val view = layoutInflater.inflate(
-                                    R.layout.dialog_write_characteristic,
-                                    null
-                                )
-                                val editTextValue =
-                                    view.findViewById<EditText>(R.id.edit_text_value)
-
-                                AlertDialog.Builder(requireContext())
-                                    .setTitle(getString(R.string.write))
-                                    .setView(view)
-                                    .setPositiveButton(getString(R.string.write)) { _, _ ->
-                                        val editTextValueString = editTextValue.text.toString()
-                                        val value = editTextValueString.toByteArray()
-
-                                        connectScope.launch {
-                                            val result = writeCharacteristic(
-                                                characteristic,
-                                                value
-                                            )
-                                            Log.d(TAG, "writeCharacteristic() called with: " +
-                                                "result = $result")
-                                            launch(Dispatchers.Main) {
-                                                toast("Called write with: `$editTextValueString`")
-                                                    .show()
-                                            }
-                                        }
-                                    }
-                                    .setNegativeButton(getString(R.string.cancel), null)
-                                    .create()
-                                    .show()
-                            }
-                        }
+                    awaitCancellation()
                 }
             } catch (exception: Exception) {
                 if (exception is CancellationException) {
-                    Log.d(TAG, "connectGatt() CancellationException")
+                    Log.e(TAG, "connectGatt() CancellationException", exception)
                 } else {
                     Log.e(TAG, "connectGatt() exception", exception)
-                    deviceConnection.status = Status.DISCONNECTED
+                }
+
+                deviceConnection.status = Status.DISCONNECTED
+                launch(Dispatchers.Main) {
+                    updateDeviceUI(deviceConnection)
+                }
+            }
+        }
+    }
+
+    private fun readCharacteristic(
+        gattClientScope: BluetoothLe.GattClientScope,
+        deviceConnection: DeviceConnection,
+        characteristic: GattCharacteristic
+    ) {
+        connectScope.launch {
+            Log.d(TAG, "readCharacteristic() called with: characteristic = $characteristic")
+
+            val result = gattClientScope.readCharacteristic(characteristic)
+            Log.d(TAG, "readCharacteristic() result: result = $result")
+
+            deviceConnection.storeValueFor(characteristic, result.getOrNull())
+            launch(Dispatchers.Main) {
+                updateDeviceUI(deviceConnection)
+            }
+        }
+    }
+
+    private fun writeCharacteristic(
+        gattClientScope: BluetoothLe.GattClientScope,
+        characteristic: GattCharacteristic
+    ) {
+        val view = layoutInflater.inflate(R.layout.dialog_write_characteristic, null)
+        val editTextValue = view.findViewById<EditText>(R.id.edit_text_value)
+
+        AlertDialog.Builder(requireContext())
+            .setTitle(getString(R.string.write))
+            .setView(view).setPositiveButton(getString(R.string.write)) { _, _ ->
+                val editTextValueString = editTextValue.text.toString()
+                val value = editTextValueString.toByteArray()
+
+                connectScope.launch {
+                    Log.d(
+                        TAG,
+                        "writeCharacteristic() called with: " +
+                            "characteristic = $characteristic, " +
+                            "value = ${value.decodeToString()}"
+                    )
+
+                    val result = gattClientScope.writeCharacteristic(characteristic, value)
+                    Log.d(TAG, "writeCharacteristic() result: result = $result")
+
                     launch(Dispatchers.Main) {
-                        updateDeviceUI(deviceConnection)
+                        toast("Called write with: $editTextValueString, result = $result").show()
                     }
                 }
             }
+            .setNegativeButton(getString(R.string.cancel), null)
+            .create()
+            .show()
+    }
+
+    private fun subscribeToCharacteristic(
+        gattClientScope: BluetoothLe.GattClientScope,
+        characteristic: GattCharacteristic
+    ) {
+        connectScope.launch {
+            gattClientScope.subscribeToCharacteristic(characteristic)
+                .collect {
+                    Log.d(
+                        TAG,
+                        "subscribeToCharacteristic() collected: " +
+                            "characteristic = $characteristic, " +
+                            "value.decodeToString() = ${it.decodeToString()}"
+                    )
+                }
+
+            Log.d(TAG, "subscribeToCharacteristic completed")
         }
     }
 
@@ -365,11 +430,13 @@ class ScannerFragment : Fragment() {
                 binding.textViewDeviceConnectionStatus.setTextColor(getColor(R.color.green_500))
                 binding.buttonReconnect.isVisible = true
             }
+
             Status.CONNECTING -> {
                 binding.progressIndicatorDeviceConnection.isVisible = true
                 binding.textViewDeviceConnectionStatus.text = getString(R.string.connecting)
                 binding.textViewDeviceConnectionStatus.setTextColor(getColor(R.color.indigo_500))
             }
+
             Status.CONNECTED -> {
                 binding.textViewDeviceConnectionStatus.text = getString(R.string.connected)
                 binding.textViewDeviceConnectionStatus.setTextColor(getColor(R.color.indigo_500))

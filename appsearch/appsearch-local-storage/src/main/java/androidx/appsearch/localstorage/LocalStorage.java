@@ -341,7 +341,9 @@ public class LocalStorage {
                 icingDir,
                 new AppSearchConfigImpl(
                         new UnlimitedLimitConfig(),
-                        new DefaultIcingOptionsConfig()
+                        new DefaultIcingOptionsConfig(),
+                        /* storeParentInfoAsSyntheticProperty= */ false,
+                        /* shouldRetrieveParentInfo= */ true
                 ),
                 initStatsBuilder,
                 new JetpackOptimizeStrategy(),

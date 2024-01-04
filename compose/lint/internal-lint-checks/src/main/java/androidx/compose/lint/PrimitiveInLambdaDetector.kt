@@ -256,7 +256,7 @@ fun PsiClassReferenceType.isBoxedPrimitive(): Boolean {
     return resolvedType.qualifiedName in BoxedPrimitives
 }
 
-private fun hasJvmInline(type: PsiClass): Boolean {
+internal fun hasJvmInline(type: PsiClass): Boolean {
     for (annotation in type.annotations) {
         if (annotation.qualifiedName == JvmInlineAnnotation) {
             return true

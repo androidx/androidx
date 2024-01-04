@@ -18,6 +18,8 @@
 package androidx.camera.camera2.pipe.integration.impl
 
 import android.content.Context
+import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CaptureRequest
 import android.media.MediaCodec
 import android.os.Build
 import androidx.annotation.GuardedBy
@@ -48,8 +50,10 @@ import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.CameraMode
 import androidx.camera.core.impl.DeferrableSurface
+import androidx.camera.core.impl.PreviewConfig
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionConfig.ValidatingBuilder
+import androidx.camera.core.impl.stabilization.StabilizationMode
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlinx.coroutines.Job
@@ -458,10 +462,19 @@ class UseCaseManager @Inject constructor(
             )
         }
 
+        var isPreviewStabilizationOn = false
+        for (useCase in currentUseCases) {
+            if (useCase.currentConfig is PreviewConfig) {
+                isPreviewStabilizationOn =
+                    useCase.currentConfig.previewStabilizationMode == StabilizationMode.ON
+            }
+        }
+
         return supportedSurfaceCombination.checkSupported(
             SupportedSurfaceCombination.FeatureSettings(
                 CameraMode.DEFAULT,
-                DynamicRange.BIT_DEPTH_8_BIT
+                DynamicRange.BIT_DEPTH_8_BIT,
+                isPreviewStabilizationOn
             ), surfaceConfigs
         )
     }
@@ -580,11 +593,34 @@ class UseCaseManager @Inject constructor(
                     quirkCloseCameraDeviceOnClose = shouldCloseCameraDeviceOnClose,
                 )
 
+            // Set video stabilization mode to capture request
+            var videoStabilizationMode = CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_OFF
+            if (sessionConfigAdapter.getValidSessionConfigOrNull() != null) {
+                val config = sessionConfigAdapter
+                    .getValidSessionConfigOrNull()!!
+                    .repeatingCaptureConfig
+                val isPreviewStabilizationMode = config.previewStabilizationMode
+                val isVideoStabilizationMode = config.videoStabilizationMode
+
+                if (isPreviewStabilizationMode == StabilizationMode.OFF ||
+                    isVideoStabilizationMode == StabilizationMode.OFF) {
+                    videoStabilizationMode = CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_OFF
+                } else if (isPreviewStabilizationMode == StabilizationMode.ON) {
+                    videoStabilizationMode =
+                        CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
+                } else if (isVideoStabilizationMode == StabilizationMode.ON) {
+                    videoStabilizationMode = CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_ON
+                }
+            }
+
             // Build up a config (using TEMPLATE_PREVIEW by default)
             return CameraGraph.Config(
                 camera = cameraConfig.cameraId,
                 streams = streamConfigMap.keys.toList(),
                 defaultListeners = listOf(callbackMap, requestListener),
+                defaultParameters = mapOf(
+                    CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE to videoStabilizationMode
+                ),
                 flags = combinedFlags,
             )
         }

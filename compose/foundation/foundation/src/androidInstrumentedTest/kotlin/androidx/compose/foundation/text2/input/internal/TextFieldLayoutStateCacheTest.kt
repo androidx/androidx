@@ -734,8 +734,19 @@ class TextFieldLayoutStateCacheTest {
         updateMeasureInputs()
         var invalidations = 0
 
-        observingLayoutCache({ invalidations++ }) {
+        val observer = SnapshotStateObserver(onChangedExecutor = { it() })
+        observer.start()
+        try {
+            observer.observeReads(
+                scope = Unit,
+                onValueChangedForScope = { invalidations++ },
+                block = { cache.value }
+            )
             update()
+            // Ensure any changes made by block are processed.
+            Snapshot.sendApplyNotifications()
+        } finally {
+            observer.stop()
         }
 
         assertWithMessage("Expected $expectedInvalidations invalidations")
@@ -758,21 +769,5 @@ class TextFieldLayoutStateCacheTest {
             fontFamilyResolver = fontFamilyResolver,
             constraints = constraints
         )
-    }
-
-    private fun observingLayoutCache(
-        onLayoutStateInvalidated: (TextLayoutResult?) -> Unit,
-        block: () -> Unit
-    ) {
-        val observer = SnapshotStateObserver(onChangedExecutor = { it() })
-        observer.start()
-        try {
-            observer.observeReads(Unit, onValueChangedForScope = {
-                onLayoutStateInvalidated(cache.value)
-            }) { cache.value }
-            block()
-        } finally {
-            observer.stop()
-        }
     }
 }

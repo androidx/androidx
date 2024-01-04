@@ -16,6 +16,9 @@
 
 package androidx.javascriptengine;
 
+import android.content.res.AssetFileDescriptor;
+import android.os.ParcelFileDescriptor;
+
 import androidx.annotation.NonNull;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Consumer;
@@ -44,11 +47,19 @@ final class EnvironmentDeadState implements IsolateState {
     @NonNull
     @Override
     public ListenableFuture<String> evaluateJavaScriptAsync(@NonNull String code) {
-        return CallbackToFutureAdapter.getFuture(completer -> {
-            final String futureDebugMessage = "evaluateJavascript Future";
-            completer.setException(mTerminationInfo.toJavaScriptException());
-            return futureDebugMessage;
-        });
+        return getEnvironmentDeadFuture();
+    }
+
+    @NonNull
+    @Override
+    public ListenableFuture<String> evaluateJavaScriptAsync(@NonNull AssetFileDescriptor afd) {
+        return getEnvironmentDeadFuture();
+    }
+
+    @NonNull
+    @Override
+    public ListenableFuture<String> evaluateJavaScriptAsync(@NonNull ParcelFileDescriptor pfd) {
+        return getEnvironmentDeadFuture();
     }
 
     @Override
@@ -65,8 +76,7 @@ final class EnvironmentDeadState implements IsolateState {
     }
 
     @Override
-    public boolean provideNamedData(@NonNull String name, @NonNull byte[] inputBytes) {
-        return false;
+    public void provideNamedData(@NonNull String name, @NonNull byte[] inputBytes) {
     }
 
     @Override
@@ -86,4 +96,12 @@ final class EnvironmentDeadState implements IsolateState {
 
     @Override
     public void removeOnTerminatedCallback(@NonNull Consumer<TerminationInfo> callback) {}
+
+    private ListenableFuture<String> getEnvironmentDeadFuture() {
+        return CallbackToFutureAdapter.getFuture(completer -> {
+            final String futureDebugMessage = "evaluateJavascript Future";
+            completer.setException(mTerminationInfo.toJavaScriptException());
+            return futureDebugMessage;
+        });
+    }
 }

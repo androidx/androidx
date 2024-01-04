@@ -27,6 +27,7 @@ import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCo
  * Local implementation that will be injected to locally loaded SDKs.
  */
 internal class LocalController(
+    private val sdkPackageName: String,
     private val locallyLoadedSdks: LocallyLoadedSdks,
     private val appOwnedSdkRegistry: AppOwnedSdkRegistry
 ) : SdkSandboxControllerCompat.SandboxControllerImpl {
@@ -41,7 +42,7 @@ internal class LocalController(
     override fun registerSdkSandboxActivityHandler(
         handlerCompat: SdkSandboxActivityHandlerCompat
     ): IBinder {
-        return LocalSdkActivityHandlerRegistry.register(handlerCompat)
+        return LocalSdkActivityHandlerRegistry.register(sdkPackageName, handlerCompat)
     }
 
     override fun unregisterSdkSandboxActivityHandler(

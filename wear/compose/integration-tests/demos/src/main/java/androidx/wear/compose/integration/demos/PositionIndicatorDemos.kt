@@ -113,6 +113,10 @@ fun HideWhenFullSLCDemo() {
 fun ControllablePositionIndicator() {
     val position = remember { mutableFloatStateOf(0.2f) }
     val size = remember { mutableFloatStateOf(0.5f) }
+    val visibility = remember { mutableStateOf(PositionIndicatorVisibility.Show) }
+    var showFadeInAnimation by remember { mutableStateOf(true) }
+    var showFadeOutAnimation by remember { mutableStateOf(true) }
+    var showPositionAnimation by remember { mutableStateOf(true) }
     var alignment by remember { mutableIntStateOf(0) }
     var reverseDirection by remember { mutableStateOf(false) }
     var layoutDirection by remember { mutableStateOf(false) }
@@ -130,10 +134,13 @@ fun ControllablePositionIndicator() {
         Scaffold(
             positionIndicator = {
                 PositionIndicator(
-                    state = CustomPositionIndicatorState(position, size),
+                    state = CustomPositionIndicatorState(position, size, visibility),
                     indicatorHeight = 76.dp,
                     indicatorWidth = 6.dp,
                     paddingHorizontal = 5.dp,
+                    showFadeInAnimation = showFadeInAnimation,
+                    showFadeOutAnimation = showFadeOutAnimation,
+                    showPositionAnimation = showPositionAnimation,
                     color = MaterialTheme.colors.secondary,
                     reverseDirection = reverseDirection,
                     position = alignmentValues[alignment]
@@ -146,7 +153,10 @@ fun ControllablePositionIndicator() {
                     .padding(horizontal = 20.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Column {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.verticalScroll(rememberScrollState())
+                ) {
                     Text("Position")
                     DefaultInlineSlider(
                         modifier = Modifier.height(40.dp),
@@ -177,6 +187,47 @@ fun ControllablePositionIndicator() {
                                 text = "Rev Dir",
                                 textAlign = TextAlign.Center
                             )
+                        }
+                    }
+                    Button(onClick = {
+                        visibility.value = when (visibility.value) {
+                            PositionIndicatorVisibility.Show ->
+                                PositionIndicatorVisibility.AutoHide
+
+                            PositionIndicatorVisibility.AutoHide ->
+                                PositionIndicatorVisibility.Hide
+
+                            else ->
+                                PositionIndicatorVisibility.Show
+                        }
+                    }) {
+                        Text(
+                            when (visibility.value) {
+                                PositionIndicatorVisibility.AutoHide -> "AutoHide"
+                                PositionIndicatorVisibility.Show -> "Show"
+                                else -> "Hide"
+                            }
+                        )
+                    }
+                    Text("Animations")
+                    Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                        ToggleButton(
+                            checked = showFadeInAnimation,
+                            onCheckedChange = { showFadeInAnimation = !showFadeInAnimation }
+                        ) {
+                            Text("Fade in")
+                        }
+                        ToggleButton(
+                            checked = showFadeOutAnimation,
+                            onCheckedChange = { showFadeOutAnimation = !showFadeOutAnimation }
+                        ) {
+                            Text("Fade out")
+                        }
+                        ToggleButton(
+                            checked = showPositionAnimation,
+                            onCheckedChange = { showPositionAnimation = !showPositionAnimation }
+                        ) {
+                            Text("Position")
                         }
                     }
                 }
@@ -217,16 +268,20 @@ fun SharedPositionIndicator() {
 
 internal class CustomPositionIndicatorState(
     private val position: State<Float>,
-    private val size: State<Float>
+    private val size: State<Float>,
+    private val visibility: State<PositionIndicatorVisibility>
 ) : PositionIndicatorState {
     override val positionFraction get() = position.value
     override fun sizeFraction(scrollableContainerSizePx: Float) = size.value
-    override fun visibility(scrollableContainerSizePx: Float) = PositionIndicatorVisibility.Show
+    override fun visibility(scrollableContainerSizePx: Float) = visibility.value
 
     override fun equals(other: Any?) =
         other is CustomPositionIndicatorState &&
             position == other.position &&
-            size == other.size
+            size == other.size &&
+            visibility == other.visibility
 
-    override fun hashCode(): Int = position.hashCode() + 31 * size.hashCode()
+    override fun hashCode(): Int = position.hashCode() +
+        31 * size.hashCode() +
+        31 * visibility.hashCode()
 }

@@ -325,7 +325,7 @@ suspend fun AwaitPointerEventScope.verticalDrag(
 ): Boolean = drag(
     pointerId = pointerId,
     onDrag = onDrag,
-    motionFromChange = { it.positionChangeIgnoreConsumed().y },
+    hasDragged = { it.positionChangeIgnoreConsumed().y != 0f },
     motionConsumed = { it.isConsumed }
 ) != null
 
@@ -473,7 +473,7 @@ suspend fun AwaitPointerEventScope.horizontalDrag(
 ): Boolean = drag(
     pointerId = pointerId,
     onDrag = onDrag,
-    motionFromChange = { it.positionChangeIgnoreConsumed().x },
+    hasDragged = { it.positionChangeIgnoreConsumed().x != 0f },
     motionConsumed = { it.isConsumed }
 ) != null
 
@@ -564,10 +564,9 @@ suspend fun PointerInputScope.detectHorizontalDragGestures(
 
 /**
  * Continues to read drag events until all pointers are up or the drag event is canceled.
- * The initial pointer to use for driving the drag is [pointerId]. [motionFromChange]
- * converts the [PointerInputChange] to the pixel change in the direction that this
- * drag should detect. [onDrag] is called whenever the pointer moves and [motionFromChange]
- * returns non-zero.
+ * The initial pointer to use for driving the drag is [pointerId]. [hasDragged]
+ * passes the result whether a change was detected from the drag function or not. [onDrag] is called
+ * whenever the pointer moves and [hasDragged] returns non-zero.
  *
  * @return The last pointer input event change when gesture ended with all pointers up
  * and null when the gesture was canceled.
@@ -575,7 +574,7 @@ suspend fun PointerInputScope.detectHorizontalDragGestures(
 internal suspend inline fun AwaitPointerEventScope.drag(
     pointerId: PointerId,
     onDrag: (PointerInputChange) -> Unit,
-    motionFromChange: (PointerInputChange) -> Float,
+    hasDragged: (PointerInputChange) -> Boolean,
     motionConsumed: (PointerInputChange) -> Boolean
 ): PointerInputChange? {
     if (currentEvent.isPointerUp(pointerId)) {
@@ -583,7 +582,7 @@ internal suspend inline fun AwaitPointerEventScope.drag(
     }
     var pointer = pointerId
     while (true) {
-        val change = awaitDragOrUp(pointer) { motionFromChange(it) != 0f } ?: return null
+        val change = awaitDragOrUp(pointer, hasDragged) ?: return null
 
         if (motionConsumed(change)) {
             return null

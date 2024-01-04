@@ -38,7 +38,6 @@ import androidx.wear.compose.foundation.samples.SimpleScalingLazyColumnWithConte
 import androidx.wear.compose.foundation.samples.SimpleScalingLazyColumnWithSnap
 import androidx.wear.compose.foundation.samples.SimpleSwipeToDismissBox
 import androidx.wear.compose.foundation.samples.StatefulSwipeToDismissBox
-import androidx.wear.compose.foundation.samples.SwipeToRevealWithExpandables
 import androidx.wear.compose.integration.demos.common.ComposableDemo
 import androidx.wear.compose.integration.demos.common.DemoCategory
 import androidx.wear.compose.material.samples.SwipeToRevealCardSample
@@ -152,33 +151,28 @@ val WearFoundationDemos = DemoCategory(
         DemoCategory(
             "Swipe To Reveal",
             listOf(
-                ComposableDemo("Swipe To Reveal Chip") {
-                    SwipeToRevealChips()
-                },
-                ComposableDemo("Swipe To Reveal Card") {
-                    SwipeToRevealCards()
-                },
-                ComposableDemo("Swipe To Reveal - Custom") {
-                    SwipeToRevealWithSingleAction()
-                },
-                ComposableDemo("Swipe To Reveal - RTL") {
-                    SwipeToRevealInRtl()
-                },
-                ComposableDemo("Swipe To Reveal - Expandable") {
-                    SwipeToRevealWithExpandables()
-                },
-                ComposableDemo("Swipe To Reveal - Undo") {
-                    SwipeToRevealWithDifferentUndo()
-                },
-                ComposableDemo("S2R + EdgeSwipeToDismiss") { params ->
-                    SwipeToRevealWithEdgeSwipeToDismiss(params.navigateBack)
-                },
-                ComposableDemo("Material S2R Chip") {
-                    SwipeToRevealChipSample()
-                },
-                ComposableDemo("Material S2R Card") {
-                    SwipeToRevealCardSample()
-                }
+                DemoCategory(
+                    "Samples",
+                    listOf(
+                        ComposableDemo("Material S2R Chip") { params ->
+                            SwipeToRevealChipSample(params.swipeToDismissBoxState)
+                        },
+                        ComposableDemo("Material S2R Card") { params ->
+                            SwipeToRevealCardSample(params.swipeToDismissBoxState)
+                        },
+                    )
+                ),
+                DemoCategory(
+                    "Demos",
+                    listOf(
+                        ComposableDemo("S2R Chip") { params ->
+                            SwipeToRevealChips(params.swipeToDismissBoxState)
+                        },
+                        ComposableDemo("S2R Card") { params ->
+                            SwipeToRevealCards(params.swipeToDismissBoxState)
+                        },
+                    )
+                )
             )
         )
     ),

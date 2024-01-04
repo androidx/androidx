@@ -24,6 +24,11 @@ import android.os.Message
 import android.os.Messenger
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.launch
 
 /**
  * Another service of the same type, that runs in another separate
@@ -44,6 +49,8 @@ class TwoWayIpcService2 : TwoWayIpcService()
  */
 open class TwoWayIpcService : LifecycleService() {
     private val subjects = mutableListOf<TwoWayIpcSubject>()
+    private val jobForSubjects = Job()
+    private val scopeForSubjects = CoroutineScope(jobForSubjects + Dispatchers.IO)
     private val messenger: Messenger = Messenger(
         Handler(
             Looper.getMainLooper()
@@ -51,7 +58,7 @@ open class TwoWayIpcService : LifecycleService() {
             // make a copy to prevent recycling
             when (incoming.what) {
                 MSG_CREATE_SUBJECT -> {
-                    val subject = TwoWayIpcSubject(lifecycleScope).also {
+                    val subject = TwoWayIpcSubject(scopeForSubjects).also {
                         subjects.add(it)
                     }
 
@@ -66,6 +73,24 @@ open class TwoWayIpcService : LifecycleService() {
                     }
                     incoming.replyTo.send(response)
                 }
+                MSG_DESTROY_SUBJECTS -> {
+                    val incomingCopy = Message.obtain().also {
+                        it.copyFrom(incoming)
+                    }
+                    lifecycleScope.launch {
+                        IpcLogger.log("destroying subjects")
+                        try {
+                            jobForSubjects.cancelAndJoin()
+                            IpcLogger.log("destroyed subjects")
+                        } finally {
+                            incomingCopy.replyTo.send(
+                                Message.obtain().also {
+                                    it.data.putBoolean("closed", true)
+                                }
+                            )
+                        }
+                    }
+                }
 
                 else -> error("unknown message type ${incoming.what}")
             }
@@ -79,5 +104,6 @@ open class TwoWayIpcService : LifecycleService() {
 
     companion object {
         const val MSG_CREATE_SUBJECT = 500
+        const val MSG_DESTROY_SUBJECTS = 501
     }
 }

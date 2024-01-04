@@ -94,6 +94,24 @@ class CallsManager constructor(context: Context) {
             "android.telecom.extra.VOIP_BACKWARDS_COMPATIBILITY_SUPPORTED"
 
         /**
+         * EVENT used by InCallService as part of sendCallEvent to notify the VOIP Application that
+         * this InCallService supports jetpack extensions
+         */
+        internal const val EVENT_JETPACK_CAPABILITY_EXCHANGE =
+            "android.telecom.event.CAPABILITY_EXCHANGE";
+
+        /**
+         * VERSION used for handling future compatibility in capability exchange.
+         */
+        internal const val EXTRA_CAPABILITY_EXCHANGE_VERSION = "CAPABILITY_EXCHANGE_VERSION"
+
+        /**
+         * BINDER used for handling capability exchange between the ICS and VOIP app sides, sent
+         * as part of sendCallEvent in the included extras.
+         */
+        internal const val EXTRA_CAPABILITY_EXCHANGE_BINDER = "CAPABILITY_EXCHANGE_BINDER"
+
+        /**
          * The connection is using transactional call APIs.
          *
          *
@@ -300,7 +318,7 @@ class CallsManager constructor(context: Context) {
                 mDirectExecutor,
                 callControlOutcomeReceiver,
                 CallSession.CallControlCallbackImpl(callSession),
-                CallSession.CallEventCallbackImpl(callChannels)
+                CallSession.CallEventCallbackImpl(callChannels, coroutineContext)
             )
 
             pauseExecutionUntilCallIsReady_orTimeout(openResult)

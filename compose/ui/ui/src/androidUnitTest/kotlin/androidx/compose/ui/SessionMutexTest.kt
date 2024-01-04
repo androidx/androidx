@@ -39,7 +39,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import org.junit.Test
 
-@OptIn(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, InternalComposeUiApi::class)
 class SessionMutexTest {
 
     private val mutex = SessionMutex<TestSession>()

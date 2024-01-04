@@ -25,22 +25,20 @@ import android.widget.TextView
 import androidx.bluetooth.GattCharacteristic
 import androidx.bluetooth.integration.testapp.R
 import androidx.bluetooth.integration.testapp.data.connection.DeviceConnection
-import androidx.bluetooth.integration.testapp.data.connection.OnClickCharacteristic
-import androidx.bluetooth.integration.testapp.ui.common.toHexString
+import androidx.bluetooth.integration.testapp.data.connection.OnCharacteristicActionClick
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 
 class DeviceServiceCharacteristicsAdapter(
     private val deviceConnection: DeviceConnection,
     private val characteristics: List<GattCharacteristic>,
-    private val onClickReadCharacteristic: OnClickCharacteristic,
-    private val onClickWriteCharacteristic: OnClickCharacteristic
+    private val onCharacteristicActionClick: OnCharacteristicActionClick,
 ) : RecyclerView.Adapter<DeviceServiceCharacteristicsAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_device_service_characteristic, parent, false)
-        return ViewHolder(view, onClickReadCharacteristic, onClickWriteCharacteristic)
+        return ViewHolder(view, onCharacteristicActionClick)
     }
 
     override fun getItemCount(): Int {
@@ -54,8 +52,7 @@ class DeviceServiceCharacteristicsAdapter(
 
     inner class ViewHolder(
         itemView: View,
-        private val onClickReadCharacteristic: OnClickCharacteristic,
-        private val onClickWriteCharacteristic: OnClickCharacteristic
+        private val onCharacteristicActionClick: OnCharacteristicActionClick
     ) : RecyclerView.ViewHolder(itemView) {
 
         private val textViewUuid: TextView = itemView.findViewById(R.id.text_view_uuid)
@@ -64,30 +61,24 @@ class DeviceServiceCharacteristicsAdapter(
         private val layoutValue: LinearLayout = itemView.findViewById(R.id.layout_value)
         private val textViewValue: TextView = itemView.findViewById(R.id.text_view_value)
 
-        private val buttonReadCharacteristic: Button =
-            itemView.findViewById(R.id.button_read_characteristic)
-
-        private val buttonWriteCharacteristic: Button =
-            itemView.findViewById(R.id.button_write_characteristic)
+        private val buttonRead: Button = itemView.findViewById(R.id.button_read)
+        private val buttonWrite: Button = itemView.findViewById(R.id.button_write)
+        private val buttonSubscribe: Button = itemView.findViewById(R.id.button_subscribe)
 
         private var currentDeviceConnection: DeviceConnection? = null
         private var currentCharacteristic: GattCharacteristic? = null
 
         init {
-            buttonReadCharacteristic.setOnClickListener {
-                currentDeviceConnection?.let { deviceConnection ->
-                    currentCharacteristic?.let { characteristic ->
-                        onClickReadCharacteristic.onClick(deviceConnection, characteristic)
-                    }
-                }
+            buttonRead.setOnClickListener {
+                onClick(OnCharacteristicActionClick.READ)
             }
 
-            buttonWriteCharacteristic.setOnClickListener {
-                currentDeviceConnection?.let { deviceConnection ->
-                    currentCharacteristic?.let { characteristic ->
-                        onClickWriteCharacteristic.onClick(deviceConnection, characteristic)
-                    }
-                }
+            buttonWrite.setOnClickListener {
+                onClick(OnCharacteristicActionClick.WRITE)
+            }
+
+            buttonSubscribe.setOnClickListener {
+                onClick(OnCharacteristicActionClick.SUBSCRIBE)
             }
         }
 
@@ -113,29 +104,43 @@ class DeviceServiceCharacteristicsAdapter(
             if (properties.and(GattCharacteristic.PROPERTY_READ) != 0) {
                 propertiesList.add(context.getString(R.string.read))
             }
-            if (properties.and(GattCharacteristic.PROPERTY_SIGNED_WRITE) != 0) {
-                propertiesList.add(context.getString(R.string.signed_write))
-            }
             if (properties.and(GattCharacteristic.PROPERTY_WRITE) != 0) {
                 propertiesList.add(context.getString(R.string.write))
             }
             if (properties.and(GattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) != 0) {
                 propertiesList.add(context.getString(R.string.write_no_response))
             }
+            if (properties.and(GattCharacteristic.PROPERTY_SIGNED_WRITE) != 0) {
+                propertiesList.add(context.getString(R.string.signed_write))
+            }
             textViewProperties.text = propertiesList.joinToString()
 
             val isReadable = properties.and(GattCharacteristic.PROPERTY_READ) != 0
+            buttonRead.isVisible = isReadable
+
             val isWriteable = properties.and(GattCharacteristic.PROPERTY_WRITE) != 0 ||
                 properties.and(GattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) != 0 ||
                 properties.and(GattCharacteristic.PROPERTY_SIGNED_WRITE) != 0
-            buttonReadCharacteristic.isVisible = isReadable
-            buttonWriteCharacteristic.isVisible = isWriteable
+            buttonWrite.isVisible = isWriteable
+
+            val isSubscribable = properties.and(GattCharacteristic.PROPERTY_INDICATE) != 0 ||
+                properties.and(GattCharacteristic.PROPERTY_NOTIFY) != 0
+            buttonSubscribe.isVisible = isSubscribable
 
             val value = deviceConnection.valueFor(characteristic)
             layoutValue.isVisible = value != null
-            textViewValue.text = buildString {
-                append("toHexString: " + value?.toHexString() + "\n")
-                append("decodeToString: " + value?.decodeToString())
+            textViewValue.text = value?.decodeToString()
+        }
+
+        private fun onClick(action: @OnCharacteristicActionClick.Action Int) {
+            val deviceConnection = currentDeviceConnection
+            val characteristic = currentCharacteristic
+            if (deviceConnection != null && characteristic != null) {
+                onCharacteristicActionClick.onClick(
+                    deviceConnection,
+                    characteristic,
+                    action
+                )
             }
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -421,7 +421,9 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
         check(focusOrderModifier is FocusOrderModifier) {
             "applyFocusProperties called on wrong node"
         }
-        focusProperties.apply(createFocusOrderModifierToProperties(focusOrderModifier))
+
+        @Suppress("DEPRECATION")
+        focusOrderModifier.populateFocusOrder(FocusOrder(focusProperties))
     }
 
     override fun toString(): String = element.toString()
@@ -438,19 +440,6 @@ private val onDrawCacheReadsChanged = { it: BackwardsCompatNode ->
 
 private val updateModifierLocalConsumer = { it: BackwardsCompatNode ->
     it.updateModifierLocalConsumer()
-}
-
-/**
- * Used internally for FocusOrderModifiers so that we can compare the modifiers and can reuse
- * the ModifierLocalConsumerEntity and ModifierLocalProviderEntity.
- */
-@Suppress("DEPRECATION")
-private fun createFocusOrderModifierToProperties(
-    modifier: FocusOrderModifier
-) : (FocusProperties) -> Unit {
-    return { focusProperties ->
-        modifier.populateFocusOrder(FocusOrder(focusProperties))
-    }
 }
 
 private fun BackwardsCompatNode.isChainUpdate(): Boolean {

@@ -1028,6 +1028,39 @@ class BasicMarqueeTest {
         )
     }
 
+    /** See b/297974036. */
+    @Test
+    fun animationRestarted_whenVelocityChanges() {
+        var velocity by mutableStateOf(10f)
+        rule.setContent {
+            TestMarqueeContent(Modifier.basicMarqueeWithTestParams(velocity = velocity.dp))
+        }
+
+        // Run the animation for a bit so we can tell when it resets.
+        repeat(3) {
+            rule.mainClock.advanceTimeByFrame()
+        }
+        rule.onRoot().captureToImage()
+            .assertContainsColor(Color1)
+            .assertContainsColor(Color2)
+
+        velocity += 1f
+
+        // Check that animation was restarted.
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+        val image = rule.onRoot().captureToImage().assertContainsColor(Color1)
+        image.assertDoesNotContainColor(Color2)
+
+        // Then ensure the animation is running again.
+        repeat(3) {
+            rule.mainClock.advanceTimeByFrame()
+        }
+        rule.onRoot().captureToImage()
+            .assertContainsColor(Color1)
+            .assertContainsColor(Color2)
+    }
+
     @Test
     fun drawCounts() {
         var outerDraws = 0

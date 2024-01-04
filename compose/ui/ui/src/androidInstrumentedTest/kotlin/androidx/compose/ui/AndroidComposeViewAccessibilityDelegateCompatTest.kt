@@ -42,12 +42,8 @@ import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.Matrix
-import androidx.compose.ui.graphics.RenderEffect
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.ReusableGraphicsLayerScope
 import androidx.compose.ui.graphics.toAndroidRect
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.InputModeManager
@@ -2211,31 +2207,15 @@ internal class MockOwner(
         val inverseTransform = Matrix()
         return object : OwnedLayer {
             override fun updateLayerProperties(
-                scaleX: Float,
-                scaleY: Float,
-                alpha: Float,
-                translationX: Float,
-                translationY: Float,
-                shadowElevation: Float,
-                rotationX: Float,
-                rotationY: Float,
-                rotationZ: Float,
-                cameraDistance: Float,
-                transformOrigin: TransformOrigin,
-                shape: Shape,
-                clip: Boolean,
-                renderEffect: RenderEffect?,
-                ambientShadowColor: Color,
-                spotShadowColor: Color,
-                compositingStrategy: CompositingStrategy,
+                scope: ReusableGraphicsLayerScope,
                 layoutDirection: LayoutDirection,
                 density: Density
             ) {
                 transform.reset()
                 // This is not expected to be 100% accurate
-                transform.scale(scaleX, scaleY)
-                transform.rotateZ(rotationZ)
-                transform.translate(translationX, translationY)
+                transform.scale(scope.scaleX, scope.scaleY)
+                transform.rotateZ(scope.rotationZ)
+                transform.translate(scope.translationX, scope.translationY)
                 transform.invertTo(inverseTransform)
             }
 

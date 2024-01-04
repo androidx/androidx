@@ -20,15 +20,18 @@ import android.content.Context
 import android.graphics.Matrix
 import android.os.Build
 import android.os.Looper.getMainLooper
+import android.util.Range
 import android.util.Rational
 import android.util.Size
 import android.view.Surface
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.DynamicRange
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageAnalysis.COORDINATE_SYSTEM_ORIGINAL
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageProxy
+import androidx.camera.core.MirrorMode
 import androidx.camera.core.TorchState
 import androidx.camera.core.ViewPort
 import androidx.camera.core.impl.ImageAnalysisConfig
@@ -36,6 +39,8 @@ import androidx.camera.core.impl.ImageCaptureConfig
 import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
+import androidx.camera.core.resolutionselector.AspectRatioStrategy
+import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraControl
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
@@ -71,11 +76,14 @@ class CameraControllerTest {
     }
 
     private val previewViewTransform = Matrix().also { it.postRotate(90F) }
-
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private lateinit var controller: LifecycleCameraController
+    @Suppress("deprecation")
     private val targetSizeWithAspectRatio =
         CameraController.OutputSize(AspectRatio.RATIO_16_9)
+    private val resolutionSelector = ResolutionSelector.Builder()
+        .setAspectRatioStrategy(AspectRatioStrategy.RATIO_16_9_FALLBACK_AUTO_STRATEGY).build()
+    @Suppress("deprecation")
     private val targetSizeWithResolution =
         CameraController.OutputSize(Size(1080, 1960))
     private val targetVideoQuality = Quality.HIGHEST
@@ -307,6 +315,37 @@ class CameraControllerTest {
 
     @UiThreadTest
     @Test
+    fun setPreviewResolutionSelector() {
+        controller.previewResolutionSelector = resolutionSelector
+        assertThat(controller.previewResolutionSelector).isEqualTo(resolutionSelector)
+
+        val config = controller.mPreview.currentConfig as ImageOutputConfig
+        assertThat(config.resolutionSelector).isEqualTo(resolutionSelector)
+    }
+
+    @UiThreadTest
+    @Test
+    fun setAnalysisResolutionSelector() {
+        controller.imageAnalysisResolutionSelector = resolutionSelector
+        assertThat(controller.imageAnalysisResolutionSelector).isEqualTo(resolutionSelector)
+
+        val config = controller.mImageAnalysis.currentConfig as ImageOutputConfig
+        assertThat(config.resolutionSelector).isEqualTo(resolutionSelector)
+    }
+
+    @UiThreadTest
+    @Test
+    fun setImageCaptureResolutionSelector() {
+        controller.imageCaptureResolutionSelector = resolutionSelector
+        assertThat(controller.imageCaptureResolutionSelector).isEqualTo(resolutionSelector)
+
+        val config = controller.mImageCapture.currentConfig as ImageOutputConfig
+        assertThat(config.resolutionSelector).isEqualTo(resolutionSelector)
+    }
+
+    @UiThreadTest
+    @Test
+    @Suppress("deprecation")
     fun setPreviewAspectRatio() {
         controller.previewTargetSize = targetSizeWithAspectRatio
         assertThat(controller.previewTargetSize).isEqualTo(targetSizeWithAspectRatio)
@@ -317,6 +356,7 @@ class CameraControllerTest {
 
     @UiThreadTest
     @Test
+    @Suppress("deprecation")
     fun setPreviewResolution() {
         controller.previewTargetSize = targetSizeWithResolution
         assertThat(controller.previewTargetSize).isEqualTo(targetSizeWithResolution)
@@ -327,6 +367,7 @@ class CameraControllerTest {
 
     @UiThreadTest
     @Test
+    @Suppress("deprecation")
     fun setAnalysisAspectRatio() {
         controller.imageAnalysisTargetSize = targetSizeWithAspectRatio
         assertThat(controller.imageAnalysisTargetSize).isEqualTo(targetSizeWithAspectRatio)
@@ -365,6 +406,7 @@ class CameraControllerTest {
 
     @UiThreadTest
     @Test
+    @Suppress("deprecation")
     fun setImageCaptureResolution() {
         controller.imageCaptureTargetSize = targetSizeWithResolution
         assertThat(controller.imageCaptureTargetSize).isEqualTo(targetSizeWithResolution)
@@ -375,6 +417,7 @@ class CameraControllerTest {
 
     @UiThreadTest
     @Test
+    @Suppress("deprecation")
     fun setImageCaptureAspectRatio() {
         controller.imageCaptureTargetSize = targetSizeWithAspectRatio
         assertThat(controller.imageCaptureTargetSize).isEqualTo(targetSizeWithAspectRatio)
@@ -409,6 +452,32 @@ class CameraControllerTest {
         val qualitySelector = QualitySelector.from(targetVideoQuality)
         controller.videoCaptureQualitySelector = qualitySelector
         assertThat(controller.videoCaptureQualitySelector).isEqualTo(qualitySelector)
+    }
+
+    @UiThreadTest
+    @Test
+    fun setVideoCaptureMirrorMode() {
+        controller.videoCaptureMirrorMode = MirrorMode.MIRROR_MODE_ON_FRONT_ONLY
+        assertThat(controller.videoCaptureMirrorMode)
+            .isEqualTo(MirrorMode.MIRROR_MODE_ON_FRONT_ONLY)
+        assertThat(controller.mVideoCapture.mirrorMode)
+            .isEqualTo(MirrorMode.MIRROR_MODE_ON_FRONT_ONLY)
+    }
+
+    @UiThreadTest
+    @Test
+    fun setVideoCaptureDynamicRange() {
+        controller.videoCaptureDynamicRange = DynamicRange.HDR10_10_BIT
+        assertThat(controller.videoCaptureDynamicRange).isEqualTo(DynamicRange.HDR10_10_BIT)
+        assertThat(controller.mVideoCapture.dynamicRange).isEqualTo(DynamicRange.HDR10_10_BIT)
+    }
+
+    @UiThreadTest
+    @Test
+    fun setVideoCaptureFrameRate() {
+        controller.videoCaptureTargetFrameRate = Range.create(60, 120)
+        assertThat(controller.videoCaptureTargetFrameRate).isEqualTo(Range.create(60, 120))
+        assertThat(controller.mVideoCapture.targetFrameRate).isEqualTo(Range.create(60, 120))
     }
 
     @UiThreadTest

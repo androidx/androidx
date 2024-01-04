@@ -50,7 +50,7 @@ public abstract class AppSearchSessionInternalTestBase {
 
     static final String DB_NAME_1 = "";
 
-    private AppSearchSession mDb1;
+    protected AppSearchSession mDb1;
 
     protected abstract ListenableFuture<AppSearchSession> createSearchSessionAsync(
             @NonNull String dbName);

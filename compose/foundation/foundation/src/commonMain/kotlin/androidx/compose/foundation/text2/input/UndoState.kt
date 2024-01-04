@@ -21,8 +21,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 /**
  * Defines an interactable undo history.
  */
-@OptIn(ExperimentalFoundationApi::class)
-internal class UndoState internal constructor(private val state: TextFieldState) {
+@ExperimentalFoundationApi
+class UndoState internal constructor(private val state: TextFieldState) {
 
     /**
      * Whether it is possible to execute a meaningful undo action right now. If this value is false,

@@ -155,8 +155,10 @@ class ValidCasesTest {
         }
     }
 
-    private fun libraryClasspathFiles() =
-        getSystemClasspathFiles() + File("src/test/test-data/lib/test-library.jar")
+    private fun libraryClasspathFiles(): Set<File> {
+        val testLibrary = ValidCasesTest::class.java.classLoader.getResource("test-library.jar")
+        return getSystemClasspathFiles() + File(testLibrary!!.toURI())
+    }
 
     private fun getSystemClasspathFiles(): Set<File> {
         val pathSeparator = System.getProperty("path.separator")

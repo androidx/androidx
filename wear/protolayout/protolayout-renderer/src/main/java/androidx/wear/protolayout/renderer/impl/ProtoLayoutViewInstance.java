@@ -16,6 +16,9 @@
 
 package androidx.wear.protolayout.renderer.impl;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.widget.FrameLayout.LayoutParams.UNSPECIFIED_GRAVITY;
+
 import static androidx.core.util.Preconditions.checkNotNull;
 
 import android.content.Context;
@@ -56,6 +59,8 @@ import androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater.ViewGroup
 import androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater.ViewMutationException;
 import androidx.wear.protolayout.renderer.inflater.ProtoLayoutThemeImpl;
 import androidx.wear.protolayout.renderer.inflater.RenderedMetadata;
+import androidx.wear.protolayout.renderer.inflater.RenderedMetadata.PendingFrameLayoutParams;
+import androidx.wear.protolayout.renderer.inflater.RenderedMetadata.ViewProperties;
 import androidx.wear.protolayout.renderer.inflater.ResourceResolvers;
 import androidx.wear.protolayout.renderer.inflater.StandardResourceResolvers;
 
@@ -114,6 +119,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
 
     private final boolean mAdaptiveUpdateRatesEnabled;
     private boolean mWasFullyVisibleBefore;
+    private final boolean mAllowLayoutChangingBindsWithoutDefault;
 
     /** This keeps track of the current inflated parent for the layout. */
     @Nullable private ViewGroup mInflateParent = null;
@@ -268,11 +274,10 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                             TAG
                                     + " - inflated result was null, but inflating into new parent"
                                     + " requested.");
-            inflateResult.updateDynamicDataPipeline(isReattaching);
             parent.removeAllViews();
             parent.addView(
-                    inflateResult.inflateParent,
-                    new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+                    inflateResult.inflateParent, new LayoutParams(MATCH_PARENT, MATCH_PARENT));
+            inflateResult.updateDynamicDataPipeline(isReattaching);
             return Futures.immediateVoidFuture();
         }
     }
@@ -330,6 +335,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         private final boolean mUpdatesEnabled;
         private final boolean mAdaptiveUpdateRatesEnabled;
         private final boolean mIsViewFullyVisible;
+        private final boolean mAllowLayoutChangingBindsWithoutDefault;
 
         Config(
                 @NonNull Context uiContext,
@@ -347,7 +353,8 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                 int runningAnimationsLimit,
                 boolean updatesEnabled,
                 boolean adaptiveUpdateRatesEnabled,
-                boolean isViewFullyVisible) {
+                boolean isViewFullyVisible,
+                boolean allowLayoutChangingBindsWithoutDefault) {
             this.mUiContext = uiContext;
             this.mRendererResources = rendererResources;
             this.mResourceResolversProvider = resourceResolversProvider;
@@ -364,6 +371,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             this.mUpdatesEnabled = updatesEnabled;
             this.mAdaptiveUpdateRatesEnabled = adaptiveUpdateRatesEnabled;
             this.mIsViewFullyVisible = isViewFullyVisible;
+            this.mAllowLayoutChangingBindsWithoutDefault = allowLayoutChangingBindsWithoutDefault;
         }
 
         /** Returns UI Context used for interacting with the UI. */
@@ -466,6 +474,18 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             return mIsViewFullyVisible;
         }
 
+        /**
+         * Sets whether a "layout changing" data bind can be applied without the "value_for_layout"
+         * field being filled in, or being set to zero / empty. Defaults to false.
+         *
+         * <p>This is to support legacy apps which use layout-changing data bind before the full
+         * support was built.
+         */
+        @RestrictTo(Scope.LIBRARY)
+        public boolean getAllowLayoutChangingBindsWithoutDefault() {
+            return mAllowLayoutChangingBindsWithoutDefault;
+        }
+
         /** Builder for {@link Config}. */
         @RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
         public static final class Builder {
@@ -490,6 +510,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             private boolean mUpdatesEnabled = true;
             private boolean mAdaptiveUpdateRatesEnabled = true;
             private boolean mIsViewFullyVisible = true;
+            private boolean mAllowLayoutChangingBindsWithoutDefault = false;
 
             /**
              * Builder for the {@link Config} class.
@@ -621,6 +642,23 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                 return this;
             }
 
+            /**
+             * Sets whether a "layout changing" data bind can be applied without the
+             * "value_for_layout" field being filled in, or being set to zero / empty. Defaults to
+             * false.
+             *
+             * <p>This is to support legacy apps which use layout-changing data bind before the full
+             * support was built.
+             */
+            @RestrictTo(Scope.LIBRARY)
+            @NonNull
+            public Builder setAllowLayoutChangingBindsWithoutDefault(
+                    boolean allowLayoutChangingBindsWithoutDefault) {
+                this.mAllowLayoutChangingBindsWithoutDefault =
+                        allowLayoutChangingBindsWithoutDefault;
+                return this;
+            }
+
             /** Builds {@link Config} object. */
             @NonNull
             public Config build() {
@@ -660,7 +698,8 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                         mRunningAnimationsLimit,
                         mUpdatesEnabled,
                         mAdaptiveUpdateRatesEnabled,
-                        mIsViewFullyVisible);
+                        mIsViewFullyVisible,
+                        mAllowLayoutChangingBindsWithoutDefault);
             }
         }
     }
@@ -678,6 +717,8 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         this.mClickableIdExtra = config.getClickableIdExtra();
         this.mAdaptiveUpdateRatesEnabled = config.getAdaptiveUpdateRatesEnabled();
         this.mWasFullyVisibleBefore = false;
+        this.mAllowLayoutChangingBindsWithoutDefault =
+                config.getAllowLayoutChangingBindsWithoutDefault();
 
         StateStore stateStore = config.getStateStore();
         if (stateStore != null) {
@@ -704,8 +745,8 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
     private RenderResult renderOrComputeMutations(
             @NonNull Layout layout,
             @NonNull ResourceProto.Resources resources,
-            @Nullable RenderedMetadata prevRenderedMetadata) {
-
+            @Nullable RenderedMetadata prevRenderedMetadata,
+            @NonNull ViewProperties parentViewProp) {
         ResourceResolvers resolvers =
                 mResourceResolversProvider.getResourceResolvers(
                         mUiContext, resources, mUiExecutorService, mAnimationEnabled);
@@ -738,7 +779,8 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                         .setProtoLayoutTheme(mProtoLayoutTheme)
                         .setAnimationEnabled(mAnimationEnabled)
                         .setClickableIdExtra(mClickableIdExtra)
-                        .setAllowLayoutChangingBindsWithoutDefault(true);
+                        .setAllowLayoutChangingBindsWithoutDefault(
+                                mAllowLayoutChangingBindsWithoutDefault);
         if (mDataPipeline != null) {
             inflaterConfigBuilder.setDynamicDataPipeline(mDataPipeline);
         }
@@ -754,7 +796,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         if (mAdaptiveUpdateRatesEnabled && prevRenderedMetadata != null) {
             // Compute the mutation here, but if there is a change, apply it in the UI thread.
             try {
-                mutation = inflater.computeMutation(prevRenderedMetadata, layout);
+                mutation = inflater.computeMutation(prevRenderedMetadata, layout, parentViewProp);
             } catch (UnsupportedOperationException ex) {
                 Log.w(TAG, "Error computing mutation.", ex);
             }
@@ -824,7 +866,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
     @UiThread
     @SuppressWarnings({
         "ReferenceEquality",
-        "ExecutorTaskName"
+        "ExecutorTaskName",
     }) // layout == prevLayout is intentional (and enough in this case)
     @NonNull
     public ListenableFuture<Void> renderAndAttach(
@@ -870,11 +912,33 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
 
         if (mRenderFuture == null) {
             mPrevLayout = layout;
+
+            int gravity = UNSPECIFIED_GRAVITY;
+            LayoutParams layoutParams = new LayoutParams(MATCH_PARENT, MATCH_PARENT);
+
+            if (prevInflateParent != null && prevInflateParent.getChildCount() > 0) {
+                View firstChild = prevInflateParent.getChildAt(0);
+                if (firstChild != null) {
+                    FrameLayout.LayoutParams childLp =
+                            (FrameLayout.LayoutParams) firstChild.getLayoutParams();
+                    if (childLp != null) {
+                        gravity = childLp.gravity;
+                    }
+                }
+            }
+
+            ViewProperties parentViewProp =
+                    ViewProperties.fromViewGroup(
+                            parent,
+                            layoutParams,
+                            // We need this specific ones as otherwise gravity gets lost for
+                            // attachParent node.
+                            new PendingFrameLayoutParams(gravity));
+
             mRenderFuture =
                     mBgExecutorService.submit(
-                            () ->
-                                    renderOrComputeMutations(
-                                            layout, resources, prevRenderedMetadata));
+                            () -> renderOrComputeMutations(
+                                layout, resources, prevRenderedMetadata, parentViewProp));
             mCanReattachWithoutRendering = false;
         }
         SettableFuture<Void> result = SettableFuture.create();

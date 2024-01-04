@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.draganddrop
 
+import androidx.collection.ArraySet
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -90,11 +91,13 @@ value class DragAndDropEventType private constructor(private val value: Int) {
  * A representation of an event sent by the platform during a drag and drop operation.
  */
 expect class DragAndDropEvent {
+    // TODO: Move this to the Owner interface
     /**
-     * An indication of the reason the drag and drop event was sent
+     * A collection [DragAndDropModifierNode] instances that registered interested in a
+     * drag and drop session by returning true in [DragAndDropModifierNode.onDragAndDropEvent]
+     * with a [DragAndDropEventType.Started] type.
      */
-    var type: DragAndDropEventType
-        private set
+    internal val interestedNodes: ArraySet<DragAndDropModifierNode>
 }
 
 /**
@@ -120,3 +123,28 @@ class DragAndDropInfo(
      */
     val onDrawDragShadow: DrawScope.() -> Unit,
 )
+
+/**
+ * This represents the target of a drag and drop action
+ */
+fun interface DragAndDropTarget {
+
+    /** An event has occurred in a drag and drop session.
+     * @return When the [type] is [DragAndDropEventType.Started], true indicates interest in the
+     * [DragAndDropEvent], while false indicates disinterest. A [DragAndDropTarget] that returns
+     * false for an event should no longer see future events for this drag and drop session.
+     * When the [type] is [DragAndDropEventType.Dropped], true indicates acceptance of the
+     * [DragAndDropEvent] while false a rejection of the event.
+     * For all other [DragAndDropEventType] values, false is returned.
+     */
+    fun onDragAndDropEvent(
+        /**
+         * The event containing information about the drag and drop action
+         */
+        event: DragAndDropEvent,
+        /**
+         * The type of the [DragAndDropEvent]
+         */
+        type: DragAndDropEventType
+    ): Boolean
+}

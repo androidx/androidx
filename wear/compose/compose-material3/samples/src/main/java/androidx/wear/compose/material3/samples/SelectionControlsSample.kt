@@ -17,14 +17,19 @@
 package androidx.wear.compose.material3.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.Checkbox
 import androidx.wear.compose.material3.RadioButton
 import androidx.wear.compose.material3.Switch
@@ -55,6 +60,14 @@ fun RtlSwitchSample() {
 @Sampled
 @Composable
 fun RadioButtonSample() {
-    var selected by remember { mutableStateOf(false) }
-    RadioButton(selected = selected, onClick = { selected = !selected })
+    Row {
+        var selected by remember { mutableStateOf(true) }
+        RadioButton(selected = selected, onClick = {
+            selected = !selected
+        })
+        Spacer(modifier = Modifier.width(10.dp))
+        RadioButton(selected = !selected, onClick = {
+            selected = !selected
+        })
+    }
 }

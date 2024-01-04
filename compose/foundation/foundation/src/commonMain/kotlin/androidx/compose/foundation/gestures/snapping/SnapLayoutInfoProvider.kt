@@ -44,9 +44,7 @@ interface SnapLayoutInfoProvider {
 
     /**
      * Given a target placement in a layout, the snapping offset is the next snapping position
-     * this layout can be placed in. If this is a short snapping, [currentVelocity] is guaranteed
-     * to be 0.If it is a long snapping, this method  will be called
-     * after [calculateApproachOffset].
+     * this layout can be placed in.
      *
      * @param currentVelocity The current fling movement velocity. This may change throughout the
      * fling animation.

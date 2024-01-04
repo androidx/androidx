@@ -28,7 +28,14 @@ fun loremIpsum(
     language: Language = Language.Latin,
     wordCount: Int = language.words.size
 ): String =
-    language.words.joinToString(separator = " ", limit = wordCount, truncated = "")
+    loremIpsumWords(language).joinToString(separator = " ", limit = wordCount, truncated = "")
+
+/**
+ * An infinite [Sequence] of words of Lorem Ipsum text.
+ */
+fun loremIpsumWords(
+    language: Language = Language.Latin
+): Sequence<String> = generateSequence { language.words.asSequence() }.flatten()
 
 private val LatinLipsum = """
     Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque a egestas nisi. Aenean

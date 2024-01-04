@@ -33,8 +33,10 @@ class ComposeIssueRegistry : IssueRegistry() {
             ListIteratorDetector.ISSUE,
             SteppedForLoopDetector.ISSUE,
             UnnecessaryLambdaCreationDetector.ISSUE,
-            PlatformReferenceInCommonModuleDetector.IMPORT_ISSUE,
-            PlatformReferenceInCommonModuleDetector.REFERENCE_ISSUE,
+            CommonModuleIncompatibilityDetector.IMPORT_ISSUE,
+            CommonModuleIncompatibilityDetector.REFERENCE_ISSUE,
+            CommonModuleIncompatibilityDetector.EXTENDS_LAMBDA_ISSUE,
+            PrimitiveInCollectionDetector.ISSUE,
             PrimitiveInLambdaDetector.ISSUE,
         )
     }

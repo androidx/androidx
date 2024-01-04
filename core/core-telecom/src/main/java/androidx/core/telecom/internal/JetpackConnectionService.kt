@@ -197,6 +197,9 @@ internal class JetpackConnectionService : ConnectionService() {
             )
         }
 
+        // Explicitly set voip audio mode on connection side
+        jetpackConnection.audioModeIsVoip = true
+
         targetRequest.completableDeferred?.complete(jetpackConnection)
         mPendingConnectionRequests.remove(targetRequest)
         return jetpackConnection

@@ -16,6 +16,9 @@
 
 package androidx.javascriptengine;
 
+import android.content.res.AssetFileDescriptor;
+import android.os.ParcelFileDescriptor;
+
 import androidx.annotation.NonNull;
 import androidx.core.util.Consumer;
 
@@ -38,6 +41,12 @@ interface IsolateState {
     @NonNull
     ListenableFuture<String> evaluateJavaScriptAsync(@NonNull String code);
 
+    @NonNull
+    ListenableFuture<String> evaluateJavaScriptAsync(@NonNull AssetFileDescriptor afd);
+
+    @NonNull
+    ListenableFuture<String> evaluateJavaScriptAsync(@NonNull ParcelFileDescriptor pfd);
+
     void setConsoleCallback(@NonNull Executor executor,
             @NonNull JavaScriptConsoleCallback callback);
 
@@ -45,7 +54,7 @@ interface IsolateState {
 
     void clearConsoleCallback();
 
-    boolean provideNamedData(@NonNull String name, @NonNull byte[] inputBytes);
+    void provideNamedData(@NonNull String name, @NonNull byte[] inputBytes);
 
     void close();
 

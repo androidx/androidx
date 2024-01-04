@@ -30,6 +30,7 @@ import androidx.transition.test.R
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -333,6 +334,7 @@ class FragmentTransitionSeekingTest {
         assertThat(fragment1.requireView().parent).isNotNull()
     }
 
+    @Ignore // b/300694860
     @Test
     fun replaceOperationWithTransitionsThenOnBackPressedTwice() {
         val fm1 = activityRule.activity.supportFragmentManager

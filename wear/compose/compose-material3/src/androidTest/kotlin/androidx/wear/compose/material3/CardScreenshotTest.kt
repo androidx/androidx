@@ -140,6 +140,42 @@ class CardScreenshotTest {
     }
 
     @Test
+    fun title_card_with_time_and_subtitle_ltr() =
+        verifyScreenshot(layoutDirection = LayoutDirection.Ltr) {
+            sampleTitleCardWithTimeAndSubtitle()
+        }
+
+    @Test
+    fun title_card_with_time_and_subtitle_disabled() =
+        verifyScreenshot(layoutDirection = LayoutDirection.Ltr) {
+            sampleTitleCardWithTimeAndSubtitle(enabled = false)
+        }
+
+    @Test
+    fun title_card_with_time_and_subtitle_rtl() =
+        verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
+            sampleTitleCardWithTimeAndSubtitle()
+        }
+
+    @Test
+    fun title_card_with_content_time_and_subtitle_ltr() =
+        verifyScreenshot(layoutDirection = LayoutDirection.Ltr) {
+            sampleTitleCardWithContentTimeAndSubtitle()
+        }
+
+    @Test
+    fun title_card_with_content_time_and_subtitle_disabled() =
+        verifyScreenshot(layoutDirection = LayoutDirection.Ltr) {
+            sampleTitleCardWithContentTimeAndSubtitle(enabled = false)
+        }
+
+    @Test
+    fun title_card_with_content_time_and_subtitle_rtl() =
+        verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
+            sampleTitleCardWithContentTimeAndSubtitle()
+        }
+
+    @Test
     fun title_card_image_background() = verifyScreenshot {
         sampleTitleCard(
             colors = CardDefaults.imageCardColors(
@@ -223,6 +259,36 @@ class CardScreenshotTest {
         ) {
             Text("Some body content")
             Text("and some more body content")
+        }
+    }
+
+    @Composable
+    private fun sampleTitleCardWithTimeAndSubtitle(
+        enabled: Boolean = true
+    ) {
+        TitleCard(
+            enabled = enabled,
+            onClick = {},
+            time = { Text("XXm") },
+            title = { Text("TitleCard") },
+            subtitle = { Text("Subtitle") },
+            modifier = Modifier.testTag(TEST_TAG),
+        )
+    }
+
+    @Composable
+    private fun sampleTitleCardWithContentTimeAndSubtitle(
+        enabled: Boolean = true
+    ) {
+        TitleCard(
+            enabled = enabled,
+            onClick = {},
+            time = { Text("XXm") },
+            title = { Text("TitleCard") },
+            subtitle = { Text("Subtitle") },
+            modifier = Modifier.testTag(TEST_TAG),
+        ) {
+            Text("Card content")
         }
     }
 

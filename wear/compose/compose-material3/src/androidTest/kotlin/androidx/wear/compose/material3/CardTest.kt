@@ -298,6 +298,40 @@ class CardTest {
         assertEquals(expectedContentColor, actualContentColor)
     }
 
+    @Test
+    public fun title_card_with_time_and_subtitle_gives_default_colors() {
+        var expectedTimeColor = Color.Transparent
+        var expectedSubtitleColor = Color.Transparent
+        var expectedTitleColor = Color.Transparent
+        var actualTimeColor = Color.Transparent
+        var actualSubtitleColor = Color.Transparent
+        var actualTitleColor = Color.Transparent
+        val testBackground = Color.White
+
+        rule.setContentWithTheme {
+            expectedTimeColor = MaterialTheme.colorScheme.onSurfaceVariant
+            expectedSubtitleColor = MaterialTheme.colorScheme.tertiary
+            expectedTitleColor = MaterialTheme.colorScheme.onSurface
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(testBackground)
+            ) {
+                TitleCard(
+                    onClick = {},
+                    time = { actualTimeColor = LocalContentColor.current },
+                    subtitle = { actualSubtitleColor = LocalContentColor.current },
+                    title = { actualTitleColor = LocalContentColor.current },
+                    modifier = Modifier.testTag(TEST_TAG)
+                )
+            }
+        }
+
+        assertEquals(expectedTimeColor, actualTimeColor)
+        assertEquals(expectedSubtitleColor, actualSubtitleColor)
+        assertEquals(expectedTitleColor, actualTitleColor)
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
     fun outlined_card_has_outlined_border_and_transparent() {

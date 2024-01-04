@@ -32,7 +32,6 @@ import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceColors
 import androidx.wear.watchface.WatchFaceExperimental
-import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.complications.ComplicationSlotBounds
@@ -63,7 +62,7 @@ import kotlinx.coroutines.launch
  *
  * NB this is open for testing.
  */
-open class ExampleOpenGLWatchFaceService : WatchFaceService() {
+open class ExampleOpenGLWatchFaceService : SampleWatchFaceService() {
     // Lazy because the context isn't initialized till later.
     private val watchFaceStyle by lazy { WatchFaceColorStyle.create(this, "white_style") }
 

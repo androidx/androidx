@@ -23,7 +23,7 @@ import androidx.compose.runtime.TestOnly
 import androidx.compose.runtime.collection.IdentityArrayIntMap
 import androidx.compose.runtime.collection.IdentityArrayMap
 import androidx.compose.runtime.collection.IdentityArraySet
-import androidx.compose.runtime.collection.IdentityScopeMap
+import androidx.compose.runtime.collection.ScopeMap
 import androidx.compose.runtime.collection.fastForEach
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.composeRuntimeError
@@ -382,7 +382,7 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
         /**
          * Values that have been read during the scope's [SnapshotStateObserver.observeReads].
          */
-        private val valueToScopes = IdentityScopeMap<Any>()
+        private val valueToScopes = ScopeMap<Any>()
 
         /**
          * Reverse index (scope -> values) for faster scope invalidation.
@@ -426,7 +426,7 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
         /**
          * Invalidation index from state objects to derived states reading them.
          */
-        private val dependencyToDerivedStates = IdentityScopeMap<DerivedState<*>>()
+        private val dependencyToDerivedStates = ScopeMap<DerivedState<*>>()
 
         /**
          * Last derived state value recorded during read.

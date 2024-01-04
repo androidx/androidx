@@ -19,6 +19,7 @@ package androidx.wear.compose.foundation
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.TweenSpec
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box
@@ -27,15 +28,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
@@ -48,7 +48,8 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
@@ -57,7 +58,6 @@ import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.lerp
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.roundToInt
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.isActive
 
@@ -97,7 +97,8 @@ import kotlinx.coroutines.isActive
  */
 @OptIn(ExperimentalWearFoundationApi::class)
 @Composable
-public fun SwipeToDismissBox(
+@Suppress("PrimitiveInCollection")
+fun SwipeToDismissBox(
     state: SwipeToDismissBoxState,
     modifier: Modifier = Modifier,
     backgroundKey: Any = SwipeToDismissKeys.Background,
@@ -105,113 +106,95 @@ public fun SwipeToDismissBox(
     userSwipeEnabled: Boolean = true,
     content: @Composable BoxScope.(isBackground: Boolean) -> Unit
 ) {
-    // Will be updated in onSizeChanged, initialise to any value other than zero
-    // so that it is different to the other anchor used for the swipe gesture.
-    var maxWidth by remember { mutableFloatStateOf(1f) }
+    val density = LocalDensity.current
+    val maxWidthPx = with(density) {
+        LocalConfiguration.current.screenWidthDp.dp.toPx()
+    }
+    SideEffect {
+        val anchors = mapOf(
+            SwipeToDismissValue.Default to 0f,
+            SwipeToDismissValue.Dismissed to maxWidthPx
+        )
+        state.swipeableState.density = density
+        state.swipeableState.updateAnchors(anchors)
+    }
+
     Box(
         modifier = modifier
             .fillMaxSize()
-            .onSizeChanged { maxWidth = it.width.toFloat() }
             .swipeableV2(
                 state = state.swipeableState,
                 orientation = Orientation.Horizontal,
                 enabled = userSwipeEnabled
             )
-            .swipeAnchors(
-                state = state.swipeableState,
-                possibleValues = anchors().keys
-            ) { value, layoutSize ->
-                val width = layoutSize.width.toFloat()
-                anchors()[value]!! * width
-            }
     ) {
-        var squeezeMode by remember {
-            mutableStateOf(true)
-        }
-
-        LaunchedEffect(state.isAnimationRunning) {
-            if (state.targetValue == SwipeToDismissValue.Dismissed) {
-                squeezeMode = false
-            }
-        }
-
-        LaunchedEffect(state.targetValue) {
-            if (!squeezeMode && state.targetValue == SwipeToDismissValue.Default) {
-                squeezeMode = true
-            }
-        }
-
         val isRound = isRoundDevice()
         val backgroundScrimColor = LocalSwipeToDismissBackgroundScrimColor.current
         val contentScrimColor = LocalSwipeToDismissContentScrimColor.current
 
-        // Use remember { derivedStateOf{ ... } } idiom to re-use modifiers where possible.
-        // b/280392104: re-calculate modifiers if keys have changed
-        val modifiers by remember(isRound, backgroundScrimColor, backgroundKey, contentKey) {
-            derivedStateOf {
-                val progress = ((state.swipeableState.offset ?: 0f) / maxWidth).coerceIn(0f, 1f)
-                val scale = lerp(SCALE_MAX, SCALE_MIN, progress).coerceIn(SCALE_MIN, SCALE_MAX)
-                val squeezeOffset = max(0f, (1f - scale) * maxWidth / 2f)
-                val slideOffset = lerp(squeezeOffset, maxWidth, max(0f, progress - 0.7f) / 0.3f)
-
-                val translationX = if (squeezeMode) squeezeOffset else slideOffset
-
-                val backgroundAlpha = MAX_BACKGROUND_SCRIM_ALPHA * (1 - progress)
-                val contentScrimAlpha = min(MAX_CONTENT_SCRIM_ALPHA, progress / 2f)
-
-                Modifiers(
-                    contentForeground = Modifier
-                        .fillMaxSize()
-                        .graphicsLayer {
-                            this.translationX = translationX
-                            scaleX = scale
-                            scaleY = scale
-                            clip = isRound && translationX > 0
-                            shape = if (isRound) CircleShape else RectangleShape
-                        }
-                        .background(backgroundScrimColor),
-                    scrimForeground =
-                    Modifier
-                        .background(
-                            contentScrimColor.copy(alpha = contentScrimAlpha)
-                        )
-                        .fillMaxSize(),
-                    scrimBackground =
-                    Modifier
-                        .matchParentSize()
-                        .background(
-                            backgroundScrimColor.copy(alpha = backgroundAlpha)
-                        )
-                )
-            }
+        val progress by remember(state) {
+            derivedStateOf { ((state.swipeableState.offset ?: 0f) / maxWidthPx).coerceIn(0f, 1f) }
         }
+        val isSwiping by remember { derivedStateOf { progress > 0 } }
 
         repeat(2) {
             val isBackground = it == 0
-            val contentModifier = if (isBackground) {
-                Modifier.fillMaxSize()
-            } else {
-                modifiers.contentForeground
-            }
-
-            val scrimModifier = if (isBackground) {
-                modifiers.scrimBackground
-            } else {
-                modifiers.scrimForeground
-            }
 
             key(if (isBackground) backgroundKey else contentKey) {
-                if (!isBackground ||
-                    (userSwipeEnabled && (state.swipeableState.offset?.roundToInt() ?: 0) > 0)
-                ) {
+                if (!isBackground || (userSwipeEnabled && isSwiping)) {
                     HierarchicalFocusCoordinator(requiresFocus = { !isBackground }) {
-                        Box(contentModifier) {
+                        Box(Modifier
+                            .fillMaxSize()
+                            .then(
+                                if (!isBackground) {
+                                    Modifier
+                                        .graphicsLayer {
+                                            val scale = lerp(SCALE_MAX, SCALE_MIN, progress)
+                                                .coerceIn(SCALE_MIN, SCALE_MAX)
+                                            val squeezeOffset =
+                                                max(0f, (1f - scale) * maxWidthPx / 2f)
+
+                                            val translationX =
+                                                if (state.targetValue
+                                                    != SwipeToDismissValue.Dismissed
+                                                ) {
+                                                    // Squeeze
+                                                    squeezeOffset
+                                                } else {
+                                                    // slide
+                                                    lerp(
+                                                        squeezeOffset,
+                                                        maxWidthPx,
+                                                        max(0f, progress - 0.7f) / 0.3f
+                                                    )
+                                                }
+
+                                            this.translationX = translationX
+                                            scaleX = scale
+                                            scaleY = scale
+                                            clip = isRound && translationX > 0
+                                            shape = if (isRound) CircleShape else RectangleShape
+                                        }
+                                        .background(backgroundScrimColor)
+                                } else Modifier
+                            )
+                        ) {
                             // We use the repeat loop above and call content at this location
                             // for both background and foreground so that any persistence
                             // within the content composable has the same call stack which is used
                             // as part of the hash identity for saveable state.
                             content(isBackground)
-                            Box(modifier = scrimModifier)
+
+                            Canvas(Modifier.fillMaxSize()) {
+                                val color = if (isBackground) {
+                                    backgroundScrimColor
+                                        .copy(alpha = MAX_BACKGROUND_SCRIM_ALPHA * (1 - progress))
+                                } else {
+                                    contentScrimColor
+                                        .copy(alpha = min(MAX_CONTENT_SCRIM_ALPHA, progress / 2f))
+                                }
+                                drawRect(color = color)
+                            }
                         }
                     }
                 }
@@ -256,8 +239,9 @@ public fun SwipeToDismissBox(
  * scrim during the swipe gesture, and is shown without scrim once the finger passes the
  * swipe-to-dismiss threshold.
  */
+@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
-public fun SwipeToDismissBox(
+fun SwipeToDismissBox(
     onDismissed: () -> Unit,
     modifier: Modifier = Modifier,
     state: SwipeToDismissBoxState = rememberSwipeToDismissBoxState(),
@@ -290,7 +274,7 @@ public fun SwipeToDismissBox(
  */
 @Stable
 @OptIn(ExperimentalWearFoundationApi::class)
-public class SwipeToDismissBoxState(
+class SwipeToDismissBoxState(
     animationSpec: AnimationSpec<Float> = SwipeToDismissBoxDefaults.AnimationSpec,
     confirmStateChange: (SwipeToDismissValue) -> Boolean = { true },
 ) {
@@ -300,7 +284,7 @@ public class SwipeToDismissBoxState(
      * Before and during a swipe, corresponds to [SwipeToDismissValue.Default], then switches to
      * [SwipeToDismissValue.Dismissed] if the swipe has been completed.
      */
-    public val currentValue: SwipeToDismissValue
+    val currentValue: SwipeToDismissValue
         get() = swipeableState.currentValue
 
     /**
@@ -310,13 +294,13 @@ public class SwipeToDismissBoxState(
      * swipe finished. If an animation is running, this is the target value of that animation.
      * Finally, if no swipe or animation is in progress, this is the same as the [currentValue].
      */
-    public val targetValue: SwipeToDismissValue
+    val targetValue: SwipeToDismissValue
         get() = swipeableState.targetValue
 
     /**
      * Whether the state is currently animating.
      */
-    public val isAnimationRunning: Boolean
+    val isAnimationRunning: Boolean
         get() = swipeableState.isAnimationRunning
 
     internal fun edgeNestedScrollConnection(
@@ -329,7 +313,7 @@ public class SwipeToDismissBoxState(
      *
      * @param targetValue The new target value to set [currentValue] to.
      */
-    public suspend fun snapTo(targetValue: SwipeToDismissValue) = swipeableState.snapTo(targetValue)
+    suspend fun snapTo(targetValue: SwipeToDismissValue) = swipeableState.snapTo(targetValue)
 
     private companion object {
         private fun <T> SwipeableV2State<T>.edgeNestedScrollConnection(
@@ -393,7 +377,7 @@ public class SwipeToDismissBoxState(
  * @param confirmStateChange callback to confirm or veto a pending state change.
  */
 @Composable
-public fun rememberSwipeToDismissBoxState(
+fun rememberSwipeToDismissBoxState(
     animationSpec: AnimationSpec<Float> = SWIPE_TO_DISMISS_BOX_ANIMATION_SPEC,
     confirmStateChange: (SwipeToDismissValue) -> Boolean = { true },
 ): SwipeToDismissBoxState {
@@ -405,24 +389,24 @@ public fun rememberSwipeToDismissBoxState(
 /**
  * Contains defaults for [SwipeToDismissBox].
  */
-public object SwipeToDismissBoxDefaults {
+object SwipeToDismissBoxDefaults {
     /**
      * The default animation that will be used to animate to a new state after the swipe gesture.
      */
     @OptIn(ExperimentalWearFoundationApi::class)
-    public val AnimationSpec = SwipeableV2Defaults.AnimationSpec
+    val AnimationSpec = SwipeableV2Defaults.AnimationSpec
 
     /**
      * The default width of the area which might trigger a swipe
      * with [edgeSwipeToDismiss] modifier
      */
-    public val EdgeWidth = 30.dp
+    val EdgeWidth = 30.dp
 }
 
 /**
  * Keys used to persistent state in [SwipeToDismissBox].
  */
-public enum class SwipeToDismissKeys {
+enum class SwipeToDismissKeys {
     /**
      * The default background key to identify the content displayed by the content block
      * when isBackground == true. Specifying a background key instead of using the default
@@ -441,7 +425,7 @@ public enum class SwipeToDismissKeys {
 /**
  * States used as targets for the anchor points for swipe-to-dismiss.
  */
-public enum class SwipeToDismissValue {
+enum class SwipeToDismissValue {
     /**
      * The state of the SwipeToDismissBox before the swipe started.
      */
@@ -473,7 +457,7 @@ public enum class SwipeToDismissValue {
  * on SwipeToDismissBox
  * @param edgeWidth A width of edge, where swipe should be recognised
  */
-public fun Modifier.edgeSwipeToDismiss(
+fun Modifier.edgeSwipeToDismiss(
     swipeToDismissBoxState: SwipeToDismissBoxState,
     edgeWidth: Dp = SwipeToDismissBoxDefaults.EdgeWidth
 ): Modifier =
@@ -562,22 +546,6 @@ internal enum class EdgeSwipeState {
     // Swipe was finished, used to handle fling.
     SwipeToDismissInProgress
 }
-
-/**
- * Class to enable calculating group of modifiers in a single, memoised block.
- */
-private data class Modifiers(
-    val contentForeground: Modifier,
-    val scrimForeground: Modifier,
-    val scrimBackground: Modifier,
-)
-
-// Map states to pixel position - initially, don't know the width in pixels so omit upper bound.
-private fun anchors(): Map<SwipeToDismissValue, Float> =
-    mapOf(
-        SwipeToDismissValue.Default to 0f,
-        SwipeToDismissValue.Dismissed to 1f
-    )
 
 private const val SWIPE_THRESHOLD = 0.5f
 private const val SCALE_MAX = 1f

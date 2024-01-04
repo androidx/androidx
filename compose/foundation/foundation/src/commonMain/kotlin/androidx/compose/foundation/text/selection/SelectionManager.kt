@@ -249,7 +249,17 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         }
 
         selectionRegistrar.onSelectionUpdateStartCallback =
-            { isInTouchMode, layoutCoordinates, position, selectionMode ->
+            { isInTouchMode, layoutCoordinates, rawPosition, selectionMode ->
+                val textRect = with(layoutCoordinates.size) {
+                    Rect(0f, 0f, width.toFloat(), height.toFloat())
+                }
+
+                val position = if (textRect.containsInclusive(rawPosition)) {
+                    rawPosition
+                } else {
+                    rawPosition.coerceIn(textRect)
+                }
+
                 val positionInContainer = convertToContainerCoordinates(
                     layoutCoordinates,
                     position

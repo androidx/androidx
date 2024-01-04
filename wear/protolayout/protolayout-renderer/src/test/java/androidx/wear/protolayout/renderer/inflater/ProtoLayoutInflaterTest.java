@@ -187,6 +187,7 @@ import androidx.wear.protolayout.renderer.helper.TestFingerprinter;
 import androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater.InflateResult;
 import androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater.ViewGroupMutation;
 import androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater.ViewMutationException;
+import androidx.wear.protolayout.renderer.inflater.RenderedMetadata.ViewProperties;
 import androidx.wear.protolayout.renderer.test.R;
 import androidx.wear.widget.ArcLayout;
 import androidx.wear.widget.CurvedTextView;
@@ -278,6 +279,29 @@ public class ProtoLayoutInflaterTest {
 
         TextView tv = (TextView) rootLayout.getChildAt(0);
         expect.that(tv.getText().toString()).isEmpty();
+    }
+
+    @Test
+    public void inflate_textView_withEmptyValueForLayout() {
+        LayoutElement root =
+            LayoutElement.newBuilder()
+                .setText(
+                    Text.newBuilder()
+                        .setText(
+                            StringProp.newBuilder()
+                                .setValue("abcde")
+                                .setDynamicValue(
+                                    DynamicString.newBuilder()
+                                        .setFixed(
+                                            FixedString.newBuilder()
+                                                .setValue("Dynamic Fixed Text")))
+                                        .setValueForLayout("")))
+                .build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+
+        FrameLayout sizedContainer = (FrameLayout) rootLayout.getChildAt(0);
+        expect.that(sizedContainer.getWidth()).isEqualTo(0);
     }
 
     // obsoleteContentDescription is tested for backward compatibility
@@ -2153,6 +2177,38 @@ public class ProtoLayoutInflaterTest {
     }
 
     @Test
+    public void inflate_arcLine_usesZeroValueForLayout() {
+        DynamicFloat arcLength =
+                DynamicFloat.newBuilder().setFixed(FixedFloat.newBuilder().setValue(45f)).build();
+
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setArc(
+                                Arc.newBuilder()
+                                        .setAnchorAngle(degrees(0).build())
+                                        .addContents(
+                                                ArcLayoutElement.newBuilder()
+                                                        .setLine(
+                                                                ArcLine.newBuilder()
+                                                                        .setLength(
+                                                                                degreesDynamic(
+                                                                                        arcLength,
+                                                                                        0f))
+                                                                        .setThickness(dp(12)))))
+                        .build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+
+        shadowOf(Looper.getMainLooper()).idle();
+
+        ArcLayout arcLayout = (ArcLayout) rootLayout.getChildAt(0);
+        SizedArcContainer sizedContainer = (SizedArcContainer) arcLayout.getChildAt(0);
+        expect.that(sizedContainer.getSweepAngleDegrees()).isEqualTo(0f);
+        WearCurvedLineView line = (WearCurvedLineView) sizedContainer.getChildAt(0);
+        expect.that(line.getMaxSweepAngleDegrees()).isEqualTo(0f);
+    }
+
+    @Test
     public void inflate_arcLine_dynamicData_updatesArcLength() {
         AppDataKey<DynamicBuilders.DynamicInt32> keyFoo = new AppDataKey<>("foo");
         mStateStore.setAppStateEntryValuesProto(
@@ -2262,7 +2318,7 @@ public class ProtoLayoutInflaterTest {
     }
 
     @Test
-    public void inflate_arcLine_withoutValueForLayout_noLegacyMode_usesArcLength() {
+    public void inflate_arcLine_withoutValueForLayout_legacyMode_usesArcLength() {
         DynamicFloat arcLength =
                 DynamicFloat.newBuilder().setFixed(FixedFloat.newBuilder().setValue(45f)).build();
 
@@ -3028,7 +3084,7 @@ public class ProtoLayoutInflaterTest {
         // Compute the mutation
         ViewGroupMutation mutation =
                 renderer.mRenderer.computeMutation(
-                        getRenderedMetadata(inflatedViewParent), layout2);
+                        getRenderedMetadata(inflatedViewParent), layout2, ViewProperties.EMPTY);
         assertThat(mutation).isNotNull();
         assertThat(mutation.isNoOp()).isFalse();
 
@@ -3074,10 +3130,10 @@ public class ProtoLayoutInflaterTest {
         // Compute the mutation
         ViewGroupMutation mutation2 =
                 renderer.mRenderer.computeMutation(
-                        getRenderedMetadata(inflatedViewParent1), layout2);
+                        getRenderedMetadata(inflatedViewParent1), layout2, ViewProperties.EMPTY);
         ViewGroupMutation mutation3 =
                 renderer.mRenderer.computeMutation(
-                        getRenderedMetadata(inflatedViewParent1), layout3);
+                        getRenderedMetadata(inflatedViewParent1), layout3, ViewProperties.EMPTY);
 
         renderer.mRenderer.applyMutation(inflatedViewParent1, mutation3).get();
         assertThrows(
@@ -3165,7 +3221,7 @@ public class ProtoLayoutInflaterTest {
         // Apply first mutation
         ViewGroupMutation mutation1 =
                 renderer.mRenderer.computeMutation(
-                        getRenderedMetadata(inflatedViewParent), layout2);
+                        getRenderedMetadata(inflatedViewParent), layout2, ViewProperties.EMPTY);
         assertThat(mutation1).isNotNull();
         assertThat(mutation1.isNoOp()).isFalse();
         renderer.mRenderer.applyMutation(inflatedViewParent, mutation1).get();
@@ -3186,7 +3242,7 @@ public class ProtoLayoutInflaterTest {
         // Apply second mutation
         ViewGroupMutation mutation2 =
                 renderer.mRenderer.computeMutation(
-                        getRenderedMetadata(inflatedViewParent), layout3);
+                        getRenderedMetadata(inflatedViewParent), layout3, ViewProperties.EMPTY);
         assertThat(mutation2).isNotNull();
         assertThat(mutation2.isNoOp()).isFalse();
         renderer.mRenderer.applyMutation(inflatedViewParent, mutation2).get();
@@ -3259,7 +3315,7 @@ public class ProtoLayoutInflaterTest {
 
         ViewGroupMutation mutation =
                 renderer.mRenderer.computeMutation(
-                        getRenderedMetadata(inflatedViewParent), layout2);
+                        getRenderedMetadata(inflatedViewParent), layout2, ViewProperties.EMPTY);
         renderer.mRenderer.applyMutation(inflatedViewParent, mutation).get();
 
         ViewGroup boxAfterMutation = (ViewGroup) inflatedViewParent.getChildAt(0);
@@ -3302,7 +3358,7 @@ public class ProtoLayoutInflaterTest {
 
         ViewGroupMutation mutation =
                 renderer.mRenderer.computeMutation(
-                        getRenderedMetadata(inflatedViewParent), layout2);
+                        getRenderedMetadata(inflatedViewParent), layout2, ViewProperties.EMPTY);
         renderer.mRenderer.applyMutation(inflatedViewParent, mutation).get();
 
         ViewGroup boxAfterMutation = (ViewGroup) inflatedViewParent.getChildAt(0);
@@ -3346,7 +3402,7 @@ public class ProtoLayoutInflaterTest {
 
         ViewGroupMutation mutation =
                 renderer.mRenderer.computeMutation(
-                        getRenderedMetadata(inflatedViewParent), layout2);
+                        getRenderedMetadata(inflatedViewParent), layout2, ViewProperties.EMPTY);
         renderer.mRenderer.applyMutation(inflatedViewParent, mutation).get();
 
         ViewGroup boxAfterMutation = (ViewGroup) inflatedViewParent.getChildAt(0);
@@ -3391,7 +3447,8 @@ public class ProtoLayoutInflaterTest {
                         getApplicationContext(), layout, resourceResolvers.build())
                 .setClickableIdExtra(EXTRA_CLICKABLE_ID)
                 .setLoadActionListener(p -> {})
-                .setLoadActionExecutor(ContextCompat.getMainExecutor(getApplicationContext()));
+                .setLoadActionExecutor(ContextCompat.getMainExecutor(getApplicationContext()))
+                .setApplyFontVariantBodyAsDefault(true);
     }
 
     private Renderer renderer(Layout layout) {
@@ -3444,7 +3501,7 @@ public class ProtoLayoutInflaterTest {
         }
 
         ViewGroupMutation computeMutation(RenderedMetadata renderedMetadata, Layout targetLayout) {
-            return mRenderer.computeMutation(renderedMetadata, targetLayout);
+            return mRenderer.computeMutation(renderedMetadata, targetLayout, ViewProperties.EMPTY);
         }
 
         boolean applyMutation(ViewGroup parent, ViewGroupMutation mutation) {

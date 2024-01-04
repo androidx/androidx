@@ -18,11 +18,14 @@ package androidx.compose.foundation.text.modifiers
 
 import android.content.Context
 import android.graphics.Typeface
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.ContentDrawScope
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.text.TextStyle
@@ -39,6 +42,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.test.fail
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -56,6 +60,26 @@ class TextStringSimpleNodeTest {
     @get:Rule
     val rule = createComposeRule()
     val context: Context = InstrumentationRegistry.getInstrumentation().context
+
+    @Test
+    fun draw_whenNotAttached_doesNotCrash() {
+        val subject = TextStringSimpleNode(
+            "text", TextStyle.Default, createFontFamilyResolver(context)
+        )
+        rule.setContent {
+            Canvas(Modifier.fillMaxSize()) {
+                val contentDrawScope = object : ContentDrawScope, DrawScope by this {
+                    override fun drawContent() {
+                        fail("Not used")
+                    }
+                } as ContentDrawScope
+                with(subject) {
+                    contentDrawScope.draw()
+                }
+            }
+        }
+        rule.waitForIdle()
+    }
 
     // TODO(b/279797016) re-enable this test, and add a path for AnnotatedString
     @Ignore("b/279797016 drawBehind is currently broken in tot")

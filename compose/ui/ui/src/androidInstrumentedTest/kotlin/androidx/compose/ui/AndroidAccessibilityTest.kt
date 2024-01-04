@@ -168,6 +168,10 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
+import androidx.test.espresso.Espresso
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -177,6 +181,7 @@ import java.lang.reflect.Method
 import kotlin.math.max
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import org.hamcrest.CoreMatchers.instanceOf
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -3227,6 +3232,35 @@ class AndroidAccessibilityTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
+    fun viewInteropIsInvisibleToUser() {
+        container.setContent {
+             AndroidView({ TextView(it).apply { text = "Test"; setScreenReaderFocusable(true) } })
+        }
+        Espresso
+            .onView(instanceOf(TextView::class.java))
+            .check(matches(isDisplayed()))
+            .check { view, exception ->
+                val viewParent = view.getParent()
+                if (viewParent !is View) {
+                    throw exception
+                }
+                val delegate = viewParent.getAccessibilityDelegate()
+                if (viewParent.getAccessibilityDelegate() == null) {
+                    throw exception
+                }
+                val info: AccessibilityNodeInfo = AccessibilityNodeInfo()
+                delegate.onInitializeAccessibilityNodeInfo(view, info)
+                // This is expected to be false, unlike
+                // AndroidViewTest.androidViewAccessibilityDelegate, because this test suite sets
+                // `accessibilityForceEnabledForTesting` to true.
+                if (info.isVisibleToUser()) {
+                    throw exception
+                }
+            }
+    }
+
+    @Test
     fun testSemanticsHitTest_transparentNode() {
         val tag = "box"
         container.setContent {
@@ -4780,6 +4814,35 @@ class AndroidAccessibilityTest {
             assertTrue(delegate.accessibilityManager.isEnabled)
             assertFalse(delegate.isEnabled)
         }
+    }
+
+    @Test
+    fun canScroll_returnsFalse_whenAccessedOutsideOfMainThread() {
+        container.setContent {
+            Box(
+                Modifier.semantics(mergeDescendants = true) { }
+            ) {
+                Column(
+                    Modifier
+                        .size(50.dp)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    repeat(10) {
+                        Box(Modifier.size(30.dp))
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            androidComposeView.dispatchTouchEvent(
+                createHoverMotionEvent(MotionEvent.ACTION_DOWN, 10f, 10f)
+            )
+
+            assertTrue(androidComposeView.canScrollVertically(1))
+        }
+
+        assertFalse(androidComposeView.canScrollVertically(1))
     }
 
     private fun eventIndex(list: List<AccessibilityEvent>, event: AccessibilityEvent): Int {

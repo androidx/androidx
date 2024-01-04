@@ -294,6 +294,7 @@ dependencies {
     docs(project(":privacysandbox:ads:ads-adservices-java"))
     docs(project(":privacysandbox:sdkruntime:sdkruntime-client"))
     docs(project(":privacysandbox:sdkruntime:sdkruntime-core"))
+    docs(project(":privacysandbox:sdkruntime:sdkruntime-provider"))
     docs(project(":privacysandbox:tools:tools"))
     docs(project(":privacysandbox:ui:ui-client"))
     docs(project(":privacysandbox:ui:ui-core"))

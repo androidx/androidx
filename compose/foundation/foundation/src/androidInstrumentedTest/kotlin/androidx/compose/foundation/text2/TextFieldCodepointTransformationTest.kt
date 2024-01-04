@@ -59,8 +59,7 @@ class TextFieldCodepointTransformationTest {
     @get:Rule
     val rule = createComposeRule()
 
-    @get:Rule
-    val sessionHandler = InputMethodInterceptorRule(rule)
+    private val inputMethodInterceptor = InputMethodInterceptor(rule)
 
     private val Tag = "BasicTextField2"
 
@@ -639,7 +638,7 @@ class TextFieldCodepointTransformationTest {
     @Test
     fun insertText_intoSurrogateMask_fromIme() {
         val state = TextFieldState("a$SingleSurrogateCodepointString")
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = state,
                 modifier = Modifier.testTag(Tag),
@@ -647,18 +646,18 @@ class TextFieldCodepointTransformationTest {
             )
         }
         rule.onNodeWithTag(Tag).requestFocus()
-        sessionHandler.withInputConnection {
+        inputMethodInterceptor.withInputConnection {
             beginBatchEdit()
             finishComposingText()
             setSelection(0, 0)
             endBatchEdit()
         }
 
-        sessionHandler.withInputConnection { commitText("x", 1) }
+        inputMethodInterceptor.withInputConnection { commitText("x", 1) }
         pressKey(Key.DirectionRight)
-        sessionHandler.withInputConnection { commitText("y", 1) }
+        inputMethodInterceptor.withInputConnection { commitText("y", 1) }
         pressKey(Key.DirectionRight)
-        sessionHandler.withInputConnection { commitText("z", 1) }
+        inputMethodInterceptor.withInputConnection { commitText("z", 1) }
         pressKey(Key.DirectionRight)
 
         rule.runOnIdle {
@@ -670,7 +669,7 @@ class TextFieldCodepointTransformationTest {
     @Test
     fun insertText_intoNonSurrogateMask_fromIme() {
         val state = TextFieldState("a$SingleSurrogateCodepointString")
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = state,
                 modifier = Modifier.testTag(Tag),
@@ -678,18 +677,18 @@ class TextFieldCodepointTransformationTest {
             )
         }
         rule.onNodeWithTag(Tag).requestFocus()
-        sessionHandler.withInputConnection {
+        inputMethodInterceptor.withInputConnection {
             beginBatchEdit()
             finishComposingText()
             setSelection(0, 0)
             endBatchEdit()
         }
 
-        sessionHandler.withInputConnection { commitText("x", 1) }
+        inputMethodInterceptor.withInputConnection { commitText("x", 1) }
         pressKey(Key.DirectionRight)
-        sessionHandler.withInputConnection { commitText("y", 1) }
+        inputMethodInterceptor.withInputConnection { commitText("y", 1) }
         pressKey(Key.DirectionRight)
-        sessionHandler.withInputConnection { commitText("z", 1) }
+        inputMethodInterceptor.withInputConnection { commitText("z", 1) }
         pressKey(Key.DirectionRight)
 
         rule.runOnIdle {

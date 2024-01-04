@@ -69,6 +69,12 @@ interface IJsSandboxService {
      */
     const String ISOLATE_CLIENT = "ISOLATE_CLIENT";
 
+     /**
+     * Feature flag indicating that an embedder can evaluate JavaScript through
+     * an AssetFileDescriptor or ParcelFileDescriptor with knwon or unknown length.
+     */
+    const String EVALUATE_FROM_FD = "EVALUATE_FROM_FD";
+
     /**
      * @return A list of feature names supported by this implementation.
      */

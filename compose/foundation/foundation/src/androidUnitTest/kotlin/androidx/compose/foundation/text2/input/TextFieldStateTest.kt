@@ -43,8 +43,24 @@ class TextFieldStateTest {
     private val state = TextFieldState()
 
     @Test
-    fun initialValue() {
+    fun defaultInitialTextAndSelection() {
+        val state = TextFieldState()
         assertThat(state.text.toString()).isEqualTo("")
+        assertThat(state.text.selectionInChars).isEqualTo(TextRange.Zero)
+    }
+
+    @Test
+    fun customInitialTextAndDefaultSelection() {
+        val state = TextFieldState(initialText = "hello")
+        assertThat(state.text.toString()).isEqualTo("hello")
+        assertThat(state.text.selectionInChars).isEqualTo(TextRange(5))
+    }
+
+    @Test
+    fun customInitialTextAndSelection() {
+        val state = TextFieldState(initialText = "hello", initialSelectionInChars = TextRange(0, 1))
+        assertThat(state.text.toString()).isEqualTo("hello")
+        assertThat(state.text.selectionInChars).isEqualTo(TextRange(0, 1))
     }
 
     @Test

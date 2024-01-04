@@ -599,19 +599,6 @@ public class CustomTabsIntentTest {
         assertFalse(CustomTabsIntent.isBackgroundInteractionEnabled(intent));
     }
 
-    @Test
-    public void testShowOnToolbar() {
-        Intent intent = new CustomTabsIntent.Builder().build().intent;
-        assertFalse(CustomTabsIntent.isShowOnToolbarEnabled(intent));
-
-        intent = new CustomTabsIntent.Builder().setShowOnToolbarEnabled(false).build().intent;
-        assertFalse(CustomTabsIntent.isShowOnToolbarEnabled(intent));
-
-        // The extra is set to true only when explicitly called to enable it.
-        intent = new CustomTabsIntent.Builder().setShowOnToolbarEnabled(true).build().intent;
-        assertTrue(CustomTabsIntent.isShowOnToolbarEnabled(intent));
-    }
-
     @Config(minSdk = Build.VERSION_CODES.N)
     @Test
     public void testTranslateLocale() {

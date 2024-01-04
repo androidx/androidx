@@ -79,6 +79,9 @@ public class GenericDocument {
     private static final String NAMESPACE_FIELD = "namespace";
     private static final String PARENT_TYPES_FIELD = "parentTypes";
 
+    /**
+     * <!--@exportToFramework:hide-->
+     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String PARENT_TYPES_SYNTHETIC_PROPERTY = "$$__AppSearch__parentTypes";
 
@@ -87,8 +90,18 @@ public class GenericDocument {
      *
      * <p>Indexed properties are properties which are strings where the
      * {@link AppSearchSchema.StringPropertyConfig#getIndexingType} value is anything other
-     * than {@link AppSearchSchema.StringPropertyConfig#INDEXING_TYPE_NONE}.
+     * than {@link AppSearchSchema.StringPropertyConfig#INDEXING_TYPE_NONE}, as well as long
+     * properties where the {@link AppSearchSchema.LongPropertyConfig#getIndexingType} value is
+     * {@link AppSearchSchema.LongPropertyConfig#INDEXING_TYPE_RANGE}.
+     *
+     * <!--@exportToFramework:ifJetpack()-->
+     * @deprecated This is no longer a static value, but depends on SDK version and what AppSearch
+     * implementation is being used. Use {@link Features#getMaxIndexedProperties} instead.
+     * <!--@exportToFramework:else()-->
      */
+// @exportToFramework:startStrip()
+    @Deprecated
+// @exportToFramework:endStrip()
     public static int getMaxIndexedProperties() {
         return MAX_INDEXED_PROPERTIES;
     }

@@ -19,5 +19,5 @@ package androidx.privacysandbox.ui.integration.testaidl;
 import android.os.Bundle;
 
 interface ISdkApi {
-    Bundle loadAd(boolean isWebView, String text, boolean shouldWaitInsideOnDraw);
+    Bundle loadAd(boolean isWebView, String text, boolean withSlowDraw);
 }

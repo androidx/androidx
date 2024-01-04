@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
+<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
 
     <issue
         id="RestrictedApiAndroidX"
@@ -769,8 +769,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="AnimatedVisibility.hasEnterTransition can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
-        errorLine1="                                            &amp;&amp; animatedVisibility.hasEnterTransition();"
-        errorLine2="                                                                  ~~~~~~~~~~~~~~~~~~">
+        errorLine1="                                                &amp;&amp; animatedVisibility.hasEnterTransition();"
+        errorLine2="                                                                      ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/protolayout/renderer/dynamicdata/ProtoLayoutDynamicDataPipeline.java"/>
     </issue>
@@ -778,8 +778,17 @@
     <issue
         id="RestrictedApiAndroidX"
         message="AnimatedVisibility.getEnterTransition can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
-        errorLine1="                                    .getEnterTransition());"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~~">
+        errorLine1="                                        .getEnterTransition();"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/renderer/dynamicdata/ProtoLayoutDynamicDataPipeline.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="EnterTransition.hasSlideIn can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
+        errorLine1="                        hasSlideInAnimation |= enterTransition.hasSlideIn();"
+        errorLine2="                                                               ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/protolayout/renderer/dynamicdata/ProtoLayoutDynamicDataPipeline.java"/>
     </issue>
@@ -3603,81 +3612,9 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="Spacer.getHeight can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
-        errorLine1="        if (needsSizeWrapper(spacer.getWidth()) || needsSizeWrapper(spacer.getHeight())) {"
-        errorLine2="                                                                           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/protolayout/renderer/inflater/ProtoLayoutInflater.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
         message="Spacer.getWidth can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
-        errorLine1="        if (needsSizeWrapper(spacer.getWidth()) || needsSizeWrapper(spacer.getHeight())) {"
-        errorLine2="                                    ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/protolayout/renderer/inflater/ProtoLayoutInflater.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="DpProp.hasDynamicValue can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
-        errorLine1="            if (spacer.getWidth().getLinearDimension().hasDynamicValue()) {"
-        errorLine2="                                                       ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/protolayout/renderer/inflater/ProtoLayoutInflater.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Spacer.getWidth can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
-        errorLine1="            if (spacer.getWidth().getLinearDimension().hasDynamicValue()) {"
-        errorLine2="                       ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/protolayout/renderer/inflater/ProtoLayoutInflater.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="SpacerDimension.getLinearDimension can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
-        errorLine1="            if (spacer.getWidth().getLinearDimension().hasDynamicValue()) {"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/protolayout/renderer/inflater/ProtoLayoutInflater.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="DpProp.getValueForLayout can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
-        errorLine1="                float widthForLayout = spacer.getWidth().getLinearDimension().getValueForLayout();"
-        errorLine2="                                                                              ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/protolayout/renderer/inflater/ProtoLayoutInflater.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Spacer.getWidth can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
-        errorLine1="                float widthForLayout = spacer.getWidth().getLinearDimension().getValueForLayout();"
-        errorLine2="                                              ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/protolayout/renderer/inflater/ProtoLayoutInflater.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="SpacerDimension.getLinearDimension can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
-        errorLine1="                float widthForLayout = spacer.getWidth().getLinearDimension().getValueForLayout();"
-        errorLine2="                                                         ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/protolayout/renderer/inflater/ProtoLayoutInflater.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="DpProp.hasDynamicValue can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
-        errorLine1="            if (spacer.getHeight().getLinearDimension().hasDynamicValue()) {"
-        errorLine2="                                                        ~~~~~~~~~~~~~~~">
+        errorLine1="        @Nullable Float widthForLayoutDp = resolveSizeForLayoutIfNeeded(spacer.getWidth());"
+        errorLine2="                                                                               ~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/protolayout/renderer/inflater/ProtoLayoutInflater.java"/>
     </issue>
@@ -3685,44 +3622,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="Spacer.getHeight can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
-        errorLine1="            if (spacer.getHeight().getLinearDimension().hasDynamicValue()) {"
-        errorLine2="                       ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/protolayout/renderer/inflater/ProtoLayoutInflater.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="SpacerDimension.getLinearDimension can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
-        errorLine1="            if (spacer.getHeight().getLinearDimension().hasDynamicValue()) {"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/protolayout/renderer/inflater/ProtoLayoutInflater.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="DpProp.getValueForLayout can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
-        errorLine1="                float heightForLayout = spacer.getHeight().getLinearDimension().getValueForLayout();"
-        errorLine2="                                                                                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/protolayout/renderer/inflater/ProtoLayoutInflater.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Spacer.getHeight can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
-        errorLine1="                float heightForLayout = spacer.getHeight().getLinearDimension().getValueForLayout();"
-        errorLine2="                                               ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/protolayout/renderer/inflater/ProtoLayoutInflater.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="SpacerDimension.getLinearDimension can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
-        errorLine1="                float heightForLayout = spacer.getHeight().getLinearDimension().getValueForLayout();"
-        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~">
+        errorLine1="        @Nullable Float heightForLayoutDp = resolveSizeForLayoutIfNeeded(spacer.getHeight());"
+        errorLine2="                                                                                ~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/protolayout/renderer/inflater/ProtoLayoutInflater.java"/>
     </issue>
@@ -4072,15 +3973,6 @@
     <issue
         id="RestrictedApiAndroidX"
         message="Text.getText can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
-        errorLine1="        boolean needsSizeWrapper = needsSizeWrapper(text.getText());"
-        errorLine2="                                                         ~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/protolayout/renderer/inflater/ProtoLayoutInflater.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Text.getText can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
         errorLine1="                text.getText(),"
         errorLine2="                     ~~~~~~~">
         <location
@@ -4134,8 +4026,17 @@
 
     <issue
         id="RestrictedApiAndroidX"
+        message="Text.getText can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
+        errorLine1="        @Nullable String valueForLayout = resolveValueForLayoutIfNeeded(text.getText());"
+        errorLine2="                                                                             ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/renderer/inflater/ProtoLayoutInflater.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
         message="Text.hasMaxLines can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
-        errorLine1="        if (text.hasMaxLines() &amp;&amp; !needsSizeWrapper) {"
+        errorLine1="        if (text.hasMaxLines() &amp;&amp; valueForLayout == null) {"
         errorLine2="                 ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/protolayout/renderer/inflater/ProtoLayoutInflater.java"/>
@@ -4260,24 +4161,6 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="StringProp.getValueForLayout can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
-        errorLine1="            String valueForLayout = text.getText().getValueForLayout();"
-        errorLine2="                                                   ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/protolayout/renderer/inflater/ProtoLayoutInflater.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Text.getText can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
-        errorLine1="            String valueForLayout = text.getText().getValueForLayout();"
-        errorLine2="                                         ~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/protolayout/renderer/inflater/ProtoLayoutInflater.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
         message="StringProp.getTextAlignmentForLayout can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
         errorLine1="            int gravity = textAlignToAndroidGravity(text.getText().getTextAlignmentForLayout());"
         errorLine2="                                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -4326,6 +4209,15 @@
         message="ArcText.getFontStyle can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
         errorLine1="            applyFontStyle(text.getFontStyle(), textView);"
         errorLine2="                                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/renderer/inflater/ProtoLayoutInflater.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FontStyle.getDefaultInstance can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
+        errorLine1="            applyFontStyle(FontStyle.getDefaultInstance(), textView);"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/protolayout/renderer/inflater/ProtoLayoutInflater.java"/>
     </issue>
@@ -5295,15 +5187,6 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="ArcLine.getLength can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
-        errorLine1="                getSizeForLayout(line.getLength(), WearCurvedLineView.SWEEP_ANGLE_WRAP_LENGTH);"
-        errorLine2="                                      ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/protolayout/renderer/inflater/ProtoLayoutInflater.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
         message="DegreesProp.getAngularAlignmentForLayout can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
         errorLine1="                    angularAlignmentProtoToAngularAlignment(length.getAngularAlignmentForLayout()));"
         errorLine2="                                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -5766,6 +5649,15 @@
         message="SpanImage.getAlignment can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
         errorLine1="                            spanVerticalAlignmentToImgSpanAlignment(protoImage.getAlignment()));"
         errorLine2="                                                                               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/renderer/inflater/ProtoLayoutInflater.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FontStyle.getDefaultInstance can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
+        errorLine1="            applyFontStyle(FontStyle.getDefaultInstance(), tv, posId, pipelineMaker);"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/protolayout/renderer/inflater/ProtoLayoutInflater.java"/>
     </issue>
@@ -6556,8 +6448,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="StringProp.hasDynamicValue can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
-        errorLine1="        if (stringProp.hasDynamicValue() &amp;&amp; mDataPipeline.isPresent()) {"
-        errorLine2="                       ~~~~~~~~~~~~~~~">
+        errorLine1="        if (!stringProp.hasDynamicValue() || !mDataPipeline.isPresent()) {"
+        errorLine2="                        ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/protolayout/renderer/inflater/ProtoLayoutInflater.java"/>
     </issue>
@@ -6565,8 +6457,17 @@
     <issue
         id="RestrictedApiAndroidX"
         message="StringProp.getValueForLayout can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
-        errorLine1="            if (!stringProp.getValueForLayout().isEmpty()) {"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~">
+        errorLine1="        if (!stringProp.getValueForLayout().isEmpty()) {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/renderer/inflater/ProtoLayoutInflater.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="StringProp.getValueForLayout can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
+        errorLine1="            return stringProp.getValueForLayout();"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/protolayout/renderer/inflater/ProtoLayoutInflater.java"/>
     </issue>
@@ -6583,8 +6484,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="DpProp.hasDynamicValue can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
-        errorLine1="        if (dimension.hasDynamicValue() &amp;&amp; mDataPipeline.isPresent()) {"
-        errorLine2="                      ~~~~~~~~~~~~~~~">
+        errorLine1="        if (!dimension.hasDynamicValue() || !mDataPipeline.isPresent()) {"
+        errorLine2="                       ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/protolayout/renderer/inflater/ProtoLayoutInflater.java"/>
     </issue>
@@ -6592,8 +6493,17 @@
     <issue
         id="RestrictedApiAndroidX"
         message="DpProp.getValueForLayout can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
-        errorLine1="            if (dimension.getValueForLayout() > 0f) {"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~">
+        errorLine1="        if (dimension.getValueForLayout() > 0f) {"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/renderer/inflater/ProtoLayoutInflater.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="DpProp.getValueForLayout can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
+        errorLine1="            return dimension.getValueForLayout();"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/protolayout/renderer/inflater/ProtoLayoutInflater.java"/>
     </issue>
@@ -6601,8 +6511,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="DegreesProp.hasDynamicValue can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
-        errorLine1="        if (degreesProp.hasDynamicValue() &amp;&amp; mDataPipeline.isPresent()) {"
-        errorLine2="                        ~~~~~~~~~~~~~~~">
+        errorLine1="        if (!degreesProp.hasDynamicValue() || !mDataPipeline.isPresent()) {"
+        errorLine2="                         ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/protolayout/renderer/inflater/ProtoLayoutInflater.java"/>
     </issue>
@@ -6610,17 +6520,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="DegreesProp.getValueForLayout can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
-        errorLine1="            if (degreesProp.getValueForLayout() > 0f) {"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/protolayout/renderer/inflater/ProtoLayoutInflater.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="DegreesProp.hasDynamicValue can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
-        errorLine1="        if (degreesProp.hasDynamicValue() &amp;&amp; mDataPipeline.isPresent()) {"
-        errorLine2="                        ~~~~~~~~~~~~~~~">
+        errorLine1="        if (degreesProp.getValueForLayout() > 0f) {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/protolayout/renderer/inflater/ProtoLayoutInflater.java"/>
     </issue>
@@ -6628,17 +6529,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="DegreesProp.getValueForLayout can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
-        errorLine1="            if (degreesProp.getValueForLayout() > 0f) {"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/protolayout/renderer/inflater/ProtoLayoutInflater.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="DegreesProp.getValueForLayout can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
-        errorLine1="                return degreesProp.getValueForLayout();"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~">
+        errorLine1="            return degreesProp.getValueForLayout();"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/protolayout/renderer/inflater/ProtoLayoutInflater.java"/>
     </issue>

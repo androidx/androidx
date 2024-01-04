@@ -325,7 +325,7 @@ class BasicTextField2SemanticsTest {
 
     @Test
     fun selectionSemanticsAreSet_afterRecomposition() {
-        val state = TextFieldState("hello")
+        val state = TextFieldState("hello", initialSelectionInChars = TextRange.Zero)
         rule.setContent {
             BasicTextField2(
                 state = state,
@@ -425,8 +425,8 @@ class BasicTextField2SemanticsTest {
 
     @Test
     fun semanticsAreSet_afterStateObjectChanges() {
-        val state1 = TextFieldState("hello")
-        val state2 = TextFieldState("world", TextRange(2))
+        val state1 = TextFieldState("hello", initialSelectionInChars = TextRange.Zero)
+        val state2 = TextFieldState("world", initialSelectionInChars = TextRange(2))
         var chosenState by mutableStateOf(true)
         rule.setContent {
             BasicTextField2(

@@ -50,8 +50,8 @@ public final class $$__AppSearch__Gift$$__InnerGift implements DocumentClassFact
 
   @Override
   public Gift.InnerGift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
-    String idConv = genericDoc.getId();
     String namespaceConv = genericDoc.getNamespace();
+    String idConv = genericDoc.getId();
     String[] arrStringConv = genericDoc.getPropertyStringArray("arrString");
     Gift.InnerGift document = new Gift.InnerGift();
     document.namespace = namespaceConv;

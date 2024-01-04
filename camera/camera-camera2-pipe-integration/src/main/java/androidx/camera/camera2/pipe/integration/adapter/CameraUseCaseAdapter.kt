@@ -256,6 +256,9 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
                 builder.addCameraCaptureCallback(CaptureCallbackContainer.create(it))
             }
 
+            builder.setPreviewStabilization(config.previewStabilizationMode)
+            builder.setVideoStabilization(config.videoStabilizationMode)
+
             // Copy extended Camera2 configurations
             val extendedConfig = MutableOptionsBundle.create().apply {
                 camera2Config.getPhysicalCameraId()?.let { physicalCameraId ->

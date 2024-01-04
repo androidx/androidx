@@ -19,6 +19,7 @@ package androidx.compose.ui.draganddrop
 import android.content.ClipData
 import android.view.DragEvent
 import android.view.View
+import androidx.collection.ArraySet
 import androidx.compose.ui.geometry.Offset
 
 /**
@@ -46,17 +47,27 @@ actual class DragAndDropTransfer(
  * Android [DragAndDropEvent] which delegates to a [DragEvent]
  */
 actual class DragAndDropEvent(
-    /**
-     * An indication of the reason the drag and drop event was sent
-     */
-    actual var type: DragAndDropEventType,
-    internal var dragEvent: DragEvent
+    internal val dragEvent: DragEvent,
+    internal actual val interestedNodes: ArraySet<DragAndDropModifierNode> = ArraySet()
 )
 
 /**
  * Returns the backing [DragEvent] to read platform specific data
  */
-val DragAndDropEvent.dragEvent get() = this.dragEvent
+val DragAndDropEvent.dragEvent: DragEvent get() = this.dragEvent
+
+/**
+ * The mime types present in a [DragAndDropEvent]
+ */
+// TODO (TJ) make this expect/actual when desktop implements
+fun DragAndDropEvent.mimeTypes(): Set<String> {
+    val clipDescription = dragEvent.clipDescription ?: return emptySet()
+    return buildSet(clipDescription.mimeTypeCount) {
+        for (i in 0 until clipDescription.mimeTypeCount) {
+            add(clipDescription.getMimeType(i))
+        }
+    }
+}
 
 internal actual val DragAndDropEvent.positionInRoot: Offset
     get() = Offset(

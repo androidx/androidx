@@ -274,6 +274,9 @@ public class StreamSharing extends UseCase {
         // Send the camera edge Surface to the camera2.
         SessionConfig.Builder builder = SessionConfig.Builder.createFrom(config,
                 streamSpec.getResolution());
+
+        propagateChildrenCamera2Interop(streamSpec.getResolution(), builder);
+
         builder.addSurface(mCameraEdge.getDeferrableSurface());
         builder.addRepeatingCameraCaptureCallback(mVirtualCamera.getParentMetadataCallback());
         if (streamSpec.getImplementationOptions() != null) {
@@ -282,6 +285,25 @@ public class StreamSharing extends UseCase {
         addCameraErrorListener(builder, cameraId, config, streamSpec);
         mSessionConfigBuilder = builder;
         return builder.build();
+    }
+
+    /**
+     * Propagates children Camera2interop settings.
+     */
+    private void propagateChildrenCamera2Interop(
+            @NonNull Size resolution,
+            @NonNull SessionConfig.Builder builder) {
+        for (UseCase useCase : getChildren()) {
+            SessionConfig childConfig =
+                    SessionConfig.Builder.createFrom(useCase.getCurrentConfig(), resolution)
+                            .build();
+            builder.addAllRepeatingCameraCaptureCallbacks(
+                    childConfig.getRepeatingCameraCaptureCallbacks());
+            builder.addAllCameraCaptureCallbacks(childConfig.getSingleCameraCaptureCallbacks());
+            builder.addAllSessionStateCallbacks(childConfig.getSessionStateCallbacks());
+            builder.addAllDeviceStateCallbacks(childConfig.getDeviceStateCallbacks());
+            builder.addImplementationOptions(childConfig.getImplementationOptions());
+        }
     }
 
     /**

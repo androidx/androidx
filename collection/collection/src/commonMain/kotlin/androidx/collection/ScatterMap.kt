@@ -840,6 +840,34 @@ public class MutableScatterMap<K, V>(
     }
 
     /**
+     * Retrieves a value for [key] and computes a new value based on the existing value (or
+     * `null` if the key is not in the map). The computed value is then stored in the map for the
+     * given [key].
+     *
+     * @return value computed by `computeBlock`.
+     */
+    public inline fun compute(key: K, computeBlock: (key: K, value: V?) -> V): V {
+        val index = findInsertIndex(key)
+        val inserting = index < 0
+
+        @Suppress("UNCHECKED_CAST")
+        val computedValue = computeBlock(
+            key,
+            if (inserting) null else values[index] as V
+        )
+
+        // Skip Array.set() if key is already there
+        if (inserting) {
+            val insertionIndex = index.inv()
+            keys[insertionIndex] = key
+            values[insertionIndex] = computedValue
+        } else {
+            values[index] = computedValue
+        }
+        return computedValue
+    }
+
+    /**
      * Creates a new mapping from [key] to [value] in this map. If [key] is
      * already present in the map, the association is modified and the previously
      * associated value is replaced with [value]. If [key] is not present, a new
@@ -847,7 +875,9 @@ public class MutableScatterMap<K, V>(
      * and cause allocations.
      */
     public operator fun set(key: K, value: V) {
-        val index = findAbsoluteInsertIndex(key)
+        val index = findInsertIndex(key).let { index ->
+            if (index < 0) index.inv() else index
+        }
         keys[index] = key
         values[index] = value
     }
@@ -861,7 +891,9 @@ public class MutableScatterMap<K, V>(
      * or `null` if the key was not present in the map.
      */
     public fun put(key: K, value: V): V? {
-        val index = findAbsoluteInsertIndex(key)
+        val index = findInsertIndex(key).let { index ->
+            if (index < 0) index.inv() else index
+        }
         val oldValue = values[index]
         keys[index] = key
         values[index] = value
@@ -987,7 +1019,7 @@ public class MutableScatterMap<K, V>(
     /**
      * Removes any mapping for which the specified [predicate] returns true.
      */
-    public fun removeIf(predicate: (K, V) -> Boolean) {
+    public inline fun removeIf(predicate: (K, V) -> Boolean) {
         forEachIndexed { index ->
             @Suppress("UNCHECKED_CAST")
             if (predicate(keys[index] as K, values[index] as V)) {
@@ -1048,7 +1080,8 @@ public class MutableScatterMap<K, V>(
         }
     }
 
-    private fun removeValueAt(index: Int): V? {
+    @PublishedApi
+    internal fun removeValueAt(index: Int): V? {
         _size -= 1
 
         // TODO: We could just mark the entry as empty if there's a group
@@ -1079,11 +1112,12 @@ public class MutableScatterMap<K, V>(
     /**
      * Scans the hash table to find the index at which we can store a value
      * for the give [key]. If the key already exists in the table, its index
-     * will be returned, otherwise the index of an empty slot will be returned.
+     * will be returned, otherwise the `index.inv()` of an empty slot will be returned.
      * Calling this function may cause the internal storage to be reallocated
      * if the table is full.
      */
-    private fun findAbsoluteInsertIndex(key: K): Int {
+    @PublishedApi
+    internal fun findInsertIndex(key: K): Int {
         val hash = hash(key)
         val hash1 = h1(hash)
         val hash2 = h2(hash)
@@ -1121,7 +1155,7 @@ public class MutableScatterMap<K, V>(
         growthLimit -= if (isEmpty(metadata, index)) 1 else 0
         writeMetadata(index, hash2.toLong())
 
-        return index
+        return index.inv()
     }
 
     /**

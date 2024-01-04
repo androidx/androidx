@@ -18,10 +18,12 @@ package androidx.graphics.lowlatency
 
 import android.graphics.BlendMode
 import android.graphics.Color
+import android.graphics.ColorSpace
 import android.graphics.HardwareBufferRenderer
 import android.graphics.RenderNode
 import android.hardware.HardwareBuffer
 import androidx.annotation.RequiresApi
+import androidx.graphics.BufferedRendererImpl
 import androidx.graphics.RenderQueue
 import androidx.graphics.utils.HandlerThreadExecutor
 import androidx.hardware.SyncFenceCompat
@@ -56,6 +58,7 @@ internal class SingleBufferedCanvasRendererV34<T>(
                     if (mInverseTransform != BufferTransformHintResolver.UNKNOWN_TRANSFORM) {
                         setBufferTransform(mInverseTransform)
                     }
+                    setColorSpace(colorSpace)
                     draw(executor) { result ->
                         requestComplete.invoke(mHardwareBuffer, SyncFenceCompat(result.fence))
                     }
@@ -133,6 +136,8 @@ internal class SingleBufferedCanvasRendererV34<T>(
     }
 
     override var isVisible: Boolean = false
+
+    override var colorSpace: ColorSpace = BufferedRendererImpl.DefaultColorSpace
 
     override fun release(cancelPending: Boolean, onReleaseComplete: (() -> Unit)?) {
         mRenderQueue.release(cancelPending) {

@@ -26,7 +26,7 @@ import kotlinx.parcelize.Parcelize
  * across processes.
  */
 @Parcelize
-internal class InterProcessCompletable<T : Parcelable> constructor(
+internal class InterProcessCompletable<T : Parcelable>(
     private val key: String = UUID.randomUUID().toString(),
 ) : Parcelable {
     suspend fun complete(subject: TwoWayIpcSubject, value: T) {
@@ -95,16 +95,11 @@ private class CrossProcessCompletableController(
     }
 }
 
-@Suppress("PrivatePropertyName")
 private val COMPLETABLE_CONTROLLER_KEY =
     CompositeServiceSubjectModel.Key<CrossProcessCompletableController>()
 private val TwoWayIpcSubject.crossProcessCompletableController: CrossProcessCompletableController
     get() {
-        if (!data.contains(COMPLETABLE_CONTROLLER_KEY)) {
-            synchronized(this) {
-                data[COMPLETABLE_CONTROLLER_KEY] =
-                    CrossProcessCompletableController(this)
-            }
+        return data.getOrPut(COMPLETABLE_CONTROLLER_KEY) {
+            CrossProcessCompletableController(this)
         }
-        return data[COMPLETABLE_CONTROLLER_KEY]
     }

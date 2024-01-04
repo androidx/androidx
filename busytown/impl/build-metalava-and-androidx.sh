@@ -45,7 +45,12 @@ function buildMetalava() {
 buildMetalava
 
 # Mac grep doesn't support -P, so use perl version of `grep -oP "(?<=metalavaVersion=).*"`
-export METALAVA_VERSION=`perl -nle'print $& while m{(?<=metalavaVersion=).*}g' $METALAVA_DIR/src/main/resources/version.properties`
+METALAVA_VERSION_FILE="$METALAVA_DIR/version.properties"
+export METALAVA_VERSION=`perl -nle'print $& while m{(?<=metalavaVersion=).*}g' $METALAVA_VERSION_FILE`
+if [ -z "$METALAVA_VERSION" ]; then
+  echo Failed to retrieve version from $METALAVA_VERSION_FILE >&2
+  exit 1
+fi
 export METALAVA_REPO="$DIST_DIR/repo/m2repository"
 
 function buildAndroidx() {

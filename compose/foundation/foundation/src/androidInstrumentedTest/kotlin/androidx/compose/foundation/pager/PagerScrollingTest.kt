@@ -416,46 +416,6 @@ class PagerScrollingTest(
     }
 
     @Test
-    fun swipeWithLowVelocity_customVelocityThreshold_shouldBounceBack() {
-        // Arrange
-        val snapVelocityThreshold = 200.dp
-        createPager(
-            initialPage = 5,
-            modifier = Modifier.fillMaxSize(),
-            snapVelocityThreshold = snapVelocityThreshold
-        )
-        val delta = pagerSize * 0.4f * scrollForwardSign
-
-        // Act - forward
-        runAndWaitForPageSettling {
-            onPager().performTouchInput {
-                swipeWithVelocityAcrossMainAxis(
-                    with(rule.density) { 0.5f * snapVelocityThreshold.toPx() },
-                    delta
-                )
-            }
-        }
-
-        // Assert
-        rule.onNodeWithTag("5").assertIsDisplayed()
-        confirmPageIsInCorrectPosition(5)
-
-        // Act - backward
-        runAndWaitForPageSettling {
-            onPager().performTouchInput {
-                swipeWithVelocityAcrossMainAxis(
-                    with(rule.density) { 0.5f * snapVelocityThreshold.toPx() },
-                    delta * -1
-                )
-            }
-        }
-
-        // Assert
-        rule.onNodeWithTag("5").assertIsDisplayed()
-        confirmPageIsInCorrectPosition(5)
-    }
-
-    @Test
     fun swipeWithHighVelocity_defaultVelocityThreshold_shouldGoToNextPage() {
         // Arrange
         createPager(initialPage = 5, modifier = Modifier.fillMaxSize())
@@ -481,47 +441,6 @@ class PagerScrollingTest(
             onPager().performTouchInput {
                 swipeWithVelocityAcrossMainAxis(
                     with(rule.density) { 1.1f * MinFlingVelocityDp.toPx() },
-                    delta * -1
-                )
-            }
-        }
-
-        // Assert
-        rule.onNodeWithTag("5").assertIsDisplayed()
-        confirmPageIsInCorrectPosition(5)
-    }
-
-    @Test
-    fun swipeWithHighVelocity_customVelocityThreshold_shouldGoToNextPage() {
-        // Arrange
-        val snapVelocityThreshold = 200.dp
-        createPager(
-            initialPage = 5,
-            modifier = Modifier.fillMaxSize(),
-            snapVelocityThreshold = snapVelocityThreshold
-        )
-        // make sure the scroll distance is not enough to go to next page
-        val delta = pagerSize * 0.4f * scrollForwardSign
-
-        // Act - forward
-        runAndWaitForPageSettling {
-            onPager().performTouchInput {
-                swipeWithVelocityAcrossMainAxis(
-                    with(rule.density) { 1.1f * snapVelocityThreshold.toPx() },
-                    delta
-                )
-            }
-        }
-
-        // Assert
-        rule.onNodeWithTag("6").assertIsDisplayed()
-        confirmPageIsInCorrectPosition(6)
-
-        // Act - backward
-        runAndWaitForPageSettling {
-            onPager().performTouchInput {
-                swipeWithVelocityAcrossMainAxis(
-                    with(rule.density) { 1.1f * snapVelocityThreshold.toPx() },
                     delta * -1
                 )
             }

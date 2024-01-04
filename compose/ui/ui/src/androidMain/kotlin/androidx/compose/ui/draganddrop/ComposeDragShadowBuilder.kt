@@ -21,14 +21,12 @@ import android.graphics.Point
 import android.view.View
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 
 /**
- * Draws a drag shadow for a [View.DragShadowBuilder] with a [Painter].
- * If there is no painter provided in [dragAndDropInfo], it will attempt to create a default by trying to
- * copy pixels in the rect bounded by the dragged item.
+ * Draws a drag shadow for a [View.DragShadowBuilder] with the DrawScope lambda
+ * provided by [DragAndDropInfo.onDrawDragShadow].
  */
 internal class ComposeDragShadowBuilder(
     private val density: Density,

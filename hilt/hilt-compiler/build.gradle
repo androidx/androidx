@@ -32,7 +32,7 @@ dependencies {
     kapt(libs.autoService)
     compileOnly(libs.gradleIncapHelper)
     kapt(libs.gradleIncapHelperProcessor)
-    implementation(project(":room:room-compiler-processing"))
+    implementation("androidx.room:room-compiler-processing:2.6.0-beta01")
     implementation(libs.javapoet)
     implementation(libs.kspApi)
 

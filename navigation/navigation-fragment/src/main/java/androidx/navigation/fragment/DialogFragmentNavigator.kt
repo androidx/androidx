@@ -74,9 +74,10 @@ public class DialogFragmentNavigator(
                     val dialogFragment = source as DialogFragment
                     if (!dialogFragment.requireDialog().isShowing) {
                         val beforePopList = state.backStack.value
-                        val poppedEntry = beforePopList.lastOrNull {
+                        val popIndex = beforePopList.indexOfLast {
                             it.id == dialogFragment.tag
                         }
+                        val poppedEntry = beforePopList.elementAtOrNull(popIndex)
                         if (beforePopList.lastOrNull() != poppedEntry) {
                             Log.i(
                                 TAG,
@@ -85,7 +86,7 @@ public class DialogFragmentNavigator(
                                     "dismissed dialog"
                             )
                         }
-                        poppedEntry?.let { state.popWithTransition(it, false) }
+                        poppedEntry?.let { popWithTransition(popIndex, it, false) }
                     }
                 }
                 Lifecycle.Event.ON_DESTROY -> {
@@ -126,9 +127,6 @@ public class DialogFragmentNavigator(
             popUpToIndex,
             beforePopList.size
         )
-        // track transitioning state of incoming entry
-        val incomingEntry = beforePopList.elementAtOrNull(popUpToIndex - 1)
-        val incomingEntryTransitioning = state.transitionsInProgress.value.contains(incomingEntry)
 
         // Now go through the list in reversed order (i.e., starting from the most recently added)
         // and dismiss each dialog
@@ -138,6 +136,19 @@ public class DialogFragmentNavigator(
                 (existingFragment as DialogFragment).dismiss()
             }
         }
+
+        popWithTransition(popUpToIndex, popUpTo, savedState)
+    }
+
+    private fun popWithTransition(
+        popUpToIndex: Int,
+        popUpTo: NavBackStackEntry,
+        savedState: Boolean
+    ) {
+        // track transitioning state of incoming entry
+        val incomingEntry = state.backStack.value.elementAtOrNull(popUpToIndex - 1)
+        val incomingEntryTransitioning = state.transitionsInProgress.value.contains(incomingEntry)
+
         state.popWithTransition(popUpTo, savedState)
         // if incoming entry was marked as transitioning by popWithTransition, mark it as complete
         if (incomingEntry != null && !incomingEntryTransitioning) {

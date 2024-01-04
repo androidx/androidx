@@ -16,6 +16,9 @@
 
 package androidx.appsearch.platformstorage.converter;
 
+import static android.app.appsearch.AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_NONE;
+import static android.app.appsearch.AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN;
+
 import android.annotation.SuppressLint;
 import android.os.Build;
 
@@ -100,6 +103,13 @@ public final class SchemaToPlatformConverter {
                     .setCardinality(stringProperty.getCardinality())
                     .setIndexingType(stringProperty.getIndexingType())
                     .setTokenizerType(stringProperty.getTokenizerType());
+
+            // TODO(b/277344542): Handle RFC822 tokenization on T devices with U trains.
+            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.TIRAMISU) {
+                Preconditions.checkArgumentInRange(stringProperty.getTokenizerType(),
+                        TOKENIZER_TYPE_NONE, TOKENIZER_TYPE_PLAIN, "tokenizerType");
+            }
+
             if (stringProperty.getDeletionPropagation()) {
                 // TODO(b/268521214): Update once deletion propagation is available.
                 throw new UnsupportedOperationException("Setting deletion propagation is not "

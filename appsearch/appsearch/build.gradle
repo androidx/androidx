@@ -34,6 +34,7 @@ android {
 dependencies {
     api('androidx.annotation:annotation:1.1.0')
     api(libs.guavaListenableFuture)
+    api(libs.autoServiceAnnotations)
 
     implementation('androidx.collection:collection:1.2.0')
     implementation('androidx.concurrent:concurrent-futures:1.0.0')

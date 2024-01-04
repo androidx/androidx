@@ -46,7 +46,6 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.tabs.TabLayout
-import java.nio.ByteBuffer
 import java.util.UUID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -212,6 +211,7 @@ class AdvertiserFragment : Fragment() {
         super.onDestroyView()
         _binding = null
         isAdvertising = false
+        isGattServerOpen = false
     }
 
     private fun initData() {
@@ -321,40 +321,45 @@ class AdvertiserFragment : Fragment() {
     // Permissions are handled by MainActivity requestBluetoothPermissions
     @SuppressLint("MissingPermission")
     private fun startAdvertise() {
+        Log.d(TAG, "startAdvertise() called")
+
         advertiseJob = advertiseScope.launch {
+            Log.d(
+                TAG, "bluetoothLe.advertise() called with: " +
+                    "viewModel.advertiseParams = ${viewModel.advertiseParams}"
+            )
+
             isAdvertising = true
 
             bluetoothLe.advertise(viewModel.advertiseParams) {
+                Log.d(TAG, "bluetoothLe.advertise result: AdvertiseResult = $it")
+
                 when (it) {
-                    BluetoothLe.ADVERTISE_STARTED -> {
+                    BluetoothLe.ADVERTISE_STARTED ->
                         toast("ADVERTISE_STARTED").show()
-                    }
 
-                    BluetoothLe.ADVERTISE_FAILED_DATA_TOO_LARGE -> {
-                        isAdvertising = false
+                    BluetoothLe.ADVERTISE_FAILED_DATA_TOO_LARGE ->
                         toast("ADVERTISE_FAILED_DATA_TOO_LARGE").show()
-                    }
 
-                    BluetoothLe.ADVERTISE_FAILED_FEATURE_UNSUPPORTED -> {
-                        isAdvertising = false
+                    BluetoothLe.ADVERTISE_FAILED_FEATURE_UNSUPPORTED ->
                         toast("ADVERTISE_FAILED_FEATURE_UNSUPPORTED").show()
-                    }
 
-                    BluetoothLe.ADVERTISE_FAILED_INTERNAL_ERROR -> {
-                        isAdvertising = false
+                    BluetoothLe.ADVERTISE_FAILED_INTERNAL_ERROR ->
                         toast("ADVERTISE_FAILED_INTERNAL_ERROR").show()
-                    }
 
-                    BluetoothLe.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS -> {
-                        isAdvertising = false
+                    BluetoothLe.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS ->
                         toast("ADVERTISE_FAILED_TOO_MANY_ADVERTISERS").show()
-                    }
                 }
             }
+
+            Log.d(TAG, "bluetoothLe.advertise completed")
+            isAdvertising = false
         }
     }
 
     private fun onAddGattService() {
+        Log.d(TAG, "onAddGattService() called")
+
         val editTextUuid = EditText(requireActivity())
         editTextUuid.hint = getString(R.string.service_uuid)
 
@@ -386,6 +391,11 @@ class AdvertiserFragment : Fragment() {
     }
 
     private fun onAddGattCharacteristic(bluetoothGattService: GattService) {
+        Log.d(
+            TAG, "onAddGattCharacteristic() called with: " +
+                "bluetoothGattService = $bluetoothGattService"
+        )
+
         val view = layoutInflater.inflate(R.layout.dialog_add_characteristic, null)
         val editTextUuid = view.findViewById<EditText>(R.id.edit_text_uuid)
 
@@ -457,24 +467,73 @@ class AdvertiserFragment : Fragment() {
         Log.d(TAG, "openGattServer() called")
 
         gattServerJob = gattServerScope.launch {
+            Log.d(
+                TAG, "bluetoothLe.openGattServer() called with: " +
+                    "viewModel.gattServerServices = ${viewModel.gattServerServices}"
+            )
+
             isGattServerOpen = true
 
             bluetoothLe.openGattServer(viewModel.gattServerServices) {
+                Log.d(
+                    TAG, "bluetoothLe.openGattServer() called with: " +
+                        "viewModel.gattServerServices = ${viewModel.gattServerServices}"
+                )
+
                 connectRequests.collect {
+                    Log.d(TAG, "connectRequests.collected: GattServerConnectRequest = $it")
+
                     launch {
                         it.accept {
-                            requests.collect {
-                                // TODO(b/269390098): handle request correctly
-                                when (it) {
-                                    is GattServerRequest.ReadCharacteristic ->
-                                        it.sendResponse(
-                                            ByteBuffer.allocate(Int.SIZE_BYTES).putInt(1).array()
+                            Log.d(
+                                TAG, "GattServerConnectRequest accepted: " +
+                                    "GattServerSessionScope = $it"
+                            )
+
+                            requests.collect { gattServerRequest ->
+                                Log.d(
+                                    TAG, "requests collected: " +
+                                        "gattServerRequest = $gattServerRequest"
+                                )
+
+                                // TODO(b/269390098): Handle requests correctly
+                                when (gattServerRequest) {
+                                    is GattServerRequest.ReadCharacteristic -> {
+                                        val characteristic = gattServerRequest.characteristic
+
+                                        val value = viewModel.readGattCharacteristicValue(
+                                            characteristic
                                         )
 
-                                    is GattServerRequest.WriteCharacteristics ->
-                                        it.sendResponse()
+                                        toast(
+                                            "Read value: ${value.decodeToString()} " +
+                                                "for characteristic = ${characteristic.uuid}"
+                                        ).show()
 
-                                    else -> throw NotImplementedError("unknown request")
+                                        gattServerRequest.sendResponse(value)
+                                    }
+
+                                    is GattServerRequest.WriteCharacteristics -> {
+                                        val characteristic =
+                                            gattServerRequest.parts[0].characteristic
+                                        val value = gattServerRequest.parts[0].value
+
+                                        toast(
+                                            "Writing value: ${value.decodeToString()} " +
+                                                "to characteristic = ${characteristic.uuid}"
+                                        ).show()
+
+                                        viewModel.updateGattCharacteristicValue(
+                                            characteristic,
+                                            value
+                                        )
+
+                                        gattServerRequest.sendResponse()
+                                    }
+
+                                    else -> {
+                                        throw NotImplementedError("Unknown request")
+                                    }
                                 }
                             }
                         }

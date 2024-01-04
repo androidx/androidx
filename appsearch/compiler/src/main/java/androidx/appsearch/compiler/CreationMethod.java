@@ -21,8 +21,14 @@ import androidx.annotation.NonNull;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
+import javax.lang.model.element.VariableElement;
 
 /**
  * A constructor or static method used to create a class annotated with {@code @Document} aka
@@ -94,5 +100,61 @@ public abstract class CreationMethod {
      */
     public boolean returnsBuilder() {
         return !returnsDocumentClass();
+    }
+
+    /**
+     * Infers which annotated getter/field each param corresponds to and creates
+     * a {@link CreationMethod}.
+     *
+     * @param method The creation method element.
+     * @param gettersAndFields The annotated getters/fields of the document class.
+     * @param returnsDocumentClass Whether the {@code method} returns the document class itself.
+     *                             If not, it is assumed that it returns a builder for the
+     *                             document class.
+     * @throws ProcessingException If the method is not invocable or the association for a param
+     *                             could not be deduced.
+     */
+    @NonNull
+    public static CreationMethod inferParamAssociationsAndCreate(
+            @NonNull ExecutableElement method,
+            @NonNull Collection<AnnotatedGetterOrField> gettersAndFields,
+            boolean returnsDocumentClass) throws ProcessingException {
+        if (method.getModifiers().contains(Modifier.PRIVATE)) {
+            throw new ProcessingException(
+                    "Method cannot be used to create a "
+                            + (returnsDocumentClass ? "document class" : "builder")
+                            + ": private visibility",
+                    method);
+        }
+
+        if (method.getKind() == ElementKind.CONSTRUCTOR
+                && method.getEnclosingElement().getModifiers().contains(Modifier.ABSTRACT)) {
+            throw new ProcessingException(
+                    "Method cannot be used to create a "
+                            + (returnsDocumentClass ? "document class" : "builder")
+                            + ": abstract constructor", method);
+        }
+
+        Map<String, AnnotatedGetterOrField> normalizedNameToGetterOrField = new HashMap<>();
+        for (AnnotatedGetterOrField getterOrField : gettersAndFields) {
+            normalizedNameToGetterOrField.put(getterOrField.getNormalizedName(), getterOrField);
+        }
+
+        ImmutableList.Builder<AnnotatedGetterOrField> paramAssociations = ImmutableList.builder();
+        for (VariableElement param : method.getParameters()) {
+            String paramName = param.getSimpleName().toString();
+            AnnotatedGetterOrField correspondingGetterOrField =
+                    normalizedNameToGetterOrField.get(paramName);
+            if (correspondingGetterOrField == null) {
+                throw new ProcessingException(
+                        ("Parameter \"%s\" is not an AppSearch parameter; "
+                                + "don't know how to supply it.").formatted(paramName),
+                        method);
+            }
+            paramAssociations.add(correspondingGetterOrField);
+        }
+
+        return new AutoValue_CreationMethod(
+                method, paramAssociations.build(), returnsDocumentClass);
     }
 }

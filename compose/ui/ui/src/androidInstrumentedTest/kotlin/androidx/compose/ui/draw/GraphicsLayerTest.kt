@@ -1456,6 +1456,68 @@ class GraphicsLayerTest {
         }
     }
 
+    // Repro test for b/298520326. Unfortunately, this test does not successfully reproduce the
+    // issue prior to the "fix", so is not a valid regression test. The act of calling
+    // `captureToImage()` causes the bug to disappear.
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun removingGraphicsLayerInvalidatesParentLayer2() {
+        var toggle by mutableStateOf(false)
+        val size = 100
+        rule.setContent {
+            val sizeDp = with(LocalDensity.current) { size.toDp() }
+            Box(
+                Modifier
+                    .testTag("outer")
+                    .layout { measurable, constraints ->
+                        val placeable = measurable.measure(constraints)
+                        layout(placeable.width, placeable.height) {
+                            placeable.place(0, 0)
+                        }
+                    }
+                    .then(
+                        if (toggle) Modifier
+                            .graphicsLayer(scaleX = 1f)
+                            .layout { measurable, constraints ->
+                                val placeable = measurable.measure(constraints)
+                                layout(placeable.width, placeable.height) {
+                                    placeable.place(0, 0)
+                                }
+                            }
+                        else Modifier
+                    )
+            ) {
+                Box(
+                    Modifier
+                        .background(Color.Red)
+                        .size(sizeDp)
+                )
+            }
+        }
+
+        val pt = (size * 0.5f).roundToInt()
+
+        rule.onNodeWithTag("outer").captureToImage().asAndroidBitmap().apply {
+            assertEquals(Color.Red.toArgb(), getPixel(pt, pt))
+        }
+
+        rule.runOnIdle {
+            toggle = !toggle
+        }
+
+        rule.onNodeWithTag("outer").captureToImage().asAndroidBitmap().apply {
+            assertEquals(Color.Red.toArgb(), getPixel(pt, pt))
+        }
+
+        rule.runOnIdle {
+            toggle = !toggle
+        }
+
+        rule.onNodeWithTag("outer").captureToImage().asAndroidBitmap().apply {
+            assertEquals(Color.Red.toArgb(), getPixel(pt, pt))
+        }
+    }
+
     @Test
     fun removingGraphicsLayerModifierResetsItsAction() {
         var addGraphicsLayer by mutableStateOf(true)

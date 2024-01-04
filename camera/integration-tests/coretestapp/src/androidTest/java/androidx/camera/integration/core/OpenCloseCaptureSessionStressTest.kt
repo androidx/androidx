@@ -168,16 +168,7 @@ class OpenCloseCaptureSessionStressTest(
     fun openCloseCaptureSessionStressTest_withPreviewVideoCaptureImageCapture(): Unit =
         runBlocking {
             val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
-            // TODO(b/297311194): allow stream sharing once processing pipeline supports
-            //  Camera2Interop
-            assumeTrue(
-                camera.isUseCasesCombinationSupported(
-                    false,
-                    preview,
-                    videoCapture,
-                    imageCapture
-                )
-            )
+            assumeTrue(camera.isUseCasesCombinationSupported(preview, videoCapture, imageCapture))
             bindUseCase_unbindAll_toCheckCameraSession_repeatedly(
                 preview,
                 videoCapture = videoCapture,
@@ -192,16 +183,7 @@ class OpenCloseCaptureSessionStressTest(
         runBlocking {
             val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
             val imageAnalysis = ImageAnalysis.Builder().build()
-            // TODO(b/297311194): allow stream sharing once processing pipeline supports
-            //  Camera2Interop
-            assumeTrue(
-                camera.isUseCasesCombinationSupported(
-                    false,
-                    preview,
-                    videoCapture,
-                    imageAnalysis
-                )
-            )
+            assumeTrue(camera.isUseCasesCombinationSupported(preview, videoCapture, imageCapture))
             bindUseCase_unbindAll_toCheckCameraSession_repeatedly(
                 preview,
                 videoCapture = videoCapture,

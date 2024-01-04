@@ -21,6 +21,7 @@ import android.content.ContextWrapper
 import android.os.Binder
 import android.os.Build
 import android.os.Bundle
+import androidx.privacysandbox.sdkruntime.client.activity.LocalSdkActivityHandlerRegistry
 import androidx.privacysandbox.sdkruntime.client.activity.SdkActivity
 import androidx.privacysandbox.sdkruntime.client.loader.CatchingSdkActivityHandler
 import androidx.privacysandbox.sdkruntime.client.loader.asTestSdk
@@ -239,6 +240,31 @@ class SdkSandboxManagerCompatTest {
 
         assertThat(managerCompat.getSandboxedSdks())
             .isEmpty()
+    }
+
+    @Test
+    fun unloadSdk_unregisterActivityHandlers() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val managerCompat = SdkSandboxManagerCompat.from(context)
+
+        val packageName = TestSdkConfigs.forSdkName("v4").packageName
+        val localSdk = runBlocking {
+            managerCompat.loadSdk(
+                packageName,
+                Bundle()
+            )
+        }
+
+        val testSdk = localSdk.asTestSdk()
+        val token = testSdk.registerSdkSandboxActivityHandler(CatchingSdkActivityHandler())
+
+        val registeredBefore = LocalSdkActivityHandlerRegistry.isRegistered(token)
+        assertThat(registeredBefore).isTrue()
+
+        managerCompat.unloadSdk(packageName)
+
+        val registeredAfter = LocalSdkActivityHandlerRegistry.isRegistered(token)
+        assertThat(registeredAfter).isFalse()
     }
 
     @Test

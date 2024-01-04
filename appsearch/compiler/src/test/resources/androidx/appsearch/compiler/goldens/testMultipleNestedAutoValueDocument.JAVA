@@ -40,8 +40,8 @@ public final class $$__AppSearch__AutoValue_Gift_A implements DocumentClassFacto
 
   @Override
   public Gift.A fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
-    String idConv = genericDoc.getId();
     String namespaceConv = genericDoc.getNamespace();
+    String idConv = genericDoc.getId();
     Gift.A document = Gift.A.create(idConv, namespaceConv);
     return document;
   }

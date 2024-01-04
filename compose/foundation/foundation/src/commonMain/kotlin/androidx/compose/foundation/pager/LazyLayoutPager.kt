@@ -36,6 +36,7 @@ import androidx.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
 import androidx.compose.foundation.lazy.layout.LazyLayoutPinnableItem
 import androidx.compose.foundation.lazy.layout.MutableIntervalList
 import androidx.compose.foundation.lazy.layout.NearestRangeKeyIndexMap
+import androidx.compose.foundation.lazy.layout.lazyLayoutBeyondBoundsModifier
 import androidx.compose.foundation.lazy.layout.lazyLayoutSemantics
 import androidx.compose.foundation.overscroll
 import androidx.compose.runtime.Composable
@@ -144,11 +145,16 @@ internal fun Pager(
                 reverseScrolling = reverseLayout
             )
             .clipScrollableContainer(orientation)
-            .pagerBeyondBoundsModifier(
-                state,
-                beyondBoundsPageCount,
-                reverseLayout,
-                orientation
+            .lazyLayoutBeyondBoundsModifier(
+                state = rememberPagerBeyondBoundsState(
+                    state = state,
+                    beyondBoundsPageCount = beyondBoundsPageCount
+                ),
+                beyondBoundsInfo = state.beyondBoundsInfo,
+                reverseLayout = reverseLayout,
+                layoutDirection = LocalLayoutDirection.current,
+                orientation = orientation,
+                enabled = userScrollEnabled
             )
             .overscroll(overscrollEffect)
             .scrollable(

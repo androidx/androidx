@@ -30,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
@@ -49,7 +50,7 @@ fun IconToggleButtonDemo() {
     ) {
         item {
             ListHeader {
-                Text("Icon Toggle Button")
+                Text("Icon Toggle Button", textAlign = TextAlign.Center)
             }
         }
         item {
@@ -133,7 +134,7 @@ private fun IconToggleButtonsDemo(
     ) {
         Icon(
             imageVector = Icons.Filled.Favorite,
-            contentDescription = "Flight Mode",
+            contentDescription = "Favorite icon",
             modifier = Modifier.size(IconButtonDefaults.iconSizeFor(size))
         )
     }

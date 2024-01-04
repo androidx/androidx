@@ -47,6 +47,7 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
+import androidx.compose.ui.test.swipeWithVelocity
 import com.google.common.truth.Truth.assertThat
 import java.lang.Math.sin
 import org.junit.Assert.assertEquals
@@ -86,7 +87,11 @@ class SwipeToDismissBoxTest {
     // Execute a partial swipe over a longer-than-default duration so that there
         // is insufficient velocity to perform a 'fling'.
         verifySwipe(
-            gesture = { swipeRight(startX = 0f, endX = width / 4f, durationMillis = LONG_SWIPE) },
+            gesture = { swipeWithVelocity(
+                start = Offset(0f, centerY),
+                end = Offset(centerX / 2f, centerY),
+                endVelocity = 1.0f
+            ) },
             expectedToDismiss = false
         )
 

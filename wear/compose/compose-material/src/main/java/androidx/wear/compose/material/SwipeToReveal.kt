@@ -16,6 +16,11 @@
 
 package androidx.wear.compose.material
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -45,6 +50,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.lerp
 import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.RevealActionType
 import androidx.wear.compose.foundation.RevealScope
@@ -358,12 +364,13 @@ public class SwipeToRevealActionColors constructor(
 /**
  * A class containing the details required for describing the content of an action composable.
  * Both composables, [icon] and [label] are optional, however it is expected that at least one is
- * provided.
+ * provided. See the parameters below on how these are used based on action.
  *
- * @param icon A slot for providing the icon for this [SwipeToReveal] action
+ * @param icon A slot for providing the icon for this [SwipeToReveal] action. This is mandatory for
+ * primary and secondary action. It is recommended to not use this for undo action.
  * @param label A slot for providing a text label for this [SwipeToRevealAction] action. The
  * content provided here will be used in different perspective based on the action type
- * (primary action, secondary action or undo action).
+ * (primary action or undo action). It is recommended to not use this for secondary action.
  * @param modifier The [Modifier] to be applied on the action.
  * @param actionType The [RevealActionType] that gets applied to [RevealState.lastActionType] when
  * this action is clicked.
@@ -527,9 +534,11 @@ private fun RevealScope.SwipeToRevealAction(
                     content = action.icon
                 )
             }
-            if (abs(revealState.offset) > revealOffset && action.label != null) {
-                Spacer(Modifier.size(5.dp))
-                action.label.invoke()
+            if (action.label != null) {
+                ActionLabel(
+                    revealState = revealState,
+                    content = action.label
+                )
             }
         }
     }
@@ -537,7 +546,7 @@ private fun RevealScope.SwipeToRevealAction(
 
 @OptIn(ExperimentalWearFoundationApi::class, ExperimentalWearMaterialApi::class)
 @Composable
-private fun RevealScope.UndoAction(
+private fun UndoAction(
     revealState: RevealState,
     undoAction: SwipeToRevealAction,
     colors: SwipeToRevealActionColors
@@ -584,11 +593,14 @@ private fun RevealScope.ActionIcon(
             ((-revealState.offset - revealOffset * 0.5f) / (revealOffset * 0.25f))
                 .coerceIn(0.0f, 1.0f)
         else 1f
-    // Scale icons from 50% to 100% between 50% and 100% of the progress
+    // Scale icons from 70% to 100% between 50% and 100% of the progress
     val iconScale =
         if (revealOffset > 0)
-            ((-revealState.offset - revealOffset * 0.5f) / revealOffset)
-                .coerceIn(0.0f, 0.5f) + 0.5f
+            lerp(
+                start = 0.7f,
+                stop = 1.0f,
+                fraction = (-revealState.offset - revealOffset * 0.5f) / revealOffset + 0.5f
+            )
         else 1f
     Box(
         modifier = Modifier.graphicsLayer {
@@ -598,5 +610,31 @@ private fun RevealScope.ActionIcon(
         }
     ) {
         content()
+    }
+}
+
+@OptIn(ExperimentalWearFoundationApi::class)
+@Composable
+private fun RevealScope.ActionLabel(
+    revealState: RevealState,
+    content: @Composable () -> Unit
+) {
+    val labelAlpha = animateFloatAsState(
+        targetValue = if (abs(revealState.offset) > revealOffset) 1f else 0f,
+        animationSpec = tween(
+            durationMillis = RAPID,
+            delayMillis = RAPID
+        ),
+        label = "ActionLabelAlpha"
+    )
+    AnimatedVisibility(
+        visible = abs(revealState.offset) > revealOffset,
+        enter = expandHorizontally(animationSpec = tween(durationMillis = RAPID)),
+        exit = ExitTransition.None
+    ) {
+        Box(modifier = Modifier.graphicsLayer { alpha = labelAlpha.value }) {
+            Spacer(Modifier.size(5.dp))
+            content.invoke()
+        }
     }
 }

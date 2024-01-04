@@ -80,8 +80,7 @@ internal class BasicSecureTextFieldTest {
     @get:Rule
     val immRule = ComposeInputMethodManagerTestRule()
 
-    @get:Rule
-    val inputMethodInterceptor = InputMethodInterceptorRule(rule)
+    private val inputMethodInterceptor = InputMethodInterceptor(rule)
 
     private val Tag = "BasicSecureTextField"
     private val imm = FakeInputMethodManager()
@@ -546,7 +545,7 @@ internal class BasicSecureTextFieldTest {
     fun stringValue_doesNotInvokeCallback_whenOnlyCompositionChanged() {
         var text by mutableStateOf("")
         var onValueChangedCount = 0
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicSecureTextField(
                 value = text,
                 onValueChange = {
@@ -654,7 +653,7 @@ internal class BasicSecureTextFieldTest {
     @Test
     fun textFieldValue_reportsCompositionChangesInCallback() {
         var text by mutableStateOf(TextFieldValue("hello", selection = TextRange(1)))
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicSecureTextField(
                 value = text,
                 onValueChange = { text = it },

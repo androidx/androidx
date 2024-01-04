@@ -239,6 +239,9 @@ public abstract class Transition implements Cloneable {
     // that have completed
     boolean mEnded = false;
 
+    // The transition that this was cloned from
+    private Transition mCloneParent = null;
+
     // The set of listeners to be sent transition lifecycle events.
     private ArrayList<Transition.TransitionListener> mListeners = null;
 
@@ -2138,7 +2141,9 @@ public abstract class Transition implements Cloneable {
         if (mListeners == null) {
             return this;
         }
-        mListeners.remove(listener);
+        if (!mListeners.remove(listener) && mCloneParent != null) {
+            mCloneParent.removeListener(listener);
+        }
         if (mListeners.size() == 0) {
             mListeners = null;
         }
@@ -2306,9 +2311,8 @@ public abstract class Transition implements Cloneable {
             clone.mStartValuesList = null;
             clone.mEndValuesList = null;
             clone.mSeekController = null;
-            if (mListeners != null) {
-                clone.mListeners = new ArrayList<>(mListeners);
-            }
+            clone.mCloneParent = this;
+            clone.mListeners = null;
             return clone;
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
@@ -2336,6 +2340,17 @@ public abstract class Transition implements Cloneable {
      * Calls notification on each listener.
      */
     void notifyListeners(TransitionNotification notification, boolean isReversed) {
+        notifyFromTransition(this, notification, isReversed);
+    }
+
+    private void notifyFromTransition(
+            Transition transition,
+            TransitionNotification notification,
+            boolean isReversed
+    ) {
+        if (mCloneParent != null) {
+            mCloneParent.notifyFromTransition(transition, notification, isReversed);
+        }
         if (mListeners != null && !mListeners.isEmpty()) {
             // Use a cache so that we don't have to keep allocating on every notification
             int size = mListeners.size();
@@ -2344,7 +2359,7 @@ public abstract class Transition implements Cloneable {
             mListenersCache = null;
             listeners = mListeners.toArray(listeners);
             for (int i = 0; i < size; i++) {
-                notification.notifyListener(listeners[i], Transition.this, isReversed);
+                notification.notifyListener(listeners[i], transition, isReversed);
                 listeners[i] = null;
             }
             mListenersCache = listeners;
