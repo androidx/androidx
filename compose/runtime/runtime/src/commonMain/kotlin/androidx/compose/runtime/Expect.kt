@@ -101,6 +101,11 @@ internal expect fun <T> invokeComposableForResult(
     composable: @Composable () -> T
 ): T
 
+@OptIn(ExperimentalComposeApi::class)
+internal expect class SnapshotContextElementImpl(
+    snapshot: Snapshot
+) : SnapshotContextElement
+
 internal expect fun logError(message: String, e: Throwable)
 
 internal expect fun currentThreadId(): Long

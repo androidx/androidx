@@ -60,6 +60,25 @@ internal actual class AtomicInt actual constructor(value: Int) {
 internal actual class WeakReference<T : Any> actual constructor(reference: T) :
     java.lang.ref.WeakReference<T>(reference)
 
+/**
+ * Implementation of [SnapshotContextElement] that enters a single given snapshot when updating
+ * the thread context of a resumed coroutine.
+ */
+@ExperimentalComposeApi
+internal actual class SnapshotContextElementImpl actual constructor(
+    private val snapshot: Snapshot
+) : SnapshotContextElement, ThreadContextElement<Snapshot?> {
+    override val key: CoroutineContext.Key<*>
+        get() = SnapshotContextElement
+
+    override fun updateThreadContext(context: CoroutineContext): Snapshot? =
+        snapshot.unsafeEnter()
+
+    override fun restoreThreadContext(context: CoroutineContext, oldState: Snapshot?) {
+        snapshot.unsafeLeave(oldState)
+    }
+}
+
 internal actual fun currentThreadId(): Long = Thread.currentThread().id
 
 internal actual fun currentThreadName(): String = Thread.currentThread().name
