@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-<<<<<<<< HEAD:compose/animation/animation-core/src/commonMain/kotlin/androidx/compose/animation/core/internal/PlatformOptimizedCancellationException.common.kt
 package androidx.compose.animation.core.internal
 
 import kotlinx.coroutines.CancellationException
@@ -26,12 +25,3 @@ import kotlinx.coroutines.CancellationException
 internal expect abstract class PlatformOptimizedCancellationException(
     message: String? = null
 ) : CancellationException
-========
-package androidx.compose.ui.platform
-
-/**
- * Represents a request to open a platform-specific text input session via
- * `PlatformTextInputModifierNode.textInputSession`.
- */
-expect interface PlatformTextInputMethodRequest
->>>>>>>> sync-androidx/revert/revert-1.6.0-alpha08_merge-1.6.0-beta01:compose/ui/ui/src/commonMain/kotlin/androidx/compose/ui/platform/PlatformTextInputMethodRequest.kt
