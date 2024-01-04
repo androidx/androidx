@@ -194,7 +194,7 @@ class TextFieldCursorTest : FocusedWindowTest {
             .assertCursor(cursorTopCenterInLtr)
     }
 
-    @Ignore("b/305799612")
+    @FlakyTest(bugId = 305799612)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun textFieldFocused_cursorRendered_rtlLayout() {
