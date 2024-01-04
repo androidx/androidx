@@ -16,6 +16,11 @@
 
 package androidx.slidingpanelayout.widget
 
+import android.graphics.Canvas
+import android.graphics.ColorFilter
+import android.graphics.PixelFormat
+import android.graphics.drawable.Drawable
+import android.view.LayoutInflater
 import android.view.View
 import android.view.View.MeasureSpec
 import android.view.View.MeasureSpec.EXACTLY
@@ -246,6 +251,68 @@ class SlidingPaneLayoutTest {
         ) {
             minimumWidth = 100
         }
+    }
+
+    @Test
+    fun userResizingConfiguration() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val view = SlidingPaneLayout(context)
+        val drawable = object : Drawable() {
+            var stateChanged = false
+                private set
+
+            override fun draw(canvas: Canvas) {}
+            override fun setAlpha(alpha: Int) {}
+            override fun setColorFilter(colorFilter: ColorFilter?) {}
+            @Suppress("DeprecatedCallableAddReplaceWith")
+            @Deprecated("Deprecated in Java")
+            override fun getOpacity(): Int = PixelFormat.TRANSLUCENT
+
+            override fun isStateful(): Boolean = true
+            override fun onStateChange(state: IntArray): Boolean {
+                stateChanged = true
+                return true
+            }
+        }
+
+        // Precondition - this should be false for a detached view
+        assertWithMessage("isSlideable")
+            .that(view.isSlideable)
+            .isFalse()
+
+        view.setUserResizingDividerDrawable(drawable)
+        assertWithMessage("drawable state changed")
+            .that(drawable.stateChanged)
+            .isTrue()
+
+        assertWithMessage("isUserResizable with drawable but not enabled")
+            .that(view.isUserResizable)
+            .isFalse()
+
+        view.isUserResizingEnabled = true
+
+        assertWithMessage("isUserResizable with drawable and enabled")
+            .that(view.isUserResizable)
+            .isTrue()
+
+        view.setUserResizingDividerDrawable(null)
+
+        assertWithMessage("isUserResizable with null drawable and enabled")
+            .that(view.isUserResizable)
+            .isFalse()
+    }
+
+    @Test
+    fun userResizingConfigurationInflated() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val inflater = LayoutInflater.from(context)
+        val view = inflater.inflate(R.layout.user_resize_config, null) as SlidingPaneLayout
+        assertWithMessage("isUserResizingEnabled")
+            .that(view.isUserResizingEnabled)
+            .isTrue()
+        assertWithMessage("isUserResizable")
+            .that(view.isUserResizable)
+            .isTrue()
     }
 }
 

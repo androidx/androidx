@@ -293,7 +293,8 @@ public class ThingTest {
         // Test that toDocumentClass doesn't lose information.
         // Reset potentialActions to empty because its document class does not maintain the meta
         // field creationTimestampMillis.
-        document = document.toBuilder().setPropertyDocument("potentialActions").build();
+        document = new GenericDocument.Builder<>(document)
+                        .setPropertyDocument("potentialActions").build();
         GenericDocument newDocument = GenericDocument.fromDocumentClass(
                 document.toDocumentClass(Thing.class));
         assertThat(newDocument).isEqualTo(document);

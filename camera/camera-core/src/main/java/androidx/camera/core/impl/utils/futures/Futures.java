@@ -442,6 +442,36 @@ public final class Futures {
     }
 
     /**
+     * Returns a future that delegates to the supplied future but will finish early normally with
+     * the provided default value if the specified duration expires.
+     *
+     * @param timeoutMillis     When to time out the future in milliseconds.
+     * @param scheduledExecutor The executor service to enforce the timeout.
+     * @param defaultValue      The default value to complete input future with in case of timeout.
+     * @param input             The future to delegate to.
+     */
+    @NonNull
+    public static <V> ListenableFuture<V> makeTimeoutFuture(
+            long timeoutMillis,
+            @NonNull ScheduledExecutorService scheduledExecutor,
+            @Nullable V defaultValue,
+            @NonNull ListenableFuture<V> input) {
+        return CallbackToFutureAdapter.getFuture(completer -> {
+            propagate(input, completer);
+            if (!input.isDone()) {
+                ScheduledFuture<?> timeoutFuture = scheduledExecutor.schedule(
+                        () -> {
+                            completer.set(defaultValue);
+                        },
+                        timeoutMillis, TimeUnit.MILLISECONDS);
+                input.addListener(
+                        () -> timeoutFuture.cancel(true), CameraXExecutors.directExecutor());
+            }
+            return "TimeoutFuture[" + input + "]";
+        });
+    }
+
+    /**
      * Should not be instantiated.
      */
     private Futures() {}

@@ -695,8 +695,7 @@ class Draggable2DTest {
         rule.setContent {
             val viewConfig = LocalViewConfiguration.current
             val newConfig = object : ViewConfiguration by viewConfig {
-                override val maximumFlingVelocity: Int
-                    get() = maxVelocity.toInt()
+                override val maximumFlingVelocity: Float get() = maxVelocity
             }
             CompositionLocalProvider(LocalViewConfiguration provides newConfig) {
                 Box {

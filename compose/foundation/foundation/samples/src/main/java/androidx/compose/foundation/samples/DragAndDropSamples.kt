@@ -65,7 +65,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropEvent
-import androidx.compose.ui.draganddrop.DragAndDropTransfer
+import androidx.compose.ui.draganddrop.DragAndDropTarget
+import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.draganddrop.mimeTypes
 import androidx.compose.ui.draganddrop.toAndroidDragEvent
 import androidx.compose.ui.draw.rotate
@@ -143,7 +144,7 @@ fun TextDragAndDropSourceSample(
                 detectTapGestures(
                     onLongPress = {
                         startTransfer(
-                            DragAndDropTransfer(
+                            DragAndDropTransferData(
                                 clipData = ClipData.newPlainText(label, label),
                                 flags = View.DRAG_FLAG_GLOBAL,
                             )
@@ -174,22 +175,38 @@ fun TextDragAndDropTargetSample(
     eventSummary: String?,
     onDragAndDropEventDropped: (DragAndDropEvent) -> Unit,
 ) {
+    val validMimeTypePrefixes = remember {
+        setOf(
+            ClipDescription.MIMETYPE_TEXT_INTENT,
+            "image/",
+            "text/",
+            "video/",
+            "audio/",
+        )
+    }
     var backgroundColor by remember { mutableStateOf(Color.Transparent) }
     Box(
         modifier = Modifier
             .fillMaxSize()
             .dragAndDropTarget(
-                onStarted = {
-                    backgroundColor = Color.DarkGray.copy(alpha = 0.2f)
-                    true
+                shouldStartDragAndDrop = accept@{ startEvent ->
+                    val hasValidMimeType = startEvent.mimeTypes().any { eventMimeType ->
+                        validMimeTypePrefixes.any(eventMimeType::startsWith)
+                    }
+                    hasValidMimeType
                 },
-                onDropped = { event ->
-                    onDragAndDropEventDropped(event)
-                    true
-                },
-                onEnded = {
-                    backgroundColor = Color.Transparent
-                }
+                target = DragAndDropTarget(
+                    onStarted = {
+                        backgroundColor = Color.DarkGray.copy(alpha = 0.2f)
+                    },
+                    onDrop = { event ->
+                        onDragAndDropEventDropped(event)
+                        true
+                    },
+                    onEnded = {
+                        backgroundColor = Color.Transparent
+                    }
+                ),
             )
             .background(backgroundColor)
             .border(
@@ -396,36 +413,39 @@ private fun Modifier.stateDragSource(
 private fun Modifier.stateDropTarget(
     state: State
 ) = dragAndDropTarget(
-    onStarted = { event ->
-        val accepts = event.mimeTypes().contains(ClipDescription.MIMETYPE_TEXT_INTENT)
-        if (accepts) state.onStarted()
-        accepts
+    shouldStartDragAndDrop = { startEvent ->
+        startEvent.mimeTypes().contains(ClipDescription.MIMETYPE_TEXT_INTENT)
     },
-    onEntered = {
-        println("Entered ${state.name}")
-        state.onEntered()
-    },
-    onMoved = {
-        println("Moved in ${state.name}")
-    },
-    onExited = {
-        println("Exited ${state.name}")
-        state.onExited()
-    },
-    onEnded = {
-        println("Ended in ${state.name}")
-        state.onEnded()
-    },
-    onDropped = { event ->
-        println("Dropped items in ${state.name}")
-        when (val transferredColor = event.toAndroidDragEvent().clipData.color()) {
-            null -> false
-            else -> {
-                state.onDropped(transferredColor)
-                true
+    target = DragAndDropTarget(
+        onStarted = {
+            state.onStarted()
+        },
+        onEntered = {
+            println("Entered ${state.name}")
+            state.onEntered()
+        },
+        onMoved = {
+            println("Moved in ${state.name}")
+        },
+        onExited = {
+            println("Exited ${state.name}")
+            state.onExited()
+        },
+        onEnded = {
+            println("Ended in ${state.name}")
+            state.onEnded()
+        },
+        onDrop = { event ->
+            println("Dropped items in ${state.name}")
+            when (val transferredColor = event.toAndroidDragEvent().clipData.color()) {
+                null -> false
+                else -> {
+                    state.onDropped(transferredColor)
+                    true
+                }
             }
         }
-    }
+    ),
 )
 
 @Stable
@@ -530,7 +550,7 @@ private data class RowAndColumn(
     val column: Int
 )
 
-private fun Color.toDragAndDropTransfer() = DragAndDropTransfer(
+private fun Color.toDragAndDropTransfer() = DragAndDropTransferData(
     clipData = ClipData.newIntent(
         "color transfer",
         colorDragAndDropTransferIntent(this)

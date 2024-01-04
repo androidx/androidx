@@ -45,4 +45,17 @@ class TestUwbControllerSessionScope(
     override fun prepareSession(parameters: RangingParameters): Flow<RangingResult> {
         return uwbClientSessionScope.prepareSession(parameters)
     }
+
+    override suspend fun reconfigureRangingInterval(intervalSkipCount: Int) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun reconfigureRangeDataNtf(
+        configType: Int,
+        proximityNear: Int,
+        proximityFar: Int
+    ) {
+        return uwbClientSessionScope.reconfigureRangeDataNtf(
+            configType, proximityNear, proximityFar)
+    }
 }

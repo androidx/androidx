@@ -887,9 +887,7 @@ internal class CompositionImpl(
                     // Record derived state dependency mapping
                     if (value is DerivedState<*>) {
                         derivedStates.removeScope(value)
-                        for (dependency in value.currentRecord.dependencies) {
-                            // skip over empty objects from dependency array
-                            if (dependency == null) break
+                        value.currentRecord.dependencies.forEachKey { dependency ->
                             derivedStates.add(dependency, value)
                         }
                     }
@@ -1342,77 +1340,6 @@ internal class CompositionImpl(
         composer.deactivate()
     }
 }
-
-/**
- * Apply Code Changes will invoke the two functions before and after a code swap.
- *
- * This forces the whole view hierarchy to be redrawn to invoke any code change that was
- * introduce in the code swap.
- *
- * All these are private as within JVMTI / JNI accessibility is mostly a formality.
- */
-private class HotReloader {
-    companion object {
-        // Called before Dex Code Swap
-        @Suppress("UNUSED_PARAMETER")
-        private fun saveStateAndDispose(context: Any): Any {
-            return Recomposer.saveStateAndDisposeForHotReload()
-        }
-
-        // Called after Dex Code Swap
-        private fun loadStateAndCompose(token: Any) {
-            Recomposer.loadStateAndComposeForHotReload(token)
-        }
-
-        @TestOnly
-        internal fun simulateHotReload(context: Any) {
-            loadStateAndCompose(saveStateAndDispose(context))
-        }
-
-        @TestOnly
-        internal fun invalidateGroupsWithKey(key: Int) {
-            return Recomposer.invalidateGroupsWithKey(key)
-        }
-
-        @TestOnly
-        internal fun getCurrentErrors(): List<RecomposerErrorInfo> {
-            return Recomposer.getCurrentErrors()
-        }
-
-        @TestOnly
-        internal fun clearErrors() {
-            return Recomposer.clearErrors()
-        }
-    }
-}
-
-/**
- * @suppress
- */
-@TestOnly
-fun simulateHotReload(context: Any) = HotReloader.simulateHotReload(context)
-
-/**
- * @suppress
- */
-@TestOnly
-fun invalidateGroupsWithKey(key: Int) = HotReloader.invalidateGroupsWithKey(key)
-
-/**
- * @suppress
- */
-// suppressing for test-only api
-@Suppress("ListIterator")
-@TestOnly
-fun currentCompositionErrors(): List<Pair<Exception, Boolean>> =
-    HotReloader.getCurrentErrors()
-        .map { it.cause to it.recoverable }
-
-/**
- * @suppress
- */
-@TestOnly
-fun clearCompositionErrors() = HotReloader.clearErrors()
 
 private fun <K : Any, V : Any> IdentityArrayMap<K, IdentityArraySet<V>?>.addValue(
     key: K,

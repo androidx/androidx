@@ -26,7 +26,7 @@ import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.UnsafeWrapper
 import androidx.camera.camera2.pipe.core.Log
-import androidx.camera.camera2.pipe.media.AndroidImageReader.Companion.IMAGERREADER_MAX_CAPACITY
+import androidx.camera.camera2.pipe.media.AndroidImageReader.Companion.IMAGEREADER_MAX_CAPACITY
 import java.util.concurrent.Executor
 import kotlin.reflect.KClass
 import kotlinx.atomicfu.atomic
@@ -67,7 +67,7 @@ interface ImageSource : UnsafeWrapper, AutoCloseable {
 
     companion object {
         private const val IMAGE_CAPACITY_MARGIN = 2
-        private const val IMAGE_SOURCE_CAPACITY = IMAGERREADER_MAX_CAPACITY - IMAGE_CAPACITY_MARGIN
+        private const val IMAGE_SOURCE_CAPACITY = IMAGEREADER_MAX_CAPACITY - IMAGE_CAPACITY_MARGIN
 
         fun create(
             imageReader: ImageReaderWrapper

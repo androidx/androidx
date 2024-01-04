@@ -22,10 +22,14 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.Dimension;
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.browser.customtabs.CustomTabsService.Relation;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * A callback class for custom tabs client to get messages regarding events in their custom tabs. In
@@ -168,4 +172,65 @@ public class CustomTabsCallback {
      */
     public void onActivityResized(@Dimension(unit = PX) int height,
             @Dimension(unit = PX) int width, @NonNull Bundle extras) {}
+
+    /**
+     * Called when the browser process finished warming up initiated by
+     * {@link CustomTabsClient#warmup()}.
+     * @param extras Reserved for future use.
+     */
+    public void onWarmupCompleted(@NonNull Bundle extras) {}
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef({ACTIVITY_LAYOUT_STATE_UNKNOWN, ACTIVITY_LAYOUT_STATE_BOTTOM_SHEET,
+            ACTIVITY_LAYOUT_STATE_BOTTOM_SHEET_MAXIMIZED, ACTIVITY_LAYOUT_STATE_SIDE_SHEET,
+            ACTIVITY_LAYOUT_STATE_SIDE_SHEET_MAXIMIZED, ACTIVITY_LAYOUT_STATE_FULL_SCREEN})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ActivityLayoutState {}
+
+    /**
+     * The activity's layout state is unknown. This value communicates an error state, the fact
+     * that the state cannot be determined, or that the browser implementation does not provide
+     * support for this feature.
+     */
+    public static final int ACTIVITY_LAYOUT_STATE_UNKNOWN = 0;
+    /**
+     * The activity is being displayed as a bottom-sheet at its initial height.
+     */
+    public static final int ACTIVITY_LAYOUT_STATE_BOTTOM_SHEET = 1;
+    /**
+     * The activity is being displayed as a bottom-sheet at its maximized height.
+     */
+    public static final int ACTIVITY_LAYOUT_STATE_BOTTOM_SHEET_MAXIMIZED = 2;
+    /**
+     * The activity is being displayed as a side-sheet at its initial width.
+     */
+    public static final int ACTIVITY_LAYOUT_STATE_SIDE_SHEET = 3;
+    /**
+     * The activity is being displayed as a side-sheet at its maximized width.
+     */
+    public static final int ACTIVITY_LAYOUT_STATE_SIDE_SHEET_MAXIMIZED = 4;
+    /**
+     * The activity is being displayed over the whole window. This will be the case when a
+     * Partial Custom Tab bottom sheet or side sheet cannot be displayed due to minimum width
+     * restrictions (see {@link CustomTabsIntent#EXTRA_INITIAL_ACTIVITY_WIDTH_PX}) or browser
+     * limitations.
+     */
+    public static final int ACTIVITY_LAYOUT_STATE_FULL_SCREEN = 5;
+
+    /**
+     * Called when the Partial Custom Tab's layout has changed. This callback is not applicable
+     * to Custom Tabs that are not launched with
+     * {@link CustomTabsIntent#EXTRA_INITIAL_ACTIVITY_WIDTH_PX} or
+     * {@link CustomTabsIntent#EXTRA_INITIAL_ACTIVITY_HEIGHT_PX} set to their intent.
+     *
+     * @param left The new left coordinate of the Partial Custom Tab's window in pixels.
+     * @param top The new top coordinate of the Partial Custom Tab's window in pixels.
+     * @param right The new right coordinate of the Partial Custom Tab's window in pixels.
+     * @param bottom The new bottom coordinate of the Partial Custom Tab's window in pixels.
+     * @param state The type of Partial Custom Tab that is currently displayed on the screen.
+     * @param extras Reserved for future use.
+     */
+    public void onActivityLayout(@Dimension(unit = PX) int left, @Dimension(unit = PX) int top,
+            @Dimension(unit = PX) int right, @Dimension(unit = PX) int bottom,
+            @ActivityLayoutState int state, @NonNull Bundle extras) {}
 }

@@ -209,12 +209,12 @@ sealed class ExitTransition {
     override fun toString(): String =
         when (this) {
             None -> "ExitTransition.None"
-            Hold -> "ExitTransition.Hold"
+            KeepUntilTransitionsFinished -> "ExitTransition.KeepUntilTransitionsFinished"
             else -> data.run {
                 "ExitTransition: \n" + "Fade - " + fade?.toString() + ",\nSlide - " +
                     slide?.toString() + ",\nShrink - " + changeSize?.toString() +
                     ",\nScale - " + scale?.toString() +
-                    ",\nHold - " + hold
+                    ",\nKeepUntilTransitionsFinished - " + hold
             }
         }
 
@@ -240,7 +240,8 @@ sealed class ExitTransition {
          * when dealing with one set of content entering OR exiting, such as AnimatedVisibility,
          * holding would not be meaningful.
          */
-        internal val Hold: ExitTransition = ExitTransitionImpl(TransitionData(hold = true))
+        internal val KeepUntilTransitionsFinished: ExitTransition =
+            ExitTransitionImpl(TransitionData(hold = true))
     }
 }
 

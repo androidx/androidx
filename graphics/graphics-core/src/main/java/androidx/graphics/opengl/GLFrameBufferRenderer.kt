@@ -412,6 +412,11 @@ class GLFrameBufferRenderer internal constructor(
                         .setVisibility(surfaceControl, true)
                         .setBuffer(surfaceControl, frameBuffer.hardwareBuffer, syncFenceCompat) {
                                 releaseFence ->
+                            if (mGLRenderer.isRunning()) {
+                                mGLRenderer.execute {
+                                    callback.onBufferReleased(frameBuffer, releaseFence)
+                                }
+                            }
                             if (mMaxBuffers > 1 || frameBufferPool.isClosed) {
                                 // Release the previous buffer only if we are not in single buffered
                                 // mode
@@ -614,6 +619,21 @@ class GLFrameBufferRenderer internal constructor(
             frameBuffer: FrameBuffer,
             syncFence: SyncFenceCompat?
         ) {
+            // NO-OP
+        }
+
+        /**
+         * Optional callback invoked the thread backed by the [GLRenderer] when the provided
+         * framebuffer is released. That is the given [FrameBuffer] instance is no longer being
+         * presented and is not visible.
+         * @param frameBuffer The buffer that is no longer being presented and has returned to the
+         * buffer allocation pool
+         * @param releaseFence Optional fence that must be waited upon before the [FrameBuffer] can
+         * be reused. The framework will invoke this callback early to improve performance and
+         * signal the fence when it is ready to be re-used.
+         */
+        @WorkerThread
+        fun onBufferReleased(frameBuffer: FrameBuffer, releaseFence: SyncFenceCompat?) {
             // NO-OP
         }
     }

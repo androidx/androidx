@@ -171,6 +171,34 @@ abstract class AbstractIrTransformTest(useFir: Boolean) : AbstractCodegenTest(us
         )
     }
 
+    fun verifyGoldenCrossModuleComposeIrTransform(
+        @Language("kotlin")
+        dependencySource: String,
+        @Language("kotlin")
+        source: String,
+        dumpTree: Boolean = false,
+        dumpClasses: Boolean = false,
+        validator: (element: IrElement) -> Unit = {},
+    ) {
+        val dependencyFileName = "Test_REPLACEME_${uniqueNumber++}"
+
+        classLoader(dependencySource, dependencyFileName, dumpClasses)
+            .allGeneratedFiles
+            .also {
+                // Write the files to the class directory so they can be used by the next module
+                // and the application
+                it.writeToDir(classesDirectory.root)
+            }
+
+        verifyGoldenComposeIrTransform(
+            source,
+            "",
+            validator = validator,
+            dumpTree = dumpTree,
+            additionalPaths = listOf(classesDirectory.root)
+        )
+    }
+
     fun transform(
         @Language("kotlin")
         source: String,
@@ -332,7 +360,12 @@ abstract class AbstractIrTransformTest(useFir: Boolean) : AbstractCodegenTest(us
     ) {
         val actualTransformed =
             transform(source, extra, validator, dumpTree, truncateTracingInfoMode, additionalPaths)
-        goldenTransformRule.verifyGolden(GoldenTransformTestInfo(source, actualTransformed))
+        goldenTransformRule.verifyGolden(
+            GoldenTransformTestInfo(
+                source.trimIndent().trim(),
+                actualTransformed.trimIndent().trim()
+            )
+        )
     }
 
     private fun MatchResult.isNumber() = groupValues[1].isNotEmpty()

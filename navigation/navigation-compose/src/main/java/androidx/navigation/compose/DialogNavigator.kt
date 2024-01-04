@@ -40,6 +40,11 @@ public class DialogNavigator : Navigator<Destination>() {
     internal val backStack get() = state.backStack
 
     /**
+     * Get the transitioning dialogs from the [state].
+     */
+    internal val transitionInProgress get() = state.transitionsInProgress
+
+    /**
      * Dismiss the dialog destination associated with the given [backStackEntry].
      */
     internal fun dismiss(backStackEntry: NavBackStackEntry) {

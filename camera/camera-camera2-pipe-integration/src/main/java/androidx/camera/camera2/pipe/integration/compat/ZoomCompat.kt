@@ -24,9 +24,11 @@ import android.hardware.camera2.CaptureRequest
 import android.os.Build
 import android.util.Range
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.compat.workaround.getControlZoomRatioRangeSafely
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
+import androidx.camera.camera2.pipe.integration.internal.ZoomMath.nearZero
 import dagger.Module
 import dagger.Provides
 import kotlinx.coroutines.Deferred
@@ -71,9 +73,16 @@ class CropRegionZoomCompat(private val cameraProperties: CameraProperties) : Zoo
     override val minZoomRatio: Float
         get() = 1.0f
     override val maxZoomRatio: Float
-        get() = cameraProperties.metadata.getOrDefault(
-            CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM, minZoomRatio
-        )
+        get() {
+            val ratio = cameraProperties.metadata.getOrDefault(
+                CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM, minZoomRatio
+            )
+            if (nearZero(ratio)) {
+                Log.warn { "Invalid max zoom ratio of $ratio detected, defaulting to 1.0f" }
+                return 1.0f
+            }
+            return ratio
+        }
 
     private var currentCropRect: Rect? = null
 
@@ -91,8 +100,13 @@ class CropRegionZoomCompat(private val cameraProperties: CameraProperties) : Zoo
         ?: cameraProperties.metadata[CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE]!!
 
     private fun computeCropRect(sensorRect: Rect, zoomRatio: Float): Rect {
-        val cropWidth: Float = sensorRect.width() / zoomRatio
-        val cropHeight: Float = sensorRect.height() / zoomRatio
+        var ratio = zoomRatio
+        if (nearZero(zoomRatio)) {
+            Log.warn { "ZoomCompat: Invalid zoom ratio of 0.0f passed in, defaulting to 1.0f" }
+            ratio = 1.0f
+        }
+        val cropWidth: Float = sensorRect.width() / ratio
+        val cropHeight: Float = sensorRect.height() / ratio
         val left: Float = (sensorRect.width() - cropWidth) / 2.0f
         val top: Float = (sensorRect.height() - cropHeight) / 2.0f
         return Rect(

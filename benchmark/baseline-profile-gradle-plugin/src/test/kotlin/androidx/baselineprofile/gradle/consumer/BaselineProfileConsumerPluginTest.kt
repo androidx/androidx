@@ -21,9 +21,11 @@ import androidx.baselineprofile.gradle.utils.ANDROID_LIBRARY_PLUGIN
 import androidx.baselineprofile.gradle.utils.ANDROID_TEST_PLUGIN
 import androidx.baselineprofile.gradle.utils.BaselineProfileProjectSetupRule
 import androidx.baselineprofile.gradle.utils.Fixtures
-import androidx.baselineprofile.gradle.utils.TEST_AGP_VERSION_8_0_0
-import androidx.baselineprofile.gradle.utils.TEST_AGP_VERSION_8_1_0
-import androidx.baselineprofile.gradle.utils.TEST_AGP_VERSION_ALL
+import androidx.baselineprofile.gradle.utils.TestAgpVersion
+import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_0_0
+import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_1_0
+import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_2_0
+import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_CURRENT
 import androidx.baselineprofile.gradle.utils.VariantProfile
 import androidx.baselineprofile.gradle.utils.build
 import androidx.baselineprofile.gradle.utils.buildAndAssertThatOutput
@@ -43,16 +45,16 @@ import org.junit.runners.Parameterized
 private const val EXPECTED_PROFILE_FOLDER = "generated/baselineProfiles"
 
 @RunWith(Parameterized::class)
-class BaselineProfileConsumerPluginTest(private val agpVersion: String?) {
+class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) {
 
     companion object {
         @Parameterized.Parameters(name = "agpVersion={0}")
         @JvmStatic
-        fun parameters() = TEST_AGP_VERSION_ALL
+        fun parameters() = TestAgpVersion.values()
     }
 
     @get:Rule
-    val projectSetup = BaselineProfileProjectSetupRule(forceAgpVersion = agpVersion)
+    val projectSetup = BaselineProfileProjectSetupRule(forceAgpVersion = agpVersion.versionString)
 
     private val gradleRunner by lazy { projectSetup.consumer.gradleRunner }
 
@@ -66,10 +68,18 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: String?) {
         "src/$variantName/$EXPECTED_PROFILE_FOLDER/startup-prof.txt"
     )
 
-    private fun mergedArtProfile(variantName: String) = File(
-        projectSetup.consumer.rootDir,
-        "build/intermediates/merged_art_profile/$variantName/baseline-prof.txt"
-    )
+    private fun mergedArtProfile(variantName: String): File {
+        // Task name folder in path was first observed in the update to AGP 8.3.0-alpha10.
+        // Before that, the folder was omitted in path.
+        val taskNameFolder = when (agpVersion) {
+            TEST_AGP_VERSION_8_0_0, TEST_AGP_VERSION_8_1_0, TEST_AGP_VERSION_8_2_0 -> ""
+            TEST_AGP_VERSION_CURRENT -> camelCase("merge", variantName, "artProfile")
+        }
+        return File(
+            projectSetup.consumer.rootDir,
+            "build/intermediates/merged_art_profile/$variantName/$taskNameFolder/baseline-prof.txt"
+        )
+    }
 
     private fun readBaselineProfileFileContent(variantName: String): List<String> =
         baselineProfileFile(variantName).readLines()
@@ -1021,7 +1031,10 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: String?) {
             """.trimIndent()
         )
 
-        data class VariantAndProfile(val variantName: String, val profile: List<String>)
+        data class VariantAndProfile(
+            val variantName: String,
+            val profile: List<String>
+        )
 
         val freeRelease = VariantAndProfile(
             variantName = "freeRelease",
@@ -1050,10 +1063,11 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: String?) {
             paidReleaseProfileLines = paidRelease.profile,
         )
 
-        gradleRunner
-            .build("mergeFreeReleaseArtProfile", "mergePaidReleaseArtProfile") {}
+        val variants = arrayOf(freeRelease, paidRelease)
+        val tasks = variants.map { camelCase("merge", it.variantName, "ArtProfile") }
+        gradleRunner.build(*(tasks.toTypedArray())) {}
 
-        arrayOf(freeRelease, paidRelease).forEach {
+        variants.forEach {
             val notFound = mergedArtProfile(it.variantName)
                 .readLines()
                 .require(*(it.profile).toTypedArray())
@@ -1324,7 +1338,7 @@ class BaselineProfileConsumerPluginTestWithAgp80 {
 
     @get:Rule
     val projectSetup = BaselineProfileProjectSetupRule(
-        forceAgpVersion = TEST_AGP_VERSION_8_0_0
+        forceAgpVersion = TEST_AGP_VERSION_8_0_0.versionString
     )
 
     @Test
@@ -1488,7 +1502,7 @@ class BaselineProfileConsumerPluginTestWithAgp81 {
 
     @get:Rule
     val projectSetup = BaselineProfileProjectSetupRule(
-        forceAgpVersion = TEST_AGP_VERSION_8_1_0
+        forceAgpVersion = TEST_AGP_VERSION_8_1_0.versionString
     )
 
     @Test
@@ -1699,17 +1713,17 @@ class BaselineProfileConsumerPluginTestWithAgp81 {
 }
 
 @RunWith(Parameterized::class)
-class BaselineProfileConsumerPluginTestWithKmp(agpVersion: String?) {
+class BaselineProfileConsumerPluginTestWithKmp(agpVersion: TestAgpVersion) {
 
     companion object {
         @Parameterized.Parameters(name = "agpVersion={0}")
         @JvmStatic
-        fun parameters() = TEST_AGP_VERSION_ALL
+        fun parameters() = TestAgpVersion.values()
     }
 
     @get:Rule
     val projectSetup = BaselineProfileProjectSetupRule(
-        forceAgpVersion = agpVersion,
+        forceAgpVersion = agpVersion.versionString,
         addKotlinGradlePluginToClasspath = true
     )
 

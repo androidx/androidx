@@ -23,7 +23,7 @@ import androidx.core.uwb.RangingParameters
 import androidx.core.uwb.RangingResult.RangingResultPeerDisconnected
 import androidx.core.uwb.RangingResult.RangingResultPosition
 import androidx.core.uwb.UwbAddress
-import androidx.core.uwb.UwbControleeSessionScope
+import androidx.core.uwb.UwbClientSessionScope
 import androidx.core.uwb.helper.handleApiException
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.nearby.uwb.RangingPosition
@@ -31,6 +31,7 @@ import com.google.android.gms.nearby.uwb.RangingSessionCallback
 import com.google.android.gms.nearby.uwb.UwbClient
 import com.google.android.gms.nearby.uwb.UwbComplexChannel
 import com.google.android.gms.nearby.uwb.UwbDevice
+import com.google.android.gms.nearby.uwb.UwbStatusCodes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
@@ -38,11 +39,11 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
-internal class UwbClientSessionScopeImpl(
+internal open class UwbClientSessionScopeImpl(
     private val uwbClient: UwbClient,
     override val rangingCapabilities: RangingCapabilities,
     override val localAddress: UwbAddress
-) : UwbControleeSessionScope {
+) : UwbClientSessionScope {
     companion object {
         private const val TAG = "UwbClientSessionScope"
     }
@@ -87,6 +88,7 @@ internal class UwbClientSessionScopeImpl(
             .setSessionId(parameters.sessionId)
             .setUwbConfigId(configId)
             .setRangingUpdateRate(updateRate)
+            .setIsAoaDisabled(parameters.isAoaDisabled)
             .setComplexChannel(
                 parameters.complexChannel?.let {
                     UwbComplexChannel.Builder()
@@ -101,6 +103,23 @@ internal class UwbClientSessionScopeImpl(
             .RangingParameters.UwbConfigId.CONFIG_ID_7) {
             parametersBuilder.setSubSessionId(parameters.subSessionId)
             parametersBuilder.setSubSessionKeyInfo(parameters.subSessionKeyInfo)
+        }
+        val slotDuration = when (parameters.slotDurationMillis) {
+            RangingParameters.RANGING_SLOT_DURATION_1_MILLIS ->
+                com.google.android.gms.nearby.uwb.RangingParameters.SlotDuration.DURATION_1_MS
+            RangingParameters.RANGING_SLOT_DURATION_2_MILLIS ->
+                com.google.android.gms.nearby.uwb.RangingParameters.SlotDuration.DURATION_2_MS
+            else ->
+                throw IllegalArgumentException("The selected slot duration is not a valid" +
+                    " slot duration.")
+        }
+        parametersBuilder.setSlotDuration(slotDuration)
+        if (parameters.uwbRangeDataNtfConfig != null) {
+            val ntfConfig = com.google.android.gms.nearby.uwb.UwbRangeDataNtfConfig.Builder()
+            ntfConfig.setRangeDataConfigType(parameters.uwbRangeDataNtfConfig.configType)
+            ntfConfig.setNtfProximityNear(parameters.uwbRangeDataNtfConfig.ntfProximityNearCm)
+            ntfConfig.setNtfProximityFar(parameters.uwbRangeDataNtfConfig.ntfProximityFarCm)
+            parametersBuilder.setUwbRangeDataNtfConfig(ntfConfig.build())
         }
         for (peer in parameters.peerDevices) {
             parametersBuilder.addPeerDevice(UwbDevice.createForAddress(peer.address.address))
@@ -152,6 +171,20 @@ internal class UwbClientSessionScopeImpl(
                 } catch (e: ApiException) {
                     handleApiException(e)
                 }
+            }
+        }
+    }
+
+    override suspend fun reconfigureRangeDataNtf(
+        configType: Int,
+        proximityNear: Int,
+        proximityFar: Int
+    ) {
+        try {
+            uwbClient.reconfigureRangeDataNtf(configType, proximityNear, proximityFar).await()
+        } catch (e: ApiException) {
+            if (e.statusCode == UwbStatusCodes.INVALID_API_CALL) {
+                throw IllegalStateException("Please check that the ranging is active.")
             }
         }
     }

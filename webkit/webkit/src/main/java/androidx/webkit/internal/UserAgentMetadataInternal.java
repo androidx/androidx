@@ -117,7 +117,9 @@ public class UserAgentMetadataInternal {
 
     private static String[][] getBrandVersionArray(
             List<UserAgentMetadata.BrandVersion> brandVersionList) {
-        if (brandVersionList == null) {
+        // If user's input of brand version list is empty, we consider to use system default value.
+        // This means passing null to chromium.
+        if (brandVersionList == null || brandVersionList.isEmpty()) {
             return null;
         }
 
@@ -145,12 +147,15 @@ public class UserAgentMetadataInternal {
         Object brandVersionValue = uaMetadataMap.get(BRAND_VERSION_LIST);
         if (brandVersionValue != null) {
             String[][] overrideBrandVersionList = (String[][]) brandVersionValue;
-            List<UserAgentMetadata.BrandVersion> branVersionList = new ArrayList<>();
+            List<UserAgentMetadata.BrandVersion> brandVersionList = new ArrayList<>();
             for (String[] brandVersionInfo : overrideBrandVersionList) {
-                branVersionList.add(new UserAgentMetadata.BrandVersion(brandVersionInfo[0],
-                        brandVersionInfo[1], brandVersionInfo[2]));
+                brandVersionList.add(new UserAgentMetadata.BrandVersion.Builder()
+                        .setBrand(brandVersionInfo[0])
+                        .setMajorVersion(brandVersionInfo[1])
+                        .setFullVersion(brandVersionInfo[2])
+                        .build());
             }
-            builder.setBrandVersionList(branVersionList);
+            builder.setBrandVersionList(brandVersionList);
         }
 
         String fullVersion = (String) uaMetadataMap.get(FULL_VERSION);

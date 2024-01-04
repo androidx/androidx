@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-
-//import androidx.build.LibraryType
-//import androidx.build.LibraryGroups
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
@@ -27,7 +23,6 @@ plugins {
 android {
     defaultConfig {
         applicationId "androidx.core.graphics.sample"
-        minSdkVersion 17
     }
     namespace "androidx.core.graphics.sample"
 }

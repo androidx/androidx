@@ -155,11 +155,13 @@ public class MultiPointerPredictor implements KalmanPredictor {
         // Merge single pointer MotionEvent into a single MotionEvent
         MotionEvent.PointerCoords[][] pointerCoords =
                 new MotionEvent.PointerCoords[minHistorySize][pointerCount];
+        long[] pointerEventTimes = new long[minHistorySize];
         for (int pointerIndex = 0; pointerIndex < pointerCount; pointerIndex++) {
             int historyIndex = 0;
             for (BatchedMotionEvent ev :
                     BatchedMotionEvent.iterate(singlePointerEvents[pointerIndex])) {
                 pointerCoords[historyIndex][pointerIndex] = ev.coords[0];
+                pointerEventTimes[historyIndex] = ev.timeMs;
                 if (minHistorySize <= ++historyIndex) {
                     break;
                 }
@@ -195,7 +197,10 @@ public class MultiPointerPredictor implements KalmanPredictor {
                         0 /* source */,
                         0 /* flags */);
         for (int historyIndex = 1; historyIndex < minHistorySize; historyIndex++) {
-            multiPointerEvent.addBatch(0, pointerCoords[historyIndex], 0);
+            multiPointerEvent.addBatch(
+                    pointerEventTimes[historyIndex],
+                    pointerCoords[historyIndex],
+                    0);
         }
         if (DEBUG_PREDICTION) {
             final StringBuilder builder =

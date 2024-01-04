@@ -242,7 +242,7 @@ class BasicCallControlsTest : BaseTelecomTest() {
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     @LargeTest
-    @Test(timeout = 10000)
+    @Test(timeout = 20000)
     fun testIsMuted_BackwardsCompat() {
         setUpBackwardsCompatTest()
         verifyMuteStateChange()

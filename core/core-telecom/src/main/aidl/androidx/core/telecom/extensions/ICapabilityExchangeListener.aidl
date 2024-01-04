@@ -28,5 +28,6 @@ oneway interface ICapabilityExchangeListener {
     // side with a listener to communicate participant state changes to.
     void onCreateParticipantExtension(in int version, in int[] actions, in IParticipantStateListener l) = 0;
     // no actions set for call details yet, but we want to be forwards compatible.
-    void onCreateCallDetailsExtension(int version, in int[] actions, ICallDetailsListener l) = 1;
+    void onCreateCallDetailsExtension(in int version, in int[] actions, in ICallDetailsListener l, in String packageName) = 1;
+    void onRemoveExtensions() = 2;
 }

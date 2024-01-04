@@ -96,7 +96,7 @@ private suspend fun PointerInputScope.detectPreDragGesturesWithObserver(
     observer: TextDragObserver
 ) {
     awaitEachGesture {
-        val down = awaitFirstDown()
+        val down = awaitFirstDown(requireUnconsumed = false)
         observer.onDown(down.position)
         // Wait for that pointer to come up.
         do {

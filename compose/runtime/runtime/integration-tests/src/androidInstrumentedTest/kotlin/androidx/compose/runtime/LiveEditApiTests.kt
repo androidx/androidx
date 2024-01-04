@@ -140,56 +140,6 @@ class LiveEditApiTests : BaseComposeTest() {
 
     @Test
     @MediumTest
-    fun forceRecompose_NonRestartableWrapper() {
-        activity.show {
-            TestNonRestartWrapper()
-        }
-
-        activity.waitForAFrame()
-
-        // Ensure that scopes recomposable so the "shouldn't execute" checks below are correct
-        invalidateGroup(nonRestartableKey)
-        activity.waitForAFrame()
-
-        // Invalidate restart
-        run {
-            val nonRestartableStart = nonRestartableInvoked
-            val nonRestartWrapperStart = nonRestartWrapperInvoked
-            invalidateGroup(nonRestartableKey)
-
-            activity.waitForAFrame()
-
-            assertTrue(
-                "NonRestartable should have been invoked",
-                nonRestartableInvoked > nonRestartableStart
-            )
-            assertTrue(
-                "NonRestartWrapper invoked when it shouldn't have been",
-                nonRestartWrapperStart == nonRestartWrapperInvoked
-            )
-        }
-
-        // Invalidate the wrapper
-        run {
-            val nonRestartableStart = nonRestartableInvoked
-            val nonRestartWrapperStart = nonRestartWrapperInvoked
-            invalidateGroup(nonRestartWrapperKey)
-
-            activity.waitForAFrame()
-
-            assertTrue(
-                "NonRestartable should have been invoked",
-                nonRestartableInvoked > nonRestartableStart
-            )
-            assertTrue(
-                "NonRestartWrapper should have been invoked",
-                nonRestartWrapperInvoked > nonRestartWrapperStart
-            )
-        }
-    }
-
-    @Test
-    @MediumTest
     fun throwError_doesntCrash() {
         activity.show {
             TestError()
@@ -519,14 +469,6 @@ fun TestSimple() {
 @Composable
 fun TestNonRestartable() {
     NonRestartable()
-}
-
-@Composable
-fun TestNonRestartWrapper() {
-    NonRestartWrapper {
-        NonRestartable()
-    }
-    NestedContent()
 }
 
 @Composable

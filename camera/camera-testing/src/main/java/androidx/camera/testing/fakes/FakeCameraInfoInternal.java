@@ -57,7 +57,7 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 
 /**
- * Information for a fake camera.
+ * Fake implementation for retrieving camera information of a fake camera.
  *
  * <p>This camera info can be constructed with fake values.
  */
@@ -106,6 +106,11 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
 
     public FakeCameraInfoInternal(@NonNull String cameraId) {
         this(cameraId, 0, CameraSelector.LENS_FACING_BACK);
+    }
+
+    public FakeCameraInfoInternal(@NonNull String cameraId,
+            @CameraSelector.LensFacing int lensFacing) {
+        this(cameraId, 0, lensFacing);
     }
 
     public FakeCameraInfoInternal(int sensorRotation, @CameraSelector.LensFacing int lensFacing) {

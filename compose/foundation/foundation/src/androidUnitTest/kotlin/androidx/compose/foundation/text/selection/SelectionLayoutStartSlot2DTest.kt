@@ -83,8 +83,7 @@ open class SelectionLayout2DTest {
     /** Calls [getTextFieldSelectionLayout] to get a [SelectionLayout]. */
     @OptIn(ExperimentalContracts::class)
     internal fun buildSelectionLayoutForTest(
-        startHandlePosition: Offset = Offset(5f, 5f),
-        endHandlePosition: Offset = Offset(25f, 5f),
+        currentPosition: Offset = Offset(25f, 5f),
         previousHandlePosition: Offset = Offset.Unspecified,
         containerCoordinates: LayoutCoordinates = MockCoordinates(),
         isStartHandle: Boolean = false,
@@ -94,8 +93,7 @@ open class SelectionLayout2DTest {
     ): SelectionLayout {
         contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
         return SelectionLayoutBuilder(
-            startHandlePosition = startHandlePosition,
-            endHandlePosition = endHandlePosition,
+            currentPosition = currentPosition,
             previousHandlePosition = previousHandlePosition,
             containerCoordinates = containerCoordinates,
             isStartHandle = isStartHandle,

@@ -67,6 +67,7 @@ import androidx.compose.ui.demos.input.TouchModeDemo
 import androidx.compose.ui.demos.keyinput.InterceptEnterToSendMessageDemo
 import androidx.compose.ui.demos.keyinput.KeyInputDemo
 import androidx.compose.ui.demos.modifier.CommunicatingModifierDemo
+import androidx.compose.ui.demos.modifier.TraverseModifierDemo
 import androidx.compose.ui.demos.recyclerview.RecyclerViewDemos
 import androidx.compose.ui.demos.viewinterop.AndroidInComposeDemos
 import androidx.compose.ui.demos.viewinterop.BottomSheetFragmentNestedScrollInteropDemo
@@ -231,19 +232,21 @@ private val ViewInteropDemos = DemoCategory(
 private val ModifierDemos = DemoCategory(
     "Modifiers",
     listOf(
-        ComposableDemo("Inter-Modifier Communication") { CommunicatingModifierDemo() }
+        ComposableDemo("Inter-Modifier Communication") { CommunicatingModifierDemo() },
+        ComposableDemo("Traversing Modifiers") { TraverseModifierDemo() }
     )
 )
 
 val AccessibilityDemos = DemoCategory(
     "Accessibility",
     listOf(
-        ComposableDemo("Scaffold Top Bar") { ScaffoldSample() },
-        ComposableDemo("Scaffold with Scrolling") { ScaffoldSampleScroll() },
+        ComposableDemo("Scaffold Top Bar") { ScaffoldSampleDemo() },
+        ComposableDemo("Scaffold with Scrolling") { ScaffoldSampleScrollDemo() },
         ComposableDemo("Simple Top Bar with Scrolling") { ScrollingColumnDemo() },
         ComposableDemo("Nested Containers—True") { NestedContainersTrueDemo() },
         ComposableDemo("Nested Containers—False") { NestedContainersFalseDemo() },
-        ComposableDemo("Linear Progress Indicator") { LinearProgressIndicatorDemo() }
+        ComposableDemo("Linear Progress Indicator") { LinearProgressIndicatorDemo() },
+        ComposableDemo("Dual LTR and RTL Scene") { SimpleRtlLayoutDemo() }
     )
 )
 

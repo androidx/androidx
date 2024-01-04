@@ -177,6 +177,7 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
      * Tests that the provider receives Z-order change updates.
      */
     @Test
+    @Ignore("b/302090927")
     fun testZOrderChanged() {
         val adapter = createAdapterAndEstablishSession()
 
@@ -209,6 +210,7 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
     }
 
     @Test
+    @Ignore("b/302006586")
     fun testHostCanSetZOrderBelowBeforeOpeningSession() {
         // TODO(b/300396631): Skip for backward compat
         assumeTrue(!invokeBackwardsCompatFlow)

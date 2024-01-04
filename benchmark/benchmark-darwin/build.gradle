@@ -39,17 +39,20 @@ androidXMultiplatform {
                     implementation(libs.kotlinTestAnnotationsCommon)
                 }
             }
-            iosArm64Main {
+            iosMain {
                 dependsOn(darwinMain)
                 dependencies {
                     api(project(":benchmark:benchmark-darwin-core"))
                 }
             }
+            iosArm64Main {
+                dependsOn(iosMain)
+            }
             iosSimulatorArm64Main {
-                dependsOn(iosArm64Main)
+                dependsOn(iosMain)
             }
             iosX64Main {
-                dependsOn(iosArm64Main)
+                dependsOn(iosMain)
             }
             targets.all { target ->
                 if (target.platformType == KotlinPlatformType.native) {

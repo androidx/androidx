@@ -46,7 +46,7 @@ import java.util.Set;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ImageAnalysisUnavailableQuirk implements Quirk {
-    private static final Set<Pair<String, String>> KNOWN_DEVICES = new HashSet<>(
+    private static final Set<Pair<String, String>> SAMSUNG_KNOWN_DEVICES = new HashSet<>(
             Arrays.asList(
                     Pair.create("samsung", "dm3q"), // Samsung Galaxy S23 Ultra 5G
                     Pair.create("samsung", "q2q"), // Samsung Galaxy Z Fold3 5G
@@ -54,46 +54,48 @@ public class ImageAnalysisUnavailableQuirk implements Quirk {
                     Pair.create("samsung", "b0q") // Samsung Galaxy S22 Ultra
             ));
     private final Set<Pair<String, Integer>> mUnavailableCombinations = new HashSet<>();
+    private boolean mDisableAll = false;
     ImageAnalysisUnavailableQuirk() {
-        if (Build.BRAND.equalsIgnoreCase("SAMSUNG") && Build.DEVICE.equalsIgnoreCase(
-                "dm3q")) { // Samsung Galaxy S23 Ultra 5G
-            mUnavailableCombinations.addAll(Arrays.asList(
-                    Pair.create("0", ExtensionMode.BOKEH), // LEVEL_3
-                    Pair.create("0", ExtensionMode.FACE_RETOUCH),
-                    Pair.create("1", ExtensionMode.BOKEH), // LEVEL_FULL
-                    Pair.create("1", ExtensionMode.FACE_RETOUCH),
-                    Pair.create("3", ExtensionMode.BOKEH), // LEVEL_FULL
-                    Pair.create("3", ExtensionMode.FACE_RETOUCH)
-            ));
-        } else if (Build.BRAND.equalsIgnoreCase("SAMSUNG") && Build.DEVICE.equalsIgnoreCase(
-                "q2q")) { // Samsung Galaxy Z Fold3 5G
-            mUnavailableCombinations.addAll(Arrays.asList(
-                    Pair.create("0", ExtensionMode.BOKEH), // LEVEL_3
-                    Pair.create("0", ExtensionMode.FACE_RETOUCH)
-            ));
-        } else if (Build.BRAND.equalsIgnoreCase("SAMSUNG") && Build.DEVICE.equalsIgnoreCase(
-                "a52sxq")) { // Samsung Galaxy A52s 5G
-            mUnavailableCombinations.addAll(Arrays.asList(
-                    Pair.create("0", ExtensionMode.BOKEH), // LEVEL_3
-                    Pair.create("0", ExtensionMode.FACE_RETOUCH)
-            ));
-        } else if (Build.BRAND.equalsIgnoreCase("SAMSUNG") && Build.DEVICE.equalsIgnoreCase(
-                "b0q")) { // Samsung Galaxy A52s 5G
-            mUnavailableCombinations.addAll(Arrays.asList(
-                    Pair.create("3", ExtensionMode.BOKEH), // FULL
-                    Pair.create("3", ExtensionMode.FACE_RETOUCH)
-            ));
+        if (Build.BRAND.equalsIgnoreCase("SAMSUNG")) {
+            if (Build.DEVICE.equalsIgnoreCase("dm3q")) { // Samsung Galaxy S23 Ultra 5G
+                mUnavailableCombinations.addAll(Arrays.asList(
+                        Pair.create("0", ExtensionMode.BOKEH), // LEVEL_3
+                        Pair.create("0", ExtensionMode.FACE_RETOUCH),
+                        Pair.create("1", ExtensionMode.BOKEH), // LEVEL_FULL
+                        Pair.create("1", ExtensionMode.FACE_RETOUCH),
+                        Pair.create("3", ExtensionMode.BOKEH), // LEVEL_FULL
+                        Pair.create("3", ExtensionMode.FACE_RETOUCH)
+                ));
+            } else if (Build.DEVICE.equalsIgnoreCase("q2q")) { // Samsung Galaxy Z Fold3 5G
+                mUnavailableCombinations.addAll(Arrays.asList(
+                        Pair.create("0", ExtensionMode.BOKEH), // LEVEL_3
+                        Pair.create("0", ExtensionMode.FACE_RETOUCH)
+                ));
+            } else if (Build.DEVICE.equalsIgnoreCase("a52sxq")) { // Samsung Galaxy A52s 5G
+                mUnavailableCombinations.addAll(Arrays.asList(
+                        Pair.create("0", ExtensionMode.BOKEH), // LEVEL_3
+                        Pair.create("0", ExtensionMode.FACE_RETOUCH)
+                ));
+            } else if (Build.DEVICE.equalsIgnoreCase("b0q")) { // Samsung Galaxy A52s 5G
+                mUnavailableCombinations.addAll(Arrays.asList(
+                        Pair.create("3", ExtensionMode.BOKEH), // FULL
+                        Pair.create("3", ExtensionMode.FACE_RETOUCH)
+                ));
+            }
+        } else if (Build.BRAND.equalsIgnoreCase("google")) {
+            mDisableAll = true;
         }
     }
     static boolean load() {
-        return KNOWN_DEVICES.contains(Pair.create(Build.BRAND.toLowerCase(Locale.US),
-                Build.DEVICE.toLowerCase(Locale.US)));
+        return SAMSUNG_KNOWN_DEVICES.contains(Pair.create(Build.BRAND.toLowerCase(Locale.US),
+                Build.DEVICE.toLowerCase(Locale.US)))
+                || Build.BRAND.equalsIgnoreCase("google");
     }
     /**
      * Returns whether {@link ImageAnalysis} is unavailable to be bound together with
      * {@link Preview} and {@link ImageCapture} for the specified camera id and extensions mode.
      */
     public boolean isUnavailable(@NonNull String cameraId, @ExtensionMode.Mode int mode) {
-        return mUnavailableCombinations.contains(Pair.create(cameraId, mode));
+        return mDisableAll || mUnavailableCombinations.contains(Pair.create(cameraId, mode));
     }
 }

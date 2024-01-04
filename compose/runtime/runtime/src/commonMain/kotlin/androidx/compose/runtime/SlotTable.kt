@@ -338,8 +338,9 @@ internal class SlotTable : CompositionData, Iterable<CompositionGroup> {
         read { reader ->
             fun scanGroup() {
                 val key = reader.groupKey
-                if (key == target) {
-                    anchors.add(reader.anchor())
+                if (key == target || key == LIVE_EDIT_INVALID_KEY) {
+                    if (key != LIVE_EDIT_INVALID_KEY)
+                        anchors.add(reader.anchor())
                     if (allScopesFound) {
                         val nearestScope = findEffectiveRecomposeScope(reader.currentGroup)
                         if (nearestScope != null) {
@@ -368,7 +369,7 @@ internal class SlotTable : CompositionData, Iterable<CompositionGroup> {
             anchors.fastForEach { anchor ->
                 if (anchor.toIndexFor(writer) >= writer.currentGroup) {
                     writer.seek(anchor)
-                    writer.bashGroup()
+                    writer.bashCurrentGroup()
                 }
             }
             writer.skipToGroupEnd()
@@ -391,39 +392,22 @@ internal class SlotTable : CompositionData, Iterable<CompositionGroup> {
 
     /**
      * Find the nearest recompose scope for [group] that, when invalidated, will cause [group]
-     * group to be recomposed.
+     * group to be recomposed. This will force non-restartable recompose scopes in between this
+     * [group] and the restartable group to recompose.
      */
     private fun findEffectiveRecomposeScope(group: Int): RecomposeScopeImpl? {
         var current = group
         while (current > 0) {
             for (data in DataIterator(this, current)) {
                 if (data is RecomposeScopeImpl) {
-                    return data
+                    if (data.used && current != group)
+                        return data
+                    else data.forcedRecompose = true
                 }
             }
             current = groups.parentAnchor(current)
         }
         return null
-    }
-
-    /**
-     * Finds the nearest recompose scope to the provided group and invalidates it. Return
-     * true if the invalidation will cause the scope to recompose, otherwise false which will
-     * require forcing recomposition some other way.
-     */
-    private fun invalidateGroup(group: Int): Boolean {
-        var current = group
-        // for each parent up the spine
-        while (current >= 0) {
-            for (data in DataIterator(this, current)) {
-                if (data is RecomposeScopeImpl) {
-                    data.requiresRecompose = true
-                    return data.invalidateForResult(null) != InvalidationResult.IGNORED
-                }
-            }
-            current = groups.parentAnchor(current)
-        }
-        return false
     }
 
     /**
@@ -1240,11 +1224,6 @@ internal class SlotReader(
         Anchor(index)
     }
 
-    /**
-     * Return an anchor if one has already been created, null otherwise.
-     */
-    private fun tryAnchor(index: Int) = table.anchors.find(index, groupsSize)
-
     private fun IntArray.node(index: Int) = if (isNode(index)) {
         slots[nodeIndex(index)]
     } else Composer.Empty
@@ -1613,20 +1592,20 @@ internal class SlotWriter(
 
     fun recordGrouplessCallSourceInformationStart(key: Int, value: String) {
         if (insertCount > 0) {
-            groupSourceInformationFor(parent, null)?.startGrouplessCall(key, value)
+            groupSourceInformationFor(parent, null).startGrouplessCall(key, value)
         }
     }
 
     fun recordGrouplessCallSourceInformationEnd() {
         if (insertCount > 0) {
-            groupSourceInformationFor(parent, null)?.endGrouplessCall()
+            groupSourceInformationFor(parent, null).endGrouplessCall()
         }
     }
 
     private fun groupSourceInformationFor(
         parent: Int,
         sourceInformation: String?
-    ): GroupSourceInformation? {
+    ): GroupSourceInformation {
         val map = sourceInformationMap ?: HashMap()
         this.sourceInformationMap = map
         return map.getOrPut(anchor(parent)) {
@@ -1972,18 +1951,6 @@ internal class SlotWriter(
             }
         }
         return newNodes
-    }
-
-    /**
-     * Wraps every child group of the current group with a group of a different key.
-     */
-    internal fun bashGroup() {
-        startGroup()
-        while (!isGroupEnd) {
-            bashParentGroup()
-            skipGroup()
-        }
-        endGroup()
     }
 
     /**
@@ -2522,71 +2489,16 @@ internal class SlotWriter(
     }
 
     /**
-     * Insert a parent group for the rest of the children in the current group. After this call
-     * all remaining children of the current group will be parented by a new group and the
-     * [currentSlot] will be moved to after the group inserted.
+     * Replace the key of the current group with one that will not match its current value which
+     * will cause the composer to discard it and rebuild the content.
+     *
+     * This is used during live edit when the function that generated the content has been changed
+     * and the slot table information does not match the expectations of the new code. This is done
+     * conservatively in that any change in the code is assume to make the state stored in the table
+     * incompatible.
      */
-    private fun bashParentGroup() {
-        val key = -3
-        runtimeCheck(insertCount == 0) { "Writer cannot be inserting" }
-        if (isGroupEnd) {
-            beginInsert()
-            startGroup(key)
-            endGroup()
-            endInsert()
-        } else {
-            val currentGroup = currentGroup
-            val parent = groups.parent(currentGroup)
-            val currentGroupEnd = parent + groupSize(parent)
-            val remainingSize = currentGroupEnd - currentGroup
-            var nodeCount = 0
-            var currentNewChild = currentGroup
-            while (currentNewChild < currentGroupEnd) {
-                val newChildAddress = groupIndexToAddress(currentNewChild)
-                nodeCount += groups.nodeCount(newChildAddress)
-                currentNewChild += groups.groupSize(newChildAddress)
-            }
-            val currentSlot = groups.dataAnchor(groupIndexToAddress(currentGroup))
-            beginInsert()
-            insertGroups(1)
-            endInsert()
-            val currentAddress = groupIndexToAddress(currentGroup)
-            groups.initGroup(
-                address = currentAddress,
-                key = key,
-                isNode = false,
-                hasDataKey = false,
-                hasData = false,
-                parentAnchor = parent,
-                dataAnchor = currentSlot
-            )
-
-            // Update the size of the group to cover the remaining children
-            groups.updateGroupSize(currentAddress, remainingSize + 1)
-            groups.updateNodeCount(currentAddress, nodeCount)
-
-            // Update the parent to account for the new group
-            val parentAddress = groupIndexToAddress(parent)
-            addToGroupSizeAlongSpine(parentAddress, 1)
-            fixParentAnchorsFor(parent, currentGroupEnd, currentGroup)
-            this.currentGroup = currentGroupEnd
-
-            // Remove any source information for child groups in the bashed group as updating it
-            // will not work as the children are now separated by a group. Just clearing the list
-            // is sufficient as list will be rebuilt when the new content is generated.
-            sourceInformationOf(parent)?.let { group -> group.groups = null }
-        }
-    }
-
-    fun addToGroupSizeAlongSpine(address: Int, amount: Int) {
-        var current = address
-        while (current > 0) {
-            groups.updateGroupSize(current, groups.groupSize(current) + amount)
-            val parentAnchor = groups.parentAnchor(current)
-            val parentGroup = parentAnchorToIndex(parentAnchor)
-            val parentAddress = groupIndexToAddress(parentGroup)
-            current = parentAddress
-        }
+    fun bashCurrentGroup() {
+        groups.updateGroupKey(currentGroup, LIVE_EDIT_INVALID_KEY)
     }
 
     /**
@@ -3828,3 +3740,5 @@ internal class PrioritySet(private val list: MutableList<Int> = mutableListOf())
         }
     }
 }
+
+private const val LIVE_EDIT_INVALID_KEY = -3

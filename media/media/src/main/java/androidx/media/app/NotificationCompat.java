@@ -40,7 +40,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
-import androidx.core.app.BundleCompat;
 import androidx.core.app.NotificationBuilderWithBuilderAccessor;
 import androidx.media.R;
 
@@ -117,7 +116,7 @@ public class NotificationCompat {
                         return MediaSessionCompat.Token.fromToken(tokenInner);
                     }
                 } else {
-                    IBinder tokenInner = BundleCompat.getBinder(extras,
+                    IBinder tokenInner = extras.getBinder(
                             androidx.core.app.NotificationCompat.EXTRA_MEDIA_SESSION);
                     if (tokenInner != null) {
                         Parcel p = Parcel.obtain();

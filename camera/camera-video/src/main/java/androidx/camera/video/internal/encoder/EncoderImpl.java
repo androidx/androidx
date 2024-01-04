@@ -53,6 +53,7 @@ import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.video.internal.DebugUtils;
 import androidx.camera.video.internal.compat.quirk.AudioEncoderIgnoresInputTimestampQuirk;
 import androidx.camera.video.internal.compat.quirk.CameraUseInconsistentTimebaseQuirk;
+import androidx.camera.video.internal.compat.quirk.CodecStuckOnFlushQuirk;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.video.internal.compat.quirk.EncoderNotUsePersistentInputSurfaceQuirk;
 import androidx.camera.video.internal.compat.quirk.VideoEncoderSuspendDoesNotIncludeSuspendTimeQuirk;
@@ -148,7 +149,6 @@ public class EncoderImpl implements Encoder {
     private static final long NO_LIMIT_LONG = Long.MAX_VALUE;
     private static final Range<Long> NO_RANGE = Range.create(NO_LIMIT_LONG, NO_LIMIT_LONG);
     private static final long STOP_TIMEOUT_MS = 1000L;
-    private static final int FAKE_BUFFER_INDEX = -9999;
 
     @SuppressWarnings("WeakerAccess") // synthetic accessor
     final String mTag;
@@ -545,8 +545,6 @@ public class EncoderImpl implements Encoder {
         } else if (mEncoderInput instanceof SurfaceInput) {
             try {
                 mMediaCodec.signalEndOfInputStream();
-                // On some devices, MediaCodec#signalEndOfInputStream() doesn't work.
-                // See b/255209101.
                 mMediaCodecEosSignalled = true;
             } catch (MediaCodec.CodecException e) {
                 handleEncodeError(e);
@@ -1035,6 +1033,11 @@ public class EncoderImpl implements Encoder {
     class MediaCodecCallback extends MediaCodec.Callback {
         @Nullable
         private final VideoTimebaseConverter mVideoTimestampConverter;
+        // See b/255209101. On some devices, MediaCodec#signalEndOfInputStream() doesn't trigger
+        // an end-of-stream buffer. This flag is used for a general workaround to take an output
+        // buffer which reaches stop timestamp as an end-of-stream buffer. It should be true by
+        // default to enable the workaround.
+        private boolean mReachStopTimeAsEos = true;
 
         private boolean mHasSendStartCallback = false;
         private boolean mHasFirstData = false;
@@ -1062,6 +1065,13 @@ public class EncoderImpl implements Encoder {
                 mVideoTimestampConverter = new VideoTimebaseConverter(mTimeProvider, inputTimebase);
             } else {
                 mVideoTimestampConverter = null;
+            }
+
+            CodecStuckOnFlushQuirk codecStuckOnFlushQuirk = DeviceQuirks.get(
+                    CodecStuckOnFlushQuirk.class);
+            if (codecStuckOnFlushQuirk != null && codecStuckOnFlushQuirk.isProblematicMimeType(
+                    mMediaFormat.getString(MediaFormat.KEY_MIME))) {
+                mReachStopTimeAsEos = false;
             }
         }
 
@@ -1153,14 +1163,11 @@ public class EncoderImpl implements Encoder {
                                 return;
                             }
                         } else {
-                            // Not necessary to return fake buffer
-                            if (index != FAKE_BUFFER_INDEX) {
-                                try {
-                                    mMediaCodec.releaseOutputBuffer(index, false);
-                                } catch (MediaCodec.CodecException e) {
-                                    handleEncodeError(e);
-                                    return;
-                                }
+                            try {
+                                mMediaCodec.releaseOutputBuffer(index, false);
+                            } catch (MediaCodec.CodecException e) {
+                                handleEncodeError(e);
+                                return;
                             }
                         }
 
@@ -1329,7 +1336,8 @@ public class EncoderImpl implements Encoder {
 
         @ExecutedBy("mEncoderExecutor")
         private boolean isEndOfStream(@NonNull BufferInfo bufferInfo) {
-            return hasEndOfStreamFlag(bufferInfo) || isEosSignalledAndStopTimeReached(bufferInfo);
+            return hasEndOfStreamFlag(bufferInfo)
+                    || (mReachStopTimeAsEos && isEosSignalledAndStopTimeReached(bufferInfo));
         }
 
         @ExecutedBy("mEncoderExecutor")

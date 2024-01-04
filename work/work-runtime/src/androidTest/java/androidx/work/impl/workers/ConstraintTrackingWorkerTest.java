@@ -45,6 +45,7 @@ import androidx.work.Configuration;
 import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.DatabaseTest;
+import androidx.work.DefaultWorkerFactory;
 import androidx.work.ForegroundUpdater;
 import androidx.work.ListenableWorker;
 import androidx.work.OneTimeWorkRequest;
@@ -350,7 +351,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
         private final WorkerFactory mDefaultFactory;
 
         SpyingWorkerFactory() {
-            mDefaultFactory = WorkerFactory.getDefaultWorkerFactory();
+            mDefaultFactory = DefaultWorkerFactory.INSTANCE;
         }
 
         @Nullable

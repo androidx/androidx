@@ -105,7 +105,6 @@ class SelectionManagerTest {
 
     @Test
     fun updateSelection_onInitial_returnsTrue() {
-        val startHandlePosition = Offset(x = 5f, y = 5f)
         val endHandlePosition = Offset(x = 25f, y = 5f)
         selectable.apply {
             textToReturn = AnnotatedString("hello")
@@ -114,8 +113,7 @@ class SelectionManagerTest {
         }
 
         val actual = selectionManager.updateSelection(
-            startHandlePosition = startHandlePosition,
-            endHandlePosition = endHandlePosition,
+            position = endHandlePosition,
             previousHandlePosition = endHandlePosition - Offset(x = 5f, y = 0f),
             isStartHandle = false,
             adjustment = SelectionAdjustment.None,
@@ -127,7 +125,6 @@ class SelectionManagerTest {
 
     @Test
     fun updateSelection_onNoChange_returnsFalse() {
-        val startHandlePosition = Offset(x = 5f, y = 5f)
         val endHandlePosition = Offset(x = 25f, y = 5f)
         selectable.apply {
             textToReturn = AnnotatedString("hello")
@@ -138,8 +135,7 @@ class SelectionManagerTest {
 
         // run once to set context for the "previous" selection update
         selectionManager.updateSelection(
-            startHandlePosition = startHandlePosition,
-            endHandlePosition = endHandlePosition,
+            position = endHandlePosition,
             previousHandlePosition = endHandlePosition,
             isStartHandle = false,
             adjustment = SelectionAdjustment.None,
@@ -147,8 +143,7 @@ class SelectionManagerTest {
 
         // run again since we are testing the "no changes" case
         val actual = selectionManager.updateSelection(
-            startHandlePosition = startHandlePosition,
-            endHandlePosition = endHandlePosition,
+            position = endHandlePosition,
             previousHandlePosition = endHandlePosition,
             isStartHandle = false,
             adjustment = SelectionAdjustment.None,
@@ -160,7 +155,6 @@ class SelectionManagerTest {
 
     @Test
     fun updateSelection_onChange_returnsTrue() {
-        val startHandlePosition = Offset(x = 5f, y = 5f)
         val endHandlePosition = Offset(x = 25f, y = 5f)
         selectable.apply {
             textToReturn = AnnotatedString("hello")
@@ -171,8 +165,7 @@ class SelectionManagerTest {
 
         // run once to set context for the "previous" selection update
         selectionManager.updateSelection(
-            startHandlePosition = startHandlePosition,
-            endHandlePosition = endHandlePosition,
+            position = endHandlePosition,
             previousHandlePosition = endHandlePosition,
             isStartHandle = false,
             adjustment = SelectionAdjustment.None,
@@ -181,8 +174,7 @@ class SelectionManagerTest {
         // run again with a change in end handle
         selectable.rawEndHandleOffset = 4
         val actual = selectionManager.updateSelection(
-            startHandlePosition = startHandlePosition,
-            endHandlePosition = endHandlePosition,
+            position = endHandlePosition,
             previousHandlePosition = endHandlePosition - Offset(x = 5f, y = 0f),
             isStartHandle = false,
             adjustment = SelectionAdjustment.None,

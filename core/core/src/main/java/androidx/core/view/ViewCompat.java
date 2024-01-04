@@ -5027,7 +5027,7 @@ public class ViewCompat {
         public void onGlobalLayout() {
             if (Build.VERSION.SDK_INT < 28) {
                 for (Map.Entry<View, Boolean> entry : mPanesToVisible.entrySet()) {
-                    checkPaneVisibility(entry.getKey(), entry.getValue());
+                    checkPaneVisibility(entry);
                 }
             }
         }
@@ -5061,14 +5061,16 @@ public class ViewCompat {
         }
 
         @RequiresApi(19)
-        private void checkPaneVisibility(View pane, boolean oldVisibility) {
+        private void checkPaneVisibility(Map.Entry<View, Boolean> panesToVisibleEntry) {
+            View pane = panesToVisibleEntry.getKey();
+            boolean oldVisibility = panesToVisibleEntry.getValue();
             boolean newVisibility = pane.isShown() && pane.getWindowVisibility() == VISIBLE;
             if (oldVisibility != newVisibility) {
                 int contentChangeType = newVisibility
                         ? AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_APPEARED
                         : AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_DISAPPEARED;
                 notifyViewAccessibilityStateChangedIfNeeded(pane, contentChangeType);
-                mPanesToVisible.put(pane, newVisibility);
+                panesToVisibleEntry.setValue(newVisibility);
             }
         }
 

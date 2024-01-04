@@ -140,15 +140,17 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
             Resources r = getContext().getResources();
             int maxVolume = mAudioManager.getStreamMaxVolume(PLAYBACK_STREAM);
             mLastReportedVolume = mAudioManager.getStreamVolume(PLAYBACK_STREAM);
-            MediaRouteDescriptor defaultRoute = new MediaRouteDescriptor.Builder(
-                    DEFAULT_ROUTE_ID, r.getString(R.string.mr_system_route_name))
-                    .addControlFilters(CONTROL_FILTERS)
-                    .setPlaybackStream(PLAYBACK_STREAM)
-                    .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_LOCAL)
-                    .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE)
-                    .setVolumeMax(maxVolume)
-                    .setVolume(mLastReportedVolume)
-                    .build();
+            MediaRouteDescriptor defaultRoute =
+                    new MediaRouteDescriptor.Builder(
+                                    DEFAULT_ROUTE_ID, r.getString(R.string.mr_system_route_name))
+                            .addControlFilters(CONTROL_FILTERS)
+                            .setPlaybackStream(PLAYBACK_STREAM)
+                            .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_LOCAL)
+                            .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE)
+                            .setVolumeMax(maxVolume)
+                            .setVolume(mLastReportedVolume)
+                            .setIsSystemRoute(true)
+                            .build();
 
             MediaRouteProviderDescriptor providerDescriptor =
                     new MediaRouteProviderDescriptor.Builder()
@@ -616,6 +618,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
             builder.setVolumeMax(MediaRouterApi16Impl.RouteInfo.getVolumeMax(record.mRoute));
             builder.setVolumeHandling(
                     MediaRouterApi16Impl.RouteInfo.getVolumeHandling(record.mRoute));
+            builder.setIsSystemRoute(true);
         }
 
         protected void updateUserRouteProperties(UserRouteRecord record) {

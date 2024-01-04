@@ -175,3 +175,51 @@ fun AnchoredDraggableCustomAnchoredSample() {
         }
     }
 }
+
+@Preview
+@Composable
+fun AnchoredDraggableCatchAnimatingWidgetSample() {
+    // Attempting to press the box while it is settling to one anchor won't stop the box from
+    // animating to that anchor. If you want to catch it while it is animating, you need to press
+    // the box and drag it past the touchSlop. This is because startDragImmediately is set to false.
+    val density = LocalDensity.current
+    // Setting the duration of the animationSpec to 3000ms gives more time to attempt to press
+    // or drag the settling box.
+    val animationSpec = tween<Float>(durationMillis = 3000)
+    val state = AnchoredDraggableState(
+        initialValue = AnchoredDraggableSampleValue.Start,
+        positionalThreshold = { distance: Float -> distance * 0.5f },
+        velocityThreshold = { with(density) { 125.dp.toPx() } },
+        animationSpec = animationSpec
+    )
+
+    val draggableSize = 100.dp
+    val draggableSizePx = with(LocalDensity.current) { draggableSize.toPx() }
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .onSizeChanged { layoutSize ->
+                val dragEndPoint = layoutSize.width - draggableSizePx
+                state.updateAnchors(
+                    DraggableAnchors {
+                        AnchoredDraggableSampleValue.Start at 0f
+                        AnchoredDraggableSampleValue.End at dragEndPoint
+                    }
+                )
+            }
+    ) {
+        Box(
+            Modifier
+                .size(draggableSize)
+                .offset {
+                    IntOffset(
+                        x = state
+                            .requireOffset()
+                            .roundToInt(), y = 0
+                    )
+                }
+                .anchoredDraggable(state, Orientation.Horizontal, startDragImmediately = false)
+                .background(Color.Red)
+        )
+    }
+}

@@ -16,12 +16,11 @@
 
 package androidx.webkit;
 
-import android.annotation.SuppressLint;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -51,7 +50,7 @@ public final class UserAgentMetadata {
     private boolean mWow64 = false;
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    private UserAgentMetadata(@Nullable List<BrandVersion> brandVersionList,
+    private UserAgentMetadata(@NonNull List<BrandVersion> brandVersionList,
             @Nullable String fullVersion, @Nullable String platform,
             @Nullable String platformVersion, @Nullable String architecture,
             @Nullable String model,
@@ -77,8 +76,7 @@ public final class UserAgentMetadata {
      * @see Builder#setBrandVersionList
      *
      */
-    @SuppressLint("NullableCollection")
-    @Nullable
+    @NonNull
     public List<BrandVersion> getBrandVersionList() {
         return mBrandVersionList;
     }
@@ -211,13 +209,9 @@ public final class UserAgentMetadata {
         private final String mMajorVersion;
         private final String mFullVersion;
 
-        public BrandVersion(@NonNull String brand, @NonNull String majorVersion,
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        private BrandVersion(@NonNull String brand, @NonNull String majorVersion,
                 @NonNull String fullVersion) {
-            if (brand.trim().isEmpty() || majorVersion.trim().isEmpty()
-                    || fullVersion.trim().isEmpty()) {
-                throw new IllegalArgumentException("Brand name, major version and full version "
-                        + "should not be blank.");
-            }
             mBrand = brand;
             mMajorVersion = majorVersion;
             mFullVersion = fullVersion;
@@ -273,6 +267,106 @@ public final class UserAgentMetadata {
         public int hashCode() {
             return Objects.hash(mBrand, mMajorVersion, mFullVersion);
         }
+
+        /**
+         * Builder used to create {@link BrandVersion} objects.
+         * <p>
+         * Examples:
+         * <pre class="prettyprint">
+         *  // Create a setting with a brand version contains brand name: myBrand,
+         *  // major version: 100, full version: 100.1.1.1.
+         *  new BrandVersion.Builder().setBrand("myBrand")
+         *                            .setMajorVersion("100")
+         *                            .setFullVersion("100.1.1.1")
+         *                            .build();
+         * </pre>
+         */
+        public static final class Builder {
+            private String mBrand;
+            private String mMajorVersion;
+            private String mFullVersion;
+
+            /**
+             * Create an empty BrandVersion Builder.
+             */
+            public Builder() {
+            }
+
+            /**
+             * Create a BrandVersion Builder from an existing BrandVersion object.
+             */
+            public Builder(@NonNull BrandVersion brandVersion) {
+                mBrand = brandVersion.getBrand();
+                mMajorVersion = brandVersion.getMajorVersion();
+                mFullVersion = brandVersion.getFullVersion();
+            }
+
+            /**
+             * Builds the current brand, majorVersion and fullVersion into a BrandVersion object.
+             *
+             * @return The BrandVersion object represented by this Builder.
+             * @throws IllegalStateException If any of the value in brand, majorVersion and
+             *                               fullVersion is null or blank.
+             */
+            @NonNull
+            public BrandVersion build() {
+                if (mBrand == null || mBrand.trim().isEmpty()
+                        || mMajorVersion == null || mMajorVersion.trim().isEmpty()
+                        || mFullVersion == null || mFullVersion.trim().isEmpty()) {
+                    throw new IllegalStateException("Brand name, major version and full version "
+                            + "should not be null or blank.");
+                }
+                return new BrandVersion(mBrand, mMajorVersion, mFullVersion);
+            }
+
+            /**
+             * Sets the BrandVersion's brand. The brand should not be blank.
+             *
+             * @param brand The brand is used to generate user-agent client hint
+             *              {@code sec-ch-ua} and {@code sec-ch-ua-full-version-list}.
+             *
+             */
+            @NonNull
+            public BrandVersion.Builder setBrand(@NonNull String brand) {
+                if (brand.trim().isEmpty()) {
+                    throw new IllegalArgumentException("Brand should not be blank.");
+                }
+                mBrand = brand;
+                return this;
+            }
+
+            /**
+             * Sets the BrandVersion's majorVersion. The majorVersion should not be blank.
+             *
+             * @param majorVersion The majorVersion is used to generate user-agent client hint
+             *                     {@code sec-ch-ua}.
+             *
+             */
+            @NonNull
+            public BrandVersion.Builder setMajorVersion(@NonNull String majorVersion) {
+                if (majorVersion.trim().isEmpty()) {
+                    throw new IllegalArgumentException("MajorVersion should not be blank.");
+                }
+                mMajorVersion = majorVersion;
+                return this;
+            }
+
+            /**
+             * Sets the BrandVersion's fullVersion. The fullVersion should not be blank.
+             *
+             * @param fullVersion The brand is used to generate user-agent client hint
+             *                    {@code sec-ch-ua-full-version-list}.
+             *
+             */
+            @NonNull
+            public BrandVersion.Builder setFullVersion(@NonNull String fullVersion) {
+                if (fullVersion.trim().isEmpty()) {
+                    throw new IllegalArgumentException("FullVersion should not be blank.");
+                }
+                mFullVersion = fullVersion;
+                return this;
+            }
+        }
     }
 
     /**
@@ -280,25 +374,28 @@ public final class UserAgentMetadata {
      * <p>
      * Examples:
      * <pre class="prettyprint">
-     *   // Create a setting with default options.
-     *   new UserAgentMetadata.Builder().build();
+     *  // Create a setting with default options.
+     *  new UserAgentMetadata.Builder().build();
      *
-     *   // Create a setting with a brand version contains brand name: myBrand, major version: 100,
-     *   // full version: 100.1.1.1.
-     *   new UserAgentMetadata.Builder().setBrandVersionList(
-     *   Collections.singletonList(new BrandVersion("myBrand", "100", "100.1.1.1"))).build();
+     *  // Create a setting with a brand version contains brand name: myBrand, major version: 100,
+     *  // full version: 100.1.1.1.
+     *  BrandVersion brandVersion = new BrandVersion.Builder().setBrand("myBrand")
+     *                                                        .setMajorVersion("100")
+     *                                                        .setFullVersion("100.1.1.1")
+     *                                                        .build();
+     *  new UserAgentMetadata.Builder().setBrandVersionList(Collections.singletonList(brandVersion))
+     *                                 .build();
      *
-     *   // Create a setting brand version, platform, platform version and bitness.
-     *   new UserAgentMetadata.Builder().setBrandVersionList(
-     *   Collections.singletonList(new BrandVersion("myBrand", "100", "100.1.1.1")))
-     *                                        .setPlatform("myPlatform")
-     *                                        .setPlatform("1.1.1.1")
-     *                                        .setBitness(BITNESS_64)
-     *                                        .build();
+     *  // Create a setting brand version, platform, platform version and bitness.
+     *  new UserAgentMetadata.Builder().setBrandVersionList(Collections.singletonList(brandVersion))
+     *                                 .setPlatform("myPlatform")
+     *                                 .setPlatform("1.1.1.1")
+     *                                 .setBitness(BITNESS_64)
+     *                                 .build();
      * </pre>
      */
     public static final class Builder {
-        private List<BrandVersion> mBrandVersionList;
+        private List<BrandVersion> mBrandVersionList = new ArrayList<>();
         private String mFullVersion;
         private String mPlatform;
         private String mPlatformVersion;
@@ -342,8 +439,8 @@ public final class UserAgentMetadata {
 
         /**
          * Sets user-agent metadata brands and their versions. The brand name, major version and
-         * full version should not be blank. The default value is null which means the system
-         * default user-agent metadata brands and versions will be used to generate the
+         * full version should not be blank. The default value is an empty list which means the
+         * system default user-agent metadata brands and versions will be used to generate the
          * user-agent client hints.
          *
          * @param brandVersions a list of {@link BrandVersion} used to generated user-agent client
@@ -352,9 +449,6 @@ public final class UserAgentMetadata {
          */
         @NonNull
         public Builder setBrandVersionList(@NonNull List<BrandVersion> brandVersions) {
-            if (brandVersions.isEmpty()) {
-                throw new IllegalArgumentException("Brand version list should not be empty.");
-            }
             mBrandVersionList = brandVersions;
             return this;
         }
@@ -362,16 +456,21 @@ public final class UserAgentMetadata {
         /**
          * Sets the user-agent metadata full version. The full version should not be blank, even
          * though the <a href="https://wicg.github.io/ua-client-hints">spec<a/> about brand full
-         * version could be empty. The blank full version could cause inconsistent brands when
-         * generating brand version related user-agent client hints. It also gives bad experience
-         * for developers when processing the brand full version.
+         * version could be empty. A blank full version could cause inconsistent brands when
+         * generating brand version related user-agent client hints. It also provides a bad
+         * experience for developers when processing the brand full version. If null is provided,
+         * the system default value will be used to generate the client hint.
          *
          * @param fullVersion The full version is used to generate user-agent client hint
          *                    {@code sec-ch-ua-full-version}.
          *
          */
         @NonNull
-        public Builder setFullVersion(@NonNull String fullVersion) {
+        public Builder setFullVersion(@Nullable String fullVersion) {
+            if (fullVersion == null) {
+                mFullVersion = null;
+                return this;
+            }
             if (fullVersion.trim().isEmpty()) {
                 throw new IllegalArgumentException("Full version should not be blank.");
             }
@@ -380,14 +479,19 @@ public final class UserAgentMetadata {
         }
 
         /**
-         * Sets the user-agent metadata platform. The platform should not be blank.
+         * Sets the user-agent metadata platform. The platform should not be blank. If null is
+         * provided, the system default value will be used to generate the client hint.
          *
          * @param platform The platform is used to generate user-agent client hint
          *                 {@code sec-ch-ua-platform}.
          *
          */
         @NonNull
-        public Builder setPlatform(@NonNull String platform) {
+        public Builder setPlatform(@Nullable String platform) {
+            if (platform == null) {
+                mPlatform = null;
+                return this;
+            }
             if (platform.trim().isEmpty()) {
                 throw new IllegalArgumentException("Platform should not be blank.");
             }
@@ -396,42 +500,43 @@ public final class UserAgentMetadata {
         }
 
         /**
-         * Sets the user-agent metadata platform version. The value should not be null but can be
-         * empty string.
+         * Sets the user-agent metadata platform version. If null is provided, the system default
+         * value will be used to generate the client hint.
          *
          * @param platformVersion The platform version is used to generate user-agent client
          *                        hint {@code sec-ch-ua-platform-version}.
          *
          */
         @NonNull
-        public Builder setPlatformVersion(@NonNull String platformVersion) {
+        public Builder setPlatformVersion(@Nullable String platformVersion) {
             mPlatformVersion = platformVersion;
             return this;
         }
 
         /**
-         * Sets the user-agent metadata architecture. The value should not be null but can be
-         * empty string.
+         * Sets the user-agent metadata architecture. If null is provided, the system default
+         * value will be used to generate the client hint.
          *
          * @param architecture The architecture is used to generate user-agent client hint
          *                     {@code sec-ch-ua-arch}.
          *
          */
         @NonNull
-        public Builder setArchitecture(@NonNull String architecture) {
+        public Builder setArchitecture(@Nullable String architecture) {
             mArchitecture = architecture;
             return this;
         }
 
         /**
-         * Sets the user-agent metadata model. The value should not be null but can be empty string.
+         * Sets the user-agent metadata model. If null is provided, the system default value will
+         * be used to generate the client hint.
          *
          * @param model The model is used to generate user-agent client hint
          *              {@code sec-ch-ua-model}.
          *
          */
         @NonNull
-        public Builder setModel(@NonNull String model) {
+        public Builder setModel(@Nullable String model) {
             mModel = model;
             return this;
         }

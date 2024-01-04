@@ -53,6 +53,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -501,7 +502,7 @@ class SandboxedSdkViewTest {
         onView(withId(R.id.mainlayout)).check(matches(isDisplayed()))
         activityScenarioRule.withActivity {
             val boundingRect = Rect()
-            assertThat(view.getBoundingParent(boundingRect)).isTrue()
+            assertThat(view.maybeUpdateClippingBounds(boundingRect)).isTrue()
             val rootView: ViewGroup = findViewById(android.R.id.content)
             val rootRect = Rect()
             rootView.getGlobalVisibleRect(rootRect)
@@ -522,7 +523,7 @@ class SandboxedSdkViewTest {
         val scrollViewRect = Rect()
         assertThat(scrollView.getGlobalVisibleRect(scrollViewRect)).isTrue()
         val boundingRect = Rect()
-        assertThat(view.getBoundingParent(boundingRect)).isTrue()
+        assertThat(view.maybeUpdateClippingBounds(boundingRect)).isTrue()
         assertThat(scrollViewRect).isEqualTo(boundingRect)
     }
 
@@ -548,6 +549,7 @@ class SandboxedSdkViewTest {
         assertThat(latch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
     }
 
+    @Ignore("b/307829956")
     @Test
     fun requestSizeWithMeasureSpecAtMost_withinParentBounds() {
         view.layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)

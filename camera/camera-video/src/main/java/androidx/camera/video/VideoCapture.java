@@ -126,7 +126,6 @@ import androidx.camera.video.internal.compat.quirk.PreviewDelayWhenVideoCaptureI
 import androidx.camera.video.internal.compat.quirk.PreviewStretchWhenVideoCaptureIsBoundQuirk;
 import androidx.camera.video.internal.compat.quirk.VideoQualityQuirk;
 import androidx.camera.video.internal.config.VideoMimeInfo;
-import androidx.camera.video.internal.encoder.InvalidConfigException;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
 import androidx.camera.video.internal.encoder.VideoEncoderInfo;
 import androidx.camera.video.internal.encoder.VideoEncoderInfoImpl;
@@ -225,8 +224,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      */
     @NonNull
     public static <T extends VideoOutput> VideoCapture<T> withOutput(@NonNull T videoOutput) {
-        return new VideoCapture.Builder<>(Preconditions.checkNotNull(videoOutput)).setCaptureType(
-                UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE).build();
+        return new VideoCapture.Builder<>(Preconditions.checkNotNull(videoOutput)).build();
     }
 
     /**
@@ -786,7 +784,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         private static final VideoCaptureConfig<?> DEFAULT_CONFIG;
 
         private static final Function<VideoEncoderConfig, VideoEncoderInfo>
-                DEFAULT_VIDEO_ENCODER_INFO_FINDER = createFinder();
+                DEFAULT_VIDEO_ENCODER_INFO_FINDER = VideoEncoderInfoImpl.FINDER;
 
         static final Range<Integer> DEFAULT_FPS_RANGE = new Range<>(30, 30);
 
@@ -800,22 +798,9 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             Builder<?> builder = new Builder<>(DEFAULT_VIDEO_OUTPUT)
                     .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY)
                     .setVideoEncoderInfoFinder(DEFAULT_VIDEO_ENCODER_INFO_FINDER)
-                    .setDynamicRange(DEFAULT_DYNAMIC_RANGE)
-                    .setCaptureType(UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE);
+                    .setDynamicRange(DEFAULT_DYNAMIC_RANGE);
 
             DEFAULT_CONFIG = builder.getUseCaseConfig();
-        }
-
-        @NonNull
-        private static Function<VideoEncoderConfig, VideoEncoderInfo> createFinder() {
-            return encoderConfig -> {
-                try {
-                    return VideoEncoderInfoImpl.from(encoderConfig);
-                } catch (InvalidConfigException e) {
-                    Logger.w(TAG, "Unable to find VideoEncoderInfo", e);
-                    return null;
-                }
-            };
         }
 
         @NonNull
@@ -1426,6 +1411,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                                 + oldConfigClass);
             }
 
+            setCaptureType(UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE);
             setTargetClass((Class<VideoCapture<T>>) (Type) VideoCapture.class);
         }
 

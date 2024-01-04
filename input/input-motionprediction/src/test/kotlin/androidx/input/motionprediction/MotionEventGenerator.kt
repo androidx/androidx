@@ -19,24 +19,45 @@ package androidx.input.motionprediction
 import android.view.MotionEvent
 import androidx.test.core.view.MotionEventBuilder
 
-class MotionEventGenerator(val xGenerator: (Long) -> Float, val yGenerator: (Long) -> Float) {
+class MotionEventGenerator(
+    val firstXGenerator: (Long) -> Float,
+    val firstYGenerator: (Long) -> Float,
+    val secondXGenerator: ((Long) -> Float)?,
+    val secondYGenerator: ((Long) -> Float)?
+) {
+
+    constructor(
+        firstXGenerator: (Long) -> Float,
+        firstYGenerator: (Long) -> Float
+    ) : this(firstXGenerator, firstYGenerator, null, null)
+
     private val downEventTime: Long = 0
     private var currentEventTime: Long = downEventTime
-    private val startX = 500f
-    private val startY = 500f
+    private val firstStartX = 500f
+    private val firstStartY = 500f
+    private val secondStartX = 500f
+    private val secondStartY = 500f
     private var sentDown = false
+    private var sentSecondDown = false
 
     fun next(): MotionEvent {
         val motionEventBuilder = MotionEventBuilder.newBuilder()
             .setEventTime(currentEventTime)
             .setDownTime(downEventTime)
-            .setActionIndex(0)
 
-        if (sentDown) {
-            motionEventBuilder.setAction(MotionEvent.ACTION_MOVE)
-        } else {
+        if (!sentDown) {
             motionEventBuilder.setAction(MotionEvent.ACTION_DOWN)
+            motionEventBuilder.setActionIndex(0)
             sentDown = true
+            if (secondXGenerator == null || secondYGenerator == null) {
+                sentSecondDown = true
+            }
+        } else if (!sentSecondDown) {
+            motionEventBuilder.setAction(MotionEvent.ACTION_POINTER_DOWN)
+            motionEventBuilder.setActionIndex(1)
+            sentSecondDown = true
+        } else {
+            motionEventBuilder.setAction(MotionEvent.ACTION_MOVE)
         }
 
         val pointerProperties = MotionEvent.PointerProperties()
@@ -44,13 +65,28 @@ class MotionEventGenerator(val xGenerator: (Long) -> Float, val yGenerator: (Lon
         pointerProperties.toolType = MotionEvent.TOOL_TYPE_STYLUS
 
         val coords = MotionEvent.PointerCoords()
-        coords.x = startX + xGenerator(currentEventTime - downEventTime)
-        coords.y = startY + yGenerator(currentEventTime - downEventTime)
+        coords.x = firstStartX + firstXGenerator(currentEventTime - downEventTime)
+        coords.y = firstStartY + firstYGenerator(currentEventTime - downEventTime)
         coords.pressure = 1f
 
         motionEventBuilder.setPointer(pointerProperties, coords)
 
-        currentEventTime += MOTIONEVENT_RATE_MS
+        if (sentDown && secondXGenerator != null && secondYGenerator != null) {
+            val secondPointerProperties = MotionEvent.PointerProperties()
+            secondPointerProperties.id = 1
+            secondPointerProperties.toolType = MotionEvent.TOOL_TYPE_STYLUS
+
+            val secondCoords = MotionEvent.PointerCoords()
+            secondCoords.x = firstStartX + secondXGenerator.invoke(currentEventTime - downEventTime)
+            secondCoords.y = firstStartY + secondYGenerator.invoke(currentEventTime - downEventTime)
+            secondCoords.pressure = 1f
+
+            motionEventBuilder.setPointer(secondPointerProperties, secondCoords)
+        }
+
+        if (sentDown && sentSecondDown) {
+            currentEventTime += MOTIONEVENT_RATE_MS
+        }
         return motionEventBuilder.build()
     }
 

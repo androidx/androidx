@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="cli" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
         id="NewApi"
-        message="Call requires API level 23 (current min is 14): `android.database.AbstractCursor#setExtras`"
+        message="Call requires API level 23 (current min is 19): `android.database.AbstractCursor#setExtras`"
         errorLine1="        c.setExtras(extras);"
         errorLine2="          ~~~~~~~~~">
         <location
@@ -12,16 +12,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 15 (current min is 14): `new android.database.CursorWindow`"
-        errorLine1="            setWindow(new CursorWindow(&quot;stevie&quot;));"
-        errorLine2="                      ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/contentpager/content/TestContentProvider.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 23 (current min is 14): `android.database.AbstractCursor#setExtras`"
+        message="Call requires API level 23 (current min is 19): `android.database.AbstractCursor#setExtras`"
         errorLine1="        cursor.setExtras(extras);"
         errorLine2="               ~~~~~~~~~">
         <location
@@ -47,28 +38,19 @@
     </issue>
 
     <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.contentpager.content.Query is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return resolver.query("
-        errorLine2="                            ~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/contentpager/content/Query.java"/>
     </issue>
 
     <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.contentpager.content.Query is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            if (mCancellationSignal != null &amp;&amp; !mCancellationSignal.isCanceled()) {"
-        errorLine2="                                                                    ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/contentpager/content/Query.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.contentpager.content.Query is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mCancellationSignal.cancel();"
-        errorLine2="                                    ~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/contentpager/content/Query.java"/>
     </issue>

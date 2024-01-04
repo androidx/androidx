@@ -29,6 +29,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallsManager
+import androidx.core.telecom.extensions.voip.VoipExtensionManager
 import androidx.core.telecom.internal.utils.Utils
 import java.util.UUID
 import kotlin.coroutines.CoroutineContext
@@ -48,7 +49,8 @@ internal class JetpackConnectionService : ConnectionService() {
         val onDisconnect: suspend (disconnectCause: DisconnectCause) -> Unit,
         val onSetActive: suspend () -> Unit,
         val onSetInactive: suspend () -> Unit,
-        val execution: CompletableDeferred<Unit>
+        val execution: CompletableDeferred<Unit>,
+        val voipExtensionManager: VoipExtensionManager
     )
 
     companion object {
@@ -154,7 +156,8 @@ internal class JetpackConnectionService : ConnectionService() {
             targetRequest.onDisconnect,
             targetRequest.onSetActive,
             targetRequest.onSetInactive,
-            targetRequest.execution
+            targetRequest.execution,
+            targetRequest.voipExtensionManager
         )
 
         // set display name

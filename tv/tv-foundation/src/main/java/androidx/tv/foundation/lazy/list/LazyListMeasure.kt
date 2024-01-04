@@ -65,7 +65,6 @@ internal fun measureLazyList(
     hasLookaheadPassOccurred: Boolean,
     isLookingAhead: Boolean,
     postLookaheadLayoutInfo: TvLazyListLayoutInfo?,
-    @Suppress("PrimitiveInLambda")
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
 ): LazyListMeasureResult {
     require(beforeContentPadding >= 0) { "invalid beforeContentPadding" }

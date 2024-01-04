@@ -16,7 +16,8 @@
 
 package androidx.compose.compiler.plugins.kotlin
 
-import androidx.compose.compiler.plugins.kotlin.analysis.stabilityOf
+import androidx.compose.compiler.plugins.kotlin.analysis.FqNameMatcher
+import androidx.compose.compiler.plugins.kotlin.analysis.StabilityInferencer
 import androidx.compose.compiler.plugins.kotlin.facade.SourceFile
 import org.intellij.lang.annotations.Language
 import org.jetbrains.kotlin.ir.declarations.IrClass
@@ -53,6 +54,50 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
     fun testSingleValTypeParamIsStableIfParamIs() = assertStability(
         "class Foo<T>(val value: T)",
         "Parameter(T)"
+    )
+
+    @Test
+    fun testValTypeParam33Types() = assertStability(
+        """
+            class Foo<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33>(
+                val t1: T1,
+                val t2: T2,
+                val t3: T3,
+                val t4: T4,
+                val t5: T5,
+                val t6: T6,
+                val t7: T7,
+                val t8: T8,
+                val t9: T9,
+                val t10: T10,
+                val t11: T11,
+                val t12: T12,
+                val t13: T13,
+                val t14: T14,
+                val t15: T15,
+                val t16: T16,
+                val t17: T17,
+                val t18: T18,
+                val t19: T19,
+                val t20: T20,
+                val t21: T21,
+                val t22: T22,
+                val t23: T23,
+                val t24: T24,
+                val t25: T25,
+                val t26: T26,
+                val t27: T27,
+                val t28: T28,
+                val t29: T29,
+                val t30: T30,
+                val t31: T31,
+                val t32: T32,
+                val t33: T33,
+            )
+        """,
+        """
+            Parameter(T1),Parameter(T2),Parameter(T3),Parameter(T4),Parameter(T5),Parameter(T6),Parameter(T7),Parameter(T8),Parameter(T9),Parameter(T10),Parameter(T11),Parameter(T12),Parameter(T13),Parameter(T14),Parameter(T15),Parameter(T16),Parameter(T17),Parameter(T18),Parameter(T19),Parameter(T20),Parameter(T21),Parameter(T22),Parameter(T23),Parameter(T24),Parameter(T25),Parameter(T26),Parameter(T27),Parameter(T28),Parameter(T29),Parameter(T30),Parameter(T31),Parameter(T32),Parameter(T33)
+        """.trimIndent()
     )
 
     @Test
@@ -568,6 +613,236 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
     )
 
     @Test
+    fun testExternalStableTypesFieldsAreStable() = assertStability(
+        externalSrc = """
+            class A 
+        """,
+        classDefSrc = """
+            class Foo(val a: A)
+        """,
+        stability = "Stable",
+        externalTypes = setOf("dependency.A")
+    )
+
+    @Test
+    fun testClassesExtendingExternalStableInterfacesAreStable() = assertStability(
+        externalSrc = """
+            interface A 
+        """,
+        classDefSrc = """
+            class Foo : A
+        """,
+        stability = "Stable",
+        externalTypes = setOf("dependency.A")
+    )
+
+    @Test
+    fun testExternalWildcardTypesAreStable() = assertStability(
+        externalSrc = """
+            class A
+        """,
+        classDefSrc = """
+            class Foo(val a: A)
+        """,
+        stability = "Stable",
+        externalTypes = setOf("dependency.*")
+    )
+
+    @Test
+    fun testExternalOnlySingleWildcardTypesAreStable() = assertStability(
+        externalSrc = """
+            class A
+
+            class B {
+                class C
+            }
+        """,
+        classDefSrc = """
+            class Foo(val a: A, val b: B, val c: B.C)
+        """,
+        stability = "Runtime(B)",
+        externalTypes = setOf("dependency.A", "dependency.B.*")
+    )
+
+    @Test
+    fun testExternalDoubleWildcardTypesAreStable() = assertStability(
+        externalSrc = """
+            class A {
+                class B {
+                    class C
+                }
+            }
+        """,
+        classDefSrc = """
+            class Foo(val a: A, val b: A.B, val c: A.B.C)
+        """,
+        stability = "Stable",
+        externalTypes = setOf("dependency.**")
+    )
+
+    @Test
+    fun testExternalDoubleWildcardInMiddleTypesAreStable() = assertStability(
+        externalSrc = """
+            class A {
+                class B {
+                    class C
+                }
+            }
+        """,
+        classDefSrc = """
+            class Foo(val a: A, val b: A.B, val c: A.B.C)
+        """,
+        stability = "Runtime(A),Runtime(B)",
+        externalTypes = setOf("dependency.**.C")
+    )
+
+    @Test
+    fun testExternalDoubleWildcardWithPrefixInMiddleTypesAreStable() = assertStability(
+        externalSrc = """
+            class A {
+                class Ba {
+                    class C
+                }
+                class Bb {
+                    class C
+                }
+            }
+        """,
+        classDefSrc = """
+            class Foo(val a: A, val ba: A.Ba, val bb: A.Bb, val ca: A.Ba.C, val cb: A.Bb.C)
+        """,
+        stability = "Runtime(A)",
+        externalTypes = setOf("dependency.A.B**")
+    )
+
+    @Test
+    fun testExternalMixedWildcardsTypesAreStable() = assertStability(
+        externalSrc = """
+            class A {
+                class B {
+                    class C
+                }
+            }
+        """,
+        classDefSrc = """
+            class Foo(val a: A, val b: A.B, val c: A.B.C)
+        """,
+        stability = "Runtime(A)",
+        externalTypes = setOf("dependency.**.*")
+    )
+
+    @Test
+    fun testExternalMultiWildcardFirstTypesAreStable() = assertStability(
+        externalSrc = """
+            class A {
+                class B {
+                    class C
+                }
+            }
+        """,
+        classDefSrc = """
+            class Foo(val a: A, val b: A.B, val c: A.B.C)
+        """,
+        stability = "Stable",
+        externalTypes = setOf("**")
+    )
+
+    @Test
+    fun testExternalWildcardFirstTypesAreStable() = assertStability(
+        externalSrc = """
+            class A
+        """,
+        classDefSrc = """
+            class Foo(val a: A)
+        """,
+        stability = "Stable",
+        externalTypes = setOf("*.A")
+    )
+
+    @Test
+    fun testExternalMultipleSingleWildcardsTypesAreStable() = assertStability(
+        externalSrc = """
+            class A {
+                class B {
+                    class C
+                }
+                class D {
+                    class E
+                }
+            }
+        """,
+        classDefSrc = """
+            class Foo(val c: A.B.C, val e: A.D.E)
+        """,
+        stability = "Stable",
+        externalTypes = setOf("dependency.*.B.*", "dependency.A.D.E")
+    )
+
+    @Test
+    fun testExternalGenericTypesAreParameterDependent() = assertStability(
+        externalSrc = """
+            class Foo<T>(val x: T)
+        """,
+        classDefSrc = """
+            class Test<T>(val foo: Foo<T>)
+        """,
+        stability = "Parameter(T)",
+        externalTypes = setOf("dependency.Foo")
+    )
+
+    @Test
+    fun testExternalGenericTypesAreCanIgnoreParameters() = assertStability(
+        externalSrc = """
+            class Foo<X, Y>(val x: X, val y: Y)
+        """,
+        classDefSrc = """
+            class Test<X, Y>(val foo: Foo<X, Y>)
+        """,
+        stability = "Parameter(X)",
+        externalTypes = setOf("dependency.Foo<*,_>")
+    )
+
+    @Test
+    fun testExternalGenericTypesAreCanBeRuntimeStable() = assertStability(
+        externalSrc = """
+            class A
+            class B
+            class Foo<X, Y>(val x: X, val y: Y)
+        """,
+        classDefSrc = """
+            class Test(val foo: Foo<A, B>)
+        """,
+        stability = "Runtime(B)",
+        externalTypes = setOf("dependency.Foo<_,*>")
+    )
+
+    @Test
+    fun testExternalGenericDefinedTypesAreStable() = assertStability(
+        externalSrc = """
+            class A
+            class Foo<T>(val x: T)
+        """,
+        classDefSrc = """
+            class Test(val foo: Foo<A>)
+        """,
+        stability = "Stable",
+        externalTypes = setOf("dependency.Foo", "dependency.A")
+    )
+
+    @Test
+    fun testExternalDeepPackageNameIsStable() = assertStability(
+        externalSrc = """
+            class A
+        """,
+        classDefSrc = """
+            class Test(val foo: A)
+        """,
+        stability = "Stable",
+        externalTypes = setOf("dependency.b.c.d.A"),
+        packageName = "dependency.b.c.d"
+    )
+
+    @Test
     fun testListOfCallWithPrimitiveTypeIsStable() = assertStability(
         "",
         "",
@@ -817,12 +1092,6 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
     fun testEmptyClass() = assertTransform(
         """
             class Foo
-        """,
-        """
-            @StabilityInferred(parameters = 0)
-            class Foo {
-              static val %stable: Int = 0
-            }
         """
     )
 
@@ -871,103 +1140,11 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
             class UnstableDelegateProp {
                 var p1 by UnstableDelegate()
             }
-        """,
-        """
-            @Stable
-            class StableDelegate {
-              fun setValue(thisObj: Any?, property: KProperty<*>, value: Int) { }
-              fun getValue(thisObj: Any?, property: KProperty<*>): Int {
-                return 10
-              }
-              static val %stable: Int = 0
-            }
-            @StabilityInferred(parameters = 0)
-            class UnstableDelegate {
-              var value: Int = 0
-              fun setValue(thisObj: Any?, property: KProperty<*>, value: Int) {
-                value = value
-              }
-              fun getValue(thisObj: Any?, property: KProperty<*>): Int {
-                return 10
-              }
-              static val %stable: Int = 8
-            }
-            @StabilityInferred(parameters = 0)
-            class Unstable {
-              var value: Int = 0
-              static val %stable: Int = 8
-            }
-            @StabilityInferred(parameters = 0)
-            class EmptyClass {
-              static val %stable: Int = 0
-            }
-            @StabilityInferred(parameters = 0)
-            class SingleStableVal(val p1: Int) {
-              static val %stable: Int = 0
-            }
-            @StabilityInferred(parameters = 1)
-            class SingleParamProp<T> (val p1: T) {
-              static val %stable: Int = 0
-            }
-            @StabilityInferred(parameters = 0)
-            class SingleParamNonProp<T> (p1: T) {
-              val p2: Int = p1.hashCode()
-              static val %stable: Int = 0
-            }
-            @StabilityInferred(parameters = 1)
-            class DoubleParamSingleProp<T, V> (val p1: T, p2: V) {
-              val p3: Int = p2.hashCode()
-              static val %stable: Int = 0
-            }
-            @StabilityInferred(parameters = 0)
-            class X<T> (val p1: List<T>) {
-              static val %stable: Int = 8
-            }
-            @StabilityInferred(parameters = 0)
-            class NonBackingFieldUnstableProp {
-              val p1: Unstable
-                get() {
-                  TODO()
-                }
-              static val %stable: Int = 0
-            }
-            @StabilityInferred(parameters = 0)
-            class NonBackingFieldUnstableVarProp {
-              var p1: Unstable
-                get() {
-                  TODO()
-                }
-                set(value) {
-                }
-              static val %stable: Int = 0
-            }
-            @StabilityInferred(parameters = 0)
-            class StableDelegateProp {
-              var p1: StableDelegate = StableDelegate()
-                get() {
-                  return <this>.p1%delegate.getValue(<this>, ::p1)
-                }
-                set(value) {
-                  <this>.p1%delegate.setValue(<this>, ::p1, <set-?>)
-                }
-              static val %stable: Int = 0
-            }
-            @StabilityInferred(parameters = 0)
-            class UnstableDelegateProp {
-              var p1: UnstableDelegate = UnstableDelegate()
-                get() {
-                  return <this>.p1%delegate.getValue(<this>, ::p1)
-                }
-                set(value) {
-                  <this>.p1%delegate.setValue(<this>, ::p1, <set-?>)
-                }
-              static val %stable: Int = 8
-            }
         """
     )
 
     @Test
-    fun testStabilityPropagationOfVariousTypes() = verifyCrossModuleComposeIrTransform(
+    fun testStabilityPropagationOfVariousTypes() = verifyGoldenCrossModuleComposeIrTransform(
         """
             package a
             import androidx.compose.runtime.Stable
@@ -1044,58 +1221,191 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
                 A(StableDelegateProp())
                 A(UnstableDelegateProp())
             }
+        """
+    )
+
+    @Test
+    fun testStabilityPropagationTooManyTypeParams() = verifyGoldenCrossModuleComposeIrTransform(
+        """
+            package a
+
+            class Foo<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33>(
+                val t1: T1,
+                val t2: T2,
+                val t3: T3,
+                val t4: T4,
+                val t5: T5,
+                val t6: T6,
+                val t7: T7,
+                val t8: T8,
+                val t9: T9,
+                val t10: T10,
+                val t11: T11,
+                val t12: T12,
+                val t13: T13,
+                val t14: T14,
+                val t15: T15,
+                val t16: T16,
+                val t17: T17,
+                val t18: T18,
+                val t19: T19,
+                val t20: T20,
+                val t21: T21,
+                val t22: T22,
+                val t23: T23,
+                val t24: T24,
+                val t25: T25,
+                val t26: T26,
+                val t27: T27,
+                val t28: T28,
+                val t29: T29,
+                val t30: T30,
+                val t31: T31,
+                val t32: T32,
+                val t33: T33,
+            )
+            fun used(any: Any? = null) {}
         """,
         """
-            @Composable
-            fun A(y: Any?, %composer: Composer?, %changed: Int, %default: Int) {
-              %composer = %composer.startRestartGroup(<>)
-              sourceInformation(%composer, "C(A)<A()>,<A(Empt...>,<A(Sing...>,<A(Sing...>,<A(Sing...>,<A(Sing...>,<A(Sing...>,<A(Sing...>,<A(Doub...>,<A(Doub...>,<A(Doub...>,<A(Doub...>,<A(X(li...>,<A(X(li...>,<A(NonB...>,<A(NonB...>,<A(Stab...>,<A(Unst...>:Test.kt")
-              val %dirty = %changed
-              if (%default and 0b0001 !== 0) {
-                %dirty = %dirty or 0b0010
-              }
-              if (%default and 0b0001 !== 0b0001 || %dirty and 0b1011 !== 0b0010 || !%composer.skipping) {
-                if (%default and 0b0001 !== 0) {
-                  y = null
-                }
-                if (isTraceInProgress()) {
-                  traceEventStart(<>, %dirty, -1, <>)
-                }
+            import a.*
+            import androidx.compose.runtime.Composable
+
+            @Composable fun A(y: Any? = null) {
                 used(y)
-                A(null, %composer, 0, 0b0001)
-                A(EmptyClass(), %composer, EmptyClass.%stable, 0)
-                A(SingleStableValInt(123), %composer, SingleStableValInt.%stable, 0)
-                A(SingleStableVal(StableClass()), %composer, SingleStableVal.%stable, 0)
-                A(SingleParamProp(StableClass()), %composer, SingleParamProp.%stable or StableClass.%stable, 0)
-                A(SingleParamProp(UnstableClass()), %composer, SingleParamProp.%stable or UnstableClass.%stable, 0)
-                A(SingleParamNonProp(StableClass()), %composer, SingleParamNonProp.%stable, 0)
-                A(SingleParamNonProp(UnstableClass()), %composer, SingleParamNonProp.%stable, 0)
-                A(DoubleParamSingleProp(StableClass(), StableClass()), %composer, DoubleParamSingleProp.%stable or StableClass.%stable, 0)
-                A(DoubleParamSingleProp(UnstableClass(), StableClass()), %composer, DoubleParamSingleProp.%stable or UnstableClass.%stable, 0)
-                A(DoubleParamSingleProp(StableClass(), UnstableClass()), %composer, DoubleParamSingleProp.%stable or StableClass.%stable, 0)
-                A(DoubleParamSingleProp(UnstableClass(), UnstableClass()), %composer, DoubleParamSingleProp.%stable or UnstableClass.%stable, 0)
-                A(X(listOf(StableClass())), %composer, X.%stable, 0)
-                A(X(listOf(StableClass())), %composer, X.%stable, 0)
-                A(NonBackingFieldUnstableVal(), %composer, NonBackingFieldUnstableVal.%stable, 0)
-                A(NonBackingFieldUnstableVar(), %composer, NonBackingFieldUnstableVar.%stable, 0)
-                A(StableDelegateProp(), %composer, StableDelegateProp.%stable, 0)
-                A(UnstableDelegateProp(), %composer, UnstableDelegateProp.%stable, 0)
-                if (isTraceInProgress()) {
-                  traceEventEnd()
-                }
-              } else {
-                %composer.skipToGroupEnd()
-              }
-              %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
-                A(y, %composer, updateChangedFlags(%changed or 0b0001), %default)
-              }
+
+                A(
+                    Foo(
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                    )
+                )
             }
         """
     )
 
     @Test
-    fun testStabilityPropagationOfVariousTypesInSameModule() = verifyCrossModuleComposeIrTransform(
+    fun testStabilityPropagationTooManyTypeParamsSameModule() = verifyGoldenComposeIrTransform(
         """
+            package a
+
+            import androidx.compose.runtime.Composable
+
+            class Foo<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33>(
+                val t1: T1,
+                val t2: T2,
+                val t3: T3,
+                val t4: T4,
+                val t5: T5,
+                val t6: T6,
+                val t7: T7,
+                val t8: T8,
+                val t9: T9,
+                val t10: T10,
+                val t11: T11,
+                val t12: T12,
+                val t13: T13,
+                val t14: T14,
+                val t15: T15,
+                val t16: T16,
+                val t17: T17,
+                val t18: T18,
+                val t19: T19,
+                val t20: T20,
+                val t21: T21,
+                val t22: T22,
+                val t23: T23,
+                val t24: T24,
+                val t25: T25,
+                val t26: T26,
+                val t27: T27,
+                val t28: T28,
+                val t29: T29,
+                val t30: T30,
+                val t31: T31,
+                val t32: T32,
+                val t33: T33,
+            )
+            fun used(any: Any? = null) {}
+
+            @Composable fun A(y: Any? = null) {
+                used(y)
+
+                A(
+                    Foo(
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                    )
+                )
+            }
+        """
+    )
+
+    @Test
+    fun testStabilityPropagationOfVariousTypesInSameModule() =
+        verifyGoldenCrossModuleComposeIrTransform(
+            """
             package a
             import androidx.compose.runtime.Stable
             import kotlin.reflect.KProperty
@@ -1139,7 +1449,7 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
             }
             fun used(x: Any?) {}
         """,
-        """
+            """
             import a.*
             import androidx.compose.runtime.Composable
 
@@ -1156,57 +1466,11 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
                 A(StableDelegateProp())
                 A(UnstableDelegateProp())
             }
-        """,
         """
-            @StabilityInferred(parameters = 0)
-            class X<T> (val p1: List<T>) {
-              static val %stable: Int = 8
-            }
-            @StabilityInferred(parameters = 0)
-            class StableDelegateProp {
-              var p1: StableDelegate = StableDelegate()
-                get() {
-                  return <this>.p1%delegate.getValue(<this>, ::p1)
-                }
-                set(value) {
-                  <this>.p1%delegate.setValue(<this>, ::p1, <set-?>)
-                }
-              static val %stable: Int = 0
-            }
-            @StabilityInferred(parameters = 0)
-            class UnstableDelegateProp {
-              var p1: UnstableDelegate = UnstableDelegate()
-                get() {
-                  return <this>.p1%delegate.getValue(<this>, ::p1)
-                }
-                set(value) {
-                  <this>.p1%delegate.setValue(<this>, ::p1, <set-?>)
-                }
-              static val %stable: Int = UnstableDelegate.%stable
-            }
-            @Composable
-            fun A(y: Any, %composer: Composer?, %changed: Int) {
-              %composer = %composer.startRestartGroup(<>)
-              sourceInformation(%composer, "C(A)<A(X(li...>,<A(Stab...>,<A(Unst...>:Test.kt")
-              if (isTraceInProgress()) {
-                traceEventStart(<>, %changed, -1, <>)
-              }
-              used(y)
-              A(X(listOf(StableClass())), %composer, 0b1000)
-              A(StableDelegateProp(), %composer, 0)
-              A(UnstableDelegateProp(), %composer, UnstableDelegate.%stable)
-              if (isTraceInProgress()) {
-                traceEventEnd()
-              }
-              %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
-                A(y, %composer, updateChangedFlags(%changed or 0b0001))
-              }
-            }
-        """
-    )
+        )
 
     @Test
-    fun testEmptyClassAcrossModules() = verifyCrossModuleComposeIrTransform(
+    fun testEmptyClassAcrossModules() = verifyGoldenCrossModuleComposeIrTransform(
         """
             package a
             class Wrapper<T>(value: T) {
@@ -1223,36 +1487,19 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
                 used(y)
                 A(Wrapper(Foo()))
             }
-        """,
-        """
-            @Composable
-            fun A(y: Any, %composer: Composer?, %changed: Int) {
-              %composer = %composer.startRestartGroup(<>)
-              sourceInformation(%composer, "C(A)<A(Wrap...>:Test.kt")
-              if (isTraceInProgress()) {
-                traceEventStart(<>, %changed, -1, <>)
-              }
-              used(y)
-              A(Wrapper(Foo()), %composer, Wrapper.%stable)
-              if (isTraceInProgress()) {
-                traceEventEnd()
-              }
-              %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
-                A(y, %composer, updateChangedFlags(%changed or 0b0001))
-              }
-            }
         """
     )
 
     @Test
-    fun testLocalParameterBasedTypeParameterSubstitution() = verifyCrossModuleComposeIrTransform(
-        """
+    fun testLocalParameterBasedTypeParameterSubstitution() =
+        verifyGoldenCrossModuleComposeIrTransform(
+            """
             package a
             import androidx.compose.runtime.Composable
             class Wrapper<T>(val value: T)
             @Composable fun A(y: Any) {}
         """,
-        """
+            """
             import a.*
             import androidx.compose.runtime.Composable
 
@@ -1268,88 +1515,6 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
                     A(Wrapper(item))
                 }
             }
-        """,
-        """
-            @Composable
-            fun <V> B(value: V, %composer: Composer?, %changed: Int) {
-              %composer = %composer.startRestartGroup(<>)
-              sourceInformation(%composer, "C(B)<A(Wrap...>:Test.kt")
-              val %dirty = %changed
-              if (%changed and 0b1110 === 0) {
-                %dirty = %dirty or if (%composer.changed(value)) 0b0100 else 0b0010
-              }
-              if (%dirty and 0b1011 !== 0b0010 || !%composer.skipping) {
-                if (isTraceInProgress()) {
-                  traceEventStart(<>, %dirty, -1, <>)
-                }
-                A(Wrapper(value), %composer, Wrapper.%stable or 0b1000 and %dirty)
-                if (isTraceInProgress()) {
-                  traceEventEnd()
-                }
-              } else {
-                %composer.skipToGroupEnd()
-              }
-              %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
-                B(value, %composer, updateChangedFlags(%changed or 0b0001))
-              }
-            }
-            @Composable
-            @ComposableInferredTarget(scheme = "[0[0]]")
-            fun <T> X(items: List<T>, itemContent: Function3<T, Composer, Int, Unit>, %composer: Composer?, %changed: Int) {
-              %composer = %composer.startRestartGroup(<>)
-              sourceInformation(%composer, "C(X)P(1)*<itemCo...>:Test.kt")
-              val %dirty = %changed
-              if (isTraceInProgress()) {
-                traceEventStart(<>, %dirty, -1, <>)
-              }
-              val <iterator> = items.iterator()
-              while (<iterator>.hasNext()) {
-                val item = <iterator>.next()
-                itemContent(item, %composer, 0b01110000 and %dirty)
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
-              }
-              %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
-                X(items, itemContent, %composer, updateChangedFlags(%changed or 0b0001))
-              }
-            }
-            @Composable
-            fun C(items: List<String>, %composer: Composer?, %changed: Int) {
-              %composer = %composer.startRestartGroup(<>)
-              sourceInformation(%composer, "C(C)<X(item...>:Test.kt")
-              if (isTraceInProgress()) {
-                traceEventStart(<>, %changed, -1, <>)
-              }
-              X(items, ComposableSingletons%TestKt.lambda-1, %composer, 0b00111000)
-              if (isTraceInProgress()) {
-                traceEventEnd()
-              }
-              %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
-                C(items, %composer, updateChangedFlags(%changed or 0b0001))
-              }
-            }
-            internal object ComposableSingletons%TestKt {
-              val lambda-1: Function3<String, Composer, Int, Unit> = composableLambdaInstance(<>, false) { item: String, %composer: Composer?, %changed: Int ->
-                sourceInformation(%composer, "C<A(item...>,<A(Wrap...>:Test.kt")
-                val %dirty = %changed
-                if (%changed and 0b1110 === 0) {
-                  %dirty = %dirty or if (%composer.changed(item)) 0b0100 else 0b0010
-                }
-                if (%dirty and 0b01011011 !== 0b00010010 || !%composer.skipping) {
-                  if (isTraceInProgress()) {
-                    traceEventStart(<>, %dirty, -1, <>)
-                  }
-                  A(item, %composer, 0b1110 and %dirty)
-                  A(Wrapper(item), %composer, Wrapper.%stable or 0)
-                  if (isTraceInProgress()) {
-                    traceEventEnd()
-                  }
-                } else {
-                  %composer.skipToGroupEnd()
-                }
-              }
-            }
         """
     )
 
@@ -1358,16 +1523,6 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
         """
             class Stable(val bar: Int)
             class Unstable(var bar: Int)
-        """,
-        """
-            @StabilityInferred(parameters = 0)
-            class Stable(val bar: Int) {
-              static val %stable: Int = 0
-            }
-            @StabilityInferred(parameters = 0)
-            class Unstable(var bar: Int) {
-              static val %stable: Int = 8
-            }
         """
     )
 
@@ -1383,43 +1538,6 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
             }
             @Composable fun B(x: Any) {
                 used(x)
-            }
-        """,
-        """
-            @StabilityInferred(parameters = 0)
-            class Foo {
-              static val %stable: Int = 0
-            }
-            @Composable
-            fun A(y: Int, x: Any, %composer: Composer?, %changed: Int) {
-              %composer = %composer.startRestartGroup(<>)
-              sourceInformation(%composer, "C(A)P(1)<B(x)>:Test.kt")
-              if (isTraceInProgress()) {
-                traceEventStart(<>, %changed, -1, <>)
-              }
-              used(y)
-              B(x, %composer, 0b1000)
-              if (isTraceInProgress()) {
-                traceEventEnd()
-              }
-              %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
-                A(y, x, %composer, updateChangedFlags(%changed or 0b0001))
-              }
-            }
-            @Composable
-            fun B(x: Any, %composer: Composer?, %changed: Int) {
-              %composer = %composer.startRestartGroup(<>)
-              sourceInformation(%composer, "C(B):Test.kt")
-              if (isTraceInProgress()) {
-                traceEventStart(<>, %changed, -1, <>)
-              }
-              used(x)
-              if (isTraceInProgress()) {
-                traceEventEnd()
-              }
-              %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
-                B(x, %composer, updateChangedFlags(%changed or 0b0001))
-              }
             }
         """
     )
@@ -1437,50 +1555,25 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
             @Composable fun B(x: Any) {
                 used(x)
             }
-        """,
-        """
-            @StabilityInferred(parameters = 0)
-            class Foo(var bar: Int = 0) {
-              static val %stable: Int = 8
-            }
-            @Composable
-            fun A(y: Int, x: Foo, %composer: Composer?, %changed: Int) {
-              %composer = %composer.startRestartGroup(<>)
-              sourceInformation(%composer, "C(A)P(1)<B(x)>:Test.kt")
-              if (isTraceInProgress()) {
-                traceEventStart(<>, %changed, -1, <>)
-              }
-              used(y)
-              B(x, %composer, 0b1000)
-              if (isTraceInProgress()) {
-                traceEventEnd()
-              }
-              %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
-                A(y, x, %composer, updateChangedFlags(%changed or 0b0001))
-              }
-            }
-            @Composable
-            fun B(x: Any, %composer: Composer?, %changed: Int) {
-              %composer = %composer.startRestartGroup(<>)
-              sourceInformation(%composer, "C(B):Test.kt")
-              if (isTraceInProgress()) {
-                traceEventStart(<>, %changed, -1, <>)
-              }
-              used(x)
-              if (isTraceInProgress()) {
-                traceEventEnd()
-              }
-              %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
-                B(x, %composer, updateChangedFlags(%changed or 0b0001))
-              }
-            }
         """
     )
+
+    @Test
+    fun testTransformInternalClasses() {
+        assertTransform(
+            """
+                internal class SomeFoo(val value: Int)
+                internal class ParameterizedFoo<K>(val value: K)
+                internal class MultipleFoo<K, T>(val value: K, val param: T)
+            """
+        )
+    }
 
     private fun assertStability(
         @Language("kotlin")
         classDefSrc: String,
-        stability: String
+        stability: String,
+        externalTypes: Set<String> = emptySet(),
     ) {
         val source = """
             import androidx.compose.runtime.mutableStateOf
@@ -1499,7 +1592,9 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
         val files = listOf(SourceFile("Test.kt", source))
         val irModule = compileToIr(files)
         val irClass = irModule.files.last().declarations.first() as IrClass
-        val classStability = stabilityOf(irClass.defaultType as IrType)
+        val externalTypeMatchers = externalTypes.map { FqNameMatcher(it) }.toSet()
+        val stabilityInferencer = StabilityInferencer(irModule.descriptor, externalTypeMatchers)
+        val classStability = stabilityInferencer.stabilityOf(irClass.defaultType as IrType)
 
         assertEquals(
             stability,
@@ -1513,11 +1608,16 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
         @Language("kotlin")
         classDefSrc: String,
         stability: String,
-        dumpClasses: Boolean = false
+        dumpClasses: Boolean = false,
+        externalTypes: Set<String> = emptySet(),
+        packageName: String = "dependency"
     ) {
-        val irModule = buildModule(externalSrc, classDefSrc, dumpClasses)
+        val irModule = buildModule(externalSrc, classDefSrc, dumpClasses, packageName)
         val irClass = irModule.files.last().declarations.first() as IrClass
-        val classStability = stabilityOf(irClass.defaultType as IrType)
+        val externalTypeMatchers = externalTypes.map { FqNameMatcher(it) }.toSet()
+        val classStability =
+            StabilityInferencer(irModule.descriptor, externalTypeMatchers)
+                .stabilityOf(irClass.defaultType as IrType)
 
         assertEquals(
             stability,
@@ -1587,7 +1687,8 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
         localSrc: String,
         expression: String,
         stability: String,
-        dumpClasses: Boolean = false
+        dumpClasses: Boolean = false,
+        externalTypes: Set<String> = emptySet()
     ) {
         val irModule = buildModule(
             externalSrc,
@@ -1611,7 +1712,9 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
             is IrExpression -> lastStatement
             else -> error("unexpected statement: $lastStatement")
         }
-        val exprStability = stabilityOf(irExpr)
+        val externalTypeMatchers = externalTypes.map { FqNameMatcher(it) }.toSet()
+        val exprStability =
+            StabilityInferencer(irModule.descriptor, externalTypeMatchers).stabilityOf(irExpr)
 
         assertEquals(
             stability,
@@ -1624,11 +1727,12 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
         externalSrc: String,
         @Language("kotlin")
         localSrc: String,
-        dumpClasses: Boolean = false
+        dumpClasses: Boolean = false,
+        packageName: String = "dependency"
     ): IrModuleFragment {
         val dependencyFileName = "Test_REPLACEME_${uniqueNumber++}"
         val dependencySrc = """
-            package dependency
+            package $packageName
             import androidx.compose.runtime.mutableStateOf
             import androidx.compose.runtime.getValue
             import androidx.compose.runtime.setValue
@@ -1651,7 +1755,7 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
             }
 
         val source = """
-            import dependency.*
+            import $packageName.*
             import androidx.compose.runtime.mutableStateOf
             import androidx.compose.runtime.getValue
             import androidx.compose.runtime.setValue
@@ -1670,12 +1774,10 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
     private fun assertTransform(
         @Language("kotlin")
         checked: String,
-        expectedTransformed: String,
         unchecked: String = "",
         dumpTree: Boolean = false
-    ) = verifyComposeIrTransform(
+    ) = verifyGoldenComposeIrTransform(
         checked,
-        expectedTransformed,
         """
             $unchecked
             fun used(x: Any?) {}

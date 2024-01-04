@@ -379,7 +379,7 @@ private fun M3IconButton(
         GlanceModifier
     else GlanceModifier.background(
         ImageProvider(shape.shape),
-        tint = ColorFilter.tint(backgroundColor)
+        colorFilter = ColorFilter.tint(backgroundColor)
     )
 
     Box(
@@ -427,7 +427,9 @@ private fun M3TextButton(
     Box(
         modifier = modifier
             .padding(start = 16.dp, end = totalHorizontalPadding, top = 10.dp, bottom = 10.dp)
-            .background(ImageProvider(backgroundResource), tint = ColorFilter.tint(backgroundTint))
+            .background(
+                imageProvider = ImageProvider(backgroundResource),
+                colorFilter = ColorFilter.tint(backgroundTint))
             .enabled(enabled)
             .clickable(
                 onClick = onClick,

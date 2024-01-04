@@ -443,7 +443,7 @@ class ExposedDropdownMenuTest {
             ExposedDropdownMenuBox(
                 modifier = Modifier.testTag(EDMBoxTag).align(Alignment.Center),
                 expanded = expanded,
-                onExpandedChange = { onExpandChange(!expanded) }
+                onExpandedChange = onExpandChange,
             ) {
                 TextField(
                     modifier = Modifier.testTag(TFTag)

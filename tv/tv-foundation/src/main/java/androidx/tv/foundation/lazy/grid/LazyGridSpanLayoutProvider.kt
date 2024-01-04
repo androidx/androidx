@@ -16,7 +16,6 @@
 
 package androidx.tv.foundation.lazy.grid
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutIntervalContent
 import androidx.compose.foundation.lazy.layout.MutableIntervalList
@@ -264,7 +263,6 @@ internal class LazyGridIntervalContent(
         apply(content)
     }
 
-    @SuppressLint("PrimitiveInLambda")
     override fun item(
         key: Any?,
         span: (TvLazyGridItemSpanScope.() -> TvGridItemSpan)?,
@@ -283,7 +281,6 @@ internal class LazyGridIntervalContent(
         if (span != null) hasCustomSpans = true
     }
 
-    @SuppressLint("PrimitiveInLambda")
     override fun items(
         count: Int,
         key: ((index: Int) -> Any)?,

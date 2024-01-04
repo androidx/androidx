@@ -62,7 +62,7 @@ internal expect class WeakReference<T : Any>(reference: T) {
 }
 
 @MustBeDocumented
-@Retention(AnnotationRetention.SOURCE)
+@Retention(AnnotationRetention.BINARY)
 @Target(
     AnnotationTarget.FUNCTION,
     AnnotationTarget.CONSTRUCTOR,
@@ -100,11 +100,6 @@ internal expect fun <T> invokeComposableForResult(
     composer: Composer,
     composable: @Composable () -> T
 ): T
-
-@OptIn(ExperimentalComposeApi::class)
-internal expect class SnapshotContextElementImpl(
-    snapshot: Snapshot
-) : SnapshotContextElement
 
 internal expect fun logError(message: String, e: Throwable)
 

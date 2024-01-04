@@ -34,7 +34,7 @@ internal fun distance(x: Float, y: Float) = sqrt(x * x + y * y)
  */
 internal fun directionVector(x: Float, y: Float): Point {
     val d = distance(x, y)
-    require(d > 0f)
+    require(d > 0f) { "Required distance greater than zero" }
     return Point(x / d, y / d)
 }
 
@@ -83,20 +83,27 @@ internal fun findMinimum(
     v0: Float,
     v1: Float,
     tolerance: Float = 1e-3f,
-    f: (Float) -> Float
+    f: FindMinimumFunction
 ): Float {
     var a = v0
     var b = v1
     while (b - a > tolerance) {
         val c1 = (2 * a + b) / 3
         val c2 = (2 * b + a) / 3
-        if (f(c1) < f(c2)) {
+        if (f.invoke(c1) < f.invoke(c2)) {
             b = c2
         } else {
             a = c1
         }
     }
     return (a + b) / 2
+}
+
+/**
+ * A functional interface for computing a Float value when finding the minimum at [findMinimum].
+ */
+internal fun interface FindMinimumFunction {
+    fun invoke(value: Float): Float
 }
 
 internal fun verticesFromNumVerts(

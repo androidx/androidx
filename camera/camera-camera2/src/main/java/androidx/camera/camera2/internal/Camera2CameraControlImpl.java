@@ -48,6 +48,7 @@ import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCapture.ScreenFlashUiControl;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureFailure;
@@ -131,6 +132,9 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     private final Camera2CapturePipeline mCamera2CapturePipeline;
     @GuardedBy("mLock")
     private int mUseCount = 0;
+
+    private ScreenFlashUiControl mScreenFlashUiControl;
+
     // use volatile modifier to make these variables in sync in all threads.
     private volatile boolean mIsTorchOn = false;
     @ImageCapture.FlashMode
@@ -208,9 +212,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         mAutoFlashAEModeDisabler = new AutoFlashAEModeDisabler(cameraQuirks);
         mCamera2CameraControl = new Camera2CameraControl(this, mExecutor);
         mCamera2CapturePipeline = new Camera2CapturePipeline(this, mCameraCharacteristics,
-                cameraQuirks, mExecutor);
-        mExecutor.execute(
-                () -> addCaptureResultListener(mCamera2CameraControl.getCaptureRequestListener()));
+                cameraQuirks, mExecutor, scheduler);
     }
 
     /** Increments the use count of the control. */
@@ -313,6 +315,9 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         mTorchControl.setActive(isActive);
         mExposureControl.setActive(isActive);
         mCamera2CameraControl.setActive(isActive);
+        if (!isActive) {
+            mScreenFlashUiControl = null;
+        }
     }
 
     @ExecutedBy("mExecutor")
@@ -386,6 +391,17 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         // the flash mode is not completed. We need to store the future so that AE precapture can
         // wait for it.
         mFlashModeChangeSessionUpdateFuture = updateSessionConfigAsync();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void setScreenFlashUiControl(@Nullable ScreenFlashUiControl screenFlashUiControl) {
+        mScreenFlashUiControl = screenFlashUiControl;
+    }
+
+    @Nullable
+    public ScreenFlashUiControl getScreenFlashUiControl() {
+        return mScreenFlashUiControl;
     }
 
     @Override
@@ -494,10 +510,6 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     public SessionConfig getSessionConfig() {
         mSessionConfigBuilder.setTemplateType(mTemplate);
         mSessionConfigBuilder.setImplementationOptions(getSessionOptions());
-        Object tag = mCamera2CameraControl.getCamera2ImplConfig().getCaptureRequestTag(null);
-        if (tag instanceof Integer) {
-            mSessionConfigBuilder.addTag(Camera2CameraControl.TAG_KEY, tag);
-        }
         mSessionConfigBuilder.addTag(TAG_SESSION_UPDATE_ID, mCurrentSessionUpdateId);
         return mSessionConfigBuilder.build();
     }
@@ -531,7 +543,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
      * session is updated successfully.
      */
     @NonNull
-    ListenableFuture<Void> updateSessionConfigAsync() {
+    public ListenableFuture<Void> updateSessionConfigAsync() {
         ListenableFuture<Void> future = CallbackToFutureAdapter.getFuture(completer -> {
             mExecutor.execute(() -> {
                 long sessionUpdateId = updateSessionConfigSynchronous();
@@ -649,6 +661,12 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         mZoomControl.addZoomOption(builder);
 
         int aeMode = CaptureRequest.CONTROL_AE_MODE_ON;
+
+        // Flash modes other than screen flash will override this AE mode later
+        if (mFocusMeteringControl.isExternalFlashAeModeEnabled()) {
+            aeMode = CaptureRequest.CONTROL_AE_MODE_ON_EXTERNAL_FLASH;
+        }
+
         if (mIsTorchOn) {
             builder.setCaptureRequestOptionWithPriority(CaptureRequest.FLASH_MODE,
                     CaptureRequest.FLASH_MODE_TORCH, Config.OptionPriority.REQUIRED);

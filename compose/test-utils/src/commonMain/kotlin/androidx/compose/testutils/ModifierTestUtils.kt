@@ -16,12 +16,11 @@
 
 package androidx.compose.testutils
 
-import android.annotation.SuppressLint
 import androidx.compose.ui.Modifier
 
 fun Modifier.toList(): List<Modifier.Element> =
     foldIn(mutableListOf()) { acc, e -> acc.apply { acc.add(e) } }
 
-@SuppressLint("ModifierFactoryReturnType")
+@Suppress("ModifierFactoryReturnType")
 fun Modifier.first(): Modifier.Element =
     toList().first()

@@ -353,8 +353,9 @@ public final class CustomTabsSession {
      *                                       implementation.
      */
     public boolean isEngagementSignalsApiAvailable(@NonNull Bundle extras) throws RemoteException {
+        Bundle extrasWithId = createBundleWithId(extras);
         try {
-            return mService.isEngagementSignalsApiAvailable(mCallback, extras);
+            return mService.isEngagementSignalsApiAvailable(mCallback, extrasWithId);
         } catch (SecurityException e) {
             throw new UnsupportedOperationException("This method isn't supported by the "
                     + "Custom Tabs implementation.", e);
@@ -381,9 +382,11 @@ public final class CustomTabsSession {
             "androidx.browser.customtabs.CustomTabsSession#isEngagementSignalsApiAvailable")
     public boolean setEngagementSignalsCallback(@NonNull EngagementSignalsCallback callback,
             @NonNull Bundle extras) throws RemoteException {
+        Bundle extrasWithId = createBundleWithId(extras);
         IEngagementSignalsCallback wrapper = createEngagementSignalsCallbackWrapper(callback);
         try {
-            return mService.setEngagementSignalsCallback(mCallback, wrapper.asBinder(), extras);
+            return mService.setEngagementSignalsCallback(mCallback, wrapper.asBinder(),
+                    extrasWithId);
         } catch (SecurityException e) {
             throw new UnsupportedOperationException("This method isn't supported by the "
                     + "Custom Tabs implementation.", e);
@@ -431,10 +434,12 @@ public final class CustomTabsSession {
     public boolean setEngagementSignalsCallback(@NonNull Executor executor,
             @NonNull EngagementSignalsCallback callback,
             @NonNull Bundle extras) throws RemoteException {
+        Bundle extrasWithId = createBundleWithId(extras);
         IEngagementSignalsCallback wrapper =
                 createEngagementSignalsCallbackWrapper(callback, executor);
         try {
-            return mService.setEngagementSignalsCallback(mCallback, wrapper.asBinder(), extras);
+            return mService.setEngagementSignalsCallback(mCallback, wrapper.asBinder(),
+                    extrasWithId);
         } catch (SecurityException e) {
             throw new UnsupportedOperationException("This method isn't supported by the "
                     + "Custom Tabs implementation.", e);

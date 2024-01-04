@@ -23,9 +23,10 @@ import androidx.compose.compiler.plugins.kotlin.KtxNameConventions
 import androidx.compose.compiler.plugins.kotlin.ModuleMetrics
 import androidx.compose.compiler.plugins.kotlin.analysis.ComposeWritableSlices
 import androidx.compose.compiler.plugins.kotlin.analysis.Stability
+import androidx.compose.compiler.plugins.kotlin.analysis.StabilityInferencer
+import androidx.compose.compiler.plugins.kotlin.analysis.isUncertain
 import androidx.compose.compiler.plugins.kotlin.analysis.knownStable
 import androidx.compose.compiler.plugins.kotlin.analysis.knownUnstable
-import androidx.compose.compiler.plugins.kotlin.analysis.stabilityOf
 import androidx.compose.compiler.plugins.kotlin.irTrace
 import androidx.compose.compiler.plugins.kotlin.lower.decoys.DecoyFqNames
 import kotlin.math.abs
@@ -379,10 +380,10 @@ interface IrChangedBitMaskVariable : IrChangedBitMaskValue {
  *
  *     @Composable fun A(x: Int, $composer: Composer<*>, $changed: Int) {
  *       var $dirty = $changed
- *       if ($changed and 0b0110 === 0) {
+ *       if ($changed and 0b0110 == 0) {
  *         $dirty = $dirty or if ($composer.changed(x)) 0b0010 else 0b0100
  *       }
- *      if (%dirty and 0b1011 !== 0b1010 || !$composer.skipping) {
+ *      if (%dirty and 0b1011 != 0b1010 || !$composer.skipping) {
  *        f(x)
  *      } else {
  *        $composer.skipToGroupEnd()
@@ -466,10 +467,13 @@ class ComposableFunctionBodyTransformer(
     context: IrPluginContext,
     symbolRemapper: DeepCopySymbolRemapper,
     metrics: ModuleMetrics,
-    sourceInformationEnabled: Boolean,
-    private val intrinsicRememberEnabled: Boolean
+    stabilityInferencer: StabilityInferencer,
+    private val collectSourceInformation: Boolean,
+    private val traceMarkersEnabled: Boolean,
+    private val intrinsicRememberEnabled: Boolean,
+    private val strongSkippingEnabled: Boolean
 ) :
-    AbstractComposeLowering(context, symbolRemapper, metrics),
+    AbstractComposeLowering(context, symbolRemapper, metrics, stabilityInferencer),
     FileLoweringPass,
     ModuleLoweringPass {
 
@@ -653,7 +657,8 @@ class ComposableFunctionBodyTransformer(
         }?.owner
     }
 
-    private val traceEventMarkersEnabled get() = traceEventEndFunction != null
+    private val traceEventMarkersEnabled get() =
+        traceMarkersEnabled && traceEventEndFunction != null
 
     private val sourceInformationMarkerEndFunction by guardedLazy {
         getTopLevelFunction(ComposeCallableIds.sourceInformationMarkerEnd).owner
@@ -718,8 +723,6 @@ class ComposableFunctionBodyTransformer(
     private val currentFunctionScope
         get() = currentScope.functionScope
             ?: error("Expected a FunctionScope but none exist. \n${printScopeStack()}")
-
-    private val collectSourceInformation = sourceInformationEnabled
 
     override fun visitClass(declaration: IrClass): IrStatement {
         if (declaration.isComposableSingletonClass()) {
@@ -982,7 +985,7 @@ class ComposableFunctionBodyTransformer(
         // we start off assuming that we *can* skip execution of the function
         var canSkipExecution = declaration.returnType.isUnit() &&
             !isInlineLambda &&
-            scope.allTrackedParams.none { stabilityOf(it.type).knownUnstable() }
+            scope.allTrackedParams.none { stabilityInferencer.stabilityOf(it.type).knownUnstable() }
 
         // if the function can never skip, or there are no parameters to test, then we
         // don't need to have the dirty parameter locally since it will never be different from
@@ -1219,7 +1222,7 @@ class ComposableFunctionBodyTransformer(
                 declaration.contextReceiverParametersCount + scope.realValueParamCount
             )
             val unstableMask = realParams.map {
-                stabilityOf((it.varargElementType ?: it.type)).knownUnstable()
+                stabilityInferencer.stabilityOf((it.varargElementType ?: it.type)).knownUnstable()
             }.toBooleanArray()
 
             val hasAnyUnstableParams = unstableMask.any { it }
@@ -1424,7 +1427,7 @@ class ComposableFunctionBodyTransformer(
         }
 
         parameters.forEachIndexed { slotIndex, param ->
-            val stability = stabilityOf(param.varargElementType ?: param.type)
+            val stability = stabilityInferencer.stabilityOf(param.varargElementType ?: param.type)
 
             stabilities[slotIndex] = stability
 
@@ -1622,7 +1625,7 @@ class ComposableFunctionBodyTransformer(
                 irIfThenElse(
                     // this prevents us from re-executing the defaults if this function is getting
                     // executed from a recomposition
-                    // if (%changed and 0b0001 === 0 || %composer.defaultsInvalid) {
+                    // if (%changed and 0b0001 == 0 || %composer.defaultsInvalid) {
                     condition = irOrOr(
                         irEqual(changedParam.irLowBit(), irConst(0)),
                         irDefaultsInvalid()
@@ -1983,7 +1986,7 @@ class ComposableFunctionBodyTransformer(
         startGroup: IrExpression,
         scope: Scope.BlockScope
     ): IrExpression {
-        return if (scope.hasSourceInformation) {
+        return if (collectSourceInformation && scope.hasSourceInformation) {
             irBlock(statements = listOf(startGroup, irSourceInformation(scope)))
         } else startGroup
     }
@@ -2739,7 +2742,7 @@ class ComposableFunctionBodyTransformer(
     }
 
     private fun populateParamMeta(arg: IrExpression, meta: ParamMeta) {
-        meta.stability = stabilityOf(arg)
+        meta.stability = stabilityInferencer.stabilityOf(arg)
         when {
             arg.isStatic() -> meta.isStatic = true
             arg is IrGetValue -> {
@@ -2757,7 +2760,7 @@ class ComposableFunctionBodyTransformer(
                 }
             }
             arg is IrVararg -> {
-                meta.stability = stabilityOf(arg.varargElementType)
+                meta.stability = stabilityInferencer.stabilityOf(arg.varargElementType)
             }
         }
     }
@@ -3288,6 +3291,11 @@ class ComposableFunctionBodyTransformer(
                             }
                         }
                         return true
+                    } else {
+                        // If the capture is outside inline lambda, we don't allow meta propagation
+                        if (!inlineLambdaInfo.isInlineLambda(scope.function)) {
+                            return false
+                        }
                     }
                 }
                 else -> {
@@ -3992,10 +4000,19 @@ class ComposableFunctionBodyTransformer(
             init {
                 if (
                     isComposable &&
-                    function.origin == IrDeclarationOrigin.LOCAL_FUNCTION_FOR_LAMBDA
+                    (
+                        // We are interested in any object which has @Composable function body and
+                        // is being able to capture values from outside scope. Technically, that
+                        // means we almost never skip in capture-less objects, but it is still more
+                        // correct /not/ to skip when its dispatcher receiver changes. In most
+                        // cases, we memoize these objects too (e.g fun interface) so the receiver
+                        // should === with the previous instances most of time.
+                        function.origin == IrDeclarationOrigin.LOCAL_FUNCTION_FOR_LAMBDA ||
+                            function.parentClassOrNull?.isLocal == true
+                    )
                 ) {
-                    // in the case of a composable lambda, we want to make sure the dispatch
-                    // receiver is always marked as "used"
+                    // in the case of a composable lambda/anonymous object, we want to make sure
+                    // the dispatch receiver is always marked as "used"
                     usedParams[slotCount - 1] = true
                 }
             }
@@ -4009,7 +4026,7 @@ class ComposableFunctionBodyTransformer(
                 var parent = function.parent
                 while (true) {
                     when (parent) {
-                        is IrPackageFragment -> return parent.fqName.asString()
+                        is IrPackageFragment -> return parent.packageFqName.asString()
                         is IrDeclaration -> parent = parent.parent
                         else -> break
                     }

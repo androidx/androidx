@@ -36,8 +36,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Surface
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -597,7 +597,7 @@ class AnimatedContentTest {
                         topBar = {},
                         floatingActionButton = {}
                     ) {
-                        SecondaryTabRow(selectedTabIndex = 0) {
+                        TabRow(selectedTabIndex = 0) {
                             repeat(15) {
                                 Text(it.toString(), Modifier.width(100.dp))
                             }
@@ -744,7 +744,7 @@ class AnimatedContentTest {
                 targetState = target,
                 transitionSpec = {
                     fadeIn(tween(200)) togetherWith
-                        fadeOut(tween(5)) + ExitTransition.Hold
+                        fadeOut(tween(5)) + ExitTransition.KeepUntilTransitionsFinished
                 }
             ) {
                 if (it) {
@@ -1141,7 +1141,7 @@ class AnimatedContentTest {
                             targetContentEnter = slideIntoContainer(
                                 AnimatedContentTransitionScope.SlideDirection.End
                             ),
-                            initialContentExit = ExitTransition.Hold,
+                            initialContentExit = ExitTransition.KeepUntilTransitionsFinished,
                             targetContentZIndex = 0.0f,
                             sizeTransform = SizeTransform(clip = false)
                         )
@@ -1266,7 +1266,7 @@ class AnimatedContentTest {
             outerTransition.AnimatedContent(
                 transitionSpec = {
                     fadeIn(tween(160)) togetherWith
-                        fadeOut(tween(5)) + ExitTransition.Hold using
+                        fadeOut(tween(5)) + ExitTransition.KeepUntilTransitionsFinished using
                         SizeTransform { _, _ ->
                             tween(300)
                         }

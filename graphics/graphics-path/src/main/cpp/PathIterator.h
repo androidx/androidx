@@ -27,19 +27,28 @@ public:
         Backward // API < 30
     };
 
+    enum class ConicEvaluation : uint8_t {
+        AsConic,
+        AsQuadratics
+    };
+
     PathIterator(
             Point* points,
             Verb* verbs,
             float* conicWeights,
             int count,
-            VerbDirection direction
+            VerbDirection direction,
+            ConicEvaluation conicEvaluation,
+            float tolerance = 0.25f
     ) noexcept
             : mPoints(points),
               mVerbs(verbs),
               mConicWeights(conicWeights),
               mIndex(count),
               mCount(count),
-              mDirection(direction) {
+              mDirection(direction),
+              mConicEvaluation(conicEvaluation),
+              mTolerance(tolerance) {
     }
 
     int rawCount() const noexcept { return mCount; }
@@ -62,7 +71,10 @@ private:
     int mIndex;
     const int mCount;
     const VerbDirection mDirection;
+    const ConicEvaluation mConicEvaluation;
+    const float mTolerance;
     ConicConverter mConverter;
+    int mConicCurrentQuadratic = 0;
 };
 
 #endif //PATH_PATH_ITERATOR_H

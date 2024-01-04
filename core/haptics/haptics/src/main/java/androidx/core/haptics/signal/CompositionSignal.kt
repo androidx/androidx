@@ -22,6 +22,7 @@ import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.core.haptics.VibrationWrapper
+import androidx.core.haptics.device.HapticDeviceProfile
 import androidx.core.haptics.impl.HapticSignalConverter
 import java.util.Objects
 import kotlin.time.Duration
@@ -78,7 +79,7 @@ class CompositionSignal(
         /**
          * Returns a [CompositionSignal.Atom] for a very short light tick effect.
          *
-         * This effect should produce a light crisp sensation stronger than the [lowTick()], and is
+         * This effect should produce a light crisp sensation stronger than the [lowTick], and is
          * also intended to be used repetitively for dynamic feedback.
          *
          * @param amplitudeScale The amplitude scale for the new [PrimitiveAtom]
@@ -116,7 +117,7 @@ class CompositionSignal(
          * Returns a [CompositionSignal.Atom] for a longer effect with increasing strength.
          *
          * This effect simulates slow upward movement against gravity and is longer than the
-         * [quickRise()].
+         * [quickRise].
          *
          * @param amplitudeScale The amplitude scale for the new [PrimitiveAtom]
          */
@@ -210,6 +211,9 @@ class CompositionSignal(
 
     override fun toVibration(): VibrationWrapper? = HapticSignalConverter.toVibration(this)
 
+    override fun isSupportedBy(deviceProfile: HapticDeviceProfile): Boolean =
+        atoms.all { it.isSupportedBy(deviceProfile) }
+
     /**
      * A [CompositionSignal.Atom] is a building block for creating a [CompositionSignal].
      *
@@ -225,6 +229,11 @@ class CompositionSignal(
          * The minimum SDK level where this atom is available in the platform.
          */
         internal abstract fun minSdk(): Int
+
+        /**
+         * Returns true if the device vibrator can play this atom as intended, false otherwise.
+         */
+        internal abstract fun isSupportedBy(deviceProfile: HapticDeviceProfile): Boolean
     }
 
     /**
@@ -419,6 +428,9 @@ class CompositionSignal(
         }
 
         override fun minSdk(): Int = minSdk
+
+        override fun isSupportedBy(deviceProfile: HapticDeviceProfile): Boolean =
+            deviceProfile.compositionProfile.supportedPrimitiveTypes.contains(type)
     }
 
     /**
@@ -455,5 +467,7 @@ class CompositionSignal(
         }
 
         override fun minSdk(): Int = Build.VERSION_CODES.R
+
+        override fun isSupportedBy(deviceProfile: HapticDeviceProfile): Boolean = true
     }
 }

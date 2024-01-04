@@ -24,7 +24,6 @@ import android.util.Xml;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -91,7 +90,6 @@ public class ShortcutXmlParserTest {
             + "</shortcuts>\n";
 
     @Test
-    @SdkSuppress(minSdkVersion = 19)
     public void testParseShortcutIds() throws XmlPullParserException, IOException {
         final XmlPullParser parser = Xml.newPullParser();
         parser.setInput(new ByteArrayInputStream(SHORTCUTS_XML.getBytes(StandardCharsets.UTF_8)),

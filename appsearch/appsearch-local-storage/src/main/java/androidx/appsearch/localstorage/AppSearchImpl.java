@@ -557,8 +557,7 @@ public final class AppSearchImpl implements Closeable {
                             (int) (getOldSchemaEndTimeMillis - getOldSchemaStartTimeMillis));
         }
 
-        int getOldSchemaObserverStartTimeMillis =
-                (int) (SystemClock.elapsedRealtime() - getOldSchemaEndTimeMillis);
+        long getOldSchemaObserverStartTimeMillis = SystemClock.elapsedRealtime();
         // Cache some lookup tables to help us work with the old schema
         Set<AppSearchSchema> oldSchemaTypes = oldSchema.getSchemas();
         Map<String, AppSearchSchema> oldSchemaNameToType = new ArrayMap<>(oldSchemaTypes.size());
@@ -719,7 +718,7 @@ public final class AppSearchImpl implements Closeable {
             boolean forceOverride,
             int version,
             @Nullable SetSchemaStats.Builder setSchemaStatsBuilder) throws AppSearchException {
-        long setRewriteSchemaLatencyMillis = SystemClock.elapsedRealtime();
+        long setRewriteSchemaLatencyStartTimeMillis = SystemClock.elapsedRealtime();
         SchemaProto.Builder existingSchemaBuilder = getSchemaProtoLocked().toBuilder();
 
         SchemaProto.Builder newSchemaBuilder = SchemaProto.newBuilder();
@@ -740,7 +739,7 @@ public final class AppSearchImpl implements Closeable {
         long rewriteSchemaEndTimeMillis = SystemClock.elapsedRealtime();
         if (setSchemaStatsBuilder != null) {
             setSchemaStatsBuilder.setRewriteSchemaLatencyMillis(
-                    (int) (rewriteSchemaEndTimeMillis - setRewriteSchemaLatencyMillis));
+                    (int) (rewriteSchemaEndTimeMillis - setRewriteSchemaLatencyStartTimeMillis));
         }
 
         // Apply schema

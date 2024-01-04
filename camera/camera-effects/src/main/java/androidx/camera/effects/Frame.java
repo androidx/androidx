@@ -16,15 +16,18 @@
 
 package androidx.camera.effects;
 
-import android.graphics.Bitmap;
+import static androidx.camera.effects.internal.Utils.lockCanvas;
+
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraCharacteristics;
 import android.util.Size;
+import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.ImageInfo;
@@ -46,7 +49,10 @@ import com.google.auto.value.AutoValue;
 @AutoValue
 public abstract class Frame {
 
-    private boolean mIsOverlayDirty = false;
+    @NonNull
+    private Surface mOverlaySurface;
+    @Nullable
+    private Canvas mOverlayCanvas;
 
     /**
      * Internal API to create a frame.
@@ -54,13 +60,15 @@ public abstract class Frame {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
     public static Frame of(
-            @NonNull Canvas overlayCanvas,
+            @NonNull Surface overlaySurface,
             long timestampNs,
             @NonNull Size size,
             @NonNull SurfaceRequest.TransformationInfo transformationInfo) {
-        return new AutoValue_Frame(transformationInfo.getSensorToBufferTransform(), size,
+        Frame frame = new AutoValue_Frame(transformationInfo.getSensorToBufferTransform(), size,
                 transformationInfo.getCropRect(), transformationInfo.getRotationDegrees(),
-                transformationInfo.getMirroring(), timestampNs, overlayCanvas);
+                transformationInfo.getMirroring(), timestampNs);
+        frame.mOverlaySurface = overlaySurface;
+        return frame;
     }
 
     /**
@@ -140,36 +148,30 @@ public abstract class Frame {
     public abstract long getTimestampNs();
 
     /**
-     * Invalidates and returns the overlay canvas.
+     * Get the canvas for drawing the overlay.
      *
      * <p>Call this method to get the {@link Canvas} for drawing an overlay on top of the frame.
-     * The {@link Canvas} is backed by a {@link Bitmap} with the sizes equals {@link #getSize()} and
-     * the format equals {@link Bitmap.Config#ARGB_8888}. To draw object in camera sensor
-     * coordinates, apply {@link #getSensorToBufferTransform()} via
-     * {@link Canvas#setMatrix(Matrix)} before drawing.
+     * The {@link Canvas} is backed by a {@link SurfaceTexture} with the sizes equals
+     * {@link #getSize()}. To draw object in camera sensor coordinates, apply
+     * {@link #getSensorToBufferTransform()} via {@link Canvas#setMatrix(Matrix)} before drawing.
      *
-     * <p>Only call this method if the caller needs to draw overlay on the frame. Calling this
-     * method will upload the {@link Bitmap} to GPU for blending.
+     * <p>The caller should only invoke this method when there's a requirement to overlay on the
+     * frame. Using this method introduce wait times to synchronize frame updates.
      */
     @NonNull
-    public Canvas invalidateOverlayCanvas() {
-        mIsOverlayDirty = true;
-        return getOverlayCanvas();
+    public Canvas getOverlayCanvas() {
+        if (mOverlayCanvas == null) {
+            mOverlayCanvas = lockCanvas(mOverlaySurface);
+        }
+        return mOverlayCanvas;
     }
 
+
     /**
-     * Internal API to check whether the overlay canvas is dirty.
+     * Internal API to check whether the overlay canvas has been drawn into.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public boolean isOverlayDirty() {
-        return mIsOverlayDirty;
+        return mOverlayCanvas != null;
     }
-
-
-    /**
-     * Internal API to get the overlay canvas without invalidating it.
-     */
-    @NonNull
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public abstract Canvas getOverlayCanvas();
 }

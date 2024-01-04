@@ -203,9 +203,9 @@ object SemanticsProperties {
     )
 
     /**
-     * @see SemanticsPropertyReceiver.originalText
+     * @see SemanticsPropertyReceiver.textSubstitution
      */
-    val OriginalText = SemanticsPropertyKey<AnnotatedString>(name = "OriginalText")
+    val TextSubstitution = SemanticsPropertyKey<AnnotatedString>(name = "TextSubstitution")
 
     /**
      * @see SemanticsPropertyReceiver.isShowingTextSubstitution
@@ -979,8 +979,6 @@ var SemanticsPropertyReceiver.testTag by SemanticsProperties.TestTag
 /**
  * Text of the semantics node. It must be real text instead of developer-set content description.
  *
- * Represents the text substitution if [SemanticsActions.ShowTextSubstitution] is called.
- *
  * @see SemanticsPropertyReceiver.editableText
  */
 var SemanticsPropertyReceiver.text: AnnotatedString
@@ -990,11 +988,10 @@ var SemanticsPropertyReceiver.text: AnnotatedString
     }
 
 /**
- * Original text of the semantics node. This property is only available after calling
- * [SemanticsActions.ShowTextSubstitution]. The value should be equal to the [text] before calling
+ * Text substitution of the semantics node. This property is only available after calling
  * [SemanticsActions.SetTextSubstitution].
  */
-var SemanticsPropertyReceiver.originalText by SemanticsProperties.OriginalText
+var SemanticsPropertyReceiver.textSubstitution by SemanticsProperties.TextSubstitution
 
 /**
  * Whether this element is showing the text substitution. This property is only available after

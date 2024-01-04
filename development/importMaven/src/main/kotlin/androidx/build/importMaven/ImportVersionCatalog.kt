@@ -16,6 +16,7 @@
 
 package androidx.build.importMaven
 
+import java.util.function.Supplier
 import okio.Path
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.internal.artifacts.ImmutableVersionConstraint
@@ -48,7 +49,7 @@ object ImportVersionCatalog {
             Interners.newStrongInterner<String>(),
             Interners.newStrongInterner< ImmutableVersionConstraint>(),
             project.objects,
-            { error("Not supported") },
+            Supplier { error("Not supported") },
             configurations
         )
         TomlCatalogFileParser.parse(

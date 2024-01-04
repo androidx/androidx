@@ -19,9 +19,17 @@ package androidx.core.haptics
 import android.os.Build
 import androidx.core.haptics.device.HapticCompositionProfile
 import androidx.core.haptics.device.HapticDeviceProfile
+import androidx.core.haptics.signal.CompositionSignal
+import androidx.core.haptics.signal.CompositionSignal.Companion.click
+import androidx.core.haptics.signal.CompositionSignal.Companion.compositionOf
+import androidx.core.haptics.signal.CompositionSignal.Companion.lowTick
+import androidx.core.haptics.signal.CompositionSignal.Companion.tick
 import androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom
 import androidx.core.haptics.signal.PredefinedEffectSignal.Companion.predefinedClick
 import androidx.core.haptics.signal.PredefinedEffectSignal.Companion.predefinedTick
+import androidx.core.haptics.signal.WaveformSignal.Companion.off
+import androidx.core.haptics.signal.WaveformSignal.Companion.on
+import androidx.core.haptics.signal.WaveformSignal.Companion.waveformOf
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -80,6 +88,69 @@ class HapticDeviceProfileTest {
             hardwareOptimizedPredefinedEffectsHint = setOf(predefinedTick(), predefinedClick()),
         )
         assertThat(profile.hardwareOptimizedPredefinedEffects).isEmpty()
+    }
+
+    @Test
+    fun isSupported_predefinedEffectWithAnyDeviceProfile_returnsAlwaysTrue() {
+        assertThat(HapticDeviceProfile().supports(predefinedClick())).isTrue()
+        assertThat(
+            HapticDeviceProfile(
+                amplitudeControlSupportHint = true,
+                hardwareOptimizedPredefinedEffectsHint = setOf(predefinedClick()),
+            ).supports(predefinedClick())
+        ).isTrue()
+    }
+
+    @Test
+    fun isSupported_waveformWithoutAmplitudeControl_returnsTrueForPatternAndFalseForAmplitudes() {
+        val deviceProfile = HapticDeviceProfile()
+        val patternWaveform = waveformOf(off(durationMillis = 10), on(durationMillis = 20))
+        val amplitudeWaveform = waveformOf(on(durationMillis = 10, amplitude = 0.5f))
+
+        assertThat(deviceProfile.supports(patternWaveform)).isTrue()
+        assertThat(deviceProfile.supports(amplitudeWaveform)).isFalse()
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun isSupported_waveformWithAmplitudeControlSdk26AndAbove_returnsAlwaysTrue() {
+        val deviceProfile = HapticDeviceProfile(amplitudeControlSupportHint = true)
+        val patternWaveform = waveformOf(off(durationMillis = 10), on(durationMillis = 20))
+        val amplitudeWaveform = waveformOf(on(durationMillis = 10, amplitude = 0.5f))
+
+        assertThat(deviceProfile.supports(patternWaveform)).isTrue()
+        assertThat(deviceProfile.supports(amplitudeWaveform)).isTrue()
+    }
+
+    @Test
+    fun isSupported_compositionWithoutPrimitives_returnsAlwaysFalse() {
+        val deviceProfile = HapticDeviceProfile()
+        assertThat(deviceProfile.supports(compositionOf(click()))).isFalse()
+        assertThat(deviceProfile.supports(compositionOf(tick()))).isFalse()
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
+    @Test
+    fun isSupported_compositionWithPrimitivesSdk30AndAbove_returnsTrueForSupportedPrimitives() {
+        val deviceProfile =
+            HapticDeviceProfile(
+                compositionProfile = HapticCompositionProfile(
+                    supportedPrimitiveTypesHint = setOf(PrimitiveAtom.CLICK, PrimitiveAtom.TICK),
+                )
+            )
+        val supportedComposition = compositionOf(
+            click(amplitudeScale = 0.7f),
+            CompositionSignal.off(durationMillis = 50),
+            tick(),
+        )
+        val unsupportedComposition = compositionOf(
+            click(amplitudeScale = 0.7f),
+            CompositionSignal.off(durationMillis = 50),
+            lowTick(),
+        )
+
+        assertThat(deviceProfile.supports(supportedComposition)).isTrue()
+        assertThat(deviceProfile.supports(unsupportedComposition)).isFalse()
     }
 }
 

@@ -19,6 +19,9 @@
 
 package androidx.work
 
+import androidx.work.impl.OperationImpl
+import java.util.concurrent.Executor
+
 /**
  * Awaits an [Operation] without blocking a thread.
  *
@@ -27,3 +30,15 @@ package androidx.work
  * or throws a [Throwable] that represents why the [Operation] failed.
  */
 public suspend inline fun Operation.await(): Operation.State.SUCCESS = result.await()
+
+internal fun launchOperation(executor: Executor, block: () -> Unit): Operation =
+    OperationImpl().also { operation ->
+        executor.execute {
+            try {
+                block()
+                operation.markState(Operation.SUCCESS)
+            } catch (t: Throwable) {
+                operation.markState(Operation.State.FAILURE(t))
+            }
+        }
+    }

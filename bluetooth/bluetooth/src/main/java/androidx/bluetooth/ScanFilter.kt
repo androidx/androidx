@@ -54,8 +54,25 @@ class ScanFilter(
     /** The scan filter for service uuid. `null` if filter is not set. */
     val serviceUuid: UUID? = null,
 
-    /** The partial filter on service uuid. `null` if filter is not set. */
-    val serviceUuidMask: UUID? = null
+    /**
+     * The partial filter on service uuid. `null` if filter is not set.
+     * @throws IllegalArgumentException if this bit mask [serviceUuidMask] is set but
+     * [serviceUuid] is null
+     */
+    val serviceUuidMask: UUID? = null,
+
+    /** The scan filter for service Solicitation uuid. `null` if filter is not set. */
+    val serviceSolicitationUuid: UUID? = null,
+
+    /**
+     * The partial filter on service Solicitation uuid. This bit mask is for
+     * [serviceSolicitationUuid]. Set any bit in the mask to 1 to indicate a match is needed
+     * for the bit in [serviceSolicitationUuid], and 0 to ignore that bit.
+     * `null` if filter is not set.
+     * @throws IllegalArgumentException if this bit mask [serviceSolicitationUuidMask] is set but
+     * [serviceSolicitationUuid] is null
+     */
+    val serviceSolicitationUuidMask: UUID? = null
 ) {
     companion object {
         const val MANUFACTURER_FILTER_NONE: Int = -1
@@ -69,29 +86,39 @@ class ScanFilter(
         if (manufacturerDataMask != null) {
             if (manufacturerData == null) {
                 throw IllegalArgumentException(
-                    "ManufacturerData is null while manufacturerDataMask is not null")
+                    "ManufacturerData is null while manufacturerDataMask is not null"
+                )
             }
 
             if (manufacturerData.size != manufacturerDataMask.size) {
                 throw IllegalArgumentException(
-                    "Size mismatch for manufacturerData and manufacturerDataMask")
+                    "Size mismatch for manufacturerData and manufacturerDataMask"
+                )
             }
         }
 
         if (serviceDataMask != null) {
             if (serviceData == null) {
                 throw IllegalArgumentException(
-                    "ServiceData is null while serviceDataMask is not null")
+                    "ServiceData is null while serviceDataMask is not null"
+                )
             }
 
             if (serviceData.size != serviceDataMask.size) {
                 throw IllegalArgumentException(
-                    "Size mismatch for service data and service data mask")
+                    "Size mismatch for service data and service data mask"
+                )
             }
         }
 
         if (serviceUuid == null && serviceUuidMask != null) {
             throw IllegalArgumentException("ServiceUuid is null while ServiceUuidMask is not null")
+        }
+
+        if (serviceSolicitationUuid == null && serviceSolicitationUuidMask != null) {
+            throw IllegalArgumentException(
+                "ServiceSolicitationUuid is null while ServiceSolicitationUuidMask is not null"
+            )
         }
     }
 
@@ -116,8 +143,10 @@ class ScanFilter(
 
             if (serviceDataUuid != null) {
                 if (Build.VERSION.SDK_INT >= 33) {
-                    setServiceData(ParcelUuid(
-                        serviceDataUuid),
+                    setServiceData(
+                        ParcelUuid(
+                            serviceDataUuid
+                        ),
                         serviceData,
                         serviceDataMask
                     )
@@ -131,6 +160,18 @@ class ScanFilter(
                     setServiceUuid(ParcelUuid(it), ParcelUuid(serviceUuidMask))
                 } else {
                     setServiceUuid(ParcelUuid(it))
+                }
+            }
+
+            serviceSolicitationUuid?.let {
+                // TODO(b/304911762) Handle below API 29
+                if (serviceSolicitationUuidMask == null) {
+                    setServiceSolicitationUuid(ParcelUuid(it))
+                } else {
+                    setServiceSolicitationUuid(
+                        ParcelUuid(it),
+                        ParcelUuid(serviceSolicitationUuidMask)
+                    )
                 }
             }
             build()

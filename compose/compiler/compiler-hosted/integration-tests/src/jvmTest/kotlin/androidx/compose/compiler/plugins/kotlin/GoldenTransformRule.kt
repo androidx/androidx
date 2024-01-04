@@ -27,6 +27,7 @@ import org.junit.runners.model.Statement
 
 private const val ENV_GENERATE_GOLDEN = "GENERATE_GOLDEN"
 private const val GOLDEN_FILE_TYPE = "txt"
+private fun env(name: String): Boolean = (System.getenv(name) ?: "false").toBoolean()
 
 /**
  * GoldenTransformRule
@@ -34,19 +35,23 @@ private const val GOLDEN_FILE_TYPE = "txt"
  * Compare transformed IR source to a golden test file. Golden files contain both the
  * pre-transformed and post-transformed source for easier review.
  * To regenerate the set of golden tests, pass GENERATE_GOLDEN=true as an environment variable.
+ *
+ * @param pathToGoldens: Path to golden files
+ * @param generateGoldens: When true, will generate the golden test file and replace any existing
+ * @param generateMissingGoldens: When true, will generate a golden file for any that are not found.
  **/
 class GoldenTransformRule(
     private val pathToGoldens: String,
-    private val generateGoldens: Boolean =
-        (System.getenv(ENV_GENERATE_GOLDEN) ?: "false").toBoolean()
+    private val generateGoldens: Boolean = env(ENV_GENERATE_GOLDEN),
+    private val generateMissingGoldens: Boolean = true
 ) : TestRule {
     private lateinit var goldenFile: File
     private lateinit var testIdentifier: String
 
     private val testWatcher = object : TestWatcher() {
         override fun starting(description: Description) {
-            goldenFile =
-                File(getGoldenFilePath(description.className, description.methodName))
+            val goldenFilePath = getGoldenFilePath(description.className, description.methodName)
+            goldenFile = File(goldenFilePath)
             testIdentifier = "${description.className}_${description.methodName}"
         }
     }
@@ -67,7 +72,7 @@ class GoldenTransformRule(
      * If generateGoldens is true, the golden file will first be generated.
      */
     fun verifyGolden(testInfo: GoldenTransformTestInfo) {
-        if (generateGoldens) {
+        if (generateGoldens || (!goldenFile.exists() && generateMissingGoldens)) {
             saveGolden(testInfo)
         }
 
@@ -81,8 +86,11 @@ class GoldenTransformRule(
             error("Golden ${goldenFile.absolutePath} file could not be parsed.\n${e.message}")
         }
 
+        // Use absolute path in the assert error so studio shows it as a link
         Assert.assertEquals(
-            "Transformed source does not match golden file ${goldenFile.name}",
+            "Transformed source does not match golden file:" +
+                "\n${goldenFile.absolutePath}\n" +
+                "To regenerate golden files, pass GENERATE_GOLDEN=true as an env variable.",
             loadedTestInfo.transformed,
             testInfo.transformed
         )
@@ -106,20 +114,40 @@ data class GoldenTransformTestInfo(
     val source: String,
     val transformed: String
 ) {
-    fun encodeToString(): String {
-        return "$source$DELIMITER$transformed"
-    }
+    fun encodeToString(): String =
+        buildString {
+            append(SOURCE_HEADER)
+            appendLine()
+            appendLine()
+            append(source)
+            appendLine()
+            appendLine()
+            append(TRANSFORM_HEADER)
+            appendLine()
+            appendLine()
+            append(transformed)
+            appendLine()
+        }
 
     companion object {
-        const val DELIMITER = "\n/********\n * TRANSFORMED\n ********/\n\n"
+        val SOURCE_HEADER = """
+            //
+            // Source
+            // ------------------------------------------
+        """.trimIndent()
+        val TRANSFORM_HEADER = """
+            //
+            // Transformed IR
+            // ------------------------------------------
+        """.trimIndent()
 
         fun fromEncodedString(encoded: String): GoldenTransformTestInfo {
-            val split = encoded.split(DELIMITER)
+            val split = encoded.removePrefix(SOURCE_HEADER).split(TRANSFORM_HEADER)
             if (split.size != 2) {
                 error("Could not parse encoded golden string. " +
                     "Expected 2 sections but was ${split.size}.")
             }
-            return GoldenTransformTestInfo(split[0], split[1])
+            return GoldenTransformTestInfo(split[0].trim(), split[1].trim())
         }
     }
 }

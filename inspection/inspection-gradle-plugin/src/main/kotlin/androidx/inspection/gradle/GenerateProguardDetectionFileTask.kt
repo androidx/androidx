@@ -16,7 +16,6 @@
 
 package androidx.inspection.gradle
 
-import com.android.build.api.variant.Variant
 import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -31,6 +30,7 @@ import org.gradle.work.DisableCachingByDefault
  * Task purposely empty, unused class that would be removed by proguard. See javadoc below for more
  * information.
  */
+@Suppress("UnstableApiUsage")
 @DisableCachingByDefault(because = "Simply generates a small file and doesn't benefit from caching")
 abstract class GenerateProguardDetectionFileTask : DefaultTask() {
 
@@ -43,7 +43,6 @@ abstract class GenerateProguardDetectionFileTask : DefaultTask() {
     @get:OutputDirectory
     abstract val outputDir: DirectoryProperty
 
-    @Suppress("LoggingStringTemplateAsArgument")
     @TaskAction
     fun generateProguardDetectionFile() {
         val packageName = generatePackageName(mavenGroup.get(), mavenArtifactId.get())
@@ -57,7 +56,7 @@ abstract class GenerateProguardDetectionFileTask : DefaultTask() {
 
         val text = """
             package $packageName;
-
+            
             /**
              * Purposely empty, unused class that would be removed by proguard.
              *
@@ -74,7 +73,11 @@ abstract class GenerateProguardDetectionFileTask : DefaultTask() {
     }
 }
 
-fun Project.registerGenerateProguardDetectionFileTask(variant: Variant) {
+@ExperimentalStdlibApi
+@Suppress("DEPRECATION") // BaseVariant
+fun Project.registerGenerateProguardDetectionFileTask(
+    variant: com.android.build.gradle.api.BaseVariant
+) {
     val outputDir = taskWorkingDir(variant, "generateProguardDetection")
     val taskName = variant.taskName("generateProguardDetection")
     val mavenGroup = project.group as? String
@@ -85,7 +88,7 @@ fun Project.registerGenerateProguardDetectionFileTask(variant: Variant) {
         it.mavenGroup.set(mavenGroup)
         it.mavenArtifactId.set(mavenArtifactId)
     }
-    variant.sources.java?.addGeneratedSourceDirectory(task) { it.outputDir }
+    variant.registerJavaGeneratingTask(task, outputDir)
 }
 
 /**

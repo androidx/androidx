@@ -379,13 +379,12 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
     }
 
     override fun equals(other: Any?): Boolean {
+        if (this === other) return true
         if (other == null || other !is NavGraph) return false
-        val copy = nodes.valueIterator().asSequence().toMutableList()
-        other.nodes.valueIterator().forEach { copy.remove(it) }
         return super.equals(other) &&
             nodes.size == other.nodes.size &&
             startDestinationId == other.startDestinationId &&
-            copy.isEmpty()
+            nodes.valueIterator().asSequence().all { it == nodes.get(it.id) }
     }
 
     override fun hashCode(): Int {

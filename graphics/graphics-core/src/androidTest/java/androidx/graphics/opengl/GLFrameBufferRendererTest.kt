@@ -507,6 +507,60 @@ class GLFrameBufferRendererTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
+    fun testBufferReleaseCallbackInvoked() {
+        val renderLatch = CountDownLatch(1)
+        val bufferReleasedLatch = CountDownLatch(1)
+        val callbacks = object : GLFrameBufferRenderer.Callback {
+
+            override fun onDrawFrame(
+                eglManager: EGLManager,
+                width: Int,
+                height: Int,
+                bufferInfo: BufferInfo,
+                transform: FloatArray
+            ) {
+                renderLatch.countDown()
+            }
+
+            override fun onBufferReleased(
+                frameBuffer: FrameBuffer,
+                releaseFence: SyncFenceCompat?
+            ) {
+                bufferReleasedLatch.countDown()
+            }
+        }
+        var activity: SurfaceViewTestActivity? = null
+        var renderer: GLFrameBufferRenderer? = null
+        var surfaceView: SurfaceView?
+        try {
+            val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
+                .moveToState(Lifecycle.State.CREATED)
+                .onActivity {
+                    activity = it
+                    surfaceView = it.getSurfaceView()
+                    renderer = GLFrameBufferRenderer.Builder(surfaceView!!, callbacks).build()
+                }
+
+            scenario.moveToState(Lifecycle.State.RESUMED)
+            assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
+
+            renderer?.render()
+
+            assertTrue(bufferReleasedLatch.await(3000, TimeUnit.MILLISECONDS))
+
+            val destroyLatch = CountDownLatch(1)
+            activity?.setOnDestroyCallback {
+                destroyLatch.countDown()
+            }
+            scenario.moveToState(Lifecycle.State.DESTROYED)
+            assertTrue(destroyLatch.await(3000, TimeUnit.MILLISECONDS))
+        } finally {
+            renderer.blockingRelease()
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
     fun testReleaseRemovedSurfaceCallbacks() {
         val callback = object : GLFrameBufferRenderer.Callback {
             override fun onDrawFrame(

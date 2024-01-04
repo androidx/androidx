@@ -408,6 +408,7 @@ WARN: .*\/unzippedMultiplatformSources\/androidMain\/androidx\/compose\/animatio
 WARN: .*\/unzippedMultiplatformSources\/androidMain\/androidx\/compose\/material\/AndroidMenu\.android\.kt:[0-9]+ Missing @param tag for parameter `content` in DFunction DropdownMenuItem
 WARN: .*\/unzippedMultiplatformSources\/androidMain\/androidx\/compose\/ui\/graphics\/AndroidPath\.android\.kt:[0-9]+ Missing @param tag for parameter `operation` in DFunction op
 WARN: .*\/unzippedMultiplatformSources\/androidMain\/androidx\/compose\/ui\/text\/font\/AndroidFont\.kt:[0-9]+ Missing @param tag for parameter `variationSettings` in DFunction AndroidFont
+WARN: .*\/unzippedMultiplatformSources\/androidMain\/androidx\/compose\/ui\/text\/font\/AndroidFont\.android\.kt:[0-9]+ Missing @param tag for parameter `variationSettings` in DFunction AndroidFont
 WARN: .*\/unzippedMultiplatformSources\/androidMain\/androidx\/constraintlayout\/compose\/MotionCarousel\.kt:[0-9]+ Missing @param tag for parameter `motionScene` in DFunction MotionCarousel
 WARN: .*\/unzippedMultiplatformSources\/androidMain\/androidx\/datastore\/DataStoreDelegate\.kt:UnknownLine Missing @param tag for parameter `serializer` in DFunction dataStore
 WARN: .*\/unzippedMultiplatformSources\/androidMain\/androidx\/datastore\/migrations\/SharedPreferencesMigration\.kt:[0-9]+ Missing @param tag for parameter `shouldRunMigration` in DFunction SharedPreferencesMigration
@@ -484,6 +485,7 @@ WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/datastore\/prefere
 WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/paging\/compose\/LazyPagingItems\.kt:[0-9]+ Failed to resolve See PagingSource\.invalidate in DFunction refresh\. Did you mean PagingSource#invalidate\?
 WARN: .*\/unzippedMultiplatformSources\/desktopMain\/androidx\/compose\/material\/DesktopMenu\.desktop\.kt:[0-9]+ Missing @param tag for parameter `content` in DFunction DropdownMenuItem
 WARN: .*\/unzippedMultiplatformSources\/jvmMain\/androidx\/datastore\/core\/Serializer\.kt:[0-9]+ Missing @param tag for parameter `output` in DFunction writeTo
+WARN: .*\/unzippedMultiplatformSources\/commonJvmMain\/androidx\/datastore\/core\/Serializer\.kt:[0-9]+ Missing @param tag for parameter `output` in DFunction writeTo
 WARN: .*\/unzippedMultiplatformSources\/nonJvmMain\/androidx\/annotation\/RestrictTo\.nonJvm\.kt:UnknownLine Link does not resolve for @throws kotlin\.IllegalArgumentException in DFunction valueOf\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
 WARN: File location could not be determined\. Failed to resolve See <a href="https:\/\/developer\.android\.com\/training\/transitions">Transition API Guide<\/a> in DPackage androidx\.transition
 # > Task :compose:ui:ui-tooling:processDebugAndroidTestManifest
@@ -520,13 +522,13 @@ thread\.resume\(\);
 thread\.suspend\(\);
 [0-9]+ warnings
 # When konan is downloading a dependency from another file, don't warn about it.
-\(KonanProperies\) Downloading dependency: file:\.\./\.\./.*
+\(KonanProperties\) Downloading dependency: file:\.\./\.\./.*
 Please wait while Kotlin/Native compiler .* is being installed\.
 Unpack Kotlin/Native compiler to .*
 Download file:\.\./\.\./.*
-Download kotlin\-native\-prebuilt\-.*.gz finished\, took [0-9]+ s [0-9]+ ms
+Download kotlin\-native\-prebuilt\-.*.gz finished\, took .*
 Downloading native dependencies \(LLVM, sysroot etc\)\. This is a one\-time action performed only on the first run of the compiler\.
-Extracting dependency: .*\.konan/cache.*
+Extracting dependency: .*\.konan/dependencies/cache.*
 # > Task :commonizeNativeDistribution
 # Linux builds cannot build mac, hence we get this warning.
 # see: https://github.com/JetBrains/kotlin/blob/master/native/commonizer/README.md
@@ -576,3 +578,8 @@ at com\.android\.tools\.lint\.client\.api\.JarFileIssueRegistry\$Factory\.get\$d
 at com\.android\.tools\.lint\.client\.api\.LintDriver\.registerCustomDetectors\(LintDriver\.kt:[0-9]+\)
 at com\.android\.tools\.lint\.client\.api\.LintDriver\.initializeExtraRegistries\(LintDriver\.kt:[0-9]+\)
 at jdk\.internal\.reflect\.GeneratedMethodAccessor[0-9]+\.invoke\(Unknown Source\)
+# temporary diagnostic for b/307738543
+docs-public:docs starting
+docs-public:docs completing
+docs-tip-of-tree:docs starting
+docs-tip-of-tree:docs completing

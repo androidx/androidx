@@ -97,8 +97,6 @@ internal fun LazyList(
         verticalArrangement
     )
 
-    ScrollPositionUpdater(itemProviderLambda, state)
-
     val overscrollEffect = ScrollableDefaults.overscrollEffect()
     val orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal
     LazyLayout(
@@ -142,19 +140,6 @@ internal fun LazyList(
         measurePolicy = measurePolicy,
         itemProvider = itemProviderLambda
     )
-}
-
-/** Extracted to minimize the recomposition scope */
-@ExperimentalFoundationApi
-@Composable
-private fun ScrollPositionUpdater(
-    itemProviderLambda: () -> LazyListItemProvider,
-    state: LazyListState
-) {
-    val itemProvider = itemProviderLambda()
-    if (itemProvider.itemCount > 0) {
-        state.updateScrollPositionIfTheFirstItemWasMoved(itemProvider)
-    }
 }
 
 @ExperimentalFoundationApi
@@ -351,6 +336,7 @@ private fun rememberLazyListMeasurePolicy(
             coroutineScope = requireNotNull(state.coroutineScope) {
                 "coroutineScope should be not null"
             },
+            placementScopeInvalidator = state.placementScopeInvalidator,
             layout = { width, height, placement ->
                 layout(
                     containerConstraints.constrainWidth(width + totalHorizontalPadding),

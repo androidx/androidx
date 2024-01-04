@@ -56,7 +56,7 @@ class BackgroundTintWidget : GlanceAppWidget() {
                             .size(width = 100.dp, height = 50.dp)
                             .background(
                                 ImageProvider(R.drawable.shape_btn_demo),
-                                tint = ColorFilter.tint(GlanceTheme.colors.primary)
+                                colorFilter = ColorFilter.tint(GlanceTheme.colors.primary)
                             ),
                         content = {})
                     Box(
@@ -65,7 +65,7 @@ class BackgroundTintWidget : GlanceAppWidget() {
                             .size(width = 100.dp, height = 50.dp)
                             .background(
                                 ImageProvider(R.drawable.ic_android),
-                                tint = ColorFilter.tint(ColorProvider(Color.Cyan))
+                                colorFilter = ColorFilter.tint(ColorProvider(Color.Cyan))
                             ),
                         content = {}
                     )

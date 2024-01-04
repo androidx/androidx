@@ -43,7 +43,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.tooling.animation.Utils.searchAndTrackAllAnimations
+import androidx.compose.ui.tooling.animation.Utils.attachAllAnimations
 import androidx.compose.ui.tooling.animation.states.AnimatedVisibilityState
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
@@ -504,8 +504,7 @@ class PreviewAnimationClockTest {
 
     @Test
     fun clockWithInfiniteTransition() {
-        val search = AnimationSearch({ testClock }, false) {}
-        composeRule.searchAndTrackAllAnimations(search) {
+        composeRule.attachAllAnimations(testClock) {
             // Transition with duration 1000
             val transition = updateTransition(targetState = 10, label = "updateTransition")
             transition.animateDp(

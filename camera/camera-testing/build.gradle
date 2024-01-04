@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
+
 import androidx.build.Publish
-import androidx.build.RunApiTasks
 
 plugins {
     id("AndroidXPlugin")
@@ -97,7 +97,7 @@ android {
 androidx {
     name = "Camera Testing"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    runApiTasks = new RunApiTasks.No("Internal testing library without any release plan yet.")
+    mavenVersion = LibraryVersions.CAMERA_TESTING
     inceptionYear = "2019"
     description = "Testing components for the Jetpack Camera Library, a library providing a " +
             "consistent and reliable camera foundation that enables great camera driven " +"" +

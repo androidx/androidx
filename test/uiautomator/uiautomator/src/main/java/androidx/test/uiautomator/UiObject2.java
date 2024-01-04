@@ -312,8 +312,13 @@ public class UiObject2 implements Searchable {
 
     /** Returns the visible bounds of a {@code node}. */
     private Rect getVisibleBounds(AccessibilityNodeInfo node) {
-        Point displaySize = getDevice().getDisplaySize(getDisplayId());
-        Rect screen = new Rect(0, 0, displaySize.x, displaySize.y);
+        //  The display may not be accessible because it can be a private display, for example.
+        final boolean isDisplayAccessible = getDevice().getDisplayById(getDisplayId()) != null;
+        Rect screen = null;
+        if (isDisplayAccessible) {
+            Point displaySize = getDevice().getDisplaySize(getDisplayId());
+            screen = new Rect(0, 0, displaySize.x, displaySize.y);
+        }
         return AccessibilityNodeInfoHelper.getVisibleBoundsInScreen(node, screen, true);
     }
 
@@ -821,10 +826,12 @@ public class UiObject2 implements Searchable {
                     mGestureController.performGestureAndWait(scrollFinished, SCROLL_TIMEOUT, swipe);
             if (Boolean.TRUE.equals(scrollFinishedResult)) {
                 // Scroll has finished.
+                Log.i(TAG, "scrollUntil reached the end.");
                 break;
             } else if (scrollFinishedResult == null) {
                 // Couldn't determine whether scroll finished after retries.
                 if (nullScrollRetryCount++ >= MAX_NULL_SCROLL_RETRY) {
+                    Log.i(TAG, "scrollUntil reached max retries for null events.");
                     break;
                 }
                 Log.i(TAG, String.format("Couldn't determine whether scroll was finished, "
@@ -889,11 +896,15 @@ public class UiObject2 implements Searchable {
                     DEFAULT_SCROLL_UNTIL_PERCENT, speed, getDisplayId()).pause(250);
             if (mGestureController.performGestureAndWait(combinedEventCondition, SCROLL_TIMEOUT,
                     swipe)) {
+                if (Boolean.TRUE.equals(scrollFinished.getResult())) {
+                    Log.i(TAG, "scrollUntil reached the end.");
+                }
                 // Either scroll has finished or the accessibility event has appeared.
                 break;
             } else if (scrollFinished.getResult() == null) {
                 // Couldn't determine whether scroll finished after retries.
                 if (nullScrollRetryCount++ >= MAX_NULL_SCROLL_RETRY) {
+                    Log.i(TAG, "scrollUntil reached max retries for null events.");
                     break;
                 }
                 Log.i(TAG, String.format("Couldn't determine whether scroll was finished, "

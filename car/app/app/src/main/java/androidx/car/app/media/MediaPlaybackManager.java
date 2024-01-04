@@ -29,7 +29,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext;
 import androidx.car.app.HostDispatcher;
-import androidx.car.app.HostException;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.managers.Manager;
 import androidx.car.app.serialization.Bundleable;
@@ -54,8 +53,6 @@ public class MediaPlaybackManager implements Manager {
      * allow the host to read the media session playback state.
      *
      * @param token to be sent to the host
-     * @throws HostException            if the call is invoked by an app that is not declared as
-     *                                  a navigation app in the manifest
      * @throws IllegalArgumentException if any of the token cannot be serialized
      * @throws IllegalStateException    if this is not called from the main thread.
      */

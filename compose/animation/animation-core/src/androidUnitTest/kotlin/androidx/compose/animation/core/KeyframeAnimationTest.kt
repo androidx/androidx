@@ -140,7 +140,7 @@ class KeyframeAnimationTest {
     }
 
     @Test
-    fun testEquals() {
+    fun testNotEquals0() {
         val config: KeyframesSpec.KeyframesSpecConfig<Float>.() -> Unit = {
             durationMillis = 500
             0f at 100
@@ -161,16 +161,13 @@ class KeyframeAnimationTest {
             1f at durationMillis
         }
 
-        assertEquals(animation, animationReuseConfig)
-        assertEquals(animation, animationRedeclareConfig)
-
-        // Also test hashcode() here, since it's already implemented.
-        assertEquals(animation.hashCode(), animationReuseConfig.hashCode())
-        assertEquals(animation.hashCode(), animationRedeclareConfig.hashCode())
+        assertTrue(animation != animationReuseConfig)
+        assertTrue(animation != animationRedeclareConfig)
+        assertTrue(animationReuseConfig != animationRedeclareConfig)
     }
 
     @Test
-    fun testNotEquals() {
+    fun testNotEquals1() {
         val animation = keyframes<Float> {
             durationMillis = 500
             0f at 100

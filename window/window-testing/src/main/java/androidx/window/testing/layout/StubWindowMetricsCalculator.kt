@@ -21,7 +21,6 @@ import android.content.Context
 import android.graphics.Point
 import android.graphics.Rect
 import android.os.Build
-import android.view.Display
 import android.view.WindowManager
 import androidx.annotation.RequiresApi
 import androidx.annotation.UiContext
@@ -57,7 +56,7 @@ internal class StubWindowMetricsCalculator : WindowMetricsCalculator {
 
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             Api30Impl.getWindowMetrics(wm)
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        } else {
             val displaySize = Point()
             // We use getRealSize instead of getSize here because:
             //   1) computeCurrentWindowMetrics and computeMaximumWindowMetrics in this class
@@ -66,13 +65,8 @@ internal class StubWindowMetricsCalculator : WindowMetricsCalculator {
             //   2) getRealSize returns the largest region of the display, whereas getSize returns
             //      the current app window. So to stay consistent with class documentation, we use
             //      getRealSize.
-            Api17Impl.getRealSize(wm.defaultDisplay, displaySize)
+            wm.defaultDisplay.getRealSize(displaySize)
             val bounds = Rect(0, 0, displaySize.x, displaySize.y)
-            WindowMetrics(bounds)
-        } else {
-            val width = wm.defaultDisplay.width
-            val height = wm.defaultDisplay.height
-            val bounds = Rect(0, 0, width, height)
             WindowMetrics(bounds)
         }
     }
@@ -85,15 +79,6 @@ internal class StubWindowMetricsCalculator : WindowMetricsCalculator {
     private object Api30Impl {
         fun getWindowMetrics(windowManager: WindowManager): WindowMetrics {
             return WindowMetrics(windowManager.currentWindowMetrics.bounds)
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-    private object Api17Impl {
-        // getRealSize is deprecated but we have this for compatibility with older versions.
-        @Suppress("DEPRECATION")
-        fun getRealSize(display: Display, point: Point) {
-            display.getRealSize(point)
         }
     }
 }

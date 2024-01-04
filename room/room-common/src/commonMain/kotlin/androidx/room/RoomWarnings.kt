@@ -21,7 +21,7 @@ package androidx.room
  * You can use these values inside a [SuppressWarnings] annotation to disable the warnings.
  */
 // If you change this, don't forget to change androidx.room.vo.Warning
-@SuppressWarnings("unused", "WeakerAccess")
+@Suppress("unused", "WeakerAccess")
 public open class RoomWarnings {
     public companion object {
         /**
@@ -210,6 +210,6 @@ public open class RoomWarnings {
     }
 
     @Deprecated("This type should not be instantiated as it contains only static methods. ")
-    @SuppressWarnings("PrivateConstructorForUtilityClass")
+    @Suppress("PrivateConstructorForUtilityClass")
     public constructor()
 }

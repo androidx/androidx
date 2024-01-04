@@ -33,6 +33,8 @@ class NavDestinationAndroidTest {
     companion object {
         private const val DESTINATION_ROUTE = "test"
         private const val URI_PATTERN = "uriPattern"
+        private const val TEST_ACTION_ID = 1
+        private const val TEST_ACTION_DESTINATION_ID = 2
         private const val TEST_ARG_KEY = "stringArg"
         private const val TEST_ARG_VALUE_AAA = "aaa"
     }
@@ -642,7 +644,7 @@ class NavDestinationAndroidTest {
     fun equalsNull() {
         val destination = NoOpNavigator().createDestination()
 
-        assertThat(destination.equals(null)).isFalse()
+        assertThat(destination).isNotEqualTo(null)
     }
 
     @Test
@@ -651,13 +653,15 @@ class NavDestinationAndroidTest {
         destination.route = DESTINATION_ROUTE
         destination.addDeepLink(URI_PATTERN)
         destination.addArgument(TEST_ARG_KEY, stringArgument(TEST_ARG_VALUE_AAA))
+        destination.putAction(TEST_ACTION_ID, NavAction(TEST_ACTION_DESTINATION_ID))
 
         val destination2 = NoOpNavigator().createDestination()
         destination2.route = DESTINATION_ROUTE
         destination2.addDeepLink(URI_PATTERN)
         destination2.addArgument(TEST_ARG_KEY, stringArgument(TEST_ARG_VALUE_AAA))
+        destination2.putAction(TEST_ACTION_ID, NavAction(TEST_ACTION_DESTINATION_ID))
 
-        assertThat(destination == destination2).isTrue()
+        assertThat(destination).isEqualTo(destination2)
     }
 
     @Test
@@ -672,7 +676,7 @@ class NavDestinationAndroidTest {
         destination2.addDeepLink("differentPattern")
         destination2.addArgument(TEST_ARG_KEY, stringArgument(TEST_ARG_VALUE_AAA))
 
-        assertThat(destination == destination2).isFalse()
+        assertThat(destination).isNotEqualTo(destination2)
     }
 
     @Test
@@ -687,6 +691,6 @@ class NavDestinationAndroidTest {
         destination2.addDeepLink(URI_PATTERN)
         destination2.addArgument(TEST_ARG_KEY, stringArgument("bbb"))
 
-        assertThat(destination == destination2).isFalse()
+        assertThat(destination).isNotEqualTo(destination2)
     }
 }

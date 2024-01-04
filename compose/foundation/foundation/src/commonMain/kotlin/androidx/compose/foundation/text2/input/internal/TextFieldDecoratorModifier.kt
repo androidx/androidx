@@ -23,6 +23,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.InputTransformation
 import androidx.compose.foundation.text2.input.internal.selection.TextFieldSelectionState
+import androidx.compose.foundation.text2.input.internal.selection.TextToolbarState
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusEventModifierNode
 import androidx.compose.ui.focus.FocusManager
@@ -53,7 +54,7 @@ import androidx.compose.ui.platform.PlatformTextInputModifierNode
 import androidx.compose.ui.platform.PlatformTextInputSession
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.WindowInfo
-import androidx.compose.ui.platform.textInputSession
+import androidx.compose.ui.platform.establishTextInputSession
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.copyText
 import androidx.compose.ui.semantics.cutText
@@ -63,6 +64,7 @@ import androidx.compose.ui.semantics.getTextLayoutResult
 import androidx.compose.ui.semantics.insertTextAtCursor
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.onImeAction
+import androidx.compose.ui.semantics.onLongClick
 import androidx.compose.ui.semantics.pasteText
 import androidx.compose.ui.semantics.setSelection
 import androidx.compose.ui.semantics.setText
@@ -311,6 +313,10 @@ internal class TextFieldDecoratorModifierNode(
         }
         @Suppress("NAME_SHADOWING")
         setSelection { start, end, relativeToOriginal ->
+            // in traversal mode (relativeToOriginal=true) we get selection from the
+            // `textSelectionRange` semantics which is selection in original text. In non-traversal
+            // mode selection comes from the Talkback and indices are relative to the transformed
+            // text
             val text = if (relativeToOriginal) {
                 textFieldState.untransformedText
             } else {
@@ -331,6 +337,13 @@ internal class TextFieldDecoratorModifierNode(
             }
 
             val selectionRange = TextRange(start, end)
+            // Do not show toolbar if it's a traversal mode (with the volume keys), or if the
+            // selection is collapsed.
+            if (relativeToOriginal || start == end) {
+                textFieldSelectionState.updateTextToolbarState(TextToolbarState.None)
+            } else {
+                textFieldSelectionState.updateTextToolbarState(TextToolbarState.Selection)
+            }
             if (relativeToOriginal) {
                 textFieldState.selectUntransformedCharsIn(selectionRange)
             } else {
@@ -358,6 +371,13 @@ internal class TextFieldDecoratorModifierNode(
             } else if (!readOnly) {
                 requireKeyboardController().show()
             }
+            true
+        }
+        onLongClick {
+            if (!isFocused) {
+                requestFocus()
+            }
+            textFieldSelectionState.updateTextToolbarState(TextToolbarState.Selection)
             true
         }
         if (!selection.collapsed) {
@@ -456,7 +476,7 @@ internal class TextFieldDecoratorModifierNode(
         inputSessionJob = coroutineScope.launch {
             // This will automatically cancel the previous session, if any, so we don't need to
             // cancel the inputSessionJob ourselves.
-            textInputSession {
+            establishTextInputSession {
                 // Re-start observing changes in case our TextFieldState instance changed.
                 launch(start = CoroutineStart.UNDISPATCHED) {
                     textFieldSelectionState.observeChanges()

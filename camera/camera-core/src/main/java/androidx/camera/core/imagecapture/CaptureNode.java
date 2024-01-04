@@ -43,6 +43,7 @@ import androidx.camera.core.Logger;
 import androidx.camera.core.MetadataImageReader;
 import androidx.camera.core.SafeCloseImageReaderProxy;
 import androidx.camera.core.impl.CameraCaptureCallback;
+import androidx.camera.core.impl.CameraCaptureCallbacks;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.ImmediateSurface;
@@ -104,10 +105,23 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
         ImageReaderProxy wrappedImageReader;
         boolean hasMetadata = !inputEdge.isVirtualCamera();
         if (hasMetadata && inputEdge.getImageReaderProxyProvider() == null) {
+            CameraCaptureCallback progressCallback = new CameraCaptureCallback() {
+                @Override
+                public void onCaptureStarted() {
+                    mainThreadExecutor().execute(() -> {
+                        if (mCurrentRequest != null) {
+                            mCurrentRequest.onCaptureStarted();
+                        }
+                    });
+                }
+            };
             // Use MetadataImageReader if the input edge expects metadata.
             MetadataImageReader metadataImageReader = new MetadataImageReader(size.getWidth(),
                     size.getHeight(), format, MAX_IMAGES);
-            inputEdge.setCameraCaptureCallback(metadataImageReader.getCameraCaptureCallback());
+            CameraCaptureCallback cameraCaptureCallbacks =
+                    CameraCaptureCallbacks.createComboCallback(
+                            progressCallback, metadataImageReader.getCameraCaptureCallback());
+            inputEdge.setCameraCaptureCallback(cameraCaptureCallbacks);
             wrappedImageReader = metadataImageReader;
             requestConsumer = this::onRequestAvailable;
         } else {

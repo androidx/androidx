@@ -26,6 +26,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.ImageOutputConfig;
+import androidx.camera.core.resolutionselector.AspectRatioStrategy;
+import androidx.camera.core.resolutionselector.ResolutionSelector;
 import androidx.core.util.Preconditions;
 
 import java.lang.annotation.Retention;
@@ -232,6 +234,30 @@ public final class ViewPort {
          * {@link ImageAnalysis} and taking pictures with {@link ImageCapture} when faces are
          * found, the {@link ViewPort} should be created with the aspect ratio and rotation of the
          * {@link ImageCapture} use case.
+         *
+         * <p>All {@link UseCase}s have a configurable aspect ratio setting that determines the
+         * supported sizes for creating the capture session to receive images from the camera.
+         * See {@link ResolutionSelector.Builder#setAspectRatioStrategy(AspectRatioStrategy)} for
+         * {@link Preview}, {@link ImageCapture}, and {@link ImageAnalysis}, and
+         * {@link androidx.camera.video.Recorder.Builder#setAspectRatio(int)} for
+         * {@link androidx.camera.video.VideoCapture}. This is distinct from the {@link ViewPort}
+         * 's aspect ratio setting, which is used to calculate output crop rectangles among bound
+         * {@link UseCase}s to ensure that they have the same content.
+         *
+         * <p>To obtain the maximum field of view (FOV) of the full camera sensor, it is
+         * recommended that the {@link ViewPort} and the bound {@link UseCase}s have matching
+         * aspect ratio settings. Otherwise, the output crop rectangles may be a double-cropped
+         * result from the full camera sensor FOV.
+         *
+         * <p>For example, if all {@link UseCase}s have a 16:9 aspect ratio preference setting
+         * and are bound with a {@link ViewPort} with a 4:3 aspect ratio, the images obtained
+         * from the camera will be 16:9 images cropped from the 4:3 camera sensor data. The
+         * content inside the output crop rectangles will be 4:3 cropped images from the 16:9
+         * images cropped from the 4:3 camera sensor data. In other words, the images will be
+         * cropped twice: first to fit the 16:9 aspect ratio, and then to fit the 4:3 aspect
+         * ratio. This will result in a loss of FOV. To avoid this, it is important to ensure
+         * that the {@link ViewPort} and the bound {@link UseCase}s have matching aspect ratio
+         * settings.
          *
          * @param aspectRatio aspect ratio of the output crop rect if the scale type
          *                    is FILL_START, FILL_CENTER or FILL_END. This is usually the

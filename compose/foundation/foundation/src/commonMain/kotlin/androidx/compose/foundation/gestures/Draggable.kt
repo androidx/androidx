@@ -382,7 +382,6 @@ internal interface AbstractDragScope {
     fun dragBy(pixels: Offset)
 }
 
-@Suppress("PrimitiveInLambda")
 internal abstract class AbstractDraggableNode(
     var canDrag: (PointerInputChange) -> Boolean,
     var enabled: Boolean,
@@ -566,7 +565,6 @@ internal abstract class AbstractDraggableNode(
     }
 }
 
-@Suppress("PrimitiveInLambda")
 private suspend fun AwaitPointerEventScope.awaitDownAndSlop(
     canDrag: (PointerInputChange) -> Boolean,
     startDragImmediately: () -> Boolean,

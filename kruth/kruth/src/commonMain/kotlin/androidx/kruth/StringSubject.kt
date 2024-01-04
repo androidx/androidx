@@ -16,6 +16,9 @@
 
 package androidx.kruth
 
+import androidx.kruth.Fact.Companion.fact
+import androidx.kruth.Fact.Companion.simpleFact
+
 /**
  * Propositions for string subjects.
  */
@@ -109,11 +112,104 @@ class StringSubject internal constructor(
         }
     }
 
+    /** Fails if the string does not match the given [regex]. */
+    fun matches(regex: String) {
+        matches(regex.toRegex()) {
+            "Looks like you want to use .isEqualTo() for an exact equality assertion."
+        }
+    }
+
+    /** Fails if the string does not match the given [regex]. */
+    fun matches(regex: Regex) {
+        matches(regex) {
+            "If you want an exact equality assertion you can escape your regex with Regex.escape()."
+        }
+    }
+
+    private inline fun matches(regex: Regex, equalToStringErrorMsg: () -> String) {
+        if (actual == null) {
+            failWithActual("Expected a string that matches", regex)
+        }
+
+        if (actual.matches(regex)) {
+            return
+        }
+
+        if (regex.toString() == actual) {
+            failWithoutActual(
+                fact("Expected to match", regex),
+                fact("but was", actual),
+                simpleFact(equalToStringErrorMsg()),
+            )
+        } else {
+            failWithActual("Expected to match", regex);
+        }
+    }
+
+    /** Fails if the string matches the given regex.  */
+    fun doesNotMatch(regex: String) {
+        doesNotMatch(regex.toRegex())
+    }
+
+    /** Fails if the string matches the given regex.  */
+    fun doesNotMatch(regex: Regex) {
+        if (actual == null) {
+            failWithActual("Expected a string that does not match", regex)
+        }
+
+        if (actual.matches(regex)) {
+            failWithActual("Expected not to match", regex)
+        }
+    }
+
+    /** Fails if the string does not contain a match on the given regex.  */
+    fun containsMatch(regex: Regex) {
+        if (actual == null) {
+            failWithActual("Expected a string that contains a match for", regex)
+        }
+
+        if (!regex.containsMatchIn(actual)) {
+            failWithActual("Expected to contain a match for", regex)
+        }
+    }
+
+    /** Fails if the string does not contain a match on the given regex.  */
+    fun containsMatch(regex: String) {
+        containsMatch(regex.toRegex())
+    }
+
+    /** Fails if the string contains a match on the given regex.  */
+    fun doesNotContainMatch(regex: Regex) {
+        if (actual == null) {
+            failWithActual("expected a string that does not contain a match for", regex)
+        }
+
+        val result = regex.find(actual)
+        if (result != null) {
+            failWithoutActual(
+                fact("Expected not to contain a match for", regex),
+                fact("but contained", result.value),
+                fact("Full string", actual)
+            )
+        }
+    }
+
+    /** Fails if the string contains a match on the given regex.  */
+    fun doesNotContainMatch(regex: String) {
+        if (actual == null) {
+            failWithActual("expected a string that does not contain a match for", regex)
+        }
+
+        if (regex.toRegex().containsMatchIn(actual)) {
+            failWithActual("expected not to contain a match for", regex)
+        }
+    }
+
     /**
      * Returns a [StringSubject]-like instance that will ignore the case of the characters.
      *
      * Character equality ignoring case is defined as follows: Characters must be equal either
-     * after calling [Character.toLowerCase] or after calling [Character.toUpperCase].
+     * after calling [Char.lowercaseChar] or after calling [Char.uppercaseChar].
      * Note that this is independent of any locale.
      */
     fun ignoringCase(): CaseInsensitiveStringComparison =

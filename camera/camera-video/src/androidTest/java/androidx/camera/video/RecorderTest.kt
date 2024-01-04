@@ -58,6 +58,8 @@ import androidx.camera.testing.impl.mocks.MockConsumer
 import androidx.camera.testing.impl.mocks.helpers.ArgumentCaptor as ArgumentCaptorCameraX
 import androidx.camera.testing.impl.mocks.helpers.CallTimes
 import androidx.camera.testing.impl.mocks.helpers.CallTimesAtLeast
+import androidx.camera.video.Recorder.VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE
+import androidx.camera.video.Recorder.VIDEO_CAPABILITIES_SOURCE_CODEC_CAPABILITIES
 import androidx.camera.video.VideoOutput.SourceState.ACTIVE_NON_STREAMING
 import androidx.camera.video.VideoOutput.SourceState.ACTIVE_STREAMING
 import androidx.camera.video.VideoOutput.SourceState.INACTIVE
@@ -1011,6 +1013,31 @@ class RecorderTest(
         }
     }
 
+    @Test
+    fun defaultVideoCapabilitiesSource() {
+        val recorder = createRecorder()
+
+        assertThat(recorder.videoCapabilitiesSource)
+            .isEqualTo(VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE)
+    }
+
+    @Test
+    fun canSetVideoCapabilitiesSource() {
+        val recorder = createRecorder(
+            videoCapabilitiesSource = VIDEO_CAPABILITIES_SOURCE_CODEC_CAPABILITIES
+        )
+
+        assertThat(recorder.videoCapabilitiesSource)
+            .isEqualTo(VIDEO_CAPABILITIES_SOURCE_CODEC_CAPABILITIES)
+    }
+
+    @Test
+    fun setNonSupportedVideoCapabilitiesSource_throwException() {
+        assertThrows(IllegalArgumentException::class.java) {
+            createRecorder(videoCapabilitiesSource = Integer.MAX_VALUE)
+        }
+    }
+
     private fun testRecorderIsConfiguredBasedOnTargetVideoEncodingBitrate(targetBitrate: Int) {
         // Arrange.
         val recorder = createRecorder(targetBitrate = targetBitrate)
@@ -1045,6 +1072,7 @@ class RecorderTest(
         sendSurfaceRequest: Boolean = true,
         initSourceState: VideoOutput.SourceState = ACTIVE_STREAMING,
         qualitySelector: QualitySelector? = null,
+        videoCapabilitiesSource: Int? = null,
         executor: Executor? = null,
         videoEncoderFactory: EncoderFactory? = null,
         audioEncoderFactory: EncoderFactory? = null,
@@ -1052,6 +1080,7 @@ class RecorderTest(
     ): Recorder {
         val recorder = Recorder.Builder().apply {
             qualitySelector?.let { setQualitySelector(it) }
+            videoCapabilitiesSource?.let { setVideoCapabilitiesSource(it) }
             executor?.let { setExecutor(it) }
             videoEncoderFactory?.let { setVideoEncoderFactory(it) }
             audioEncoderFactory?.let { setAudioEncoderFactory(it) }

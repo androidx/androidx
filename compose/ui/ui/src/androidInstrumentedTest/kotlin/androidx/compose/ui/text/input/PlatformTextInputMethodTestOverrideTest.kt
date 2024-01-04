@@ -22,9 +22,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.PlatformTextInputMethodRequest
 import androidx.compose.ui.platform.PlatformTextInputModifierNode
 import androidx.compose.ui.platform.PlatformTextInputSession
-import androidx.compose.ui.platform.textInputSession
+import androidx.compose.ui.platform.establishTextInputSession
 import androidx.compose.ui.test.ComposeTimeoutException
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.PlatformTextInputMethodTestOverride
@@ -76,7 +77,7 @@ class PlatformTextInputMethodTestOverrideTest {
         var inputView: View? = null
         rule.runOnIdle {
             launch {
-                testNode.textInputSession {
+                testNode.establishTextInputSession {
                     inputView = view
                     cancelSelf()
                 }
@@ -112,7 +113,7 @@ class PlatformTextInputMethodTestOverrideTest {
 
         val testJob = rule.runOnIdle {
             launch {
-                testNode.textInputSession {
+                testNode.establishTextInputSession {
                     // This context should be propagated to startInputMethod.
                     withContext(CoroutineName(coroutineName)) {
                         startInputMethod(testRequest)
@@ -144,7 +145,7 @@ class PlatformTextInputMethodTestOverrideTest {
 
         val testJob = rule.runOnIdle {
             launch {
-                testNode.textInputSession {
+                testNode.establishTextInputSession {
                     startInputMethod(testRequest)
                 }
             }

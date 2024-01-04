@@ -118,7 +118,8 @@ internal fun Pager(
         horizontalAlignment = horizontalAlignment,
         verticalAlignment = verticalAlignment,
         itemProviderLambda = pagerItemProvider,
-        pageCount = { state.pageCount },
+        snapPositionInLayout = SnapAlignmentStartToStart,
+        pageCount = { state.pageCount }
     )
 
     val pagerFlingBehavior = remember(flingBehavior, state) {

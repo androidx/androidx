@@ -34,11 +34,14 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalTextInputService
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.EditCommand
@@ -204,23 +207,36 @@ class CoreTextFieldInputServiceIntegrationTest {
 
     @Test
     fun keyboardShownAfterDismissingKeyboardAndClickingAgain() {
+        var keyboardShown = false
+        val fakeKeyboardController = object : SoftwareKeyboardController {
+            override fun show() {
+                keyboardShown = true
+            }
+
+            override fun hide() {
+                keyboardShown = false
+            }
+        }
+
         // Arrange.
         setContent {
-            CoreTextField(
-                value = TextFieldValue("Hello"),
-                onValueChange = {},
-                modifier = Modifier.testTag("TextField1")
-            )
+            CompositionLocalProvider(
+                LocalSoftwareKeyboardController provides fakeKeyboardController
+            ) {
+                CoreTextField(
+                    value = TextFieldValue("Hello"),
+                    onValueChange = {},
+                    modifier = Modifier.testTag("TextField1")
+                )
+            }
         }
-        rule.onNodeWithTag("TextField1").performClick()
-        rule.runOnIdle { assertThat(platformTextInputService.keyboardShown).isTrue() }
+        rule.onNodeWithTag("TextField1").requestFocus()
 
         // Act.
-        rule.runOnIdle { platformTextInputService.keyboardShown = false }
         rule.onNodeWithTag("TextField1").performClick()
 
         // Assert.
-        rule.runOnIdle { assertThat(platformTextInputService.keyboardShown).isTrue() }
+        rule.runOnIdle { assertThat(keyboardShown).isTrue() }
     }
 
     @Test

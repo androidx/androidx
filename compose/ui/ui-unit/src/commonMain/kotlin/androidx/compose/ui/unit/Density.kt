@@ -46,7 +46,7 @@ private data class DensityImpl(
  */
 @Immutable
 @JvmDefaultWithCompatibility
-interface Density : FontScalable {
+interface Density : FontScaling {
 
     /**
      * The logical density of the display. This is a scaling factor for the [Dp] unit.

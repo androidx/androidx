@@ -20,6 +20,8 @@ import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
 import static androidx.camera.core.impl.utils.futures.Futures.transform;
+import static androidx.camera.view.internal.ScreenFlashUiInfo.ProviderType.PREVIEW_VIEW;
+import static androidx.camera.view.internal.ScreenFlashUiInfo.ProviderType.SCREEN_FLASH_VIEW;
 import static androidx.core.content.ContextCompat.getMainExecutor;
 
 import android.Manifest;
@@ -30,6 +32,7 @@ import android.hardware.camera2.CaptureResult;
 import android.os.Build;
 import android.util.Range;
 import android.util.Size;
+import android.view.Window;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.FloatRange;
@@ -55,6 +58,7 @@ import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCapture.ScreenFlashUiControl;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.InitializationException;
 import androidx.camera.core.Logger;
@@ -85,6 +89,7 @@ import androidx.camera.video.Recorder;
 import androidx.camera.video.Recording;
 import androidx.camera.video.VideoCapture;
 import androidx.camera.video.VideoRecordEvent;
+import androidx.camera.view.internal.ScreenFlashUiInfo;
 import androidx.camera.view.video.AudioConfig;
 import androidx.core.content.PermissionChecker;
 import androidx.core.util.Consumer;
@@ -215,6 +220,20 @@ public abstract class CameraController {
      */
     public static final int VIDEO_CAPTURE = 1 << 2;
 
+    private static final ScreenFlashUiControl NO_OP_SCREEN_FLASH_UI_CONTROL =
+            new ScreenFlashUiControl() {
+                @Override
+                public void applyScreenFlashUi(
+                        @NonNull ImageCapture.ScreenFlashUiCompleter screenFlashUiCompleter) {
+                    screenFlashUiCompleter.complete();
+                }
+
+                @Override
+                public void clearScreenFlashUi() {
+
+                }
+            };
+
     CameraSelector mCameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
 
     // By default, ImageCapture and ImageAnalysis are enabled. VideoCapture is disabled.
@@ -337,6 +356,8 @@ public abstract class CameraController {
     @NonNull
     private final ListenableFuture<Void> mInitializationFuture;
 
+    private final Map<ScreenFlashUiInfo.ProviderType, ScreenFlashUiInfo>
+            mScreenFlashUiInfoMap = new HashMap<>();
 
     CameraController(@NonNull Context context) {
         this(context, transform(ProcessCameraProvider.getInstance(context),
@@ -716,12 +737,93 @@ public abstract class CameraController {
      *
      * <p>If not set, the flash mode will default to {@link ImageCapture#FLASH_MODE_OFF}.
      *
+     * <p>If {@link ImageCapture#FLASH_MODE_SCREEN} is set, a valid {@link android.view.Window}
+     * instance must be set to a {@link PreviewView} or {@link ScreenFlashView} which this
+     * controller is set to. Trying to use {@link ImageCapture#FLASH_MODE_SCREEN} with a
+     * non-front camera or without setting a non-null window will be no-op. While switching the
+     * camera, it is the application's responsibility to change flash mode to the desired one if
+     * it leads to a no-op case (e.g. switching to rear camera while {@code FLASH_MODE_SCREEN} is
+     * still set). Otherwise, {@code FLASH_MODE_OFF} will be set.
+     *
      * @param flashMode the flash mode for {@link ImageCapture}.
+     *
+     * @throws IllegalArgumentException If flash mode is invalid or FLASH_MODE_SCREEN is used
+     *                                  without a front camera.
+     *
+     * @see PreviewView#setScreenFlashWindow(Window)
+     * @see ScreenFlashView#setScreenFlashWindow(Window)
      */
     @MainThread
     public void setImageCaptureFlashMode(@ImageCapture.FlashMode int flashMode) {
         checkMainThread();
+
+        if (flashMode == ImageCapture.FLASH_MODE_SCREEN) {
+            Integer lensFacing = mCameraSelector.getLensFacing();
+            if (lensFacing != null && lensFacing != CameraSelector.LENS_FACING_FRONT) {
+                throw new IllegalArgumentException(
+                        "Not a front camera despite setting FLASH_MODE_SCREEN");
+            }
+
+            updateScreenFlashUiControlToImageCapture();
+        }
+
         mImageCapture.setFlashMode(flashMode);
+    }
+
+    /**
+     * Internal API used by {@link PreviewView} and {@link ScreenFlashView} to provide a
+     * {@link ScreenFlashUiControl}.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public void setScreenFlashUiInfo(@NonNull ScreenFlashUiInfo screenFlashUiInfo) {
+        ScreenFlashUiInfo previousInfo = getScreenFlashUiInfoByPriority();
+        mScreenFlashUiInfoMap.put(screenFlashUiInfo.getProviderType(), screenFlashUiInfo);
+        ScreenFlashUiInfo prioritizedInfo = getScreenFlashUiInfoByPriority();
+        if (prioritizedInfo != null && !prioritizedInfo.equals(previousInfo)) {
+            updateScreenFlashUiControlToImageCapture();
+        }
+    }
+
+    /**
+     * Internal API used by {@link PreviewView} and {@link ScreenFlashView} to update screen
+     * flash mode to ImageCapture in case it's pending.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public void updateScreenFlashUiControlToImageCapture() {
+        ScreenFlashUiInfo screenFlashUiInfo = getScreenFlashUiInfoByPriority();
+
+        if (screenFlashUiInfo == null) {
+            // PreviewView/ScreenFlashView may have not been attached yet, so setting a NO-OP
+            // ScreenFlashUiControl until one of the views is attached
+            Logger.d(TAG, "No ScreenFlashUiControl set yet, need to wait for "
+                    + "controller to be set to either ScreenFlashView or PreviewView");
+            mImageCapture.setScreenFlashUiControl(NO_OP_SCREEN_FLASH_UI_CONTROL);
+            return;
+        }
+
+        mImageCapture.setScreenFlashUiControl(screenFlashUiInfo.getScreenFlashUiControl());
+        Logger.d(TAG, "Set ScreenFlashUiControl to ImageCapture, provided by "
+                + screenFlashUiInfo.getProviderType().name());
+    }
+
+    /**
+     * Returns a {@link ScreenFlashUiInfo} by prioritizing {@link ScreenFlashView} over
+     * {@link PreviewView}.
+     *
+     * <p> PreviewView always has a ScreenFlashView internally and does not know if user is
+     * using another ScreenFlashView themselves. This API prioritizes user's ScreenFlashView over
+     * the internal one in PreviewView and provides the ScreenFlashUiControlProvider accordingly.
+     */
+    @Nullable
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public ScreenFlashUiInfo getScreenFlashUiInfoByPriority() {
+        if (mScreenFlashUiInfoMap.get(SCREEN_FLASH_VIEW) != null) {
+            return mScreenFlashUiInfoMap.get(SCREEN_FLASH_VIEW);
+        }
+        if (mScreenFlashUiInfoMap.get(PREVIEW_VIEW) != null) {
+            return mScreenFlashUiInfoMap.get(PREVIEW_VIEW);
+        }
+        return null;
     }
 
     /**
@@ -741,6 +843,12 @@ public abstract class CameraController {
      * @param outputFileOptions  Options to store the newly captured image.
      * @param executor           The executor in which the callback methods will be run.
      * @param imageSavedCallback Callback to be called for the newly captured image.
+     *
+     * @throws IllegalStateException If {@link ImageCapture#FLASH_MODE_SCREEN} is set to the
+     *                               {@link CameraController}, but a non-null {@link Window}
+     *                               instance has not been set with
+     *                               {@link PreviewView#setScreenFlashWindow}.
+     *
      * @see ImageCapture#takePicture(
      *ImageCapture.OutputFileOptions, Executor, ImageCapture.OnImageSavedCallback)
      */
@@ -752,6 +860,8 @@ public abstract class CameraController {
         checkMainThread();
         Preconditions.checkState(isCameraInitialized(), CAMERA_NOT_INITIALIZED);
         Preconditions.checkState(isImageCaptureEnabled(), IMAGE_CAPTURE_DISABLED);
+
+        throwExceptionForInvalidScreenFlashCapture();
 
         updateMirroringFlagInOutputFileOptions(outputFileOptions);
         mImageCapture.takePicture(outputFileOptions, executor, imageSavedCallback);
@@ -781,6 +891,12 @@ public abstract class CameraController {
      *
      * @param executor The executor in which the callback methods will be run.
      * @param callback Callback to be invoked for the newly captured image
+     *
+     * @throws IllegalStateException If {@link ImageCapture#FLASH_MODE_SCREEN} is set to the
+     *                               {@link CameraController}, but a non-null {@link Window}
+     *                               instance has not been set with
+     *                               {@link PreviewView#setScreenFlashWindow}.
+     *
      * @see ImageCapture#takePicture(Executor, ImageCapture.OnImageCapturedCallback)
      */
     @MainThread
@@ -791,7 +907,20 @@ public abstract class CameraController {
         Preconditions.checkState(isCameraInitialized(), CAMERA_NOT_INITIALIZED);
         Preconditions.checkState(isImageCaptureEnabled(), IMAGE_CAPTURE_DISABLED);
 
+        throwExceptionForInvalidScreenFlashCapture();
+
         mImageCapture.takePicture(executor, callback);
+    }
+
+    private void throwExceptionForInvalidScreenFlashCapture() {
+        if (getImageCaptureFlashMode() == ImageCapture.FLASH_MODE_SCREEN && (
+                getScreenFlashUiInfoByPriority() == null
+                        || getScreenFlashUiInfoByPriority().getScreenFlashUiControl() == null)) {
+            // ScreenFlashUiControl won't be found at this point only if a non-null window was not
+            // set to PreviewView.
+            throw new IllegalStateException(
+                    "No window set in PreviewView despite setting FLASH_MODE_SCREEN");
+        }
     }
 
     /**
@@ -1724,6 +1853,12 @@ public abstract class CameraController {
         checkMainThread();
         if (mCameraSelector == cameraSelector) {
             return;
+        }
+
+        Integer lensFacing = cameraSelector.getLensFacing();
+        if (mImageCapture.getFlashMode() == ImageCapture.FLASH_MODE_SCREEN && lensFacing != null
+                && lensFacing != CameraSelector.LENS_FACING_FRONT) {
+            throw new IllegalStateException("Not a front camera despite setting FLASH_MODE_SCREEN");
         }
 
         CameraSelector oldCameraSelector = mCameraSelector;

@@ -62,14 +62,18 @@ class Morph(
      * values close to (but outside) the range can be used to get an exaggerated effect
      * (e.g., for a bounce or overshoot animation).
      */
-    fun asCubics(progress: Float) = _morphMatch.map { match ->
-        Cubic(FloatArray(8) {
-            interpolate(
-                match.first.points[it],
-                match.second.points[it],
-                progress
-            )
-        })
+    fun asCubics(progress: Float): List<Cubic> {
+        return buildList {
+            for (i in _morphMatch.indices) {
+                Cubic(FloatArray(8) {
+                    interpolate(
+                        _morphMatch[i].first.points[it],
+                        _morphMatch[i].second.points[it],
+                        progress
+                    )
+                })
+            }
+        }
     }
 
     /**
@@ -95,9 +99,9 @@ class Morph(
         progress: Float,
         mutableCubic: MutableCubic = MutableCubic(),
         callback: (MutableCubic) -> Unit
-        ) {
-        morphMatch.forEach { match ->
-            mutableCubic.interpolate(match.first, match.second, progress)
+    ) {
+        for (i in morphMatch.indices) {
+            mutableCubic.interpolate(morphMatch[i].first, morphMatch[i].second, progress)
             callback(mutableCubic)
         }
     }
@@ -122,26 +126,32 @@ class Morph(
             p1: RoundedPolygon,
             p2: RoundedPolygon
         ): List<Pair<Cubic, Cubic>> {
+            // TODO Commented out due to the use of javaClass ("Error: Platform reference in a
+            //  common module")
+            /*
             if (DEBUG) {
-                repeat(2) { polyIndex ->
-                    debugLog(LOG_TAG) {
-                        listOf("Initial start:\n", "Initial end:\n")[polyIndex] +
-                            listOf(p1, p2)[polyIndex].features.joinToString("\n") { feature ->
-                                "${feature.javaClass.name.split("$").last()} - " +
-                                    ((feature as? Feature.Corner)?.convex?.let {
-                                        if (it) "Convex - " else "Concave - " } ?: "") +
-                                    feature.cubics.joinToString("|")
-                            }
-                    }
-                }
+               repeat(2) { polyIndex ->
+                   debugLog(LOG_TAG) {
+                       listOf("Initial start:\n", "Initial end:\n")[polyIndex] +
+                           listOf(p1, p2)[polyIndex].features.joinToString("\n") { feature ->
+                               "${feature.javaClass.name.split("$").last()} - " +
+                                   ((feature as? Feature.Corner)?.convex?.let {
+                                       if (it) "Convex - " else "Concave - " } ?: "") +
+                                   feature.cubics.joinToString("|")
+                           }
+                   }
+               }
             }
+            */
 
             // Measure polygons, returns lists of measured cubics for each polygon, which
             // we then use to match start/end curves
             val measuredPolygon1 = MeasuredPolygon.measurePolygon(
-                AngleMeasurer(p1.centerX, p1.centerY), p1)
+                AngleMeasurer(p1.centerX, p1.centerY), p1
+            )
             val measuredPolygon2 = MeasuredPolygon.measurePolygon(
-                AngleMeasurer(p2.centerX, p2.centerY), p2)
+                AngleMeasurer(p2.centerX, p2.centerY), p2
+            )
 
             // features1 and 2 will contain the list of corners (just the inner circular curve)
             // along with the progress at the middle of those corners. These measurement values
@@ -200,7 +210,7 @@ class Morph(
                 )
                 val minb = min(b1a, b2a)
                 debugLog(LOG_TAG) { "$b1a $b2a | $minb" }
-                // minb is the progress at which the curve that ends first ends.
+                // min b is the progress at which the curve that ends first ends.
                 // If both curves ends roughly there, no cutting is needed, we have a match.
                 // If one curve extends beyond, we need to cut it.
                 val (seg1, newb1) = if (b1a > minb + AngleEpsilon) {
@@ -220,7 +230,9 @@ class Morph(
                 b1 = newb1
                 b2 = newb2
             }
-            require(b1 == null && b2 == null)
+            require(b1 == null && b2 == null) {
+                "Expected both Polygon's Cubic to be fully matched"
+            }
 
             if (DEBUG) {
                 // Export as SVG path.
@@ -230,8 +242,12 @@ class Morph(
                 repeat(2) { listIx ->
                     val points = ret.map { if (listIx == 0) it.first else it.second }
                     debugLog(LOG_TAG) {
-                        "M " + showPoint(Point(points.first().anchor0X,
-                            points.first().anchor0Y)) + " " +
+                        "M " + showPoint(
+                            Point(
+                                points.first().anchor0X,
+                                points.first().anchor0Y
+                            )
+                        ) + " " +
                             points.joinToString(" ") {
                                 "C " + showPoint(Point(it.control0X, it.control0Y)) + ", " +
                                     showPoint(Point(it.control1X, it.control1Y)) + ", " +

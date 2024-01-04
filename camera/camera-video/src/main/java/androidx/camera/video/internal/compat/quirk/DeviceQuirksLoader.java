@@ -95,6 +95,9 @@ public class DeviceQuirksLoader {
         if (StretchedVideoResolutionQuirk.load()) {
             quirks.add(new StretchedVideoResolutionQuirk());
         }
+        if (CodecStuckOnFlushQuirk.load()) {
+            quirks.add(new CodecStuckOnFlushQuirk());
+        }
 
         return quirks;
     }

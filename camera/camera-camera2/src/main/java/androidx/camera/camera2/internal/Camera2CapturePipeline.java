@@ -23,6 +23,7 @@ import static androidx.camera.core.ImageCapture.ERROR_CAPTURE_FAILED;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_AUTO;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_ON;
+import static androidx.camera.core.ImageCapture.FLASH_MODE_SCREEN;
 import static androidx.camera.core.ImageCapture.FLASH_TYPE_USE_TORCH_AS_FLASH;
 import static androidx.camera.core.ImageCapture.FlashMode;
 import static androidx.camera.core.ImageCapture.FlashType;
@@ -34,6 +35,7 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -47,6 +49,7 @@ import androidx.camera.camera2.internal.compat.workaround.FlashAvailabilityCheck
 import androidx.camera.camera2.internal.compat.workaround.OverrideAeModeForStillCapture;
 import androidx.camera.camera2.internal.compat.workaround.UseTorchAsFlash;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
+import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Logger;
@@ -70,9 +73,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Implementation detail of the submitStillCaptures method.
@@ -137,6 +143,9 @@ class Camera2CapturePipeline {
     @CameraExecutor
     private final Executor mExecutor;
 
+    @NonNull
+    private final ScheduledExecutorService mScheduler;
+
     private final boolean mIsLegacyDevice;
 
     private int mTemplate = CameraDevice.TEMPLATE_PREVIEW;
@@ -147,13 +156,15 @@ class Camera2CapturePipeline {
     Camera2CapturePipeline(@NonNull Camera2CameraControlImpl cameraControl,
             @NonNull CameraCharacteristicsCompat cameraCharacteristics,
             @NonNull Quirks cameraQuirks,
-            @CameraExecutor @NonNull Executor executor) {
+            @CameraExecutor @NonNull Executor executor,
+            @NonNull ScheduledExecutorService scheduler) {
         mCameraControl = cameraControl;
         Integer level =
                 cameraCharacteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
         mIsLegacyDevice = level != null
                 && level == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
         mExecutor = executor;
+        mScheduler = scheduler;
         mCameraQuirk = cameraQuirks;
         mUseTorchAsFlash = new UseTorchAsFlash(cameraQuirks);
         mHasFlashUnit = FlashAvailabilityChecker.isFlashAvailable(cameraCharacteristics::get);
@@ -187,13 +198,19 @@ class Camera2CapturePipeline {
             pipeline.addTask(new AfTask(mCameraControl));
         }
 
-        if (mHasFlashUnit) {
-            if (isTorchAsFlash(flashType)) {
-                pipeline.addTask(new TorchTask(mCameraControl, flashMode, mExecutor));
-            } else {
-                pipeline.addTask(new AePreCaptureTask(mCameraControl, flashMode, aeQuirk));
+        if (flashMode == FLASH_MODE_SCREEN) {
+            pipeline.addTask(new ScreenFlashTask(mCameraControl, mExecutor, mScheduler));
+        } else {
+            if (mHasFlashUnit) {
+                if (isTorchAsFlash(flashType)) {
+                    pipeline.addTask(new TorchTask(mCameraControl, flashMode, mExecutor));
+                } else {
+                    pipeline.addTask(new AePreCaptureTask(mCameraControl, flashMode, aeQuirk));
+                }
             }
-        } // If there is no flash unit, skip the flash related task instead of failing the pipeline.
+            // If there is no flash unit, skip the flash related task instead of failing the
+            // pipeline.
+        }
 
         return Futures.nonCancellationPropagating(
                 pipeline.executeCapture(captureConfigs, flashMode));
@@ -657,8 +674,107 @@ class Camera2CapturePipeline {
         }
     }
 
+    /**
+     * Task to trigger ScreenFlashCallback and AePreCapture if screen flash is enabled.
+     */
+    static class ScreenFlashTask implements PipelineTask {
+        private static final long CHECK_3A_WITH_SCREEN_FLASH_TIMEOUT_IN_NS =
+                TimeUnit.SECONDS.toNanos(2);
+
+        private final Camera2CameraControlImpl mCameraControl;
+        private final Executor mExecutor;
+        private final ScheduledExecutorService mScheduler;
+        private final ImageCapture.ScreenFlashUiControl mScreenFlashUiControl;
+
+        ScreenFlashTask(@NonNull Camera2CameraControlImpl cameraControl,
+                @NonNull Executor executor, @NonNull ScheduledExecutorService scheduler) {
+            mCameraControl = cameraControl;
+            mExecutor = executor;
+            mScheduler = scheduler;
+
+            mScreenFlashUiControl =
+                    Objects.requireNonNull(mCameraControl.getScreenFlashUiControl());
+        }
+
+        @ExecutedBy("mExecutor")
+        @NonNull
+        @Override
+        public ListenableFuture<Boolean> preCapture(@Nullable TotalCaptureResult captureResult) {
+            Logger.d(TAG, "ScreenFlashTask#preCapture");
+
+            AtomicReference<ImageCapture.ScreenFlashUiCompleter> screenFlashUiCompleter =
+                    new AtomicReference<>();
+
+            ListenableFuture<Void> uiAppliedFuture = CallbackToFutureAdapter.getFuture(
+                    completer -> {
+                        screenFlashUiCompleter.set(() -> {
+                            Logger.d(TAG, "ScreenFlashTask#preCapture: UI change applied");
+                            completer.set(null);
+                        });
+                        return "OnScreenFlashUiApplied";
+                    });
+
+            ListenableFuture<Void> future = CallbackToFutureAdapter.getFuture(completer -> {
+                CameraXExecutors.mainThreadExecutor().execute(() -> {
+                    mScreenFlashUiControl.applyScreenFlashUi(screenFlashUiCompleter.get());
+                    completer.set(null);
+                });
+                return "OnScreenFlashStart";
+            });
+
+            return FutureChain.from(future).transformAsync(
+                    input -> mCameraControl.getFocusMeteringControl().enableExternalFlashAeMode(
+                            true),
+                    mExecutor
+            ).transformAsync(
+                    input -> Futures.makeTimeoutFuture(TimeUnit.SECONDS.toMillis(
+                                    ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS),
+                            mScheduler, null,
+                            uiAppliedFuture),
+                    mExecutor
+            ).transformAsync(
+                    // Won't have any effect if CONTROL_AE_MODE_ON_EXTERNAL_FLASH is supported
+                    input -> CallbackToFutureAdapter.getFuture(
+                            completer -> {
+                                Logger.d(TAG, "ScreenFlashTask#preCapture: enable torch");
+                                // TODO: Enable torch only if actual flash unit doesn't exist
+                                mCameraControl.enableTorchInternal(true);
+                                completer.set(null);
+                                return "EnableTorchInternal";
+                            }),
+                    mExecutor
+            ).transformAsync(
+                    input -> mCameraControl.getFocusMeteringControl().triggerAePrecapture(),
+                    mExecutor
+            ).transformAsync(
+                    input -> waitForResult(CHECK_3A_WITH_SCREEN_FLASH_TIMEOUT_IN_NS, mCameraControl,
+                            (result) -> is3AConverged(result, false)), mExecutor
+            ).transform(input -> false, CameraXExecutors.directExecutor());
+        }
+
+        @ExecutedBy("mExecutor")
+        @Override
+        public boolean isCaptureResultNeeded() {
+            return false;
+        }
+
+        @ExecutedBy("mExecutor")
+        @Override
+        public void postCapture() {
+            Logger.d(TAG, "ScreenFlashTask#postCapture");
+            mCameraControl.enableTorchInternal(false);
+            mCameraControl.getFocusMeteringControl().enableExternalFlashAeMode(false).addListener(
+                    () -> Log.d(TAG, "enableExternalFlashAeMode disabled"), mExecutor
+            );
+            mCameraControl.getFocusMeteringControl().cancelAfAeTrigger(false, true);
+            CameraXExecutors.mainThreadExecutor().execute(
+                    mScreenFlashUiControl::clearScreenFlashUi);
+        }
+    }
+
     static boolean isFlashRequired(@FlashMode int flashMode, @Nullable TotalCaptureResult result) {
         switch (flashMode) {
+            case FLASH_MODE_SCREEN:
             case FLASH_MODE_ON:
                 return true;
             case FLASH_MODE_AUTO:

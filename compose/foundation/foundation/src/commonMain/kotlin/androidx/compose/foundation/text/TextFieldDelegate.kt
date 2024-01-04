@@ -47,6 +47,8 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import kotlin.jvm.JvmStatic
+import kotlin.math.max
+import kotlin.math.min
 
 // visible for testing
 internal const val DefaultWidthCharCount = 10 // min width for TextField is 10 chars long
@@ -356,16 +358,27 @@ internal class TextFieldDelegate {
         fun applyCompositionDecoration(
             compositionRange: TextRange,
             transformed: TransformedText
-        ): TransformedText =
-            TransformedText(
+        ): TransformedText {
+            val startPositionTransformed = transformed.offsetMapping.originalToTransformed(
+                compositionRange.start
+            )
+            val endPositionTransformed = transformed.offsetMapping.originalToTransformed(
+                compositionRange.end
+            )
+
+            // coerce into a valid range with start <= end
+            val start = min(startPositionTransformed, endPositionTransformed)
+            val coercedEnd = max(startPositionTransformed, endPositionTransformed)
+            return TransformedText(
                 AnnotatedString.Builder(transformed.text).apply {
                     addStyle(
                         SpanStyle(textDecoration = TextDecoration.Underline),
-                        transformed.offsetMapping.originalToTransformed(compositionRange.start),
-                        transformed.offsetMapping.originalToTransformed(compositionRange.end)
+                        start,
+                        coercedEnd
                     )
                 }.toAnnotatedString(),
                 transformed.offsetMapping
             )
+        }
     }
 }

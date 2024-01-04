@@ -86,7 +86,11 @@ internal class RenderNodeLayer(
         RenderNodeApi29(ownerView)
     } else {
         RenderNodeApi23(ownerView)
-    }.apply { setHasOverlappingRendering(true) }
+    }.apply {
+        setHasOverlappingRendering(true)
+        // in compose the default is to not clip.
+        clipToBounds = false
+    }
 
     override val layerId: Long
         get() = renderNode.uniqueId
@@ -168,19 +172,17 @@ internal class RenderNodeLayer(
         if (maybeChangedFields and Fields.CompositingStrategy != 0) {
             renderNode.compositingStrategy = scope.compositingStrategy
         }
-        // Note that we an safely leave Fields.Alpha out of this because it
-        val shapeChanged = if (maybeChangedFields and Fields.OutlineAffectingFields != 0) {
-            outlineResolver.update(
-                scope.shape,
-                renderNode.alpha,
-                renderNode.clipToOutline,
-                renderNode.elevation,
-                layoutDirection,
-                density
-            ).also {
-                renderNode.setOutline(outlineResolver.outline)
-            }
-        } else false
+        val shapeChanged = outlineResolver.update(
+            scope.shape,
+            scope.alpha,
+            clipToOutline,
+            scope.shadowElevation,
+            layoutDirection,
+            density
+        )
+        if (outlineResolver.cacheIsDirty) {
+            renderNode.setOutline(outlineResolver.outline)
+        }
         val isClippingManually = clipToOutline && !outlineResolver.outlineClipSupported
         if (wasClippingManually != isClippingManually || (isClippingManually && shapeChanged)) {
             invalidate()

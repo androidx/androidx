@@ -18,7 +18,9 @@ package androidx.core.haptics.device
 
 import android.os.Build
 import androidx.core.haptics.signal.CompositionSignal
+import androidx.core.haptics.signal.HapticSignal
 import androidx.core.haptics.signal.PredefinedEffectSignal
+import androidx.core.haptics.signal.WaveformSignal
 import java.util.Objects
 
 /**
@@ -82,6 +84,27 @@ class HapticDeviceProfile @JvmOverloads constructor(
                 availablePredefinedEffects.contains(it)
             }.toSet()
     }
+
+    /**
+     * Returns true if the vibrator has the necessary capabilities to play the given haptic signal.
+     *
+     * Note that playing an unsupported [HapticSignal] on a device vibrator might lead to unexpected
+     * results. Some haptic signals may be ignored, e.g. [CompositionSignal] on lower SDKs or
+     * devices without the primitives support. Other signals might play a different vibration than
+     * the one intended, e.g. [WaveformSignal] with partial amplitudes on a device without amplitude
+     * control will play at a fixed default vibration strength.
+     *
+     * This method will always return true for [PredefinedEffectSignal], as the platform will play
+     * a device-specific predefined vibration even without hardware support for these effects. If
+     * hardware support is required for your use case then check
+     * [hardwareOptimizedPredefinedEffects] directly.
+     *
+     * @param signal The haptic signal to check for support
+     * @return true if the device vibrator can play the given haptic signal as intended, false
+     *   otherwise.
+     */
+    fun supports(signal: HapticSignal): Boolean =
+        signal.isSupportedBy(this)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

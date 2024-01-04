@@ -120,24 +120,6 @@ class WindowMetricsCalculatorRuleTest {
         }
     }
 
-    // DefaultDisplay width/height used in tests for API16 and lower
-    @Suppress("DEPRECATION")
-    @Test
-    fun testCurrentWindowMetrics_context_matchesDisplayMetrics_16AndBelow() {
-        Utils.assumePlatformAtOrBelow(Build.VERSION_CODES.JELLY_BEAN)
-
-        activityRule.scenario.onActivity { activity ->
-            val calculator = WindowMetricsCalculator.getOrCreate()
-            val wm = activity.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-            val actual = calculator.computeCurrentWindowMetrics(activity as Context)
-
-            assertEquals(0, actual.bounds.left)
-            assertEquals(0, actual.bounds.top)
-            assertEquals(wm.defaultDisplay.width, actual.bounds.right)
-            assertEquals(wm.defaultDisplay.height, actual.bounds.bottom)
-        }
-    }
-
     @Test
     fun testCurrentWindowMetrics_context_matchesMaximumMetrics() {
         activityRule.scenario.onActivity { activity ->

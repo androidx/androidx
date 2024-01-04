@@ -22,10 +22,12 @@ package androidx.room
  *
  * @see AutoMigration
  */
-@JvmRepeatable(DeleteColumn.Entries::class)
+@Repeatable
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.BINARY)
-public annotation class DeleteColumn(
+@OptIn(ExperimentalMultiplatform::class)
+@OptionalExpectation
+public expect annotation class DeleteColumn(
     /**
      * Name of the table in the [AutoMigration.from] version of the database the column was
      * deleted from.
@@ -40,13 +42,4 @@ public annotation class DeleteColumn(
      * @return Name of the column.
      */
     val columnName: String,
-) {
-    /**
-     * Container annotation for the repeatable annotation [DeleteColumn].
-     */
-    @Target(AnnotationTarget.CLASS)
-    @Retention(AnnotationRetention.BINARY)
-    public annotation class Entries(
-        vararg val value: DeleteColumn
-    )
-}
+)

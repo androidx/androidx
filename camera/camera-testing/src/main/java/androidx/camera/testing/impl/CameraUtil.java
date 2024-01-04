@@ -1190,6 +1190,10 @@ public final class CameraUtil {
             if (deviceHolder.get() == null) {
                 ret = false;
             }
+            if (Build.MODEL.equalsIgnoreCase("sm-g920v")) {
+                // Please see b/305835396
+                TimeUnit.SECONDS.sleep(1);
+            }
         } catch (Exception e) {
             ret = false;
         } finally {
@@ -1392,8 +1396,9 @@ public final class CameraUtil {
             return new Statement() {
                 @Override
                 public void evaluate() throws Throwable {
+                    String logPrefix = String.format("[%s]", System.currentTimeMillis());
                     if (mCameraIdListCorrect.get() == null) {
-                        if (isCameraLensFacingInfoAvailable()) {
+                        if (isCameraLensFacingInfoAvailable(logPrefix)) {
                             mCameraIdListCorrect.set(true);
                         } else {
                             mCameraIdListCorrect.set(false);
@@ -1401,7 +1406,7 @@ public final class CameraUtil {
 
                         // Always try to initialize CameraX if the CameraXConfig has been set.
                         if (mCameraXConfig != null) {
-                            if (checkLensFacingByCameraXConfig(
+                            if (checkLensFacingByCameraXConfig(logPrefix,
                                     ApplicationProvider.getApplicationContext(), mCameraXConfig)) {
                                 mCameraIdListCorrect.set(true);
                             } else {
@@ -1427,11 +1432,14 @@ public final class CameraUtil {
         }
     }
 
-    static boolean checkLensFacingByCameraXConfig(@NonNull Context context,
+    static boolean checkLensFacingByCameraXConfig(
+            @NonNull String logPrefix,
+            @NonNull Context context,
             @NonNull CameraXConfig config) {
         try {
             // Shutdown exist instances, if there is any
             CameraXUtil.shutdown().get(10, TimeUnit.SECONDS);
+            logInit(logPrefix, "Start init CameraX");
 
             CameraXUtil.initialize(context, config).get(10, TimeUnit.SECONDS);
             CameraX camerax = CameraXUtil.getOrCreateInstance(context, null).get(5,
@@ -1447,10 +1455,10 @@ public final class CameraUtil {
             if (frontFeature) {
                 CameraSelector.DEFAULT_FRONT_CAMERA.select(cameras);
             }
-            Logger.i(LOG_TAG, "Successfully init CameraX");
+            logInit(logPrefix, "Successfully init CameraX");
             return true;
         } catch (Exception e) {
-            Logger.w(LOG_TAG, "CameraX init fail", e);
+            logInit(logPrefix, "CameraX init fail", e);
         } finally {
             try {
                 CameraXUtil.shutdown().get(10, TimeUnit.SECONDS);
@@ -1467,7 +1475,7 @@ public final class CameraUtil {
      * @return true if the front and main camera info exists in the camera characteristic.
      */
     @SuppressWarnings("ObjectToString")
-    static boolean isCameraLensFacingInfoAvailable() {
+    static boolean isCameraLensFacingInfoAvailable(@NonNull String logPrefix) {
         boolean error = false;
         Context context = ApplicationProvider.getApplicationContext();
         CameraManager manager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
@@ -1514,7 +1522,7 @@ public final class CameraUtil {
 
             if (!backPass || !frontPass) {
                 error = true;
-                Logger.e(LOG_TAG,
+                logInit(logPrefix,
                         "Missing front or back camera, has front camera: " + hasFront + ", has "
                                 + "back camera: " + hasBack + " has main camera feature:"
                                 + backFeature + " has front camera feature:" + frontFeature
@@ -1522,9 +1530,22 @@ public final class CameraUtil {
             }
         } else {
             error = true;
-            Logger.e(LOG_TAG, "cameraIds.length is zero");
+            logInit(logPrefix, "cameraIds.length is zero");
         }
 
         return !error;
+    }
+
+    private static void logInit(@NonNull String prefix, @NonNull String message) {
+        logInit(prefix, message, null);
+    }
+
+    private static void logInit(
+            @NonNull String prefix, @NonNull String message, @Nullable Throwable t) {
+        if (t != null) {
+            Logger.i(LOG_TAG, prefix + message + " Time:" + System.currentTimeMillis(), t);
+        } else {
+            Logger.i(LOG_TAG, prefix + message + " Time:" + System.currentTimeMillis());
+        }
     }
 }

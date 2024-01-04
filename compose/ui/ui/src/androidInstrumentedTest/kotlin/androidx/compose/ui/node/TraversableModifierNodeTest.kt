@@ -26,7 +26,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.node.TraversableNode.Companion.VisitSubtreeIfAction
+import androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAction
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.dp
@@ -215,12 +215,12 @@ class TraversableModifierNodeTest {
 
     // *********** Nearest Traversable Ancestor Tests ***********
     @Test
-    fun nearestTraversableAncestor_ancestorsWithTheSameClass() {
+    fun findNearestAncestor_ancestorsWithTheSameClass() {
         var nearestAncestorNode: TraversableNode? = null
 
         // Starts at grandchild A (which has a parent and grandparent of the same class)
         rule.runOnIdle {
-            nearestAncestorNode = grandChildNodeA.nearestTraversableAncestor()
+            nearestAncestorNode = grandChildNodeA.findNearestAncestor()
         }
 
         rule.runOnIdle {
@@ -232,7 +232,7 @@ class TraversableModifierNodeTest {
         nearestAncestorNode = null
 
         rule.runOnIdle {
-            nearestAncestorNode = grandChildNodeD.nearestTraversableAncestor()
+            nearestAncestorNode = grandChildNodeD.findNearestAncestor()
         }
 
         rule.runOnIdle {
@@ -244,7 +244,7 @@ class TraversableModifierNodeTest {
         nearestAncestorNode = null
 
         rule.runOnIdle {
-            nearestAncestorNode = grandChildNodeG.nearestTraversableAncestor()
+            nearestAncestorNode = grandChildNodeG.findNearestAncestor()
         }
 
         rule.runOnIdle {
@@ -253,13 +253,13 @@ class TraversableModifierNodeTest {
     }
 
     @Test
-    fun nearestTraversableAncestor_ancestorsWithOutTheSameClass() {
+    fun findNearestAncestor_ancestorsWithOutTheSameClass() {
         var nearestAncestorNode: TraversableNode? = null
 
         // Starts at grandchild B (which has a parent and grandparent of different class but the
         // same key). Neither should match.
         rule.runOnIdle {
-            nearestAncestorNode = grandChildNodeB.nearestTraversableAncestor()
+            nearestAncestorNode = grandChildNodeB.findNearestAncestor()
         }
 
         rule.runOnIdle {
@@ -271,7 +271,7 @@ class TraversableModifierNodeTest {
         // Starts at grandchild C (which has a parent and grandparent of different class and a
         // different key). Neither should match.
         rule.runOnIdle {
-            nearestAncestorNode = grandChildNodeC.nearestTraversableAncestor()
+            nearestAncestorNode = grandChildNodeC.findNearestAncestor()
         }
 
         rule.runOnIdle {
@@ -280,13 +280,13 @@ class TraversableModifierNodeTest {
     }
 
     @Test
-    fun nearestTraversableAncestorWithKey_ancestorsWithTheSameKey() {
+    fun findNearestAncestor_ancestorsWithTheSameKey() {
         var nearestAncestorNode: TraversableNode? = null
 
         // Starts from grandchild A with SHARED_TRAVERSAL_NODE_KEY.
         rule.runOnIdle {
             nearestAncestorNode =
-                grandChildNodeA.nearestTraversableAncestorWithKey(SHARED_TRAVERSAL_NODE_KEY)
+                grandChildNodeA.findNearestAncestor(SHARED_TRAVERSAL_NODE_KEY)
         }
 
         rule.runOnIdle {
@@ -298,7 +298,7 @@ class TraversableModifierNodeTest {
         // Starts from grandchild D with SHARED_TRAVERSAL_NODE_KEY.
         rule.runOnIdle {
             nearestAncestorNode =
-                grandChildNodeD.nearestTraversableAncestorWithKey(SHARED_TRAVERSAL_NODE_KEY)
+                grandChildNodeD.findNearestAncestor(SHARED_TRAVERSAL_NODE_KEY)
         }
 
         rule.runOnIdle {
@@ -310,7 +310,7 @@ class TraversableModifierNodeTest {
         // Starts from grandchild G with SHARED_TRAVERSAL_NODE_KEY.
         rule.runOnIdle {
             nearestAncestorNode =
-                grandChildNodeG.nearestTraversableAncestorWithKey(SHARED_TRAVERSAL_NODE_KEY)
+                grandChildNodeG.findNearestAncestor(SHARED_TRAVERSAL_NODE_KEY)
         }
 
         rule.runOnIdle {
@@ -322,7 +322,7 @@ class TraversableModifierNodeTest {
         // Starts from grandchild G with OTHER_TRAVERSAL_NODE_KEY.
         rule.runOnIdle {
             nearestAncestorNode =
-                grandChildNodeG.nearestTraversableAncestorWithKey(OTHER_TRAVERSAL_NODE_KEY)
+                grandChildNodeG.findNearestAncestor(OTHER_TRAVERSAL_NODE_KEY)
         }
 
         rule.runOnIdle {
@@ -331,13 +331,13 @@ class TraversableModifierNodeTest {
     }
 
     @Test
-    fun nearestTraversableAncestorWithKey_ancestorsWithoutTheSameKey() {
+    fun findNearestAncestor_ancestorsWithoutTheSameKey() {
         var nearestAncestorNode: TraversableNode? = null
 
         // Starts from grandchild A with OTHER_TRAVERSAL_NODE_KEY.
         rule.runOnIdle {
             nearestAncestorNode =
-                grandChildNodeA.nearestTraversableAncestorWithKey(OTHER_TRAVERSAL_NODE_KEY)
+                grandChildNodeA.findNearestAncestor(OTHER_TRAVERSAL_NODE_KEY)
         }
 
         rule.runOnIdle {
@@ -349,7 +349,7 @@ class TraversableModifierNodeTest {
         // Starts from grandchild B with OTHER_TRAVERSAL_NODE_KEY.
         rule.runOnIdle {
             nearestAncestorNode =
-                grandChildNodeB.nearestTraversableAncestorWithKey(OTHER_TRAVERSAL_NODE_KEY)
+                grandChildNodeB.findNearestAncestor(OTHER_TRAVERSAL_NODE_KEY)
         }
 
         rule.runOnIdle {
@@ -361,7 +361,7 @@ class TraversableModifierNodeTest {
         // Starts from grandchild C with OTHER_TRAVERSAL_NODE_KEY.
         rule.runOnIdle {
             nearestAncestorNode =
-                grandChildNodeC.nearestTraversableAncestorWithKey(OTHER_TRAVERSAL_NODE_KEY)
+                grandChildNodeC.findNearestAncestor(OTHER_TRAVERSAL_NODE_KEY)
         }
 
         rule.runOnIdle {
@@ -373,7 +373,7 @@ class TraversableModifierNodeTest {
         // Starts from grandchild F with OTHER_TRAVERSAL_NODE_KEY.
         rule.runOnIdle {
             nearestAncestorNode =
-                grandChildNodeF.nearestTraversableAncestorWithKey(OTHER_TRAVERSAL_NODE_KEY)
+                grandChildNodeF.findNearestAncestor(OTHER_TRAVERSAL_NODE_KEY)
         }
 
         rule.runOnIdle {
@@ -382,12 +382,12 @@ class TraversableModifierNodeTest {
     }
 
     @Test
-    fun nearestTraversableAncestorWithKey_nullKey() {
+    fun findNearestAncestor_nullKey() {
         var nearestAncestorNode: TraversableNode? = null
 
         // Starts from grandchild A with null key.
         rule.runOnIdle {
-            nearestAncestorNode = grandChildNodeA.nearestTraversableAncestorWithKey(null)
+            nearestAncestorNode = grandChildNodeA.findNearestAncestor(null)
         }
 
         rule.runOnIdle {
@@ -399,7 +399,7 @@ class TraversableModifierNodeTest {
         nearestAncestorNode = null
 
         rule.runOnIdle {
-            nearestAncestorNode = grandChildNodeD.nearestTraversableAncestorWithKey(null)
+            nearestAncestorNode = grandChildNodeD.findNearestAncestor(null)
         }
 
         rule.runOnIdle {
@@ -410,7 +410,7 @@ class TraversableModifierNodeTest {
         nearestAncestorNode = null
 
         rule.runOnIdle {
-            nearestAncestorNode = grandChildNodeF.nearestTraversableAncestorWithKey(null)
+            nearestAncestorNode = grandChildNodeF.findNearestAncestor(null)
         }
 
         rule.runOnIdle {
@@ -488,7 +488,7 @@ class TraversableModifierNodeTest {
     }
 
     @Test
-    fun traverseAncestorsWithKey_sameKey() {
+    fun traverseAncestors_sameKey() {
         var totalMatchingAncestors = 0
         var classOneWithSharedKeyTraversalNodeAncestors = 0
         var classTwoWithSharedKeyTraversalNodeAncestors = 0
@@ -496,7 +496,7 @@ class TraversableModifierNodeTest {
 
         // Starts at grandchild A (which has a parent and grandparent of the same class).
         rule.runOnIdle {
-            grandChildNodeA.traverseAncestorsWithKey(SHARED_TRAVERSAL_NODE_KEY) {
+            grandChildNodeA.traverseAncestors(SHARED_TRAVERSAL_NODE_KEY) {
                 totalMatchingAncestors++
 
                 when (it) {
@@ -532,7 +532,7 @@ class TraversableModifierNodeTest {
         classThreeWithOtherKeyTraversalNodeAncestors = 0
 
         rule.runOnIdle {
-            grandChildNodeD.traverseAncestorsWithKey(SHARED_TRAVERSAL_NODE_KEY) {
+            grandChildNodeD.traverseAncestors(SHARED_TRAVERSAL_NODE_KEY) {
                 totalMatchingAncestors++
 
                 when (it) {
@@ -568,7 +568,7 @@ class TraversableModifierNodeTest {
         classThreeWithOtherKeyTraversalNodeAncestors = 0
 
         rule.runOnIdle {
-            grandChildNodeG.traverseAncestorsWithKey(SHARED_TRAVERSAL_NODE_KEY) {
+            grandChildNodeG.traverseAncestors(SHARED_TRAVERSAL_NODE_KEY) {
                 totalMatchingAncestors++
 
                 when (it) {
@@ -604,7 +604,7 @@ class TraversableModifierNodeTest {
         classThreeWithOtherKeyTraversalNodeAncestors = 0
 
         rule.runOnIdle {
-            grandChildNodeG.traverseAncestorsWithKey(OTHER_TRAVERSAL_NODE_KEY) {
+            grandChildNodeG.traverseAncestors(OTHER_TRAVERSAL_NODE_KEY) {
                 totalMatchingAncestors++
 
                 when (it) {
@@ -634,7 +634,7 @@ class TraversableModifierNodeTest {
     }
 
     @Test
-    fun traverseAncestorsWithKey_differentKeyFromCallingNode() {
+    fun traverseAncestors_differentKeyFromCallingNode() {
         var totalMatchingAncestors = 0
         var classOneWithSharedKeyTraversalNodeAncestors = 0
         var classTwoWithSharedKeyTraversalNodeAncestors = 0
@@ -643,7 +643,7 @@ class TraversableModifierNodeTest {
         // Starts at grandchild A (which has a parent and grandparent with keys other than
         // OTHER_TRAVERSAL_NODE_KEY.
         rule.runOnIdle {
-            grandChildNodeA.traverseAncestorsWithKey(OTHER_TRAVERSAL_NODE_KEY) {
+            grandChildNodeA.traverseAncestors(OTHER_TRAVERSAL_NODE_KEY) {
                 totalMatchingAncestors++
 
                 when (it) {
@@ -679,7 +679,7 @@ class TraversableModifierNodeTest {
         classThreeWithOtherKeyTraversalNodeAncestors = 0
 
         rule.runOnIdle {
-            grandChildNodeD.traverseAncestorsWithKey(OTHER_TRAVERSAL_NODE_KEY) {
+            grandChildNodeD.traverseAncestors(OTHER_TRAVERSAL_NODE_KEY) {
                 totalMatchingAncestors++
 
                 when (it) {
@@ -710,7 +710,7 @@ class TraversableModifierNodeTest {
 
     // Matches only keys that are set to null (of which there are none).
     @Test
-    fun traverseAncestorsWithKey_nullKey() {
+    fun traverseAncestors_nullKey() {
         var totalMatchingAncestors = 0
         var sameClassAncestors = 0
         var sameKeyDifferentClassAncestors = 0
@@ -718,7 +718,7 @@ class TraversableModifierNodeTest {
 
         // Starts at grandchild A (which has a parent and grandparent of the same class).
         rule.runOnIdle {
-            grandChildNodeA.traverseAncestorsWithKey(null) {
+            grandChildNodeA.traverseAncestors(null) {
                 totalMatchingAncestors++
 
                 when (it) {
@@ -754,7 +754,7 @@ class TraversableModifierNodeTest {
         differentKeyDifferentClassAncestors = 0
 
         rule.runOnIdle {
-            grandChildNodeD.traverseAncestorsWithKey(null) {
+            grandChildNodeD.traverseAncestors(null) {
                 totalMatchingAncestors++
 
                 when (it) {
@@ -790,7 +790,7 @@ class TraversableModifierNodeTest {
         differentKeyDifferentClassAncestors = 0
 
         rule.runOnIdle {
-            grandChildNodeG.traverseAncestorsWithKey(null) {
+            grandChildNodeG.traverseAncestors(null) {
                 totalMatchingAncestors++
 
                 when (it) {
@@ -838,14 +838,14 @@ class TraversableModifierNodeTest {
     }
 
     @Test
-    fun traverseChildrenWithKey_sameKey() {
+    fun traverseChildren_sameKey() {
         var totalMatchingChildren = 0
         // All these are in relation to the parent class where we run the traversal.
         var sameClassChildren = 0
         var sameKeyDifferentClassChildren = 0
 
         rule.runOnIdle {
-            parentNode.traverseChildrenWithKey(SHARED_TRAVERSAL_NODE_KEY) {
+            parentNode.traverseChildren(SHARED_TRAVERSAL_NODE_KEY) {
                 totalMatchingChildren++
 
                 when (it) {
@@ -870,7 +870,7 @@ class TraversableModifierNodeTest {
     }
 
     @Test
-    fun traverseChildrenWithKey_differentKeyFromCallingNode() {
+    fun traverseChildren_differentKeyFromCallingNode() {
         var totalMatchingChildren = 0
         var classOneWithSharedKeyTraversalNodeAncestors = 0
         var classTwoWithSharedKeyTraversalNodeAncestors = 0
@@ -878,7 +878,7 @@ class TraversableModifierNodeTest {
         var classThreeWithOtherKeyTraversalNodeAncestors = 0
 
         rule.runOnIdle {
-            parentNode.traverseChildrenWithKey(OTHER_TRAVERSAL_NODE_KEY) {
+            parentNode.traverseChildren(OTHER_TRAVERSAL_NODE_KEY) {
                 totalMatchingChildren++
 
                 when (it) {
@@ -909,7 +909,7 @@ class TraversableModifierNodeTest {
 
     // Matches only keys that are set to null (of which there are none).
     @Test
-    fun traverseChildrenWithKey_nullKey() {
+    fun traverseChildren_nullKey() {
         var totalMatchingChildren = 0
         var classOneWithSharedKeyTraversalNodeAncestors = 0
         var classTwoWithSharedKeyTraversalNodeAncestors = 0
@@ -917,7 +917,7 @@ class TraversableModifierNodeTest {
 
         rule.runOnIdle {
             // parentNode is of type ClassOneWithSharedKeyTraversalNode
-            parentNode.traverseChildrenWithKey(null) {
+            parentNode.traverseChildren(null) {
                 totalMatchingChildren++
 
                 when (it) {
@@ -946,16 +946,15 @@ class TraversableModifierNodeTest {
         }
     }
 
-    // *********** Traverse Subtree Tests ***********
+    // *********** Traverse Descendants Tests ***********
     @Test
-    fun traverseSubtree_sameClass() {
+    fun traverseDescendants_sameClassAndAlwaysContinueTraversal() {
         var sameClassNodes = 0
 
         rule.runOnIdle {
-            parentNode.traverseSubtree {
+            parentNode.traverseDescendants {
                 sameClassNodes++
-                // Continue traversal
-                true
+                TraverseDescendantsAction.ContinueTraversal
             }
         }
 
@@ -965,140 +964,13 @@ class TraversableModifierNodeTest {
     }
 
     @Test
-    fun traverseSubtreeWithKey_fromParentWithSameKey() {
-        var totalMatchingNodes = 0
-        var sameClassNodes = 0
-        var sameKeyDifferentClassNodes = 0
-
-        rule.runOnIdle {
-            parentNode.traverseSubtreeWithKey(SHARED_TRAVERSAL_NODE_KEY) {
-                totalMatchingNodes++
-
-                when (it) {
-                    is ClassOneWithSharedKeyTraversalNode -> {
-                        sameClassNodes++
-                    }
-
-                    is ClassTwoWithSharedKeyTraversalNode -> {
-                        sameKeyDifferentClassNodes++
-                    }
-                }
-                // Continue traversal
-                true
-            }
-        }
-
-        rule.runOnIdle {
-            Truth.assertThat(totalMatchingNodes).isEqualTo(10)
-            Truth.assertThat(sameClassNodes).isEqualTo(5)
-            Truth.assertThat(sameKeyDifferentClassNodes).isEqualTo(5)
-        }
-    }
-
-    @Test
-    fun traverseSubtreeWithKey_differentKeyFromCallingNode() {
-        var totalMatchingNodes = 0
-        var classOneWithSharedKeyTraversalNodeAncestors = 0
-        var classTwoWithSharedKeyTraversalNodeAncestors = 0
-        // Only class with key = OTHER_TRAVERSAL_NODE_KEY.
-        var classThreeWithOtherKeyTraversalNodeAncestors = 0
-
-        rule.runOnIdle {
-            parentNode.traverseSubtreeWithKey(OTHER_TRAVERSAL_NODE_KEY) {
-                totalMatchingNodes++
-
-                when (it) {
-                    is ClassOneWithSharedKeyTraversalNode -> {
-                        classOneWithSharedKeyTraversalNodeAncestors++
-                    }
-
-                    is ClassTwoWithSharedKeyTraversalNode -> {
-                        classTwoWithSharedKeyTraversalNodeAncestors++
-                    }
-
-                    is ClassThreeWithOtherKeyTraversalNode -> {
-                        classThreeWithOtherKeyTraversalNodeAncestors++
-                    }
-                }
-                // Continue traversal
-                true
-            }
-        }
-
-        rule.runOnIdle {
-            Truth.assertThat(totalMatchingNodes).isEqualTo(4)
-            // Should be zero because it won't match the shared key
-            Truth.assertThat(classOneWithSharedKeyTraversalNodeAncestors).isEqualTo(0)
-            // Should be zero because it won't match the shared key
-            Truth.assertThat(classTwoWithSharedKeyTraversalNodeAncestors).isEqualTo(0)
-            Truth.assertThat(classThreeWithOtherKeyTraversalNodeAncestors).isEqualTo(4)
-        }
-    }
-
-    // Matches only keys that are set to null (of which there are none).
-    @Test
-    fun traverseSubtreeWithKey_nullKey() {
-        var totalMatchingNodes = 0
-        // All these are in relation to the parent class where we run the traversal.
-        var sameClassNodes = 0
-        var sameKeyDifferentClassNodes = 0
-        var differentKeyDifferentClassNodes = 0
-
-        rule.runOnIdle {
-            parentNode.traverseSubtreeWithKey(null) {
-                totalMatchingNodes++
-
-                when (it) {
-                    is ClassOneWithSharedKeyTraversalNode -> {
-                        sameClassNodes++
-                    }
-
-                    is ClassTwoWithSharedKeyTraversalNode -> {
-                        sameKeyDifferentClassNodes++
-                    }
-
-                    is ClassThreeWithOtherKeyTraversalNode -> {
-                        differentKeyDifferentClassNodes++
-                    }
-                }
-                // Continue traversal
-                true
-            }
-        }
-
-        rule.runOnIdle {
-            Truth.assertThat(totalMatchingNodes).isEqualTo(0)
-            Truth.assertThat(sameClassNodes).isEqualTo(0)
-            Truth.assertThat(sameKeyDifferentClassNodes).isEqualTo(0)
-            Truth.assertThat(differentKeyDifferentClassNodes).isEqualTo(0)
-        }
-    }
-
-    // *********** Traverse Subtree If Tests ***********
-    @Test
-    fun traverseSubtreeIf_alwaysContinueTraversal() {
+    fun traverseDescendants_sameClassAndAlwaysSkipSubtree() {
         var sameClassNodes = 0
 
         rule.runOnIdle {
-            parentNode.traverseSubtreeIf {
+            parentNode.traverseDescendants {
                 sameClassNodes++
-                VisitSubtreeIfAction.VisitSubtree
-            }
-        }
-
-        rule.runOnIdle {
-            Truth.assertThat(sameClassNodes).isEqualTo(5)
-        }
-    }
-
-    @Test
-    fun traverseSubtreeIf_alwaysSkipSubtree() {
-        var sameClassNodes = 0
-
-        rule.runOnIdle {
-            parentNode.traverseSubtreeIf {
-                sameClassNodes++
-                VisitSubtreeIfAction.SkipSubtree
+                TraverseDescendantsAction.SkipSubtreeAndContinueTraversal
             }
         }
 
@@ -1108,19 +980,19 @@ class TraversableModifierNodeTest {
     }
 
     @Test
-    fun traverseSubtreeIf_skipOneSubtree() {
+    fun traverseDescendants_sameClassAndConditionallySkipSubtree() {
         var sameClassNodes = 0
 
         rule.runOnIdle {
-            parentNode.traverseSubtreeIf {
+            parentNode.traverseDescendants {
                 sameClassNodes++
 
                 // This will skip the subtree under childA, thus remove the grandchildA of
                 // ClassOneWithSharedKeyTraversalNode from the count
                 if (it == childA) {
-                    VisitSubtreeIfAction.SkipSubtree
+                    TraverseDescendantsAction.SkipSubtreeAndContinueTraversal
                 } else {
-                    VisitSubtreeIfAction.VisitSubtree
+                    TraverseDescendantsAction.ContinueTraversal
                 }
             }
         }
@@ -1131,7 +1003,7 @@ class TraversableModifierNodeTest {
     }
 
     @Test
-    fun traverseSubtreeWithKey_sameKeyFromCallingNode_alwaysContinueTraversal() {
+    fun traverseDescendants_sameKeyFromCallingNode_alwaysContinueTraversal() {
         var totalMatchingNodes = 0
         // All these are in relation to the parent class where we run the traversal.
         var sameClassNodes = 0
@@ -1139,7 +1011,7 @@ class TraversableModifierNodeTest {
         var otherNodes = 0
 
         rule.runOnIdle {
-            parentNode.traverseSubtreeIfWithKey(SHARED_TRAVERSAL_NODE_KEY) {
+            parentNode.traverseDescendants(SHARED_TRAVERSAL_NODE_KEY) {
                 totalMatchingNodes++
 
                 when (it) {
@@ -1155,7 +1027,7 @@ class TraversableModifierNodeTest {
                         otherNodes++
                     }
                 }
-                VisitSubtreeIfAction.VisitSubtree
+                TraverseDescendantsAction.ContinueTraversal
             }
         }
 
@@ -1168,7 +1040,7 @@ class TraversableModifierNodeTest {
     }
 
     @Test
-    fun traverseSubtreeWithKey_sameKeyFromCallingNode_alwaysCancelTraversal() {
+    fun traverseDescendants_sameKeyFromCallingNode_alwaysCancelTraversal() {
         var totalMatchingNodes = 0
         // All these are in relation to the parent class where we run the traversal.
         var sameClassNodes = 0
@@ -1176,7 +1048,7 @@ class TraversableModifierNodeTest {
         var otherNodes = 0
 
         rule.runOnIdle {
-            parentNode.traverseSubtreeIfWithKey(SHARED_TRAVERSAL_NODE_KEY) {
+            parentNode.traverseDescendants(SHARED_TRAVERSAL_NODE_KEY) {
                 totalMatchingNodes++
 
                 when (it) {
@@ -1192,7 +1064,7 @@ class TraversableModifierNodeTest {
                         otherNodes++
                     }
                 }
-                VisitSubtreeIfAction.CancelTraversal
+                TraverseDescendantsAction.CancelTraversal
             }
         }
 
@@ -1205,7 +1077,7 @@ class TraversableModifierNodeTest {
     }
 
     @Test
-    fun traverseSubtreeWithKey_sameKeyFromCallingNode_alwaysSkipSubtree() {
+    fun traverseDescendants_sameKeyFromCallingNode_alwaysSkipSubtree() {
         var totalMatchingNodes = 0
         // All these are in relation to the parent class where we run the traversal.
         var sameClassNodes = 0
@@ -1213,7 +1085,7 @@ class TraversableModifierNodeTest {
         var otherNodes = 0
 
         rule.runOnIdle {
-            parentNode.traverseSubtreeIfWithKey(SHARED_TRAVERSAL_NODE_KEY) {
+            parentNode.traverseDescendants(SHARED_TRAVERSAL_NODE_KEY) {
                 totalMatchingNodes++
 
                 when (it) {
@@ -1229,7 +1101,7 @@ class TraversableModifierNodeTest {
                         otherNodes++
                     }
                 }
-                VisitSubtreeIfAction.SkipSubtree
+                TraverseDescendantsAction.SkipSubtreeAndContinueTraversal
             }
         }
 
@@ -1242,7 +1114,7 @@ class TraversableModifierNodeTest {
     }
 
     @Test
-    fun traverseSubtreeWithKey_sameKeyFromCallingNode_skipSubtreeOfSameClass() {
+    fun traverseDescendants_sameKeyFromCallingNode_skipSubtreeOfSameClass() {
         var totalMatchingNodes = 0
         // All these are in relation to the parent class where we run the traversal.
         var sameClassNodes = 0
@@ -1250,23 +1122,23 @@ class TraversableModifierNodeTest {
         var otherNodes = 0
 
         rule.runOnIdle {
-            parentNode.traverseSubtreeIfWithKey(SHARED_TRAVERSAL_NODE_KEY) {
+            parentNode.traverseDescendants(SHARED_TRAVERSAL_NODE_KEY) {
                 totalMatchingNodes++
 
                 val action = when (it) {
                     is ClassOneWithSharedKeyTraversalNode -> {
                         sameClassNodes++
-                        VisitSubtreeIfAction.SkipSubtree
+                        TraverseDescendantsAction.SkipSubtreeAndContinueTraversal
                     }
 
                     is ClassTwoWithSharedKeyTraversalNode -> {
                         sameKeyDifferentClassNodes++
-                        VisitSubtreeIfAction.VisitSubtree
+                        TraverseDescendantsAction.ContinueTraversal
                     }
 
                     else -> {
                         otherNodes++
-                        VisitSubtreeIfAction.VisitSubtree
+                        TraverseDescendantsAction.ContinueTraversal
                     }
                 }
                 action
@@ -1282,7 +1154,7 @@ class TraversableModifierNodeTest {
     }
 
     @Test
-    fun traverseSubtreeWithKey_sameKeyFromCallingNode_cancelTraversalOfSameClass() {
+    fun traverseDescendants_sameKeyFromCallingNode_cancelTraversalOfSameClass() {
         var totalMatchingNodes = 0
         // All these are in relation to the parent class where we run the traversal.
         var sameClassNodes = 0
@@ -1290,23 +1162,23 @@ class TraversableModifierNodeTest {
         var otherNodes = 0
 
         rule.runOnIdle {
-            parentNode.traverseSubtreeIfWithKey(SHARED_TRAVERSAL_NODE_KEY) {
+            parentNode.traverseDescendants(SHARED_TRAVERSAL_NODE_KEY) {
                 totalMatchingNodes++
 
                 val action = when (it) {
                     is ClassOneWithSharedKeyTraversalNode -> {
                         sameClassNodes++
-                        VisitSubtreeIfAction.CancelTraversal
+                        TraverseDescendantsAction.CancelTraversal
                     }
 
                     is ClassTwoWithSharedKeyTraversalNode -> {
                         sameKeyDifferentClassNodes++
-                        VisitSubtreeIfAction.VisitSubtree
+                        TraverseDescendantsAction.ContinueTraversal
                     }
 
                     else -> {
                         otherNodes++
-                        VisitSubtreeIfAction.VisitSubtree
+                        TraverseDescendantsAction.ContinueTraversal
                     }
                 }
                 action
@@ -1322,7 +1194,7 @@ class TraversableModifierNodeTest {
     }
 
     @Test
-    fun traverseSubtreeWithKey_sameKeyFromCallingNode_skipSubtreeOfDifferentClassSameKey() {
+    fun traverseDescendants_sameKeyFromCallingNode_skipSubtreeOfDifferentClassSameKey() {
         var totalMatchingNodes = 0
         // All these are in relation to the parent class where we run the traversal.
         var sameClassNodes = 0
@@ -1330,23 +1202,23 @@ class TraversableModifierNodeTest {
         var otherNodes = 0
 
         rule.runOnIdle {
-            parentNode.traverseSubtreeIfWithKey(SHARED_TRAVERSAL_NODE_KEY) {
+            parentNode.traverseDescendants(SHARED_TRAVERSAL_NODE_KEY) {
                 totalMatchingNodes++
 
                 val action = when (it) {
                     is ClassOneWithSharedKeyTraversalNode -> {
                         sameClassNodes++
-                        VisitSubtreeIfAction.VisitSubtree
+                        TraverseDescendantsAction.ContinueTraversal
                     }
 
                     is ClassTwoWithSharedKeyTraversalNode -> {
                         sameKeyDifferentClassNodes++
-                        VisitSubtreeIfAction.SkipSubtree
+                        TraverseDescendantsAction.SkipSubtreeAndContinueTraversal
                     }
 
                     else -> {
                         otherNodes++
-                        VisitSubtreeIfAction.VisitSubtree
+                        TraverseDescendantsAction.ContinueTraversal
                     }
                 }
                 action
@@ -1362,7 +1234,7 @@ class TraversableModifierNodeTest {
     }
 
     @Test
-    fun traverseSubtreeWithKey_sameKeyFromCallingNode_cancelTraversalOfDifferentClassSameKey() {
+    fun traverseDescendants_sameKeyFromCallingNode_cancelTraversalOfDifferentClassSameKey() {
         var totalMatchingNodes = 0
         // All these are in relation to the parent class where we run the traversal.
         var sameClassNodes = 0
@@ -1370,23 +1242,23 @@ class TraversableModifierNodeTest {
         var otherNodes = 0
 
         rule.runOnIdle {
-            parentNode.traverseSubtreeIfWithKey(SHARED_TRAVERSAL_NODE_KEY) {
+            parentNode.traverseDescendants(SHARED_TRAVERSAL_NODE_KEY) {
                 totalMatchingNodes++
 
                 val action = when (it) {
                     is ClassOneWithSharedKeyTraversalNode -> {
                         sameClassNodes++
-                        VisitSubtreeIfAction.VisitSubtree
+                        TraverseDescendantsAction.ContinueTraversal
                     }
 
                     is ClassTwoWithSharedKeyTraversalNode -> {
                         sameKeyDifferentClassNodes++
-                        VisitSubtreeIfAction.CancelTraversal
+                        TraverseDescendantsAction.CancelTraversal
                     }
 
                     else -> {
                         otherNodes++
-                        VisitSubtreeIfAction.VisitSubtree
+                        TraverseDescendantsAction.ContinueTraversal
                     }
                 }
                 action
@@ -1402,7 +1274,7 @@ class TraversableModifierNodeTest {
     }
 
     @Test
-    fun traverseSubtreeWithKeyIf_differentKeyFromCallingNode_alwaysContinueTraversal() {
+    fun traverseDescendants_differentKeyFromCallingNode_alwaysContinueTraversal() {
         var totalMatchingNodes = 0
         var classOneWithSharedKeyTraversalNodeAncestors = 0
         var classTwoWithSharedKeyTraversalNodeAncestors = 0
@@ -1410,7 +1282,7 @@ class TraversableModifierNodeTest {
         var classThreeWithOtherKeyTraversalNodeAncestors = 0
 
         rule.runOnIdle {
-            parentNode.traverseSubtreeIfWithKey(OTHER_TRAVERSAL_NODE_KEY) {
+            parentNode.traverseDescendants(OTHER_TRAVERSAL_NODE_KEY) {
                 totalMatchingNodes++
 
                 when (it) {
@@ -1426,7 +1298,7 @@ class TraversableModifierNodeTest {
                         classThreeWithOtherKeyTraversalNodeAncestors++
                     }
                 }
-                VisitSubtreeIfAction.VisitSubtree
+                TraverseDescendantsAction.ContinueTraversal
             }
         }
 
@@ -1441,7 +1313,7 @@ class TraversableModifierNodeTest {
     }
 
     @Test
-    fun traverseSubtreeWithKeyIf_differentKeyFromCallingNode_alwaysSkipSubtree() {
+    fun traverseDescendants_differentKeyFromCallingNode_alwaysSkipSubtree() {
         var totalMatchingNodes = 0
         var classOneWithSharedKeyTraversalNodeAncestors = 0
         var classTwoWithSharedKeyTraversalNodeAncestors = 0
@@ -1449,7 +1321,7 @@ class TraversableModifierNodeTest {
         var classThreeWithOtherKeyTraversalNodeAncestors = 0
 
         rule.runOnIdle {
-            parentNode.traverseSubtreeIfWithKey(OTHER_TRAVERSAL_NODE_KEY) {
+            parentNode.traverseDescendants(OTHER_TRAVERSAL_NODE_KEY) {
                 totalMatchingNodes++
 
                 when (it) {
@@ -1465,7 +1337,7 @@ class TraversableModifierNodeTest {
                         classThreeWithOtherKeyTraversalNodeAncestors++
                     }
                 }
-                VisitSubtreeIfAction.SkipSubtree
+                TraverseDescendantsAction.SkipSubtreeAndContinueTraversal
             }
         }
 
@@ -1481,14 +1353,14 @@ class TraversableModifierNodeTest {
 
     // Matches only keys that are set to null (of which there are none).
     @Test
-    fun traverseSubtreeWithKeyIf_nullKey_alwaysContinueTraversal() {
+    fun traverseDescendants_nullKey_alwaysContinueTraversal() {
         var totalMatchingNodes = 0
         var sameClassNodes = 0
         var sameKeyDifferentClassNodes = 0
         var differentKeyDifferentClassNodes = 0
 
         rule.runOnIdle {
-            parentNode.traverseSubtreeIfWithKey(null) {
+            parentNode.traverseDescendants(null) {
                 totalMatchingNodes++
 
                 when (it) {
@@ -1504,7 +1376,7 @@ class TraversableModifierNodeTest {
                         differentKeyDifferentClassNodes++
                     }
                 }
-                VisitSubtreeIfAction.VisitSubtree
+                TraverseDescendantsAction.ContinueTraversal
             }
         }
 
@@ -1518,7 +1390,7 @@ class TraversableModifierNodeTest {
 
     // Matches only keys that are set to null (of which there are none).
     @Test
-    fun traverseSubtreeWithKeyIf_nullKey_alwaysSkipSubtree() {
+    fun traverseDescendants_nullKey_alwaysSkipSubtree() {
         var totalMatchingNodes = 0
         // All these are in relation to the parent class where we run the traversal.
         var sameClassNodes = 0
@@ -1526,7 +1398,7 @@ class TraversableModifierNodeTest {
         var differentKeyDifferentClassNodes = 0
 
         rule.runOnIdle {
-            parentNode.traverseSubtreeIfWithKey(null) {
+            parentNode.traverseDescendants(null) {
                 totalMatchingNodes++
 
                 when (it) {
@@ -1542,7 +1414,7 @@ class TraversableModifierNodeTest {
                         differentKeyDifferentClassNodes++
                     }
                 }
-                VisitSubtreeIfAction.SkipSubtree
+                TraverseDescendantsAction.SkipSubtreeAndContinueTraversal
             }
         }
 

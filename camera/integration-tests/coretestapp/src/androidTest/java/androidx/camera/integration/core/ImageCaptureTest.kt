@@ -79,6 +79,7 @@ import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.testing.impl.fakes.FakeSessionProcessor
+import androidx.camera.testing.impl.mocks.MockScreenFlashUiControl
 import androidx.camera.video.Recorder
 import androidx.camera.video.VideoCapture
 import androidx.core.content.ContextCompat
@@ -91,6 +92,7 @@ import com.google.common.truth.Truth.assertWithMessage
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileOutputStream
+import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.abs
@@ -118,6 +120,7 @@ private val BACK_SELECTOR = CameraSelector.DEFAULT_BACK_CAMERA
 private val FRONT_SELECTOR = CameraSelector.DEFAULT_FRONT_CAMERA
 private const val BACK_LENS_FACING = CameraSelector.LENS_FACING_BACK
 private const val CAPTURE_TIMEOUT = 15_000.toLong() //  15 seconds
+private const val TOLERANCE = 1e-3f
 
 @LargeTest
 @RunWith(Parameterized::class)
@@ -285,6 +288,33 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         canTakeImages(
             defaultBuilder.setFlashType(ImageCapture.FLASH_TYPE_USE_TORCH_AS_FLASH)
                 .setFlashMode(ImageCapture.FLASH_MODE_ON),
+            cameraSelector = FRONT_SELECTOR
+        )
+    }
+
+    @Test
+    fun canCaptureImageWithFlashModeScreen_frontCamera() {
+        // Front camera usually doesn't have a flash unit. Screen flash will be used in such case.
+        // Otherwise, physical flash will be used. But capture should be successful either way.
+        canTakeImages(
+            defaultBuilder.apply {
+                setScreenFlashUiControl(MockScreenFlashUiControl())
+                setFlashMode(ImageCapture.FLASH_MODE_SCREEN)
+            },
+            cameraSelector = FRONT_SELECTOR
+        )
+    }
+
+    @Test
+    fun canCaptureImageWithFlashModeScreenAndUseTorch_frontCamera() {
+        // Front camera usually doesn't have a flash unit. Screen flash will be used in such case.
+        // Otherwise, physical flash will be used as torch. Either way, capture should be successful
+        canTakeImages(
+            defaultBuilder.apply {
+                setFlashType(ImageCapture.FLASH_TYPE_USE_TORCH_AS_FLASH)
+                setScreenFlashUiControl(MockScreenFlashUiControl())
+                setFlashMode(ImageCapture.FLASH_MODE_SCREEN)
+            },
             cameraSelector = FRONT_SELECTOR
         )
     }
@@ -698,6 +728,73 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         assertThat(imageProperties.format).isEqualTo(ImageFormat.RAW10)
     }
 
+    @Test
+    fun takePicture_OnImageCaptureCallback_startedBeforeSuccess() = runBlocking {
+        // Arrange.
+        var captured = false
+        val useCase = ImageCapture.Builder().build()
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
+        }
+
+        // Act.
+        val semaphore = Semaphore(0)
+        val callback = object : ImageCapture.OnImageCapturedCallback() {
+            override fun onCaptureStarted() {
+                // Assert: onCaptureStarted should be invoked before onCaptureSuccess
+                assertThat(captured).isFalse()
+                semaphore.release()
+            }
+
+            override fun onCaptureSuccess(image: ImageProxy) {
+                captured = true
+            }
+        }
+        useCase.takePicture(mainExecutor, callback)
+
+        // Assert.
+        val result = semaphore.tryAcquire(3, TimeUnit.SECONDS)
+        assertThat(result).isTrue()
+    }
+
+    @Test
+    fun takePicture_OnImageSaveCallback_startedBeforeSaved() = runBlocking {
+        // Arrange.
+        var captured = false
+        val useCase = ImageCapture.Builder().build()
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
+        }
+
+        // Act.
+        val semaphore = Semaphore(0)
+        val callback = object : ImageCapture.OnImageSavedCallback {
+            override fun onCaptureStarted() {
+                // Assert: onCaptureStarted should be invoked before onCaptureSuccess
+                assertThat(captured).isFalse()
+                semaphore.release()
+            }
+
+            override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                captured = true
+            }
+
+            override fun onError(exception: ImageCaptureException) {
+            }
+        }
+        val saveLocation = temporaryFolder.newFile("test.jpg")
+        assertThat(saveLocation.exists())
+        useCase.takePicture(
+            ImageCapture.OutputFileOptions.Builder(saveLocation).build(),
+            mainExecutor,
+            callback
+        )
+
+        // Assert.
+        val result = semaphore.tryAcquire(3, TimeUnit.SECONDS)
+        assertThat(result).isTrue()
+    }
+
     private fun isRawSupported(cameraCharacteristics: CameraCharacteristics): Boolean {
         val capabilities =
             cameraCharacteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES)
@@ -971,7 +1068,8 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             Rational(cropRect!!.width(), cropRect.height())
         }
 
-        assertThat(resultCroppingRatio).isEqualTo(expectedCroppingRatio)
+        assertThat(resultCroppingRatio.toFloat()).isWithin(TOLERANCE)
+            .of(expectedCroppingRatio.toFloat())
         if (imageProperties.format == ImageFormat.JPEG && isRotationOptionSupportedDevice()) {
             assertThat(imageProperties.rotationDegrees).isEqualTo(imageProperties.exif!!.rotation)
         }

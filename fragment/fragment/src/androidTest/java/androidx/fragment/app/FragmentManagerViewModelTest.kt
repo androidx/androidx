@@ -83,7 +83,7 @@ class FragmentManagerViewModelTest {
         val childNonConfig = viewModel.getChildNonConfig(fragment)
         assertThat(viewModel.getChildNonConfig(fragment)).isSameInstanceAs(childNonConfig)
 
-        viewModel.clearNonConfigState(fragment)
+        viewModel.clearNonConfigState(fragment, false)
         assertThat(viewModel.getChildNonConfig(fragment)).isNotSameInstanceAs(childNonConfig)
     }
 
@@ -93,7 +93,7 @@ class FragmentManagerViewModelTest {
         val viewModelStore = viewModel.getViewModelStore(fragment)
         assertThat(viewModel.getViewModelStore(fragment)).isSameInstanceAs(viewModelStore)
 
-        viewModel.clearNonConfigState(fragment)
+        viewModel.clearNonConfigState(fragment, false)
         assertThat(viewModel.getViewModelStore(fragment)).isNotSameInstanceAs(viewModelStore)
     }
 

@@ -39,9 +39,22 @@ import kotlinx.coroutines.flow.Flow
  *             // update UI
  *           }
  *
- *           // Collect updates
- *           currentCallEndpoint.collect { // access the new [CallEndpoint] here }
- *     }
+ *          // Collect updates
+ *          launch {
+ *             currentCallEndpoint.collect { // access the new [CallEndpoint] here }
+ *          }
+ *
+ *          launch {
+ *             availableEndpoints.collect { // access the available [CallEndpoint]s here }
+ *          }
+ *
+ *          launch {
+ *             isMuted.collect { // access to the mute state }
+ *          }
+ *      }
+ *
+ * **Note:** Each [Flow] must be wrapped in an individual launch block or the [Flow] will not be
+ *  collected.
  */
 interface CallControlScope : CoroutineScope {
     /**

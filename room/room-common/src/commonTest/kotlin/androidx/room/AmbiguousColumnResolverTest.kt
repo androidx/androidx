@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2021 The Android Open Source Project
  *
@@ -13,16 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.room
-
 import androidx.kruth.assertThat
-import java.util.Locale
-import org.junit.Ignore
-import org.junit.Test
+import kotlin.test.Ignore
+import kotlin.test.Test
 
 class AmbiguousColumnResolverTest {
-
     @Test
     fun simple() {
         // query: SELECT * FROM T1 JOIN T2
@@ -41,7 +38,6 @@ class AmbiguousColumnResolverTest {
             )
         )
     }
-
     @Test
     fun simple_pojoSwapped() {
         // query: SELECT * FROM T1 JOIN T2
@@ -60,9 +56,8 @@ class AmbiguousColumnResolverTest {
             )
         )
     }
-
     @Test
-    @Ignore("Algorithm can't solve this as expected.")
+    @Ignore // Algorithm can't solve this as expected.
     fun simple_oddResultOrder() {
         // query: SELECT User.id, Comment.id, userId, text, name FROM User JOIN Comment
         // return: Map<User, Comment>
@@ -84,7 +79,6 @@ class AmbiguousColumnResolverTest {
             )
         )
     }
-
     @Test
     fun dupeColumnMigrated_one() {
         // Star projection query where 'A' (a dupe column) was added via migration
@@ -102,7 +96,6 @@ class AmbiguousColumnResolverTest {
             )
         )
     }
-
     @Test
     fun dupeColumnMigrated_both() {
         // Star projection query where both dupe columns 'A' were added via migration
@@ -120,7 +113,6 @@ class AmbiguousColumnResolverTest {
             )
         )
     }
-
     @Test
     fun multiple_duplicates() {
         // Mapping multiple dupe columns ('A' and 'C')
@@ -138,7 +130,6 @@ class AmbiguousColumnResolverTest {
             )
         )
     }
-
     @Test
     fun multiple_duplicates_noUnique() {
         // Mapping multiple dupe columns and one of the tables have no unique column, i.e. in the
@@ -157,9 +148,8 @@ class AmbiguousColumnResolverTest {
             )
         )
     }
-
     @Test
-    @Ignore("Algorithm can't solve this as expected.")
+    @Ignore // Algorithm can't solve this as expected.
     fun multiple_duplicates_noUnique_swapped() {
         // Mapping multiple dupe columns and one of the tables have no unique column, i.e. in the
         // result they are all dupes. However, the order of mappings given to the algorithm is
@@ -179,7 +169,6 @@ class AmbiguousColumnResolverTest {
             )
         )
     }
-
     @Test
     fun extraResultColumns() {
         // Extra results columns are ignored
@@ -197,7 +186,6 @@ class AmbiguousColumnResolverTest {
             )
         )
     }
-
     @Test
     fun extraResultColumns_withGap() {
         // Extra results columns, including causing gaps between POJO columns are ignored
@@ -215,7 +203,6 @@ class AmbiguousColumnResolverTest {
             )
         )
     }
-
     @Test
     fun firstChoice() {
         // When resolving a single solo duplicate column, the algorithm will choose the first one
@@ -234,7 +221,6 @@ class AmbiguousColumnResolverTest {
             )
         )
     }
-
     @Test
     fun firstChoice_resultOrderSwapped() {
         // Not what we want, but its likely that in practice either the columns will
@@ -253,7 +239,6 @@ class AmbiguousColumnResolverTest {
             )
         )
     }
-
     @Test
     fun firstChoice_bothSolo() {
         // With the current information this is impossible to resolve, it'll be a first found
@@ -272,7 +257,6 @@ class AmbiguousColumnResolverTest {
             )
         )
     }
-
     @Test
     fun dupesInMapping() {
         // This input shouldn't happen since a single POJO (even with embedded) is not allowed
@@ -291,7 +275,6 @@ class AmbiguousColumnResolverTest {
             )
         )
     }
-
     @Test
     fun repeatedColumn() {
         // Both POJOs map the same result (non dupe) column
@@ -309,7 +292,6 @@ class AmbiguousColumnResolverTest {
             )
         )
     }
-
     @Test
     fun repeatedColumn_firstChoice() {
         val result = AmbiguousColumnResolver.resolve(
@@ -326,7 +308,6 @@ class AmbiguousColumnResolverTest {
             )
         )
     }
-
     @Test
     fun repeatedColumn_withDuplicate() {
         val result = AmbiguousColumnResolver.resolve(
@@ -343,7 +324,6 @@ class AmbiguousColumnResolverTest {
             )
         )
     }
-
     @Test
     fun repeatedColumn_withDuplicate_pojoSwapped() {
         val result = AmbiguousColumnResolver.resolve(
@@ -360,9 +340,8 @@ class AmbiguousColumnResolverTest {
             )
         )
     }
-
     @Test
-    @Ignore("Algorithm can't solve this as expected.")
+    @Ignore // Algorithm can't solve this as expected.
     fun repeatedColumn_withDuplicate_withGap() {
         // The algorithm finds two solutions but both have the same cost.
         val result = AmbiguousColumnResolver.resolve(
@@ -379,7 +358,6 @@ class AmbiguousColumnResolverTest {
             )
         )
     }
-
     @Test
     fun case_insensitive() {
         val result = AmbiguousColumnResolver.resolve(
@@ -396,30 +374,6 @@ class AmbiguousColumnResolverTest {
             )
         )
     }
-
-    @Test
-    fun case_insensitive_tr() {
-        val originalLocale = Locale.getDefault()
-        try {
-            Locale.setDefault(Locale("tr")) // Turkish has special upper/lowercase i chars
-            val result = AmbiguousColumnResolver.resolve(
-                arrayOf("i̇", "B", "İ", "C", "D"),
-                arrayOf(
-                    arrayOf("İ", "b"),
-                    arrayOf("i̇", "C", "d")
-                )
-            )
-            assertThat(result).isEqualTo(
-                arrayOf(
-                    intArrayOf(0, 1),
-                    intArrayOf(2, 3, 4),
-                )
-            )
-        } finally {
-            Locale.setDefault(originalLocale)
-        }
-    }
-
     @Test
     fun case_backticks() {
         val result = AmbiguousColumnResolver.resolve(

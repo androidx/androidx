@@ -20,6 +20,7 @@ import android.os.Build
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.core.haptics.VibrationWrapper
+import androidx.core.haptics.device.HapticDeviceProfile
 import androidx.core.haptics.impl.HapticSignalConverter
 
 /**
@@ -91,7 +92,7 @@ class PredefinedEffectSignal private constructor(
         /**
          * A standard tick effect.
          *
-         * This effect is less strong than the [predefinedClick()].
+         * This effect is less strong than the [predefinedClick].
          */
         @JvmStatic
         fun predefinedTick() = Tick
@@ -107,7 +108,7 @@ class PredefinedEffectSignal private constructor(
         /**
          * A heavy click effect.
          *
-         * This effect is stronger than the [predefinedClick()].
+         * This effect is stronger than the [predefinedClick].
          */
         @JvmStatic
         fun predefinedHeavyClick() = HeavyClick
@@ -140,4 +141,6 @@ class PredefinedEffectSignal private constructor(
     internal fun minSdk(): Int = minSdk
 
     override fun toVibration(): VibrationWrapper? = HapticSignalConverter.toVibration(this)
+
+    override fun isSupportedBy(deviceProfile: HapticDeviceProfile): Boolean = true
 }

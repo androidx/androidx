@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.modifier
 
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Applier
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReusableComposeNode
@@ -30,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
@@ -48,6 +50,7 @@ import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -858,6 +861,37 @@ class ModifierNodeReuseAndDeactivationTest {
 
         rule.onNodeWithTag("child")
             .assertLeftPositionInRootIsEqualTo(with(rule.density) { 10.toDp() })
+    }
+
+    @Test
+    fun layoutCoordinatesOnDeactivatedNode() {
+        var active by mutableStateOf(true)
+        var coordinates: LayoutCoordinates? = null
+
+        rule.setContent {
+            ReusableContentHost(active) {
+                Layout(content = {
+                    Layout(
+                        modifier = Modifier.size(50.dp).testTag("child"),
+                        measurePolicy = MeasurePolicy
+                    )
+                }) { measurables, constraints ->
+                    val placeable = measurables.first().measure(constraints)
+                    layout(placeable.width, placeable.height) {
+                        coordinates = this.coordinates
+                        placeable.place(0, 0)
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            active = false
+        }
+
+        rule.runOnIdle {
+            assertThat(coordinates?.isAttached).isEqualTo(false)
+        }
     }
 }
 

@@ -273,11 +273,9 @@ class LazyPagingItemsTest {
         }
 
         rule.onNodeWithTag("-1")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
         rule.onNodeWithTag("0")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
 
         rule.runOnIdle {
             runBlocking {
@@ -287,8 +285,7 @@ class LazyPagingItemsTest {
         }
 
         rule.onNodeWithTag("-1")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
         // node reused
         rule.onNodeWithTag("0")
             .assertDoesNotExist()
@@ -350,11 +347,9 @@ class LazyPagingItemsTest {
         }
 
         rule.onNodeWithTag("-1")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
         rule.onNodeWithTag("0")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
 
         rule.runOnIdle {
             runBlocking {
@@ -364,8 +359,7 @@ class LazyPagingItemsTest {
         }
 
         rule.onNodeWithTag("-1")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
         // node reused
         rule.onNodeWithTag("0")
             .assertDoesNotExist()
@@ -411,11 +405,9 @@ class LazyPagingItemsTest {
         }
 
         rule.onNodeWithTag("-1")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
         rule.onNodeWithTag("0")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
 
         rule.runOnIdle {
             runBlocking {
@@ -425,8 +417,7 @@ class LazyPagingItemsTest {
         }
 
         rule.onNodeWithTag("-1")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
         // node reused
         rule.onNodeWithTag("0")
             .assertDoesNotExist()

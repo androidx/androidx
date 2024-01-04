@@ -19,6 +19,7 @@
 package androidx.room
 
 import androidx.annotation.RequiresApi
+import kotlin.jvm.JvmName
 
 /**
  * Available option values that can be used with [Fts3] & [Fts4].

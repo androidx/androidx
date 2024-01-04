@@ -62,7 +62,7 @@ internal class Camera2CameraMetadata(
 
     override fun <T> get(key: CameraCharacteristics.Key<T>): T? {
         if (cacheBlocklist.contains(key)) {
-            return characteristics.get(key)
+            return characteristics.getOrThrow(key)
         }
 
         // Cache the return value of calls to characteristics as the implementation performs a
@@ -81,7 +81,7 @@ internal class Camera2CameraMetadata(
         //    different threads try to read the value simultaneously.
         @Suppress("UNCHECKED_CAST") var result = synchronized(values) { values[key] } as T?
         if (result == null) {
-            result = characteristics.get(key)
+            result = characteristics.getOrThrow(key)
             if (result != null) {
                 synchronized(values) { values[key] = result }
             }
@@ -278,4 +278,15 @@ internal class Camera2CameraMetadata(
                 }
             }
         }
+
+    private fun <T> CameraCharacteristics.getOrThrow(key: CameraCharacteristics.Key<T>): T? {
+        try {
+            return this.get(key)
+        } catch (exception: AssertionError) {
+            throw IllegalStateException(
+                "Failed to get characteristic for $key: " +
+                    "Framework throw an AssertionError"
+            )
+        }
+    }
 }

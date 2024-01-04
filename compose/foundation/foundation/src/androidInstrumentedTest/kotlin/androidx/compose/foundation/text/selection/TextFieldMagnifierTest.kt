@@ -140,13 +140,14 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
             // The value won't ever change so we don't need to worry about ever updating the state.
             selectionManager.state = remember {
                 TextFieldState(
-                    TextDelegate(
+                    textDelegate = TextDelegate(
                         text = AnnotatedString(Text),
                         style = TextStyle.Default,
                         density = density,
                         fontFamilyResolver = fontFamilyResolver
                     ),
-                    scope
+                    recomposeScope = scope,
+                    keyboardController = null
                 )
             }
             // Required for the drag observers to actually update the selection.

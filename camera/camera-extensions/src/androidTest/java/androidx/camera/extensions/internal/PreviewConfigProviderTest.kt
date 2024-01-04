@@ -138,8 +138,8 @@ class PreviewConfigProviderTest {
             basicVendorExtender.init(camera.cameraInfo)
         }
         return Preview.Builder().also {
-            PreviewConfigProvider(extensionMode, basicVendorExtender).apply {
-                updateBuilderConfig(it, extensionMode, basicVendorExtender)
+            PreviewConfigProvider(basicVendorExtender).apply {
+                updateBuilderConfig(it, basicVendorExtender)
             }
         }.build()
     }

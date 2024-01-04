@@ -1529,9 +1529,9 @@ class GLFrontBufferedRendererTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testFrontBufferClearAfterRender() {
-        var frontLatch = CountDownLatch(1)
-        val commitLatch = CountDownLatch(1)
-        val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
+        val frontLatch = AtomicReference<CountDownLatch?>()
+        val commitLatch = AtomicReference<CountDownLatch?>()
+        verifyGLFrontBufferedRenderer(object : GLFrontBufferedRenderer.Callback<Any> {
 
             private val mOrthoMatrix = FloatArray(16)
             private val mProjectionMatrix = FloatArray(16)
@@ -1598,11 +1598,11 @@ class GLFrontBufferedRendererTest {
                         executor,
                         object : SurfaceControlCompat.TransactionCommittedListener {
                             override fun onTransactionCommitted() {
-                                commitLatch.countDown()
+                                commitLatch.get()?.countDown()
                             }
                         })
                 } else {
-                    commitLatch.countDown()
+                    commitLatch.get()?.countDown()
                 }
             }
 
@@ -1615,40 +1615,38 @@ class GLFrontBufferedRendererTest {
                         executor,
                         object : SurfaceControlCompat.TransactionCommittedListener {
                             override fun onTransactionCommitted() {
-                                frontLatch.countDown()
+                                frontLatch.get()?.countDown()
                             }
                         })
                 } else {
-                    frontLatch.countDown()
+                    frontLatch.get()?.countDown()
                 }
             }
-        }
-        var renderer: GLFrontBufferedRenderer<Any>? = null
-        var surfaceView: SurfaceView? = null
-        try {
-            val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
-                .moveToState(Lifecycle.State.CREATED)
-                .onActivity {
-                    surfaceView = it.getSurfaceView()
-                    renderer = GLFrontBufferedRenderer(surfaceView!!, callbacks)
-                }
+        }) { _, renderer, surfaceView ->
 
-            scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
-                renderer?.renderFrontBufferedLayer(Any())
-                assertTrue(frontLatch.await(3000, TimeUnit.MILLISECONDS))
-                renderer?.commit()
+            frontLatch.set(CountDownLatch(1))
 
-                assertTrue(commitLatch.await(3000, TimeUnit.MILLISECONDS))
-                // Contents should be cleared and the front buffer should be visible but transparent
-                frontLatch = CountDownLatch(1)
-                renderer?.renderFrontBufferedLayer(Any())
-            }
-            assertTrue(frontLatch.await(3000, TimeUnit.MILLISECONDS))
+            renderer.renderFrontBufferedLayer(1)
+
+            assertTrue(frontLatch.get()!!.await(3000, TimeUnit.MILLISECONDS))
+
+            commitLatch.set(CountDownLatch(1))
+
+            renderer.commit()
+
+            assertTrue(commitLatch.get()!!.await(3000, TimeUnit.MILLISECONDS))
+
+            // Contents should be cleared and the front buffer should be visible but transparent
+            frontLatch.set(CountDownLatch(1))
+
+            renderer.renderFrontBufferedLayer(2)
+
+            assertTrue(frontLatch.get()!!.await(3000, TimeUnit.MILLISECONDS))
 
             val coords = IntArray(2)
             val width: Int
             val height: Int
-            with(surfaceView!!) {
+            with(surfaceView) {
                 getLocationOnScreen(coords)
                 width = this.width
                 height = this.height
@@ -1680,8 +1678,6 @@ class GLFrontBufferedRendererTest {
                         )
                     ) < 2)
             }
-        } finally {
-            renderer.blockingRelease()
         }
     }
 

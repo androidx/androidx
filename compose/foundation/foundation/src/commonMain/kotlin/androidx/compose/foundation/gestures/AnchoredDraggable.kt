@@ -154,6 +154,9 @@ fun <T : Any> DraggableAnchors(
  * drag will behave like bottom to top, and a left to right drag will behave like right to left.
  * @param interactionSource Optional [MutableInteractionSource] that will passed on to
  * the internal [Modifier.draggable].
+ * @param startDragImmediately when set to false, [draggable] will start dragging only when the
+ * gesture crosses the touchSlop. This is useful to prevent users from "catching" an animating
+ * widget when pressing on it. See [draggable] to learn more about startDragImmediately.
  */
 @ExperimentalFoundationApi
 fun <T> Modifier.anchoredDraggable(
@@ -161,14 +164,15 @@ fun <T> Modifier.anchoredDraggable(
     orientation: Orientation,
     enabled: Boolean = true,
     reverseDirection: Boolean = false,
-    interactionSource: MutableInteractionSource? = null
+    interactionSource: MutableInteractionSource? = null,
+    startDragImmediately: Boolean = state.isAnimationRunning
 ) = draggable(
     state = state.draggableState,
     orientation = orientation,
     enabled = enabled,
     interactionSource = interactionSource,
     reverseDirection = reverseDirection,
-    startDragImmediately = state.isAnimationRunning,
+    startDragImmediately = startDragImmediately,
     onDragStopped = { velocity -> launch { state.settle(velocity) } }
 )
 
@@ -446,33 +450,23 @@ class AnchoredDraggableState<T>(
         val velocityThresholdPx = velocityThreshold()
         return if (currentAnchorPosition == offset || currentAnchorPosition.isNaN()) {
             currentValue
-        } else if (currentAnchorPosition < offset) {
-            // Swiping from lower to upper (positive).
-            if (velocity >= velocityThresholdPx) {
-                currentAnchors.closestAnchor(offset, true)!!
-            } else {
-                val upper = currentAnchors.closestAnchor(offset, true)!!
-                val distance = abs(currentAnchors.positionOf(upper) - currentAnchorPosition)
-                val relativeThreshold = abs(positionalThreshold(distance))
-                val absoluteThreshold = abs(currentAnchorPosition + relativeThreshold)
-                if (offset < absoluteThreshold) currentValue else upper
-            }
         } else {
-            // Swiping from upper to lower (negative).
-            if (velocity <= -velocityThresholdPx) {
-                currentAnchors.closestAnchor(offset, false)!!
+            if (abs(velocity) >= abs(velocityThresholdPx)) {
+                currentAnchors.closestAnchor(
+                    offset,
+                    offset - currentAnchorPosition > 0
+                )!!
             } else {
-                val lower = currentAnchors.closestAnchor(offset, false)!!
-                val distance = abs(currentAnchorPosition - currentAnchors.positionOf(lower))
+                val neighborAnchor =
+                    currentAnchors.closestAnchor(
+                        offset,
+                        offset - currentAnchorPosition > 0
+                    )!!
+                val neighborAnchorPosition = currentAnchors.positionOf(neighborAnchor)
+                val distance = abs(currentAnchorPosition - neighborAnchorPosition)
                 val relativeThreshold = abs(positionalThreshold(distance))
-                val absoluteThreshold = abs(currentAnchorPosition - relativeThreshold)
-                if (offset < 0) {
-                    // For negative offsets, larger absolute thresholds are closer to lower anchors
-                    // than smaller ones.
-                    if (abs(offset) < absoluteThreshold) currentValue else lower
-                } else {
-                    if (offset > absoluteThreshold) currentValue else lower
-                }
+                val relativePosition = abs(currentAnchorPosition - offset)
+                if (relativePosition <= relativeThreshold) currentValue else neighborAnchor
             }
         }
     }
@@ -485,10 +479,11 @@ class AnchoredDraggableState<T>(
         val currentAnchor = currentAnchors.positionOf(currentValue)
         return if (currentAnchor == offset || currentAnchor.isNaN()) {
             currentValue
-        } else if (currentAnchor < offset) {
-            currentAnchors.closestAnchor(offset, true) ?: currentValue
         } else {
-            currentAnchors.closestAnchor(offset, false) ?: currentValue
+            currentAnchors.closestAnchor(
+                offset,
+                offset - currentAnchor > 0
+            ) ?: currentValue
         }
     }
 

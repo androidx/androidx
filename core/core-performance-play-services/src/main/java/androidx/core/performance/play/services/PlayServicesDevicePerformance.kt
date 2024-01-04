@@ -18,21 +18,24 @@ package androidx.core.performance.play.services
 
 import android.content.Context
 import android.util.Log
-import androidx.annotation.VisibleForTesting
 import androidx.core.performance.DefaultDevicePerformance
 import androidx.core.performance.DevicePerformance
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
+import androidx.datastore.preferences.preferencesDataStoreFile
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.deviceperformance.DevicePerformanceClient
 import kotlin.math.max
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+
+private const val MPC_PREFERENCE_KEY = "mpc_value"
 
 /**
  * A DevicePerformance that uses Google Play Services to retrieve media performance class data.
@@ -40,12 +43,15 @@ import kotlinx.coroutines.runBlocking
  * @param context The application context value to use.
  */
 class PlayServicesDevicePerformance
-private constructor(private val context: Context, client: DevicePerformanceClient) :
+internal constructor(
+    private val context: Context,
+    client: DevicePerformanceClient,
+    private val performanceStore: DataStore<Preferences>
+) :
     DevicePerformance {
     private val tag = "PlayServicesDevicePerformance"
 
     private val defaultMpc = DefaultDevicePerformance()
-    private val playServicesValueStoredDeferred = CompletableDeferred<Boolean>()
 
     override val mediaPerformanceClass get() = lazyMpc.value
     private val lazyMpc =
@@ -74,45 +80,24 @@ private constructor(private val context: Context, client: DevicePerformanceClien
      *
      * @param context The application context value to use.
      */
-      constructor(context: Context) : this(
+    constructor(context: Context) : this(
         context,
-        com.google.android.gms.deviceperformance.DevicePerformance.getClient(context)
-    ) {
-    }
+        com.google.android.gms.deviceperformance.DevicePerformance.getClient(context),
+        PreferenceDataStoreFactory.create(
+            produceFile = { context.preferencesDataStoreFile("media_performance_class") })
+    )
 
-    private val mpcKey = intPreferencesKey("mpc_value")
-
-    internal companion object {
-
-        @VisibleForTesting
-        fun create(
-            context: Context,
-            client: DevicePerformanceClient
-        ): PlayServicesDevicePerformance {
-            return PlayServicesDevicePerformance(context, client)
-        }
-
-        // To avoid creating multiple instance of datastore
-        private val Context.performanceStore by
-        preferencesDataStore(name = "media_performance_class")
-
-        @VisibleForTesting
-        suspend fun clearPerformanceClass(context: Context) {
-            context.performanceStore.edit {
-                it.clear()
-            }
-        }
-    }
+    private val mpcKey = intPreferencesKey(MPC_PREFERENCE_KEY)
 
     private fun getPerformanceClass(): Flow<Int?> {
-        return context.performanceStore.data.map { values ->
+        return performanceStore.data.map { values ->
             // No type safety.
             values[mpcKey]
         }
     }
 
     private suspend fun savePerformanceClass(value: Int) {
-        context.performanceStore.edit { values ->
+        performanceStore.edit { values ->
             values[mpcKey] = value
         }
     }

@@ -30,6 +30,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 
 /**
  * Manages text layout for TextField including layout coordinates of decoration box and inner text
@@ -71,6 +72,11 @@ internal class TextLayoutState {
     var textLayoutNodeCoordinates: LayoutCoordinates? by mutableStateOf(null, neverEqualPolicy())
     var coreNodeCoordinates: LayoutCoordinates? by mutableStateOf(null, neverEqualPolicy())
     var decoratorNodeCoordinates: LayoutCoordinates? by mutableStateOf(null, neverEqualPolicy())
+
+    /**
+     * Set to a non-zero value for single line TextFields in order to prevent text cuts.
+     */
+    var minHeightForSingleLineField by mutableStateOf(0.dp)
 
     /**
      * Updates the [TextFieldLayoutStateCache] with inputs that don't come from the measure phase.

@@ -27,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -109,10 +110,13 @@ internal fun SelectionContainer(
                             val observer = remember(isStartHandle) {
                                 manager.handleDragObserver(isStartHandle)
                             }
-                            val position = if (isStartHandle) {
-                                manager.startHandlePosition
-                            } else {
-                                manager.endHandlePosition
+
+                            val positionProvider: () -> Offset = remember(isStartHandle) {
+                                if (isStartHandle) {
+                                    { manager.startHandlePosition ?: Offset.Unspecified }
+                                } else {
+                                    { manager.endHandlePosition ?: Offset.Unspecified }
+                                }
                             }
 
                             val direction = if (isStartHandle) {
@@ -121,24 +125,21 @@ internal fun SelectionContainer(
                                 it.end.direction
                             }
 
-                            if (position != null) {
-                                val lineHeight = if (isStartHandle) {
-                                    manager.startHandleLineHeight
-                                } else {
-                                    manager.endHandleLineHeight
-                                }
-                                SelectionHandle(
-                                    position = position,
-                                    isStartHandle = isStartHandle,
-                                    direction = direction,
-                                    handlesCrossed = it.handlesCrossed,
-                                    lineHeight = lineHeight,
-                                    modifier = Modifier.pointerInput(observer) {
-                                        detectDownAndDragGesturesWithObserver(observer)
-                                    },
-                                    content = null
-                                )
+                            val lineHeight = if (isStartHandle) {
+                                manager.startHandleLineHeight
+                            } else {
+                                manager.endHandleLineHeight
                             }
+                            SelectionHandle(
+                                offsetProvider = positionProvider,
+                                isStartHandle = isStartHandle,
+                                direction = direction,
+                                handlesCrossed = it.handlesCrossed,
+                                lineHeight = lineHeight,
+                                modifier = Modifier.pointerInput(observer) {
+                                    detectDownAndDragGesturesWithObserver(observer)
+                                },
+                            )
                         }
                     }
                 }

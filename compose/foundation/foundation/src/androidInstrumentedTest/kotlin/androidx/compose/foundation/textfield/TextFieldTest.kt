@@ -17,7 +17,6 @@
 package androidx.compose.foundation.textfield
 
 import android.os.Build
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.FocusInteraction
@@ -40,9 +39,11 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.FocusedWindowTest
+import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.computeSizeForDefaultText
+import androidx.compose.foundation.text.selection.isSelectionHandle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
@@ -54,6 +55,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertPixelColor
 import androidx.compose.testutils.assertShape
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.onFocusChanged
@@ -166,7 +168,6 @@ import org.mockito.kotlin.verify
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalFoundationApi::class)
 class TextFieldTest : FocusedWindowTest {
     @get:Rule
     val rule = createComposeRule()
@@ -1298,6 +1299,29 @@ class TextFieldTest : FocusedWindowTest {
 
         rule.waitForIdle()
         rule.onNodeWithTag(Tag).captureToImage().assertCentered(fontSize)
+    }
+
+    @Test
+    fun textField_cursorAppearsOnTouch_thenDisappearsWhenTyping() {
+        rule.setTextFieldTestContent {
+            Box(Modifier.fillMaxSize(), Alignment.Center) {
+                BasicTextField(
+                    value = "test",
+                    onValueChange = {},
+                    // center so that the click places the cursor in the middle of the word
+                    textStyle = TextStyle(textAlign = TextAlign.Center),
+                    modifier = Modifier.testTag(Tag),
+                )
+            }
+        }
+
+        rule.onNode(isSelectionHandle(Handle.Cursor)).assertDoesNotExist()
+
+        rule.onNodeWithTag(Tag).performTouchInput { click() }
+        rule.onNode(isSelectionHandle(Handle.Cursor)).assertExists()
+
+        rule.onNodeWithTag(Tag).performTextInput("t")
+        rule.onNode(isSelectionHandle(Handle.Cursor)).assertDoesNotExist()
     }
 
     @OptIn(ExperimentalTestApi::class)

@@ -26,6 +26,7 @@ import android.opengl.GLES20;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Logger;
 
 import java.nio.FloatBuffer;
@@ -199,5 +200,11 @@ public abstract class GlProgram {
             );
         }
         return shader;
+    }
+
+    @VisibleForTesting
+    @NonNull
+    String getFragmentShader() {
+        return mFragmentShader;
     }
 }

@@ -121,11 +121,15 @@ interface CredentialManager {
         val callback = object : CredentialManagerCallback<GetCredentialResponse,
             GetCredentialException> {
             override fun onResult(result: GetCredentialResponse) {
-                continuation.resume(result)
+                if (continuation.isActive) {
+                    continuation.resume(result)
+                }
             }
 
             override fun onError(e: GetCredentialException) {
-                continuation.resumeWithException(e)
+                if (continuation.isActive) {
+                    continuation.resumeWithException(e)
+                }
             }
         }
 
@@ -169,11 +173,15 @@ interface CredentialManager {
         val callback = object : CredentialManagerCallback<GetCredentialResponse,
             GetCredentialException> {
             override fun onResult(result: GetCredentialResponse) {
-                continuation.resume(result)
+                if (continuation.isActive) {
+                    continuation.resume(result)
+                }
             }
 
             override fun onError(e: GetCredentialException) {
-                continuation.resumeWithException(e)
+                if (continuation.isActive) {
+                    continuation.resumeWithException(e)
+                }
             }
         }
 
@@ -211,11 +219,15 @@ interface CredentialManager {
         val callback = object : CredentialManagerCallback<PrepareGetCredentialResponse,
             GetCredentialException> {
             override fun onResult(result: PrepareGetCredentialResponse) {
-                continuation.resume(result)
+                if (continuation.isActive) {
+                    continuation.resume(result)
+                }
             }
 
             override fun onError(e: GetCredentialException) {
-                continuation.resumeWithException(e)
+                if (continuation.isActive) {
+                    continuation.resumeWithException(e)
+                }
             }
         }
 
@@ -252,11 +264,15 @@ interface CredentialManager {
         val callback = object : CredentialManagerCallback<CreateCredentialResponse,
             CreateCredentialException> {
             override fun onResult(result: CreateCredentialResponse) {
-                continuation.resume(result)
+                if (continuation.isActive) {
+                    continuation.resume(result)
+                }
             }
 
             override fun onError(e: CreateCredentialException) {
-                continuation.resumeWithException(e)
+                if (continuation.isActive) {
+                    continuation.resumeWithException(e)
+                }
             }
         }
 
@@ -295,11 +311,15 @@ interface CredentialManager {
 
         val callback = object : CredentialManagerCallback<Void?, ClearCredentialException> {
             override fun onResult(result: Void?) {
-                continuation.resume(Unit)
+                if (continuation.isActive) {
+                    continuation.resume(Unit)
+                }
             }
 
             override fun onError(e: ClearCredentialException) {
-                continuation.resumeWithException(e)
+                if (continuation.isActive) {
+                    continuation.resumeWithException(e)
+                }
             }
         }
 

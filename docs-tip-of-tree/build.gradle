@@ -89,6 +89,9 @@ dependencies {
     kmpDocs(project(":compose:material3:material3"))
     kmpDocs(project(":compose:material3:material3-adaptive"))
     samples(project(":compose:material3:material3-adaptive:material3-adaptive-samples"))
+    kmpDocs(project(":compose:material3:material3-adaptive-navigation-suite"))
+    samples(project(":compose:material3:material3-adaptive-navigation-suite:material3-adaptive-navigation-suite-samples"))
+    docs(project(":compose:material3:material3-common"))
     samples(project(":compose:material3:material3:material3-samples"))
     kmpDocs(project(":compose:material3:material3-window-size-class"))
     samples(project(":compose:material3:material3-window-size-class:material3-window-size-class-samples"))
@@ -290,6 +293,9 @@ dependencies {
     docs(project(":preference:preference"))
     docs(project(":preference:preference-ktx"))
     docs(project(":print:print"))
+    docs(project(":privacysandbox:activity:activity-client"))
+    docs(project(":privacysandbox:activity:activity-core"))
+    docs(project(":privacysandbox:activity:activity-provider"))
     docs(project(":privacysandbox:ads:ads-adservices"))
     docs(project(":privacysandbox:ads:ads-adservices-java"))
     docs(project(":privacysandbox:sdkruntime:sdkruntime-client"))
@@ -419,4 +425,12 @@ dependencies {
     docs(project(":work:work-rxjava2"))
     docs(project(":work:work-rxjava3"))
     docs(project(":work:work-testing"))
+}
+afterEvaluate {
+  tasks["docs"].doFirst {
+    println("docs-tip-of-tree:docs starting")
+  }
+  tasks["docs"].doLast {
+    println("docs-tip-of-tree:docs completing")
+  }
 }

@@ -24,6 +24,7 @@ import androidx.core.telecom.extensions.IActionsResultCallback;
 @JavaPassthrough(annotation="@androidx.core.telecom.util.ExperimentalAppActions")
 @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface IParticipantStateListener {
+    const int VERSION = 1;
     // Built-in states provided as part of handling basic participant support
     void updateParticipants(in Participant[] participants) = 0;
     void updateActiveParticipant(in int activeParticipant) = 1;

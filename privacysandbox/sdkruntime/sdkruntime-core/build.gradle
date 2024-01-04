@@ -48,6 +48,7 @@ android {
     }
 
     namespace "androidx.privacysandbox.sdkruntime.core"
+    compileSdkVersion = "android-34-ext8"
 }
 
 androidx {

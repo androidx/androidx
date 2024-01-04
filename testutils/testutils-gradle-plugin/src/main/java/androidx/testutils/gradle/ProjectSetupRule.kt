@@ -109,6 +109,30 @@ class ProjectSetupRule(parentFolder: File? = null) : ExternalResource() {
         writeGradleProperties()
     }
 
+    fun getSdkDirectory(): String {
+        val localProperties = File(props.rootProjectPath, "local.properties")
+        when {
+            localProperties.exists() -> {
+                val stream = localProperties.inputStream()
+                val properties = Properties()
+                properties.load(stream)
+                return properties.getProperty("sdk.dir")
+            }
+            System.getenv("ANDROID_HOME") != null -> {
+                return System.getenv("ANDROID_HOME")
+            }
+            System.getenv("ANDROID_SDK_ROOT") != null -> {
+                return System.getenv("ANDROID_SDK_ROOT")
+            }
+            else -> {
+                throw IllegalStateException(
+                    "ProjectSetupRule did find local.properties at: $localProperties and " +
+                        "neither ANDROID_HOME or ANDROID_SDK_ROOT was set."
+                )
+            }
+        }
+    }
+
     /**
      * Gets the latest version of a published library.
      *

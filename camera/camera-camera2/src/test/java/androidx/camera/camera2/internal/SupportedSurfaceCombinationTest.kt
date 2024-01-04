@@ -1936,7 +1936,8 @@ class SupportedSurfaceCombinationTest {
     @Test
     fun dynamicRangeResolver_resolvesToSdr8Bit_whenSdrWithUnspecifiedBitDepthProvided() {
         // Preview unspecified dynamic range
-        val useCase = createUseCase(CaptureType.PREVIEW,
+        val useCase = createUseCase(
+            CaptureType.PREVIEW,
             dynamicRange = DynamicRange(ENCODING_SDR, BIT_DEPTH_UNSPECIFIED)
         )
 

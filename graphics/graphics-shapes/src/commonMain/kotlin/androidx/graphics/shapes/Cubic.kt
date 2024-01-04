@@ -26,7 +26,9 @@ import kotlin.math.sqrt
  * the slope of the curve between the anchor points.
  */
 open class Cubic internal constructor(internal val points: FloatArray = FloatArray(8)) {
-    init { require(points.size == 8) }
+    init {
+        require(points.size == 8) { "Points array size should be 8" }
+    }
 
     /**
      * The first anchor point x coordinate
@@ -150,9 +152,10 @@ open class Cubic internal constructor(internal val points: FloatArray = FloatArr
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
 
-        other as Cubic
+        if (other !is Cubic) {
+            return false
+        }
 
         return points.contentEquals(other.points)
     }

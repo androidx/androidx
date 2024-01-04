@@ -238,6 +238,32 @@ class TextFieldDelegateTest {
     }
 
     @Test
+    fun applyCompositionDecoration_negativeRange_isAppliedReversed() {
+        // condition can be reached on Samsung Android 9 w/ Samsung keyboard
+        // b/299583698
+        val identityOffsetMapping = object : OffsetMapping {
+            override fun originalToTransformed(offset: Int): Int = offset
+            override fun transformedToOriginal(offset: Int): Int = offset
+        }
+
+        val input = TransformedText(
+            text = AnnotatedString.Builder().apply {
+                pushStyle(SpanStyle(color = Color.Red))
+                append("Hello, World")
+            }.toAnnotatedString(),
+            offsetMapping = identityOffsetMapping
+        )
+
+        val result = TextFieldDelegate.applyCompositionDecoration(
+            compositionRange = TextRange(3, 0),
+            transformed = input
+        )
+        assertThat(result.text.spanStyles).contains(
+            AnnotatedString.Range(SpanStyle(textDecoration = TextDecoration.Underline), 0, 3)
+        )
+    }
+
+    @Test
     fun apply_composition_decoration_with_offsetmap() {
         val offsetAmount = 5
         val offsetMapping = object : OffsetMapping {

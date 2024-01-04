@@ -18,6 +18,7 @@ package androidx.compose.compiler.plugins.kotlin.lower.decoys
 
 import androidx.compose.compiler.plugins.kotlin.ComposeFqNames
 import androidx.compose.compiler.plugins.kotlin.ModuleMetrics
+import androidx.compose.compiler.plugins.kotlin.analysis.StabilityInferencer
 import androidx.compose.compiler.plugins.kotlin.lower.ComposerParamTransformer
 import androidx.compose.compiler.plugins.kotlin.lower.ModuleLoweringPass
 import androidx.compose.compiler.plugins.kotlin.lower.changedParamCount
@@ -57,15 +58,17 @@ class SubstituteDecoyCallsTransformer(
     pluginContext: IrPluginContext,
     symbolRemapper: DeepCopySymbolRemapper,
     signatureBuilder: IdSignatureSerializer,
+    stabilityInferencer: StabilityInferencer,
     metrics: ModuleMetrics,
 ) : AbstractDecoysLowering(
     pluginContext = pluginContext,
     symbolRemapper = symbolRemapper,
     metrics = metrics,
+    stabilityInferencer = stabilityInferencer,
     signatureBuilder = signatureBuilder
 ), ModuleLoweringPass {
     private val decoysTransformer = CreateDecoysTransformer(
-        pluginContext, symbolRemapper, signatureBuilder, metrics
+        pluginContext, symbolRemapper, signatureBuilder, stabilityInferencer, metrics
     )
     private val lazyDeclarationsCache = mutableMapOf<IrFunctionSymbol, IrFunction>()
 
@@ -238,7 +241,7 @@ class SubstituteDecoyCallsTransformer(
 
     private val addComposerParameterInplace = object : IrElementTransformerVoid() {
         private val composerParamTransformer = ComposerParamTransformer(
-            context, symbolRemapper, true, metrics
+            context, symbolRemapper, stabilityInferencer, true, metrics
         )
 
         private fun IrType.isComposable(): Boolean {

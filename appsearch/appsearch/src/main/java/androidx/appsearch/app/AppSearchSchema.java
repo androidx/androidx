@@ -1415,7 +1415,7 @@ public final class AppSearchSchema {
              *
              * @throws IllegalArgumentException if the provided PropertyConfig sets
              * {@link #shouldIndexNestedProperties()} to true and has one or more properties
-             * defined for {@link #getIndexableNestedProperties()}.
+             * defined using {@link #addIndexableNestedProperties(Collection)}.
              */
             @NonNull
             public DocumentPropertyConfig build() {

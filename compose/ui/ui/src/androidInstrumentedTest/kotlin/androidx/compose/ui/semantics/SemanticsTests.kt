@@ -1083,6 +1083,9 @@ class SemanticsTests {
         }
 
         val config = rule.onNodeWithTag(TestTag, true).fetchSemanticsNode().config
+        assertEquals(null,
+            config.getOrNull(SemanticsProperties.IsShowingTextSubstitution))
+
         rule.runOnUiThread {
             config.getOrNull(SemanticsActions.SetTextSubstitution)?.action?.invoke(
                 AnnotatedString("bonjour"))
@@ -1094,6 +1097,10 @@ class SemanticsTests {
         // SetTextSubstitution doesn't trigger text update
         assertThat(newConfig.getOrNull(SemanticsProperties.Text))
             .containsExactly(AnnotatedString("hello"))
+        assertEquals(AnnotatedString("bonjour"),
+            newConfig.getOrNull(SemanticsProperties.TextSubstitution))
+        assertEquals(false,
+            newConfig.getOrNull(SemanticsProperties.IsShowingTextSubstitution))
 
         rule.runOnUiThread {
             config.getOrNull(SemanticsActions.ShowTextSubstitution)?.action?.invoke(true)
@@ -1104,9 +1111,11 @@ class SemanticsTests {
         newConfig = rule.onNodeWithTag(TestTag, true).fetchSemanticsNode().config
         // ShowTextSubstitution triggers text update
         assertThat(newConfig.getOrNull(SemanticsProperties.Text))
-            .containsExactly(AnnotatedString("bonjour"))
-        assertEquals(
-            AnnotatedString("hello"), newConfig.getOrNull(SemanticsProperties.OriginalText))
+            .containsExactly(AnnotatedString("hello"))
+        assertEquals(AnnotatedString("bonjour"),
+            newConfig.getOrNull(SemanticsProperties.TextSubstitution))
+        assertEquals(true,
+            newConfig.getOrNull(SemanticsProperties.IsShowingTextSubstitution))
     }
 
     @Test
@@ -1122,6 +1131,9 @@ class SemanticsTests {
         }
 
         val config = rule.onNodeWithTag(TestTag, true).fetchSemanticsNode().config
+        assertEquals(null,
+            config.getOrNull(SemanticsProperties.IsShowingTextSubstitution))
+
         rule.runOnUiThread {
             config.getOrNull(SemanticsActions.SetTextSubstitution)?.action?.invoke(
                 AnnotatedString("bonjour"))
@@ -1133,6 +1145,10 @@ class SemanticsTests {
         // SetTextSubstitution doesn't trigger text update
         assertThat(newConfig.getOrNull(SemanticsProperties.Text))
             .containsExactly(AnnotatedString("hello"))
+        assertEquals(AnnotatedString("bonjour"),
+            newConfig.getOrNull(SemanticsProperties.TextSubstitution))
+        assertEquals(false,
+            newConfig.getOrNull(SemanticsProperties.IsShowingTextSubstitution))
 
         rule.runOnUiThread {
             config.getOrNull(SemanticsActions.ShowTextSubstitution)?.action?.invoke(true)
@@ -1143,9 +1159,11 @@ class SemanticsTests {
         newConfig = rule.onNodeWithTag(TestTag, true).fetchSemanticsNode().config
         // ShowTextSubstitution triggers text update
         assertThat(newConfig.getOrNull(SemanticsProperties.Text))
-            .containsExactly(AnnotatedString("bonjour"))
-        assertEquals(
-            AnnotatedString("hello"), newConfig.getOrNull(SemanticsProperties.OriginalText))
+            .containsExactly(AnnotatedString("hello"))
+        assertEquals(AnnotatedString("bonjour"),
+            newConfig.getOrNull(SemanticsProperties.TextSubstitution))
+        assertEquals(true,
+            newConfig.getOrNull(SemanticsProperties.IsShowingTextSubstitution))
     }
 
     @Test

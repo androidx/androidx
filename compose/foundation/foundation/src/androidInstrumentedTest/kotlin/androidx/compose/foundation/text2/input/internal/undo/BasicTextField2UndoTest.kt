@@ -38,6 +38,7 @@ import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.TextRange
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -246,6 +247,7 @@ internal class BasicTextField2UndoTest {
         assertThat(state.undoState.canUndo).isFalse()
     }
 
+    @FlakyTest(bugId = 305090138)
     @Test
     fun clearHistory_removesAllUndoAndRedo() {
         val state = TextFieldState()

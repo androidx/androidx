@@ -24,8 +24,10 @@ import static androidx.camera.core.ImageCapture.ERROR_UNKNOWN;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_AUTO;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_ON;
+import static androidx.camera.core.ImageCapture.FLASH_MODE_SCREEN;
 import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY;
 import static androidx.camera.testing.impl.FileUtil.canDeviceWriteToMediaStore;
+import static androidx.camera.testing.impl.FileUtil.createFolder;
 import static androidx.camera.testing.impl.FileUtil.createParentFolder;
 import static androidx.camera.testing.impl.FileUtil.generateVideoFileOutputOptions;
 import static androidx.camera.testing.impl.FileUtil.generateVideoMediaStoreOptions;
@@ -134,6 +136,7 @@ import androidx.camera.video.RecordingStats;
 import androidx.camera.video.VideoCapabilities;
 import androidx.camera.video.VideoCapture;
 import androidx.camera.video.VideoRecordEvent;
+import androidx.camera.view.ScreenFlashView;
 import androidx.core.content.ContextCompat;
 import androidx.core.math.MathUtils;
 import androidx.core.util.Consumer;
@@ -283,6 +286,15 @@ public class CameraXActivity extends AppCompatActivity {
     private static final String BACKWARD = "BACKWARD";
     private static final String SWITCH_TEST_CASE = "switch_test_case";
     private static final String PREVIEW_TEST_CASE = "preview_test_case";
+
+    /** Represents screen flash is set and fully supported (non-legacy device) */
+    private static final String DESCRIPTION_FLASH_MODE_SCREEN = "FLASH_MODE_SCREEN";
+    /** Represents screen flash is set, but not supported due to being legacy device */
+    private static final String DESCRIPTION_SCREEN_FLASH_NOT_SUPPORTED_LEGACY =
+            "SCREEN_FLASH_NOT_SUPPORTED_LEGACY";
+    /** Represents the lack of physical flash unit for current camera */
+    private static final String DESCRIPTION_FLASH_UNIT_NOT_AVAILABLE = "FLASH_UNIT_NOT_AVAILABLE";
+    /** Represents current (if any) flash mode not being supported */
     private static final String DESCRIPTION_FLASH_MODE_NOT_SUPPORTED = "FLASH_MODE_NOT_SUPPORTED";
     private static final Quality QUALITY_AUTO = null;
 
@@ -315,6 +327,7 @@ public class CameraXActivity extends AppCompatActivity {
     private Button mTakePicture;
     private ImageButton mCameraDirectionButton;
     private ImageButton mFlashButton;
+    private ScreenFlashView mScreenFlashView;
     private TextView mTextView;
     private ImageButton mTorchButton;
     private ToggleButton mCaptureQualityToggle;
@@ -548,9 +561,20 @@ public class CameraXActivity extends AppCompatActivity {
         }
     }
 
+    /** Returns whether any kind of flash (physical/screen) is available */
     private boolean isFlashAvailable() {
+        return isFlashUnitAvailable() || isScreenFlashAvailable();
+    }
+
+    /** Returns whether physical flash unit is available */
+    private boolean isFlashUnitAvailable() {
         CameraInfo cameraInfo = getCameraInfo();
         return mPhotoToggle.isChecked() && cameraInfo != null && cameraInfo.hasFlashUnit();
+    }
+
+    /** Returns whether screen flash is available */
+    private boolean isScreenFlashAvailable() {
+        return mPhotoToggle.isChecked() && isFrontCamera();
     }
 
     @SuppressLint("RestrictedApiAndroidX")
@@ -588,15 +612,40 @@ public class CameraXActivity extends AppCompatActivity {
     private void setUpFlashButton() {
         mFlashButton.setOnClickListener(v -> {
             @ImageCapture.FlashMode int flashMode = getImageCapture().getFlashMode();
-            if (flashMode == FLASH_MODE_ON) {
-                getImageCapture().setFlashMode(FLASH_MODE_OFF);
-            } else if (flashMode == FLASH_MODE_OFF) {
-                getImageCapture().setFlashMode(FLASH_MODE_AUTO);
+
+            if (flashMode == FLASH_MODE_OFF) {
+                if (isFlashUnitAvailable()) {
+                    getImageCapture().setFlashMode(FLASH_MODE_AUTO);
+                } else if (isScreenFlashAvailable()) {
+                    setUpScreenFlash();
+                } else {
+                    Log.e(TAG,
+                            "Flash button clicked despite lack of both physical and screen flash");
+                }
             } else if (flashMode == FLASH_MODE_AUTO) {
                 getImageCapture().setFlashMode(FLASH_MODE_ON);
+            } else if (flashMode == FLASH_MODE_ON) {
+                if (!isScreenFlashAvailable()) {
+                    getImageCapture().setFlashMode(FLASH_MODE_OFF);
+                } else {
+                    setUpScreenFlash();
+                }
+            } else if (flashMode == FLASH_MODE_SCREEN) {
+                getImageCapture().setFlashMode(FLASH_MODE_OFF);
             }
             updateButtonsUi();
         });
+    }
+
+    private void setUpScreenFlash() {
+        if (!isFrontCamera()) {
+            return;
+        }
+
+        mScreenFlashView.setScreenFlashWindow(getWindow());
+        getImageCapture().setScreenFlashUiControl(
+                mScreenFlashView.getScreenFlashUiControl());
+        getImageCapture().setFlashMode(FLASH_MODE_SCREEN);
     }
 
     @SuppressLint({"MissingPermission", "NullAnnotationGroup"})
@@ -1153,18 +1202,11 @@ public class CameraXActivity extends AppCompatActivity {
         mCameraDirectionButton.setEnabled(getCameraInfo() != null);
         mPreviewStabilizationToggle.setEnabled(mCamera != null
                 && Preview.getPreviewCapabilities(getCameraInfo()).isStabilizationSupported());
-        mTorchButton.setEnabled(isFlashAvailable());
+        mTorchButton.setEnabled(isFlashUnitAvailable());
         // Flash button
-        mFlashButton.setEnabled(mPhotoToggle.isChecked() && isFlashAvailable());
+        mFlashButton.setEnabled(isFlashAvailable());
         if (mPhotoToggle.isChecked()) {
             int flashMode = getImageCapture().getFlashMode();
-            if (isFlashTestSupported(flashMode)) {
-                // Reset content description if flash is ready for test.
-                mFlashButton.setContentDescription("");
-            } else {
-                // Set content description for e2e testing.
-                mFlashButton.setContentDescription(DESCRIPTION_FLASH_MODE_NOT_SUPPORTED);
-            }
             switch (flashMode) {
                 case FLASH_MODE_ON:
                     mFlashButton.setImageResource(R.drawable.ic_flash_on);
@@ -1175,11 +1217,56 @@ public class CameraXActivity extends AppCompatActivity {
                 case FLASH_MODE_AUTO:
                     mFlashButton.setImageResource(R.drawable.ic_flash_auto);
                     break;
+                case FLASH_MODE_SCREEN:
+                    mFlashButton.setImageResource(R.drawable.ic_flash_screen);
+                    break;
             }
         }
+        setFlashButtonContentDescription();
+
         mPlusEV.setEnabled(isExposureCompensationSupported());
         mDecEV.setEnabled(isExposureCompensationSupported());
         mZoomIn2XToggle.setEnabled(is2XZoomSupported());
+    }
+
+    // Set or reset content description for e2e testing.
+    private void setFlashButtonContentDescription() {
+        // This is set even if button is not enabled, to better represent why it is not enabled.
+        if (!isFlashUnitAvailable()) {
+            mFlashButton.setContentDescription(DESCRIPTION_FLASH_UNIT_NOT_AVAILABLE);
+        }
+
+        if (!mPhotoToggle.isChecked()) {
+            return;
+        }
+
+        int flashMode = getImageCapture().getFlashMode();
+
+        // Button may be enabled even when flash unit is not available, due to screen flash.
+        if (isFlashUnitAvailable()) {
+            // Even if flash unit is available, some flash modes still may not be suitable for tests
+            if (isFlashTestSupported(flashMode)) {
+                // Reset content description if flash is ready for test.
+                // TODO: Set content description specific to flash mode, may need to check the
+                //  E2E tests first if that will be okay.
+                mFlashButton.setContentDescription("");
+            } else {
+                mFlashButton.setContentDescription(DESCRIPTION_FLASH_MODE_NOT_SUPPORTED);
+            }
+        }
+
+        // Screen flash does not depend on flash unit or the quirks in isFlashTestSupported, so
+        // will override the previously set descriptions without any concern to those.
+        if (flashMode == FLASH_MODE_SCREEN) {
+            if (isLegacyDevice(requireNonNull(getCameraInfo()))) {
+                mFlashButton.setContentDescription(
+                        DESCRIPTION_SCREEN_FLASH_NOT_SUPPORTED_LEGACY);
+            } else {
+                mFlashButton.setContentDescription(DESCRIPTION_FLASH_MODE_SCREEN);
+            }
+        }
+
+        Log.d(TAG, "Flash Button content description = " + mFlashButton.getContentDescription());
     }
 
     private void setUpButtonEvents() {
@@ -1290,6 +1377,7 @@ public class CameraXActivity extends AppCompatActivity {
 
         mTakePicture = findViewById(R.id.Picture);
         mFlashButton = findViewById(R.id.flash_toggle);
+        mScreenFlashView = findViewById(R.id.screen_flash_view);
         mCameraDirectionButton = findViewById(R.id.direction_toggle);
         mTorchButton = findViewById(R.id.torch_toggle);
         mCaptureQualityToggle = findViewById(R.id.capture_quality);
@@ -1737,7 +1825,7 @@ public class CameraXActivity extends AppCompatActivity {
     void createDefaultPictureFolderIfNotExist() {
         File pictureFolder = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES);
-        if (createParentFolder(pictureFolder)) {
+        if (createFolder(pictureFolder)) {
             Log.e(TAG, "Failed to create directory: " + pictureFolder);
         }
     }
@@ -2330,6 +2418,11 @@ public class CameraXActivity extends AppCompatActivity {
         }
     }
 
+    private boolean isFrontCamera() {
+        return getLensFacing(Objects.requireNonNull(getCameraInfo()))
+                == CameraSelector.LENS_FACING_FRONT;
+    }
+
     @SuppressLint("NullAnnotationGroup")
     @OptIn(markerClass = ExperimentalCamera2Interop.class)
     private static int getCamera2LensFacing(@NonNull CameraInfo cameraInfo) {
@@ -2348,6 +2441,14 @@ public class CameraXActivity extends AppCompatActivity {
                         cameraInfo).getCameraCharacteristic(CameraCharacteristics.LENS_FACING);
 
         return lensFacing == null ? CameraCharacteristics.LENS_FACING_BACK : lensFacing;
+    }
+
+    @SuppressLint("NullAnnotationGroup")
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
+    private static boolean isLegacyDevice(@NonNull CameraInfo cameraInfo) {
+        return Camera2CameraInfo.from(cameraInfo).getCameraCharacteristic(
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL
+        ) == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
     }
 
     @NonNull

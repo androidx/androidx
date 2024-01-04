@@ -32,6 +32,11 @@ import android.os.IBinder
  * SDKs can create launchers from an app-provided bundle by calling
  * [createFromLauncherInfo][androidx.privacysandbox.ui.provider.SdkActivityLauncherFactory.createFromLauncherInfo].
  */
+@Deprecated("Use the Privacy Sandbox Activity library version instead.",
+    ReplaceWith(
+        expression = "SdkActivityLauncher",
+        imports = arrayOf("androidx.privacysandbox.activity.core.SdkActivityLauncher")))
+// TODO(b/307696996) Remove this file when activity library is released.
 interface SdkActivityLauncher {
 
     /**

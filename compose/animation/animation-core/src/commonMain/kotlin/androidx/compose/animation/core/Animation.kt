@@ -100,6 +100,8 @@ internal fun convertSecondsToNanos(seconds: Float): Long =
 internal fun convertNanosToSeconds(nanos: Long): Double =
     nanos.toDouble() / SecondsToNanos
 
+internal const val SecondsToMillis: Long = 1_000L
+
 /**
  * Returns the velocity of the animation at the given play time.
  *

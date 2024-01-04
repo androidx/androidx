@@ -42,6 +42,7 @@ val TextDemos = DemoCategory(
             "Text Canvas",
             listOf(
                 ComposableDemo("Brush") { TextBrushDemo() },
+                ComposableDemo("Brush Span") { BrushAnimatingSpanDemo() },
                 ComposableDemo("drawText") { DrawTextDemo() },
                 ComposableDemo("Stroke") { TextStrokeDemo() }
             )

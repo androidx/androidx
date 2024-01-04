@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.demos.text
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -41,7 +40,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
-@SuppressLint("PrimitiveInLambda")
 @Preview
 @Composable
 fun TextScrollableColumnSelectionDemo() {

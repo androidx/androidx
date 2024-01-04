@@ -42,7 +42,6 @@ android {
     namespace 'androidx.graphics.core'
 
     defaultConfig {
-        minSdkVersion 17
         externalNativeBuild {
             def versionScript = file("src/main/cpp/jni.lds").getAbsolutePath()
 

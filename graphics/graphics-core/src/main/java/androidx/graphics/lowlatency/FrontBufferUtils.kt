@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.hardware.HardwareBuffer
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.graphics.surface.SurfaceControlCompat
 
 internal class FrontBufferUtils private constructor() {
 
@@ -56,6 +57,27 @@ internal class FrontBufferUtils private constructor() {
             }
 
         internal const val UseCompatSurfaceControl = false
+
+        fun configureFrontBufferLayerFrameRate(
+            frontBufferSurfaceControl: SurfaceControlCompat,
+            frameRate: Float = 1000f,
+            transaction: SurfaceControlCompat.Transaction? = null
+        ): SurfaceControlCompat.Transaction? {
+            var targetTransaction: SurfaceControlCompat.Transaction? = transaction
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (targetTransaction == null) {
+                    targetTransaction = SurfaceControlCompat.Transaction()
+                }
+                targetTransaction
+                    .setFrameRate(
+                        frontBufferSurfaceControl,
+                        frameRate,
+                        SurfaceControlCompat.FRAME_RATE_COMPATIBILITY_DEFAULT,
+                        SurfaceControlCompat.CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS
+                    )
+            }
+            return targetTransaction
+        }
     }
 }
 

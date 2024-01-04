@@ -24,7 +24,6 @@ import androidx.camera.core.impl.Quirk;
 import androidx.camera.video.internal.workaround.VideoTimebaseConverter;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -46,8 +45,9 @@ public class CameraUseInconsistentTimebaseQuirk implements Quirk {
             "qcom"
     ));
 
-    private static final Set<String> BUILD_SOC_MODEL_SET = new HashSet<>(Collections.singletonList(
-            "sm6375"
+    private static final Set<String> BUILD_SOC_MODEL_SET = new HashSet<>(Arrays.asList(
+            "sm4350", // Snapdragon 480 5G
+            "sm6375"  // Snapdragon 695 5G
     ));
 
     private static final Set<String> BUILD_MODEL_SET = new HashSet<>(Arrays.asList(

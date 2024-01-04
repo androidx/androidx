@@ -1262,45 +1262,45 @@ public class MutableObjectList<E>(
 
     private class MutableObjectListIterator<T>(
         private val list: MutableList<T>,
-        private var index: Int
+        index: Int
     ) : MutableListIterator<T> {
+        private var prevIndex = index - 1
+
         override fun hasNext(): Boolean {
-            return index < list.size
+            return prevIndex < list.size - 1
         }
 
         override fun next(): T {
-            return list[index++]
+            return list[++prevIndex]
         }
 
         override fun remove() {
-            index--
-            list.removeAt(index)
+            list.removeAt(prevIndex)
+            prevIndex--
         }
 
         override fun hasPrevious(): Boolean {
-            return index > 0
+            return prevIndex >= 0
         }
 
         override fun nextIndex(): Int {
-            return index
+            return prevIndex + 1
         }
 
         override fun previous(): T {
-            index--
-            return list[index]
+            return list[prevIndex--]
         }
 
         override fun previousIndex(): Int {
-            return index - 1
+            return prevIndex
         }
 
         override fun add(element: T) {
-            list.add(index, element)
-            index++
+            list.add(++prevIndex, element)
         }
 
         override fun set(element: T) {
-            list[index] = element
+            list[prevIndex] = element
         }
     }
 

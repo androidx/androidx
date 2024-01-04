@@ -16,6 +16,7 @@
 
 package androidx.compose.material3.adaptive
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.dp
@@ -181,7 +182,7 @@ class SupportingPaneScaffoldStateTest {
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private val MockSinglePaneScaffoldDirective = PaneScaffoldDirective(
     maxHorizontalPartitions = 1,
-    gutterSizes = GutterSizes(0.dp, 0.dp),
+    gutterSizes = GutterSizes(PaddingValues(0.dp), 0.dp),
     maxVerticalPartitions = 1,
     excludedBounds = emptyList()
 )
@@ -189,7 +190,7 @@ private val MockSinglePaneScaffoldDirective = PaneScaffoldDirective(
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private val MockDualPaneScaffoldDirective = PaneScaffoldDirective(
     maxHorizontalPartitions = 2,
-    gutterSizes = GutterSizes(16.dp, 16.dp),
+    gutterSizes = GutterSizes(PaddingValues(16.dp), 16.dp),
     maxVerticalPartitions = 1,
     excludedBounds = emptyList()
 )

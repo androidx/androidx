@@ -17,6 +17,7 @@
 package androidx.compose.ui.text.style
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.style.LineBreak.Strategy
 import androidx.compose.ui.text.style.LineBreak.Strictness
 import androidx.compose.ui.text.style.LineBreak.WordBreak
@@ -103,6 +104,7 @@ actual value class LineBreak private constructor(
          * +---------+
          * </pre>
          */
+        @Stable
         actual val Simple: LineBreak = LineBreak(
             packBytes(
                 Strategy.Simple.value,
@@ -129,6 +131,7 @@ actual value class LineBreak private constructor(
          * +---------+
          * </pre>
          */
+        @Stable
         actual val Heading: LineBreak = LineBreak(
             packBytes(
                 Strategy.Balanced.value,
@@ -155,6 +158,7 @@ actual value class LineBreak private constructor(
          * +---------+
          * </pre>
          */
+        @Stable
         actual val Paragraph: LineBreak = LineBreak(
             packBytes(
                 Strategy.HighQuality.value,
@@ -167,6 +171,7 @@ actual value class LineBreak private constructor(
          * This represents an unset value, a usual replacement for "null" when a primitive value
          * is desired.
          */
+        @Stable
         actual val Unspecified: LineBreak = LineBreak(0)
     }
 

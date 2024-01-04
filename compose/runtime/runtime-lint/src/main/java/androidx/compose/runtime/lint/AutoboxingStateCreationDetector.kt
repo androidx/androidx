@@ -177,7 +177,9 @@ class AutoboxingStateCreationDetector : Detector(), SourceCodeScanner {
                 "values when reading the value of the state. Instead, prefer to use a " +
                 "specialized primitive state implementation for `Int`, `Long`, `Float`, and " +
                 "`Double` when the state does not need to track null values and does not " +
-                "override the default `SnapshotMutationPolicy`.",
+                "override the default `SnapshotMutationPolicy`. See `mutableIntStateOf()`, " +
+                "`mutableLongStateOf()`, `mutableFloatStateOf()`, and `mutableDoubleStateOf()` " +
+                "for more information.",
             category = Category.PERFORMANCE, priority = 3, severity = Severity.INFORMATIONAL,
             implementation = Implementation(
                 AutoboxingStateCreationDetector::class.java,

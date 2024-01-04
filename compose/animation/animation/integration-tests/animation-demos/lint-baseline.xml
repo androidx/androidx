@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
         id="PrimitiveInCollection"
@@ -170,42 +170,6 @@
         errorLine2="             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/compose/animation/demos/gesture/SwipeToDismissDemo.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;calculateSize&apos; with type Function1&lt;? super IntSize, ? extends IntSize>."
-        errorLine1="    val calculateSize: (IntSize) -> IntSize ="
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/animation/demos/lookahead/CraneDemo.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;calculateOffset&apos; with type Function2&lt;? super PlacementScope, ? super IntermediateMeasureScope, ? extends IntOffset>."
-        errorLine1="    val calculateOffset: Placeable.PlacementScope.(IntermediateMeasureScope) -> IntOffset = {"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/animation/demos/lookahead/CraneDemo.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;onOptionSelected&apos; with type Function1&lt;? super Integer, ? extends Unit>."
-        errorLine1="        val onOptionSelected: (Int) -> Unit = remember {"
-        errorLine2="                              ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/animation/demos/visualinspection/EnterExitCombination.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method TransitionOptions has parameter &apos;onOptionSelected&apos; with type Function1&lt;? super Integer, Unit>."
-        errorLine1="fun TransitionOptions(selectedOptions: List&lt;Boolean>, onOptionSelected: (Int) -> Unit) {"
-        errorLine2="                                                                        ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/animation/demos/visualinspection/EnterExitCombination.kt"/>
     </issue>
 
 </issues>

@@ -67,7 +67,7 @@ private val DragAndDropDemos = listOf(
 val FoundationDemos = DemoCategory(
     "Foundation",
     listOf(
-        DemoCategory("High-level Gesures", GestureDemos),
+        DemoCategory("High-level Gestures", GestureDemos),
         DemoCategory("Drag and drop", DragAndDropDemos),
         ComposableDemo("Overscroll") { OverscrollDemo() },
         ComposableDemo("Can scroll forward / backward") { CanScrollSample() },

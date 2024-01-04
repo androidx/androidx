@@ -4,7 +4,8 @@ import argparse, os, sys
 
 # List of directories we want to exclude when traversing the project files. This list should
 # contain directories related to tests, documentation/samples, API, resources, etc.
-EXCLUDED_DIRS = ['androidTest', 'androidAndroidTest', 'api', 'docs', 'res', 'samples', 'test']
+EXCLUDED_DIRS = ['androidTest', 'androidAndroidTest', 'api', 'docs', 'res', 'samples', 'test',
+                 'androidInstrumentedTest']
 # List of packages that should be excluded when traversing the project files. These packages might
 # include Java/Kotlin source files that contain Composable, but we're not interested in including
 # them on the output list because it's unlikely that developers will use them in their code.

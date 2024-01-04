@@ -41,6 +41,7 @@ import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
+import android.hardware.camera2.params.SessionConfiguration
 import android.media.ImageReader
 import android.media.ImageWriter
 import android.os.Build
@@ -50,6 +51,8 @@ import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.impl.Camera2ImplConfig
+import androidx.camera.camera2.internal.Camera2CameraInfoImpl
+import androidx.camera.camera2.internal.compat.CameraManagerCompat
 import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat
 import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.core.CameraFilter
@@ -66,6 +69,7 @@ import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.ExtendedCameraConfigProviderStore
 import androidx.camera.core.impl.Identifier
 import androidx.camera.core.impl.MutableOptionsBundle
+import androidx.camera.core.impl.OutputSurface
 import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.extensions.impl.advanced.Camera2OutputConfigImpl
@@ -387,6 +391,51 @@ class AdvancedSessionProcessorTest {
             .isEqualTo(physicalCameraId)
     }
 
+    private fun createOutputSurface(width: Int, height: Int, format: Int): OutputSurface {
+        val captureImageReader = ImageReader.newInstance(width, height, format, 1);
+        return OutputSurface.create(captureImageReader.surface, Size(width, height), format)
+    }
+
+    @Test
+    fun canSetSessionTypeFromOemImpl() {
+        assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
+        // 1. Arrange.
+        val sessionTypeToVerify = 4;
+        val fakeSessionProcessImpl = FakeSessionProcessImpl()
+        fakeSessionProcessImpl.sessionType = sessionTypeToVerify;
+        val advancedSessionProcessor = AdvancedSessionProcessor(fakeSessionProcessImpl,
+            emptyList(), context)
+        val fakeCameraInfo = Camera2CameraInfoImpl("0", CameraManagerCompat.from(context));
+        val previewOutputSurface = createOutputSurface(640, 480, ImageFormat.YUV_420_888);
+        val imageCaptureSurface = createOutputSurface(640, 480, ImageFormat.JPEG);
+
+        // 2. Act.
+        val sessionConfig = advancedSessionProcessor
+            .initSession(fakeCameraInfo, previewOutputSurface, imageCaptureSurface, null);
+
+        // 3. Assert.
+        assertThat(sessionConfig.sessionType).isEqualTo(sessionTypeToVerify)
+    }
+
+    @Test
+    fun defaultSessionType() {
+        // 1. Arrange.
+        val fakeSessionProcessImpl = FakeSessionProcessImpl()
+        fakeSessionProcessImpl.sessionType = -1;
+        val advancedSessionProcessor = AdvancedSessionProcessor(fakeSessionProcessImpl,
+            emptyList(), context)
+        val fakeCameraInfo = Camera2CameraInfoImpl("0", CameraManagerCompat.from(context));
+        val previewOutputSurface = createOutputSurface(640, 480, ImageFormat.YUV_420_888);
+        val imageCaptureSurface = createOutputSurface(640, 480, ImageFormat.JPEG);
+
+        // 2. Act.
+        val sessionConfig = advancedSessionProcessor
+            .initSession(fakeCameraInfo, previewOutputSurface, imageCaptureSurface, null);
+
+        // 3. Assert.
+        assertThat(sessionConfig.sessionType).isEqualTo(SessionConfiguration.SESSION_REGULAR)
+    }
+
     /**
      * Verify if the given use cases have expected output.
      * 1) Preview frame is received
@@ -474,6 +523,7 @@ private suspend fun <T> Deferred<T>.awaitWithTimeout(timeMillis: Long): T {
  * to allow tests to access the [RequestProcessorImpl] to receive the Image for
  * [ImageReaderOutputConfigImpl].
  */
+@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class FakeSessionProcessImpl(
     var previewConfigBlock: (OutputSurfaceImpl) -> Camera2OutputConfigImpl = { outputSurfaceImpl ->
         Camera2OutputConfigImplBuilder
@@ -497,6 +547,7 @@ class FakeSessionProcessImpl(
     private var startTriggerParametersDeferred =
         CompletableDeferred<MutableMap<CaptureRequest.Key<*>, Any>>()
 
+    var sessionType: Int = -1;
     override fun initSession(
         cameraId: String,
         cameraCharacteristicsMap: MutableMap<String, CameraCharacteristics>,
@@ -521,6 +572,10 @@ class FakeSessionProcessImpl(
             addOutputConfig(previewOutputConfig)
             addOutputConfig(captureOutputConfig)
             analysisOutputConfig?.let { addOutputConfig(it) }
+        }
+
+        if (ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)) {
+            sessionBuilder.setSessionType(sessionType);
         }
         return sessionBuilder.build()
     }

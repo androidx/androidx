@@ -38,9 +38,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
 /**
- * Result class to be used with {@link ListenableFuture} for asynchronous calls between
- * {@link MediaLibraryService.MediaLibrarySession} and {@link MediaBrowser}.
+ * Result class to be used with {@link ListenableFuture} for asynchronous calls between {@link
+ * MediaLibraryService.MediaLibrarySession} and {@link MediaBrowser}.
+ *
+ * @deprecated androidx.media2 is deprecated. Please migrate to <a
+ *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
  */
+@Deprecated
 @VersionedParcelize(isCustom = true)
 public class LibraryResult extends CustomVersionedParcelable implements RemoteResult {
     /**

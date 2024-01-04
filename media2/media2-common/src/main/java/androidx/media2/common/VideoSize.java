@@ -25,7 +25,11 @@ import androidx.versionedparcelable.VersionedParcelize;
 
 /**
  * Immutable class for describing video size.
+ *
+ * @deprecated androidx.media2 is deprecated. Please migrate to <a
+ *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
  */
+@Deprecated
 @VersionedParcelize
 public class VideoSize implements VersionedParcelable {
     @ParcelField(1)

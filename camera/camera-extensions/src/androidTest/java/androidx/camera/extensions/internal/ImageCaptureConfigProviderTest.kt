@@ -135,8 +135,8 @@ class ImageCaptureConfigProviderTest {
             basicVendorExtender.init(camera.cameraInfo)
         }
         return ImageCapture.Builder().also {
-            ImageCaptureConfigProvider(extensionMode, basicVendorExtender).apply {
-                updateBuilderConfig(it, extensionMode, basicVendorExtender)
+            ImageCaptureConfigProvider(basicVendorExtender).apply {
+                updateBuilderConfig(it, basicVendorExtender)
             }
         }.build()
     }

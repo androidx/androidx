@@ -17,6 +17,8 @@
 <resources>
     <declare-styleable name="SlidingPaneLayout">
         <attr name="isOverlappingEnabled" format="boolean"/>
+        <attr name="isUserResizingEnabled" format="boolean"/>
+        <attr name="userResizingDividerDrawable" format="reference"/>
     </declare-styleable>
     <declare-styleable name="SlidingPaneLayout_Layout">
         <attr name="android:layout_weight"/>

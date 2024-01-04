@@ -69,6 +69,7 @@ class StreamSharingBuilder implements
                             + ": "
                             + oldConfigClass);
         }
+        setCaptureType(UseCaseConfigFactory.CaptureType.STREAM_SHARING);
         setTargetClass(StreamSharing.class);
     }
 

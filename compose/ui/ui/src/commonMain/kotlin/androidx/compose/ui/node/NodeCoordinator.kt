@@ -147,7 +147,7 @@ internal abstract class NodeCoordinator(
         get() = _measureResult != null
 
     override val isAttached: Boolean
-        get() = !released && layoutNode.isAttached
+        get() = tail.isAttached
 
     private var _measureResult: MeasureResult? = null
     override var measureResult: MeasureResult
@@ -402,7 +402,7 @@ internal abstract class NodeCoordinator(
         this.layerDensity = layoutNode.density
         this.layerLayoutDirection = layoutNode.layoutDirection
 
-        if (isAttached && layerBlock != null) {
+        if (layoutNode.isAttached && layerBlock != null) {
             if (layer == null) {
                 layer = layoutNode.requireOwner().createLayer(
                     drawBlock,
@@ -457,7 +457,7 @@ internal abstract class NodeCoordinator(
                 layoutNode.owner?.onLayoutChange(layoutNode)
             }
         } else {
-            check(layerBlock == null) { "non-null layer with a null layerBlock" }
+            check(layerBlock == null) { "null layer with a non-null layerBlock" }
         }
     }
 
@@ -476,7 +476,7 @@ internal abstract class NodeCoordinator(
         private set
 
     override val isValidOwnerScope: Boolean
-        get() = layer != null && isAttached
+        get() = layer != null && !released && layoutNode.isAttached
 
     val minimumTouchTargetSize: Size
         get() = with(layerDensity) { layoutNode.viewConfiguration.minimumTouchTargetSize.toSize() }

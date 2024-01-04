@@ -45,7 +45,6 @@ import java.util.concurrent.TimeoutException;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = 18)
 public class GridLayoutManagerUiAutomationTests extends BaseGridLayoutManagerTest {
 
     private static final int DEFAULT_ACCESSIBILITY_EVENT_TIMEOUT_MILLIS = 5000;

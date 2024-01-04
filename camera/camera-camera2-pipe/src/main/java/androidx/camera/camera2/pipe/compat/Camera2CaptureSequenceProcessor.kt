@@ -37,13 +37,13 @@ import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.core.Threading.runBlockingWithTimeout
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import androidx.camera.camera2.pipe.writeParameters
 import javax.inject.Inject
 import kotlin.reflect.KClass
 import kotlinx.atomicfu.atomic
-import kotlinx.coroutines.runBlocking
 
 internal interface Camera2CaptureSequenceProcessorFactory {
     fun create(
@@ -302,7 +302,16 @@ internal class Camera2CaptureSequenceProcessor(
             if (shouldWaitForRepeatingRequest) {
                 lastSingleRepeatingRequestSequence?.let {
                     Log.debug { "Waiting for the last repeating request sequence $it" }
-                    runBlocking { it.awaitStarted() }
+                    // On certain devices, the submitted repeating request sequence may not give us
+                    // onCaptureStarted() or onCaptureSequenceAborted() [1]. Hence we wrap the wait
+                    // under a timeout to prevent us from waiting forever.
+                    //
+                    // [1] b/307588161 - [ANR] at
+                    //                   androidx.camera.camera2.pipe.compat.Camera2CaptureSequenceProcessor.close
+                    runBlockingWithTimeout(
+                        threads.backgroundDispatcher,
+                        WAIT_FOR_REPEATING_TIMEOUT_MS
+                    ) { it.awaitStarted() }
                 }
             }
             closed = true
@@ -438,6 +447,10 @@ internal class Camera2CaptureSequenceProcessor(
             check(hasSurface)
         }
         return true
+    }
+
+    companion object {
+        private const val WAIT_FOR_REPEATING_TIMEOUT_MS = 2_000L // 2s
     }
 }
 

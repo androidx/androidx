@@ -24,7 +24,6 @@ import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.layout.LazyLayout
-import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
 import androidx.compose.foundation.lazy.layout.lazyLayoutBeyondBoundsModifier
 import androidx.compose.foundation.lazy.layout.lazyLayoutSemantics
 import androidx.compose.foundation.overscroll
@@ -78,8 +77,6 @@ internal fun LazyStaggeredGrid(
     )
     val semanticState = rememberLazyStaggeredGridSemanticState(state, reverseLayout)
 
-    ScrollPositionUpdater(itemProviderLambda, state)
-
     LazyLayout(
         modifier = modifier
             .then(state.remeasurementModifier)
@@ -118,19 +115,6 @@ internal fun LazyStaggeredGrid(
         itemProvider = itemProviderLambda,
         measurePolicy = measurePolicy
     )
-}
-
-/** Extracted to minimize the recomposition scope */
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun ScrollPositionUpdater(
-    itemProviderLambda: () -> LazyLayoutItemProvider,
-    state: LazyStaggeredGridState
-) {
-    val itemProvider = itemProviderLambda()
-    if (itemProvider.itemCount > 0) {
-        state.updateScrollPositionIfTheFirstItemWasMoved(itemProvider)
-    }
 }
 
 /** Slot configuration of staggered grid */

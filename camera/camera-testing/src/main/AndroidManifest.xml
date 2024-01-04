@@ -36,6 +36,7 @@
         <activity
             android:name="androidx.camera.testing.impl.activity.EmptyActivity"
             android:exported="true"
-            android:label="EmptyActivity" />
+            android:label="EmptyActivity"
+            android:theme="@style/Theme.AppCompat" />
     </application>
 </manifest>

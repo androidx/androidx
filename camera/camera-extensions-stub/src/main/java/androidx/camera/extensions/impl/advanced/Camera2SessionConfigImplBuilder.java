@@ -69,6 +69,15 @@ public class Camera2SessionConfigImplBuilder {
     }
 
     /**
+     * Sets the session type for the session.
+     */
+    @NonNull
+    public Camera2SessionConfigImplBuilder setSessionType(int sessionType) {
+        mSessionType = sessionType;
+        return this;
+    }
+
+    /**
      * Gets the session template id.
      */
     public int getSessionTemplateId() {

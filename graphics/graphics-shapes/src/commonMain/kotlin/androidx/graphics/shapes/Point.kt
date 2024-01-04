@@ -60,7 +60,7 @@ internal fun Point.clockwise(other: Point) = x * other.y - y * other.x > 0
  */
 internal fun Point.getDirection() = run {
     val d = this.getDistance()
-    require(d > 0f)
+    require(d > 0f) { "Can't get the direction of a 0-length vector" }
     this / d
 }
 

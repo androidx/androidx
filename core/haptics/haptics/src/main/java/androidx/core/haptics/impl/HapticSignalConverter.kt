@@ -35,10 +35,6 @@ import kotlin.math.roundToInt
 private const val VIBRATION_DEFAULT_AMPLITUDE: Int = -1 // VibrationEffect.DEFAULT_AMPLITUDE
 private const val VIBRATION_MAX_AMPLITUDE: Int = 255 // VibrationEffect.MAX_AMPLITUDE
 
-/** Returns true if amplitude is 0, 1 or [DEFAULT_AMPLITUDE]. */
-internal fun ConstantVibrationAtom.hasPatternAmplitude(): Boolean =
-    (amplitude == 0f) || (amplitude == 1f) || (amplitude == DEFAULT_AMPLITUDE)
-
 /** Returns the amplitude value in [0,255] or [android.os.VibrationEffect.DEFAULT_AMPLITUDE]. */
 internal fun ConstantVibrationAtom.getAmplitudeInt(): Int =
     if (amplitude == DEFAULT_AMPLITUDE) {

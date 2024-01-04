@@ -25,7 +25,6 @@ import kotlin.math.floor
 import kotlin.math.roundToInt
 import kotlin.math.sign
 
-@Suppress("PrimitiveInLambda")
 @OptIn(ExperimentalFoundationApi::class)
 fun SnapLayoutInfoProvider(
     scrollState: ScrollState,
@@ -56,7 +55,6 @@ fun SnapLayoutInfoProvider(
     override fun calculateApproachOffset(initialVelocity: Float): Float = 0f
 }
 
-@Suppress("PrimitiveInLambda")
 internal fun calculateFinalOffset(velocity: Float, lowerBound: Float, upperBound: Float): Float {
 
     fun Float.isValidDistance(): Boolean {

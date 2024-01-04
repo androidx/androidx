@@ -16,6 +16,7 @@
 
 package androidx.camera.effects.internal
 
+import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.Rect
@@ -32,6 +33,7 @@ import androidx.camera.core.SurfaceRequest.TransformationInfo
 import androidx.camera.core.impl.utils.TransformUtils.sizeToRect
 import androidx.camera.effects.Frame
 import androidx.camera.effects.OverlayEffect
+import androidx.camera.effects.internal.Utils.lockCanvas
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.impl.TestImageUtil.getAverageDiff
 import androidx.core.util.Consumer
@@ -156,11 +158,11 @@ class SurfaceProcessorImplDeviceTest {
     }
 
     @Test
-    fun canvasInvalidated_overlayDrawnToOutput(): Unit = runBlocking {
+    fun getOverlayCanvas_overlayDrawnToOutput(): Unit = runBlocking {
         val latch = fillFramesAndWaitForOutput(0, 1) { processor ->
             processor.setOnDrawListener { frame ->
-                // Act: invalidate overlay canvas and draw color.
-                frame.invalidateOverlayCanvas().drawColor(OVERLAY_COLOR)
+                // Act: get the overlay canvas and draw color.
+                frame.getOverlayCanvas().drawColor(OVERLAY_COLOR)
                 true
             }
         }
@@ -170,17 +172,21 @@ class SurfaceProcessorImplDeviceTest {
     }
 
     @Test
-    fun canvasNotInvalidated_overlayNotDrawnToOutput() = runBlocking {
+    fun doNotGetOverlayCanvas_overlayNotDrawnToOutput() = runBlocking {
+        var canvas: Canvas? = null
         val latch = fillFramesAndWaitForOutput(0, 1) { processor ->
-            processor.setOnDrawListener { frame ->
-                // Act: draw color on overlay canvas without invalidating.
-                frame.overlayCanvas.drawColor(OVERLAY_COLOR)
+            processor.setOnDrawListener { _ ->
+                // Act: draw color on overlay canvas without getting it.
+                canvas = lockCanvas(processor.overlaySurface)
+                canvas!!.drawColor(OVERLAY_COLOR)
                 true
             }
         }
         // Assert: output receives frame with input color
         assertThat(latch.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)).isTrue()
         assertOutputColor(INPUT_COLOR)
+        // Cleanup: unlock Canvas
+        processor.overlaySurface.unlockCanvasAndPost(canvas!!)
     }
 
     @Test

@@ -38,11 +38,13 @@ class LiveEditTests {
     }
 
     @Test
-    fun testRestartableFunctionPreservesParentAndSiblingState() = liveEditTest {
+    fun testRestartableFunctionPreservesParentAndSiblingState() = liveEditTest(
+        collectSourceInformation = SourceInfo.Collect
+    ) {
         EnsureStatePreservedAndNotRecomposed("a")
         RestartGroup {
             Text("Hello World")
-            EnsureStatePreservedAndNotRecomposed("b")
+            EnsureStatePreservedButRecomposed("b")
             Target("c")
         }
     }
@@ -60,12 +62,14 @@ class LiveEditTests {
     }
 
     @Test
-    fun testMultipleFunctionPreservesParentAndSiblingState() = liveEditTest {
-        EnsureStatePreservedAndNotRecomposed("a")
+    fun testMultipleFunctionPreservesParentAndSiblingState() = liveEditTest(
+        collectSourceInformation = SourceInfo.Collect
+    ) {
+        EnsureStatePreservedButRecomposed("a")
         Target("b")
         RestartGroup {
             Text("Hello World")
-            EnsureStatePreservedAndNotRecomposed("c")
+            EnsureStatePreservedButRecomposed("c")
             Target("d")
             Target("e")
         }
@@ -73,11 +77,13 @@ class LiveEditTests {
     }
 
     @Test
-    fun testChildGroupStateIsDestroyed() = liveEditTest {
+    fun testChildGroupStateIsDestroyed() = liveEditTest(
+        collectSourceInformation = SourceInfo.Collect
+    ) {
         EnsureStatePreservedAndNotRecomposed("a")
         RestartGroup {
             Text("Hello World")
-            EnsureStatePreservedAndNotRecomposed("b")
+            EnsureStatePreservedButRecomposed("b")
             Target("c") {
                 Text("Hello World")
                 EnsureStateLost("d")
@@ -86,11 +92,13 @@ class LiveEditTests {
     }
 
     @Test
-    fun testTargetWithinTarget() = liveEditTest {
+    fun testTargetWithinTarget() = liveEditTest(
+        collectSourceInformation = SourceInfo.Collect
+    ) {
         EnsureStatePreservedAndNotRecomposed("a")
         RestartGroup {
             Text("Hello World")
-            EnsureStatePreservedAndNotRecomposed("b")
+            EnsureStatePreservedButRecomposed("b")
             Target("c") {
                 Text("Hello World")
                 EnsureStateLost("d")
@@ -105,7 +113,7 @@ class LiveEditTests {
     fun testNonRestartableFunctionPreservesParentAndSiblingState() = liveEditTest(
         collectSourceInformation = SourceInfo.None
     ) {
-        EnsureStatePreservedButRecomposed("a")
+        EnsureStatePreservedAndNotRecomposed("a")
         RestartGroup {
             Text("Hello World")
             EnsureStatePreservedButRecomposed("b")
@@ -453,9 +461,9 @@ class LiveEditTests {
                     recomposeCount++
                     Expect(
                         "movable",
-                        compose = 4,
-                        onRememberd = 3,
-                        onForgotten = 2,
+                        compose = 2,
+                        onRememberd = 1,
+                        onForgotten = 0,
                         onAbandoned = 1
                     )
 
@@ -711,7 +719,7 @@ class LiveEditTestScope {
     fun expectLogCount(ref: String, msg: String, expected: Int) {
         addCheck {
             val logs = logs.filter { it.first == ref }.map { it.second }.toList()
-            val actual = logs.filter { m -> m == msg }.count()
+            val actual = logs.count { m -> m == msg }
             Assert.assertEquals(
                 "Ref '$ref' had an unexpected # of '$msg' logs",
                 expected,

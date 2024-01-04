@@ -18,6 +18,7 @@ package androidx.webkit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 
 import android.os.Build;
@@ -153,6 +154,38 @@ public class WebSettingsCompatUserAgentMetadataTest {
     }
 
     @Test
+    public void testSetUserAgentMetadataExplicitlyDefault() throws Throwable {
+        WebkitUtils.checkFeature(WebViewFeature.USER_AGENT_METADATA);
+
+        WebSettings settings = mWebViewOnUiThread.getSettings();
+        UserAgentMetadata uaMetadata = new UserAgentMetadata.Builder()
+                .setBrandVersionList(new ArrayList<>())
+                .setArchitecture(null)
+                .setFullVersion(null)
+                .setPlatform(null)
+                .setPlatformVersion(null)
+                .setModel(null).build();
+        WebSettingsCompat.setUserAgentMetadata(settings, uaMetadata);
+
+        UserAgentMetadata userAgentMetadata = WebSettingsCompat.getUserAgentMetadata(settings);
+        // Check brand version list.
+        List<String> brands = new ArrayList<>();
+        Assert.assertNotNull(userAgentMetadata.getBrandVersionList());
+        for (UserAgentMetadata.BrandVersion bv : userAgentMetadata.getBrandVersionList()) {
+            brands.add(bv.getBrand());
+        }
+        Assert.assertTrue("The default brand should contains Android WebView.",
+                brands.contains("Android WebView"));
+        assertEquals("The default platform is Android.", "Android",
+                userAgentMetadata.getPlatform());
+        assertNotNull(userAgentMetadata.getArchitecture());
+        assertNotNull(userAgentMetadata.getFullVersion());
+        assertNotNull(userAgentMetadata.getPlatform());
+        assertNotNull(userAgentMetadata.getPlatformVersion());
+        assertNotNull(userAgentMetadata.getModel());
+    }
+
+    @Test
     public void testSetUserAgentMetadataDefaultHttpHeader() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.USER_AGENT_METADATA);
 
@@ -207,10 +240,10 @@ public class WebSettingsCompatUserAgentMetadataTest {
 
         WebSettings settings = mWebViewOnUiThread.getSettings();
         // Overrides user-agent metadata.
+        UserAgentMetadata.BrandVersion brandVersion = new UserAgentMetadata.BrandVersion.Builder()
+                .setBrand("myBrand").setMajorVersion("1").setFullVersion("1.1.1.1").build();
         UserAgentMetadata overrideSetting = new UserAgentMetadata.Builder()
-                .setBrandVersionList(Collections.singletonList(
-                        new UserAgentMetadata.BrandVersion(
-                                "myBrand", "1", "1.1.1.1")))
+                .setBrandVersionList(Collections.singletonList(brandVersion))
                 .setFullVersion("1.1.1.1")
                 .setPlatform("myPlatform").setPlatformVersion("2.2.2.2").setArchitecture("myArch")
                 .setMobile(true).setModel("myModel").setBitness(32)
@@ -232,10 +265,10 @@ public class WebSettingsCompatUserAgentMetadataTest {
         settings.setJavaScriptEnabled(true);
 
         // Overrides user-agent metadata.
+        UserAgentMetadata.BrandVersion brandVersion = new UserAgentMetadata.BrandVersion.Builder()
+                .setBrand("myBrand").setMajorVersion("1").setFullVersion("1.1.1.1").build();
         UserAgentMetadata overrideSetting = new UserAgentMetadata.Builder()
-                .setBrandVersionList(Collections.singletonList(
-                        new UserAgentMetadata.BrandVersion(
-                                "myBrand", "1", "1.1.1.1")))
+                .setBrandVersionList(Collections.singletonList(brandVersion))
                 .setFullVersion("1.1.1.1").setPlatform("myPlatform")
                 .setPlatformVersion("2.2.2.2").setArchitecture("myArch")
                 .setMobile(true).setModel("myModel").setBitness(32)
@@ -294,10 +327,10 @@ public class WebSettingsCompatUserAgentMetadataTest {
 
         WebSettings settings = mWebViewOnUiThread.getSettings();
         // Overrides without setting user-agent metadata platform and bitness.
+        UserAgentMetadata.BrandVersion brandVersion = new UserAgentMetadata.BrandVersion.Builder()
+                .setBrand("myBrand").setMajorVersion("1").setFullVersion("1.1.1.1").build();
         UserAgentMetadata overrideSetting = new UserAgentMetadata.Builder()
-                .setBrandVersionList(Collections.singletonList(
-                        new UserAgentMetadata.BrandVersion(
-                                "myBrand", "1", "1.1.1.1")))
+                .setBrandVersionList(Collections.singletonList(brandVersion))
                 .setFullVersion("1.1.1.1")
                 .setPlatformVersion("2.2.2.2").setArchitecture("myArch").setMobile(true)
                 .setModel("myModel").setWow64(false).build();
@@ -320,10 +353,10 @@ public class WebSettingsCompatUserAgentMetadataTest {
         settings.setJavaScriptEnabled(true);
 
         // Overrides without setting user-agent metadata platform and bitness.
+        UserAgentMetadata.BrandVersion brandVersion = new UserAgentMetadata.BrandVersion.Builder()
+                .setBrand("myBrand").setMajorVersion("1").setFullVersion("1.1.1.1").build();
         UserAgentMetadata overrideSetting = new UserAgentMetadata.Builder()
-                .setBrandVersionList(Collections.singletonList(
-                        new UserAgentMetadata.BrandVersion(
-                                "myBrand", "1", "1.1.1.1")))
+                .setBrandVersionList(Collections.singletonList(brandVersion))
                 .setFullVersion("1.1.1.1").setPlatformVersion("2.2.2.2")
                 .setArchitecture("myArch").setMobile(true).setModel("myModel").setWow64(false)
                 .build();
@@ -377,30 +410,27 @@ public class WebSettingsCompatUserAgentMetadataTest {
 
         try {
             WebSettings settings = mWebViewOnUiThread.getSettings();
+            UserAgentMetadata.BrandVersion brandVersion = new UserAgentMetadata.BrandVersion
+                    .Builder().setBrand("myBrand").build();
             UserAgentMetadata uaMetadata = new UserAgentMetadata.Builder()
-                    .setBrandVersionList(Collections.singletonList(
-                            new UserAgentMetadata.BrandVersion(
-                                    "", "", ""))).build();
+                    .setBrandVersionList(Collections.singletonList(brandVersion)).build();
             WebSettingsCompat.setUserAgentMetadata(settings, uaMetadata);
             Assert.fail("Should have thrown exception.");
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalStateException e) {
             Assert.assertEquals("Brand name, major version and full version should not "
-                    + "be blank.", e.getMessage());
+                    + "be null or blank.", e.getMessage());
         }
-    }
-
-    @Test
-    public void testSetUserAgentMetadataEmptyBrandVersionList() throws Throwable {
-        WebkitUtils.checkFeature(WebViewFeature.USER_AGENT_METADATA);
 
         try {
             WebSettings settings = mWebViewOnUiThread.getSettings();
+            UserAgentMetadata.BrandVersion brandVersion = new UserAgentMetadata.BrandVersion
+                    .Builder().setBrand("").build();
             UserAgentMetadata uaMetadata = new UserAgentMetadata.Builder()
-                    .setBrandVersionList(new ArrayList<>()).build();
+                    .setBrandVersionList(Collections.singletonList(brandVersion)).build();
             WebSettingsCompat.setUserAgentMetadata(settings, uaMetadata);
             Assert.fail("Should have thrown exception.");
         } catch (IllegalArgumentException e) {
-            Assert.assertEquals("Brand version list should not be empty.", e.getMessage());
+            Assert.assertEquals("Brand should not be blank.", e.getMessage());
         }
     }
 

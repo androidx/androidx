@@ -15,9 +15,6 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <uses-sdk android:minSdkVersion="18" />
-
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
     <queries>

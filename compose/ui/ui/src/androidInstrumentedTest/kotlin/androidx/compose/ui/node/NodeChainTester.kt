@@ -16,10 +16,44 @@
 
 package androidx.compose.ui.node
 
-import androidx.compose.ui.MockOwner
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.Autofill
+import androidx.compose.ui.autofill.AutofillTree
+import androidx.compose.ui.draganddrop.DragAndDropManager
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusOwner
+import androidx.compose.ui.geometry.MutableRect
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Matrix
+import androidx.compose.ui.graphics.ReusableGraphicsLayerScope
+import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.input.InputModeManager
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.pointer.PointerIconService
+import androidx.compose.ui.modifier.ModifierLocalManager
+import androidx.compose.ui.platform.AccessibilityManager
+import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.platform.PlatformTextInputSessionScope
+import androidx.compose.ui.platform.TextToolbar
+import androidx.compose.ui.platform.ViewConfiguration
+import androidx.compose.ui.platform.WindowInfo
+import androidx.compose.ui.platform.invertTo
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.TextInputService
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.toOffset
 import com.google.common.base.Objects
+import java.util.concurrent.Executors
+import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.asCoroutineDispatcher
 import org.junit.Assert
 
 internal fun chainTester() = NodeChainTester()
@@ -316,5 +350,152 @@ fun assertReused(before: Modifier.Element, after: Modifier.Element) {
         withModifiers(after)
         val afterEntity = chain.tail
         assert(beforeEntity === afterEntity)
+    }
+}
+
+private class MockOwner(
+    private val position: IntOffset = IntOffset.Zero,
+    override val root: LayoutNode = LayoutNode(),
+    override val coroutineContext: CoroutineContext =
+        Executors.newFixedThreadPool(3).asCoroutineDispatcher()
+) : Owner {
+    val onRequestMeasureParams = mutableListOf<LayoutNode>()
+    val onAttachParams = mutableListOf<LayoutNode>()
+    val onDetachParams = mutableListOf<LayoutNode>()
+    var layoutChangeCount = 0
+    var semanticsChanged: Boolean = false
+    val invalidatedLayers = mutableListOf<OwnedLayer>()
+
+    @InternalCoreApi
+    override var showLayoutBounds: Boolean = false
+    override val snapshotObserver = OwnerSnapshotObserver { it.invoke() }
+    override val modifierLocalManager: ModifierLocalManager = ModifierLocalManager(this)
+    override var measureIteration: Long = 0
+    override val sharedDrawScope = LayoutNodeDrawScope()
+    override val density: Density
+        get() = Density(1f)
+    override val layoutDirection: LayoutDirection
+        get() = LayoutDirection.Ltr
+    override val viewConfiguration: ViewConfiguration
+        get() = TODO("Not yet implemented")
+    override val rootForTest: RootForTest
+        get() = TODO("Not yet implemented")
+    override val hapticFeedBack: HapticFeedback
+        get() = TODO("Not yet implemented")
+    override val inputModeManager: InputModeManager
+        get() = TODO("Not yet implemented")
+    override val clipboardManager: ClipboardManager
+        get() = TODO("Not yet implemented")
+    override val accessibilityManager: AccessibilityManager
+        get() = TODO("Not yet implemented")
+    override val textToolbar: TextToolbar
+        get() = TODO("Not yet implemented")
+    override val textInputService: TextInputService
+        get() = TODO("Not yet implemented")
+    override val pointerIconService: PointerIconService
+        get() = TODO("Not yet implemented")
+    override val focusOwner: FocusOwner
+        get() = TODO("Not yet implemented")
+    override val windowInfo: WindowInfo
+        get() = TODO("Not yet implemented")
+    override val fontFamilyResolver: FontFamily.Resolver
+        get() = TODO("Not yet implemented")
+    override val dragAndDropManager: DragAndDropManager
+        get() = TODO("Not yet implemented")
+    @OptIn(ExperimentalComposeUiApi::class)
+    override val autofillTree: AutofillTree
+        get() = TODO("Not yet implemented")
+    @OptIn(ExperimentalComposeUiApi::class)
+    override val autofill: Autofill?
+        get() = TODO("Not yet implemented")
+    override suspend fun textInputSession(
+        session: suspend PlatformTextInputSessionScope.() -> Nothing
+    ): Nothing { TODO("Not yet implemented") }
+    @Deprecated(
+        "fontLoader is deprecated, use fontFamilyResolver",
+        replaceWith = ReplaceWith("fontFamilyResolver")
+    )
+    @Suppress("DEPRECATION")
+    override val fontLoader: Font.ResourceLoader
+        get() = TODO("Not yet implemented")
+
+    override fun onRequestMeasure(
+        layoutNode: LayoutNode,
+        affectsLookahead: Boolean,
+        forceRequest: Boolean,
+        scheduleMeasureAndLayout: Boolean
+    ) {
+        onRequestMeasureParams += layoutNode
+        if (affectsLookahead) {
+            layoutNode.markLookaheadMeasurePending()
+        }
+        layoutNode.markMeasurePending()
+    }
+
+    override fun onRequestRelayout(
+        layoutNode: LayoutNode,
+        affectsLookahead: Boolean,
+        forceRequest: Boolean
+    ) {
+        if (affectsLookahead) layoutNode.markLookaheadLayoutPending()
+        layoutNode.markLayoutPending()
+    }
+
+    override fun requestOnPositionedCallback(layoutNode: LayoutNode) {}
+    override fun onAttach(node: LayoutNode) { onAttachParams += node }
+    override fun onDetach(node: LayoutNode) { onDetachParams += node }
+    override fun calculatePositionInWindow(localPosition: Offset): Offset =
+        localPosition + position.toOffset()
+    override fun calculateLocalPosition(positionInWindow: Offset): Offset =
+        positionInWindow - position.toOffset()
+    override fun requestFocus(): Boolean = false
+    override fun measureAndLayout(sendPointerUpdate: Boolean) {}
+    override fun measureAndLayout(layoutNode: LayoutNode, constraints: Constraints) {}
+    override fun forceMeasureTheSubtree(layoutNode: LayoutNode, affectsLookahead: Boolean) {}
+    override fun registerOnEndApplyChangesListener(listener: () -> Unit) { listener() }
+    override fun onEndApplyChanges() {}
+    override fun onSemanticsChange() { semanticsChanged = true }
+    override fun onLayoutChange(layoutNode: LayoutNode) { layoutChangeCount++ }
+    override fun getFocusDirection(keyEvent: KeyEvent): FocusDirection? {
+        TODO("Not yet implemented")
+    }
+    override fun registerOnLayoutCompletedListener(listener: Owner.OnLayoutCompletedListener) {
+        TODO("Not yet implemented")
+    }
+    override fun createLayer(
+        drawBlock: (Canvas) -> Unit,
+        invalidateParentLayer: () -> Unit
+    ): OwnedLayer {
+        val transform = Matrix()
+        val inverseTransform = Matrix()
+        return object : OwnedLayer {
+            override fun isInLayer(position: Offset) = true
+            override fun move(position: IntOffset) {}
+            override fun resize(size: IntSize) {}
+            override fun drawLayer(canvas: Canvas) { drawBlock(canvas) }
+            override fun updateDisplayList() {}
+            override fun invalidate() { invalidatedLayers.add(this) }
+            override fun destroy() {}
+            override fun mapBounds(rect: MutableRect, inverse: Boolean) {}
+            override fun transform(matrix: Matrix) { matrix.timesAssign(transform) }
+            override fun inverseTransform(matrix: Matrix) { matrix.timesAssign(inverseTransform) }
+            override fun mapOffset(point: Offset, inverse: Boolean) = point
+            override fun reuseLayer(
+                drawBlock: (Canvas) -> Unit,
+                invalidateParentLayer: () -> Unit
+            ) {}
+            override fun updateLayerProperties(
+                scope: ReusableGraphicsLayerScope,
+                layoutDirection: LayoutDirection,
+                density: Density
+            ) {
+                transform.reset()
+                // This is not expected to be 100% accurate
+                transform.scale(scope.scaleX, scope.scaleY)
+                transform.rotateZ(scope.rotationZ)
+                transform.translate(scope.translationX, scope.translationY)
+                transform.invertTo(inverseTransform)
+            }
+        }
     }
 }
