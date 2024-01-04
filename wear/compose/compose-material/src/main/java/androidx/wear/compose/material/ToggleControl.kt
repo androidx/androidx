@@ -24,7 +24,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -54,9 +53,10 @@ import androidx.wear.compose.materialcore.animateSelectionColor
  * @param onCheckedChange Callback to be invoked when Checkbox is clicked. If null, then this is
  * passive and relies entirely on a higher-level component to control the state
  * (such as [ToggleChip] or [SplitToggleChip]).
- * @param interactionSource When also providing [onCheckedChange], the [MutableInteractionSource]
- * representing the stream of [Interaction]s for the "toggleable" tap area -
- * can be used to customise the appearance / behavior of the Checkbox.
+ * @param interactionSource When also providing [onCheckedChange], an optional hoisted
+ * [MutableInteractionSource] for observing and emitting [Interaction]s for this checkbox.
+ * You can use this to change the checkbox's appearance or preview the checkbox in different states.
+ * Note that if `null` is provided, interactions will still happen internally.
  */
 @Composable
 public fun Checkbox(
@@ -65,7 +65,7 @@ public fun Checkbox(
     colors: CheckboxColors = CheckboxDefaults.colors(),
     enabled: Boolean = true,
     onCheckedChange: ((Boolean) -> Unit)? = null,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
 ) = androidx.wear.compose.materialcore.Checkbox(
     checked = checked,
     modifier = modifier,
@@ -107,9 +107,10 @@ public fun Checkbox(
  * @param onCheckedChange Callback to be invoked when Switch is clicked. If null, then this is
  * passive and relies entirely on a higher-level component to control the state
  * (such as [ToggleChip] or [SplitToggleChip]).
- * @param interactionSource When also providing [onCheckedChange], the [MutableInteractionSource]
- * representing the stream of [Interaction]s for the "toggleable" tap area -
- * can be used to customise the appearance / behavior of the Switch.
+ * @param interactionSource When also providing [onCheckedChange], an optional hoisted
+ * [MutableInteractionSource] for observing and emitting [Interaction]s for this switch.
+ * You can use this to change the switch's appearance or preview the switch in different states.
+ * Note that if `null` is provided, interactions will still happen internally.
  */
 @Composable
 public fun Switch(
@@ -118,7 +119,7 @@ public fun Switch(
     colors: SwitchColors = SwitchDefaults.colors(),
     enabled: Boolean = true,
     onCheckedChange: ((Boolean) -> Unit)? = null,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
 ) = androidx.wear.compose.materialcore.Switch(
     modifier = modifier,
     checked = checked,
@@ -176,9 +177,10 @@ public fun Switch(
  * @param onClick Callback to be invoked when RadioButton is clicked. If null, then this is
  * passive and relies entirely on a higher-level component to control the state
  * (such as [ToggleChip] or [SplitToggleChip]).
- * @param interactionSource When also providing [onClick], the [MutableInteractionSource]
- * representing the stream of [Interaction]s for the "toggleable" tap area -
- * can be used to customise the appearance / behavior of the RadioButton.
+ * @param interactionSource When also providing [onCheckedChange], an optional hoisted
+ * [MutableInteractionSource] for observing and emitting [Interaction]s for this radio button.
+ * You can use this to change the radio button's appearance or preview the radio button in
+ * different states. Note that if `null` is provided, interactions will still happen internally.
  */
 @Composable
 public fun RadioButton(
@@ -187,7 +189,7 @@ public fun RadioButton(
     colors: RadioButtonColors = RadioButtonDefaults.colors(),
     enabled: Boolean = true,
     onClick: (() -> Unit)? = null,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
 ) = androidx.wear.compose.materialcore.RadioButton(
     modifier = modifier,
     selected = selected,

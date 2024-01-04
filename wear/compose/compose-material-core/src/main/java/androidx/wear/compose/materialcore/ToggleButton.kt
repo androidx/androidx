@@ -77,10 +77,10 @@ import androidx.compose.ui.unit.dp
  * @param border Resolves the border for this toggle button in different states.
  * @param toggleButtonSize The default size of the toggle button unless overridden by
  * [Modifier.size].
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this toggle button. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this ToggleButton in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this toggle button. You can use this to change the toggle button's
+ * appearance or preview the toggle button in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param shape Defines the shape for this toggle button. It is strongly recommended to use the
  * default as this shape is a key characteristic of the Wear Material Theme.
  * @param ripple Ripple used for this toggle button
@@ -96,7 +96,7 @@ fun ToggleButton(
     backgroundColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color>,
     border: @Composable (enabled: Boolean, checked: Boolean) -> State<BorderStroke?>?,
     toggleButtonSize: Dp,
-    interactionSource: MutableInteractionSource,
+    interactionSource: MutableInteractionSource?,
     shape: Shape,
     ripple: Indication,
     content: @Composable BoxScope.() -> Unit,
@@ -155,10 +155,10 @@ fun ToggleButton(
  * This expects to return Modifier.paint or Modifier.background for the background treatment.
  * @param enabled Controls the enabled state of the ToggleButton. When `false`,
  * this ToggleButton will not be clickable
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this ToggleButton's "toggleable" tap area. You can create and pass in
- * your own remembered [MutableInteractionSource] if you want to observe [Interaction]s
- * and customize the appearance / behavior of this ToggleButton in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this toggle button. You can use this to change the toggle button's
+ * appearance or preview the toggle button in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param contentPadding The spacing values to apply internally between the container and the
  * content
  * @param shape Defines the ToggleButton's shape. It is strongly recommended to use the
@@ -179,7 +179,7 @@ fun ToggleButton(
     secondaryLabel: @Composable (RowScope.() -> Unit)?,
     background: @Composable (enabled: Boolean, checked: Boolean) -> Modifier,
     enabled: Boolean,
-    interactionSource: MutableInteractionSource,
+    interactionSource: MutableInteractionSource?,
     contentPadding: PaddingValues,
     shape: Shape,
     toggleControlWidth: Dp,
@@ -255,14 +255,14 @@ fun ToggleButton(
  * obtained.
  * @param enabled Controls the enabled state of the SplitToggleButton. When `false`,
  * this SplitToggleButton will not be clickable
- * @param checkedInteractionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this SplitToggleButton's "toggleable" tap area. You can create and pass
- * in your own remembered [MutableInteractionSource] if you want to observe [Interaction]s and
- * customize the appearance / behavior of this SplitToggleButton in different [Interaction]s.
- * @param clickInteractionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this SplitToggleButton's "clickable" tap area. You can create and pass
- * in your own remembered [MutableInteractionSource] if you want to observe [Interaction]s and
- * customize the appearance / behavior of this SplitToggleButton in different [Interaction]s.
+ * @param checkedInteractionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button's "toggleable" tap area. You can use this to change the
+ * button's appearance or preview the button in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
+ * @param clickInteractionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button's "clickable" tap area. You can use this to change the
+ * button's appearance or preview the button in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param contentPadding The spacing values to apply internally between the container and the
  * content
  * @param shape Defines the SplitToggleButton's shape. It is strongly recommended to use the
@@ -282,8 +282,8 @@ fun SplitToggleButton(
     backgroundColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color>,
     splitBackgroundColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color>,
     enabled: Boolean,
-    checkedInteractionSource: MutableInteractionSource,
-    clickInteractionSource: MutableInteractionSource,
+    checkedInteractionSource: MutableInteractionSource?,
+    clickInteractionSource: MutableInteractionSource?,
     contentPadding: PaddingValues,
     shape: Shape,
     ripple: Indication

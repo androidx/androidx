@@ -74,10 +74,10 @@ import androidx.wear.compose.materialcore.animateSelectionColor
  * content color for this button in different states.
  * @param contentPadding The spacing values to apply internally between the container and the
  * content.
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this button's "toggleable" tap area. You can create and pass in your own
- * remembered [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this Chip in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button's "toggleable" tap area. You can use this to change the
+ * button's appearance or preview the button in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param icon An optional slot for providing an icon to indicate the purpose of the button. The
  * contents are expected to be a horizontally and vertically center aligned icon of size
  * 24.dp. In order to correctly render when the Chip is not enabled the
@@ -97,7 +97,7 @@ fun ToggleButton(
     shape: Shape = MaterialTheme.shapes.large,
     colors: ToggleButtonColors = ToggleButtonDefaults.toggleButtonColors(),
     contentPadding: PaddingValues = ToggleButtonDefaults.ContentPadding,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     icon: @Composable (BoxScope.() -> Unit)? = null,
     secondaryLabel: @Composable (RowScope.() -> Unit)? = null,
     label: @Composable RowScope.() -> Unit
@@ -188,14 +188,14 @@ fun ToggleButton(
  * content color for this button in different states.
  * @param contentPadding The spacing values to apply internally between the container and the
  * content.
- * @param checkedInteractionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this button's "toggleable" tap area. You can create and pass in your own
- * remembered [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this button in different [Interaction]s.
- * @param clickInteractionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this button's "clickable" tap area. You can create and pass in your own
- * remembered [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this button in different [Interaction]s.
+ * @param checkedInteractionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button's "toggleable" tap area. You can use this to change the
+ * button's appearance or preview the button in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
+ * @param clickInteractionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button's "clickable" tap area. You can use this to change the
+ * button's appearance or preview the button in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param secondaryLabel A slot for providing the button's secondary label. The contents are
  * expected to be "start" aligned.
  * @param label A slot for providing the button's main label. The contents are expected to be text
@@ -211,8 +211,8 @@ fun SplitToggleButton(
     enabled: Boolean = true,
     shape: Shape = MaterialTheme.shapes.large,
     colors: SplitToggleButtonColors = ToggleButtonDefaults.splitToggleButtonColors(),
-    checkedInteractionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    clickInteractionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    checkedInteractionSource: MutableInteractionSource? = null,
+    clickInteractionSource: MutableInteractionSource? = null,
     contentPadding: PaddingValues = ToggleButtonDefaults.ContentPadding,
     secondaryLabel: @Composable (RowScope.() -> Unit)? = null,
     label: @Composable RowScope.() -> Unit

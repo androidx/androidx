@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -67,10 +66,10 @@ import androidx.wear.compose.material3.tokens.OutlinedIconButtonTokens
  * @param colors [IconButtonColors] that will be used to resolve the background and icon color for
  * this button in different states.
  * @param border Optional [BorderStroke] for the icon button border.
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this Button. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this Button in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's appearance
+ * or preview the button in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  * @param content The content displayed on the icon button, expected to be icon or image.
  */
 @Composable
@@ -81,7 +80,7 @@ fun IconButton(
     shape: Shape = IconButtonDefaults.shape,
     colors: IconButtonColors = IconButtonDefaults.iconButtonColors(),
     border: BorderStroke? = null,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable BoxScope.() -> Unit,
 ) {
     androidx.wear.compose.materialcore.Button(
@@ -133,10 +132,10 @@ fun IconButton(
  * @param colors [IconButtonColors] that will be used to resolve the container and content color for
  * this icon button in different states.
  * @param border Optional [BorderStroke] for the icon button border.
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this Button. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this Button in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's appearance
+ * or preview the button in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  * @param content The content displayed on the icon button, expected to be icon or image.
  */
 @Composable
@@ -147,7 +146,7 @@ fun FilledIconButton(
     shape: Shape = IconButtonDefaults.shape,
     colors: IconButtonColors = IconButtonDefaults.filledIconButtonColors(),
     border: BorderStroke? = null,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable BoxScope.() -> Unit,
 ) = IconButton(onClick, modifier, enabled, shape, colors, border, interactionSource, content)
 
@@ -183,10 +182,10 @@ fun FilledIconButton(
  * @param colors [IconButtonColors] that will be used to resolve the background and icon color for
  * this button in different states.
  * @param border Optional [BorderStroke] for the icon button border.
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this Button. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this Button in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's appearance
+ * or preview the button in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  * @param content The content displayed on the icon button, expected to be icon or image.
  */
 @Composable
@@ -197,7 +196,7 @@ fun FilledTonalIconButton(
     shape: Shape = IconButtonDefaults.shape,
     colors: IconButtonColors = IconButtonDefaults.filledTonalIconButtonColors(),
     border: BorderStroke? = null,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable BoxScope.() -> Unit,
 ) = IconButton(onClick, modifier, enabled, shape, colors, border, interactionSource, content)
 
@@ -237,10 +236,10 @@ fun FilledTonalIconButton(
  * this button in different states. See [IconButtonDefaults.outlinedIconButtonColors].
  * @param border Optional [BorderStroke] for the icon button border -
  * [ButtonDefaults.outlinedButtonBorder] by default.
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this Button. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this Button in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's appearance
+ * or preview the button in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  * @param content The content displayed on the icon button, expected to be icon or image.
  */
 @Composable
@@ -251,7 +250,7 @@ fun OutlinedIconButton(
     shape: Shape = IconButtonDefaults.shape,
     colors: IconButtonColors = IconButtonDefaults.outlinedIconButtonColors(),
     border: BorderStroke? = ButtonDefaults.outlinedButtonBorder(enabled),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable BoxScope.() -> Unit,
 ) = IconButton(onClick, modifier, enabled, shape, colors, border, interactionSource, content)
 
@@ -284,10 +283,10 @@ fun OutlinedIconButton(
  * this toggle button will not be clickable.
  * @param colors [ToggleButtonColors] that will be used to resolve the container and
  * content color for this toggle button.
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this toggle button. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this ToggleButton in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's appearance
+ * or preview the button in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  * @param shape Defines the shape for this toggle button. It is strongly recommended to use the
  * default as this shape is a key characteristic of the Wear Material 3 Theme.
  * @param border Optional [BorderStroke] for the [IconToggleButton].
@@ -300,7 +299,7 @@ fun IconToggleButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     colors: ToggleButtonColors = IconButtonDefaults.iconToggleButtonColors(),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     shape: Shape = IconButtonDefaults.shape,
     border: BorderStroke? = null,
     content: @Composable BoxScope.() -> Unit,
