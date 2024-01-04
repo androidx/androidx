@@ -78,9 +78,10 @@ import kotlinx.coroutines.launch
  * services.
  * @param colors [SwitchColors] that will be used to resolve the colors used for this switch in
  * different states. See [SwitchDefaults.colors].
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this switch. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this switch in different states.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this switch. You can use this to change the switch's appearance
+ * or preview the switch in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  */
 @ExperimentalTvMaterial3Api
 @Composable
@@ -92,8 +93,10 @@ fun Switch(
     thumbContent: (@Composable () -> Unit)? = null,
     enabled: Boolean = true,
     colors: SwitchColors = SwitchDefaults.colors(),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
 ) {
+    @Suppress("NAME_SHADOWING")
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     val uncheckedThumbDiameter = if (thumbContent == null) {
         UncheckedThumbDiameter
     } else {

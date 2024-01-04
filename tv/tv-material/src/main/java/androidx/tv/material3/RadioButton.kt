@@ -29,7 +29,6 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,9 +57,10 @@ import androidx.tv.material3.tokens.RadioButtonTokens
  * services.
  * @param colors [RadioButtonColors] that will be used to resolve the color used for this radio
  * button in different states. See [RadioButtonDefaults.colors].
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this radio button. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this radio button in different states.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this radio button. You can use this to change the radio button's
+ * appearance or preview the radio button in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  */
 @ExperimentalTvMaterial3Api
 @Composable
@@ -70,7 +70,7 @@ fun RadioButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     colors: RadioButtonColors = RadioButtonDefaults.colors(),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+    interactionSource: MutableInteractionSource? = null
 ) {
     val dotRadius = animateDpAsState(
         targetValue = if (selected) RadioButtonDotSize / 2 else 0.dp,

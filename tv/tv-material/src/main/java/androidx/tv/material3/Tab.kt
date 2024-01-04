@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
@@ -51,9 +50,10 @@ import androidx.compose.ui.semantics.semantics
  * services.
  * @param colors these will be used by the tab when in different states (focused,
  * selected, etc.)
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this tab. You can create and pass in your own `remember`ed instance to observe [Interaction]s
- * and customize the appearance / behavior of this tab in different states.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this tab. You can use this to change the tab's appearance
+ * or preview the tab in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  * @param content content of the [Tab]
  */
 @ExperimentalTvMaterial3Api
@@ -65,7 +65,7 @@ fun TabRowScope.Tab(
     onClick: () -> Unit = { },
     enabled: Boolean = true,
     colors: TabColors = TabDefaults.pillIndicatorTabColors(),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable RowScope.() -> Unit
 ) {
     Surface(
