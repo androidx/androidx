@@ -26,7 +26,7 @@ plugins {
 dependencies {
     compileOnly(project(":annotation:annotation-sampled"))
 
-    implementation(project(":activity:activity-compose"))
+    implementation("androidx.activity:activity-compose:1.8.0")
     implementation(project(":compose:material:material-icons-core"))
     implementation(project(":compose:runtime:runtime"))
     implementation(project(":compose:ui:ui-tooling"))

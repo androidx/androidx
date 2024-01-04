@@ -35,7 +35,6 @@ import androidx.compose.ui.layout.PlacementScope
 import androidx.compose.ui.modifier.ModifierLocalManager
 import androidx.compose.ui.platform.AccessibilityManager
 import androidx.compose.ui.platform.ClipboardManager
-import androidx.compose.ui.platform.DelegatingSoftwareKeyboardController
 import androidx.compose.ui.platform.PlatformTextInputSessionHandler
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.TextToolbar
@@ -120,7 +119,6 @@ internal interface Owner : PlatformTextInputSessionHandler {
     val textInputService: TextInputService
 
     val softwareKeyboardController: SoftwareKeyboardController
-        get() = DelegatingSoftwareKeyboardController(textInputService)
 
     val pointerIconService: PointerIconService
 

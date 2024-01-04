@@ -173,10 +173,10 @@ interface PositionIndicatorState {
  * is AutoHide and state.positionFraction/state.sizeFraction are changed.
  * @param showFadeOutAnimation turns on the "Fade-out" animation of PositionIndicator.
  * The Fade-out animation is used for hiding the [PositionIndicator] and making it invisible.
- * If true, the Fade-out animation is triggered after a delay if no changes in
- * state.positionFraction or state.sizeFraction were detected,
- * hiding the [PositionIndicator] with animation.
- * @param showPositionAnimation turns on the "Position" animation of [PositionIndicator].
+ * [PositionIndicator] will be hidden after a specified delay if no changes
+ * in state.positionFraction or state.sizeFraction were detected.
+ * If [fadeOutAnimationSpec] is [snap], then after a delay it will be instantly hidden.
+ * @param positionAnimationSpec [AnimationSpec] for position animation.
  * The Position animation is used for animating changes between state.positionFraction
  * and state.sizeFraction of [PositionIndicatorState].
  * If true, the Position animation will be triggered on any change of
@@ -253,10 +253,10 @@ public fun PositionIndicator(
  * is AutoHide and state.positionFraction/state.sizeFraction are changed.
  * @param showFadeOutAnimation turns on the "Fade-out" animation of PositionIndicator.
  * The Fade-out animation is used for hiding the [PositionIndicator] and making it invisible.
- * If true, the Fade-out animation is triggered after a delay if no changes in
- * state.positionFraction or state.sizeFraction were detected,
- * hiding the [PositionIndicator] with animation.
- * @param showPositionAnimation turns on the "Position" animation of [PositionIndicator].
+ * [PositionIndicator] will be hidden after a specified delay if no changes
+ * in state.positionFraction or state.sizeFraction were detected.
+ * If [fadeOutAnimationSpec] is [snap], then after a delay it will be instantly hidden.
+ * @param positionAnimationSpec [AnimationSpec] for position animation.
  * The Position animation is used for animating changes between state.positionFraction
  * and state.sizeFraction of [PositionIndicatorState].
  * If true, the Position animation will be triggered on any change of
@@ -371,10 +371,10 @@ public fun PositionIndicator(
  * is AutoHide and state.positionFraction/state.sizeFraction are changed.
  * @param showFadeOutAnimation turns on the "Fade-out" animation of PositionIndicator.
  * The Fade-out animation is used for hiding the [PositionIndicator] and making it invisible.
- * If true, the Fade-out animation is triggered after a delay if no changes in
- * state.positionFraction or state.sizeFraction were detected,
- * hiding the [PositionIndicator] with animation.
- * @param showPositionAnimation turns on the "Position" animation of [PositionIndicator].
+ * [PositionIndicator] will be hidden after a specified delay if no changes
+ * in state.positionFraction or state.sizeFraction were detected.
+ * If [fadeOutAnimationSpec] is [snap], then after a delay it will be instantly hidden.
+ * @param positionAnimationSpec [AnimationSpec] for position animation.
  * The Position animation is used for animating changes between state.positionFraction
  * and state.sizeFraction of [PositionIndicatorState].
  * If true, the Position animation will be triggered on any change of
@@ -507,10 +507,10 @@ value class PositionIndicatorAlignment internal constructor(internal val pos: In
  * is AutoHide and state.positionFraction/state.sizeFraction are changed.
  * @param showFadeOutAnimation turns on the "Fade-out" animation of PositionIndicator.
  * The Fade-out animation is used for hiding the [PositionIndicator] and making it invisible.
- * If true, the Fade-out animation is triggered after a delay if no changes in
- * state.positionFraction or state.sizeFraction were detected,
- * hiding the [PositionIndicator] with animation.
- * @param showPositionAnimation turns on the "Position" animation of [PositionIndicator].
+ * [PositionIndicator] will be hidden after a specified delay if no changes
+ * in state.positionFraction or state.sizeFraction were detected.
+ * If [fadeOutAnimationSpec] is [snap], then after a delay it will be instantly hidden.
+ * @param positionAnimationSpec [AnimationSpec] for position animation.
  * The Position animation is used for animating changes between state.positionFraction
  * and state.sizeFraction of [PositionIndicatorState].
  * If true, the Position animation will be triggered on any change of
@@ -634,10 +634,10 @@ public fun PositionIndicator(
  * is AutoHide and state.positionFraction/state.sizeFraction are changed.
  * @param showFadeOutAnimation turns on the "Fade-out" animation of PositionIndicator.
  * The Fade-out animation is used for hiding the [PositionIndicator] and making it invisible.
- * If true, the Fade-out animation is triggered after a delay if no changes in
- * state.positionFraction or state.sizeFraction were detected,
- * hiding the [PositionIndicator] with animation.
- * @param showPositionAnimation turns on the "Position" animation of [PositionIndicator].
+ * [PositionIndicator] will be hidden after a specified delay if no changes
+ * in state.positionFraction or state.sizeFraction were detected.
+ * If [fadeOutAnimationSpec] is [snap], then after a delay it will be instantly hidden.
+ * @param positionAnimationSpec [AnimationSpec] for position animation.
  * The Position animation is used for animating changes between state.positionFraction
  * and state.sizeFraction of [PositionIndicatorState].
  * If true, the Position animation will be triggered on any change of
