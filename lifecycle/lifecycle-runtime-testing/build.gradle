@@ -15,7 +15,6 @@
  */
 
 import androidx.build.Publish
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -32,6 +31,7 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.kotlinCoroutinesTest)
 
+    androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -43,6 +43,7 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2019"
     description = "Testing utilities for 'lifecycle' artifact"
+    metalavaK2UastEnabled = true
 }
 
 android {

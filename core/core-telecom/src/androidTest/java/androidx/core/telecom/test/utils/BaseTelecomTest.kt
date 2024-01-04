@@ -34,7 +34,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.TestExecutor
 import kotlin.coroutines.CoroutineContext
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.withTimeout
@@ -143,27 +142,23 @@ abstract class BaseTelecomTest {
      * are not completed in time. It's important to do this
      */
     suspend fun assertWithinTimeout_addCall(
-        deferred: CompletableDeferred<Unit>,
         attributes: CallAttributesCompat,
-        setCallback: Boolean = true,
         assertBlock: CallControlScope.() -> (Unit)
     ) {
         Log.i(TestUtils.LOG_TAG, "assertWithinTimeout_addCall")
         var callControlScope: CallControlScope? = null
         try {
             withTimeout(TestUtils.WAIT_ON_ASSERTS_TO_FINISH_TIMEOUT) {
-                mCallsManager.addCall(attributes) {
+                mCallsManager.addCall(
+                    attributes,
+                    TestUtils.mOnAnswerLambda,
+                    TestUtils.mOnDisconnectLambda,
+                    TestUtils.mOnSetActiveLambda,
+                    TestUtils.mOnSetInActiveLambda,
+                ) {
                     callControlScope = this
-                    if (setCallback) {
-                        setCallback(TestUtils.mCallControlCallbacksImpl)
-                        Log.i(TestUtils.LOG_TAG, "assertWithinTimeout_addCall: setCallback " +
-                            "to ${TestUtils.mCallControlCallbacksImpl}")
-                    }
                     assertBlock()
                 }
-                Log.i(TestUtils.LOG_TAG, "assertWithinTimeout: execution <PAUSED>")
-                deferred.await()
-                Log.i(TestUtils.LOG_TAG, "assertWithinTimeout: execution <UN-PAUSED>")
             }
         } catch (timeout: TimeoutCancellationException) {
             Log.i(TestUtils.LOG_TAG, "assertWithinTimeout: reached timeout; dumping telecom")

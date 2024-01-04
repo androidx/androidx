@@ -23,7 +23,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.text.KeyboardHelper
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -64,14 +63,12 @@ class AndroidTextInputSessionTest {
     private lateinit var coroutineScope: CoroutineScope
     private lateinit var hostView: View
     private lateinit var textInputNode: PlatformTextInputModifierNode
-    private val keyboardHelper = KeyboardHelper(rule)
 
     @Before
     fun setup() {
         rule.setContent {
             coroutineScope = rememberCoroutineScope()
             hostView = LocalView.current
-            keyboardHelper.initialize()
             Box(
                 modifier = Modifier
                     .size(1.dp)

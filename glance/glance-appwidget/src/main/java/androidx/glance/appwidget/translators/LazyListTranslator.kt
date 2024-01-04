@@ -75,6 +75,7 @@ private fun RemoteViews.translateEmittableLazyList(
     )
     val items = RemoteCollectionItems.Builder().apply {
         val childContext = translationContext.forLazyCollection(viewDef.mainViewId)
+        @Suppress("ListIterator")
         element.children.foldIndexed(false) { position, previous, itemEmittable ->
             itemEmittable as EmittableLazyListItem
             val itemId = itemEmittable.itemId

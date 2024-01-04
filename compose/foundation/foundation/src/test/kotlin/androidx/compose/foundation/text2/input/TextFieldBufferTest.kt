@@ -20,6 +20,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import java.text.ParseException
 import kotlin.test.assertFailsWith
 import org.junit.Test
@@ -300,8 +301,8 @@ class TextFieldBufferTest {
 
         assertThat(buffer.changes.changeCount).isEqualTo(1)
         assertThat(buffer.toString()).isEqualTo("1ello")
-        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(0, 5))
-        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(0, 5))
+        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(0, 1))
+        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(0, 1))
     }
 
     @Test
@@ -313,8 +314,8 @@ class TextFieldBufferTest {
 
         assertThat(buffer.changes.changeCount).isEqualTo(1)
         assertThat(buffer.toString()).isEqualTo("1hello")
-        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(0, 5))
-        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(0, 6))
+        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(0))
+        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(0, 1))
     }
 
     @Test
@@ -326,8 +327,8 @@ class TextFieldBufferTest {
 
         assertThat(buffer.changes.changeCount).isEqualTo(1)
         assertThat(buffer.toString()).isEqualTo("ello")
-        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(0, 5))
-        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(0, 4))
+        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(0, 1))
+        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(0))
     }
 
     @Test
@@ -339,8 +340,8 @@ class TextFieldBufferTest {
 
         assertThat(buffer.changes.changeCount).isEqualTo(1)
         assertThat(buffer.toString()).isEqualTo("hell1")
-        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(0, 5))
-        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(0, 5))
+        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(4, 5))
+        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(4, 5))
     }
 
     @Test
@@ -352,8 +353,8 @@ class TextFieldBufferTest {
 
         assertThat(buffer.changes.changeCount).isEqualTo(1)
         assertThat(buffer.toString()).isEqualTo("hello1")
-        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(0, 5))
-        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(0, 6))
+        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(5))
+        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(5, 6))
     }
 
     @Test
@@ -365,12 +366,12 @@ class TextFieldBufferTest {
 
         assertThat(buffer.changes.changeCount).isEqualTo(1)
         assertThat(buffer.toString()).isEqualTo("hell")
-        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(0, 5))
-        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(0, 4))
+        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(4, 5))
+        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(4))
     }
 
     @Test
-    fun setTextIfChanged_updatesText_whenMiddleChanged() {
+    fun setTextIfChanged_updatesText_whenMiddleChanged_once() {
         val text = "hello"
         val buffer = TextFieldBuffer(TextFieldCharSequence(text))
 
@@ -378,12 +379,12 @@ class TextFieldBufferTest {
 
         assertThat(buffer.changes.changeCount).isEqualTo(1)
         assertThat(buffer.toString()).isEqualTo("h1llo")
-        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(0, 5))
-        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(0, 5))
+        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(1, 2))
+        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(1, 2))
     }
 
     @Test
-    fun setTextIfChanged_updatesText_whenMiddleAdded() {
+    fun setTextIfChanged_updatesText_whenMiddleAdded_once() {
         val text = "hello"
         val buffer = TextFieldBuffer(TextFieldCharSequence(text))
 
@@ -391,12 +392,12 @@ class TextFieldBufferTest {
 
         assertThat(buffer.changes.changeCount).isEqualTo(1)
         assertThat(buffer.toString()).isEqualTo("he1llo")
-        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(0, 5))
-        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(0, 6))
+        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(2))
+        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(2, 3))
     }
 
     @Test
-    fun setTextIfChanged_updatesText_whenMiddleRemoved() {
+    fun setTextIfChanged_updatesText_whenMiddleRemoved_once() {
         val text = "hello"
         val buffer = TextFieldBuffer(TextFieldCharSequence(text))
 
@@ -404,8 +405,47 @@ class TextFieldBufferTest {
 
         assertThat(buffer.changes.changeCount).isEqualTo(1)
         assertThat(buffer.toString()).isEqualTo("helo")
-        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(0, 5))
-        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(0, 4))
+        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(2, 3))
+        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(2))
+    }
+
+    @Test
+    fun setTextIfChanged_updatesText_whenMiddleChanged_multiple() {
+        val text = "hello"
+        val buffer = TextFieldBuffer(TextFieldCharSequence(text))
+
+        buffer.setTextIfChanged("h1l2o")
+
+        assertThat(buffer.changes.changeCount).isEqualTo(1)
+        assertThat(buffer.toString()).isEqualTo("h1l2o")
+        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(1, 4))
+        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(1, 4))
+    }
+
+    @Test
+    fun setTextIfChanged_updatesText_whenMiddleAdded_multiple() {
+        val text = "hello"
+        val buffer = TextFieldBuffer(TextFieldCharSequence(text))
+
+        buffer.setTextIfChanged("he1ll2o")
+
+        assertThat(buffer.changes.changeCount).isEqualTo(1)
+        assertThat(buffer.toString()).isEqualTo("he1ll2o")
+        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(2, 4))
+        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(2, 6))
+    }
+
+    @Test
+    fun setTextIfChanged_updatesText_whenMiddleRemoved_multiple() {
+        val text = "abcde"
+        val buffer = TextFieldBuffer(TextFieldCharSequence(text))
+
+        buffer.setTextIfChanged("ace")
+
+        assertThat(buffer.changes.changeCount).isEqualTo(1)
+        assertThat(buffer.toString()).isEqualTo("ace")
+        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(1, 4))
+        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(1, 2))
     }
 
     @Test
@@ -465,6 +505,86 @@ class TextFieldBufferTest {
         buffer.append("hello")
 
         assertThat(charSequence.toString()).isEqualTo("hello")
+    }
+
+    @Test
+    fun replace_withSubSequence_crossedOffsets() {
+        val buffer = TextFieldBuffer(TextFieldCharSequence(""))
+        val error = assertFailsWith<IllegalArgumentException> {
+            buffer.replace(0, 0, "hi", 2, 0)
+        }
+        assertThat(error.message).isEqualTo("Expected textStart=2 <= textEnd=0")
+    }
+
+    @Test
+    fun replace_withSubSequence_startTooSmall() {
+        val buffer = TextFieldBuffer(TextFieldCharSequence(""))
+        assertFailsWith<IllegalArgumentException> {
+            buffer.replace(0, 0, "hi", -1, 0)
+        }
+    }
+
+    @Test
+    fun replace_withSubSequence_endTooBig() {
+        val buffer = TextFieldBuffer(TextFieldCharSequence(""))
+        assertFailsWith<IndexOutOfBoundsException> {
+            buffer.replace(0, 0, "hi", 2, 3)
+        }
+    }
+
+    @Test
+    fun replace_withSubSequence_empty() {
+        val buffer = TextFieldBuffer(TextFieldCharSequence(""))
+        buffer.replace(0, 0, "hi", 0, 0)
+        assertThat(buffer.toString()).isEqualTo("")
+    }
+
+    @Test
+    fun replace_withSubSequence_singleCharFromStart() {
+        val buffer = TextFieldBuffer(TextFieldCharSequence(""))
+        buffer.replace(0, 0, "hi", 0, 1)
+        assertThat(buffer.toString()).isEqualTo("h")
+    }
+
+    @Test
+    fun replace_withSubSequence_singleCharFromEnd() {
+        val buffer = TextFieldBuffer(TextFieldCharSequence(""))
+        buffer.replace(0, 0, "hi", 1, 2)
+        assertThat(buffer.toString()).isEqualTo("i")
+    }
+
+    @Test
+    fun replace_withSubSequence_middle() {
+        val buffer = TextFieldBuffer(TextFieldCharSequence(""))
+        buffer.replace(0, 0, "abcd", 1, 3)
+        assertThat(buffer.toString()).isEqualTo("bc")
+    }
+
+    @Test
+    fun replace_withSubSequence_full() {
+        val buffer = TextFieldBuffer(TextFieldCharSequence(""))
+        buffer.replace(0, 0, "abcd", 0, 4)
+        assertThat(buffer.toString()).isEqualTo("abcd")
+    }
+
+    @Test
+    fun findCommonPrefixAndSuffix_works() {
+        assertCommonPrefixAndSuffix("", "", null)
+        assertCommonPrefixAndSuffix("a", "a", null)
+        assertCommonPrefixAndSuffix("abc", "abc", null)
+        assertCommonPrefixAndSuffix("", "b", TextRange(0) to TextRange(0, 1))
+        assertCommonPrefixAndSuffix("a", "", TextRange(0, 1) to TextRange(0))
+        assertCommonPrefixAndSuffix("ab", "ac", TextRange(1, 2) to TextRange(1, 2))
+        assertCommonPrefixAndSuffix("abb", "ac", TextRange(1, 3) to TextRange(1, 2))
+        assertCommonPrefixAndSuffix("ab", "acc", TextRange(1, 2) to TextRange(1, 3))
+        assertCommonPrefixAndSuffix("az", "bz", TextRange(0, 1) to TextRange(0, 1))
+        assertCommonPrefixAndSuffix("cba", "za", TextRange(0, 2) to TextRange(0, 1))
+        assertCommonPrefixAndSuffix("za", "cba", TextRange(0, 1) to TextRange(0, 2))
+        assertCommonPrefixAndSuffix("aoz", "apz", TextRange(1, 2) to TextRange(1, 2))
+        assertCommonPrefixAndSuffix("amnoz", "az", TextRange(1, 4) to TextRange(1, 1))
+        assertCommonPrefixAndSuffix("az", "amnoz", TextRange(1, 1) to TextRange(1, 4))
+        assertCommonPrefixAndSuffix("amnoz", "axz", TextRange(1, 4) to TextRange(1, 2))
+        assertCommonPrefixAndSuffix("axz", "amnoz", TextRange(1, 2) to TextRange(1, 4))
     }
 
     /** Tests of private testing helper code. */
@@ -543,5 +663,18 @@ class TextFieldBufferTest {
                 insert(selectionInChars.max + 1, '_')
             }
         }
+    }
+
+    private fun assertCommonPrefixAndSuffix(
+        a: CharSequence,
+        b: CharSequence,
+        expectedRanges: Pair<TextRange, TextRange>?
+    ) {
+        var result: Pair<TextRange, TextRange>? = null
+        findCommonPrefixAndSuffix(a, b) { aStart, aEnd, bStart, bEnd ->
+            result = Pair(TextRange(aStart, aEnd), TextRange(bStart, bEnd))
+        }
+        assertWithMessage("Expected findCommonPrefixAndSuffix(\"$a\", \"$b\") to report")
+            .that(result).isEqualTo(expectedRanges)
     }
 }

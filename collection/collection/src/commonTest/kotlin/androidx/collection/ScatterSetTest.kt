@@ -21,6 +21,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNull
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 internal class ScatterSetTest {
@@ -647,5 +648,104 @@ internal class ScatterSetTest {
             "Sesang"))
         assertTrue(set.trim() > 0)
         assertEquals(capacity, set.capacity)
+    }
+
+    @Test
+    fun scatterSetOfEmpty() {
+        assertSame(emptyScatterSet<String>(), scatterSetOf<String>())
+        assertEquals(0, scatterSetOf<String>().size)
+    }
+
+    @Test
+    fun scatterSetOfOne() {
+        val set = scatterSetOf("Hello")
+        assertEquals(1, set.size)
+        assertEquals("Hello", set.first())
+    }
+
+    @Test
+    fun scatterSetOfTwo() {
+        val set = scatterSetOf("Hello", "World")
+        assertEquals(2, set.size)
+        assertTrue("Hello" in set)
+        assertTrue("World" in set)
+        assertFalse("Bonjour" in set)
+    }
+
+    @Test
+    fun scatterSetOfThree() {
+        val set = scatterSetOf("Hello", "World", "Hola")
+        assertEquals(3, set.size)
+        assertTrue("Hello" in set)
+        assertTrue("World" in set)
+        assertTrue("Hola" in set)
+        assertFalse("Bonjour" in set)
+    }
+
+    @Test
+    fun scatterSetOfFour() {
+        val set = scatterSetOf("Hello", "World", "Hola", "Mundo")
+        assertEquals(4, set.size)
+        assertTrue("Hello" in set)
+        assertTrue("World" in set)
+        assertTrue("Hola" in set)
+        assertTrue("Mundo" in set)
+        assertFalse("Bonjour" in set)
+    }
+
+    @Test
+    fun mutableScatterSetOfOne() {
+        val set = mutableScatterSetOf("Hello")
+        assertEquals(1, set.size)
+        assertEquals("Hello", set.first())
+    }
+
+    @Test
+    fun mutableScatterSetOfTwo() {
+        val set = mutableScatterSetOf("Hello", "World")
+        assertEquals(2, set.size)
+        assertTrue("Hello" in set)
+        assertTrue("World" in set)
+        assertFalse("Bonjour" in set)
+    }
+
+    @Test
+    fun mutableScatterSetOfThree() {
+        val set = mutableScatterSetOf("Hello", "World", "Hola")
+        assertEquals(3, set.size)
+        assertTrue("Hello" in set)
+        assertTrue("World" in set)
+        assertTrue("Hola" in set)
+        assertFalse("Bonjour" in set)
+    }
+
+    @Test
+    fun mutableScatterSetOfFour() {
+        val set = mutableScatterSetOf("Hello", "World", "Hola", "Mundo")
+        assertEquals(4, set.size)
+        assertTrue("Hello" in set)
+        assertTrue("World" in set)
+        assertTrue("Hola" in set)
+        assertTrue("Mundo" in set)
+        assertFalse("Bonjour" in set)
+    }
+
+    @Test
+    fun removeIf() {
+        val set = MutableScatterSet<String>()
+        set.add("Hello")
+        set.add("Bonjour")
+        set.add("Hallo")
+        set.add("Konnichiwa")
+        set.add("Ciao")
+        set.add("Annyeong")
+
+        set.removeIf { value -> value.startsWith('H') }
+
+        assertEquals(4, set.size)
+        assertTrue(set.contains("Bonjour"))
+        assertTrue(set.contains("Konnichiwa"))
+        assertTrue(set.contains("Ciao"))
+        assertTrue(set.contains("Annyeong"))
     }
 }

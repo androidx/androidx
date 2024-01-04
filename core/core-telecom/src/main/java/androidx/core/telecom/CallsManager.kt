@@ -82,6 +82,13 @@ class CallsManager constructor(context: Context) {
         annotation class Capability
 
         /**
+         * Set on Jetpack Connections that are emulating the transactional APIs using
+         * ConnectionService.
+         */
+        internal const val EXTRA_VOIP_BACKWARDS_COMPATIBILITY_SUPPORTED =
+            "android.telecom.extra.VOIP_BACKWARDS_COMPATIBILITY_SUPPORTED"
+
+        /**
          * If your VoIP application does not want support any of the capabilities below, then your
          * application can register with [CAPABILITY_BASELINE].
          *
@@ -180,16 +187,66 @@ class CallsManager constructor(context: Context) {
      *
      * @param callAttributes     attributes of the new call (incoming or outgoing, address, etc. )
      * @param block              DSL interface block that will run when the call is ready
+     * @param onAnswer           Telecom is informing your VoIP application to answer an incoming
+     *                           call and  set it to active. Telecom is requesting this on behalf
+     *                           of an system service (e.g. Automotive service) or a device (e.g.
+     *                           Wearable).
+     *
+     *                           @param callType that call is requesting to be answered as.
+     *
+     *                           @return true to indicate your VoIP application can answer the
+     *                           call with the given [CallAttributesCompat.Companion.CallType].
+     *                           Otherwise, return false to indicate your application is unable to
+     *                           process the request and telecom will cancel the external request.
+     *
+     * @param onDisconnect       Telecom is informing your VoIP application to disconnect the
+     *                           incoming  call and set it to active. Telecom is requesting this on
+     *                           behalf of an system service (e.g. Automotive service) or a device
+     *                           (e.g. Wearable).
+     *
+     *                           @param disconnectCause represents the cause for disconnecting the
+     *                           call.
+     *
+     *                           @return true when your VoIP application has disconnected the call.
+     *                           Otherwise, return false to indicate your application is unable to
+     *                           process the request. However, telecom will still
+     * @param onSetActive        Telecom is informing your VoIP application to set the call active.
+     *                           Telecom is requesting this on behalf of an system service (e.g.
+     *                           Automotive service) or a device (e.g. Wearable).
+     *
+     *                           @return true to indicate your VoIP application can set the call
+     *                           (that corresponds to this lambda function) to active.
+     *                           Otherwise, return false to indicate your application is unable to
+     *                           process the request and telecom will cancel the external request.
+     *
+     * @param onSetInactive      Telecom is informing your VoIP application to set the call
+     *                           inactive. This is the same as holding a call for two endpoints but
+     *                           can be extended to setting a meeting inactive. Telecom is
+     *                           requesting this on behalf of an system service (e.g. Automotive
+     *                           service) or a device (e.g.Wearable). Note: Your app must stop
+     *                           using the microphone and playing incoming media when returning.
+     *
+     *                           @return true to indicate your VoIP application can set the call
+     *                           (that corresponds to this lambda function) to inactive.
+     *                           Otherwise, return false to indicate your application is unable to
+     *                           process the request and telecom will cancel the external request.
+     *
+     * Note: Each lambda function (onAnswer, onDisconnect, onSetActive, onSetInactive) has a
+     * timeout of 5000 milliseconds. Failing to complete the suspend fun before the timeout will
+     * result in a failed transaction.
      *
      * @Throws UnsupportedOperationException if the device is on an invalid build
      * @Throws CancellationException if the call failed to be added within 5000 milliseconds
-     * @Throws CallException if [CallControlScope.setCallback] is not called first within the block
      */
     @RequiresPermission(value = "android.permission.MANAGE_OWN_CALLS")
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     @Suppress("ClassVerificationFailure")
     suspend fun addCall(
         callAttributes: CallAttributesCompat,
+        onAnswer: suspend (callType: @CallAttributesCompat.Companion.CallType Int) -> Boolean,
+        onDisconnect: suspend (disconnectCause: android.telecom.DisconnectCause) -> Boolean,
+        onSetActive: suspend () -> Boolean,
+        onSetInactive: suspend () -> Boolean,
         block: CallControlScope.() -> Unit
     ) {
         // This API is not supported for device running anything below Android O (26)
@@ -197,6 +254,10 @@ class CallsManager constructor(context: Context) {
         // Setup channels for the CallEventCallbacks that only provide info updates
         val callChannels = CallChannels()
         callAttributes.mHandle = getPhoneAccountHandleForPackage()
+        // This variable controls the addCall execution in the calling activity. AddCall will block
+        // for the duration of the session.  When the session is terminated via a disconnect or
+        // exception, addCall will unblock.
+        val blockingSessionExecution = CompletableDeferred<Unit>(parent = coroutineContext.job)
 
         // create a call session based off the build version
         @RequiresApi(34)
@@ -206,7 +267,13 @@ class CallsManager constructor(context: Context) {
             val openResult = CompletableDeferred<CallSession>(parent = coroutineContext.job)
             // CallSession is responsible for handling both CallControl responses from the Platform
             // and propagates CallControlCallbacks that originate in the Platform out to the client.
-            val callSession = CallSession(coroutineContext)
+            val callSession = CallSession(
+                coroutineContext,
+                onAnswer,
+                onDisconnect,
+                onSetActive,
+                onSetInactive,
+                blockingSessionExecution)
 
             /**
              * The Platform [android.telecom.TelecomManager.addCall] requires a
@@ -243,6 +310,7 @@ class CallsManager constructor(context: Context) {
                 CallSession.CallControlScopeImpl(
                     openResult.getCompleted(),
                     callChannels,
+                    blockingSessionExecution,
                     coroutineContext
                 )
 
@@ -256,7 +324,15 @@ class CallsManager constructor(context: Context) {
                 CompletableDeferred<CallSessionLegacy>(parent = coroutineContext.job)
 
             val request = JetpackConnectionService.PendingConnectionRequest(
-                callAttributes, callChannels, coroutineContext, openResult
+                callAttributes,
+                callChannels,
+                coroutineContext,
+                openResult,
+                onAnswer,
+                onDisconnect,
+                onSetActive,
+                onSetInactive,
+                blockingSessionExecution
             )
 
             mConnectionService.createConnectionRequest(mTelecomManager, request)
@@ -266,6 +342,7 @@ class CallsManager constructor(context: Context) {
             val scope = CallSessionLegacy.CallControlScopeImpl(
                 openResult.getCompleted(),
                 callChannels,
+                blockingSessionExecution,
                 coroutineContext
             )
 
@@ -273,6 +350,7 @@ class CallsManager constructor(context: Context) {
             // CallControlScope interface implementation declared above.
             scope.block()
         }
+        blockingSessionExecution.await()
     }
 
     private suspend fun pauseExecutionUntilCallIsReady_orTimeout(

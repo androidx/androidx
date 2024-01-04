@@ -21,6 +21,7 @@ import androidx.activity.compose.setContent
 import androidx.benchmark.ExperimentalBenchmarkConfigApi
 import androidx.benchmark.MetricCapture
 import androidx.benchmark.MicrobenchmarkConfig
+import androidx.benchmark.ProfilerConfig
 import androidx.benchmark.TimeCapture
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.compose.runtime.Composable
@@ -73,6 +74,7 @@ private fun countGroupsAndSlots(table: CompositionData, tables: Set<CompositionD
 @Composable
 private fun CountGroupsAndSlots(content: @Composable () -> Unit) {
     val data = currentComposer.compositionData
+    currentComposer.disableSourceInformation()
     CompositionLocalProvider(LocalInspectionTables provides compositionTables, content = content)
     SideEffect {
         compositionTables?.let {
@@ -110,6 +112,7 @@ abstract class ComposeBenchmarkBase {
                     }
                 }
             ),
+            profiler = ProfilerConfig.MethodTracing(),
         )
     )
 
@@ -137,7 +140,41 @@ abstract class ComposeBenchmarkBase {
                 runWithTimingDisabled {
                     activity.setContentView(emptyView)
                     testScheduler.advanceUntilIdle()
-                    Runtime.getRuntime().gc()
+                }
+            }
+        } finally {
+            activity.setContentView(emptyView)
+            testScheduler.advanceUntilIdle()
+            recomposer.cancel()
+        }
+    }
+
+    @ExperimentalCoroutinesApi
+    @ExperimentalTestApi
+    suspend fun TestScope.measureComposeFocused(block: @Composable () -> Unit) = coroutineScope {
+        val activity = activityRule.activity
+        val recomposer = Recomposer(coroutineContext)
+        val emptyView = View(activity)
+
+        try {
+            benchmarkRule.measureRepeatedSuspendable {
+                val benchmarkState = benchmarkRule.getState()
+                benchmarkState.pauseTiming()
+
+                activity.setContent(recomposer) {
+                    CountGroupsAndSlots {
+                        trace("Benchmark focus") {
+                            benchmarkState.resumeTiming()
+                            block()
+                            benchmarkState.pauseTiming()
+                        }
+                    }
+                }
+                benchmarkState.resumeTiming()
+
+                runWithTimingDisabled {
+                    activity.setContentView(emptyView)
+                    testScheduler.advanceUntilIdle()
                 }
             }
         } finally {
@@ -243,5 +280,14 @@ class RecomposeReceiver {
 
     fun update(block: () -> Unit) {
         updateModelCb = block
+    }
+}
+
+private inline fun trace(name: String, block: () -> Unit) {
+    android.os.Trace.beginSection(name)
+    try {
+        block()
+    } finally {
+        android.os.Trace.endSection()
     }
 }

@@ -43,17 +43,75 @@ private val EmptyFloatArray = FloatArray(0)
 public fun emptyFloatSet(): FloatSet = EmptyFloatSet
 
 /**
+ * Returns an empty, read-only [ScatterSet].
+ */
+@Suppress("UNCHECKED_CAST")
+public fun floatSetOf(): FloatSet = EmptyFloatSet
+
+/**
+ * Returns a new read-only [FloatSet] with only [element1] in it.
+ */
+@Suppress("UNCHECKED_CAST")
+public fun floatSetOf(element1: Float): FloatSet = mutableFloatSetOf(element1)
+
+/**
+ * Returns a new read-only [FloatSet] with only [element1] and [element2] in it.
+ */
+@Suppress("UNCHECKED_CAST")
+public fun floatSetOf(element1: Float, element2: Float): FloatSet =
+    mutableFloatSetOf(element1, element2)
+
+/**
+ * Returns a new read-only [FloatSet] with only [element1], [element2], and [element3] in it.
+ */
+@Suppress("UNCHECKED_CAST")
+public fun floatSetOf(element1: Float, element2: Float, element3: Float): FloatSet =
+    mutableFloatSetOf(element1, element2, element3)
+
+/**
+ * Returns a new read-only [FloatSet] with only [elements] in it.
+ */
+@Suppress("UNCHECKED_CAST")
+public fun floatSetOf(vararg elements: Float): FloatSet =
+    MutableFloatSet(elements.size).apply { plusAssign(elements) }
+
+/**
  * Returns a new [MutableFloatSet].
  */
 public fun mutableFloatSetOf(): MutableFloatSet = MutableFloatSet()
 
 /**
+ * Returns a new [MutableFloatSet] with only [element1] in it.
+ */
+public fun mutableFloatSetOf(element1: Float): MutableFloatSet =
+    MutableFloatSet(1).apply {
+        plusAssign(element1)
+    }
+
+/**
+ * Returns a new [MutableFloatSet] with only [element1] and [element2] in it.
+ */
+public fun mutableFloatSetOf(element1: Float, element2: Float): MutableFloatSet =
+    MutableFloatSet(2).apply {
+        plusAssign(element1)
+        plusAssign(element2)
+    }
+
+/**
+ * Returns a new [MutableFloatSet] with only [element1], [element2], and [element3] in it.
+ */
+public fun mutableFloatSetOf(element1: Float, element2: Float, element3: Float): MutableFloatSet =
+    MutableFloatSet(3).apply {
+        plusAssign(element1)
+        plusAssign(element2)
+        plusAssign(element3)
+    }
+
+/**
  * Returns a new [MutableFloatSet] with the specified elements.
  */
 public fun mutableFloatSetOf(vararg elements: Float): MutableFloatSet =
-    MutableFloatSet(elements.size).apply {
-        addAll(elements)
-    }
+    MutableFloatSet(elements.size).apply { plusAssign(elements) }
 
 /**
  * [FloatSet] is a container with a [Set]-like interface designed to avoid

@@ -61,4 +61,5 @@ androidx {
     inceptionYear = "2018"
     description = "Media2 Session"
     failOnDeprecationWarnings = false
+    metalavaK2UastEnabled = true
 }

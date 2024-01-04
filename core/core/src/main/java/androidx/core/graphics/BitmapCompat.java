@@ -75,6 +75,7 @@ public final class BitmapCompat {
      * This property is only a suggestion that can be ignored by the
      * renderer. It is not guaranteed to have any effect.
      *
+     * @param bitmap bitmap for which to set the state.
      * @param hasMipMap indicates whether the renderer should attempt
      *                  to use mipmaps
      * @see Bitmap#setHasMipMap(boolean)

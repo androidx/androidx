@@ -54,7 +54,7 @@ class PerfettoTraceTest {
             // noop
         }
         assertNotNull(perfettoTrace)
-        assert(perfettoTrace!!.path.matches(Regex(".*/testTrace_[0-9-]+.perfetto-trace"))) {
+        assert(perfettoTrace!!.path.matches(Regex(".*/testTrace_[0-9_]+.perfetto-trace"))) {
             "$perfettoTrace didn't match!"
         }
     }
@@ -74,7 +74,7 @@ class PerfettoTraceTest {
             // noop
         }
         assertNotNull(perfettoTrace)
-        assert(perfettoTrace!!.path.matches(Regex(".*/${label}_[0-9-]+.perfetto-trace"))) {
+        assert(perfettoTrace!!.path.matches(Regex(".*/${label}_[0-9_]+.perfetto-trace"))) {
             "$perfettoTrace didn't match!"
         }
     }

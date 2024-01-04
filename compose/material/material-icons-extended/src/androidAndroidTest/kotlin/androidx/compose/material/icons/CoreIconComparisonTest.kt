@@ -58,7 +58,7 @@ class CoreIconComparisonTest(
             val listSize = ceil(AllCoreIcons.size / numberOfChunks.toFloat()).roundToInt()
             val subLists = AllCoreIcons.chunked(listSize)
             return subLists.mapIndexed { index, list ->
-                arrayOf(list, "${index + 1}of$numberOfChunks")
+                arrayOf(list, "${index + 1} of $numberOfChunks")
             }.toTypedArray()
         }
     }

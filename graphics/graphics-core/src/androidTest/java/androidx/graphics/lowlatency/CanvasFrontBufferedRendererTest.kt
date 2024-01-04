@@ -20,6 +20,7 @@ import android.app.UiAutomation
 import android.graphics.Canvas
 import android.graphics.Color
 import android.os.Build
+import android.view.SurfaceHolder
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
 import androidx.core.os.BuildCompat
@@ -408,6 +409,95 @@ class CanvasFrontBufferedRendererTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testClear() {
+        if (!isSupported()) {
+            return
+        }
+
+        val renderLatch = CountDownLatch(2)
+        val callbacks = object : CanvasFrontBufferedRenderer.Callback<Int> {
+
+            override fun onDrawFrontBufferedLayer(
+                canvas: Canvas,
+                bufferWidth: Int,
+                bufferHeight: Int,
+                param: Int
+            ) {
+                canvas.drawColor(param)
+            }
+
+            override fun onDrawMultiBufferedLayer(
+                canvas: Canvas,
+                bufferWidth: Int,
+                bufferHeight: Int,
+                params: Collection<Int>
+            ) {
+                for (p in params) {
+                    canvas.drawColor(p)
+                }
+            }
+
+            override fun onMultiBufferedLayerRenderComplete(
+                frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                transaction: SurfaceControlCompat.Transaction
+            ) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    transaction.addTransactionCommittedListener(
+                        Executors.newSingleThreadExecutor(),
+                        object : SurfaceControlCompat.TransactionCommittedListener {
+                            override fun onTransactionCommitted() {
+                                renderLatch.countDown()
+                            }
+                        })
+                } else {
+                    renderLatch.countDown()
+                }
+            }
+        }
+        var renderer: CanvasFrontBufferedRenderer<Int>? = null
+        var surfaceView: SurfaceView? = null
+        try {
+            val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
+                .moveToState(Lifecycle.State.CREATED)
+                .onActivity {
+                    surfaceView = it.getSurfaceView()
+                    renderer = CanvasFrontBufferedRenderer(surfaceView!!, callbacks)
+                }
+
+            scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+                with(renderer!!) {
+                    renderFrontBufferedLayer(Color.BLUE)
+                    commit()
+                    renderFrontBufferedLayer(Color.RED)
+                    clear()
+                }
+            }
+            Assert.assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
+
+            val coords = IntArray(2)
+            with(surfaceView!!) {
+                getLocationOnScreen(coords)
+            }
+
+            SurfaceControlUtils.validateOutput { bitmap ->
+                with(bitmap) {
+                    val leftQuadX = coords[0] + width / 4
+                    val rightQuadX = leftQuadX + width / 2
+                    val topQuadY = coords[1] + height / 4
+                    val bottomQuadY = topQuadY + height / 2
+                    Color.WHITE == getPixel(leftQuadX, topQuadY) &&
+                    Color.WHITE == getPixel(rightQuadX, topQuadY) &&
+                    Color.WHITE == getPixel(leftQuadX, bottomQuadY) &&
+                    Color.WHITE == getPixel(rightQuadX, bottomQuadY)
+                }
+            }
+        } finally {
+            renderer?.blockingRelease()
+        }
+    }
+
     @Ignore("b/266749527")
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
@@ -674,6 +764,102 @@ class CanvasFrontBufferedRendererTest {
             }
         } finally {
             renderer?.release(true)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testFrontBufferRenderAfterActivityResume() {
+        var renderCount = 0
+        val surfaceChangedLatch = CountDownLatch(1)
+        val renderStartLatch = CountDownLatch(1)
+        val renderCountLatch = CountDownLatch(2)
+        val callbacks = object : CanvasFrontBufferedRenderer.Callback<Any> {
+            override fun onDrawFrontBufferedLayer(
+                canvas: Canvas,
+                bufferWidth: Int,
+                bufferHeight: Int,
+                param: Any
+            ) {
+                renderStartLatch.countDown()
+                // Intentionally simulate slow rendering by waiting for a surface change callback
+                // this helps verify the scenario where a change in surface
+                // (ex Activity stop -> resume)
+                surfaceChangedLatch.await(3000, TimeUnit.MILLISECONDS)
+                renderCount++
+                renderCountLatch.countDown()
+            }
+
+            override fun onDrawMultiBufferedLayer(
+                canvas: Canvas,
+                bufferWidth: Int,
+                bufferHeight: Int,
+                params: Collection<Any>
+            ) {
+                // no-op
+            }
+        }
+        var renderer: CanvasFrontBufferedRenderer<Any>? = null
+        val stopLatch = CountDownLatch(1)
+        var testActivity: SurfaceViewTestActivity? = null
+        var surfaceView: SurfaceViewTestActivity.TestSurfaceView? = null
+        val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
+            .moveToState(Lifecycle.State.CREATED)
+            .onActivity {
+                testActivity = it
+                surfaceView = it.getSurfaceView()
+                renderer = CanvasFrontBufferedRenderer(surfaceView!!, callbacks)
+            }
+
+        scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+            renderer!!.renderFrontBufferedLayer(Any())
+        }
+        Assert.assertTrue(renderStartLatch.await(3000, TimeUnit.MILLISECONDS))
+        // Go back to the Activity stop state to simulate an application moving to the background
+        scenario.moveToState(Lifecycle.State.CREATED).onActivity {
+            stopLatch.countDown()
+        }
+
+        Assert.assertTrue(stopLatch.await(3000, TimeUnit.MILLISECONDS))
+        surfaceView!!.holder.addCallback(object : SurfaceHolder.Callback {
+
+            override fun surfaceCreated(holder: SurfaceHolder) {
+                // NO-OP
+            }
+
+            override fun surfaceChanged(
+                holder: SurfaceHolder,
+                format: Int,
+                width: Int,
+                height: Int
+            ) {
+                // On Activity resume, a surface change callback will be invoked. At this point
+                // a render is still happening. After this is signalled the render will complete
+                // and the release callback will be invoked after we are tearing down/ recreating
+                // the front buffered renderer state.
+                surfaceChangedLatch.countDown()
+            }
+
+            override fun surfaceDestroyed(holder: SurfaceHolder) {
+                // NO-OP
+            }
+        })
+
+        scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+            renderer!!.renderFrontBufferedLayer(Any())
+        }
+
+        try {
+            // Verify that after resuming, we did not unintentionally release the newly created
+            // front buffered renderer and the subsequent render request does occur
+            Assert.assertTrue(renderCountLatch.await(3000, TimeUnit.MILLISECONDS))
+            Assert.assertEquals(2, renderCount)
+        } finally {
+            renderer?.release(true)
+            val destroyLatch = CountDownLatch(1)
+            testActivity!!.setOnDestroyCallback { destroyLatch.countDown() }
+            scenario.moveToState(Lifecycle.State.DESTROYED)
+            Assert.assertTrue(destroyLatch.await(3000, TimeUnit.MILLISECONDS))
         }
     }
 

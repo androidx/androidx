@@ -34,7 +34,9 @@ import androidx.work.WorkerParameters
 import androidx.work.testing.TestListenableWorkerBuilder
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertIs
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlin.time.Duration
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -44,7 +46,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
 class SessionWorkerTest {
     private val sessionManager = TestSessionManager()
@@ -155,6 +156,35 @@ class SessionWorkerTest {
         }
         sessionManager.closeSession()
     }
+
+    @Test
+    fun sessionWorkerCancelsProcessingWhenRecomposerStateChanges() = runTest {
+        launch {
+            val result = worker.doWork()
+            assertThat(result).isEqualTo(Result.success())
+        }
+
+        val state = mutableStateOf("Hello World")
+        val uiFlow = sessionManager.startDelayedProcessingSession(context) {
+            Text(state.value)
+        }
+        uiFlow.first().let { root ->
+            val text = assertIs<EmittableText>(root.children.single())
+            assertThat(text.text).isEqualTo("Hello World")
+        }
+
+        // Changing the value triggers recomposition, which should cancel the currently running call
+        // to processEmittableTree.
+        state.value = "Hello Earth"
+        uiFlow.first().let { root ->
+            val text = assertIs<EmittableText>(root.children.single())
+            assertThat(text.text).isEqualTo("Hello Earth")
+        }
+
+        val session = assertIs<TestSession>(sessionManager.getSession(SESSION_KEY))
+        assertThat(session.processEmittableTreeCancelCount).isEqualTo(1)
+        sessionManager.closeSession()
+    }
 }
 
 private const val SESSION_KEY = "123"
@@ -167,6 +197,20 @@ class TestSessionManager : SessionManager {
         content: @GlanceComposable @Composable () -> Unit = {}
     ) = MutableSharedFlow<EmittableWithChildren>().also { flow ->
         startSession(context, TestSession(onUiFlow = flow, content = content))
+    }
+
+    suspend fun startDelayedProcessingSession(
+        context: Context,
+        content: @GlanceComposable @Composable () -> Unit = {}
+    ) = MutableSharedFlow<EmittableWithChildren>().also { flow ->
+        startSession(
+            context,
+            TestSession(
+                onUiFlow = flow,
+                content = content,
+                processEmittableTreeHasInfiniteDelay = true,
+            )
+        )
     }
 
     suspend fun closeSession() {
@@ -192,6 +236,7 @@ class TestSession(
     key: String = SESSION_KEY,
     val onUiFlow: MutableSharedFlow<EmittableWithChildren>? = null,
     val content: @GlanceComposable @Composable () -> Unit = {},
+    var processEmittableTreeHasInfiniteDelay: Boolean = false,
 ) : Session(key) {
     override fun createRootEmittable() = object : EmittableWithChildren() {
         override var modifier: GlanceModifier = GlanceModifier
@@ -207,11 +252,19 @@ class TestSession(
         return content
     }
 
+    var processEmittableTreeCancelCount = 0
     override suspend fun processEmittableTree(
         context: Context,
         root: EmittableWithChildren
     ): Boolean {
         onUiFlow?.emit(root)
+        try {
+            if (processEmittableTreeHasInfiniteDelay) {
+                delay(Duration.INFINITE)
+            }
+        } catch (e: CancellationException) {
+            processEmittableTreeCancelCount++
+        }
         return true
     }
 

@@ -29,7 +29,7 @@ class SetComposingRegionCommandTest {
     fun test_set() {
         val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
-        eb.update(SetComposingRegionCommand(1, 4))
+        eb.setComposingRegion(1, 4)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
         assertThat(eb.cursor).isEqualTo(0)
@@ -44,7 +44,7 @@ class SetComposingRegionCommandTest {
 
         eb.setComposition(1, 3)
 
-        eb.update(SetComposingRegionCommand(2, 4))
+        eb.setComposingRegion(2, 4)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
         assertThat(eb.cursor).isEqualTo(0)
@@ -57,7 +57,7 @@ class SetComposingRegionCommandTest {
     fun test_preserve_selection() {
         val eb = EditingBuffer("ABCDE", TextRange(1, 4))
 
-        eb.update(SetComposingRegionCommand(2, 4))
+        eb.setComposingRegion(2, 4)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
         assertThat(eb.selectionStart).isEqualTo(1)
@@ -71,7 +71,7 @@ class SetComposingRegionCommandTest {
     fun test_set_reversed() {
         val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
-        eb.update(SetComposingRegionCommand(4, 1))
+        eb.setComposingRegion(4, 1)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
         assertThat(eb.cursor).isEqualTo(0)
@@ -84,7 +84,7 @@ class SetComposingRegionCommandTest {
     fun test_set_too_small() {
         val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
-        eb.update(SetComposingRegionCommand(-1000, -1000))
+        eb.setComposingRegion(-1000, -1000)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
         assertThat(eb.cursor).isEqualTo(0)
@@ -95,7 +95,7 @@ class SetComposingRegionCommandTest {
     fun test_set_too_large() {
         val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
-        eb.update(SetComposingRegionCommand(1000, 1000))
+        eb.setComposingRegion(1000, 1000)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
         assertThat(eb.cursor).isEqualTo(0)
@@ -106,7 +106,7 @@ class SetComposingRegionCommandTest {
     fun test_set_too_small_and_too_large() {
         val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
-        eb.update(SetComposingRegionCommand(-1000, 1000))
+        eb.setComposingRegion(-1000, 1000)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
         assertThat(eb.cursor).isEqualTo(0)
@@ -119,7 +119,7 @@ class SetComposingRegionCommandTest {
     fun test_set_too_small_and_too_large_reversed() {
         val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
-        eb.update(SetComposingRegionCommand(1000, -1000))
+        eb.setComposingRegion(1000, -1000)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
         assertThat(eb.cursor).isEqualTo(0)

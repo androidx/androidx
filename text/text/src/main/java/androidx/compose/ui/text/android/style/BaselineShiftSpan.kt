@@ -18,15 +18,11 @@ package androidx.compose.ui.text.android.style
 
 import android.text.TextPaint
 import android.text.style.MetricAffectingSpan
-import androidx.compose.ui.text.android.InternalPlatformTextApi
 import kotlin.math.ceil
 
 /**
  * Span which shifts the vertical position of baseline.
- *
- * @suppress
  */
-@InternalPlatformTextApi
 internal open class BaselineShiftSpan(val multiplier: Float) : MetricAffectingSpan() {
 
     override fun updateMeasureState(textPaint: TextPaint) {

@@ -1,0 +1,2956 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="AppAction.newBuilder can only be called from within the same library (:)"
+        errorLine1="    ): AppAction = AppAction.newBuilder()"
+        errorLine2="                             ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/spec/ActionSpecImpl.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setName can only be called from within the same library (:)"
+        errorLine1="            .setName(capabilityName)"
+        errorLine2="             ~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/spec/ActionSpecImpl.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setIdentifier can only be called from within the same library (:)"
+        errorLine1="            .setIdentifier(identifier)"
+        errorLine2="             ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/spec/ActionSpecImpl.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.addAllParams can only be called from within the same library (:)"
+        errorLine1="            .addAllParams("
+        errorLine2="             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/spec/ActionSpecImpl.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setTaskInfo can only be called from within the same library (:)"
+        errorLine1="            .setTaskInfo("
+        errorLine2="             ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/spec/ActionSpecImpl.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setSupportsPartialFulfillment can only be called from within the same library (:)"
+        errorLine1="                TaskInfo.newBuilder().setSupportsPartialFulfillment(supportsPartialFulfillment)"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/spec/ActionSpecImpl.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="TaskInfo.newBuilder can only be called from within the same library (:)"
+        errorLine1="                TaskInfo.newBuilder().setSupportsPartialFulfillment(supportsPartialFulfillment)"
+        errorLine2="                         ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/spec/ActionSpecImpl.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="StructuredOutput.newBuilder can only be called from within the same library (:)"
+        errorLine1="        val outputBuilder = FulfillmentResponse.StructuredOutput.newBuilder()"
+        errorLine2="                                                                 ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/spec/ActionSpecImpl.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.addOutputValues can only be called from within the same library (:)"
+        errorLine1="                outputBuilder.addOutputValues("
+        errorLine2="                              ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/spec/ActionSpecImpl.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="OutputValue.newBuilder can only be called from within the same library (:)"
+        errorLine1="                    FulfillmentResponse.StructuredOutput.OutputValue.newBuilder()"
+        errorLine2="                                                                     ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/spec/ActionSpecImpl.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setName can only be called from within the same library (:)"
+        errorLine1="                        .setName(entry.key)"
+        errorLine2="                         ~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/spec/ActionSpecImpl.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.addAllValues can only be called from within the same library (:)"
+        errorLine1="                        .addAllValues(paramValues)"
+        errorLine2="                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/spec/ActionSpecImpl.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Fulfillment.getType can only be called from within the same library (:)"
+        errorLine1="                fulfillment.type == Fulfillment.Type.UNKNOWN_TYPE ||"
+        errorLine2="                            ~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/ArgumentsWrapper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Fulfillment.getType can only be called from within the same library (:)"
+        errorLine1="                fulfillment.type == Fulfillment.Type.UNKNOWN_TYPE ||"
+        errorLine2="                            ~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/ArgumentsWrapper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Type.UNKNOWN_TYPE can only be accessed from within the same library (:)"
+        errorLine1="                fulfillment.type == Fulfillment.Type.UNKNOWN_TYPE ||"
+        errorLine2="                                                     ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/ArgumentsWrapper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Fulfillment.getType can only be called from within the same library (:)"
+        errorLine1="                fulfillment.type == Fulfillment.Type.UNRECOGNIZED"
+        errorLine2="                            ~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/ArgumentsWrapper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Fulfillment.getType can only be called from within the same library (:)"
+        errorLine1="                fulfillment.type == Fulfillment.Type.UNRECOGNIZED"
+        errorLine2="                            ~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/ArgumentsWrapper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Type.UNRECOGNIZED can only be accessed from within the same library (:)"
+        errorLine1="                fulfillment.type == Fulfillment.Type.UNRECOGNIZED"
+        errorLine2="                                                     ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/ArgumentsWrapper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Fulfillment.getSyncStatus can only be called from within the same library (:)"
+        errorLine1="                RequestMetadata(fulfillment.type, fulfillment.syncStatus)"
+        errorLine2="                                                              ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/ArgumentsWrapper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Fulfillment.getSyncStatus can only be called from within the same library (:)"
+        errorLine1="                RequestMetadata(fulfillment.type, fulfillment.syncStatus)"
+        errorLine2="                                                              ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/ArgumentsWrapper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Fulfillment.getType can only be called from within the same library (:)"
+        errorLine1="                RequestMetadata(fulfillment.type, fulfillment.syncStatus)"
+        errorLine2="                                            ~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/ArgumentsWrapper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Fulfillment.getType can only be called from within the same library (:)"
+        errorLine1="                RequestMetadata(fulfillment.type, fulfillment.syncStatus)"
+        errorLine2="                                            ~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/ArgumentsWrapper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Fulfillment.getParamsList can only be called from within the same library (:)"
+        errorLine1="            for (fp in fulfillment.paramsList) {"
+        errorLine2="                                   ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/ArgumentsWrapper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Fulfillment.getParamsList can only be called from within the same library (:)"
+        errorLine1="            for (fp in fulfillment.paramsList) {"
+        errorLine2="                                   ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/ArgumentsWrapper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FulfillmentParam.getFulfillmentValuesList can only be called from within the same library (:)"
+        errorLine1="                result[fp.name] = fp.fulfillmentValuesList"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/ArgumentsWrapper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FulfillmentParam.getFulfillmentValuesList can only be called from within the same library (:)"
+        errorLine1="                result[fp.name] = fp.fulfillmentValuesList"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/ArgumentsWrapper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FulfillmentParam.getName can only be called from within the same library (:)"
+        errorLine1="                result[fp.name] = fp.fulfillmentValuesList"
+        errorLine2="                          ~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/ArgumentsWrapper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FulfillmentParam.getName can only be called from within the same library (:)"
+        errorLine1="                result[fp.name] = fp.fulfillmentValuesList"
+        errorLine2="                          ~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/ArgumentsWrapper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="IntentParameter.newBuilder can only be called from within the same library (:)"
+        errorLine1="        val builder = IntentParameter.newBuilder()"
+        errorLine2="                                      ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/spec/BoundProperty.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setName can only be called from within the same library (:)"
+        errorLine1="            .setName(slotName)"
+        errorLine2="             ~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/spec/BoundProperty.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setIsRequired can only be called from within the same library (:)"
+        errorLine1="            .setIsRequired(property.isRequiredForExecution)"
+        errorLine2="             ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/spec/BoundProperty.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setEntityMatchRequired can only be called from within the same library (:)"
+        errorLine1="            .setEntityMatchRequired(property.shouldMatchPossibleValues)"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/spec/BoundProperty.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setIsProhibited can only be called from within the same library (:)"
+        errorLine1="            .setIsProhibited(!property.isSupported)"
+        errorLine2="             ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/spec/BoundProperty.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.addPossibleEntities can only be called from within the same library (:)"
+        errorLine1="            builder.addPossibleEntities(it)"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/spec/BoundProperty.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setIdentifier can only be called from within the same library (:)"
+        errorLine1="                typeSpec.getIdentifier(obj)?.let { builder.setIdentifier(it) }"
+        errorLine2="                                                           ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/EntityConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setIdentifier can only be called from within the same library (:)"
+        errorLine1="                typeSpec.getIdentifier(obj)?.let { builder.setIdentifier(it) }"
+        errorLine2="                                                           ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/EntityConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Entity.newBuilder can only be called from within the same library (:)"
+        errorLine1="            val builder = Entity.newBuilder()"
+        errorLine2="                                 ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/EntityConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setStringValue can only be called from within the same library (:)"
+        errorLine1="                value.hasStringValue() -> builder.stringValue = value.stringValue"
+        errorLine2="                                                  ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/EntityConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setStringValue can only be called from within the same library (:)"
+        errorLine1="                value.hasStringValue() -> builder.stringValue = value.stringValue"
+        errorLine2="                                                  ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/EntityConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setBoolValue can only be called from within the same library (:)"
+        errorLine1="                value.hasBoolValue() -> builder.boolValue = value.boolValue"
+        errorLine2="                                                ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/EntityConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setBoolValue can only be called from within the same library (:)"
+        errorLine1="                value.hasBoolValue() -> builder.boolValue = value.boolValue"
+        errorLine2="                                                ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/EntityConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setNumberValue can only be called from within the same library (:)"
+        errorLine1="                value.hasNumberValue() -> builder.numberValue = value.numberValue"
+        errorLine2="                                                  ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/EntityConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setNumberValue can only be called from within the same library (:)"
+        errorLine1="                value.hasNumberValue() -> builder.numberValue = value.numberValue"
+        errorLine2="                                                  ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/EntityConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setStructValue can only be called from within the same library (:)"
+        errorLine1="                value.hasStructValue() -> builder.structValue = value.structValue"
+        errorLine2="                                                  ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/EntityConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setStructValue can only be called from within the same library (:)"
+        errorLine1="                value.hasStructValue() -> builder.structValue = value.structValue"
+        errorLine2="                                                  ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/EntityConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="GroundingRequest.getRequest can only be called from within the same library (:)"
+        errorLine1="                converter.toSearchAction(request.request.searchAction)"
+        errorLine2="                                                 ~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/entity/EntityProvider.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="GroundingRequest.getRequest can only be called from within the same library (:)"
+        errorLine1="                converter.toSearchAction(request.request.searchAction)"
+        errorLine2="                                                 ~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/entity/EntityProvider.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Request.getSearchAction can only be called from within the same library (:)"
+        errorLine1="                converter.toSearchAction(request.request.searchAction)"
+        errorLine2="                                                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/entity/EntityProvider.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Request.getSearchAction can only be called from within the same library (:)"
+        errorLine1="                converter.toSearchAction(request.request.searchAction)"
+        errorLine2="                                                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/entity/EntityProvider.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Status.INVALID_ENTITY_ARGUMENT can only be accessed from within the same library (:)"
+        errorLine1="                return createResponse(GroundingResponse.Status.INVALID_ENTITY_ARGUMENT)"
+        errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/entity/EntityProvider.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="GroundingRequest.getRequest can only be called from within the same library (:)"
+        errorLine1="                .setPageSize(request.request.pageSize)"
+        errorLine2="                                     ~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/entity/EntityProvider.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="GroundingRequest.getRequest can only be called from within the same library (:)"
+        errorLine1="                .setPageSize(request.request.pageSize)"
+        errorLine2="                                     ~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/entity/EntityProvider.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Request.getPageSize can only be called from within the same library (:)"
+        errorLine1="                .setPageSize(request.request.pageSize)"
+        errorLine2="                                             ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/entity/EntityProvider.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Request.getPageSize can only be called from within the same library (:)"
+        errorLine1="                .setPageSize(request.request.pageSize)"
+        errorLine2="                                             ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/entity/EntityProvider.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="GroundingRequest.getRequest can only be called from within the same library (:)"
+        errorLine1="                .setPageToken(request.request.pageToken)"
+        errorLine2="                                      ~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/entity/EntityProvider.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="GroundingRequest.getRequest can only be called from within the same library (:)"
+        errorLine1="                .setPageToken(request.request.pageToken)"
+        errorLine2="                                      ~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/entity/EntityProvider.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Request.getPageToken can only be called from within the same library (:)"
+        errorLine1="                .setPageToken(request.request.pageToken)"
+        errorLine2="                                              ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/entity/EntityProvider.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Request.getPageToken can only be called from within the same library (:)"
+        errorLine1="                .setPageToken(request.request.pageToken)"
+        errorLine2="                                              ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/entity/EntityProvider.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="GroundingResponse.newBuilder can only be called from within the same library (:)"
+        errorLine1="        return GroundingResponse.newBuilder()"
+        errorLine2="                                 ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/entity/EntityProvider.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setResponse can only be called from within the same library (:)"
+        errorLine1="            .setResponse(GroundingResponse.Response.newBuilder().setStatus(status))"
+        errorLine2="             ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/entity/EntityProvider.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setStatus can only be called from within the same library (:)"
+        errorLine1="            .setResponse(GroundingResponse.Response.newBuilder().setStatus(status))"
+        errorLine2="                                                                 ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/entity/EntityProvider.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Response.newBuilder can only be called from within the same library (:)"
+        errorLine1="            .setResponse(GroundingResponse.Response.newBuilder().setStatus(status))"
+        errorLine2="                                                    ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/entity/EntityProvider.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setStatus can only be called from within the same library (:)"
+        errorLine1="            GroundingResponse.Response.newBuilder().setStatus(GroundingResponse.Status.SUCCESS)"
+        errorLine2="                                                    ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/entity/EntityProvider.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Response.newBuilder can only be called from within the same library (:)"
+        errorLine1="            GroundingResponse.Response.newBuilder().setStatus(GroundingResponse.Status.SUCCESS)"
+        errorLine2="                                       ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/entity/EntityProvider.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Status.SUCCESS can only be accessed from within the same library (:)"
+        errorLine1="            GroundingResponse.Response.newBuilder().setStatus(GroundingResponse.Status.SUCCESS)"
+        errorLine2="                                                                                       ~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/entity/EntityProvider.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.addCandidates can only be called from within the same library (:)"
+        errorLine1="            builder.addCandidates("
+        errorLine2="                    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/entity/EntityProvider.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Candidate.newBuilder can only be called from within the same library (:)"
+        errorLine1="                GroundingResponse.Candidate.newBuilder()"
+        errorLine2="                                            ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/entity/EntityProvider.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setGroundedEntity can only be called from within the same library (:)"
+        errorLine1="                    .setGroundedEntity("
+        errorLine2="                     ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/entity/EntityProvider.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setResponse can only be called from within the same library (:)"
+        errorLine1="        return GroundingResponse.newBuilder().setResponse(builder.build()).build()"
+        errorLine2="                                              ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/entity/EntityProvider.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="GroundingResponse.newBuilder can only be called from within the same library (:)"
+        errorLine1="        return GroundingResponse.newBuilder().setResponse(builder.build()).build()"
+        errorLine2="                                 ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/entity/EntityProvider.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Status.CANCELED can only be accessed from within the same library (:)"
+        errorLine1="            EntityLookupResponse.CANCELED -> GroundingResponse.Status.CANCELED"
+        errorLine2="                                                                      ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/entity/EntityProvider.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Status.INVALID_PAGE_TOKEN can only be accessed from within the same library (:)"
+        errorLine1="            EntityLookupResponse.INVALID_PAGE_TOKEN -> GroundingResponse.Status.INVALID_PAGE_TOKEN"
+        errorLine2="                                                                                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/entity/EntityProvider.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Status.TIMEOUT can only be accessed from within the same library (:)"
+        errorLine1="            EntityLookupResponse.TIMEOUT -> GroundingResponse.Status.TIMEOUT"
+        errorLine2="                                                                     ~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/entity/EntityProvider.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Status.DEFAULT_UNKNOWN can only be accessed from within the same library (:)"
+        errorLine1="            else -> GroundingResponse.Status.DEFAULT_UNKNOWN"
+        errorLine2="                                             ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/entity/EntityProvider.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setIdentifier can only be called from within the same library (:)"
+        errorLine1="                typeSpec.getIdentifier(obj)?.let { builder.setIdentifier(it) }"
+        errorLine2="                                                           ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/ParamValueConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setIdentifier can only be called from within the same library (:)"
+        errorLine1="                typeSpec.getIdentifier(obj)?.let { builder.setIdentifier(it) }"
+        errorLine2="                                                           ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/ParamValueConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getStringValue can only be called from within the same library (:)"
+        errorLine1="                paramValue.hasStringValue() -> builder.stringValue = paramValue.stringValue"
+        errorLine2="                                                                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/ParamValueConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getStringValue can only be called from within the same library (:)"
+        errorLine1="                paramValue.hasStringValue() -> builder.stringValue = paramValue.stringValue"
+        errorLine2="                                                                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/ParamValueConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getStringValue can only be called from within the same library (:)"
+        errorLine1="                paramValue.hasStringValue() -> builder.stringValue = paramValue.stringValue"
+        errorLine2="                                                                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/ParamValueConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getStringValue can only be called from within the same library (:)"
+        errorLine1="                paramValue.hasStringValue() -> builder.stringValue = paramValue.stringValue"
+        errorLine2="                                                                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/ParamValueConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.hasStringValue can only be called from within the same library (:)"
+        errorLine1="                paramValue.hasStringValue() -> builder.stringValue = paramValue.stringValue"
+        errorLine2="                           ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/ParamValueConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getBoolValue can only be called from within the same library (:)"
+        errorLine1="                paramValue.hasBoolValue() -> builder.boolValue = paramValue.boolValue"
+        errorLine2="                                                                            ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/ParamValueConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getBoolValue can only be called from within the same library (:)"
+        errorLine1="                paramValue.hasBoolValue() -> builder.boolValue = paramValue.boolValue"
+        errorLine2="                                                                            ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/ParamValueConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getBoolValue can only be called from within the same library (:)"
+        errorLine1="                paramValue.hasBoolValue() -> builder.boolValue = paramValue.boolValue"
+        errorLine2="                                                                            ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/ParamValueConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getBoolValue can only be called from within the same library (:)"
+        errorLine1="                paramValue.hasBoolValue() -> builder.boolValue = paramValue.boolValue"
+        errorLine2="                                                                            ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/ParamValueConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.hasBoolValue can only be called from within the same library (:)"
+        errorLine1="                paramValue.hasBoolValue() -> builder.boolValue = paramValue.boolValue"
+        errorLine2="                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/ParamValueConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getNumberValue can only be called from within the same library (:)"
+        errorLine1="                paramValue.hasNumberValue() -> builder.numberValue = paramValue.numberValue"
+        errorLine2="                                                                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/ParamValueConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getNumberValue can only be called from within the same library (:)"
+        errorLine1="                paramValue.hasNumberValue() -> builder.numberValue = paramValue.numberValue"
+        errorLine2="                                                                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/ParamValueConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getNumberValue can only be called from within the same library (:)"
+        errorLine1="                paramValue.hasNumberValue() -> builder.numberValue = paramValue.numberValue"
+        errorLine2="                                                                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/ParamValueConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getNumberValue can only be called from within the same library (:)"
+        errorLine1="                paramValue.hasNumberValue() -> builder.numberValue = paramValue.numberValue"
+        errorLine2="                                                                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/ParamValueConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.hasNumberValue can only be called from within the same library (:)"
+        errorLine1="                paramValue.hasNumberValue() -> builder.numberValue = paramValue.numberValue"
+        errorLine2="                           ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/ParamValueConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getStructValue can only be called from within the same library (:)"
+        errorLine1="                paramValue.hasStructValue() -> builder.structValue = paramValue.structValue"
+        errorLine2="                                                                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/ParamValueConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getStructValue can only be called from within the same library (:)"
+        errorLine1="                paramValue.hasStructValue() -> builder.structValue = paramValue.structValue"
+        errorLine2="                                                                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/ParamValueConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getStructValue can only be called from within the same library (:)"
+        errorLine1="                paramValue.hasStructValue() -> builder.structValue = paramValue.structValue"
+        errorLine2="                                                                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/ParamValueConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getStructValue can only be called from within the same library (:)"
+        errorLine1="                paramValue.hasStructValue() -> builder.structValue = paramValue.structValue"
+        errorLine2="                                                                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/ParamValueConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.hasStructValue can only be called from within the same library (:)"
+        errorLine1="                paramValue.hasStructValue() -> builder.structValue = paramValue.structValue"
+        errorLine2="                           ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/ParamValueConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.newBuilder can only be called from within the same library (:)"
+        errorLine1="            val builder = ParamValue.newBuilder()"
+        errorLine2="                                     ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/ParamValueConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setStringValue can only be called from within the same library (:)"
+        errorLine1="                value.hasStringValue() -> builder.stringValue = value.stringValue"
+        errorLine2="                                                  ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/ParamValueConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setStringValue can only be called from within the same library (:)"
+        errorLine1="                value.hasStringValue() -> builder.stringValue = value.stringValue"
+        errorLine2="                                                  ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/ParamValueConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setBoolValue can only be called from within the same library (:)"
+        errorLine1="                value.hasBoolValue() -> builder.boolValue = value.boolValue"
+        errorLine2="                                                ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/ParamValueConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setBoolValue can only be called from within the same library (:)"
+        errorLine1="                value.hasBoolValue() -> builder.boolValue = value.boolValue"
+        errorLine2="                                                ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/ParamValueConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setNumberValue can only be called from within the same library (:)"
+        errorLine1="                value.hasNumberValue() -> builder.numberValue = value.numberValue"
+        errorLine2="                                                  ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/ParamValueConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setNumberValue can only be called from within the same library (:)"
+        errorLine1="                value.hasNumberValue() -> builder.numberValue = value.numberValue"
+        errorLine2="                                                  ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/ParamValueConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setStructValue can only be called from within the same library (:)"
+        errorLine1="                value.hasStructValue() -> builder.structValue = value.structValue"
+        errorLine2="                                                  ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/ParamValueConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setStructValue can only be called from within the same library (:)"
+        errorLine1="                value.hasStructValue() -> builder.structValue = value.structValue"
+        errorLine2="                                                  ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/ParamValueConverter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FulfillmentValue.getValue can only be called from within the same library (:)"
+        errorLine1="            argumentsWrapper.paramValues.mapValues { entry -> entry.value.mapNotNull { it.value } }"
+        errorLine2="                                                                                          ~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/SingleTurnCapabilitySession.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FulfillmentValue.getValue can only be called from within the same library (:)"
+        errorLine1="            argumentsWrapper.paramValues.mapValues { entry -> entry.value.mapNotNull { it.value } }"
+        errorLine2="                                                                                          ~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/SingleTurnCapabilitySession.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setStartDictation can only be called from within the same library (:)"
+        errorLine1="            FulfillmentResponse.newBuilder().setStartDictation(executionResult.shouldStartDictation)"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/SingleTurnCapabilitySession.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FulfillmentResponse.newBuilder can only be called from within the same library (:)"
+        errorLine1="            FulfillmentResponse.newBuilder().setStartDictation(executionResult.shouldStartDictation)"
+        errorLine2="                                ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/SingleTurnCapabilitySession.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setExecutionOutput can only be called from within the same library (:)"
+        errorLine1="            fulfillmentResponseBuilder.setExecutionOutput("
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/SingleTurnCapabilitySession.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="IntentParameter.getIsRequired can only be called from within the same library (:)"
+        errorLine1="    ) = paramsList.filter { it.isRequired }.map { it.name }.all { finalArguments.containsKey(it) }"
+        errorLine2="                               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="IntentParameter.getIsRequired can only be called from within the same library (:)"
+        errorLine1="    ) = paramsList.filter { it.isRequired }.map { it.name }.all { finalArguments.containsKey(it) }"
+        errorLine2="                               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="IntentParameter.getName can only be called from within the same library (:)"
+        errorLine1="    ) = paramsList.filter { it.isRequired }.map { it.name }.all { finalArguments.containsKey(it) }"
+        errorLine2="                                                     ~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="IntentParameter.getName can only be called from within the same library (:)"
+        errorLine1="    ) = paramsList.filter { it.isRequired }.map { it.name }.all { finalArguments.containsKey(it) }"
+        errorLine2="                                                     ~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setValue can only be called from within the same library (:)"
+        errorLine1="            FulfillmentRequest.Fulfillment.FulfillmentValue.newBuilder().setValue(it).build()"
+        errorLine2="                                                                         ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FulfillmentValue.newBuilder can only be called from within the same library (:)"
+        errorLine1="            FulfillmentRequest.Fulfillment.FulfillmentValue.newBuilder().setValue(it).build()"
+        errorLine2="                                                            ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setStatus can only be called from within the same library (:)"
+        errorLine1="        CurrentValue.newBuilder().setValue(paramValue).setStatus(status).build()"
+        errorLine2="                                                       ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setValue can only be called from within the same library (:)"
+        errorLine1="        CurrentValue.newBuilder().setValue(paramValue).setStatus(status).build()"
+        errorLine2="                                  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.newBuilder can only be called from within the same library (:)"
+        errorLine1="        CurrentValue.newBuilder().setValue(paramValue).setStatus(status).build()"
+        errorLine2="                     ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.newBuilder can only be called from within the same library (:)"
+        errorLine1="        val result = CurrentValue.newBuilder()"
+        errorLine2="                                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FulfillmentValue.hasValue can only be called from within the same library (:)"
+        errorLine1="        if (fulfillmentValue.hasValue()) {"
+        errorLine2="                             ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setValue can only be called from within the same library (:)"
+        errorLine1="            result.value = fulfillmentValue.value"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setValue can only be called from within the same library (:)"
+        errorLine1="            result.value = fulfillmentValue.value"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FulfillmentValue.getValue can only be called from within the same library (:)"
+        errorLine1="            result.value = fulfillmentValue.value"
+        errorLine2="                                            ~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FulfillmentValue.getValue can only be called from within the same library (:)"
+        errorLine1="            result.value = fulfillmentValue.value"
+        errorLine2="                                            ~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FulfillmentValue.getValue can only be called from within the same library (:)"
+        errorLine1="            result.value = fulfillmentValue.value"
+        errorLine2="                                            ~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FulfillmentValue.getValue can only be called from within the same library (:)"
+        errorLine1="            result.value = fulfillmentValue.value"
+        errorLine2="                                            ~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FulfillmentValue.hasDisambigData can only be called from within the same library (:)"
+        errorLine1="        if (fulfillmentValue.hasDisambigData()) {"
+        errorLine2="                             ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setDisambiguationData can only be called from within the same library (:)"
+        errorLine1="            result.disambiguationData = fulfillmentValue.disambigData"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setDisambiguationData can only be called from within the same library (:)"
+        errorLine1="            result.disambiguationData = fulfillmentValue.disambigData"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FulfillmentValue.getDisambigData can only be called from within the same library (:)"
+        errorLine1="            result.disambiguationData = fulfillmentValue.disambigData"
+        errorLine2="                                                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FulfillmentValue.getDisambigData can only be called from within the same library (:)"
+        errorLine1="            result.disambiguationData = fulfillmentValue.disambigData"
+        errorLine2="                                                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FulfillmentValue.getDisambigData can only be called from within the same library (:)"
+        errorLine1="            result.disambiguationData = fulfillmentValue.disambigData"
+        errorLine2="                                                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FulfillmentValue.getDisambigData can only be called from within the same library (:)"
+        errorLine1="            result.disambiguationData = fulfillmentValue.disambigData"
+        errorLine2="                                                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setStatus can only be called from within the same library (:)"
+        errorLine1="        return result.setStatus(status).build()"
+        errorLine2="                      ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Entity.hasStructValue can only be called from within the same library (:)"
+        errorLine1="        if (groundedEntity.hasStructValue())"
+        errorLine2="                           ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.newBuilder can only be called from within the same library (:)"
+        errorLine1="            ParamValue.newBuilder()"
+        errorLine2="                       ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setIdentifier can only be called from within the same library (:)"
+        errorLine1="                .setIdentifier(groundedEntity.identifier)"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Entity.getIdentifier can only be called from within the same library (:)"
+        errorLine1="                .setIdentifier(groundedEntity.identifier)"
+        errorLine2="                                              ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Entity.getIdentifier can only be called from within the same library (:)"
+        errorLine1="                .setIdentifier(groundedEntity.identifier)"
+        errorLine2="                                              ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setStructValue can only be called from within the same library (:)"
+        errorLine1="                .setStructValue(groundedEntity.structValue)"
+        errorLine2="                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Entity.getStructValue can only be called from within the same library (:)"
+        errorLine1="                .setStructValue(groundedEntity.structValue)"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Entity.getStructValue can only be called from within the same library (:)"
+        errorLine1="                .setStructValue(groundedEntity.structValue)"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.newBuilder can only be called from within the same library (:)"
+        errorLine1="            ParamValue.newBuilder()"
+        errorLine2="                       ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setIdentifier can only be called from within the same library (:)"
+        errorLine1="                .setIdentifier(groundedEntity.identifier)"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Entity.getIdentifier can only be called from within the same library (:)"
+        errorLine1="                .setIdentifier(groundedEntity.identifier)"
+        errorLine2="                                              ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Entity.getIdentifier can only be called from within the same library (:)"
+        errorLine1="                .setIdentifier(groundedEntity.identifier)"
+        errorLine2="                                              ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setStringValue can only be called from within the same library (:)"
+        errorLine1="                .setStringValue(groundedEntity.name)"
+        errorLine2="                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Entity.getName can only be called from within the same library (:)"
+        errorLine1="                .setStringValue(groundedEntity.name)"
+        errorLine2="                                               ~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Entity.getName can only be called from within the same library (:)"
+        errorLine1="                .setStringValue(groundedEntity.name)"
+        errorLine2="                                               ~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.newBuilder can only be called from within the same library (:)"
+        errorLine1="        CurrentValue.newBuilder()"
+        errorLine2="                     ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setValue can only be called from within the same library (:)"
+        errorLine1="            .setValue(paramValue)"
+        errorLine2="             ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setStatus can only be called from within the same library (:)"
+        errorLine1="            .setStatus(CurrentValue.Status.DISAMBIG)"
+        errorLine2="             ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Status.DISAMBIG can only be accessed from within the same library (:)"
+        errorLine1="            .setStatus(CurrentValue.Status.DISAMBIG)"
+        errorLine2="                                           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setDisambiguationData can only be called from within the same library (:)"
+        errorLine1="            .setDisambiguationData("
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.addAllEntities can only be called from within the same library (:)"
+        errorLine1="                DisambiguationData.newBuilder().addAllEntities(disambiguationEntities)"
+        errorLine2="                                                ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="DisambiguationData.newBuilder can only be called from within the same library (:)"
+        errorLine1="                DisambiguationData.newBuilder().addAllEntities(disambiguationEntities)"
+        errorLine2="                                   ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getValueCase can only be called from within the same library (:)"
+        errorLine1="        if (oldArg.valueCase.number != newArg.valueCase.number) {"
+        errorLine2="                   ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getValueCase can only be called from within the same library (:)"
+        errorLine1="        if (oldArg.valueCase.number != newArg.valueCase.number) {"
+        errorLine2="                   ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getValueCase can only be called from within the same library (:)"
+        errorLine1="        if (oldArg.valueCase.number != newArg.valueCase.number) {"
+        errorLine2="                                              ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getValueCase can only be called from within the same library (:)"
+        errorLine1="        if (oldArg.valueCase.number != newArg.valueCase.number) {"
+        errorLine2="                                              ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ValueCase.getNumber can only be called from within the same library (:)"
+        errorLine1="        if (oldArg.valueCase.number != newArg.valueCase.number) {"
+        errorLine2="                             ~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ValueCase.getNumber can only be called from within the same library (:)"
+        errorLine1="        if (oldArg.valueCase.number != newArg.valueCase.number) {"
+        errorLine2="                             ~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ValueCase.getNumber can only be called from within the same library (:)"
+        errorLine1="        if (oldArg.valueCase.number != newArg.valueCase.number) {"
+        errorLine2="                                                        ~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ValueCase.getNumber can only be called from within the same library (:)"
+        errorLine1="        if (oldArg.valueCase.number != newArg.valueCase.number) {"
+        errorLine2="                                                        ~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getIdentifier can only be called from within the same library (:)"
+        errorLine1="        return if (oldArg.identifier != newArg.identifier) {"
+        errorLine2="                          ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getIdentifier can only be called from within the same library (:)"
+        errorLine1="        return if (oldArg.identifier != newArg.identifier) {"
+        errorLine2="                          ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getIdentifier can only be called from within the same library (:)"
+        errorLine1="        return if (oldArg.identifier != newArg.identifier) {"
+        errorLine2="                                               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getIdentifier can only be called from within the same library (:)"
+        errorLine1="        return if (oldArg.identifier != newArg.identifier) {"
+        errorLine2="                                               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getValueCase can only be called from within the same library (:)"
+        errorLine1="            when (oldArg.valueCase) {"
+        errorLine2="                         ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getValueCase can only be called from within the same library (:)"
+        errorLine1="            when (oldArg.valueCase) {"
+        errorLine2="                         ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ValueCase.VALUE_NOT_SET can only be accessed from within the same library (:)"
+        errorLine1="                ParamValue.ValueCase.VALUE_NOT_SET -> false"
+        errorLine2="                                     ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getStringValue can only be called from within the same library (:)"
+        errorLine1="                ParamValue.ValueCase.STRING_VALUE -> oldArg.stringValue != newArg.stringValue"
+        errorLine2="                                                            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getStringValue can only be called from within the same library (:)"
+        errorLine1="                ParamValue.ValueCase.STRING_VALUE -> oldArg.stringValue != newArg.stringValue"
+        errorLine2="                                                            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getStringValue can only be called from within the same library (:)"
+        errorLine1="                ParamValue.ValueCase.STRING_VALUE -> oldArg.stringValue != newArg.stringValue"
+        errorLine2="                                                                                  ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getStringValue can only be called from within the same library (:)"
+        errorLine1="                ParamValue.ValueCase.STRING_VALUE -> oldArg.stringValue != newArg.stringValue"
+        errorLine2="                                                                                  ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ValueCase.STRING_VALUE can only be accessed from within the same library (:)"
+        errorLine1="                ParamValue.ValueCase.STRING_VALUE -> oldArg.stringValue != newArg.stringValue"
+        errorLine2="                                     ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getBoolValue can only be called from within the same library (:)"
+        errorLine1="                ParamValue.ValueCase.BOOL_VALUE -> oldArg.boolValue != newArg.boolValue"
+        errorLine2="                                                          ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getBoolValue can only be called from within the same library (:)"
+        errorLine1="                ParamValue.ValueCase.BOOL_VALUE -> oldArg.boolValue != newArg.boolValue"
+        errorLine2="                                                          ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getBoolValue can only be called from within the same library (:)"
+        errorLine1="                ParamValue.ValueCase.BOOL_VALUE -> oldArg.boolValue != newArg.boolValue"
+        errorLine2="                                                                              ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getBoolValue can only be called from within the same library (:)"
+        errorLine1="                ParamValue.ValueCase.BOOL_VALUE -> oldArg.boolValue != newArg.boolValue"
+        errorLine2="                                                                              ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ValueCase.BOOL_VALUE can only be accessed from within the same library (:)"
+        errorLine1="                ParamValue.ValueCase.BOOL_VALUE -> oldArg.boolValue != newArg.boolValue"
+        errorLine2="                                     ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getNumberValue can only be called from within the same library (:)"
+        errorLine1="                ParamValue.ValueCase.NUMBER_VALUE -> oldArg.numberValue != newArg.numberValue"
+        errorLine2="                                                            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getNumberValue can only be called from within the same library (:)"
+        errorLine1="                ParamValue.ValueCase.NUMBER_VALUE -> oldArg.numberValue != newArg.numberValue"
+        errorLine2="                                                            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getNumberValue can only be called from within the same library (:)"
+        errorLine1="                ParamValue.ValueCase.NUMBER_VALUE -> oldArg.numberValue != newArg.numberValue"
+        errorLine2="                                                                                  ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getNumberValue can only be called from within the same library (:)"
+        errorLine1="                ParamValue.ValueCase.NUMBER_VALUE -> oldArg.numberValue != newArg.numberValue"
+        errorLine2="                                                                                  ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ValueCase.NUMBER_VALUE can only be accessed from within the same library (:)"
+        errorLine1="                ParamValue.ValueCase.NUMBER_VALUE -> oldArg.numberValue != newArg.numberValue"
+        errorLine2="                                     ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ValueCase.STRUCT_VALUE can only be accessed from within the same library (:)"
+        errorLine1="                ParamValue.ValueCase.STRUCT_VALUE ->"
+        errorLine2="                                     ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getStructValue can only be called from within the same library (:)"
+        errorLine1="                        oldArg.structValue.toByteArray(),"
+        errorLine2="                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getStructValue can only be called from within the same library (:)"
+        errorLine1="                        oldArg.structValue.toByteArray(),"
+        errorLine2="                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getStructValue can only be called from within the same library (:)"
+        errorLine1="                        newArg.structValue.toByteArray()"
+        errorLine2="                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getStructValue can only be called from within the same library (:)"
+        errorLine1="                        newArg.structValue.toByteArray()"
+        errorLine2="                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.getStatus can only be called from within the same library (:)"
+        errorLine1="        currentValues.all { it.status == CurrentValue.Status.ACCEPTED } &amp;&amp;"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.getStatus can only be called from within the same library (:)"
+        errorLine1="        currentValues.all { it.status == CurrentValue.Status.ACCEPTED } &amp;&amp;"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Status.ACCEPTED can only be accessed from within the same library (:)"
+        errorLine1="        currentValues.all { it.status == CurrentValue.Status.ACCEPTED } &amp;&amp;"
+        errorLine2="                                                             ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.getValue can only be called from within the same library (:)"
+        errorLine1="                !hasParamValueDiff(currentValues[it].value, fulfillmentValues[it].value)"
+        errorLine2="                                                     ~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.getValue can only be called from within the same library (:)"
+        errorLine1="                !hasParamValueDiff(currentValues[it].value, fulfillmentValues[it].value)"
+        errorLine2="                                                     ~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FulfillmentValue.getValue can only be called from within the same library (:)"
+        errorLine1="                !hasParamValueDiff(currentValues[it].value, fulfillmentValues[it].value)"
+        errorLine2="                                                                                  ~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FulfillmentValue.getValue can only be called from within the same library (:)"
+        errorLine1="                !hasParamValueDiff(currentValues[it].value, fulfillmentValues[it].value)"
+        errorLine2="                                                                                  ~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.getStatus can only be called from within the same library (:)"
+        errorLine1="                currentValue.status == CurrentValue.Status.ACCEPTED &amp;&amp;"
+        errorLine2="                             ~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.getStatus can only be called from within the same library (:)"
+        errorLine1="                currentValue.status == CurrentValue.Status.ACCEPTED &amp;&amp;"
+        errorLine2="                             ~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Status.ACCEPTED can only be accessed from within the same library (:)"
+        errorLine1="                currentValue.status == CurrentValue.Status.ACCEPTED &amp;&amp;"
+        errorLine2="                                                           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.getValue can only be called from within the same library (:)"
+        errorLine1="                    currentValue.value.hasStructValue()"
+        errorLine2="                                 ~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.getValue can only be called from within the same library (:)"
+        errorLine1="                    currentValue.value.hasStructValue()"
+        errorLine2="                                 ~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.hasStructValue can only be called from within the same library (:)"
+        errorLine1="                    currentValue.value.hasStructValue()"
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.getValue can only be called from within the same library (:)"
+        errorLine1="                candidates[currentValue.value.identifier] = currentValue.value.structValue"
+        errorLine2="                                        ~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.getValue can only be called from within the same library (:)"
+        errorLine1="                candidates[currentValue.value.identifier] = currentValue.value.structValue"
+        errorLine2="                                        ~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.getValue can only be called from within the same library (:)"
+        errorLine1="                candidates[currentValue.value.identifier] = currentValue.value.structValue"
+        errorLine2="                                                                         ~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.getValue can only be called from within the same library (:)"
+        errorLine1="                candidates[currentValue.value.identifier] = currentValue.value.structValue"
+        errorLine2="                                                                         ~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getIdentifier can only be called from within the same library (:)"
+        errorLine1="                candidates[currentValue.value.identifier] = currentValue.value.structValue"
+        errorLine2="                                              ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getIdentifier can only be called from within the same library (:)"
+        errorLine1="                candidates[currentValue.value.identifier] = currentValue.value.structValue"
+        errorLine2="                                              ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getStructValue can only be called from within the same library (:)"
+        errorLine1="                candidates[currentValue.value.identifier] = currentValue.value.structValue"
+        errorLine2="                                                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getStructValue can only be called from within the same library (:)"
+        errorLine1="                candidates[currentValue.value.identifier] = currentValue.value.structValue"
+        errorLine2="                                                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.getStatus can only be called from within the same library (:)"
+        errorLine1="            } else if (currentValue.status == CurrentValue.Status.DISAMBIG) {"
+        errorLine2="                                    ~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.getStatus can only be called from within the same library (:)"
+        errorLine1="            } else if (currentValue.status == CurrentValue.Status.DISAMBIG) {"
+        errorLine2="                                    ~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Status.DISAMBIG can only be accessed from within the same library (:)"
+        errorLine1="            } else if (currentValue.status == CurrentValue.Status.DISAMBIG) {"
+        errorLine2="                                                                  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.getDisambiguationData can only be called from within the same library (:)"
+        errorLine1="                for (entity in currentValue.disambiguationData.entitiesList) {"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.getDisambiguationData can only be called from within the same library (:)"
+        errorLine1="                for (entity in currentValue.disambiguationData.entitiesList) {"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="DisambiguationData.getEntitiesList can only be called from within the same library (:)"
+        errorLine1="                for (entity in currentValue.disambiguationData.entitiesList) {"
+        errorLine2="                                                               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="DisambiguationData.getEntitiesList can only be called from within the same library (:)"
+        errorLine1="                for (entity in currentValue.disambiguationData.entitiesList) {"
+        errorLine2="                                                               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Entity.hasStructValue can only be called from within the same library (:)"
+        errorLine1="                    if (entity.hasStructValue()) {"
+        errorLine2="                               ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Entity.getIdentifier can only be called from within the same library (:)"
+        errorLine1="                        candidates[entity.identifier] = entity.structValue"
+        errorLine2="                                          ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Entity.getIdentifier can only be called from within the same library (:)"
+        errorLine1="                        candidates[entity.identifier] = entity.structValue"
+        errorLine2="                                          ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Entity.getStructValue can only be called from within the same library (:)"
+        errorLine1="                        candidates[entity.identifier] = entity.structValue"
+        errorLine2="                                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Entity.getStructValue can only be called from within the same library (:)"
+        errorLine1="                        candidates[entity.identifier] = entity.structValue"
+        errorLine2="                                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FulfillmentValue.getValue can only be called from within the same library (:)"
+        errorLine1="                val paramValue = it.value"
+        errorLine2="                                    ~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FulfillmentValue.getValue can only be called from within the same library (:)"
+        errorLine1="                val paramValue = it.value"
+        errorLine2="                                    ~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.hasIdentifier can only be called from within the same library (:)"
+        errorLine1="                    paramValue.hasIdentifier() &amp;&amp;"
+        errorLine2="                               ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.hasStructValue can only be called from within the same library (:)"
+        errorLine1="                        !paramValue.hasStructValue() &amp;&amp;"
+        errorLine2="                                    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getIdentifier can only be called from within the same library (:)"
+        errorLine1="                        candidates.containsKey(paramValue.identifier)"
+        errorLine2="                                                          ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getIdentifier can only be called from within the same library (:)"
+        errorLine1="                        candidates.containsKey(paramValue.identifier)"
+        errorLine2="                                                          ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setValue can only be called from within the same library (:)"
+        errorLine1="                        .setValue("
+        errorLine2="                         ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setStructValue can only be called from within the same library (:)"
+        errorLine1="                            paramValue.toBuilder().setStructValue(candidates[paramValue.identifier])"
+        errorLine2="                                                   ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getIdentifier can only be called from within the same library (:)"
+        errorLine1="                            paramValue.toBuilder().setStructValue(candidates[paramValue.identifier])"
+        errorLine2="                                                                                        ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getIdentifier can only be called from within the same library (:)"
+        errorLine1="                            paramValue.toBuilder().setStructValue(candidates[paramValue.identifier])"
+        errorLine2="                                                                                        ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskCapabilityUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.hasIdentifier can only be called from within the same library (:)"
+        errorLine1="            val GROUND_IF_NO_IDENTIFIER = { paramValue: ParamValue -> !paramValue.hasIdentifier() }"
+        errorLine2="                                                                                  ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskHandler.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="SyncStatus.UNKNOWN_SYNC_STATUS can only be accessed from within the same library (:)"
+        errorLine1="    private var lastKnownSyncStatus = SyncStatus.UNKNOWN_SYNC_STATUS"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="AppDialogState.newBuilder can only be called from within the same library (:)"
+        errorLine1="            AppActionsContext.AppDialogState.newBuilder()"
+        errorLine2="                                             ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.addAllParams can only be called from within the same library (:)"
+        errorLine1="                .addAllParams("
+        errorLine2="                 ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="AppAction.getParamsList can only be called from within the same library (:)"
+        errorLine1="                        appAction.paramsList.map { intentParam ->"
+        errorLine2="                                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="AppAction.getParamsList can only be called from within the same library (:)"
+        errorLine1="                        appAction.paramsList.map { intentParam ->"
+        errorLine2="                                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="DialogParameter.newBuilder can only be called from within the same library (:)"
+        errorLine1="                                AppActionsContext.DialogParameter.newBuilder()"
+        errorLine2="                                                                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setName can only be called from within the same library (:)"
+        errorLine1="                                    .setName(intentParam.name)"
+        errorLine2="                                     ~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="IntentParameter.getName can only be called from within the same library (:)"
+        errorLine1="                                    .setName(intentParam.name)"
+        errorLine2="                                                         ~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="IntentParameter.getName can only be called from within the same library (:)"
+        errorLine1="                                    .setName(intentParam.name)"
+        errorLine2="                                                         ~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="IntentParameter.getName can only be called from within the same library (:)"
+        errorLine1="                            currentValuesMap[intentParam.name]?.let {"
+        errorLine2="                                                         ~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="IntentParameter.getName can only be called from within the same library (:)"
+        errorLine1="                            currentValuesMap[intentParam.name]?.let {"
+        errorLine2="                                                         ~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.addAllCurrentValue can only be called from within the same library (:)"
+        errorLine1="                                dialogParameterBuilder.addAllCurrentValue(it)"
+        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="AppAction.getIdentifier can only be called from within the same library (:)"
+        errorLine1="                .setFulfillmentIdentifier(appAction.identifier)"
+        errorLine2="                                                    ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="AppAction.getIdentifier can only be called from within the same library (:)"
+        errorLine1="                .setFulfillmentIdentifier(appAction.identifier)"
+        errorLine2="                                                    ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setFulfillmentIdentifier can only be called from within the same library (:)"
+        errorLine1="                .setFulfillmentIdentifier(appAction.identifier)"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Type.SYNC can only be accessed from within the same library (:)"
+        errorLine1="                FulfillmentRequest.Fulfillment.Type.SYNC ->"
+        errorLine2="                                                    ~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Type.CANCEL can only be accessed from within the same library (:)"
+        errorLine1="                FulfillmentRequest.Fulfillment.Type.CANCEL -> {"
+        errorLine2="                                                    ~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FulfillmentResponse.getDefaultInstance can only be called from within the same library (:)"
+        errorLine1="                    FulfillmentResult(FulfillmentResponse.getDefaultInstance())"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Status.ACCEPTED can only be accessed from within the same library (:)"
+        errorLine1="                        TaskCapabilityUtils.toCurrentValue(it, CurrentValue.Status.ACCEPTED)"
+        errorLine2="                                                                                   ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Status.DISAMBIG can only be accessed from within the same library (:)"
+        errorLine1="            if (!anyParamsOfStatus(CurrentValue.Status.DISAMBIG)) {"
+        errorLine2="                                                       ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="TouchEventMetadata.getDefaultInstance can only be called from within the same library (:)"
+        errorLine1="                    TouchEventMetadata.getDefaultInstance(),"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Status.REJECTED can only be accessed from within the same library (:)"
+        errorLine1="            anyParamsOfStatus(CurrentValue.Status.REJECTED) ||"
+        errorLine2="                                                  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="AppAction.getParamsList can only be called from within the same library (:)"
+        errorLine1="            !TaskCapabilityUtils.isSlotFillingComplete(finalArguments, appAction.paramsList) ||"
+        errorLine2="                                                                                 ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="AppAction.getParamsList can only be called from within the same library (:)"
+        errorLine1="            !TaskCapabilityUtils.isSlotFillingComplete(finalArguments, appAction.paramsList) ||"
+        errorLine2="                                                                                 ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="SyncStatus.SLOTS_COMPLETE can only be accessed from within the same library (:)"
+        errorLine1="            lastKnownSyncStatus != SyncStatus.SLOTS_COMPLETE"
+        errorLine2="                                              ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FulfillmentResponse.getDefaultInstance can only be called from within the same library (:)"
+        errorLine1="            return FulfillmentResponse.getDefaultInstance()"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="SyncStatus.SLOTS_INCOMPLETE can only be accessed from within the same library (:)"
+        errorLine1="            SyncStatus.SLOTS_INCOMPLETE,"
+        errorLine2="                       ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="SyncStatus.SLOTS_COMPLETE can only be accessed from within the same library (:)"
+        errorLine1="            SyncStatus.SLOTS_COMPLETE,"
+        errorLine2="                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="SyncStatus.INTENT_CONFIRMED can only be accessed from within the same library (:)"
+        errorLine1="            SyncStatus.INTENT_CONFIRMED"
+        errorLine2="                       ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Status.PENDING can only be accessed from within the same library (:)"
+        errorLine1="                CurrentValue.Status.PENDING,"
+        errorLine2="                                    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.getStatus can only be called from within the same library (:)"
+        errorLine1="                    currentValues.all { it.status == CurrentValue.Status.ACCEPTED }"
+        errorLine2="                                           ~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.getStatus can only be called from within the same library (:)"
+        errorLine1="                    currentValues.all { it.status == CurrentValue.Status.ACCEPTED }"
+        errorLine2="                                           ~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Status.ACCEPTED can only be accessed from within the same library (:)"
+        errorLine1="                    currentValues.all { it.status == CurrentValue.Status.ACCEPTED }"
+        errorLine2="                                                                         ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.getValue can only be called from within the same library (:)"
+        errorLine1="            .mapValues { currentValue -> currentValue.value.map { it.value } }"
+        errorLine2="                                                                     ~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.getValue can only be called from within the same library (:)"
+        errorLine1="            .mapValues { currentValue -> currentValue.value.map { it.value } }"
+        errorLine2="                                                                     ~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.getStatus can only be called from within the same library (:)"
+        errorLine1="                    currentValues.any { it.status == CurrentValue.Status.PENDING }"
+        errorLine2="                                           ~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.getStatus can only be called from within the same library (:)"
+        errorLine1="                    currentValues.any { it.status == CurrentValue.Status.PENDING }"
+        errorLine2="                                           ~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Status.PENDING can only be accessed from within the same library (:)"
+        errorLine1="                    currentValues.any { it.status == CurrentValue.Status.PENDING }"
+        errorLine2="                                                                         ~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.getValue can only be called from within the same library (:)"
+        errorLine1="            .mapValues { currentValues -> currentValues.value.map { it.value } }"
+        errorLine2="                                                                       ~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.getValue can only be called from within the same library (:)"
+        errorLine1="            .mapValues { currentValues -> currentValues.value.map { it.value } }"
+        errorLine2="                                                                       ~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.getStatus can only be called from within the same library (:)"
+        errorLine1="                currentValues.any { it.status == status }"
+        errorLine2="                                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.getStatus can only be called from within the same library (:)"
+        errorLine1="                currentValues.any { it.status == status }"
+        errorLine2="                                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FulfillmentResponse.newBuilder can only be called from within the same library (:)"
+        errorLine1="        val fulfillmentResponse = FulfillmentResponse.newBuilder()"
+        errorLine2="                                                      ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setConfirmationData can only be called from within the same library (:)"
+        errorLine1="        convertToConfirmationOutput(result)?.let { fulfillmentResponse.confirmationData = it }"
+        errorLine2="                                                                       ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setConfirmationData can only be called from within the same library (:)"
+        errorLine1="        convertToConfirmationOutput(result)?.let { fulfillmentResponse.confirmationData = it }"
+        errorLine2="                                                                       ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setStartDictation can only be called from within the same library (:)"
+        errorLine1="            FulfillmentResponse.newBuilder().setStartDictation(result.shouldStartDictation)"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FulfillmentResponse.newBuilder can only be called from within the same library (:)"
+        errorLine1="            FulfillmentResponse.newBuilder().setStartDictation(result.shouldStartDictation)"
+        errorLine2="                                ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setExecutionOutput can only be called from within the same library (:)"
+        errorLine1="        convertToExecutionOutput(result)?.let { fulfillmentResponse.executionOutput = it }"
+        errorLine2="                                                                    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setExecutionOutput can only be called from within the same library (:)"
+        errorLine1="        convertToExecutionOutput(result)?.let { fulfillmentResponse.executionOutput = it }"
+        errorLine2="                                                                    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="StructuredOutput.newBuilder can only be called from within the same library (:)"
+        errorLine1="        return FulfillmentResponse.StructuredOutput.newBuilder()"
+        errorLine2="                                                    ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.addAllOutputValues can only be called from within the same library (:)"
+        errorLine1="            .addAllOutputValues("
+        errorLine2="             ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="OutputValue.newBuilder can only be called from within the same library (:)"
+        errorLine1="                    FulfillmentResponse.StructuredOutput.OutputValue.newBuilder()"
+        errorLine2="                                                                     ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setName can only be called from within the same library (:)"
+        errorLine1="                        .setName(it.key)"
+        errorLine2="                         ~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.addAllValues can only be called from within the same library (:)"
+        errorLine1="                        .addAllValues(it.value.invoke(confirmation))"
+        errorLine2="                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskOrchestrator.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.getValue can only be called from within the same library (:)"
+        errorLine1="                        TaskCapabilityUtils.toCurrentValue(it.value, CurrentValue.Status.ACCEPTED)"
+        errorLine2="                                                              ~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskSlotProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.getValue can only be called from within the same library (:)"
+        errorLine1="                        TaskCapabilityUtils.toCurrentValue(it.value, CurrentValue.Status.ACCEPTED)"
+        errorLine2="                                                              ~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskSlotProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Status.ACCEPTED can only be accessed from within the same library (:)"
+        errorLine1="                        TaskCapabilityUtils.toCurrentValue(it.value, CurrentValue.Status.ACCEPTED)"
+        errorLine2="                                                                                         ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskSlotProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getDefaultInstance can only be called from within the same library (:)"
+        errorLine1="        var groundingResult = AppGroundingResult.ofSuccess(ParamValue.getDefaultInstance())"
+        errorLine2="                                                                      ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskSlotProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.hasDisambiguationData can only be called from within the same library (:)"
+        errorLine1="            if (pendingValue.hasDisambiguationData()) {"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskSlotProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.getValue can only be called from within the same library (:)"
+        errorLine1="            } else if (taskParamBinding.groundingPredicate.invoke(pendingValue.value)) {"
+        errorLine2="                                                                               ~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskSlotProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.getValue can only be called from within the same library (:)"
+        errorLine1="            } else if (taskParamBinding.groundingPredicate.invoke(pendingValue.value)) {"
+        errorLine2="                                                                               ~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskSlotProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.getValue can only be called from within the same library (:)"
+        errorLine1="                groundedValues.add(pendingValue.value)"
+        errorLine2="                                                ~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskSlotProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.getValue can only be called from within the same library (:)"
+        errorLine1="                groundedValues.add(pendingValue.value)"
+        errorLine2="                                                ~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskSlotProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.getDisambiguationData can only be called from within the same library (:)"
+        errorLine1="                renderAssistantDisambigData(pendingValue.disambiguationData, taskParamBinding)"
+        errorLine2="                                                         ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskSlotProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.getDisambiguationData can only be called from within the same library (:)"
+        errorLine1="                renderAssistantDisambigData(pendingValue.disambiguationData, taskParamBinding)"
+        errorLine2="                                                         ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskSlotProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.newBuilder can only be called from within the same library (:)"
+        errorLine1="                    CurrentValue.newBuilder(pendingValue)"
+        errorLine2="                                 ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskSlotProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setStatus can only be called from within the same library (:)"
+        errorLine1="                        .setStatus(CurrentValue.Status.DISAMBIG)"
+        errorLine2="                         ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskSlotProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Status.DISAMBIG can only be accessed from within the same library (:)"
+        errorLine1="                        .setStatus(CurrentValue.Status.DISAMBIG)"
+        errorLine2="                                                       ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskSlotProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.getValue can only be called from within the same library (:)"
+        errorLine1="            AppGroundingResult.Kind.SUCCESS -> ground(pendingValue.value, taskParamBinding)"
+        errorLine2="                                                                   ~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskSlotProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CurrentValue.getValue can only be called from within the same library (:)"
+        errorLine1="            AppGroundingResult.Kind.SUCCESS -> ground(pendingValue.value, taskParamBinding)"
+        errorLine2="                                                                   ~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskSlotProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="DisambiguationData.getEntitiesList can only be called from within the same library (:)"
+        errorLine1="        val entityIds = disambiguationData.entitiesList.map { it.identifier }"
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskSlotProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="DisambiguationData.getEntitiesList can only be called from within the same library (:)"
+        errorLine1="        val entityIds = disambiguationData.entitiesList.map { it.identifier }"
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskSlotProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Entity.getIdentifier can only be called from within the same library (:)"
+        errorLine1="        val entityIds = disambiguationData.entitiesList.map { it.identifier }"
+        errorLine2="                                                                 ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskSlotProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Entity.getIdentifier can only be called from within the same library (:)"
+        errorLine1="        val entityIds = disambiguationData.entitiesList.map { it.identifier }"
+        errorLine2="                                                                 ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskSlotProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Status.ACCEPTED can only be accessed from within the same library (:)"
+        errorLine1="                        CurrentValue.Status.ACCEPTED,"
+        errorLine2="                                            ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskSlotProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Status.REJECTED can only be accessed from within the same library (:)"
+        errorLine1="                        CurrentValue.Status.REJECTED,"
+        errorLine2="                                            ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskSlotProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Status.REJECTED can only be accessed from within the same library (:)"
+        errorLine1="                        CurrentValue.Status.REJECTED,"
+        errorLine2="                                            ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/task/TaskSlotProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.newBuilder can only be called from within the same library (:)"
+        errorLine1="                    return ParamValue.newBuilder()"
+        errorLine2="                                      ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/TypeConverters.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setStringValue can only be called from within the same library (:)"
+        errorLine1="                        .setStringValue(value.getTextValue())"
+        errorLine2="                         ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/TypeConverters.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getIdentifier can only be called from within the same library (:)"
+        errorLine1="                    String identifier = paramValue.getIdentifier();"
+        errorLine2="                                                   ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/TypeConverters.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Entity.newBuilder can only be called from within the same library (:)"
+        errorLine1="                    Entity.newBuilder()"
+        errorLine2="                           ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/TypeConverters.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setIdentifier can only be called from within the same library (:)"
+        errorLine1="                            .setIdentifier(stringValue.getName())"
+        errorLine2="                             ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/TypeConverters.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setName can only be called from within the same library (:)"
+        errorLine1="                            .setName(stringValue.getName())"
+        errorLine2="                             ~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/TypeConverters.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.addAllAlternateNames can only be called from within the same library (:)"
+        errorLine1="                            .addAllAlternateNames(stringValue.getAlternateNames())"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/TypeConverters.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setIdentifier can only be called from within the same library (:)"
+        errorLine1="                            Entity.newBuilder().setIdentifier(callFormat.getTextValue()).build();"
+        errorLine2="                                                ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/TypeConverters.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Entity.newBuilder can only be called from within the same library (:)"
+        errorLine1="                            Entity.newBuilder().setIdentifier(callFormat.getTextValue()).build();"
+        errorLine2="                                   ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/TypeConverters.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getIdentifier can only be called from within the same library (:)"
+        errorLine1="                    if (supportedValue.toString().equals(paramValue.getIdentifier())) {"
+        errorLine2="                                                                    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/TypeConverters.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.getIdentifier can only be called from within the same library (:)"
+        errorLine1="                        + &quot;Value because identifier &quot; + paramValue.getIdentifier() + &quot; is not &quot;"
+        errorLine2="                                                                   ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/TypeConverters.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setIdentifier can only be called from within the same library (:)"
+        errorLine1="                        return ParamValue.newBuilder().setIdentifier(obj.toString()).build();"
+        errorLine2="                                                       ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/TypeConverters.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.newBuilder can only be called from within the same library (:)"
+        errorLine1="                        return ParamValue.newBuilder().setIdentifier(obj.toString()).build();"
+        errorLine2="                                          ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/TypeConverters.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setIdentifier can only be called from within the same library (:)"
+        errorLine1="                        return Entity.newBuilder().setIdentifier(obj.toString()).build();"
+        errorLine2="                                                   ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/TypeConverters.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Entity.newBuilder can only be called from within the same library (:)"
+        errorLine1="                        return Entity.newBuilder().setIdentifier(obj.toString()).build();"
+        errorLine2="                                      ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/core/impl/converters/TypeConverters.java"/>
+    </issue>
+
+</issues>

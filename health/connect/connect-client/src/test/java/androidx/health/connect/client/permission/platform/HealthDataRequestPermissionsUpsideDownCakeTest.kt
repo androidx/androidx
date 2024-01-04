@@ -25,7 +25,6 @@ import androidx.health.connect.client.permission.HealthPermission
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
-import kotlin.test.assertFailsWith
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -45,21 +44,14 @@ class HealthDataRequestPermissionsUpsideDownCakeTest {
         val requestPermissionContract = HealthDataRequestPermissionsUpsideDownCake()
         val intent =
             requestPermissionContract.createIntent(
-                context, setOf(HealthPermission.READ_STEPS, HealthPermission.WRITE_DISTANCE))
+                context,
+                setOf(HealthPermission.READ_STEPS, HealthPermission.WRITE_DISTANCE)
+            )
 
         assertThat(intent.action).isEqualTo(RequestMultiplePermissions.ACTION_REQUEST_PERMISSIONS)
         assertThat(intent.getStringArrayExtra(RequestMultiplePermissions.EXTRA_PERMISSIONS))
             .asList()
             .containsExactly(HealthPermission.READ_STEPS, HealthPermission.WRITE_DISTANCE)
-    }
-
-    @Test
-    fun createIntent_nonHealthPermission_throwsIAE() {
-        val requestPermissionContract = HealthDataRequestPermissionsUpsideDownCake()
-        assertFailsWith<IllegalArgumentException> {
-            requestPermissionContract.createIntent(
-                context, setOf(HealthPermission.READ_STEPS, "NON_HEALTH_PERMISSION"))
-        }
     }
 
     @Test
@@ -73,14 +65,18 @@ class HealthDataRequestPermissionsUpsideDownCakeTest {
                 HealthPermission.READ_STEPS,
                 HealthPermission.WRITE_STEPS,
                 HealthPermission.WRITE_DISTANCE,
-                HealthPermission.READ_HEART_RATE))
+                HealthPermission.READ_HEART_RATE
+            )
+        )
         intent.putExtra(
             RequestMultiplePermissions.EXTRA_PERMISSION_GRANT_RESULTS,
             intArrayOf(
                 PackageManager.PERMISSION_GRANTED,
                 PackageManager.PERMISSION_DENIED,
                 PackageManager.PERMISSION_GRANTED,
-                PackageManager.PERMISSION_DENIED))
+                PackageManager.PERMISSION_DENIED
+            )
+        )
 
         val result = requestPermissionContract.parseResult(Activity.RESULT_OK, intent)
 

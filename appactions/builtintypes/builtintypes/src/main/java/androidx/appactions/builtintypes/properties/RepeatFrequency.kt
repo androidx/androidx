@@ -13,6 +13,7 @@
 // limitations under the License.
 package androidx.appactions.builtintypes.properties
 
+import androidx.appactions.builtintypes.serializers.DurationAsNanosSerializer
 import androidx.appsearch.`annotation`.Document
 import java.time.Duration
 import java.util.Objects
@@ -20,7 +21,6 @@ import kotlin.Any
 import kotlin.Boolean
 import kotlin.Int
 import kotlin.String
-import kotlin.Suppress
 import kotlin.error
 import kotlin.jvm.JvmName
 
@@ -40,24 +40,16 @@ import kotlin.jvm.JvmName
 public class RepeatFrequency
 internal constructor(
   /** The [Duration] variant, or null if constructed using a different variant. */
-  @get:JvmName("asDuration") public val asDuration: Duration? = null,
+  @get:JvmName("asDuration")
+  @get:Document.LongProperty(serializer = DurationAsNanosSerializer::class)
+  public val asDuration: Duration? = null,
   /** The [String] variant, or null if constructed using a different variant. */
   @get:JvmName("asText") @get:Document.StringProperty public val asText: String? = null,
   /** Required ctor param for the AppSearch compiler. */
-  @Suppress("UNUSED_PARAMETER") identifier: String = "",
+  @get:Document.Id @get:JvmName("getIdentifier") internal val identifier: String = "",
   /** Required ctor param for the AppSearch compiler. */
-  @Suppress("UNUSED_PARAMETER") namespace: String = "",
+  @get:Document.Namespace @get:JvmName("getNamespace") internal val namespace: String = "",
 ) {
-  @get:Document.Id
-  @get:JvmName("getIdentifier")
-  internal val identifier: String
-    get() = ""
-
-  @get:Document.Namespace
-  @get:JvmName("getNamespace")
-  internal val namespace: String
-    get() = ""
-
   /** Constructor for the [Duration] variant. */
   public constructor(duration: Duration) : this(asDuration = duration)
 

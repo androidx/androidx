@@ -18,26 +18,17 @@ package androidx.camera.camera2.internal.compat.workaround;
 
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
-import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.Camera2CaptureCallbacks;
-import androidx.camera.camera2.internal.SynchronizedCaptureSession;
-import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat;
 import androidx.camera.camera2.internal.compat.quirk.CaptureSessionStuckQuirk;
-import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.Quirks;
-import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 
 import com.google.common.util.concurrent.ListenableFuture;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * The workaround is used to wait for the other CameraCaptureSessions to complete their in-flight
@@ -87,27 +78,6 @@ public class WaitForRepeatingRequestStart {
         return Futures.nonCancellationPropagating(mStartStreamingFuture);
     }
 
-    /**
-     * For b/146773463: It needs to check all the releasing capture sessions are ready for
-     * opening next capture session.
-     */
-    @NonNull
-    public ListenableFuture<Void> openCaptureSession(
-            @NonNull CameraDevice cameraDevice,
-            @NonNull SessionConfigurationCompat sessionConfigurationCompat,
-            @NonNull List<DeferrableSurface> deferrableSurfaces,
-            @NonNull List<SynchronizedCaptureSession> closingSessions,
-            @NonNull OpenCaptureSession openCaptureSession) {
-        List<ListenableFuture<Void>> futureList = new ArrayList<>();
-        for (SynchronizedCaptureSession session : closingSessions) {
-            futureList.add(session.getOpeningBlocker());
-        }
-
-        return FutureChain.from(Futures.successfulAsList(futureList)).transformAsync(
-                v -> openCaptureSession.run(cameraDevice, sessionConfigurationCompat,
-                        deferrableSurfaces), CameraXExecutors.directExecutor());
-    }
-
     /** Hook the setSingleRepeatingRequest() to know if it has started a repeating request. */
     public int setSingleRepeatingRequest(
             @NonNull CaptureRequest request,
@@ -132,6 +102,13 @@ public class WaitForRepeatingRequestStart {
                 mStartStreamingFuture.cancel(true);
             }
         }
+    }
+
+    /**
+     * This should be called when SynchronizedCaptureSession#finishClose is called.
+     */
+    public void onFinishClosed() {
+        mStartStreamingFuture.cancel(true);
     }
 
     private final CameraCaptureSession.CaptureCallback mCaptureCallback =
@@ -162,15 +139,5 @@ public class WaitForRepeatingRequestStart {
         int run(@NonNull CaptureRequest request,
                 @NonNull CameraCaptureSession.CaptureCallback listener)
                 throws CameraAccessException;
-    }
-
-    /** Interface to forward call of the openCaptureSession() method. */
-    @FunctionalInterface
-    public interface OpenCaptureSession {
-        /** Run the openCaptureSession() method. */
-        @NonNull
-        ListenableFuture<Void> run(@NonNull CameraDevice cameraDevice,
-                @NonNull SessionConfigurationCompat sessionConfigurationCompat,
-                @NonNull List<DeferrableSurface> deferrableSurfaces);
     }
 }

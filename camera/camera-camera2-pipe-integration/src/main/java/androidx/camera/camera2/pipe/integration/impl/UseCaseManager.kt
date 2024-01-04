@@ -41,7 +41,6 @@ import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraComponent
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraConfig
-import androidx.camera.camera2.pipe.integration.internal.CameraGraphCreator
 import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.UseCase
@@ -54,7 +53,6 @@ import javax.inject.Inject
 import javax.inject.Provider
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.joinAll
-import kotlinx.coroutines.runBlocking
 
 /**
  * This class keeps track of the currently attached and active [UseCase]'s for a specific camera.
@@ -87,7 +85,6 @@ import kotlinx.coroutines.runBlocking
 @CameraScope
 class UseCaseManager @Inject constructor(
     private val cameraPipe: CameraPipe,
-    private val cameraGraphCreator: CameraGraphCreator,
     private val callbackMap: CameraCallbackMap,
     private val requestListener: ComboRequestListener,
     private val cameraConfig: CameraConfig,
@@ -115,7 +112,10 @@ class UseCaseManager @Inject constructor(
     private var activeResumeEnabled = false
 
     @GuardedBy("lock")
-    private var refreshAttached = true
+    private var shouldCreateCameraGraphImmediately = true
+
+    @GuardedBy("lock")
+    private var deferredUseCaseManagerConfig: UseCaseManagerConfig? = null
 
     private val meteringRepeating by lazy {
         MeteringRepeating.Builder(
@@ -141,13 +141,17 @@ class UseCaseManager @Inject constructor(
 
     private val allControls = controls.toMutableSet().apply { add(camera2CameraControl) }
 
-    fun pauseRefresh() = synchronized(lock) {
-        refreshAttached = false
+    internal fun setCameraGraphCreationMode(createImmediately: Boolean) = synchronized(lock) {
+        shouldCreateCameraGraphImmediately = createImmediately
+        if (shouldCreateCameraGraphImmediately) {
+            // Clear the UseCaseManager configuration that haven't been "resumed" when we return
+            // to single camera operating mode early.
+            deferredUseCaseManagerConfig = null
+        }
     }
 
-    fun resumeRefresh() = synchronized(lock) {
-        refreshAttached = true
-        refreshAttachedUseCases(attachedUseCases)
+    internal fun getDeferredCameraGraphConfig() = synchronized(lock) {
+        deferredUseCaseManagerConfig?.cameraGraphConfig
     }
 
     /**
@@ -283,9 +287,6 @@ class UseCaseManager @Inject constructor(
 
     @GuardedBy("lock")
     private fun refreshAttachedUseCases(newUseCases: Set<UseCase>) {
-        if (!refreshAttached) {
-            return
-        }
         val useCases = newUseCases.toList()
 
         // Close prior camera graph
@@ -315,28 +316,53 @@ class UseCaseManager @Inject constructor(
 
         val graphConfig = createCameraGraphConfig(
             sessionConfigAdapter, streamConfigMap, callbackMap,
-            requestListener, cameraConfig, cameraQuirks, cameraGraphFlags)
-        val cameraGraph =
-            runBlocking { cameraGraphCreator.createCameraGraph(cameraPipe, graphConfig) }
+            requestListener, cameraConfig, cameraQuirks, cameraGraphFlags
+        )
 
-        // Create and configure the new camera component.
-        _activeComponent =
-            builder.config(
-                UseCaseCameraConfig(
-                    useCases,
-                    sessionConfigAdapter,
-                    cameraStateAdapter,
-                    cameraGraph,
-                    streamConfigMap
-                )
-            )
-                .build()
-        for (control in allControls) {
-            control.useCaseCamera = camera
+        val useCaseManagerConfig = UseCaseManagerConfig(
+            useCases,
+            sessionConfigAdapter,
+            graphConfig,
+            streamConfigMap
+        )
+        if (!shouldCreateCameraGraphImmediately) {
+            deferredUseCaseManagerConfig = useCaseManagerConfig
+            return
         }
-        camera?.setActiveResumeMode(activeResumeEnabled)
+        val cameraGraph = cameraPipe.create(useCaseManagerConfig.cameraGraphConfig)
+        beginComponentCreation(useCaseManagerConfig, cameraGraph)
+    }
 
-        refreshRunningUseCases()
+    internal fun resumeDeferredComponentCreation(cameraGraph: CameraGraph) {
+        val config = synchronized(lock) { deferredUseCaseManagerConfig }
+        checkNotNull(config)
+        beginComponentCreation(config, cameraGraph)
+    }
+
+    private fun beginComponentCreation(
+        useCaseManagerConfig: UseCaseManagerConfig,
+        cameraGraph: CameraGraph
+    ) {
+        with(useCaseManagerConfig) {
+            // Create and configure the new camera component.
+            _activeComponent =
+                builder.config(
+                    UseCaseCameraConfig(
+                        useCases,
+                        sessionConfigAdapter,
+                        cameraStateAdapter,
+                        cameraGraph,
+                        streamConfigMap
+                    )
+                )
+                    .build()
+            for (control in allControls) {
+                control.useCaseCamera = camera
+            }
+            camera?.setActiveResumeMode(activeResumeEnabled)
+
+            refreshRunningUseCases()
+        }
     }
 
     @GuardedBy("lock")
@@ -464,6 +490,13 @@ class UseCaseManager @Inject constructor(
     }
 
     companion object {
+        internal data class UseCaseManagerConfig(
+            val useCases: List<UseCase>,
+            val sessionConfigAdapter: SessionConfigAdapter,
+            val cameraGraphConfig: CameraGraph.Config,
+            val streamConfigMap: MutableMap<CameraStream.Config, DeferrableSurface>
+        )
+
         fun SessionConfig.toCamera2ImplConfig(): Camera2ImplConfig {
             return Camera2ImplConfig(implementationOptions)
         }

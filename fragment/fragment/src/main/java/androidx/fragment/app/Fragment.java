@@ -2922,7 +2922,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                 mHost.getHandler().post(new Runnable() {
                     @Override
                     public void run() {
-                        controller.executePendingOperations();
+                        if (controller.isPendingExecute()) {
+                            controller.executePendingOperations();
+                        }
                     }
                 });
             } else {

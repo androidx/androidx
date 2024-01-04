@@ -82,11 +82,9 @@ private val emptyContent: @Composable () -> Unit = @Composable {}
 /**
  * Class containing the minimum information needed by the Preview to map components to the
  * source code and render boundaries.
- *
- * @suppress
  */
 @OptIn(UiToolingDataApi::class)
-data class ViewInfo(
+internal data class ViewInfo(
     val fileName: String,
     val lineNumber: Int,
     val bounds: IntRect,
@@ -122,7 +120,6 @@ data class ViewInfo(
  *  - `tools:animationClockStartTime`: When set, a [PreviewAnimationClock] will control the
  *  animations in the [ComposeViewAdapter] context.
  *
- * @suppress
  */
 @Suppress("unused")
 @OptIn(UiToolingDataApi::class)
@@ -425,8 +422,6 @@ internal class ComposeViewAdapter : FrameLayout {
 
     /**
      * Clock that controls the animations defined in the context of this [ComposeViewAdapter].
-     *
-     * @suppress
      */
     @VisibleForTesting
     internal lateinit var clock: PreviewAnimationClock
@@ -566,8 +561,6 @@ internal class ComposeViewAdapter : FrameLayout {
      *  method instead of the property directly is we use Java reflection to call it from Android
      *  Studio, and to find the property we'd need to filter the method names using `contains`
      *  instead of `equals`.
-     *
-     *  @suppress
      */
     fun hasAnimations() = hasAnimations
 

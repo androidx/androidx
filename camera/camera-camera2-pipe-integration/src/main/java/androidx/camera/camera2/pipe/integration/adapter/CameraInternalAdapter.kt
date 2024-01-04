@@ -19,6 +19,7 @@
 package androidx.camera.camera2.pipe.integration.adapter
 
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
@@ -60,11 +61,15 @@ class CameraInternalAdapter @Inject constructor(
         // TODO: Consider preloading the list of camera ids and metadata.
     }
 
-    fun pauseRefresh() = threads.scope.launch(threads.backgroundDispatcher) {
-        useCaseManager.pauseRefresh()
+    internal fun setCameraGraphCreationMode(createImmediately: Boolean) {
+        useCaseManager.setCameraGraphCreationMode(createImmediately)
     }
-    fun resumeRefresh() = threads.scope.launch(threads.backgroundDispatcher) {
-        useCaseManager.resumeRefresh()
+
+    internal fun getDeferredCameraGraphConfig(): CameraGraph.Config? =
+        useCaseManager.getDeferredCameraGraphConfig()
+
+    internal fun resumeDeferredCameraGraphCreation(cameraGraph: CameraGraph) {
+        useCaseManager.resumeDeferredComponentCreation(cameraGraph)
     }
 
     // Load / unload methods

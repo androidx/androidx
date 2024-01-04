@@ -193,6 +193,8 @@ class MeteringRepeating(
             )
         }
 
+        override fun getCaptureType() = UseCaseConfigFactory.CaptureType.METERING_REPEATING
+
         override fun getConfig() = config
 
         override fun getInputFormat() = ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE

@@ -19,6 +19,7 @@ package androidx.compose.ui.layout
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
+import androidx.compose.ui.draganddrop.DragAndDropInfo
 import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
@@ -208,6 +209,7 @@ private class FakeOwner(
     override fun requestFocus() = TODO("Not yet implemented")
     override fun onSemanticsChange() = TODO("Not yet implemented")
     override fun getFocusDirection(keyEvent: KeyEvent) = TODO("Not yet implemented")
+    override fun drag(dragAndDropInfo: DragAndDropInfo): Boolean = TODO("Not yet implemented")
 }
 
 internal fun defaultRootConstraints() = Constraints(maxWidth = 100, maxHeight = 100)
@@ -312,12 +314,14 @@ internal fun LayoutNode.queryAlignmentLineDuringMeasure() {
     (measurePolicy as SmartMeasurePolicy).queryAlignmentLinesDuringMeasure = true
 }
 
-internal fun LayoutNode.runDuringMeasure(block: () -> Unit) {
+internal fun LayoutNode.runDuringMeasure(once: Boolean = true, block: () -> Unit) {
     (measurePolicy as SmartMeasurePolicy).preMeasureCallback = block
+    (measurePolicy as SmartMeasurePolicy).shouldClearPreMeasureCallback = once
 }
 
-internal fun LayoutNode.runDuringLayout(block: () -> Unit) {
+internal fun LayoutNode.runDuringLayout(once: Boolean = true, block: () -> Unit) {
     (measurePolicy as SmartMeasurePolicy).preLayoutCallback = block
+    (measurePolicy as SmartMeasurePolicy).shouldClearPreLayoutCallback = once
 }
 
 internal val LayoutNode.first: LayoutNode get() = children.first()
@@ -364,7 +368,9 @@ internal abstract class SmartMeasurePolicy : LayoutNode.NoIntrinsicsMeasurePolic
     open var wrapChildren = false
     open var queryAlignmentLinesDuringMeasure = false
     var preMeasureCallback: (() -> Unit)? = null
+    var shouldClearPreMeasureCallback = false
     var preLayoutCallback: (() -> Unit)? = null
+    var shouldClearPreLayoutCallback = false
     var measuredLayoutDirection: LayoutDirection? = null
         protected set
     var childrenLayoutDirection: LayoutDirection? = null
@@ -382,7 +388,9 @@ internal class MeasureInMeasureBlock : SmartMeasurePolicy() {
     ): MeasureResult {
         measuresCount++
         preMeasureCallback?.invoke()
-        preMeasureCallback = null
+        if (shouldClearPreMeasureCallback) {
+            preMeasureCallback = null
+        }
         val childConstraints = if (size == null) {
             constraints
         } else {
@@ -409,7 +417,9 @@ internal class MeasureInMeasureBlock : SmartMeasurePolicy() {
         return layout(maxWidth, maxHeight) {
             layoutsCount++
             preLayoutCallback?.invoke()
-            preLayoutCallback = null
+            if (shouldClearPreLayoutCallback) {
+                preLayoutCallback = null
+            }
             if (shouldPlaceChildren) {
                 placeables.forEach { placeable ->
                     if (placeWithLayer) {
@@ -450,7 +460,9 @@ internal class MeasureInLayoutBlock : SmartMeasurePolicy() {
     ): MeasureResult {
         measuresCount++
         preMeasureCallback?.invoke()
-        preMeasureCallback = null
+        if (shouldClearPreMeasureCallback) {
+            preMeasureCallback = null
+        }
         val childConstraints = if (size == null) {
             constraints
         } else {
@@ -459,7 +471,9 @@ internal class MeasureInLayoutBlock : SmartMeasurePolicy() {
         }
         return layout(childConstraints.maxWidth, childConstraints.maxHeight) {
             preLayoutCallback?.invoke()
-            preLayoutCallback = null
+            if (shouldClearPreLayoutCallback) {
+                preLayoutCallback = null
+            }
             layoutsCount++
             measurables.forEach {
                 val placeable = it.measure(childConstraints)
@@ -494,14 +508,18 @@ internal class NoMeasure : SmartMeasurePolicy() {
     ): MeasureResult {
         measuresCount++
         preMeasureCallback?.invoke()
-        preMeasureCallback = null
+        if (shouldClearPreMeasureCallback) {
+            preMeasureCallback = null
+        }
 
         val width = size ?: if (!wrapChildren) constraints.maxWidth else constraints.minWidth
         val height = size ?: if (!wrapChildren) constraints.maxHeight else constraints.minHeight
         return layout(width, height) {
             layoutsCount++
             preLayoutCallback?.invoke()
-            preLayoutCallback = null
+            if (shouldClearPreLayoutCallback) {
+                preLayoutCallback = null
+            }
         }
     }
 }

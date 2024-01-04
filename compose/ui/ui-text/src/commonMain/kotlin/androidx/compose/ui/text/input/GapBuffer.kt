@@ -225,7 +225,6 @@ private class GapBuffer(initBuffer: CharArray, initGapStart: Int, initGapEnd: In
  * is requested, this class flush the buffer and create new String, then start new gap buffer.
  *
  * @param text The initial text
- * @suppress
  */
 @InternalTextApi // "Used by benchmarks"
 class PartialGapBuffer(var text: String) {

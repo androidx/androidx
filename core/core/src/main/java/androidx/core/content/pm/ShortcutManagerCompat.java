@@ -176,6 +176,7 @@ public class ShortcutManagerCompat {
      *
      * <p>Use {@link android.app.PendingIntent#getIntentSender()} to create a {@link IntentSender}.
      *
+     * @param context context to use for the request.
      * @param shortcut new shortcut to pin
      * @param callback if not null, this intent will be sent when the shortcut is pinned
      *
@@ -227,6 +228,7 @@ public class ShortcutManagerCompat {
      * <p>This should be used by an Activity to set result in response to
      * {@link Intent#ACTION_CREATE_SHORTCUT}.
      *
+     * @param context context to use for the intent.
      * @param shortcut new shortcut to pin
      * @return the intent that should be set as the result for the calling activity
      *
@@ -266,6 +268,7 @@ public class ShortcutManagerCompat {
      *                   method with other flag will be ignored.
      * </ul>
      *
+     * @param context context to use for the shortcuts.
      * @return list of {@link ShortcutInfoCompat}s that match the flag.
      *
      * <p>At least one of the {@code MATCH} flags should be set. Otherwise no shortcuts will be

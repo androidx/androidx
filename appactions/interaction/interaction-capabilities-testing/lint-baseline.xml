@@ -1,0 +1,427 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Fulfillment.newBuilder can only be called from within the same library (:)"
+        errorLine1="        val builder = Fulfillment.newBuilder()"
+        errorLine2="                                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/internal/ArgumentUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setName can only be called from within the same library (:)"
+        errorLine1="            val paramBuilder = FulfillmentParam.newBuilder().setName(key)"
+        errorLine2="                                                             ~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/internal/ArgumentUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FulfillmentParam.newBuilder can only be called from within the same library (:)"
+        errorLine1="            val paramBuilder = FulfillmentParam.newBuilder().setName(key)"
+        errorLine2="                                                ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/internal/ArgumentUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.addParams can only be called from within the same library (:)"
+        errorLine1="                builder.addParams("
+        errorLine2="                        ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/internal/ArgumentUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.addFulfillmentValues can only be called from within the same library (:)"
+        errorLine1="                    paramBuilder.addFulfillmentValues("
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/internal/ArgumentUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setValue can only be called from within the same library (:)"
+        errorLine1="                        FulfillmentValue.newBuilder().setValue(value).build()"
+        errorLine2="                                                      ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/internal/ArgumentUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FulfillmentValue.newBuilder can only be called from within the same library (:)"
+        errorLine1="                        FulfillmentValue.newBuilder().setValue(value).build()"
+        errorLine2="                                         ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/internal/ArgumentUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setNumberValue can only be called from within the same library (:)"
+        errorLine1="                return ParamValue.newBuilder().setNumberValue(argVal.toDouble()).build()"
+        errorLine2="                                               ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/internal/ArgumentUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.newBuilder can only be called from within the same library (:)"
+        errorLine1="                return ParamValue.newBuilder().setNumberValue(argVal.toDouble()).build()"
+        errorLine2="                                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/internal/ArgumentUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setNumberValue can only be called from within the same library (:)"
+        errorLine1="                return ParamValue.newBuilder().setNumberValue(argVal).build()"
+        errorLine2="                                               ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/internal/ArgumentUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.newBuilder can only be called from within the same library (:)"
+        errorLine1="                return ParamValue.newBuilder().setNumberValue(argVal).build()"
+        errorLine2="                                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/internal/ArgumentUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setStringValue can only be called from within the same library (:)"
+        errorLine1="                return ParamValue.newBuilder().setStringValue(argVal).build()"
+        errorLine2="                                               ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/internal/ArgumentUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.newBuilder can only be called from within the same library (:)"
+        errorLine1="                return ParamValue.newBuilder().setStringValue(argVal).build()"
+        errorLine2="                                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/internal/ArgumentUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setIdentifier can only be called from within the same library (:)"
+        errorLine1="                return ParamValue.newBuilder().setIdentifier(argVal.toString()).build()"
+        errorLine2="                                               ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/internal/ArgumentUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.newBuilder can only be called from within the same library (:)"
+        errorLine1="                return ParamValue.newBuilder().setIdentifier(argVal.toString()).build()"
+        errorLine2="                                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/internal/ArgumentUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue can only be accessed from within the same library (:)"
+        errorLine1="            is ParamValue -> {"
+        errorLine2="               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/internal/ArgumentUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.newBuilder can only be called from within the same library (:)"
+        errorLine1="        return ParamValue.newBuilder()"
+        errorLine2="                          ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/internal/ArgumentUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setStructValue can only be called from within the same library (:)"
+        errorLine1="            .setStructValue("
+        errorLine2="             ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/internal/ArgumentUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="SyncStatus.SLOTS_COMPLETE can only be accessed from within the same library (:)"
+        errorLine1="        return buildRequestArgs(type, Fulfillment.SyncStatus.SLOTS_COMPLETE, *args)"
+        errorLine2="                                                             ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/internal/ArgumentUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.addAllParams can only be called from within the same library (:)"
+        errorLine1="        val builder = Fulfillment.newBuilder().addAllParams(buildFulfillmentParams(*args))"
+        errorLine2="                                               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/internal/ArgumentUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Fulfillment.newBuilder can only be called from within the same library (:)"
+        errorLine1="        val builder = Fulfillment.newBuilder().addAllParams(buildFulfillmentParams(*args))"
+        errorLine2="                                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/internal/ArgumentUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Type.UNRECOGNIZED can only be accessed from within the same library (:)"
+        errorLine1="        if (type != Fulfillment.Type.UNRECOGNIZED) {"
+        errorLine2="                                     ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/internal/ArgumentUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setType can only be called from within the same library (:)"
+        errorLine1="            builder.type = type"
+        errorLine2="                    ~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/internal/ArgumentUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setType can only be called from within the same library (:)"
+        errorLine1="            builder.type = type"
+        errorLine2="                    ~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/internal/ArgumentUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Type.SYNC can only be accessed from within the same library (:)"
+        errorLine1="            if (type == Fulfillment.Type.SYNC &amp;&amp;"
+        errorLine2="                                         ~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/internal/ArgumentUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="SyncStatus.UNRECOGNIZED can only be accessed from within the same library (:)"
+        errorLine1="                syncStatus != Fulfillment.SyncStatus.UNRECOGNIZED) {"
+        errorLine2="                                                     ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/internal/ArgumentUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setSyncStatus can only be called from within the same library (:)"
+        errorLine1="                builder.syncStatus = syncStatus"
+        errorLine2="                        ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/internal/ArgumentUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setSyncStatus can only be called from within the same library (:)"
+        errorLine1="                builder.syncStatus = syncStatus"
+        errorLine2="                        ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/internal/ArgumentUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setName can only be called from within the same library (:)"
+        errorLine1="            val paramBuilder = FulfillmentParam.newBuilder().setName(key)"
+        errorLine2="                                                             ~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/internal/ArgumentUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FulfillmentParam.newBuilder can only be called from within the same library (:)"
+        errorLine1="            val paramBuilder = FulfillmentParam.newBuilder().setName(key)"
+        errorLine2="                                                ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/internal/ArgumentUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.addFulfillmentValues can only be called from within the same library (:)"
+        errorLine1="                    paramBuilder.addFulfillmentValues("
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/internal/ArgumentUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setValue can only be called from within the same library (:)"
+        errorLine1="                        FulfillmentValue.newBuilder().setValue(value).build()"
+        errorLine2="                                                      ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/internal/ArgumentUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FulfillmentValue.newBuilder can only be called from within the same library (:)"
+        errorLine1="                        FulfillmentValue.newBuilder().setValue(value).build()"
+        errorLine2="                                         ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/internal/ArgumentUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FulfillmentRequest.getFulfillments can only be called from within the same library (:)"
+        errorLine1="    val fulfillment = fulfillmentRequest.getFulfillments(0)"
+        errorLine2="                                         ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/CapabilityRequest.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.addFulfillments can only be called from within the same library (:)"
+        errorLine1="      FulfillmentRequest.newBuilder().addFulfillments("
+        errorLine2="                                      ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/CapabilityRequest.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FulfillmentRequest.newBuilder can only be called from within the same library (:)"
+        errorLine1="      FulfillmentRequest.newBuilder().addFulfillments("
+        errorLine2="                         ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/CapabilityRequest.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setIdentifier can only be called from within the same library (:)"
+        errorLine1="        fulfillment.toBuilder().setIdentifier(capabilityIdentifier).build()"
+        errorLine2="                                ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/CapabilityRequest.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.addAllFulfillmentValues can only be called from within the same library (:)"
+        errorLine1="      FulfillmentParam.newBuilder().setName(slotName).addAllFulfillmentValues("
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/CapabilityTestUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setName can only be called from within the same library (:)"
+        errorLine1="      FulfillmentParam.newBuilder().setName(slotName).addAllFulfillmentValues("
+        errorLine2="                                    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/CapabilityTestUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FulfillmentParam.newBuilder can only be called from within the same library (:)"
+        errorLine1="      FulfillmentParam.newBuilder().setName(slotName).addAllFulfillmentValues("
+        errorLine2="                       ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/CapabilityTestUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setValue can only be called from within the same library (:)"
+        errorLine1="        paramValues.map { FulfillmentValue.newBuilder().setValue(it).build() }"
+        errorLine2="                                                        ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/CapabilityTestUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FulfillmentValue.newBuilder can only be called from within the same library (:)"
+        errorLine1="        paramValues.map { FulfillmentValue.newBuilder().setValue(it).build() }"
+        errorLine2="                                           ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/CapabilityTestUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.addFulfillments can only be called from within the same library (:)"
+        errorLine1="      FulfillmentRequest.newBuilder().addFulfillments("
+        errorLine2="                                      ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/CapabilityTestUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FulfillmentRequest.newBuilder can only be called from within the same library (:)"
+        errorLine1="      FulfillmentRequest.newBuilder().addFulfillments("
+        errorLine2="                         ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/CapabilityTestUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Fulfillment.newBuilder can only be called from within the same library (:)"
+        errorLine1="        Fulfillment.newBuilder()"
+        errorLine2="                    ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/CapabilityTestUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setName can only be called from within the same library (:)"
+        errorLine1="          .setName(actionSpec.capabilityName)"
+        errorLine2="           ~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/CapabilityTestUtils.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.addAllParams can only be called from within the same library (:)"
+        errorLine1="          .addAllParams(fulfillmentParams)"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/testing/CapabilityTestUtils.kt"/>
+    </issue>
+
+</issues>

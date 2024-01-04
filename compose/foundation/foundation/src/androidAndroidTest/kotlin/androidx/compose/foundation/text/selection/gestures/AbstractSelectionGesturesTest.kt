@@ -16,13 +16,19 @@
 
 package androidx.compose.foundation.text.selection.gestures
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.selection.gestures.util.FakeHapticFeedback
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.TestViewConfiguration
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.lerp
+import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalTextToolbar
@@ -31,16 +37,19 @@ import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.MouseInjectionScope
 import androidx.compose.ui.test.TouchInjectionScope
-import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
+import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.lerp
+import java.lang.AssertionError
 import kotlin.math.max
 import kotlin.math.roundToInt
 import org.junit.Before
@@ -54,8 +63,11 @@ internal abstract class AbstractSelectionGesturesTest {
 
     protected abstract val pointerAreaTag: String
 
+    protected open var textDirection: ResolvedTextDirection = ResolvedTextDirection.Ltr
+
     protected val hapticFeedback = FakeHapticFeedback()
     protected val fontFamily = TEST_FONT_FAMILY
+
     // small enough to fit in narrow screen in pre-submit,
     // big enough that pointer movement can target a single char on center
     protected val fontSize = 15.sp
@@ -77,31 +89,87 @@ internal abstract class AbstractSelectionGesturesTest {
                 ),
                 LocalHapticFeedback provides hapticFeedback,
             ) {
-                Content()
+                Box(
+                    modifier = Modifier
+                        .padding(32.dp)
+                        .fillMaxSize()
+                        .wrapContentSize()
+                ) {
+                    Content()
+                }
             }
         }
     }
 
-    protected val boundsInRoot
-        get() = with(density) {
-            rule.onNodeWithTag(pointerAreaTag).getBoundsInRoot().toRect()
+    private val bounds
+        get() = rule.onNodeWithTag(pointerAreaTag).fetchSemanticsNode().size.toSize().toRect()
+
+    private val left get() = bounds.left + 1f
+    private val top get() = bounds.top + 1f
+    private val right get() = bounds.right - 1f
+    private val bottom get() = bounds.bottom - 1f
+
+    private val start get() = textDirection.take(ltr = left, rtl = right)
+    private val end get() = textDirection.take(ltr = right, rtl = left)
+
+    protected val topStart get() = Offset(start, top)
+    protected val centerStart get() = Offset(start, center.y)
+    protected val bottomStart get() = Offset(start, bottom)
+
+    protected val center get() = bounds.center
+
+    protected val topEnd get() = Offset(end, top)
+    protected val centerEnd get() = Offset(end, center.y)
+    protected val bottomEnd get() = Offset(end, bottom)
+
+    protected enum class VerticalDirection { UP, DOWN, CENTER }
+    protected enum class HorizontalDirection { START, END, CENTER }
+
+    // nudge 2f since we start 1f inwards from the edges and want to ensure we move over them if
+    // we nudge outwards again
+    protected fun Offset.nudge(
+        xDirection: HorizontalDirection = HorizontalDirection.CENTER,
+        yDirection: VerticalDirection = VerticalDirection.CENTER,
+    ): Offset = Offset(
+        x = x.adjustHorizontal(xDirection, 2f),
+        y = y.adjustVertical(yDirection, 2f),
+    )
+
+    private fun Float.adjustVertical(direction: VerticalDirection, diff: Float): Float =
+        this + diff * when (direction) {
+            VerticalDirection.UP -> -1f
+            VerticalDirection.CENTER -> 0f
+            VerticalDirection.DOWN -> 1f
         }
+
+    private fun Float.adjustHorizontal(direction: HorizontalDirection, diff: Float): Float =
+        this + diff * when (direction) {
+            HorizontalDirection.START -> textDirection.take(ltr = -1f, rtl = 1f)
+            HorizontalDirection.CENTER -> 0f
+            HorizontalDirection.END -> textDirection.take(ltr = 1f, rtl = -1f)
+        }
+
+    private fun <T> ResolvedTextDirection.take(ltr: T, rtl: T): T = when (this) {
+        ResolvedTextDirection.Ltr -> ltr
+        ResolvedTextDirection.Rtl -> rtl
+        else -> throw AssertionError("Unrecognized text direction $textDirection")
+    }
 
     // TODO(b/281584353) When touch mode can be changed globally,
     //  this should change to a single tap outside of the bounds.
     internal fun TouchInjectionScope.enterTouchMode() {
         swipe(
-            start = boundsInRoot.center,
-            end = boundsInRoot.bottomCenter + Offset(0f, 10f)
+            start = bounds.center,
+            end = bounds.bottomCenter + Offset(0f, 10f)
         )
     }
 
     // TODO(b/281584353) When touch mode can be changed globally,
     //  this should change to a mouse movement outside of the bounds.
     internal fun enterMouseMode() {
-        mouseDragTo(boundsInRoot.centerLeft, durationMillis = 50)
-        mouseDragTo(boundsInRoot.bottomRight, durationMillis = 50)
-        mouseDragTo(boundsInRoot.center, durationMillis = 50)
+        mouseDragTo(bounds.centerLeft, durationMillis = 50)
+        mouseDragTo(bounds.bottomRight, durationMillis = 50)
+        mouseDragTo(bounds.center, durationMillis = 50)
     }
 
     protected fun performTouchGesture(block: TouchInjectionScope.() -> Unit) {

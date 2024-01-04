@@ -55,4 +55,5 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2015"
     description = "Provides support for embedding Custom Tabs in an app."
+    metalavaK2UastEnabled = true
 }

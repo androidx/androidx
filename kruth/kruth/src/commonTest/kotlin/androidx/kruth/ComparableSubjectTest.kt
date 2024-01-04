@@ -30,6 +30,7 @@ import kotlin.test.assertFailsWith
  */
 class ComparableSubjectTest {
 
+    @Suppress("DEPRECATION") // Testing a deprecated method
     @Test
     fun testNulls() {
         assertFailsWith<NullPointerException> {

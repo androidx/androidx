@@ -31,7 +31,7 @@ class GattCharacteristicTest {
             FwkCharacteristic.PROPERTY_BROADCAST to
                 GattCharacteristic.PROPERTY_BROADCAST,
             FwkCharacteristic.PROPERTY_EXTENDED_PROPS to
-                GattCharacteristic.PROPERTY_EXTENDS_PROP,
+                GattCharacteristic.PROPERTY_EXTENDED_PROPS,
             FwkCharacteristic.PROPERTY_INDICATE to
                 GattCharacteristic.PROPERTY_INDICATE,
             FwkCharacteristic.PROPERTY_NOTIFY
@@ -63,7 +63,7 @@ class GattCharacteristicTest {
 
         val properties = GattCharacteristic.PROPERTY_READ
 
-        val characteristic = GattCharacteristic.of(uuid, properties)
+        val characteristic = GattCharacteristic(uuid, properties)
 
         Assert.assertEquals(uuid, characteristic.uuid)
         Assert.assertEquals(properties, characteristic.properties)

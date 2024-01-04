@@ -380,6 +380,7 @@ class ListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
                         )
                     },
                     trailingContent = {
+                        @Suppress("DEPRECATION")
                         Icon(
                             imageVector = Icons.Filled.KeyboardArrowRight,
                             contentDescription = null,

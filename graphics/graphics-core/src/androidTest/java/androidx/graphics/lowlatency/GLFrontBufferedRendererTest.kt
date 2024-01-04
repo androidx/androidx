@@ -73,6 +73,8 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawFrontBufferedLayer(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
                 param: Any
@@ -94,6 +96,8 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawMultiBufferedLayer(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
                 params: Collection<Any>
@@ -175,6 +179,8 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawFrontBufferedLayer(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
                 param: Any
@@ -196,6 +202,8 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawMultiBufferedLayer(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
                 params: Collection<Any>
@@ -301,6 +309,8 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawFrontBufferedLayer(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
                 param: Int
@@ -310,6 +320,8 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawMultiBufferedLayer(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
                 params: Collection<Int>
@@ -425,6 +437,8 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawFrontBufferedLayer(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
                 param: Int
@@ -469,6 +483,8 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawMultiBufferedLayer(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
                 params: Collection<Int>
@@ -521,6 +537,8 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawFrontBufferedLayer(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
                 param: Int
@@ -530,6 +548,8 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawMultiBufferedLayer(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
                 params: Collection<Int>
@@ -621,6 +641,8 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawFrontBufferedLayer(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
                 param: Int
@@ -642,6 +664,8 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawMultiBufferedLayer(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
                 params: Collection<Int>
@@ -727,6 +751,8 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawFrontBufferedLayer(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
                 param: Int
@@ -736,6 +762,8 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawMultiBufferedLayer(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
                 params: Collection<Int>
@@ -819,6 +847,8 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawFrontBufferedLayer(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
                 param: Any
@@ -845,6 +875,8 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawMultiBufferedLayer(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
                 params: Collection<Any>
@@ -898,6 +930,8 @@ class GLFrontBufferedRendererTest {
         val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
             override fun onDrawFrontBufferedLayer(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
                 param: Any
@@ -925,6 +959,8 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawMultiBufferedLayer(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
                 params: Collection<Any>
@@ -1023,6 +1059,8 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawFrontBufferedLayer(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
                 param: Any
@@ -1044,6 +1082,8 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawMultiBufferedLayer(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
                 params: Collection<Any>
@@ -1127,14 +1167,18 @@ class GLFrontBufferedRendererTest {
         val secondFrontBufferLatch = CountDownLatch(1)
         var bufferTransform = BufferTransformHintResolver.UNKNOWN_TRANSFORM
         var surfaceView: SurfaceView? = null
+        var surfaceWidth = 0
+        var surfaceHeight = 0
         val surfaceHolderCallbacks = object : SurfaceHolder.Callback {
             override fun surfaceCreated(p0: SurfaceHolder) {
                 // NO-OP
             }
 
-            override fun surfaceChanged(p0: SurfaceHolder, p1: Int, p2: Int, p3: Int) {
+            override fun surfaceChanged(p0: SurfaceHolder, format: Int, width: Int, height: Int) {
                 bufferTransform =
                     BufferTransformHintResolver().getBufferTransformHint(surfaceView!!)
+                surfaceWidth = width
+                surfaceHeight = height
             }
 
             override fun surfaceDestroyed(p0: SurfaceHolder) {
@@ -1152,10 +1196,14 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawFrontBufferedLayer(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
                 param: Any
             ) {
+                assertEquals(surfaceWidth, width)
+                assertEquals(surfaceHeight, height)
                 GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
                 Matrix.orthoM(
                     mOrthoMatrix,
@@ -1173,10 +1221,14 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawMultiBufferedLayer(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
                 params: Collection<Any>
             ) {
+                assertEquals(surfaceWidth, width)
+                assertEquals(surfaceHeight, height)
                 GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
                 Matrix.orthoM(
                     mOrthoMatrix,
@@ -1244,6 +1296,8 @@ class GLFrontBufferedRendererTest {
         val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
             override fun onDrawFrontBufferedLayer(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
                 param: Any
@@ -1253,6 +1307,8 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawMultiBufferedLayer(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
                 params: Collection<Any>
@@ -1299,6 +1355,8 @@ class GLFrontBufferedRendererTest {
         val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
             override fun onDrawFrontBufferedLayer(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
                 param: Any
@@ -1308,6 +1366,8 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawMultiBufferedLayer(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
                 params: Collection<Any>
@@ -1374,6 +1434,8 @@ class GLFrontBufferedRendererTest {
         val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
             override fun onDrawFrontBufferedLayer(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
                 param: Any
@@ -1383,6 +1445,8 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawMultiBufferedLayer(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
                 params: Collection<Any>
@@ -1407,6 +1471,8 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawFrontBufferedLayer(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
                 param: Any
@@ -1416,6 +1482,8 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawMultiBufferedLayer(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
                 params: Collection<Any>
@@ -1456,6 +1524,8 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawFrontBufferedLayer(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
                 param: Any
@@ -1480,6 +1550,8 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawMultiBufferedLayer(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
                 params: Collection<Any>
@@ -1669,6 +1741,8 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawFrontBufferedLayer(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
                 param: Any
@@ -1678,6 +1752,8 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawMultiBufferedLayer(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
                 params: Collection<Any>

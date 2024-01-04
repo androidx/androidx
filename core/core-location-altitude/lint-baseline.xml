@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="MapParamsProto.getMapS2Level can only be called from within the same library (missing Maven coordinate due to repackaging)"
+        errorLine1="        int sizeIj = 1 &lt;&lt; (S2CellIdUtils.MAX_LEVEL - params.getMapS2Level());"
+        errorLine2="                                                            ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/altitude/impl/AltitudeConverter.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="MapParamsProto.getMapS2Level can only be called from within the same library (missing Maven coordinate due to repackaging)"
+        errorLine1="        long z11 = S2CellIdUtils.getParent(s2CellId, params.getMapS2Level());"
+        errorLine2="                                                            ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/altitude/impl/AltitudeConverter.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="MapParamsProto.getMapS2Level can only be called from within the same library (missing Maven coordinate due to repackaging)"
+        errorLine1="                            params.getMapS2Level()),"
+        errorLine2="                                   ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/altitude/impl/AltitudeConverter.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="MapParamsProto.getMapS2Level can only be called from within the same library (missing Maven coordinate due to repackaging)"
+        errorLine1="                            params.getMapS2Level()),"
+        errorLine2="                                   ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/altitude/impl/AltitudeConverter.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="MapParamsProto.getMapS2Level can only be called from within the same library (missing Maven coordinate due to repackaging)"
+        errorLine1="                            params.getMapS2Level())"
+        errorLine2="                                   ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/altitude/impl/AltitudeConverter.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="MapParamsProto.getMapS2Level can only be called from within the same library (missing Maven coordinate due to repackaging)"
+        errorLine1="        double sizeIj = 1 &lt;&lt; (S2CellIdUtils.MAX_LEVEL - params.getMapS2Level());"
+        errorLine2="                                                               ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/altitude/impl/AltitudeConverter.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="MapParamsProto.getModelRmseMeters can only be called from within the same library (missing Maven coordinate due to repackaging)"
+        errorLine1="                        (float) Math.hypot(verticalAccuracyMeters, params.getModelRmseMeters()));"
+        errorLine2="                                                                          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/altitude/impl/AltitudeConverter.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="MapParamsProto.getCacheTileS2Level can only be called from within the same library (missing Maven coordinate due to repackaging)"
+        errorLine1="        return S2CellIdUtils.getParent(s2CellId, params.getCacheTileS2Level());"
+        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/altitude/impl/GeoidHeightMap.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="MapParamsProto.getDiskTileS2Level can only be called from within the same library (missing Maven coordinate due to repackaging)"
+        errorLine1="                S2CellIdUtils.getParent(s2CellId, params.getDiskTileS2Level()));"
+        errorLine2="                                                         ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/altitude/impl/GeoidHeightMap.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="S2TileProto.getByteBuffer can only be called from within the same library (missing Maven coordinate due to repackaging)"
+        errorLine1="        ByteString byteString = tiles[tileIndex].getByteBuffer();"
+        errorLine2="                                                 ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/altitude/impl/GeoidHeightMap.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ByteString.isEmpty can only be called from within the same library (missing Maven coordinate due to repackaging)"
+        errorLine1="        if (byteString.isEmpty()) {"
+        errorLine2="                       ~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/altitude/impl/GeoidHeightMap.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ByteString.asReadOnlyByteBuffer can only be called from within the same library (missing Maven coordinate due to repackaging)"
+        errorLine1="        ByteBuffer byteBuffer = byteString.asReadOnlyByteBuffer();"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/altitude/impl/GeoidHeightMap.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="MapParamsProto.getMapS2Level can only be called from within the same library (missing Maven coordinate due to repackaging)"
+        errorLine1="                params.getMapS2Level() - Integer.numberOfTrailingZeros(byteBuffer.limit()) / 2;"
+        errorLine2="                       ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/altitude/impl/GeoidHeightMap.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="MapParamsProto.getMapS2Level can only be called from within the same library (missing Maven coordinate due to repackaging)"
+        errorLine1="            int numBitsRightOfMap = 2 * (S2CellIdUtils.MAX_LEVEL - params.getMapS2Level()) + 1;"
+        errorLine2="                                                                          ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/altitude/impl/GeoidHeightMap.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="S2TileProto.getByteJpeg can only be called from within the same library (missing Maven coordinate due to repackaging)"
+        errorLine1="        mergeByteImageValues(params, tiles[tileIndex].getByteJpeg(), s2CellIds, tiles, tileIndex,"
+        errorLine2="                                                      ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/altitude/impl/GeoidHeightMap.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="S2TileProto.getBytePng can only be called from within the same library (missing Maven coordinate due to repackaging)"
+        errorLine1="        mergeByteImageValues(params, tiles[tileIndex].getBytePng(), s2CellIds, tiles, tileIndex,"
+        errorLine2="                                                      ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/altitude/impl/GeoidHeightMap.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ByteString.isEmpty can only be called from within the same library (missing Maven coordinate due to repackaging)"
+        errorLine1="        if (byteString.isEmpty()) {"
+        errorLine2="                       ~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/altitude/impl/GeoidHeightMap.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ByteString.newInput can only be called from within the same library (missing Maven coordinate due to repackaging)"
+        errorLine1="        try (InputStream inputStream = byteString.newInput()) {"
+        errorLine2="                                                  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/altitude/impl/GeoidHeightMap.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="MapParamsProto.getMapS2Level can only be called from within the same library (missing Maven coordinate due to repackaging)"
+        errorLine1="        return (iOrJ >> (S2CellIdUtils.MAX_LEVEL - params.getMapS2Level())) % widthOrHeight;"
+        errorLine2="                                                          ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/altitude/impl/GeoidHeightMap.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="MapParamsProto.getMapS2Level can only be called from within the same library (missing Maven coordinate due to repackaging)"
+        errorLine1="            Preconditions.checkArgument(S2CellIdUtils.getLevel(s2CellId) == params.getMapS2Level());"
+        errorLine2="                                                                                   ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/altitude/impl/GeoidHeightMap.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="MapParamsProto.getModelAMeters can only be called from within the same library (missing Maven coordinate due to repackaging)"
+        errorLine1="            heightsMeters[i] *= params.getModelAMeters();"
+        errorLine2="                                       ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/altitude/impl/GeoidHeightMap.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="MapParamsProto.getModelBMeters can only be called from within the same library (missing Maven coordinate due to repackaging)"
+        errorLine1="            heightsMeters[i] += params.getModelBMeters();"
+        errorLine2="                                       ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/altitude/impl/GeoidHeightMap.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="MapParamsProto.getCacheTileS2Level can only be called from within the same library (missing Maven coordinate due to repackaging)"
+        errorLine1="                1 &lt;&lt; (2 * (params.getMapS2Level() - params.getCacheTileS2Level()));"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/altitude/impl/GeoidHeightMap.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="MapParamsProto.getMapS2Level can only be called from within the same library (missing Maven coordinate due to repackaging)"
+        errorLine1="                1 &lt;&lt; (2 * (params.getMapS2Level() - params.getCacheTileS2Level()));"
+        errorLine2="                                  ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/altitude/impl/GeoidHeightMap.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="MapParamsProto.getMapS2Level can only be called from within the same library (missing Maven coordinate due to repackaging)"
+        errorLine1="            long s2CellId = S2CellIdUtils.getTraversalStart(cacheKeys[i], params.getMapS2Level());"
+        errorLine2="                                                                                 ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/altitude/impl/GeoidHeightMap.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.build can only be called from within the same library (missing Maven coordinate due to repackaging)"
+        errorLine1="                    S2TileProto.newBuilder().setByteBuffer(ByteString.copyFrom(bytes)).build();"
+        errorLine2="                                                                                       ~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/altitude/impl/GeoidHeightMap.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setByteBuffer can only be called from within the same library (missing Maven coordinate due to repackaging)"
+        errorLine1="                    S2TileProto.newBuilder().setByteBuffer(ByteString.copyFrom(bytes)).build();"
+        errorLine2="                                             ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/altitude/impl/GeoidHeightMap.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ByteString.copyFrom can only be called from within the same library (missing Maven coordinate due to repackaging)"
+        errorLine1="                    S2TileProto.newBuilder().setByteBuffer(ByteString.copyFrom(bytes)).build();"
+        errorLine2="                                                                      ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/altitude/impl/GeoidHeightMap.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="S2TileProto.newBuilder can only be called from within the same library (missing Maven coordinate due to repackaging)"
+        errorLine1="                    S2TileProto.newBuilder().setByteBuffer(ByteString.copyFrom(bytes)).build();"
+        errorLine2="                                ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/altitude/impl/GeoidHeightMap.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="AbstractMessageLite.toByteArray can only be called from within the same library (missing Maven coordinate due to repackaging)"
+        errorLine1="        return value.toByteArray();"
+        errorLine2="                     ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/altitude/impl/db/MapParamsEntity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="MapParamsProto.parseFrom can only be called from within the same library (missing Maven coordinate due to repackaging)"
+        errorLine1="            return MapParamsProto.parseFrom(byteArray);"
+        errorLine2="                                  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/altitude/impl/db/MapParamsEntity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="AbstractMessageLite.toByteArray can only be called from within the same library (missing Maven coordinate due to repackaging)"
+        errorLine1="        return tile.toByteArray();"
+        errorLine2="                    ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/altitude/impl/db/TilesEntity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="S2TileProto.parseFrom can only be called from within the same library (missing Maven coordinate due to repackaging)"
+        errorLine1="            return S2TileProto.parseFrom(byteArray);"
+        errorLine2="                               ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/altitude/impl/db/TilesEntity.java"/>
+    </issue>
+
+</issues>

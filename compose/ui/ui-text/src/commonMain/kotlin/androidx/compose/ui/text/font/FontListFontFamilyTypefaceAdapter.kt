@@ -22,8 +22,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.caches.LruCache
 import androidx.compose.ui.text.caches.SimpleArrayMap
-import androidx.compose.ui.text.fastDistinctBy
-import androidx.compose.ui.text.fastFilter
+import androidx.compose.ui.util.fastDistinctBy
+import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.text.createSynchronizedObject
 import androidx.compose.ui.text.synchronized
 import androidx.compose.ui.util.fastForEach

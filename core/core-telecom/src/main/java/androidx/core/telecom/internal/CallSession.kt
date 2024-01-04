@@ -22,7 +22,6 @@ import android.os.ParcelUuid
 import android.telecom.CallException
 import android.telecom.DisconnectCause
 import androidx.annotation.RequiresApi
-import androidx.core.telecom.CallControlCallback
 import androidx.core.telecom.CallControlScope
 import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.internal.utils.EndpointUtils
@@ -37,10 +36,16 @@ import kotlinx.coroutines.launch
 @RequiresApi(34)
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 @Suppress("ClassVerificationFailure")
-internal class CallSession(coroutineContext: CoroutineContext) {
+internal class CallSession(
+    coroutineContext: CoroutineContext,
+    val onAnswerCallback: suspend (callType: Int) -> Boolean,
+    val onDisconnectCallback: suspend (disconnectCause: DisconnectCause) -> Boolean,
+    val onSetActiveCallback: suspend () -> Boolean,
+    val onSetInactiveCallback: suspend () -> Boolean,
+    private val blockingSessionExecution: CompletableDeferred<Unit>
+) {
     private val mCoroutineContext = coroutineContext
     private var mPlatformInterface: android.telecom.CallControl? = null
-    private var mClientInterface: CallControlCallback? = null
 
     class CallControlCallbackImpl(private val callSession: CallSession) :
         android.telecom.CallControlCallback {
@@ -105,18 +110,6 @@ internal class CallSession(coroutineContext: CoroutineContext) {
      */
     fun setCallControl(control: android.telecom.CallControl) {
         mPlatformInterface = control
-    }
-
-    /**
-     * pass in the clients callback implementation for CallControlCallback that is set in the
-     * CallsManager#addCall scope.
-     */
-    fun setCallControlCallback(clientCallbackImpl: CallControlCallback) {
-        mClientInterface = clientCallbackImpl
-    }
-
-    fun hasClientSetCallbacks(): Boolean {
-        return mClientInterface != null
     }
 
     /**
@@ -186,29 +179,30 @@ internal class CallSession(coroutineContext: CoroutineContext) {
      */
     fun onSetActive(wasCompleted: Consumer<Boolean>) {
         CoroutineScope(mCoroutineContext).launch {
-            val clientResponse: Boolean = mClientInterface!!.onSetActive()
+            val clientResponse: Boolean = onSetActiveCallback()
             wasCompleted.accept(clientResponse)
         }
     }
 
     fun onSetInactive(wasCompleted: Consumer<Boolean>) {
         CoroutineScope(mCoroutineContext).launch {
-            val clientResponse: Boolean = mClientInterface!!.onSetInactive()
+            val clientResponse: Boolean = onSetInactiveCallback()
             wasCompleted.accept(clientResponse)
         }
     }
 
     fun onAnswer(videoState: Int, wasCompleted: Consumer<Boolean>) {
         CoroutineScope(mCoroutineContext).launch {
-            val clientResponse: Boolean = mClientInterface!!.onAnswer(videoState)
+            val clientResponse: Boolean = onAnswerCallback(videoState)
             wasCompleted.accept(clientResponse)
         }
     }
 
     fun onDisconnect(cause: DisconnectCause, wasCompleted: Consumer<Boolean>) {
         CoroutineScope(mCoroutineContext).launch {
-            val clientResponse: Boolean = mClientInterface!!.onDisconnect(cause)
+            val clientResponse: Boolean = onDisconnectCallback(cause)
             wasCompleted.accept(clientResponse)
+            blockingSessionExecution.complete(Unit)
         }
     }
 
@@ -220,46 +214,37 @@ internal class CallSession(coroutineContext: CoroutineContext) {
     class CallControlScopeImpl(
         private val session: CallSession,
         callChannels: CallChannels,
+        private val blockingSessionExecution: CompletableDeferred<Unit>,
         override val coroutineContext: CoroutineContext
     ) : CallControlScope {
-        //  handle actionable/handshake events that originate in the platform
-        //  and require a response from the client
-        override fun setCallback(callControlCallback: CallControlCallback) {
-            session.setCallControlCallback(callControlCallback)
-        }
-
         // handle requests that originate from the client and propagate into platform
         //  return the platforms response which indicates success of the request.
         override fun getCallId(): ParcelUuid {
             CoroutineScope(session.mCoroutineContext).launch {
-                verifySessionCallbacks()
             }
             return session.getCallId()
         }
 
         override suspend fun setActive(): Boolean {
-            verifySessionCallbacks()
             return session.setActive()
         }
 
         override suspend fun setInactive(): Boolean {
-            verifySessionCallbacks()
             return session.setInactive()
         }
 
         override suspend fun answer(callType: Int): Boolean {
-            verifySessionCallbacks()
             return session.answer(callType)
         }
 
         override suspend fun disconnect(disconnectCause: DisconnectCause): Boolean {
-            verifySessionCallbacks()
-            return session.disconnect(disconnectCause)
+            val response = session.disconnect(disconnectCause)
+            blockingSessionExecution.complete(Unit)
+            return response
         }
 
         override suspend fun requestEndpointChange(endpoint: CallEndpointCompat):
             Boolean {
-            verifySessionCallbacks()
             return session.requestEndpointChange(
                 EndpointUtils.Api34PlusImpl.toCallEndpoint(endpoint)
             )
@@ -274,17 +259,5 @@ internal class CallSession(coroutineContext: CoroutineContext) {
 
         override val isMuted: Flow<Boolean> =
             callChannels.isMutedChannel.receiveAsFlow()
-
-        private suspend fun verifySessionCallbacks() {
-            CoroutineScope(session.mCoroutineContext).launch {
-                if (!session.hasClientSetCallbacks()) {
-                    // Always send disconnect signal so that we don't end up with stuck calls.
-                    session.disconnect(DisconnectCause(DisconnectCause.LOCAL))
-                    throw androidx.core.telecom.CallException(
-                        androidx.core.telecom.CallException.ERROR_CALLBACKS_CODE
-                    )
-                }
-            }
-        }
     }
 }

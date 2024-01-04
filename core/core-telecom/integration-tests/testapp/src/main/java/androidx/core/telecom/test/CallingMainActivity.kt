@@ -29,7 +29,7 @@ import androidx.core.telecom.CallsManager
 import androidx.core.view.WindowCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -117,40 +117,57 @@ class CallingMainActivity : Activity() {
         Log.i(TAG, "addCallWithAttributes: attributes=$attributes")
         val callObject = VoipCall()
 
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                mCallsManager!!.addCall(attributes) {
-                    // set the client callback implementation
-                    setCallback(callObject.mCallControlCallbackImpl)
-
-                    // inject client control interface into the VoIP call object
-                    callObject.setCallId(getCallId().toString())
-                    callObject.setCallControl(this)
-
-                    // Collect updates
-                    launch {
-                        currentCallEndpoint.collect {
-                            callObject.onCallEndpointChanged(it)
-                        }
-                    }
-
-                    launch {
-                        availableEndpoints.collect {
-                            callObject.onAvailableCallEndpointsChanged(it)
-                        }
-                    }
-
-                    launch {
-                        isMuted.collect {
-                            callObject.onMuteStateChanged(it)
-                        }
-                    }
-                }
-                addCallRow(callObject)
-            } catch (e: CancellationException) {
-                Log.i(TAG, "addCallWithAttributes: cancellationException:$e")
+        try {
+            val handler = CoroutineExceptionHandler { _, exception ->
+                Log.i(TAG, "CoroutineExceptionHandler: handling e=$exception")
             }
+
+            CoroutineScope(Dispatchers.IO).launch(handler) {
+                try {
+                    mCallsManager!!.addCall(
+                        attributes,
+                        callObject.mOnAnswerLambda,
+                        callObject.mOnDisconnectLambda,
+                        callObject.mOnSetActiveLambda,
+                        callObject.mOnSetInActiveLambda
+                    ) {
+                        // inject client control interface into the VoIP call object
+                        callObject.setCallId(getCallId().toString())
+                        callObject.setCallControl(this)
+
+                        // Collect updates
+                        launch {
+                            currentCallEndpoint.collect {
+                                callObject.onCallEndpointChanged(it)
+                            }
+                        }
+
+                        launch {
+                            availableEndpoints.collect {
+                                callObject.onAvailableCallEndpointsChanged(it)
+                            }
+                        }
+
+                        launch {
+                            isMuted.collect {
+                                callObject.onMuteStateChanged(it)
+                            }
+                        }
+                        addCallRow(callObject)
+                    }
+                } catch (e: Exception) {
+                    logException(e, "addCallWithAttributes: catch inner")
+                } finally {
+                    Log.i(TAG, "addCallWithAttributes: finally block")
+                }
+            }
+        } catch (e: Exception) {
+            logException(e, "addCallWithAttributes: catch outer")
         }
+    }
+
+    private fun logException(e: Exception, prefix: String) {
+        Log.i(TAG, "$prefix: e=[$e], e.msg=[${e.message}], e.stack:${e.printStackTrace()}")
     }
 
     private fun addCallRow(callObject: VoipCall) {

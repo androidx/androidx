@@ -16,11 +16,11 @@
  */
 package com.example.android.leanback;
 
+import androidx.fragment.app.FragmentActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import androidx.fragment.app.FragmentActivity;
 import androidx.leanback.widget.BrowseFrameLayout;
 import androidx.leanback.widget.TitleHelper;
 import androidx.leanback.widget.TitleView;

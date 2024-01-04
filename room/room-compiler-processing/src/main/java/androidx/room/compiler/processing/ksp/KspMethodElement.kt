@@ -46,6 +46,8 @@ internal sealed class KspMethodElement(
     override val name: String
         get() = declaration.simpleName.asString()
 
+    override val propertyName = null
+
     @OptIn(KspExperimental::class)
     override val jvmName: String by lazy {
         if (!isKotlinPropertyMethod()) {
@@ -143,6 +145,10 @@ internal sealed class KspMethodElement(
     override fun overrides(other: XMethodElement, owner: XTypeElement): Boolean {
         return env.resolver.overrides(this, other)
     }
+
+    override fun isKotlinPropertySetter() = false
+
+    override fun isKotlinPropertyGetter() = false
 
     override fun isKotlinPropertyMethod() = false
 

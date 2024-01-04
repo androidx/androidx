@@ -17,6 +17,7 @@
 package androidx.bluetooth
 
 import android.bluetooth.BluetoothGattCharacteristic as FwkCharacteristic
+import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import java.util.UUID
 
@@ -28,6 +29,21 @@ class GattCharacteristic internal constructor(
     @set:RestrictTo(RestrictTo.Scope.LIBRARY)
     var fwkCharacteristic: FwkCharacteristic
 ) {
+    @Target(AnnotationTarget.TYPE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Retention(AnnotationRetention.SOURCE)
+    @IntDef(flag = true, value = [
+        PROPERTY_BROADCAST,
+        PROPERTY_READ,
+        PROPERTY_WRITE_NO_RESPONSE,
+        PROPERTY_WRITE,
+        PROPERTY_NOTIFY,
+        PROPERTY_INDICATE,
+        PROPERTY_SIGNED_WRITE,
+        PROPERTY_EXTENDED_PROPS
+    ])
+    annotation class Property
+
     companion object {
         /**
          * It permits broadcasts of the characteristic.
@@ -67,13 +83,10 @@ class GattCharacteristic internal constructor(
         /**
          * Additional characteristic properties are defined.
          */
-        const val PROPERTY_EXTENDS_PROP = FwkCharacteristic.PROPERTY_EXTENDED_PROPS
+        const val PROPERTY_EXTENDED_PROPS = FwkCharacteristic.PROPERTY_EXTENDED_PROPS
 
-        /**
-         * Creates a [GattCharacteristic] instance for a GATT server.
-         */
         @JvmStatic
-        fun of(uuid: UUID, properties: Int): GattCharacteristic {
+        private fun getPermissionsWithProperties(properties: @Property Int): Int {
             var permissions = 0
             if ((properties and PROPERTY_READ) != 0) {
                 permissions = permissions or FwkCharacteristic.PERMISSION_READ
@@ -84,9 +97,12 @@ class GattCharacteristic internal constructor(
             if ((properties and PROPERTY_SIGNED_WRITE) != 0) {
                 permissions = permissions or FwkCharacteristic.PERMISSION_WRITE_SIGNED
             }
-            val fwkCharacteristic = FwkCharacteristic(uuid, properties, permissions)
-            return GattCharacteristic(fwkCharacteristic)
+            return permissions
         }
+    }
+
+    constructor(uuid: UUID, properties: @Property Int) :
+        this(FwkCharacteristic(uuid, properties, getPermissionsWithProperties(properties))) {
     }
 
     /**
@@ -98,7 +114,7 @@ class GattCharacteristic internal constructor(
     /**
      * The properties of the characteristic.
      */
-    val properties: Int
+    val properties: @Property Int
         get() = fwkCharacteristic.properties
 
     /**

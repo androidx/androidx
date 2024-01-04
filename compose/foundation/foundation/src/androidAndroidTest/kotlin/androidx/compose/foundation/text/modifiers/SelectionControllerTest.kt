@@ -27,6 +27,7 @@ import androidx.compose.foundation.text.selection.Selectable
 import androidx.compose.foundation.text.selection.Selection
 import androidx.compose.foundation.text.selection.Selection.AnchorInfo
 import androidx.compose.foundation.text.selection.SelectionAdjustment
+import androidx.compose.foundation.text.selection.SelectionLayoutBuilder
 import androidx.compose.foundation.text.selection.SelectionRegistrar
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -69,9 +70,11 @@ class SelectionControllerTest {
             it.addRect(Rect(0f, 0f, pathSize, pathSize))
         }
 
+        val fixedSelectionFake = FixedSelectionFake(0, 1000, 200)
         val subject = SelectionController(
-            FixedSelectionFake(0, 1000, 200),
-            Color.White,
+            selectableId = fixedSelectionFake.nextSelectableId(),
+            selectionRegistrar = fixedSelectionFake,
+            backgroundSelectionColor = Color.White,
             params = FakeParams(
                 path, true
             )
@@ -103,9 +106,11 @@ class SelectionControllerTest {
             it.addRect(Rect(0f, 0f, pathSize, pathSize))
         }
 
+        val fixedSelectionFake = FixedSelectionFake(0, 1000, 200)
         val subject = SelectionController(
-            FixedSelectionFake(0, 1000, 200),
-            Color.White,
+            selectableId = fixedSelectionFake.nextSelectableId(),
+            selectionRegistrar = fixedSelectionFake,
+            backgroundSelectionColor = Color.White,
             params = FakeParams(
                 path, false
             )
@@ -219,15 +224,7 @@ private class FakeSelectableWithLastVisibleOffset(
     override val selectableId: Long,
     private val lastVisible: Int
 ) : Selectable {
-    override fun updateSelection(
-        startHandlePosition: Offset,
-        endHandlePosition: Offset,
-        previousHandlePosition: Offset?,
-        isStartHandle: Boolean,
-        containerLayoutCoordinates: LayoutCoordinates,
-        adjustment: SelectionAdjustment,
-        previousSelection: Selection?
-    ): Pair<Selection?, Boolean> {
+    override fun appendSelectableInfoToBuilder(builder: SelectionLayoutBuilder) {
         FAKE()
     }
 
@@ -248,6 +245,18 @@ private class FakeSelectableWithLastVisibleOffset(
     }
 
     override fun getBoundingBox(offset: Int): Rect {
+        FAKE()
+    }
+
+    override fun getLineLeft(offset: Int): Float {
+        FAKE()
+    }
+
+    override fun getLineRight(offset: Int): Float {
+        FAKE()
+    }
+
+    override fun getCenterYForOffset(offset: Int): Float {
         FAKE()
     }
 

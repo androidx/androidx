@@ -295,13 +295,10 @@ internal class TextFieldDecoratorModifierNode(
         setText { newText ->
             if (readOnly || !enabled) return@setText false
 
-            textFieldState.editProcessor.update(
-                listOf(
-                    DeleteAllCommand,
-                    CommitTextCommand(newText, 1)
-                ),
-                filter
-            )
+            textFieldState.editAsUser(filter) {
+                deleteAll()
+                commitText(newText.toString(), 1)
+            }
             true
         }
         setSelection { start, end, _ ->
@@ -316,10 +313,9 @@ internal class TextFieldDecoratorModifierNode(
             } else if (start.coerceAtMost(end) >= 0 &&
                 start.coerceAtLeast(end) <= text.length
             ) {
-                textFieldState.editProcessor.update(
-                    listOf(SetSelectionCommand(start, end)),
-                    filter
-                )
+                textFieldState.editAsUser(filter) {
+                    setSelection(start, end)
+                }
                 true
             } else {
                 false
@@ -328,15 +324,12 @@ internal class TextFieldDecoratorModifierNode(
         insertTextAtCursor { newText ->
             if (readOnly || !enabled) return@insertTextAtCursor false
 
-            textFieldState.editProcessor.update(
-                listOf(
-                    // Finish composing text first because when the field is focused the IME
-                    // might set composition.
-                    FinishComposingTextCommand,
-                    CommitTextCommand(newText, 1)
-                ),
-                filter
-            )
+            textFieldState.editAsUser(filter) {
+                // Finish composing text first because when the field is focused the IME
+                // might set composition.
+                commitComposition()
+                commitText(newText.toString(), 1)
+            }
             true
         }
         onImeAction(keyboardOptions.imeAction) {
@@ -426,6 +419,7 @@ internal class TextFieldDecoratorModifierNode(
         return textFieldKeyEventHandler.onKeyEvent(
             event = event,
             textFieldState = textFieldState,
+            inputTransformation = filter,
             textLayoutState = textLayoutState,
             textFieldSelectionState = textFieldSelectionState,
             editable = enabled && !readOnly,

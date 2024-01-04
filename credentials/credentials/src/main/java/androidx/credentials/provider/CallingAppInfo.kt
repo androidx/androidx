@@ -64,7 +64,7 @@ class CallingAppInfo @JvmOverloads constructor(
      * origin will only be returned if the [packageName] and the fingerprints of certificates
      * obtained from the [signingInfo] match with that of an app allowlisted
      * in [privilegedAllowlist]. The format of this JSON must adhere to the following sample.
-     *
+     * ```
      * {"apps": [
      *    {
      *       "type": "android",
@@ -82,6 +82,7 @@ class CallingAppInfo @JvmOverloads constructor(
      *       }
      *     }
      * ]}
+     * ```
      *
      * All keys in the JSON must be exactly as stated in the sample above. Note that if the build
      * for a given fingerprint is specified as 'userdebug', that fingerprint will

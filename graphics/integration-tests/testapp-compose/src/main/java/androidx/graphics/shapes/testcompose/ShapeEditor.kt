@@ -16,9 +16,6 @@
 
 package androidx.graphics.shapes.testcompose
 
-import android.graphics.Matrix
-import android.graphics.PointF
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
@@ -43,26 +40,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.plus
 import androidx.graphics.shapes.CornerRounding
 import androidx.graphics.shapes.RoundedPolygon
 import androidx.graphics.shapes.circle
 import androidx.graphics.shapes.rectangle
 import androidx.graphics.shapes.star
-import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
-import kotlin.math.sin
 
 private val LOG_TAG = "ShapeEditor"
-private val DEBUG = false
-
-internal fun debugLog(message: String) {
-    if (DEBUG) Log.d(LOG_TAG, message)
-}
 
 data class ShapeItem(
     val name: String,
@@ -73,8 +64,6 @@ data class ShapeItem(
     val usesRoundness: Boolean = true,
     val usesInnerParameters: Boolean = true
 )
-
-private val PointZero = PointF(0f, 0f)
 
 class ShapeParameters(
     sides: Int = 5,
@@ -114,8 +103,8 @@ class ShapeParameters(
     private fun radialToCartesian(
         radius: Float,
         angleRadians: Float,
-        center: PointF = PointZero
-    ) = directionVectorPointF(angleRadians) * radius + center
+        center: Offset = Offset.Zero
+    ) = directionVector(angleRadians) * radius + center
 
     private fun rotationAsString() =
         if (this.rotation.value != 0f)
@@ -180,7 +169,8 @@ class ShapeParameters(
                 RoundedPolygon(
                     points,
                     CornerRounding(this.roundness.value, this.smooth.value),
-                    centerX = PointZero.x, centerY = PointZero.y
+                    centerX = 0f,
+                    centerY = 0f
                 )
             },
             debugDump = {
@@ -227,7 +217,8 @@ class ShapeParameters(
                         CornerRounding(1f),
                         CornerRounding(1f)
                     ),
-                    centerX = PointZero.x, centerY = PointZero.y
+                    centerX = 0f,
+                    centerY = 0f
                 )
             },
             debugDump = {
@@ -286,18 +277,22 @@ class ShapeParameters(
 
     fun selectedShape() = derivedStateOf { shapes[shapeIx] }
 
-    fun genShape(autoSize: Boolean = true) = selectedShape().value.shapegen().apply {
-        transform(Matrix().apply {
+    fun genShape(autoSize: Boolean = true) = selectedShape().value.shapegen().let { poly ->
+        poly.transformed(Matrix().apply {
             if (autoSize) {
+                val bounds = poly.getBounds()
                 // Move the center to the origin.
-                postTranslate(-(bounds.left + bounds.right) / 2, -(bounds.top + bounds.bottom) / 2)
+                translate(
+                    x = -(bounds.left + bounds.right) / 2,
+                    y = -(bounds.top + bounds.bottom) / 2
+                )
 
                 // Scale to the [-1, 1] range
-                val scale = 2f / max(bounds.width(), bounds.height())
-                postScale(scale, scale)
+                val scale = 2f / max(bounds.width, bounds.height)
+                scale(x = scale, y = scale)
             }
             // Apply the needed rotation
-            postRotate(rotation.value)
+            rotateZ(rotation.value)
         })
     }
 }
@@ -349,10 +344,11 @@ fun ShapeEditor(params: ShapeParameters, onClose: () -> Unit) {
                 .border(1.dp, Color.White)
                 .padding(2.dp)
         ) {
-            PolygonComposableImpl(params.genShape(autoSize = autoSize).also { poly ->
+            PolygonComposableImpl(params.genShape(autoSize = autoSize).let { poly ->
                 if (autoSize) {
-                    val matrix = calculateMatrix(poly.bounds, 1f, 1f)
-                    poly.transform(matrix)
+                    poly.normalized()
+                } else {
+                    poly
                 }
             }, debug = debug)
         }
@@ -417,12 +413,4 @@ fun MySlider(
     }
 }
 
-// TODO: remove this when it is integrated into Ktx
-operator fun PointF.times(factor: Float): PointF {
-    return PointF(this.x * factor, this.y * factor)
-}
-
 private fun squarePoints() = floatArrayOf(1f, 1f, -1f, 1f, -1f, -1f, 1f, -1f)
-
-internal fun directionVectorPointF(angleRadians: Float) =
-    PointF(cos(angleRadians), sin(angleRadians))

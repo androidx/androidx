@@ -1,5 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ExifInterface.TAG_THUMBNAIL_ORIENTATION can only be accessed from within the same library (androidx.exifinterface:exifinterface)"
+        errorLine1="            ExifInterface.TAG_THUMBNAIL_ORIENTATION);"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/core/impl/utils/Exif.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ExifInterface.TAG_THUMBNAIL_ORIENTATION can only be accessed from within the same library (androidx.exifinterface:exifinterface)"
+        errorLine1="                ExifInterface.TAG_THUMBNAIL_ORIENTATION,"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/core/impl/utils/Exif.java"/>
+    </issue>
 
     <issue
         id="UnsafeOptInUsageError"

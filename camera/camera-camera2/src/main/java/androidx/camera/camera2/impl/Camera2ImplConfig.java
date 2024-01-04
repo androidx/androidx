@@ -66,11 +66,6 @@ public final class Camera2ImplConfig extends CaptureRequestOptions {
             SESSION_CAPTURE_CALLBACK_OPTION =
             Option.create("camera2.cameraCaptureSession.captureCallback",
                     CameraCaptureSession.CaptureCallback.class);
-
-    @RestrictTo(Scope.LIBRARY)
-    public static final Option<CameraEventCallbacks> CAMERA_EVENT_CALLBACK_OPTION =
-            Option.create("camera2.cameraEvent.callback", CameraEventCallbacks.class);
-
     @RestrictTo(Scope.LIBRARY)
     public static final Option<Object> CAPTURE_REQUEST_TAG_OPTION = Option.create(
             "camera2.captureRequest.tag", Object.class);
@@ -180,19 +175,6 @@ public final class Camera2ImplConfig extends CaptureRequestOptions {
     }
 
     /**
-     * Returns the stored CameraEventCallbacks instance.
-     *
-     * @param valueIfMissing The value to return if this configuration option has not been set.
-     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
-     * configuration.
-     */
-    @Nullable
-    public CameraEventCallbacks getCameraEventCallback(
-            @Nullable CameraEventCallbacks valueIfMissing) {
-        return getConfig().retrieveOption(CAMERA_EVENT_CALLBACK_OPTION, valueIfMissing);
-    }
-
-    /**
      * Returns the capture request tag.
      *
      * @param valueIfMissing The value to return if this configuration option has not been set.
@@ -279,40 +261,6 @@ public final class Camera2ImplConfig extends CaptureRequestOptions {
         @NonNull
         public Camera2ImplConfig build() {
             return new Camera2ImplConfig(OptionsBundle.from(mMutableOptionsBundle));
-        }
-    }
-
-    /**
-     * Extends a {@link ExtendableBuilder} to add Camera2 implementation options.
-     *
-     * @param <T> the type being built by the extendable builder.
-     */
-    public static final class Extender<T> {
-
-        ExtendableBuilder<T> mBaseBuilder;
-
-        /**
-         * Creates an Extender that can be used to add Camera2 implementation options to another
-         * Builder.
-         *
-         * @param baseBuilder The builder being extended.
-         */
-        public Extender(@NonNull ExtendableBuilder<T> baseBuilder) {
-            mBaseBuilder = baseBuilder;
-        }
-
-        /**
-         * Sets a CameraEventCallbacks instance.
-         *
-         * @param cameraEventCallbacks The CameraEventCallbacks.
-         * @return The current Extender.
-         */
-        @NonNull
-        public Extender<T> setCameraEventCallback(
-                @NonNull CameraEventCallbacks cameraEventCallbacks) {
-            mBaseBuilder.getMutableConfig().insertOption(CAMERA_EVENT_CALLBACK_OPTION,
-                    cameraEventCallbacks);
-            return this;
         }
     }
 }

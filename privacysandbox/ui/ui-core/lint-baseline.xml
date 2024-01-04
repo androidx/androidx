@@ -13,7 +13,7 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="    void notifyResized(int width, int height);"
+        errorLine1="oneway interface IRemoteSessionController {"
         errorLine2="^">
         <location
             file="src/main/aidl/androidx/privacysandbox/ui/core/IRemoteSessionController.aidl"/>
@@ -22,7 +22,7 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="import android.content.Context;"
+        errorLine1="oneway interface ISandboxedUiAdapter {"
         errorLine2="^">
         <location
             file="src/main/aidl/androidx/privacysandbox/ui/core/ISandboxedUiAdapter.aidl"/>

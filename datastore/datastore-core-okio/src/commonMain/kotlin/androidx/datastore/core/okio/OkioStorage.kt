@@ -56,7 +56,7 @@ public class OkioStorage<T>(
             "OkioStorage requires absolute paths, but did not get an absolute path from " +
                 "producePath = $producePath, instead got $path"
         }
-        path
+        path.normalized()
     }
 
     override fun createConnection(): StorageConnection<T> {

@@ -46,14 +46,15 @@ class UitForegroundInfo(
     val fgsType: Int = ServiceInfo.FOREGROUND_SERVICE_TYPE_NONE,
     /**
      * Indicates what should be done with the notification after the foreground service is finished.
-     * By default, the notification will be removed
-     * (see [TaskEndNotificationPolicy.NOTIFICATION_REMOVE])
+     *
+     * **By default, the notification will be removed
+     * (see [TaskEndNotificationPolicy.NOTIFICATION_REMOVE])**
      */
     val taskEndNotificationPolicy: TaskEndNotificationPolicy =
         TaskEndNotificationPolicy.NOTIFICATION_REMOVE
 ) {
     /**
-     * Internal container variable pointing to the [ForegroundInfo] object in workmanager.
+     * Internal container variable pointing to the [ForegroundInfo] object in WorkManager.
      */
     private val foregroundInfo: ForegroundInfo =
                                 ForegroundInfo(notificationId, notification, fgsType)
@@ -76,7 +77,8 @@ class UitForegroundInfo(
 enum class TaskEndNotificationPolicy {
     /**
      * This indicates that the notification will be removed when the task is finished.
-     * This is the default behavior.
+     *
+     * **This is the default behavior.**
      */
     NOTIFICATION_REMOVE,
     /**

@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
@@ -37,11 +38,13 @@ import androidx.compose.ui.graphics.vector.VectorPath
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.matchers.MSSIMMatcher
 import com.google.common.truth.Truth
@@ -50,7 +53,9 @@ import kotlin.reflect.jvm.javaGetter
 import org.junit.Rule
 
 const val ProgrammaticTestTag = "programmatic"
+const val ProgrammaticRtlTestTag = "programmatic_rtl"
 const val XmlTestTag = "Xml"
+const val XmlRtlTestTag = "Xml_rtl"
 
 /**
  * Base class for Material [androidx.compose.material.icons.Icons] tests.
@@ -82,7 +87,17 @@ abstract class BaseIconComparisonTest {
             // The XML inflated ImageVector doesn't have a name, and we set a name in the
             // programmatic ImageVector. This doesn't affect how the ImageVector is drawn, so we
             // make sure the names match so the comparison does not fail.
-            xmlVector = xmlVector!!.copy(name = programmaticVector.name)
+            // Also, match the autoMirror value of the XML vector to that of the programmatic
+            // ImageVector. The set of icons that are passed into the test includes deprecated icons
+            // that were generated from the same set of XML vectors used to create the auto-mirrored
+            // icons. These XMLs have an `autoMirrored` attribute where applicable, so with this
+            // copy we specifically ensure that the XML flag is turned off when compared to
+            // deprecated icons that were generated while ignoring the flag for backward
+            // compatibility.
+            xmlVector = xmlVector!!.copy(
+                name = programmaticVector.name,
+                autoMirror = programmaticVector.autoMirror
+            )
 
             assertImageVectorsAreEqual(xmlVector!!, programmaticVector, iconName)
 
@@ -91,6 +106,14 @@ abstract class BaseIconComparisonTest {
                 rule.onNodeWithTag(ProgrammaticTestTag).captureToImage().asAndroidBitmap(),
                 iconName
             )
+
+            if (programmaticVector.autoMirror) {
+                matcher.assertBitmapsAreEqual(
+                    rule.onNodeWithTag(XmlRtlTestTag).captureToImage().asAndroidBitmap(),
+                    rule.onNodeWithTag(ProgrammaticRtlTestTag).captureToImage().asAndroidBitmap(),
+                    iconName
+                )
+            }
 
             // Dispose between composing each pair of icons to ensure correctness
             rule.activityRule.scenario.onActivity {
@@ -104,9 +127,16 @@ abstract class BaseIconComparisonTest {
  * Helper method to copy the existing [ImageVector] modifying the name
  * for use in equality checks.
  */
-private fun ImageVector.copy(name: String): ImageVector {
+private fun ImageVector.copy(name: String, autoMirror: Boolean): ImageVector {
     val builder = ImageVector.Builder(
-        name, defaultWidth, defaultHeight, viewportWidth, viewportHeight, tintColor, tintBlendMode
+        name,
+        defaultWidth,
+        defaultHeight,
+        viewportWidth,
+        viewportHeight,
+        tintColor,
+        tintBlendMode,
+        autoMirror
     )
     val root = this.root
     // Stack of vector groups and current child index being traversed
@@ -265,6 +295,27 @@ private fun DrawVectors(programmaticVector: ImageVector, xmlVector: ImageVector)
                     )
                     .testTag(XmlTestTag)
             )
+            if (programmaticVector.autoMirror) {
+                // Compose in RTL.
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                    Box(
+                        modifier = layoutSize
+                            .paint(
+                                rememberVectorPainter(programmaticVector),
+                                colorFilter = ColorFilter.tint(Color.Red)
+                            )
+                            .testTag(ProgrammaticRtlTestTag)
+                    )
+                    Box(
+                        modifier = layoutSize
+                            .paint(
+                                rememberVectorPainter(xmlVector),
+                                colorFilter = ColorFilter.tint(Color.Red)
+                            )
+                            .testTag(XmlRtlTestTag)
+                    )
+                }
+            }
         }
     }
 }

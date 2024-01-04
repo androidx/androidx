@@ -34,33 +34,26 @@ class CallException(
     companion object {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Retention(AnnotationRetention.SOURCE)
-        @IntDef(ERROR_UNKNOWN_CODE, ERROR_CALLBACKS_CODE)
+        @IntDef(ERROR_BUILD_VERSION_CODE, ERROR_UNKNOWN_CODE)
         annotation class CallErrorCode
+
+        /**
+         * The operation has failed due to an unknown or unspecified error.
+         */
+        const val ERROR_BUILD_VERSION_CODE = 0
+
+        internal const val ERROR_BUILD_VERSION_MSG: String = "Core-Telecom only supports builds" +
+            " from Oreo (Android 8) and above.  In order to utilize Core-Telecom, your device" +
+            " must be updated."
 
         /**
          * The operation has failed due to an unknown or unspecified error.
          */
         const val ERROR_UNKNOWN_CODE = 1
 
-        /**
-         * This error code is thrown whenever a call is added via [CallsManager.addCall] and the
-         * [CallControlScope.setCallback]s is not the first API called in the session block or at
-         * all. In order to avoid this exception, ensure your [CallControlScope] is calling
-         * [CallControlScope.setCallback]s.
-         */
-        const val ERROR_CALLBACKS_CODE = 2
-
-        internal const val ERROR_CALLBACKS_MSG: String = "Error, when using the " +
-            "[CallControlScope], you must first set the " +
-            "[androidx.core.telecom.CallControlCallback]s via [CallControlScope]#[setCallback]"
-
-        internal const val ERROR_BUILD_VERSION: String = "Core-Telecom only supports builds from" +
-            " Oreo (Android 8) and above.  In order to utilize Core-Telecom, your device must" +
-            " be updated."
-
         internal fun codeToMessage(@CallErrorCode code: Int): String {
             when (code) {
-                ERROR_CALLBACKS_CODE -> return ERROR_CALLBACKS_MSG
+                ERROR_BUILD_VERSION_CODE -> return ERROR_BUILD_VERSION_MSG
             }
             return "An Unknown Error has occurred while using the Core-Telecom APIs"
         }

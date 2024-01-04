@@ -43,6 +43,16 @@ object Devices {
     const val PIXEL_3A_XL = "id:pixel_3a_xl"
     const val PIXEL_4 = "id:pixel_4"
     const val PIXEL_4_XL = "id:pixel_4_xl"
+    const val PIXEL_4A = "id:pixel_4a"
+    const val PIXEL_5 = "id:pixel_5"
+    const val PIXEL_6 = "id:pixel_6"
+    const val PIXEL_6_PRO = "id:pixel_6_pro"
+    const val PIXEL_6A = "id:pixel_6a"
+    const val PIXEL_7 = "id:pixel_7"
+    const val PIXEL_7_PRO = "id:pixel_7_pro"
+    const val PIXEL_7A = "id:pixel_7a"
+    const val PIXEL_FOLD = "id:pixel_fold"
+    const val PIXEL_TABLET = "id:pixel_tablet"
 
     const val AUTOMOTIVE_1024p = "id:automotive_1024p_landscape"
 
@@ -74,7 +84,6 @@ object Devices {
 
 /**
  * Annotation for defining the [Preview] device to use.
- * @suppress
  */
 @Retention(AnnotationRetention.SOURCE)
 @Suppress("DEPRECATION")
@@ -102,6 +111,16 @@ object Devices {
         Devices.PIXEL_3A_XL,
         Devices.PIXEL_4,
         Devices.PIXEL_4_XL,
+        Devices.PIXEL_4A,
+        Devices.PIXEL_5,
+        Devices.PIXEL_6,
+        Devices.PIXEL_6_PRO,
+        Devices.PIXEL_6A,
+        Devices.PIXEL_7,
+        Devices.PIXEL_7_PRO,
+        Devices.PIXEL_7A,
+        Devices.PIXEL_FOLD,
+        Devices.PIXEL_TABLET,
 
         Devices.AUTOMOTIVE_1024p,
 
@@ -119,4 +138,4 @@ object Devices {
         Devices.TV_1080p,
     ]
 )
-annotation class Device
+internal annotation class Device

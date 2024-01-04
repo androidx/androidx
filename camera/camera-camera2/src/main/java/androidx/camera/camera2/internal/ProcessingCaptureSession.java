@@ -142,7 +142,7 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
     @NonNull
     @Override
     public ListenableFuture<Void> open(@NonNull SessionConfig sessionConfig,
-            @NonNull CameraDevice cameraDevice, @NonNull SynchronizedCaptureSessionOpener opener) {
+            @NonNull CameraDevice cameraDevice, @NonNull SynchronizedCaptureSession.Opener opener) {
         Preconditions.checkArgument(mProcessorState == ProcessorState.UNINITIALIZED,
                 "Invalid state state:" + mProcessorState);
         Preconditions.checkArgument(!sessionConfig.getSurfaces().isEmpty(),

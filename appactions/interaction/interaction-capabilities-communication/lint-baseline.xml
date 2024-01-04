@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.newBuilder can only be called from within the same library (:)"
+        errorLine1="            return ParamValue.newBuilder()"
+        errorLine2="                              ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/communication/CreateCall.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setStructValue can only be called from within the same library (:)"
+        errorLine1="                .setStructValue("
+        errorLine2="                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/communication/CreateCall.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParamValue.newBuilder can only be called from within the same library (:)"
+        errorLine1="            return ParamValue.newBuilder()"
+        errorLine2="                              ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/communication/CreateMessage.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setStructValue can only be called from within the same library (:)"
+        errorLine1="                .setStructValue("
+        errorLine2="                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appactions/interaction/capabilities/communication/CreateMessage.kt"/>
+    </issue>
+
+</issues>

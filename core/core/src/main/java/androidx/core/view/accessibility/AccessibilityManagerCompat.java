@@ -161,6 +161,7 @@ public final class AccessibilityManagerCompat {
      * Registers a {@link TouchExplorationStateChangeListener} for changes in
      * the global touch exploration state of the system.
      *
+     * @param manager AccessibilityManager for which to add the listener.
      * @param listener The listener.
      * @return True if successfully registered.
      */
@@ -177,6 +178,7 @@ public final class AccessibilityManagerCompat {
     /**
      * Unregisters a {@link TouchExplorationStateChangeListener}.
      *
+     * @param manager AccessibilityManager for which to remove the listener.
      * @param listener The listener.
      * @return True if successfully unregistered.
      */

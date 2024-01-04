@@ -20,6 +20,7 @@ import static androidx.annotation.Dimension.DP;
 import static androidx.annotation.Dimension.PX;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -52,6 +53,7 @@ import androidx.core.content.ContextCompat;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.Locale;
 
 /**
  * Class holding the {@link Intent} and start bundle for a Custom Tabs Activity.
@@ -176,10 +178,11 @@ public final class CustomTabsIntent {
             "android.support.customtabs.extra.SEND_TO_EXTERNAL_HANDLER";
 
     /**
-     * Extra that specifies the target language the Translate UI should be triggered with.
+     * Extra that specifies the target locale the Translate UI should be triggered with.
+     * The locale is represented as a well-formed IETF BCP 47 language tag.
      */
-    public static final String EXTRA_TRANSLATE_LANGUAGE =
-            "androidx.browser.customtabs.extra.TRANSLATE_LANGUAGE";
+    public static final String EXTRA_TRANSLATE_LANGUAGE_TAG =
+            "androidx.browser.customtabs.extra.TRANSLATE_LANGUAGE_TAG";
 
     /**
      * Extra that, when set to false, disables interactions with the background app
@@ -195,6 +198,13 @@ public final class CustomTabsIntent {
      */
     public static final String EXTRA_SHOW_ON_TOOLBAR =
             "android.support.customtabs.customaction.SHOW_ON_TOOLBAR";
+
+    /**
+     * Extra that specifies the {@link PendingIntent} to be sent when the user swipes up from
+     * the secondary (bottom) toolbar.
+     */
+    public static final String EXTRA_SECONDARY_TOOLBAR_SWIPE_UP_GESTURE =
+            "androidx.browser.customtabs.extra.SECONDARY_TOOLBAR_SWIPE_UP_GESTURE";
 
     /**
      * Don't show any title. Shows only the domain.
@@ -535,12 +545,13 @@ public final class CustomTabsIntent {
         private final CustomTabColorSchemeParams.Builder mDefaultColorSchemeBuilder =
                 new CustomTabColorSchemeParams.Builder();
         @Nullable private ArrayList<Bundle> mMenuItems;
-        @Nullable private Bundle mStartAnimationBundle;
+        @Nullable private ActivityOptions mActivityOptions;
         @Nullable private ArrayList<Bundle> mActionButtons;
         @Nullable private SparseArray<Bundle> mColorSchemeParamBundles;
         @Nullable private Bundle mDefaultColorSchemeBundle;
         @ShareState private int mShareState = SHARE_STATE_DEFAULT;
         private boolean mInstantAppsEnabled = true;
+        private boolean mShareIdentity;
 
         /**
          * Creates a {@link CustomTabsIntent.Builder} object associated with no
@@ -892,6 +903,18 @@ public final class CustomTabsIntent {
         }
 
         /**
+         * Sets the {@link PendingIntent} to be sent when the user swipes up from
+         * the secondary (bottom) toolbar.
+         * @param pendingIntent The {@link PendingIntent} that will be sent when
+         *                      the user swipes up from the secondary toolbar.
+         */
+        @NonNull
+        public Builder setSecondaryToolbarSwipeUpGesture(@Nullable PendingIntent pendingIntent) {
+            mIntent.putExtra(EXTRA_SECONDARY_TOOLBAR_SWIPE_UP_GESTURE, pendingIntent);
+            return this;
+        }
+
+        /**
          * Sets whether Instant Apps is enabled for this Custom Tab.
 
          * @param enabled Whether Instant Apps should be enabled.
@@ -913,8 +936,13 @@ public final class CustomTabsIntent {
         @SuppressWarnings("NullAway") // TODO: b/141869399
         public Builder setStartAnimations(
                 @NonNull Context context, @AnimRes int enterResId, @AnimRes int exitResId) {
-            mStartAnimationBundle = ActivityOptionsCompat.makeCustomAnimation(
-                    context, enterResId, exitResId).toBundle();
+            // We use ActivityOptions, not ActivityOptionsCompat, to build the start activity
+            // options, since we might set another option (share identity, which is not
+            // available yet via ActivityOptionsCompat) before turning it to a Bundle.
+            // TODO(b/296463161): Update androidx.core.core lib to support the new option via
+            // ActivityOptionsCompat and use it here instead of ActivityOptions.
+            mActivityOptions = ActivityOptions.makeCustomAnimation(
+                    context, enterResId, exitResId);
             return this;
         }
 
@@ -1092,6 +1120,7 @@ public final class CustomTabsIntent {
          * is enabled by default.
          *
          * @param enabled Whether the start button is enabled.
+         * @see CustomTabsIntent#EXTRA_DISABLE_BOOKMARKS_BUTTON
          */
         @NonNull
         public Builder setBookmarksButtonEnabled(boolean enabled) {
@@ -1104,6 +1133,7 @@ public final class CustomTabsIntent {
          * is enabled by default.
          *
          * @param enabled Whether the download button is enabled.
+         * @see CustomTabsIntent#EXTRA_DISABLE_DOWNLOAD_BUTTON
          */
         @NonNull
         public Builder setDownloadButtonEnabled(boolean enabled) {
@@ -1115,6 +1145,7 @@ public final class CustomTabsIntent {
          * Enables sending initial urls to external handler apps, if possible.
          *
          * @param enabled Whether to send urls to external handler.
+         * @see CustomTabsIntent#EXTRA_SEND_TO_EXTERNAL_DEFAULT_HANDLER
          */
         @NonNull
         public Builder setSendToExternalDefaultHandlerEnabled(boolean enabled) {
@@ -1123,14 +1154,16 @@ public final class CustomTabsIntent {
         }
 
         /**
-         * Specifies the target language the Translate UI should be triggered with.
+         * Specifies the target locale the Translate UI should be triggered with.
          *
-         * @param lang Language code for the translate UI. Should be in the format of
-         *        ISO 639 language code.
+         * @param locale {@link Locale} object that represents the target locale.
+         * @see CustomTabsIntent#EXTRA_TRANSLATE_LANGUAGE_TAG
          */
         @NonNull
-        public Builder setTranslateLanguage(@NonNull String lang) {
-            mIntent.putExtra(EXTRA_TRANSLATE_LANGUAGE, lang);
+        public Builder setTranslateLocale(@NonNull Locale locale) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                setLanguageTag(locale);
+            }
             return this;
         }
 
@@ -1140,6 +1173,7 @@ public final class CustomTabsIntent {
          * Enables the interactions with the background app when a Partial Custom Tab is launched.
          *
          * @param enabled Whether the background interaction is enabled.
+         * @see CustomTabsIntent#EXTRA_ENABLE_BACKGROUND_INTERACTION
          */
         @NonNull
         public Builder setBackgroundInteractionEnabled(boolean enabled) {
@@ -1153,10 +1187,21 @@ public final class CustomTabsIntent {
          * toolbar.
          *
          * @param enabled Whether the additional actions can be added to the toolbar.
+         * @see CustomTabsIntent#EXTRA_SHOW_ON_TOOLBAR
          */
         @NonNull
         public Builder setShowOnToolbarEnabled(boolean enabled) {
             mIntent.putExtra(EXTRA_SHOW_ON_TOOLBAR, enabled);
+            return this;
+        }
+
+        /**
+         * Allow Custom Tabs to obtain the caller's identity i.e. package name.
+         * @param enabled Whether the identity sharing is enabled.
+         */
+        @NonNull
+        public Builder setShareIdentityEnabled(boolean enabled) {
+            mShareIdentity = enabled;
             return this;
         }
 
@@ -1195,7 +1240,14 @@ public final class CustomTabsIntent {
                 setCurrentLocaleAsDefaultAcceptLanguage();
             }
 
-            return new CustomTabsIntent(mIntent, mStartAnimationBundle);
+            Bundle bundle = null;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                setShareIdentityEnabled();
+            }
+            if (mActivityOptions != null) {
+                bundle = mActivityOptions.toBundle();
+            }
+            return new CustomTabsIntent(mIntent, bundle);
         }
 
         /**
@@ -1213,6 +1265,19 @@ public final class CustomTabsIntent {
                     mIntent.putExtra(Browser.EXTRA_HEADERS, header);
                 }
             }
+        }
+
+        @RequiresApi(api = Build.VERSION_CODES.N)
+        private void setLanguageTag(@NonNull Locale locale) {
+            Api21Impl.setLanguageTag(mIntent, locale);
+        }
+
+        @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        private void setShareIdentityEnabled() {
+            if (mActivityOptions == null) {
+                mActivityOptions = Api23Impl.makeBasicActivityOptions();
+            }
+            Api34Impl.setShareIdentityEnabled(mActivityOptions, mShareIdentity);
         }
     }
 
@@ -1369,14 +1434,24 @@ public final class CustomTabsIntent {
     }
 
     /**
-     * Gets the target language for the Translate UI.
+     * Gets the target locale for the Translate UI.
      *
-     * @return The target language the Translate UI should be triggered with.
-     * @see CustomTabsIntent#EXTRA_TRANSLATE_LANGUAGE
+     * @return The target locale the Translate UI should be triggered with.
+     * @see CustomTabsIntent#EXTRA_TRANSLATE_LANGUAGE_TAG
      */
     @Nullable
-    public static String getTranslateLanguage(@NonNull Intent intent) {
-        return intent.getStringExtra(EXTRA_TRANSLATE_LANGUAGE);
+    public static Locale getTranslateLocale(@NonNull Intent intent) {
+        Locale locale = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            locale = getLocaleForLanguageTag(intent);
+        }
+        return locale;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    @Nullable
+    private static Locale getLocaleForLanguageTag(Intent intent) {
+        return Api21Impl.getLocaleForLanguageTag(intent);
     }
 
     /**
@@ -1395,6 +1470,40 @@ public final class CustomTabsIntent {
         return intent.getBooleanExtra(EXTRA_SHOW_ON_TOOLBAR, false);
     }
 
+    /**
+     * @return The {@link PendingIntent} that will be sent when the user swipes up
+     *     from the secondary toolbar.
+     * @see CustomTabsIntent#EXTRA_SECONDARY_TOOLBAR_SWIPE_UP_GESTURE
+     */
+    @SuppressWarnings("deprecation")
+    @Nullable
+    public static PendingIntent getSecondaryToolbarSwipeUpGesture(@NonNull Intent intent) {
+        return intent.getParcelableExtra(EXTRA_SECONDARY_TOOLBAR_SWIPE_UP_GESTURE);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private static class Api21Impl {
+        @DoNotInline
+        static void setLanguageTag(Intent intent, Locale locale) {
+            intent.putExtra(EXTRA_TRANSLATE_LANGUAGE_TAG, locale.toLanguageTag());
+        }
+
+        @DoNotInline
+        @Nullable
+        static Locale getLocaleForLanguageTag(Intent intent) {
+            String languageTag = intent.getStringExtra(EXTRA_TRANSLATE_LANGUAGE_TAG);
+            return languageTag != null ? Locale.forLanguageTag(languageTag) : null;
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private static class Api23Impl {
+        @DoNotInline
+        static ActivityOptions makeBasicActivityOptions() {
+            return ActivityOptions.makeBasic();
+        }
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.N)
     private static class Api24Impl {
         @DoNotInline
@@ -1402,6 +1511,14 @@ public final class CustomTabsIntent {
         static String getDefaultLocale() {
             LocaleList defaultLocaleList = LocaleList.getAdjustedDefault();
             return (defaultLocaleList.size() > 0) ? defaultLocaleList.get(0).toLanguageTag(): null;
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    private static class Api34Impl {
+        @DoNotInline
+        static void setShareIdentityEnabled(ActivityOptions activityOptions, boolean enabled) {
+            activityOptions.setShareIdentityEnabled(enabled);
         }
     }
 }

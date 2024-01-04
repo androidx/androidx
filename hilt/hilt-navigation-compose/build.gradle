@@ -73,4 +73,5 @@ androidx {
     description = "Navigation Compose Hilt Integration"
     runApiTasks = new RunApiTasks.Yes()
     legacyDisableKotlinStrictApiMode = true
+    metalavaK2UastEnabled = true
 }

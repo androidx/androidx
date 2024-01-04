@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text2.input.internal
 
-import androidx.compose.foundation.text.InternalFoundationTextApi
 import androidx.compose.foundation.text2.input.internal.matchers.assertThat
 import com.google.common.truth.Truth.assertThat
 import kotlin.random.Random
@@ -25,7 +24,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@OptIn(InternalFoundationTextApi::class)
 @RunWith(JUnit4::class)
 class GapBufferTest {
 
@@ -136,6 +134,177 @@ class GapBufferTest {
     }
 
     @Test
+    fun insert_withSubRange_empty_fromHead() {
+        val buffer = PartialGapBuffer("")
+        buffer.replace(0, 0, "XYZ")
+
+        buffer.replace(0, 0, "ABCD", 0, 0)
+
+        assertThat(buffer).hasChars("XYZ")
+    }
+
+    @Test
+    fun insert_withSubRange_empty_fromTail() {
+        val buffer = PartialGapBuffer("")
+        buffer.replace(0, 0, "XYZ")
+
+        buffer.replace(0, 0, "ABCD", 4, 4)
+
+        assertThat(buffer).hasChars("XYZ")
+    }
+
+    @Test
+    fun insert_withSubRange_empty_fromMiddle() {
+        val buffer = PartialGapBuffer("")
+        buffer.replace(0, 0, "XYZ")
+
+        buffer.replace(0, 0, "ABCD", 1, 1)
+
+        assertThat(buffer).hasChars("XYZ")
+    }
+
+    @Test
+    fun insert_withSubRange_singleChar_fromHead() {
+        val buffer = PartialGapBuffer("")
+        buffer.replace(0, 0, "XYZ")
+
+        buffer.replace(0, 0, "ABCD", 0, 1)
+
+        assertThat(buffer).hasChars("AXYZ")
+    }
+
+    @Test
+    fun insert_withSubRange_singleChar_fromTail() {
+        val buffer = PartialGapBuffer("")
+        buffer.replace(0, 0, "XYZ")
+
+        buffer.replace(0, 0, "ABCD", 3, 4)
+
+        assertThat(buffer).hasChars("DXYZ")
+    }
+
+    @Test
+    fun insert_withSubRange_singleChar_fromMiddle() {
+        val buffer = PartialGapBuffer("")
+        buffer.replace(0, 0, "XYZ")
+
+        buffer.replace(0, 0, "ABCD", 1, 2)
+
+        assertThat(buffer).hasChars("BXYZ")
+    }
+
+    @Test
+    fun insert_withSubRange_multipleChars_fromHead() {
+        val buffer = PartialGapBuffer("")
+        buffer.replace(0, 0, "XYZ")
+
+        buffer.replace(0, 0, "ABCD", 0, 2)
+
+        assertThat(buffer).hasChars("ABXYZ")
+    }
+
+    @Test
+    fun insert_withSubRange_multipleChars_fromTail() {
+        val buffer = PartialGapBuffer("")
+        buffer.replace(0, 0, "XYZ")
+
+        buffer.replace(0, 0, "ABCD", 2, 4)
+
+        assertThat(buffer).hasChars("CDXYZ")
+    }
+
+    @Test
+    fun insert_withSubRange_multipleChars_fromMiddle() {
+        val buffer = PartialGapBuffer("")
+        buffer.replace(0, 0, "XYZ")
+
+        buffer.replace(0, 0, "ABCD", 1, 3)
+
+        assertThat(buffer).hasChars("BCXYZ")
+    }
+
+    @Test
+    fun insert_intoExistingText_withSubRange_empty_fromHead() {
+        val buffer = PartialGapBuffer("XYZ")
+
+        buffer.replace(0, 0, "ABCD", 0, 0)
+
+        assertThat(buffer).hasChars("XYZ")
+    }
+
+    @Test
+    fun insert_intoExistingText_withSubRange_empty_fromTail() {
+        val buffer = PartialGapBuffer("XYZ")
+
+        buffer.replace(0, 0, "ABCD", 4, 4)
+
+        assertThat(buffer).hasChars("XYZ")
+    }
+
+    @Test
+    fun insert_intoExistingText_withSubRange_empty_fromMiddle() {
+        val buffer = PartialGapBuffer("XYZ")
+
+        buffer.replace(0, 0, "ABCD", 1, 1)
+
+        assertThat(buffer).hasChars("XYZ")
+    }
+
+    @Test
+    fun insert_intoExistingText_withSubRange_singleChar_fromHead() {
+        val buffer = PartialGapBuffer("XYZ")
+
+        buffer.replace(0, 0, "ABCD", 0, 1)
+
+        assertThat(buffer).hasChars("AXYZ")
+    }
+
+    @Test
+    fun insert_intoExistingText_withSubRange_singleChar_fromTail() {
+        val buffer = PartialGapBuffer("XYZ")
+
+        buffer.replace(0, 0, "ABCD", 3, 4)
+
+        assertThat(buffer).hasChars("DXYZ")
+    }
+
+    @Test
+    fun insert_intoExistingText_withSubRange_singleChar_fromMiddle() {
+        val buffer = PartialGapBuffer("XYZ")
+
+        buffer.replace(0, 0, "ABCD", 1, 2)
+
+        assertThat(buffer).hasChars("BXYZ")
+    }
+
+    @Test
+    fun insert_intoExistingText_withSubRange_multipleChars_fromHead() {
+        val buffer = PartialGapBuffer("XYZ")
+
+        buffer.replace(0, 0, "ABCD", 0, 2)
+
+        assertThat(buffer).hasChars("ABXYZ")
+    }
+
+    @Test
+    fun insert_intoExistingText_withSubRange_multipleChars_fromTail() {
+        val buffer = PartialGapBuffer("XYZ")
+
+        buffer.replace(0, 0, "ABCD", 2, 4)
+
+        assertThat(buffer).hasChars("CDXYZ")
+    }
+
+    @Test
+    fun insert_intoExistingText_withSubRange_multipleChars_fromMiddle() {
+        val buffer = PartialGapBuffer("XYZ")
+
+        buffer.replace(0, 0, "ABCD", 1, 3)
+
+        assertThat(buffer).hasChars("BCXYZ")
+    }
+
+    @Test
     fun deleteTest_insert_and_delete_from_head() {
         assertThat(
             PartialGapBuffer("").apply {
@@ -186,7 +355,7 @@ class GapBufferTest {
     }
 
     @Test
-    fun deleteTest_insert_and_delete_with_two_instruction_from_haed() {
+    fun deleteTest_insert_and_delete_with_two_instruction_from_head() {
         assertThat(
             PartialGapBuffer("").apply {
                 replace(0, 0, "ABC")
@@ -197,7 +366,7 @@ class GapBufferTest {
     }
 
     @Test
-    fun deleteTest_insert_and_delet_with_two_instruction_from_head_and_tail() {
+    fun deleteTest_insert_and_delete_with_two_instruction_from_head_and_tail() {
         assertThat(
             PartialGapBuffer("").apply {
                 replace(0, 0, "ABC")
@@ -208,7 +377,7 @@ class GapBufferTest {
     }
 
     @Test
-    fun deleteTest_insert_and_delet_with_two_instruction_from_tail() {
+    fun deleteTest_insert_and_delete_with_two_instruction_from_tail() {
         assertThat(
             PartialGapBuffer("").apply {
                 replace(0, 0, "ABC")
@@ -570,7 +739,17 @@ class GapBufferTest {
         val error = assertFailsWith<IllegalArgumentException> {
             buffer.replace(3, 2, "")
         }
-        assertThat(error).hasMessageThat().contains("3 > 2")
+        assertThat(error).hasMessageThat().contains("start=3 > end=2")
+    }
+
+    @Test
+    fun replace_throws_whenTextStartGreaterThanTextEnd() {
+        val buffer = PartialGapBuffer("ABCD")
+
+        val error = assertFailsWith<IllegalArgumentException> {
+            buffer.replace(2, 3, "", 1, 0)
+        }
+        assertThat(error).hasMessageThat().contains("textStart=1 > textEnd=0")
     }
 
     @Test
@@ -583,7 +762,17 @@ class GapBufferTest {
         assertThat(error).hasMessageThat().contains("-1")
     }
 
-    // Compare with the result of StringBuffer. We trust the StringBuffer works correctly
+    @Test
+    fun replace_throws_whenTextStartNegative() {
+        val buffer = PartialGapBuffer("ABCD")
+
+        val error = assertFailsWith<IllegalArgumentException> {
+            buffer.replace(1, 2, "XY", -1, 2)
+        }
+        assertThat(error).hasMessageThat().contains("-1")
+    }
+
+    /** Compare with the result of StringBuffer. We trust the StringBuffer works correctly. */
     private fun assertReplace(
         start: Int,
         end: Int,

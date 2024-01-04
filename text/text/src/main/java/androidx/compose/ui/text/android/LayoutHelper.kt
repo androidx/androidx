@@ -28,9 +28,7 @@ private const val LINE_FEED = '\n'
  *
  * This class is not thread-safe. Do not share an instance with multiple threads.
  *
- * @suppress
  */
-@InternalPlatformTextApi
 internal class LayoutHelper(val layout: Layout) {
 
     private val paragraphEnds: List<Int>

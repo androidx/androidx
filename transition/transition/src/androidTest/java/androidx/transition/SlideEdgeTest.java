@@ -43,6 +43,7 @@ import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.testutils.PollingCheck;
 
 import org.junit.Test;
 
@@ -217,13 +218,52 @@ public class SlideEdgeTest extends BaseTransitionTest {
         }
     }
 
+    @LargeTest
+    @Test
+    public void interruptSlidePosition() throws Throwable {
+        final Slide slide = new Slide(Gravity.LEFT);
+        slide.setDuration(1000);
+        slide.setInterpolator(new LinearInterpolator());
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
+        final View redSquare = spy(new View(rule.getActivity()));
+        rule.runOnUiThread(() -> {
+            mRoot.addView(new View(mRoot.getContext()), 100, mRoot.getHeight() / 2);
+
+            redSquare.setBackgroundColor(Color.RED);
+            mRoot.addView(redSquare, ViewGroup.LayoutParams.MATCH_PARENT, 100);
+            redSquare.setVisibility(View.INVISIBLE);
+        });
+
+        // now slide in
+        rule.runOnUiThread(() -> {
+            TransitionManager.beginDelayedTransition(mRoot, slide);
+            redSquare.setVisibility(View.VISIBLE);
+        });
+
+        final float[] redStartX = new float[1];
+        rule.runOnUiThread(() -> redStartX[0] = redSquare.getTranslationX());
+        PollingCheck.waitFor(1000, () -> redSquare.getTranslationX() > redStartX[0] * 0.5f);
+        assertEquals(0f, redSquare.getTranslationY(), 0f);
+        final int[] interruptedPosition = new int[2];
+        rule.runOnUiThread(() -> {
+            TransitionManager.beginDelayedTransition(mRoot, slide);
+            redSquare.getLocationOnScreen(interruptedPosition);
+            mRoot.removeView(redSquare);
+        });
+
+        rule.runOnUiThread(() -> {
+            int[] position = new int[2];
+            mRoot.getLocationOnScreen(position);
+            position[0] += redSquare.getLeft() + redSquare.getTranslationX();
+            position[1] += redSquare.getTop() + redSquare.getTranslationY();
+            assertEquals(interruptedPosition[1], position[1]);
+            assertTrue(position[0] <= interruptedPosition[0]);
+        });
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Test
     public void seekingSlideOut() throws Throwable {
-        if (Build.VERSION.SDK_INT < 34) {
-            return; // only supported on U+
-        }
         final TransitionActivity activity = rule.getActivity();
         TransitionSeekController[] seekControllerArr = new TransitionSeekController[1];
 
@@ -298,12 +338,9 @@ public class SlideEdgeTest extends BaseTransitionTest {
         });
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Test
     public void seekingSlideIn() throws Throwable {
-        if (Build.VERSION.SDK_INT < 34) {
-            return; // only supported on U+
-        }
         final TransitionActivity activity = rule.getActivity();
         TransitionSeekController[] seekControllerArr = new TransitionSeekController[1];
 
@@ -384,12 +421,9 @@ public class SlideEdgeTest extends BaseTransitionTest {
     }
 
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Test
     public void seekWithTranslation() throws Throwable {
-        if (Build.VERSION.SDK_INT < 34) {
-            return; // only supported on U+
-        }
         final TransitionActivity activity = rule.getActivity();
         TransitionSeekController[] seekControllerArr = new TransitionSeekController[1];
         View redSquare = new View(activity);

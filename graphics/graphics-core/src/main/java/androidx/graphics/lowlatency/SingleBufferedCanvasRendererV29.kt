@@ -39,14 +39,6 @@ internal class SingleBufferedCanvasRendererV29<T>(
     private val callbacks: SingleBufferedCanvasRenderer.RenderCallbacks<T>,
 ) : SingleBufferedCanvasRenderer<T> {
 
-    private val mRenderNode = RenderNode("renderNode").apply {
-        setPosition(
-            0,
-            0,
-            bufferTransformer.glWidth,
-            bufferTransformer.glHeight)
-    }
-
     private val mRenderQueue = RenderQueue(
             handlerThread,
             object : RenderQueue.FrameProducer {
@@ -95,7 +87,13 @@ internal class SingleBufferedCanvasRendererV29<T>(
     }
 
     private val mBufferedRenderer = MultiBufferedCanvasRenderer(
-        mRenderNode,
+        RenderNode("renderNode").apply {
+            setPosition(
+                0,
+                0,
+                bufferTransformer.glWidth,
+                bufferTransformer.glHeight)
+        },
         bufferTransformer.glWidth,
         bufferTransformer.glHeight,
         usage = FrontBufferUtils.obtainHardwareBufferUsageFlags(),
@@ -111,15 +109,15 @@ internal class SingleBufferedCanvasRendererV29<T>(
         }
 
         override fun execute() {
-            val canvas = mRenderNode.beginRecording()
-            canvas.save()
-            canvas.setMatrix(mTransform)
-            for (pendingParam in mPendingParams) {
-                callbacks.render(canvas, width, height, pendingParam)
+            mBufferedRenderer.record { canvas ->
+                canvas.save()
+                canvas.setMatrix(mTransform)
+                for (pendingParam in mPendingParams) {
+                    callbacks.render(canvas, width, height, pendingParam)
+                }
+                canvas.restore()
+                mPendingParams.clear()
             }
-            canvas.restore()
-            mPendingParams.clear()
-            mRenderNode.endRecording()
         }
 
         override val id: Int = RENDER
@@ -127,9 +125,7 @@ internal class SingleBufferedCanvasRendererV29<T>(
 
     private val clearRequest = object : RenderQueue.Request {
         override fun execute() {
-            val canvas = mRenderNode.beginRecording()
-            canvas.drawColor(Color.BLACK, BlendMode.CLEAR)
-            mRenderNode.endRecording()
+            mBufferedRenderer.record { canvas -> canvas.drawColor(Color.BLACK, BlendMode.CLEAR) }
         }
 
         override val id: Int = CLEAR

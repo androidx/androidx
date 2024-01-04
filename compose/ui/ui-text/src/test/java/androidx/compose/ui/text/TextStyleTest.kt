@@ -49,6 +49,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.fastDistinctBy
 import com.google.common.truth.Truth.assertThat
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter

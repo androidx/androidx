@@ -13,6 +13,8 @@ AutoBoxing: androidx.kruth.KruthKt#assertThat(Boolean) parameter #0:
     Must avoid boxed primitives (`java.lang.Boolean`)
 AutoBoxing: androidx.kruth.KruthKt#assertThat(Double) parameter #0:
     Must avoid boxed primitives (`java.lang.Double`)
+AutoBoxing: androidx.kruth.KruthKt#assertThat(Integer) parameter #0:
+    Must avoid boxed primitives (`java.lang.Integer`)
 AutoBoxing: androidx.kruth.StandardSubjectBuilder#that(Boolean) parameter #0:
     Must avoid boxed primitives (`java.lang.Boolean`)
 AutoBoxing: androidx.kruth.StandardSubjectBuilder#that(Double) parameter #0:
@@ -25,6 +27,8 @@ BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#about(androidx.kruth.Subj
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.about(androidx.kruth.Subject.Factory<? extends S,T>)
 BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#fail():
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.fail()
+BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#forCustomFailureStrategy(androidx.kruth.FailureStrategy):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.forCustomFailureStrategy(androidx.kruth.FailureStrategy)
 BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(Boolean):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.that(Boolean)
 BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(Double):
@@ -45,12 +49,6 @@ MissingBuildMethod: androidx.kruth.SimpleSubjectBuilder:
     androidx.kruth.SimpleSubjectBuilder does not declare a `build()` method, but builder classes are expected to
 MissingBuildMethod: androidx.kruth.StandardSubjectBuilder:
     androidx.kruth.StandardSubjectBuilder does not declare a `build()` method, but builder classes are expected to
-
-
-MissingJvmstatic: androidx.kruth.Fact#fact(String, Object):
-    A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults
-MissingJvmstatic: androidx.kruth.Fact.Companion#fact(String, Object):
-    A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults
 
 
 TopLevelBuilder: androidx.kruth.SimpleSubjectBuilder:

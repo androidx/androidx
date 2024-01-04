@@ -27,6 +27,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertFailsWith
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -38,8 +39,27 @@ class HealthPermissionsRequestContractTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
 
     @Test
+    fun createIntent_nonHealthPermission_throwsIAE() {
+        val requestPermissionContract = HealthPermissionsRequestContract()
+        assertFailsWith<IllegalArgumentException> {
+            requestPermissionContract.createIntent(
+                context,
+                setOf(HealthPermission.READ_STEPS, "NON_HEALTH_PERMISSION")
+            )
+        }
+    }
+
+    @Test
+    fun createIntent_noPermissions_throwsIAE() {
+        val requestPermissionContract = HealthPermissionsRequestContract()
+        assertFailsWith<IllegalArgumentException> {
+            requestPermissionContract.createIntent(context, setOf())
+        }
+    }
+
+    @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    fun requestHealthPermissions_createIntent_hasPlatformIntentAction() {
+    fun createIntent_hasPlatformIntentAction() {
         val intent =
             HealthPermissionsRequestContract()
                 .createIntent(context, setOf(HealthPermission.READ_STEPS))
@@ -51,7 +71,7 @@ class HealthPermissionsRequestContractTest {
 
     @Test
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.TIRAMISU)
-    fun requestHealthPermissions_createIntent_hasApkIntentAction() {
+    fun createIntent_hasApkIntentAction() {
         val intent =
             HealthPermissionsRequestContract()
                 .createIntent(context, setOf(HealthPermission.READ_STEPS))
@@ -61,7 +81,7 @@ class HealthPermissionsRequestContractTest {
 
     @Test
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.TIRAMISU)
-    fun requestHealthPermissions_createIntent_hasApkIntentActionAndProvider() {
+    fun createIntent_hasApkIntentActionAndProvider() {
         val intent =
             HealthPermissionsRequestContract("some.provider")
                 .createIntent(context, setOf(HealthPermission.READ_STEPS))

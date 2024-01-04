@@ -53,6 +53,7 @@ import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.lerp
 import kotlin.math.max
 import kotlin.math.min
@@ -494,7 +495,7 @@ public fun Modifier.edgeSwipeToDismiss(
             coroutineScope {
                 awaitPointerEventScope {
                     while (isActive) {
-                        awaitPointerEvent(PointerEventPass.Initial).changes.forEach { change ->
+                        awaitPointerEvent(PointerEventPass.Initial).changes.fastForEach { change ->
                             // By default swipeState is WaitingForTouch.
                             // If it is in this state and a first touch hit an edge area, we
                             // set swipeState to EdgeClickedWaitingForDirection.

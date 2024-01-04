@@ -527,7 +527,7 @@ public abstract class Transition implements Cloneable {
      * Transition's progress. The Transition will begin without starting any of the
      * animations.
      */
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @NonNull
     TransitionSeekController createSeekController() {
         mSeekController = new SeekController();
@@ -970,7 +970,7 @@ public abstract class Transition implements Cloneable {
      * values. The duration is calculated. It also adds the animators to mCurrentAnimators so that
      * each animator can support seeking.
      */
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     void prepareAnimatorsForSeeking() {
         ArrayMap<Animator, AnimationInfo> runningAnimators = getRunningAnimators();
         // Now prepare every Animator that was previously created for this transition
@@ -2370,7 +2370,7 @@ public abstract class Transition implements Cloneable {
      *                           than getTotalDurationMillis() to indicate that it is playing
      *                           backwards.
      */
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     void setCurrentPlayTimeMillis(long playTimeMillis, long lastPlayTimeMillis) {
         long duration = getTotalDurationMillis();
         boolean isReversed = playTimeMillis < lastPlayTimeMillis;
@@ -2691,7 +2691,7 @@ public abstract class Transition implements Cloneable {
     /**
      * Internal implementation of TransitionSeekController.
      */
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     class SeekController extends TransitionListenerAdapter implements TransitionSeekController,
             DynamicAnimation.OnAnimationUpdateListener {
         // Animation calculations appear to work better with numbers that range greater than 1

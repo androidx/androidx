@@ -220,17 +220,10 @@ class SpecialEffectsControllerTest {
             operation2.addCompletionListener {
                 awaitingChanges = operation2.isAwaitingContainerChanges
             }
+            val operation = controller.operationsToExecute[0]
             onActivity {
-                fragmentStateManager1.moveToExpectedState()
-                fragmentStateManager2.moveToExpectedState()
-                // However, executePendingOperations(), since we're using our
-                // TestSpecialEffectsController, does immediately call complete()
-                // which in turn calls moveToExpectedState()
-                controller.executePendingOperations()
+                operation.complete()
             }
-            // Assert that we actually moved to the STARTED state
-            assertThat(fragment1.lifecycle.currentState)
-                .isEqualTo(Lifecycle.State.STARTED)
             assertThat(awaitingChanges).isTrue()
         }
     }
@@ -542,6 +535,12 @@ internal class TestSpecialEffectsController(
     override fun collectEffects(operations: List<Operation>, isPop: Boolean) {
         operationsToExecute.addAll(operations)
         operations.forEach { operation ->
+            val effect = object : Effect() {
+                override fun onCancel(container: ViewGroup) {
+                    operation.completeEffect(this)
+                }
+            }
+            operation.addEffect(effect)
             operation.addCompletionListener {
                 operationsToExecute.remove(operation)
                 operation.isAwaitingContainerChanges = false
@@ -550,7 +549,11 @@ internal class TestSpecialEffectsController(
     }
 
     fun completeAllOperations() {
-        operationsToExecute.forEach(Operation::complete)
+        operationsToExecute.forEach { operation ->
+            operation.effects.forEach { effect ->
+                operation.completeEffect(effect)
+            }
+        }
         operationsToExecute.clear()
     }
 }
@@ -560,10 +563,7 @@ internal class InstantSpecialEffectsController(
 ) : SpecialEffectsController(container) {
     var executeOperationsCallCount = 0
 
-    override fun collectEffects(operations: List<Operation>, isPop: Boolean) { }
-
-    override fun commitEffects(operations: List<Operation>) {
+    override fun collectEffects(operations: List<Operation>, isPop: Boolean) {
         executeOperationsCallCount++
-        operations.forEach(Operation::complete)
     }
 }

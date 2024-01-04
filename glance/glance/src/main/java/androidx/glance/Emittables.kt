@@ -17,6 +17,7 @@
 package androidx.glance
 
 import androidx.annotation.RestrictTo
+import androidx.compose.ui.util.fastJoinToString
 import androidx.glance.layout.Alignment
 import androidx.glance.text.TextStyle
 
@@ -34,7 +35,7 @@ abstract class EmittableWithChildren(
     val children: MutableList<Emittable> = mutableListOf<Emittable>()
 
     protected fun childrenToString(): String =
-        children.joinToString(",\n").prependIndent("  ")
+        children.fastJoinToString(",\n").prependIndent("  ")
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

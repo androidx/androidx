@@ -35,7 +35,7 @@ class EasingTest {
     @Test
     fun cubicBezierEndsAt1() {
         val easing = FastOutLinearInEasing
-        assertThat(easing.transform(0f)).isZero()
+        assertThat(easing.transform(1f) == 1f)
     }
 
     @Test

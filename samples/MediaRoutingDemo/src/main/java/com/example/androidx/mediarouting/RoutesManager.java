@@ -109,13 +109,13 @@ public final class RoutesManager {
     }
 
     /**
-     * Gets the route with the passed id or null if not exists.
+     * Gets the route with the passed id, or null if no route with the given id exists.
      *
      * @param id of the route to search for.
-     * @return the route with the passed id or null if not exists.
+     * @return the route with the passed id, or null if it does not exist.
      */
     @Nullable
-    public RouteItem getRouteWithId(@NonNull String id) {
+    public RouteItem getRouteWithId(@Nullable String id) {
         return mRouteItems.get(id);
     }
 

@@ -718,15 +718,56 @@ class AndroidAccessibilityTest {
         val node3 = rule.onNodeWithText(text3).fetchSemanticsNode()
         val overlaidNode = rule.onNodeWithText(overlaidText).fetchSemanticsNode()
 
-        val overlaidANI = provider.createAccessibilityNodeInfo(overlaidNode.id)
-        val overlaidTraversalAfterValue =
-            overlaidANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALAFTER_VAL)
+        val node3ANI = provider.createAccessibilityNodeInfo(node3.id)
+        val node3TraversalBefore =
+            node3ANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
 
         // Nodes 1, 2, and 3 are all children of a larger column; this means with a hierarchy
         // comparison (like SemanticsSort), the third text node should come before the overlaid node
         // — OverlaidNode should be read last
-        assertNotEquals(overlaidTraversalAfterValue, 0)
-        assertEquals(overlaidTraversalAfterValue, node3.id)
+        assertNotEquals(node3TraversalBefore, 0)
+        assertEquals(node3TraversalBefore, overlaidNode.id)
+
+        val overlaidANI = provider.createAccessibilityNodeInfo(overlaidNode.id)
+        // `getInt` returns the value associated with the given key, or 0 if no mapping of
+        // the desired type exists for the given key.
+        val overlaidTraversalAfter =
+            overlaidANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALAFTER_VAL)
+
+        // Older versions of Samsung voice assistant crash if both traversalBefore
+        // and traversalAfter redundantly express the same ordering relation, so
+        // we should only have traversalBefore here.
+        assertEquals(overlaidTraversalAfter, 0)
+    }
+
+    @Test
+    fun testSortedAccessibilityNodeInfo_readableTraversalGroups() {
+        val clickableRowTag = "readableRow"
+        val clickableButtonTag = "readableButton"
+        container.setContent {
+            Column {
+                Row(
+                    Modifier
+                        .testTag(clickableRowTag)
+                        .semantics { isTraversalGroup = true }
+                        .clickable { }
+                ) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = "fab icon")
+                    Button(onClick = { }, modifier = Modifier.testTag(clickableButtonTag)) {
+                        Text("First button")
+                    }
+                }
+            }
+        }
+
+        val rowNode = rule.onNodeWithTag(clickableRowTag).fetchSemanticsNode()
+        val buttonNode = rule.onNodeWithTag(clickableButtonTag).fetchSemanticsNode()
+
+        val rowANI = provider.createAccessibilityNodeInfo(rowNode.id)
+        val rowBefore = rowANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
+
+        // Since the column is screenReaderFocusable, it comes before the button
+        assertEquals(rowBefore, buttonNode.id)
     }
 
     @Composable
@@ -1640,15 +1681,12 @@ class AndroidAccessibilityTest {
         val child1 = rule.onNodeWithTag(childTag1).fetchSemanticsNode()
         val child2 = rule.onNodeWithTag(childTag2).fetchSemanticsNode()
 
-        val child1ANI = provider.createAccessibilityNodeInfo(child1.id)
         val child2ANI = provider.createAccessibilityNodeInfo(child2.id)
         val child2TraverseBefore = child2ANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
-        val child1TraverseAfter = child1ANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALAFTER_VAL)
 
         // We want child2 to come before child1
         assertEquals(2, root.replacedChildren.size)
         assertEquals(child2TraverseBefore, child1.id)
-        assertEquals(child1TraverseAfter, child2.id)
     }
 
     @Test

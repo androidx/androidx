@@ -45,4 +45,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2023"
     description = "Capabiility APIs for Productivy vertical."
+    metalavaK2UastEnabled = true
 }

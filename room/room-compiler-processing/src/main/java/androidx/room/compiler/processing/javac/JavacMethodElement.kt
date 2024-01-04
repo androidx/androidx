@@ -42,6 +42,10 @@ internal class JavacMethodElement(
         }
     }
 
+    override val propertyName: String? by lazy {
+        if (isKotlinPropertyMethod()) kotlinMetadata?.propertyName else null
+    }
+
     override val name: String by lazy {
         kotlinMetadata?.name ?: jvmName
     }
@@ -183,4 +187,8 @@ internal class JavacMethodElement(
     }
 
     override fun isKotlinPropertyMethod() = kotlinMetadata?.isPropertyFunction() ?: false
+
+    override fun isKotlinPropertySetter() = kotlinMetadata?.isPropertySetter() ?: false
+
+    override fun isKotlinPropertyGetter() = kotlinMetadata?.isPropertyGetter() ?: false
 }

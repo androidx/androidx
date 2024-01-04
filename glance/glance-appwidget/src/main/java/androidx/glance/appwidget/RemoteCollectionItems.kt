@@ -18,6 +18,7 @@ package androidx.glance.appwidget
 
 import android.annotation.SuppressLint
 import android.widget.RemoteViews
+import androidx.compose.ui.util.fastMap
 
 /** Representation of a fixed list of items to be displayed in a RemoteViews collection.  */
 internal class RemoteCollectionItems private constructor(
@@ -31,6 +32,7 @@ internal class RemoteCollectionItems private constructor(
             "RemoteCollectionItems has different number of ids and views"
         }
         require(_viewTypeCount >= 1) { "View type count must be >= 1" }
+        @Suppress("ListIterator")
         val layoutIdCount = views.map { it.layoutId }.distinct().count()
         require(layoutIdCount <= _viewTypeCount) {
             "View type count is set to $_viewTypeCount, but the collection contains " +
@@ -131,7 +133,8 @@ internal class RemoteCollectionItems private constructor(
             if (viewTypeCount < 1) {
                 // If a view type count wasn't specified, set it to be the number of distinct
                 // layout ids used in the items.
-                viewTypeCount = views.map { it.layoutId }.distinct().count()
+                @Suppress("ListIterator")
+                viewTypeCount = views.fastMap { it.layoutId }.distinct().count()
             }
             return RemoteCollectionItems(
                 ids.toLongArray(),

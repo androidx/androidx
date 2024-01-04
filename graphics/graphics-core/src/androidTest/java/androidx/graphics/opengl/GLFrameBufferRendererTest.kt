@@ -21,6 +21,7 @@ import android.hardware.HardwareBuffer
 import android.opengl.GLES20
 import android.opengl.Matrix
 import android.os.Build
+import android.view.SurfaceHolder
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
 import androidx.graphics.lowlatency.BufferInfo
@@ -68,6 +69,8 @@ class GLFrameBufferRendererTest {
         val callbacks = object : GLFrameBufferRenderer.Callback {
             override fun onDrawFrame(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray
             ) {
@@ -120,6 +123,8 @@ class GLFrameBufferRendererTest {
         val callbacks = object : GLFrameBufferRenderer.Callback {
             override fun onDrawFrame(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray
             ) {
@@ -156,6 +161,8 @@ class GLFrameBufferRendererTest {
         val callbacks = object : GLFrameBufferRenderer.Callback {
             override fun onDrawFrame(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray
             ) {
@@ -205,6 +212,8 @@ class GLFrameBufferRendererTest {
         val callbacks = object : GLFrameBufferRenderer.Callback {
             override fun onDrawFrame(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray
             ) {
@@ -253,6 +262,8 @@ class GLFrameBufferRendererTest {
         val callbacks = object : GLFrameBufferRenderer.Callback {
             override fun onDrawFrame(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray
             ) {
@@ -307,6 +318,8 @@ class GLFrameBufferRendererTest {
 
             override fun onDrawFrame(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
             ) {
@@ -339,6 +352,8 @@ class GLFrameBufferRendererTest {
     @Test
     fun testRenderFrameBuffer() {
         val renderLatch = CountDownLatch(1)
+        var surfaceWidth = 0
+        var surfaceHeight = 0
         val callbacks = object : GLFrameBufferRenderer.Callback {
 
             val mProjectionMatrix = FloatArray(16)
@@ -346,9 +361,13 @@ class GLFrameBufferRendererTest {
 
             override fun onDrawFrame(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray
             ) {
+                assertEquals(surfaceWidth, width)
+                assertEquals(surfaceHeight, height)
                 GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
                 Matrix.orthoM(
                     mOrthoMatrix,
@@ -386,11 +405,32 @@ class GLFrameBufferRendererTest {
         }
         var renderer: GLFrameBufferRenderer? = null
         var surfaceView: SurfaceView? = null
+
         try {
             val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
                 .moveToState(Lifecycle.State.CREATED)
                 .onActivity {
-                    surfaceView = it.getSurfaceView()
+                    surfaceView = it.getSurfaceView().apply {
+                        holder.addCallback(object : SurfaceHolder.Callback {
+                            override fun surfaceCreated(holder: SurfaceHolder) {
+                                // no-op
+                            }
+
+                            override fun surfaceChanged(
+                                holder: SurfaceHolder,
+                                format: Int,
+                                width: Int,
+                                height: Int
+                            ) {
+                                surfaceWidth = width
+                                surfaceHeight = height
+                            }
+
+                            override fun surfaceDestroyed(holder: SurfaceHolder) {
+                                // no-op
+                            }
+                        })
+                    }
                     renderer = GLFrameBufferRenderer.Builder(surfaceView!!, callbacks).build()
                 }
 
@@ -425,24 +465,35 @@ class GLFrameBufferRendererTest {
 
             override fun onDrawFrame(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray
             ) {
                 renderLatch.countDown()
             }
         }
+        var activity: SurfaceViewTestActivity? = null
         var renderer: GLFrameBufferRenderer? = null
         var surfaceView: SurfaceView?
         try {
             val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
                 .moveToState(Lifecycle.State.CREATED)
                 .onActivity {
+                    activity = it
                     surfaceView = it.getSurfaceView()
                     renderer = GLFrameBufferRenderer.Builder(surfaceView!!, callbacks).build()
                 }
 
             scenario.moveToState(Lifecycle.State.RESUMED)
             assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
+
+            val destroyLatch = CountDownLatch(1)
+            activity?.setOnDestroyCallback {
+                destroyLatch.countDown()
+            }
+            scenario.moveToState(Lifecycle.State.DESTROYED)
+            assertTrue(destroyLatch.await(3000, TimeUnit.MILLISECONDS))
         } finally {
             renderer.blockingRelease()
         }
@@ -454,6 +505,8 @@ class GLFrameBufferRendererTest {
         val callback = object : GLFrameBufferRenderer.Callback {
             override fun onDrawFrame(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray
             ) {

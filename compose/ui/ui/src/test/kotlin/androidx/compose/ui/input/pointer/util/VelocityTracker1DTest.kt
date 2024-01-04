@@ -38,6 +38,7 @@ class VelocityTracker1DTest {
             VelocityTracker1D(isDataDifferential = true, Strategy.Lsq2)
         }
     }
+
     @Test
     fun twoPoints_nonDifferentialValues() {
         checkTestCase(
@@ -651,7 +652,7 @@ class VelocityTracker1DTest {
 
     /** Test cases derived from [VelocityTrackerTest]. */
     @Test
-    fun testsFromThe2DVelocityTrackerTest() {
+    fun testsFromThe2DVelocityTrackerTest_noClamping() {
         var xDataPoints: MutableList<DataPointAtTime> = mutableListOf()
         var yDataPoints: MutableList<DataPointAtTime> = mutableListOf()
 
@@ -692,6 +693,58 @@ class VelocityTracker1DTest {
         }
     }
 
+    @Test
+    fun calculateVelocityWithMaxValue_valueShouldBeGreaterThanZero() {
+        val tracker = VelocityTracker1D()
+        assertThrows(IllegalStateException::class.java) {
+            tracker.calculateVelocity(-1f)
+        }
+    }
+
+    @Test
+    fun testsFromThe2DVelocityTrackerTest_withVelocityClamping() {
+        var xDataPoints: MutableList<DataPointAtTime> = mutableListOf()
+        var yDataPoints: MutableList<DataPointAtTime> = mutableListOf()
+        val maximumVelocity = 500f
+        var i = 0
+        velocityEventData.forEach {
+            if (it.down) {
+                xDataPoints.add(DataPointAtTime(it.uptime, it.position.x))
+                yDataPoints.add(DataPointAtTime(it.uptime, it.position.y))
+            } else {
+                // Check velocity along the X axis
+                checkTestCase(
+                    VelocityTrackingTestCase(
+                        differentialDataPoints = false,
+                        dataPoints = xDataPoints,
+                        expectedVelocities = listOf(
+                            ExpectedVelocity(
+                                Strategy.Lsq2, expected2DVelocities[i].first
+                            )
+                        ),
+                        maximumVelocity = maximumVelocity
+                    ),
+                )
+                // Check velocity along the Y axis
+                checkTestCase(
+                    VelocityTrackingTestCase(
+                        differentialDataPoints = false,
+                        dataPoints = yDataPoints,
+                        expectedVelocities = listOf(
+                            ExpectedVelocity(
+                                Strategy.Lsq2, expected2DVelocities[i].second
+                            )
+                        ),
+                        maximumVelocity = maximumVelocity
+                    ),
+                )
+                xDataPoints = mutableListOf()
+                yDataPoints = mutableListOf()
+                i += 1
+            }
+        }
+    }
+
     private fun checkTestCase(testCase: VelocityTrackingTestCase) {
         testCase.expectedVelocities.forEach { expectedVelocity ->
             val tracker = VelocityTracker1D(
@@ -702,11 +755,21 @@ class VelocityTracker1DTest {
                 tracker.addDataPoint(it.time, it.dataPoint)
             }
 
-            assertWithMessage("Wrong velocity for data points: ${testCase.dataPoints}" +
-                "\nExpected velocity: {$expectedVelocity}")
-                .that(tracker.calculateVelocity())
-                .isWithin(abs(expectedVelocity.velocity) * Tolerance)
-                .of(expectedVelocity.velocity)
+            val clampedVelocity = if (expectedVelocity.velocity == 0.0f) {
+                0.0f
+            } else if (expectedVelocity.velocity > 0) {
+                expectedVelocity.velocity.coerceAtMost(testCase.maximumVelocity)
+            } else {
+                expectedVelocity.velocity.coerceAtLeast(-testCase.maximumVelocity)
+            }
+
+            assertWithMessage(
+                "Wrong velocity for data points: ${testCase.dataPoints}" +
+                    "\nExpected velocity: {$clampedVelocity}"
+            )
+                .that(tracker.calculateVelocity(testCase.maximumVelocity))
+                .isWithin(abs(clampedVelocity) * Tolerance)
+                .of(clampedVelocity)
         }
     }
 }
@@ -718,5 +781,6 @@ private data class ExpectedVelocity(val strategy: Strategy, val velocity: Float)
 private data class VelocityTrackingTestCase(
     val differentialDataPoints: Boolean,
     val dataPoints: List<DataPointAtTime>,
-    val expectedVelocities: List<ExpectedVelocity>
+    val expectedVelocities: List<ExpectedVelocity>,
+    val maximumVelocity: Float = Float.MAX_VALUE
 )

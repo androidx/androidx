@@ -139,6 +139,7 @@ public class NestedScrollingChildHelper {
      * @param axes Supported nested scroll axes.
      *             See {@link androidx.core.view.NestedScrollingChild2#startNestedScroll(int,
      *             int)}.
+     * @param type type of the scroll.
      * @return true if a cooperating parent view was found and nested scrolling started successfully
      */
     public boolean startNestedScroll(@ScrollAxis int axes, @NestedScrollType int type) {

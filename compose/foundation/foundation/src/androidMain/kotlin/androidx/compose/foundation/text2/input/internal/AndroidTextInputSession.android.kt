@@ -21,6 +21,7 @@ package androidx.compose.foundation.text2.input.internal
 import android.text.InputType
 import android.util.Log
 import android.view.KeyEvent
+import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.annotation.VisibleForTesting
@@ -34,6 +35,7 @@ import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.core.view.inputmethod.EditorInfoCompat
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -45,14 +47,27 @@ import org.jetbrains.annotations.TestOnly
 internal const val TIA_DEBUG = false
 private const val TAG = "AndroidTextInputSession"
 
-private var inputConnectionCreatedListener: ((EditorInfo, InputConnection) -> Unit)? = null
+private var inputConnectionInterceptor:
+    (CoroutineScope.(EditorInfo, InputConnection, View) -> InputConnection)? = null
 
+/**
+ * Installs an [interceptor] to run whenever Android calls [View.onCreateInputConnection].
+ *
+ * **DON'T USE THIS DIRECTLY in your tests.** Use `InputConnectionInterceptorRule` instead: it's
+ * more ergonomic and also ensures the listener is cleaned up correctly.
+ *
+ * @param interceptor A function that gets the [EditorInfo] passed to [View.onCreateInputConnection]
+ * and the [InputConnection] that we created and would use in production. Whatever the interceptor
+ * returns will be returned to the system. Tests that want to make their own calls on the
+ * [InputConnection] should install an interceptor that returns a no-op [InputConnection] to prevent
+ * the system from making its own calls and messing up the expected state.
+ */
 @TestOnly
 @VisibleForTesting
-internal fun setInputConnectionCreatedListenerForTests(
-    listener: ((EditorInfo, InputConnection) -> Unit)?
+internal fun setInputConnectionInterceptorForTests(
+    interceptor: (CoroutineScope.(EditorInfo, InputConnection, View) -> InputConnection)?
 ) {
-    inputConnectionCreatedListener = { info, connection -> listener?.invoke(info, connection) }
+    inputConnectionInterceptor = interceptor
 }
 
 internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
@@ -65,7 +80,7 @@ internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSe
 
     coroutineScope {
         launch(start = CoroutineStart.UNDISPATCHED) {
-            state.editProcessor.collectResets { old, new ->
+            state.collectImeNotifications { old, new ->
                 val needUpdateSelection =
                     (old.selectionInChars != new.selectionInChars) ||
                         old.compositionInChars != new.compositionInChars
@@ -91,8 +106,12 @@ internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSe
                 override val text: TextFieldCharSequence
                     get() = state.text
 
-                override fun requestEdits(editCommands: List<EditCommand>) {
-                    state.editProcessor.update(editCommands, filter)
+                override fun requestEdit(block: EditingBuffer.() -> Unit) {
+                    state.editAsUser(
+                        inputTransformation = filter,
+                        notifyImeOfChanges = false,
+                        block = block
+                    )
                 }
 
                 override fun sendKeyEvent(keyEvent: KeyEvent) {
@@ -104,8 +123,9 @@ internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSe
                 }
             }
             outAttrs.update(state.text, imeOptions)
-            StatelessInputConnection(textInputSession).also {
-                inputConnectionCreatedListener?.invoke(outAttrs, it)
+            StatelessInputConnection(textInputSession).let { connection ->
+                inputConnectionInterceptor?.invoke(this, outAttrs, connection, view)
+                    ?: connection
             }
         }
     }
@@ -212,16 +232,16 @@ internal fun EditorInfo.update(textFieldValue: TextFieldCharSequence, imeOptions
 }
 
 /**
- * Adds [resetListener] to this [EditProcessor] and then suspends until cancelled, removing the
+ * Adds [notifyImeListener] to this [TextFieldState] and then suspends until cancelled, removing the
  * listener before continuing.
  */
-private suspend inline fun EditProcessor.collectResets(
-    resetListener: EditProcessor.ResetListener
+private suspend inline fun TextFieldState.collectImeNotifications(
+    notifyImeListener: TextFieldState.NotifyImeListener
 ): Nothing {
     suspendCancellableCoroutine<Nothing> { continuation ->
-        addResetListener(resetListener)
+        addNotifyImeListener(notifyImeListener)
         continuation.invokeOnCancellation {
-            removeResetListener(resetListener)
+            removeNotifyImeListener(notifyImeListener)
         }
     }
 }

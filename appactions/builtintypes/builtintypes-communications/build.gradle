@@ -49,4 +49,5 @@ androidx {
     inceptionYear = "2023"
     description = "This library exposes a set of communications related data types based on " +
             "schema.org definitions."
+    metalavaK2UastEnabled = true
 }

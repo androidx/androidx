@@ -116,28 +116,6 @@ public class WebSettingsCompatTest {
                 WebSettingsCompat.getDisabledActionModeMenuItems(mWebViewOnUiThread.getSettings()));
     }
 
-    /**
-     * This should remain functionally equivalent to
-     * android.webkit.cts.WebSettingsTest#testSuppressedErrorPage. Modifications to this test should
-     * be reflected in that test as necessary. See http://go/modifying-webview-cts.
-     */
-    @Test
-    @SuppressWarnings("deprecation")
-    public void testSuppressedErrorPage() throws Throwable {
-        WebkitUtils.checkFeature(WebViewFeature.SUPPRESS_ERROR_PAGE);
-
-        // default value should be false
-        assertFalse(WebSettingsCompat.willSuppressErrorPage(mWebViewOnUiThread.getSettings()));
-
-        WebSettingsCompat.setWillSuppressErrorPage(mWebViewOnUiThread.getSettings(), true);
-        assertTrue(WebSettingsCompat.willSuppressErrorPage(mWebViewOnUiThread.getSettings()));
-
-        // We could test that suppression actually happens, similar to #testWillSuppressErrorPage in
-        // org.chromium.android_webview.test.AwSettingsTest using only public WebView APIs.
-        // However, at the time of writing, that test is potentially flaky (waits 1000ms after a
-        // bad navigation and then checks).
-    }
-
     @Test
     public void testEnterpriseAuthenticationAppLinkPolicyEnabled() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY);

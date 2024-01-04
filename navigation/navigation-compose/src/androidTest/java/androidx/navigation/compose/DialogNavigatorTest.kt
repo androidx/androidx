@@ -20,6 +20,7 @@ import androidx.compose.material.Text
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.testing.TestNavigatorState
@@ -108,5 +109,155 @@ class DialogNavigatorTest {
 
         rule.waitForIdle()
         assertThat(navController.currentDestination?.route).isEqualTo("first")
+    }
+
+    @Test
+    fun testDialogMarkedTransitionComplete() {
+        lateinit var navController: NavHostController
+
+        rule.setContent {
+            navController = rememberNavController()
+            NavHost(navController, "first") {
+                composable("first") { }
+                dialog("second") {
+                    Text(defaultText)
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            navController.navigate("second")
+            navController.navigate("second")
+        }
+
+        rule.waitForIdle()
+        val dialogNavigator = navController.navigatorProvider.getNavigator(
+            DialogNavigator::class.java
+        )
+        val bottomDialog = dialogNavigator.backStack.value[0]
+        val topDialog = dialogNavigator.backStack.value[1]
+
+        assertThat(bottomDialog.destination.route).isEqualTo("second")
+        assertThat(topDialog.destination.route).isEqualTo("second")
+        assertThat(topDialog).isNotEqualTo(bottomDialog)
+
+        assertThat(topDialog.lifecycle.currentState).isEqualTo(
+            Lifecycle.State.RESUMED
+        )
+        assertThat(bottomDialog.lifecycle.currentState).isEqualTo(
+            Lifecycle.State.STARTED
+        )
+
+        rule.runOnUiThread {
+            dialogNavigator.dismiss(topDialog)
+        }
+        rule.waitForIdle()
+
+        assertThat(topDialog.lifecycle.currentState).isEqualTo(
+            Lifecycle.State.DESTROYED
+        )
+        assertThat(bottomDialog.lifecycle.currentState).isEqualTo(
+            Lifecycle.State.RESUMED
+        )
+    }
+
+    @Test
+    fun testDialogMarkedTransitionCompleteInOrder() {
+        lateinit var navController: NavHostController
+
+        rule.setContent {
+            navController = rememberNavController()
+            NavHost(navController, "first") {
+                composable("first") { }
+                dialog("second") {
+                    Text(defaultText)
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            navController.navigate("second")
+            navController.navigate("second")
+            navController.navigate("second")
+        }
+
+        rule.waitForIdle()
+        val dialogNavigator = navController.navigatorProvider.getNavigator(
+            DialogNavigator::class.java
+        )
+        val bottomDialog = dialogNavigator.backStack.value[0]
+        val middleDialog = dialogNavigator.backStack.value[1]
+        val topDialog = dialogNavigator.backStack.value[2]
+
+        assertThat(topDialog.lifecycle.currentState).isEqualTo(
+            Lifecycle.State.RESUMED
+        )
+        assertThat(middleDialog.lifecycle.currentState).isEqualTo(
+            Lifecycle.State.STARTED
+        )
+        assertThat(bottomDialog.lifecycle.currentState).isEqualTo(
+            Lifecycle.State.STARTED
+        )
+
+        rule.runOnUiThread {
+            dialogNavigator.dismiss(topDialog)
+        }
+        rule.waitForIdle()
+
+        assertThat(topDialog.lifecycle.currentState).isEqualTo(
+            Lifecycle.State.DESTROYED
+        )
+        assertThat(middleDialog.lifecycle.currentState).isEqualTo(
+            Lifecycle.State.RESUMED
+        )
+        assertThat(bottomDialog.lifecycle.currentState).isEqualTo(
+            Lifecycle.State.STARTED
+        )
+
+        rule.runOnUiThread {
+            dialogNavigator.dismiss(middleDialog)
+        }
+        rule.waitForIdle()
+
+        assertThat(middleDialog.lifecycle.currentState).isEqualTo(
+            Lifecycle.State.DESTROYED
+        )
+        assertThat(bottomDialog.lifecycle.currentState).isEqualTo(
+            Lifecycle.State.RESUMED
+        )
+    }
+
+    @Test
+    fun testDialogNavigateConsecutively() {
+        lateinit var navController: NavHostController
+
+        rule.setContent {
+            navController = rememberNavController()
+            NavHost(navController, "first") {
+                composable("first") { }
+                dialog("second") {
+                    Text(defaultText)
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            navController.navigate("second")
+            navController.navigate("second")
+        }
+
+        rule.waitForIdle()
+        val dialogNavigator = navController.navigatorProvider.getNavigator(
+            DialogNavigator::class.java
+        )
+        val bottomDialog = dialogNavigator.backStack.value[0]
+        val topDialog = dialogNavigator.backStack.value[1]
+
+        assertThat(bottomDialog.lifecycle.currentState).isEqualTo(
+            Lifecycle.State.STARTED
+        )
+        assertThat(topDialog.lifecycle.currentState).isEqualTo(
+            Lifecycle.State.RESUMED
+        )
     }
 }

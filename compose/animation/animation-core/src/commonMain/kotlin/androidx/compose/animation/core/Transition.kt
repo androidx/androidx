@@ -40,6 +40,8 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.util.fastFold
+import androidx.compose.ui.util.fastForEach
 import kotlin.math.max
 import kotlin.math.roundToLong
 
@@ -460,10 +462,10 @@ class Transition<S> @PublishedApi internal constructor(
      */
     val totalDurationNanos: Long by derivedStateOf {
         var maxDurationNanos = 0L
-        _animations.forEach {
+        _animations.fastForEach {
             maxDurationNanos = max(maxDurationNanos, it.durationNanos)
         }
-        _transitions.forEach {
+        _transitions.fastForEach {
             maxDurationNanos = max(
                 maxDurationNanos,
                 it.totalDurationNanos
@@ -483,7 +485,7 @@ class Transition<S> @PublishedApi internal constructor(
         playTimeNanos = frameTimeNanos - startTimeNanos
         var allFinished = true
         // Pulse new playtime
-        _animations.forEach {
+        _animations.fastForEach {
             if (!it.isFinished) {
                 it.onPlayTimeChanged(playTimeNanos, durationScale)
             }
@@ -492,7 +494,7 @@ class Transition<S> @PublishedApi internal constructor(
                 allFinished = false
             }
         }
-        _transitions.forEach {
+        _transitions.fastForEach {
             if (it.targetState != it.currentState) {
                 it.onFrame(playTimeNanos, durationScale)
             }
@@ -563,7 +565,7 @@ class Transition<S> @PublishedApi internal constructor(
             segment = SegmentImpl(initialState, targetState)
         }
 
-        _transitions.forEach {
+        _transitions.fastForEach {
             @Suppress("UNCHECKED_CAST")
             (it as Transition<Any>).let {
                 if (it.isSeeking) {
@@ -576,7 +578,7 @@ class Transition<S> @PublishedApi internal constructor(
             }
         }
 
-        _animations.forEach {
+        _animations.fastForEach {
             it.seekTo(playTimeNanos)
         }
         lastSeekedTimeNanos = playTimeNanos
@@ -621,7 +623,7 @@ class Transition<S> @PublishedApi internal constructor(
                 // If target state is changed, reset all the animations to be re-created in the
                 // next frame w/ their new target value. Child animations target values are updated in
                 // the side effect that may not have happened when this function in invoked.
-                _animations.forEach { it.resetAnimation() }
+                _animations.fastForEach { it.resetAnimation() }
             }
         }
     }
@@ -655,7 +657,7 @@ class Transition<S> @PublishedApi internal constructor(
     }
 
     override fun toString(): String {
-        return animations.fold("Transition animation values: ") { acc, anim -> "$acc$anim, " }
+        return animations.fastFold("Transition animation values: ") { acc, anim -> "$acc$anim, " }
     }
 
     @OptIn(InternalAnimationApi::class)
@@ -664,7 +666,7 @@ class Transition<S> @PublishedApi internal constructor(
         if (isSeeking) {
             // Update total duration
             var maxDurationNanos = 0L
-            _animations.forEach {
+            _animations.fastForEach {
                 maxDurationNanos = max(maxDurationNanos, it.durationNanos)
                 it.seekTo(lastSeekedTimeNanos)
             }

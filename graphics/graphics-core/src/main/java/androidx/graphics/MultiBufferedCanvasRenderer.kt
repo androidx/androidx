@@ -17,6 +17,7 @@
 package androidx.graphics
 
 import android.annotation.SuppressLint
+import android.graphics.Canvas
 import android.graphics.HardwareRenderer
 import android.graphics.PixelFormat
 import android.graphics.RenderNode
@@ -84,6 +85,12 @@ internal class MultiBufferedCanvasRenderer(
         }
 
     private var mIsReleased = false
+
+    inline fun record(block: (canvas: Canvas) -> Unit) {
+        val canvas = renderNode.beginRecording()
+        block(canvas)
+        renderNode.endRecording()
+    }
 
     fun renderFrame(
         executor: Executor,
@@ -191,6 +198,7 @@ internal class MultiBufferedCanvasRenderer(
 
     fun release() {
         if (!mIsReleased) {
+            renderNode.discardDisplayList()
             closeBuffers()
             mImageReader.close()
             mHardwareRenderer?.let { renderer ->

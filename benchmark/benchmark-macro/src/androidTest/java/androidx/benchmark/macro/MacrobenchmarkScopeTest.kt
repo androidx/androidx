@@ -216,6 +216,8 @@ class MacrobenchmarkScopeTest {
         )
         // Turn on method tracing
         scope.launchWithMethodTracing = true
+        // Force Method Tracing
+        scope.methodTracingForTests = true
         // Launch first activity, and validate it is displayed
         scope.startActivityAndWait(ConfigurableActivity.createIntent("InitialText"))
         assertTrue(device.hasObject(By.text("InitialText")))
@@ -225,7 +227,7 @@ class MacrobenchmarkScopeTest {
         }.toSet()
         val testOutputs = outputs - files
         val trace = testOutputs.singleOrNull { file ->
-            file.absolutePath.endsWith("-method.trace")
+            file.absolutePath.endsWith("method.trace")
         }
         // One method trace should have been created
         assertNotNull(trace)

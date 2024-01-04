@@ -25,6 +25,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
@@ -41,6 +42,8 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
+
+import java.util.Locale;
 
 /**
  * Tests for CustomTabsIntent.
@@ -608,13 +611,26 @@ public class CustomTabsIntentTest {
         assertTrue(CustomTabsIntent.isShowOnToolbarEnabled(intent));
     }
 
+    @Config(minSdk = Build.VERSION_CODES.N)
     @Test
-    public void testTranslateLanguage() {
+    public void testTranslateLocale() {
         Intent intent = new CustomTabsIntent.Builder().build().intent;
-        assertNull(CustomTabsIntent.getTranslateLanguage(intent));
+        assertNull(CustomTabsIntent.getTranslateLocale(intent));
 
-        intent = new CustomTabsIntent.Builder().setTranslateLanguage("fr").build().intent;
-        assertEquals("fr", CustomTabsIntent.getTranslateLanguage(intent));
+        intent = new CustomTabsIntent.Builder().setTranslateLocale(Locale.FRANCE).build().intent;
+        Locale locale = CustomTabsIntent.getTranslateLocale(intent);
+        assertEquals(locale.toLanguageTag(), Locale.FRANCE.toLanguageTag());
+    }
+
+    @Config(minSdk = Build.VERSION_CODES.N)
+    @Test
+    public void testSecondaryToolbarSwipeUpGesture() {
+        PendingIntent pendingIntent = TestUtil.makeMockPendingIntent();
+        Intent intent = new CustomTabsIntent.Builder()
+                .setSecondaryToolbarSwipeUpGesture(pendingIntent)
+                .build()
+                .intent;
+        assertEquals(pendingIntent, CustomTabsIntent.getSecondaryToolbarSwipeUpGesture(intent));
     }
 
     private void assertNullSessionInExtras(Intent intent) {

@@ -40,4 +40,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2023"
     description = "Capability library for health and fitness apps integrating with virtual assistant."
+    metalavaK2UastEnabled = true
 }

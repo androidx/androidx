@@ -491,13 +491,9 @@ object CheckboxDefaults {
         checkedCheckmarkColor = checkedCheckmarkColor,
         uncheckedBoxColor = uncheckedBoxColor,
         uncheckedCheckmarkColor = uncheckedCheckmarkColor,
-        disabledCheckedBoxColor = checkedBoxColor.toDisabledColor(
-            disabledAlpha = DisabledContainerAlpha
-        ),
+        disabledCheckedBoxColor = checkedBoxColor.toDisabledColor(),
         disabledCheckedCheckmarkColor = checkedCheckmarkColor.toDisabledColor(),
-        disabledUncheckedBoxColor = uncheckedBoxColor.toDisabledColor(
-            disabledAlpha = DisabledContainerAlpha
-        ),
+        disabledUncheckedBoxColor = uncheckedBoxColor.toDisabledColor(),
         disabledUncheckedCheckmarkColor = uncheckedCheckmarkColor.toDisabledColor()
     )
 }

@@ -18,6 +18,11 @@ package androidx.glance.appwidget
 import android.os.Build
 import android.util.Log
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastAll
+import androidx.compose.ui.util.fastAny
+import androidx.compose.ui.util.fastFold
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEachIndexed
 import androidx.glance.BackgroundModifier
 import androidx.glance.Emittable
 import androidx.glance.EmittableButton
@@ -63,7 +68,8 @@ internal fun normalizeCompositionTree(root: RemoteViewsRoot) {
  * [EmittableBox].
  */
 private fun coerceToOneChild(container: EmittableWithChildren) {
-    if (container.children.isNotEmpty() && container.children.all { it is EmittableSizeBox }) {
+    if (container.children.isNotEmpty() && container.children.fastAll { it is EmittableSizeBox }) {
+        @Suppress("ListIterator")
         for (item in container.children) {
             item as EmittableSizeBox
             if (item.children.size == 1) continue
@@ -89,20 +95,20 @@ private fun coerceToOneChild(container: EmittableWithChildren) {
  * fillMaxSize. Otherwise, the behavior depends on the version of Android.
  */
 private fun EmittableWithChildren.normalizeSizes() {
-    children.forEach { child ->
+    children.fastForEach { child ->
         if (child is EmittableWithChildren) {
             child.normalizeSizes()
         }
     }
     if ((modifier.findModifier<HeightModifier>()?.height ?: Dimension.Wrap) is Dimension.Wrap &&
-        children.any { child ->
+        children.fastAny { child ->
             child.modifier.findModifier<HeightModifier>()?.height is Dimension.Fill
         }
     ) {
         modifier = modifier.fillMaxHeight()
     }
     if ((modifier.findModifier<WidthModifier>()?.width ?: Dimension.Wrap) is Dimension.Wrap &&
-        children.any { child ->
+        children.fastAny { child ->
             child.modifier.findModifier<WidthModifier>()?.width is Dimension.Fill
         }
     ) {
@@ -112,7 +118,7 @@ private fun EmittableWithChildren.normalizeSizes() {
 
 /** Transform each node in the tree. */
 private fun EmittableWithChildren.transformTree(block: (Emittable) -> Emittable) {
-    children.forEachIndexed { index, child ->
+    children.fastForEachIndexed { index, child ->
         val newChild = block(child)
         children[index] = newChild
         if (newChild is EmittableWithChildren) newChild.transformTree(block)
@@ -133,6 +139,7 @@ private fun EmittableWithChildren.transformTree(block: (Emittable) -> Emittable)
  * will be updated for the composition in all sizes. This is why there can be multiple LambdaActions
  * for each key, even after de-duping.
  */
+@Suppress("ListIterator")
 internal fun EmittableWithChildren.updateLambdaActionKeys(): Map<String, List<LambdaAction>> =
     children.foldIndexed(
         mutableMapOf<String, MutableList<LambdaAction>>()
@@ -337,6 +344,6 @@ private fun GlanceModifier.warnIfMultipleClickableActions() {
 }
 
 private fun MutableList<GlanceModifier?>.collect(): GlanceModifier =
-    fold(GlanceModifier) { acc: GlanceModifier, mod: GlanceModifier? ->
+    fastFold(GlanceModifier) { acc: GlanceModifier, mod: GlanceModifier? ->
         mod?.let { acc.then(mod) } ?: acc
     }

@@ -396,7 +396,12 @@ class LazyListState constructor(
         index: Int,
         scrollOffset: Int = 0
     ) {
-        animateScrollScope.animateScrollToItem(index, scrollOffset)
+        animateScrollScope.animateScrollToItem(
+            index,
+            scrollOffset,
+            NumberOfItemsToTeleport,
+            density
+        )
     }
 
     /**
@@ -507,3 +512,5 @@ private object EmptyLazyListLayoutInfo : LazyListLayoutInfo {
     override val afterContentPadding = 0
     override val mainAxisItemSpacing = 0
 }
+
+private const val NumberOfItemsToTeleport = 100

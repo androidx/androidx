@@ -17,15 +17,6 @@
 package androidx.compose.foundation.text2.input.internal
 
 /**
- * Like [toCharArray] but copies the entire source string.
- * Workaround for compiler error when giving [toCharArray] above default parameters.
- */
-internal fun CharSequence.toCharArray(
-    destination: CharArray,
-    destinationOffset: Int
-) = toCharArray(destination, destinationOffset, startIndex = 0, endIndex = this.length)
-
-/**
  * Copies characters from this [CharSequence] into [destination].
  *
  * Platform-specific implementations should use native functions for performing this operation if

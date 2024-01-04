@@ -29,7 +29,7 @@ class SetSelectionCommandTest {
     fun test_set() {
         val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
-        eb.update(SetSelectionCommand(1, 4))
+        eb.setSelection(1, 4)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
         assertThat(eb.selectionStart).isEqualTo(1)
@@ -43,7 +43,7 @@ class SetSelectionCommandTest {
 
         eb.setComposition(1, 3)
 
-        eb.update(SetSelectionCommand(2, 4))
+        eb.setSelection(2, 4)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
         assertThat(eb.selectionStart).isEqualTo(2)
@@ -57,7 +57,7 @@ class SetSelectionCommandTest {
     fun test_cancel_ongoing_selection() {
         val eb = EditingBuffer("ABCDE", TextRange(1, 4))
 
-        eb.update(SetSelectionCommand(2, 5))
+        eb.setSelection(2, 5)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
         assertThat(eb.selectionStart).isEqualTo(2)
@@ -69,11 +69,11 @@ class SetSelectionCommandTest {
     fun test_set_reversed() {
         val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
-        eb.update(SetSelectionCommand(4, 1))
+        eb.setSelection(4, 1)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
-        assertThat(eb.selectionStart).isEqualTo(1)
-        assertThat(eb.selectionEnd).isEqualTo(4)
+        assertThat(eb.selectionStart).isEqualTo(4)
+        assertThat(eb.selectionEnd).isEqualTo(1)
         assertThat(eb.hasComposition()).isFalse()
     }
 
@@ -81,7 +81,7 @@ class SetSelectionCommandTest {
     fun test_set_too_small() {
         val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
-        eb.update(SetSelectionCommand(-1000, -1000))
+        eb.setSelection(-1000, -1000)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
         assertThat(eb.cursor).isEqualTo(0)
@@ -92,7 +92,7 @@ class SetSelectionCommandTest {
     fun test_set_too_large() {
         val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
-        eb.update(SetSelectionCommand(1000, 1000))
+        eb.setSelection(1000, 1000)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
         assertThat(eb.cursor).isEqualTo(5)
@@ -103,7 +103,7 @@ class SetSelectionCommandTest {
     fun test_set_too_small_too_large() {
         val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
-        eb.update(SetSelectionCommand(-1000, 1000))
+        eb.setSelection(-1000, 1000)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
         assertThat(eb.selectionStart).isEqualTo(0)
@@ -115,11 +115,11 @@ class SetSelectionCommandTest {
     fun test_set_too_small_too_large_reversed() {
         val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
-        eb.update(SetSelectionCommand(1000, -1000))
+        eb.setSelection(1000, -1000)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
-        assertThat(eb.selectionStart).isEqualTo(0)
-        assertThat(eb.selectionEnd).isEqualTo(5)
+        assertThat(eb.selectionStart).isEqualTo(5)
+        assertThat(eb.selectionEnd).isEqualTo(0)
         assertThat(eb.hasComposition()).isFalse()
     }
 }

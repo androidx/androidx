@@ -153,19 +153,28 @@ private class GapBuffer(initBuffer: CharArray, initGapStart: Int, initGapEnd: In
     }
 
     /**
-     * Replace the certain region of text with given text
+     * Replace a region of this buffer with given text.
      *
-     * @param start an inclusive start offset for replacement.
-     * @param end an exclusive end offset for replacement
-     * @param text a text to replace
+     * @param start The index of the first character in this buffer to replace.
+     * @param end The index after the last character in this buffer to replace.
+     * @param text The new text to insert into the buffer.
+     * @param textStart The index of the first character in [text] to copy.
+     * @param textEnd The index after the last character in [text] to copy.
      */
-    fun replace(start: Int, end: Int, text: CharSequence) {
-        makeSureAvailableSpace(text.length - (end - start))
+    fun replace(
+        start: Int,
+        end: Int,
+        text: CharSequence,
+        textStart: Int = 0,
+        textEnd: Int = text.length
+    ) {
+        val textLength = textEnd - textStart
+        makeSureAvailableSpace(textLength - (end - start))
 
         delete(start, end)
 
-        text.toCharArray(buffer, gapStart)
-        gapStart += text.length
+        text.toCharArray(buffer, gapStart, textStart, textEnd)
+        gapStart += textLength
     }
 
     /**
@@ -219,23 +228,30 @@ internal class PartialGapBuffer(text: CharSequence) : CharSequence {
         }
 
     /**
-     * Replace the certain region of text with given text
+     * Replace a region of this buffer with given text.
      *
-     * @param start an inclusive start offset for replacement.
-     * @param end an exclusive end offset for replacement
-     * @param text a text to replace
+     * @param start The index of the first character in this buffer to replace.
+     * @param end The index after the last character in this buffer to replace.
+     * @param text The new text to insert into the buffer.
+     * @param textStart The index of the first character in [text] to copy.
+     * @param textEnd The index after the last character in [text] to copy.
      */
-    fun replace(start: Int, end: Int, text: CharSequence) {
-        require(start <= end) {
-            "start index must be less than or equal to end index: $start > $end"
-        }
-        require(start >= 0) {
-            "start must be non-negative, but was $start"
-        }
+    fun replace(
+        start: Int,
+        end: Int,
+        text: CharSequence,
+        textStart: Int = 0,
+        textEnd: Int = text.length
+    ) {
+        require(start <= end) { "start=$start > end=$end" }
+        require(textStart <= textEnd) { "textStart=$textStart > textEnd=$textEnd" }
+        require(start >= 0) { "start must be non-negative, but was $start" }
+        require(textStart >= 0) { "textStart must be non-negative, but was $textStart" }
 
         val buffer = buffer
+        val textLength = textEnd - textStart
         if (buffer == null) { // First time to create gap buffer
-            val charArray = CharArray(maxOf(BUF_SIZE, text.length + 2 * SURROUNDING_SIZE))
+            val charArray = CharArray(maxOf(BUF_SIZE, textLength + 2 * SURROUNDING_SIZE))
 
             // Convert surrounding text into buffer.
             val leftCopyCount = minOf(start, SURROUNDING_SIZE)
@@ -253,11 +269,11 @@ internal class PartialGapBuffer(text: CharSequence) : CharSequence {
             )
 
             // Copy given text into buffer
-            text.toCharArray(charArray, leftCopyCount)
+            text.toCharArray(charArray, leftCopyCount, textStart, textEnd)
 
             this.buffer = GapBuffer(
                 charArray,
-                initGapStart = leftCopyCount + text.length,
+                initGapStart = leftCopyCount + textLength,
                 initGapEnd = charArray.size - rightCopyCount
             )
             bufStart = start - leftCopyCount
@@ -275,10 +291,10 @@ internal class PartialGapBuffer(text: CharSequence) : CharSequence {
             this.buffer = null
             bufStart = NOWHERE
             bufEnd = NOWHERE
-            return replace(start, end, text)
+            return replace(start, end, text, textStart, textEnd)
         }
 
-        buffer.replace(bufferStart, bufferEnd, text)
+        buffer.replace(bufferStart, bufferEnd, text, textStart, textEnd)
     }
 
     /**

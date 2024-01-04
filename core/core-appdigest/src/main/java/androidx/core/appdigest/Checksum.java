@@ -83,6 +83,7 @@ public final class Checksum {
      *
      * @see Checksums#getChecksums
      */
+    @Deprecated
     public static final int TYPE_WHOLE_SHA256 = 0x00000008;
 
     /**
@@ -93,6 +94,7 @@ public final class Checksum {
      *
      * @see Checksums#getChecksums
      */
+    @Deprecated
     public static final int TYPE_WHOLE_SHA512 = 0x00000010;
 
     /**

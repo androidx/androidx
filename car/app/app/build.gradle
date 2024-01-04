@@ -100,6 +100,7 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Build navigation, parking, and charging apps for Android Auto"
+    metalavaK2UastEnabled = true
 }
 
 // Use MetalavaRunnerKt to execute Metalava operations. MetalavaRunnerKt is defined in the buildSrc

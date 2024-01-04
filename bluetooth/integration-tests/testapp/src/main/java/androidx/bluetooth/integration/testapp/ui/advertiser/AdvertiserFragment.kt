@@ -33,7 +33,6 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.bluetooth.AdvertiseResult
 import androidx.bluetooth.BluetoothLe
 import androidx.bluetooth.GattCharacteristic
-import androidx.bluetooth.GattCharacteristic.Companion.PROPERTY_READ
 import androidx.bluetooth.GattServerRequest
 import androidx.bluetooth.GattService
 import androidx.bluetooth.integration.testapp.R
@@ -372,7 +371,7 @@ class AdvertiserFragment : Fragment() {
                             else -> editTextInput
                         }
                     )
-                    val service = GattService.of(uuid, listOf())
+                    val service = GattService(uuid, listOf())
                     viewModel.addGattService(service)
                     gattServerServicesAdapter
                         ?.notifyItemInserted(viewModel.gattServerServices.size - 1)
@@ -439,7 +438,7 @@ class AdvertiserFragment : Fragment() {
                             else -> uuidText
                         }
                     )
-                    val sampleCharacteristic = GattCharacteristic.of(uuid, properties)
+                    val sampleCharacteristic = GattCharacteristic(uuid, properties)
 
                     val index = viewModel.gattServerServices.indexOf(bluetoothGattService)
                     viewModel.addGattCharacteristic(bluetoothGattService, sampleCharacteristic)
@@ -460,18 +459,20 @@ class AdvertiserFragment : Fragment() {
         gattServerJob = gattServerScope.launch {
             isGattServerOpen = true
 
-            bluetoothLe.openGattServer(viewModel.gattServerServices).collect {
-                launch {
-                    it.accept {
-                        launch {
+            bluetoothLe.openGattServer(viewModel.gattServerServices) {
+                connectRequest.collect {
+                    launch {
+                        it.accept {
                             requests.collect {
                                 when (it) {
                                     is GattServerRequest.ReadCharacteristicRequest ->
                                         it.sendResponse(/*success=*/true,
-                                            ByteBuffer.allocate(Int.SIZE_BYTES).putInt(1).array())
+                                            ByteBuffer.allocate(Int.SIZE_BYTES).putInt(1)
+                                                .array()
+                                        )
 
                                     is GattServerRequest.WriteCharacteristicRequest ->
-                                        it.sendResponse(/*success=*/true)
+                                        it.sendResponse(/*success=*/true, null)
 
                                     else -> throw NotImplementedError("unknown request")
                                 }

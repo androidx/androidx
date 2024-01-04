@@ -36,9 +36,8 @@ object Wallpapers {
 
 /**
  * Annotation for defining the wallpaper to use for dynamic theming in the [Preview].
- * @suppress
  */
 @Retention(AnnotationRetention.SOURCE)
 @IntDef(Wallpapers.NONE, Wallpapers.RED_DOMINATED_EXAMPLE, Wallpapers.GREEN_DOMINATED_EXAMPLE,
     Wallpapers.BLUE_DOMINATED_EXAMPLE, Wallpapers.YELLOW_DOMINATED_EXAMPLE)
-annotation class Wallpaper
+internal annotation class Wallpaper

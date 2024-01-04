@@ -58,6 +58,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFirst
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -339,10 +340,10 @@ private fun NavigationRailItemBaselineLayout(
             }
         }
     ) { measurables, constraints ->
-        val iconPlaceable = measurables.first { it.layoutId == "icon" }.measure(constraints)
+        val iconPlaceable = measurables.fastFirst { it.layoutId == "icon" }.measure(constraints)
 
         val labelPlaceable = label?.let {
-            measurables.first { it.layoutId == "label" }.measure(
+            measurables.fastFirst { it.layoutId == "label" }.measure(
                 // Measure with loose constraints for height as we don't want the label to take up more
                 // space than it needs
                 constraints.copy(minHeight = 0)

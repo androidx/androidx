@@ -32,8 +32,7 @@ import androidx.health.platform.client.service.HealthDataServiceConstants.KEY_RE
  * An [ActivityResultContract] to request Health Connect permissions.
  *
  * @param providerPackageName Optional provider package name for the backing implementation of
- * choice.
- *
+ *   choice.
  * @see androidx.activity.ComponentActivity.registerForActivityResult
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -42,8 +41,6 @@ internal class HealthDataRequestPermissionsInternal(
 ) : ActivityResultContract<Set<String>, Set<String>>() {
 
     override fun createIntent(context: Context, input: Set<String>): Intent {
-        require(input.isNotEmpty()) { "At least one permission is required!" }
-
         val protoPermissionList =
             input
                 .asSequence()

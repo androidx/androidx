@@ -69,6 +69,8 @@ import androidx.compose.ui.autofill.AutofillCallback
 import androidx.compose.ui.autofill.AutofillTree
 import androidx.compose.ui.autofill.performAutofill
 import androidx.compose.ui.autofill.populateViewStructure
+import androidx.compose.ui.draganddrop.ComposeDragShadowBuilder
+import androidx.compose.ui.draganddrop.DragAndDropInfo
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusDirection.Companion.Down
 import androidx.compose.ui.focus.FocusDirection.Companion.Exit
@@ -659,7 +661,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
      * This function is used by the testing framework to send key events.
      */
     override fun sendKeyEvent(keyEvent: KeyEvent): Boolean =
-        // First dispatch the key event to mimic the event being intercepted before it is sent to
+    // First dispatch the key event to mimic the event being intercepted before it is sent to
         // the soft keyboard.
         focusOwner.dispatchInterceptedSoftKeyboardEvent(keyEvent) ||
             // Next, send the key event to the Soft Keyboard.
@@ -733,6 +735,32 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         if (listener !in endApplyChangesListeners) {
             endApplyChangesListeners += listener
         }
+    }
+
+    override fun drag(dragAndDropInfo: DragAndDropInfo): Boolean {
+        val density = with(context.resources) {
+            Density(
+                density = displayMetrics.density,
+                fontScale = configuration.fontScale
+            )
+        }
+        val shadowBuilder = ComposeDragShadowBuilder(
+            density = density,
+            dragAndDropInfo = dragAndDropInfo,
+        )
+        @Suppress("DEPRECATION")
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+            AndroidComposeViewStartDragAndDropN.startDragAndDrop(
+                view = this,
+                dragAndDropInfo = dragAndDropInfo,
+                dragShadowBuilder = shadowBuilder,
+            )
+        else startDrag(
+            dragAndDropInfo.transfer.clipData,
+            shadowBuilder,
+            dragAndDropInfo.transfer.localState,
+            dragAndDropInfo.transfer.flags,
+        )
     }
 
     private fun clearChildInvalidObservations(viewGroup: ViewGroup) {
@@ -1007,6 +1035,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
 
     @Suppress("NOTHING_TO_INLINE")
     private inline operator fun ULong.component1() = (this shr 32).toInt()
+
     @Suppress("NOTHING_TO_INLINE")
     private inline operator fun ULong.component2() = (this and 0xFFFFFFFFUL).toInt()
 
@@ -1399,7 +1428,8 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         val rotaryEvent = RotaryScrollEvent(
             verticalScrollPixels = axisValue * getScaledVerticalScrollFactor(config, context),
             horizontalScrollPixels = axisValue * getScaledHorizontalScrollFactor(config, context),
-            uptimeMillis = event.eventTime
+            uptimeMillis = event.eventTime,
+            inputDeviceId = event.deviceId
         )
         return focusOwner.dispatchRotaryEvent(rotaryEvent)
     }
@@ -2152,4 +2182,20 @@ private object MotionEventVerifierApi29 {
     fun isValidMotionEvent(event: MotionEvent, index: Int): Boolean {
         return event.getRawX(index).isFinite() && event.getRawY(index).isFinite()
     }
+}
+
+@RequiresApi(Build.VERSION_CODES.N)
+private object AndroidComposeViewStartDragAndDropN {
+    @DoNotInline
+    @RequiresApi(Build.VERSION_CODES.N)
+    fun startDragAndDrop(
+        view: View,
+        dragAndDropInfo: DragAndDropInfo,
+        dragShadowBuilder: ComposeDragShadowBuilder
+    ): Boolean = view.startDragAndDrop(
+        dragAndDropInfo.transfer.clipData,
+        dragShadowBuilder,
+        dragAndDropInfo.transfer.localState,
+        dragAndDropInfo.transfer.flags,
+    )
 }

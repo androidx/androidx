@@ -19,11 +19,12 @@ package androidx.camera.camera2.internal;
 import static androidx.camera.core.concurrent.CameraCoordinator.CAMERA_OPERATING_MODE_CONCURRENT;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.SurfaceTexture;
-import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
+import android.media.CamcorderProfile;
 import android.os.Build;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -52,11 +53,13 @@ import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.concurrent.CameraCoordinator;
+import androidx.camera.core.impl.AttachedSurfaceInfo;
 import androidx.camera.core.impl.CameraConfig;
 import androidx.camera.core.impl.CameraConfigs;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.impl.CameraMode;
 import androidx.camera.core.impl.CameraStateRegistry;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.DeferrableSurface;
@@ -66,12 +69,16 @@ import androidx.camera.core.impl.Observable;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.SessionConfig.ValidatingBuilder;
 import androidx.camera.core.impl.SessionProcessor;
+import androidx.camera.core.impl.StreamSpec;
+import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseAttachState;
 import androidx.camera.core.impl.UseCaseConfig;
+import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.camera.core.streamsharing.StreamSharing;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
 
@@ -81,6 +88,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -95,7 +103,7 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -183,7 +191,7 @@ final class Camera2CameraImpl implements CameraInternal {
     @NonNull
     private final CaptureSessionRepository mCaptureSessionRepository;
     @NonNull
-    private final SynchronizedCaptureSessionOpener.Builder mCaptureSessionOpenerBuilder;
+    private final SynchronizedCaptureSession.OpenerBuilder mCaptureSessionOpenerBuilder;
     private final Set<String> mNotifyStateAttachedSet = new HashSet<>();
 
     @NonNull
@@ -204,6 +212,12 @@ final class Camera2CameraImpl implements CameraInternal {
     @NonNull
     private final DynamicRangesCompat mDynamicRangesCompat;
 
+    @NonNull
+    private final SupportedSurfaceCombination mSupportedSurfaceCombination;
+
+    private final ErrorTimeoutReopenScheduler
+            mErrorTimeoutReopenScheduler = new ErrorTimeoutReopenScheduler();
+
     /**
      * Constructor for a camera.
      *
@@ -219,6 +233,7 @@ final class Camera2CameraImpl implements CameraInternal {
      *                                    could occur if the camera was disconnected.
      */
     Camera2CameraImpl(
+            @NonNull Context context,
             @NonNull CameraManagerCompat cameraManager,
             @NonNull String cameraId,
             @NonNull Camera2CameraInfoImpl cameraInfoImpl,
@@ -257,7 +272,7 @@ final class Camera2CameraImpl implements CameraInternal {
                 DynamicRangesCompat.fromCameraCharacteristics(mCameraCharacteristicsCompat);
         mCaptureSession = newCaptureSession();
 
-        mCaptureSessionOpenerBuilder = new SynchronizedCaptureSessionOpener.Builder(mExecutor,
+        mCaptureSessionOpenerBuilder = new SynchronizedCaptureSession.OpenerBuilder(mExecutor,
                 mScheduledExecutorService, schedulerHandler, mCaptureSessionRepository,
                 cameraInfoImpl.getCameraQuirks(), DeviceQuirks.getAll());
 
@@ -271,6 +286,20 @@ final class Camera2CameraImpl implements CameraInternal {
                 mCameraConfigureAvailable,
                 mCameraAvailability);
         mCameraManager.registerAvailabilityCallback(mExecutor, mCameraAvailability);
+
+        mSupportedSurfaceCombination = new SupportedSurfaceCombination(context, cameraId,
+                cameraManager, new CamcorderProfileHelper() {
+                        @Override
+                        public boolean hasProfile(int cameraId, int quality) {
+                            return CamcorderProfile.hasProfile(cameraId, quality);
+                        }
+
+                        @Override
+                        @SuppressWarnings("deprecation")
+                        public CamcorderProfile get(int cameraId, int quality) {
+                            return CamcorderProfile.get(cameraId, quality);
+                        }
+                    });
     }
 
     @NonNull
@@ -346,7 +375,9 @@ final class Camera2CameraImpl implements CameraInternal {
                 break;
             case OPENING:
             case REOPENING:
-                boolean canFinish = mStateCallback.cancelScheduledReopen();
+                boolean canFinish = mStateCallback.cancelScheduledReopen()
+                        || mErrorTimeoutReopenScheduler.isErrorHandling();
+                mErrorTimeoutReopenScheduler.cancel();
                 setState(InternalState.CLOSING);
                 if (canFinish) {
                     Preconditions.checkState(isSessionCloseComplete());
@@ -514,7 +545,9 @@ final class Camera2CameraImpl implements CameraInternal {
             case CLOSING:
             case REOPENING:
             case RELEASING:
-                boolean canFinish = mStateCallback.cancelScheduledReopen();
+                boolean canFinish = mStateCallback.cancelScheduledReopen()
+                        || mErrorTimeoutReopenScheduler.isErrorHandling();
+                mErrorTimeoutReopenScheduler.cancel();
                 // Wait for the camera async callback to finish releasing
                 setState(InternalState.RELEASING);
                 if (canFinish) {
@@ -578,6 +611,7 @@ final class Camera2CameraImpl implements CameraInternal {
                     case CLOSING:
                     case RELEASING:
                         if (isSessionCloseComplete() && mCameraDevice != null) {
+                            debugLog("closing camera");
                             ApiCompat.Api21Impl.close(mCameraDevice);
                             mCameraDevice = null;
                         }
@@ -616,11 +650,15 @@ final class Camera2CameraImpl implements CameraInternal {
         String useCaseId = getUseCaseId(useCase);
         SessionConfig sessionConfig = useCase.getSessionConfig();
         UseCaseConfig<?> useCaseConfig = useCase.getCurrentConfig();
+        StreamSpec streamSpec = useCase.getAttachedStreamSpec();
+        List<UseCaseConfigFactory.CaptureType> captureTypes = getCaptureTypes(useCase);
         mExecutor.execute(() -> {
             debugLog("Use case " + useCaseId + " ACTIVE");
 
-            mUseCaseAttachState.setUseCaseActive(useCaseId, sessionConfig, useCaseConfig);
-            mUseCaseAttachState.updateUseCase(useCaseId, sessionConfig, useCaseConfig);
+            mUseCaseAttachState.setUseCaseActive(useCaseId, sessionConfig, useCaseConfig,
+                    streamSpec, captureTypes);
+            mUseCaseAttachState.updateUseCase(useCaseId, sessionConfig, useCaseConfig,
+                    streamSpec, captureTypes);
             updateCaptureSessionConfig();
         });
     }
@@ -645,9 +683,12 @@ final class Camera2CameraImpl implements CameraInternal {
         String useCaseId = getUseCaseId(useCase);
         SessionConfig sessionConfig = useCase.getSessionConfig();
         UseCaseConfig<?> useCaseConfig = useCase.getCurrentConfig();
+        StreamSpec streamSpec = useCase.getAttachedStreamSpec();
+        List<UseCaseConfigFactory.CaptureType> captureTypes = getCaptureTypes(useCase);
         mExecutor.execute(() -> {
             debugLog("Use case " + useCaseId + " UPDATED");
-            mUseCaseAttachState.updateUseCase(useCaseId, sessionConfig, useCaseConfig);
+            mUseCaseAttachState.updateUseCase(useCaseId, sessionConfig, useCaseConfig,
+                    streamSpec, captureTypes);
             updateCaptureSessionConfig();
         });
     }
@@ -657,17 +698,22 @@ final class Camera2CameraImpl implements CameraInternal {
         Preconditions.checkNotNull(useCase);
         SessionConfig sessionConfig = useCase.getSessionConfig();
         UseCaseConfig<?> useCaseConfig = useCase.getCurrentConfig();
-        resetUseCase(getUseCaseId(useCase), sessionConfig, useCaseConfig);
+        StreamSpec streamSpec = useCase.getAttachedStreamSpec();
+        List<UseCaseConfigFactory.CaptureType> captureTypes = getCaptureTypes(useCase);
+        resetUseCase(getUseCaseId(useCase), sessionConfig, useCaseConfig, streamSpec, captureTypes);
     }
 
     private void resetUseCase(
             @NonNull String useCaseId,
             @NonNull SessionConfig sessionConfig,
-            @NonNull UseCaseConfig<?> useCaseConfig
+            @NonNull UseCaseConfig<?> useCaseConfig,
+            @Nullable StreamSpec streamSpec,
+            @Nullable List<UseCaseConfigFactory.CaptureType> captureTypes
     ) {
         mExecutor.execute(() -> {
             debugLog("Use case " + useCaseId + " RESET");
-            mUseCaseAttachState.updateUseCase(useCaseId, sessionConfig, useCaseConfig);
+            mUseCaseAttachState.updateUseCase(useCaseId, sessionConfig, useCaseConfig,
+                    streamSpec, captureTypes);
             addOrRemoveMeteringRepeatingUseCase();
             resetCaptureSession(/*abortInFlightCaptures=*/false);
             updateCaptureSessionConfig();
@@ -781,7 +827,8 @@ final class Camera2CameraImpl implements CameraInternal {
         for (UseCaseInfo useCaseInfo : useCaseInfos) {
             if (!mUseCaseAttachState.isUseCaseAttached(useCaseInfo.getUseCaseId())) {
                 mUseCaseAttachState.setUseCaseAttached(useCaseInfo.getUseCaseId(),
-                        useCaseInfo.getSessionConfig(), useCaseInfo.getUseCaseConfig());
+                        useCaseInfo.getSessionConfig(), useCaseInfo.getUseCaseConfig(),
+                        useCaseInfo.getStreamSpec(), useCaseInfo.getCaptureTypes());
 
                 useCaseIdsToAttach.add(useCaseInfo.getUseCaseId());
 
@@ -998,10 +1045,15 @@ final class Camera2CameraImpl implements CameraInternal {
                                         mMeteringRepeatingSession.getUseCaseConfig();
 
                                 resetUseCase(getMeteringRepeatingId(mMeteringRepeatingSession),
-                                        sessionConfigMeteringRepeating, useCaseConfig);
+                                        sessionConfigMeteringRepeating, useCaseConfig, null,
+                                        Collections.singletonList(
+                                                UseCaseConfigFactory.CaptureType.METERING_REPEATING
+                                        ));
                             });
                 }
-                addMeteringRepeating();
+                if (isSurfaceCombinationWithMeteringRepeatingSupported()) {
+                    addMeteringRepeating();
+                }
             } else {
                 // There is mMeteringRepeating and attached, check to remove it or not.
                 if (sizeSessionSurfaces == 1 && sizeRepeatingSurfaces == 1) {
@@ -1009,6 +1061,10 @@ final class Camera2CameraImpl implements CameraInternal {
                     removeMeteringRepeating();
                 } else if (sizeRepeatingSurfaces >= 2) {
                     // There are other repeating UseCases, remove the MeteringRepeating.
+                    removeMeteringRepeating();
+                } else if (mMeteringRepeatingSession != null
+                        && !isSurfaceCombinationWithMeteringRepeatingSupported()) {
+                    // Surface combination not supported, remove the MeteringRepeating if added.
                     removeMeteringRepeating();
                 } else {
                     // Other normal cases, do nothing.
@@ -1018,6 +1074,76 @@ final class Camera2CameraImpl implements CameraInternal {
                 }
             }
         }
+    }
+
+    /**
+     * Checks if adding {@link MeteringRepeatingSession} to current use cases is supported
+     */
+    private boolean isSurfaceCombinationWithMeteringRepeatingSupported() {
+        List<AttachedSurfaceInfo> attachedSurfaces = new ArrayList<>();
+        @CameraMode.Mode int cameraMode = getCameraMode();
+
+        for (UseCaseAttachState.UseCaseAttachInfo useCaseInfo:
+                mUseCaseAttachState.getAttachedUseCaseInfo()) {
+            if (useCaseInfo.getCaptureTypes() != null && useCaseInfo.getCaptureTypes().get(0)
+                    == UseCaseConfigFactory.CaptureType.METERING_REPEATING) {
+                continue;
+            }
+
+            if (useCaseInfo.getStreamSpec() == null || useCaseInfo.getCaptureTypes() == null) {
+                Logger.w(TAG, "Invalid stream spec or capture types in " + useCaseInfo);
+                return false;
+            }
+
+            SessionConfig sessionConfig = useCaseInfo.getSessionConfig();
+            UseCaseConfig<?> useCaseConfig = useCaseInfo.getUseCaseConfig();
+            for (DeferrableSurface surface: sessionConfig.getSurfaces()) {
+                SurfaceConfig surfaceConfig =
+                        mSupportedSurfaceCombination.transformSurfaceConfig(cameraMode,
+                                useCaseConfig.getInputFormat(), surface.getPrescribedSize());
+
+                AttachedSurfaceInfo attachedSurfaceInfo = AttachedSurfaceInfo.create(surfaceConfig,
+                        useCaseConfig.getInputFormat(),
+                        surface.getPrescribedSize(),
+                        useCaseInfo.getStreamSpec().getDynamicRange(),
+                        useCaseInfo.getCaptureTypes(),
+                        useCaseInfo.getStreamSpec().getImplementationOptions(),
+                        useCaseConfig.getTargetFrameRate(null));
+
+                attachedSurfaces.add(attachedSurfaceInfo);
+            }
+        }
+
+        Preconditions.checkNotNull(mMeteringRepeatingSession);
+
+        Map<UseCaseConfig<?>, List<Size>> useCaseConfigToSizeMap = new HashMap<>();
+        useCaseConfigToSizeMap.put(mMeteringRepeatingSession.getUseCaseConfig(),
+                Collections.singletonList(mMeteringRepeatingSession.getMeteringRepeatingSize()));
+
+        try {
+            mSupportedSurfaceCombination.getSuggestedStreamSpecifications(cameraMode,
+                    attachedSurfaces, useCaseConfigToSizeMap);
+        } catch (IllegalArgumentException e) {
+            debugLog("Surface combination with metering repeating  not supported!", e);
+            return false;
+        }
+
+        debugLog("Surface combination with metering repeating supported!");
+        return true;
+    }
+
+    private @CameraMode.Mode int getCameraMode() {
+        synchronized (mLock) {
+            if (mCameraCoordinator.getCameraOperatingMode()
+                    == CameraCoordinator.CAMERA_OPERATING_MODE_CONCURRENT) {
+                return CameraMode.CONCURRENT_CAMERA;
+            }
+        }
+
+        // TODO(b/271199876): return ULTRA_HIGH_RESOLUTION_CAMERA when it can be enabled via
+        //  Camera2Interop
+
+        return CameraMode.DEFAULT;
     }
 
     private void removeMeteringRepeating() {
@@ -1037,11 +1163,15 @@ final class Camera2CameraImpl implements CameraInternal {
             mUseCaseAttachState.setUseCaseAttached(
                     id,
                     mMeteringRepeatingSession.getSessionConfig(),
-                    mMeteringRepeatingSession.getUseCaseConfig());
+                    mMeteringRepeatingSession.getUseCaseConfig(),
+                    null,
+                    Collections.singletonList(UseCaseConfigFactory.CaptureType.METERING_REPEATING));
             mUseCaseAttachState.setUseCaseActive(
                     id,
                     mMeteringRepeatingSession.getSessionConfig(),
-                    mMeteringRepeatingSession.getUseCaseConfig());
+                    mMeteringRepeatingSession.getUseCaseConfig(),
+                    null,
+                    Collections.singletonList(UseCaseConfigFactory.CaptureType.METERING_REPEATING));
         }
     }
 
@@ -1133,6 +1263,7 @@ final class Camera2CameraImpl implements CameraInternal {
             mStateCallback.resetReopenMonitor();
         }
         mStateCallback.cancelScheduledReopen();
+        mErrorTimeoutReopenScheduler.cancel();
 
         debugLog("Opening camera.");
         setState(InternalState.OPENING);
@@ -1152,6 +1283,9 @@ final class Camera2CameraImpl implements CameraInternal {
                 default:
                     // Camera2 will call the onError() callback with the specific error code that
                     // caused this failure. No need to do anything here.
+
+                    // Certain devices may not call onError(), please see b/290861504#comment3
+                    mErrorTimeoutReopenScheduler.start();
             }
         } catch (SecurityException e) {
             debugLog("Unable to open camera due to " + e.getMessage());
@@ -1163,6 +1297,92 @@ final class Camera2CameraImpl implements CameraInternal {
             // callback's onError() method, which is why we manually attempt to reopen the camera.
             setState(InternalState.REOPENING);
             mStateCallback.scheduleCameraReopen();
+        }
+    }
+
+    /**
+     * Reopen the Camera if CameraDevice.StateCallback#onError be called within a reasonable delay.
+     */
+    private class ErrorTimeoutReopenScheduler {
+
+        private static final long ERROR_TIMEOUT_MILLIS = 2000;
+
+        @Nullable
+        private ScheduleNode mScheduleNode = null;
+
+        @ExecutedBy("mExecutor")
+        public void start() {
+            if (mState != InternalState.OPENING) {
+                debugLog("Don't need the onError timeout handler.");
+                return;
+            }
+
+            debugLog("Camera waiting for onError.");
+            cancel();
+            mScheduleNode = new ScheduleNode();
+        }
+
+        /**
+         * @return True if CameraManager#openCamera throws an exception but still does not
+         * receive onError callback. Otherwise false.
+         */
+        @ExecutedBy("mExecutor")
+        public boolean isErrorHandling() {
+            return mScheduleNode != null && !mScheduleNode.isDone();
+        }
+
+        @ExecutedBy("mExecutor")
+        public void deviceOnError() {
+            debugLog("Camera receive onErrorCallback");
+            cancel();
+        }
+
+        @ExecutedBy("mExecutor")
+        public void cancel() {
+            if (mScheduleNode != null) {
+                mScheduleNode.cancel();
+            }
+            mScheduleNode = null;
+        }
+
+        private class ScheduleNode {
+            private final ScheduledFuture<?> mScheduledFuture;
+            private final AtomicBoolean mIsDone = new AtomicBoolean(false);
+            ScheduleNode() {
+                mScheduledFuture = mScheduledExecutorService.schedule(this::execute,
+                        ERROR_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+            }
+
+            private void execute() {
+                if (mIsDone.getAndSet(true)) {
+                    return;
+                }
+
+                mExecutor.execute(this::executeInternal);
+            }
+
+            @ExecutedBy("mExecutor")
+            private void executeInternal() {
+                if (mState != InternalState.OPENING) {
+                    debugLog("Camera skip reopen at state: " + mState);
+                    return;
+                }
+
+                debugLog("Camera onError timeout, reopen it.");
+                setState(InternalState.REOPENING);
+                mStateCallback.scheduleCameraReopen();
+            }
+
+            @ExecutedBy("mExecutor")
+            public void cancel() {
+                mIsDone.set(true);
+                mScheduledFuture.cancel(true);
+            }
+
+            @ExecutedBy("mExecutor")
+            public boolean isDone() {
+                return mIsDone.get();
+            }
         }
     }
 
@@ -1239,22 +1459,16 @@ final class Camera2CameraImpl implements CameraInternal {
             @ExecutedBy("mExecutor")
             public void onFailure(@NonNull Throwable t) {
                 if (t instanceof DeferrableSurface.SurfaceClosedException) {
-                    SessionConfig sessionConfig =
-                            findSessionConfigForSurface(
-                                    ((DeferrableSurface.SurfaceClosedException) t)
-                                            .getDeferrableSurface());
+                    SessionConfig sessionConfig = findSessionConfigForSurface(
+                            ((DeferrableSurface.SurfaceClosedException) t).getDeferrableSurface());
                     if (sessionConfig != null) {
                         postSurfaceClosedError(sessionConfig);
                     }
                     return;
                 }
-
-                // A CancellationException is thrown when (1) A CaptureSession is closed while it
-                // is opening. In this case, another CaptureSession should be opened shortly
-                // after or (2) When opening a CaptureSession fails.
-                // TODO(b/183504720): Distinguish between both scenarios, and communicate the
-                //  second one to the developer.
                 if (t instanceof CancellationException) {
+                    // A CancellationException is thrown when a CaptureSession is closed while it
+                    // is opening. In this case, another CaptureSession should be opened shortly.
                     debugLog("Unable to configure camera cancelled");
                     return;
                 }
@@ -1265,13 +1479,8 @@ final class Camera2CameraImpl implements CameraInternal {
                             CameraState.StateError.create(CameraState.ERROR_STREAM_CONFIG, t));
                 }
 
-                if (t instanceof CameraAccessException) {
-                    debugLog("Unable to configure camera due to " + t.getMessage());
-                } else if (t instanceof TimeoutException) {
-                    // TODO: Consider to handle the timeout error.
-                    Logger.e(TAG, "Unable to configure camera " + mCameraInfoInternal.getCameraId()
-                            + ", timeout!");
-                }
+                Logger.e(TAG, "Unable to configure camera " + Camera2CameraImpl.this, t);
+                resetCaptureSession(/*abortInFlightCaptures=*/false);
             }
         }, mExecutor);
     }
@@ -1298,8 +1507,7 @@ final class Camera2CameraImpl implements CameraInternal {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     void postSurfaceClosedError(@NonNull SessionConfig sessionConfig) {
         Executor executor = CameraXExecutors.mainThreadExecutor();
-        List<SessionConfig.ErrorListener> errorListeners =
-                sessionConfig.getErrorListeners();
+        List<SessionConfig.ErrorListener> errorListeners = sessionConfig.getErrorListeners();
         if (!errorListeners.isEmpty()) {
             SessionConfig.ErrorListener errorListener = errorListeners.get(0);
             debugLog("Posting surface closed", new Throwable());
@@ -1434,6 +1642,16 @@ final class Camera2CameraImpl implements CameraInternal {
     @NonNull
     static String getUseCaseId(@NonNull UseCase useCase) {
         return useCase.getName() + useCase.hashCode();
+    }
+
+    @Nullable
+    static List<UseCaseConfigFactory.CaptureType> getCaptureTypes(@NonNull UseCase useCase) {
+        if (useCase.getCamera() == null) {
+            // camera is not bound, so the current use case config may not have capture type set
+            return null;
+        }
+
+        return StreamSharing.getCaptureTypes(useCase);
     }
 
     @NonNull
@@ -1612,6 +1830,7 @@ final class Camera2CameraImpl implements CameraInternal {
      * <p>{@link UseCaseInfo} should only contain immutable class to avoid race condition between
      * caller thread and camera thread.
      */
+    @SuppressWarnings("AutoValueImmutableFields")  // avoid extra dependency for ImmutableList.
     @AutoValue
     abstract static class UseCaseInfo {
         @NonNull
@@ -1619,16 +1838,19 @@ final class Camera2CameraImpl implements CameraInternal {
                 @NonNull Class<?> useCaseType,
                 @NonNull SessionConfig sessionConfig,
                 @NonNull UseCaseConfig<?> useCaseConfig,
-                @Nullable Size surfaceResolution) {
+                @Nullable Size surfaceResolution,
+                @Nullable StreamSpec streamSpec,
+                @Nullable List<UseCaseConfigFactory.CaptureType> captureTypes) {
             return new AutoValue_Camera2CameraImpl_UseCaseInfo(useCaseId, useCaseType,
-                    sessionConfig, useCaseConfig, surfaceResolution);
+                    sessionConfig, useCaseConfig, surfaceResolution, streamSpec, captureTypes);
         }
 
         @NonNull
         static UseCaseInfo from(@NonNull UseCase useCase) {
             return create(Camera2CameraImpl.getUseCaseId(useCase), useCase.getClass(),
                     useCase.getSessionConfig(), useCase.getCurrentConfig(),
-                    useCase.getAttachedSurfaceResolution());
+                    useCase.getAttachedSurfaceResolution(),
+                    useCase.getAttachedStreamSpec(), Camera2CameraImpl.getCaptureTypes(useCase));
         }
 
         @NonNull
@@ -1645,6 +1867,12 @@ final class Camera2CameraImpl implements CameraInternal {
 
         @Nullable
         abstract Size getSurfaceResolution();
+
+        @Nullable
+        abstract StreamSpec getStreamSpec();
+
+        @Nullable
+        abstract List<UseCaseConfigFactory.CaptureType> getCaptureTypes();
     }
 
     @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
@@ -1740,6 +1968,7 @@ final class Camera2CameraImpl implements CameraInternal {
             // during initialization, so keep track of it here.
             mCameraDevice = cameraDevice;
             mCameraDeviceError = error;
+            mErrorTimeoutReopenScheduler.deviceOnError();
 
             switch (mState) {
                 case RELEASING:

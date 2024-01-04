@@ -35,6 +35,8 @@ import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraXUtil
 import androidx.camera.testing.impl.LabTestRule
 import androidx.camera.video.internal.BackupHdrProfileEncoderProfilesProvider.DEFAULT_VALIDATOR
+import androidx.camera.video.internal.compat.quirk.DeviceQuirks
+import androidx.camera.video.internal.compat.quirk.MediaCodecInfoReportIncorrectInfoQuirk
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -42,6 +44,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.TimeUnit
 import org.junit.After
+import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -71,21 +74,14 @@ class BackupHdrProfileEncoderProfilesProviderTest(
     val labTest: LabTestRule = LabTestRule()
 
     companion object {
+
+        // Reference to the available values listed in Quality.
         @JvmStatic
         private val qualities = arrayOf(
-            CamcorderProfile.QUALITY_LOW,
-            CamcorderProfile.QUALITY_HIGH,
-            CamcorderProfile.QUALITY_QCIF,
-            CamcorderProfile.QUALITY_CIF,
             CamcorderProfile.QUALITY_480P,
             CamcorderProfile.QUALITY_720P,
             CamcorderProfile.QUALITY_1080P,
-            CamcorderProfile.QUALITY_QVGA,
             CamcorderProfile.QUALITY_2160P,
-            CamcorderProfile.QUALITY_VGA,
-            CamcorderProfile.QUALITY_4KDCI,
-            CamcorderProfile.QUALITY_QHD,
-            CamcorderProfile.QUALITY_2K,
         )
 
         @JvmStatic
@@ -114,6 +110,10 @@ class BackupHdrProfileEncoderProfilesProviderTest(
                     )
                 }
             }
+        }
+
+        private fun hasMediaCodecIncorrectInfoQuirk(): Boolean {
+            return DeviceQuirks.get(MediaCodecInfoReportIncorrectInfoQuirk::class.java) != null
         }
     }
 
@@ -151,6 +151,7 @@ class BackupHdrProfileEncoderProfilesProviderTest(
     @Test
     fun defaultValidator_returnNonNull_whenProfileIsFromCamcorder() {
         // Arrange.
+        assumeFalse(hasMediaCodecIncorrectInfoQuirk())
         assumeTrue(baseProvider.hasProfile(quality))
         val encoderProfiles = baseProvider.getAll(quality)
         val baseVideoProfile = encoderProfiles!!.videoProfiles[0]
@@ -170,6 +171,7 @@ class BackupHdrProfileEncoderProfilesProviderTest(
         assumeTrue(cameraInfo.supportedDynamicRanges.containsAll(setOf(SDR, HLG_10_BIT)))
 
         // Arrange.
+        assumeFalse(hasMediaCodecIncorrectInfoQuirk())
         assumeTrue(baseProvider.hasProfile(quality))
         val baseVideoProfilesSize = baseProvider.getAll(quality)!!.videoProfiles.size
 

@@ -27,9 +27,9 @@ export class StatService {
                 continue;
               }
               const [delta, distribution] = this.buildDistribution(reference, target);
-              const [points, pPlots, p] = histogramPoints([distribution], 20, delta);
+              const [points, pPlots, p] = histogramPoints([distribution], /* buckets */ 100, /* target */ delta);
               series.push({
-                label: `${name} { ${metric.label} } - Likelihood`,
+                descriptiveLabel: `${name} { ${metric.label} } - Likelihood`,
                 type: "line",
                 data: points,
                 options: {
@@ -38,7 +38,7 @@ export class StatService {
               });
               if (pPlots && pPlots.length > 0) {
                 series.push({
-                  label: `${name} { ${metric.label} } - { P = ${p} }`,
+                  descriptiveLabel: `${name} { ${metric.label} } - { P = ${p} }`,
                   type: "bar",
                   data: pPlots,
                   options: {
@@ -67,9 +67,9 @@ export class StatService {
                 continue;
               }
               const [delta, distribution] = this.buildStandardDistribution(reference, target);
-              const [points, pPlots, p] = histogramPoints([distribution], 20, delta);
+              const [points, pPlots, p] = histogramPoints([distribution], /* buckets */ 100, /* target */ delta);
               series.push({
-                label: `${name} { ${metric.label} } - Likelihood`,
+                descriptiveLabel: `${name} { ${metric.label} } - Likelihood`,
                 type: "line",
                 data: points,
                 options: {
@@ -78,7 +78,7 @@ export class StatService {
               });
               if (pPlots && pPlots.length > 0) {
                 series.push({
-                  label: `${name} { ${metric.label} } - { P = ${p} }`,
+                  descriptiveLabel: `${name} { ${metric.label} } - { P = ${p} }`,
                   type: "bar",
                   data: pPlots,
                   options: {

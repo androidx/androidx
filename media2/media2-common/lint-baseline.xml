@@ -1,5 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="        return (ParcelImpl) ParcelUtils.toParcelable(item);"
+        errorLine2="                ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/common/MediaParcelUtils.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be accessed from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="    private static class MediaItemParcelImpl extends ParcelImpl {"
+        errorLine2="                                                     ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/common/MediaParcelUtils.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be called from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="            super(new MediaItem(item));"
+        errorLine2="            ~~~~~">
+        <location
+            file="src/main/java/androidx/media2/common/MediaParcelUtils.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl can only be called from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="            super(new MediaItem(item));"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/common/MediaParcelUtils.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ParcelImpl.getVersionedParcel can only be called from within the same library (androidx.versionedparcelable:versionedparcelable)"
+        errorLine1="        public MediaItem getVersionedParcel() {"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/common/MediaParcelUtils.java"/>
+    </issue>
 
     <issue
         id="KotlinPropertyAccess"

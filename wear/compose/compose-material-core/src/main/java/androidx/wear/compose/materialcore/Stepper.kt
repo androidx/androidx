@@ -18,7 +18,6 @@ package androidx.wear.compose.materialcore
 
 import androidx.annotation.RestrictTo
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -39,7 +38,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 
 /**
@@ -156,10 +154,12 @@ private fun ColumnScope.FullScreenButton(
         modifier = Modifier
             .fillMaxWidth()
             .weight(StepperDefaults.ButtonWeight)
-            .clickable(
-                interactionSource, null, onClick = onClick, enabled = enabled, role = Role.Button
+            .repeatableClickable(
+                enabled = enabled,
+                onClick = onClick,
+                interactionSource = interactionSource,
+                indication = null
             )
-            .repeatableClickable(enabled = enabled, onClick = onClick)
             .wrapContentWidth()
             .indication(interactionSource, rememberRipple(bounded = false))
             .padding(paddingValues),

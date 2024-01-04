@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="cli" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
 
     <issue
         id="BanHideTag"
@@ -8,15 +8,6 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeView.android.kt"/>
-    </issue>
-
-    <issue
-        id="BanSuppressTag"
-        message="@suppress is not allowed in documentation"
-        errorLine1="    var showLayoutBounds: Boolean"
-        errorLine2="        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/node/Owner.kt"/>
     </issue>
 
     <issue
@@ -141,15 +132,6 @@
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;scrollAction&apos; with type AccessibilityAction&lt;Function2&lt;? super Float, ? super Float, ? extends Boolean>>."
         errorLine1="                val scrollAction ="
         errorLine2="                ^">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeViewAccessibilityDelegateCompat.android.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;vare2b4ac12&apos; with type AccessibilityAction&lt;Function2&lt;? super Float, ? super Float, ? extends Boolean>>."
-        errorLine1="                    node.unmergedConfig.getOrNull(SemanticsActions.ScrollBy) ?: return false"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeViewAccessibilityDelegateCompat.android.kt"/>
     </issue>

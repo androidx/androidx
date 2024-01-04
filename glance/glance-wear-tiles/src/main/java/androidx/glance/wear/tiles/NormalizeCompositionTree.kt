@@ -20,6 +20,8 @@ import android.content.Context
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMapIndexed
 import androidx.glance.AndroidResourceImageProvider
 import androidx.glance.BitmapImageProvider
 import androidx.glance.Emittable
@@ -53,7 +55,7 @@ internal fun normalizeCompositionTree(context: Context, root: EmittableWithChild
 /** Transform each node in the tree. */
 private fun EmittableWithChildren.transformTree(block: (Emittable) -> Emittable?) {
     val toDelete = mutableListOf<Int>()
-    children.mapIndexed { index, child ->
+    children.fastMapIndexed { index, child ->
         val newChild = block(child)
         if (newChild == null) {
             toDelete += index
@@ -63,7 +65,7 @@ private fun EmittableWithChildren.transformTree(block: (Emittable) -> Emittable?
         if (newChild is EmittableWithChildren) newChild.transformTree(block)
     }
     toDelete.reverse()
-    toDelete.forEach {
+    toDelete.fastForEach {
         children.removeAt(it)
     }
 }
@@ -86,7 +88,7 @@ private fun Emittable.makeInvisible(context: Context): Emittable {
     return when (this) {
         is EmittableWithChildren -> {
             modifier = GlanceModifier.then(WidthModifier(width)).then(HeightModifier(height))
-            children.forEach { child ->
+            children.fastForEach { child ->
                 val visibility =
                     child.modifier.findModifier<VisibilityModifier>()?.visibility
                         ?: Visibility.Visible

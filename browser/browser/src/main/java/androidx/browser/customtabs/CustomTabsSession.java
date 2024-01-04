@@ -166,6 +166,25 @@ public final class CustomTabsSession {
     }
 
     /**
+     * Sets a {@link PendingIntent} object to be sent when the user swipes up from the secondary
+     * (bottom) toolbar.
+     *
+     * @param pendingIntent {@link PendingIntent} to send.
+     * @return Whether the update succeeded.
+     */
+    public boolean setSecondaryToolbarSwipeUpGesture(@Nullable PendingIntent pendingIntent) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(CustomTabsIntent.EXTRA_SECONDARY_TOOLBAR_SWIPE_UP_GESTURE,
+                pendingIntent);
+        addIdToBundle(bundle);
+        try {
+            return mService.updateVisuals(mCallback, bundle);
+        } catch (RemoteException e) {
+            return false;
+        }
+    }
+
+    /**
      * Updates the visuals for toolbar items. Will only succeed if a custom tab created using this
      * session is in the foreground in browser and the given id is valid.
      *

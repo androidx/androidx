@@ -34,7 +34,6 @@ import androidx.compose.foundation.text2.input.TextFieldBuffer
 import androidx.compose.foundation.text2.input.TextFieldBuffer.ChangeList
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldState
-import androidx.compose.foundation.text2.input.internal.setInputConnectionCreatedListenerForTests
 import androidx.compose.foundation.text2.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.CompositionLocalProvider
@@ -49,6 +48,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties.TextSelectionRange
 import androidx.compose.ui.semantics.getOrNull
@@ -84,9 +84,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import kotlin.test.assertFails
 import kotlinx.coroutines.flow.drop
-import org.junit.After
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -99,12 +99,10 @@ internal class BasicTextField2Test {
     @get:Rule
     val rule = createComposeRule()
 
-    private val Tag = "BasicTextField2"
+    @get: Rule
+    val inputMethodInterceptor = InputMethodInterceptorRule(rule)
 
-    @After
-    fun tearDown() {
-        setInputConnectionCreatedListenerForTests(null)
-    }
+    private val Tag = "BasicTextField2"
 
     @Test
     fun textField_rendersEmptyContent() {
@@ -210,7 +208,6 @@ internal class BasicTextField2Test {
     fun textField_imeUpdatesDontCauseRecomposition() {
         val state = TextFieldState()
         var compositionCount = 0
-        var textLayoutResultCount = 0
         rule.setContent {
             compositionCount++
             BasicTextField2(
@@ -218,17 +215,15 @@ internal class BasicTextField2Test {
                 modifier = Modifier
                     .fillMaxSize()
                     .testTag(Tag),
-                onTextLayout = { textLayoutResultCount++ }
             )
         }
 
-        with(rule.onNodeWithTag(Tag)) {
-            performTextInput("hello")
-        }
+        rule.onNodeWithTag(Tag).performTextInput("hello")
+        rule.onNodeWithTag(Tag).performTextInput("world")
 
+        rule.onNodeWithTag(Tag).assertTextEquals("helloworld")
         rule.runOnIdle {
             assertThat(compositionCount).isEqualTo(1)
-            assertThat(textLayoutResultCount).isEqualTo(2)
         }
     }
 
@@ -453,10 +448,6 @@ internal class BasicTextField2Test {
 
     @Test
     fun textField_passesKeyboardOptionsThrough() {
-        var editorInfo: EditorInfo? = null
-        setInputConnectionCreatedListenerForTests { info, _ ->
-            editorInfo = info
-        }
         val state = TextFieldState()
         rule.setContent {
             BasicTextField2(
@@ -472,22 +463,15 @@ internal class BasicTextField2Test {
         }
         requestFocus(Tag)
 
-        rule.runOnIdle {
-            assertThat(editorInfo).isNotNull()
-            assertThat(editorInfo!!.imeOptions and EditorInfo.IME_ACTION_PREVIOUS).isNotEqualTo(0)
-            assertThat(editorInfo!!.inputType and EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS)
-                .isNotEqualTo(0)
-            assertThat(editorInfo!!.inputType and InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS)
-                .isNotEqualTo(0)
+        inputMethodInterceptor.withEditorInfo {
+            assertThat(imeOptions and EditorInfo.IME_ACTION_PREVIOUS).isNotEqualTo(0)
+            assertThat(inputType and EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS).isNotEqualTo(0)
+            assertThat(inputType and InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS).isNotEqualTo(0)
         }
     }
 
     @Test
     fun textField_appliesFilter_toInputConnection() {
-        var inputConnection: InputConnection? = null
-        setInputConnectionCreatedListenerForTests { _, ic ->
-            inputConnection = ic
-        }
         val state = TextFieldState()
         rule.setContent {
             BasicTextField2(
@@ -498,7 +482,7 @@ internal class BasicTextField2Test {
         }
         requestFocus(Tag)
 
-        rule.runOnIdle { inputConnection!!.commitText("hello") }
+        inputMethodInterceptor.withInputConnection { commitText("hello") }
         rule.onNodeWithTag(Tag).assertTextEquals("")
     }
 
@@ -547,14 +531,8 @@ internal class BasicTextField2Test {
         rule.onNodeWithTag(Tag).assertTextEquals("")
     }
 
-    @Ignore("b/276932521")
     @Test
     fun textField_appliesFilter_toInputConnection_afterChanging() {
-        var inputConnection: InputConnection? = null
-        setInputConnectionCreatedListenerForTests { _, ic ->
-            inputConnection = ic
-        }
-
         val state = TextFieldState()
         var filter by mutableStateOf<InputTransformation?>(null)
         rule.setContent {
@@ -566,17 +544,17 @@ internal class BasicTextField2Test {
         }
         requestFocus(Tag)
 
-        rule.runOnIdle { inputConnection!!.commitText("hello") }
+        inputMethodInterceptor.withInputConnection { commitText("hello") }
         rule.onNodeWithTag(Tag).assertTextEquals("hello")
 
         filter = RejectAllTextFilter
 
-        rule.runOnIdle { inputConnection!!.commitText("world") }
+        inputMethodInterceptor.withInputConnection { commitText("world") }
         rule.onNodeWithTag(Tag).assertTextEquals("hello")
 
         filter = null
 
-        rule.runOnIdle { inputConnection!!.commitText("world") }
+        inputMethodInterceptor.withInputConnection { commitText("world") }
         rule.onNodeWithTag(Tag).assertTextEquals("helloworld")
     }
 
@@ -658,13 +636,8 @@ internal class BasicTextField2Test {
         rule.onNodeWithTag(Tag).assertTextEquals("hello ")
     }
 
-    @Ignore // b/278560997
     @Test
     fun textField_changesAreTracked_whenInputConnectionCommits() {
-        lateinit var inputConnection: InputConnection
-        setInputConnectionCreatedListenerForTests { _, ic ->
-            inputConnection = ic
-        }
         val state = TextFieldState()
         lateinit var changes: ChangeList
         rule.setContent {
@@ -680,7 +653,7 @@ internal class BasicTextField2Test {
         }
         requestFocus(Tag)
 
-        rule.runOnIdle { inputConnection.commitText("hello") }
+        inputMethodInterceptor.withInputConnection { commitText("hello") }
 
         rule.runOnIdle {
             assertThat(changes.changeCount).isEqualTo(1)
@@ -689,13 +662,8 @@ internal class BasicTextField2Test {
         }
     }
 
-    @Ignore // b/278560997
     @Test
     fun textField_changesAreTracked_whenInputConnectionComposes() {
-        lateinit var inputConnection: InputConnection
-        setInputConnectionCreatedListenerForTests { _, ic ->
-            inputConnection = ic
-        }
         val state = TextFieldState()
         lateinit var changes: ChangeList
         rule.setContent {
@@ -711,7 +679,7 @@ internal class BasicTextField2Test {
         }
         requestFocus(Tag)
 
-        rule.runOnIdle { inputConnection.setComposingText("hello", 1) }
+        inputMethodInterceptor.withInputConnection { setComposingText("hello", 1) }
 
         rule.runOnIdle {
             assertThat(changes.changeCount).isEqualTo(1)
@@ -720,13 +688,8 @@ internal class BasicTextField2Test {
         }
     }
 
-    @Ignore // b/278560997
     @Test
     fun textField_changesAreTracked_whenInputConnectionDeletes() {
-        lateinit var inputConnection: InputConnection
-        setInputConnectionCreatedListenerForTests { _, ic ->
-            inputConnection = ic
-        }
         val state = TextFieldState("hello")
         lateinit var changes: ChangeList
         rule.setContent {
@@ -742,12 +705,12 @@ internal class BasicTextField2Test {
         }
         requestFocus(Tag)
 
-        rule.runOnIdle {
-            inputConnection.beginBatchEdit()
-            inputConnection.finishComposingText()
-            inputConnection.setSelection(5, 5)
-            inputConnection.deleteSurroundingText(1, 0)
-            inputConnection.endBatchEdit()
+        inputMethodInterceptor.withInputConnection {
+            beginBatchEdit()
+            finishComposingText()
+            setSelection(5, 5)
+            deleteSurroundingText(1, 0)
+            endBatchEdit()
         }
 
         rule.runOnIdle {
@@ -757,13 +720,8 @@ internal class BasicTextField2Test {
         }
     }
 
-    @Ignore // b/278560997
     @Test
     fun textField_changesAreTracked_whenInputConnectionDeletesViaComposition() {
-        lateinit var inputConnection: InputConnection
-        setInputConnectionCreatedListenerForTests { _, ic ->
-            inputConnection = ic
-        }
         val state = TextFieldState("hello")
         lateinit var changes: ChangeList
         rule.setContent {
@@ -779,11 +737,11 @@ internal class BasicTextField2Test {
         }
         requestFocus(Tag)
 
-        rule.runOnIdle {
-            inputConnection.beginBatchEdit()
-            inputConnection.setComposingRegion(0, 5)
-            inputConnection.setComposingText("h", 1)
-            inputConnection.endBatchEdit()
+        inputMethodInterceptor.withInputConnection {
+            beginBatchEdit()
+            setComposingRegion(0, 5)
+            setComposingText("h", 1)
+            endBatchEdit()
         }
 
         rule.runOnIdle {
@@ -819,7 +777,6 @@ internal class BasicTextField2Test {
         }
     }
 
-    @Ignore // b/278560997
     @Test
     fun textField_changesAreTracked_whenKeyEventDeletes() {
         val state = TextFieldState("hello")
@@ -873,10 +830,6 @@ internal class BasicTextField2Test {
 
     @Test
     fun textField_filterKeyboardOptions_sentToIme() {
-        lateinit var editorInfo: EditorInfo
-        setInputConnectionCreatedListenerForTests { ei, _ ->
-            editorInfo = ei
-        }
         val filter = KeyboardOptionsFilter(
             KeyboardOptions(
                 keyboardType = KeyboardType.Email,
@@ -892,19 +845,14 @@ internal class BasicTextField2Test {
         }
         requestFocus(Tag)
 
-        rule.runOnIdle {
-            assertThat(editorInfo.imeOptions and EditorInfo.IME_ACTION_PREVIOUS).isNotEqualTo(0)
-            assertThat(editorInfo.inputType and InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS)
-                .isNotEqualTo(0)
+        inputMethodInterceptor.withEditorInfo {
+            assertThat(imeOptions and EditorInfo.IME_ACTION_PREVIOUS).isNotEqualTo(0)
+            assertThat(inputType and InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS).isNotEqualTo(0)
         }
     }
 
     @Test
     fun textField_filterKeyboardOptions_mergedWithParams() {
-        lateinit var editorInfo: EditorInfo
-        setInputConnectionCreatedListenerForTests { ei, _ ->
-            editorInfo = ei
-        }
         val filter = KeyboardOptionsFilter(KeyboardOptions(imeAction = ImeAction.Previous))
         rule.setContent {
             BasicTextField2(
@@ -916,19 +864,14 @@ internal class BasicTextField2Test {
         }
         requestFocus(Tag)
 
-        rule.runOnIdle {
-            assertThat(editorInfo.imeOptions and EditorInfo.IME_ACTION_PREVIOUS).isNotEqualTo(0)
-            assertThat(editorInfo.inputType and InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS)
-                .isNotEqualTo(0)
+        inputMethodInterceptor.withEditorInfo {
+            assertThat(imeOptions and EditorInfo.IME_ACTION_PREVIOUS).isNotEqualTo(0)
+            assertThat(inputType and InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS).isNotEqualTo(0)
         }
     }
 
     @Test
     fun textField_filterKeyboardOptions_overriddenByParams() {
-        lateinit var editorInfo: EditorInfo
-        setInputConnectionCreatedListenerForTests { ei, _ ->
-            editorInfo = ei
-        }
         val filter = KeyboardOptionsFilter(KeyboardOptions(imeAction = ImeAction.Previous))
         rule.setContent {
             BasicTextField2(
@@ -940,17 +883,13 @@ internal class BasicTextField2Test {
         }
         requestFocus(Tag)
 
-        rule.runOnIdle {
-            assertThat(editorInfo.imeOptions and EditorInfo.IME_ACTION_SEARCH).isNotEqualTo(0)
+        inputMethodInterceptor.withEditorInfo {
+            assertThat(imeOptions and EditorInfo.IME_ACTION_SEARCH).isNotEqualTo(0)
         }
     }
 
     @Test
     fun textField_filterKeyboardOptions_applyWhenFilterChanged() {
-        lateinit var editorInfo: EditorInfo
-        setInputConnectionCreatedListenerForTests { ei, _ ->
-            editorInfo = ei
-        }
         var filter by mutableStateOf(
             KeyboardOptionsFilter(
                 KeyboardOptions(
@@ -968,9 +907,9 @@ internal class BasicTextField2Test {
         }
         requestFocus(Tag)
 
-        rule.runOnIdle {
-            assertThat(editorInfo.imeOptions and EditorInfo.IME_ACTION_PREVIOUS).isNotEqualTo(0)
-            assertThat(editorInfo.inputType and InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS)
+        inputMethodInterceptor.withEditorInfo {
+            assertThat(imeOptions and EditorInfo.IME_ACTION_PREVIOUS).isNotEqualTo(0)
+            assertThat(inputType and InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS)
                 .isNotEqualTo(0)
         }
 
@@ -981,9 +920,9 @@ internal class BasicTextField2Test {
             )
         )
 
-        rule.runOnIdle {
-            assertThat(editorInfo.imeOptions and EditorInfo.IME_ACTION_SEARCH).isNotEqualTo(0)
-            assertThat(editorInfo.inputType and InputType.TYPE_NUMBER_FLAG_DECIMAL)
+        inputMethodInterceptor.withEditorInfo {
+            assertThat(imeOptions and EditorInfo.IME_ACTION_SEARCH).isNotEqualTo(0)
+            assertThat(inputType and InputType.TYPE_NUMBER_FLAG_DECIMAL)
                 .isNotEqualTo(0)
         }
     }
@@ -991,34 +930,26 @@ internal class BasicTextField2Test {
     @SdkSuppress(minSdkVersion = 23)
     @Test
     fun textField_showsKeyboardAgainWhenTapped_ifFocused() {
-        val keyboardHelper = KeyboardHelper(rule)
+        val testKeyboardController = TestSoftwareKeyboardController(rule)
         rule.setContent {
-            keyboardHelper.initialize()
-            BasicTextField2(
-                state = rememberTextFieldState(),
-                modifier = Modifier.testTag(Tag)
-            )
+            CompositionLocalProvider(
+                LocalSoftwareKeyboardController provides testKeyboardController
+            ) {
+                BasicTextField2(
+                    state = rememberTextFieldState(),
+                    modifier = Modifier.testTag(Tag)
+                )
+            }
         }
+        // Focusing the field will show the keyboard without using the SoftwareKeyboardController.
+        rule.onNodeWithTag(Tag).requestFocus()
+        testKeyboardController.hide()
 
-        // make sure keyboard is hidden initially
-        keyboardHelper.hideKeyboardIfShown()
-
-        // click the first time to gain focus.
-        rule.onNodeWithTag(Tag).performClick()
-        keyboardHelper.waitForKeyboardVisibility(true)
-        assertThat(keyboardHelper.isSoftwareKeyboardShown()).isTrue()
-
-        // hide it again.
-        keyboardHelper.hideKeyboardIfShown()
-        rule.onNodeWithTag(Tag).assertIsFocused()
-
-        rule.mainClock.advanceTimeBy(1000) // to not cause double click
-
+        // This will go through the SoftwareKeyboardController to show the keyboard, since a session
+        // is already active.
         rule.onNodeWithTag(Tag).performClick()
 
-        // expect keyboard to show up again.
-        keyboardHelper.waitForKeyboardVisibility(true)
-        assertThat(keyboardHelper.isSoftwareKeyboardShown()).isTrue()
+        testKeyboardController.assertShown()
     }
 
     @Test
@@ -1037,7 +968,7 @@ internal class BasicTextField2Test {
         rule.onNodeWithTag(Tag).assertIsNotFocused()
     }
 
-    @Ignore // b/278560997
+    @Ignore("b/297680209")
     @Test
     fun swipingTextFieldInScrollableContainer_doesNotGainFocus() {
         val scrollState = ScrollState(0)
@@ -1045,7 +976,8 @@ internal class BasicTextField2Test {
             Column(
                 Modifier
                     .size(100.dp)
-                    .verticalScroll(scrollState)) {
+                    .verticalScroll(scrollState)
+            ) {
                 BasicTextField2(
                     state = rememberTextFieldState(),
                     modifier = Modifier.testTag(Tag)
@@ -1233,10 +1165,6 @@ internal class BasicTextField2Test {
 
     @Test
     fun stringValue_doesNotInvokeCallback_whenOnlyCompositionChanged() {
-        lateinit var inputConnection: InputConnection
-        setInputConnectionCreatedListenerForTests { _, ic ->
-            inputConnection = ic
-        }
         var text by mutableStateOf("")
         var onValueChangedCount = 0
         rule.setContent {
@@ -1253,8 +1181,8 @@ internal class BasicTextField2Test {
         assertThat(onValueChangedCount).isEqualTo(0)
 
         // Act: wiggle the composition around a bit
-        rule.runOnIdle { inputConnection.setComposingRegion(0, 0) }
-        rule.runOnIdle { inputConnection.setComposingRegion(3, 5) }
+        inputMethodInterceptor.withInputConnection { setComposingRegion(0, 0) }
+        inputMethodInterceptor.withInputConnection { setComposingRegion(3, 5) }
 
         rule.runOnIdle {
             assertThat(onValueChangedCount).isEqualTo(0)
@@ -1346,10 +1274,6 @@ internal class BasicTextField2Test {
 
     @Test
     fun textFieldValue_reportsCompositionChangesInCallback() {
-        lateinit var inputConnection: InputConnection
-        setInputConnectionCreatedListenerForTests { _, ic ->
-            inputConnection = ic
-        }
         var text by mutableStateOf(TextFieldValue("hello", selection = TextRange(1)))
         rule.setContent {
             BasicTextField2(
@@ -1360,14 +1284,18 @@ internal class BasicTextField2Test {
         }
         requestFocus(Tag)
 
-        rule.runOnIdle { inputConnection.setComposingRegion(0, 0) }
+        inputMethodInterceptor.withInputConnection { setComposingRegion(0, 0) }
         rule.runOnIdle {
-            assertThat(text.composition).isNull()
+            assertWithMessage(
+                "After setting composing region to 0, 0, TextFieldState's composition is:"
+            ).that(text.composition).isNull()
         }
 
-        rule.runOnIdle { inputConnection.setComposingRegion(1, 4) }
+        inputMethodInterceptor.withInputConnection { setComposingRegion(1, 4) }
         rule.runOnIdle {
-            assertThat(text.composition).isEqualTo(TextRange(1, 4))
+            assertWithMessage(
+                "After setting composing region to 1, 4, TextFieldState's composition is:"
+            ).that(text.composition).isEqualTo(TextRange(1, 4))
         }
     }
 

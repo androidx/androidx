@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import kotlin.jvm.JvmName
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMaxBy
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CancellationException
@@ -609,27 +610,29 @@ private fun BottomSheetScaffoldLayout(
 
         val sheetPlaceables = subcompose(BottomSheetScaffoldLayoutSlot.Sheet) {
             bottomSheet(layoutHeight)
-        }.map { it.measure(looseConstraints) }
+        }.fastMap { it.measure(looseConstraints) }
 
         val topBarPlaceables = topBar?.let {
             subcompose(BottomSheetScaffoldLayoutSlot.TopBar, topBar)
-                .map { it.measure(looseConstraints) }
+                .fastMap { it.measure(looseConstraints) }
         }
         val topBarHeight = topBarPlaceables?.fastMaxBy { it.height }?.height ?: 0
 
         val bodyConstraints = looseConstraints.copy(maxHeight = layoutHeight - topBarHeight)
         val bodyPlaceables = subcompose(BottomSheetScaffoldLayoutSlot.Body) {
             body(PaddingValues(bottom = sheetPeekHeight))
-        }.map { it.measure(bodyConstraints) }
+        }.fastMap { it.measure(bodyConstraints) }
 
         val fabPlaceable = floatingActionButton?.let { fab ->
-            subcompose(BottomSheetScaffoldLayoutSlot.Fab, fab).map { it.measure(looseConstraints) }
+            subcompose(BottomSheetScaffoldLayoutSlot.Fab, fab).fastMap {
+                it.measure(looseConstraints)
+            }
         }
         val fabWidth = fabPlaceable?.fastMaxBy { it.width }?.width ?: 0
         val fabHeight = fabPlaceable?.fastMaxBy { it.height }?.height ?: 0
 
         val snackbarPlaceables = subcompose(BottomSheetScaffoldLayoutSlot.Snackbar, snackbarHost)
-            .map { it.measure(looseConstraints) }
+            .fastMap { it.measure(looseConstraints) }
         val snackbarWidth = snackbarPlaceables.fastMaxBy { it.width }?.width ?: 0
         val snackbarHeight = snackbarPlaceables.fastMaxBy { it.height }?.height ?: 0
 

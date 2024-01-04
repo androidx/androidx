@@ -62,6 +62,8 @@ class InkSurfaceView(context: Context) : SurfaceView(context) {
 
         override fun onDrawFrontBufferedLayer(
             eglManager: EGLManager,
+            width: Int,
+            height: Int,
             bufferInfo: BufferInfo,
             transform: FloatArray,
             param: FloatArray
@@ -92,6 +94,8 @@ class InkSurfaceView(context: Context) : SurfaceView(context) {
 
         override fun onDrawMultiBufferedLayer(
             eglManager: EGLManager,
+            width: Int,
+            height: Int,
             bufferInfo: BufferInfo,
             transform: FloatArray,
             params: Collection<FloatArray>

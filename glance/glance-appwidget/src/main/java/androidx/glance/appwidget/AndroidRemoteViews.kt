@@ -20,6 +20,7 @@ import android.view.View
 import android.widget.RemoteViews
 import androidx.annotation.IdRes
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.util.fastMap
 import androidx.glance.Emittable
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceModifier
@@ -79,7 +80,7 @@ internal class EmittableAndroidRemoteViews : EmittableWithChildren() {
             it.remoteViews = remoteViews
         }
         it.containerViewId = containerViewId
-        it.children.addAll(children.map { it.copy() })
+        it.children.addAll(children.fastMap { it.copy() })
     }
 
     override fun toString(): String = "AndroidRemoteViews(" +

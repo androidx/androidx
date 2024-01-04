@@ -79,6 +79,10 @@ internal actual class SnapshotContextElementImpl actual constructor(
     }
 }
 
+internal actual fun currentThreadId(): Long = Thread.currentThread().id
+
+internal actual fun currentThreadName(): String = Thread.currentThread().name
+
 internal actual abstract class PlatformOptimizedCancellationException actual constructor(
     message: String?
 ) : CancellationException(message) {

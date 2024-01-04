@@ -59,13 +59,15 @@ class ExtendedIconComparisonTest(
             val listSize = ceil(AllExtendedIcons.size / numberOfChunks.toFloat()).roundToInt()
             val subLists = AllExtendedIcons.chunked(listSize)
             return subLists.mapIndexed { index, list ->
-                arrayOf(list, "${index + 1}of$numberOfChunks")
+                arrayOf(list, "${index + 1} of $numberOfChunks")
             }.toTypedArray()
         }
     }
 
-    @Ignore("For performance reasons, and to be able to disable the extended icons tests on " +
-        "AOSP. Make sure to execute locally after updating the extended Material icons.")
+    @Ignore(
+        "For performance reasons, and to be able to disable the extended icons tests on " +
+            "AOSP. Make sure to execute locally after updating the extended Material icons."
+    )
     @Test
     fun compareImageVectors() {
         compareImageVectors(iconSublist)

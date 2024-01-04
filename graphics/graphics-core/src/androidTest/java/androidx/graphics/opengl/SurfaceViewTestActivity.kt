@@ -18,6 +18,8 @@ package androidx.graphics.opengl
 
 import android.app.Activity
 import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.SurfaceHolder
 import android.view.SurfaceView
@@ -29,9 +31,12 @@ class SurfaceViewTestActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        window.setBackgroundDrawable(ColorDrawable(Color.WHITE))
         val surfaceView = TestSurfaceView(this).also { mSurfaceView = it }
         setContentView(surfaceView, ViewGroup.LayoutParams(WIDTH, HEIGHT))
     }
+
+    private var mOnDestroyCallback: (() -> Unit)? = null
 
     fun getSurfaceView(): TestSurfaceView = mSurfaceView
 
@@ -72,5 +77,14 @@ class SurfaceViewTestActivity : Activity() {
                 }
             }
         }
+    }
+
+    fun setOnDestroyCallback(callback: (() -> Unit)?) {
+        mOnDestroyCallback = callback
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mOnDestroyCallback?.invoke()
     }
 }

@@ -22,6 +22,7 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.annotation.VisibleForTesting
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.Outputs
 import androidx.benchmark.Shell
@@ -60,6 +61,18 @@ public class MacrobenchmarkScope(
      * via `Arguments.methodTracingOptions`.
      */
     internal var launchWithMethodTracing: Boolean = false
+
+    /**
+     * Only use this for testing. This forces `--start-profiler` without the check for process
+     * live ness.
+     */
+    @VisibleForTesting
+    internal var methodTracingForTests: Boolean = false
+
+    /**
+     * This is `true` iff method tracing is currently active.
+     */
+    internal var isMethodTracing: Boolean = false
 
     /**
      * Current Macrobenchmark measurement iteration, or null if measurement is not yet enabled.
@@ -133,9 +146,16 @@ public class MacrobenchmarkScope(
             getFrameStats().map { it.uniqueName }
         }
         val preLaunchTimestampNs = System.nanoTime()
-        val profileArgs = if (launchWithMethodTracing) {
+        // Only use --start-profiler is the package is not alive. Otherwise re-use the existing
+        // profiling session.
+        val profileArgs =
+            if (launchWithMethodTracing && (methodTracingForTests || !Shell.isPackageAlive(
+                    packageName
+                ))
+            ) {
+            isMethodTracing = true
             val tracePath = methodTracePath(packageName, iteration ?: 0)
-            "--start-profiler \"$tracePath\""
+            "--start-profiler \"$tracePath\" --streaming"
         } else {
             ""
         }

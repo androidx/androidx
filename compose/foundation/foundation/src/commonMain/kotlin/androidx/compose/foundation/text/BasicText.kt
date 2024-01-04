@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text
 
-import androidx.compose.foundation.fastMapIndexedNotNull
 import androidx.compose.foundation.text.modifiers.SelectableTextAnnotatedStringElement
 import androidx.compose.foundation.text.modifiers.SelectionController
 import androidx.compose.foundation.text.modifiers.TextAnnotatedStringElement
@@ -51,6 +50,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMapIndexedNotNull
 import kotlin.math.floor
 import kotlin.math.roundToInt
 
@@ -96,9 +96,10 @@ fun BasicText(
     val selectionRegistrar = LocalSelectionRegistrar.current
     val selectionController = if (selectionRegistrar != null) {
         val backgroundSelectionColor = LocalTextSelectionColors.current.backgroundColor
-        val selectableId = rememberSaveable(selectionRegistrar) {
-            selectionRegistrar.nextSelectableId()
-        }
+        val selectableId =
+            rememberSaveable(selectionRegistrar, saver = selectionIdSaver(selectionRegistrar)) {
+                selectionRegistrar.nextSelectableId()
+            }
         remember(selectableId, selectionRegistrar, backgroundSelectionColor) {
             SelectionController(
                 selectableId,
@@ -189,9 +190,10 @@ fun BasicText(
     val selectionRegistrar = LocalSelectionRegistrar.current
     val selectionController = if (selectionRegistrar != null) {
         val backgroundSelectionColor = LocalTextSelectionColors.current.backgroundColor
-        val selectableId = rememberSaveable(selectionRegistrar) {
-            selectionRegistrar.nextSelectableId()
-        }
+        val selectableId =
+            rememberSaveable(selectionRegistrar, saver = selectionIdSaver(selectionRegistrar)) {
+                selectionRegistrar.nextSelectableId()
+            }
         remember(selectableId, selectionRegistrar, backgroundSelectionColor) {
             SelectionController(
                 selectableId,

@@ -19,7 +19,6 @@ package androidx.compose.foundation.text2.input.internal
 import androidx.compose.foundation.text2.input.internal.matchers.assertThat
 import androidx.compose.ui.text.TextRange
 import com.google.common.truth.Truth.assertThat
-import kotlin.test.assertFailsWith
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -137,20 +136,22 @@ class EditingBufferTest {
         assertThat(eb.compositionEnd).isEqualTo(-1)
     }
 
-    @Test fun setSelection_throws_whenNegativeStart() {
+    @Test fun setSelection_coerces_whenNegativeStart() {
         val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
-        assertFailsWith<IndexOutOfBoundsException> {
-            eb.setSelection(-1, 0)
-        }
+        eb.setSelection(-1, 1)
+
+        assertThat(eb.selectionStart).isEqualTo(0)
+        assertThat(eb.selectionEnd).isEqualTo(1)
     }
 
-    @Test fun setSelection_throws_whenNegativeEnd() {
+    @Test fun setSelection_coerces_whenNegativeEnd() {
         val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
-        assertFailsWith<IndexOutOfBoundsException> {
-            eb.setSelection(0, -1)
-        }
+        eb.setSelection(1, -1)
+
+        assertThat(eb.selectionStart).isEqualTo(1)
+        assertThat(eb.selectionEnd).isEqualTo(0)
     }
 
     @Test
@@ -191,15 +192,6 @@ class EditingBufferTest {
         assertThat(eb.hasComposition()).isTrue()
         assertThat(eb.compositionStart).isEqualTo(2)
         assertThat(eb.compositionEnd).isEqualTo(4)
-
-        eb.cancelComposition() // cancel the composition
-        assertThat(eb).hasChars("ABE")
-        assertThat(eb.cursor).isEqualTo(2)
-        assertThat(eb.selectionStart).isEqualTo(2)
-        assertThat(eb.selectionEnd).isEqualTo(2)
-        assertThat(eb.hasComposition()).isFalse()
-        assertThat(eb.compositionStart).isEqualTo(-1)
-        assertThat(eb.compositionEnd).isEqualTo(-1)
     }
 
     @Test

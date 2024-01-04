@@ -44,6 +44,7 @@ androidx {
     inceptionYear = "2019"
     description = "Android Paging Guava"
     legacyDisableKotlinStrictApiMode = true
+    metalavaK2UastEnabled = true
 }
 
 android {

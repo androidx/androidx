@@ -17,6 +17,7 @@
 package androidx.compose.ui.platform
 
 import android.accessibilityservice.AccessibilityServiceInfo
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.RectF
 import android.graphics.Region
@@ -49,9 +50,11 @@ import androidx.annotation.VisibleForTesting
 import androidx.collection.ArrayMap
 import androidx.collection.ArraySet
 import androidx.collection.SparseArrayCompat
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.R
-import androidx.compose.ui.fastJoinToString
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.toComposeRect
@@ -65,6 +68,9 @@ import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.platform.accessibility.hasCollectionInfo
 import androidx.compose.ui.platform.accessibility.setCollectionInfo
 import androidx.compose.ui.platform.accessibility.setCollectionItemInfo
+import androidx.compose.ui.platform.coreshims.ContentCaptureSessionCompat
+import androidx.compose.ui.platform.coreshims.ViewCompatShims
+import androidx.compose.ui.platform.coreshims.ViewStructureCompat
 import androidx.compose.ui.semantics.AccessibilityAction
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -90,18 +96,17 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
+import androidx.compose.ui.util.fastJoinToString
 import androidx.compose.ui.util.fastMap
 import androidx.core.util.keyIterator
 import androidx.core.view.AccessibilityDelegateCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.ViewCompat.ACCESSIBILITY_LIVE_REGION_ASSERTIVE
 import androidx.core.view.ViewCompat.ACCESSIBILITY_LIVE_REGION_POLITE
-import androidx.core.view.ViewStructureCompat
 import androidx.core.view.accessibility.AccessibilityEventCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat
-import androidx.core.view.contentcapture.ContentCaptureSessionCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -260,13 +265,14 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
     /**
      * True if any content capture service enabled in the system.
-     *
-     * TODO(b/272068594): follow up on improving the performance and actually enabling the content
-     * capture feature in production later.
      */
+    @OptIn(ExperimentalComposeUiApi::class)
     private val isEnabledForContentCapture: Boolean
         get() {
-            return contentCaptureForceEnabledForTesting
+            if (DisableContentCapture) {
+                return false
+            }
+            return contentCaptureSession != null || contentCaptureForceEnabledForTesting
         }
 
     /**
@@ -654,14 +660,24 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             // Add all container's children after the container itself.
             // Because we've already recursed on the containers children, the children should
             // also be sorted by their traversal index
-            containerChildrenMapping[currNodeId]?.let {
-                returnList.removeAt(i) // Container is removed
-                returnList.addAll(i, it) // and its children are added
+            val containersChildrenList = containerChildrenMapping[currNodeId]
+            if (containersChildrenList != null) {
+                val containerIsScreenReaderFocusable = isScreenReaderFocusable(returnList[i])
+                if (!containerIsScreenReaderFocusable) {
+                    // Container is removed if it is not screenreader-focusable
+                    returnList.removeAt(i)
+                } else {
+                    // Increase counter if the container was not removed
+                    i += 1
+                }
+                // Add all the container's children and increase counter by the number of children
+                returnList.addAll(i, containersChildrenList)
+                i += containersChildrenList.size
+            } else {
+                // Advance to the next item
+                i += 1
             }
-            // Move pointer to end of children if they exist, otherwise, += 1
-            i += containerChildrenMapping[currNodeId]?.size ?: 1
         }
-
         return returnList
     }
 
@@ -788,10 +804,16 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         info.packageName = view.context.packageName
 
         // This property exists to distinguish semantically meaningful nodes from purely structural
-        // or decorative UI elements. In Compose, LayoutNodes without semantics are simply omitted
-        // from the AccessibilityNodeInfo tree. Therefore, every AccessibilityNodeInfo qualifies as
-        // "important".
-        info.isImportantForAccessibility = true
+        // or decorative UI elements.  Most nodes are considered important, except:
+        // * Non-merging nodes with only non-accessibility-speakable properties.
+        //     * Of the built-in ones, the key example is testTag.
+        //     * Custom SemanticsPropertyKeys defined outside the UI package
+        //       are also non-speakable.
+        // * Non-merging nodes that are empty: notably, clearAndSetSemantics {}
+        //   and the root of the SemanticsNode tree.
+        info.isImportantForAccessibility =
+            semanticsNode.unmergedConfig.isMergingSemanticsOfDescendants ||
+            semanticsNode.unmergedConfig.containsImportantForAccessibility()
 
         semanticsNode.replacedChildren.fastForEach { child ->
             if (currentSemanticsNodes.contains(child.id)) {
@@ -1243,14 +1265,15 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         val afterId = idToAfterMap[virtualViewId]
         afterId?.let {
             val afterView = view.androidViewsHandler.semanticsIdToView(afterId)
+            // Specially use `traversalAfter` value if the node after is a View,
+            // as expressing the order using traversalBefore in this case would require mutating the
+            // View itself, which is not under Compose's full control.
             if (afterView != null) {
                 info.setTraversalAfter(afterView)
-            } else {
-                info.setTraversalAfter(view, afterId)
+                addExtraDataToAccessibilityNodeInfoHelper(
+                    virtualViewId, info.unwrap(), EXTRA_DATA_TEST_TRAVERSALAFTER_VAL, null
+                )
             }
-            addExtraDataToAccessibilityNodeInfoHelper(
-                virtualViewId, info.unwrap(), EXTRA_DATA_TEST_TRAVERSALAFTER_VAL, null
-            )
         }
     }
 
@@ -1711,6 +1734,10 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 }
 
                 val viewport = node.layoutInfo.coordinates.boundsInParent().size
+
+                // The lint warning text is unstable because anonymous lambdas have an autogenerated
+                // name, so suppress this lint warning with @SuppressLint instead of a baseline.
+                @SuppressLint("PrimitiveInLambda")
                 val scrollAction =
                     node.unmergedConfig.getOrNull(SemanticsActions.ScrollBy) ?: return false
 
@@ -1935,16 +1962,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 Log.e(LogTag, "Invalid arguments for accessibility character locations")
                 return
             }
-            val textLayoutResults = mutableListOf<TextLayoutResult>()
-            // Note now it only works for single Text/TextField until we fix b/157474582.
-            val getLayoutResult = node.unmergedConfig[SemanticsActions.GetTextLayoutResult]
-                .action?.invoke(textLayoutResults)
-            val textLayoutResult: TextLayoutResult
-            if (getLayoutResult == true) {
-                textLayoutResult = textLayoutResults[0]
-            } else {
-                return
-            }
+            val textLayoutResult = getTextLayoutResult(node.unmergedConfig) ?: return
             val boundingRects = mutableListOf<RectF?>()
             for (i in 0 until positionInfoLength) {
                 // This is a workaround until we fix the merging issue in b/157474582.
@@ -2762,8 +2780,22 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     }
 
     private fun View.getContentCaptureSessionCompat(): ContentCaptureSessionCompat? {
-        ViewCompat.setImportantForContentCapture(this, ViewCompat.IMPORTANT_FOR_CONTENT_CAPTURE_YES)
-        return ViewCompat.getContentCaptureSession(this)
+        ViewCompatShims.setImportantForContentCapture(
+            this,
+            ViewCompatShims.IMPORTANT_FOR_CONTENT_CAPTURE_YES
+        )
+        return ViewCompatShims.getContentCaptureSession(this)
+    }
+
+    private fun getTextLayoutResult(configuration: SemanticsConfiguration): TextLayoutResult? {
+        val textLayoutResults = mutableListOf<TextLayoutResult>()
+        val getLayoutResult = configuration.getOrNull(SemanticsActions.GetTextLayoutResult)
+            ?.action?.invoke(textLayoutResults) ?: return null
+        return if (getLayoutResult) {
+            textLayoutResults[0]
+        } else {
+            null
+        }
     }
 
     private fun SemanticsNode.toViewStructure(): ViewStructureCompat? {
@@ -2772,7 +2804,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             return null
         }
 
-        val rootAutofillId = ViewCompat.getAutofillId(view) ?: return null
+        val rootAutofillId = ViewCompatShims.getAutofillId(view) ?: return null
         val parentNode = parent
         val parentAutofillId = if (parentNode != null) {
             session.newAutofillId(parentNode.id.toLong()) ?: return null
@@ -2800,6 +2832,12 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         }
         configuration.getOrNull(SemanticsProperties.Role)?.toLegacyClassName()?.let {
             structure.setClassName(it)
+        }
+
+        getTextLayoutResult(configuration)?.let {
+            val input = it.layoutInput
+            val px = input.style.fontSize.value * input.density.density * input.density.fontScale
+            structure.setTextStyle(px, 0, 0, 0)
         }
 
         with(boundsInParent) {
@@ -3196,17 +3234,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 if (!node.unmergedConfig.contains(SemanticsActions.GetTextLayoutResult)) {
                     return null
                 }
-                // TODO(b/157474582): Note now it only works for single Text/TextField until we
-                //  fix the merging issue.
-                val textLayoutResults = mutableListOf<TextLayoutResult>()
-                val textLayoutResult: TextLayoutResult
-                val getLayoutResult = node.unmergedConfig[SemanticsActions.GetTextLayoutResult]
-                    .action?.invoke(textLayoutResults)
-                if (getLayoutResult == true) {
-                    textLayoutResult = textLayoutResults[0]
-                } else {
-                    return null
-                }
+                val textLayoutResult = getTextLayoutResult(node.unmergedConfig) ?: return null
                 if (granularity == AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_LINE) {
                     iterator = AccessibilityIterators.LineTextSegmentIterator.getInstance()
                     iterator.initialize(text, textLayoutResult)
@@ -3618,3 +3646,16 @@ private fun Role.toLegacyClassName(): String? =
  */
 internal fun AndroidViewsHandler.semanticsIdToView(id: Int): View? =
     layoutNodeToHolder.entries.firstOrNull { it.key.semanticsId == id }?.value
+
+/**
+ * A flag to force disable the content capture feature.
+ *
+ * If you find any issues with the new feature, flip this flag to true to confirm they are newly
+ * introduced then file a bug.
+ */
+@Suppress("GetterSetterNames", "OPT_IN_MARKER_ON_WRONG_TARGET")
+@get:Suppress("GetterSetterNames")
+@get:ExperimentalComposeUiApi
+@set:ExperimentalComposeUiApi
+@ExperimentalComposeUiApi
+var DisableContentCapture: Boolean by mutableStateOf(false)

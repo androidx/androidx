@@ -98,6 +98,87 @@ object Icons {
     object Sharp
 
     /**
+     * <a href="https://material.io/design/iconography/system-icons.html" class="external" target="_blank">Material Design system icons</a>
+     * as seen on
+     * <a href="https://fonts.google.com/icons" class="external" target="_blank">Google Fonts</a>.
+     *
+     * ![Iconography image](https://developer.android.com/images/reference/androidx/compose/material/icons/iconography.png)
+     *
+     * Languages such as Arabic and Hebrew are read from right-to-left (RTL). For RTL languages,
+     * some of the icons should be mirrored when their direction matches other UI elements in RTL
+     * mode.
+     * The [AutoMirrored] icons are a subset of [Icons] that will automatically mirror themselves
+     * when displayed in an RTL layout.
+     *
+     * See also
+     * <a href="https://developers.google.com/fonts/docs/material_icons#which_icons_should_be_mirrored_for_rtl" class="external" target="_blank">Icons in RTL</a>.
+     *
+     * There are five distinct icon themes: [AutoMirrored.Filled], [AutoMirrored.Outlined],
+     * [AutoMirrored.Rounded], [AutoMirrored.TwoTone], and [AutoMirrored.Sharp].
+     * Each theme contains the same icons, but with a distinct visual style. You should typically
+     * choose one theme and use it across your application for consistency. For example, you may
+     * want to use a property or a typealias to refer to a specific theme, so it can be accessed in
+     * a semantically meaningful way from inside other composables.
+     *
+     * Icons maintain the same names defined by Material, but with their snake_case name converted
+     * to PascalCase. For example: add_alarm becomes AddAlarm.
+     *
+     * Note: Icons that start with a number, such as `360`, are prefixed with a '_', becoming
+     * '_360'.
+     *
+     * To draw an icon, you can use an [androidx.compose.material.Icon]. This component applies tint
+     * and provides layout size matching the icon.
+     *
+     * @sample androidx.compose.material.icons.samples.AutoMirroredIcon
+     *
+     * Note that only the most commonly used icons are provided by default. You can add a dependency
+     * on androidx.compose.material:material-icons-extended to access every icon, but note that due
+     * to the very large size of this dependency you should make sure to use R8 / ProGuard to remove
+     * unused icons from your application.
+     */
+    object AutoMirrored {
+        /**
+         * [Filled icons](https://material.io/resources/icons/?style=baseline)are the default icon
+         * theme. You can also use [Default] as an alias for these icons.
+         */
+        object Filled
+
+        /**
+         * [Outlined icons](https://material.io/resources/icons/?style=outline) make use of a thin
+         * stroke and empty space inside for a lighter appearance.
+         */
+        object Outlined
+
+        /**
+         * [Rounded icons](https://material.io/resources/icons/?style=round) use a corner radius
+         * that pairs well with brands that use heavier typography, curved logos, or circular
+         * elements to express their style.
+         */
+        object Rounded
+
+        /**
+         * [Two-Tone icons](https://material.io/resources/icons/?style=twotone) display corners with
+         * straight edges, for a crisp style that remains legible even at smaller scales. These
+         * rectangular shapes can support brand styles that are not well-reflected by rounded
+         * shapes.
+         */
+        object TwoTone
+
+        /**
+         * [Sharp icons](https://material.io/resources/icons/?style=sharp) display corners with
+         * straight edges, for a crisp style that remains legible even at smaller scales. These
+         * rectangular shapes can support brand styles that are not well-reflected by rounded
+         * shapes.
+         */
+        object Sharp
+
+        /**
+         * Alias for [AutoMirrored.Filled], the baseline icon theme.
+         */
+        val Default = Filled
+    }
+
+    /**
      * Alias for [Filled], the baseline icon theme.
      */
     val Default = Filled
@@ -113,12 +194,28 @@ object Icons {
 inline fun materialIcon(
     name: String,
     block: ImageVector.Builder.() -> ImageVector.Builder
+): ImageVector = materialIcon(name = name, autoMirror = false, block = block)
+
+/**
+ * Utility delegate to construct a Material icon with default size information.
+ * This is used by generated icons, and should not be used manually.
+ *
+ * @param name the full name of the generated icon
+ * @param autoMirror determines if the vector asset should automatically be mirrored for right to
+ * left locales
+ * @param block builder lambda to add paths to this vector asset
+ */
+inline fun materialIcon(
+    name: String,
+    autoMirror: Boolean,
+    block: ImageVector.Builder.() -> ImageVector.Builder
 ): ImageVector = ImageVector.Builder(
     name = name,
     defaultWidth = MaterialIconDimension.dp,
     defaultHeight = MaterialIconDimension.dp,
     viewportWidth = MaterialIconDimension,
-    viewportHeight = MaterialIconDimension
+    viewportHeight = MaterialIconDimension,
+    autoMirror = autoMirror
 ).block().build()
 
 /**
@@ -135,8 +232,8 @@ inline fun ImageVector.Builder.materialPath(
     pathFillType: PathFillType = DefaultFillType,
     pathBuilder: PathBuilder.() -> Unit
 ) =
-    // TODO: b/146213225
-    // Some of these defaults are already set when parsing from XML, but do not currently exist
+// TODO: b/146213225
+// Some of these defaults are already set when parsing from XML, but do not currently exist
     // when added programmatically. We should unify these and simplify them where possible.
     path(
         fill = SolidColor(Color.Black),

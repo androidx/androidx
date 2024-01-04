@@ -131,6 +131,8 @@ class UnstableAidlAnnotationDetectorTest : AbstractLintDetectorTest(
             java(
                 "src/androidx/core/UnstableAidlDefinition.java",
                 """
+                    import androidx.annotation.RequiresOptIn;
+
                     @RequiresOptIn
                     public @interface UnstableAidlDefinition {}
                 """.trimIndent()
@@ -168,7 +170,7 @@ No warnings.
             java(
                 "src/androidx/core/UnstableAidlDefinition.java",
                 """
-                    @RequiresOptIn
+                    @androidx.annotation.RequiresOptIn
                     public @interface UnstableAidlDefinition {}
                 """.trimIndent()
             ),

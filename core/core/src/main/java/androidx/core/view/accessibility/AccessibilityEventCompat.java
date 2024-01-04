@@ -371,6 +371,7 @@ public final class AccessibilityEventCompat {
      * Appends an {@link AccessibilityRecord} to the end of
      * event records.
      *
+     * @param event event for which to append the record.
      * @param record The record to append.
      *
      * @throws IllegalStateException If called from an AccessibilityService.
@@ -386,6 +387,7 @@ public final class AccessibilityEventCompat {
     /**
      * Gets the record at a given index.
      *
+     * @param event event for which to get the record.
      * @param index The index.
      * @return The record at the specified index.
      *
@@ -422,6 +424,7 @@ public final class AccessibilityEventCompat {
      * Sets the bit mask of node tree changes signaled by an
      * {@link #TYPE_WINDOW_CONTENT_CHANGED} event.
      *
+     * @param event event for which to set the types.
      * @param changeTypes The bit mask of change types.
      * @throws IllegalStateException If called from an AccessibilityService.
      * @see #getContentChangeTypes(AccessibilityEvent)
@@ -459,6 +462,7 @@ public final class AccessibilityEventCompat {
     /**
      * Sets the movement granularity that was traversed.
      *
+     * @param event event for which to set the granularity.
      * @param granularity The granularity.
      *
      * @throws IllegalStateException If called from an AccessibilityService.
@@ -495,6 +499,7 @@ public final class AccessibilityEventCompat {
      * <li>etc.
      * </ul>
      *
+     * @param event event for which to set the action.
      * @param action The action.
      * @throws IllegalStateException If called from an AccessibilityService.
      * @see AccessibilityNodeInfoCompat#performAction(int)

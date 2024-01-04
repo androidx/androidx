@@ -18,9 +18,11 @@ package androidx.compose.foundation.pager
 
 import androidx.compose.foundation.AutoTestFrameClock
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
@@ -144,6 +146,49 @@ class PagerStateNonGestureScrollingTest(val config: ParamConfig) : BasePagerTest
                 Page(index = it)
             }
         }
+    }
+
+    @Test
+    fun currentPage_pagerWithKeys_shouldBeTheSameAfterDatasetUpdate() {
+        // Arrange
+        class Data(val id: Int, val item: String)
+
+        val data = mutableListOf(
+            Data(3, "A"),
+            Data(4, "B"),
+            Data(5, "C")
+        )
+
+        val extraData = mutableListOf(
+            Data(0, "D"),
+            Data(1, "E"),
+            Data(2, "F")
+        )
+
+        val dataset = mutableStateOf<List<Data>>(data)
+
+        createPager(
+            modifier = Modifier.fillMaxSize(),
+            initialPage = 1,
+            key = { dataset.value[it].id },
+            pageCount = {
+                dataset.value.size
+            }, pageContent = {
+                val item = dataset.value[it]
+                Box(modifier = Modifier.fillMaxSize().testTag(item.item))
+            })
+
+        Truth.assertThat(dataset.value[pagerState.currentPage].item).isEqualTo("B")
+
+        rule.runOnIdle {
+            dataset.value = extraData + data // add new data
+        }
+
+        rule.waitForIdle()
+        Truth.assertThat(pagerState.pageCount).isEqualTo(6) // all data is present
+        rule.onNodeWithTag("B").assertIsDisplayed() // scroll kept
+        Truth.assertThat(pagerState.currentPage).isEqualTo(4)
+        Truth.assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f)
     }
 
     @Test

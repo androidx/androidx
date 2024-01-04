@@ -992,7 +992,10 @@ class LazyPagingItemsTest {
 
         rule.waitUntil {
             dispatcher.scheduler.advanceUntilIdle() // let items load
-            lazyPagingItems.itemCount == maxItem
+            lazyPagingItems.itemCount == maxItem &&
+                lazyPagingItems.loadState.source.refresh is LoadState.NotLoading &&
+                lazyPagingItems.loadState.source.prepend is LoadState.NotLoading &&
+                lazyPagingItems.loadState.source.append is LoadState.NotLoading
         }
 
         assertThat(lazyPagingItems.loadState).isEqualTo(

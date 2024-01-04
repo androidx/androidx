@@ -71,5 +71,6 @@ androidx {
             "functionality to support navigation. " +
             "It builds upon the Jetpack Compose libraries."
     targetsJavaConsumers = false
+    metalavaK2UastEnabled = true
 }
 

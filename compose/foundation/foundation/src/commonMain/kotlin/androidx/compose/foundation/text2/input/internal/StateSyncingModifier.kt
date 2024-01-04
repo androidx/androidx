@@ -87,11 +87,10 @@ private class StateSyncingModifier(
 @OptIn(ExperimentalFoundationApi::class)
 private class StateSyncingModifierNode(
     private val state: TextFieldState,
-    onValueChanged: (TextFieldValue) -> Unit,
+    private var onValueChanged: (TextFieldValue) -> Unit,
     private val writeSelectionFromTextFieldValue: Boolean,
 ) : Modifier.Node(), ObserverModifierNode, FocusEventModifierNode {
 
-    private var onValueChanged = onValueChanged
     private var isFocused = false
     private var lastValueWhileFocused: TextFieldValue? = null
 

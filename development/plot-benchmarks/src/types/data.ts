@@ -8,6 +8,15 @@ export interface ChartData<T> {
 }
 
 /**
+ * Keeps track of ranges for various metrics. So distributions have a consistent range.
+ */
+export interface Range {
+  label: string;
+  min: number;
+  max: number;
+}
+
+/**
  * A container for a Metric.
  *
  * This metric has all relevant comparables, in the data keyed by the source.

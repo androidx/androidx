@@ -72,7 +72,8 @@ import androidx.annotation.VisibleForTesting;
 import androidx.core.os.TraceCompat;
 import androidx.core.util.Preconditions;
 import androidx.core.view.AccessibilityDelegateCompat;
-import androidx.core.view.DifferentialMotionFlingHelper;
+import androidx.core.view.DifferentialMotionFlingController;
+import androidx.core.view.DifferentialMotionFlingTarget;
 import androidx.core.view.InputDeviceCompat;
 import androidx.core.view.MotionEventCompat;
 import androidx.core.view.NestedScrollingChild2;
@@ -750,9 +751,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 }
             };
 
-    private final DifferentialMotionFlingHelper.DifferentialMotionFlingTarget
+    private final DifferentialMotionFlingTarget
             mDifferentialMotionFlingTarget =
-            new DifferentialMotionFlingHelper.DifferentialMotionFlingTarget() {
+            new DifferentialMotionFlingTarget() {
                 @Override
                 public boolean startDifferentialMotionFling(float velocity) {
                     int vx = 0;
@@ -792,8 +793,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             };
 
     @VisibleForTesting
-    DifferentialMotionFlingHelper mDifferentialMotionFlingHelper =
-            new DifferentialMotionFlingHelper(getContext(), mDifferentialMotionFlingTarget);
+    DifferentialMotionFlingController mDifferentialMotionFlingController =
+            new DifferentialMotionFlingController(getContext(), mDifferentialMotionFlingTarget);
     public RecyclerView(@NonNull Context context) {
         this(context, null);
     }
@@ -4145,7 +4146,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             }
 
             if (flingAxis != 0 && !useSmoothScroll) {
-                mDifferentialMotionFlingHelper.onMotionEvent(event, flingAxis);
+                mDifferentialMotionFlingController.onMotionEvent(event, flingAxis);
             }
         }
         return false;

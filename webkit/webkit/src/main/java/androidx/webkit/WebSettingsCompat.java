@@ -220,60 +220,6 @@ public class WebSettingsCompat {
     }
 
     /**
-     * Sets whether the WebView’s internal error page should be suppressed or displayed
-     * for bad navigations. True means suppressed (not shown), false means it will be
-     * displayed.
-     * The default value is false.
-     *
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)}
-     * returns true for {@link WebViewFeature#SUPPRESS_ERROR_PAGE}.
-     *
-     * @param suppressed whether the WebView should suppress its internal error page
-     * @deprecated unreleased API will be removed in 1.9.0
-     */
-    @Deprecated
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @RequiresFeature(name = WebViewFeature.SUPPRESS_ERROR_PAGE,
-            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    public static void setWillSuppressErrorPage(@NonNull WebSettings settings,
-            boolean suppressed) {
-        ApiFeature.NoFramework feature = WebViewFeatureInternal.SUPPRESS_ERROR_PAGE;
-        if (feature.isSupportedByWebView()) {
-            getAdapter(settings).setWillSuppressErrorPage(suppressed);
-        } else {
-            throw WebViewFeatureInternal.getUnsupportedOperationException();
-        }
-    }
-
-
-    /**
-     * Gets whether the WebView’s internal error page will be suppressed or displayed
-     *
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)}
-     * returns true for {@link WebViewFeature#SUPPRESS_ERROR_PAGE}.
-     *
-     * @return true if the WebView will suppress its internal error page
-     * @see #setWillSuppressErrorPage
-     * @deprecated unreleased API will be removed in 1.9.0
-     */
-    @Deprecated
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @RequiresFeature(name = WebViewFeature.SUPPRESS_ERROR_PAGE,
-            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    public static boolean willSuppressErrorPage(@NonNull WebSettings settings) {
-        ApiFeature.NoFramework feature = WebViewFeatureInternal.SUPPRESS_ERROR_PAGE;
-        if (feature.isSupportedByWebView()) {
-            return getAdapter(settings).willSuppressErrorPage();
-        } else {
-            throw WebViewFeatureInternal.getUnsupportedOperationException();
-        }
-    }
-
-    /**
      * Disable force dark, irrespective of the force dark mode of the WebView parent. In this mode,
      * WebView content will always be rendered as-is, regardless of whether native views are being
      * automatically darkened.

@@ -37,15 +37,15 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
     private val runningOperations = mutableListOf<Operation>()
     private var operationDirectionIsPop = false
     private var isContainerPostponed = false
+    // We have a call to executePendingTransactions in a handler
+    private var pendingExecute = false
 
     /**
      * Checks what [lifecycle impact][Operation.LifecycleImpact] of special effect for the
      * given FragmentStateManager is still awaiting completion (or cancellation).
      *
      * This could be because the Operation is still pending (and
-     * [executePendingOperations] hasn't been called) or because all
-     * [started special effects][Operation.markStartedSpecialEffect]
-     * haven't [completed][Operation.completeSpecialEffect].
+     * [executePendingOperations] hasn't been called).
      *
      * @param fragmentStateManager the FragmentStateManager to check for
      * @return The [Operation.LifecycleImpact] of the awaiting Operation, or null if there is
@@ -151,7 +151,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
             // Ensure that we still run the applyState() call for pending operations
             operation.addCompletionListener {
                 if (pendingOperations.contains(operation)) {
-                    operation.finalState.applyState(operation.fragment.mView)
+                    operation.finalState.applyState(operation.fragment.mView, container)
                 }
             }
             // Ensure that we remove the Operation from the list of
@@ -180,6 +180,11 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
             // associated with the last entering Operation is postponed
             isContainerPostponed = lastEnteringFragment?.isPostponed ?: false
         }
+        pendingExecute = true
+    }
+
+    fun isPendingExecute(): Boolean {
+        return pendingExecute
     }
 
     fun forcePostponedExecutePendingOperations() {
@@ -200,6 +205,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
             // No operations should execute while the container is postponed
             return
         }
+        pendingExecute = false
         // If the container is not attached to the window, ignore the special effect
         // since none of the special effect systems will run them anyway.
         if (!ViewCompat.isAttachedToWindow(container)) {
@@ -208,7 +214,29 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
             return
         }
         synchronized(pendingOperations) {
-            if (pendingOperations.isNotEmpty()) {
+            if (pendingOperations.isEmpty()) {
+                val currentlyRunningOperations = runningOperations.toMutableList()
+                runningOperations.clear()
+                for (operation in currentlyRunningOperations) {
+                    if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                        Log.v(
+                            FragmentManager.TAG,
+                            "SpecialEffectsController: Cancelling operation $operation " +
+                                "with no incoming pendingOperations"
+                        )
+                    }
+                    // Cancel the currently running operation immediately as this is the case
+                    // where we got an handleOnBackCanceled callback and we don't want to run
+                    // any effects back to start cause they will have already been seeked to
+                    // start
+                    operation.cancel(container, false)
+                    if (!operation.isComplete) {
+                        // Re-add any animations that didn't synchronously call complete()
+                        // to continue to track them as running operations
+                        runningOperations.add(operation)
+                    }
+                }
+            } else {
                 val currentlyRunningOperations = runningOperations.toMutableList()
                 runningOperations.clear()
                 for (operation in currentlyRunningOperations) {
@@ -218,7 +246,9 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                             "SpecialEffectsController: Cancelling operation $operation"
                         )
                     }
-                    // Cancel with seeking if the fragment is transitioning
+                    // Cancel with seeking if the fragment is transitioning as this is the case
+                    // where another operation is about to run while we are still seeking
+                    // so we should move our current effect back to the start.
                     operation.cancel(container, operation.fragment.mTransitioning)
                     if (!operation.isComplete) {
                         // Re-add any animations that didn't synchronously call complete()
@@ -243,21 +273,14 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                 var seekable = true
                 var transitioning = true
                 newPendingOperations.forEach { operation ->
-                    seekable = operation.effects.filter { effect ->
-                        // We don't want noOpEffects changing our seeking
-                        effect !is DefaultSpecialEffectsController.NoOpEffect
-                    }.all { effect ->
+                    seekable = operation.effects.all { effect ->
                         effect.isSeekingSupported
-                    }
-                    if (operation.effects.all {
-                            it is DefaultSpecialEffectsController.NoOpEffect
-                    }) {
-                        seekable = false
                     }
                     if (!operation.fragment.mTransitioning) {
                         transitioning = false
                     }
                 }
+                seekable = seekable && newPendingOperations.flatMap { it.effects }.isNotEmpty()
 
                 if (!transitioning) {
                     processStart(newPendingOperations)
@@ -284,7 +307,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
 
     internal fun applyContainerChangesToOperation(operation: Operation) {
         if (operation.isAwaitingContainerChanges) {
-            operation.finalState.applyState(operation.fragment.requireView())
+            operation.finalState.applyState(operation.fragment.requireView(), container)
             operation.isAwaitingContainerChanges = false
         }
     }
@@ -355,15 +378,8 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
      * Collect all of the given operations.
      *
      * If there are no special effects for a given operation, the SpecialEffectsController
-     * should call [Operation.complete]. Otherwise, a
-     * [CancellationSignal] representing each special effect should be added via
-     * [Operation.markStartedSpecialEffect], calling
-     * [Operation.completeSpecialEffect] when that specific
-     * special effect finishes.
+     * should call [Operation.complete].
      *
-     * It is **strongly recommended** that each [CancellationSignal] added with
-     * [Operation.markStartedSpecialEffect] listen for cancellation,
-     * properly cancelling the special effect when the signal is cancelled.
      *
      * @param operations the list of operations to execute in order.
      * @param isPop whether this set of operations should be considered as triggered by a 'pop'.
@@ -392,6 +408,15 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
         for (i in operations.indices) {
             val operation = operations[i]
             applyContainerChangesToOperation(operation)
+        }
+
+        // Making a copy cause complete modifies the list.
+        val operationsCopy = operations.toList()
+        for (i in operationsCopy.indices) {
+            val operation = operationsCopy[i]
+            if (operation.effects.isEmpty()) {
+                operation.complete()
+            }
         }
     }
 
@@ -480,8 +505,9 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
              * Applies this state to the given View.
              *
              * @param view The View to apply this state to.
+             * @param container The ViewGroup to add the view too if it does not have a parent.
              */
-            fun applyState(view: View) {
+            fun applyState(view: View, container: ViewGroup) {
                 when (this) {
                     REMOVED -> {
                         val parent = view.parent as? ViewGroup
@@ -502,6 +528,16 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                                 FragmentManager.TAG, "SpecialEffectsController: " +
                                     "Setting view $view to VISIBLE"
                             )
+                        }
+                        val parent = view.parent as? ViewGroup
+                        if (parent == null) {
+                            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                                Log.v(
+                                    FragmentManager.TAG, "SpecialEffectsController: " +
+                                        "Adding view $view to Container $container"
+                                )
+                            }
+                            container.addView(view)
                         }
                         view.visibility = View.VISIBLE
                     }
@@ -576,7 +612,6 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
         }
 
         private val completionListeners = mutableListOf<Runnable>()
-        private val specialEffectsSignals = mutableSetOf<CancellationSignal>()
         var isCanceled = false
             private set
         var isComplete = false
@@ -589,7 +624,9 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
 
         var isAwaitingContainerChanges = true
 
-        val effects = mutableListOf<Effect>()
+        private val _effects = mutableListOf<Effect>()
+
+        internal val effects: List<Effect> = _effects
 
         override fun toString(): String {
             val identityHash = Integer.toHexString(System.identityHashCode(this))
@@ -605,14 +642,10 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                 return
             }
             isCanceled = true
-            if (specialEffectsSignals.isEmpty()) {
+            if (_effects.isEmpty()) {
                 complete()
             } else {
-                val signals = specialEffectsSignals.toMutableSet()
-                for (signal in signals) {
-                    signal.cancel()
-                }
-                effects.forEach {
+                effects.toList().forEach {
                     it.cancel(container)
                 }
             }
@@ -643,6 +676,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                     // moves it back to ADDING
                     this.finalState = State.VISIBLE
                     this.lifecycleImpact = LifecycleImpact.ADDING
+                    this.isAwaitingContainerChanges = true
                 }
                 LifecycleImpact.REMOVING -> {
                     if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
@@ -656,6 +690,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                     // Any REMOVING operation overrides whatever we had before
                     this.finalState = State.REMOVED
                     this.lifecycleImpact = LifecycleImpact.REMOVING
+                    this.isAwaitingContainerChanges = true
                 }
                 LifecycleImpact.NONE -> // This is a hide or show operation
                     if (this.finalState != State.REMOVED) {
@@ -675,6 +710,16 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
             completionListeners.add(listener)
         }
 
+        fun addEffect(effect: Effect) {
+            _effects.add(effect)
+        }
+
+        fun completeEffect(effect: Effect) {
+            if (_effects.remove(effect) && _effects.isEmpty()) {
+                complete()
+            }
+        }
+
         /**
          * Callback for when the operation is about to start.
          */
@@ -684,23 +729,13 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
         }
 
         /**
-         * Add new [CancellationSignal] for special effects.
-         *
-         * @param signal A CancellationSignal that can be used to cancel this special effect.
-         */
-        fun markStartedSpecialEffect(signal: CancellationSignal) {
-            specialEffectsSignals.add(signal)
-        }
-
-        /**
-         * Complete a [CancellationSignal] that was previously added with
-         * [markStartedSpecialEffect].
+         * Complete a [CancellationSignal].
          *
          * This calls through to [Operation.complete] when the last special effect is
          * complete.
          */
-        fun completeSpecialEffect(signal: CancellationSignal) {
-            if (specialEffectsSignals.remove(signal) && specialEffectsSignals.isEmpty()) {
+        fun completeSpecialEffect() {
+            if (effects.isEmpty()) {
                 complete()
             }
         }
@@ -710,7 +745,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
          * special effects associated with this Operation have completed successfully.
          */
         @CallSuper
-        open fun complete() {
+        internal open fun complete() {
             isStarted = false
             if (isComplete) {
                 return

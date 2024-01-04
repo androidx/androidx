@@ -32,7 +32,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
-import androidx.core.view.DifferentialMotionFlingHelper;
+import androidx.core.view.DifferentialMotionFlingController;
+import androidx.core.view.DifferentialMotionFlingTarget;
 import androidx.core.view.InputDeviceCompat;
 import androidx.core.view.ViewConfigurationCompat;
 import androidx.test.core.app.ApplicationProvider;
@@ -48,13 +49,13 @@ import org.junit.runner.RunWith;
 public class RecyclerViewOnGenericMotionEventTest {
 
     TestRecyclerView mRecyclerView;
-    TestDifferentialMotionFlingHelper mFlingHelper;
+    TestDifferentialMotionFlingController mFlingController;
 
     @Before
     public void setUp() throws Exception {
         mRecyclerView = new TestRecyclerView(getContext());
-        mFlingHelper = createDummyFlingHelper();
-        mRecyclerView.mDifferentialMotionFlingHelper = mFlingHelper;
+        mFlingController = createDummyFlingController();
+        mRecyclerView.mDifferentialMotionFlingController = mFlingController;
     }
 
     private Context getContext() {
@@ -77,8 +78,8 @@ public class RecyclerViewOnGenericMotionEventTest {
 
         assertTotalScroll(0, (int) (-2f * getScaledVerticalScrollFactor()),
                 /* assertSmoothScroll= */ false);
-        assertEquals(MotionEvent.AXIS_SCROLL, mFlingHelper.mLastAxis);
-        assertEquals(mRecyclerView.mLastGenericMotionEvent, mFlingHelper.mLastMotionEvent);
+        assertEquals(MotionEvent.AXIS_SCROLL, mFlingController.mLastAxis);
+        assertEquals(mRecyclerView.mLastGenericMotionEvent, mFlingController.mLastMotionEvent);
     }
 
     @Test
@@ -95,8 +96,8 @@ public class RecyclerViewOnGenericMotionEventTest {
 
         assertTotalScroll((int) (2f * getScaledHorizontalScrollFactor()), 0,
                 /* assertSmoothScroll= */ false);
-        assertEquals(MotionEvent.AXIS_SCROLL, mFlingHelper.mLastAxis);
-        assertEquals(mRecyclerView.mLastGenericMotionEvent, mFlingHelper.mLastMotionEvent);
+        assertEquals(MotionEvent.AXIS_SCROLL, mFlingController.mLastAxis);
+        assertEquals(mRecyclerView.mLastGenericMotionEvent, mFlingController.mLastMotionEvent);
     }
 
     @Test
@@ -109,7 +110,7 @@ public class RecyclerViewOnGenericMotionEventTest {
                 MotionEvent.AXIS_SCROLL, 2, InputDeviceCompat.SOURCE_ROTARY_ENCODER, mRecyclerView);
         assertTotalScroll(0, (int) (-2f * getScaledVerticalScrollFactor()),
                 /* assertSmoothScroll= */ true);
-        assertNull(mFlingHelper.mLastMotionEvent);
+        assertNull(mFlingController.mLastMotionEvent);
     }
 
     @Test
@@ -145,7 +146,7 @@ public class RecyclerViewOnGenericMotionEventTest {
                 MotionEvent.AXIS_SCROLL, 2, InputDeviceCompat.SOURCE_ROTARY_ENCODER, mRecyclerView);
         assertTotalScroll((int) (2f * getScaledHorizontalScrollFactor()), 0,
                 /* assertSmoothScroll= */ true);
-        assertNull(mFlingHelper.mLastMotionEvent);
+        assertNull(mFlingController.mLastMotionEvent);
     }
 
     @Test
@@ -341,10 +342,10 @@ public class RecyclerViewOnGenericMotionEventTest {
         }
     }
 
-    private TestDifferentialMotionFlingHelper createDummyFlingHelper() {
-        return new TestDifferentialMotionFlingHelper(
+    private TestDifferentialMotionFlingController createDummyFlingController() {
+        return new TestDifferentialMotionFlingController(
                 mRecyclerView.getContext(),
-                new DifferentialMotionFlingHelper.DifferentialMotionFlingTarget() {
+                new DifferentialMotionFlingTarget() {
                     @Override
                     public boolean startDifferentialMotionFling(float velocity) {
                         return false;
@@ -360,12 +361,13 @@ public class RecyclerViewOnGenericMotionEventTest {
                 });
     }
 
-    private static class TestDifferentialMotionFlingHelper extends DifferentialMotionFlingHelper {
+    private static class TestDifferentialMotionFlingController extends
+            DifferentialMotionFlingController {
         MotionEvent mLastMotionEvent;
         int mLastAxis;
 
-        TestDifferentialMotionFlingHelper(Context context,
-                DifferentialMotionFlingHelper.DifferentialMotionFlingTarget target) {
+        TestDifferentialMotionFlingController(Context context,
+                DifferentialMotionFlingTarget target) {
             super(context, target);
         }
 

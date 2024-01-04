@@ -17,7 +17,6 @@
 package androidx.compose.foundation.text2
 
 import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputConnection
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
@@ -25,17 +24,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardHelper
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.MultiLine
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.SingleLine
 import androidx.compose.foundation.text2.input.TextFieldState
-import androidx.compose.foundation.text2.input.internal.setInputConnectionCreatedListenerForTests
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -68,7 +67,8 @@ class TextFieldKeyboardActionsTest {
     @get:Rule
     val rule = createComposeRule()
 
-    private val keyboardHelper = KeyboardHelper(rule)
+    @get:Rule
+    val inputMethodInterceptor = InputMethodInterceptorRule(rule)
 
     @Test
     fun textField_performsImeAction_viaSemantics() {
@@ -91,11 +91,6 @@ class TextFieldKeyboardActionsTest {
     @Test
     fun textField_performsImeAction_viaInputConnection() {
         var called = false
-        var inputConnection: InputConnection? = null
-
-        setInputConnectionCreatedListenerForTests { _, ic ->
-            inputConnection = ic
-        }
         rule.setContent {
             BasicTextField2(
                 state = TextFieldState(),
@@ -108,8 +103,8 @@ class TextFieldKeyboardActionsTest {
 
         rule.onNode(hasSetTextAction()).requestFocus()
 
-        rule.runOnIdle {
-            inputConnection?.performEditorAction(EditorInfo.IME_ACTION_SEND)
+        inputMethodInterceptor.withInputConnection {
+            performEditorAction(EditorInfo.IME_ACTION_SEND)
             assertThat(called).isTrue()
         }
     }
@@ -117,10 +112,6 @@ class TextFieldKeyboardActionsTest {
     @Test
     fun textField_performsUnexpectedImeAction_fromInputConnection() {
         var calledFor: ImeAction? = null
-        var inputConnection: InputConnection? = null
-        setInputConnectionCreatedListenerForTests { _, ic ->
-            inputConnection = ic
-        }
         rule.setContent {
             BasicTextField2(
                 state = TextFieldState(),
@@ -133,8 +124,8 @@ class TextFieldKeyboardActionsTest {
 
         rule.onNode(hasSetTextAction()).requestFocus()
 
-        rule.runOnIdle {
-            inputConnection?.performEditorAction(EditorInfo.IME_ACTION_SEARCH)
+        inputMethodInterceptor.withInputConnection {
+            performEditorAction(EditorInfo.IME_ACTION_SEARCH)
             assertThat(calledFor).isEqualTo(ImeAction.Search)
         }
     }
@@ -194,21 +185,22 @@ class TextFieldKeyboardActionsTest {
     @SdkSuppress(minSdkVersion = 23)
     @Test
     fun textField_performsDefaultBehavior_forDone() {
+        val testKeyboardController = TestSoftwareKeyboardController(rule)
         rule.setContent {
-            keyboardHelper.initialize()
-            BasicTextField2(
-                state = TextFieldState(),
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
-            )
+            CompositionLocalProvider(
+                LocalSoftwareKeyboardController provides testKeyboardController
+            ) {
+                BasicTextField2(
+                    state = TextFieldState(),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
+                )
+            }
         }
 
-        with(rule.onNode(hasSetTextAction())) {
-            performClick()
-            keyboardHelper.waitForKeyboardVisibility(true)
-            performImeAction()
-            keyboardHelper.waitForKeyboardVisibility(false)
-            assertThat(keyboardHelper.isSoftwareKeyboardShown()).isEqualTo(false)
-        }
+        rule.onNode(hasSetTextAction()).performClick()
+        testKeyboardController.assertShown()
+        rule.onNode(hasSetTextAction()).performImeAction()
+        testKeyboardController.assertHidden()
     }
 
     @Test
@@ -273,10 +265,6 @@ class TextFieldKeyboardActionsTest {
     @Test
     fun textField_performsGo_whenReceivedImeActionIsGo() {
         var called = false
-        var inputConnection: InputConnection? = null
-        setInputConnectionCreatedListenerForTests { _, ic ->
-            inputConnection = ic
-        }
         rule.setContent {
             BasicTextField2(
                 state = TextFieldState(),
@@ -288,8 +276,8 @@ class TextFieldKeyboardActionsTest {
 
         rule.onNode(hasSetTextAction()).requestFocus()
 
-        rule.runOnIdle {
-            inputConnection?.performEditorAction(EditorInfo.IME_ACTION_GO)
+        inputMethodInterceptor.withInputConnection {
+            performEditorAction(EditorInfo.IME_ACTION_GO)
             assertThat(called).isTrue()
         }
     }
@@ -297,10 +285,6 @@ class TextFieldKeyboardActionsTest {
     @Test
     fun textField_doesNotPerformGo_whenReceivedImeActionIsNotGo() {
         var called = false
-        var inputConnection: InputConnection? = null
-        setInputConnectionCreatedListenerForTests { _, ic ->
-            inputConnection = ic
-        }
         rule.setContent {
             BasicTextField2(
                 state = TextFieldState(),
@@ -312,8 +296,8 @@ class TextFieldKeyboardActionsTest {
 
         rule.onNode(hasSetTextAction()).requestFocus()
 
-        rule.runOnIdle {
-            inputConnection?.performEditorAction(EditorInfo.IME_ACTION_SEARCH)
+        inputMethodInterceptor.withInputConnection {
+            performEditorAction(EditorInfo.IME_ACTION_SEARCH)
             assertThat(called).isFalse()
         }
     }

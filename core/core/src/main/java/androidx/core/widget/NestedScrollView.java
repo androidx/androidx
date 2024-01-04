@@ -56,7 +56,8 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.R;
 import androidx.core.view.AccessibilityDelegateCompat;
-import androidx.core.view.DifferentialMotionFlingHelper;
+import androidx.core.view.DifferentialMotionFlingController;
+import androidx.core.view.DifferentialMotionFlingTarget;
 import androidx.core.view.MotionEventCompat;
 import androidx.core.view.NestedScrollingChild3;
 import androidx.core.view.NestedScrollingChildHelper;
@@ -228,12 +229,12 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     private OnScrollChangeListener mOnScrollChangeListener;
 
     @VisibleForTesting
-    final DifferentialMotionFlingTarget mDifferentialMotionFlingTarget =
-            new DifferentialMotionFlingTarget();
+    final DifferentialMotionFlingTargetImpl mDifferentialMotionFlingTarget =
+            new DifferentialMotionFlingTargetImpl();
 
     @VisibleForTesting
-    DifferentialMotionFlingHelper mDifferentialMotionFlingHelper =
-            new DifferentialMotionFlingHelper(getContext(), mDifferentialMotionFlingTarget);
+    DifferentialMotionFlingController mDifferentialMotionFlingController =
+            new DifferentialMotionFlingController(getContext(), mDifferentialMotionFlingTarget);
 
     public NestedScrollView(@NonNull Context context) {
         this(context, null);
@@ -1354,7 +1355,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
 
                 scrollBy(-invertedDelta, x, ViewCompat.TYPE_NON_TOUCH, isSourceMouse);
                 if (flingAxis != 0) {
-                    mDifferentialMotionFlingHelper.onMotionEvent(motionEvent, flingAxis);
+                    mDifferentialMotionFlingController.onMotionEvent(motionEvent, flingAxis);
                 }
 
                 return true;
@@ -2569,8 +2570,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         }
     }
 
-    class DifferentialMotionFlingTarget
-            implements DifferentialMotionFlingHelper.DifferentialMotionFlingTarget {
+    class DifferentialMotionFlingTargetImpl implements DifferentialMotionFlingTarget {
         @Override
         public boolean startDifferentialMotionFling(float velocity) {
             if (velocity == 0) {

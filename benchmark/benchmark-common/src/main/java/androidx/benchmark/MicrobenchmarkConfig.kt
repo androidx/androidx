@@ -35,6 +35,7 @@ class MicrobenchmarkConfig constructor(
      *
      * Defaults to false to minimize interference.
      */
+    @get:JvmName("shouldEnableTraceAppTag")
     val shouldEnableTraceAppTag: Boolean = false,
 
     /**
@@ -43,6 +44,7 @@ class MicrobenchmarkConfig constructor(
      *
      * Defaults to false to minimize interference.
      */
+    @get:JvmName("shouldEnablePerfettoSdkTracing")
     val shouldEnablePerfettoSdkTracing: Boolean = false,
 
     /**

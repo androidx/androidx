@@ -223,7 +223,10 @@ internal interface KmFunctionContainer : KmFlags {
     val typeParameters: List<KmTypeParameterContainer>
     val parameters: List<KmValueParameterContainer>
     val returnType: KmTypeContainer
+    val propertyName: String?
 
+    fun isPropertySetter() = false
+    fun isPropertyGetter() = false
     fun isSyntheticMethodForAnnotations() =
         (this as? KmPropertyFunctionContainerImpl)?.syntheticMethodForAnnotations == true
     fun isPropertyFunction() = this is KmPropertyFunctionContainerImpl
@@ -240,6 +243,7 @@ private class KmFunctionContainerImpl(
         get() = kmFunction.flags
     override val name: String
         get() = kmFunction.name
+    override val propertyName: String? = null
     override val jvmName: String
         get() = kmFunction.signature!!.name
     override val descriptor: String
@@ -257,9 +261,14 @@ private open class KmPropertyFunctionContainerImpl(
     override val descriptor: String,
     override val parameters: List<KmValueParameterContainer>,
     override val returnType: KmTypeContainer,
+    override val propertyName: String?,
+    val isSetterMethod: Boolean,
+    val isGetterMethod: Boolean,
     val syntheticMethodForAnnotations: Boolean = false
 ) : KmFunctionContainer {
     override val typeParameters: List<KmTypeParameterContainer> = emptyList()
+    override fun isPropertySetter() = isSetterMethod
+    override fun isPropertyGetter() = isGetterMethod
 }
 
 internal class KmConstructorContainer(
@@ -269,6 +278,7 @@ internal class KmConstructorContainer(
     override val flags: Flags
         get() = kmConstructor.flags
     override val name: String = "<init>"
+    override val propertyName: String? = null
     override val jvmName: String = name
     override val descriptor: String
         get() = checkNotNull(kmConstructor.signature).asString()
@@ -441,6 +451,9 @@ private fun KmProperty.asContainer(): KmPropertyContainer =
                 descriptor = it.asString(),
                 parameters = emptyList(),
                 returnType = this.returnType.asContainer(),
+                propertyName = this.name,
+                isSetterMethod = false,
+                isGetterMethod = true,
             )
         },
         setter = setterSignature?.let {
@@ -459,6 +472,9 @@ private fun KmProperty.asContainer(): KmPropertyContainer =
                 descriptor = it.asString(),
                 parameters = listOf(param.asContainer()),
                 returnType = returnType.asContainer(),
+                propertyName = this.name,
+                isSetterMethod = true,
+                isGetterMethod = false,
             )
         },
         syntheticMethodForAnnotations = syntheticMethodForAnnotations?.let {
@@ -471,6 +487,9 @@ private fun KmProperty.asContainer(): KmPropertyContainer =
                 parameters = emptyList(),
                 returnType = returnType.asContainer(),
                 syntheticMethodForAnnotations = true,
+                propertyName = this.name,
+                isSetterMethod = false,
+                isGetterMethod = false,
             )
         },
     )

@@ -130,8 +130,14 @@ internal constructor(
                 "laps can not be out of parent time range."
             }
         }
-        if (exerciseRouteResult is ExerciseRouteResult.Data) {
-            require(exerciseRouteResult.exerciseRoute.isWithin(startTime, endTime)) {
+        if (
+            exerciseRouteResult is ExerciseRouteResult.Data &&
+                exerciseRouteResult.exerciseRoute.route.isNotEmpty()
+        ) {
+            val route = exerciseRouteResult.exerciseRoute.route
+            val minTime = route.minBy { it.time }.time
+            val maxTime = route.maxBy { it.time }.time
+            require(!minTime.isBefore(startTime) && maxTime.isBefore(endTime)) {
                 "route can not be out of parent time range."
             }
         }
@@ -351,9 +357,7 @@ internal constructor(
             EXERCISE_TYPE_STRING_TO_INT_MAP.entries.associateBy({ it.value }, { it.key })
     }
 
-    /**
-     * List of supported activities on Health Platform.
-     */
+    /** List of supported activities on Health Platform. */
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(

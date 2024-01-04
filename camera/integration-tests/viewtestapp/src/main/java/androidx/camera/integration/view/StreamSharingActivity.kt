@@ -77,6 +77,7 @@ class StreamSharingActivity : AppCompatActivity() {
     private var cameraSelector: CameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
     private var camera: Camera? = null
     private var previewViewMode: ImplementationMode = ImplementationMode.PERFORMANCE
+    private var previewViewScaleType = PreviewView.ScaleType.FILL_CENTER;
     private var activeRecording: Recording? = null
     private var isUseCasesBound: Boolean = false
     private var deviceOrientation: Int = -1
@@ -102,6 +103,7 @@ class StreamSharingActivity : AppCompatActivity() {
 
         // Initial view objects.
         previewView = findViewById(R.id.preview_view)
+        previewView.scaleType = previewViewScaleType
         previewView.implementationMode = previewViewMode
         exportButton = findViewById(R.id.export_button)
         exportButton.setOnClickListener {
@@ -212,9 +214,10 @@ class StreamSharingActivity : AppCompatActivity() {
         return null
     }
 
+    @SuppressLint("RestrictedApi")
     private fun isStreamSharingEnabled(): Boolean {
         val isCombinationSupported =
-            camera != null && camera!!.isUseCasesCombinationSupported(*useCases)
+            camera != null && camera!!.isUseCasesCombinationSupportedByFramework(*useCases)
         return !isCombinationSupported && isUseCasesBound
     }
 

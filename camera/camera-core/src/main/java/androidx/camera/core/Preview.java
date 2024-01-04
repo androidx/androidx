@@ -41,6 +41,7 @@ import static androidx.camera.core.impl.PreviewConfig.OPTION_USE_CASE_EVENT_CALL
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_TYPE;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_HIGH_RESOLUTION_DISABLED;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_PREVIEW_STABILIZATION_MODE;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_TARGET_FRAME_RATE;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
@@ -86,6 +87,7 @@ import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
+import androidx.camera.core.impl.stabilization.StabilizationMode;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.ThreadConfig;
@@ -268,6 +270,7 @@ public final class Preview extends UseCase {
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config,
                 streamSpec.getResolution());
         sessionConfigBuilder.setExpectedFrameRateRange(streamSpec.getExpectedFrameRateRange());
+        sessionConfigBuilder.setPreviewStabilization(config.getPreviewStabilizationMode());
         if (streamSpec.getImplementationOptions() != null) {
             sessionConfigBuilder.addImplementationOptions(streamSpec.getImplementationOptions());
         }
@@ -667,6 +670,14 @@ public final class Preview extends UseCase {
     @NonNull
     public Range<Integer> getTargetFrameRate() {
         return getTargetFrameRateInternal();
+    }
+
+    /**
+     * Returns whether video stabilization is enabled for preview stream.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public boolean isPreviewStabilizationEnabled() {
+        return getCurrentConfig().getPreviewStabilizationMode() == StabilizationMode.ON;
     }
 
     /**
@@ -1145,6 +1156,20 @@ public final class Preview extends UseCase {
         @NonNull
         public Builder setTargetFrameRate(@NonNull Range<Integer> targetFrameRate) {
             getMutableConfig().insertOption(OPTION_TARGET_FRAME_RATE, targetFrameRate);
+            return this;
+        }
+
+        /**
+         * Enable preview stabilization.
+         *
+         * @param enabled True if enable, otherwise false.
+         * @return the current Builder.
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder setPreviewStabilizationEnabled(boolean enabled) {
+            getMutableConfig().insertOption(OPTION_PREVIEW_STABILIZATION_MODE,
+                    enabled ? StabilizationMode.ON : StabilizationMode.OFF);
             return this;
         }
 

@@ -89,6 +89,8 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
     private val mFrontBufferedCallbacks = object : GLFrameBufferRenderer.Callback {
         override fun onDrawFrame(
             eglManager: EGLManager,
+            width: Int,
+            height: Int,
             bufferInfo: BufferInfo,
             transform: FloatArray
         ) {
@@ -101,6 +103,8 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
             mActiveSegment.next { param ->
                 callback.onDrawFrontBufferedLayer(
                     eglManager,
+                    width,
+                    height,
                     bufferInfo,
                     transform,
                     param
@@ -172,6 +176,8 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
     private val mMultiBufferedRenderCallbacks = object : GLFrameBufferRenderer.Callback {
         override fun onDrawFrame(
             eglManager: EGLManager,
+            width: Int,
+            height: Int,
             bufferInfo: BufferInfo,
             transform: FloatArray
         ) {
@@ -180,6 +186,8 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
             GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
             callback.onDrawMultiBufferedLayer(
                 eglManager,
+                width,
+                height,
                 bufferInfo,
                 transform,
                 mSegments.poll() ?: Collections.emptyList()
@@ -681,6 +689,10 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
          * parameters.
          * @param eglManager [EGLManager] useful in configuring EGL objects to be used when issuing
          * OpenGL commands to render into the front buffered layer
+         * @param width Logical width of the content to render. This dimension matches what is
+         * provided from [SurfaceHolder.Callback.surfaceChanged]
+         * @param height Logical height of the content to render. This dimension matches what is
+         * provided from [SurfaceHolder.Callback.surfaceChanged]
          * @param bufferInfo [BufferInfo] about the buffer that is being rendered into. This
          * includes the width and height of the buffer which can be different than the corresponding
          * dimensions of the [SurfaceView] provided to the [GLFrontBufferedRenderer] as pre-rotation
@@ -719,6 +731,8 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
         @WorkerThread
         fun onDrawFrontBufferedLayer(
             eglManager: EGLManager,
+            width: Int,
+            height: Int,
             bufferInfo: BufferInfo,
             transform: FloatArray,
             param: T
@@ -729,6 +743,10 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
          * parameters.
          * @param eglManager [EGLManager] useful in configuring EGL objects to be used when issuing
          * OpenGL commands to render into the multi buffered layer
+         * @param width Logical width of the content to render. This dimension matches what is
+         * provided from [SurfaceHolder.Callback.surfaceChanged]
+         * @param height Logical height of the content to render. This dimension matches what is
+         * provided from [SurfaceHolder.Callback.surfaceChanged]
          * @param bufferInfo [BufferInfo] about the buffer that is being rendered into. This
          * includes the width and height of the buffer which can be different than the corresponding
          * dimensions of the [SurfaceView] provided to the [GLFrontBufferedRenderer] as pre-rotation
@@ -792,6 +810,8 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
         @WorkerThread
         fun onDrawMultiBufferedLayer(
             eglManager: EGLManager,
+            width: Int,
+            height: Int,
             bufferInfo: BufferInfo,
             transform: FloatArray,
             params: Collection<T>

@@ -839,13 +839,80 @@ public class MutableFloatList(
 @Suppress("PrivatePropertyName")
 private val EmptyFloatArray = FloatArray(0)
 
+private val EmptyFloatList: FloatList = MutableFloatList(0)
+
 /**
- * Creates and returns an empty [MutableFloatList] with the default capacity.
+ * @return a read-only [FloatList] with nothing in it.
+ */
+public fun emptyFloatList(): FloatList = EmptyFloatList
+
+/**
+ * @return a read-only [FloatList] with nothing in it.
+ */
+public fun floatListOf(): FloatList = EmptyFloatList
+
+/**
+ * @return a new read-only [FloatList] with [element1] as the only item in the list.
+ */
+public fun floatListOf(element1: Float): FloatList = mutableFloatListOf(element1)
+
+/**
+ * @return a new read-only [FloatList] with 2 elements, [element1] and [element2], in order.
+ */
+public fun floatListOf(element1: Float, element2: Float): FloatList =
+    mutableFloatListOf(element1, element2)
+
+/**
+ * @return a new read-only [FloatList] with 3 elements, [element1], [element2], and [element3],
+ * in order.
+ */
+public fun floatListOf(element1: Float, element2: Float, element3: Float): FloatList =
+    mutableFloatListOf(element1, element2, element3)
+
+/**
+ * @return a new read-only [FloatList] with [elements] in order.
+ */
+public fun floatListOf(vararg elements: Float): FloatList =
+    MutableFloatList(elements.size).apply { plusAssign(elements) }
+
+/**
+ * @return a new empty [MutableFloatList] with the default capacity.
  */
 public inline fun mutableFloatListOf(): MutableFloatList = MutableFloatList()
 
 /**
- * Creates and returns a [MutableFloatList] with the given values.
+ * @return a new [MutableFloatList] with [element1] as the only item in the list.
+ */
+public fun mutableFloatListOf(element1: Float): MutableFloatList {
+    val list = MutableFloatList(1)
+    list += element1
+    return list
+}
+
+/**
+ * @return a new [MutableFloatList] with 2 elements, [element1] and [element2], in order.
+ */
+public fun mutableFloatListOf(element1: Float, element2: Float): MutableFloatList {
+    val list = MutableFloatList(2)
+    list += element1
+    list += element2
+    return list
+}
+
+/**
+ * @return a new [MutableFloatList] with 3 elements, [element1], [element2], and [element3],
+ * in order.
+ */
+public fun mutableFloatListOf(element1: Float, element2: Float, element3: Float): MutableFloatList {
+    val list = MutableFloatList(3)
+    list += element1
+    list += element2
+    list += element3
+    return list
+}
+
+/**
+ * @return a new [MutableFloatList] with the given elements, in order.
  */
 public inline fun mutableFloatListOf(vararg elements: Float): MutableFloatList =
-    MutableFloatList(elements.size).also { it.addAll(elements) }
+    MutableFloatList(elements.size).apply { plusAssign(elements) }

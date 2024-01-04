@@ -33,6 +33,7 @@ internal object ComposableInvoker {
      * Returns true if the [methodTypes] and [actualTypes] are compatible. This means that every
      * `actualTypes[n]` are assignable to `methodTypes[n]`.
      */
+    @Suppress("ListIterator")
     private fun compatibleTypes(
         methodTypes: Array<Class<*>>,
         actualTypes: Array<Class<*>>

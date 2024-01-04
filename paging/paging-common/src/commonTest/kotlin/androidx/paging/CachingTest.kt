@@ -19,7 +19,7 @@ import androidx.kruth.assertThat
 import androidx.paging.ActiveFlowTracker.FlowType
 import androidx.paging.ActiveFlowTracker.FlowType.PAGED_DATA_FLOW
 import androidx.paging.ActiveFlowTracker.FlowType.PAGE_EVENT_FLOW
-import co.touchlab.stately.concurrency.AtomicInt
+import androidx.paging.internal.AtomicInt
 import kotlin.test.Test
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

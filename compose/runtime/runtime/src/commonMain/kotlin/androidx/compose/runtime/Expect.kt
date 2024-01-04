@@ -108,6 +108,10 @@ internal expect class SnapshotContextElementImpl(
 
 internal expect fun logError(message: String, e: Throwable)
 
+internal expect fun currentThreadId(): Long
+
+internal expect fun currentThreadName(): String
+
 /**
  * Represents a platform-optimized cancellation exception.
  * This allows us to configure exceptions separately on JVM and other platforms.

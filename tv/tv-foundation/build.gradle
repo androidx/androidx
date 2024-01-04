@@ -40,13 +40,11 @@ dependencies {
     api("androidx.compose.runtime:runtime:$composeVersion")
 
     api(project(":compose:foundation:foundation"))
+    api(project(":compose:ui:ui-util"))
     api("androidx.compose.ui:ui:$composeVersion")
     api("androidx.compose.foundation:foundation-layout:$composeVersion")
     api("androidx.compose.ui:ui-graphics:$composeVersion")
     api("androidx.compose.ui:ui-text:$composeVersion")
-    api("androidx.compose.ui:ui-util:$composeVersion")
-
-    implementation('androidx.media3:media3-exoplayer:1.0.0-beta03')
 
     androidTestImplementation(libs.truth)
     androidTestImplementation(project(":compose:runtime:runtime"))

@@ -42,17 +42,75 @@ private val EmptyScatterSet = MutableScatterSet<Any?>(0)
 public fun <E> emptyScatterSet(): ScatterSet<E> = EmptyScatterSet as ScatterSet<E>
 
 /**
+ * Returns an empty, read-only [ScatterSet].
+ */
+@Suppress("UNCHECKED_CAST")
+public fun <E> scatterSetOf(): ScatterSet<E> = EmptyScatterSet as ScatterSet<E>
+
+/**
+ * Returns a new read-only [ScatterSet] with only [element1] in it.
+ */
+@Suppress("UNCHECKED_CAST")
+public fun <E> scatterSetOf(element1: E): ScatterSet<E> = mutableScatterSetOf(element1)
+
+/**
+ * Returns a new read-only [ScatterSet] with only [element1] and [element2] in it.
+ */
+@Suppress("UNCHECKED_CAST")
+public fun <E> scatterSetOf(element1: E, element2: E): ScatterSet<E> =
+    mutableScatterSetOf(element1, element2)
+
+/**
+ * Returns a new read-only [ScatterSet] with only [element1], [element2], and [element3] in it.
+ */
+@Suppress("UNCHECKED_CAST")
+public fun <E> scatterSetOf(element1: E, element2: E, element3: E): ScatterSet<E> =
+    mutableScatterSetOf(element1, element2, element3)
+
+/**
+ * Returns a new read-only [ScatterSet] with only [elements] in it.
+ */
+@Suppress("UNCHECKED_CAST")
+public fun <E> scatterSetOf(vararg elements: E): ScatterSet<E> =
+    MutableScatterSet<E>(elements.size).apply { plusAssign(elements) }
+
+/**
  * Returns a new [MutableScatterSet].
  */
 public fun <E> mutableScatterSetOf(): MutableScatterSet<E> = MutableScatterSet()
 
 /**
+ * Returns a new [MutableScatterSet] with only [element1] in it.
+ */
+public fun <E> mutableScatterSetOf(element1: E): MutableScatterSet<E> =
+    MutableScatterSet<E>(1).apply {
+        plusAssign(element1)
+    }
+
+/**
+ * Returns a new [MutableScatterSet] with only [element1] and [element2] in it.
+ */
+public fun <E> mutableScatterSetOf(element1: E, element2: E): MutableScatterSet<E> =
+    MutableScatterSet<E>(2).apply {
+        plusAssign(element1)
+        plusAssign(element2)
+    }
+
+/**
+ * Returns a new [MutableScatterSet] with only [element1], [element2], and [element3] in it.
+ */
+public fun <E> mutableScatterSetOf(element1: E, element2: E, element3: E): MutableScatterSet<E> =
+    MutableScatterSet<E>(3).apply {
+        plusAssign(element1)
+        plusAssign(element2)
+        plusAssign(element3)
+    }
+
+/**
  * Returns a new [MutableScatterSet] with the specified contents.
  */
 public fun <E> mutableScatterSetOf(vararg elements: E): MutableScatterSet<E> =
-    MutableScatterSet<E>(elements.size).apply {
-        addAll(elements)
-    }
+    MutableScatterSet<E>(elements.size).apply { plusAssign(elements) }
 
 /**
  * [ScatterSet] is a container with a [Set]-like interface based on a flat
@@ -704,7 +762,21 @@ public class MutableScatterSet<E>(
         }
     }
 
-    private fun removeElementAt(index: Int) {
+    /**
+     * Removes any values for which the specified [predicate] returns true.
+     */
+    public inline fun removeIf(predicate: (E) -> Boolean) {
+        val elements = elements
+        forEachIndex { index ->
+            @Suppress("UNCHECKED_CAST")
+            if (predicate(elements[index] as E)) {
+                removeElementAt(index)
+            }
+        }
+    }
+
+    @PublishedApi
+    internal fun removeElementAt(index: Int) {
         _size -= 1
 
         // TODO: We could just mark the element as empty if there's a group

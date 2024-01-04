@@ -30,6 +30,7 @@ import androidx.benchmark.simpleperf.ProfileSession
 import androidx.benchmark.simpleperf.RecordOptions
 import androidx.benchmark.vmtrace.ArtTrace
 import java.io.File
+import java.io.FileOutputStream
 
 /**
  * Profiler abstraction used for the timing stage.
@@ -127,7 +128,9 @@ sealed class Profiler {
             .mapKeys { it.key.lowercase() }[name.lowercase()]
 
         fun traceName(traceUniqueName: String, traceTypeLabel: String): String {
-            return "$traceUniqueName-$traceTypeLabel-${dateToFileName()}.trace"
+            return Outputs.sanitizeFilename(
+                "$traceUniqueName-$traceTypeLabel-${dateToFileName()}.trace"
+            )
         }
     }
 }
@@ -199,11 +202,8 @@ internal object MethodTracing : Profiler() {
     override val requiresSingleMeasurementIteration: Boolean = true
 
     override fun embedInPerfettoTrace(profilerTrace: File, perfettoTrace: File) {
-        perfettoTrace.appendBytes(
-            ArtTrace(profilerTrace)
-                .toPerfettoTrace()
-                .encode()
-        )
+        ArtTrace(profilerTrace)
+            .writeAsPerfettoTrace(FileOutputStream(perfettoTrace, /* append = */ true))
     }
 }
 @SuppressLint("BanThreadSleep") // needed for connected profiling

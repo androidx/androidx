@@ -16,6 +16,8 @@
 
 package androidx.kruth
 
+import kotlin.jvm.JvmStatic
+
 /**
  * In a fluent assertion chain, an object with which you can do any of the following:
  *
@@ -26,6 +28,15 @@ package androidx.kruth
 class StandardSubjectBuilder internal constructor(
     private val metadata: FailureMetadata = FailureMetadata(),
 ) {
+    companion object {
+        /**
+         * Returns a new instance that invokes the given [FailureStrategy] when a check fails.
+         */
+        @JvmStatic
+        fun forCustomFailureStrategy(failureStrategy: FailureStrategy): StandardSubjectBuilder? {
+            return StandardSubjectBuilder(FailureMetadata.forFailureStrategy(failureStrategy))
+        }
+    }
 
     /**
      * Returns a new instance that will output the given message before the main failure message. If

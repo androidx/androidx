@@ -19,49 +19,30 @@ package androidx.graphics.shapes.test
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.Matrix
 import android.graphics.Paint
-import android.graphics.RectF
+import android.graphics.Path
 import android.view.View
+import androidx.core.graphics.scaleMatrix
 import androidx.graphics.shapes.RoundedPolygon
-import androidx.graphics.shapes.drawPolygon
+import androidx.graphics.shapes.toPath
 import kotlin.math.min
 
-class ShapeView(context: Context, var shape: RoundedPolygon) : View(context) {
-
+class ShapeView(context: Context, shape: RoundedPolygon) : View(context) {
     val paint = Paint()
+    val shape = shape.normalized()
+    val path = Path()
 
     init {
         paint.setColor(Color.WHITE)
     }
 
-    private fun calculateScale(bounds: RectF): Float {
-        val scaleX = width / (bounds.right - bounds.left)
-        val scaleY = height / (bounds.bottom - bounds.top)
-        val scaleFactor = min(scaleX, scaleY)
-        return scaleFactor
-    }
-
-    private fun calculateMatrix(bounds: RectF): Matrix {
-        val scale = calculateScale(bounds)
-        val scaledLeft = scale * bounds.left
-        val scaledTop = scale * bounds.top
-        val scaledWidth = scale * bounds.right - scaledLeft
-        val scaledHeight = scale * bounds.bottom - scaledTop
-        val newLeft = scaledLeft - (width - scaledWidth) / 2
-        val newTop = scaledTop - (height - scaledHeight) / 2
-        val matrix = Matrix()
-        matrix.preTranslate(-newLeft, -newTop)
-        matrix.preScale(scale, scale)
-        return matrix
-    }
-
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        val matrix = calculateMatrix(shape.bounds)
-        shape.transform(matrix)
+        val scale = min(w, h).toFloat()
+        shape.toPath(path)
+        path.transform(scaleMatrix(scale, scale))
     }
 
     override fun onDraw(canvas: Canvas) {
-        canvas.drawPolygon(shape, paint)
+        canvas.drawPath(path, paint)
     }
 }

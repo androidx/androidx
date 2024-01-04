@@ -470,6 +470,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
                     if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
                         Log.d(FragmentManager.TAG,
                                 "handleOnBackStarted. PREDICTIVE_BACK = " + USE_PREDICTIVE_BACK
+                                        + " fragment manager " + FragmentManager.this
                         );
                     }
                     if (USE_PREDICTIVE_BACK) {
@@ -482,6 +483,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
                     if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                         Log.v(FragmentManager.TAG,
                                 "handleOnBackProgressed. PREDICTIVE_BACK = " + USE_PREDICTIVE_BACK
+                                        + " fragment manager " + FragmentManager.this
                         );
                     }
                     if (mTransitioningOp != null) {
@@ -503,6 +505,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
                     if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
                         Log.d(FragmentManager.TAG,
                                 "handleOnBackPressed. PREDICTIVE_BACK = " + USE_PREDICTIVE_BACK
+                                        + " fragment manager " + FragmentManager.this
                         );
                     }
                     FragmentManager.this.handleOnBackPressed();
@@ -513,6 +516,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
                     if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
                         Log.d(FragmentManager.TAG,
                                 "handleOnBackCancelled. PREDICTIVE_BACK = " + USE_PREDICTIVE_BACK
+                                        + " fragment manager " + FragmentManager.this
                         );
                     }
                     if (USE_PREDICTIVE_BACK) {
@@ -724,6 +728,10 @@ public abstract class FragmentManager implements FragmentResultOwner {
         synchronized (mPendingActions) {
             if (!mPendingActions.isEmpty()) {
                 mOnBackPressedCallback.setEnabled(true);
+                if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+                    Log.d(TAG, "FragmentManager " + FragmentManager.this + " enabling "
+                            + "OnBackPressedCallback, caused by non-empty pending actions");
+                }
                 return;
             }
         }
@@ -788,6 +796,11 @@ public abstract class FragmentManager implements FragmentResultOwner {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void handleOnBackPressed() {
+        // First, execute any pending actions to make sure we're in an
+        // up to date view of the world just in case anyone is queuing
+        // up transactions that change the back stack then immediately
+        // calling onBackPressed()
+        execPendingActions(true);
         if (USE_PREDICTIVE_BACK && mTransitioningOp != null) {
             if (mBackStackChangeListeners != null && !mBackStackChangeListeners.isEmpty()) {
                 // Build a list of fragments based on the records
@@ -813,16 +826,23 @@ public abstract class FragmentManager implements FragmentResultOwner {
                 controller.completeBack();
             }
             mTransitioningOp = null;
+            updateOnBackPressedCallbackEnabled();
+            if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+                Log.d(TAG, "Op is being set to null");
+                Log.d(TAG, "OnBackPressedCallback enabled=" + mOnBackPressedCallback.isEnabled()
+                        + " for  FragmentManager " + this);
+            }
         } else {
-            // First, execute any pending actions to make sure we're in an
-            // up to date view of the world just in case anyone is queuing
-            // up transactions that change the back stack then immediately
-            // calling onBackPressed()
-            execPendingActions(true);
             if (mOnBackPressedCallback.isEnabled()) {
+                if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+                    Log.d(TAG, "Calling popBackStackImmediate via onBackPressed callback");
+                }
                 // We still have a back stack, so we can pop
                 popBackStackImmediate();
             } else {
+                if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+                    Log.d(TAG, "Calling onBackPressed via onBackPressed callback");
+                }
                 // Sigh. Due to FragmentManager's asynchronicity, we can
                 // get into cases where we *think* we can handle the back
                 // button but because of frame perfect dispatch, we fell

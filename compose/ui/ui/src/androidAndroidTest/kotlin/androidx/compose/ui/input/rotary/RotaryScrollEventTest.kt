@@ -274,6 +274,41 @@ class RotaryScrollEventTest {
     }
 
     @Test
+    fun rotaryEventHasDeviceId() {
+        val DEVICE_ID = 1234
+
+        // Arrange.
+        ContentWithInitialFocus {
+            Box(
+                modifier = Modifier
+                    .onRotaryScrollEvent {
+                        receivedEvent = it
+                        true
+                    }
+                    .focusable(initiallyFocused = true)
+            )
+        }
+
+        // Act.
+        rule.runOnIdle {
+            rootView.dispatchGenericMotionEvent(
+                MotionEventBuilder.newBuilder()
+                    .setAction(ACTION_SCROLL)
+                    .setSource(SOURCE_ROTARY_ENCODER)
+                    .setDeviceId(DEVICE_ID)
+                    .build()
+            )
+        }
+
+        // Assert.
+        rule.runOnIdle {
+            with(checkNotNull(receivedEvent)) {
+                assertThat(inputDeviceId).isEqualTo(DEVICE_ID)
+            }
+        }
+    }
+
+    @Test
     fun rotaryEventUsesTestTime() {
         val TIME_DELTA = 1234L
 

@@ -310,6 +310,7 @@ public final class ContentInfoCompat {
      * <p>Except for the {@link ClipData} items, the returned objects will contain all the same
      * metadata as the passed-in {@link ContentInfo}.
      *
+     * @param payload payload to add to returned pair.
      * @param itemPredicate The predicate to test each {@link ClipData.Item} to determine which
      *                      partition to place it into.
      * @return A pair containing the partitioned content. The pair's first object will have the

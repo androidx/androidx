@@ -27,13 +27,12 @@ import android.view.WindowInsetsAnimation
 import android.view.inputmethod.InputMethodManager
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.window.DialogWindowProvider
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -41,7 +40,6 @@ import java.util.concurrent.TimeUnit
  * Helper methods for hiding and showing the keyboard in tests.
  * Call [initialize] from your test rule's content before calling any other methods on this class.
  */
-@OptIn(ExperimentalComposeUiApi::class)
 class KeyboardHelper(
     private val composeRule: ComposeContentTestRule,
     private val timeout: Long = 15_000L
@@ -166,7 +164,9 @@ class KeyboardHelper(
 
         // else wait for condition to be met
         val conditionMet = latch.await(timeoutMillis, TimeUnit.MILLISECONDS)
-        assertThat(conditionMet).isTrue()
+        assertWithMessage(
+            "After waiting for $timeoutMillis ms, window insets condition is still false"
+        ).that(conditionMet).isTrue()
     }
 }
 

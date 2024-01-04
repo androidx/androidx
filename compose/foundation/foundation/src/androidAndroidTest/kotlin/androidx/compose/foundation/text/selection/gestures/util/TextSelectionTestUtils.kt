@@ -31,6 +31,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.style.ResolvedTextDirection
 import com.google.common.truth.Truth
 
 private fun ComposeTestRule.assertSelectionHandlesShown(shown: Boolean) {
@@ -85,6 +86,8 @@ internal abstract class SelectionAsserter<S>(
     var textToolbarShown = false
     var magnifierShown = false
     var hapticsCount = 0
+    var startLayoutDirection = ResolvedTextDirection.Ltr
+    var endLayoutDirection = ResolvedTextDirection.Ltr
 
     fun assert() {
         subAssert()

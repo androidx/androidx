@@ -335,6 +335,53 @@ class AnimationTest {
         )
     }
 
+    @Test
+    fun testVectorizedInfiniteRepeatableSpec_velocityOnRepetitions() {
+        val repeatableSpec = VectorizedInfiniteRepeatableSpec(
+            animation = VectorizedAverageVelocitySpec(durationMillis = 1000),
+            repeatMode = RepeatMode.Restart,
+        )
+        val playTimeNanosA = 0L
+        val playTimeNanosB = 1_000L * 1_000_000 - 1
+        val playTimeNanosC = 1_000L * 1_000_000 + 1
+
+        val vectorStart = AnimationVector(0f)
+        val vectorEnd = AnimationVector(3f)
+        val vectorV0 = AnimationVector(0f)
+
+        val velocityAtA = repeatableSpec.getVelocityFromNanos(
+            playTimeNanos = playTimeNanosA,
+            initialValue = vectorStart,
+            targetValue = vectorEnd,
+            initialVelocity = vectorV0
+        )
+
+        val velocityAtB = repeatableSpec.getVelocityFromNanos(
+            playTimeNanos = playTimeNanosB,
+            initialValue = vectorStart,
+            targetValue = vectorEnd,
+            initialVelocity = vectorV0
+        )
+
+        val velocityAC = repeatableSpec.getVelocityFromNanos(
+            playTimeNanos = playTimeNanosC,
+            initialValue = vectorStart,
+            targetValue = vectorEnd,
+            initialVelocity = vectorV0
+        )
+
+        assertEquals(vectorV0, velocityAtA)
+
+        // Final velocity will be the final velocity from the average of: [0, X] = 3 pixels/second
+        // In other words: 6 pixels/second, or `vectorEnd[0] * 2f`
+        // There will be a minor difference since we are measuring one nanosecond before the end
+        assertEquals(vectorEnd[0] * 2f, velocityAtB[0], 0.01f)
+
+        // Final velocity of "B" carries over to initial velocity of "C"
+        // There will be a minor difference since we are measuring 2 nanoseconds between each other
+        assertEquals(velocityAtB[0], velocityAC[0], 0.01f)
+    }
+
     private fun verifyAnimation(
         anim: VectorizedAnimationSpec<AnimationVector4D>,
         start: AnimationVector4D,
@@ -363,5 +410,65 @@ class AnimationTest {
             anim.getDurationMillis(start, end, startVelocity),
             fixedAnim.durationMillis
         )
+    }
+
+    /**
+     * [VectorizedDurationBasedAnimationSpec] that promises to maintain the same average velocity
+     * based on target/initial value and duration.
+     *
+     * This means that the instantaneous velocity will also depend on the initial velocity.
+     */
+    private class VectorizedAverageVelocitySpec<V : AnimationVector>(
+        override val durationMillis: Int
+    ) : VectorizedDurationBasedAnimationSpec<V> {
+        private val durationSeconds = durationMillis.toFloat() / 1_000
+        override val delayMillis: Int = 0
+
+        override fun getValueFromNanos(
+            playTimeNanos: Long,
+            initialValue: V,
+            targetValue: V,
+            initialVelocity: V
+        ): V {
+            val playTimeSeconds = (playTimeNanos / 1_000_000).toFloat() / 1_000
+            val velocity = getVelocityFromNanos(
+                playTimeNanos = playTimeNanos,
+                initialValue = initialValue,
+                targetValue = targetValue,
+                initialVelocity = initialVelocity
+            )
+            val valueVector = initialValue.newInstance()
+            for (i in 0 until velocity.size) {
+                valueVector[i] = velocity[i] * playTimeSeconds
+            }
+            return valueVector
+        }
+
+        override fun getVelocityFromNanos(
+            playTimeNanos: Long,
+            initialValue: V,
+            targetValue: V,
+            initialVelocity: V
+        ): V {
+            val playTimeSeconds = (playTimeNanos / 1_000_000).toFloat() / 1_000
+            val averageVelocity = initialVelocity.newInstance()
+            for (i in 0 until averageVelocity.size) {
+                averageVelocity[i] = (targetValue[i] - initialValue[i]) / durationSeconds
+            }
+            val finalVelocity = initialVelocity.newInstance()
+            for (i in 0 until averageVelocity.size) {
+                finalVelocity[i] = averageVelocity[i] * 2 - initialVelocity[i]
+            }
+            val velocityVector = initialVelocity.newInstance()
+
+            for (i in 0 until averageVelocity.size) {
+                velocityVector[i] = lerp(
+                    start = initialVelocity[i],
+                    stop = finalVelocity[i],
+                    fraction = playTimeSeconds / durationSeconds
+                )
+            }
+            return velocityVector
+        }
     }
 }

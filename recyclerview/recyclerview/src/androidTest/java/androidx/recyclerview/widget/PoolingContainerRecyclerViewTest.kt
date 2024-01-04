@@ -338,10 +338,11 @@ class PoolingContainerRecyclerViewTest : BaseRecyclerViewInstrumentationTest() {
         assertThat(adapter1.creations).isEqualTo(10)
 
         // Scroll to put some views into the shared pool
-        instrumentation.runOnMainSync {
-            rv1.smoothScrollBy(0, 100)
+        repeat(10) {
+            instrumentation.runOnMainSync {
+                rv1.scrollBy(0, 10)
+            }
         }
-        waitForIdleScroll(rv1)
 
         // The RV keeps a couple items in its view cache before returning them to the pool
         val expectedRecycledItems = 10 - itemViewCacheSize

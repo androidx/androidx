@@ -21,6 +21,8 @@ import android.os.Bundle
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavOptions
@@ -35,7 +37,8 @@ import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import org.junit.Ignore
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -75,7 +78,7 @@ class NavControllerWithFragmentTest {
             .that(navController.currentBackStackEntry!!.lifecycle.currentState)
             .isEqualTo(Lifecycle.State.RESUMED)
     }
-    @Ignore("b/276806142")
+
     @Test
     fun fragmentNavigateClearBackStack() = withNavigationActivity {
         navController.setGraph(R.navigation.nav_simple)
@@ -98,6 +101,14 @@ class NavControllerWithFragmentTest {
             TestClearViewModel::class.java
         ]
         val originalFragment = fm?.findFragmentById(R.id.nav_host) as Fragment
+        val destroyCountDownLatch = CountDownLatch(1)
+        originalFragment.lifecycle.addObserver(object : LifecycleEventObserver {
+            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                if (event == Lifecycle.Event.ON_DESTROY) {
+                    destroyCountDownLatch.countDown()
+                }
+            }
+        })
         val originalFragmentViewModel = ViewModelProvider(originalFragment)[
             TestClearViewModel::class.java
         ]
@@ -125,6 +136,7 @@ class NavControllerWithFragmentTest {
         assertThat(fm.findFragmentById(R.id.nav_host)).isEqualTo(currentTopFragment)
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.empty_fragment_2)
         assertThat(navigator.backStack.value.size).isEqualTo(2)
+        assertThat(destroyCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
         assertThat(originalFragmentViewModel.cleared).isTrue()
         assertThat(originalEntryViewModel.cleared).isTrue()
     }

@@ -33,8 +33,6 @@ import androidx.wear.tiles.timeline.TilesTimelineCache
 import androidx.wear.tiles.tooling.preview.TilePreviewData
 import java.lang.reflect.Method
 import kotlin.math.roundToInt
-import kotlinx.coroutines.guava.await
-import kotlinx.coroutines.runBlocking
 
 private const val TOOLS_NS_URI = "http://schemas.android.com/tools"
 
@@ -64,6 +62,9 @@ internal fun Class<out Any>.findMethod(
  */
 internal class TileServiceViewAdapter(context: Context, attrs: AttributeSet) :
     FrameLayout(context, attrs) {
+
+    private val executor = ContextCompat.getMainExecutor(context)
+
     init {
         init(attrs)
     }
@@ -78,7 +79,7 @@ internal class TileServiceViewAdapter(context: Context, attrs: AttributeSet) :
     internal fun init(tilePreviewMethodFqn: String) {
         val tilePreview = getTilePreview(tilePreviewMethodFqn)
         lateinit var tileRenderer: TileRenderer
-        tileRenderer = TileRenderer(context, ContextCompat.getMainExecutor(context)) { newState ->
+        tileRenderer = TileRenderer(context, executor) { newState ->
             tileRenderer.previewTile(tilePreview, newState)
         }
         tileRenderer.previewTile(tilePreview)
@@ -108,11 +109,12 @@ internal class TileServiceViewAdapter(context: Context, attrs: AttributeSet) :
             .build()
         val resources = tilePreview.onTileResourceRequest(resourcesRequest, context)
 
-        runBlocking {
-            inflateAsync(layout, resources, this@TileServiceViewAdapter)
-                .await()
-                ?.apply { (layoutParams as LayoutParams).gravity = Gravity.CENTER }
-        }
+        val inflateFuture = inflateAsync(layout, resources, this@TileServiceViewAdapter)
+        inflateFuture.addListener({
+            inflateFuture.get()?.let {
+                (it.layoutParams as LayoutParams).gravity = Gravity.CENTER
+            }
+        }, executor)
     }
 }
 

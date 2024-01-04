@@ -16,12 +16,26 @@
 
 package androidx.compose.foundation.text.selection
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.Handle
+import androidx.compose.foundation.text.selection.gestures.util.longPress
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.RequiresDevice
@@ -57,5 +71,67 @@ internal class SelectionContainerMagnifierTest : AbstractSelectionMagnifierTests
     @Test
     fun magnifier_hidden_whenSelectionStartDraggedBelowTextBounds_whenTextOverflowed() {
         checkMagnifierAsHandleGoesOutOfBoundsUsingMaxLines(Handle.SelectionStart)
+    }
+
+    // Regression - magnifier on an empty RTL Text should appear on right side, not left
+    @Test
+    fun magnifier_whenRtlLayoutWithEmptyLine_positionedOnRightSide() {
+        val nonEmptyTag = "nonEmpty"
+        val emptyTag = "empty"
+        rule.setContent {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                SelectionContainer(
+                    modifier = Modifier
+                        // Center the text to give the magnifier lots of room to move.
+                        .fillMaxSize()
+                        .wrapContentSize()
+                        .testTag(tag),
+                ) {
+                    Column(Modifier.width(IntrinsicSize.Max)) {
+                        BasicText(
+                            text = "בבבב",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .testTag(nonEmptyTag)
+                        )
+                        BasicText(
+                            text = "",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .testTag(emptyTag)
+                        )
+                    }
+                }
+            }
+        }
+
+        val placedPosition = rule.onNodeWithTag(tag).fetchSemanticsNode().positionInRoot
+        fun assertMagnifierAt(expected: Offset) {
+            val actual = getMagnifierCenterOffset(rule, requireSpecified = true) - placedPosition
+            assertThatOffset(actual).equalsWithTolerance(expected)
+        }
+
+        // start selection at first character
+        val firstPressOffset = rule.onNodeWithTag(nonEmptyTag).fetchTextLayoutResult()
+            .getBoundingBox(0).centerRight - Offset(1f, 0f)
+
+        rule.onNodeWithTag(tag).performTouchInput {
+            longPress(firstPressOffset)
+        }
+        rule.waitForIdle()
+        assertMagnifierAt(firstPressOffset)
+
+        val emptyTextPosition = rule.onNodeWithTag(emptyTag).fetchSemanticsNode().positionInRoot
+        val textLayoutResult = rule.onNodeWithTag(emptyTag).fetchTextLayoutResult()
+        val emptyTextCenterY =
+            textLayoutResult.size.height / 2f + emptyTextPosition.y - placedPosition.y
+        val secondOffset = Offset(firstPressOffset.x, emptyTextCenterY)
+        rule.onNodeWithTag(tag).performTouchInput {
+            moveTo(secondOffset)
+        }
+        rule.waitForIdle()
+
+        val expectedX = rule.onNodeWithTag(tag).fetchSemanticsNode().boundsInRoot.width
+        assertMagnifierAt(Offset(expectedX, emptyTextCenterY))
     }
 }

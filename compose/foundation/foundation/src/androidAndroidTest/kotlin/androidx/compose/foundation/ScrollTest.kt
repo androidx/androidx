@@ -60,6 +60,7 @@ import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.layout.OnRemeasuredModifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.LocalDensity
@@ -462,6 +463,7 @@ class ScrollTest(private val config: Config) {
                         content()
                     }
                 }
+
                 Horizontal -> {
                     CompositionLocalProvider(LocalLayoutDirection provides config.layoutDirection) {
                         Row(Modifier.horizontalScroll(actualState)) {
@@ -590,6 +592,7 @@ class ScrollTest(private val config: Config) {
                                 )
                             }
                         }
+
                         Horizontal -> {
                             CompositionLocalProvider(
                                 LocalLayoutDirection provides config.layoutDirection
@@ -673,6 +676,7 @@ class ScrollTest(private val config: Config) {
                             content()
                         }
                     }
+
                     Horizontal -> {
                         CompositionLocalProvider(
                             LocalLayoutDirection provides config.layoutDirection
@@ -1066,6 +1070,69 @@ class ScrollTest(private val config: Config) {
         assertThat(state.viewportSize).isEqualTo(scrollerSize)
     }
 
+    @Test
+    fun onMaxValueUpdate_shouldNotGenerateExtraMeasurements() {
+        var measurements = 0
+        lateinit var scrollState: ScrollState
+
+        val sizeModifiers = if (config.orientation == Horizontal) {
+            Modifier
+                .fillMaxWidth()
+                .height(100.dp)
+        } else {
+            Modifier
+                .width(100.dp)
+                .fillMaxHeight()
+        }
+
+        val wrapperModifiers = Modifier
+            .testTag(scrollerTag)
+            .then(sizeModifiers)
+            .then(CountMeasureModifier { measurements++ })
+
+        val content: @Composable () -> Unit = {
+            repeat(25) {
+                Box(modifier = Modifier.size(100.dp)
+                    .padding(2.dp)
+                    .background(Color.Red))
+            }
+        }
+
+        rule.setContent {
+            scrollState = rememberScrollState()
+
+            CompositionLocalProvider(LocalLayoutDirection provides config.layoutDirection) {
+                if (config.orientation == Horizontal) {
+                    Row(
+                        Modifier
+                            .horizontalScroll(scrollState)
+                            .then(wrapperModifiers),
+                        content = { content() }
+                    )
+                } else {
+                    Column(
+                        Modifier
+                            .verticalScroll(scrollState)
+                            .then(wrapperModifiers),
+                        content = { content() }
+                    )
+                }
+            }
+        }
+
+        val previousMeasurement = measurements
+
+        rule.onNodeWithTag(scrollerTag)
+            .performTouchInput {
+                configAwareSwipe()
+            }
+
+        rule.runOnIdle {
+            assertThat(scrollState.value).isNotEqualTo(0) // check we scrolled
+            assertThat(measurements).isEqualTo(previousMeasurement) // no extra measurements
+        }
+    }
+
     private fun Modifier.intrinsicMainAxisSize(size: IntrinsicSize): Modifier =
         if (config.orientation == Horizontal) {
             width(size)
@@ -1116,6 +1183,7 @@ class ScrollTest(private val config: Config) {
                 height = mainAxisSize,
                 rowHeight = cellSize
             )
+
             Horizontal -> composeHorizontalScroller(
                 scrollState = scrollState,
                 isReversed = isReversed,
@@ -1213,6 +1281,7 @@ class ScrollTest(private val config: Config) {
                 height = mainAxis,
                 rowHeight = cellSize
             )
+
             Horizontal -> validateHorizontalScroller(
                 offset = offset,
                 width = mainAxis,
@@ -1373,5 +1442,11 @@ class ScrollTest(private val config: Config) {
             Offset(-inflate, -inflate),
             Size(size.width + inflate * 2, size.height + inflate * 2)
         )
+    }
+
+    private class CountMeasureModifier(val onRemeasure: () -> Unit) : OnRemeasuredModifier {
+        override fun onRemeasured(size: IntSize) {
+            onRemeasure.invoke()
+        }
     }
 }

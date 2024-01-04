@@ -24,13 +24,13 @@ import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
+import androidx.camera.camera2.pipe.integration.adapter.CameraUseCaseAdapter
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera.RunningUseCasesChangeListener
-import androidx.camera.camera2.pipe.integration.internal.CameraGraphCreator
 import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.camera2.pipe.integration.testing.FakeCamera2CameraControlCompat
@@ -345,7 +345,6 @@ class UseCaseManagerTest {
         val fakeCamera = FakeCamera()
         return UseCaseManager(
             cameraPipe = CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext())),
-            cameraGraphCreator = CameraGraphCreator(),
             cameraConfig = CameraConfig(cameraId),
             callbackMap = CameraCallbackMap(),
             requestListener = ComboRequestListener(),
@@ -398,7 +397,14 @@ class UseCaseManagerTest {
             }
 
     private fun UseCase.simulateActivation() {
-        bindToCamera(FakeCamera("0"), null, null)
+        bindToCamera(
+            FakeCamera("0"),
+            null,
+            getDefaultConfig(
+                true,
+                CameraUseCaseAdapter(ApplicationProvider.getApplicationContext())
+            )
+        )
         updateSuggestedStreamSpec(StreamSpec.builder(supportedSizes[0]).build())
     }
 }

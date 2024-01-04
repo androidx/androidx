@@ -13,7 +13,7 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1=""
+        errorLine1="interface IRemoteMediaBrowserCompat {"
         errorLine2="^">
         <location
             file="src/main/aidl/androidx/media2/test/common/IRemoteMediaBrowserCompat.aidl"/>
@@ -22,7 +22,7 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1=""
+        errorLine1="interface IRemoteMediaController {"
         errorLine2="^">
         <location
             file="src/main/aidl/androidx/media2/test/common/IRemoteMediaController.aidl"/>
@@ -31,7 +31,7 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="    void create(String controllerId, in Bundle token, boolean waitForConnection);"
+        errorLine1="interface IRemoteMediaControllerCompat {"
         errorLine2="^">
         <location
             file="src/main/aidl/androidx/media2/test/common/IRemoteMediaControllerCompat.aidl"/>
@@ -40,7 +40,7 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1=""
+        errorLine1="interface IRemoteMediaSession {"
         errorLine2="^">
         <location
             file="src/main/aidl/androidx/media2/test/common/IRemoteMediaSession.aidl"/>
@@ -49,7 +49,7 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="// This is to avoid making dependency of testlib module on media library."
+        errorLine1="interface IRemoteMediaSessionCompat {"
         errorLine2="^">
         <location
             file="src/main/aidl/androidx/media2/test/common/IRemoteMediaSessionCompat.aidl"/>

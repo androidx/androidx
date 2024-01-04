@@ -16,6 +16,7 @@
 
 package androidx.kruth
 
+import kotlin.jvm.JvmOverloads
 import kotlin.reflect.typeOf
 
 // As opposed to Truth, which limits visibility on `actual` and the generic type, we purposely make
@@ -30,35 +31,10 @@ import kotlin.reflect.typeOf
  */
 open class Subject<out T>(
     val actual: T?,
-    private val metadata: FailureMetadata = FailureMetadata(),
+    val metadata: FailureMetadata = FailureMetadata(),
 ) {
 
     protected fun check(): StandardSubjectBuilder = StandardSubjectBuilder(metadata = metadata)
-
-    internal val asserter: KruthAsserter get() = asserter()
-
-    internal fun asserter(withActual: Boolean = false): KruthAsserter =
-        KruthAsserter(
-            formatMessage = { message ->
-                formatFailureMessage(message = message, withActual = withActual)
-            },
-        )
-
-    private fun formatFailureMessage(message: String?, withActual: Boolean): String =
-        if (withActual) {
-            val actualString = actual.toString()
-            if ('\n' in actualString) {
-                metadata.formatMessage(
-                    message,
-                    "But was:",
-                    actual.toString().prependIndent(),
-                )
-            } else {
-                metadata.formatMessage(message, "But was: $actualString")
-            }
-        } else {
-            metadata.formatMessage(message)
-        }
 
     /**
      *  Fails if the subject is not null.
@@ -109,7 +85,7 @@ open class Subject<out T>(
     /** Fails if the subject is not the same instance as the given object.  */
     open fun isSameInstanceAs(expected: Any?) {
         if (actual !== expected) {
-            asserter.fail(
+            metadata.fail(
                 "Expected ${actual.toStringForAssert()} to be the same instance as " +
                     "${expected.toStringForAssert()}, but was not"
             )
@@ -119,7 +95,7 @@ open class Subject<out T>(
     /** Fails if the subject is the same instance as the given object.  */
     open fun isNotSameInstanceAs(unexpected: Any?) {
         if (actual === unexpected) {
-            asserter.fail(
+            metadata.fail(
                 "Expected ${actual.toStringForAssert()} not to be specific instance, but it was"
             )
         }
@@ -143,17 +119,27 @@ open class Subject<out T>(
         }
     }
 
+    @JvmOverloads
+    protected fun failWithActual(key: String, value: Any? = null): Nothing {
+        failWithActual(Fact.fact(key, value))
+    }
+
     protected fun failWithActual(vararg facts: Fact): Nothing {
-        asserter(withActual = true).fail(
+        metadata.fail(
             Fact.makeMessage(
                 emptyList(),
-                facts.asList(),
+                facts.asList() + Fact.fact("but was", actual.toString()),
                 )
         )
     }
 
+    @JvmOverloads
+    protected fun failWithoutActual(key: String, value: Any? = null): Nothing {
+        failWithoutActual(Fact.fact(key, value))
+    }
+
     protected fun failWithoutActual(vararg facts: Fact): Nothing {
-        asserter(withActual = false).fail(
+        metadata.fail(
             Fact.makeMessage(
                 emptyList(),
                 facts.asList(),
@@ -163,13 +149,13 @@ open class Subject<out T>(
 
     @PublishedApi
     internal fun doFail(message: String) {
-        asserter.fail(message = message)
+        metadata.fail(message = message)
     }
 
     /** Fails unless the subject is equal to any element in the given [iterable]. */
     open fun isIn(iterable: Iterable<*>?) {
         if (actual !in requireNonNull(iterable)) {
-            asserter.fail("Expected $actual to be in $iterable, but was not")
+            metadata.fail("Expected $actual to be in $iterable, but was not")
         }
     }
 
@@ -181,7 +167,7 @@ open class Subject<out T>(
     /** Fails if the subject is equal to any element in the given [iterable]. */
     open fun isNotIn(iterable: Iterable<*>?) {
         if (actual in requireNonNull(iterable)) {
-            asserter.fail("Expected $actual not to be in $iterable, but it was")
+            metadata.fail("Expected $actual not to be in $iterable, but it was")
         }
     }
 
@@ -191,14 +177,14 @@ open class Subject<out T>(
     }
 
     private fun Any?.standardIsEqualTo(expected: Any?) {
-        asserter.assertTrue(
+        metadata.assertTrue(
             compareForEquality(expected),
             "expected: ${expected.toStringForAssert()} but was: ${toStringForAssert()}",
         )
     }
 
     private fun Any?.standardIsNotEqualTo(unexpected: Any?) {
-        asserter.assertFalse(
+        metadata.assertFalse(
             compareForEquality(unexpected),
             "expected ${toStringForAssert()} not be equal to ${unexpected.toStringForAssert()}, " +
                 "but it was",
@@ -246,7 +232,7 @@ open class Subject<out T>(
     private fun Any?.integralValue(): Long = when (this) {
         is Char -> code.toLong()
         is Number -> toLong()
-        else -> asserter.fail("$this must be either a Char or a Number.")
+        else -> metadata.fail("$this must be either a Char or a Number.")
     }
 
     private fun Any?.toStringForAssert(): String = when {

@@ -16,7 +16,7 @@
 
 package androidx.compose.foundation.text.selection
 
-import androidx.compose.foundation.fastFold
+import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
@@ -34,6 +34,8 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.isSpecified
+import androidx.compose.ui.geometry.isUnspecified
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.key.KeyEvent
@@ -49,7 +51,10 @@ import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.TextToolbarStatus
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.util.fastAny
+import androidx.compose.ui.util.fastFold
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEachIndexed
 import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.min
@@ -229,7 +234,10 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         private set
 
     private val shouldShowMagnifier
-        get() = draggingHandle != null && isInTouchMode && isNonEmptySelection()
+        get() = draggingHandle != null && isInTouchMode && !isTriviallyCollapsedSelection()
+
+    @VisibleForTesting
+    internal var previousSelectionLayout: SelectionLayout? = null
 
     init {
         selectionRegistrar.onPositionChangeCallback = { selectableId ->
@@ -249,7 +257,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                     position
                 )
 
-                if (positionInContainer != null) {
+                if (positionInContainer.isSpecified) {
                     this.isInTouchMode = isInTouchMode
                     startSelection(
                         position = positionInContainer,
@@ -414,8 +422,31 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         return Pair(newSelection, subselections)
     }
 
+    /**
+     * Returns whether the start and end anchors are equal.
+     *
+     * It is possible that this returns true, but the selection is still empty because it has
+     * multiple collapsed selections across multiple selectables. To test for that case, use
+     * [isNonEmptySelection].
+     */
+    internal fun isTriviallyCollapsedSelection(): Boolean {
+        val selection = selection ?: return true
+        return selection.start == selection.end
+    }
+
+    /**
+     * Returns whether the selection selects zero characters.
+     *
+     * It is possible that the selection anchors are different but still result in a zero-width
+     * selection. In this case, you may want to still show the selection anchors, but not allow for
+     * a user to try and copy zero characters. To test for whether the anchors are equal, use
+     * [isTriviallyCollapsedSelection].
+     */
     internal fun isNonEmptySelection(): Boolean {
         val selection = selection ?: return false
+        if (selection.start == selection.end) {
+            return false
+        }
 
         var betweenSelectables = false
         selectionRegistrar.sort(requireContainerCoordinates()).fastForEach {
@@ -706,9 +737,9 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
     private fun convertToContainerCoordinates(
         layoutCoordinates: LayoutCoordinates,
         offset: Offset
-    ): Offset? {
+    ): Offset {
         val coordinates = containerLayoutCoordinates
-        if (coordinates == null || !coordinates.isAttached) return null
+        if (coordinates == null || !coordinates.isAttached) return Offset.Unspecified
         return requireContainerCoordinates().localPositionOf(layoutCoordinates, offset)
     }
 
@@ -728,10 +759,11 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         isStartHandle: Boolean,
         adjustment: SelectionAdjustment
     ) {
+        previousSelectionLayout = null
         updateSelection(
             startHandlePosition = position,
             endHandlePosition = position,
-            previousHandlePosition = null,
+            previousHandlePosition = Offset.Unspecified,
             isStartHandle = isStartHandle,
             adjustment = adjustment
         )
@@ -752,7 +784,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
      */
     internal fun updateSelection(
         newPosition: Offset?,
-        previousPosition: Offset?,
+        previousPosition: Offset,
         isStartHandle: Boolean,
         adjustment: SelectionAdjustment,
     ): Boolean {
@@ -809,45 +841,78 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
     internal fun updateSelection(
         startHandlePosition: Offset,
         endHandlePosition: Offset,
-        previousHandlePosition: Offset?,
+        previousHandlePosition: Offset,
         isStartHandle: Boolean,
         adjustment: SelectionAdjustment,
     ): Boolean {
         draggingHandle = if (isStartHandle) Handle.SelectionStart else Handle.SelectionEnd
         currentDragPosition = if (isStartHandle) startHandlePosition else endHandlePosition
-        val newSubselections = mutableMapOf<Long, Selection>()
-        var moveConsumed = false
-        val newSelection = selectionRegistrar.sort(requireContainerCoordinates())
-            .fastFold(null) { mergedSelection: Selection?, selectable: Selectable ->
-                val previousSubSelection =
-                    selectionRegistrar.subselections[selectable.selectableId]
-                val (selection, consumed) = selectable.updateSelection(
-                    startHandlePosition = startHandlePosition,
-                    endHandlePosition = endHandlePosition,
-                    previousHandlePosition = previousHandlePosition,
-                    isStartHandle = isStartHandle,
-                    containerLayoutCoordinates = requireContainerCoordinates(),
-                    adjustment = adjustment,
-                    previousSelection = previousSubSelection,
-                )
 
-                moveConsumed = moveConsumed || consumed
-                selection?.let { newSubselections[selectable.selectableId] = it }
-                mergedSelection?.merge(selection) ?: selection
-            }
+        val selectionLayout = getSelectionLayout(
+            startHandlePosition = startHandlePosition,
+            endHandlePosition = endHandlePosition,
+            previousHandlePosition = previousHandlePosition,
+            isStartHandle = isStartHandle,
+        )
 
-        if (newSelection != selection) {
-            if (isInTouchMode) {
-                hapticFeedBack?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-            }
-            selectionRegistrar.subselections = newSubselections
-            onSelectionChange(newSelection)
-            // always consume if selection changed, it is possible that it is false at this
-            // point if selectables were only removed from the selection
-            moveConsumed = true
+        if (!selectionLayout.shouldRecomputeSelection(previousSelectionLayout)) {
+            return false
         }
-        return moveConsumed
+
+        val newSelection = adjustment.adjust(selectionLayout)
+        if (newSelection != selection) {
+            selectionChanged(selectionLayout, newSelection)
+        }
+        previousSelectionLayout = selectionLayout
+        return true
     }
+
+    private fun getSelectionLayout(
+        startHandlePosition: Offset,
+        endHandlePosition: Offset,
+        previousHandlePosition: Offset,
+        isStartHandle: Boolean,
+    ): SelectionLayout {
+        val containerCoordinates = requireContainerCoordinates()
+        val sortedSelectables = selectionRegistrar.sort(containerCoordinates)
+
+        val idToIndexMap = mutableMapOf<Long, Int>()
+        sortedSelectables.fastForEachIndexed { index, selectable ->
+            idToIndexMap[selectable.selectableId] = index
+        }
+
+        val selectableIdOrderingComparator = compareBy<Long> { idToIndexMap[it] }
+
+        // if previous handle is null, then treat this as a new selection.
+        val previousSelection = if (previousHandlePosition.isUnspecified) null else selection
+        val builder = SelectionLayoutBuilder(
+            startHandlePosition = startHandlePosition,
+            endHandlePosition = endHandlePosition,
+            previousHandlePosition = previousHandlePosition,
+            containerCoordinates = containerCoordinates,
+            isStartHandle = isStartHandle,
+            previousSelection = previousSelection,
+            selectableIdOrderingComparator = selectableIdOrderingComparator,
+        )
+
+        sortedSelectables.fastForEach {
+            it.appendSelectableInfoToBuilder(builder)
+        }
+
+        return builder.build()
+    }
+
+    private fun selectionChanged(selectionLayout: SelectionLayout, newSelection: Selection) {
+        if (shouldPerformHaptics()) {
+            hapticFeedBack?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+        }
+        selectionRegistrar.subselections = selectionLayout.createSubSelections(newSelection)
+        onSelectionChange(newSelection)
+    }
+
+    @VisibleForTesting
+    internal fun shouldPerformHaptics(): Boolean =
+        isInTouchMode && selectionRegistrar.selectables.fastAny { it.getText().isNotEmpty() }
 
     fun contextMenuOpenAdjustment(position: Offset) {
         val isEmptySelection = selection?.toTextRange()?.collapsed ?: true
@@ -871,58 +936,69 @@ internal fun calculateSelectionMagnifierCenterAndroid(
     manager: SelectionManager,
     magnifierSize: IntSize
 ): Offset {
-    fun getMagnifierCenter(anchor: AnchorInfo, isStartHandle: Boolean): Offset {
-        val selectable = manager.getAnchorSelectable(anchor) ?: return Offset.Unspecified
-        val containerCoordinates = manager.containerLayoutCoordinates ?: return Offset.Unspecified
-        val selectableCoordinates = selectable.getLayoutCoordinates() ?: return Offset.Unspecified
-        // The end offset is exclusive.
-        val offset = if (isStartHandle) anchor.offset else anchor.offset - 1
-
-        if (offset > selectable.getLastVisibleOffset()) return Offset.Unspecified
-
-        // The horizontal position doesn't snap to cursor positions but should directly track the
-        // actual drag.
-        val localDragPosition = selectableCoordinates.localPositionOf(
-            containerCoordinates,
-            manager.currentDragPosition!!
-        )
-        val dragX = localDragPosition.x
-        // But it is constrained by the horizontal bounds of the current line.
-        val centerX = selectable.getRangeOfLineContaining(offset).let { line ->
-            val lineMin = selectable.getBoundingBox(line.min)
-            // line.end is exclusive, but we want the bounding box of the actual last character in
-            // the line.
-            val lineMax = selectable.getBoundingBox((line.max - 1).coerceAtLeast(line.min))
-            val minX = minOf(lineMin.left, lineMax.left)
-            val maxX = maxOf(lineMin.right, lineMax.right)
-            dragX.coerceIn(minX, maxX)
-        }
-
-        // Hide the magnifier when dragged too far (outside the horizontal bounds of how big the
-        // magnifier actually is). See
-        // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/widget/Editor.java;l=5228-5231;drc=2fdb6bd709be078b72f011334362456bb758922c
-        if ((dragX - centerX).absoluteValue > magnifierSize.width / 2) {
-            return Offset.Unspecified
-        }
-
-        // Let the selectable determine the vertical position of the magnifier, since it should be
-        // clamped to the center of text lines.
-        val anchorBounds = selectable.getBoundingBox(offset)
-        val centerY = anchorBounds.center.y
-
-        return containerCoordinates.localPositionOf(
-            sourceCoordinates = selectableCoordinates,
-            relativeToSource = Offset(centerX, centerY)
-        )
-    }
-
     val selection = manager.selection ?: return Offset.Unspecified
     return when (manager.draggingHandle) {
         null -> return Offset.Unspecified
-        Handle.SelectionStart -> getMagnifierCenter(selection.start, isStartHandle = true)
-        Handle.SelectionEnd -> getMagnifierCenter(selection.end, isStartHandle = false)
+        Handle.SelectionStart -> getMagnifierCenter(manager, magnifierSize, selection.start)
+        Handle.SelectionEnd -> getMagnifierCenter(manager, magnifierSize, selection.end)
         Handle.Cursor -> error("SelectionContainer does not support cursor")
     }
+}
+
+private fun getMagnifierCenter(
+    manager: SelectionManager,
+    magnifierSize: IntSize,
+    anchor: AnchorInfo
+): Offset {
+    val selectable = manager.getAnchorSelectable(anchor) ?: return Offset.Unspecified
+    val containerCoordinates = manager.containerLayoutCoordinates ?: return Offset.Unspecified
+    val selectableCoordinates = selectable.getLayoutCoordinates() ?: return Offset.Unspecified
+    val offset = anchor.offset
+
+    if (offset > selectable.getLastVisibleOffset()) return Offset.Unspecified
+
+    // The horizontal position doesn't snap to cursor positions but should directly track the
+    // actual drag.
+    val localDragPosition = selectableCoordinates.localPositionOf(
+        containerCoordinates,
+        manager.currentDragPosition!!
+    )
+    val dragX = localDragPosition.x
+
+    // But it is constrained by the horizontal bounds of the current line.
+    val lineRange = selectable.getRangeOfLineContaining(offset)
+    val textConstrainedX = if (lineRange.collapsed) {
+        // A collapsed range implies the text is empty.
+        // line left and right are equal for this offset, so use either
+        selectable.getLineLeft(offset)
+    } else {
+        val lineStartX = selectable.getLineLeft(lineRange.start)
+        val lineEndX = selectable.getLineRight(lineRange.end - 1)
+        // in RTL/BiDi, lineStartX may be larger than lineEndX
+        val minX = minOf(lineStartX, lineEndX)
+        val maxX = maxOf(lineStartX, lineEndX)
+        dragX.coerceIn(minX, maxX)
+    }
+
+    // selectable couldn't determine horizontals
+    if (textConstrainedX == -1f) return Offset.Unspecified
+
+    // Hide the magnifier when dragged too far (outside the horizontal bounds of how big the
+    // magnifier actually is). See
+    // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/widget/Editor.java;l=5228-5231;drc=2fdb6bd709be078b72f011334362456bb758922c
+    if ((dragX - textConstrainedX).absoluteValue > magnifierSize.width / 2) {
+        return Offset.Unspecified
+    }
+
+    val lineCenterY = selectable.getCenterYForOffset(offset)
+
+    // selectable couldn't determine the line center
+    if (lineCenterY == -1f) return Offset.Unspecified
+
+    return containerCoordinates.localPositionOf(
+        sourceCoordinates = selectableCoordinates,
+        relativeToSource = Offset(textConstrainedX, lineCenterY)
+    )
 }
 
 private fun isCurrentSelectionEmpty(

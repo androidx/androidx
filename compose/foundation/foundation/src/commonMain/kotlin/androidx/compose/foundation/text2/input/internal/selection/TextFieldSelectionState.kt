@@ -23,20 +23,20 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.text.DefaultCursorThickness
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.selection.SelectionAdjustment
+import androidx.compose.foundation.text.selection.SelectionLayout
 import androidx.compose.foundation.text.selection.containsInclusive
 import androidx.compose.foundation.text.selection.getAdjustedCoordinates
 import androidx.compose.foundation.text.selection.getSelectionHandleCoordinates
-import androidx.compose.foundation.text.selection.getTextFieldSelection
+import androidx.compose.foundation.text.selection.getTextFieldSelectionLayout
 import androidx.compose.foundation.text.selection.isPrecisePointer
 import androidx.compose.foundation.text.selection.visibleBounds
 import androidx.compose.foundation.text2.input.InputTransformation
-import androidx.compose.foundation.text2.input.TextFieldBuffer
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.getSelectedText
+import androidx.compose.foundation.text2.input.internal.EditingBuffer
 import androidx.compose.foundation.text2.input.internal.TextLayoutState
 import androidx.compose.foundation.text2.input.internal.coerceIn
-import androidx.compose.foundation.text2.input.selectAll
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -72,30 +72,31 @@ import kotlinx.coroutines.launch
 internal class TextFieldSelectionState(
     private val textFieldState: TextFieldState,
     private val textLayoutState: TextLayoutState,
-    var textEditFilter: InputTransformation?,
-    var density: Density,
-    var editable: Boolean,
+    private var inputTransformation: InputTransformation?,
+    private var density: Density,
+    private var editable: Boolean,
     var isFocused: Boolean
 ) {
     /**
      * [HapticFeedback] handle to perform haptic feedback.
      */
-    var hapticFeedBack: HapticFeedback? = null
+    private var hapticFeedBack: HapticFeedback? = null
 
     /**
      * [TextToolbar] to show floating toolbar(post-M) or primary toolbar(pre-M).
      */
-    var textToolbar: TextToolbar? = null
+    private var textToolbar: TextToolbar? = null
 
     /**
      * [ClipboardManager] to perform clipboard features.
      */
-    var clipboardManager: ClipboardManager? = null
+    private var clipboardManager: ClipboardManager? = null
 
     /**
      * Whether user is interacting with the UI in touch mode.
      */
     var isInTouchMode: Boolean by mutableStateOf(true)
+        private set
 
     /**
      * The offset of visible bounds when dragging is started by a cursor or a selection handle.
@@ -168,6 +169,20 @@ internal class TextFieldSelectionState(
      */
     private val innerCoordinates: LayoutCoordinates?
         get() = textLayoutState.innerTextFieldCoordinates?.takeIf { it.isAttached }
+
+    /**
+     * The most recent [SelectionLayout] that passed the [SelectionLayout.shouldRecomputeSelection]
+     * check. Provides context to the next selection update such as if the selection is shrinking
+     * or not.
+     */
+    private var previousSelectionLayout: SelectionLayout? = null
+
+    /**
+     * The previous offset of a drag, before selection adjustments.
+     * Only update when a selection layout change has occurred,
+     * or set to -1 if a new drag begins.
+     */
+    private var previousRawDragOffset: Int = -1
 
     /**
      * State of the cursor handle that includes its visibility and position.
@@ -250,6 +265,22 @@ internal class TextFieldSelectionState(
 
     val endSelectionHandle by derivedStateOf {
         getSelectionHandleState(isStartHandle = false)
+    }
+
+    fun update(
+        hapticFeedBack: HapticFeedback,
+        clipboardManager: ClipboardManager,
+        textToolbar: TextToolbar,
+        inputTransformation: InputTransformation?,
+        density: Density,
+        editable: Boolean,
+    ) {
+        this.hapticFeedBack = hapticFeedBack
+        this.clipboardManager = clipboardManager
+        this.textToolbar = textToolbar
+        this.inputTransformation = inputTransformation
+        this.density = density
+        this.editable = editable
     }
 
     /**
@@ -384,7 +415,7 @@ internal class TextFieldSelectionState(
                     val cursorIndex = textLayoutState.getOffsetForPosition(offset)
                     // update the state
                     if (cursorIndex >= 0) {
-                        editWithFilter {
+                        editAsUser {
                             selectCharsIn(TextRange(cursorIndex))
                         }
                     }
@@ -408,10 +439,9 @@ internal class TextFieldSelectionState(
                     startOffset = index,
                     endOffset = index,
                     isStartHandle = false,
-                    previousHandleOffset = -1, // there is no previous drag.
                     adjustment = SelectionAdjustment.Word,
                 )
-                editWithFilter {
+                editAsUser {
                     selectCharsIn(newSelection)
                 }
             }
@@ -457,7 +487,7 @@ internal class TextFieldSelectionState(
                     change.consume()
                     // TODO: only perform haptic feedback if filter does not override the change
                     hapticFeedBack?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                    editWithFilter {
+                    editAsUser {
                         selectCharsIn(newSelection)
                     }
                 }
@@ -470,7 +500,6 @@ internal class TextFieldSelectionState(
     private suspend fun PointerInputScope.detectTextFieldLongPressAndAfterDrag(
         requestFocus: () -> Unit
     ) {
-        var dragPreviousOffset = -1
         var dragBeginOffsetInText = -1
         var dragBeginPosition: Offset = Offset.Unspecified
         var dragTotalDistance: Offset = Offset.Zero
@@ -493,18 +522,18 @@ internal class TextFieldSelectionState(
 
                 dragBeginPosition = dragStartOffset
                 dragTotalDistance = Offset.Zero
+                previousRawDragOffset = -1
 
                 // Long Press at the blank area, the cursor should show up at the end of the line.
                 if (!textLayoutState.isPositionOnText(dragStartOffset)) {
                     val offset = textLayoutState.getOffsetForPosition(dragStartOffset)
 
                     hapticFeedBack?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                    editWithFilter {
+                    editAsUser {
                         selectCharsIn(TextRange(offset))
                     }
                     showCursorHandle = true
                     showCursorHandleToolbar = true
-                    dragPreviousOffset = offset
                 } else {
                     if (textFieldState.text.isEmpty()) return@onDragStart
                     val offset = textLayoutState.getOffsetForPosition(dragStartOffset)
@@ -518,10 +547,9 @@ internal class TextFieldSelectionState(
                         startOffset = offset,
                         endOffset = offset,
                         isStartHandle = false,
-                        previousHandleOffset = -1, // there is no previous drag.
                         adjustment = SelectionAdjustment.CharacterWithWordAccelerate,
                     )
-                    editWithFilter {
+                    editAsUser {
                         selectCharsIn(newSelection)
                     }
                     showCursorHandle = false
@@ -529,22 +557,21 @@ internal class TextFieldSelectionState(
                     // When char based selection is used, we want to ensure we snap the
                     // beginning offset to the start word boundary of the first selected word.
                     dragBeginOffsetInText = newSelection.start
-                    dragPreviousOffset = offset
                 }
             },
             onDragEnd = {
                 clearHandleDragging()
-                dragPreviousOffset = -1
                 dragBeginOffsetInText = -1
                 dragBeginPosition = Offset.Unspecified
                 dragTotalDistance = Offset.Zero
+                previousRawDragOffset = -1
             },
             onDragCancel = {
                 clearHandleDragging()
-                dragPreviousOffset = -1
                 dragBeginOffsetInText = -1
                 dragBeginPosition = Offset.Unspecified
                 dragTotalDistance = Offset.Zero
+                previousRawDragOffset = -1
             },
             onDrag = onDrag@{ _, dragAmount ->
                 // selection never started, did not consume any drag
@@ -603,7 +630,6 @@ internal class TextFieldSelectionState(
                     endOffset = endOffset,
                     isStartHandle = false,
                     adjustment = adjustment,
-                    previousHandleOffset = dragPreviousOffset,
                     allowPreviousSelectionCollapsed = false,
                 )
 
@@ -619,11 +645,10 @@ internal class TextFieldSelectionState(
                 // Do not allow selection to collapse on itself while dragging. Selection can
                 // reverse but does not collapse.
                 if (prevSelection.collapsed || !newSelection.collapsed) {
-                    editWithFilter {
+                    editAsUser {
                         selectCharsIn(newSelection)
                     }
                 }
-                dragPreviousOffset = endOffset
                 updateHandleDragging(
                     handle = actingHandle,
                     position = currentDragPosition
@@ -637,13 +662,13 @@ internal class TextFieldSelectionState(
     ) {
         var dragBeginPosition: Offset = Offset.Unspecified
         var dragTotalDistance: Offset = Offset.Zero
-        var previousDragOffset = -1
         val handle = if (isStartHandle) Handle.SelectionStart else Handle.SelectionEnd
 
         fun onDragStop() {
             clearHandleDragging()
             dragBeginPosition = Offset.Unspecified
             dragTotalDistance = Offset.Zero
+            previousRawDragOffset = -1
         }
 
         // b/288931376: detectDragGestures do not call onDragCancel when composable is disposed.
@@ -660,11 +685,8 @@ internal class TextFieldSelectionState(
 
                     // Zero out the total distance that being dragged.
                     dragTotalDistance = Offset.Zero
-                    previousDragOffset = if (isStartHandle) {
-                        textFieldState.text.selectionInChars.start
-                    } else {
-                        textFieldState.text.selectionInChars.end
-                    }
+
+                    previousRawDragOffset = -1
                 },
                 onDragEnd = { onDragStop() },
                 onDragCancel = { onDragStop() },
@@ -692,17 +714,15 @@ internal class TextFieldSelectionState(
                         startOffset = startOffset,
                         endOffset = endOffset,
                         isStartHandle = isStartHandle,
-                        previousHandleOffset = previousDragOffset,
                         adjustment = SelectionAdjustment.CharacterWithWordAccelerate,
                     )
                     // Do not allow selection to collapse on itself while dragging selection
                     // handles. Selection can reverse but does not collapse.
                     if (prevSelection.collapsed || !newSelection.collapsed) {
-                        editWithFilter {
+                        editAsUser {
                             selectCharsIn(newSelection)
                         }
                     }
-                    previousDragOffset = if (isStartHandle) startOffset else endOffset
                 }
             )
         } finally {
@@ -931,9 +951,9 @@ internal class TextFieldSelectionState(
 
         clipboardManager?.setText(AnnotatedString(text.getSelectedText().toString()))
 
-        editWithFilter {
-            replace(selectionInChars.min, selectionInChars.max, "")
-            selectCharsIn(TextRange(selectionInChars.min))
+        editAsUser {
+            replace(selection.min, selection.max, "")
+            selectCharsIn(TextRange(selection.min))
         }
         // TODO(halilibo): undoManager force snapshot
     }
@@ -956,8 +976,8 @@ internal class TextFieldSelectionState(
 
         if (!cancelSelection) return
 
-        editWithFilter {
-            selectCharsIn(TextRange(selectionInChars.max))
+        editAsUser {
+            selectCharsIn(TextRange(selection.max))
         }
     }
 
@@ -973,7 +993,7 @@ internal class TextFieldSelectionState(
     fun paste() {
         val clipboardText = clipboardManager?.getText()?.text ?: return
 
-        editWithFilter {
+        editAsUser {
             val selection = textFieldState.text.selectionInChars
             replace(
                 selection.min,
@@ -1018,7 +1038,7 @@ internal class TextFieldSelectionState(
 
         val selectAll: (() -> Unit)? = if (selection.length != textFieldState.text.length) {
             {
-                editWithFilter { selectAll() }
+                editAsUser { selectCharsIn(TextRange(0, length)) }
                 showCursorHandleToolbar = false
             }
         } else null
@@ -1035,7 +1055,7 @@ internal class TextFieldSelectionState(
     fun deselect() {
         val selection = textFieldState.text.selectionInChars
         if (!selection.collapsed) {
-            editWithFilter {
+            editAsUser {
                 selectCharsIn(TextRange(selection.end))
             }
         }
@@ -1047,23 +1067,8 @@ internal class TextFieldSelectionState(
     /**
      * Edits the TextFieldState content with a filter applied if available.
      */
-    private fun editWithFilter(block: TextFieldBuffer.() -> Unit) {
-        val filter = textEditFilter
-        if (filter == null) {
-            textFieldState.edit(block)
-        } else {
-            val originalValue = textFieldState.text
-            // create a new buffer to pass to TextEditFilter after edit ops
-            val buffer = TextFieldBuffer(originalValue)
-            buffer.block()
-
-            // finally filter the buffer's current status
-            textEditFilter?.transformInput(originalValue, buffer)
-
-            // reset the TextFieldState with the buffer's final value
-            val newValue = buffer.toTextFieldCharSequence(originalValue.compositionInChars)
-            textFieldState.editProcessor.reset(newValue)
-        }
+    private fun editAsUser(block: EditingBuffer.() -> Unit) {
+        textFieldState.editAsUser(inputTransformation, block = block)
     }
 
     private fun hideTextToolbar() {
@@ -1078,7 +1083,7 @@ internal class TextFieldSelectionState(
      * @param textFieldCharSequence the current text editing state
      * @param startOffset the start offset to use
      * @param endOffset the end offset to use
-     * @param isStartHandle whether the start handle is being updated
+     * @param isStartHandle whether the start or end handle is being updated
      * @param adjustment The selection adjustment to use
      * @param allowPreviousSelectionCollapsed Allow a collapsed selection to be passed to selection
      * adjustment. In most cases, a collapsed selection should be considered "no previous
@@ -1091,14 +1096,11 @@ internal class TextFieldSelectionState(
         endOffset: Int,
         isStartHandle: Boolean,
         adjustment: SelectionAdjustment,
-        previousHandleOffset: Int,
         allowPreviousSelectionCollapsed: Boolean = false,
     ): TextRange {
         val newSelection = getTextFieldSelection(
-            textLayoutResult = textLayoutState.layoutResult,
             rawStartOffset = startOffset,
             rawEndOffset = endOffset,
-            previousHandleOffset = previousHandleOffset,
             previousSelection = textFieldCharSequence.selectionInChars
                 .takeIf { allowPreviousSelectionCollapsed || !it.collapsed },
             isStartHandle = isStartHandle,
@@ -1118,12 +1120,54 @@ internal class TextFieldSelectionState(
 
         return newSelection
     }
+
+    private fun getTextFieldSelection(
+        rawStartOffset: Int,
+        rawEndOffset: Int,
+        previousSelection: TextRange?,
+        isStartHandle: Boolean,
+        adjustment: SelectionAdjustment
+    ): TextRange {
+        val layoutResult = textLayoutState.layoutResult ?: return TextRange.Zero
+
+        // When the previous selection is null, it's allowed to have collapsed selection on
+        // TextField. So we can ignore the SelectionAdjustment.Character.
+        if (previousSelection == null && adjustment == SelectionAdjustment.Character) {
+            return TextRange(rawStartOffset, rawEndOffset)
+        }
+
+        val selectionLayout = getTextFieldSelectionLayout(
+            layoutResult = layoutResult,
+            rawStartHandleOffset = rawStartOffset,
+            rawEndHandleOffset = rawEndOffset,
+            rawPreviousHandleOffset = previousRawDragOffset,
+            previousSelectionRange = previousSelection ?: TextRange.Zero,
+            isStartOfSelection = previousSelection == null,
+            isStartHandle = isStartHandle,
+        )
+
+        if (previousSelection != null &&
+            !selectionLayout.shouldRecomputeSelection(previousSelectionLayout)
+        ) {
+            return previousSelection
+        }
+
+        val result = adjustment.adjust(selectionLayout).toTextRange()
+        previousSelectionLayout = selectionLayout
+        previousRawDragOffset = if (isStartHandle) rawStartOffset else rawEndOffset
+
+        return result
+    }
 }
 
 private fun TextRange.reverse() = TextRange(end, start)
 
-private val DEBUG = false
-private val DEBUG_TAG = "TextFieldSelectionState"
+private fun EditingBuffer.selectCharsIn(range: TextRange) {
+    setSelection(range.start, range.end)
+}
+
+private const val DEBUG = false
+private const val DEBUG_TAG = "TextFieldSelectionState"
 
 private fun logDebug(text: () -> String) {
     if (DEBUG) {

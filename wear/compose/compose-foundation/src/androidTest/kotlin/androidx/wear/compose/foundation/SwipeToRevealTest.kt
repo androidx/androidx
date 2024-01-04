@@ -18,6 +18,7 @@ package androidx.wear.compose.foundation
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -135,6 +136,148 @@ class SwipeToRevealTest {
                 )
             }
         )
+    }
+
+    @Test
+    fun onSwipe_whenNotAllowed_doesNotSwipe() {
+        lateinit var revealState: RevealState
+        rule.setContent {
+            revealState = rememberRevealState(
+                confirmValueChange = { revealValue ->
+                    revealValue != RevealValue.Revealing
+                }
+            )
+            swipeToRevealWithDefaults(state = revealState, modifier = Modifier.testTag(TEST_TAG))
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { swipeLeft(startX = width / 2f, endX = 0f) }
+
+        rule.runOnIdle {
+            assertEquals(RevealValue.Covered, revealState.currentValue)
+        }
+    }
+
+    @Test
+    fun onMultiSwipe_whenNotAllowed_doesNotReset() {
+        lateinit var revealStateOne: RevealState
+        lateinit var revealStateTwo: RevealState
+        val testTagOne = "testTagOne"
+        val testTagTwo = "testTagTwo"
+        rule.setContent {
+            revealStateOne = rememberRevealState()
+            revealStateTwo = rememberRevealState(
+                confirmValueChange = { revealValue -> revealValue != RevealValue.Revealing }
+            )
+            Column {
+                swipeToRevealWithDefaults(
+                    state = revealStateOne,
+                    modifier = Modifier.testTag(testTagOne)
+                )
+                swipeToRevealWithDefaults(
+                    state = revealStateTwo,
+                    modifier = Modifier.testTag(testTagTwo)
+                )
+            }
+        }
+
+        // swipe the first S2R
+        rule.onNodeWithTag(testTagOne).performTouchInput {
+            swipeLeft(startX = width / 2f, endX = 0f)
+        }
+
+        // swipe the second S2R to a reveal value which is not allowed
+        rule.onNodeWithTag(testTagTwo).performTouchInput {
+            swipeLeft(startX = width / 2f, endX = 0f)
+        }
+
+        rule.runOnIdle {
+            assertEquals(RevealValue.Revealing, revealStateOne.currentValue)
+            assertEquals(RevealValue.Covered, revealStateTwo.currentValue)
+        }
+    }
+
+    @Test
+    fun onMultiSwipe_whenAllowed_resetsLastState() {
+        lateinit var revealStateOne: RevealState
+        lateinit var revealStateTwo: RevealState
+        val testTagOne = "testTagOne"
+        val testTagTwo = "testTagTwo"
+        rule.setContent {
+            revealStateOne = rememberRevealState()
+            revealStateTwo = rememberRevealState()
+            Column {
+                swipeToRevealWithDefaults(
+                    state = revealStateOne,
+                    modifier = Modifier.testTag(testTagOne)
+                )
+                swipeToRevealWithDefaults(
+                    state = revealStateTwo,
+                    modifier = Modifier.testTag(testTagTwo)
+                )
+            }
+        }
+
+        // swipe the first S2R
+        rule.onNodeWithTag(testTagOne).performTouchInput {
+            swipeLeft(startX = width / 2f, endX = 0f)
+        }
+
+        // swipe the second S2R to a reveal value
+        rule.onNodeWithTag(testTagTwo).performTouchInput {
+            swipeLeft(startX = width / 2f, endX = 0f)
+        }
+
+        rule.runOnIdle {
+            assertEquals(RevealValue.Covered, revealStateOne.currentValue)
+            assertEquals(RevealValue.Revealing, revealStateTwo.currentValue)
+        }
+    }
+
+    @Test
+    fun onSnapForDifferentStates_lastOneGetsReset() {
+        lateinit var revealStateOne: RevealState
+        lateinit var revealStateTwo: RevealState
+        rule.setContent {
+            revealStateOne = rememberRevealState()
+            revealStateTwo = rememberRevealState()
+            swipeToRevealWithDefaults(state = revealStateOne)
+            swipeToRevealWithDefaults(state = revealStateTwo)
+
+            val coroutineScope = rememberCoroutineScope()
+            coroutineScope.launch {
+                // First change
+                revealStateOne.snapTo(RevealValue.Revealing)
+                // Second change, in a different state
+                revealStateTwo.snapTo(RevealValue.Revealing)
+            }
+        }
+
+        rule.runOnIdle {
+            assertEquals(RevealValue.Covered, revealStateOne.currentValue)
+        }
+    }
+
+    @Test
+    fun onMultiSnapOnSameState_doesNotReset() {
+        lateinit var revealStateOne: RevealState
+        lateinit var revealStateTwo: RevealState
+        val lastValue = RevealValue.Revealed
+        rule.setContent {
+            revealStateOne = rememberRevealState()
+            revealStateTwo = rememberRevealState()
+            swipeToRevealWithDefaults(state = revealStateOne)
+            swipeToRevealWithDefaults(state = revealStateTwo)
+
+            val coroutineScope = rememberCoroutineScope()
+            coroutineScope.launch {
+                revealStateOne.snapTo(RevealValue.Revealing) // First change
+                revealStateOne.snapTo(lastValue) // Second change, same state
+            }
+        }
+
+        rule.runOnIdle {
+            assertEquals(lastValue, revealStateOne.currentValue)
+        }
     }
 
     @Test

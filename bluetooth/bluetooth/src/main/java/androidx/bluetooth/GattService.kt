@@ -26,26 +26,26 @@ class GattService internal constructor(
     internal val fwkService: FwkService,
     characteristics: List<GattCharacteristic>? = null
 ) {
+    /**
+     * the UUID of the service
+     */
     val uuid: UUID
         get() = fwkService.uuid
+
+    /**
+     * a list of characteristics included in the service
+     */
     val characteristics: List<GattCharacteristic>
+
+    constructor(uuid: UUID, characteristics: List<GattCharacteristic>) :
+        this(FwkService(uuid, FwkService.SERVICE_TYPE_PRIMARY), characteristics) {
+        characteristics.forEach { fwkService.addCharacteristic(it.fwkCharacteristic) }
+    }
 
     init {
         this.characteristics = characteristics?.toList()
             ?: fwkService.characteristics.map { GattCharacteristic(it) }
         this.characteristics.forEach { it.service = this }
-    }
-
-    companion object {
-        /**
-         * Creates a [GattService] instance for a GATT server.
-         */
-        @JvmStatic
-        fun of(uuid: UUID, characteristics: List<GattCharacteristic>): GattService {
-            val fwkService = FwkService(uuid, FwkService.SERVICE_TYPE_PRIMARY)
-            characteristics.forEach { fwkService.addCharacteristic(it.fwkCharacteristic) }
-            return GattService(fwkService, characteristics)
-        }
     }
 
     /**

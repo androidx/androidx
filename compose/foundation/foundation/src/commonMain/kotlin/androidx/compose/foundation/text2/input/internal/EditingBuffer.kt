@@ -214,15 +214,13 @@ internal class EditingBuffer(
      * The reversed range is not allowed.
      * @param start the inclusive start offset of the selection
      * @param end the exclusive end offset of the selection
-     *
-     * @throws IndexOutOfBoundsException if start or end offset is outside of current buffer.
-     * @throws IllegalArgumentException if start is larger than end. (reversed range)
      */
     fun setSelection(start: Int, end: Int) {
-        checkRange(start, end)
+        val clampedStart = start.coerceIn(0, length)
+        val clampedEnd = end.coerceIn(0, length)
 
-        selectionStart = start
-        selectionEnd = end
+        selectionStart = clampedStart
+        selectionEnd = clampedEnd
     }
 
     /**
@@ -258,15 +256,6 @@ internal class EditingBuffer(
     }
 
     /**
-     * Removes the ongoing composition text and reset the composition range.
-     */
-    fun cancelComposition() {
-        replace(compositionStart, compositionEnd, "")
-        compositionStart = NOWHERE
-        compositionEnd = NOWHERE
-    }
-
-    /**
      * Commits the ongoing composition text and reset the composition range.
      */
     fun commitComposition() {
@@ -289,10 +278,6 @@ internal class EditingBuffer(
             throw IndexOutOfBoundsException(
                 "end ($end) offset is outside of text region ${gapBuffer.length}"
             )
-        }
-
-        if (start > end) {
-            println("Setting reversed range: $start > $end")
         }
     }
 }

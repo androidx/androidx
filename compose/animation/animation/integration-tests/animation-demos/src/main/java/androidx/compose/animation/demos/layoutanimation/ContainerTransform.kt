@@ -43,9 +43,9 @@ import androidx.compose.material.RadioButton
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -210,7 +210,7 @@ fun LocalContainerTransformDemo() {
             } else {
                 Column(Modifier.fillMaxSize()) {
                     Icon(
-                        rememberVectorPainter(image = Icons.Default.ArrowBack),
+                        rememberVectorPainter(image = Icons.AutoMirrored.Filled.ArrowBack),
                         null,
                         modifier = Modifier
                             .clickable {

@@ -88,6 +88,7 @@ private fun RemoteViews.translateEmittableLazyVerticalGrid(
     )
     val items = RemoteCollectionItems.Builder().apply {
         val childContext = translationContext.forLazyCollection(viewDef.mainViewId)
+        @Suppress("ListIterator")
         element.children.foldIndexed(false) { position, previous, itemEmittable ->
             itemEmittable as EmittableLazyVerticalGridListItem
             val itemId = itemEmittable.itemId

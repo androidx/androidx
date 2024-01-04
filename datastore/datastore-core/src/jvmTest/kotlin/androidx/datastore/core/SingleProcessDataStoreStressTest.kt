@@ -22,27 +22,31 @@ import java.io.DataOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
-import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collectIndexed
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.reduce
-import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
+import org.junit.After
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import org.junit.rules.Timeout
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
+@RunWith(JUnit4::class)
 class SingleProcessDataStoreStressTest {
     @get:Rule
     val tempFolder = TemporaryFolder()
@@ -50,38 +54,35 @@ class SingleProcessDataStoreStressTest {
     @get:Rule
     val timeout = Timeout(4, TimeUnit.MINUTES)
 
-    @Test
-    @Ignore // TODO(b/178641154): Replace with tests that do not time out.
-    fun testManyConcurrentReadsAndWrites() = runBlocking<Unit> {
-        val myScope = CoroutineScope(
-            Job() + Executors.newFixedThreadPool(4).asCoroutineDispatcher()
-        )
+    // using real dispatchers here to test parallelism
+    private val testScope = CoroutineScope(Job() + Dispatchers.IO)
 
+    @After
+    fun cancelTestScope() {
+        testScope.cancel()
+    }
+
+    @Test
+    fun testManyConcurrentReadsAndWrites() = runBlocking<Unit> {
         val file = tempFolder.newFile()
         file.delete()
 
         val dataStore = DataStoreFactory.create(
             serializer = LongSerializer(failWrites = false, failReads = false),
-            scope = myScope
+            scope = testScope
         ) { file }
+        assertThat(dataStore.data.first()).isEqualTo(0)
 
-        val readers = mutableListOf<Deferred<*>>()
-        val writers = mutableListOf<Deferred<*>>()
-
-        repeat(100) {
-            readers += myScope.async {
+        val readers = (0 until READER_COUNT).map {
+            testScope.async {
                 dataStore.data.takeWhile {
-                    it != 50_000L
-                }.reduce { acc, value ->
-                    assertThat(acc).isLessThan(value)
-                    value
-                }
+                    it < FINAL_TEST_VALUE
+                }.assertIncreasingAfterFirstRead()
             }
         }
-
-        repeat(1000) {
-            writers += myScope.async {
-                repeat(50) {
+        val writers = (0 until WRITER_COUNT).map {
+            testScope.async {
+                repeat(UPDATES_PER_WRITER) {
                     dataStore.updateData {
                         it.inc()
                     }
@@ -89,55 +90,47 @@ class SingleProcessDataStoreStressTest {
             }
         }
 
-        writers.awaitAll()
-
         // There's no reason this should take more than a few seconds once writers complete and
         // there's no reason writers won't complete.
         withTimeout(10.seconds) {
-            readers.awaitAll()
+            (writers + readers).awaitAll()
         }
     }
 
     @Test
-    @Ignore // TODO(b/178641154): Replace with tests that do not time out.
     fun testManyConcurrentReadsAndWrites_withIntermittentWriteFailures() = runBlocking<Unit> {
-        val myScope = CoroutineScope(
-            Job() + Executors.newFixedThreadPool(4).asCoroutineDispatcher()
-        )
-
         val file = tempFolder.newFile()
         file.delete()
 
-        val serializer = LongSerializer(false, false)
+        val serializer = LongSerializer(failWrites = false, failReads = false)
 
         val dataStore = DataStoreFactory.create(
             serializer = serializer,
-            scope = myScope
+            scope = testScope
         ) { file }
 
-        val readers = mutableListOf<Deferred<*>>()
-        val writers = mutableListOf<Deferred<*>>()
-
-        repeat(100) {
-            readers += myScope.async {
+        val readers = (0 until READER_COUNT).map {
+            testScope.async {
                 dataStore.data.takeWhile {
-                    it != 10_000L
-                }.reduce { acc, value ->
-                    assertThat(acc).isLessThan(value)
+                    it < FINAL_TEST_VALUE
+                }.reduce { accumulator, value ->
+                    // we don't use `assertIncreasingAfterFirstRead` here because failed writes
+                    // might increment the shared counter and trigger more reads than necessary.
+                    // Hence, we only assert for ">=" here.
+                    assertThat(value).isAtLeast(accumulator)
                     value
                 }
             }
         }
-
-        repeat(1000) {
-            writers += myScope.async {
-                repeat(10) {
+        val writers = (0 until WRITER_COUNT).map {
+            testScope.async {
+                repeat(UPDATES_PER_WRITER) {
                     var success = false
                     while (!success) {
                         try {
                             dataStore.updateData { it.inc() }
                             success = true
-                        } catch (expected: IOException) {
+                        } catch (_: IOException) {
                         }
                     }
                 }
@@ -153,21 +146,15 @@ class SingleProcessDataStoreStressTest {
 
         serializer.failWrites = false
 
-        writers.awaitAll()
-
         // There's no reason this should take more than a few seconds once writers complete and
         // there's no reason writers won't complete.
         withTimeout(10.seconds) {
-            readers.awaitAll()
+            (writers + readers).awaitAll()
         }
     }
-    @Test
-    @Ignore("b/270197519")
-    fun testManyConcurrentReadsAndWrites_withBeginningReadFailures() = runBlocking<Unit> {
-        val myScope = CoroutineScope(
-            Job() + Executors.newFixedThreadPool(4).asCoroutineDispatcher()
-        )
 
+    @Test
+    fun testManyConcurrentReadsAndWrites_withBeginningReadFailures() = runBlocking<Unit> {
         val file = tempFolder.newFile()
         file.delete()
 
@@ -175,34 +162,38 @@ class SingleProcessDataStoreStressTest {
 
         val dataStore = DataStoreFactory.create(
             serializer = serializer,
-            scope = myScope
+            scope = testScope
         ) { file }
 
-        val readers = mutableListOf<Deferred<*>>()
-        val writers = mutableListOf<Deferred<*>>()
-
-        repeat(100) {
-            readers += myScope.async {
-                dataStore.data
-                    .retry { true }
-                    .takeWhile {
-                        it != 1_000L
-                    }.reduce { acc, value ->
-                        assertThat(acc).isLessThan(value)
-                        value
+        val readers = (0 until READER_COUNT).map {
+            testScope.async {
+                var retry = true
+                while (retry) {
+                    // we retry because the test itself is creating read failures on purpose.
+                    retry = false
+                    try {
+                        dataStore.data
+                            .takeWhile {
+                                it < FINAL_TEST_VALUE
+                            }.assertIncreasingAfterFirstRead()
+                    } catch (_: IOException) {
+                        // reader is configured to throw IO exceptions in the test, hence it is
+                        // ok to get them here. It means we need to go back to reading until we
+                        // reach to the final value.
+                        retry = true
                     }
+                }
             }
         }
-
-        repeat(100) {
-            writers += myScope.async {
-                repeat(10) {
+        val writers = (0 until WRITER_COUNT).map {
+            testScope.async {
+                repeat(UPDATES_PER_WRITER) {
                     var success = false
                     while (!success) {
                         try {
                             dataStore.updateData { it.inc() }
                             success = true
-                        } catch (expected: IOException) {
+                        } catch (_: IOException) {
                         }
                     }
                 }
@@ -213,12 +204,25 @@ class SingleProcessDataStoreStressTest {
         delay(100)
         serializer.failReads = false
 
-        writers.awaitAll()
-
         // There's no reason this should take more than a few seconds once writers complete and
         // there's no reason writers won't complete.
         withTimeout(10.seconds) {
-            readers.awaitAll()
+            (writers + readers).awaitAll()
+        }
+    }
+
+    private suspend fun Flow<Long>.assertIncreasingAfterFirstRead() {
+        // at a very rare race condition, we might read the new value with old
+        // version during initialization due to reads without locks. So here,
+        // we assert that it is increasing except for the first 2 reads which can be the same value
+        var prev: Long = -1
+        this.collectIndexed { index, value ->
+            if (index <= 1) {
+                assertThat(value).isAtLeast(prev)
+            } else {
+                assertThat(value).isGreaterThan(prev)
+            }
+            prev = value
         }
     }
 
@@ -241,6 +245,19 @@ class SingleProcessDataStoreStressTest {
                 throw IOException("failing write")
             }
             DataOutputStream(output).writeLong(t)
+        }
+    }
+
+    companion object {
+        private const val READER_COUNT = 100
+        private const val WRITER_COUNT = 25
+        private const val FINAL_TEST_VALUE = 100
+        private const val UPDATES_PER_WRITER = FINAL_TEST_VALUE / WRITER_COUNT
+
+        init {
+            check(UPDATES_PER_WRITER * WRITER_COUNT == FINAL_TEST_VALUE) {
+                "inconsistent test setup"
+            }
         }
     }
 }

@@ -31,7 +31,6 @@ import android.content.Context
 import androidx.bluetooth.BluetoothDevice
 import androidx.bluetooth.BluetoothLe
 import androidx.bluetooth.GattClient
-import java.nio.ByteBuffer
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicInteger
 import junit.framework.TestCase.fail
@@ -475,13 +474,5 @@ class RobolectricGattClientTest {
                 enable: Boolean
             )
         }
-    }
-
-    private fun Int.toByteArray(): ByteArray {
-        return ByteBuffer.allocate(Int.SIZE_BYTES).putInt(this).array()
-    }
-
-    private fun ByteArray.toInt(): Int {
-        return ByteBuffer.wrap(this).int
     }
 }

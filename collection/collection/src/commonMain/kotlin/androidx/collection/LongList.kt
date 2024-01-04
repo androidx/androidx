@@ -483,7 +483,7 @@ public sealed class LongList(initialCapacity: Int) {
  * @constructor Creates a [MutableLongList] with a [capacity] of `initialCapacity`.
  */
 public class MutableLongList(
-    initialCapacity: Int = DefaultCapacity
+    initialCapacity: Int = 16
 ) : LongList(initialCapacity) {
     /**
      * Returns the total number of elements that can be held before the [MutableLongList] must
@@ -835,20 +835,84 @@ public class MutableLongList(
     }
 }
 
-@Suppress("ConstPropertyName")
-private const val DefaultCapacity = 16
-
 // Empty array used when nothing is allocated
 @Suppress("PrivatePropertyName")
 private val EmptyLongArray = LongArray(0)
 
+private val EmptyLongList: LongList = MutableLongList(0)
+
 /**
- * Creates and returns an empty [MutableLongList] with the default capacity.
+ * @return a read-only [LongList] with nothing in it.
+ */
+public fun emptyLongList(): LongList = EmptyLongList
+
+/**
+ * @return a read-only [LongList] with nothing in it.
+ */
+public fun longListOf(): LongList = EmptyLongList
+
+/**
+ * @return a new read-only [LongList] with [element1] as the only item in the list.
+ */
+public fun longListOf(element1: Long): LongList = mutableLongListOf(element1)
+
+/**
+ * @return a new read-only [LongList] with 2 elements, [element1] and [element2], in order.
+ */
+public fun longListOf(element1: Long, element2: Long): LongList =
+    mutableLongListOf(element1, element2)
+
+/**
+ * @return a new read-only [LongList] with 3 elements, [element1], [element2], and [element3],
+ * in order.
+ */
+public fun longListOf(element1: Long, element2: Long, element3: Long): LongList =
+    mutableLongListOf(element1, element2, element3)
+
+/**
+ * @return a new read-only [LongList] with [elements] in order.
+ */
+public fun longListOf(vararg elements: Long): LongList =
+    MutableLongList(elements.size).apply { plusAssign(elements) }
+
+/**
+ * @return a new empty [MutableLongList] with the default capacity.
  */
 public inline fun mutableLongListOf(): MutableLongList = MutableLongList()
 
 /**
- * Creates and returns a [MutableLongList] with the given values.
+ * @return a new [MutableLongList] with [element1] as the only item in the list.
+ */
+public fun mutableLongListOf(element1: Long): MutableLongList {
+    val list = MutableLongList(1)
+    list += element1
+    return list
+}
+
+/**
+ * @return a new [MutableLongList] with 2 elements, [element1] and [element2], in order.
+ */
+public fun mutableLongListOf(element1: Long, element2: Long): MutableLongList {
+    val list = MutableLongList(2)
+    list += element1
+    list += element2
+    return list
+}
+
+/**
+ * @return a new [MutableLongList] with 3 elements, [element1], [element2], and [element3],
+ * in order.
+ */
+public fun mutableLongListOf(element1: Long, element2: Long, element3: Long): MutableLongList {
+    val list = MutableLongList(3)
+    list += element1
+    list += element2
+    list += element3
+    return list
+}
+
+/**
+ * @return a new [MutableLongList] with the given elements, in order.
  */
 public inline fun mutableLongListOf(vararg elements: Long): MutableLongList =
-    MutableLongList(elements.size).also { it.addAll(elements) }
+    MutableLongList(elements.size).apply { plusAssign(elements) }

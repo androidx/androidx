@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.internal;
 
-import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraDevice;
 import android.util.Size;
@@ -32,6 +31,7 @@ import androidx.camera.core.Logger;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.DeferrableSurface;
+import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
@@ -44,6 +44,7 @@ import androidx.camera.core.impl.utils.futures.Futures;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * A SessionConfig to act a Metering repeating use case.
@@ -55,6 +56,10 @@ import java.util.List;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class MeteringRepeatingSession {
     private static final String TAG = "MeteringRepeating";
+
+    private static final int IMAGE_FORMAT =
+            ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
+
     private DeferrableSurface mDeferrableSurface;
 
     @NonNull
@@ -143,6 +148,11 @@ class MeteringRepeatingSession {
     }
 
     @NonNull
+    Size getMeteringRepeatingSize() {
+        return mMeteringRepeatingSize;
+    }
+
+    @NonNull
     String getName() {
         return "MeteringRepeating";
     }
@@ -171,6 +181,8 @@ class MeteringRepeatingSession {
             MutableOptionsBundle mutableOptionsBundle = MutableOptionsBundle.create();
             mutableOptionsBundle.insertOption(UseCaseConfig.OPTION_SESSION_CONFIG_UNPACKER,
                     new Camera2SessionOptionUnpacker());
+            mutableOptionsBundle.insertOption(OPTION_INPUT_FORMAT, IMAGE_FORMAT);
+            setTargetConfigs(mutableOptionsBundle);
             mConfig = mutableOptionsBundle;
         }
 
@@ -185,6 +197,14 @@ class MeteringRepeatingSession {
         public UseCaseConfigFactory.CaptureType getCaptureType() {
             return UseCaseConfigFactory.CaptureType.METERING_REPEATING;
         }
+
+        private void setTargetConfigs(MutableOptionsBundle mutableOptionsBundle) {
+            mutableOptionsBundle.insertOption(OPTION_TARGET_CLASS, MeteringRepeatingSession.class);
+
+            String targetName =
+                    MeteringRepeatingSession.class.getCanonicalName() + "-" + UUID.randomUUID();
+            mutableOptionsBundle.insertOption(OPTION_TARGET_NAME, targetName);
+        }
     }
 
     @NonNull
@@ -192,7 +212,7 @@ class MeteringRepeatingSession {
             cameraCharacteristicsCompat, @NonNull DisplayInfoManager displayInfoManager) {
         StreamConfigurationMapCompat mapCompat =
                 cameraCharacteristicsCompat.getStreamConfigurationMapCompat();
-        Size[] outputSizes = mapCompat.getOutputSizes(ImageFormat.PRIVATE);
+        Size[] outputSizes = mapCompat.getOutputSizes(IMAGE_FORMAT);
         if (outputSizes == null) {
             Logger.e(TAG, "Can not get output size list.");
             return new Size(0, 0);

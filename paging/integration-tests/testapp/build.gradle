@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
     id("kotlin-android")
-    id("kotlin-kapt")
+    id("com.google.devtools.ksp")
 }
 
 dependencies {
@@ -33,7 +31,7 @@ dependencies {
     implementation(project(":paging:paging-runtime"))
     implementation(project(":paging:paging-rxjava2"))
 
-    kapt(projectOrArtifact(":room:room-compiler"))
+    ksp(projectOrArtifact(":room:room-compiler"))
 
     implementation(libs.multidex)
     implementation(projectOrArtifact(":recyclerview:recyclerview"))
@@ -46,13 +44,6 @@ dependencies {
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
-}
-
-kapt {
-    javacOptions {
-        option("--source", "8")
-        option("--target", "8")
-    }
 }
 
 android {

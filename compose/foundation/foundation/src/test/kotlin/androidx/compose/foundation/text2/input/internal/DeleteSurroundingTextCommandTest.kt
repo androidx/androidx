@@ -30,7 +30,7 @@ class DeleteSurroundingTextCommandTest {
     fun test_delete_after() {
         val eb = EditingBuffer("ABCDE", TextRange(1))
 
-        eb.update(DeleteSurroundingTextCommand(0, 1))
+        eb.deleteSurroundingText(0, 1)
 
         assertThat(eb.toString()).isEqualTo("ACDE")
         assertThat(eb.cursor).isEqualTo(1)
@@ -41,7 +41,7 @@ class DeleteSurroundingTextCommandTest {
     fun test_delete_before() {
         val eb = EditingBuffer("ABCDE", TextRange(1))
 
-        eb.update(DeleteSurroundingTextCommand(1, 0))
+        eb.deleteSurroundingText(1, 0)
 
         assertThat(eb.toString()).isEqualTo("BCDE")
         assertThat(eb.cursor).isEqualTo(0)
@@ -52,7 +52,7 @@ class DeleteSurroundingTextCommandTest {
     fun test_delete_both() {
         val eb = EditingBuffer("ABCDE", TextRange(3))
 
-        eb.update(DeleteSurroundingTextCommand(1, 1))
+        eb.deleteSurroundingText(1, 1)
 
         assertThat(eb.toString()).isEqualTo("ABE")
         assertThat(eb.cursor).isEqualTo(2)
@@ -63,7 +63,7 @@ class DeleteSurroundingTextCommandTest {
     fun test_delete_after_multiple() {
         val eb = EditingBuffer("ABCDE", TextRange(2))
 
-        eb.update(DeleteSurroundingTextCommand(0, 2))
+        eb.deleteSurroundingText(0, 2)
 
         assertThat(eb.toString()).isEqualTo("ABE")
         assertThat(eb.cursor).isEqualTo(2)
@@ -74,7 +74,7 @@ class DeleteSurroundingTextCommandTest {
     fun test_delete_before_multiple() {
         val eb = EditingBuffer("ABCDE", TextRange(3))
 
-        eb.update(DeleteSurroundingTextCommand(2, 0))
+        eb.deleteSurroundingText(2, 0)
 
         assertThat(eb.toString()).isEqualTo("ADE")
         assertThat(eb.cursor).isEqualTo(1)
@@ -85,7 +85,7 @@ class DeleteSurroundingTextCommandTest {
     fun test_delete_both_multiple() {
         val eb = EditingBuffer("ABCDE", TextRange(3))
 
-        eb.update(DeleteSurroundingTextCommand(2, 2))
+        eb.deleteSurroundingText(2, 2)
 
         assertThat(eb.toString()).isEqualTo("A")
         assertThat(eb.cursor).isEqualTo(1)
@@ -96,7 +96,7 @@ class DeleteSurroundingTextCommandTest {
     fun test_delete_selection_preserve() {
         val eb = EditingBuffer("ABCDE", TextRange(2, 4))
 
-        eb.update(DeleteSurroundingTextCommand(1, 1))
+        eb.deleteSurroundingText(1, 1)
 
         assertThat(eb.toString()).isEqualTo("ACD")
         assertThat(eb.selectionStart).isEqualTo(1)
@@ -108,7 +108,7 @@ class DeleteSurroundingTextCommandTest {
     fun test_delete_before_too_many() {
         val eb = EditingBuffer("ABCDE", TextRange(3))
 
-        eb.update(DeleteSurroundingTextCommand(1000, 0))
+        eb.deleteSurroundingText(1000, 0)
 
         assertThat(eb.toString()).isEqualTo("DE")
         assertThat(eb.cursor).isEqualTo(0)
@@ -119,7 +119,7 @@ class DeleteSurroundingTextCommandTest {
     fun test_delete_after_too_many() {
         val eb = EditingBuffer("ABCDE", TextRange(3))
 
-        eb.update(DeleteSurroundingTextCommand(0, 1000))
+        eb.deleteSurroundingText(0, 1000)
 
         assertThat(eb.toString()).isEqualTo("ABC")
         assertThat(eb.cursor).isEqualTo(3)
@@ -130,7 +130,7 @@ class DeleteSurroundingTextCommandTest {
     fun test_delete_both_too_many() {
         val eb = EditingBuffer("ABCDE", TextRange(3))
 
-        eb.update(DeleteSurroundingTextCommand(1000, 1000))
+        eb.deleteSurroundingText(1000, 1000)
 
         assertThat(eb.toString()).isEqualTo("")
         assertThat(eb.cursor).isEqualTo(0)
@@ -143,7 +143,7 @@ class DeleteSurroundingTextCommandTest {
 
         eb.setComposition(0, 1)
 
-        eb.update(DeleteSurroundingTextCommand(1, 1))
+        eb.deleteSurroundingText(1, 1)
 
         assertThat(eb.toString()).isEqualTo("ABE")
         assertThat(eb.cursor).isEqualTo(2)
@@ -157,7 +157,7 @@ class DeleteSurroundingTextCommandTest {
 
         eb.setComposition(4, 5)
 
-        eb.update(DeleteSurroundingTextCommand(1, 1))
+        eb.deleteSurroundingText(1, 1)
 
         assertThat(eb.toString()).isEqualTo("ABE")
         assertThat(eb.cursor).isEqualTo(2)
@@ -171,7 +171,7 @@ class DeleteSurroundingTextCommandTest {
 
         eb.setComposition(0, 3)
 
-        eb.update(DeleteSurroundingTextCommand(1, 1))
+        eb.deleteSurroundingText(1, 1)
 
         assertThat(eb.toString()).isEqualTo("ABE")
         assertThat(eb.cursor).isEqualTo(2)
@@ -185,7 +185,7 @@ class DeleteSurroundingTextCommandTest {
 
         eb.setComposition(3, 5)
 
-        eb.update(DeleteSurroundingTextCommand(1, 1))
+        eb.deleteSurroundingText(1, 1)
 
         assertThat(eb.toString()).isEqualTo("ABE")
         assertThat(eb.cursor).isEqualTo(2)
@@ -199,7 +199,7 @@ class DeleteSurroundingTextCommandTest {
 
         eb.setComposition(2, 3)
 
-        eb.update(DeleteSurroundingTextCommand(1, 1))
+        eb.deleteSurroundingText(1, 1)
 
         assertThat(eb.toString()).isEqualTo("ABE")
         assertThat(eb.cursor).isEqualTo(2)
@@ -212,7 +212,7 @@ class DeleteSurroundingTextCommandTest {
 
         eb.setComposition(0, 5)
 
-        eb.update(DeleteSurroundingTextCommand(1, 1))
+        eb.deleteSurroundingText(1, 1)
 
         assertThat(eb.toString()).isEqualTo("ABE")
         assertThat(eb.cursor).isEqualTo(2)
@@ -222,16 +222,18 @@ class DeleteSurroundingTextCommandTest {
 
     @Test
     fun throws_whenLengthBeforeInvalid() {
+        val eb = EditingBuffer("", TextRange(0))
         val error = assertFailsWith<IllegalArgumentException> {
-            DeleteSurroundingTextCommand(lengthBeforeCursor = -42, lengthAfterCursor = 0)
+            eb.deleteSurroundingText(lengthBeforeCursor = -42, lengthAfterCursor = 0)
         }
         assertThat(error).hasMessageThat().contains("-42")
     }
 
     @Test
     fun throws_whenLengthAfterInvalid() {
+        val eb = EditingBuffer("", TextRange(0))
         val error = assertFailsWith<IllegalArgumentException> {
-            DeleteSurroundingTextCommand(lengthBeforeCursor = 0, lengthAfterCursor = -42)
+            eb.deleteSurroundingText(lengthBeforeCursor = 0, lengthAfterCursor = -42)
         }
         assertThat(error).hasMessageThat().contains("-42")
     }

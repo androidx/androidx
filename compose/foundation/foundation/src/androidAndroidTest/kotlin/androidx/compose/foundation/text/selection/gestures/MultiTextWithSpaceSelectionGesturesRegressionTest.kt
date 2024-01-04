@@ -97,7 +97,11 @@ internal class MultiTextWithSpaceSelectionGesturesRegressionTest : AbstractSelec
             override fun subAssert() {
                 Truth.assertAbout(MultiSelectionSubject.withContent(texts))
                     .that(getActual())
-                    .hasSelection(selection)
+                    .hasSelection(
+                        expected = selection,
+                        startTextDirection = startLayoutDirection,
+                        endTextDirection = endLayoutDirection,
+                    )
             }
         }
     }
@@ -107,9 +111,13 @@ internal class MultiTextWithSpaceSelectionGesturesRegressionTest : AbstractSelec
         val selectableIndex = textContentIndices.offsetToSelectableId(offset)
         val localOffset = textContentIndices.offsetToLocalOffset(offset)
         val (_, tag) = texts[selectableIndex]
+        val pointerAreaPosition =
+            rule.onNodeWithTag(pointerAreaTag).fetchSemanticsNode().positionInRoot
         val nodePosition = rule.onNodeWithTag(tag).fetchSemanticsNode().positionInRoot
         val textLayoutResult = rule.onNodeWithTag(tag).fetchTextLayoutResult()
-        return textLayoutResult.getBoundingBox(localOffset).translate(nodePosition).center
+        return textLayoutResult.getBoundingBox(localOffset)
+            .translate(nodePosition - pointerAreaPosition)
+            .centerLeft
     }
 
     // There were cases where moving the cursor outside the bounds of any text would
@@ -131,13 +139,13 @@ internal class MultiTextWithSpaceSelectionGesturesRegressionTest : AbstractSelec
             selection = 18 to 23
         }
 
-        mouseDragTo(position = boundsInRoot.topRight + Offset(-1f, 1f))
+        mouseDragTo(topEnd)
 
         asserter.applyAndAssert {
             selection = 24 to 6
         }
 
-        mouseDragTo(position = boundsInRoot.bottomRight + Offset(-1f, -1f))
+        mouseDragTo(bottomEnd)
 
         asserter.applyAndAssert {
             selection = 18 to 30

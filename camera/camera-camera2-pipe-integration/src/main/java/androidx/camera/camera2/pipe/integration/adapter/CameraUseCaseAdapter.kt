@@ -248,8 +248,6 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
                 builder.addCameraCaptureCallback(CaptureCallbackContainer.create(it))
             }
 
-            // TODO: Copy CameraEventCallback (used for extension)
-
             // Copy extended Camera2 configurations
             val extendedConfig = MutableOptionsBundle.create().apply {
                 camera2Config.getPhysicalCameraId()?.let { physicalCameraId ->

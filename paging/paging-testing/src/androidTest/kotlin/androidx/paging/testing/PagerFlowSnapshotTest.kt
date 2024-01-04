@@ -16,8 +16,11 @@
 
 package androidx.paging.testing
 
+import androidx.paging.LoadState
+import androidx.paging.LoadStates
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import androidx.paging.PagingSource
 import androidx.paging.PagingSource.LoadParams
 import androidx.paging.PagingSourceFactory
@@ -25,6 +28,7 @@ import androidx.paging.PagingState
 import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -161,6 +165,36 @@ class PagerFlowSnapshotTest(
     }
 
     @Test
+    fun initialRefresh_PagingDataFrom_withoutLoadStates() {
+        val data = List(10) { it }
+        val pager = flowOf(PagingData.from(data))
+        testScope.runTest {
+            val snapshot = pager.asSnapshot()
+            // first page + prefetched page
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+            )
+        }
+    }
+
+    @Test
+    fun initialRefresh_PagingDataFrom_withLoadStates() {
+        val data = List(10) { it }
+        val pager = flowOf(PagingData.from(data, LoadStates(
+            refresh = LoadState.NotLoading(true),
+            prepend = LoadState.NotLoading(true),
+            append = LoadState.NotLoading(true)
+        )))
+        testScope.runTest {
+            val snapshot = pager.asSnapshot()
+            // first page + prefetched page
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+            )
+        }
+    }
+
+    @Test
     fun emptyInitialRefresh() {
         val dataFlow = emptyFlow<List<Int>>()
         val pager = createPager(dataFlow)
@@ -241,6 +275,40 @@ class PagerFlowSnapshotTest(
                 refresh()
             }
             assertThat(sources.first().invalid).isTrue()
+        }
+    }
+
+    @Test
+    fun manualRefresh_PagingDataFrom_withoutLoadStates() {
+        val data = List(10) { it }
+        val pager = flowOf(PagingData.from(data))
+        testScope.runTest {
+            val snapshot = pager.asSnapshot {
+                refresh()
+            }
+            // first page + prefetched page
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+            )
+        }
+    }
+
+    @Test
+    fun manualRefresh_PagingDataFrom_withLoadStates() {
+        val data = List(10) { it }
+        val pager = flowOf(PagingData.from(data, LoadStates(
+            refresh = LoadState.NotLoading(true),
+            prepend = LoadState.NotLoading(true),
+            append = LoadState.NotLoading(true)
+        )))
+        testScope.runTest {
+            val snapshot = pager.asSnapshot {
+                refresh()
+            }
+            // first page + prefetched page
+            assertThat(snapshot).containsExactlyElementsIn(
+                listOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+            )
         }
     }
 
@@ -749,6 +817,75 @@ class PagerFlowSnapshotTest(
             val snapshot3 = pager.asSnapshot()
             assertThat(snapshot3).containsExactlyElementsIn(
                 listOf(30, 31, 32, 33, 34)
+            )
+        }
+    }
+
+    @Test
+    fun consecutiveGenerations_PagingDataFrom_withoutLoadStates() {
+        val loadDelay = 500 + loadDelay
+        // wait for 500 + loadDelay between each emission
+        val pager = flow {
+            emit(PagingData.empty())
+            delay(loadDelay)
+
+            emit(PagingData.from(List(10) { it }))
+            delay(loadDelay)
+
+            emit(PagingData.from(List(10) { it + 30 }))
+        }
+        testScope.runTest {
+            val snapshot1 = pager.asSnapshot()
+            assertWithMessage("Only the last generation should be loaded without LoadStates")
+                .that(snapshot1).containsExactlyElementsIn(
+                listOf(30, 31, 32, 33, 34, 35, 36, 37, 38, 39)
+            )
+        }
+    }
+
+    @Test
+    fun consecutiveGenerations_PagingDataFrom_withLoadStates() {
+        val loadDelay = 500 + loadDelay
+        // wait for 500 + loadDelay between each emission
+        val pager = flow {
+            emit(PagingData.empty(LoadStates(
+                refresh = LoadState.NotLoading(true),
+                prepend = LoadState.NotLoading(true),
+                append = LoadState.NotLoading(true)
+            )))
+            delay(loadDelay)
+
+            emit(PagingData.from(List(10) { it }, LoadStates(
+                refresh = LoadState.NotLoading(true),
+                prepend = LoadState.NotLoading(true),
+                append = LoadState.NotLoading(true)
+            )))
+            delay(loadDelay)
+
+            emit(PagingData.from(List(10) { it + 30 }, LoadStates(
+                refresh = LoadState.NotLoading(true),
+                prepend = LoadState.NotLoading(true),
+                append = LoadState.NotLoading(true)
+            )))
+        }.cachedIn(testScope.backgroundScope)
+        testScope.runTest {
+            val snapshot1 = pager.asSnapshot()
+            assertThat(snapshot1).containsExactlyElementsIn(
+                emptyList<Int>()
+            )
+
+            delay(loadDelay)
+
+            val snapshot2 = pager.asSnapshot()
+            assertThat(snapshot2).containsExactlyElementsIn(
+                listOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+            )
+
+            delay(loadDelay)
+
+            val snapshot3 = pager.asSnapshot()
+            assertThat(snapshot3).containsExactlyElementsIn(
+                listOf(30, 31, 32, 33, 34, 35, 36, 37, 38, 39)
             )
         }
     }

@@ -193,6 +193,7 @@ public final class DocumentsContractCompat {
     /**
      * Create a new document with given MIME type and display name.
      *
+     * @param content           the resolver to use to create the document.
      * @param parentDocumentUri directory with {@link Document#FLAG_DIR_SUPPORTS_CREATE}
      * @param mimeType          MIME type of new document
      * @param displayName       name of new document
@@ -232,6 +233,7 @@ public final class DocumentsContractCompat {
      * This method was only added in {@link Build.VERSION_CODES#N}. On versions prior to this,
      * this method calls through to {@link DocumentsContract#deleteDocument(ContentResolver, Uri)}.
      *
+     * @param content the resolver to use to remove the document.
      * @param documentUri       document with {@link Document#FLAG_SUPPORTS_REMOVE}
      * @param parentDocumentUri parent document of the document to remove.
      * @return true if the document was removed successfully.

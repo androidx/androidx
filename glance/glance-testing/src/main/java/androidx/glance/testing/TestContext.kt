@@ -23,6 +23,13 @@ import androidx.annotation.RestrictTo
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class TestContext<R, T : GlanceNode<R>> {
+    /**
+     * To be called on every onNode to restart matching and clear cache.
+     */
+    fun reset() {
+        cachedMatchedNodes = emptyList()
+    }
+
     var rootGlanceNode: T? = null
     var cachedMatchedNodes: List<GlanceNode<R>> = emptyList()
 }

@@ -72,7 +72,7 @@ internal class Utils {
 
         fun verifyBuildVersion() {
             if (mBuildVersion.hasInvalidBuildVersion()) {
-                throw UnsupportedOperationException(CallException.ERROR_BUILD_VERSION)
+                throw UnsupportedOperationException(CallException.ERROR_BUILD_VERSION_MSG)
             }
         }
 

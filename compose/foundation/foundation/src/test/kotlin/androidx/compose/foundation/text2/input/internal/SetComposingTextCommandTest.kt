@@ -29,7 +29,7 @@ class SetComposingTextCommandTest {
     fun test_insert_empty() {
         val eb = EditingBuffer("", TextRange.Zero)
 
-        eb.update(SetComposingTextCommand("X", 1))
+        eb.setComposingText("X", 1)
 
         assertThat(eb.toString()).isEqualTo("X")
         assertThat(eb.cursor).isEqualTo(1)
@@ -42,7 +42,7 @@ class SetComposingTextCommandTest {
     fun test_insert_cursor_tail() {
         val eb = EditingBuffer("A", TextRange(1))
 
-        eb.update(SetComposingTextCommand("X", 1))
+        eb.setComposingText("X", 1)
 
         assertThat(eb.toString()).isEqualTo("AX")
         assertThat(eb.cursor).isEqualTo(2)
@@ -55,7 +55,7 @@ class SetComposingTextCommandTest {
     fun test_insert_cursor_head() {
         val eb = EditingBuffer("A", TextRange(1))
 
-        eb.update(SetComposingTextCommand("X", 0))
+        eb.setComposingText("X", 0)
 
         assertThat(eb.toString()).isEqualTo("AX")
         assertThat(eb.cursor).isEqualTo(1)
@@ -68,7 +68,7 @@ class SetComposingTextCommandTest {
     fun test_insert_cursor_far_tail() {
         val eb = EditingBuffer("ABCDE", TextRange(1))
 
-        eb.update(SetComposingTextCommand("X", 2))
+        eb.setComposingText("X", 2)
 
         assertThat(eb.toString()).isEqualTo("AXBCDE")
         assertThat(eb.cursor).isEqualTo(3)
@@ -81,7 +81,7 @@ class SetComposingTextCommandTest {
     fun test_insert_cursor_far_head() {
         val eb = EditingBuffer("ABCDE", TextRange(4))
 
-        eb.update(SetComposingTextCommand("X", -2))
+        eb.setComposingText("X", -2)
 
         assertThat(eb.toString()).isEqualTo("ABCDXE")
         assertThat(eb.cursor).isEqualTo(2)
@@ -94,7 +94,7 @@ class SetComposingTextCommandTest {
     fun test_insert_empty_text_cursor_head() {
         val eb = EditingBuffer("ABCDE", TextRange(1))
 
-        eb.update(SetComposingTextCommand("", 0))
+        eb.setComposingText("", 0)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
         assertThat(eb.cursor).isEqualTo(1)
@@ -105,7 +105,7 @@ class SetComposingTextCommandTest {
     fun test_insert_empty_text_cursor_tail() {
         val eb = EditingBuffer("ABCDE", TextRange(1))
 
-        eb.update(SetComposingTextCommand("", 1))
+        eb.setComposingText("", 1)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
         assertThat(eb.cursor).isEqualTo(1)
@@ -116,7 +116,7 @@ class SetComposingTextCommandTest {
     fun test_insert_empty_text_cursor_far_tail() {
         val eb = EditingBuffer("ABCDE", TextRange(1))
 
-        eb.update(SetComposingTextCommand("", 2))
+        eb.setComposingText("", 2)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
         assertThat(eb.cursor).isEqualTo(2)
@@ -127,7 +127,7 @@ class SetComposingTextCommandTest {
     fun test_insert_empty_text_cursor_far_head() {
         val eb = EditingBuffer("ABCDE", TextRange(4))
 
-        eb.update(SetComposingTextCommand("", -2))
+        eb.setComposingText("", -2)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
         assertThat(eb.cursor).isEqualTo(2)
@@ -139,7 +139,7 @@ class SetComposingTextCommandTest {
         val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
         eb.setComposition(1, 4) // Mark "BCD" as composition
-        eb.update(SetComposingTextCommand("X", 1))
+        eb.setComposingText("X", 1)
 
         assertThat(eb.toString()).isEqualTo("AXE")
         assertThat(eb.cursor).isEqualTo(2)
@@ -152,7 +152,7 @@ class SetComposingTextCommandTest {
     fun test_replace_selection() {
         val eb = EditingBuffer("ABCDE", TextRange(1, 4)) // select "BCD"
 
-        eb.update(SetComposingTextCommand("X", 1))
+        eb.setComposingText("X", 1)
 
         assertThat(eb.toString()).isEqualTo("AXE")
         assertThat(eb.cursor).isEqualTo(2)
@@ -166,7 +166,7 @@ class SetComposingTextCommandTest {
         val eb = EditingBuffer("ABCDE", TextRange(1, 3)) // select "BC"
 
         eb.setComposition(2, 4) // Mark "CD" as composition
-        eb.update(SetComposingTextCommand("X", 1))
+        eb.setComposingText("X", 1)
 
         // If composition and selection exists at the same time, replace composition and cancel
         // selection and place cursor.
@@ -181,7 +181,7 @@ class SetComposingTextCommandTest {
     fun test_cursor_position_too_small() {
         val eb = EditingBuffer("ABCDE", TextRange(5))
 
-        eb.update(SetComposingTextCommand("X", -1000))
+        eb.setComposingText("X", -1000)
 
         assertThat(eb.toString()).isEqualTo("ABCDEX")
         assertThat(eb.cursor).isEqualTo(0)
@@ -194,7 +194,7 @@ class SetComposingTextCommandTest {
     fun test_cursor_position_too_large() {
         val eb = EditingBuffer("ABCDE", TextRange(5))
 
-        eb.update(SetComposingTextCommand("X", 1000))
+        eb.setComposingText("X", 1000)
 
         assertThat(eb.toString()).isEqualTo("ABCDEX")
         assertThat(eb.cursor).isEqualTo(6)

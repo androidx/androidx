@@ -94,6 +94,7 @@ import androidx.camera.testing.impl.fakes.FakeCameraFactory
 import androidx.camera.testing.impl.fakes.FakeEncoderProfilesProvider
 import androidx.camera.testing.impl.fakes.FakeSurfaceEffect
 import androidx.camera.testing.impl.fakes.FakeSurfaceProcessorInternal
+import androidx.camera.testing.impl.fakes.FakeUseCaseConfigFactory
 import androidx.camera.testing.impl.fakes.FakeVideoEncoderInfo
 import androidx.camera.video.Quality.FHD
 import androidx.camera.video.Quality.HD
@@ -200,7 +201,11 @@ class VideoCaptureTest {
         videoCapture.effect = createFakeEffect()
         camera.hasTransform = false
         // Act: set no transform and create pipeline.
-        videoCapture.bindToCamera(camera, null, null)
+        videoCapture.bindToCamera(
+            camera,
+            null,
+            videoCapture.getDefaultConfig(true, FakeUseCaseConfigFactory())
+        )
         videoCapture.updateSuggestedStreamSpec(StreamSpec.builder(Size(640, 480)).build())
         videoCapture.onStateAttached()
         // Assert: camera edge does not have transform.
@@ -1347,6 +1352,14 @@ class VideoCaptureTest {
                 testImplementationOption
             )
         ).isEqualTo(newImplementationOptionValue)
+    }
+
+    @Test
+    fun canSetVideoStabilization() {
+        val videoCapture = VideoCapture.Builder(Recorder.Builder().build())
+            .setVideoStabilizationEnabled(true)
+            .build()
+        assertThat(videoCapture.isVideoStabilizationEnabled).isTrue()
     }
 
     private fun testSurfaceRequestContainsExpected(

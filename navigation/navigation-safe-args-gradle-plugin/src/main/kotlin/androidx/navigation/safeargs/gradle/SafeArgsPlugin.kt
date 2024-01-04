@@ -106,7 +106,7 @@ abstract class SafeArgsPlugin protected constructor(
         }
 
         forEachVariant(extension) { variant ->
-            val task = project.tasks.create(
+            val task = project.tasks.register(
                 "generateSafeArgs${variant.name.replaceFirstChar {
                     if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString()
                 }}",
@@ -141,7 +141,7 @@ abstract class SafeArgsPlugin protected constructor(
                 task.generateKotlin.set(generateKotlin)
             }
             @Suppress("DEPRECATION") // For BaseVariant should be replaced in later studio versions
-            variant.registerJavaGeneratingTask(task, task.outputDir.asFile.get())
+            variant.registerJavaGeneratingTask(task, task.get().outputDir.asFile.get())
         }
     }
 

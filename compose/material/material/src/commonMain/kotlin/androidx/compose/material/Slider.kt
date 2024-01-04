@@ -101,6 +101,8 @@ import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastMap
+import androidx.compose.ui.util.fastMinByOrNull
 import androidx.compose.ui.util.lerp
 import kotlin.math.abs
 import kotlin.math.ceil
@@ -876,10 +878,11 @@ private fun Track(
             trackStrokeWidth,
             StrokeCap.Round
         )
+        @Suppress("ListIterator")
         tickFractions.groupBy { it > positionFractionEnd || it < positionFractionStart }
             .forEach { (outsideFraction, list) ->
                 drawPoints(
-                    list.map {
+                    list.fastMap {
                         Offset(lerp(sliderStart, sliderEnd, it).x, center.y)
                     },
                     PointMode.Points,
@@ -899,7 +902,7 @@ private fun snapValueToTick(
 ): Float {
     // target is a closest anchor to the `current`, if exists
     return tickFractions
-        .minByOrNull { abs(lerp(minPx, maxPx, it) - current) }
+        .fastMinByOrNull { abs(lerp(minPx, maxPx, it) - current) }
         ?.run { lerp(minPx, maxPx, this) }
         ?: current
 }

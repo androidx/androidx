@@ -52,8 +52,8 @@ import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Carousel
 import androidx.tv.material3.CarouselDefaults
-import androidx.tv.material3.CarouselState
 import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.rememberCarouselState
 
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalAnimationApi::class)
 @Sampled
@@ -142,7 +142,7 @@ fun CarouselIndicatorWithRectangleShape() {
         Color.Yellow.copy(alpha = 0.3f),
         Color.Green.copy(alpha = 0.3f)
     )
-    val carouselState = remember { CarouselState() }
+    val carouselState = rememberCarouselState()
 
     Carousel(
         itemCount = backgrounds.size,

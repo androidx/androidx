@@ -39,6 +39,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import kotlin.test.assertNotNull
 import org.junit.After
 import org.junit.Before
@@ -699,7 +700,8 @@ class TextFieldLayoutStateCacheTest {
             update()
         }
 
-        assertThat(invalidations).isEqualTo(expectedInvalidations)
+        assertWithMessage("Expected $expectedInvalidations invalidations")
+            .that(invalidations).isEqualTo(expectedInvalidations)
     }
 
     private fun updateNonMeasureInputs() {

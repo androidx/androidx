@@ -23,8 +23,10 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.ImageBitmapConfig
 import androidx.compose.ui.graphics.LinearGradientShader
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.PaintingStyle
@@ -40,6 +42,7 @@ import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -1768,6 +1771,52 @@ class DrawScopeTest {
             assertEquals(Color.Red, this[0, pictureHeight + 1])
             assertEquals(Color.Red, this[width - 1, height - 1])
         }
+    }
+
+    @Test
+    fun testBrushResetOnSubsequentDrawWithAlphaBitmap() {
+        val width = 200
+        val height = 200
+        val brush = Brush.horizontalGradient(
+            listOf(Color.Transparent, Color.Blue, Color.Transparent)
+        )
+        val maskBitmap = ImageBitmap(width / 2, height / 2, ImageBitmapConfig.Alpha8)
+        val maskCanvas = Canvas(maskBitmap)
+        maskCanvas.drawRect(
+            Rect(0f, 0f, width.toFloat(), height.toFloat()),
+            Paint().apply { color = Color.Green }
+        )
+        val colorFilter = ColorFilter.tint(Color.Red)
+        testDrawScopeAndCanvasAreEquivalent(
+            width,
+            height,
+            {
+                // Drawing an ImageBitmap after drawing a brush should unset the
+                // previously configured brush
+                drawRect(brush)
+                inset(width / 4f, height / 4f) {
+                    drawImage(maskBitmap, colorFilter = colorFilter)
+                }
+            },
+            { canvas ->
+                val paint = Paint().apply {
+                    brush.applyTo(Size(width.toFloat(), height.toFloat()), this, 1f)
+                }
+                canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
+                canvas.save()
+                canvas.translate(width / 4f, height / 4f)
+                canvas.drawImageRect(
+                    maskBitmap,
+                    srcOffset = IntOffset.Zero,
+                    srcSize = IntSize(width, height),
+                    dstOffset = IntOffset.Zero,
+                    dstSize = IntSize(width, height),
+                    Paint().apply {
+                        this.colorFilter = colorFilter
+                    })
+                canvas.restore()
+            }
+        )
     }
 
     private inline fun testDrawTransformDefault(block: WrappedDrawTransform.() -> Unit) {

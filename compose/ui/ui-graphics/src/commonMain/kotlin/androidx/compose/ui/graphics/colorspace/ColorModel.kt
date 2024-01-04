@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.graphics.colorspace
 
-import androidx.annotation.IntRange
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.util.packInts
@@ -42,7 +41,7 @@ value class ColorModel internal constructor(
      *
      * @return An integer between 1 and 4
      */
-    @get:IntRange(from = 1, to = 4)
+    /*@IntRange(from = 1, to = 4)*/
     @Stable
     val componentCount: Int
         get() {

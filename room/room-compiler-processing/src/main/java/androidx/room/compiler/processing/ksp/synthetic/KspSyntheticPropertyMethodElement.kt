@@ -67,6 +67,8 @@ internal sealed class KspSyntheticPropertyMethodElement(
         accessor
     ) {
 
+    override val propertyName = field.name
+
     @OptIn(KspExperimental::class)
     override val jvmName: String by lazy {
         env.resolver.getJvmName(accessor) ?: error("Cannot find the name for accessor $accessor")
@@ -174,6 +176,10 @@ internal sealed class KspSyntheticPropertyMethodElement(
             filter = NO_USE_SITE_OR_GETTER
         ) {
 
+        override fun isKotlinPropertySetter() = false
+
+        override fun isKotlinPropertyGetter() = true
+
         override val name: String by lazy {
             JvmAbi.computeGetterName(field.declaration.simpleName.asString())
         }
@@ -217,6 +223,10 @@ internal sealed class KspSyntheticPropertyMethodElement(
             delegate = field.declaration.setter,
             filter = NO_USE_SITE_OR_SETTER
         ) {
+
+        override fun isKotlinPropertySetter() = true
+
+        override fun isKotlinPropertyGetter() = false
 
         override val name by lazy {
             JvmAbi.computeSetterName(field.declaration.simpleName.asString())

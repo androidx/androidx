@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="cli" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
 
     <issue
         id="NewApi"
@@ -552,15 +552,6 @@
 
     <issue
         id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method LazyGrid has parameter &apos;slots&apos; with type Function2&lt;? super Density, ? super Constraints, LazyGridSlots>."
-        errorLine1="    slots: Density.(Constraints) -> LazyGridSlots,"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGrid.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;measurePolicy&apos; with type Function2&lt;? super LazyLayoutMeasureScope, ? super Constraints, ? extends MeasureResult>."
         errorLine1="    val measurePolicy = rememberLazyGridMeasurePolicy("
         errorLine2="    ^">
@@ -579,38 +570,11 @@
 
     <issue
         id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method rememberLazyGridMeasurePolicy has parameter &apos;slots&apos; with type Function2&lt;? super Density, ? super Constraints, LazyGridSlots>."
-        errorLine1="    slots: Density.(Constraints) -> LazyGridSlots,"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGrid.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;lineOf&apos; with type Function1&lt;? super Integer, ? extends Integer>."
         errorLine1="        val lineOf: (Int) -> Int = {"
         errorLine2="                    ~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridAnimateScrollScope.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;Density, Constraints, LazyGridSlots> of &apos;rememberColumnWidthSums&apos;."
-        errorLine1="private fun rememberColumnWidthSums("
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridDsl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;Density, Constraints, LazyGridSlots> of &apos;rememberRowHeightSums&apos;."
-        errorLine1="private fun rememberRowHeightSums("
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridDsl.kt"/>
     </issue>
 
     <issue
@@ -1092,38 +1056,11 @@
 
     <issue
         id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method LazyStaggeredGrid has parameter &apos;slots&apos; with type Function2&lt;? super Density, ? super Constraints, LazyStaggeredGridSlots>."
-        errorLine1="    slots: Density.(Constraints) -> LazyStaggeredGridSlots,"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGrid.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;measurePolicy&apos; with type Function2&lt;? super LazyLayoutMeasureScope, ? super Constraints, ? extends LazyStaggeredGridMeasureResult>."
         errorLine1="    val measurePolicy = rememberStaggeredGridMeasurePolicy("
         errorLine2="    ^">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGrid.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;Density, Constraints, LazyStaggeredGridSlots> of &apos;rememberColumnSlots&apos;."
-        errorLine1="private fun rememberColumnSlots("
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridDsl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;Density, Constraints, LazyStaggeredGridSlots> of &apos;rememberRowSlots&apos;."
-        errorLine1="private fun rememberRowSlots("
-        errorLine2="            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridDsl.kt"/>
     </issue>
 
     <issue
@@ -1268,15 +1205,6 @@
         errorLine2="        ^">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridMeasure.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method rememberStaggeredGridMeasurePolicy has parameter &apos;slots&apos; with type Function2&lt;? super Density, ? super Constraints, LazyStaggeredGridSlots>."
-        errorLine1="    slots: Density.(Constraints) -> LazyStaggeredGridSlots"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridMeasurePolicy.kt"/>
     </issue>
 
     <issue

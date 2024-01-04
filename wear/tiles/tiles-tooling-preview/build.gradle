@@ -28,7 +28,7 @@ dependencies {
     implementation(project(":wear:protolayout:protolayout-proto"))
     implementation(project(":wear:tiles:tiles"))
 
-    api(project(":wear:wear-tooling-preview"))
+    api("androidx.wear:wear-tooling-preview:1.0.0-alpha01")
     api("androidx.annotation:annotation:1.6.0")
 }
 
@@ -46,4 +46,5 @@ androidx {
     inceptionYear = "2023"
     description = "Wear Tile tooling library. This library provides the API required to declare" +
             " @TilePreview on previewable methods in the IDE."
+    metalavaK2UastEnabled = true
 }

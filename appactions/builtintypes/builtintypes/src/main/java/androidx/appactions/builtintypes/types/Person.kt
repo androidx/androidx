@@ -20,6 +20,7 @@ import java.util.Objects
 import kotlin.Any
 import kotlin.Boolean
 import kotlin.Int
+import kotlin.NotImplementedError
 import kotlin.String
 import kotlin.Suppress
 import kotlin.collections.Map
@@ -48,14 +49,18 @@ public interface Person : Thing {
    *
    * See https://schema.org/email for more context.
    */
-  @get:Document.StringProperty public val email: String?
+  @get:Document.StringProperty
+  public val email: String?
+    get() = null
 
   /**
    * The telephone number.
    *
    * See https://schema.org/telephone for more context.
    */
-  @get:Document.StringProperty(name = "telephone") public val telephoneNumber: String?
+  @get:Document.StringProperty(name = "telephone")
+  public val telephoneNumber: String?
+    get() = null
 
   /** Converts this [Person] to its builder with all the properties copied over. */
   public override fun toBuilder(): Builder<*>
@@ -76,10 +81,12 @@ public interface Person : Thing {
     public override fun build(): Person
 
     /** Sets the `email`. */
-    public fun setEmail(text: String?): Self
+    @Suppress("DocumentExceptions")
+    public fun setEmail(text: String?): Self = throw NotImplementedError()
 
     /** Sets the `telephoneNumber`. */
-    public fun setTelephoneNumber(text: String?): Self
+    @Suppress("DocumentExceptions")
+    public fun setTelephoneNumber(text: String?): Self = throw NotImplementedError()
   }
 }
 

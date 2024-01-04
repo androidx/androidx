@@ -22,13 +22,12 @@ import androidx.annotation.RestrictTo
 import androidx.paging.CombineSource.INITIAL
 import androidx.paging.CombineSource.OTHER
 import androidx.paging.CombineSource.RECEIVER
-import co.touchlab.stately.concurrency.AtomicInt
+import androidx.paging.internal.AtomicInt
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow

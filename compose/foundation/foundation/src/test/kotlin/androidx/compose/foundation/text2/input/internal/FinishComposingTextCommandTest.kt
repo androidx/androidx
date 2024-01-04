@@ -30,7 +30,7 @@ class FinishComposingTextCommandTest {
         val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
         eb.setComposition(1, 4)
-        eb.update(FinishComposingTextCommand)
+        eb.finishComposingText()
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
         assertThat(eb.cursor).isEqualTo(0)
@@ -42,7 +42,7 @@ class FinishComposingTextCommandTest {
         val eb = EditingBuffer("ABCDE", TextRange(1, 4))
 
         eb.setComposition(2, 5)
-        eb.update(FinishComposingTextCommand)
+        eb.finishComposingText()
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
         assertThat(eb.selectionStart).isEqualTo(1)

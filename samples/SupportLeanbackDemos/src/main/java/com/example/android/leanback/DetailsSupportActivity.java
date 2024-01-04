@@ -16,9 +16,8 @@
  */
 package com.example.android.leanback;
 
-import android.os.Bundle;
-
 import androidx.fragment.app.FragmentActivity;
+import android.os.Bundle;
 
 @SuppressWarnings("deprecation")
 public class DetailsSupportActivity extends FragmentActivity

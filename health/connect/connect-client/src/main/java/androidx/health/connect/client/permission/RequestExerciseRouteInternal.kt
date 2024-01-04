@@ -34,7 +34,6 @@ import androidx.health.platform.client.service.HealthDataServiceConstants
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class RequestExerciseRouteInternal : ActivityResultContract<String, ExerciseRoute?>() {
     override fun createIntent(context: Context, input: String): Intent {
-        require(input.isNotEmpty()) { "Session identifier can't be empty" }
         return Intent(HealthDataServiceConstants.ACTION_REQUEST_ROUTE).apply {
             putExtra(HealthDataServiceConstants.EXTRA_SESSION_ID, input)
         }

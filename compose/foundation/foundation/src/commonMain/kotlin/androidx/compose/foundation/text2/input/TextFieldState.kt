@@ -18,14 +18,20 @@
 
 package androidx.compose.foundation.text2.input
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text2.input.internal.EditProcessor
+import androidx.compose.foundation.text2.input.internal.EditingBuffer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.SaverScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.coerceIn
 import androidx.compose.ui.text.input.TextFieldValue
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
@@ -57,8 +63,16 @@ class TextFieldState(
     initialText: String = "",
     initialSelectionInChars: TextRange = TextRange.Zero
 ) {
-    internal var editProcessor =
-        EditProcessor(TextFieldCharSequence(initialText, initialSelectionInChars))
+
+    /**
+     * The editing buffer used for applying editor commands from IME. All edits coming from gestures
+     * or IME commands, must be reflected on this buffer eventually.
+     */
+    @VisibleForTesting
+    internal var mainBuffer: EditingBuffer = EditingBuffer(
+        text = initialText,
+        selection = initialSelectionInChars.coerceIn(0, initialText.length)
+    )
 
     /**
      * The current text and selection. This value will automatically update when the user enters
@@ -78,8 +92,10 @@ class TextFieldState(
      * @see forEachTextValue
      * @see textAsFlow
      */
-    val text: TextFieldCharSequence
-        get() = editProcessor.value
+    var text: TextFieldCharSequence by mutableStateOf(
+        TextFieldCharSequence(initialText, initialSelectionInChars)
+    )
+        private set
 
     /**
      * Runs [block] with a mutable version of the current state. The block can make changes to the
@@ -109,16 +125,196 @@ class TextFieldState(
      * If the text or selection in [newValue] was actually modified, updates this state's internal
      * values. If [newValue] was not modified at all, the state is not updated, and this will not
      * invalidate anyone who is observing this state.
+     *
+     * @param newValue [TextFieldBuffer] that contains the latest updates
      */
     @Suppress("ShowingMemberInHiddenClass")
     @PublishedApi
     internal fun commitEdit(newValue: TextFieldBuffer) {
         val textChanged = newValue.changes.changeCount > 0
-        val selectionChanged = newValue.selectionInChars != editProcessor.mBuffer.selection
+        val selectionChanged = newValue.selectionInChars != mainBuffer.selection
         if (textChanged || selectionChanged) {
             val finalValue = newValue.toTextFieldCharSequence()
-            editProcessor.reset(finalValue)
+            resetStateAndNotifyIme(finalValue)
         }
+    }
+
+    /**
+     * An edit block that updates [TextFieldState] on behalf of user actions such as gestures,
+     * IME commands, hardware keyboard events, clipboard actions, and more. These modifications
+     * must also run through the given [filter] since they are user actions.
+     *
+     * Be careful that this method is not snapshot aware. It is only safe to call this from main
+     * thread, or global snapshot. Also, this function is defined as inline for performance gains,
+     * and it's not actually safe to early return from [block].
+     *
+     * @param inputTransformation [InputTransformation] to run after [block] is applied
+     * @param notifyImeOfChanges Whether IME should be notified of these changes. Only pass false to
+     * this argument if the source of the changes is IME itself.
+     * @param block The function that updates the current editing buffer.
+     */
+    internal inline fun editAsUser(
+        inputTransformation: InputTransformation?,
+        notifyImeOfChanges: Boolean = true,
+        block: EditingBuffer.() -> Unit
+    ) {
+        val previousValue = text
+
+        mainBuffer.changeTracker.clearChanges()
+        mainBuffer.block()
+
+        if (mainBuffer.changeTracker.changeCount == 0 &&
+            previousValue.selectionInChars == mainBuffer.selection &&
+            previousValue.compositionInChars == mainBuffer.composition) {
+            // nothing has changed after applying block.
+            return
+        }
+
+        commitEditAsUser(inputTransformation, notifyImeOfChanges)
+    }
+
+    private fun commitEditAsUser(
+        inputTransformation: InputTransformation?,
+        notifyImeOfChanges: Boolean
+    ) {
+        val afterEditValue = TextFieldCharSequence(
+            text = mainBuffer.toString(),
+            selection = mainBuffer.selection,
+            composition = mainBuffer.composition
+        )
+
+        if (inputTransformation == null) {
+            val oldValue = text
+            text = afterEditValue
+            if (notifyImeOfChanges) {
+                notifyIme(oldValue, afterEditValue)
+            }
+            return
+        }
+
+        val oldValue = text
+
+        // if only difference is composition, don't run filter
+        if (afterEditValue.contentEquals(oldValue) &&
+            afterEditValue.selectionInChars == oldValue.selectionInChars
+        ) {
+            text = afterEditValue
+            if (notifyImeOfChanges) {
+                notifyIme(oldValue, afterEditValue)
+            }
+            return
+        }
+
+        val mutableValue = TextFieldBuffer(
+            initialValue = afterEditValue,
+            sourceValue = oldValue,
+            initialChanges = mainBuffer.changeTracker
+        )
+        inputTransformation.transformInput(
+            originalValue = oldValue,
+            valueWithChanges = mutableValue
+        )
+        // If neither the text nor the selection changed, we want to preserve the composition.
+        // Otherwise, the IME will reset it anyway.
+        val afterFilterValue = mutableValue.toTextFieldCharSequence(
+            afterEditValue.compositionInChars
+        )
+        if (afterFilterValue == afterEditValue) {
+            text = afterFilterValue
+            if (notifyImeOfChanges) {
+                notifyIme(oldValue, afterEditValue)
+            }
+        } else {
+            resetStateAndNotifyIme(afterFilterValue)
+        }
+    }
+
+    internal fun addNotifyImeListener(notifyImeListener: NotifyImeListener) {
+        notifyImeListeners.add(notifyImeListener)
+    }
+
+    internal fun removeNotifyImeListener(notifyImeListener: NotifyImeListener) {
+        notifyImeListeners.remove(notifyImeListener)
+    }
+
+    /**
+     * A listener that can be attached to a [TextFieldState] to listen for change events that may
+     * interest IME.
+     *
+     * State in [TextFieldState] can change through various means but categorically there are two
+     * sources; Developer([TextFieldState.edit]) and User([TextFieldState.editAsUser]). Only
+     * non-filtered IME sourced changes can skip updating the IME. Otherwise, all changes must be
+     * contacted to IME to let it synchronize its state with the [TextFieldState]. Such
+     * communication is built by IME registering a [NotifyImeListener] on a [TextFieldState].
+     */
+    internal fun interface NotifyImeListener {
+
+        fun onChange(oldValue: TextFieldCharSequence, newValue: TextFieldCharSequence)
+    }
+
+    /**
+     * Must be called whenever [text] needs to change but the content of the changes are not yet
+     * replicated on [mainBuffer].
+     *
+     * This method updates the internal editing buffer with the given [TextFieldCharSequence], it
+     * also notifies the IME about the selection or composition changes.
+     */
+    @VisibleForTesting
+    internal fun resetStateAndNotifyIme(newValue: TextFieldCharSequence) {
+        val bufferState = TextFieldCharSequence(
+            mainBuffer.toString(),
+            mainBuffer.selection,
+            mainBuffer.composition
+        )
+
+        var textChanged = false
+        var selectionChanged = false
+        val compositionChanged = newValue.compositionInChars != mainBuffer.composition
+
+        if (!bufferState.contentEquals(newValue)) {
+            // reset the buffer in its entirety
+            mainBuffer = EditingBuffer(
+                text = newValue.toString(),
+                selection = newValue.selectionInChars
+            )
+            textChanged = true
+        } else if (bufferState.selectionInChars != newValue.selectionInChars) {
+            mainBuffer.setSelection(newValue.selectionInChars.start, newValue.selectionInChars.end)
+            selectionChanged = true
+        }
+
+        val composition = newValue.compositionInChars
+        if (composition == null || composition.collapsed) {
+            mainBuffer.commitComposition()
+        } else {
+            mainBuffer.setComposition(composition.min, composition.max)
+        }
+
+        if (textChanged || (!selectionChanged && compositionChanged)) {
+            mainBuffer.commitComposition()
+        }
+
+        val finalValue = TextFieldCharSequence(
+            if (textChanged) newValue else bufferState,
+            mainBuffer.selection,
+            mainBuffer.composition
+        )
+
+        // value must be set before notifyImeListeners are called. Even though we are sending the
+        // previous and current values, a system callback may request the latest state e.g. IME
+        // restartInput call is handled before notifyImeListeners return.
+        text = finalValue
+
+        notifyIme(bufferState, finalValue)
+    }
+
+    private val notifyImeListeners = mutableVectorOf<NotifyImeListener>()
+
+    private fun notifyIme(
+        oldValue: TextFieldCharSequence,
+        newValue: TextFieldCharSequence
+    ) {
+        notifyImeListeners.forEach { it.onChange(oldValue, newValue) }
     }
 
     /**

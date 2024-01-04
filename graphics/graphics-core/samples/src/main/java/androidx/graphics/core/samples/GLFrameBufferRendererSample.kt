@@ -35,6 +35,8 @@ fun glFrameBufferSample(context: Context) {
 
             override fun onDrawFrame(
                 eglManager: EGLManager,
+                width: Int,
+                height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray
             ) {

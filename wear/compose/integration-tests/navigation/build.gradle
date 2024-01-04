@@ -58,5 +58,4 @@ dependencies {
     // but it doesn't work in androidx.
     // See aosp/1804059
     androidTestImplementation "androidx.lifecycle:lifecycle-common-java8:2.4.0"
-    androidTestImplementation(project(":annotation:annotation"))
 }

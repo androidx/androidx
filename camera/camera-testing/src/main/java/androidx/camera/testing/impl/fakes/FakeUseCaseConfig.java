@@ -24,10 +24,12 @@ import android.util.Size;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.DynamicRange;
 import androidx.camera.core.MirrorMode;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
+import androidx.camera.core.impl.ImageInputConfig;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
@@ -72,7 +74,8 @@ public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutpu
     @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class Builder implements
             UseCaseConfig.Builder<FakeUseCase, FakeUseCaseConfig, FakeUseCaseConfig.Builder>,
-            ImageOutputConfig.Builder<FakeUseCaseConfig.Builder> {
+            ImageOutputConfig.Builder<FakeUseCaseConfig.Builder>,
+            ImageInputConfig.Builder<FakeUseCaseConfig.Builder> {
 
         private final MutableOptionsBundle mOptionsBundle;
 
@@ -161,6 +164,14 @@ public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutpu
         public Builder setSessionOptionUnpacker(
                 @NonNull SessionConfig.OptionUnpacker optionUnpacker) {
             getMutableConfig().insertOption(OPTION_SESSION_CONFIG_UNPACKER, optionUnpacker);
+            return this;
+        }
+
+        @Override
+        @NonNull
+        public Builder setDynamicRange(
+                @NonNull DynamicRange dynamicRange) {
+            getMutableConfig().insertOption(OPTION_INPUT_DYNAMIC_RANGE, dynamicRange);
             return this;
         }
 

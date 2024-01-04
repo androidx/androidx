@@ -21,29 +21,27 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.foundation.text.selection.gestures.util.SelectionSubject
 import androidx.compose.foundation.text.selection.gestures.util.TextSelectionAsserter
-import androidx.compose.foundation.text.selection.gestures.util.applyAndAssert
-import androidx.compose.foundation.text.selection.gestures.util.collapsed
-import androidx.compose.foundation.text.selection.gestures.util.to
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.text.TextStyle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth
 import org.junit.Before
-import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalTestApi::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 internal class SingleTextSelectionGesturesTest : TextSelectionGesturesTest() {
 
     private val testTag = "testTag"
+    override val word = "hello"
+    override val textContent = mutableStateOf("line1\nline2 text1 text2\nline3")
+
     override lateinit var asserter: TextSelectionAsserter
 
     @Before
@@ -58,7 +56,11 @@ internal class SingleTextSelectionGesturesTest : TextSelectionGesturesTest() {
             override fun subAssert() {
                 Truth.assertAbout(SelectionSubject.withContent(textContent))
                     .that(getActual())
-                    .hasSelection(selection)
+                    .hasSelection(
+                        expected = selection,
+                        startTextDirection = startLayoutDirection,
+                        endTextDirection = endLayoutDirection,
+                    )
             }
         }
     }
@@ -78,35 +80,7 @@ internal class SingleTextSelectionGesturesTest : TextSelectionGesturesTest() {
     }
 
     override fun characterPosition(offset: Int): Offset {
-        val nodePosition = rule.onNodeWithTag(testTag).fetchSemanticsNode().positionInRoot
         val textLayoutResult = rule.onNodeWithTag(testTag).fetchTextLayoutResult()
-        return textLayoutResult.getBoundingBox(offset).translate(nodePosition).center
-    }
-
-    @Test
-    fun whenMouseCollapsedSelectionAcrossLines_thenTouch_showUi() {
-        performMouseGesture {
-            moveTo(boundsInRoot.centerRight - Offset(1f, 0f))
-            press()
-        }
-
-        asserter.applyAndAssert {
-            selection = 23.collapsed
-        }
-
-        mouseDragTo(characterPosition(offset = 24))
-
-        asserter.applyAndAssert {
-            selection = 23 to 24
-        }
-
-        performTouchGesture {
-            enterTouchMode()
-        }
-
-        asserter.applyAndAssert {
-            selectionHandlesShown = true
-            textToolbarShown = true
-        }
+        return textLayoutResult.getBoundingBox(offset).centerLeft.nudge(HorizontalDirection.END)
     }
 }

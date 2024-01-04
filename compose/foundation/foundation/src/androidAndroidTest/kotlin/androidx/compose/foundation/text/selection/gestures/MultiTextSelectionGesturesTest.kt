@@ -31,6 +31,7 @@ import androidx.compose.foundation.text.selection.gestures.util.to
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.testTag
@@ -50,9 +51,11 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 internal class MultiTextSelectionGesturesTest : TextSelectionGesturesTest() {
 
-    override lateinit var asserter: TextSelectionAsserter
-
     override val pointerAreaTag = "selectionContainer"
+    override val word = "hello"
+    override val textContent = mutableStateOf("line1\nline2 text1 text2\nline3")
+
+    override lateinit var asserter: TextSelectionAsserter
 
     private lateinit var texts: State<List<Pair<String, String>>>
     private lateinit var textContentIndices: State<List<IntRange>>
@@ -69,7 +72,11 @@ internal class MultiTextSelectionGesturesTest : TextSelectionGesturesTest() {
             override fun subAssert() {
                 Truth.assertAbout(MultiSelectionSubject.withContent(texts.value))
                     .that(getActual())
-                    .hasSelection(selection)
+                    .hasSelection(
+                        expected = selection,
+                        startTextDirection = startLayoutDirection,
+                        endTextDirection = endLayoutDirection,
+                    )
             }
         }
     }
@@ -105,15 +112,20 @@ internal class MultiTextSelectionGesturesTest : TextSelectionGesturesTest() {
         val selectableIndex = textContentIndices.value.offsetToSelectableId(offset)
         val localOffset = textContentIndices.value.offsetToLocalOffset(offset)
         val (_, tag) = texts.value[selectableIndex]
+        val pointerAreaPosition =
+            rule.onNodeWithTag(pointerAreaTag).fetchSemanticsNode().positionInRoot
         val nodePosition = rule.onNodeWithTag(tag).fetchSemanticsNode().positionInRoot
         val textLayoutResult = rule.onNodeWithTag(tag).fetchTextLayoutResult()
-        return textLayoutResult.getBoundingBox(localOffset).translate(nodePosition).center
+        return textLayoutResult.getBoundingBox(localOffset)
+            .translate(nodePosition - pointerAreaPosition)
+            .centerLeft
+            .nudge(HorizontalDirection.END)
     }
 
     @Test
-    fun whenMouseCollapsedSelectionAcrossLines_thenTouch_noUiElements() {
+    override fun whenMouseCollapsedSelectionAcrossLines_thenTouch_showUi() {
         performMouseGesture {
-            moveTo(boundsInRoot.centerRight - Offset(1f, 0f))
+            moveTo(centerEnd)
             press()
         }
 
@@ -121,7 +133,7 @@ internal class MultiTextSelectionGesturesTest : TextSelectionGesturesTest() {
             selection = 23.collapsed
         }
 
-        mouseDragTo(characterPosition(24))
+        mouseDragTo(characterPosition(offset = 24))
 
         asserter.applyAndAssert {
             selection = 23 to 24
@@ -131,6 +143,12 @@ internal class MultiTextSelectionGesturesTest : TextSelectionGesturesTest() {
             enterTouchMode()
         }
 
-        asserter.assert()
+        asserter.applyAndAssert {
+            selectionHandlesShown = true
+
+            // only difference from the parent function, the selection is empty,
+            // so the toolbar for copying won't appear.
+            textToolbarShown = false
+        }
     }
 }

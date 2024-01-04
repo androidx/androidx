@@ -52,6 +52,7 @@ class ExerciseRouteRequestContract : ActivityResultContract<String, ExerciseRout
      * @see ActivityResultContract.createIntent
      */
     override fun createIntent(context: Context, input: String): Intent {
+        require(input.isNotEmpty()) { "Session identifier can't be empty" }
         return delegate.createIntent(context, input)
     }
 

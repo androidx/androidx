@@ -673,6 +673,13 @@ public abstract void jvmInsert\(@org\.jetbrains\.annotations\.NotNull.*
 public abstract java\.util\.List<androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameEntity> jvmQuery\(\);
 public abstract androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameDao jvmDao\(\);
 \^
+# b/296419682
+\$SUPPORT/concurrent/concurrent\-futures/src/test/java/androidx/concurrent/futures/AbstractResolvableFutureTest\.java:[0-9]+: warning: \[removal\] resume\(\) in Thread has been deprecated and marked for removal
+thread\.resume\(\);
+# > Task :concurrent:concurrent-futures:compileTestJava
+\$SUPPORT/concurrent/concurrent\-futures/src/test/java/androidx/concurrent/futures/AbstractResolvableFutureTest\.java:[0-9]+: warning: \[removal\] suspend\(\) in Thread has been deprecated and marked for removal
+thread\.suspend\(\);
+[0-9]+ warnings
 # When konan is downloading a dependency from another file, don't warn about it.
 \(KonanProperies\) Downloading dependency: file:\.\./\.\./.*
 Please wait while Kotlin/Native compiler .* is being installed\.
@@ -713,13 +720,5 @@ w: file://\$SUPPORT/compose/foundation/foundation/src/androidAndroidTest/kotlin/
 w: file://\$SUPPORT/compose/ui/ui/src/androidAndroidTest/kotlin/androidx/compose/ui/window/PopupTestUtils\.kt:[0-9]+:[0-9]+ 'getter for windowLayoutParams: EspressoOptional<WindowManager\.LayoutParams!>!' is deprecated\. Deprecated in Java
 # b/271306193 remove after aosp/2589888 :emoji:emoji:spdxSbomForRelease
 spdx sboms require a version but project: noto\-emoji\-compat\-flatbuffers has no specified version
-# > Configure project :androidx-demos
-WARNING: The option setting 'android\.experimental\.disableCompileSdkChecks=true' is experimental\.
-The current default is 'false'\.
-WARNING: The option setting 'android\.r[0-9]+\.maxWorkers=[0-9]+' is experimental\.
-# > Task :compose:ui:ui:compileReleaseKotlinAndroid
-e: Daemon compilation failed: Could not connect to Kotlin compile daemon
-java\.lang\.RuntimeException: Could not connect to Kotlin compile daemon
-Errors were stored into \$SUPPORT/\.gradle/kotlin/errors/errors\-[0-9]+\.log
-# > Task :vectordrawable:integration-tests:testapp:createReleaseCompatibleScreenManifests
-exception: info: \[ksp\] loaded provider\(s\): \[androidx\.room\.RoomKspProcessor\$Provider\]
+# > Configure project :internal-testutils-appcompat
+WARNING: The option setting 'android\.experimental\.lint\.reservedMemoryPerTask=[0-9]+g' is experimental\.

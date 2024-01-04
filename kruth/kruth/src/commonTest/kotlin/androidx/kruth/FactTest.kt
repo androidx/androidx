@@ -110,6 +110,48 @@ class FactTest {
     }
 
     @Test
+    fun failWithActual_simpleFact() {
+        val subject =
+            object : Subject<Int>(
+                actual = 0,
+            ) {
+                fun fail() {
+                    failWithActual(simpleFact("Expected something else"))
+                }
+            }
+
+        assertFailsWithMessage(
+            """
+                Expected something else
+                but was: 0
+            """.trimIndent()
+        ) { subject.fail() }
+    }
+
+    @Test
+    fun failWithActual_multipleFacts() {
+        val subject =
+            object : Subject<Int>(
+                actual = 0,
+            ) {
+                fun fail() {
+                    failWithActual(
+                        simpleFact("Expected something else"),
+                        fact("expected", "1"),
+                    )
+                }
+            }
+
+        assertFailsWithMessage(
+            """
+                Expected something else
+                expected: 1
+                but was : 0
+            """.trimIndent()
+        ) { subject.fail() }
+    }
+
+    @Test
     fun failWithoutActual_simpleFact() {
         val subject =
             object : Subject<Int>(

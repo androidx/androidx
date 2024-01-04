@@ -835,7 +835,7 @@ public class ColorRamp(
  * data in its manifest (NB the value is a comma separated list):
  * ```
  * <meta-data android:name="android.support.wearable.complications.SUPPORTED_TYPES"
- *    android:value="GOAL_PROGRESS"/>
+ *    android:value="RANGED_VALUE"/>
  * ```
  *
  * @property value The [Float] value of this complication which is >= [min] and <= [max] or equal to

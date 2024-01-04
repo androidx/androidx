@@ -64,7 +64,7 @@ class FocusAwareEventPropagationTest(private val nodeType: NodeType) {
 
     private val sentEvent: Any = when (nodeType) {
         KeyInput, InterruptedSoftKeyboardInput -> KeyEvent(AndroidKeyEvent(ACTION_DOWN, KEYCODE_A))
-        RotaryInput -> RotaryScrollEvent(1f, 1f, 0L)
+        RotaryInput -> RotaryScrollEvent(1f, 1f, 0L, 0)
     }
     private var receivedEvent: Any? = null
     private val initialFocus = FocusRequester()

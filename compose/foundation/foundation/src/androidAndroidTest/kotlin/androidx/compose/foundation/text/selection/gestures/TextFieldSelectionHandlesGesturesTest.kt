@@ -28,7 +28,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.longClick
@@ -126,11 +125,8 @@ internal class TextFieldSelectionHandlesGesturesTest : AbstractSelectionGestures
         performTouchInput { up() }
     }
 
-    private fun characterPosition(offset: Int): Offset = characterBox(offset).center
-
-    private fun characterBox(offset: Int): Rect {
-        val nodePosition = rule.onNodeWithTag(pointerAreaTag).fetchSemanticsNode().positionInRoot
+    private fun characterPosition(offset: Int): Offset {
         val textLayoutResult = rule.onNodeWithTag(pointerAreaTag).fetchTextLayoutResult()
-        return textLayoutResult.getBoundingBox(offset).translate(nodePosition)
+        return textLayoutResult.getBoundingBox(offset).centerLeft
     }
 }

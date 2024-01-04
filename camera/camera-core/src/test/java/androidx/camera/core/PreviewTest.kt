@@ -40,12 +40,9 @@ import androidx.camera.core.SurfaceRequest.TransformationInfo
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraThreadConfig
 import androidx.camera.core.impl.MutableOptionsBundle
-import androidx.camera.core.impl.OptionsBundle
-import androidx.camera.core.impl.PreviewConfig
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.UseCaseConfig
-import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
@@ -783,6 +780,13 @@ class PreviewTest {
         assertThat(preview.targetFrameRate).isEqualTo(Range(15, 30))
     }
 
+    @Test
+    fun canSetPreviewStabilization() {
+        val preview = Preview.Builder().setPreviewStabilizationEnabled(true)
+            .build()
+        assertThat(preview.isPreviewStabilizationEnabled).isTrue()
+    }
+
     private fun bindToLifecycleAndGetSurfaceRequest(): SurfaceRequest {
         return bindToLifecycleAndGetResult(null).first
     }
@@ -834,13 +838,12 @@ class PreviewTest {
             .build()
         previewToDetach.effect = effect
         previewToDetach.setSurfaceProvider(directExecutor(), surfaceProvider)
-        val previewConfig = PreviewConfig(
-            cameraXConfig.getUseCaseConfigFactoryProvider(null)!!.newInstance(context).getConfig(
-                UseCaseConfigFactory.CaptureType.PREVIEW,
-                ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
-            )!! as OptionsBundle
+        previewToDetach.bindToCamera(
+            camera, null, previewToDetach.getDefaultConfig(
+                true,
+                cameraXConfig.getUseCaseConfigFactoryProvider(null)!!.newInstance(context)
+            )
         )
-        previewToDetach.bindToCamera(camera, null, previewConfig)
 
         val streamSpecOptions = MutableOptionsBundle.create()
         streamSpecOptions.insertOption(testImplementationOption, testImplementationOptionValue)

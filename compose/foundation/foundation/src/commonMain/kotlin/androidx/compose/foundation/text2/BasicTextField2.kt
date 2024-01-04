@@ -452,7 +452,7 @@ fun BasicTextField2(
         TextFieldSelectionState(
             textFieldState = state,
             textLayoutState = textLayoutState,
-            textEditFilter = inputTransformation,
+            inputTransformation = inputTransformation,
             density = density,
             editable = enabled && !readOnly,
             isFocused = isFocused
@@ -464,12 +464,14 @@ fun BasicTextField2(
     SideEffect {
         // These properties are not backed by snapshot state, so they can't be updated directly in
         // composition.
-        textFieldSelectionState.hapticFeedBack = currentHapticFeedback
-        textFieldSelectionState.clipboardManager = currentClipboardManager
-        textFieldSelectionState.textToolbar = currentTextToolbar
-        textFieldSelectionState.textEditFilter = inputTransformation
-        textFieldSelectionState.density = density
-        textFieldSelectionState.editable = enabled && !readOnly
+        textFieldSelectionState.update(
+            hapticFeedBack = currentHapticFeedback,
+            clipboardManager = currentClipboardManager,
+            textToolbar = currentTextToolbar,
+            inputTransformation = inputTransformation,
+            density = density,
+            editable = enabled && !readOnly,
+        )
     }
 
     DisposableEffect(textFieldSelectionState) {

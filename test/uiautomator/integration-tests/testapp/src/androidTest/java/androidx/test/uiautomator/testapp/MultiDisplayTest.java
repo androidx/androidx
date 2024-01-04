@@ -131,7 +131,7 @@ public class MultiDisplayTest extends BaseTest {
     }
 
     @Test
-    public void testMultiDisplay_orientations() throws Exception {
+    public void testMultiDisplay_orientations() {
         int secondaryDisplayId = getSecondaryDisplayId();
 
         try {

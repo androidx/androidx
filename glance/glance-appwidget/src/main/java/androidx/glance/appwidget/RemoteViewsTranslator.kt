@@ -31,6 +31,10 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isSpecified
+import androidx.compose.ui.util.fastAll
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEachIndexed
+import androidx.compose.ui.util.fastMap
 import androidx.core.widget.RemoteViewsCompat.setLinearLayoutGravity
 import androidx.glance.Emittable
 import androidx.glance.EmittableButton
@@ -105,13 +109,13 @@ internal fun translateComposition(
     children: List<Emittable>,
     rootViewIndex: Int
 ): RemoteViews {
-    if (children.all { it is EmittableSizeBox }) {
+    if (children.fastAll { it is EmittableSizeBox }) {
         // If the children of root are all EmittableSizeBoxes, then we must translate each
         // EmittableSizeBox into a distinct RemoteViews object. Then, we combine them into one
         // multi-sized RemoteViews (a RemoteViews that contains either landscape & portrait RVs or
         // multiple RVs mapped by size).
         val sizeMode = (children.first() as EmittableSizeBox).sizeMode
-        val views = children.map { child ->
+        val views = children.fastMap { child ->
             val size = (child as EmittableSizeBox).size
             val remoteViewsInfo = createRootView(translationContext, child.modifier, rootViewIndex)
             val rv = remoteViewsInfo.remoteViews.apply {
@@ -126,10 +130,11 @@ internal fun translateComposition(
             is SizeMode.Single -> views.single().second
             is SizeMode.Responsive, SizeMode.Exact -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    @Suppress("ListIterator")
                     Api31Impl.createRemoteViews(views.toMap())
                 } else {
                     require(views.size == 1 || views.size == 2) { "unsupported views size" }
-                    combineLandscapeAndPortrait(views.map { it.second })
+                    combineLandscapeAndPortrait(views.fastMap { it.second })
                 }
             }
         }
@@ -307,7 +312,7 @@ private fun RemoteViews.translateEmittableBox(
         element.modifier,
         viewDef
     )
-    element.children.forEach {
+    element.children.fastForEach {
         it.modifier = it.modifier.then(AlignmentModifier(element.contentAlignment))
     }
     setChildren(
@@ -392,6 +397,7 @@ private fun RemoteViews.translateEmittableColumn(
 }
 
 private fun checkSelectableGroupChildren(children: List<Emittable>) {
+    @Suppress("ListIterator")
     check(children.count { it is EmittableRadioButton && it.checked } <= 1) {
         "When using GlanceModifier.selectableGroup(), no more than one RadioButton " +
         "may be checked at a time."
@@ -410,7 +416,7 @@ private fun RemoteViews.translateEmittableAndroidRemoteViews(
         }
         element.remoteViews.copy().apply {
             removeAllViews(element.containerViewId)
-            element.children.forEachIndexed { index, child ->
+            element.children.fastForEachIndexed { index, child ->
                 val rvInfo = createRootView(translationContext, child.modifier, index)
                 val rv = rvInfo.remoteViews
                 rv.translateChild(translationContext.forRoot(rvInfo), child)
@@ -466,7 +472,8 @@ internal fun RemoteViews.setChildren(
     parentDef: InsertedViewInfo,
     children: List<Emittable>
 ) {
-    children.take(10).forEachIndexed { index, child ->
+    @Suppress("ListIterator")
+    children.take(10).fastForEachIndexed { index, child ->
         translateChild(
             translationContext.forChild(parent = parentDef, pos = index),
             child,

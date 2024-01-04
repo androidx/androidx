@@ -21,8 +21,8 @@ package androidx.paging
 import androidx.annotation.RestrictTo
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
-import co.touchlab.stately.concurrency.Lock
-import co.touchlab.stately.concurrency.withLock
+import androidx.paging.internal.ReentrantLock
+import androidx.paging.internal.withLock
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -106,7 +106,7 @@ internal class HintHandler {
             get() = prepend.flow
         val appendFlow
             get() = append.flow
-        private val lock = Lock()
+        private val lock = ReentrantLock()
 
         /**
          * Modifies the state inside a lock where it gets access to the mutable values.

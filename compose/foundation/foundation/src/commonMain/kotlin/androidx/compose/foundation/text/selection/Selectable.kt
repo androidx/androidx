@@ -41,33 +41,10 @@ internal interface Selectable {
     val selectableId: Long
 
     /**
-     * Updates the [Selection] information after a selection handle being moved. This method is
-     * expected to be called consecutively during the selection handle position update.
-     *
-     * @param startHandlePosition graphical position of the start selection handle
-     * @param endHandlePosition graphical position of the end selection handle
-     * @param previousHandlePosition the previous position of the moving selection handle
-     * @param containerLayoutCoordinates [LayoutCoordinates] of the composable
-     * @param adjustment [Selection] range is adjusted according to this param
-     * @param previousSelection previous selection result on this [Selectable]
-     * @param isStartHandle whether the moving selection handle is the start selection handle
-     *
-     * @throws IllegalStateException when the given [previousSelection] doesn't belong to this
-     * selectable. In other words, one of the [Selection.AnchorInfo] in the given
-     * [previousSelection] has a selectableId that doesn't match to the [selectableId] of this
-     * selectable.
-     * @return a pair consisting of the updated [Selection] and a boolean value representing
-     * whether the movement is consumed.
+     * A function which adds [SelectableInfo] representing this [Selectable]
+     * to the [SelectionLayoutBuilder].
      */
-    fun updateSelection(
-        startHandlePosition: Offset,
-        endHandlePosition: Offset,
-        previousHandlePosition: Offset?,
-        isStartHandle: Boolean = true,
-        containerLayoutCoordinates: LayoutCoordinates,
-        adjustment: SelectionAdjustment,
-        previousSelection: Selection? = null
-    ): Pair<Selection?, Boolean>
+    fun appendSelectableInfoToBuilder(builder: SelectionLayoutBuilder)
 
     /**
      * Returns selectAll [Selection] information for a selectable composable. If no selection can be
@@ -115,6 +92,33 @@ internal interface Selectable {
      * empty.
      */
     fun getBoundingBox(offset: Int): Rect
+
+    /**
+     * Returns the left x coordinate of the line for the given offset.
+     *
+     * @param offset a character offset
+     * @return the line left x coordinate for the given offset
+     */
+    fun getLineLeft(offset: Int): Float
+
+    /**
+     * Returns the right x coordinate of the line for the given offset.
+     *
+     * @param offset a character offset
+     * @return the line right x coordinate for the given offset
+     */
+    fun getLineRight(offset: Int): Float
+
+    /**
+     * Returns the center y coordinate of the line on which the specified text offset appears.
+     *
+     * If you ask for a position before 0, you get the center of the first line;
+     * if you ask for a position beyond the end of the text, you get the center of the last line.
+     *
+     * @param offset a character offset
+     * @return the line center y coordinate of the line containing [offset]
+     */
+    fun getCenterYForOffset(offset: Int): Float
 
     /**
      * Return the offsets of the start and end of the line containing [offset], or [TextRange.Zero]

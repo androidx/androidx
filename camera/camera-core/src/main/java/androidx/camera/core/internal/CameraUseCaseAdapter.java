@@ -21,6 +21,8 @@ import static androidx.camera.core.CameraEffect.PREVIEW;
 import static androidx.camera.core.CameraEffect.VIDEO_CAPTURE;
 import static androidx.camera.core.impl.utils.TransformUtils.rectToSize;
 import static androidx.camera.core.processing.TargetUtils.getNumberOfTargets;
+import static androidx.camera.core.streamsharing.StreamSharing.getCaptureTypes;
+import static androidx.camera.core.streamsharing.StreamSharing.isStreamSharing;
 import static androidx.core.util.Preconditions.checkArgument;
 import static androidx.core.util.Preconditions.checkState;
 
@@ -727,19 +729,6 @@ public final class CameraUseCaseAdapter implements Camera {
         }
     }
 
-    @NonNull
-    private static List<UseCaseConfigFactory.CaptureType> getCaptureTypes(UseCase useCase) {
-        List<UseCaseConfigFactory.CaptureType> result = new ArrayList<>();
-        if (isStreamSharing(useCase)) {
-            for (UseCase child : ((StreamSharing) useCase).getChildren()) {
-                result.add(child.getCurrentConfig().getCaptureType());
-            }
-        } else {
-            result.add(useCase.getCurrentConfig().getCaptureType());
-        }
-        return result;
-    }
-
     /**
      * Sets effects on the given {@link UseCase} list and returns unused effects.
      */
@@ -945,16 +934,22 @@ public final class CameraUseCaseAdapter implements Camera {
     }
 
     @Override
-    public boolean isUseCasesCombinationSupported(@NonNull UseCase... useCases) {
+    public boolean isUseCasesCombinationSupported(boolean withStreamSharing,
+            @NonNull UseCase... useCases) {
+        Collection<UseCase> useCasesToVerify = Arrays.asList(useCases);
+        if (withStreamSharing) {
+            StreamSharing streamSharing = createOrReuseStreamSharing(useCasesToVerify, true);
+            useCasesToVerify = calculateCameraUseCases(useCasesToVerify, null, streamSharing);
+        }
         synchronized (mLock) {
             // If the UseCases exceed the resolutions then it will throw an exception
             try {
-                Map<UseCase, ConfigPair> configs = getConfigs(Arrays.asList(useCases),
+                Map<UseCase, ConfigPair> configs = getConfigs(useCasesToVerify,
                         mCameraConfig.getUseCaseConfigFactory(), mUseCaseConfigFactory);
                 calculateSuggestedStreamSpecs(
                         getCameraMode(),
                         mCameraInternal.getCameraInfoInternal(),
-                        Arrays.asList(useCases), emptyList(), configs);
+                        useCasesToVerify, emptyList(), configs);
             } catch (IllegalArgumentException e) {
                 return false;
             }
@@ -1034,10 +1029,6 @@ public final class CameraUseCaseAdapter implements Camera {
         }
 
         return hasPreview && !hasImageCapture;
-    }
-
-    private static boolean isStreamSharing(@Nullable UseCase useCase) {
-        return useCase instanceof StreamSharing;
     }
 
     private static boolean isPreview(@Nullable UseCase useCase) {

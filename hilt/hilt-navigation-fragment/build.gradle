@@ -61,4 +61,5 @@ androidx {
     mavenVersion = LibraryVersions.HILT_NAVIGATION
     inceptionYear = "2021"
     description = "Android Navigation Fragment Hilt Extension"
+    metalavaK2UastEnabled = true
 }

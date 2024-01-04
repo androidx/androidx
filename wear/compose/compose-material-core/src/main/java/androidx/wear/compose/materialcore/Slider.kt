@@ -18,7 +18,6 @@ package androidx.wear.compose.materialcore
 
 import androidx.annotation.RestrictTo
 import androidx.compose.foundation.LocalIndication
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -48,13 +47,12 @@ public fun InlineSliderButton(
         modifier = Modifier
             .width(buttonControlSize)
             .fillMaxHeight()
-            .clickable(
+            .repeatableClickable(
                 enabled = enabled,
                 onClick = onClick,
                 interactionSource = remember { MutableInteractionSource() },
-                indication = LocalIndication.current,
+                indication = LocalIndication.current
             )
-            .repeatableClickable(enabled = enabled, onClick = onClick)
             .then(modifier),
         contentAlignment = contentAlignment
     ) {

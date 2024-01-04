@@ -28,7 +28,6 @@ import android.telecom.PhoneAccountHandle
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
-import androidx.core.telecom.CallControlCallback
 import androidx.core.telecom.internal.utils.BuildVersionAdapter
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.FileInputStream
@@ -133,35 +132,28 @@ object TestUtils {
         }
     }
 
-    /**
-     * This [CallControlCallback] implementation will be called by the platform whenever an
-     * InCallService wants to [answer, setActive, setInactive, or disconnect] a particular call
-     * and will immediately complete/reject the transaction depending on the return type.
-     */
-    val mCallControlCallbacksImpl = object : CallControlCallback {
-        override suspend fun onSetActive(): Boolean {
-            Log.i(LOG_TAG, "mCACCCI: onSetActive: completing")
-            mOnSetActiveCallbackCalled = true
-            return mCompleteOnSetActive
-        }
+    val mOnSetActiveLambda: suspend () -> Boolean = {
+        Log.i(LOG_TAG, "onSetActive: completing")
+        mOnSetActiveCallbackCalled = true
+        mCompleteOnSetActive
+    }
 
-        override suspend fun onSetInactive(): Boolean {
-            Log.i(LOG_TAG, "mCACCCI: onSetInactive: completing")
-            mOnSetInactiveCallbackCalled = true
-            return mCompleteOnSetInactive
-        }
+    val mOnSetInActiveLambda: suspend () -> Boolean = {
+        Log.i(LOG_TAG, "onSetInactive: completing")
+        mOnSetInactiveCallbackCalled = true
+        mCompleteOnSetInactive
+    }
 
-        override suspend fun onAnswer(callType: Int): Boolean {
-            Log.i(LOG_TAG, "mCACCCI: onAnswer: callType=[$callType]")
-            mOnAnswerCallbackCalled = true
-            return mCompleteOnAnswer
-        }
+    val mOnAnswerLambda: suspend (type: Int) -> Boolean = {
+        Log.i(LOG_TAG, "onAnswer: callType=[$it]")
+        mOnAnswerCallbackCalled = true
+        mCompleteOnAnswer
+    }
 
-        override suspend fun onDisconnect(disconnectCause: DisconnectCause): Boolean {
-            Log.i(LOG_TAG, "mCACCCI: onDisconnect: disconnectCause=[$disconnectCause]")
-            mOnDisconnectCallbackCalled = true
-            return mCompleteOnDisconnect
-        }
+    val mOnDisconnectLambda: suspend (cause: DisconnectCause) -> Boolean = {
+        Log.i(LOG_TAG, "onDisconnect: disconnectCause=[$it]")
+        mOnDisconnectCallbackCalled = true
+        mCompleteOnDisconnect
     }
 
     // Flags for determining whether the given callback was invoked or not
