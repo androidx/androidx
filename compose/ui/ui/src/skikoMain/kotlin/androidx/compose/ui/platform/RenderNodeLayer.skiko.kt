@@ -122,49 +122,38 @@ internal class RenderNodeLayer(
         return isInOutline(outlineCache.outline, x, y)
     }
 
+    private var mutatedFields: Int = 0
+
     override fun updateLayerProperties(
-        scaleX: Float,
-        scaleY: Float,
-        alpha: Float,
-        translationX: Float,
-        translationY: Float,
-        shadowElevation: Float,
-        rotationX: Float,
-        rotationY: Float,
-        rotationZ: Float,
-        cameraDistance: Float,
-        transformOrigin: TransformOrigin,
-        shape: Shape,
-        clip: Boolean,
-        renderEffect: RenderEffect?,
-        ambientShadowColor: Color,
-        spotShadowColor: Color,
-        compositingStrategy: CompositingStrategy,
+        scope: ReusableGraphicsLayerScope,
         layoutDirection: LayoutDirection,
-        density: Density
+        density: Density,
     ) {
-        this.transformOrigin = transformOrigin
-        this.translationX = translationX
-        this.translationY = translationY
-        this.rotationX = rotationX
-        this.rotationY = rotationY
-        this.rotationZ = rotationZ
-        this.cameraDistance = max(cameraDistance, 0.001f)
-        this.scaleX = scaleX
-        this.scaleY = scaleY
-        this.alpha = alpha
-        this.clip = clip
-        this.shadowElevation = shadowElevation
+        val maybeChangedFields = scope.mutatedFields or mutatedFields
+        this.transformOrigin = scope.transformOrigin
+        this.translationX = scope.translationX
+        this.translationY = scope.translationY
+        this.rotationX = scope.rotationX
+        this.rotationY = scope.rotationY
+        this.rotationZ = scope.rotationZ
+        this.scaleX = scope.scaleX
+        this.scaleY = scope.scaleY
+        this.alpha = scope.alpha
+        this.clip = scope.clip
+        this.shadowElevation = scope.shadowElevation
         this.density = density
-        this.renderEffect = renderEffect
-        this.ambientShadowColor = ambientShadowColor
-        this.spotShadowColor = spotShadowColor
-        this.compositingStrategy = compositingStrategy
-        outlineCache.shape = shape
+        this.renderEffect = scope.renderEffect
+        this.ambientShadowColor = scope.ambientShadowColor
+        this.spotShadowColor = scope.spotShadowColor
+        this.compositingStrategy = scope.compositingStrategy
+        outlineCache.shape = scope.shape
         outlineCache.layoutDirection = layoutDirection
         outlineCache.density = density
-        updateMatrix()
+        if (maybeChangedFields and Fields.MatrixAffectingFields != 0) {
+            updateMatrix()
+        }
         invalidate()
+        mutatedFields = scope.mutatedFields
     }
 
     private fun updateMatrix() {
