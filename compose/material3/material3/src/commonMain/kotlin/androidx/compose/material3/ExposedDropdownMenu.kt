@@ -148,7 +148,7 @@ internal fun Modifier.expandable(
     collapsedDescription: String = getString(Strings.MenuCollapsed),
 ) = composed {
     val currentOnExpandedChange by rememberUpdatedState(onExpandedChange)
-    pointerInput(Unit) {
+    pointerInput(onExpandedChange) {
         awaitEachGesture {
             // Must be PointerEventPass.Initial to observe events before the text field consumes them
             // in the Main pass
