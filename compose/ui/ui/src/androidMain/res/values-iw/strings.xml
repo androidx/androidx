@@ -18,8 +18,8 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="indeterminate" msgid="7933458017204019916">"מסומנת חלקית"</string>
-    <string name="on" msgid="8655164131929253426">"פועל"</string>
-    <string name="off" msgid="875452955155264703">"כבוי"</string>
+    <string name="state_on" msgid="8655164131929253426">"פועל"</string>
+    <string name="state_off" msgid="875452955155264703">"כבוי"</string>
     <string name="switch_role" msgid="2561197295334830845">"מתג"</string>
     <string name="selected" msgid="6043586758067023">"נבחר"</string>
     <string name="not_selected" msgid="6610465462668679431">"לא נבחר"</string>
