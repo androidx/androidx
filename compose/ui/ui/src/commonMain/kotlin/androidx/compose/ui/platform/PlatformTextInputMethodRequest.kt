@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.text.input
+package androidx.compose.ui.platform
 
-// TODO(https://youtrack.jetbrains.com/issue/COMPOSE-733/Merge-1.6.-Apply-changes-for-the-new-text-input) implement
-actual interface PlatformTextInputMethodRequest
+/**
+ * Represents a request to open a platform-specific text input session via
+ * `PlatformTextInputModifierNode.textInputSession`.
+ */
+expect interface PlatformTextInputMethodRequest
