@@ -29,15 +29,15 @@ internal actual class InteropViewFactoryHolder private constructor(
 
     actual fun getInteropView(): InteropView? = throwUnsupportedError()
 
-    override fun onReuse() {
+    actual override fun onReuse() {
         throwUnsupportedError()
     }
 
-    override fun onDeactivate() {
+    actual override fun onDeactivate() {
         throwUnsupportedError()
     }
 
-    override fun onRelease() {
+    actual override fun onRelease() {
         throwUnsupportedError()
     }
 
