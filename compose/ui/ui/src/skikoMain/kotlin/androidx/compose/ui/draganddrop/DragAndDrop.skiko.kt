@@ -16,12 +16,13 @@
 
 package androidx.compose.ui.draganddrop
 
+import androidx.collection.ArraySet
 import androidx.compose.ui.geometry.Offset
 
 actual class DragAndDropTransfer
 
 actual class DragAndDropEvent(
-    actual var type: DragAndDropEventType
+    internal actual val interestedNodes: ArraySet<DragAndDropModifierNode>
 )
 
 internal actual val DragAndDropEvent.positionInRoot: Offset
