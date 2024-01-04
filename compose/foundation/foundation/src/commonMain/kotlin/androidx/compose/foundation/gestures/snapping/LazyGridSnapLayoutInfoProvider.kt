@@ -56,7 +56,8 @@ fun SnapLayoutInfoProvider(
                     itemSize = item.sizeOnMainAxis(orientation = layoutInfo.orientation),
                     itemOffset = item.offsetOnMainAxis(orientation = layoutInfo.orientation),
                     itemIndex = item.index,
-                    snapPosition = snapPosition
+                    snapPosition = snapPosition,
+                    itemCount = layoutInfo.totalItemsCount
                 )
 
             // Find item that is closest to the center

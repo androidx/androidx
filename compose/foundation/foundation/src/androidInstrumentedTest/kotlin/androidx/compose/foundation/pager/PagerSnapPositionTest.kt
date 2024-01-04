@@ -562,7 +562,7 @@ class PagerSnapPositionTest(val config: ParamConfig) : BasePagerTest(config) {
             for (orientation in TestOrientation) {
                 for (snapPosition in TestSnapPosition) {
                     // skip start since it's being tested in PagerStateTest already.
-                    if (snapPosition == SnapPosition.Start) continue
+                    if (snapPosition.first == SnapPosition.Start) continue
                     add(
                         ParamConfig(
                             orientation = orientation,

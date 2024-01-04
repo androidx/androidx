@@ -571,18 +571,23 @@ package androidx.compose.foundation.gestures.snapping {
     method public float calculateSnappingOffset(float currentVelocity);
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public fun interface SnapPosition {
-    method public int position(int layoutSize, int itemSize, int beforeContentPadding, int afterContentPadding, int itemIndex);
-    field public static final androidx.compose.foundation.gestures.snapping.SnapPosition.Companion Companion;
+  @androidx.compose.runtime.Stable public interface SnapPosition {
+    method public int position(int layoutSize, int itemSize, int beforeContentPadding, int afterContentPadding, int itemIndex, int itemCount);
   }
 
-  public static final class SnapPosition.Companion {
-    method public androidx.compose.foundation.gestures.snapping.SnapPosition getCenter();
-    method public androidx.compose.foundation.gestures.snapping.SnapPosition getEnd();
-    method public androidx.compose.foundation.gestures.snapping.SnapPosition getStart();
-    property public final androidx.compose.foundation.gestures.snapping.SnapPosition Center;
-    property public final androidx.compose.foundation.gestures.snapping.SnapPosition End;
-    property public final androidx.compose.foundation.gestures.snapping.SnapPosition Start;
+  public static final class SnapPosition.Center implements androidx.compose.foundation.gestures.snapping.SnapPosition {
+    method public int position(int layoutSize, int itemSize, int beforeContentPadding, int afterContentPadding, int itemIndex, int itemCount);
+    field public static final androidx.compose.foundation.gestures.snapping.SnapPosition.Center INSTANCE;
+  }
+
+  public static final class SnapPosition.End implements androidx.compose.foundation.gestures.snapping.SnapPosition {
+    method public int position(int layoutSize, int itemSize, int beforeContentPadding, int afterContentPadding, int itemIndex, int itemCount);
+    field public static final androidx.compose.foundation.gestures.snapping.SnapPosition.End INSTANCE;
+  }
+
+  public static final class SnapPosition.Start implements androidx.compose.foundation.gestures.snapping.SnapPosition {
+    method public int position(int layoutSize, int itemSize, int beforeContentPadding, int afterContentPadding, int itemIndex, int itemCount);
+    field public static final androidx.compose.foundation.gestures.snapping.SnapPosition.Start INSTANCE;
   }
 
 }

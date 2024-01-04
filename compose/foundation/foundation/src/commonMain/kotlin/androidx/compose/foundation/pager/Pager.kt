@@ -596,7 +596,8 @@ private fun SnapLayoutInfoProvider(
                 layoutInfo.beforeContentPadding,
                 layoutInfo.afterContentPadding,
                 pagerState.currentPage,
-                pagerState.currentPageOffsetFraction
+                pagerState.currentPageOffsetFraction,
+                pagerState.pageCount
             )
 
             // the closest page should be close to the current page, we'll start from current page
@@ -618,7 +619,8 @@ private fun SnapLayoutInfoProvider(
                     itemSize = layoutInfo.pageSize,
                     itemOffset = currentOffset,
                     itemIndex = page,
-                    snapPosition = snapPosition
+                    snapPosition = snapPosition,
+                    itemCount = pagerState.pageCount
                 )
 
                 debugLog { "Snapping Offset=$offset for page=$page" }
@@ -651,7 +653,8 @@ private fun SnapLayoutInfoProvider(
                     itemSize = layoutInfo.pageSize,
                     itemOffset = currentOffset,
                     itemIndex = page,
-                    snapPosition = snapPosition
+                    snapPosition = snapPosition,
+                    itemCount = pagerState.pageCount
                 )
 
                 debugLog {
@@ -686,7 +689,6 @@ private fun SnapLayoutInfoProvider(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 internal fun SnapPosition.currentPageOffset(
     layoutSize: Int,
     pageSize: Int,
@@ -694,14 +696,16 @@ internal fun SnapPosition.currentPageOffset(
     beforeContentPadding: Int,
     afterContentPadding: Int,
     currentPage: Int,
-    currentPageOffsetFraction: Float
+    currentPageOffsetFraction: Float,
+    pageCount: Int
 ): Int {
     val snapOffset = position(
         layoutSize,
         pageSize,
         beforeContentPadding,
         afterContentPadding,
-        currentPage
+        currentPage,
+        pageCount
     )
 
     return (snapOffset - currentPageOffsetFraction * (pageSize + spaceBetweenPages)).roundToInt()
