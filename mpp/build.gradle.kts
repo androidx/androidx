@@ -40,7 +40,7 @@ val mainComponents =
         ComposeComponent(":compose:ui:ui"),
         ComposeComponent(":compose:ui:ui-geometry"),
         ComposeComponent(":compose:ui:ui-graphics"),
-        ComposeComponent(":compose:ui:ui-test", supportedPlatforms = ComposePlatforms.JVM_BASED),
+        ComposeComponent(":compose:ui:ui-test"),
         ComposeComponent(
             ":compose:ui:ui-test-junit4",
             supportedPlatforms = ComposePlatforms.JVM_BASED
