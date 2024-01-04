@@ -434,7 +434,7 @@ private fun Modifier.maybeToggleable(
         .wrapContentSize(Alignment.CenterEnd)
         .requiredSize(canvasWidth, canvasHeight)
 
-    return if (onCheckedChange == null || interactionSource == null) {
+    return if (onCheckedChange == null) {
         standardModifier
     } else {
         standardModifier.then(
@@ -462,7 +462,7 @@ private fun Modifier.maybeSelectable(
         .wrapContentSize(Alignment.Center)
         .requiredSize(canvasWidth, canvasHeight)
 
-    return if (onClick == null || interactionSource == null) {
+    return if (onClick == null) {
         standardModifier
     } else {
         standardModifier.then(

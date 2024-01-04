@@ -29,7 +29,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
@@ -96,10 +95,10 @@ import androidx.compose.ui.unit.dp
  * [ToggleChipDefaults.toggleChipColors].
  * @param enabled Controls the enabled state of the chip. When `false`, this chip will not
  * be clickable
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this chip's "toggleable" tap area. You can create and pass in your own
- * remembered [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this Chip in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this chip's "toggleable" tap area. You can use this to change the
+ * chip's appearance or preview the chip in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param contentPadding The spacing values to apply internally between the container and the
  * content
  * @param shape Defines the chip's shape. It is strongly recommended to use the default as this
@@ -116,7 +115,7 @@ public fun ToggleChip(
     secondaryLabel: @Composable (RowScope.() -> Unit)? = null,
     colors: ToggleChipColors = ToggleChipDefaults.toggleChipColors(),
     enabled: Boolean = true,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     contentPadding: PaddingValues = ToggleChipDefaults.ContentPadding,
     shape: Shape = MaterialTheme.shapes.large,
 ) = androidx.wear.compose.materialcore.ToggleButton(
@@ -216,14 +215,14 @@ public fun ToggleChip(
  * [ToggleChipDefaults.splitToggleChipColors].
  * @param enabled Controls the enabled state of the chip. When `false`, this chip will not
  * be clickable
- * @param checkedInteractionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this chip's "toggleable" tap area. You can create and pass in your own
- * remembered [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this Chip in different [Interaction]s.
- * @param clickInteractionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this chip's "clickable" tap area. You can create and pass in your own
- * remembered [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this Chip in different [Interaction]s.
+ * @param checkedInteractionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this chip's "toggleable" tap area. You can use this to change the
+ * chip's appearance or preview the chip in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
+ * @param clickInteractionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this chip's "clickable" tap area. You can use this to change the
+ * chip's appearance or preview the chip in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param contentPadding The spacing values to apply internally between the container and the
  * content
  * @param shape Defines the chip's shape. It is strongly recommended to use the default as this
@@ -240,8 +239,8 @@ public fun SplitToggleChip(
     secondaryLabel: @Composable (RowScope.() -> Unit)? = null,
     colors: SplitToggleChipColors = ToggleChipDefaults.splitToggleChipColors(),
     enabled: Boolean = true,
-    checkedInteractionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    clickInteractionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    checkedInteractionSource: MutableInteractionSource? = null,
+    clickInteractionSource: MutableInteractionSource? = null,
     contentPadding: PaddingValues = ToggleChipDefaults.ContentPadding,
     shape: Shape = MaterialTheme.shapes.large,
 ) = androidx.wear.compose.materialcore.SplitToggleButton(

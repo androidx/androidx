@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -73,10 +72,10 @@ import androidx.wear.compose.material3.tokens.TextToggleButtonTokens
  * for this button in different states.
  * @param border Optional [BorderStroke] that will be used to resolve the text button border in
  * different states. See [ButtonDefaults.outlinedButtonBorder].
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this Button. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this Button in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's appearance
+ * or preview the button in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  * @param content The content displayed on the text button, expected to be text or image.
  */
 @Composable
@@ -87,7 +86,7 @@ fun TextButton(
     shape: Shape = TextButtonDefaults.shape,
     colors: TextButtonColors = TextButtonDefaults.textButtonColors(),
     border: BorderStroke? = null,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable BoxScope.() -> Unit,
 ) {
     androidx.wear.compose.materialcore.Button(
@@ -136,10 +135,10 @@ fun TextButton(
  * this toggle button will not be clickable.
  * @param colors [ToggleButtonColors] that will be used to resolve the container and
  * content color for this toggle button.
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this toggle button. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this ToggleButton in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this toggle button. You can use this to change the toggle button's
+ * appearance or preview the toggle button in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param shape Defines the shape for this toggle button. It is strongly recommended to use the
  * default as this shape is a key characteristic of the Wear Material 3 Theme.
  * @param border Optional [BorderStroke] for the [TextToggleButton].
@@ -152,7 +151,7 @@ fun TextToggleButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     colors: ToggleButtonColors = TextButtonDefaults.textToggleButtonColors(),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     shape: Shape = TextButtonDefaults.shape,
     border: BorderStroke? = null,
     content: @Composable BoxScope.() -> Unit,

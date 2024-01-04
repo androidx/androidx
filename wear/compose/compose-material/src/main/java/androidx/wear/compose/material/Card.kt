@@ -30,7 +30,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -85,10 +84,10 @@ import kotlin.math.min
  * content
  * @param shape Defines the card's shape. It is strongly recommended to use the default as this
  * shape is a key characteristic of the Wear Material Theme
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this card. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this card in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this card. You can use this to change the card's appearance
+ * or preview the card in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  * @param role The type of user interface element. Accessibility services might use this
  * to describe the element or do customizations
  */
@@ -101,7 +100,7 @@ public fun Card(
     enabled: Boolean = true,
     contentPadding: PaddingValues = CardDefaults.ContentPadding,
     shape: Shape = MaterialTheme.shapes.large,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     role: Role? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
@@ -201,7 +200,7 @@ public fun AppCard(
         border = null,
         contentPadding = CardDefaults.ContentPadding,
         containerPainter = backgroundPainter,
-        interactionSource = remember { MutableInteractionSource() },
+        interactionSource = null,
         shape = MaterialTheme.shapes.large,
         ripple = rippleOrFallbackImplementation(),
         appImage = appImage?.let { { appImage() } },
@@ -308,7 +307,7 @@ public fun TitleCard(
         containerPainter = backgroundPainter,
         border = null,
         contentPadding = CardDefaults.ContentPadding,
-        interactionSource = remember { MutableInteractionSource() },
+        interactionSource = null,
         role = null,
         shape = MaterialTheme.shapes.large,
         ripple = rippleOrFallbackImplementation(),

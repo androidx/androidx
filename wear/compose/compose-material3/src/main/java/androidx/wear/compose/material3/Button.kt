@@ -102,10 +102,10 @@ import androidx.wear.compose.material3.tokens.OutlinedButtonTokens
  * button in different states.
  * @param contentPadding The spacing values to apply internally between the container and the
  * content
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this Button. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this Button in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's appearance
+ * or preview the button in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  */
 @Composable
 fun Button(
@@ -116,7 +116,7 @@ fun Button(
     colors: ButtonColors = ButtonDefaults.filledButtonColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable RowScope.() -> Unit,
 ) = ButtonImpl(
     onClick = onClick,
@@ -172,10 +172,10 @@ fun Button(
  * button in different states.
  * @param contentPadding The spacing values to apply internally between the container and the
  * content
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this Button. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this Button in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's appearance
+ * or preview the button in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  */
 @Composable
 fun FilledTonalButton(
@@ -186,7 +186,7 @@ fun FilledTonalButton(
     colors: ButtonColors = ButtonDefaults.filledTonalButtonColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable RowScope.() -> Unit,
 ) = ButtonImpl(
     onClick = onClick,
@@ -241,10 +241,10 @@ fun FilledTonalButton(
  * button in different states. See [ButtonDefaults.outlinedButtonBorder].
  * @param contentPadding The spacing values to apply internally between the container and the
  * content
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this Button. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this Button in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's appearance
+ * or preview the button in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  */
 @Composable
 fun OutlinedButton(
@@ -255,7 +255,7 @@ fun OutlinedButton(
     colors: ButtonColors = ButtonDefaults.outlinedButtonColors(),
     border: BorderStroke? = ButtonDefaults.outlinedButtonBorder(enabled),
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable RowScope.() -> Unit,
 ) = ButtonImpl(
     onClick = onClick,
@@ -310,10 +310,10 @@ fun OutlinedButton(
  * button in different states.
  * @param contentPadding The spacing values to apply internally between the container and the
  * content
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this Button. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this Button in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's appearance
+ * or preview the button in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  */
 @Composable
 fun ChildButton(
@@ -324,7 +324,7 @@ fun ChildButton(
     colors: ButtonColors = ButtonDefaults.childButtonColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable RowScope.() -> Unit,
 ) = ButtonImpl(
     onClick = onClick,
@@ -392,10 +392,10 @@ fun ChildButton(
  * different states.
  * @param contentPadding The spacing values to apply internally between the container and the
  * content
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this Button. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this Button in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's appearance
+ * or preview the button in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  * @param label A slot for providing the button's main label. The contents are expected to be text
  * which is "start" aligned if there is an icon preset and "start" or "center" aligned if not.
  */
@@ -410,7 +410,7 @@ fun Button(
     colors: ButtonColors = ButtonDefaults.filledButtonColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     label: @Composable RowScope.() -> Unit,
 ) = ButtonImpl(
     onClick = onClick,
@@ -485,10 +485,10 @@ fun Button(
  * different states.
  * @param contentPadding The spacing values to apply internally between the container and the
  * content
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this Button. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this Button in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's appearance
+ * or preview the button in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  * @param label A slot for providing the button's main label. The contents are expected to be text
  * which is "start" aligned if there is an icon preset and "start" or "center" aligned if not.
  */
@@ -503,7 +503,7 @@ fun FilledTonalButton(
     colors: ButtonColors = ButtonDefaults.filledTonalButtonColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     label: @Composable RowScope.() -> Unit,
 ) = ButtonImpl(
     onClick = onClick,
@@ -573,10 +573,10 @@ fun FilledTonalButton(
  * different states. See [ButtonDefaults.outlinedButtonBorder].
  * @param contentPadding The spacing values to apply internally between the container and the
  * content
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this Button. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this Button in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's appearance
+ * or preview the button in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  * @param label A slot for providing the button's main label. The contents are expected to be text
  * which is "start" aligned if there is an icon preset and "start" or "center" aligned if not.
  */
@@ -591,7 +591,7 @@ fun OutlinedButton(
     colors: ButtonColors = ButtonDefaults.outlinedButtonColors(),
     border: BorderStroke? = ButtonDefaults.outlinedButtonBorder(enabled),
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     label: @Composable RowScope.() -> Unit,
 ) = ButtonImpl(
     onClick = onClick,
@@ -660,10 +660,10 @@ fun OutlinedButton(
  * different states.
  * @param contentPadding The spacing values to apply internally between the container and the
  * content
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this Button. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this Button in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's appearance
+ * or preview the button in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  * @param label A slot for providing the button's main label. The contents are expected to be text
  * which is "start" aligned if there is an icon preset and "start" or "center" aligned if not.
  */
@@ -678,7 +678,7 @@ fun ChildButton(
     colors: ButtonColors = ButtonDefaults.childButtonColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     label: @Composable RowScope.() -> Unit,
 ) = ButtonImpl(
     onClick = onClick,
@@ -761,10 +761,10 @@ fun ChildButton(
  * this button in different states. See [ButtonDefaults.filledButtonColors].
  * @param enabled Controls the enabled state of the button. When `false`, this button will not
  * be clickable
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this button. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this button in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's appearance
+ * or preview the button in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  * @param contentPadding The spacing values to apply internally between the container and the
  * content
  * @param shape Defines the button's shape. It is strongly recommended to use the default as this
@@ -782,7 +782,7 @@ fun CompactButton(
     colors: ButtonColors = ButtonDefaults.filledButtonColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.CompactButtonContentPadding,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     label: (@Composable RowScope.() -> Unit)? = null,
 ) {
     if (label != null) {
@@ -1407,7 +1407,7 @@ private fun ButtonImpl(
     colors: ButtonColors,
     border: BorderStroke?,
     contentPadding: PaddingValues,
-    interactionSource: MutableInteractionSource,
+    interactionSource: MutableInteractionSource?,
     content: @Composable RowScope.() -> Unit
 ) {
     val borderModifier = if (border != null)
@@ -1456,7 +1456,7 @@ private fun ButtonImpl(
     colors: ButtonColors,
     border: BorderStroke?,
     contentPadding: PaddingValues,
-    interactionSource: MutableInteractionSource,
+    interactionSource: MutableInteractionSource?,
     label: @Composable RowScope.() -> Unit
 ) {
     ButtonImpl(

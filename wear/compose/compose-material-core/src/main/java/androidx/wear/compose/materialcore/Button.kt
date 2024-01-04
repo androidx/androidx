@@ -52,10 +52,10 @@ import androidx.compose.ui.unit.Dp
  * @param enabled Controls the enabled state of the button. When `false`, this button will not
  * be clickable.
  * @param backgroundColor Resolves the background for this button in different states.
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this Button. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this Button in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's appearance
+ * or preview the button in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  * @param shape Defines the button's shape.
  * @param border Resolves the border for this button in different states.
  * @param buttonSize The default size of the button unless overridden by Modifier.size.
@@ -69,7 +69,7 @@ fun Button(
     modifier: Modifier,
     enabled: Boolean,
     backgroundColor: @Composable (enabled: Boolean) -> State<Color>,
-    interactionSource: MutableInteractionSource,
+    interactionSource: MutableInteractionSource?,
     shape: Shape,
     border: @Composable (enabled: Boolean) -> State<BorderStroke?>?,
     buttonSize: Dp,

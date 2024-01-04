@@ -39,7 +39,6 @@ import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -206,7 +205,7 @@ public fun RevealScope.SwipeToRevealPrimaryAction(
     icon: @Composable () -> Unit,
     label: @Composable () -> Unit,
     modifier: Modifier = Modifier,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
 ) = ActionCommon(
     revealState = revealState,
     actionType = RevealActionType.PrimaryAction,
@@ -236,7 +235,7 @@ public fun RevealScope.SwipeToRevealSecondaryAction(
     revealState: RevealState,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit,
 ) = ActionCommon(
     revealState = revealState,
@@ -268,7 +267,7 @@ public fun RevealScope.SwipeToRevealUndoAction(
     revealState: RevealState,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     icon: (@Composable () -> Unit)? = null,
     label: (@Composable () -> Unit)? = null,
 ) {
@@ -536,7 +535,7 @@ private fun RevealScope.ActionCommon(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     actionType: RevealActionType = RevealActionType.UndoAction,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     icon: (@Composable () -> Unit)? = null,
     label: (@Composable () -> Unit)? = null,
 ) {
