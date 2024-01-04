@@ -267,19 +267,6 @@ internal class TextInputServiceAndroid(
     }
 
     private fun processInputCommands() {
-        // When focus changes to a non-Compose view, the system will take care of managing the
-        // keyboard (via ImeFocusController) so we don't need to do anything. This can happen
-        // when a Compose text field is focused, then the user taps on an EditText view.
-        // And any commands that come in while we're not focused should also just be ignored,
-        // since no unfocused view should be messing with the keyboard.
-        // TODO(b/215761849) When focus moves to a different ComposeView than this one, this
-        //  logic doesn't work and the keyboard is not hidden.
-        if (!view.isFocused) {
-            // All queued commands should be ignored.
-            textInputCommandQueue.clear()
-            return
-        }
-
         // Multiple commands may have been queued up in the channel while this function was
         // waiting to be resumed. We don't execute the commands as they come in because making a
         // bunch of calls to change the actual IME quickly can result in flickers. Instead, we
