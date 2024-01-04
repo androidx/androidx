@@ -224,7 +224,7 @@ internal class AndroidComposeView(
 
     override val view: View get() = this
 
-    override var density = Density(context)
+    override var density by mutableStateOf(Density(context), referentialEqualityPolicy())
         private set
 
     private val semanticsModifier = EmptySemanticsElement
