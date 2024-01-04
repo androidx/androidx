@@ -425,6 +425,11 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
     }
 
     fun measureAndLayout(layoutNode: LayoutNode, constraints: Constraints) {
+        if (layoutNode.isDeactivated) {
+            // regular measureAndLayout() pass will skip deactivated nodes, so here we should
+            // do nothing as well.
+            return
+        }
         require(layoutNode != root) { "measureAndLayout called on root" }
         performMeasureAndLayout {
             relayoutNodes.remove(layoutNode)
