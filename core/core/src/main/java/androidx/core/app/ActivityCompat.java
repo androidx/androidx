@@ -466,7 +466,7 @@ public class ActivityCompat extends ContextCompat {
      * </p>
      * <p>
      * Calling this API for permissions already granted to your app would show UI
-     * to the user to decided whether the app can still hold these permissions. This
+     * to the user to decide whether the app can still hold these permissions. This
      * can be useful if the way your app uses the data guarded by the permissions
      * changes significantly.
      * </p>
