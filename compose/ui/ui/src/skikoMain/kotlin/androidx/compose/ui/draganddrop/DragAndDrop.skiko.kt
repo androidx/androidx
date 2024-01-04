@@ -18,7 +18,7 @@ package androidx.compose.ui.draganddrop
 
 import androidx.compose.ui.geometry.Offset
 
-actual class DragAndDropTransfer
+actual class DragAndDropTransferData
 
 actual class DragAndDropEvent
 
