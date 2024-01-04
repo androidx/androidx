@@ -97,5 +97,5 @@ DefaultValueChange: androidx.glance.appwidget.GlanceAppWidgetManager#requestPinG
     Attempted to remove default value from parameter arg5 in androidx.glance.appwidget.GlanceAppWidgetManager.requestPinGlanceAppWidget
 
 
-RemovedMethod: androidx.glance.appwidget.GlanceAppWidgetKt#updateIf(androidx.glance.appwidget.GlanceAppWidget, android.content.Context, kotlin.jvm.functions.Function1<? super java.lang.State,java.lang.Boolean>):
-    Removed method androidx.glance.appwidget.GlanceAppWidgetKt.updateIf(androidx.glance.appwidget.GlanceAppWidget,android.content.Context,kotlin.jvm.functions.Function1<? super java.lang.State,java.lang.Boolean>)
+RemovedMethod: androidx.glance.appwidget.GlanceAppWidgetKt#updateIf(androidx.glance.appwidget.GlanceAppWidget, android.content.Context, kotlin.jvm.functions.Function1<? super State,java.lang.Boolean>):
+    Removed method androidx.glance.appwidget.GlanceAppWidgetKt.updateIf(androidx.glance.appwidget.GlanceAppWidget,android.content.Context,kotlin.jvm.functions.Function1<? super State,java.lang.Boolean>)
