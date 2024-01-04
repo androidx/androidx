@@ -27,9 +27,9 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
@@ -37,6 +37,7 @@ import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.runSkikoComposeUiTest
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlin.test.Test
 import kotlinx.coroutines.CoroutineScope
@@ -328,9 +329,24 @@ class LazyListSlotsReuseTest {
     fun scrollingBackReusesTheSameSlot() = runSkikoComposeUiTest {
         lateinit var state: LazyListState
         var counter0 = 0
-        var counter1 = 10
-        var rememberedValue0 = -1
-        var rememberedValue1 = -1
+        var counter1 = 0
+
+        val measureCountModifier0 = Modifier.layout { measurable, constraints ->
+            counter0++
+            val placeable = measurable.measure(constraints)
+            layout(placeable.width, placeable.height) {
+                placeable.place(IntOffset.Zero)
+            }
+        }
+
+        val measureCountModifier1 = Modifier.layout { measurable, constraints ->
+            counter1++
+            val placeable = measurable.measure(constraints)
+            layout(placeable.width, placeable.height) {
+                placeable.place(IntOffset.Zero)
+            }
+        }
+
         lateinit var scope: CoroutineScope
         setContent {
             scope = rememberCoroutineScope()
@@ -340,28 +356,35 @@ class LazyListSlotsReuseTest {
                 state
             ) {
                 items(100) {
-                    if (it == 0) {
-                        rememberedValue0 = remember { counter0++ }
+                    val modifier = when (it) {
+                        0 -> measureCountModifier0
+                        1 -> measureCountModifier1
+                        else -> Modifier
                     }
-                    if (it == 1) {
-                        rememberedValue1 = remember { counter1++ }
-                    }
-                    Spacer(Modifier.height(itemsSizeDp).fillParentMaxWidth().testTag("$it"))
+                    Spacer(
+                        Modifier
+                            .height(itemsSizeDp)
+                            .fillParentMaxWidth()
+                            .testTag("$it")
+                            .then(modifier)
+                    )
                 }
             }
         }
         runOnIdle {
             scope.launch {
                 state.scrollToItem(2) // buffer is [0, 1]
+                counter0 = 0
+                counter1 = 0
                 state.scrollToItem(0) // scrolled back, 0 and 1 are reused back. buffer: [2, 3]
             }
         }
 
         runOnIdle {
-            assertWithMessage("Item 0 restored remembered value is $rememberedValue0")
-                .that(rememberedValue0).isEqualTo(0)
-            assertWithMessage("Item 1 restored remembered value is $rememberedValue1")
-                .that(rememberedValue1).isEqualTo(10)
+            assertWithMessage("Item 0 measured $counter0 times, expected 0.")
+                .that(counter0).isEqualTo(0)
+            assertWithMessage("Item 1 measured $counter1 times, expected 0.")
+                .that(counter1).isEqualTo(0)
         }
 
         onNodeWithTag("0")
