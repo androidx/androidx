@@ -38,10 +38,8 @@ import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.TextRange
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -62,10 +60,10 @@ internal class BasicTextField2UndoTest {
         }
 
         rule.onNode(hasSetTextAction()).performTextInput(", World")
-        assertThat(state.text.toString()).isEqualTo("Hello, World")
+        state.assertText("Hello, World")
 
         state.undoState.undo()
-        assertThat(state.text.toString()).isEqualTo("Hello")
+        state.assertText("Hello")
         rule.onNode(hasSetTextAction()).assertTextEquals("Hello")
     }
 
@@ -95,10 +93,10 @@ internal class BasicTextField2UndoTest {
         }
 
         rule.onNode(hasSetTextAction()).typeText(", World")
-        assertThat(state.text.toString()).isEqualTo("Hello, World")
+        state.assertText("Hello, World")
 
         state.undoState.undo()
-        assertThat(state.text.toString()).isEqualTo("Hello")
+        state.assertText("Hello")
         rule.onNode(hasSetTextAction()).assertTextEquals("Hello")
     }
 
@@ -115,14 +113,14 @@ internal class BasicTextField2UndoTest {
             performTextInputSelection(TextRange(5))
             performTextInput(" Compose")
         }
-        assertThat(state.text.toString()).isEqualTo("Hello Compose, World")
+        state.assertText("Hello Compose, World")
 
         state.undoState.undo()
-        assertThat(state.text.toString()).isEqualTo("Hello, World")
+        state.assertText("Hello, World")
         rule.onNode(hasSetTextAction()).assertTextEquals("Hello, World")
 
         state.undoState.undo()
-        assertThat(state.text.toString()).isEqualTo("Hello")
+        state.assertText("Hello")
         rule.onNode(hasSetTextAction()).assertTextEquals("Hello")
     }
 
@@ -189,11 +187,10 @@ internal class BasicTextField2UndoTest {
             performTextInputSelection(TextRange(0, 5))
             performTextInput("a")
         }
-        assertThat(state.text.toString()).isEqualTo("a")
+        state.assertTextAndSelection("a", TextRange(1))
 
         state.undoState.undo()
-        assertThat(state.text.toString()).isEqualTo("Hello")
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(0, 5))
+        state.assertTextAndSelection("Hello", TextRange(0, 5))
     }
 
     @Test
@@ -208,14 +205,18 @@ internal class BasicTextField2UndoTest {
             performTextInputSelection(TextRange(2))
             performTextInput(" abc ")
         }
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(7))
+
+        state.assertTextAndSelection("He abc llo", TextRange(7))
 
         state.undoState.undo()
 
-        assertThat(state.text.selectionInChars).isNotEqualTo(TextRange(7))
+        rule.runOnIdle {
+            assertThat(state.text.selectionInChars).isNotEqualTo(TextRange(7))
+        }
 
         state.undoState.redo()
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(7))
+
+        state.assertTextAndSelection("He abc llo", TextRange(7))
     }
 
     @Test
@@ -248,7 +249,6 @@ internal class BasicTextField2UndoTest {
         assertThat(state.undoState.canUndo).isFalse()
     }
 
-    @FlakyTest(bugId = 305090138)
     @Test
     fun clearHistory_removesAllUndoAndRedo() {
         val state = TextFieldState()
@@ -265,20 +265,26 @@ internal class BasicTextField2UndoTest {
             typeText("ghi")
             performTextClearance()
         }
+        rule.waitForIdle()
         state.undoState.undo()
+        rule.waitForIdle()
         state.undoState.undo()
+        rule.waitForIdle()
         state.undoState.undo()
 
-        assertThat(state.undoState.canUndo).isTrue()
-        assertThat(state.undoState.canRedo).isTrue()
+        rule.runOnIdle {
+            assertThat(state.undoState.canUndo).isTrue()
+            assertThat(state.undoState.canRedo).isTrue()
+        }
 
         state.undoState.clearHistory()
 
-        assertThat(state.undoState.canUndo).isFalse()
-        assertThat(state.undoState.canRedo).isFalse()
+        rule.runOnIdle {
+            assertThat(state.undoState.canUndo).isFalse()
+            assertThat(state.undoState.canRedo).isFalse()
+        }
     }
 
-    @Ignore("b/308623690")
     @Test
     fun paste_neverMerges() {
         val state = TextFieldState()
@@ -348,6 +354,12 @@ internal class BasicTextField2UndoTest {
 
     private fun SemanticsNodeInteraction.typeText(text: String) {
         text.forEach { performTextInput(it.toString()) }
+    }
+
+    private fun TextFieldState.assertText(text: String) {
+        rule.runOnIdle {
+            assertThat(this.text.toString()).isEqualTo(text)
+        }
     }
 
     private fun TextFieldState.assertTextAndSelection(text: String, selection: TextRange) {
