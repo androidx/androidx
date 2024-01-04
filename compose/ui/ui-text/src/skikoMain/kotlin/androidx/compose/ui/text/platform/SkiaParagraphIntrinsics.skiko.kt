@@ -91,7 +91,7 @@ internal fun resolveTextDirection(
     return when (textDirection ?: TextDirection.Content) {
         TextDirection.Ltr -> ResolvedTextDirection.Ltr
         TextDirection.Rtl -> ResolvedTextDirection.Rtl
-        TextDirection.Content -> contentBasedTextDirection(text) { localeBasedTextDirection(localeList?.firstOrNull()) }
+        TextDirection.Content, TextDirection.Unspecified -> contentBasedTextDirection(text) { localeBasedTextDirection(localeList?.firstOrNull()) }
         TextDirection.ContentOrLtr -> contentBasedTextDirection(text) { ResolvedTextDirection.Ltr }
         TextDirection.ContentOrRtl -> contentBasedTextDirection(text) { ResolvedTextDirection.Rtl }
         else -> error("Invalid TextDirection.")
