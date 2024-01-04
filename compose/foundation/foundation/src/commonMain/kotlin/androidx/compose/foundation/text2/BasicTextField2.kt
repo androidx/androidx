@@ -56,6 +56,7 @@ import androidx.compose.foundation.text2.input.internal.syncTextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -515,10 +516,19 @@ internal fun TextFieldCursorHandle(selectionState: TextFieldSelectionState) {
 internal fun TextFieldSelectionHandles(
     selectionState: TextFieldSelectionState
 ) {
-    val startHandleState = selectionState.startSelectionHandle
+    // Does not recompose if only position of the handle changes.
+    val startHandleState by remember {
+        derivedStateOf {
+            selectionState.getSelectionHandleState(isStartHandle = true, includePosition = false)
+        }
+    }
     if (startHandleState.visible) {
         SelectionHandle(
-            offsetProvider = { selectionState.startSelectionHandle.position },
+            offsetProvider = {
+                selectionState
+                    .getSelectionHandleState(isStartHandle = true, includePosition = true)
+                    .position
+            },
             isStartHandle = true,
             direction = startHandleState.direction,
             handlesCrossed = startHandleState.handlesCrossed,
@@ -528,10 +538,19 @@ internal fun TextFieldSelectionHandles(
         )
     }
 
-    val endHandleState = selectionState.endSelectionHandle
+    // Does not recompose if only position of the handle changes.
+    val endHandleState by remember {
+        derivedStateOf {
+            selectionState.getSelectionHandleState(isStartHandle = false, includePosition = false)
+        }
+    }
     if (endHandleState.visible) {
         SelectionHandle(
-            offsetProvider = { selectionState.endSelectionHandle.position },
+            offsetProvider = {
+                selectionState
+                    .getSelectionHandleState(isStartHandle = false, includePosition = true)
+                    .position
+            },
             isStartHandle = false,
             direction = endHandleState.direction,
             handlesCrossed = endHandleState.handlesCrossed,
