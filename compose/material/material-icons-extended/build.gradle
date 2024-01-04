@@ -26,8 +26,6 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
-apply from: "shared-dependencies.gradle"
-
 AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
 
 IconGenerationTask.registerExtendedIconMainProject(
@@ -93,6 +91,7 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             }
 
             commonMain.dependencies {
+                api(project(":compose:material:material-icons-core"))
                 implementation(project(":compose:ui:ui"))
                 implementation(project(":compose:ui:ui-graphics"))
             }
@@ -104,24 +103,6 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             }
         }
     }
-}
-
-def allThemes = ["filled", "outlined", "rounded", "sharp", "twotone"]
-
-configurations {
-    embedThemesDebug {
-        attributes {
-            attribute(iconExportAttr, "true")
-            attribute(iconBuildTypeAttr, "debug")
-        }
-    }
-    embedThemesRelease {
-        attributes {
-            attribute(iconExportAttr, "true")
-            attribute(iconBuildTypeAttr, "release")
-        }
-    }
-
 }
 
 IconGenerationTask.registerExtendedIconThemeProject(project, android)
