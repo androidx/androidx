@@ -169,6 +169,11 @@ public class TestUtil {
 
     public void enableVerboseLogging() {
         runShellCommand("setprop log.tag.adservices VERBOSE");
+        runShellCommand("setprop log.tag.adservices.adid VERBOSE");
+        runShellCommand("setprop log.tag.adservices.appsetid VERBOSE");
+        runShellCommand("setprop log.tag.adservices.topics VERBOSE");
+        runShellCommand("setprop log.tag.adservices.fledge VERBOSE");
+        runShellCommand("setprop log.tag.adservices.measurement VERBOSE");
     }
 
     public void overrideFledgeSelectAdsKillSwitch(boolean override) {
