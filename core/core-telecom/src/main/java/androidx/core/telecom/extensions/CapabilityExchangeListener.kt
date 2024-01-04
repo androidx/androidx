@@ -23,13 +23,36 @@ import java.util.concurrent.CountDownLatch
 @ExperimentalAppActions
 @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)
 internal class CapabilityExchangeListener() : ICapabilityExchangeListener.Stub() {
-    internal val onCapabilitiesNegotiatedLatch = CountDownLatch(1)
-    internal lateinit var negotiatedCapabilities: MutableList<Capability>
+    // Participant extension
+    internal val onCreateParticipantLatch = CountDownLatch(1)
+    internal lateinit var participantSupportedActions: IntArray
+    internal lateinit var participantStateListener: IParticipantStateListener
+    // Call details extension
+    internal val onCreateCallDetailsExtensionLatch = CountDownLatch(1)
+    internal lateinit var callDetailsSupportedActions: IntArray
+    internal lateinit var callDetailsListener: ICallDetailsListener
 
-    override fun onCapabilitiesNegotiated(filteredCapabilities: MutableList<Capability>?) {
-        filteredCapabilities?.let {
-            negotiatedCapabilities = filteredCapabilities
-            onCapabilitiesNegotiatedLatch.countDown()
+    override fun onCreateParticipantExtension(
+        version: Int,
+        actions: IntArray?,
+        l: IParticipantStateListener?
+    ) {
+        actions?.let {
+            participantSupportedActions = actions
         }
+        l?.let { participantStateListener = l }
+        onCreateParticipantLatch.countDown()
+    }
+
+    override fun onCreateCallDetailsExtension(
+        version: Int,
+        actions: IntArray?,
+        l: ICallDetailsListener?
+    ) {
+        actions?.let {
+            callDetailsSupportedActions = actions
+        }
+        l?.let { callDetailsListener = l }
+        onCreateCallDetailsExtensionLatch.countDown()
     }
 }

@@ -170,10 +170,6 @@ internal class StubEmbeddingBackend : EmbeddingBackend {
         TODO("Not yet implemented")
     }
 
-    override fun finishActivityStacks(activityStacks: Set<ActivityStack>) {
-        TODO("Not yet implemented")
-    }
-
     override fun invalidateTopVisibleSplitAttributes() {
         TODO("Not yet implemented")
     }

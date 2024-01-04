@@ -275,23 +275,11 @@ public class FragmentTransitionSupport extends FragmentTransitionImpl {
         controller.animateToEnd();
     }
 
-    @NonNull
     @Override
-    public Runnable animateToStart(@NonNull Object transitionController,
-            @NonNull ViewGroup sceneRoot, @NonNull Runnable completeRunnable) {
+    public void animateToStart(@NonNull Object transitionController,
+            @NonNull Runnable completeRunnable) {
         TransitionSeekController controller = (TransitionSeekController) transitionController;
-        controller.animateToStart();
-        return () -> {
-            final Fade zeroDurationTransition = new Fade();
-            zeroDurationTransition.setDuration(0);
-            zeroDurationTransition.addListener(new TransitionListenerAdapter() {
-                @Override
-                public void onTransitionEnd(@NonNull Transition transition) {
-                    completeRunnable.run();
-                }
-            });
-            TransitionManager.beginDelayedTransition(sceneRoot, zeroDurationTransition);
-        };
+        controller.animateToStart(completeRunnable);
     }
 
     @Override

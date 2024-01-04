@@ -16,6 +16,8 @@
 
 package androidx.webkit;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -29,13 +31,8 @@ import java.util.Objects;
  * <p>
  * This class is functionally equivalent to
  * <a href="https://wicg.github.io/ua-client-hints/#interface">UADataValues</a>.
- * <p>
- * TODO(b/294183509): unhide
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class UserAgentMetadata {
+public final class UserAgentMetadata {
     /**
      * Use this value for bitness to use the platform's default bitness value, which is an empty
      * string for Android WebView.
@@ -52,7 +49,6 @@ public class UserAgentMetadata {
     private boolean mMobile = true;
     private int mBitness = BITNESS_DEFAULT;
     private boolean mWow64 = false;
-    private final String mFormFactor;
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     private UserAgentMetadata(@Nullable List<BrandVersion> brandVersionList,
@@ -60,7 +56,7 @@ public class UserAgentMetadata {
             @Nullable String platformVersion, @Nullable String architecture,
             @Nullable String model,
             boolean mobile,
-            int bitness, boolean wow64, @Nullable String formFactor) {
+            int bitness, boolean wow64) {
         mBrandVersionList = brandVersionList;
         mFullVersion = fullVersion;
         mPlatform = platform;
@@ -70,7 +66,6 @@ public class UserAgentMetadata {
         mMobile = mobile;
         mBitness = bitness;
         mWow64 = wow64;
-        mFormFactor = formFactor;
     }
 
     /**
@@ -82,6 +77,7 @@ public class UserAgentMetadata {
      * @see Builder#setBrandVersionList
      *
      */
+    @SuppressLint("NullableCollection")
     @Nullable
     public List<BrandVersion> getBrandVersionList() {
         return mBrandVersionList;
@@ -172,21 +168,11 @@ public class UserAgentMetadata {
      * <p>
      * @see Builder#setWow64
      *
-     * @return A boolean to indicate whether user-agent's binary is running in 64-bit Windows.
+     * @return A boolean to indicate whether user-agent's binary is running in 32-bit mode on
+     * 64-bit Windows.
      */
     public boolean isWow64() {
         return mWow64;
-    }
-
-    /**
-     * Returns the value for the {@code sec-ch-ua-form-factor} client hint.
-     * <p>
-     * @see Builder#setFormFactor
-     *
-     */
-    @Nullable
-    public String getFormFactor() {
-        return mFormFactor;
     }
 
     /**
@@ -202,14 +188,13 @@ public class UserAgentMetadata {
                 && Objects.equals(mFullVersion, that.mFullVersion)
                 && Objects.equals(mPlatform, that.mPlatform) && Objects.equals(
                 mPlatformVersion, that.mPlatformVersion) && Objects.equals(mArchitecture,
-                that.mArchitecture) && Objects.equals(mModel, that.mModel)
-                && Objects.equals(mFormFactor, that.mFormFactor);
+                that.mArchitecture) && Objects.equals(mModel, that.mModel);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(mBrandVersionList, mFullVersion, mPlatform, mPlatformVersion,
-                mArchitecture, mModel, mMobile, mBitness, mWow64, mFormFactor);
+                mArchitecture, mModel, mMobile, mBitness, mWow64);
     }
 
     /**
@@ -221,12 +206,11 @@ public class UserAgentMetadata {
      * <a href="https://wicg.github.io/ua-client-hints/#interface">NavigatorUABrandVersion</a>.
      *
      */
-    public static class BrandVersion {
+    public static final class BrandVersion {
         private final String mBrand;
         private final String mMajorVersion;
         private final String mFullVersion;
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         public BrandVersion(@NonNull String brand, @NonNull String majorVersion,
                 @NonNull String fullVersion) {
             if (brand.trim().isEmpty() || majorVersion.trim().isEmpty()
@@ -323,7 +307,6 @@ public class UserAgentMetadata {
         private boolean mMobile = true;
         private int mBitness = BITNESS_DEFAULT;
         private boolean mWow64 = false;
-        private String mFormFactor;
 
         /**
          * Create an empty UserAgentMetadata Builder.
@@ -344,7 +327,6 @@ public class UserAgentMetadata {
             mMobile = uaMetadata.isMobile();
             mBitness = uaMetadata.getBitness();
             mWow64 = uaMetadata.isWow64();
-            mFormFactor = uaMetadata.getFormFactor();
         }
 
         /**
@@ -355,13 +337,14 @@ public class UserAgentMetadata {
         @NonNull
         public UserAgentMetadata build() {
             return new UserAgentMetadata(mBrandVersionList, mFullVersion, mPlatform,
-                    mPlatformVersion, mArchitecture, mModel, mMobile, mBitness, mWow64,
-                    mFormFactor);
+                    mPlatformVersion, mArchitecture, mModel, mMobile, mBitness, mWow64);
         }
 
         /**
          * Sets user-agent metadata brands and their versions. The brand name, major version and
-         * full version should not be blank.
+         * full version should not be blank. The default value is null which means the system
+         * default user-agent metadata brands and versions will be used to generate the
+         * user-agent client hints.
          *
          * @param brandVersions a list of {@link BrandVersion} used to generated user-agent client
          *                     hints {@code sec-cu-ua} and {@code sec-ch-ua-full-version-list}.
@@ -491,20 +474,6 @@ public class UserAgentMetadata {
         @NonNull
         public Builder setWow64(boolean wow64) {
             mWow64 = wow64;
-            return this;
-        }
-
-        /**
-         * Sets the user-agent metadata form factor. The value should not be null but can be
-         * empty string.
-         *
-         * @param formFactor The form factor is used to generate user-agent client hint
-         *                   {@code sec-ch-ua-form-factor}.
-         *
-         */
-        @NonNull
-        public Builder setFormFactor(@NonNull String formFactor) {
-            mFormFactor = formFactor;
             return this;
         }
     }

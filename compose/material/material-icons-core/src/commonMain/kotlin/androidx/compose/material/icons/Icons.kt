@@ -191,6 +191,10 @@ object Icons {
  * @param name the full name of the generated icon
  * @param block builder lambda to add paths to this vector asset
  */
+@Deprecated(
+    "Maintained for binary compatibility. Use version with autoMirror instead.",
+    level = DeprecationLevel.HIDDEN
+)
 inline fun materialIcon(
     name: String,
     block: ImageVector.Builder.() -> ImageVector.Builder
@@ -207,7 +211,7 @@ inline fun materialIcon(
  */
 inline fun materialIcon(
     name: String,
-    autoMirror: Boolean,
+    autoMirror: Boolean = false,
     block: ImageVector.Builder.() -> ImageVector.Builder
 ): ImageVector = ImageVector.Builder(
     name = name,

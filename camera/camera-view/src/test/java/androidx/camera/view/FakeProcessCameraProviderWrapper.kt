@@ -67,7 +67,7 @@ class FakeProcessCameraProviderWrapper(
         return camera
     }
 
-    override fun shutdown(): ListenableFuture<Void> {
+    override fun shutdownAsync(): ListenableFuture<Void> {
         return Futures.immediateFuture(null)
     }
 }

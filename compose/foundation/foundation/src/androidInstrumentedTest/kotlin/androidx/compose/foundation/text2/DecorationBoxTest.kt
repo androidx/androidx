@@ -75,7 +75,7 @@ class DecorationBoxTest {
             BasicTextField2(
                 state = state,
                 modifier = Modifier.testTag(Tag),
-                decorationBox = { innerTextField ->
+                decorator = { innerTextField ->
                     Box(
                         modifier = Modifier
                             .border(BorderStroke(2.dp, SolidColor(Color.Red)))
@@ -102,7 +102,7 @@ class DecorationBoxTest {
             BasicTextField2(
                 state = state,
                 modifier = Modifier.testTag(Tag),
-                decorationBox = { innerTextField ->
+                decorator = { innerTextField ->
                     Box(
                         modifier = Modifier
                             .border(BorderStroke(2.dp, SolidColor(Color.Red)))
@@ -129,7 +129,7 @@ class DecorationBoxTest {
             BasicTextField2(
                 state = state,
                 modifier = Modifier.testTag(Tag),
-                decorationBox = { innerTextField ->
+                decorator = { innerTextField ->
                     Box(
                         modifier = Modifier
                             .border(BorderStroke(2.dp, SolidColor(Color.Red)))
@@ -159,7 +159,7 @@ class DecorationBoxTest {
             BasicTextField2(
                 state = state,
                 modifier = Modifier.testTag(Tag),
-                decorationBox = {
+                decorator = {
                     Box(
                         modifier = Modifier
                             .border(BorderStroke(2.dp, SolidColor(Color.Red)))
@@ -188,7 +188,7 @@ class DecorationBoxTest {
             BasicTextField2(
                 state = state,
                 modifier = Modifier.testTag(Tag),
-                decorationBox = {
+                decorator = {
                     Box(
                         modifier = Modifier
                             .border(BorderStroke(2.dp, SolidColor(Color.Red)))
@@ -223,7 +223,7 @@ class DecorationBoxTest {
             BasicTextField2(
                 state = state,
                 modifier = Modifier.fillMaxSize().testTag(Tag),
-                decorationBox = {
+                decorator = {
                     Layout { _, constraints ->
                         decorationBoxConstraints = constraints
                         layout(0, 0) {}
@@ -254,7 +254,7 @@ class DecorationBoxTest {
             BasicTextField2(
                 state = state,
                 modifier = Modifier.testTag(Tag),
-                decorationBox = { innerTextField ->
+                decorator = { innerTextField ->
                     Box(
                         modifier = Modifier
                             .border(BorderStroke(2.dp, SolidColor(Color.Red)))

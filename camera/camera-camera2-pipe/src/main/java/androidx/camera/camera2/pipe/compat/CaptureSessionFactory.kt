@@ -129,7 +129,7 @@ constructor(private val threads: Threads, private val graphConfig: CameraGraph.C
         captureSessionState: CaptureSessionState
     ): Map<StreamId, OutputConfigurationWrapper> {
         if (graphConfig.input != null) {
-            val outputConfig = graphConfig.input.stream.outputs.single()
+            val outputConfig = graphConfig.input.single().stream.outputs.single()
             if (!cameraDevice.createReprocessableCaptureSession(
                     InputConfiguration(
                         outputConfig.size.width,
@@ -215,7 +215,7 @@ constructor(
                 outputs.all, captureSessionState
             )
         } else {
-            val outputConfig = graphConfig.input.stream.outputs.single()
+            val outputConfig = graphConfig.input.single().stream.outputs.single()
             cameraDevice.createReprocessableCaptureSessionByConfigurations(
                 InputConfigData(
                     outputConfig.size.width,
@@ -273,18 +273,25 @@ constructor(
             return emptyMap()
         }
 
-        val input =
-            graphConfig.input?.let {
-                val outputConfig = it.stream.outputs.single()
-                InputConfigData(
-                    outputConfig.size.width, outputConfig.size.height, outputConfig.format.value
-                )
+        val inputs = graphConfig.input?.map { inputConfig ->
+            val outputConfig = inputConfig.stream.outputs.single()
+            InputConfigData(
+                outputConfig.size.width,
+                outputConfig.size.height,
+                outputConfig.format.value
+            )
+        }
+
+        inputs?.let {
+            check(it.all { input -> input.format == inputs[0].format }) {
+                "All InputStream.Config objects must have the same format for multi resolution"
             }
+        }
 
         val sessionConfig =
             SessionConfigData(
                 operatingMode,
-                input,
+                inputs,
                 outputs.all,
                 threads.camera2Executor,
                 captureSessionState,

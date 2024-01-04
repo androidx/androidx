@@ -355,7 +355,7 @@ public fun SwipeDismissableNavHost(
 public class SwipeDismissableNavHostState(
     internal val swipeToDismissBoxState: SwipeToDismissBoxState
 ) {
-
+    @Suppress("DEPRECATION")
     @Deprecated(
         "This overload is provided for backward compatibility. " +
             "A newer overload is available which uses SwipeToDismissBoxState " +

@@ -81,11 +81,13 @@ import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.AndroidOwnerExtraAssertionsRule
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.sp
@@ -277,6 +279,60 @@ class LookaheadScopeTest {
         rule.runOnIdle {
             assertEquals(IntSize(80, 200), size1)
             assertEquals(IntSize(120, 200), size2)
+        }
+    }
+
+    @Test
+    fun lookaheadLayoutAnimationParentWidth() {
+        rule.mainClock.autoAdvance = false
+        var lookaheadChildPosition = Offset.Zero
+        var regularChildPosition = Offset.Zero
+        var childSize by mutableStateOf(20)
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                LookaheadScope {
+                    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                        Box(
+                            Modifier
+                                .size(200.dp)
+                                .layout { measurable, _ ->
+                                    val size = if (isLookingAhead) 300 else 200
+                                    val constraints = Constraints.fixed(size, size)
+                                    val p = measurable.measure(constraints)
+                                    layout(size, size) {
+                                        p.place(0, 0)
+                                    }
+                                }
+                                .wrapContentWidth(Alignment.Start)
+                                .layout { measurable, constraints ->
+                                    val p = measurable.measure(constraints)
+                                    layout(p.width, p.height) {
+                                        val pos = coordinates!!.parentCoordinates!!
+                                            .localPositionOf(coordinates!!, Offset.Zero)
+                                        if (isLookingAhead) {
+                                            lookaheadChildPosition = pos
+                                        } else {
+                                            regularChildPosition = pos
+                                        }
+                                        p.place(0, 0)
+                                    }
+                                }
+                                .animateSize()
+                                .width(childSize.dp)
+                        )
+                    }
+                }
+            }
+        }
+        rule.runOnIdle {
+            assertEquals(180f, regularChildPosition.x, 0.01f)
+            assertEquals(280f, lookaheadChildPosition.x, 0.01f)
+            childSize = 100
+        }
+        rule.mainClock.advanceTimeBy(50L)
+        rule.runOnUiThread {
+            assertTrue(regularChildPosition.x < 180f && regularChildPosition.x > 100f)
+            assertEquals(200f, lookaheadChildPosition.x, 0.01f)
         }
     }
 

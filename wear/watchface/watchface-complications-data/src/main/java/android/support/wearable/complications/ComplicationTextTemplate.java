@@ -245,6 +245,11 @@ public final class ComplicationTextTemplate implements Parcelable, TimeDependent
             return this;
         }
 
+        /** Returns whether nothing was set on this {@link Builder}. */
+        public boolean isEmpty() {
+            return mTexts.isEmpty() && mSurroundingText == null;
+        }
+
         /**
          * Returns {@link ComplicationTextTemplate} including the ComplicationText objects formatted
          * as specified.

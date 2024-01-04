@@ -89,23 +89,27 @@ public class IntrospectionHelper {
     public static final ClassName BUILDER_PRODUCER_CLASS =
             DOCUMENT_ANNOTATION_CLASS.nestedClass("BuilderProducer");
 
+    static final ClassName DOCUMENT_CLASS_FACTORY_CLASS =
+            ClassName.get(APPSEARCH_PKG, "DocumentClassFactory");
+
+    public final TypeMirror mStringType;
+    public final TypeMirror mLongPrimitiveType;
+    public final TypeMirror mIntPrimitiveType;
+    public final TypeMirror mBooleanPrimitiveType;
+    public final TypeMirror mBytePrimitiveArrayType;
+    public final TypeMirror mGenericDocumentType;
+    public final TypeMirror mDoublePrimitiveType;
     final TypeMirror mCollectionType;
     final TypeMirror mListType;
-    final TypeMirror mStringType;
     final TypeMirror mIntegerBoxType;
-    final TypeMirror mIntPrimitiveType;
     final TypeMirror mLongBoxType;
-    final TypeMirror mLongPrimitiveType;
     final TypeMirror mFloatBoxType;
     final TypeMirror mFloatPrimitiveType;
     final TypeMirror mDoubleBoxType;
-    final TypeMirror mDoublePrimitiveType;
     final TypeMirror mBooleanBoxType;
-    final TypeMirror mBooleanPrimitiveType;
     final TypeMirror mByteBoxType;
     final TypeMirror mByteBoxArrayType;
     final TypeMirror mBytePrimitiveType;
-    final TypeMirror mBytePrimitiveArrayType;
     private final ProcessingEnvironment mEnv;
     private final Types mTypeUtils;
 
@@ -134,6 +138,8 @@ public class IntrospectionHelper {
         mByteBoxArrayType = mTypeUtils.getArrayType(mByteBoxType);
         mBytePrimitiveType = mTypeUtils.unboxedType(mByteBoxType);
         mBytePrimitiveArrayType = mTypeUtils.getArrayType(mBytePrimitiveType);
+        mGenericDocumentType =
+                elementUtil.getTypeElement(GENERIC_DOCUMENT_CLASS.canonicalName()).asType();
     }
 
     /**
@@ -169,7 +175,8 @@ public class IntrospectionHelper {
     }
 
     /** Checks whether the property data type is one of the valid types. */
-    public boolean isFieldOfExactType(Element property, TypeMirror... validTypes) {
+    public boolean isFieldOfExactType(
+            @NonNull Element property, @NonNull TypeMirror... validTypes) {
         TypeMirror propertyType = getPropertyType(property);
         for (TypeMirror validType : validTypes) {
             if (propertyType.getKind() == TypeKind.ARRAY) {
@@ -190,31 +197,14 @@ public class IntrospectionHelper {
     }
 
     /** Checks whether the property data type is of boolean type. */
-    public boolean isFieldOfBooleanType(Element property) {
+    public boolean isFieldOfBooleanType(@NonNull Element property) {
         return isFieldOfExactType(property, mBooleanBoxType, mBooleanPrimitiveType);
     }
 
     /**
-     * Checks whether the property data class has {@code androidx.appsearch.annotation.Document
-     * .DocumentProperty} annotation.
+     * Returns the annotation's params as a map. Includes the default values.
      */
-    public boolean isFieldOfDocumentType(Element property) {
-        TypeMirror propertyType = getPropertyType(property);
-
-        AnnotationMirror documentAnnotation = null;
-
-        if (propertyType.getKind() == TypeKind.ARRAY) {
-            documentAnnotation = getDocumentAnnotation(
-                    mTypeUtils.asElement(((ArrayType) propertyType).getComponentType()));
-        } else if (mTypeUtils.isAssignable(mTypeUtils.erasure(propertyType), mCollectionType)) {
-            documentAnnotation = getDocumentAnnotation(mTypeUtils.asElement(
-                    ((DeclaredType) propertyType).getTypeArguments().get(0)));
-        } else {
-            documentAnnotation = getDocumentAnnotation(mTypeUtils.asElement(propertyType));
-        }
-        return documentAnnotation != null;
-    }
-
+    @NonNull
     public Map<String, Object> getAnnotationParams(@NonNull AnnotationMirror annotation) {
         Map<? extends ExecutableElement, ? extends AnnotationValue> values =
                 mEnv.getElementUtils().getElementValuesWithDefaults(annotation);
@@ -246,10 +236,6 @@ public class IntrospectionHelper {
     public static ClassName getDocumentClassFactoryForClass(@NonNull ClassName clazz) {
         String className = clazz.canonicalName().substring(clazz.packageName().length() + 1);
         return getDocumentClassFactoryForClass(clazz.packageName(), className);
-    }
-
-    public ClassName getAppSearchClass(String clazz, String... nested) {
-        return ClassName.get(APPSEARCH_PKG, clazz, nested);
     }
 
     /**
@@ -370,6 +356,39 @@ public class IntrospectionHelper {
     }
 
     /**
+     * Returns a type that the source type should be casted to coerce it to the target type.
+     *
+     * <p>Handles the following cases:
+     * <pre>
+     * {@code
+     * long|Long -> int|Integer = (int) ...
+     * double|Double -> float|Float = (float) ...
+     * }
+     * </pre>
+     *
+     * <p>Returns null if no cast is necessary.
+     */
+    @Nullable
+    public TypeMirror getNarrowingCastType(
+            @NonNull TypeMirror sourceType, @NonNull TypeMirror targetType) {
+        if (mTypeUtils.isSameType(targetType, mIntPrimitiveType)
+                || mTypeUtils.isSameType(targetType, mIntegerBoxType)) {
+            if (mTypeUtils.isSameType(sourceType, mLongPrimitiveType)
+                    || mTypeUtils.isSameType(sourceType, mLongBoxType)) {
+                return mIntPrimitiveType;
+            }
+        }
+        if (mTypeUtils.isSameType(targetType, mFloatPrimitiveType)
+                || mTypeUtils.isSameType(targetType, mFloatBoxType)) {
+            if (mTypeUtils.isSameType(sourceType, mDoublePrimitiveType)
+                    || mTypeUtils.isSameType(sourceType, mDoubleBoxType)) {
+                return mFloatPrimitiveType;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Whether the element is a static method that returns the class it's enclosed within.
      */
     public boolean isStaticFactoryMethod(@NonNull Element element) {
@@ -416,29 +435,6 @@ public class IntrospectionHelper {
         for (TypeMirror implementedInterface : currentClass.getInterfaces()) {
             generateClassHierarchyHelper(leafElement, asTypeElement(implementedInterface),
                     hierarchy, visited);
-        }
-    }
-
-    enum PropertyClass {
-        BOOLEAN_PROPERTY_CLASS("androidx.appsearch.annotation.Document.BooleanProperty"),
-        BYTES_PROPERTY_CLASS("androidx.appsearch.annotation.Document.BytesProperty"),
-        DOCUMENT_PROPERTY_CLASS("androidx.appsearch.annotation.Document.DocumentProperty"),
-        DOUBLE_PROPERTY_CLASS("androidx.appsearch.annotation.Document.DoubleProperty"),
-        LONG_PROPERTY_CLASS("androidx.appsearch.annotation.Document.LongProperty"),
-        STRING_PROPERTY_CLASS("androidx.appsearch.annotation.Document.StringProperty");
-
-        private final String mClassFullPath;
-
-        PropertyClass(String classFullPath) {
-            mClassFullPath = classFullPath;
-        }
-
-        String getClassFullPath() {
-            return mClassFullPath;
-        }
-
-        boolean isPropertyClass(String annotationFq) {
-            return mClassFullPath.equals(annotationFq);
         }
     }
 }

@@ -18,6 +18,7 @@ package androidx.compose.foundation.lazy.list
 
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.VisibilityThreshold
@@ -622,7 +623,9 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
 
         onAnimationFrame { fraction ->
             // item 1 moves to and item 4 moves from `listSize`, right after the end edge
-            val item1Offset =
+            val item1Offset = if (isInLookaheadScope) {
+                itemSizePlusSpacing + 2 * itemSizePlusSpacing * fraction
+            } else
                 itemSizePlusSpacing + (listSize - itemSizePlusSpacing) * fraction
             val item4Offset =
                 listSize - (listSize - itemSizePlusSpacing) * fraction
@@ -676,9 +679,9 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
         onAnimationFrame { fraction ->
             // item 4 moves to and item 1 moves from `-itemSize`, right before the start edge
             val item1Offset =
-                -itemSize + (itemSize + itemSizePlusSpacing) * fraction
+                -itemSizePlusSpacing + (2 * itemSizePlusSpacing) * fraction
             val item4Offset =
-                itemSizePlusSpacing - (itemSize + itemSizePlusSpacing) * fraction
+                itemSizePlusSpacing - (2 * itemSizePlusSpacing) * fraction
             val expected = mutableListOf<Pair<Any, Float>>().apply {
                 if (item4Offset > -itemSize) {
                     add(4 to item4Offset)
@@ -1585,6 +1588,8 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
     fun scrollIsNotAffectingItemMovingToTheBottomOutsideOfBounds() {
         var list by mutableStateOf(listOf(0, 1, 2, 3, 4))
         val scrollDelta = spacing
+        // Make the container size slightly bigger than 2 items in lookahead, so that scrolling
+        // does not compose new items and interrupt existing item placement animation.
         val containerSizeDp = itemSizeDp * 2
         val containerSize = itemSize * 2
         rule.setContent {
@@ -1610,11 +1615,23 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                     runBlocking { state.scrollBy(scrollDelta) }
                 }
             }
-            assertPositions(
-                0 to -scrollDelta,
-                1 to itemSize + (containerSize - itemSize) * fraction,
-                fraction = fraction
-            )
+            if (isInLookaheadScope) {
+                assertPositions(
+                    0 to -scrollDelta,
+                    1 to spring<IntOffset>(stiffness = Spring.StiffnessMediumLow).getValueAtFrame(
+                        (fraction * Duration / FrameDuration).toInt(),
+                        from = itemSize - scrollDelta,
+                        to = itemSize * 3 - scrollDelta
+                    ),
+                    fraction = fraction
+                )
+            } else {
+                assertPositions(
+                    0 to -scrollDelta,
+                    1 to itemSize + (containerSize - itemSize) * fraction,
+                    fraction = fraction
+                )
+            }
         }
     }
 
@@ -1646,11 +1663,25 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                     runBlocking { state.scrollBy(scrollDelta) }
                 }
             }
-            assertPositions(
-                2 to -scrollDelta,
-                3 to itemSize - (itemSize * 2 * fraction),
-                fraction = fraction
-            )
+            if (isInLookaheadScope) {
+                // Expect interruption to lookahead placement animation on 0th frame, from
+                // an additional item (i.e. item with key = 1) being composed due to scrolling.
+                assertPositions(
+                    2 to -scrollDelta,
+                    3 to interruptionSpec.getValueAtFrame(
+                        (Duration / FrameDuration * fraction).toInt(),
+                        from = itemSize,
+                        to = -2 * itemSize - scrollDelta
+                    ),
+                    fraction = fraction
+                )
+            } else {
+                assertPositions(
+                    2 to -scrollDelta,
+                    3 to itemSize - (itemSize * 2 * fraction),
+                    fraction = fraction
+                )
+            }
         }
     }
 
@@ -1681,12 +1712,13 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                 rule.runOnUiThread {
                     runBlocking { state.scrollBy(itemSize * 2) }
                 }
+                val postFirstScrollItem2Offset = if (isInLookaheadScope) -itemSize else itemSize
                 assertPositions(
                     2 to 0f,
                     3 to itemSize,
                     // after the first scroll the new position of item 1 is still not reached
                     // so the target didn't change, we still aim to end right after the bounds
-                    1 to itemSize,
+                    1 to postFirstScrollItem2Offset,
                     fraction = fraction
                 )
                 rule.runOnUiThread {
@@ -1698,18 +1730,34 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                     // after the second scroll the item 1 is visible, so we know its new target
                     // position. the animation is now targeting the real end position and now
                     // we are reacting on the scroll deltas
-                    1 to itemSize - scrollDelta,
+                    1 to postFirstScrollItem2Offset - scrollDelta,
                     fraction = fraction
                 )
             }
-            assertPositions(
-                2 to -scrollDelta,
-                3 to itemSize - scrollDelta,
-                1 to itemSize - scrollDelta + itemSize * fraction,
-                fraction = fraction
-            )
+            if (!isInLookaheadScope) {
+                assertPositions(
+                    2 to -scrollDelta,
+                    3 to itemSize - scrollDelta,
+                    1 to itemSize - scrollDelta + itemSize * fraction,
+                    fraction = fraction
+                )
+            } else {
+                // Expect interruption to lookahead placement animation on 0th frame.
+                assertPositions(
+                    2 to -scrollDelta,
+                    3 to itemSize - scrollDelta,
+                    1 to interruptionSpec.getValueAtFrame(
+                        (Duration / FrameDuration * fraction).toInt(),
+                        from = -itemSize - scrollDelta,
+                        to = 2 * itemSize - scrollDelta
+                    ),
+                    fraction = fraction
+                )
+            }
         }
     }
+
+    private val interruptionSpec = spring<IntOffset>(stiffness = Spring.StiffnessMediumLow)
 
     @Test
     fun interruptedSizeChange() {

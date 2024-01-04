@@ -115,7 +115,7 @@ internal class TextFieldTextLayoutModifierNode(
     }
 
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
-        this.textLayoutState.innerTextFieldCoordinates = coordinates
+        this.textLayoutState.textLayoutNodeCoordinates = coordinates
     }
 
     override fun MeasureScope.measure(

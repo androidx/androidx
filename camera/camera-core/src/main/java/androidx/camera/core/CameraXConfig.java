@@ -111,8 +111,10 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
 
     static final Option<Long> OPTION_CAMERA_OPEN_RETRY_MAX_TIMEOUT_IN_MILLIS_WHILE_RESUMING =
             Option.create(
-                    "camerax.core.appConfig.cameraOpenRetryMaxTimeoutInMsWhileResuming",
+                    "camerax.core.appConfig.cameraOpenRetryMaxTimeoutInMillisWhileResuming",
                     long.class);
+
+    static final long DEFAULT_OPTION_CAMERA_OPEN_RETRY_MAX_TIMEOUT_IN_MILLIS_WHILE_RESUMING = -1L;
 
     // *********************************************************************************************
 
@@ -197,13 +199,15 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
     }
 
     /**
-     * Returns the camera open retry maximum timeout in milliseconds.
+     * Returns the camera open retry maximum timeout in milliseconds when in active resuming mode.
      *
-     * @see Builder#setCameraOpenRetryMaxTimeoutInMsWhileResuming(long)
+     * <p>If this value is not set, -1L will be returned by default.
+     *
+     * @see Builder#setCameraOpenRetryMaxTimeoutInMillisWhileResuming(long)
      */
-    public long getCameraOpenRetryMaxTimeoutInMsWhileResuming(long valueIfMissing) {
+    public long getCameraOpenRetryMaxTimeoutInMillisWhileResuming() {
         return mConfig.retrieveOption(OPTION_CAMERA_OPEN_RETRY_MAX_TIMEOUT_IN_MILLIS_WHILE_RESUMING,
-                valueIfMissing);
+                DEFAULT_OPTION_CAMERA_OPEN_RETRY_MAX_TIMEOUT_IN_MILLIS_WHILE_RESUMING);
     }
 
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -395,14 +399,17 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
          * Elapsed time > 5 minutes -> retry once per 4 seconds.
          * Retry will stop after 30 minutes.
          *
-         * <p>When not in active resuming state, the camera will be attempted to be opened every
+         * <p>When not in active resuming mode, the camera will be attempted to be opened every
          * 700ms for 10 seconds. This value cannot currently be changed.
          *
+         * @param maxTimeoutInMillis The max timeout in milliseconds.
+         * @return this builder.
          */
         @NonNull
-        public Builder setCameraOpenRetryMaxTimeoutInMsWhileResuming(long valueIfMissing) {
+        public Builder setCameraOpenRetryMaxTimeoutInMillisWhileResuming(long maxTimeoutInMillis) {
             getMutableConfig().insertOption(
-                    OPTION_CAMERA_OPEN_RETRY_MAX_TIMEOUT_IN_MILLIS_WHILE_RESUMING, valueIfMissing);
+                    OPTION_CAMERA_OPEN_RETRY_MAX_TIMEOUT_IN_MILLIS_WHILE_RESUMING,
+                    maxTimeoutInMillis);
             return this;
         }
 

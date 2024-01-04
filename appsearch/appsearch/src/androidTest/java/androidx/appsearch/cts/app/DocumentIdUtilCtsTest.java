@@ -23,7 +23,6 @@ import androidx.appsearch.util.DocumentIdUtil;
 
 import org.junit.Test;
 
-/*@exportToFramework:SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)*/
 public class DocumentIdUtilCtsTest {
 
     @Test

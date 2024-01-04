@@ -30,6 +30,8 @@ import androidx.compose.ui.platform.InspectorInfo
 /**
  * Mark the layout rectangle as preferring to stay clear of floating windows.
  *
+ * This Modifier only has an effect on SDK 33 and above.
+ *
  * @see View.setPreferKeepClearRects
  */
 fun Modifier.preferKeepClear() =
@@ -42,18 +44,20 @@ fun Modifier.preferKeepClear() =
 /**
  * Mark a rectangle within the local layout coordinates preferring to stay clear of floating
  * windows.
- * After layout, [keepClearRect] is called to determine the [Rect] to mark as keep clear.
+ * After layout, [rectProvider] is called to determine the [Rect] to mark as keep clear.
  *
- * The [LayoutCoordinates] of the [Modifier]'s location in the layout is passed as passed as
- * [keepClearRect]'s parameter.
+ * The [LayoutCoordinates] of the [Modifier]'s location in the layout is passed as
+ * [rectProvider]'s parameter.
+ *
+ * This Modifier only has an effect on SDK 33 and above.
  *
  * @see View.setPreferKeepClearRects
  */
-fun Modifier.preferKeepClear(keepClearRect: (LayoutCoordinates) -> Rect) =
+fun Modifier.preferKeepClear(rectProvider: (LayoutCoordinates) -> Rect) =
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
         this
     } else {
-        this then preferKeepClearT(keepClearRect)
+        this then preferKeepClearT(rectProvider)
     }
 
 @Suppress("NOTHING_TO_INLINE", "ComposableModifierFactory", "ModifierFactoryExtensionFunction")

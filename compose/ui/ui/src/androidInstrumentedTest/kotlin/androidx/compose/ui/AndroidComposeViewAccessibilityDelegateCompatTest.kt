@@ -36,7 +36,7 @@ import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
-import androidx.compose.ui.draganddrop.DragAndDropInfo
+import androidx.compose.ui.draganddrop.DragAndDropManager
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.geometry.MutableRect
@@ -2129,6 +2129,7 @@ internal class MockOwner(
     override var showLayoutBounds: Boolean = false
     override val snapshotObserver = OwnerSnapshotObserver { it.invoke() }
     override val modifierLocalManager: ModifierLocalManager = ModifierLocalManager(this)
+    override val dragAndDropManager: DragAndDropManager get() = TODO("Not yet implemented")
 
     override fun onRequestMeasure(
         layoutNode: LayoutNode,
@@ -2190,10 +2191,6 @@ internal class MockOwner(
     }
 
     override fun registerOnLayoutCompletedListener(listener: Owner.OnLayoutCompletedListener) {
-        TODO("Not yet implemented")
-    }
-
-    override fun drag(dragAndDropInfo: DragAndDropInfo): Boolean {
         TODO("Not yet implemented")
     }
 

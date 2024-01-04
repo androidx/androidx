@@ -36,6 +36,8 @@ import androidx.compose.ui.node.UiApplier
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import java.util.Collections
+import java.util.WeakHashMap
 
 // TODO(chuckj): This is a temporary work-around until subframes exist so that
 // nextFrame() inside recompose() doesn't really start a new frame, but a new subframe
@@ -83,6 +85,12 @@ private fun doSetContent(
     parent: CompositionContext,
     content: @Composable () -> Unit
 ): Composition {
+    if (isDebugInspectorInfoEnabled && owner.getTag(R.id.inspection_slot_table_set) == null) {
+        owner.setTag(
+            R.id.inspection_slot_table_set,
+            Collections.newSetFromMap(WeakHashMap<CompositionData, Boolean>())
+        )
+    }
     val original = Composition(UiApplier(owner.root), parent)
     val wrapped = owner.view.getTag(R.id.wrapped_composition_tag)
         as? WrappedComposition

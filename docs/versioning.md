@@ -247,6 +247,8 @@ Council review but are expected to have performed a minimum level of validation.
         [experimental APIs](/company/teams/androidx/api_guidelines/index.md#experimental-api)
         across same-version group boundaries
 *   Testing
+    *   Ensure the library is testable. Follow the guideline on
+        [go/androidx/testability](/company/teams/androidx/testability.md)
     *   All changes **should** be accompanied by a `Test:` stanza
     *   All pre-submit and post-submit tests are passing
     *   Flaky or failing tests **must** be suppressed or fixed within one day

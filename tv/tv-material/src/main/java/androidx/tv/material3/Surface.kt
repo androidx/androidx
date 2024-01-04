@@ -111,7 +111,9 @@ fun Surface(
  * @param modifier Modifier to be applied to the layout corresponding to the surface
  * @param onLongClick callback to be called when the surface is long clicked (long-pressed).
  * @param enabled Controls the enabled state of the surface. When `false`, this Surface will not be
- * clickable or focusable.
+ * clickable. A disabled surface will still be focusable (reason:
+ * https://issuetracker.google.com/302955429). If you still want it to not be focusable, consider
+ * using the Non-interactive variant of the Surface.
  * @param tonalElevation When [color] is [ColorScheme.surface], a higher the elevation will result
  * in a darker color in light theme and lighter color in dark theme.
  * @param shape Defines the surface's shape.
@@ -216,7 +218,9 @@ fun Surface(
  * @param onLongClick callback to be called when the toggleable surface is long clicked
  * (long-pressed).
  * @param enabled Controls the enabled state of the surface. When `false`, this Surface will not be
- * clickable or focusable.
+ * clickable. A disabled surface will still be focusable (reason:
+ * https://issuetracker.google.com/302955429). If you still want it to not be focusable, consider
+ * using the Non-interactive variant of the Surface.
  * @param tonalElevation When [color] is [ColorScheme.surface], a higher the elevation will result
  * in a darker color in light theme and lighter color in dark theme.
  * @param shape Defines the surface's shape.

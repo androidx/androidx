@@ -20,25 +20,40 @@ import android.Manifest.permission.BLUETOOTH_CONNECT
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice as FwkDevice
 import android.bluetooth.BluetoothGatt
+import android.bluetooth.BluetoothGatt.GATT_INVALID_ATTRIBUTE_LENGTH
 import android.bluetooth.BluetoothGatt.GATT_SUCCESS
+import android.bluetooth.BluetoothGatt.GATT_WRITE_NOT_PERMITTED
 import android.bluetooth.BluetoothGattCharacteristic as FwkCharacteristic
+import android.bluetooth.BluetoothGattDescriptor as FwkDescriptor
 import android.bluetooth.BluetoothGattServer
 import android.bluetooth.BluetoothGattServerCallback
 import android.bluetooth.BluetoothGattService as FwkService
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
+import android.bluetooth.BluetoothStatusCodes
 import android.content.Context
 import android.os.Build
+import android.util.ArrayMap
+import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
+import androidx.bluetooth.GattCharacteristic.Companion.PROPERTY_INDICATE
+import androidx.bluetooth.GattCharacteristic.Companion.PROPERTY_NOTIFY
+import androidx.bluetooth.GattCommon.UUID_CCCD
+import java.util.concurrent.CancellationException
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.experimental.and
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -58,7 +73,7 @@ class GattServer(private val context: Context) {
             characteristic: FwkCharacteristic,
             confirm: Boolean,
             value: ByteArray
-        )
+        ): Int?
         fun sendResponse(
             device: FwkDevice,
             requestId: Int,
@@ -81,15 +96,13 @@ class GattServer(private val context: Context) {
         fun rejectConnection()
 
         fun sendResponse(requestId: Int, status: Int, offset: Int, value: ByteArray?)
+
+        fun writeCccd(requestId: Int, characteristic: GattCharacteristic, value: ByteArray?)
     }
 
     private companion object {
         private const val TAG = "GattServer"
     }
-
-    // Should be accessed only from the callback thread
-    private val sessions: MutableMap<FwkDevice, Session> = mutableMapOf()
-    private val attributeMap = AttributeMap()
 
     @SuppressLint("ObsoleteSdkInt")
     @VisibleForTesting
@@ -191,7 +204,7 @@ class GattServer(private val context: Context) {
                                 }
                             } ?: run {
                                 fwkAdapter.sendResponse(device, requestId,
-                                    BluetoothGatt.GATT_WRITE_NOT_PERMITTED, offset, /*value=*/null)
+                                    GATT_WRITE_NOT_PERMITTED, offset, /*value=*/null)
                             }
                         }
 
@@ -216,6 +229,35 @@ class GattServer(private val context: Context) {
                                     )
                                 }
                                 session.pendingWriteParts = mutableListOf()
+                            } ?: run {
+                                fwkAdapter.sendResponse(device, requestId,
+                                    BluetoothGatt.GATT_WRITE_NOT_PERMITTED,
+                                    /*offset=*/0, /*value=*/null)
+                            }
+                        }
+
+                        override fun onDescriptorWriteRequest(
+                            device: FwkDevice,
+                            requestId: Int,
+                            descriptor: FwkDescriptor,
+                            preparedWrite: Boolean,
+                            responseNeeded: Boolean,
+                            offset: Int,
+                            value: ByteArray?
+                        ) {
+                            findActiveSessionWithDevice(device)?.let { session ->
+                                if (descriptor.uuid == UUID_CCCD) {
+                                    attributeMap.fromFwkCharacteristic(descriptor.characteristic)
+                                        ?.let { char ->
+                                        session.writeCccd(requestId, char, value)
+                                    } ?: run {
+                                        fwkAdapter.sendResponse(
+                                            device, requestId,
+                                            BluetoothGatt.GATT_WRITE_NOT_PERMITTED,
+                                            /*offset=*/0, /*value=*/null
+                                        )
+                                    }
+                                }
                             } ?: run {
                                 fwkAdapter.sendResponse(device, requestId,
                                     BluetoothGatt.GATT_WRITE_NOT_PERMITTED,
@@ -261,6 +303,11 @@ class GattServer(private val context: Context) {
             }
 
             inner class Session(override val device: BluetoothDevice) : GattServer.Session {
+                // A map from a characteristic to the corresponding
+                // client characteristic configuration descriptor value
+                val cccdMap = ArrayMap<GattCharacteristic, Int>()
+                val subscribedCharacteristicsFlow =
+                    MutableStateFlow<Set<GattCharacteristic>>(setOf())
 
                 val state: AtomicInteger = AtomicInteger(GattServer.Session.STATE_CONNECTING)
                 val requestChannel = Channel<GattServerRequest>(Channel.UNLIMITED)
@@ -283,20 +330,36 @@ class GattServer(private val context: Context) {
                             get() = this@Session.device
                         override val requests = requestChannel.receiveAsFlow()
 
+                        override val subscribedCharacteristics: StateFlow<Set<GattCharacteristic>> =
+                            subscribedCharacteristicsFlow.asStateFlow()
+
                         override suspend fun notify(
                             characteristic: GattCharacteristic,
                             value: ByteArray
-                        ): Boolean {
+                        ) {
+                            if (!characteristic.isSubscribable) {
+                                throw IllegalArgumentException(
+                                    "The characteristic can not be notified"
+                                )
+                            }
+                            // Should not check if the client subscribed to the characteristic.
                             notifyMutex.withLock {
                                 CompletableDeferred<Boolean>().also {
+                                    // This is completed when the callback is received
                                     notifyJob = it
                                     fwkAdapter.notifyCharacteristicChanged(
                                         device.fwkDevice,
                                         characteristic.fwkCharacteristic,
-                                        false,
+                                        // Prefer notification over indication
+                                        (characteristic.properties and PROPERTY_NOTIFY) == 0,
                                         value
-                                    )
-                                    return it.await()
+                                    ).let { notifyResult ->
+                                        if (notifyResult != BluetoothStatusCodes.SUCCESS) {
+                                            throw CancellationException("notify failed with " +
+                                                "error: {$notifyResult}")
+                                        }
+                                    }
+                                    it.await()
                                 }
                             }
                         }
@@ -321,6 +384,36 @@ class GattServer(private val context: Context) {
                     value: ByteArray?
                 ) {
                     fwkAdapter.sendResponse(device.fwkDevice, requestId, status, offset, value)
+                }
+
+                override fun writeCccd(
+                    requestId: Int,
+                    characteristic: GattCharacteristic,
+                    value: ByteArray?
+                ) {
+                    if (value == null || value.isEmpty()) {
+                        fwkAdapter.sendResponse(device.fwkDevice, requestId,
+                            GATT_INVALID_ATTRIBUTE_LENGTH,
+                            /*offset=*/0, /*value=*/null)
+                        return
+                    }
+                    val indicate = (value[0] and 0x01).toInt() != 0
+                    val notify = (value[0] and 0x02).toInt() != 0
+
+                    if ((indicate && (characteristic.properties and PROPERTY_INDICATE) != 0) ||
+                        (notify && (characteristic.properties and PROPERTY_NOTIFY) != 0)) {
+                        fwkAdapter.sendResponse(device.fwkDevice, requestId,
+                            GATT_WRITE_NOT_PERMITTED,
+                            /*offset=*/0, /*value=*/null)
+                        return
+                    }
+                    if (indicate || notify) {
+                        cccdMap[characteristic] = value[0].toInt()
+                    } else {
+                        cccdMap.remove(characteristic)
+                    }
+                    // Emit a cloned set
+                    subscribedCharacteristicsFlow.update { _ -> cccdMap.keys.toSet() }
                 }
             }
         }
@@ -361,9 +454,11 @@ class GattServer(private val context: Context) {
             characteristic: FwkCharacteristic,
             confirm: Boolean,
             value: ByteArray
-        ) {
+        ): Int? {
             characteristic.value = value
-            gattServer?.notifyCharacteristicChanged(device, characteristic, confirm)
+            return gattServer?.notifyCharacteristicChanged(device, characteristic, confirm)?.let {
+                if (it) BluetoothStatusCodes.SUCCESS else BluetoothStatusCodes.ERROR_UNKNOWN
+            }
         }
 
         @RequiresPermission(BLUETOOTH_CONNECT)
@@ -378,6 +473,7 @@ class GattServer(private val context: Context) {
         }
     }
 
+    @RequiresApi(33)
     private open class FrameworkAdapterApi33 : FrameworkAdapterBase() {
         @RequiresPermission(BLUETOOTH_CONNECT)
         override fun notifyCharacteristicChanged(
@@ -385,8 +481,8 @@ class GattServer(private val context: Context) {
             characteristic: FwkCharacteristic,
             confirm: Boolean,
             value: ByteArray
-        ) {
-            gattServer?.notifyCharacteristicChanged(device, characteristic, confirm, value)
+        ): Int? {
+            return gattServer?.notifyCharacteristicChanged(device, characteristic, confirm, value)
         }
     }
 }

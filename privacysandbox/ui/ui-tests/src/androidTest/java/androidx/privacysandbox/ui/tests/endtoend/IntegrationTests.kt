@@ -20,7 +20,6 @@ import android.content.Context
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.os.Binder
-import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.os.SystemClock
@@ -29,12 +28,11 @@ import android.view.View
 import android.view.View.OnLayoutChangeListener
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AppCompatActivity
 import androidx.privacysandbox.ui.client.SandboxedUiAdapterFactory
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionStateChangedListener
 import androidx.privacysandbox.ui.client.view.SandboxedSdkView
+import androidx.privacysandbox.ui.core.BackwardCompatUtil
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
 import androidx.privacysandbox.ui.provider.toCoreLibInfo
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -55,7 +53,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @RunWith(Parameterized::class)
 @MediumTest
 class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
@@ -66,42 +63,42 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
     companion object {
         const val TEST_ONLY_USE_REMOTE_ADAPTER = "testOnlyUseRemoteAdapter"
         const val TIMEOUT = 1000.toLong()
-        const val INITIAL_HEIGHT = 10
-        const val INITIAL_WIDTH = 20
+        const val INITIAL_HEIGHT = 100
+        const val INITIAL_WIDTH = 100
 
         @JvmStatic
-        @Parameterized.Parameters(name = "{index}: invokeBackwardsCompatFlow={0}")
+        @Parameterized.Parameters(name = "invokeBackwardsCompatFlow={0}")
         fun data(): Array<Any> = arrayOf(
             arrayOf(true),
             arrayOf(false),
         )
     }
 
-    private lateinit var context: Context
-    private lateinit var activity: AppCompatActivity
+    private val context = InstrumentationRegistry.getInstrumentation().context
+
     private lateinit var view: SandboxedSdkView
     private lateinit var stateChangeListener: TestStateChangeListener
     private lateinit var errorLatch: CountDownLatch
 
     @Before
     fun setup() {
-        // TODO(b/300397160): Enable backward compat test on S- devices
-        assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+        if (!invokeBackwardsCompatFlow) {
+            // Device needs to support remote provider to invoke non-backward-compat flow.
+            assumeTrue(BackwardCompatUtil.canProviderBeRemote())
+        }
 
-        context = InstrumentationRegistry.getInstrumentation().context
-        activity = activityScenarioRule.withActivity { this }
-        view = SandboxedSdkView(context)
-        errorLatch = CountDownLatch(1)
-        stateChangeListener = TestStateChangeListener(errorLatch)
-        view.addStateChangedListener(stateChangeListener)
-        activity.runOnUiThread {
+        activityScenarioRule.withActivity {
+            view = SandboxedSdkView(context)
+            errorLatch = CountDownLatch(1)
+            stateChangeListener = TestStateChangeListener(errorLatch)
+            view.addStateChangedListener(stateChangeListener)
             val linearLayout = LinearLayout(context)
             linearLayout.layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT
             )
-            activity.setContentView(linearLayout)
-            view.layoutParams = LinearLayout.LayoutParams(100, 100)
+            setContentView(linearLayout)
+            view.layoutParams = LinearLayout.LayoutParams(INITIAL_WIDTH, INITIAL_HEIGHT)
             linearLayout.addView(view)
         }
     }
@@ -167,8 +164,8 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
     fun testConfigurationChanged() {
         val sdkAdapter = createAdapterAndEstablishSession()
 
-        activity.runOnUiThread {
-            activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        activityScenarioRule.withActivity {
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         }
 
         val testSession = sdkAdapter.session as TestSandboxedUiAdapter.TestSession
@@ -202,6 +199,9 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
 
     @Test
     fun testHostCanSetZOrderAboveBeforeOpeningSession() {
+        // TODO(b/301976432): Stop skipping this for backwards compat flow
+        assumeTrue(!invokeBackwardsCompatFlow)
+
         val adapter = createAdapterAndWaitToBeActive(initialZOrder = true)
         injectInputEventOnView()
         // the injected touch should be handled by the provider in Z-above mode
@@ -227,44 +227,63 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
         assertThat(stateChangeListener.error?.message).isEqualTo("Test Session Exception")
     }
 
-    // TODO(b/300056633): Replace with actual e2e test flow that triggers resize request
+    /**
+     * Tests that a provider-initiated resize is accepted if the view's parent does not impose
+     * exact restrictions on the view's size.
+     */
     @Test
-    fun testResize_ProviderInitiated_ReceivedByClient() {
-        val testSessionClient = TestSessionClient()
-        val sdkAdapter = createAdapterAndEstablishSession(
-            viewForSession = null,
-            testSessionClient = testSessionClient
-        )
+    fun testResizeRequested_requestedAccepted_atMostMeasureSpec() {
+        view.layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        val sdkAdapter = createAdapterAndWaitToBeActive()
 
-        // Request resize from Session side
         val testSession = sdkAdapter.session as TestSandboxedUiAdapter.TestSession
-        testSession.sessionClient.onResizeRequested(INITIAL_WIDTH + 10, INITIAL_HEIGHT + 10)
+        val newWidth = INITIAL_WIDTH - 10
+        val newHeight = INITIAL_HEIGHT - 10
 
-        // Verify SessionClient received the request
-        assertWithMessage("Resized width").that(testSessionClient.resizedWidth)
-            .isEqualTo(INITIAL_WIDTH + 10)
-        assertWithMessage("Resized height").that(testSessionClient.resizedHeight)
-            .isEqualTo(INITIAL_HEIGHT + 10)
+        activityScenarioRule.withActivity {
+            testSession.sessionClient.onResizeRequested(newWidth, newHeight)
+        }
+        assertWithMessage("Resized height").that(testSession.resizedWidth).isEqualTo(newWidth)
+        assertWithMessage("Resized width").that(testSession.resizedHeight).isEqualTo(newHeight)
+        testSession.assertResizeOccurred(
+            /* expectedWidth=*/ newWidth,
+            /* expectedHeight=*/ newHeight)
     }
 
-    // TODO(b/300056633): Replace with actual e2e test flow that triggers resize request
+    /**
+     * Tests that a provider-initiated resize is ignored if the view's parent provides exact
+     * measurements.
+     */
     @Test
-    fun testResize_ClientInitiated_ReceivedByProvider() {
-        val testSessionClient = TestSessionClient()
-        val sdkAdapter = createAdapterAndEstablishSession(
-            viewForSession = null,
-            testSessionClient = testSessionClient
-        )
+    fun testResizeRequested_requestIgnored_exactlyMeasureSpec() {
+        view.layoutParams = LinearLayout.LayoutParams(INITIAL_WIDTH, INITIAL_HEIGHT)
+        val sdkAdapter = createAdapterAndWaitToBeActive()
+        val testSession = sdkAdapter.session as TestSandboxedUiAdapter.TestSession
 
-        // Notify resized from the client
-        testSessionClient.session?.notifyResized(INITIAL_WIDTH + 10, INITIAL_HEIGHT + 10)
+        activityScenarioRule.withActivity {
+            testSession.sessionClient.onResizeRequested(INITIAL_WIDTH - 10, INITIAL_HEIGHT - 10)
+        }
+        testSession.assertResizeDidNotOccur()
+    }
 
-        // Verify Session received the request
+    @Test
+    fun testResize_ClientInitiated() {
+        val sdkAdapter = createAdapterAndWaitToBeActive()
+        val newWidth = INITIAL_WIDTH - 10
+        val newHeight = INITIAL_HEIGHT - 10
+        activityScenarioRule.withActivity {
+            view.layoutParams = LinearLayout.LayoutParams(newWidth, newHeight)
+        }
+
         val testSession = sdkAdapter.session as TestSandboxedUiAdapter.TestSession
         assertWithMessage("Resized width").that(testSession.resizedWidth)
-            .isEqualTo(INITIAL_WIDTH + 10)
+            .isEqualTo(newWidth)
         assertWithMessage("Resized height").that(testSession.resizedHeight)
-            .isEqualTo(INITIAL_HEIGHT + 10)
+            .isEqualTo(newHeight)
+        testSession.assertResizeOccurred(
+            /* expectedWidth=*/ newWidth,
+            /* expectedHeight=*/ newHeight)
     }
 
     @Test
@@ -333,7 +352,8 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
         return adapter
     }
 
-    private fun createAdapterAndWaitToBeActive(initialZOrder: Boolean): TestSandboxedUiAdapter {
+    private fun createAdapterAndWaitToBeActive(initialZOrder: Boolean = true):
+        TestSandboxedUiAdapter {
         view.orderProviderUiAboveClientUi(initialZOrder)
 
         val adapter = createAdapterAndEstablishSession()
@@ -349,7 +369,7 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
     }
 
     private fun injectInputEventOnView() {
-        activity.runOnUiThread {
+        activityScenarioRule.withActivity {
             val location = IntArray(2)
             view.getLocationOnScreen(location)
             InstrumentationRegistry.getInstrumentation().uiAutomation.injectInputEvent(
@@ -395,6 +415,8 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
         var touchedLatch = CountDownLatch(1)
 
         lateinit var session: SandboxedUiAdapter.Session
+        var initialHeight: Int = -1
+        var initialWidth: Int = -1
 
         override fun openSession(
             context: Context,
@@ -406,6 +428,8 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
             client: SandboxedUiAdapter.SessionClient
         ) {
             initialZOrderOnTop = isZOrderOnTop
+            this.initialHeight = initialHeight
+            this.initialWidth = initialWidth
             session = if (hasFailingTestSession) {
                 FailingTestSession(context, client)
             } else {
@@ -449,6 +473,9 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
             private val configLatch = CountDownLatch(1)
             private val resizeLatch = CountDownLatch(1)
             private val zOrderLatch = CountDownLatch(1)
+            private val sizeChangedLatch = CountDownLatch(1)
+            private var width = -1
+            private var height = -1
 
             var config: Configuration? = null
                 get() {
@@ -481,6 +508,15 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
                             touchedLatch.countDown()
                             true
                         }
+                        it.addOnLayoutChangeListener { _, left, top, right, bottom, _, _, _, _ ->
+                            width = right - left
+                            height = bottom - top
+                            // Don't count down for the initial layout. We want to capture the
+                            // layout change for a size change.
+                            if (width != initialWidth || height != initialHeight) {
+                                sizeChangedLatch.countDown()
+                            }
+                        }
                     }
                 }
 
@@ -501,6 +537,16 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
             }
 
             override fun close() {
+            }
+
+            internal fun assertResizeOccurred(expectedWidth: Int, expectedHeight: Int) {
+                assertThat(sizeChangedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+                assertThat(width).isEqualTo(expectedWidth)
+                assertThat(height).isEqualTo(expectedHeight)
+            }
+
+            internal fun assertResizeDidNotOccur() {
+                assertThat(sizeChangedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
             }
         }
     }

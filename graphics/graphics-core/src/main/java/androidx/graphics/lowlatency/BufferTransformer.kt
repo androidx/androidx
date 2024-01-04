@@ -18,6 +18,8 @@ package androidx.graphics.lowlatency
 
 import android.opengl.GLES20
 import android.opengl.Matrix
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.graphics.surface.SurfaceControlCompat
 
 /**
@@ -27,7 +29,8 @@ import androidx.graphics.surface.SurfaceControlCompat
  * with [GLES20.glViewport] as well as [transform] that should be consumed in any
  * vertex shader computations
  */
-internal class BufferTransformer() {
+@RequiresApi(Build.VERSION_CODES.Q)
+internal class BufferTransformer {
 
     private val mViewTransform = FloatArray(16)
 
@@ -103,4 +106,25 @@ internal class BufferTransformer() {
             }
         }
     }
+
+    fun configureMatrix(matrix: android.graphics.Matrix): android.graphics.Matrix =
+        matrix.apply {
+            when (computedTransform) {
+                SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90 -> {
+                    setRotate(270f)
+                    postTranslate(0f, logicalWidth.toFloat())
+                }
+                SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_180 -> {
+                    setRotate(180f)
+                    postTranslate(logicalWidth.toFloat(), logicalHeight.toFloat())
+                }
+                SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_270 -> {
+                    setRotate(90f)
+                    postTranslate(logicalHeight.toFloat(), 0f)
+                }
+                else -> {
+                    reset()
+                }
+            }
+        }
 }

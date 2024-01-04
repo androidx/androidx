@@ -23,7 +23,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
-import androidx.compose.ui.draganddrop.DragAndDropInfo
+import androidx.compose.ui.draganddrop.DragAndDropManager
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.geometry.Offset
@@ -3304,6 +3304,8 @@ private class TestOwner : Owner {
         get() = TODO("Not yet implemented")
     override val accessibilityManager: AccessibilityManager
         get() = TODO("Not yet implemented")
+    override val dragAndDropManager: DragAndDropManager
+        get() = TODO("Not yet implemented")
     override val textToolbar: TextToolbar
         get() = TODO("Not yet implemented")
     override val autofillTree: AutofillTree
@@ -3431,10 +3433,6 @@ private class TestOwner : Owner {
         while (onEndListeners.isNotEmpty()) {
             onEndListeners.removeAt(0).invoke()
         }
-    }
-
-    override fun drag(dragAndDropInfo: DragAndDropInfo): Boolean {
-        TODO("Not yet implemented")
     }
 
     override fun registerOnLayoutCompletedListener(listener: Owner.OnLayoutCompletedListener) {

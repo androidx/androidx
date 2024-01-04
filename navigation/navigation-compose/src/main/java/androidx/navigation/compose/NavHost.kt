@@ -330,6 +330,13 @@ public fun NavHost(
                     .forEach { zIndices.remove(it.key) }
             }
         }
+        DisposableEffect(true) {
+            onDispose {
+                visibleEntries.forEach { entry ->
+                    composeNavigator.onTransitionComplete(entry)
+                }
+            }
+        }
     }
 
     val dialogNavigator = navController.navigatorProvider.get<Navigator<out NavDestination>>(

@@ -50,9 +50,6 @@ internal interface EmbeddingInterfaceCompat {
     fun setLaunchingActivityStack(options: ActivityOptions, token: IBinder): ActivityOptions
 
     @RequiresWindowSdkExtension(3)
-    fun finishActivityStacks(activityStacks: Set<ActivityStack>)
-
-    @RequiresWindowSdkExtension(3)
     fun invalidateTopVisibleSplitAttributes()
 
     @RequiresWindowSdkExtension(3)

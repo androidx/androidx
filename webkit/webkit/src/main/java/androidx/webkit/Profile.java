@@ -23,17 +23,13 @@ import android.webkit.WebStorage;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresFeature;
-import androidx.annotation.RestrictTo;
 
 /**
  * A Profile represents one browsing session for WebView.
  * <p> You can have multiple profiles and each profile holds its own set of data. The creation
  * and deletion of the Profile is being managed by {@link ProfileStore}.
  *
- * @hide
- *
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface Profile {
 
     /**
@@ -53,7 +49,7 @@ public interface Profile {
     /**
      * Returns the profile's cookie manager.
      * <p>
-     * Can be called from any thread. It is not recommended to hold onto references of this.
+     * Can be called from any thread.
      *
      * @throws IllegalStateException if the profile has been deleted by
      * {@link ProfileStore#deleteProfile(String)}}.
@@ -61,12 +57,12 @@ public interface Profile {
     @NonNull
     @RequiresFeature(name = WebViewFeature.MULTI_PROFILE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    CookieManager getCookieManager() throws IllegalStateException;
+    CookieManager getCookieManager();
 
     /**
      * Returns the profile's web storage.
      * <p>
-     * Can be called from any thread. It is not recommended to hold onto references of this.
+     * Can be called from any thread.
      *
      * @throws IllegalStateException if the profile has been deleted by
      * {@link ProfileStore#deleteProfile(String)}}.
@@ -74,12 +70,12 @@ public interface Profile {
     @NonNull
     @RequiresFeature(name = WebViewFeature.MULTI_PROFILE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    WebStorage getWebStorage() throws IllegalStateException;
+    WebStorage getWebStorage();
 
     /**
      * Returns the geolocation permissions of the profile.
      * <p>
-     * Can be called from any thread. It is not recommended to hold onto references of this.
+     * Can be called from any thread.
      *
      * @throws IllegalStateException if the profile has been deleted by
      * {@link ProfileStore#deleteProfile(String)}}.
@@ -87,12 +83,12 @@ public interface Profile {
     @NonNull
     @RequiresFeature(name = WebViewFeature.MULTI_PROFILE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    GeolocationPermissions getGeolocationPermissions() throws IllegalStateException;
+    GeolocationPermissions getGeolocationPermissions();
 
     /**
      * Returns the service worker controller of the profile.
      * <p>
-     * Can be called from any thread. It is not recommended to hold onto references of this.
+     * Can be called from any thread.
      *
      * @throws IllegalStateException if the profile has been deleted by
      * {@link ProfileStore#deleteProfile(String)}}.
@@ -100,6 +96,6 @@ public interface Profile {
     @NonNull
     @RequiresFeature(name = WebViewFeature.MULTI_PROFILE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    ServiceWorkerController getServiceWorkerController() throws IllegalStateException;
+    ServiceWorkerController getServiceWorkerController();
 
 }

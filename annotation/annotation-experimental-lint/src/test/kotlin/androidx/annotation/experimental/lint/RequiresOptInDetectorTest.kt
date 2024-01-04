@@ -462,9 +462,6 @@ Fix for src/sample/optin/RegressionTestKotlin298322402.kt line 22: Add '@android
 Fix for src/sample/optin/RegressionTestKotlin298322402.kt line 22: Add '@sample.optin.ExperimentalJavaAnnotation' annotation to 'testMethod':
 @@ -21 +21
 +     @ExperimentalJavaAnnotation
-Fix for src/sample/optin/RegressionTestKotlin298322402.kt line 22: Add '@sample.optin.ExperimentalJavaAnnotation' annotation to containing class 'RegressionTestKotlin298322402':
-@@ -1 +1
-+ @ExperimentalJavaAnnotation
         """.trimIndent()
         /* ktlint-enable max-line-length */
 

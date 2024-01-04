@@ -61,6 +61,7 @@ class ComposeIrGenerationExtension(
     private val reportsDestination: String? = null,
     private val validateIr: Boolean = false,
     private val useK2: Boolean = false,
+    private val strongSkippingEnabled: Boolean = false,
     private val hideFromObjCDeclarationsSet: HideFromObjCDeclarationsSet? = null,
 ) : IrGenerationExtension {
     var metrics: ModuleMetrics = EmptyModuleMetrics
@@ -126,7 +127,8 @@ class ComposeIrGenerationExtension(
         ComposerLambdaMemoization(
             pluginContext,
             symbolRemapper,
-            metrics
+            metrics,
+            strongSkippingEnabled
         ).lower(moduleFragment)
 
         if (!useK2) {
@@ -195,7 +197,8 @@ class ComposeIrGenerationExtension(
             symbolRemapper,
             metrics,
             sourceInformationEnabled,
-            intrinsicRememberEnabled
+            intrinsicRememberEnabled,
+            strongSkippingEnabled
         ).lower(moduleFragment)
 
         if (decoysEnabled) {

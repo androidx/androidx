@@ -226,11 +226,11 @@ public final class ImageCapture extends UseCase {
     @ExperimentalZeroShutterLag
     public static final int CAPTURE_MODE_ZERO_SHUTTER_LAG = 2;
 
+    private static final int FLASH_MODE_UNKNOWN = -1;
     /**
      * Auto flash. The flash will be used according to the camera system's determination when taking
      * a picture.
      */
-    private static final int FLASH_MODE_UNKNOWN = -1;
     public static final int FLASH_MODE_AUTO = 0;
     /** Always flash. The flash will always be used when taking a picture. */
     public static final int FLASH_MODE_ON = 1;

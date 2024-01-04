@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
@@ -22,6 +23,9 @@ import androidx.build.RunApiTasks
 plugins {
     id("AndroidXPlugin")
 }
+
+def macEnabled = KmpPlatformsKt.enableMac(project)
+def linuxEnabled = KmpPlatformsKt.enableLinux(project)
 
 androidXMultiplatform {
     jvm {}
@@ -47,9 +51,11 @@ androidXMultiplatform {
         }
 
         jvmMain {
+            dependsOn(commonMain)
             dependencies {
                 api(libs.kotlinStdlib)
                 api(libs.kotlinTest)
+                implementation(libs.guavaAndroid)
             }
         }
 
@@ -58,6 +64,26 @@ androidXMultiplatform {
                 implementation(libs.kotlinStdlib)
                 implementation(libs.kotlinTest)
             }
+        }
+
+        if (macEnabled || linuxEnabled) {
+            nativeMain {
+                dependsOn(commonMain)
+            }
+        }
+
+        targets.all { target ->
+            if (target.platformType == org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet {
+                    dependsOn(nativeMain)
+                }
+            }
+        }
+
+        // Workaround for https://youtrack.jetbrains.com/issue/KT-51763
+        // Make sure commonization runs before any compilation task.
+        tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile).configureEach {
+            it.dependsOn(tasks.named("commonize"))
         }
     }
 }

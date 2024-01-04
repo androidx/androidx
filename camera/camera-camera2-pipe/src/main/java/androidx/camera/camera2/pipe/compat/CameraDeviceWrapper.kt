@@ -380,14 +380,21 @@ internal class AndroidCameraDevice(
                 )
 
             if (config.inputConfiguration != null) {
-                Api28Compat.setInputConfiguration(
-                    sessionConfig,
-                    Api23Compat.newInputConfiguration(
-                        config.inputConfiguration.width,
-                        config.inputConfiguration.height,
-                        config.inputConfiguration.format
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    Api28Compat.setInputConfiguration(
+                        sessionConfig,
+                        Api31Compat.newInputConfiguration(config.inputConfiguration, cameraId.value)
                     )
-                )
+                } else {
+                    Api28Compat.setInputConfiguration(
+                        sessionConfig,
+                        Api23Compat.newInputConfiguration(
+                            config.inputConfiguration.single().width,
+                            config.inputConfiguration.single().height,
+                            config.inputConfiguration.single().format
+                        )
+                    )
+                }
             }
 
             val requestBuilder = cameraDevice.createCaptureRequest(config.sessionTemplateId)

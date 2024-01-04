@@ -16,6 +16,7 @@
 
 package androidx.appsearch.compiler;
 
+import static androidx.appsearch.compiler.CodegenUtils.createNewArrayExpr;
 import static androidx.appsearch.compiler.IntrospectionHelper.APPSEARCH_EXCEPTION_CLASS;
 import static androidx.appsearch.compiler.IntrospectionHelper.GENERIC_DOCUMENT_CLASS;
 
@@ -35,9 +36,7 @@ import com.squareup.javapoet.WildcardTypeName;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Modifier;
-import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.PrimitiveType;
-import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 
 /**
@@ -46,11 +45,13 @@ import javax.lang.model.type.TypeMirror;
  * {@link androidx.appsearch.app.GenericDocument}.
  */
 class ToGenericDocumentCodeGenerator {
+    private final ProcessingEnvironment mEnv;
     private final IntrospectionHelper mHelper;
     private final DocumentModel mModel;
 
     private ToGenericDocumentCodeGenerator(
             @NonNull ProcessingEnvironment env, @NonNull DocumentModel model) {
+        mEnv = env;
         mHelper = new IntrospectionHelper(env);
         mModel = model;
     }
@@ -355,9 +356,10 @@ class ToGenericDocumentCodeGenerator {
                 .addStatement("$T[] $NConv = $L",
                         targetArrayComponentType,
                         jvmName,
-                        newArrayExpr(
+                        createNewArrayExpr(
                                 targetArrayComponentType,
-                                /* size= */CodeBlock.of("$NCopy.size()", jvmName)))
+                                /* size= */CodeBlock.of("$NCopy.size()", jvmName),
+                                mEnv))
                 .addStatement("int i = 0")
                 .beginControlFlow("for ($T item : $NCopy)", componentType, jvmName)
                 .addStatement("$NConv[i++] = item", jvmName)
@@ -443,9 +445,10 @@ class ToGenericDocumentCodeGenerator {
                 .addStatement("$T[] $NConv = $L",
                         targetArrayComponentType,
                         jvmName,
-                        newArrayExpr(
+                        createNewArrayExpr(
                                 targetArrayComponentType,
-                                /* size= */CodeBlock.of("$NCopy.length", jvmName)))
+                                /* size= */CodeBlock.of("$NCopy.length", jvmName),
+                                mEnv))
                 .beginControlFlow("for (int i = 0; i < $NCopy.length; i++)", jvmName)
                 .addStatement("$NConv[i] = $NCopy[i]", jvmName, jvmName)
                 .endControlFlow() // for (...) {
@@ -574,23 +577,6 @@ class ToGenericDocumentCodeGenerator {
                         annotation.getName(), jvmName)
                 .endControlFlow() // if ($NCopy != null) {
                 .build();
-    }
-
-    private CodeBlock newArrayExpr(@NonNull TypeMirror componentType, @NonNull CodeBlock size) {
-        // Component type itself may be an array type e.g. byte[]
-        // Deduce the base component type e.g. byte
-        TypeMirror baseComponentType = componentType;
-        int dims = 1;
-        while (baseComponentType.getKind() == TypeKind.ARRAY) {
-            baseComponentType = ((ArrayType) baseComponentType).getComponentType();
-            dims++;
-        }
-        CodeBlock.Builder codeBlock = CodeBlock.builder()
-                .add("new $T[$L]", baseComponentType, size);
-        for (int i = 1; i < dims; i++) {
-            codeBlock.add("[]");
-        }
-        return codeBlock.build();
     }
 
     /**

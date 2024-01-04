@@ -39,6 +39,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.computeSizeForDefaultText
@@ -142,6 +143,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -165,7 +167,7 @@ import org.mockito.kotlin.verify
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalFoundationApi::class)
-class TextFieldTest {
+class TextFieldTest : FocusedWindowTest {
     @get:Rule
     val rule = createComposeRule()
 
@@ -897,7 +899,7 @@ class TextFieldTest {
         var value by mutableStateOf(TextFieldValue(text, TextRange(text.length)))
         var toolbar: TextToolbar? = null
 
-        rule.setContent {
+        rule.setTextFieldTestContent {
             toolbar = LocalTextToolbar.current
             BasicTextField(
                 modifier = Modifier.testTag(Tag),
@@ -1386,6 +1388,7 @@ class TextFieldTest {
     }
 
     @OptIn(ExperimentalTestApi::class)
+    @FlakyTest(bugId = 300053741)
     @Test
     fun whenSelectedTextIsPartiallyRemoved_addedLater_SelectionRemainsPartially() {
         val textFieldValue = mutableStateOf("Hello")

@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.material
 
+import android.os.Build
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -45,11 +46,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.foundation.lazy.AutoCenteringParams
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumnDefaults
@@ -65,6 +70,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @MediumTest
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 @RunWith(AndroidJUnit4::class)
 public class PositionIndicatorTest {
     @get:Rule
@@ -163,6 +169,38 @@ public class PositionIndicatorTest {
                 ).isNotEqualTo(PositionIndicatorVisibility.Hide)
             }
         }
+    }
+
+    @Test
+    fun positionIndicatorWithScalingLazyColumn_hidden_by_default() {
+        lateinit var state: ScalingLazyListState
+        lateinit var positionIndicatorState: PositionIndicatorState
+        val piColor = Color.Yellow
+        rule.setContent {
+            state = rememberScalingLazyListState()
+            positionIndicatorState = remember { ScalingLazyColumnStateAdapter(state) }
+
+            ScalingLazyColumn(
+                state = state,
+                modifier = Modifier
+                    .size(213.dp) // Size of large round Wear device
+            ) {
+                items(5) {
+                    Box(modifier = Modifier.size(30.dp))
+                }
+            }
+            PositionIndicator(
+                modifier = Modifier.testTag(TEST_TAG),
+                state = positionIndicatorState,
+                color = piColor,
+                indicatorHeight = 50.dp,
+                indicatorWidth = 4.dp,
+                paddingHorizontal = 5.dp,
+            )
+        }
+        rule.waitForIdle()
+        rule.onNodeWithTag(TEST_TAG).captureToImage()
+            .assertDoesNotContainColor(piColor)
     }
 
     @Test

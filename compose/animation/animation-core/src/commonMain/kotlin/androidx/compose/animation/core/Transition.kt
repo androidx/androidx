@@ -86,6 +86,10 @@ fun <T> updateTransition(
 
 internal const val AnimationDebugDurationScale = 1
 
+/**
+ * Use with [rememberTransition] to create a [Transition] that can be dynamically
+ * targeted with [MutableTransitionState] or seekable with [SeekableTransitionState].
+ */
 sealed class TransitionState<S> {
     /**
      * Current state of the transition. If there is an active transition, [currentState] and

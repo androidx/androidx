@@ -19,7 +19,7 @@ package androidx.compose.ui.layout
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
-import androidx.compose.ui.draganddrop.DragAndDropInfo
+import androidx.compose.ui.draganddrop.DragAndDropManager
 import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
@@ -115,6 +115,8 @@ private class FakeOwner(
 
     override val modifierLocalManager: ModifierLocalManager = ModifierLocalManager(this)
 
+    override val dragAndDropManager: DragAndDropManager get() = TODO("Not yet implemented")
+
     override fun registerOnEndApplyChangesListener(listener: () -> Unit) {
         TODO("Not yet implemented")
     }
@@ -179,7 +181,7 @@ private class FakeOwner(
     override val fontFamilyResolver: FontFamily.Resolver
         get() = TODO("Not yet implemented")
     override val layoutDirection: LayoutDirection
-        get() = TODO("Not yet implemented")
+        get() = LayoutDirection.Ltr
     override val viewConfiguration: ViewConfiguration
         get() = TODO("Not yet implemented")
     override val autofillTree: AutofillTree
@@ -205,7 +207,6 @@ private class FakeOwner(
     override fun requestFocus() = TODO("Not yet implemented")
     override fun onSemanticsChange() = TODO("Not yet implemented")
     override fun getFocusDirection(keyEvent: KeyEvent) = TODO("Not yet implemented")
-    override fun drag(dragAndDropInfo: DragAndDropInfo): Boolean = TODO("Not yet implemented")
 }
 
 internal fun defaultRootConstraints() = Constraints(maxWidth = 100, maxHeight = 100)

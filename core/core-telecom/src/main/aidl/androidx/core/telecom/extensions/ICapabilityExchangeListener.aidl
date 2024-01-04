@@ -16,12 +16,17 @@
 
 package androidx.core.telecom.extensions;
 
+import java.util.List;
 import androidx.core.telecom.extensions.Capability;
+import androidx.core.telecom.extensions.IParticipantStateListener;
+import androidx.core.telecom.extensions.ICallDetailsListener;
 
 @JavaPassthrough(annotation="@androidx.core.telecom.util.ExperimentalAppActions")
 @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface ICapabilityExchangeListener {
-    // Called to complete the ICapabilityExchange#negotiateCapabilities request with the
-    // capabilities that both the VOIP service and InCallService support.
-    void onCapabilitiesNegotiated(in List<Capability> filteredCapabilities) = 0;
+    // Signal to VOIP containing participant extension support provided by ICS and provides VOIP
+    // side with a listener to communicate participant state changes to.
+    void onCreateParticipantExtension(in int version, in int[] actions, in IParticipantStateListener l) = 0;
+    // no actions set for call details yet, but we want to be forwards compatible.
+    void onCreateCallDetailsExtension(int version, in int[] actions, ICallDetailsListener l) = 1;
 }

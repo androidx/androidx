@@ -25,7 +25,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.TextLayoutResultProxy
+import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text2.input.TextFieldLineLimits
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.MultiLine
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.SingleLine
@@ -34,17 +34,14 @@ import androidx.compose.foundation.text2.input.placeCursorAtEnd
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.node.Ref
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
@@ -82,7 +79,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalFoundationApi::class)
-class TextFieldScrollTest {
+class TextFieldScrollTest : FocusedWindowTest {
 
     private val TextfieldTag = "textField"
 
@@ -410,9 +407,9 @@ class TextFieldScrollTest {
 
     @Test
     fun textFieldFollowsCursor_whenFocused() {
-        val state = TextFieldState(longText)
+        val state = TextFieldState(longText, TextRange(0))
         val scrollState = ScrollState(0)
-        rule.setContent {
+        rule.setTextFieldTestContent {
             ScrollableContent(
                 state = state,
                 scrollState = scrollState,
@@ -423,9 +420,9 @@ class TextFieldScrollTest {
 
         rule.onNodeWithTag(TextfieldTag).requestFocus()
 
-        // move cursor to the end
-        state.edit {
-            placeCursorAtEnd()
+        rule.runOnIdle {
+            // move cursor to the end
+            state.edit { placeCursorAtEnd() }
         }
 
         rule.runOnIdle {
@@ -586,18 +583,10 @@ class TextFieldScrollTest {
         scrollState: ScrollState,
         lineLimits: TextFieldLineLimits
     ) {
-        val textLayoutResultRef: Ref<State<TextLayoutResultProxy?>?> = remember { Ref() }
-
         testScope = rememberCoroutineScope()
         BasicTextField2(
             state = state,
             scrollState = scrollState,
-            onTextLayout = {
-                textLayoutResultRef.value = object : State<TextLayoutResultProxy?> {
-                    override val value: TextLayoutResultProxy?
-                        get() = it()?.let(::TextLayoutResultProxy)
-                }
-            },
             lineLimits = lineLimits,
             modifier = modifier.testTag(TextfieldTag)
         )

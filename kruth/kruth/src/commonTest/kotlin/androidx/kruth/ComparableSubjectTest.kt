@@ -48,6 +48,24 @@ class ComparableSubjectTest {
     }
 
     @Test
+    fun isIn() {
+        val oneToFive = 1..5
+        assertThat(4).isIn(oneToFive)
+        assertFailsWith<AssertionError> {
+            assertThat(6).isIn(oneToFive)
+        }
+    }
+
+    @Test
+    fun isNotIn() {
+        val oneToFive = 1..5
+        assertThat(6).isNotIn(oneToFive)
+        assertFailsWith<AssertionError> {
+            assertThat(4).isNotIn(oneToFive)
+        }
+    }
+
+    @Test
     fun isEquivalentAccordingToCompareTo() {
         assertThat(StringComparedByLength("abc"))
             .isEquivalentAccordingToCompareTo(StringComparedByLength("xyz"))
@@ -115,6 +133,10 @@ class ComparableSubjectTest {
         assertThat(4L).isAtMost(5L)
         assertThat(4L).isAtLeast(4L)
         assertThat(4L).isAtLeast(3L)
+
+        val range = 2L..4L
+        assertThat(3L).isIn(range)
+        assertThat(5L).isNotIn(range);
     }
 
     @Test

@@ -74,7 +74,7 @@ fun RepeatedRotationDemo() {
                         iterations = 10,
                         animation = keyframes {
                             durationMillis = 1000
-                            0f at 0 with LinearEasing
+                            0f at 0 using LinearEasing
                             360f at 1000
                         }
                     )

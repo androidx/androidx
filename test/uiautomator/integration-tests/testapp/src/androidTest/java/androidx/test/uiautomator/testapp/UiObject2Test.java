@@ -18,6 +18,7 @@ package androidx.test.uiautomator.testapp;
 
 import static android.os.Build.VERSION.SDK_INT;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -46,6 +47,8 @@ import org.junit.Assume;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -509,6 +512,25 @@ public class UiObject2Test extends BaseTest {
         button.click();
         textView.wait(Until.selected(true), TIMEOUT_MS);
         assertTrue(textView.isSelected());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 24)
+    public void testGetDrawingOrder() {
+        launchTestActivity(DrawingOrderTestActivity.class);
+        UiObject2 red = mDevice.findObject(By.res(TEST_APP, "red"));
+        UiObject2 green = mDevice.findObject(By.res(TEST_APP, "green"));
+        UiObject2 blue = mDevice.findObject(By.res(TEST_APP, "blue"));
+        UiObject2[] objects = new UiObject2[]{red, green, blue};
+
+        // Initial order is red (bottom), green, blue (top).
+        Arrays.sort(objects, Comparator.comparing(UiObject2::getDrawingOrder));
+        assertArrayEquals(new UiObject2[]{red, green, blue}, objects);
+
+        // Clicking moves green above blue.
+        red.click();
+        Arrays.sort(objects, Comparator.comparing(UiObject2::getDrawingOrder));
+        assertArrayEquals(new UiObject2[]{red, blue, green}, objects);
     }
 
     @Test

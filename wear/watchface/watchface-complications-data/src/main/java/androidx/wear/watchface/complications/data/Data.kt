@@ -16,13 +16,18 @@
 
 package androidx.wear.watchface.complications.data
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.ComponentName
+import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.support.wearable.complications.ComplicationData.Builder as WireComplicationDataBuilder
+import android.support.wearable.complications.ComplicationText as WireComplicationText
+import android.support.wearable.complications.ComplicationTextTemplate
+import android.support.wearable.complications.TimeDependentText
 import android.util.Log
 import androidx.annotation.ColorInt
 import androidx.annotation.FloatRange
@@ -187,6 +192,10 @@ constructor(
      */
     public open fun getNextChangeInstant(afterInstant: Instant): Instant = Instant.MAX
 
+    /** The content description field for accessibility. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    abstract fun getContentDescription(context: Context): TimeDependentText?
+
     override fun equals(other: Any?): Boolean =
         other is ComplicationData && asWireComplicationData() == other.asWireComplicationData()
 
@@ -308,6 +317,13 @@ internal constructor(
      */
     constructor(placeholder: ComplicationData) : this(placeholder, null)
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun getContentDescription(context: Context): TimeDependentText? =
+        placeholder?.getContentDescription(context)
+            ?: WireComplicationText(context.getString(R.string.a11y_no_data))
+
+    /** The content description field for accessibility. */
+    @SuppressLint("NewApi")
     val contentDescription: ComplicationText? =
         when (placeholder) {
             is ShortTextComplicationData -> placeholder.contentDescription
@@ -353,6 +369,9 @@ public class EmptyComplicationData :
     // Always empty.
     override fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {}
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun getContentDescription(context: Context): TimeDependentText? = null
+
     override fun toString(): String {
         return "EmptyComplicationData()"
     }
@@ -381,6 +400,9 @@ public class NotConfiguredComplicationData :
     ) {
     // Always empty.
     override fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {}
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun getContentDescription(context: Context): TimeDependentText? = null
 
     override fun toString(): String {
         return "NotConfiguredComplicationData()"
@@ -437,8 +459,6 @@ public class NotConfiguredComplicationData :
  *   occupied by a single complication. If the smallImage is equal to [SmallImage.PLACEHOLDER] the
  *   renderer must treat it as a placeholder rather than rendering normally, its suggested it should
  *   be rendered as a light grey box.
- * @property contentDescription The content description field for accessibility. Please do not
- *   include the word 'complication' in the description.
  */
 public class ShortTextComplicationData
 internal constructor(
@@ -446,7 +466,7 @@ internal constructor(
     public val title: ComplicationText?,
     public val monochromaticImage: MonochromaticImage?,
     public val smallImage: SmallImage?,
-    public val contentDescription: ComplicationText?,
+    private val _contentDescription: ComplicationText?,
     tapAction: PendingIntent?,
     validTimeRange: TimeRange?,
     cachedWireComplicationData: WireComplicationData?,
@@ -478,7 +498,7 @@ internal constructor(
      */
     public class Builder(
         private val text: ComplicationText,
-        private var contentDescription: ComplicationText
+        private val contentDescription: ComplicationText
     ) : BaseBuilder<Builder, ShortTextComplicationData>() {
         private var tapAction: PendingIntent? = null
         private var validTimeRange: TimeRange? = null
@@ -532,12 +552,7 @@ internal constructor(
         super.fillWireComplicationDataBuilder(builder)
         builder.setShortText(text.toWireComplicationText())
         builder.setShortTitle(title?.toWireComplicationText())
-        builder.setContentDescription(
-            when (contentDescription) {
-                ComplicationText.EMPTY -> null
-                else -> contentDescription?.toWireComplicationText()
-            }
-        )
+        builder.setContentDescription(_contentDescription?.emptyToNull()?.toWireComplicationText())
         monochromaticImage?.addToWireComplicationData(builder)
         smallImage?.addToWireComplicationData(builder)
         builder.setTapAction(tapAction)
@@ -545,10 +560,18 @@ internal constructor(
         builder.setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun getContentDescription(context: Context): TimeDependentText? =
+        _contentDescription?.emptyToNull()?.toWireComplicationText()
+            ?: ComplicationTextTemplate.Builder().addTextAndTitle(text, title).buildOrNull()
+
+    /** The content description field for accessibility. */
+    val contentDescription: ComplicationText? = _contentDescription ?: ComplicationText.EMPTY
+
     override fun toString(): String {
         return "ShortTextComplicationData(text=$text, title=$title, " +
             "monochromaticImage=$monochromaticImage, smallImage=$smallImage, " +
-            "contentDescription=$contentDescription, " +
+            "contentDescription=$_contentDescription, " +
             "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +
             "tapAction=$tapAction, validTimeRange=$validTimeRange, dataSource=$dataSource, " +
             "persistencePolicy=$persistencePolicy, displayPolicy=$displayPolicy, " +
@@ -619,8 +642,6 @@ internal constructor(
  *   occupied by a single complication. If the smallImage is equal to [SmallImage.PLACEHOLDER] the
  *   renderer must treat it as a placeholder rather than rendering normally, its suggested it should
  *   be rendered as a light grey box.
- * @property contentDescription The content description field for accessibility. Please do not
- *   include the word 'complication' in the description.
  */
 public class LongTextComplicationData
 internal constructor(
@@ -628,7 +649,7 @@ internal constructor(
     public val title: ComplicationText?,
     public val monochromaticImage: MonochromaticImage?,
     public val smallImage: SmallImage?,
-    public val contentDescription: ComplicationText?,
+    private val _contentDescription: ComplicationText?,
     tapAction: PendingIntent?,
     validTimeRange: TimeRange?,
     cachedWireComplicationData: WireComplicationData?,
@@ -661,7 +682,7 @@ internal constructor(
      */
     public class Builder(
         private val text: ComplicationText,
-        private var contentDescription: ComplicationText
+        private val contentDescription: ComplicationText
     ) : BaseBuilder<Builder, LongTextComplicationData>() {
         private var tapAction: PendingIntent? = null
         private var validTimeRange: TimeRange? = null
@@ -717,21 +738,24 @@ internal constructor(
         builder.setLongTitle(title?.toWireComplicationText())
         monochromaticImage?.addToWireComplicationData(builder)
         smallImage?.addToWireComplicationData(builder)
-        builder.setContentDescription(
-            when (contentDescription) {
-                ComplicationText.EMPTY -> null
-                else -> contentDescription?.toWireComplicationText()
-            }
-        )
+        builder.setContentDescription(_contentDescription?.emptyToNull()?.toWireComplicationText())
         builder.setTapAction(tapAction)
         setValidTimeRange(validTimeRange, builder)
         builder.setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun getContentDescription(context: Context): TimeDependentText? =
+        _contentDescription?.emptyToNull()?.toWireComplicationText()
+            ?: ComplicationTextTemplate.Builder().addTextAndTitle(text, title).buildOrNull()
+
+    /** The content description field for accessibility. */
+    val contentDescription: ComplicationText? = _contentDescription ?: ComplicationText.EMPTY
+
     override fun toString(): String {
         return "LongTextComplicationData(text=$text, title=$title, " +
             "monochromaticImage=$monochromaticImage, smallImage=$smallImage, " +
-            "contentDescription=$contentDescription), " +
+            "contentDescription=$_contentDescription), " +
             "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +
             "tapAction=$tapAction, validTimeRange=$validTimeRange, dataSource=$dataSource, " +
             "persistencePolicy=$persistencePolicy, displayPolicy=$displayPolicy, " +
@@ -871,8 +895,6 @@ public class ColorRamp(
  *   truncated. If the text is equal to [ComplicationText.PLACEHOLDER] the renderer must treat it as
  *   a placeholder rather than rendering normally, its suggested it should be rendered as a light
  *   grey box.
- * @property contentDescription The content description field for accessibility. Please do not
- *   include the word 'complication' in the description.
  * @property colorRamp Optional hint to render the value with the specified [ColorRamp]. When
  *   present the renderer may choose to use the ColorRamp when rendering the progress bar.
  * @property valueType The semantic meaning of [value]. The complication renderer may choose to
@@ -889,7 +911,7 @@ internal constructor(
     public val smallImage: SmallImage?,
     public val title: ComplicationText?,
     public val text: ComplicationText?,
-    public val contentDescription: ComplicationText?,
+    private val _contentDescription: ComplicationText?,
     tapAction: PendingIntent?,
     validTimeRange: TimeRange?,
     cachedWireComplicationData: WireComplicationData?,
@@ -915,8 +937,13 @@ internal constructor(
     override fun validate() {
         super.validate()
         require(min <= max) { "min must be lower than or equal to max" }
-        require(value == PLACEHOLDER || Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
-            value in min..max) { "From T API onwards, value must be between min and max" }
+        require(
+            value == PLACEHOLDER ||
+                Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+                value in min..max
+        ) {
+            "From T API onwards, value must be between min and max"
+        }
         require(max != Float.MAX_VALUE) { "Float.MAX_VALUE is reserved and can't be used for max" }
         require(monochromaticImage != null || smallImage != null || text != null || title != null) {
             "At least one of monochromaticImage, smallImage, text or title must be set"
@@ -945,7 +972,7 @@ internal constructor(
         private val dynamicValue: DynamicFloat?,
         private val min: Float,
         private val max: Float,
-        private var contentDescription: ComplicationText
+        private val contentDescription: ComplicationText
     ) : BaseBuilder<Builder, RangedValueComplicationData>() {
         /**
          * Creates a [Builder] for a [RangedValueComplicationData] with a [Float] value.
@@ -1087,12 +1114,7 @@ internal constructor(
         builder.setShortText(text?.toWireComplicationText())
         builder.setShortTitle(title?.toWireComplicationText())
         builder.setTapAction(tapAction)
-        builder.setContentDescription(
-            when (contentDescription) {
-                ComplicationText.EMPTY -> null
-                else -> contentDescription?.toWireComplicationText()
-            }
-        )
+        builder.setContentDescription(_contentDescription?.emptyToNull()?.toWireComplicationText())
         setValidTimeRange(validTimeRange, builder)
         builder.setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
         colorRamp?.let {
@@ -1101,6 +1123,15 @@ internal constructor(
         }
         builder.setRangedValueType(valueType)
     }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun getContentDescription(context: Context): TimeDependentText? =
+        _contentDescription?.emptyToNull()?.toWireComplicationText()
+            ?: ComplicationTextTemplate.Builder().addTextAndTitle(text, title).buildOrNull()
+                ?: WireComplicationText(context.getString(R.string.a11y_template_range, value, max))
+
+    /** The content description field for accessibility. */
+    val contentDescription: ComplicationText? = _contentDescription ?: ComplicationText.EMPTY
 
     override fun toString(): String {
         val valueString =
@@ -1118,7 +1149,7 @@ internal constructor(
         return "RangedValueComplicationData(value=$valueString, " +
             "dynamicValue=$dynamicValueString, valueType=$valueType, min=$min, " +
             "max=$max, monochromaticImage=$monochromaticImage, smallImage=$smallImage, " +
-            "title=$title, text=$text, contentDescription=$contentDescription), " +
+            "title=$title, text=$text, contentDescription=$_contentDescription), " +
             "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +
             "tapAction=$tapAction, validTimeRange=$validTimeRange, dataSource=$dataSource, " +
             "colorRamp=$colorRamp, persistencePolicy=$persistencePolicy, " +
@@ -1238,8 +1269,6 @@ internal constructor(
  *   truncated. If the text is equal to [ComplicationText.PLACEHOLDER] the renderer must treat it as
  *   a placeholder rather than rendering normally, its suggested it should be rendered as a light
  *   grey box.
- * @property contentDescription The content description field for accessibility. Please do not
- *   include the word 'complication' in the description.
  * @property colorRamp Optional hint to render the progress bar representing [value] with the
  *   specified [ColorRamp].
  */
@@ -1253,7 +1282,7 @@ internal constructor(
     public val smallImage: SmallImage?,
     public val title: ComplicationText?,
     public val text: ComplicationText?,
-    public val contentDescription: ComplicationText?,
+    private val _contentDescription: ComplicationText?,
     tapAction: PendingIntent?,
     validTimeRange: TimeRange?,
     cachedWireComplicationData: WireComplicationData?,
@@ -1299,7 +1328,7 @@ internal constructor(
         private val value: Float,
         private val dynamicValue: DynamicFloat?,
         private val targetValue: Float,
-        private var contentDescription: ComplicationText
+        private val contentDescription: ComplicationText
     ) : BaseBuilder<Builder, GoalProgressComplicationData>() {
         /**
          * Creates a [Builder] for a [GoalProgressComplicationData] with a [Float] value.
@@ -1418,12 +1447,7 @@ internal constructor(
         builder.setShortText(text?.toWireComplicationText())
         builder.setShortTitle(title?.toWireComplicationText())
         builder.setTapAction(tapAction)
-        builder.setContentDescription(
-            when (contentDescription) {
-                ComplicationText.EMPTY -> null
-                else -> contentDescription?.toWireComplicationText()
-            }
-        )
+        builder.setContentDescription(_contentDescription?.emptyToNull()?.toWireComplicationText())
         setValidTimeRange(validTimeRange, builder)
         builder.setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
         colorRamp?.let {
@@ -1431,6 +1455,17 @@ internal constructor(
             builder.setColorRampIsSmoothShaded(it.interpolated)
         }
     }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun getContentDescription(context: Context): TimeDependentText? =
+        _contentDescription?.emptyToNull()?.toWireComplicationText()
+            ?: ComplicationTextTemplate.Builder().addTextAndTitle(text, title).buildOrNull()
+                ?: WireComplicationText(
+                context.getString(R.string.a11y_template_range, value, targetValue)
+            )
+
+    /** The content description field for accessibility. */
+    val contentDescription: ComplicationText? = _contentDescription ?: ComplicationText.EMPTY
 
     override fun toString(): String {
         val valueString =
@@ -1448,7 +1483,7 @@ internal constructor(
         return "GoalProgressComplicationData(value=$valueString, " +
             "dynamicValue=$dynamicValueString, targetValue=$targetValue, " +
             "monochromaticImage=$monochromaticImage, smallImage=$smallImage, title=$title, " +
-            "text=$text, contentDescription=$contentDescription), " +
+            "text=$text, contentDescription=$_contentDescription), " +
             "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +
             "tapAction=$tapAction, validTimeRange=$validTimeRange, dataSource=$dataSource, " +
             "colorRamp=$colorRamp, persistencePolicy=$persistencePolicy, " +
@@ -1545,8 +1580,6 @@ internal constructor(
  *   truncated. If the text is equal to [ComplicationText.PLACEHOLDER] the renderer must treat it as
  *   a placeholder rather than rendering normally, its suggested it should be rendered as a light
  *   grey box.
- * @property contentDescription The content description field for accessibility. Please do not
- *   include the word 'complication' in the description.
  */
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 public class WeightedElementsComplicationData
@@ -1557,7 +1590,7 @@ internal constructor(
     public val smallImage: SmallImage?,
     public val title: ComplicationText?,
     public val text: ComplicationText?,
-    public val contentDescription: ComplicationText?,
+    private val _contentDescription: ComplicationText?,
     tapAction: PendingIntent?,
     validTimeRange: TimeRange?,
     cachedWireComplicationData: WireComplicationData?,
@@ -1649,7 +1682,7 @@ internal constructor(
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     public class Builder(
         elements: List<Element>,
-        private var contentDescription: ComplicationText
+        private val contentDescription: ComplicationText
     ) : BaseBuilder<Builder, WeightedElementsComplicationData>() {
         @ColorInt private var elementBackgroundColor: Int = Color.TRANSPARENT
         private var tapAction: PendingIntent? = null
@@ -1742,15 +1775,18 @@ internal constructor(
         builder.setShortText(text?.toWireComplicationText())
         builder.setShortTitle(title?.toWireComplicationText())
         builder.setTapAction(tapAction)
-        builder.setContentDescription(
-            when (contentDescription) {
-                ComplicationText.EMPTY -> null
-                else -> contentDescription?.toWireComplicationText()
-            }
-        )
+        builder.setContentDescription(_contentDescription?.emptyToNull()?.toWireComplicationText())
         setValidTimeRange(validTimeRange, builder)
         builder.setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
     }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun getContentDescription(context: Context): TimeDependentText? =
+        _contentDescription?.emptyToNull()?.toWireComplicationText()
+            ?: ComplicationTextTemplate.Builder().addTextAndTitle(text, title).buildOrNull()
+
+    /** The content description field for accessibility. */
+    val contentDescription: ComplicationText? = _contentDescription ?: ComplicationText.EMPTY
 
     override fun getNextChangeInstant(afterInstant: Instant): Instant {
         val titleChangeInstant = title?.getNextChangeTime(afterInstant) ?: Instant.MAX
@@ -1772,7 +1808,7 @@ internal constructor(
         return "WeightedElementsComplicationData(elements=$elementsString, " +
             "elementBackgroundColor=$elementBackgroundColor, " +
             "monochromaticImage=$monochromaticImage, smallImage=$smallImage, title=$title, " +
-            "text=$text, contentDescription=$contentDescription), " +
+            "text=$text, contentDescription=$_contentDescription), " +
             "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +
             "tapAction=$tapAction, validTimeRange=$validTimeRange, dataSource=$dataSource, " +
             "persistencePolicy=$persistencePolicy, displayPolicy=$displayPolicy, " +
@@ -1825,16 +1861,11 @@ internal constructor(
  *   face (typically with SRC_IN). If the monochromaticImage is equal to
  *   [MonochromaticImage.PLACEHOLDER] the renderer must treat it as a placeholder rather than
  *   rendering normally, it's suggested it should be rendered as a light grey box.
- * @property contentDescription The content description field for accessibility and is used to
- *   describe what data the icon represents. If the icon is purely stylistic, and does not convey
- *   any information to the user, then provide an empty content description. If no content
- *   description is provided, a generic content description will be used instead. Please do not
- *   include the word 'complication' in the description.
  */
 public class MonochromaticImageComplicationData
 internal constructor(
     public val monochromaticImage: MonochromaticImage,
-    public val contentDescription: ComplicationText?,
+    private val _contentDescription: ComplicationText?,
     tapAction: PendingIntent?,
     validTimeRange: TimeRange?,
     cachedWireComplicationData: WireComplicationData?,
@@ -1859,10 +1890,11 @@ internal constructor(
      * You must at a minimum set the [monochromaticImage] and [contentDescription] fields.
      *
      * @param monochromaticImage The [MonochromaticImage] to be displayed
-     * @param contentDescription Defines localized text that briefly describes content of the
-     *   complication. This property is used primarily for accessibility. Since some complications
-     *   do not have textual representation this attribute can be used for providing such. Please do
-     *   not include the word 'complication' in the description.
+     * @param contentDescription The content description field for accessibility and is used to
+     *   describe what data the icon represents. If the icon is purely stylistic, and does not
+     *   convey any information to the user, then provide an empty content description. If no
+     *   content description is provided, a generic content description will be used instead. Please
+     *   do not include the word 'complication' in the description.
      */
     public class Builder(
         private val monochromaticImage: MonochromaticImage,
@@ -1900,22 +1932,24 @@ internal constructor(
     override fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {
         super.fillWireComplicationDataBuilder(builder)
         monochromaticImage.addToWireComplicationData(builder)
-        builder.setContentDescription(
-            when (contentDescription) {
-                ComplicationText.EMPTY -> null
-                else -> contentDescription?.toWireComplicationText()
-            }
-        )
+        builder.setContentDescription(_contentDescription?.emptyToNull()?.toWireComplicationText())
         builder.setTapAction(tapAction)
         setValidTimeRange(validTimeRange, builder)
         builder.setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun getContentDescription(context: Context): TimeDependentText? =
+        _contentDescription?.toWireComplicationText()
+
+    /** The content description field for accessibility. */
+    val contentDescription: ComplicationText? = _contentDescription ?: ComplicationText.EMPTY
+
     override fun hasPlaceholderFields() = monochromaticImage.isPlaceholder()
 
     override fun toString(): String {
         return "MonochromaticImageComplicationData(monochromaticImage=$monochromaticImage, " +
-            "contentDescription=$contentDescription), " +
+            "contentDescription=$_contentDescription), " +
             "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +
             "tapAction=$tapAction, validTimeRange=$validTimeRange, dataSource=$dataSource, " +
             "persistencePolicy=$persistencePolicy, displayPolicy=$displayPolicy, " +
@@ -1944,16 +1978,11 @@ internal constructor(
  *   occupied by a single complication. If the smallImage is equal to [SmallImage.PLACEHOLDER] the
  *   renderer must treat it as a placeholder rather than rendering normally, its suggested it should
  *   be rendered as a light grey box.
- * @property contentDescription The content description field for accessibility and is used to
- *   describe what data the image represents. If the image is purely stylistic, and does not convey
- *   any information to the user, then provide an empty content description. If no content
- *   description is provided, a generic content description will be used instead. Please do not
- *   include the word 'complication' in the description.
  */
 public class SmallImageComplicationData
 internal constructor(
     public val smallImage: SmallImage,
-    public val contentDescription: ComplicationText?,
+    private val _contentDescription: ComplicationText?,
     tapAction: PendingIntent?,
     validTimeRange: TimeRange?,
     cachedWireComplicationData: WireComplicationData?,
@@ -1978,10 +2007,11 @@ internal constructor(
      * You must at a minimum set the [smallImage] and [contentDescription] fields.
      *
      * @param smallImage The [SmallImage] to be displayed
-     * @param contentDescription Defines localized text that briefly describes content of the
-     *   complication. This property is used primarily for accessibility. Since some complications
-     *   do not have textual representation this attribute can be used for providing such. Please do
-     *   not include the word 'complication' in the description.
+     * @param contentDescription The content description field for accessibility and is used to
+     *   describe what data the image represents. If the image is purely stylistic, and does not
+     *   convey any information to the user, then provide an empty content description. If no
+     *   content description is provided, a generic content description will be used instead. Please
+     *   do not include the word 'complication' in the description.
      */
     public class Builder(
         private val smallImage: SmallImage,
@@ -2019,20 +2049,22 @@ internal constructor(
     override fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {
         super.fillWireComplicationDataBuilder(builder)
         smallImage.addToWireComplicationData(builder)
-        builder.setContentDescription(
-            when (contentDescription) {
-                ComplicationText.EMPTY -> null
-                else -> contentDescription?.toWireComplicationText()
-            }
-        )
+        builder.setContentDescription(_contentDescription?.emptyToNull()?.toWireComplicationText())
         builder.setTapAction(tapAction)
         setValidTimeRange(validTimeRange, builder)
         builder.setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun getContentDescription(context: Context): TimeDependentText? =
+        _contentDescription?.toWireComplicationText()
+
+    /** The content description field for accessibility. */
+    val contentDescription: ComplicationText? = _contentDescription ?: ComplicationText.EMPTY
+
     override fun toString(): String {
         return "SmallImageComplicationData(smallImage=$smallImage, " +
-            "contentDescription=$contentDescription), " +
+            "contentDescription=$_contentDescription), " +
             "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +
             "tapAction=$tapAction, validTimeRange=$validTimeRange, dataSource=$dataSource, " +
             "persistencePolicy=$persistencePolicy, displayPolicy=$displayPolicy, " +
@@ -2068,16 +2100,11 @@ internal constructor(
  *   must not be tinted. If the photoImage is equal to [PhotoImageComplicationData.PLACEHOLDER] the
  *   renderer must treat it as a placeholder rather than rendering normally, its suggested it should
  *   be rendered as a light grey box.
- * @property contentDescription The content description field for accessibility and is used to
- *   describe what data the image represents. If the image is purely stylistic, and does not convey
- *   any information to the user, then provide an empty content description. If no content
- *   description is provided, a generic content description will be used instead. Please do not
- *   include the word 'complication' in the description.
  */
 public class PhotoImageComplicationData
 internal constructor(
     public val photoImage: Icon,
-    public val contentDescription: ComplicationText?,
+    private val _contentDescription: ComplicationText?,
     tapAction: PendingIntent?,
     validTimeRange: TimeRange?,
     cachedWireComplicationData: WireComplicationData?,
@@ -2102,10 +2129,11 @@ internal constructor(
      * You must at a minimum set the [photoImage] and [contentDescription] fields.
      *
      * @param photoImage The [Icon] to be displayed
-     * @param contentDescription Defines localized text that briefly describes content of the
-     *   complication. This property is used primarily for accessibility. Since some complications
-     *   do not have textual representation this attribute can be used for providing such. Please do
-     *   not include the word 'complication' in the description.
+     * @param contentDescription The content description field for accessibility and is used to
+     *   describe what data the image represents. If the image is purely stylistic, and does not
+     *   convey any information to the user, then provide an empty content description. If no
+     *   content description is provided, a generic content description will be used instead. Please
+     *   do not include the word 'complication' in the description.
      */
     public class Builder(
         private val photoImage: Icon,
@@ -2144,20 +2172,22 @@ internal constructor(
     override fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {
         super.fillWireComplicationDataBuilder(builder)
         builder.setLargeImage(photoImage)
-        builder.setContentDescription(
-            when (contentDescription) {
-                ComplicationText.EMPTY -> null
-                else -> contentDescription?.toWireComplicationText()
-            }
-        )
+        builder.setContentDescription(_contentDescription?.emptyToNull()?.toWireComplicationText())
         builder.setTapAction(tapAction)
         setValidTimeRange(validTimeRange, builder)
         builder.setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun getContentDescription(context: Context): TimeDependentText? =
+        _contentDescription?.toWireComplicationText()
+
+    /** The content description field for accessibility. */
+    val contentDescription: ComplicationText? = _contentDescription ?: ComplicationText.EMPTY
+
     override fun toString(): String {
         return "PhotoImageComplicationData(photoImage=$photoImage, " +
-            "contentDescription=$contentDescription), " +
+            "contentDescription=$_contentDescription), " +
             "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +
             "tapAction=$tapAction, validTimeRange=$validTimeRange, dataSource=$dataSource, " +
             "persistencePolicy=$persistencePolicy, displayPolicy=$displayPolicy, " +
@@ -2274,6 +2304,15 @@ internal constructor(
         smallImage?.addToWireComplicationData(builder)
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun getContentDescription(context: Context): TimeDependentText? =
+        ComplicationTextTemplate.Builder()
+            .addTextAndTitle(text, title)
+            .addComplicationText(
+                WireComplicationText(context.getString(R.string.a11y_no_permission))
+            )
+            .buildOrNull()
+
     override fun toString(): String {
         return "NoPermissionComplicationData(text=$text, title=$title, " +
             "monochromaticImage=$monochromaticImage, smallImage=$smallImage, " +
@@ -2320,7 +2359,10 @@ private fun WireComplicationData.toApiComplicationData(
     try {
         return when (type) {
             NoDataComplicationData.TYPE.toWireComplicationType() ->
-                NoDataComplicationData(placeholder?.toPlaceholderComplicationData(), this)
+                NoDataComplicationData(
+                    placeholder = placeholder?.toPlaceholderComplicationData(),
+                    cachedWireComplicationData = this,
+                )
             EmptyComplicationData.TYPE.toWireComplicationType() -> EmptyComplicationData()
             NotConfiguredComplicationData.TYPE.toWireComplicationType() ->
                 NotConfiguredComplicationData()
@@ -2330,8 +2372,7 @@ private fun WireComplicationData.toApiComplicationData(
                     title = shortTitle?.toApiComplicationText(placeholderAware),
                     monochromaticImage = parseIcon(placeholderAware),
                     smallImage = parseSmallImage(placeholderAware),
-                    contentDescription = contentDescription?.toApiComplicationText()
-                            ?: ComplicationText.EMPTY,
+                    _contentDescription = contentDescription?.toApiComplicationText(),
                     tapAction = tapAction,
                     validTimeRange = parseTimeRange(),
                     cachedWireComplicationData = this,
@@ -2346,8 +2387,7 @@ private fun WireComplicationData.toApiComplicationData(
                     title = longTitle?.toApiComplicationText(placeholderAware),
                     monochromaticImage = parseIcon(placeholderAware),
                     smallImage = parseSmallImage(placeholderAware),
-                    contentDescription = contentDescription?.toApiComplicationText()
-                            ?: ComplicationText.EMPTY,
+                    _contentDescription = contentDescription?.toApiComplicationText(),
                     tapAction = tapAction,
                     validTimeRange = parseTimeRange(),
                     cachedWireComplicationData = this,
@@ -2366,8 +2406,7 @@ private fun WireComplicationData.toApiComplicationData(
                     smallImage = parseSmallImage(placeholderAware),
                     title = shortTitle?.toApiComplicationText(placeholderAware),
                     text = shortText?.toApiComplicationText(placeholderAware),
-                    contentDescription = contentDescription?.toApiComplicationText()
-                            ?: ComplicationText.EMPTY,
+                    _contentDescription = contentDescription?.toApiComplicationText(),
                     tapAction = tapAction,
                     validTimeRange = parseTimeRange(),
                     cachedWireComplicationData = this,
@@ -2381,8 +2420,7 @@ private fun WireComplicationData.toApiComplicationData(
             MonochromaticImageComplicationData.TYPE.toWireComplicationType() ->
                 MonochromaticImageComplicationData(
                     monochromaticImage = parseIcon(placeholderAware)!!,
-                    contentDescription = contentDescription?.toApiComplicationText()
-                            ?: ComplicationText.EMPTY,
+                    _contentDescription = contentDescription?.toApiComplicationText(),
                     tapAction = tapAction,
                     validTimeRange = parseTimeRange(),
                     cachedWireComplicationData = this,
@@ -2394,8 +2432,7 @@ private fun WireComplicationData.toApiComplicationData(
             SmallImageComplicationData.TYPE.toWireComplicationType() ->
                 SmallImageComplicationData(
                     smallImage = parseSmallImage(placeholderAware)!!,
-                    contentDescription = contentDescription?.toApiComplicationText()
-                            ?: ComplicationText.EMPTY,
+                    _contentDescription = contentDescription?.toApiComplicationText(),
                     tapAction = tapAction,
                     validTimeRange = parseTimeRange(),
                     cachedWireComplicationData = this,
@@ -2407,8 +2444,7 @@ private fun WireComplicationData.toApiComplicationData(
             PhotoImageComplicationData.TYPE.toWireComplicationType() ->
                 PhotoImageComplicationData(
                     photoImage = parseLargeImage(placeholderAware)!!,
-                    contentDescription = contentDescription?.toApiComplicationText()
-                            ?: ComplicationText.EMPTY,
+                    _contentDescription = contentDescription?.toApiComplicationText(),
                     tapAction = tapAction,
                     validTimeRange = parseTimeRange(),
                     cachedWireComplicationData = this,
@@ -2437,8 +2473,7 @@ private fun WireComplicationData.toApiComplicationData(
                     smallImage = parseSmallImage(placeholderAware),
                     title = shortTitle?.toApiComplicationText(placeholderAware),
                     text = shortText?.toApiComplicationText(placeholderAware),
-                    contentDescription = contentDescription?.toApiComplicationText()
-                            ?: ComplicationText.EMPTY,
+                    _contentDescription = contentDescription?.toApiComplicationText(),
                     tapAction = tapAction,
                     validTimeRange = parseTimeRange(),
                     cachedWireComplicationData = this,
@@ -2475,8 +2510,7 @@ private fun WireComplicationData.toApiComplicationData(
                     smallImage = parseSmallImage(placeholderAware),
                     title = shortTitle?.toApiComplicationText(placeholderAware),
                     text = shortText?.toApiComplicationText(placeholderAware),
-                    contentDescription = contentDescription?.toApiComplicationText()
-                            ?: ComplicationText.EMPTY,
+                    _contentDescription = contentDescription?.toApiComplicationText(),
                     tapAction = tapAction,
                     validTimeRange = parseTimeRange(),
                     cachedWireComplicationData = this,
@@ -2561,3 +2595,17 @@ internal fun setValidTimeRange(validTimeRange: TimeRange?, data: WireComplicatio
         }
     }
 }
+
+internal fun ComplicationText.emptyToNull(): ComplicationText? = if (isAlwaysEmpty()) null else this
+
+/** Returns whether either text or title were added. */
+internal fun ComplicationTextTemplate.Builder.addTextAndTitle(
+    text: ComplicationText?,
+    title: ComplicationText?
+): ComplicationTextTemplate.Builder = also {
+    text?.emptyToNull()?.let { addComplicationText(it.toWireComplicationText()) }
+    title?.emptyToNull()?.let { addComplicationText(it.toWireComplicationText()) }
+}
+
+internal fun ComplicationTextTemplate.Builder.buildOrNull(): TimeDependentText? =
+    if (isEmpty) null else build()

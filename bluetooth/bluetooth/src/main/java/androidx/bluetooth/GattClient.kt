@@ -26,11 +26,14 @@ import android.bluetooth.BluetoothGattDescriptor as FwkDescriptor
 import android.bluetooth.BluetoothGattService as FwkService
 import android.content.Context
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
+import androidx.bluetooth.GattCharacteristic.Companion.PROPERTY_NOTIFY
 import androidx.bluetooth.GattCharacteristic.Companion.PROPERTY_WRITE
 import androidx.bluetooth.GattCharacteristic.Companion.PROPERTY_WRITE_NO_RESPONSE
+import androidx.bluetooth.GattCommon.UUID_CCCD
 import java.util.UUID
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
@@ -90,13 +93,13 @@ class GattClient(private val context: Context) {
     companion object {
         private const val TAG = "GattClient"
 
+        private const val GATT_MAX_ATTR_LENGTH = 512
         /**
-         * The maximum ATT size(512) + header(3)
+         * The maximum ATT size + header(3)
          */
-        private const val GATT_MAX_MTU = 515
+        private const val GATT_MAX_MTU = GATT_MAX_ATTR_LENGTH + 3
 
         private const val CONNECT_TIMEOUT_MS = 30_000L
-        private val CCCD_UID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
     }
 
     @SuppressLint("ObsoleteSdkInt")
@@ -289,9 +292,14 @@ class GattClient(private val context: Context) {
                     else return Result.failure(
                         IllegalArgumentException("can't write to the characteristic"))
 
+                if (value.size > GATT_MAX_ATTR_LENGTH) {
+                    return Result.failure(IllegalArgumentException("too long value to write"))
+                }
+
                 return runTask {
                     fwkAdapter.writeCharacteristic(
-                        characteristic.fwkCharacteristic, value, writeType)
+                        characteristic.fwkCharacteristic, value, writeType
+                    )
                     val res = takeMatchingResult<CallbackResult.OnCharacteristicWrite>(
                         callbackResultsFlow
                     ) {
@@ -299,16 +307,16 @@ class GattClient(private val context: Context) {
                     }
                     if (res.status == BluetoothGatt.GATT_SUCCESS) Result.success(Unit)
                     // TODO: throw precise reason if we can gather the info
-                    else Result.failure(CancellationException("fail"))
+                    else Result.failure(CancellationException("fail with error = ${res.status}"))
                 }
             }
 
             override fun subscribeToCharacteristic(characteristic: GattCharacteristic):
                 Flow<ByteArray> {
-                if (characteristic.properties and GattCharacteristic.PROPERTY_NOTIFY == 0) {
+                if (!characteristic.isSubscribable) {
                     return emptyFlow()
                 }
-                val cccd = characteristic.fwkCharacteristic.getDescriptor(CCCD_UID)
+                val cccd = characteristic.fwkCharacteristic.getDescriptor(UUID_CCCD)
                     ?: return emptyFlow()
 
                 return callbackFlow {
@@ -330,7 +338,13 @@ class GattClient(private val context: Context) {
                             characteristic.fwkCharacteristic, /*enable=*/true
                         )
 
-                        fwkAdapter.writeDescriptor(cccd, FwkDescriptor.ENABLE_NOTIFICATION_VALUE)
+                        val cccdValue =
+                            // Prefer notification over indication
+                            if ((characteristic.properties and PROPERTY_NOTIFY) != 0)
+                                FwkDescriptor.ENABLE_NOTIFICATION_VALUE
+                            else FwkDescriptor.ENABLE_INDICATION_VALUE
+
+                        fwkAdapter.writeDescriptor(cccd, cccdValue)
                         val res = takeMatchingResult<CallbackResult.OnDescriptorWrite>(
                             callbackResultsFlow
                         ) {
@@ -457,6 +471,7 @@ class GattClient(private val context: Context) {
         }
     }
 
+    @RequiresApi(33)
     private open class FrameworkAdapterApi33 : FrameworkAdapterBase() {
         @RequiresPermission(BLUETOOTH_CONNECT)
         override fun writeCharacteristic(

@@ -33,6 +33,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.test.filters.FlakyTest
 import org.junit.Before
 import org.junit.Test
 
@@ -355,6 +356,7 @@ internal abstract class TextFieldSelectionGesturesTest : AbstractSelectionGestur
     }
 
     @Test
+    @FlakyTest(bugId = 302703761)
     fun whenTouch_withLongPressThenDragUpAndBack_selectsWordsThenChars() {
         touchLongPressThenDragForwardAndBackTest(
             forwardOffset = characterPosition(2),
@@ -1081,6 +1083,45 @@ internal abstract class TextFieldSelectionGesturesTest : AbstractSelectionGestur
 
         asserter.applyAndAssert {
             selection = 6 to 23
+        }
+    }
+
+    // Regression test for when a word spanning multiple lines
+    // could not shrink selection within a line.
+    @Test
+    fun whenTouch_withWordSpanningMultipleLines_selectionCanShrinkWithinLine() {
+        val content = word.repeat(100)
+        textFieldValue.value = TextFieldValue(content)
+        rule.waitForIdle()
+
+        performTouchGesture {
+            longPress(characterPosition(content.lastIndex))
+        }
+
+        asserter.applyAndAssert {
+            textContent = content
+            selection = 0 to content.length
+            selectionHandlesShown = true
+            magnifierShown = true
+            hapticsCount++
+        }
+
+        // two drags to ensure we get some movement on the same line
+        touchDragTo(characterPosition(10))
+        touchDragTo(characterPosition(5))
+
+        asserter.applyAndAssert {
+            selection = 0 to 5
+            hapticsCount++
+        }
+
+        performTouchGesture {
+            up()
+        }
+
+        asserter.applyAndAssert {
+            magnifierShown = false
+            textToolbarShown = true
         }
     }
 }

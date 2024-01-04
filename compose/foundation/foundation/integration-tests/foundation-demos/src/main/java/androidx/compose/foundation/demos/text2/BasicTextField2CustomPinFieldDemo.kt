@@ -195,7 +195,7 @@ private fun PinField(
             .border(1.dp, contentColor, RoundedCornerShape(8.dp))
             .padding(8.dp),
         enabled = enabled,
-        decorationBox = {
+        decorator = {
             CompositionLocalProvider(LocalContentAlpha provides contentAlpha) {
                 // Ignore inner field, we'll draw it ourselves.
                 PinContents(state)

@@ -46,7 +46,7 @@ internal class TextFieldMagnifierNodeImpl28(
     private var textFieldState: TransformedTextFieldState,
     private var textFieldSelectionState: TextFieldSelectionState,
     private var textLayoutState: TextLayoutState,
-    private var isFocused: Boolean
+    private var isFocused: Boolean /* true iff component is focused and the window in focus */
 ) : TextFieldMagnifierNode(), CompositionLocalConsumerModifierNode {
 
     private var magnifierSize: IntSize by mutableStateOf(IntSize.Zero)

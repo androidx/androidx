@@ -61,14 +61,14 @@ interface IsolateState {
     /**
      * Check whether the current state is permitted to transition to a dead state
      *
-     * @return true iff a transition to a dead state is permitted.
+     * @return true iff a transition to a dead state is permitted
      */
     boolean canDie();
 
     /**
      * Method to run after this state has been replaced by a dead state.
      *
-     * @param terminationInfo The termination info describing the death.
+     * @param terminationInfo the termination info describing the death
      */
     default void onDied(@NonNull TerminationInfo terminationInfo) {}
 

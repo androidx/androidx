@@ -28,10 +28,7 @@ playground {
     setupPlayground("../..")
     selectProjectsFromAndroidX({ name ->
         if (name == ":compose:runtime:runtime-tracing") return false
-        if (name.startsWith(":compose:runtime") && name != ":compose:runtime") return true
-        if (name == ":annotation:annotation-sampled") return true
-        if (isNeededForComposePlayground(name)) return true
-        if (name == ":compose:benchmark-utils") return true
+        if (name.startsWith(":compose:runtime")) return true
         return false
     })
 }

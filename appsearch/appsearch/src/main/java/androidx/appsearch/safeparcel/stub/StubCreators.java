@@ -82,4 +82,8 @@ public class StubCreators {
     /** Stub creator for {@link androidx.appsearch.app.VisibilityDocument}. */
     public static class VisibilityDocumentCreator extends AbstractCreator {
     }
+
+    /** Stub creator for {@link androidx.appsearch.stats.SchemaMigrationStats}. */
+    public static class SchemaMigrationStatsCreator extends AbstractCreator {
+    }
 }

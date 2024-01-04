@@ -174,4 +174,22 @@ public class WebSettingsAdapter {
         mBoundaryInterface.setUserAgentMetadataFromMap(
                 UserAgentMetadataInternal.convertUserAgentMetadataToMap(uaMetadata));
     }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#getAttributionRegistrationBehavior(WebSettings)}
+     */
+    public int getAttributionRegistrationBehavior() {
+        return mBoundaryInterface.getAttributionBehavior();
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#setAttributionRegistrationBehavior(WebSettings, int)}
+     */
+    public void setAttributionRegistrationBehavior(int behavior) {
+        mBoundaryInterface.setAttributionBehavior(behavior);
+    }
+
+
 }

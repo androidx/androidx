@@ -17,23 +17,22 @@
 package androidx.javascriptengine;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 import androidx.core.util.Consumer;
 
 import java.util.concurrent.Executor;
 
 /**
- * Exception thrown when evaluation is terminated due to the {@link JavaScriptIsolate} being closed
- * or due to some crash.
+ * Exception produced when evaluation is terminated due to the {@link JavaScriptIsolate} being
+ * closed or due to some crash.
  * <p>
- * Calling {@link JavaScriptIsolate#close()} will cause this exception to be thrown for all
+ * Calling {@link JavaScriptIsolate#close()} will cause this exception to be produced for all
  * previously requested but pending evaluations.
  * <p>
  * If an isolate has crashed (but not been closed), subsequently requested evaluations will fail
  * immediately with an IsolateTerminatedException (or a subclass) consistent with that
  * used for evaluations submitted before the crash.
  * <p>
- * Note that this exception will not be thrown if the isolate has been explicitly closed before a
+ * Note that this exception will not be produced if the isolate has been explicitly closed before a
  * call to {@link JavaScriptIsolate#evaluateJavaScriptAsync(String)}, which will instead immediately
  * throw an IllegalStateException (and not asynchronously via a future). This applies even if the
  * isolate was closed following a crash.
@@ -50,7 +49,7 @@ public class IsolateTerminatedException extends JavaScriptException {
     public IsolateTerminatedException() {
         super();
     }
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+
     public IsolateTerminatedException(@NonNull String message) {
         super(message);
     }

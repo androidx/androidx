@@ -21,7 +21,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
-import androidx.compose.ui.draganddrop.DragAndDropInfo
+import androidx.compose.ui.draganddrop.DragAndDropManager
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.geometry.Offset
@@ -30,6 +30,8 @@ import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.pointer.PointerIconService
+import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.layout.PlacementScope
 import androidx.compose.ui.modifier.ModifierLocalManager
 import androidx.compose.ui.platform.AccessibilityManager
 import androidx.compose.ui.platform.ClipboardManager
@@ -281,6 +283,12 @@ internal interface Owner : PlatformTextInputSessionHandler {
     val coroutineContext: CoroutineContext
 
     /**
+     * The scope used to place the outermost layout.
+     */
+    val placementScope: Placeable.PlacementScope
+        get() = PlacementScope(this) // default implementation for test owners
+
+    /**
      * Registers a call to be made when the [Applier.onEndChanges] is called. [listener]
      * should be called in [onEndApplyChanges] and then removed after being called.
      */
@@ -298,13 +306,7 @@ internal interface Owner : PlatformTextInputSessionHandler {
      */
     fun registerOnLayoutCompletedListener(listener: OnLayoutCompletedListener)
 
-    /**
-     * Initiates a drag-and-drop operation containing the data in [DragAndDropInfo].
-     * @return true if the method completes successfully, or false if it fails anywhere.
-     * Returning false means the system was unable to do a drag because of another
-     * ongoing operation or some other reasons.
-     */
-    fun drag(dragAndDropInfo: DragAndDropInfo): Boolean
+    val dragAndDropManager: DragAndDropManager
 
     companion object {
         /**

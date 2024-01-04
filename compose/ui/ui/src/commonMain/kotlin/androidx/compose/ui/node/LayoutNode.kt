@@ -847,6 +847,9 @@ internal class LayoutNode(
             require(!isVirtual || modifier === Modifier) {
                 "Modifiers are not supported on virtual LayoutNodes"
             }
+            require(!deactivated) {
+                "modifier is updated when deactivated"
+            }
             field = value
             nodes.updateFrom(value)
             layoutDelegate.updateParentData()
@@ -894,14 +897,8 @@ internal class LayoutNode(
             // clear the intrinsics usage for everything that was requested previously.
             clearSubtreePlacementIntrinsicsUsage()
         }
-        with(measurePassDelegate) {
-            Placeable.PlacementScope.executeWithRtlMirroringValues(
-                measuredWidth,
-                layoutDirection,
-                parent?.innerCoordinator
-            ) {
-                placeRelative(x, y)
-            }
+        with(parent?.innerCoordinator?.placementScope ?: requireOwner().placementScope) {
+            measurePassDelegate.placeRelative(x, y)
         }
     }
 

@@ -47,6 +47,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
 
 /** Builders for dynamic primitive types used by layout elements. */
 public final class DynamicBuilders {
@@ -313,6 +314,81 @@ public final class DynamicBuilders {
     static final int LOGICAL_OP_TYPE_NOT_EQUAL = 4;
 
     /**
+     * The date-time part to retrieve using ZonedDateTimePartOp.
+     *
+     * @since 1.3
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef({
+        ZONED_DATE_TIME_PART_UNDEFINED,
+        ZONED_DATE_TIME_PART_SECOND,
+        ZONED_DATE_TIME_PART_MINUTE,
+        ZONED_DATE_TIME_PART_HOUR_24H,
+        ZONED_DATE_TIME_PART_DAY_OF_WEEK,
+        ZONED_DATE_TIME_PART_DAY_OF_MONTH,
+        ZONED_DATE_TIME_PART_MONTH,
+        ZONED_DATE_TIME_PART_YEAR
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    @interface ZonedDateTimePartType {}
+
+    /**
+     * Undefined date-time part type.
+     *
+     * @since 1.3
+     */
+    static final int ZONED_DATE_TIME_PART_UNDEFINED = 0;
+
+    /**
+     * The second-of-minute field from 0 to 59.
+     *
+     * @since 1.3
+     */
+    static final int ZONED_DATE_TIME_PART_SECOND = 1;
+
+    /**
+     * The minute-of-hour field from 0 to 59.
+     *
+     * @since 1.3
+     */
+    static final int ZONED_DATE_TIME_PART_MINUTE = 2;
+
+    /**
+     * The hour-of-day field from 0 to 23.
+     *
+     * @since 1.3
+     */
+    static final int ZONED_DATE_TIME_PART_HOUR_24H = 3;
+
+    /**
+     * The day-of-week field going from MONDAY (1) to SUNDAY (7).
+     *
+     * @since 1.3
+     */
+    static final int ZONED_DATE_TIME_PART_DAY_OF_WEEK = 4;
+
+    /**
+     * The day-of-month field from 1 to 31.
+     *
+     * @since 1.3
+     */
+    static final int ZONED_DATE_TIME_PART_DAY_OF_MONTH = 5;
+
+    /**
+     * The month-of-year field from 1 to 12.
+     *
+     * @since 1.3
+     */
+    static final int ZONED_DATE_TIME_PART_MONTH = 6;
+
+    /**
+     * The year field.
+     *
+     * @since 1.3
+     */
+    static final int ZONED_DATE_TIME_PART_YEAR = 7;
+
+    /**
      * The duration part to retrieve using {@link GetDurationPartOp}.
      *
      * @since 1.2
@@ -439,6 +515,7 @@ public final class DynamicBuilders {
         public Fingerprint getFingerprint() {
             return mFingerprint;
         }
+
         /** Creates a new wrapper instance from the proto. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -2561,6 +2638,9 @@ public final class DynamicBuilders {
         }
         if (proto.hasAnimatableDynamic()) {
             return AnimatableDynamicInt32.fromProto(proto.getAnimatableDynamic(), fingerprint);
+        }
+        if (proto.hasZonedDateTimePart()) {
+            return GetZonedDateTimePartOp.fromProto(proto.getZonedDateTimePart(), fingerprint);
         }
         throw new IllegalStateException("Proto was not a recognised instance of DynamicInt32");
     }
@@ -7269,6 +7349,27 @@ public final class DynamicBuilders {
         }
 
         /**
+         * Returns a {@link DynamicZonedDateTime} instance representing this Instant in the
+         * specified time-zone. As an example, the following expression yields a {@link
+         * DynamicZonedDateTime} instance representing platform time in Europe/London time-zone:
+         *
+         * <pre>
+         *   DynamicInstant.platformTimeWithSecondsPrecision()
+         *      .atZone(ZoneId.of("Europe/London"));
+         * </pre>
+         *
+         * @return a new instance of {@link DynamicZonedDateTime} representing this {@link
+         *     DynamicInstant} in the specified time-zone.
+         */
+        @NonNull
+        default DynamicZonedDateTime atZone(@NonNull ZoneId zoneId) {
+            return new InstantToZonedDateTimeOp.Builder()
+                    .setInstant(this)
+                    .setZoneId(zoneId.getId())
+                    .build();
+        }
+
+        /**
          * Bind the value of this {@link DynamicInstant} to the result of a conditional expression.
          * This will use the value given in either {@link ConditionScope#use} or {@link
          * ConditionScopes.IfTrueScope#elseUse} depending on the value yielded from {@code
@@ -7327,6 +7428,518 @@ public final class DynamicBuilders {
     public static DynamicInstant dynamicInstantFromProto(
             @NonNull DynamicProto.DynamicInstant proto) {
         return dynamicInstantFromProto(proto, null);
+    }
+
+    /**
+     * Interface defining a dynamic zoned date-time type.
+     *
+     * <p>{@link DynamicZonedDateTime} precision is seconds. Thus, any related time operation will
+     * operate on that precision level.
+     *
+     * @since 1.3
+     */
+    public interface DynamicZonedDateTime extends DynamicType {
+        /** Get the protocol buffer representation of this object. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        DynamicProto.DynamicZonedDateTime toDynamicZonedDateTimeProto();
+
+        /**
+         * Creates a {@link DynamicZonedDateTime} from a byte array generated by {@link
+         * #toDynamicZonedDateTimeByteArray()}.
+         *
+         * @throws IllegalArgumentException if the byte array does not contain a valid serialization
+         */
+        @NonNull
+        static DynamicZonedDateTime fromByteArray(@NonNull byte[] byteArray) {
+            return fromByteArray(byteArray, 0, byteArray.length);
+        }
+
+        /**
+         * Creates a {@link DynamicZonedDateTime} from the provided byte array at the provided
+         * offset and length, that was generated by one of the {@link
+         * #toDynamicZonedDateTimeByteArray} overloads.
+         *
+         * @throws IllegalArgumentException if the byte array does not contain a valid serialization
+         *     in the provided offset and length
+         */
+        @NonNull
+        static DynamicZonedDateTime fromByteArray(
+                @NonNull byte[] byteArray, int offset, int length) {
+            try {
+                return dynamicZonedDateTimeFromProto(
+                        DynamicProto.DynamicZonedDateTime.parseFrom(
+                                CodedInputStream.newInstance(byteArray, offset, length),
+                                ExtensionRegistryLite.getEmptyRegistry()));
+            } catch (IOException e) {
+                throw new IllegalArgumentException(
+                        "Byte array could not be parsed into DynamicZonedDateTime", e);
+            }
+        }
+
+        /**
+         * Serializes the {@link DynamicZonedDateTime} into a new byte array that can later be used
+         * with {@link #fromByteArray(byte[])}.
+         */
+        @NonNull
+        default byte[] toDynamicZonedDateTimeByteArray() {
+            return toDynamicZonedDateTimeProto().toByteArray();
+        }
+
+        /**
+         * Serializes the {@link DynamicZonedDateTime} into the provided byte array, returning the
+         * amount of bytes written, that can later be used with {@code
+         * DynamicZonedDateTime.fromByteArray(byteArray, 0, bytesWritten)}.
+         *
+         * @throws IllegalArgumentException if the byte array is too small
+         */
+        default int toDynamicZonedDateTimeByteArray(@NonNull byte[] byteArray) {
+            return toDynamicZonedDateTimeByteArray(byteArray, 0, byteArray.length);
+        }
+
+        /**
+         * Serializes the {@link DynamicZonedDateTime} into the provided byte array, returning the
+         * amount of bytes written, limited by the provided offset and length, that can later be
+         * used with {@code DynamicZonedDateTime.fromByteArray(byteArray, offset, bytesWritten)}.
+         *
+         * @throws IllegalArgumentException if the byte array is too small
+         */
+        default int toDynamicZonedDateTimeByteArray(
+                @NonNull byte[] byteArray, int offset, int length) {
+            CodedOutputStream stream = CodedOutputStream.newInstance(byteArray, offset, length);
+            try {
+                toDynamicZonedDateTimeProto().writeTo(stream);
+            } catch (IOException e) {
+                throw new IllegalArgumentException(
+                        "Provided byte array not large enough to contain this DynamicZonedDateTime",
+                        e);
+            }
+            return stream.getTotalBytesWritten();
+        }
+
+        /**
+         * Returns the year field following the ISO-8601 calendar system; As an example, the
+         * following is equal to {@code DynamicInt32.constant(1970)}:
+         *
+         * <pre>
+         *   DynamicInstant.withSecondsPrecision(Instant.ofEpochSecond(8410))
+         *      .atZone(ZoneId.of("Europe/London"))
+         *      .getYear();
+         * </pre>
+         */
+        @NonNull
+        default DynamicInt32 getYear() {
+            return new GetZonedDateTimePartOp.Builder()
+                    .setInput(this)
+                    .setPartType(ZONED_DATE_TIME_PART_YEAR)
+                    .build();
+        }
+
+        /**
+         * Returns the month-of-year field from 1 to 12 following the ISO-8601 calendar system; As
+         * an example, the following is equal to {@code DynamicInt32.constant(1)}:
+         *
+         * <pre>
+         *   DynamicInstant.withSecondsPrecision(Instant.ofEpochSecond(8410))
+         *      .atZone(ZoneId.of("Europe/London"))
+         *      .getMonth();
+         * </pre>
+         */
+        @NonNull
+        default DynamicInt32 getMonth() {
+            return new GetZonedDateTimePartOp.Builder()
+                    .setInput(this)
+                    .setPartType(ZONED_DATE_TIME_PART_MONTH)
+                    .build();
+        }
+
+        /**
+         * Returns the day-of-month field from 1 to 31 following the ISO-8601 calendar system; As an
+         * example, the following is equal to {@code DynamicInt32.constant(1)}:
+         *
+         * <pre>
+         *   DynamicInstant.withSecondsPrecision(Instant.ofEpochSecond(8410))
+         *      .atZone(ZoneId.of("Europe/London"))
+         *      .getDayOfMonth();
+         * </pre>
+         */
+        @NonNull
+        default DynamicInt32 getDayOfMonth() {
+            return new GetZonedDateTimePartOp.Builder()
+                    .setInput(this)
+                    .setPartType(ZONED_DATE_TIME_PART_DAY_OF_MONTH)
+                    .build();
+        }
+
+        /**
+         * Returns the day-of-week field going from MONDAY (1) to SUNDAY (7) following the ISO-8601
+         * calendar system; As an example, the following is equal to {@code
+         * DynamicInt32.constant(4)}:
+         *
+         * <pre>
+         *   DynamicInstant.withSecondsPrecision(Instant.ofEpochSecond(8410))
+         *      .atZone(ZoneId.of("Europe/London"))
+         *      .getDayOfWeek();
+         * </pre>
+         */
+        @NonNull
+        default DynamicInt32 getDayOfWeek() {
+            return new GetZonedDateTimePartOp.Builder()
+                    .setInput(this)
+                    .setPartType(ZONED_DATE_TIME_PART_DAY_OF_WEEK)
+                    .build();
+        }
+
+        /**
+         * Returns the hour-of-day field from 0 to 23 following the ISO-8601 calendar system; As an
+         * example, the following is equal to {@code DynamicInt32.constant(3)}:
+         *
+         * <pre>
+         *   DynamicInstant.withSecondsPrecision(Instant.ofEpochSecond(8410))
+         *      .atZone(ZoneId.of("Europe/London"))
+         *      .getHour();
+         * </pre>
+         */
+        @NonNull
+        default DynamicInt32 getHour() {
+            return new GetZonedDateTimePartOp.Builder()
+                    .setInput(this)
+                    .setPartType(ZONED_DATE_TIME_PART_HOUR_24H)
+                    .build();
+        }
+
+        /**
+         * Returns the minute-of-hour field from 0 to 59 following the ISO-8601 calendar system; As
+         * an example, the following is equal to {@code DynamicInt32.constant(20)}:
+         *
+         * <pre>
+         *   DynamicInstant.withSecondsPrecision(Instant.ofEpochSecond(8410))
+         *      .atZone(ZoneId.of("Europe/London"))
+         *      .getMinute();
+         * </pre>
+         */
+        @NonNull
+        default DynamicInt32 getMinute() {
+            return new GetZonedDateTimePartOp.Builder()
+                    .setInput(this)
+                    .setPartType(ZONED_DATE_TIME_PART_MINUTE)
+                    .build();
+        }
+
+        /**
+         * Returns the second-of-minute field from 0 to 59 following the ISO-8601 calendar system;
+         * As an example, the following is equal to {@code DynamicInt32.constant(10)}:
+         *
+         * <pre>
+         *   DynamicInstant.withSecondsPrecision(Instant.ofEpochSecond(8410))
+         *      .atZone(ZoneId.of("Europe/London"))
+         *      .getSecond();
+         * </pre>
+         */
+        @NonNull
+        default DynamicInt32 getSecond() {
+            return new GetZonedDateTimePartOp.Builder()
+                    .setInput(this)
+                    .setPartType(ZONED_DATE_TIME_PART_SECOND)
+                    .build();
+        }
+
+        /** Get the fingerprint for this object or null if unknown. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        Fingerprint getFingerprint();
+
+        /** Builder to create {@link DynamicZonedDateTime} objects. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        interface Builder {
+
+            /** Builds an instance with values accumulated in this Builder. */
+            @NonNull
+            DynamicZonedDateTime build();
+        }
+    }
+
+    /** Creates a new wrapper instance from the proto. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public static DynamicZonedDateTime dynamicZonedDateTimeFromProto(
+            @NonNull DynamicProto.DynamicZonedDateTime proto, @Nullable Fingerprint fingerprint) {
+        if (proto.hasInstantToZonedDateTime()) {
+            return InstantToZonedDateTimeOp.fromProto(
+                    proto.getInstantToZonedDateTime(), fingerprint);
+        }
+        throw new IllegalStateException(
+                "Proto was not a recognised instance of DynamicZonedDateTime");
+    }
+
+    /**
+     * Creates a new wrapper instance from the proto. Intended for testing purposes only. An object
+     * created using this method can't be added to any other wrapper.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public static DynamicZonedDateTime dynamicZonedDateTimeFromProto(
+            @NonNull DynamicProto.DynamicZonedDateTime proto) {
+        return dynamicZonedDateTimeFromProto(proto, null);
+    }
+
+    /**
+     * Converts a {@link DynamicInstant} into a {@link DynamicZonedDateTime}.
+     *
+     * @since 1.3
+     */
+    static final class InstantToZonedDateTimeOp implements DynamicZonedDateTime {
+        private final DynamicProto.InstantToZonedDateTimeOp mImpl;
+        @Nullable private final Fingerprint mFingerprint;
+
+        InstantToZonedDateTimeOp(
+                DynamicProto.InstantToZonedDateTimeOp impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        /**
+         * Gets the instant to convert.
+         *
+         * @since 1.3
+         */
+        @Nullable
+        public DynamicInstant getInstant() {
+            if (mImpl.hasInstant()) {
+                return DynamicBuilders.dynamicInstantFromProto(mImpl.getInstant());
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets the ZoneId following the time-zone ID format used by java {@link ZoneId}.
+         *
+         * @since 1.3
+         */
+        @NonNull
+        public String getZoneId() {
+            return mImpl.getZoneId();
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static InstantToZonedDateTimeOp fromProto(
+                @NonNull DynamicProto.InstantToZonedDateTimeOp proto,
+                @Nullable Fingerprint fingerprint) {
+            return new InstantToZonedDateTimeOp(proto, fingerprint);
+        }
+
+        @NonNull
+        static InstantToZonedDateTimeOp fromProto(
+                @NonNull DynamicProto.InstantToZonedDateTimeOp proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @NonNull
+        DynamicProto.InstantToZonedDateTimeOp toProto() {
+            return mImpl;
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public DynamicProto.DynamicZonedDateTime toDynamicZonedDateTimeProto() {
+            return DynamicProto.DynamicZonedDateTime.newBuilder()
+                    .setInstantToZonedDateTime(mImpl)
+                    .build();
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "InstantToZonedDateTimeOp{"
+                    + "instant="
+                    + getInstant()
+                    + ", zoneId="
+                    + getZoneId()
+                    + "}";
+        }
+
+        /** Builder for {@link InstantToZonedDateTimeOp}. */
+        public static final class Builder implements DynamicZonedDateTime.Builder {
+            private final DynamicProto.InstantToZonedDateTimeOp.Builder mImpl =
+                    DynamicProto.InstantToZonedDateTimeOp.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(1382070867);
+
+            /** Creates an instance of {@link Builder}. */
+            public Builder() {}
+
+            /**
+             * Sets the instant to convert.
+             *
+             * @since 1.3
+             */
+            @NonNull
+            public Builder setInstant(@NonNull DynamicInstant instant) {
+                mImpl.setInstant(instant.toDynamicInstantProto());
+                mFingerprint.recordPropertyUpdate(
+                        1, checkNotNull(instant.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the ZoneId following the time-zone ID format used by java {@link ZoneId}.
+             *
+             * @since 1.3
+             */
+            @NonNull
+            public Builder setZoneId(@NonNull String zoneId) {
+                mImpl.setZoneId(zoneId);
+                mFingerprint.recordPropertyUpdate(2, zoneId.hashCode());
+                return this;
+            }
+
+            /** Builds an instance from accumulated values. */
+            @Override
+            @NonNull
+            public InstantToZonedDateTimeOp build() {
+                return new InstantToZonedDateTimeOp(mImpl.build(), mFingerprint);
+            }
+        }
+    }
+
+    /**
+     * Retrieve the specified date-time part of a {@link DynamicZonedDateTime} instance as a {@link
+     * DynamicInt32}.
+     *
+     * @since 1.3
+     */
+    static final class GetZonedDateTimePartOp implements DynamicInt32 {
+        private final DynamicProto.GetZonedDateTimePartOp mImpl;
+        @Nullable private final Fingerprint mFingerprint;
+
+        GetZonedDateTimePartOp(
+                DynamicProto.GetZonedDateTimePartOp impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        /**
+         * Gets the zoned date-time input.
+         *
+         * @since 1.3
+         */
+        @Nullable
+        public DynamicZonedDateTime getInput() {
+            if (mImpl.hasInput()) {
+                return DynamicBuilders.dynamicZonedDateTimeFromProto(mImpl.getInput());
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets the date-time part to retrieve.
+         *
+         * @since 1.3
+         */
+        @ZonedDateTimePartType
+        public int getPartType() {
+            return mImpl.getPartType().getNumber();
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static GetZonedDateTimePartOp fromProto(
+                @NonNull DynamicProto.GetZonedDateTimePartOp proto,
+                @Nullable Fingerprint fingerprint) {
+            return new GetZonedDateTimePartOp(proto, fingerprint);
+        }
+
+        @NonNull
+        static GetZonedDateTimePartOp fromProto(
+                @NonNull DynamicProto.GetZonedDateTimePartOp proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @NonNull
+        DynamicProto.GetZonedDateTimePartOp toProto() {
+            return mImpl;
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public DynamicProto.DynamicInt32 toDynamicInt32Proto() {
+            return DynamicProto.DynamicInt32.newBuilder().setZonedDateTimePart(mImpl).build();
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "GetZonedDateTimePartOp{"
+                    + "input="
+                    + getInput()
+                    + ", partType="
+                    + getPartType()
+                    + "}";
+        }
+
+        /** Builder for {@link GetZonedDateTimePartOp}. */
+        public static final class Builder implements DynamicInt32.Builder {
+            private final DynamicProto.GetZonedDateTimePartOp.Builder mImpl =
+                    DynamicProto.GetZonedDateTimePartOp.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(-1073599249);
+
+            /** Creates an instance of {@link Builder}. */
+            public Builder() {}
+
+            /**
+             * Sets the zoned date-time input.
+             *
+             * @since 1.3
+             */
+            @NonNull
+            public Builder setInput(@NonNull DynamicZonedDateTime input) {
+                mImpl.setInput(input.toDynamicZonedDateTimeProto());
+                mFingerprint.recordPropertyUpdate(
+                        1, checkNotNull(input.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the date-time part to retrieve.
+             *
+             * @since 1.3
+             */
+            @NonNull
+            public Builder setPartType(@ZonedDateTimePartType int partType) {
+                mImpl.setPartType(DynamicProto.ZonedDateTimePartType.forNumber(partType));
+                mFingerprint.recordPropertyUpdate(2, partType);
+                return this;
+            }
+
+            /** Builds an instance from accumulated values. */
+            @Override
+            @NonNull
+            public GetZonedDateTimePartOp build() {
+                return new GetZonedDateTimePartOp(mImpl.build(), mFingerprint);
+            }
+        }
     }
 
     /**

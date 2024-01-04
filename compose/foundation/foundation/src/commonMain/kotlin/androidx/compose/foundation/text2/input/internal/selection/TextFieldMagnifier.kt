@@ -22,7 +22,7 @@ import androidx.compose.foundation.text.selection.visibleBounds
 import androidx.compose.foundation.text2.input.internal.TextLayoutState
 import androidx.compose.foundation.text2.input.internal.TransformedTextFieldState
 import androidx.compose.foundation.text2.input.internal.coerceIn
-import androidx.compose.foundation.text2.input.internal.fromInnerToDecoration
+import androidx.compose.foundation.text2.input.internal.fromTextLayoutToCore
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isUnspecified
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
@@ -110,8 +110,8 @@ internal fun calculateSelectionMagnifierCenterAndroid(
     val centerY = ((bottom - top) / 2) + top
 
     var offset = Offset(centerX, centerY)
-    textLayoutState.innerTextFieldCoordinates?.takeIf { it.isAttached }?.let { innerCoordinates ->
+    textLayoutState.textLayoutNodeCoordinates?.takeIf { it.isAttached }?.let { innerCoordinates ->
         offset = offset.coerceIn(innerCoordinates.visibleBounds())
     }
-    return textLayoutState.fromInnerToDecoration(offset)
+    return textLayoutState.fromTextLayoutToCore(offset)
 }

@@ -95,7 +95,7 @@ class EffectsFragmentDeviceTest(
             fragmentScenario.moveToState(Lifecycle.State.DESTROYED)
         }
         if (::cameraProvider.isInitialized) {
-            cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
+            cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
         }
     }
 

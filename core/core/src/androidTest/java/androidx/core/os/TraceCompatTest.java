@@ -35,8 +35,9 @@ import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -53,6 +54,8 @@ public final class TraceCompatTest {
 
     private static final boolean TRACE_AVAILABLE;
 
+    private static String sTracedPreviousState = null;
+
     static {
         // Check if tracing is available via debugfs or tracefs
         TRACE_AVAILABLE = new File("/sys/kernel/debug/tracing/trace_marker").exists()
@@ -60,6 +63,31 @@ public final class TraceCompatTest {
     }
 
     private ByteArrayOutputStream mByteArrayOutputStream;
+
+    @BeforeClass
+    public static void setUpClass() throws IOException {
+        if (TRACE_AVAILABLE && Build.VERSION.SDK_INT >= 30 && Build.VERSION.SDK_INT < 32) {
+            // On API 30 and 31, iorapd frequently uses perfetto, which competes for the trace
+            // buffer (see b/291108969, b/156260391, b/145554890, b/149790059 for more context).
+            // iorap was removed in API 32.
+            // Ensure perfetto's traced is disabled on affected API levels for the duration
+            // of the test so we're not competing for the trace buffer.
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            executeCommand("getprop persist.traced.enable", outputStream);
+            sTracedPreviousState = new String(outputStream.toByteArray(), UTF_8).trim();
+            if ("1".equals(sTracedPreviousState)) {
+                executeCommand("setprop persist.traced.enable 0");
+            }
+        }
+    }
+
+    @AfterClass
+    public static void tearDownClass() throws IOException {
+        // Re-enable traced if needed
+        if (TRACE_AVAILABLE && "1".equals(sTracedPreviousState)) {
+            executeCommand("setprop persist.traced.enable 1");
+        }
+    }
 
     @Before
     public void setUp() {
@@ -93,7 +121,6 @@ public final class TraceCompatTest {
     }
 
     @Test
-    @Ignore("b/295944187")
     public void beginAndEndSectionAsync() throws IOException {
         startTrace();
         TraceCompat.beginAsyncSection("beginAndEndSectionAsync", /*cookie=*/5099);
@@ -105,7 +132,6 @@ public final class TraceCompatTest {
     }
 
     @Test
-    @Ignore("b/294556417")
     public void setCounter() throws IOException {
         startTrace();
         TraceCompat.setCounter("counterName", 42);

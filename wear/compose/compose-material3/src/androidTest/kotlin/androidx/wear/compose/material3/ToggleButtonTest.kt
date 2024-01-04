@@ -594,7 +594,7 @@ class ToggleButtonTest {
         rule.setContentWithTheme {
             SplitToggleButtonWithDefaults(
                 checked = checked,
-                colors = ToggleButtonDefaults.toggleButtonColors(
+                colors = ToggleButtonDefaults.splitToggleButtonColors(
                     checkedContainerColor = CHECKED_COLOR,
                     uncheckedContainerColor = UNCHECKED_COLOR
                 ),
@@ -641,7 +641,7 @@ private fun SplitToggleButtonWithDefaults(
     modifier: Modifier = Modifier,
     checked: Boolean = true,
     enabled: Boolean = true,
-    colors: ToggleButtonColors = ToggleButtonDefaults.toggleButtonColors(),
+    colors: SplitToggleButtonColors = ToggleButtonDefaults.splitToggleButtonColors(),
     onCheckedChange: (Boolean) -> Unit = {},
     onClick: () -> Unit = {},
     label: @Composable RowScope.() -> Unit = {

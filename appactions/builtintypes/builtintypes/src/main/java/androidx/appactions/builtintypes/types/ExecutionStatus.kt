@@ -15,7 +15,6 @@
  */
 package androidx.appactions.builtintypes.types
 
-import androidx.appactions.builtintypes.properties.DisambiguatingDescription
 import androidx.appactions.builtintypes.properties.Name
 import androidx.appsearch.`annotation`.Document
 import java.util.Objects
@@ -114,11 +113,11 @@ public interface ExecutionStatus : Intangible {
  */
 @Suppress("UNCHECKED_CAST")
 public abstract class AbstractExecutionStatus<
-  Self : AbstractExecutionStatus<Self, Builder>,
-  Builder : AbstractExecutionStatus.Builder<Builder, Self>>
+    Self : AbstractExecutionStatus<Self, Builder>,
+    Builder : AbstractExecutionStatus.Builder<Builder, Self>
+    >
 internal constructor(
   public final override val namespace: String,
-  public final override val disambiguatingDescription: DisambiguatingDescription?,
   public final override val identifier: String,
   public final override val name: Name?,
 ) : ExecutionStatus {
@@ -139,12 +138,7 @@ internal constructor(
   /** A copy-constructor that copies over properties from another [ExecutionStatus] instance. */
   public constructor(
     executionStatus: ExecutionStatus
-  ) : this(
-    executionStatus.namespace,
-    executionStatus.disambiguatingDescription,
-    executionStatus.identifier,
-    executionStatus.name
-  )
+  ) : this(executionStatus.namespace, executionStatus.identifier, executionStatus.name)
 
   /**
    * Returns a concrete [Builder] with the additional, non-[ExecutionStatus] properties copied over.
@@ -154,7 +148,6 @@ internal constructor(
   public final override fun toBuilder(): Builder =
     toBuilderWithAdditionalPropertiesOnly()
       .setNamespace(namespace)
-      .setDisambiguatingDescription(disambiguatingDescription)
       .setIdentifier(identifier)
       .setName(name)
 
@@ -163,7 +156,6 @@ internal constructor(
     if (other == null || this::class.java != other::class.java) return false
     other as Self
     if (namespace != other.namespace) return false
-    if (disambiguatingDescription != other.disambiguatingDescription) return false
     if (identifier != other.identifier) return false
     if (name != other.name) return false
     if (additionalProperties != other.additionalProperties) return false
@@ -171,16 +163,12 @@ internal constructor(
   }
 
   public final override fun hashCode(): Int =
-    Objects.hash(namespace, disambiguatingDescription, identifier, name, additionalProperties)
+    Objects.hash(namespace, identifier, name, additionalProperties)
 
   public final override fun toString(): String {
     val attributes = mutableMapOf<String, String>()
     if (namespace.isNotEmpty()) {
       attributes["namespace"] = namespace
-    }
-    if (disambiguatingDescription != null) {
-      attributes["disambiguatingDescription"] =
-        disambiguatingDescription.toString(includeWrapperName = false)
     }
     if (identifier.isNotEmpty()) {
       attributes["identifier"] = identifier
@@ -249,8 +237,9 @@ internal constructor(
    */
   @Suppress("StaticFinalBuilder")
   public abstract class Builder<
-    Self : Builder<Self, Built>, Built : AbstractExecutionStatus<Built, Self>> :
-    ExecutionStatus.Builder<Self> {
+      Self : Builder<Self, Built>,
+      Built : AbstractExecutionStatus<Built, Self>
+      > : ExecutionStatus.Builder<Self> {
     /**
      * Human readable name for the concrete [Self] class.
      *
@@ -266,8 +255,6 @@ internal constructor(
     @get:Suppress("GetterOnBuilder") protected abstract val additionalProperties: Map<String, Any?>
 
     private var namespace: String = ""
-
-    private var disambiguatingDescription: DisambiguatingDescription? = null
 
     private var identifier: String = ""
 
@@ -285,19 +272,10 @@ internal constructor(
     protected abstract fun buildFromExecutionStatus(executionStatus: ExecutionStatus): Built
 
     public final override fun build(): Built =
-      buildFromExecutionStatus(
-        ExecutionStatusImpl(namespace, disambiguatingDescription, identifier, name)
-      )
+      buildFromExecutionStatus(ExecutionStatusImpl(namespace, identifier, name))
 
     public final override fun setNamespace(namespace: String): Self {
       this.namespace = namespace
-      return this as Self
-    }
-
-    public final override fun setDisambiguatingDescription(
-      disambiguatingDescription: DisambiguatingDescription?
-    ): Self {
-      this.disambiguatingDescription = disambiguatingDescription
       return this as Self
     }
 
@@ -317,7 +295,6 @@ internal constructor(
       if (other == null || this::class.java != other::class.java) return false
       other as Self
       if (namespace != other.namespace) return false
-      if (disambiguatingDescription != other.disambiguatingDescription) return false
       if (identifier != other.identifier) return false
       if (name != other.name) return false
       if (additionalProperties != other.additionalProperties) return false
@@ -326,17 +303,13 @@ internal constructor(
 
     @Suppress("BuilderSetStyle")
     public final override fun hashCode(): Int =
-      Objects.hash(namespace, disambiguatingDescription, identifier, name, additionalProperties)
+      Objects.hash(namespace, identifier, name, additionalProperties)
 
     @Suppress("BuilderSetStyle")
     public final override fun toString(): String {
       val attributes = mutableMapOf<String, String>()
       if (namespace.isNotEmpty()) {
         attributes["namespace"] = namespace
-      }
-      if (disambiguatingDescription != null) {
-        attributes["disambiguatingDescription"] =
-          disambiguatingDescription!!.toString(includeWrapperName = false)
       }
       if (identifier.isNotEmpty()) {
         attributes["identifier"] = identifier
@@ -362,10 +335,9 @@ private class ExecutionStatusImpl :
 
   public constructor(
     namespace: String,
-    disambiguatingDescription: DisambiguatingDescription?,
     identifier: String,
     name: Name?,
-  ) : super(namespace, disambiguatingDescription, identifier, name)
+  ) : super(namespace, identifier, name)
 
   public constructor(executionStatus: ExecutionStatus) : super(executionStatus)
 

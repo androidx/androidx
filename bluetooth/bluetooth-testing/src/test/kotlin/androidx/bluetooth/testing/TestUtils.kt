@@ -18,10 +18,10 @@ package androidx.bluetooth.testing
 
 import java.nio.ByteBuffer
 
-internal fun Int.toByteArray(): ByteArray {
+fun Int.toByteArray(): ByteArray {
     return ByteBuffer.allocate(Int.SIZE_BYTES).putInt(this).array()
 }
 
-internal fun ByteArray.toInt(): Int {
+fun ByteArray.toInt(): Int {
     return ByteBuffer.wrap(this).int
 }

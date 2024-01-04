@@ -745,7 +745,7 @@ public class AccessibilityNodeInfoCompat {
         @OptIn(markerClass = androidx.core.os.BuildCompat.PrereleaseSdkCheck.class)
         public static final AccessibilityActionCompat ACTION_SCROLL_IN_DIRECTION =
                 new AccessibilityActionCompat(
-                        null, // Temporary to avoid weird class init issue (b/296118211)
+                        Build.VERSION.SDK_INT >= 34 ? Api34Impl.getActionScrollInDirection() : null,
                         android.R.id.accessibilityActionScrollInDirection, null, null, null);
 
         final Object mAction;
@@ -5585,6 +5585,11 @@ public class AccessibilityNodeInfoCompat {
         public static void setQueryFromAppProcessEnabled(AccessibilityNodeInfo info, View view,
                 boolean enabled) {
             info.setQueryFromAppProcessEnabled(view, enabled);
+        }
+
+        @DoNotInline
+        public static AccessibilityNodeInfo.AccessibilityAction getActionScrollInDirection() {
+            return AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_IN_DIRECTION;
         }
     }
 }

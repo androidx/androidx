@@ -39,6 +39,10 @@ internal class FakeVibratorSubject private constructor(
             requireNotNull(assertAbout(SUBJECT_FACTORY).that(vibrator))
     }
 
+    /** Checks the subject was requested to vibrate exactly [expectedCount] times. */
+    fun hasVibrationCount(expectedCount: Int): Unit =
+        check("vibrations()").that(actual.vibrations()).hasSize(expectedCount)
+
     /**
      * Checks the subject was requested to vibrate with exactly the provided parameters.
      *
@@ -46,11 +50,22 @@ internal class FakeVibratorSubject private constructor(
      * object returned by this method.
      */
     fun vibratedExactly(vararg expected: VibrationWrapper): Ordered =
-        check("vibrations()").that(actual.vibrations()).containsExactly(*expected)
+        check("vibrations()").that(actual.vibrations().map { it.vibration })
+            .containsExactly(*expected)
 
     /**
      * Checks the subject has never requested to vibrate.
      */
     fun neverVibrated(): Unit =
         check("vibrations()").that(actual.vibrations()).isEmpty()
+
+    /**
+     * Checks the subject was requested to vibrate/cancel with exactly the provided parameters
+     * or fails.
+     *
+     * To also test that the requests appear in the given order, make a call to inOrder() on the
+     * object returned by this method.
+     */
+    fun requestedExactly(vararg expected: VibratorRequest): Ordered =
+        check("requests()").that(actual.requests()).containsExactly(*expected)
 }

@@ -33,6 +33,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.ReusableContent
+import androidx.compose.runtime.ReusableContentHost
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -2577,6 +2578,58 @@ class SubcomposeLayoutTest {
 
         rule.runOnIdle {
             assertThat(disposed).isTrue()
+        }
+    }
+
+    @Test
+    fun subcomposeCoordinates() {
+        var coords: LayoutCoordinates? = null
+        rule.setContent {
+            SubcomposeLayout { constraints ->
+                layout(constraints.maxWidth, constraints.maxHeight) {
+                    coords = coordinates
+                }
+            }
+        }
+        rule.runOnIdle {
+            assertThat(coords).isNotNull()
+        }
+    }
+
+    @Test
+    fun updatingModifierOnDetachedSubcomposition() {
+        var active by mutableStateOf(true)
+
+        var modifier by mutableStateOf<Modifier>(Modifier)
+
+        rule.setContent {
+            ReusableContentHost(active) {
+                SubcomposeLayout { constraints ->
+                    val placeable = subcompose(Unit) {
+                        Layout(
+                            modifier = modifier,
+                        ) { _, _ ->
+                            layout(10, 10) {}
+                        }
+                    }.first().measure(constraints)
+                    layout(placeable.width, placeable.height) {
+                        placeable.place(0, 0)
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            active = false
+            modifier = Modifier.drawBehind { }
+        }
+
+        rule.runOnIdle {
+            active = true
+        }
+
+        rule.runOnIdle {
+            // makes sure there will be no runtime crash
         }
     }
 

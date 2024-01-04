@@ -69,6 +69,75 @@ import androidx.wear.compose.foundation.edgeSwipeToDismiss as foundationEdgeSwip
  */
 @Composable
 public fun SwipeToDismissBox(
+    state: androidx.wear.compose.foundation.SwipeToDismissBoxState,
+    modifier: Modifier = Modifier,
+    backgroundScrimColor: Color = MaterialTheme.colors.background,
+    contentScrimColor: Color = MaterialTheme.colors.background,
+    backgroundKey: Any = SwipeToDismissKeys.Background,
+    contentKey: Any = SwipeToDismissKeys.Content,
+    hasBackground: Boolean = true,
+    content: @Composable BoxScope.(isBackground: Boolean) -> Unit
+) {
+    CompositionLocalProvider(
+        LocalSwipeToDismissBackgroundScrimColor provides backgroundScrimColor,
+        LocalSwipeToDismissContentScrimColor provides contentScrimColor
+    ) {
+        androidx.wear.compose.foundation.SwipeToDismissBox(
+            state = state,
+            modifier = modifier,
+            backgroundKey = backgroundKey,
+            contentKey = contentKey,
+            userSwipeEnabled = hasBackground,
+            content = content
+        )
+    }
+}
+
+/**
+ * Wear Material [SwipeToDismissBox] that handles the swipe-to-dismiss gesture. Takes a single
+ * slot for the background (only displayed during the swipe gesture) and the foreground content.
+ *
+ * Example of a [SwipeToDismissBox] with stateful composables:
+ * @sample androidx.wear.compose.material.samples.StatefulSwipeToDismissBox
+ *
+ * Example of using [Modifier.edgeSwipeToDismiss] with [SwipeToDismissBox]
+ * @sample androidx.wear.compose.material.samples.EdgeSwipeForSwipeToDismiss
+ *
+ * For more information, see the
+ * [Swipe to dismiss](https://developer.android.com/training/wearables/components/swipe-to-dismiss)
+ * guide.
+ *
+ * @param state State containing information about ongoing swipe or animation.
+ * @param modifier Optional [Modifier] for this component.
+ * @param backgroundScrimColor Color for background scrim
+ * @param contentScrimColor Optional [Color] used for the scrim over the
+ * content composable during the swipe gesture.
+ * @param backgroundKey Optional [key] which identifies the content currently composed in
+ * the [content] block when isBackground == true. Provide the backgroundKey if your background
+ * content will be displayed as a foreground after the swipe animation ends
+ * (as is common when [SwipeToDismissBox] is used for the navigation). This allows
+ * remembered state to be correctly moved between background and foreground.
+ * @Param contentKey Optional [key] which identifies the content currently composed in the
+ * [content] block when isBackground == false. See [backgroundKey].
+ * @Param hasBackground Optional [Boolean] used to indicate if the content has no background,
+ * in which case the swipe gesture is disabled (since there is no parent destination).
+ * @param content Slot for content, with the isBackground parameter enabling content to be
+ * displayed behind the foreground content - the background is normally hidden,
+ * is shown behind a scrim during the swipe gesture,
+ * and is shown without scrim once the finger passes the swipe-to-dismiss threshold.
+ */
+@Suppress("DEPRECATION")
+@Deprecated(
+    "This overload is provided for backwards compatibility. " +
+        "A newer overload is available that uses " +
+        "androidx.wear.compose.foundation.SwipeToDismissBoxState.",
+    replaceWith = ReplaceWith("SwipeToDismissBox(" +
+        "state, modifier, backgroundScrimColor, contentScrimColor, backgroundKey, contentKey," +
+        "hasBackground, content)"
+    )
+)
+@Composable
+public fun SwipeToDismissBox(
     state: SwipeToDismissBoxState,
     modifier: Modifier = Modifier,
     backgroundScrimColor: Color = MaterialTheme.colors.background,
@@ -132,6 +201,81 @@ public fun SwipeToDismissBox(
 public fun SwipeToDismissBox(
     onDismissed: () -> Unit,
     modifier: Modifier = Modifier,
+    state: androidx.wear.compose.foundation.SwipeToDismissBoxState =
+        androidx.wear.compose.foundation.rememberSwipeToDismissBoxState(),
+    backgroundScrimColor: Color = MaterialTheme.colors.background,
+    contentScrimColor: Color = MaterialTheme.colors.background,
+    backgroundKey: Any = SwipeToDismissKeys.Background,
+    contentKey: Any = SwipeToDismissKeys.Content,
+    hasBackground: Boolean = true,
+    content: @Composable BoxScope.(isBackground: Boolean) -> Unit
+) {
+    CompositionLocalProvider(
+        LocalSwipeToDismissBackgroundScrimColor provides backgroundScrimColor,
+        LocalSwipeToDismissContentScrimColor provides contentScrimColor
+    ) {
+        androidx.wear.compose.foundation.SwipeToDismissBox(
+            state = state,
+            modifier = modifier,
+            onDismissed = onDismissed,
+            backgroundKey = backgroundKey,
+            contentKey = contentKey,
+            userSwipeEnabled = hasBackground,
+            content = content
+        )
+    }
+}
+
+/**
+ * Wear Material [SwipeToDismissBox] that handles the swipe-to-dismiss gesture.
+ * This overload takes an [onDismissed] parameter which is used to execute a command when the
+ * swipe to dismiss has completed, such as navigating to another screen.
+ *
+ * Example of a simple SwipeToDismissBox:
+ * @sample androidx.wear.compose.material.samples.SimpleSwipeToDismissBox
+ *
+ * Example of using [Modifier.edgeSwipeToDismiss] with [SwipeToDismissBox]
+ * @sample androidx.wear.compose.material.samples.EdgeSwipeForSwipeToDismiss
+ *
+ * For more information, see the
+ * [Swipe to dismiss](https://developer.android.com/training/wearables/components/swipe-to-dismiss)
+ * guide.
+ *
+ * @param onDismissed Executes when the swipe to dismiss has completed.
+ * @param modifier Optional [Modifier] for this component.
+ * @param state State containing information about ongoing swipe or animation.
+ * @param backgroundScrimColor Color for background scrim
+ * @param contentScrimColor Optional [Color] used for the scrim over the
+ * content composable during the swipe gesture.
+ * @param backgroundKey Optional [key] which identifies the content currently composed in
+ * the [content] block when isBackground == true. Provide the backgroundKey if your background
+ * content will be displayed as a foreground after the swipe animation ends
+ * (as is common when [SwipeToDismissBox] is used for the navigation). This allows
+ * remembered state to be correctly moved between background and foreground.
+ * @Param contentKey Optional [key] which identifies the content currently composed in the
+ * [content] block when isBackground == false. See [backgroundKey].
+ * @Param hasBackground Optional [Boolean] used to indicate if the content has no background,
+ * in which case the swipe gesture is disabled (since there is no parent destination).
+ * @param content Slot for content, with the isBackground parameter enabling content to be
+ * displayed behind the foreground content - the background is normally hidden,
+ * is shown behind a scrim during the swipe gesture,
+ * and is shown without scrim once the finger passes the swipe-to-dismiss threshold.
+ */
+@Suppress("DEPRECATION")
+@Deprecated(
+    "This overload is provided for backwards compatibility. " +
+        "A newer overload is available that uses " +
+        "androidx.wear.compose.foundation.SwipeToDismissBoxState.",
+    replaceWith = ReplaceWith("SwipeToDismissBox(" +
+        "onDismiss, modifier, state, backgroundScrimColor, contentScrimColor, backgroundKey," +
+        "contentKey, hasBackground, content)"
+    ),
+    level = DeprecationLevel.HIDDEN
+)
+@Composable
+public fun SwipeToDismissBox(
+    onDismissed: () -> Unit,
+    modifier: Modifier = Modifier,
     state: SwipeToDismissBoxState = rememberSwipeToDismissBoxState(),
     backgroundScrimColor: Color = MaterialTheme.colors.background,
     contentScrimColor: Color = MaterialTheme.colors.background,
@@ -162,6 +306,11 @@ public fun SwipeToDismissBox(
  * @param animationSpec The default animation that will be used to animate to a new state.
  * @param confirmStateChange Optional callback invoked to confirm or veto a pending state change.
  */
+@Suppress("DEPRECATION")
+@Deprecated(
+    "SwipeToDismissBoxState has been migrated, please import it " +
+        "from androidx.wear.compose.foundation.",
+)
 @Stable
 public class SwipeToDismissBoxState(
     animationSpec: AnimationSpec<Float> = SwipeToDismissBoxDefaults.AnimationSpec,
@@ -220,6 +369,14 @@ public class SwipeToDismissBoxState(
  * @param animationSpec The default animation used to animate to a new state.
  * @param confirmStateChange Optional callback to confirm or veto a pending state change.
  */
+@Suppress("DEPRECATION")
+@Deprecated(
+    "Please import rememberSwipeToDismissBoxState from androidx.wear.compose.foundation.",
+    ReplaceWith(
+        "androidx.wear.compose.foundation.rememberSwipeToDismissBoxState(",
+        "animationSpec, confirmStateChange)"
+    )
+)
 @Composable
 public fun rememberSwipeToDismissBoxState(
     animationSpec: AnimationSpec<Float> = SWIPE_TO_DISMISS_BOX_ANIMATION_SPEC,
@@ -269,6 +426,10 @@ public enum class SwipeToDismissKeys {
 /**
  * States used as targets for the anchor points for swipe-to-dismiss.
  */
+@Deprecated(
+    "SwipeToDismiss has been migrated to androidx.wear.compose.foundation. " +
+        "Please import SwipeToDismissValue from androidx.wear.compose.foundation instead.",
+)
 public enum class SwipeToDismissValue {
     /**
      * The state of the SwipeToDismissBox before the swipe started.
@@ -301,6 +462,15 @@ public enum class SwipeToDismissValue {
  * on SwipeToDismissBox
  * @param edgeWidth A width of edge, where swipe should be recognised
  */
+@Suppress("DEPRECATION")
+@Deprecated(
+    "SwipeToDismiss has been migrated to androidx.wear.compose.foundation. " +
+        "Please import Modifier.edgeSwipeToDismiss from androidx.wear.compose.foundation instead.",
+    replaceWith = ReplaceWith(
+        "androidx.wear.compose.foundation.edgeSwipeToDismiss(",
+        "swipeToDismissBoxState, edgeWidth)"
+    )
+)
 public fun Modifier.edgeSwipeToDismiss(
     swipeToDismissBoxState: SwipeToDismissBoxState,
     edgeWidth: Dp = SwipeToDismissBoxDefaults.EdgeWidth
@@ -310,6 +480,7 @@ public fun Modifier.edgeSwipeToDismiss(
         edgeWidth = edgeWidth
     )
 
+@Suppress("DEPRECATION")
 private fun convertToFoundationSwipeToDismissValue(
     value: SwipeToDismissValue
 ) = when (value) {
@@ -320,6 +491,7 @@ private fun convertToFoundationSwipeToDismissValue(
         androidx.wear.compose.foundation.SwipeToDismissValue.Dismissed
 }
 
+@Suppress("DEPRECATION")
 private fun convertFromFoundationSwipeToDismissValue(
     value: androidx.wear.compose.foundation.SwipeToDismissValue
 ) = when (value) {

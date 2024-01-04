@@ -118,18 +118,30 @@ internal class SingleBufferedCanvasRendererV34<T>(
             mRenderNode.endRecording()
         }
 
+        override fun onComplete() {
+            // NO-OP
+        }
+
         override val id: Int = RENDER
     }
 
-    private val clearRequest = object : RenderQueue.Request {
+    private inner class ClearRequest(val clearRequest: (() -> Unit)?) : RenderQueue.Request {
         override fun execute() {
             val canvas = mRenderNode.beginRecording()
             canvas.drawColor(Color.BLACK, BlendMode.CLEAR)
             mRenderNode.endRecording()
         }
 
+        override fun onComplete() {
+            clearRequest?.invoke()
+        }
+
+        override fun isMergeable(): Boolean = clearRequest == null
+
         override val id: Int = CLEAR
     }
+
+    private val defaultClearRequest = ClearRequest(null)
 
     override fun render(param: T) {
         mRenderQueue.enqueue(DrawParamRequest(param))
@@ -146,7 +158,12 @@ internal class SingleBufferedCanvasRendererV34<T>(
         }
     }
 
-    override fun clear() {
+    override fun clear(clearComplete: (() -> Unit)?) {
+        val clearRequest = if (clearComplete == null) {
+            defaultClearRequest
+        } else {
+            ClearRequest(clearComplete)
+        }
         mRenderQueue.enqueue(clearRequest)
     }
 

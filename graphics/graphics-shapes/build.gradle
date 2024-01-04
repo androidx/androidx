@@ -36,6 +36,7 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 api(libs.kotlinStdlib)
+                implementation project(':collection:collection')
                 implementation 'androidx.annotation:annotation:1.7.0-alpha02'
             }
         }

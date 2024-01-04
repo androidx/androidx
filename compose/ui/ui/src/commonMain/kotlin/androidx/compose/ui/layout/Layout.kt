@@ -350,4 +350,24 @@ internal class DefaultIntrinsicMeasurable(
 internal class IntrinsicsMeasureScope(
     intrinsicMeasureScope: IntrinsicMeasureScope,
     override val layoutDirection: LayoutDirection,
-) : MeasureScope, IntrinsicMeasureScope by intrinsicMeasureScope
+) : MeasureScope, IntrinsicMeasureScope by intrinsicMeasureScope {
+    override fun layout(
+        width: Int,
+        height: Int,
+        alignmentLines: Map<AlignmentLine, Int>,
+        placementBlock: Placeable.PlacementScope.() -> Unit
+    ): MeasureResult {
+        return object : MeasureResult {
+            override val width: Int
+                get() = width
+            override val height: Int
+                get() = height
+            override val alignmentLines: Map<AlignmentLine, Int>
+                get() = alignmentLines
+
+            override fun placeChildren() {
+                // Intrinsics should never be placed
+            }
+        }
+    }
+}

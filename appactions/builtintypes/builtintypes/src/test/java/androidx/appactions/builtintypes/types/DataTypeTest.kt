@@ -18,7 +18,7 @@ package androidx.appactions.builtintypes.types
 
 import androidx.appactions.builtintypes.properties.Name
 import com.google.common.truth.Truth.assertThat
-import java.time.LocalDateTime
+import java.time.LocalDate
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -27,15 +27,14 @@ import org.junit.runners.JUnit4
 class DataTypeTest {
   @Test
   fun testBuilder() {
-    val thing =
-      Thing.Builder()
-        // convenience setter
-        .setDisambiguatingDescription("Awesome Thing")
-        .setName(Name("Bohemian Rhapsody")) // authoritative setter
+    val schedule =
+      Schedule.Builder()
+        .setName(Name("Some schedule")) // authoritative setter
+        .setExceptDate(LocalDate.of(2023, 12, 31)) // convenience setter
         .build()
-    assertThat(thing.disambiguatingDescription?.asCanonicalValue).isNull()
-    assertThat(thing.disambiguatingDescription?.asText).isEqualTo("Awesome Thing")
-    assertThat(thing.name?.asText).isEqualTo("Bohemian Rhapsody")
+    assertThat(schedule.name?.asText).isEqualTo("Some schedule")
+    assertThat(schedule.exceptDate?.asDate).isEqualTo(LocalDate.of(2023, 12, 31))
+    assertThat(schedule.exceptDate?.asInstant).isNull()
   }
 
   @Test
@@ -47,52 +46,14 @@ class DataTypeTest {
 
   @Test
   fun testCopying() {
-    val thing = Thing.Builder().setName("John Wick 4").setDisambiguatingDescription("Movie").build()
-    val copy = thing.toBuilder().setName("John Wick 2").build()
+    val thing: Thing =
+      Schedule.Builder().setExceptDate(LocalDate.of(2023, 12, 31)).setName("Some schedule").build()
+    val copy = thing.toBuilder().setName("Another schedule").build()
     assertThat(copy)
       .isEqualTo(
-        Thing.Builder().setName("John Wick 2").setDisambiguatingDescription("Movie").build()
-      )
-  }
-
-  @Test
-  fun testPolymorphicCopying() {
-    val thing1: Thing =
-      Alarm.Builder()
-        .setName("Wake up!")
-        .setAlarmSchedule(
-          Schedule.Builder()
-            .setStartDate(
-              LocalDateTime.of(
-                /* year= */ 2023,
-                /* month= */ 5,
-                /* dayOfMonth= */ 3,
-                /* hour= */ 8,
-                /* minute=*/ 30
-              )
-            )
-            .build()
-        )
-        .build()
-    val thing2 = thing1.toBuilder().setName("Go to bed!").build()
-    assertThat(thing2).isInstanceOf(Alarm::class.java)
-    assertThat(thing2)
-      .isEqualTo(
-        Alarm.Builder()
-          .setName("Go to bed!")
-          .setAlarmSchedule(
-            Schedule.Builder()
-              .setStartDate(
-                LocalDateTime.of(
-                  /* year= */ 2023,
-                  /* month= */ 5,
-                  /* dayOfMonth= */ 3,
-                  /* hour= */ 8,
-                  /* minute=*/ 30
-                )
-              )
-              .build()
-          )
+        Schedule.Builder()
+          .setExceptDate(LocalDate.of(2023, 12, 31))
+          .setName("Another schedule")
           .build()
       )
   }

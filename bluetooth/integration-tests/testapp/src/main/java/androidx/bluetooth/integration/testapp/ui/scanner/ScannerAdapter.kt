@@ -50,9 +50,8 @@ class ScannerAdapter(
         private val onClick: (BluetoothDevice) -> Unit
     ) : RecyclerView.ViewHolder(itemView) {
 
+        private val textViewDeviceId: TextView = itemView.findViewById(R.id.text_view_device_id)
         private val textViewDeviceName: TextView = itemView.findViewById(R.id.text_view_device_name)
-        private val textViewDeviceAddress: TextView =
-            itemView.findViewById(R.id.text_view_device_address)
         private val buttonConnect: Button = itemView.findViewById(R.id.button_connect)
 
         private var currentBluetoothDevice: BluetoothDevice? = null
@@ -66,7 +65,7 @@ class ScannerAdapter(
         @SuppressLint("MissingPermission")
         fun bind(bluetoothDevice: BluetoothDevice) {
             currentBluetoothDevice = bluetoothDevice
-            textViewDeviceAddress.text = bluetoothDevice.id.toString()
+            textViewDeviceId.text = bluetoothDevice.id.toString()
             textViewDeviceName.text = bluetoothDevice.name
             textViewDeviceName.isVisible = bluetoothDevice.name.isNullOrEmpty().not()
         }

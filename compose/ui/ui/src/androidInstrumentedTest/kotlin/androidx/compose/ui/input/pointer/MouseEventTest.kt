@@ -225,6 +225,9 @@ class MouseEventTest {
             exit(Offset(-1f, -1f))
         }
 
+        // exit event doesn't fire until it is sure no associated down event is coming
+        waitForPointerUpdate()
+
         assertThat(events).hasSize(2)
         assertThat(events[0]).isEqualTo(PointerEventType.Enter)
         assertThat(events[1]).isEqualTo(PointerEventType.Exit)

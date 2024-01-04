@@ -22,7 +22,6 @@ import android.view.inputmethod.CursorAnchorInfo
 import android.view.inputmethod.EditorBoundsInfo
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.toAndroidRectF
 import androidx.compose.ui.text.TextLayoutResult
@@ -114,8 +113,9 @@ private fun CursorAnchorInfo.Builder.setInsertionMarker(
 
     val selectionStartTransformed = offsetMapping.originalToTransformed(selectionStart)
     val cursorRect = textLayoutResult.getCursorRect(selectionStartTransformed)
-    val isTopVisible = innerTextFieldBounds.containsInclusive(cursorRect.topLeft)
-    val isBottomVisible = innerTextFieldBounds.containsInclusive(cursorRect.bottomLeft)
+    val x = cursorRect.left.coerceIn(0f, textLayoutResult.size.width.toFloat())
+    val isTopVisible = innerTextFieldBounds.containsInclusive(x, cursorRect.top)
+    val isBottomVisible = innerTextFieldBounds.containsInclusive(x, cursorRect.bottom)
     val isRtl =
         textLayoutResult.getBidiRunDirection(selectionStartTransformed) == ResolvedTextDirection.Rtl
 
@@ -127,13 +127,7 @@ private fun CursorAnchorInfo.Builder.setInsertionMarker(
 
     // Sets the location of the text insertion point (zero width cursor) as a rectangle in local
     // coordinates.
-    setInsertionMarkerLocation(
-        cursorRect.left,
-        cursorRect.top,
-        cursorRect.bottom,
-        cursorRect.bottom,
-        flags
-    )
+    setInsertionMarkerLocation(x, cursorRect.top, cursorRect.bottom, cursorRect.bottom, flags)
 
     return this
 }
@@ -176,8 +170,8 @@ private fun CursorAnchorInfo.Builder.addCharacterBounds(
             flags = flags or CursorAnchorInfo.FLAG_HAS_VISIBLE_REGION
         }
         if (
-            !innerTextFieldBounds.containsInclusive(rect.topLeft) ||
-            !innerTextFieldBounds.containsInclusive(rect.bottomRight)
+            !innerTextFieldBounds.containsInclusive(rect.left, rect.top) ||
+            !innerTextFieldBounds.containsInclusive(rect.right, rect.bottom)
         ) {
             flags = flags or CursorAnchorInfo.FLAG_HAS_INVISIBLE_REGION
         }
@@ -237,6 +231,6 @@ private object CursorAnchorInfoApi34Helper {
  * Note this differs from [Rect.contains] which returns false for points on the bottom or right
  * edges.
  */
-private fun Rect.containsInclusive(offset: Offset): Boolean {
-    return offset.x in left..right && offset.y in top..bottom
+private fun Rect.containsInclusive(x: Float, y: Float): Boolean {
+    return x in left..right && y in top..bottom
 }

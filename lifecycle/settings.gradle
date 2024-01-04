@@ -27,13 +27,9 @@ rootProject.name = "lifecycle-playground"
 playground {
     setupPlayground("..")
     selectProjectsFromAndroidX({ name ->
+        // gradle compilation test, not supported in playground b/302031827
+        if (name == ":lifecycle:integration-tests:incrementality") return false
         if (name.startsWith(":lifecycle")) return true
-        if (name.startsWith(":annotation")) return true
-        if (name.startsWith(":arch:core:core-common")) return true
-        if (name.startsWith(":arch:core:core-runtime")) return true
-        if (name == ":internal-testutils-runtime") return true
-        if (name == ":internal-testutils-truth") return true
-        if (isNeededForComposePlayground(name)) return true
         return false
     })
 }

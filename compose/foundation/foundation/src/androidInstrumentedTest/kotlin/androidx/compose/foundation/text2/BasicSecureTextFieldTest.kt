@@ -54,7 +54,6 @@ import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -412,49 +411,6 @@ internal class BasicSecureTextFieldTest {
     }
 
     @Test
-    fun textFieldValue_updatesFieldText_whenTextChangedFromCode_whileUnfocused() {
-        var text by mutableStateOf(TextFieldValue("hello"))
-        rule.setContent {
-            BasicSecureTextField(
-                value = text,
-                onValueChange = { text = it },
-                modifier = Modifier.testTag(Tag)
-            )
-        }
-
-        rule.runOnIdle {
-            text = text.copy(text = "world")
-        }
-        // Auto-advance is disabled.
-        rule.mainClock.advanceTimeByFrame()
-
-        assertThat(
-            rule.onNodeWithTag(Tag).fetchSemanticsNode().config[SemanticsProperties.EditableText]
-                .text
-        ).isEqualTo("world")
-    }
-
-    @Test
-    fun textFieldValue_updatesFieldSelection_whenSelectionChangedFromCode_whileUnfocused() {
-        var text by mutableStateOf(TextFieldValue("hello", selection = TextRange(1)))
-        rule.setContent {
-            BasicSecureTextField(
-                value = text,
-                onValueChange = { text = it },
-                modifier = Modifier.testTag(Tag)
-            )
-        }
-
-        rule.runOnIdle {
-            text = text.copy(selection = TextRange(2))
-        }
-        // Auto-advance is disabled.
-        rule.mainClock.advanceTimeByFrame()
-
-        assertTextSelection(TextRange(2))
-    }
-
-    @Test
     fun stringValue_doesNotUpdateField_whenTextChangedFromCode_whileFocused() {
         var text by mutableStateOf("hello")
         rule.setContent {
@@ -468,25 +424,6 @@ internal class BasicSecureTextFieldTest {
 
         rule.runOnIdle {
             text = "world"
-        }
-
-        rule.onNodeWithTag(Tag).assertTextEquals("hello")
-    }
-
-    @Test
-    fun textFieldValue_doesNotUpdateField_whenTextChangedFromCode_whileFocused() {
-        var text by mutableStateOf(TextFieldValue("hello", selection = TextRange(1)))
-        rule.setContent {
-            BasicSecureTextField(
-                value = text,
-                onValueChange = { text = it },
-                modifier = Modifier.testTag(Tag)
-            )
-        }
-        requestFocus(Tag)
-
-        rule.runOnIdle {
-            text = TextFieldValue(text = "world", selection = TextRange(2))
         }
 
         rule.onNodeWithTag(Tag).assertTextEquals("hello")
@@ -615,65 +552,6 @@ internal class BasicSecureTextFieldTest {
 
         rule.runOnIdle {
             assertThat(onValueChangedCount).isEqualTo(0)
-        }
-    }
-
-    @Test
-    fun textFieldValue_usesInitialSelectionFromValue() {
-        var text by mutableStateOf(TextFieldValue("hello", selection = TextRange(2)))
-        rule.setContent {
-            BasicSecureTextField(
-                value = text,
-                onValueChange = { text = it },
-                modifier = Modifier.testTag(Tag)
-            )
-        }
-
-        assertTextSelection(TextRange(2))
-    }
-
-    @Test
-    fun textFieldValue_reportsSelectionChangesInCallback() {
-        var text by mutableStateOf(TextFieldValue("hello", selection = TextRange(1)))
-        rule.setContent {
-            BasicSecureTextField(
-                value = text,
-                onValueChange = { text = it },
-                modifier = Modifier.testTag(Tag)
-            )
-        }
-
-        rule.onNodeWithTag(Tag).performTextInputSelection(TextRange(2))
-
-        rule.runOnIdle {
-            assertThat(text.selection).isEqualTo(TextRange(2))
-        }
-    }
-
-    @Test
-    fun textFieldValue_reportsCompositionChangesInCallback() {
-        var text by mutableStateOf(TextFieldValue("hello", selection = TextRange(1)))
-        inputMethodInterceptor.setContent {
-            BasicSecureTextField(
-                value = text,
-                onValueChange = { text = it },
-                modifier = Modifier.testTag(Tag)
-            )
-        }
-        requestFocus(Tag)
-
-        inputMethodInterceptor.withInputConnection { setComposingRegion(0, 0) }
-        rule.runOnIdle {
-            assertWithMessage(
-                "After setting composing region to 0, 0, TextFieldState's composition is:"
-            ).that(text.composition).isNull()
-        }
-
-        inputMethodInterceptor.withInputConnection { setComposingRegion(1, 4) }
-        rule.runOnIdle {
-            assertWithMessage(
-                "After setting composing region to 1, 4, TextFieldState's composition is:"
-            ).that(text.composition).isEqualTo(TextRange(1, 4))
         }
     }
 

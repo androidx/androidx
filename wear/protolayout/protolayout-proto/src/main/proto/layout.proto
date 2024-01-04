@@ -592,7 +592,13 @@ message ArcLine {
   // While this field is statically accessible from 1.0, it's only bindable
   // since version 1.2 and renderers supporting version 1.2 will use the dynamic
   // value (if set).
+  //
+  // If a brush is set, this color will not be used.
   ColorProp color = 3;
+
+  // A brush used to draw this line. If set, the brush will be used instead of
+  // the color provided in {@code setColor()}.
+  Brush brush = 7;
 
   // Modifiers for this element.
   ArcModifiers modifiers = 4;

@@ -71,6 +71,8 @@ object ComposeConfiguration {
     )
     val DECOYS_ENABLED_KEY =
         CompilerConfigurationKey<Boolean>("Generate decoy methods in IR transform")
+    val STRONG_SKIPPING_ENABLED_KEY =
+        CompilerConfigurationKey<Boolean>("Enable strong skipping mode")
     val HIDE_DECLARATION_FROM_OBJC_ENABLED_KEY =
         CompilerConfigurationKey<Boolean>("Add HiddenFromObjC annotation to declarations")
 }
@@ -150,6 +152,13 @@ class ComposeCommandLineProcessor : CommandLineProcessor {
             required = false,
             allowMultipleOccurrences = false
         )
+        val STRONG_SKIPPING_OPTION = CliOption(
+            "experimentalStrongSkipping",
+            "<true|false>",
+            "Enable experimental strong skipping mode",
+            required = false,
+            allowMultipleOccurrences = false
+        )
     }
 
     override val pluginId = PLUGIN_ID
@@ -163,6 +172,7 @@ class ComposeCommandLineProcessor : CommandLineProcessor {
         INTRINSIC_REMEMBER_OPTIMIZATION_ENABLED_OPTION,
         SUPPRESS_KOTLIN_VERSION_CHECK_ENABLED_OPTION,
         DECOYS_ENABLED_OPTION,
+        STRONG_SKIPPING_OPTION,
         HIDE_DECLARATION_FROM_OBJC_OPTION,
     )
 
@@ -209,6 +219,10 @@ class ComposeCommandLineProcessor : CommandLineProcessor {
         )
         HIDE_DECLARATION_FROM_OBJC_OPTION -> configuration.put(
             ComposeConfiguration.HIDE_DECLARATION_FROM_OBJC_ENABLED_KEY,
+            value == "true"
+        )
+        STRONG_SKIPPING_OPTION -> configuration.put(
+            ComposeConfiguration.STRONG_SKIPPING_ENABLED_KEY,
             value == "true"
         )
         else -> throw CliOptionProcessingException("Unknown option: ${option.optionName}")
@@ -395,6 +409,10 @@ class ComposePluginRegistrar : org.jetbrains.kotlin.compiler.plugin.ComponentReg
                 JVMConfigurationKeys.VALIDATE_IR
             )
             val useK2 = configuration.languageVersionSettings.languageVersion.usesK2
+            val strongSkippingEnabled = configuration.get(
+                ComposeConfiguration.STRONG_SKIPPING_ENABLED_KEY,
+                false
+            )
 
             return ComposeIrGenerationExtension(
                 liveLiteralsEnabled = liveLiteralsEnabled,
@@ -407,6 +425,7 @@ class ComposePluginRegistrar : org.jetbrains.kotlin.compiler.plugin.ComponentReg
                 reportsDestination = reportsDestination,
                 validateIr = validateIr,
                 useK2 = useK2,
+                strongSkippingEnabled = strongSkippingEnabled,
                 hideFromObjCDeclarationsSet = hideFromObjCDeclarationsSet
             )
         }

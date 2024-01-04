@@ -15,7 +15,6 @@
  */
 package androidx.appactions.builtintypes.types
 
-import androidx.appactions.builtintypes.properties.DisambiguatingDescription
 import androidx.appactions.builtintypes.properties.Name
 import androidx.appsearch.`annotation`.Document
 import java.util.Objects
@@ -31,7 +30,6 @@ import kotlin.collections.joinToString
 import kotlin.collections.map
 import kotlin.collections.mutableMapOf
 import kotlin.collections.plusAssign
-import kotlin.jvm.JvmField
 import kotlin.jvm.JvmStatic
 
 /**
@@ -94,33 +92,6 @@ public interface Alarm : Thing {
     @Suppress("DocumentExceptions")
     public fun setAlarmEnabled(@Suppress("AutoBoxing") boolean: Boolean?): Self =
       throw NotImplementedError()
-
-    /** Sets the `disambiguatingDescription` to a canonical [DisambiguatingDescriptionValue]. */
-    public fun setDisambiguatingDescription(canonicalValue: DisambiguatingDescriptionValue): Self =
-      setDisambiguatingDescription(DisambiguatingDescription(canonicalValue))
-  }
-
-  /**
-   * A canonical value that may be assigned to [Alarm.disambiguatingDescription].
-   *
-   * Represents an open enum. See [Companion] for the different possible variants. More variants may
-   * be added over time.
-   */
-  @Document(
-    name = "bit:Alarm:DisambiguatingDescriptionValue",
-    parent = [DisambiguatingDescription.CanonicalValue::class],
-  )
-  public class DisambiguatingDescriptionValue
-  private constructor(
-    textValue: String,
-  ) : DisambiguatingDescription.CanonicalValue(textValue) {
-    public override fun toString(): String = """Alarm.DisambiguatingDescriptionValue($textValue)"""
-
-    public companion object {
-      @JvmField
-      public val FAMILY_BELL: DisambiguatingDescriptionValue =
-        DisambiguatingDescriptionValue("FamilyBell")
-    }
   }
 }
 
@@ -167,12 +138,13 @@ public interface Alarm : Thing {
  */
 @Suppress("UNCHECKED_CAST")
 public abstract class AbstractAlarm<
-    Self : AbstractAlarm<Self, Builder>, Builder : AbstractAlarm.Builder<Builder, Self>>
+  Self : AbstractAlarm<Self, Builder>,
+  Builder : AbstractAlarm.Builder<Builder, Self>
+>
 internal constructor(
   public final override val namespace: String,
   public final override val alarmSchedule: Schedule?,
   @get:Suppress("AutoBoxing") public final override val isAlarmEnabled: Boolean?,
-  public final override val disambiguatingDescription: DisambiguatingDescription?,
   public final override val identifier: String,
   public final override val name: Name?,
 ) : Alarm {
@@ -193,14 +165,7 @@ internal constructor(
   /** A copy-constructor that copies over properties from another [Alarm] instance. */
   public constructor(
     alarm: Alarm
-  ) : this(
-    alarm.namespace,
-    alarm.alarmSchedule,
-    alarm.isAlarmEnabled,
-    alarm.disambiguatingDescription,
-    alarm.identifier,
-    alarm.name
-  )
+  ) : this(alarm.namespace, alarm.alarmSchedule, alarm.isAlarmEnabled, alarm.identifier, alarm.name)
 
   /** Returns a concrete [Builder] with the additional, non-[Alarm] properties copied over. */
   protected abstract fun toBuilderWithAdditionalPropertiesOnly(): Builder
@@ -210,7 +175,6 @@ internal constructor(
       .setNamespace(namespace)
       .setAlarmSchedule(alarmSchedule)
       .setAlarmEnabled(isAlarmEnabled)
-      .setDisambiguatingDescription(disambiguatingDescription)
       .setIdentifier(identifier)
       .setName(name)
 
@@ -221,7 +185,6 @@ internal constructor(
     if (namespace != other.namespace) return false
     if (alarmSchedule != other.alarmSchedule) return false
     if (isAlarmEnabled != other.isAlarmEnabled) return false
-    if (disambiguatingDescription != other.disambiguatingDescription) return false
     if (identifier != other.identifier) return false
     if (name != other.name) return false
     if (additionalProperties != other.additionalProperties) return false
@@ -229,15 +192,7 @@ internal constructor(
   }
 
   public final override fun hashCode(): Int =
-    Objects.hash(
-      namespace,
-      alarmSchedule,
-      isAlarmEnabled,
-      disambiguatingDescription,
-      identifier,
-      name,
-      additionalProperties
-    )
+    Objects.hash(namespace, alarmSchedule, isAlarmEnabled, identifier, name, additionalProperties)
 
   public final override fun toString(): String {
     val attributes = mutableMapOf<String, String>()
@@ -249,10 +204,6 @@ internal constructor(
     }
     if (isAlarmEnabled != null) {
       attributes["isAlarmEnabled"] = isAlarmEnabled.toString()
-    }
-    if (disambiguatingDescription != null) {
-      attributes["disambiguatingDescription"] =
-        disambiguatingDescription.toString(includeWrapperName = false)
     }
     if (identifier.isNotEmpty()) {
       attributes["identifier"] = identifier
@@ -342,8 +293,6 @@ internal constructor(
 
     @get:Suppress("AutoBoxing") private var isAlarmEnabled: Boolean? = null
 
-    private var disambiguatingDescription: DisambiguatingDescription? = null
-
     private var identifier: String = ""
 
     private var name: Name? = null
@@ -359,16 +308,7 @@ internal constructor(
     @Suppress("BuilderSetStyle") protected abstract fun buildFromAlarm(alarm: Alarm): Built
 
     public final override fun build(): Built =
-      buildFromAlarm(
-        AlarmImpl(
-          namespace,
-          alarmSchedule,
-          isAlarmEnabled,
-          disambiguatingDescription,
-          identifier,
-          name
-        )
-      )
+      buildFromAlarm(AlarmImpl(namespace, alarmSchedule, isAlarmEnabled, identifier, name))
 
     public final override fun setNamespace(namespace: String): Self {
       this.namespace = namespace
@@ -382,13 +322,6 @@ internal constructor(
 
     public final override fun setAlarmEnabled(@Suppress("AutoBoxing") boolean: Boolean?): Self {
       this.isAlarmEnabled = boolean
-      return this as Self
-    }
-
-    public final override fun setDisambiguatingDescription(
-      disambiguatingDescription: DisambiguatingDescription?
-    ): Self {
-      this.disambiguatingDescription = disambiguatingDescription
       return this as Self
     }
 
@@ -410,7 +343,6 @@ internal constructor(
       if (namespace != other.namespace) return false
       if (alarmSchedule != other.alarmSchedule) return false
       if (isAlarmEnabled != other.isAlarmEnabled) return false
-      if (disambiguatingDescription != other.disambiguatingDescription) return false
       if (identifier != other.identifier) return false
       if (name != other.name) return false
       if (additionalProperties != other.additionalProperties) return false
@@ -419,15 +351,7 @@ internal constructor(
 
     @Suppress("BuilderSetStyle")
     public final override fun hashCode(): Int =
-      Objects.hash(
-        namespace,
-        alarmSchedule,
-        isAlarmEnabled,
-        disambiguatingDescription,
-        identifier,
-        name,
-        additionalProperties
-      )
+      Objects.hash(namespace, alarmSchedule, isAlarmEnabled, identifier, name, additionalProperties)
 
     @Suppress("BuilderSetStyle")
     public final override fun toString(): String {
@@ -440,10 +364,6 @@ internal constructor(
       }
       if (isAlarmEnabled != null) {
         attributes["isAlarmEnabled"] = isAlarmEnabled!!.toString()
-      }
-      if (disambiguatingDescription != null) {
-        attributes["disambiguatingDescription"] =
-          disambiguatingDescription!!.toString(includeWrapperName = false)
       }
       if (identifier.isNotEmpty()) {
         attributes["identifier"] = identifier
@@ -470,10 +390,9 @@ private class AlarmImpl : AbstractAlarm<AlarmImpl, AlarmImpl.Builder> {
     namespace: String,
     alarmSchedule: Schedule?,
     isAlarmEnabled: Boolean?,
-    disambiguatingDescription: DisambiguatingDescription?,
     identifier: String,
     name: Name?,
-  ) : super(namespace, alarmSchedule, isAlarmEnabled, disambiguatingDescription, identifier, name)
+  ) : super(namespace, alarmSchedule, isAlarmEnabled, identifier, name)
 
   public constructor(alarm: Alarm) : super(alarm)
 

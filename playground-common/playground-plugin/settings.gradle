@@ -46,6 +46,7 @@ includeBuild("../../buildSrc") {
         substitute module('supportBuildSrc:plugins') using project(':plugins')
     }
 }
+include(":shared")
 // Build cache configuration is duplicated here from the GradleEnterpriseConventionsPlugin,
 // so that when building the `playground-plugin` included build the same build cache settings will be used.
 // Without this, Gradle Enterprise erroneously reports a problem with 'buildSrc' build cache configuration.

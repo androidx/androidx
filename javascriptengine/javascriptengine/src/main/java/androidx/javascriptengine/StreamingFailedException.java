@@ -21,7 +21,7 @@ import androidx.annotation.RestrictTo;
 
 /**
  * Indicates that streaming JavaScript code into the JS evaluation environment has failed.
- *
+ * <p>
  * The JavaScript isolate may continue to be used after this exception has been thrown. The
  * JavaScript evaluation will not proceed if the JavaScript code streaming fails.
  */

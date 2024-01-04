@@ -13,6 +13,6 @@ class AdServicesInfoTest {
     @Test
     @SdkSuppress(maxSdkVersion = 32)
     fun testVersionSMinus() {
-        assertThat(AdServicesInfo.version()).isEqualTo(0)
+        assertThat(AdServicesInfo.adServicesVersion()).isEqualTo(0)
     }
 }

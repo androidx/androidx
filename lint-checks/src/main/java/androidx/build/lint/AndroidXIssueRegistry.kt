@@ -72,7 +72,6 @@ class AndroidXIssueRegistry : IssueRegistry() {
                 IgnoreClassLevelDetector.ISSUE,
                 ExperimentalPropertyAnnotationDetector.ISSUE,
                 BanRestrictToTestsScope.ISSUE,
-                UnstableAidlAnnotationDetector.ISSUE,
                 // MissingJvmDefaultWithCompatibilityDetector is intentionally left out of the
                 // registry, see comments on the class for more details.
                 BanVisibleForTestingParams.ISSUE,

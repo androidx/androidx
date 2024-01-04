@@ -52,14 +52,24 @@ public abstract class DataPropertyAnnotation implements PropertyAnnotation {
     private final ClassName mConfigClassName;
 
     @NonNull
+    private final String mGenericDocGetterName;
+
+    @NonNull
+    private final String mGenericDocArrayGetterName;
+
+    @NonNull
     private final String mGenericDocSetterName;
 
     DataPropertyAnnotation(
             @NonNull ClassName className,
             @NonNull ClassName configClassName,
+            @NonNull String genericDocGetterName,
+            @NonNull String genericDocArrayGetterName,
             @NonNull String genericDocSetterName) {
         mClassName = className;
         mConfigClassName = configClassName;
+        mGenericDocGetterName = genericDocGetterName;
+        mGenericDocArrayGetterName = genericDocArrayGetterName;
         mGenericDocSetterName = genericDocSetterName;
     }
 
@@ -119,6 +129,23 @@ public abstract class DataPropertyAnnotation implements PropertyAnnotation {
     @NonNull
     public final ClassName getConfigClassName() {
         return mConfigClassName;
+    }
+
+    @Override
+    @NonNull
+    public final String getGenericDocGetterName() {
+        return mGenericDocGetterName;
+    }
+
+    /**
+     * The corresponding getter within {@link androidx.appsearch.app.GenericDocument} that
+     * returns and array.
+     *
+     * <p>For example, {@code getPropertyStringArray} for a {@link StringPropertyAnnotation}.
+     */
+    @NonNull
+    public final String getGenericDocArrayGetterName() {
+        return mGenericDocArrayGetterName;
     }
 
     @NonNull

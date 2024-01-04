@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.selection.gestures.util.FakeHapticFeedback
 import androidx.compose.runtime.Composable
@@ -49,14 +50,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.lerp
-import java.lang.AssertionError
 import kotlin.math.max
 import kotlin.math.roundToInt
 import org.junit.Before
 import org.junit.Rule
 
 @OptIn(ExperimentalTestApi::class)
-internal abstract class AbstractSelectionGesturesTest {
+internal abstract class AbstractSelectionGesturesTest : FocusedWindowTest {
 
     @get:Rule
     val rule = createComposeRule()
@@ -80,7 +80,7 @@ internal abstract class AbstractSelectionGesturesTest {
 
     @Before
     fun setup() {
-        rule.setContent {
+        rule.setTextFieldTestContent {
             textToolbar = LocalTextToolbar.current
             CompositionLocalProvider(
                 LocalDensity provides density,

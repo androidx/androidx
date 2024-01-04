@@ -21,6 +21,10 @@ import android.graphics.Color
 import android.graphics.ColorSpace
 import android.hardware.HardwareBuffer
 import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.graphics.lowlatency.BufferTransformHintResolver
+import androidx.graphics.lowlatency.BufferTransformer
+import androidx.graphics.surface.SurfaceControlCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -94,14 +98,167 @@ class MultiBufferedCanvasRendererTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
-    fun testRenderOutput() {
+    fun testRenderOutputUnknownTransformWide() {
+        verifyRenderOutput(
+            TEST_WIDTH * 2,
+            TEST_HEIGHT,
+            BufferTransformHintResolver.UNKNOWN_TRANSFORM,
+            Color.RED,
+            Color.YELLOW,
+            Color.GREEN,
+            Color.BLUE
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testRenderOutputUnknownTransformTall() {
+        verifyRenderOutput(
+            TEST_WIDTH,
+            TEST_HEIGHT * 2,
+            BufferTransformHintResolver.UNKNOWN_TRANSFORM,
+            Color.RED,
+            Color.YELLOW,
+            Color.GREEN,
+            Color.BLUE
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testRenderOutputIdentityTransformWide() {
+        verifyRenderOutput(
+            TEST_WIDTH * 2,
+            TEST_HEIGHT,
+            SurfaceControlCompat.BUFFER_TRANSFORM_IDENTITY,
+            Color.RED,
+            Color.YELLOW,
+            Color.GREEN,
+            Color.BLUE
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testRenderOutputIdentityTransformTall() {
+        verifyRenderOutput(
+            TEST_WIDTH,
+            TEST_HEIGHT * 2,
+            SurfaceControlCompat.BUFFER_TRANSFORM_IDENTITY,
+            Color.RED,
+            Color.YELLOW,
+            Color.GREEN,
+            Color.BLUE
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testRenderOutputRotate90Wide() {
+        verifyRenderOutput(
+            TEST_WIDTH * 2,
+            TEST_HEIGHT,
+            SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90,
+            Color.YELLOW,
+            Color.BLUE,
+            Color.RED,
+            Color.GREEN
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testRenderOutputRotate90tall() {
+        verifyRenderOutput(
+            TEST_WIDTH,
+            TEST_HEIGHT * 2,
+            SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90,
+            Color.YELLOW,
+            Color.BLUE,
+            Color.RED,
+            Color.GREEN
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testRenderOutputRotate180Wide() {
+        verifyRenderOutput(
+            TEST_WIDTH * 2,
+            TEST_HEIGHT,
+            SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_180,
+            Color.BLUE,
+            Color.GREEN,
+            Color.YELLOW,
+            Color.RED
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testRenderOutputRotate180Tall() {
+        verifyRenderOutput(
+            TEST_WIDTH,
+            TEST_HEIGHT * 2,
+            SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_180,
+            Color.BLUE,
+            Color.GREEN,
+            Color.YELLOW,
+            Color.RED
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testRenderOutputRotate270Wide() {
+        verifyRenderOutput(
+            TEST_WIDTH * 2,
+            TEST_HEIGHT,
+            SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_270,
+            Color.GREEN,
+            Color.RED,
+            Color.BLUE,
+            Color.YELLOW
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testRenderOutputRotate270Tall() {
+        verifyRenderOutput(
+            TEST_WIDTH,
+            TEST_HEIGHT * 2,
+            SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_270,
+            Color.GREEN,
+            Color.RED,
+            Color.BLUE,
+            Color.YELLOW
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun verifyRenderOutput(
+        width: Int,
+        height: Int,
+        transform: Int,
+        topLeft: Int,
+        topRight: Int,
+        bottomLeft: Int,
+        bottomRight: Int
+    ) {
         val executor = Executors.newSingleThreadExecutor()
-        val renderer = MultiBufferedCanvasRenderer(TEST_WIDTH, TEST_HEIGHT).apply {
+        val renderer = MultiBufferedCanvasRenderer(
+            width,
+            height,
+            BufferTransformer().apply {
+                computeTransform(width, height, transform)
+            }
+        ).apply {
             record { canvas ->
                 drawSquares(
                     canvas,
-                    TEST_WIDTH,
-                    TEST_HEIGHT,
+                    width,
+                    height,
                     Color.RED,
                     Color.YELLOW,
                     Color.GREEN,
@@ -122,7 +279,7 @@ class MultiBufferedCanvasRendererTest {
             }
             assertTrue(renderLatch.await(1000, TimeUnit.MILLISECONDS))
             assertNotNull(bitmap)
-            bitmap!!.verifyQuadrants(Color.RED, Color.YELLOW, Color.GREEN, Color.BLUE)
+            bitmap!!.verifyQuadrants(topLeft, topRight, bottomLeft, bottomRight)
         } finally {
             renderer.release()
             executor.shutdownNow()

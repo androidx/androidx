@@ -1128,4 +1128,44 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
             selection = 6 to 23
         }
     }
+
+    // Regression test for when a word spanning multiple lines
+    // could not shrink selection within a line.
+    @Test
+    fun whenTouch_withWordSpanningMultipleLines_selectionCanShrinkWithinLine() {
+        val content = word.repeat(100)
+        textContent.value = content
+        asserter.textContent = content
+        rule.waitForIdle()
+
+        performTouchGesture {
+            longPress(characterPosition(content.lastIndex))
+        }
+
+        asserter.applyAndAssert {
+            textContent = content
+            selection = 0 to content.length
+            selectionHandlesShown = true
+            magnifierShown = true
+            hapticsCount++
+        }
+
+        // two drags to ensure we get some movement on the same line
+        touchDragTo(characterPosition(10))
+        touchDragTo(characterPosition(5))
+
+        asserter.applyAndAssert {
+            selection = 0 to 5
+            hapticsCount++
+        }
+
+        performTouchGesture {
+            up()
+        }
+
+        asserter.applyAndAssert {
+            magnifierShown = false
+            textToolbarShown = true
+        }
+    }
 }

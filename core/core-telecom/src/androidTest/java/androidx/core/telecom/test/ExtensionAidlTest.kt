@@ -17,14 +17,15 @@
 package androidx.core.telecom.test
 
 import androidx.core.telecom.extensions.Capability
+import androidx.core.telecom.extensions.ICallDetailsListener
 import androidx.core.telecom.extensions.ICapabilityExchange
 import androidx.core.telecom.extensions.ICapabilityExchangeListener
+import androidx.core.telecom.extensions.IParticipantStateListener
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -36,52 +37,43 @@ import org.junit.runner.RunWith
 class ExtensionAidlTest {
 
     class CapabilityExchangeImpl(
-        val onSetListener: (ICapabilityExchangeListener?) -> Unit = {},
-        val onNegotiateCapabilities: (MutableList<Capability>) -> Unit = {},
-        val onFeatureSetupComplete: () -> Unit = {}
+        val onBeginExchange: (MutableList<Capability>?, ICapabilityExchangeListener?) -> Unit =
+            { _: MutableList<Capability>?, _: ICapabilityExchangeListener? -> }
     ) : ICapabilityExchange.Stub() {
-        override fun setListener(l: ICapabilityExchangeListener?) {
-            onSetListener(l)
-        }
 
-        override fun negotiateCapabilities(capabilities: MutableList<Capability>?) {
+        override fun beginExchange(
+            capabilities: MutableList<Capability>?,
+            l: ICapabilityExchangeListener?
+        ) {
             capabilities?.let {
-                onNegotiateCapabilities(capabilities)
+                l?.let {
+                    onBeginExchange(capabilities, l)
+                }
             }
-        }
-
-        override fun featureSetupComplete() {
-            onFeatureSetupComplete()
         }
     }
 
     class CapabilityExchangeListenerImpl(
-        val capabilitiesNegotiated: (MutableList<Capability>) -> Unit = {}
+        val createParticipantExtension: (Int, IntArray?, IParticipantStateListener?) -> Unit =
+            { _: Int, _: IntArray?, _: IParticipantStateListener? -> },
+        val createCallDetailsExtension: (Int, IntArray?, ICallDetailsListener?) -> Unit =
+            { _: Int, _: IntArray?, _: ICallDetailsListener? -> }
     ) : ICapabilityExchangeListener.Stub() {
-        override fun onCapabilitiesNegotiated(filteredCapabilities: MutableList<Capability>?) {
-            filteredCapabilities?.let {
-                capabilitiesNegotiated(filteredCapabilities)
-            }
+        override fun onCreateParticipantExtension(
+            version: Int,
+            actions: IntArray?,
+            l: IParticipantStateListener?
+        ) {
+            createParticipantExtension(version, actions, l)
         }
-    }
 
-    @SmallTest
-    @Test
-    fun testSetListener() {
-        // setup interfaces
-        var listener: ICapabilityExchangeListener? = null
-        val capExchange = CapabilityExchangeImpl(onSetListener = {
-            listener = it
-        })
-        val capExchangeListener = CapabilityExchangeListenerImpl()
-
-        // set the listener to non-null value
-        capExchange.setListener(capExchangeListener)
-        assertEquals(capExchangeListener, listener)
-
-        // set back to null value
-        capExchange.setListener(null)
-        assertNull(listener)
+        override fun onCreateCallDetailsExtension(
+            version: Int,
+            actions: IntArray?,
+            l: ICallDetailsListener?
+        ) {
+            createCallDetailsExtension(version, actions, l)
+        }
     }
 
     @SmallTest
@@ -90,42 +82,37 @@ class ExtensionAidlTest {
         // setup
         var listener: ICapabilityExchangeListener? = null
         var capabilities: MutableList<Capability>? = null
-        var filteredCapabilities: MutableList<Capability>? = null
-        val capExchange = CapabilityExchangeImpl(onSetListener = {
-             listener = it
-        }, onNegotiateCapabilities = {
-            capabilities = it
-        })
-        capExchange.onSetListener(CapabilityExchangeListenerImpl {
-            filteredCapabilities = it
+        var supportedParticipantActions: IntArray? = null
+        var participantStateListener: IParticipantStateListener? = null
+        var versionNumber = -1
+        val capExchange = CapabilityExchangeImpl(onBeginExchange = { caps: MutableList<Capability>?,
+            iCapabilityExchangeListener: ICapabilityExchangeListener? ->
+            listener = iCapabilityExchangeListener
+            capabilities = caps
         })
         val testCapability = Capability()
         testCapability.featureVersion = 2
         testCapability.featureId = 1
         testCapability.supportedActions = intArrayOf(1, 2)
         val testCapabilities = mutableListOf(testCapability)
+        val capExchangeListener = CapabilityExchangeListenerImpl(
+            createParticipantExtension = { version: Int,
+                actions: IntArray?, iParticipantStateListener: IParticipantStateListener? ->
+            versionNumber = version
+            supportedParticipantActions = actions
+            participantStateListener = iParticipantStateListener
+        })
 
         // Send caps
-        capExchange.negotiateCapabilities(testCapabilities)
+        capExchange.beginExchange(testCapabilities, capExchangeListener)
         assertEquals(testCapabilities, capabilities)
         assertNotNull(listener)
 
-        // Receive filtered caps
-        listener?.onCapabilitiesNegotiated(testCapabilities)
-        assertEquals(testCapabilities, filteredCapabilities)
-    }
-
-    @SmallTest
-    @Test
-    fun testSetupComplete() {
-        // setup
-        var isComplete = false
-        val capExchange = CapabilityExchangeImpl(onFeatureSetupComplete = {
-            isComplete = true
-        })
-
-        // ensure feature setup complete is called properly
-        capExchange.featureSetupComplete()
-        assertTrue(isComplete)
+        val testActions = IntArray(3) { 0 }
+        val testVersion = 1
+        capExchangeListener.onCreateParticipantExtension(testVersion, testActions, null)
+        assertNotNull(supportedParticipantActions)
+        assertEquals(testVersion, versionNumber)
+        assertNull(participantStateListener)
     }
 }

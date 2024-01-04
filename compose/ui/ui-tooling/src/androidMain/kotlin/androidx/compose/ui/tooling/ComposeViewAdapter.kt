@@ -314,10 +314,11 @@ internal class ComposeViewAdapter : FrameLayout {
      */
     private fun findAndTrackAnimations() {
         val slotTrees = slotTableRecord.store.map { it.asTree() }
-        AnimationSearch(::clock, ::requestLayout).let {
+        val isAnimationPreview = ::clock.isInitialized
+        AnimationSearch(::clock, isAnimationPreview, ::requestLayout).let {
             it.findAll(slotTrees)
             hasAnimations = it.hasAnimations
-            if (::clock.isInitialized) {
+            if (isAnimationPreview) {
                 it.trackAll()
             }
         }

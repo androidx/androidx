@@ -21,7 +21,6 @@ import android.content.Context
 import android.content.res.Configuration
 import android.hardware.display.DisplayManager
 import android.os.Build
-import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
@@ -44,7 +43,6 @@ import java.util.concurrent.Executor
  * Provides an adapter created from a supplied Bundle which acts as a proxy between the host app and
  * the Binder provided by the provider of content.
  */
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 object SandboxedUiAdapterFactory {
 
     private const val TAG = "PrivacySandboxUiLib"
@@ -70,10 +68,11 @@ object SandboxedUiAdapterFactory {
         val useLocalAdapter = !forceUseRemoteAdapter && isLocalBinder
         Log.d(TAG, "useLocalAdapter=$useLocalAdapter")
 
-        return if (useLocalAdapter) {
-            LocalAdapter(adapterInterface)
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
+            !useLocalAdapter) {
+                RemoteAdapter(adapterInterface)
         } else {
-            RemoteAdapter(adapterInterface)
+            LocalAdapter(adapterInterface)
         }
     }
 
@@ -193,6 +192,7 @@ object SandboxedUiAdapterFactory {
 
             @SuppressLint("BanUncheckedReflection") // using reflection on library classes
             override fun notifyResized(width: Int, height: Int) {
+                view.layout(0, 0, width, height)
                 notifyResizedMethod.invoke(origSession, width, height)
             }
 
@@ -216,6 +216,7 @@ object SandboxedUiAdapterFactory {
     /**
      * [RemoteAdapter] fetches content from a provider living on a different process.
      */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     private class RemoteAdapter(private val adapterInterface: ISandboxedUiAdapter) :
         SandboxedUiAdapter {
 
@@ -302,15 +303,6 @@ object SandboxedUiAdapterFactory {
 
                 val providerResizeRunnable = Runnable {
                     remoteSessionController.notifyResized(width, height)
-                }
-
-                // TODO(b/298618670) : This logic will be removed since
-                // SdkRuntime won't ba available for android T and lower
-                // versions of Android.
-                if (SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                    clientResizeRunnable.run()
-                    providerResizeRunnable.run()
-                    return
                 }
 
                 val syncGroup = SurfaceSyncGroup("AppAndSdkViewsSurfaceSync")

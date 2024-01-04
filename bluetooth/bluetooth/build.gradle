@@ -47,6 +47,6 @@ androidx {
 android {
     namespace "androidx.bluetooth"
     defaultConfig {
-        minSdkVersion 33
+        minSdkVersion 32
     }
 }

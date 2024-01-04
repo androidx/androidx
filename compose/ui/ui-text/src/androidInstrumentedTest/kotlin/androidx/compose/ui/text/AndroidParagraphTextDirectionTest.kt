@@ -52,34 +52,46 @@ class AndroidParagraphTextDirectionTest {
     }
 
     @Test
-    fun resolveTextDirectionHeuristics_nullTextDirection_nullLocaleList_defaultLtrLocale() {
+    fun resolveTextDirectionHeuristics_unspecifiedTextDirection_nullLocaleList_defaultLtrLocale() {
         Locale.setDefault(ltrLocale)
 
         assertThat(
-            resolveTextDirectionHeuristics(textDirection = null, localeList = null)
+            resolveTextDirectionHeuristics(
+                textDirection = TextDirection.Unspecified,
+                localeList = null
+            )
         ).isEqualTo(LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_LTR)
     }
 
     @Test
-    fun resolveTextDirectionHeuristics_nullTextDirection_nullLocaleList_defaultRtlLocale() {
+    fun resolveTextDirectionHeuristics_unspecifiedTextDirection_nullLocaleList_defaultRtlLocale() {
         Locale.setDefault(rtlLocale)
 
         assertThat(
-            resolveTextDirectionHeuristics(textDirection = null, localeList = null)
+            resolveTextDirectionHeuristics(
+                textDirection = TextDirection.Unspecified,
+                localeList = null
+            )
         ).isEqualTo(LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_RTL)
     }
 
     @Test
-    fun resolveTextDirectionHeuristics_nullTextDirection_ltrLocaleList() {
+    fun resolveTextDirectionHeuristics_unspecifiedTextDirection_ltrLocaleList() {
         assertThat(
-            resolveTextDirectionHeuristics(textDirection = null, localeList = ltrLocaleList)
+            resolveTextDirectionHeuristics(
+                textDirection = TextDirection.Unspecified,
+                localeList = ltrLocaleList
+            )
         ).isEqualTo(LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_LTR)
     }
 
     @Test
-    fun resolveTextDirectionHeuristics_nullTextDirection_RtlLocaleList() {
+    fun resolveTextDirectionHeuristics_unspecifiedTextDirection_RtlLocaleList() {
         assertThat(
-            resolveTextDirectionHeuristics(textDirection = null, localeList = rtlLocaleList)
+            resolveTextDirectionHeuristics(
+                textDirection = TextDirection.Unspecified,
+                localeList = rtlLocaleList
+            )
         ).isEqualTo(LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_RTL)
     }
 

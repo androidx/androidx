@@ -33,14 +33,12 @@ import androidx.annotation.VisibleForTesting;
 import androidx.arch.core.util.Function;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.DynamicRange;
-import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.EncoderProfilesProvider;
 import androidx.camera.core.impl.EncoderProfilesProxy;
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy;
 import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.ResolutionValidatedEncoderProfilesProvider;
-import androidx.camera.core.impl.utils.CompareSizesByArea;
 import androidx.camera.video.internal.BackupHdrProfileEncoderProfilesProvider;
 import androidx.camera.video.internal.DynamicRangeMatchedEncoderProfilesProvider;
 import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy;
@@ -49,15 +47,11 @@ import androidx.camera.video.internal.workaround.QualityResolutionModifiedEncode
 import androidx.camera.video.internal.workaround.QualityValidatedEncoderProfilesProvider;
 import androidx.core.util.Preconditions;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 /**
  * RecorderVideoCapabilities is used to query video recording capabilities related to Recorder.
@@ -72,8 +66,6 @@ import java.util.TreeMap;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class RecorderVideoCapabilities implements VideoCapabilities {
-
-    private static final String TAG = "RecorderVideoCapabilities";
 
     private final EncoderProfilesProvider mProfilesProvider;
 
@@ -191,20 +183,20 @@ public final class RecorderVideoCapabilities implements VideoCapabilities {
 
     @Nullable
     @Override
-    public VideoValidatedEncoderProfilesProxy findHighestSupportedEncoderProfilesFor(
+    public VideoValidatedEncoderProfilesProxy findNearestHigherSupportedEncoderProfilesFor(
             @NonNull Size size, @NonNull DynamicRange dynamicRange) {
         CapabilitiesByQuality capabilities = getCapabilities(dynamicRange);
-        return capabilities == null ? null : capabilities.findHighestSupportedEncoderProfilesFor(
-                size);
+        return capabilities == null ? null
+                : capabilities.findNearestHigherSupportedEncoderProfilesFor(size);
     }
 
     @NonNull
     @Override
-    public Quality findHighestSupportedQualityFor(@NonNull Size size,
+    public Quality findNearestHigherSupportedQualityFor(@NonNull Size size,
             @NonNull DynamicRange dynamicRange) {
         CapabilitiesByQuality capabilities = getCapabilities(dynamicRange);
-        return capabilities == null ? Quality.NONE : capabilities.findHighestSupportedQualityFor(
-                size);
+        return capabilities == null ? Quality.NONE
+                : capabilities.findNearestHigherSupportedQualityFor(size);
     }
 
     @Nullable
@@ -308,148 +300,5 @@ public final class RecorderVideoCapabilities implements VideoCapabilities {
         return dynamicRange.getEncoding() != ENCODING_UNSPECIFIED
                 && dynamicRange.getEncoding() != ENCODING_HDR_UNSPECIFIED
                 && dynamicRange.getBitDepth() != BIT_DEPTH_UNSPECIFIED;
-    }
-
-    /**
-     * This class implements the video capabilities query logic related to quality and resolution.
-     */
-    @VisibleForTesting
-    static class CapabilitiesByQuality {
-
-        /**
-         * Maps quality to supported {@link VideoValidatedEncoderProfilesProxy}. The order is from
-         * size large to small.
-         */
-        private final Map<Quality, VideoValidatedEncoderProfilesProxy> mSupportedProfilesMap =
-                new LinkedHashMap<>();
-        private final TreeMap<Size, Quality> mAreaSortedSizeToQualityMap =
-                new TreeMap<>(new CompareSizesByArea());
-        private final VideoValidatedEncoderProfilesProxy mHighestProfiles;
-        private final VideoValidatedEncoderProfilesProxy mLowestProfiles;
-
-        CapabilitiesByQuality(@NonNull EncoderProfilesProvider provider) {
-            // Construct supported profile map.
-            for (Quality quality : Quality.getSortedQualities()) {
-                EncoderProfilesProxy profiles = getEncoderProfiles(quality, provider);
-                if (profiles == null) {
-                    continue;
-                }
-
-                // Validate that EncoderProfiles contain video information.
-                Logger.d(TAG, "profiles = " + profiles);
-                VideoValidatedEncoderProfilesProxy validatedProfiles = toValidatedProfiles(
-                        profiles);
-                if (validatedProfiles == null) {
-                    Logger.w(TAG, "EncoderProfiles of quality " + quality + " has no video "
-                            + "validated profiles.");
-                    continue;
-                }
-
-                EncoderProfilesProxy.VideoProfileProxy videoProfile =
-                        validatedProfiles.getDefaultVideoProfile();
-                Size size = new Size(videoProfile.getWidth(), videoProfile.getHeight());
-                mAreaSortedSizeToQualityMap.put(size, quality);
-
-                // SortedQualities is from size large to small.
-                mSupportedProfilesMap.put(quality, validatedProfiles);
-            }
-            if (mSupportedProfilesMap.isEmpty()) {
-                Logger.e(TAG, "No supported EncoderProfiles");
-                mLowestProfiles = null;
-                mHighestProfiles = null;
-            } else {
-                Deque<VideoValidatedEncoderProfilesProxy> profileQueue = new ArrayDeque<>(
-                        mSupportedProfilesMap.values());
-                mHighestProfiles = profileQueue.peekFirst();
-                mLowestProfiles = profileQueue.peekLast();
-            }
-        }
-
-        @NonNull
-        public List<Quality> getSupportedQualities() {
-            return new ArrayList<>(mSupportedProfilesMap.keySet());
-        }
-
-        public boolean isQualitySupported(@NonNull Quality quality) {
-            checkQualityConstantsOrThrow(quality);
-            return getProfiles(quality) != null;
-        }
-
-        @Nullable
-        public VideoValidatedEncoderProfilesProxy getProfiles(@NonNull Quality quality) {
-            checkQualityConstantsOrThrow(quality);
-            if (quality == Quality.HIGHEST) {
-                return mHighestProfiles;
-            } else if (quality == Quality.LOWEST) {
-                return mLowestProfiles;
-            }
-            return mSupportedProfilesMap.get(quality);
-        }
-
-        @Nullable
-        public VideoValidatedEncoderProfilesProxy findHighestSupportedEncoderProfilesFor(
-                @NonNull Size size) {
-            VideoValidatedEncoderProfilesProxy encoderProfiles = null;
-            Quality highestSupportedQuality = findHighestSupportedQualityFor(size);
-            Logger.d(TAG,
-                    "Using supported quality of " + highestSupportedQuality + " for size " + size);
-            if (highestSupportedQuality != Quality.NONE) {
-                encoderProfiles = getProfiles(highestSupportedQuality);
-                if (encoderProfiles == null) {
-                    throw new AssertionError("Camera advertised available quality but did not "
-                            + "produce EncoderProfiles for advertised quality.");
-                }
-            }
-            return encoderProfiles;
-        }
-
-        @NonNull
-        public Quality findHighestSupportedQualityFor(@NonNull Size size) {
-            Map.Entry<Size, Quality> ceilEntry = mAreaSortedSizeToQualityMap.ceilingEntry(size);
-
-            if (ceilEntry != null) {
-                // The ceiling entry will either be equivalent or higher in size, so always
-                // return it.
-                return ceilEntry.getValue();
-            } else {
-                // If a ceiling entry doesn't exist and a floor entry exists, it is the closest
-                // we have, so return it.
-                Map.Entry<Size, Quality> floorEntry = mAreaSortedSizeToQualityMap.floorEntry(size);
-                if (floorEntry != null) {
-                    return floorEntry.getValue();
-                }
-            }
-
-            // No supported qualities.
-            return Quality.NONE;
-        }
-
-        @Nullable
-        private EncoderProfilesProxy getEncoderProfiles(@NonNull Quality quality,
-                @NonNull EncoderProfilesProvider provider) {
-            Preconditions.checkState(quality instanceof Quality.ConstantQuality,
-                    "Currently only support ConstantQuality");
-            int qualityValue = ((Quality.ConstantQuality) quality).getValue();
-
-            return provider.getAll(qualityValue);
-        }
-
-        @Nullable
-        private VideoValidatedEncoderProfilesProxy toValidatedProfiles(
-                @NonNull EncoderProfilesProxy profiles) {
-            // According to the document, the first profile is the default video profile.
-            List<EncoderProfilesProxy.VideoProfileProxy> videoProfiles =
-                    profiles.getVideoProfiles();
-            if (videoProfiles.isEmpty()) {
-                return null;
-            }
-
-            return VideoValidatedEncoderProfilesProxy.from(profiles);
-        }
-
-        private static void checkQualityConstantsOrThrow(@NonNull Quality quality) {
-            Preconditions.checkArgument(Quality.containsQuality(quality),
-                    "Unknown quality: " + quality);
-        }
     }
 }

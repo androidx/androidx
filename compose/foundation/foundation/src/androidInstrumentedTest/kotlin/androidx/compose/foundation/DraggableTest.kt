@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.Ignore
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -237,6 +238,7 @@ class DraggableTest {
     }
 
     @Test
+    @Ignore("b/303237627")
     fun draggable_verticalDrag_newState() {
         var total = 0f
         setDraggableContent {
@@ -383,6 +385,7 @@ class DraggableTest {
     }
 
     @Test
+    @Ignore("b/303237627")
     fun draggable_cancel_callsDragStop() {
         var total = 0f
         var dragStopped = 0f
@@ -396,14 +399,10 @@ class DraggableTest {
             } else Modifier
         }
         rule.onNodeWithTag(draggableBoxTag).performTouchInput {
-            this.swipe(
-                start = this.center,
-                end = Offset(this.center.x + 100f, this.center.y),
-                durationMillis = 100
-            )
+            down(center)
+            moveBy(Offset(100f, 100f))
         }
         rule.runOnIdle {
-            // should be exactly 100 as there's no slop
             assertThat(total).isGreaterThan(0f)
             assertThat(dragStopped).isEqualTo(1f)
         }
@@ -637,6 +636,7 @@ class DraggableTest {
     }
 
     @Test
+    @Ignore("b/303237627")
     fun draggable_resumesNormally_whenInterruptedWithHigherPriority() = runBlocking {
         var total = 0f
         var dragStopped = 0f

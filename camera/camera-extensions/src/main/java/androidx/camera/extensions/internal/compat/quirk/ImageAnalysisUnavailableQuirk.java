@@ -58,6 +58,8 @@ public class ImageAnalysisUnavailableQuirk implements Quirk {
         if (Build.BRAND.equalsIgnoreCase("SAMSUNG") && Build.DEVICE.equalsIgnoreCase(
                 "dm3q")) { // Samsung Galaxy S23 Ultra 5G
             mUnavailableCombinations.addAll(Arrays.asList(
+                    Pair.create("0", ExtensionMode.BOKEH), // LEVEL_3
+                    Pair.create("0", ExtensionMode.FACE_RETOUCH),
                     Pair.create("1", ExtensionMode.BOKEH), // LEVEL_FULL
                     Pair.create("1", ExtensionMode.FACE_RETOUCH),
                     Pair.create("3", ExtensionMode.BOKEH), // LEVEL_FULL

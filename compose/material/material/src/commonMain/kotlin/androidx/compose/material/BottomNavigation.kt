@@ -29,8 +29,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -56,6 +56,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFirst
 import kotlin.math.max
@@ -115,7 +116,7 @@ fun BottomNavigation(
             Modifier
                 .fillMaxWidth()
                 .windowInsetsPadding(windowInsets)
-                .height(BottomNavigationHeight)
+                .defaultMinSize(minHeight = BottomNavigationHeight)
                 .selectableGroup(),
             horizontalArrangement = Arrangement.SpaceBetween,
             content = content
@@ -361,7 +362,7 @@ private fun MeasureScope.placeIcon(
     iconPlaceable: Placeable,
     constraints: Constraints
 ): MeasureResult {
-    val height = constraints.maxHeight
+    val height = constraints.constrainHeight(BottomNavigationHeight.roundToPx())
     val iconY = (height - iconPlaceable.height) / 2
     return layout(iconPlaceable.width, height) {
         iconPlaceable.placeRelative(0, iconY)
@@ -395,13 +396,12 @@ private fun MeasureScope.placeLabelAndIcon(
     @FloatRange(from = 0.0, to = 1.0)
     iconPositionAnimationProgress: Float
 ): MeasureResult {
-    val height = constraints.maxHeight
-
     val firstBaseline = labelPlaceable[FirstBaseline]
     val baselineOffset = CombinedItemTextBaseline.roundToPx()
     val netBaselineAdjustment = baselineOffset - firstBaseline
 
     val contentHeight = iconPlaceable.height + labelPlaceable.height + netBaselineAdjustment
+    val height = constraints.constrainHeight(max(contentHeight, BottomNavigationHeight.roundToPx()))
     val contentVerticalPadding = ((height - contentHeight) / 2).coerceAtLeast(0)
 
     val unselectedIconY = (height - iconPlaceable.height) / 2

@@ -16,6 +16,9 @@
 
 package androidx.compose.foundation
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.graphics.Bitmap
 import android.graphics.PorterDuff
 import android.graphics.Rect
@@ -26,6 +29,8 @@ import android.view.Choreographer
 import android.view.PixelCopy
 import android.view.Surface
 import android.view.View
+import android.view.ViewTreeObserver
+import android.view.Window
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -54,11 +59,15 @@ import androidx.compose.ui.unit.dp
 import androidx.concurrent.futures.ResolvableFuture
 import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.createBitmap
+import androidx.test.annotation.ExperimentalTestApi
 import androidx.test.core.internal.os.HandlerExecutor
+import androidx.test.core.view.forceRedraw
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.platform.graphics.HardwareRendererCompat
+import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
@@ -70,6 +79,8 @@ import kotlin.test.assertNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+
+const val FrameCount = 12
 
 @LargeTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
@@ -264,8 +275,7 @@ class AndroidExternalSurfaceTest {
 
     @Test
     fun testZOrderDefault() {
-        val frameCount = 4
-        val latch = CountDownLatch(frameCount)
+        val latch = CountDownLatch(FrameCount)
 
         rule.setContent {
             Box(modifier = Modifier.size(size)) {
@@ -277,7 +287,7 @@ class AndroidExternalSurfaceTest {
                     onSurface { surface, _, _ ->
                         // Draw > 3 frames to make sure the screenshot copy will pick up
                         // a SurfaceFlinger composition that includes our Surface
-                        repeat(frameCount) {
+                        repeat(FrameCount) {
                             withFrameNanos {
                                 surface.lockHardwareCanvas().apply {
                                     drawColor(Color.Blue.toArgb())
@@ -306,8 +316,7 @@ class AndroidExternalSurfaceTest {
 
     @Test
     fun testZOrderMediaOverlay() {
-        val frameCount = 4
-        val latch = CountDownLatch(frameCount)
+        val latch = CountDownLatch(FrameCount * 2) // for 2 Surfaces
 
         rule.setContent {
             Box(modifier = Modifier.size(size)) {
@@ -318,7 +327,7 @@ class AndroidExternalSurfaceTest {
                     onSurface { surface, _, _ ->
                         // Draw > 3 frames to make sure the screenshot copy will pick up
                         // a SurfaceFlinger composition that includes our Surface
-                        repeat(frameCount) {
+                        repeat(FrameCount) {
                             withFrameNanos {
                                 surface.lockHardwareCanvas().apply {
                                     drawColor(Color.Blue.toArgb())
@@ -336,11 +345,15 @@ class AndroidExternalSurfaceTest {
                     zOrder = AndroidExternalSurfaceZOrder.MediaOverlay
                 ) {
                     onSurface { surface, _, _ ->
-                        surface.lockHardwareCanvas().apply {
-                            drawColor(Color.Red.toArgb())
-                            surface.unlockCanvasAndPost(this)
+                        repeat(FrameCount) {
+                            withFrameNanos {
+                                surface.lockHardwareCanvas().apply {
+                                    drawColor(Color.Red.toArgb())
+                                    surface.unlockCanvasAndPost(this)
+                                }
+                                latch.countDown()
+                            }
                         }
-                        latch.countDown()
                     }
                 }
             }
@@ -358,8 +371,7 @@ class AndroidExternalSurfaceTest {
 
     @Test
     fun testZOrderOnTop() {
-        val frameCount = 4
-        val latch = CountDownLatch(frameCount)
+        val latch = CountDownLatch(FrameCount)
 
         rule.setContent {
             Box(modifier = Modifier.size(size)) {
@@ -372,7 +384,7 @@ class AndroidExternalSurfaceTest {
                     onSurface { surface, _, _ ->
                         // Draw > 3 frames to make sure the screenshot copy will pick up
                         // a SurfaceFlinger composition that includes our Surface
-                        repeat(frameCount) {
+                        repeat(FrameCount) {
                             withFrameNanos {
                                 surface.lockHardwareCanvas().apply {
                                     drawColor(Color.Blue.toArgb())
@@ -401,8 +413,7 @@ class AndroidExternalSurfaceTest {
 
     @Test
     fun testNotOpaque() {
-        val frameCount = 4
-        val latch = CountDownLatch(frameCount)
+        val latch = CountDownLatch(FrameCount)
         val translucentRed = Color(1.0f, 0.0f, 0.0f, 0.5f).toArgb()
 
         rule.setContent {
@@ -417,7 +428,7 @@ class AndroidExternalSurfaceTest {
                     onSurface { surface, _, _ ->
                         // Draw > 3 frames to make sure the screenshot copy will pick up
                         // a SurfaceFlinger composition that includes our Surface
-                        repeat(frameCount) {
+                        repeat(FrameCount) {
                             withFrameNanos {
                                 surface.lockHardwareCanvas().apply {
                                     // Since we are drawing a translucent color we need to
@@ -451,8 +462,7 @@ class AndroidExternalSurfaceTest {
 
     @Test
     fun testSecure() {
-        val frameCount = 4
-        val latch = CountDownLatch(frameCount)
+        val latch = CountDownLatch(FrameCount)
 
         rule.setContent {
             AndroidExternalSurface(
@@ -464,7 +474,7 @@ class AndroidExternalSurfaceTest {
                 onSurface { surface, _, _ ->
                     // Draw > 3 frames to make sure the screenshot copy will pick up
                     // a SurfaceFlinger composition that includes our Surface
-                    repeat(frameCount) {
+                    repeat(FrameCount) {
                         withFrameNanos {
                             surface.lockHardwareCanvas().apply {
                                 drawColor(Color.Blue.toArgb())
@@ -508,52 +518,59 @@ private fun SemanticsNodeInteraction.screenshotToImage(
 
     val node = fetchSemanticsNode()
     val view = (node.root as ViewRootForTest).view
+    val window = view.context.getActivityWindow()
 
-    val bitmapFuture: ResolvableFuture<Bitmap> = ResolvableFuture.create()
+    return withDrawingEnabled {
+        val bitmapFuture: ResolvableFuture<Bitmap> = ResolvableFuture.create()
 
-    val mainExecutor = HandlerExecutor(Handler(Looper.getMainLooper()))
-    mainExecutor.execute {
-        Choreographer.getInstance().postFrameCallback {
-            val location = IntArray(2)
-            view.getLocationOnScreen(location)
+        val mainExecutor = HandlerExecutor(Handler(Looper.getMainLooper()))
+        mainExecutor.execute {
+            // We are testing SurfaceViews, ensure we have a hole punch
+            window.decorView.forceRelayout()
+            window.decorView.forceRedraw()
 
-            val bounds = node.boundsInRoot.translate(
-                location[0].toFloat(),
-                location[1].toFloat()
-            )
+            Choreographer.getInstance().postFrameCallback {
+                val location = IntArray(2)
+                view.getLocationOnScreen(location)
 
-            // do multiple retries of uiAutomation.takeScreenshot because it is known to return null
-            // on API 31+ b/257274080
-            var bitmap: Bitmap? = null
-            var i = 0
-            while (i < 3 && bitmap == null) {
-                bitmap = uiAutomation.takeScreenshot()
-                i++
-            }
+                val bounds = node.boundsInRoot.translate(
+                    location[0].toFloat(),
+                    location[1].toFloat()
+                ).deflate(1.0f) // inset the rectangle to avoid rounding errors
 
-            if (bitmap != null) {
-                bitmap = Bitmap.createBitmap(
-                    bitmap,
-                    bounds.left.toInt(),
-                    bounds.top.toInt(),
-                    bounds.width.toInt(),
-                    bounds.height.toInt()
-                )
-                bitmapFuture.set(bitmap)
-            } else {
-                if (hasSecureSurfaces) {
-                    // may be null on older API levels when a secure surface is showing
-                    bitmapFuture.set(null)
+                // do multiple retries of uiAutomation.takeScreenshot because it is known to return null
+                // on API 31+ b/257274080
+                var bitmap: Bitmap? = null
+                var i = 0
+                while (i < 3 && bitmap == null) {
+                    bitmap = uiAutomation.takeScreenshot()
+                    i++
                 }
-                // if we don't show secure surfaces, let the future timeout on get()
+
+                if (bitmap != null) {
+                    bitmap = Bitmap.createBitmap(
+                        bitmap,
+                        bounds.left.toInt(),
+                        bounds.top.toInt(),
+                        bounds.width.toInt(),
+                        bounds.height.toInt()
+                    )
+                    bitmapFuture.set(bitmap)
+                } else {
+                    if (hasSecureSurfaces) {
+                        // may be null on older API levels when a secure surface is showing
+                        bitmapFuture.set(null)
+                    }
+                    // if we don't show secure surfaces, let the future timeout on get()
+                }
             }
         }
-    }
 
-    return try {
-        bitmapFuture.get(5, TimeUnit.SECONDS)?.asImageBitmap()
-    } catch (e: ExecutionException) {
-        null
+        try {
+            bitmapFuture.get(5, TimeUnit.SECONDS)?.asImageBitmap()
+        } catch (e: ExecutionException) {
+            null
+        }
     }
 }
 
@@ -566,7 +583,6 @@ internal fun Surface.captureToImage(width: Int, height: Int): ImageBitmap {
     val onCopyFinished = PixelCopy.OnPixelCopyFinishedListener { result ->
         copyResult = result
         latch.countDown()
-        android.util.Log.d("Test", Thread.currentThread().toString())
     }
 
     PixelCopy.request(
@@ -586,4 +602,57 @@ internal fun Surface.captureToImage(width: Int, height: Int): ImageBitmap {
     }
 
     return bitmap.asImageBitmap()
+}
+
+private fun <R> withDrawingEnabled(block: () -> R): R {
+    val wasDrawingEnabled = HardwareRendererCompat.isDrawingEnabled()
+    try {
+        if (!wasDrawingEnabled) {
+            HardwareRendererCompat.setDrawingEnabled(true)
+        }
+        return block.invoke()
+    } finally {
+        if (!wasDrawingEnabled) {
+            HardwareRendererCompat.setDrawingEnabled(false)
+        }
+    }
+}
+
+private fun Context.getActivityWindow(): Window {
+    fun Context.getActivity(): Activity {
+        return when (this) {
+            is Activity -> this
+            is ContextWrapper -> this.baseContext.getActivity()
+            else -> throw IllegalStateException(
+                "Context is not an Activity context, but a ${javaClass.simpleName} context. " +
+                    "An Activity context is required to get a Window instance"
+            )
+        }
+    }
+    return getActivity().window
+}
+
+@RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
+@ExperimentalTestApi
+fun View.forceRelayout(): ListenableFuture<Void> {
+    val future: ResolvableFuture<Void> = ResolvableFuture.create()
+
+    viewTreeObserver.addOnGlobalLayoutListener(
+        object : ViewTreeObserver.OnGlobalLayoutListener {
+            var handled = false
+            override fun onGlobalLayout() {
+                if (!handled) {
+                    handled = true
+                    future.set(null)
+                    Handler(Looper.getMainLooper()).post {
+                        viewTreeObserver.removeOnGlobalLayoutListener(this)
+                    }
+                }
+            }
+        }
+    )
+
+    requestLayout()
+
+    return future
 }

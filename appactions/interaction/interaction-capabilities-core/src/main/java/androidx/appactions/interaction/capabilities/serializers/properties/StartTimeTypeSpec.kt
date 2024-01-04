@@ -24,12 +24,4 @@ val START_TIME_TYPE_SPEC = UnionTypeSpec.Builder<StartTime>().bindMemberType(
   memberGetter = StartTime::asTime,
   ctor = { StartTime(it) },
   typeSpec = TypeSpec.LOCAL_TIME_TYPE_SPEC
-).bindMemberType(
-  memberGetter = StartTime::asLocalDateTime,
-  ctor = { StartTime(it) },
-  typeSpec = TypeSpec.LOCAL_DATE_TIME_TYPE_SPEC
-).bindMemberType(
-  memberGetter = StartTime::asInstant,
-  ctor = { StartTime(it) },
-  typeSpec = TypeSpec.INSTANT_TYPE_SPEC
 ).build()

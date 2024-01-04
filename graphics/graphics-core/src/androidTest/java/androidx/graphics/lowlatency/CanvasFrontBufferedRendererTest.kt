@@ -20,6 +20,7 @@ import android.app.UiAutomation
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.ColorSpace
+import android.graphics.Paint
 import android.hardware.DataSpace
 import android.os.Build
 import android.view.SurfaceHolder
@@ -39,11 +40,11 @@ import androidx.test.platform.app.InstrumentationRegistry
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.math.roundToInt
 import org.junit.Assert
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -51,7 +52,6 @@ import org.junit.runner.RunWith
 @SmallTest
 class CanvasFrontBufferedRendererTest {
 
-    @Ignore("b/285410170")
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testFrontBufferedLayerRender() {
@@ -229,7 +229,6 @@ class CanvasFrontBufferedRendererTest {
         }
     }
 
-    @Ignore("b/276292442")
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testRenderMultiBufferLayer() {
@@ -505,32 +504,45 @@ class CanvasFrontBufferedRendererTest {
         }
     }
 
-    @Ignore("b/266749527")
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testMultiBufferedContentsNotPersisted() {
         val screenWidth = SurfaceViewTestActivity.WIDTH
-        val renderLatch = CountDownLatch(1)
-        val firstDrawLatch = CountDownLatch(1)
-        val callbacks = object : CanvasFrontBufferedRenderer.Callback<Any> {
+        val screenHeight = SurfaceViewTestActivity.HEIGHT
+        val firstRenderLatch = CountDownLatch(1)
+        val commitLatch = AtomicReference<CountDownLatch?>()
+        val paint = Paint().apply { color = Color.RED }
+        val callbacks = object : CanvasFrontBufferedRenderer.Callback<Float> {
             override fun onDrawFrontBufferedLayer(
                 canvas: Canvas,
                 bufferWidth: Int,
                 bufferHeight: Int,
-                param: Any
+                param: Float
             ) {
-                canvas.drawColor(Color.RED)
-                firstDrawLatch.countDown()
+                canvas.drawRect(
+                    param,
+                    0f,
+                    screenHeight.toFloat(),
+                    param + screenWidth,
+                    paint
+                )
             }
 
             override fun onDrawMultiBufferedLayer(
                 canvas: Canvas,
                 bufferWidth: Int,
                 bufferHeight: Int,
-                params: Collection<Any>
+                params: Collection<Float>
             ) {
+
                 for (param in params) {
-                    canvas.drawColor(Color.RED)
+                    canvas.drawRect(
+                        param,
+                        0f,
+                        screenHeight.toFloat(),
+                        param + screenWidth,
+                        paint
+                    )
                 }
             }
 
@@ -544,31 +556,38 @@ class CanvasFrontBufferedRendererTest {
                         Executors.newSingleThreadExecutor(),
                         object : SurfaceControlCompat.TransactionCommittedListener {
                             override fun onTransactionCommitted() {
-                                renderLatch.countDown()
+                                firstRenderLatch.countDown()
+                                commitLatch.get()?.countDown()
                             }
                         })
                 } else {
-                    renderLatch.countDown()
+                    firstRenderLatch.countDown()
+                    commitLatch.get()?.countDown()
                 }
             }
         }
-        var renderer: CanvasFrontBufferedRenderer<Any>? = null
+        var renderer: CanvasFrontBufferedRenderer<Float>? = null
         var surfaceView: SurfaceView? = null
         try {
             val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
                 .moveToState(Lifecycle.State.CREATED)
                 .onActivity {
-                    surfaceView = it.getSurfaceView()
+                    surfaceView = it.getSurfaceView().apply {
+                        setZOrderOnTop(true)
+                    }
                     renderer = CanvasFrontBufferedRenderer(surfaceView!!, callbacks)
                 }
-            scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
-                renderer?.renderFrontBufferedLayer(0f)
-                renderer?.commit()
-                renderer?.renderFrontBufferedLayer(screenWidth / 2f)
-                renderer?.commit()
-            }
+            scenario.moveToState(Lifecycle.State.RESUMED)
 
-            Assert.assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
+            assertTrue(firstRenderLatch.await(3000, TimeUnit.MILLISECONDS))
+
+            renderer?.renderFrontBufferedLayer(0f)
+            renderer?.commit()
+            renderer?.renderFrontBufferedLayer(screenWidth / 2f)
+            commitLatch.set(CountDownLatch(1))
+            renderer?.commit()
+
+            Assert.assertTrue(commitLatch.get()!!.await(3000, TimeUnit.MILLISECONDS))
 
             val coords = IntArray(2)
             val width: Int
@@ -582,7 +601,7 @@ class CanvasFrontBufferedRendererTest {
             SurfaceControlUtils.validateOutput { bitmap ->
                 (bitmap.getPixel(
                     coords[0] + width / 4, coords[1] + height / 2
-                ) == Color.BLACK) &&
+                ) == Color.WHITE) &&
                     (bitmap.getPixel(
                         coords[0] + 3 * width / 4 - 1,
                         coords[1] + height / 2

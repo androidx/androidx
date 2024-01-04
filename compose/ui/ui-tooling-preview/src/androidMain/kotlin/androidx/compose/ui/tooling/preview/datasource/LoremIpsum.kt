@@ -43,7 +43,7 @@ orci in neque euismod a blandit libero vehicula.
  *
  * @param words Number of words from "Lorem Ipsum" to use.
  */
-class LoremIpsum(private val words: Int) : PreviewParameterProvider<String> {
+open class LoremIpsum(private val words: Int) : PreviewParameterProvider<String> {
     // Unfortunately using default parameters seem to fail to be instantiated via reflection.
     // We can workaround it by creating the default constructor manually.
     constructor() : this(500)

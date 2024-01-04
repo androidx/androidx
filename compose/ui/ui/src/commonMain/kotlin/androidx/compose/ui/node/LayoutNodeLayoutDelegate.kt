@@ -26,6 +26,7 @@ import androidx.compose.ui.node.LayoutNode.LayoutState
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.util.fastForEach
 
 /**
  * This class works as a layout delegate for [LayoutNode]. It delegates all the measure/layout
@@ -480,7 +481,9 @@ internal class LayoutNodeLayoutDelegate(
         private var placeOuterCoordinatorZIndex = 0f
 
         private val placeOuterCoordinatorBlock: () -> Unit = {
-            with(PlacementScope) {
+            val scope = outerCoordinator.wrappedBy?.placementScope
+                ?: layoutNode.requireOwner().placementScope
+            with(scope) {
                 val layerBlock = placeOuterCoordinatorLayerBlock
                 if (layerBlock == null) {
                     outerCoordinator.place(
@@ -697,7 +700,9 @@ internal class LayoutNodeLayoutDelegate(
             // lookahead measure, before place.
             if (layoutNode.isOutMostLookaheadRoot()) {
                 // Lookahead placement first
-                with(PlacementScope) {
+                val scope = outerCoordinator.wrappedBy?.placementScope
+                    ?: layoutNode.requireOwner().placementScope
+                with(scope) {
                     lookaheadPassDelegate!!.let {
                         // Since this is the root of the lookahead delegate tree, no parent will
                         // reset the place order, therefore we have to do it manually.
@@ -1090,7 +1095,18 @@ internal class LayoutNodeLayoutDelegate(
                     forEachChildAlignmentLinesOwner { child ->
                         child.alignmentLines.usedDuringParentLayout = false
                     }
+                    innerCoordinator.lookaheadDelegate?.isPlacingForAlignment?.let { forAlignment ->
+                        layoutNode.children.fastForEach {
+                            it.outerCoordinator.lookaheadDelegate?.isPlacingForAlignment =
+                                forAlignment
+                        }
+                    }
                     lookaheadDelegate.measureResult.placeChildren()
+                    innerCoordinator.lookaheadDelegate?.isPlacingForAlignment?.let { _ ->
+                        layoutNode.children.fastForEach {
+                            it.outerCoordinator.lookaheadDelegate?.isPlacingForAlignment = false
+                        }
+                    }
                     checkChildrenPlaceOrderForUpdates()
                     forEachChildAlignmentLinesOwner { child ->
                         child.alignmentLines.previousUsedDuringParentLayout =
@@ -1313,7 +1329,12 @@ internal class LayoutNodeLayoutDelegate(
                 coordinatesAccessedDuringModifierPlacement = false
                 alignmentLines.usedByModifierLayout = false
                 owner.snapshotObserver.observeLayoutModifierSnapshotReads(layoutNode) {
-                    with(PlacementScope) {
+                    val scope = if (layoutNode.isOutMostLookaheadRoot()) {
+                        outerCoordinator.wrappedBy?.placementScope
+                    } else {
+                        outerCoordinator.wrappedBy?.lookaheadDelegate?.placementScope
+                    } ?: owner.placementScope
+                    with(scope) {
                         outerCoordinator.lookaheadDelegate!!.place(position)
                     }
                 }

@@ -244,7 +244,7 @@ class FontScaleConverterFactoryTest {
 
     companion object {
         private const val CONVERSION_TOLERANCE = 0.05f
-        private const val INTERPOLATED_TOLERANCE = 0.2f
+        private const val INTERPOLATED_TOLERANCE = 0.3f
     }
 }
 

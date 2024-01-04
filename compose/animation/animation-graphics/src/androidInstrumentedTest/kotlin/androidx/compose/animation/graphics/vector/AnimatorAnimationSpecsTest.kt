@@ -78,9 +78,9 @@ class AnimatorAnimationSpecsTest {
                 transitionSpec = {
                     keyframes {
                         durationMillis = 1000
-                        0f at 0 with LinearEasing
-                        100f at 100 with LinearEasing
-                        1000f at 1000 with LinearEasing
+                        0f at 0 using LinearEasing
+                        100f at 100 using LinearEasing
+                        1000f at 1000 using LinearEasing
                     }
                 }
             ) {
@@ -91,9 +91,9 @@ class AnimatorAnimationSpecsTest {
                 transitionSpec = {
                     keyframes<Float> {
                         durationMillis = 1000
-                        1000f at 0 with LinearEasing
-                        100f at 900 with LinearEasing
-                        0f at 1000 with LinearEasing
+                        1000f at 0 using LinearEasing
+                        100f at 900 using LinearEasing
+                        0f at 1000 using LinearEasing
                     }.reversed(1000)
                 }
             ) {
@@ -117,8 +117,8 @@ class AnimatorAnimationSpecsTest {
                 transitionSpec = {
                     keyframes {
                         durationMillis = 1000
-                        0f at 0 with LinearEasing
-                        1000f at 500 with LinearEasing
+                        0f at 0 using LinearEasing
+                        1000f at 500 using LinearEasing
                     }
                 }
             ) {
@@ -129,9 +129,9 @@ class AnimatorAnimationSpecsTest {
                 transitionSpec = {
                     keyframes<Float> {
                         durationMillis = 1000
-                        1000f at 0 with LinearEasing
-                        1000f at 500 with LinearEasing
-                        0f at 1000 with LinearEasing
+                        1000f at 0 using LinearEasing
+                        1000f at 500 using LinearEasing
+                        0f at 1000 using LinearEasing
                     }.reversed(1000)
                 }
             ) {
@@ -186,8 +186,8 @@ class AnimatorAnimationSpecsTest {
                 transitionSpec = {
                     keyframes {
                         durationMillis = 1000
-                        0f at 0 with LinearEasing
-                        1000f at 1000 with LinearEasing
+                        0f at 0 using LinearEasing
+                        1000f at 1000 using LinearEasing
                     }
                 }
             ) {
@@ -200,13 +200,13 @@ class AnimatorAnimationSpecsTest {
                         listOf(
                             0 to keyframes {
                                 durationMillis = 300
-                                0f at 0 with LinearEasing
-                                300f at 300 with LinearEasing
+                                0f at 0 using LinearEasing
+                                300f at 300 using LinearEasing
                             },
                             300 to keyframes {
                                 durationMillis = 700
-                                300f at 0 with LinearEasing
-                                1000f at 700 with LinearEasing
+                                300f at 0 using LinearEasing
+                                1000f at 700 using LinearEasing
                             }
                         )
                     )

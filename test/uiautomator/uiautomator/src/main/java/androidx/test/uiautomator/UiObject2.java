@@ -486,6 +486,19 @@ public class UiObject2 implements Searchable {
         return getAccessibilityNodeInfo().isSelected();
     }
 
+    /**
+     * Returns the drawing order (z-index) of this object relative to its siblings. Higher values
+     * are drawn last (i.e. above their siblings).
+     * <p>In some cases, the drawing order is essentially simultaneous, so it is possible for two
+     * siblings to return the same value. It is also possible that values will be skipped.
+     *
+     * @return The drawing order of this object relative to its siblings.
+     */
+    @RequiresApi(24)
+    public int getDrawingOrder() {
+        return Api24Impl.getDrawingOrder(getAccessibilityNodeInfo());
+    }
+
     // Actions
 
     /** Clears this object's text content if it is an editable field. */
@@ -1041,6 +1054,17 @@ public class UiObject2 implements Searchable {
         static void getBoundsInScreen(AccessibilityWindowInfo accessibilityWindowInfo,
                 Rect outBounds) {
             accessibilityWindowInfo.getBoundsInScreen(outBounds);
+        }
+    }
+
+    @RequiresApi(24)
+    static class Api24Impl {
+        private Api24Impl() {
+        }
+
+        @DoNotInline
+        static int getDrawingOrder(AccessibilityNodeInfo accessibilityNodeInfo) {
+            return accessibilityNodeInfo.getDrawingOrder();
         }
     }
 

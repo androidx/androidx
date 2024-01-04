@@ -44,6 +44,9 @@ function buildMetalava() {
 
 buildMetalava
 
+# allow androidx build to reach the network for any new metalava dependencies
+export ALLOW_PUBLIC_REPOS=true
+
 # Mac grep doesn't support -P, so use perl version of `grep -oP "(?<=metalavaVersion=).*"`
 METALAVA_VERSION_FILE="$METALAVA_DIR/version.properties"
 export METALAVA_VERSION=`perl -nle'print $& while m{(?<=metalavaVersion=).*}g' $METALAVA_VERSION_FILE`

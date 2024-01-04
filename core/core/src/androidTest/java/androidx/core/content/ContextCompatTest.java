@@ -688,4 +688,14 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
     private void setAppLocales(Context context, String locales) {
         AppLocalesStorageHelper.persistLocales(context, locales);
     }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 30)
+    public void testCreateAttributionContext() {
+        Context attributionContext = ContextCompat.createAttributionContext(mContext, "tag");
+        assertEquals("tag", attributionContext.getAttributionTag());
+
+        Context attributionContextNull = ContextCompat.createAttributionContext(mContext, null);
+        assertNull(attributionContextNull.getAttributionTag());
+    }
 }

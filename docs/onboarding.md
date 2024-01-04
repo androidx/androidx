@@ -971,16 +971,20 @@ repository artifact:
 ./gradlew createArchive
 ```
 
-Using for your alternate (non-AndroidX) version of Android Studio open the
-project's 'build.gradle' and add the following within 'repositories' to make
-Android Gradle Plugin look for binaries in newly built repository:
+Using your alternate (non-AndroidX) version of Android Studio open the project's
+`settings.gradle.kts` and add the following within
+`dependencyResolutionManagement` to make your project look for binaries in the
+newly built repository:
 
-```groovy
-allprojects {
+```kotlin
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        ...
+        google()
+        mavenCentral()
+        // Add this
         maven {
-            url "<path-to-sdk>/out/androidx/build/support_repo/"
+            setUrl("<path-to-sdk>/out/androidx/build/support_repo/")
         }
     }
 }
@@ -999,7 +1003,7 @@ that you would like to test. Example:
 ```
 dependencies {
     ...
-    implementation "androidx.appcompat:appcompat::1.0.0-alpha02"
+    implementation "androidx.appcompat:appcompat:1.0.0-alpha02"
 }
 ```
 

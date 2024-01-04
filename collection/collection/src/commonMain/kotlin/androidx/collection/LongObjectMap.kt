@@ -804,7 +804,7 @@ public class MutableLongObjectMap<V>(
     /**
      * Removes any mapping for which the specified [predicate] returns true.
      */
-    public fun removeIf(predicate: (Long, V) -> Boolean) {
+    public inline fun removeIf(predicate: (Long, V) -> Boolean) {
         forEachIndexed { index ->
             @Suppress("UNCHECKED_CAST")
             if (predicate(keys[index], values[index] as V)) {
@@ -847,7 +847,8 @@ public class MutableLongObjectMap<V>(
         }
     }
 
-    private fun removeValueAt(index: Int): V? {
+    @PublishedApi
+    internal fun removeValueAt(index: Int): V? {
         _size -= 1
 
         // TODO: We could just mark the entry as empty if there's a group

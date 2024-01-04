@@ -34,9 +34,12 @@ internal interface VibratorWrapper {
     /** Check whether the hardware supports each primitive effect type. */
     fun arePrimitivesSupported(primitives: IntArray): BooleanArray?
 
+    /** Returns the estimate duration for each primitive. */
+    fun getPrimitivesDurations(primitives: IntArray): IntArray?
+
     /** Vibrate with a given vibration effect or pattern. */
     @RequiresPermission(android.Manifest.permission.VIBRATE)
-    fun vibrate(vibration: VibrationWrapper)
+    fun vibrate(vibration: VibrationWrapper, attrs: AttributesWrapper? = null)
 
     /** Cancel any ongoing vibration from this app and turns the vibrator off. */
     @RequiresPermission(android.Manifest.permission.VIBRATE)
@@ -52,6 +55,11 @@ internal interface VibratorWrapper {
  * Represents different API levels of support for [android.os.Vibrator.vibrate] parameters.
  */
 internal sealed interface VibrationWrapper
+
+/**
+ * Represents different API levels of support for audio/vibration attributes parameters.
+ */
+internal sealed interface AttributesWrapper
 
 /**
  * Represents vibrations defined by on-off patterns.
@@ -85,3 +93,17 @@ internal data class PatternVibrationWrapper(
 internal data class VibrationEffectWrapper(
     val vibrationEffect: Any,
 ) : VibrationWrapper
+
+/**
+ * Represents vibrations defined by an instance of [android.media.AudioAttributes].
+ */
+internal data class AudioAttributesWrapper(
+    val audioAttributes: Any,
+) : AttributesWrapper
+
+/**
+ * Represents vibrations defined by an instance of [android.os.VibrationAttributes].
+ */
+internal data class VibrationAttributesWrapper(
+    val vibrationAttributes: Any,
+) : AttributesWrapper

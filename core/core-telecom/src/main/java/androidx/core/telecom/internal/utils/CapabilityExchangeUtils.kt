@@ -25,7 +25,6 @@ import androidx.core.telecom.extensions.Capability
 import androidx.core.telecom.extensions.CapabilityExchange
 import androidx.core.telecom.extensions.CapabilityExchangeListener
 import androidx.core.telecom.util.ExperimentalAppActions
-import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withTimeout
 
@@ -71,18 +70,17 @@ internal class CapabilityExchangeUtils {
                     // Initialize capability exchange listener and set it on binder
                     val capabilityExchangeListener = CapabilityExchangeListener()
                     capabilityExchange?.let {
-                        capabilityExchange.setListener(capabilityExchangeListener)
-                        // Negotiate the supported VOIP app capabilities to the ICS (stub with empty
-                        // capabilities until the implementation is supported).
-                        capabilityExchange.negotiateCapabilities(supportedCapabilities)
+                        capabilityExchange.beginExchange(
+                            supportedCapabilities, capabilityExchangeListener)
+                        // Todo: With the intersection of capabilities supported by the VOIP + ICS,
+                        // the VOIP side should expect X capabilities to be received from the ICS
+                        // to set up syncing. We can structure the logic to wait for each of those
+                        // ACKs, then internally resolve those capabilities on the VOIP side, and
+                        // finally notify the ICS that sync has completed for that feature.
                         // Wait for the ICS to return its supported capabilities and notify that the
                         // setup is complete.
-                        if (capabilityExchangeListener.onCapabilitiesNegotiatedLatch
-                                .await(CAPABILITY_EXCHANGE_TIMEOUT, TimeUnit.MILLISECONDS)) {
-                            capabilityExchange.featureSetupComplete()
-                            isFeatureSetupComplete = true
-                            Log.i(logTag, "Capability negotiation with ICS has completed.")
-                        }
+                        isFeatureSetupComplete = true
+                        Log.i(logTag, "Capability negotiation with ICS has completed.")
                     }
 
                     if (!isFeatureSetupComplete) {

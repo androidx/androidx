@@ -538,13 +538,9 @@ public class WebViewFeature {
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
-     * {@link androidx.webkit.ServiceWorkerWebSettingsCompat#getUserAgentMetadata(WebSettings)}, and
-     * {@link androidx.webkit.ServiceWorkerWebSettingsCompat#setUserAgentMetadata(WebSettings, UserAgentMetadata)}.
-     *
-     * TODO(b/294183509): unhide
-     * @hide
+     * {@link androidx.webkit.WebSettingsCompat#getUserAgentMetadata(WebSettings)}, and
+     * {@link androidx.webkit.WebSettingsCompat#setUserAgentMetadata(WebSettings, UserAgentMetadata)}.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String USER_AGENT_METADATA = "USER_AGENT_METADATA";
 
     /**
@@ -561,8 +557,16 @@ public class WebViewFeature {
      * {@link ProfileStore#deleteProfile(String)}.
      * {@link ProfileStore#getInstance()}.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String MULTI_PROFILE = "MULTI_PROFILE";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link androidx.webkit.WebSettingsCompat#setAttributionRegistrationBehavior(WebSettings, int)}
+     * {@link androidx.webkit.WebSettingsCompat#getAttributionRegistrationBehavior(WebSettings)}
+     */
+    public static final String ATTRIBUTION_REGISTRATION_BEHAVIOR =
+            "ATTRIBUTION_REGISTRATION_BEHAVIOR";
 
     /**
      * Return whether a feature is supported at run-time. On devices running Android version {@link

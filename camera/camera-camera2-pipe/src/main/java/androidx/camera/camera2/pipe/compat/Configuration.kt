@@ -47,7 +47,7 @@ import kotlin.reflect.KClass
  */
 internal data class SessionConfigData(
     val sessionType: Int,
-    val inputConfiguration: InputConfigData?,
+    val inputConfiguration: List<InputConfigData>?,
     val outputConfigurations: List<OutputConfigurationWrapper>,
     val executor: Executor,
     val stateCallback: CameraCaptureSessionWrapper.StateCallback,

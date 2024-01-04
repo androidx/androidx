@@ -179,7 +179,7 @@ class VideoRecordingFrameDropTest(
     fun tearDown() = runBlocking {
         if (needsShutdown) {
             needsShutdown = false
-            cameraProvider.shutdown().await()
+            cameraProvider.shutdownAsync().await()
         }
     }
 

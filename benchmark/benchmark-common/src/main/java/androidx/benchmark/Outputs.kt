@@ -32,7 +32,14 @@ object Outputs {
 
     private val formatter: SimpleDateFormat = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss")
 
-    private val sanitizerRegex = Regex("(\\W+)")
+    /**
+     * Matches substrings to be removed from filenames.
+     *
+     * We only allow digits, ascii letters, `_` and `-` to remain.
+     *
+     * Note `-` is important for baseline profiles, see b/303034735
+     */
+    private val sanitizerRegex = Regex("([^0-9a-zA-Z_-]+)")
 
     /**
      * The intended output directory that respects the `additionalTestOutputDir`.

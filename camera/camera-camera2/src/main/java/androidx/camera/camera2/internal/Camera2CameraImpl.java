@@ -75,6 +75,7 @@ import androidx.camera.core.impl.UseCaseAttachState;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.annotation.ExecutedBy;
+import androidx.camera.core.impl.stabilization.StabilizationMode;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -1578,9 +1579,20 @@ final class Camera2CameraImpl implements CameraInternal {
         for (SessionConfig sessionConfig :
                 mUseCaseAttachState.getActiveAndAttachedSessionConfigs()) {
             // Query the repeating surfaces attached to this use case, then add them to the builder.
-            List<DeferrableSurface> surfaces =
-                    sessionConfig.getRepeatingCaptureConfig().getSurfaces();
+            CaptureConfig repeatingCaptureConfig = sessionConfig.getRepeatingCaptureConfig();
+            List<DeferrableSurface> surfaces = repeatingCaptureConfig.getSurfaces();
             if (!surfaces.isEmpty()) {
+                // TODO: Use priority to handle conflict for a specific stabilization mode setting
+                if (repeatingCaptureConfig.getPreviewStabilizationMode()
+                        != StabilizationMode.UNSPECIFIED) {
+                    captureConfigBuilder.setPreviewStabilization(
+                            repeatingCaptureConfig.getPreviewStabilizationMode());
+                }
+                if (repeatingCaptureConfig.getVideoStabilizationMode()
+                        != StabilizationMode.UNSPECIFIED) {
+                    captureConfigBuilder.setVideoStabilization(
+                            repeatingCaptureConfig.getVideoStabilizationMode());
+                }
                 for (DeferrableSurface surface : surfaces) {
                     captureConfigBuilder.addSurface(surface);
                 }

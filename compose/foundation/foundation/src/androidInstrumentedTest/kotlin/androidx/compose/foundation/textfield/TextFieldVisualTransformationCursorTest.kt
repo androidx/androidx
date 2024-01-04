@@ -18,6 +18,7 @@ package androidx.compose.foundation.textfield
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.selection.isSelectionHandle
@@ -44,7 +45,7 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-class TextFieldVisualTransformationCursorTest {
+class TextFieldVisualTransformationCursorTest : FocusedWindowTest {
     @get:Rule
     val rule = createComposeRule()
 
@@ -66,7 +67,7 @@ class TextFieldVisualTransformationCursorTest {
         block: (MutableState<TextFieldValue>) -> Unit
     ) {
         val textFieldValue = mutableStateOf(TextFieldValue(text))
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField(
                 value = textFieldValue.value,
                 onValueChange = { textFieldValue.value = it },

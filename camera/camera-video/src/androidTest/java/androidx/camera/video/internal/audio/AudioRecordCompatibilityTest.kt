@@ -26,6 +26,9 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.camera.core.Logger
 import androidx.camera.testing.impl.RequiresDevice
+import androidx.camera.video.internal.audio.AudioUtils.computeInterpolatedTimeNs
+import androidx.camera.video.internal.audio.AudioUtils.getBytesPerFrame
+import androidx.camera.video.internal.audio.AudioUtils.sizeToFrameCount
 import androidx.camera.video.internal.compat.quirk.AudioTimestampFramePositionIncorrectQuirk
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -34,6 +37,8 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.rule.GrantPermissionRule
 import com.google.common.truth.Truth.assertThat
 import java.nio.ByteBuffer
+import java.util.concurrent.TimeUnit
+import kotlin.math.abs
 import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeNotNull
@@ -50,9 +55,11 @@ class AudioRecordCompatibilityTest {
 
     companion object {
         private const val TAG = "AudioRecordCompatibilityTest"
-        private const val DEFAULT_READ_TEST_TIMES = 50
+        private const val DEFAULT_READ_TIMES = 100
+        private val DIFF_LIMIT_FROM_SYSTEM_TIME_NS = TimeUnit.MILLISECONDS.toNanos(500)
         private const val DEFAULT_SAMPLE_RATE = 48000
         private const val DEFAULT_CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO
+        private const val DEFAULT_CHANNEL_COUNT = 1
         private const val DEFAULT_AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT
         private const val DEFAULT_AUDIO_SOURCE = MediaRecorder.AudioSource.CAMCORDER
         private val DEFAULT_BUFFER_SIZE_IN_BYTE = getBufferSizeInByte()
@@ -72,13 +79,17 @@ class AudioRecordCompatibilityTest {
         Manifest.permission.RECORD_AUDIO
     )
 
-    private val bufferSizeInBytes: Int = DEFAULT_BUFFER_SIZE_IN_BYTE
+    private val sampleRate = DEFAULT_SAMPLE_RATE
+    private val bufferSizeInBytes = DEFAULT_BUFFER_SIZE_IN_BYTE
+    private val audioFormat = DEFAULT_AUDIO_FORMAT
+    private val channelCount = DEFAULT_CHANNEL_COUNT
+    private val bytesPerFrame = getBytesPerFrame(audioFormat, channelCount)
     private val byteBuffer = ByteBuffer.allocateDirect(1024)
     private var audioRecord: AudioRecord? = null
 
     @Before
     fun setUp() {
-        audioRecord = createAudioRecord()
+        audioRecord = createAudioRecordFromGlobalVariables()
         assumeNotNull(audioRecord)
     }
 
@@ -88,6 +99,7 @@ class AudioRecordCompatibilityTest {
         audioRecord = null
     }
 
+    // See b/301067226 for more information.
     @RequiresDevice
     @SdkSuppress(minSdkVersion = 24)
     @Test
@@ -105,7 +117,62 @@ class AudioRecordCompatibilityTest {
                 assumeTrue(recordingState == AudioRecord.RECORDSTATE_RECORDING)
 
                 // Assert.
-                readAndVerifyFramePositionMultipleTimes()
+                readAndVerifyFramePositionMultipleTimes(50)
+
+                // Act.
+                stop()
+                assumeTrue(recordingState == AudioRecord.RECORDSTATE_STOPPED)
+            }
+        }
+    }
+
+    // See b/301067226 for more information.
+    @RequiresDevice
+    @SdkSuppress(minSdkVersion = 24)
+    @Test
+    fun read_withNoNegativeFramePositionIssue_whenRecordingAfterRecreatingMultipleTimes() {
+        repeat(5) {
+            audioRecord!!.apply {
+                Logger.i(TAG, "Starting audio recording, round: $it")
+
+                // Arrange.
+                assumeTrue(state == AudioRecord.STATE_INITIALIZED)
+                startRecording()
+                assumeTrue(recordingState == AudioRecord.RECORDSTATE_RECORDING)
+
+                // Assert.
+                readAndVerifyFramePositionMultipleTimes(50)
+
+                // Act.
+                stop()
+                assumeTrue(recordingState == AudioRecord.RECORDSTATE_STOPPED)
+
+                // Recreate AudioRecord
+                release()
+            }
+            audioRecord = createAudioRecordFromGlobalVariables()
+        }
+    }
+
+    // See b/301067226 for more information.
+    @RequiresDevice
+    @SdkSuppress(minSdkVersion = 24)
+    @Test
+    fun read_withTimestampDiffToSystemInLimit_whenRecordingMultipleTimes() {
+        assumeFalse(hasAudioTimestampQuirk())
+
+        audioRecord!!.apply {
+            assumeTrue(state == AudioRecord.STATE_INITIALIZED)
+
+            repeat(5) {
+                Logger.i(TAG, "Starting audio recording, round: $it")
+
+                // Arrange.
+                startRecording()
+                assumeTrue(recordingState == AudioRecord.RECORDSTATE_RECORDING)
+
+                // Assert.
+                readAndVerifyTimestampDiffToSystemMultipleTimes()
 
                 // Act.
                 stop()
@@ -115,7 +182,7 @@ class AudioRecordCompatibilityTest {
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
-    private fun readAndVerifyFramePositionMultipleTimes(times: Int = DEFAULT_READ_TEST_TIMES) {
+    private fun readAndVerifyFramePositionMultipleTimes(times: Int = DEFAULT_READ_TIMES) {
         repeat(times) {
             byteBuffer.clear()
             audioRecord!!.apply {
@@ -128,6 +195,37 @@ class AudioRecordCompatibilityTest {
                 }
             }
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    private fun readAndVerifyTimestampDiffToSystemMultipleTimes(times: Int = DEFAULT_READ_TIMES) {
+        var totalFramesRead = 0L
+
+        repeat(times) {
+            byteBuffer.clear()
+            audioRecord!!.apply {
+                val readSizeInBytes = read(byteBuffer, bufferSizeInBytes)
+                if (readSizeInBytes > 0) {
+                    val audioTimestamp = AudioTimestamp()
+                    if (getTimestamp(audioTimestamp, TIMEBASE_MONOTONIC) == AudioRecord.SUCCESS) {
+                        val readTimestampNs =
+                            computeInterpolatedTimeNs(sampleRate, totalFramesRead, audioTimestamp)
+                        val timestampDiffNs = abs(readTimestampNs - System.nanoTime())
+
+                        assertThat(timestampDiffNs).isLessThan(DIFF_LIMIT_FROM_SYSTEM_TIME_NS)
+                        totalFramesRead += sizeToFrameCount(readSizeInBytes.toLong(), bytesPerFrame)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun createAudioRecordFromGlobalVariables(): AudioRecord? {
+        return createAudioRecord(
+            sampleRate = sampleRate,
+            audioFormat = audioFormat,
+            bufferSizeInByte = bufferSizeInBytes
+        )
     }
 
     private fun createAudioRecord(

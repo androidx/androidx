@@ -118,7 +118,8 @@ class SdkLoaderTest {
         val packageIdField = rPackageClass.getDeclaredField("packageId")
         val value = packageIdField.get(null)
 
-        assertThat(value).isEqualTo(42)
+        // 42 (0x2A) -> (0x2A000000)
+        assertThat(value).isEqualTo(0x2A000000)
     }
 
     @Test

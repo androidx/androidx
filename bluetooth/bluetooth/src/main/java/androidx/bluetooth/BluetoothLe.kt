@@ -164,7 +164,7 @@ class BluetoothLe(private val context: Context) {
             advertiseParams.durationMillis.let {
                 if (it !in 0..655350)
                     throw IllegalArgumentException("advertise duration must be in [0, 655350]")
-                setTimeout(it)
+                setTimeout(it.toInt())
             }
             if (Build.VERSION.SDK_INT >= 34) {
                 BluetoothLeApi34Impl.setDiscoverable(this, advertiseParams.isDiscoverable)
@@ -202,7 +202,7 @@ class BluetoothLe(private val context: Context) {
             block?.invoke(it)
             if (it == ADVERTISE_STARTED) {
                 if (advertiseParams.durationMillis > 0) {
-                    delay(advertiseParams.durationMillis.toLong())
+                    delay(advertiseParams.durationMillis)
                 } else {
                     awaitCancellation()
                 }
@@ -284,6 +284,9 @@ class BluetoothLe(private val context: Context) {
 
         /**
          * Writes the characteristic value to the server.
+         *
+         * It could fail if the [characteristic] doesn't have the write property or the length
+         * of the [value] is greater than the maximum length of an attribute value (512).
          *
          * @param characteristic a remote [GattCharacteristic] to write
          * @param value a value to be written.
@@ -367,14 +370,25 @@ class BluetoothLe(private val context: Context) {
         val requests: Flow<GattServerRequest>
 
         /**
+         * A [StateFlow] of the set of characteristics that the client has requested to be
+         * notified of.
+         *
+         * The set will be updated whenever the client subscribes to or unsubscribes
+         * a characteristic.
+         *
+         * @see [GattServerSessionScope.notify]
+         */
+        val subscribedCharacteristics: StateFlow<Set<GattCharacteristic>>
+
+        /**
          * Notifies a client of a characteristic value change.
          *
          * @param characteristic the updated characteristic
          * @param value the new value of the characteristic
          *
-         * @return `true` if the notification sent successfully, otherwise `false`
+         * @throws CancellationException if it failed to notify
          */
-        suspend fun notify(characteristic: GattCharacteristic, value: ByteArray): Boolean
+        suspend fun notify(characteristic: GattCharacteristic, value: ByteArray)
     }
 
     /**
@@ -412,7 +426,6 @@ class BluetoothLe(private val context: Context) {
 
     /**
      * Opens a GATT server.
-     *
      *
      * Only one server at a time can be opened.
      *

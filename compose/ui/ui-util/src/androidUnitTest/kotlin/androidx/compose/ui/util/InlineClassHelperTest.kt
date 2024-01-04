@@ -23,7 +23,6 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class InlineClassHelperTest {
-
     @Test
     fun packAndUnpackFloats() {
         val first = Float.MAX_VALUE
@@ -95,4 +94,15 @@ class InlineClassHelperTest {
         assertEquals(first, unpackInt1(packed))
         assertEquals(second, unpackInt2(packed))
     }
+
+    @Test
+    fun rawBits() {
+        val first = Float.NaN
+        val second = multZero(Float.POSITIVE_INFINITY)
+        val packed = packFloats(first, second)
+        assertEquals(first.toRawBits(), unpackFloat1(packed).toRawBits())
+        assertEquals(second.toRawBits(), unpackFloat2(packed).toRawBits())
+    }
+
+    fun multZero(value: Float) = value * 0f
 }

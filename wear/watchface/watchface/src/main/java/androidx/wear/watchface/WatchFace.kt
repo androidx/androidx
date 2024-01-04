@@ -757,6 +757,7 @@ constructor(
         }
     }
 
+    @UiThread
     internal fun onVisibility(isVisible: Boolean) {
         TraceEvent("WatchFaceImpl.visibility").use {
             if (isVisible) {

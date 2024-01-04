@@ -20,11 +20,14 @@ import static androidx.appsearch.compiler.IntrospectionHelper.APPSEARCH_SCHEMA_C
 import static androidx.appsearch.compiler.IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS;
 
 import androidx.annotation.NonNull;
+import androidx.appsearch.compiler.IntrospectionHelper;
 
 import com.google.auto.value.AutoValue;
 import com.squareup.javapoet.ClassName;
 
 import java.util.Map;
+
+import javax.lang.model.type.TypeMirror;
 
 /**
  * An instance of the {@code @Document.StringProperty} annotation.
@@ -38,7 +41,12 @@ public abstract class StringPropertyAnnotation extends DataPropertyAnnotation {
             APPSEARCH_SCHEMA_CLASS.nestedClass("StringPropertyConfig");
 
     public StringPropertyAnnotation() {
-        super(CLASS_NAME, CONFIG_CLASS, /* genericDocSetterName= */"setPropertyString");
+        super(
+                CLASS_NAME,
+                CONFIG_CLASS,
+                /* genericDocGetterName= */"getPropertyString",
+                /* genericDocArrayGetterName= */"getPropertyStringArray",
+                /* genericDocSetterName= */"setPropertyString");
     }
 
     /**
@@ -76,5 +84,11 @@ public abstract class StringPropertyAnnotation extends DataPropertyAnnotation {
     @Override
     public final Kind getDataPropertyKind() {
         return Kind.STRING_PROPERTY;
+    }
+
+    @NonNull
+    @Override
+    public TypeMirror getUnderlyingTypeWithinGenericDoc(@NonNull IntrospectionHelper helper) {
+        return helper.mStringType;
     }
 }

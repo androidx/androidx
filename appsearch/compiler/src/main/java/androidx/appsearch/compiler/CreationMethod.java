@@ -29,6 +29,7 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.DeclaredType;
 
 /**
  * A constructor or static method used to create a class annotated with {@code @Document} aka
@@ -76,6 +77,32 @@ public abstract class CreationMethod {
      */
     @NonNull
     public abstract ExecutableElement getElement();
+
+    /**
+     * The enclosing class that the constructor/static method is a part of.
+     */
+    @NonNull
+    public DeclaredType getEnclosingClass() {
+        return (DeclaredType) getElement().getEnclosingElement().asType();
+    }
+
+    /**
+     * The static method's return type/constructor's enclosing class.
+     */
+    @NonNull
+    public DeclaredType getReturnType() {
+        return isConstructor()
+                ? (DeclaredType) getElement().getEnclosingElement().asType()
+                : (DeclaredType) getElement().getReturnType();
+    }
+
+    /**
+     * The static method/constructor element's name.
+     */
+    @NonNull
+    public String getJvmName() {
+        return getElement().getSimpleName().toString();
+    }
 
     /**
      * Whether the creation method is a constructor.

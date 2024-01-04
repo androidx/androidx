@@ -21,6 +21,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ScrollState
@@ -33,8 +34,10 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableFloatState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -73,8 +76,12 @@ import kotlin.math.asin
 import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 /**
@@ -160,19 +167,121 @@ interface PositionIndicatorState {
  * @param scrollState The scrollState to use as the basis for the PositionIndicatorState.
  * @param modifier The modifier to be applied to the component
  * @param reverseDirection Reverses direction of PositionIndicator if true
+ * @param showFadeInAnimation turns on the "Fade-in" animation of [PositionIndicator].
+ * If true, the Fade-in animation is triggered when the [PositionIndicator] becomes
+ * visible - either when state.visibility changes to Show, or state.visibility
+ * is AutoHide and state.positionFraction/state.sizeFraction are changed.
+ * @param showFadeOutAnimation turns on the "Fade-out" animation of PositionIndicator.
+ * The Fade-out animation is used for hiding the [PositionIndicator] and making it invisible.
+ * If true, the Fade-out animation is triggered after a delay if no changes in
+ * state.positionFraction or state.sizeFraction were detected,
+ * hiding the [PositionIndicator] with animation.
+ * @param showPositionAnimation turns on the "Position" animation of [PositionIndicator].
+ * The Position animation is used for animating changes between state.positionFraction
+ * and state.sizeFraction of [PositionIndicatorState].
+ * If true, the Position animation will be triggered on any change of
+ * state.positionFraction or state.sizeFraction.
  */
 @Composable
 public fun PositionIndicator(
     scrollState: ScrollState,
     modifier: Modifier = Modifier,
-    reverseDirection: Boolean = false
+    reverseDirection: Boolean = false,
+    showFadeInAnimation: Boolean = true,
+    showFadeOutAnimation: Boolean = true,
+    showPositionAnimation: Boolean = true
 ) = PositionIndicator(
     ScrollStateAdapter(scrollState),
     indicatorHeight = 50.dp,
     indicatorWidth = 4.dp,
     paddingHorizontal = 5.dp,
     modifier = modifier,
-    reverseDirection = reverseDirection
+    reverseDirection = reverseDirection,
+    showFadeInAnimation = showFadeInAnimation,
+    showFadeOutAnimation = showFadeOutAnimation,
+    showPositionAnimation = showPositionAnimation
+)
+
+/**
+ * Creates an [PositionIndicator] based on the values in a [ScrollState] object.
+ * e.g. a [Column] implementing [Modifier.verticalScroll] provides a [ScrollState].
+ *
+ * For more information, see the
+ * [Scroll indicators](https://developer.android.com/training/wearables/components/scroll)
+ * guide.
+ *
+ * @param scrollState The scrollState to use as the basis for the PositionIndicatorState.
+ * @param modifier The modifier to be applied to the component
+ * @param reverseDirection Reverses direction of PositionIndicator if true
+ */
+@Deprecated(
+    "This overload is provided for backwards compatibility with " +
+        "Compose for Wear OS 1.2." +
+        "A newer overload is available with additional showFadeInAnimation, " +
+        "showFadeOutAnimation and showPositionAnimation parameters.",
+    level = DeprecationLevel.HIDDEN
+)
+@Composable
+public fun PositionIndicator(
+    scrollState: ScrollState,
+    modifier: Modifier = Modifier,
+    reverseDirection: Boolean = false
+) = PositionIndicator(
+    scrollState = scrollState,
+    modifier = modifier,
+    reverseDirection = reverseDirection,
+    showFadeInAnimation = true,
+    showFadeOutAnimation = true,
+    showPositionAnimation = true
+)
+
+/**
+ * Creates an [PositionIndicator] based on the values in a [ScalingLazyListState] object that
+ * a [ScalingLazyColumn] uses.
+ *
+ * For more information, see the
+ * [Scroll indicators](https://developer.android.com/training/wearables/components/scroll)
+ * guide.
+ *
+ * @param scalingLazyListState the [ScalingLazyListState] to use as the basis for the
+ * PositionIndicatorState.
+ * @param modifier The modifier to be applied to the component
+ * @param reverseDirection Reverses direction of PositionIndicator if true
+ * @param showFadeInAnimation turns on the "Fade-in" animation of [PositionIndicator].
+ * If true, the Fade-in animation is triggered when the [PositionIndicator] becomes
+ * visible - either when state.visibility changes to Show, or state.visibility
+ * is AutoHide and state.positionFraction/state.sizeFraction are changed.
+ * @param showFadeOutAnimation turns on the "Fade-out" animation of PositionIndicator.
+ * The Fade-out animation is used for hiding the [PositionIndicator] and making it invisible.
+ * If true, the Fade-out animation is triggered after a delay if no changes in
+ * state.positionFraction or state.sizeFraction were detected,
+ * hiding the [PositionIndicator] with animation.
+ * @param showPositionAnimation turns on the "Position" animation of [PositionIndicator].
+ * The Position animation is used for animating changes between state.positionFraction
+ * and state.sizeFraction of [PositionIndicatorState].
+ * If true, the Position animation will be triggered on any change of
+ * state.positionFraction or state.sizeFraction.
+ */
+@Composable
+public fun PositionIndicator(
+    scalingLazyListState: ScalingLazyListState,
+    modifier: Modifier = Modifier,
+    reverseDirection: Boolean = false,
+    showFadeInAnimation: Boolean = true,
+    showFadeOutAnimation: Boolean = true,
+    showPositionAnimation: Boolean = true
+) = PositionIndicator(
+    state = ScalingLazyColumnStateAdapter(
+        state = scalingLazyListState
+    ),
+    indicatorHeight = 50.dp,
+    indicatorWidth = 4.dp,
+    paddingHorizontal = 5.dp,
+    modifier = modifier,
+    reverseDirection = reverseDirection,
+    showFadeInAnimation = showFadeInAnimation,
+    showFadeOutAnimation = showFadeOutAnimation,
+    showPositionAnimation = showPositionAnimation
 )
 
 /**
@@ -188,20 +297,25 @@ public fun PositionIndicator(
  * @param modifier The modifier to be applied to the component
  * @param reverseDirection Reverses direction of PositionIndicator if true
  */
+@Deprecated(
+    "This overload is provided for backwards compatibility with " +
+        "Compose for Wear OS 1.2." +
+        "A newer overload is available with additional showFadeInAnimation, " +
+        "showFadeOutAnimation and showPositionAnimation parameters.",
+    level = DeprecationLevel.HIDDEN
+)
 @Composable
 public fun PositionIndicator(
     scalingLazyListState: ScalingLazyListState,
     modifier: Modifier = Modifier,
     reverseDirection: Boolean = false
 ) = PositionIndicator(
-    state = ScalingLazyColumnStateAdapter(
-        state = scalingLazyListState
-    ),
-    indicatorHeight = 50.dp,
-    indicatorWidth = 4.dp,
-    paddingHorizontal = 5.dp,
+    scalingLazyListState = scalingLazyListState,
     modifier = modifier,
-    reverseDirection = reverseDirection
+    reverseDirection = reverseDirection,
+    showFadeInAnimation = true,
+    showFadeOutAnimation = true,
+    showPositionAnimation = true
 )
 
 /**
@@ -251,12 +365,29 @@ public fun PositionIndicator(
  * PositionIndicatorState.
  * @param modifier The modifier to be applied to the component
  * @param reverseDirection Reverses direction of PositionIndicator if true
+ * @param showFadeInAnimation turns on the "Fade-in" animation of [PositionIndicator].
+ * If true, the Fade-in animation is triggered when the [PositionIndicator] becomes
+ * visible - either when state.visibility changes to Show, or state.visibility
+ * is AutoHide and state.positionFraction/state.sizeFraction are changed.
+ * @param showFadeOutAnimation turns on the "Fade-out" animation of PositionIndicator.
+ * The Fade-out animation is used for hiding the [PositionIndicator] and making it invisible.
+ * If true, the Fade-out animation is triggered after a delay if no changes in
+ * state.positionFraction or state.sizeFraction were detected,
+ * hiding the [PositionIndicator] with animation.
+ * @param showPositionAnimation turns on the "Position" animation of [PositionIndicator].
+ * The Position animation is used for animating changes between state.positionFraction
+ * and state.sizeFraction of [PositionIndicatorState].
+ * If true, the Position animation will be triggered on any change of
+ * state.positionFraction or state.sizeFraction.
  */
 @Composable
 public fun PositionIndicator(
     lazyListState: LazyListState,
     modifier: Modifier = Modifier,
-    reverseDirection: Boolean = false
+    reverseDirection: Boolean = false,
+    showFadeInAnimation: Boolean = true,
+    showFadeOutAnimation: Boolean = true,
+    showPositionAnimation: Boolean = true
 ) = PositionIndicator(
     state = LazyColumnStateAdapter(
         state = lazyListState
@@ -265,7 +396,44 @@ public fun PositionIndicator(
     indicatorWidth = 4.dp,
     paddingHorizontal = 5.dp,
     modifier = modifier,
-    reverseDirection = reverseDirection
+    reverseDirection = reverseDirection,
+    showFadeInAnimation = showFadeInAnimation,
+    showFadeOutAnimation = showFadeOutAnimation,
+    showPositionAnimation = showPositionAnimation
+)
+
+/**
+ * Creates an [PositionIndicator] based on the values in a [LazyListState] object that
+ * a [LazyColumn] uses.
+ *
+ * For more information, see the
+ * [Scroll indicators](https://developer.android.com/training/wearables/components/scroll)
+ * guide.
+ *
+ * @param lazyListState the [LazyListState] to use as the basis for the
+ * PositionIndicatorState.
+ * @param modifier The modifier to be applied to the component
+ * @param reverseDirection Reverses direction of PositionIndicator if true
+ */
+@Deprecated(
+    "This overload is provided for backwards compatibility with " +
+        "Compose for Wear OS 1.2." +
+        "A newer overload is available with additional showFadeInAnimation, " +
+        "showFadeOutAnimation and showPositionAnimation parameters.",
+    level = DeprecationLevel.HIDDEN
+)
+@Composable
+public fun PositionIndicator(
+    lazyListState: LazyListState,
+    modifier: Modifier = Modifier,
+    reverseDirection: Boolean = false
+) = PositionIndicator(
+    lazyListState = lazyListState,
+    modifier = modifier,
+    reverseDirection = reverseDirection,
+    showFadeInAnimation = true,
+    showFadeOutAnimation = true,
+    showPositionAnimation = true
 )
 
 /**
@@ -333,15 +501,33 @@ value class PositionIndicatorAlignment internal constructor(internal val pos: In
  * @param reverseDirection Reverses direction of PositionIndicator if true
  * @param position indicates where to put the PositionIndicator in the screen, default is
  * [PositionIndicatorPosition#OppositeRsb]
+ * @param showFadeInAnimation turns on the "Fade-in" animation of [PositionIndicator].
+ * If true, the Fade-in animation is triggered when the [PositionIndicator] becomes
+ * visible - either when state.visibility changes to Show, or state.visibility
+ * is AutoHide and state.positionFraction/state.sizeFraction are changed.
+ * @param showFadeOutAnimation turns on the "Fade-out" animation of PositionIndicator.
+ * The Fade-out animation is used for hiding the [PositionIndicator] and making it invisible.
+ * If true, the Fade-out animation is triggered after a delay if no changes in
+ * state.positionFraction or state.sizeFraction were detected,
+ * hiding the [PositionIndicator] with animation.
+ * @param showPositionAnimation turns on the "Position" animation of [PositionIndicator].
+ * The Position animation is used for animating changes between state.positionFraction
+ * and state.sizeFraction of [PositionIndicatorState].
+ * If true, the Position animation will be triggered on any change of
+ * state.positionFraction or state.sizeFraction.
  */
 @Composable
 public fun PositionIndicator(
+    @Suppress("PrimitiveInLambda")
     value: () -> Float,
     modifier: Modifier = Modifier,
     range: ClosedFloatingPointRange<Float> = 0f..1f,
     color: Color = MaterialTheme.colors.onBackground,
     reverseDirection: Boolean = false,
-    position: PositionIndicatorAlignment = PositionIndicatorAlignment.OppositeRsb
+    position: PositionIndicatorAlignment = PositionIndicatorAlignment.OppositeRsb,
+    showFadeInAnimation: Boolean = true,
+    showFadeOutAnimation: Boolean = true,
+    showPositionAnimation: Boolean = true
 ) = PositionIndicator(
     state = FractionPositionIndicatorState {
         (value() - range.start) / (range.endInclusive - range.start)
@@ -352,38 +538,28 @@ public fun PositionIndicator(
     color = color,
     modifier = modifier,
     reverseDirection = reverseDirection,
-    position = position
+    position = position,
+    showFadeInAnimation = showFadeInAnimation,
+    showFadeOutAnimation = showFadeOutAnimation,
+    showPositionAnimation = showPositionAnimation
 )
 
 /**
- * An indicator on one side of the screen to show the current [PositionIndicatorState].
- *
- * Typically used with the [Scaffold] but can be used to decorate any full screen situation.
- *
- * This composable should only be used to fill the whole screen as Wear Material Design language
- * requires the placement of the position indicator to be right center of the screen as the
- * indicator is curved on circular devices.
- *
- * It detects if the screen is round or square and draws itself as a curve or line.
- *
- * Note that the composable will take the whole screen, but it will be drawn with the given
- * dimensions [indicatorHeight] and [indicatorWidth], and position with respect to the edge of the
- * screen according to [paddingHorizontal]
+ * Creates a [PositionIndicator] for controls like rotating side button, rotating bezel or slider.
  *
  * For more information, see the
  * [Scroll indicators](https://developer.android.com/training/wearables/components/scroll)
  * guide.
  *
- * @param state the [PositionIndicatorState] of the state we are displaying.
- * @param indicatorHeight the height of the position indicator in Dp.
- * @param indicatorWidth the width of the position indicator in Dp.
- * @param paddingHorizontal the padding to apply between the indicator and the border of the screen.
- * @param modifier The modifier to be applied to the component.
- * @param background the color to draw the non-active part of the position indicator.
- * @param color the color to draw the active part of the indicator in.
- * @param reverseDirection Reverses direction of PositionIndicator if true.
- * @param position indicates where to put the PositionIndicator on the screen, default is
- * [PositionIndicatorPosition#End]
+ * @param value Value of the indicator in the [range] where 1 represents the
+ * maximum value. E.g. If displaying a volume value from 0..11 then the [value] will be
+ * volume/11.
+ * @param range range of values that [value] can take
+ * @param modifier Modifier to be applied to the component
+ * @param color Color to draw the indicator on.
+ * @param reverseDirection Reverses direction of PositionIndicator if true
+ * @param position indicates where to put the PositionIndicator in the screen, default is
+ * [PositionIndicatorPosition#OppositeRsb]
  */
 @Deprecated(
     "This overload is provided for backwards compatibility with " +
@@ -394,31 +570,24 @@ public fun PositionIndicator(
 )
 @Composable
 public fun PositionIndicator(
-    state: PositionIndicatorState,
-    indicatorHeight: Dp,
-    indicatorWidth: Dp,
-    paddingHorizontal: Dp,
+    @Suppress("PrimitiveInLambda")
+    value: () -> Float,
     modifier: Modifier = Modifier,
-    background: Color = MaterialTheme.colors.onBackground.copy(alpha = 0.3f),
+    range: ClosedFloatingPointRange<Float> = 0f..1f,
     color: Color = MaterialTheme.colors.onBackground,
     reverseDirection: Boolean = false,
-    position: PositionIndicatorAlignment = PositionIndicatorAlignment.End
-) {
-    PositionIndicator(
-        state = state,
-        indicatorHeight = indicatorHeight,
-        indicatorWidth = indicatorWidth,
-        paddingHorizontal = paddingHorizontal,
-        modifier = modifier,
-        background = background,
-        color = color,
-        reverseDirection = reverseDirection,
-        position = position,
-        showFadeInAnimation = true,
-        showFadeOutAnimation = true,
-        showPositionAnimation = true
-    )
-}
+    position: PositionIndicatorAlignment = PositionIndicatorAlignment.OppositeRsb
+) = PositionIndicator(
+    value = value,
+    modifier = modifier,
+    range = range,
+    color = color,
+    reverseDirection = reverseDirection,
+    position = position,
+    showFadeInAnimation = true,
+    showFadeOutAnimation = true,
+    showPositionAnimation = true
+)
 
 /**
  * An indicator on one side of the screen to show the current [PositionIndicatorState].
@@ -494,8 +663,8 @@ public fun PositionIndicator(
     val leftyMode = isLeftyModeEnabled()
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
 
-    val alphaAnimatable = remember { Animatable(0f) }
-    var showIndicator by remember { mutableStateOf(false) }
+    val alphaValue = remember { mutableFloatStateOf(0f) }
+    val animateAlphaChannel = remember { Channel<Float>(2, BufferOverflow.DROP_OLDEST) }
 
     val positionFractionAnimatable = remember { Animatable(0f) }
     val sizeFractionAnimatable = remember { Animatable(0f) }
@@ -547,6 +716,10 @@ public fun PositionIndicator(
     LaunchedEffect(state, showFadeInAnimation, showPositionAnimation, showFadeOutAnimation) {
         var beforeFirstAnimation = true
 
+        // Skip first alpha animation only when initial visibility is not Hide
+        var skipFirstAlphaAnimation = state.visibility(containerSize.height.toFloat()) !=
+            PositionIndicatorVisibility.Hide
+
         launch {
             // This snapshotFlow listens to changes in position, size and visibility
             // of PositionIndicatorState and starts necessary animations if needed
@@ -579,49 +752,52 @@ public fun PositionIndicator(
                 }
 
                 when (it.visibility) {
-                    // Visibility cases are handled in another snapshot flow
-                    // by checking showIndicator value.
-                    PositionIndicatorVisibility.Show -> showIndicator = true
-                    PositionIndicatorVisibility.Hide -> showIndicator = false
+                    PositionIndicatorVisibility.Hide -> {
+                        handleFadeOut(showFadeOutAnimation, animateAlphaChannel, alphaValue)
+                    }
+
+                    PositionIndicatorVisibility.Show -> {
+                        // If showFadeInAnimation is true and we don't skip the first animation,
+                        // then we send event to animation channel
+                        if (showFadeInAnimation && !skipFirstAlphaAnimation) {
+                            // Otherwise we change alphaValue directly here
+                            animateAlphaChannel.trySend(1f)
+                        } else {
+                            alphaValue.floatValue = 1f
+                            skipFirstAlphaAnimation = false
+                        }
+                    }
+
+                    // PositionIndicatorVisibility.AutoHide case
                     else -> {
-                        showIndicator = true
-                        // Waiting for 2000ms and starting alpha animation to 0f
-                        delay(2000)
-                        showIndicator = false
+                        skipFirstAlphaAnimation = false
+
+                        if (it.visibility == PositionIndicatorVisibility.AutoHide) {
+                            // Waiting for 2000ms and changing alpha value to 0f
+                            delay(2000)
+                            handleFadeOut(showFadeOutAnimation, animateAlphaChannel, alphaValue)
+                        }
                     }
                 }
             }
         }
+    }
 
-        // Skip first alpha animation only when initial visibility is SHOW
-        var skipFirstAlphaAnimation =
-            state.visibility(containerSize.height.toFloat()) == PositionIndicatorVisibility.Show
-
-        // This snapshotFlow listens to changes of [showIndicator] flag and triggers
-        // show or hide animations if necessary.
-        launch {
-            snapshotFlow { showIndicator }
-                .collectLatest {
-                    if (showIndicator) {
-                        if (skipFirstAlphaAnimation || !showFadeInAnimation) {
-                            alphaAnimatable.snapTo(1f)
-                            skipFirstAlphaAnimation = false
-                        } else {
-                            launch {
-                                alphaAnimatable.animateTo(1f, alphaChangeAnimationSpec)
-                            }
-                        }
-                    } else {
-                        if (showFadeOutAnimation) {
-                            launch {
-                                alphaAnimatable.animateTo(0f, alphaChangeAnimationSpec)
-                            }
-                        } else {
-                            alphaAnimatable.snapTo(0f)
-                        }
-                    }
+    LaunchedEffect(Unit) {
+        // Listens to events in [animateAlphaChannel] and triggers
+        // alpha animations to specified value.
+        animateAlphaChannel
+            .receiveAsFlow()
+            .distinctUntilChanged()
+            .collectLatest { targetValue ->
+                animate(
+                    alphaValue.floatValue,
+                    targetValue,
+                    animationSpec = alphaChangeAnimationSpec
+                ) { value, _ ->
+                    alphaValue.floatValue = value
                 }
-        }
+            }
     }
 
     BoundsLimiter(boundsOffset, boundsSize, modifier, onSizeChanged = {
@@ -631,7 +807,7 @@ public fun PositionIndicator(
             modifier = Modifier
                 .fillMaxSize()
                 .graphicsLayer {
-                    alpha = alphaAnimatable.value
+                    alpha = alphaValue.floatValue
                 }
                 .drawWithCache {
                     // We need to invert reverseDirection when the screen is round and we are on
@@ -690,6 +866,84 @@ public fun PositionIndicator(
                     }
                 }
         )
+    }
+}
+
+/**
+ * An indicator on one side of the screen to show the current [PositionIndicatorState].
+ *
+ * Typically used with the [Scaffold] but can be used to decorate any full screen situation.
+ *
+ * This composable should only be used to fill the whole screen as Wear Material Design language
+ * requires the placement of the position indicator to be right center of the screen as the
+ * indicator is curved on circular devices.
+ *
+ * It detects if the screen is round or square and draws itself as a curve or line.
+ *
+ * Note that the composable will take the whole screen, but it will be drawn with the given
+ * dimensions [indicatorHeight] and [indicatorWidth], and position with respect to the edge of the
+ * screen according to [paddingHorizontal]
+ *
+ * For more information, see the
+ * [Scroll indicators](https://developer.android.com/training/wearables/components/scroll)
+ * guide.
+ *
+ * @param state the [PositionIndicatorState] of the state we are displaying.
+ * @param indicatorHeight the height of the position indicator in Dp.
+ * @param indicatorWidth the width of the position indicator in Dp.
+ * @param paddingHorizontal the padding to apply between the indicator and the border of the screen.
+ * @param modifier The modifier to be applied to the component.
+ * @param background the color to draw the non-active part of the position indicator.
+ * @param color the color to draw the active part of the indicator in.
+ * @param reverseDirection Reverses direction of PositionIndicator if true.
+ * @param position indicates where to put the PositionIndicator on the screen, default is
+ * [PositionIndicatorPosition#End]
+ */
+@Deprecated(
+    "This overload is provided for backwards compatibility with " +
+        "Compose for Wear OS 1.2." +
+        "A newer overload is available with additional showFadeInAnimation, " +
+        "showFadeOutAnimation and showPositionAnimation parameters.",
+    level = DeprecationLevel.HIDDEN
+)
+@Composable
+public fun PositionIndicator(
+    state: PositionIndicatorState,
+    indicatorHeight: Dp,
+    indicatorWidth: Dp,
+    paddingHorizontal: Dp,
+    modifier: Modifier = Modifier,
+    background: Color = MaterialTheme.colors.onBackground.copy(alpha = 0.3f),
+    color: Color = MaterialTheme.colors.onBackground,
+    reverseDirection: Boolean = false,
+    position: PositionIndicatorAlignment = PositionIndicatorAlignment.End
+) {
+    PositionIndicator(
+        state = state,
+        indicatorHeight = indicatorHeight,
+        indicatorWidth = indicatorWidth,
+        paddingHorizontal = paddingHorizontal,
+        modifier = modifier,
+        background = background,
+        color = color,
+        reverseDirection = reverseDirection,
+        position = position,
+        showFadeInAnimation = true,
+        showFadeOutAnimation = true,
+        showPositionAnimation = true
+    )
+}
+
+internal suspend fun handleFadeOut(
+    showFadeOutAnimation: Boolean,
+    animateAlphaChannel: Channel<Float>,
+    alphaValue: MutableFloatState
+) {
+    // Sending 0f to the channel, or changing alphaValue directly here
+    if (showFadeOutAnimation) {
+        animateAlphaChannel.trySend(0f)
+    } else {
+        alphaValue.floatValue = 0f
     }
 }
 

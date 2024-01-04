@@ -757,7 +757,8 @@ public class MutableObjectIntMap<K>(
      * and cause allocations.
      */
     public operator fun set(key: K, value: Int) {
-        val index = findAbsoluteInsertIndex(key)
+        var index = findIndex(key)
+        if (index < 0) index = index.inv()
         keys[index] = key
         values[index] = value
     }
@@ -770,9 +771,30 @@ public class MutableObjectIntMap<K>(
      * and cause allocations.
      */
     public fun put(key: K, value: Int) {
-        val index = findAbsoluteInsertIndex(key)
+        set(key, value)
+    }
+
+    /**
+     * Creates a new mapping from [key] to [value] in this map. If [key] is
+     * already present in the map, the association is modified and the previously
+     * associated value is replaced with [value]. If [key] is not present, a new
+     * entry is added to the map, which may require to grow the underlying storage
+     * and cause allocations.
+     *
+     * @return value previously associated with [key] or [default] if key was not present.
+     */
+    public fun put(key: K, value: Int, default: Int): Int {
+        var index = findIndex(key)
+        var previous = default
+        if (index < 0) {
+            index = index.inv()
+        } else {
+            previous = values[index]
+        }
         keys[index] = key
         values[index] = value
+
+        return previous
     }
 
     /**
@@ -817,7 +839,7 @@ public class MutableObjectIntMap<K>(
     /**
      * Removes any mapping for which the specified [predicate] returns true.
      */
-    public fun removeIf(predicate: (K, Int) -> Boolean) {
+    public inline fun removeIf(predicate: (K, Int) -> Boolean) {
         forEachIndexed { index ->
             @Suppress("UNCHECKED_CAST")
             if (predicate(keys[index] as K, values[index])) {
@@ -869,7 +891,8 @@ public class MutableObjectIntMap<K>(
         }
     }
 
-    private fun removeValueAt(index: Int) {
+    @PublishedApi
+    internal fun removeValueAt(index: Int) {
         _size -= 1
 
         // TODO: We could just mark the entry as empty if there's a group
@@ -898,7 +921,7 @@ public class MutableObjectIntMap<K>(
      * Calling this function may cause the internal storage to be reallocated
      * if the table is full.
      */
-    private fun findAbsoluteInsertIndex(key: K): Int {
+    private fun findIndex(key: K): Int {
         val hash = hash(key)
         val hash1 = h1(hash)
         val hash2 = h2(hash)
@@ -936,7 +959,7 @@ public class MutableObjectIntMap<K>(
         growthLimit -= if (isEmpty(metadata, index)) 1 else 0
         writeMetadata(index, hash2.toLong())
 
-        return index
+        return index.inv()
     }
 
     /**

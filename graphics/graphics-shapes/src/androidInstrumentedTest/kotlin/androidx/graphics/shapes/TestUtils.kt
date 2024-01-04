@@ -66,14 +66,12 @@ internal fun assertInBounds(shape: List<Cubic>, minPoint: Point, maxPoint: Point
     }
 }
 
-internal fun identityTransform() = PointTransformer { }
+internal fun identityTransform() = PointTransformer { x, y -> TransformResult(x, y) }
 
 internal fun scaleTransform(sx: Float, sy: Float) = PointTransformer {
-    x *= sx
-    y *= sy
+    x, y -> TransformResult(x * sx, y * sy)
 }
 
 internal fun translateTransform(dx: Float, dy: Float) = PointTransformer {
-    x += dx
-    y += dy
+    x, y -> TransformResult(x + dx, y + dy)
 }

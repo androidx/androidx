@@ -384,7 +384,7 @@ internal class PropertyValuesHolderFloat(
         return keyframes {
             durationMillis = duration
             animatorKeyframes.fastForEach { keyframe ->
-                keyframe.value at (duration * keyframe.fraction).toInt() with keyframe.interpolator
+                keyframe.value at (duration * keyframe.fraction).toInt() using keyframe.interpolator
             }
         }
     }
@@ -404,7 +404,7 @@ internal class PropertyValuesHolderColor(
         return keyframes {
             durationMillis = duration
             animatorKeyframes.fastForEach { keyframe ->
-                keyframe.value at (duration * keyframe.fraction).toInt() with keyframe.interpolator
+                keyframe.value at (duration * keyframe.fraction).toInt() using keyframe.interpolator
             }
         }
     }

@@ -75,8 +75,8 @@ class ImageAnalysisAvailabilityTest(private val config: TestConfig) {
             val level3 = INFO_SUPPORTED_HARDWARE_LEVEL_3
             return listOf(
                 // Samsung Galaxy S23 Ultra 5G tests
-                TestConfig("Samsung", "dm3q", "", "0", level3, BOKEH, true, true, true),
-                TestConfig("Samsung", "dm3q", "", "1", levelFull, BOKEH, true, true, false),
+                TestConfig("Samsung", "dm3q", "", "0", level3, BOKEH, true, true, false),
+                TestConfig("Samsung", "dm3q", "", "0", levelFull, FACE_RETOUCH, true, true, false),
                 TestConfig("Samsung", "dm3q", "", "1", levelFull, FACE_RETOUCH, true, true, false),
                 TestConfig("Samsung", "dm3q", "", "2", levelLimited, BOKEH, true, true, false),
 

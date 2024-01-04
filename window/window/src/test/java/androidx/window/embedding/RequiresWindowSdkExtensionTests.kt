@@ -111,11 +111,6 @@ class RequiresWindowSdkExtensionTests {
         verify(embeddingExtension, never()).setLaunchingActivityStack(any(), any())
 
         assertThrows(UnsupportedOperationException::class.java) {
-            embeddingCompat.finishActivityStacks(emptySet())
-        }
-        verify(embeddingExtension, never()).finishActivityStacks(any())
-
-        assertThrows(UnsupportedOperationException::class.java) {
             embeddingCompat.updateSplitAttributes(TEST_SPLIT_INFO, TEST_SPLIT_ATTRIBUTES)
         }
         verify(embeddingExtension, never()).updateSplitAttributes(any(), any())
@@ -142,11 +137,6 @@ class RequiresWindowSdkExtensionTests {
             embeddingCompat.setLaunchingActivityStack(activityOptions, INVALID_ACTIVITY_STACK_TOKEN)
         }
         verify(embeddingExtension, never()).setLaunchingActivityStack(any(), any())
-
-        assertThrows(UnsupportedOperationException::class.java) {
-            embeddingCompat.finishActivityStacks(emptySet())
-        }
-        verify(embeddingExtension, never()).finishActivityStacks(any())
 
         assertThrows(UnsupportedOperationException::class.java) {
             embeddingCompat.updateSplitAttributes(TEST_SPLIT_INFO, TEST_SPLIT_ATTRIBUTES)
@@ -178,9 +168,6 @@ class RequiresWindowSdkExtensionTests {
             INVALID_ACTIVITY_STACK_TOKEN
         )
 
-        embeddingCompat.finishActivityStacks(emptySet())
-        verify(embeddingExtension).finishActivityStacks(emptySet())
-
         embeddingCompat.updateSplitAttributes(TEST_SPLIT_INFO, TEST_SPLIT_ATTRIBUTES)
         verify(embeddingExtension).updateSplitAttributes(
             INVALID_SPLIT_INFO_TOKEN,
@@ -193,8 +180,8 @@ class RequiresWindowSdkExtensionTests {
 
     companion object {
         private val TEST_SPLIT_INFO = SplitInfo(
-            ActivityStack(emptyList(), isEmpty = true, INVALID_ACTIVITY_STACK_TOKEN),
-            ActivityStack(emptyList(), isEmpty = true, INVALID_ACTIVITY_STACK_TOKEN),
+            ActivityStack(emptyList(), isEmpty = true),
+            ActivityStack(emptyList(), isEmpty = true),
             SplitAttributes.Builder().build(),
             INVALID_SPLIT_INFO_TOKEN,
         )

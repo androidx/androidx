@@ -23,8 +23,10 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.Path
 import androidx.graphics.shapes.Cubic
+import androidx.graphics.shapes.Morph
 import androidx.graphics.shapes.MutableCubic
 import androidx.graphics.shapes.RoundedPolygon
+import androidx.graphics.shapes.TransformResult
 
 /**
  * Utility functions providing more idiomatic ways of transforming RoundedPolygons and
@@ -42,10 +44,7 @@ import androidx.graphics.shapes.RoundedPolygon
  * MutableCubic is (re)used.
  */
 fun Sequence<MutableCubic>.scaled(scale: Float) = map {
-    it.transform {
-        x *= scale
-        y *= scale
-    }
+    it.transform { x, y -> TransformResult(x * scale, y * scale) }
     it
 }
 
@@ -53,20 +52,16 @@ fun Sequence<MutableCubic>.scaled(scale: Float) = map {
  * Scales a shape (given as a List), creating a new List.
  */
 fun List<Cubic>.scaled(scale: Float) = map {
-    it.transformed {
-        x *= scale
-        y *= scale
-    }
+    it.transformed { x, y -> TransformResult(x * scale, y * scale) }
 }
 
 /**
  * Transforms a [RoundedPolygon] with the given [Matrix]
  */
 fun RoundedPolygon.transformed(matrix: Matrix): RoundedPolygon =
-    transformed {
+    transformed { x, y ->
         val transformedPoint = matrix.map(Offset(x, y))
-        x = transformedPoint.x
-        y = transformedPoint.y
+        TransformResult(transformedPoint.x, transformedPoint.y)
     }
 
 /**
@@ -75,18 +70,14 @@ fun RoundedPolygon.transformed(matrix: Matrix): RoundedPolygon =
 fun RoundedPolygon.getBounds() = calculateBounds().let { Rect(it[0], it[1], it[2], it[3]) }
 
 /**
- * Function used to create a Path from some Cubics.
- * Note that this takes an Iterator, so it could be used on Lists, Sequences, etc.
+ * Function used to create a Path from a list of Cubics.
  */
-fun Iterator<Cubic>.toPath(path: Path = Path()): Path {
-    path.reset()
-    var first = true
-    while (hasNext()) {
-        var bezier = next()
-        if (first) {
-            path.moveTo(bezier.anchor0X, bezier.anchor0Y)
-            first = false
-        }
+fun List<Cubic>.toPath(path: Path = Path()): Path {
+    path.rewind()
+    firstOrNull()?.let { first ->
+        path.moveTo(first.anchor0X, first.anchor0Y)
+    }
+    for (bezier in this) {
         path.cubicTo(
             bezier.control0X, bezier.control0Y,
             bezier.control1X, bezier.control1Y,
@@ -98,9 +89,26 @@ fun Iterator<Cubic>.toPath(path: Path = Path()): Path {
 }
 
 /**
- * Transforms the Sequence into a [Path].
+ * Transforms the morph at a given progress into a [Path].
+ * It can optionally be scaled, using the origin (0,0) as pivot point.
  */
-fun Sequence<Cubic>.toPath(path: Path = Path()) = iterator().toPath(path)
+fun Morph.toPath(progress: Float, scale: Float = 1f, path: Path = Path()): Path {
+    var first = true
+    path.rewind()
+    forEachCubic(progress) { bezier ->
+        if (first) {
+            path.moveTo(bezier.anchor0X * scale, bezier.anchor0Y * scale)
+            first = false
+        }
+        path.cubicTo(
+            bezier.control0X * scale, bezier.control0Y * scale,
+            bezier.control1X * scale, bezier.control1Y * scale,
+            bezier.anchor1X * scale, bezier.anchor1Y * scale
+        )
+    }
+    path.close()
+    return path
+}
 
 internal const val DEBUG = false
 

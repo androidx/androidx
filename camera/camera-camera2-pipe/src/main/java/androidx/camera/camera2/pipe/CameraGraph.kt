@@ -95,7 +95,7 @@ interface CameraGraph : AutoCloseable {
      * @param camera The Camera2 [CameraId] that this [CameraGraph] represents.
      * @param streams A list of [CameraStream]s to use when building the configuration.
      * @param streamSharingGroups A list of [CameraStream]s to apply buffer sharing to.
-     * @param input An input configuration to support Camera2 Reprocessing.
+     * @param input A list of input configurations to support Camera2 Reprocessing.
      * @param sessionTemplate The template id to use when creating the [CaptureRequest] to supply
      *   the default parameters for a [SessionConfiguration] object.
      * @param sessionParameters the extra parameters to apply to the [CaptureRequest] used to supply
@@ -121,7 +121,7 @@ interface CameraGraph : AutoCloseable {
         val camera: CameraId,
         val streams: List<CameraStream.Config>,
         val streamSharingGroups: List<List<CameraStream.Config>> = listOf(),
-        val input: InputStream.Config? = null,
+        val input: List<InputStream.Config>? = null,
         val sessionTemplate: RequestTemplate = RequestTemplate(1),
         val sessionParameters: Map<*, Any?> = emptyMap<Any, Any?>(),
         val sessionMode: OperatingMode = NORMAL,

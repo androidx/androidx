@@ -97,7 +97,7 @@ class ExtensionsManagerTest(
     @After
     fun teardown(): Unit = runBlocking {
         if (::cameraProvider.isInitialized) {
-            cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
+            cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
         }
 
         if (::extensionsManager.isInitialized) {

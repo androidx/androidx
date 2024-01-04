@@ -16,6 +16,7 @@
 
 package androidx.kruth
 
+import androidx.kruth.Fact.Companion.fact
 import kotlin.jvm.JvmOverloads
 import kotlin.reflect.typeOf
 
@@ -119,23 +120,35 @@ open class Subject<out T>(
         }
     }
 
+    // TODO(KT-20427): Only needed to enable extensions in internal sources.
+    @Suppress("NOTHING_TO_INLINE")
+    internal inline fun failWithActualInternal(vararg facts: Fact): Nothing {
+        failWithActual(*facts)
+    }
+
     @JvmOverloads
     protected fun failWithActual(key: String, value: Any? = null): Nothing {
-        failWithActual(Fact.fact(key, value))
+        failWithActual(fact(key, value))
     }
 
     protected fun failWithActual(vararg facts: Fact): Nothing {
         metadata.fail(
             Fact.makeMessage(
                 emptyList(),
-                facts.asList() + Fact.fact("but was", actual.toString()),
-                )
+                facts.asList() + fact("but was", actual.toString()),
+            )
         )
+    }
+
+    // TODO(KT-20427): Only needed to enable extensions in internal sources.
+    @Suppress("NOTHING_TO_INLINE")
+    internal inline fun failWithoutActualInternal(vararg facts: Fact): Nothing {
+        failWithoutActual(*facts)
     }
 
     @JvmOverloads
     protected fun failWithoutActual(key: String, value: Any? = null): Nothing {
-        failWithoutActual(Fact.fact(key, value))
+        failWithoutActual(fact(key, value))
     }
 
     protected fun failWithoutActual(vararg facts: Fact): Nothing {

@@ -25,24 +25,17 @@ import java.util.concurrent.CountDownLatch
 internal class CapabilityExchange() : ICapabilityExchange.Stub() {
     internal lateinit var capabilityExchangeListener: ICapabilityExchangeListener
     internal lateinit var voipCapabilities: MutableList<Capability>
-    internal var hasFeatureSetupCompleted = false
 
-    internal val negotiatedCapabilitiesLatch = CountDownLatch(1)
-    internal val featureSetUpCompleteLatch = CountDownLatch(1)
+    internal val beingExchangeLatch = CountDownLatch(1)
 
-    override fun setListener(l: ICapabilityExchangeListener?) {
-        l?.let { capabilityExchangeListener = l }
-    }
-
-    override fun negotiateCapabilities(capabilities: MutableList<Capability>?) {
+    override fun beginExchange(
+        capabilities: MutableList<Capability>?,
+        l: ICapabilityExchangeListener?
+    ) {
         capabilities?.let {
             voipCapabilities = capabilities
-            negotiatedCapabilitiesLatch.countDown()
         }
-    }
-
-    override fun featureSetupComplete() {
-        hasFeatureSetupCompleted = true
-        featureSetUpCompleteLatch.countDown()
+        l?.let { capabilityExchangeListener = l }
+        beingExchangeLatch.countDown()
     }
 }

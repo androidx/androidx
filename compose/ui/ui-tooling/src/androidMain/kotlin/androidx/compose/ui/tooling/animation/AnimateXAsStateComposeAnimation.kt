@@ -50,10 +50,11 @@ private constructor(
         /**
          * [ComposeAnimationType] from ANIMATABLE to UNSUPPORTED are not available in previous
          * versions of the library. To avoid creating non-existing enum,
-         * [UnsupportedComposeAnimation] should only be instantiated if [ComposeAnimationType] API
-         * for UNSUPPORTED enum is available.
+         * [AnimateXAsStateComposeAnimation] should only be instantiated if [ComposeAnimationType]
+         * API for ANIMATE_X_AS_STATE enum is available.
          */
-        var apiAvailable = enumValues<ComposeAnimationType>().any { it.name == "UNSUPPORTED" }
+        var apiAvailable =
+            enumValues<ComposeAnimationType>().any { it.name == "ANIMATE_X_AS_STATE" }
             private set
 
         internal fun <T, V : AnimationVector> AnimationSearch

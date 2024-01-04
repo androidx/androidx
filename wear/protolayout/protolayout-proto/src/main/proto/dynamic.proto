@@ -192,6 +192,7 @@ message DynamicInt32 {
     GetDurationPartOp duration_part = 7;
     AnimatableFixedInt32 animatable_fixed = 8;
     AnimatableDynamicInt32 animatable_dynamic = 9;
+    GetZonedDateTimePartOp zoned_date_time_part = 10;
   }
 }
 
@@ -577,6 +578,52 @@ message DynamicInstant {
     PlatformTimeSource platform_source = 2;
     ConditionalInstantOp conditional_op = 3;
   }
+}
+
+// A dynamic zoned date-time type.
+// <p> DynamicZonedDateTime precision is seconds. Thus, any related time
+// operation will operate on that precision level.
+message DynamicZonedDateTime {
+  oneof inner {
+    InstantToZonedDateTimeOp instant_to_zoned_date_time = 1;
+  }
+}
+
+// Converts a DynamicInstant into a DynamicZonedDateTime.
+message InstantToZonedDateTimeOp {
+  // The instant to convert.
+  DynamicInstant instant = 1;
+  // The ZoneId following the time-zone ID format used by java {@link ZoneId}.
+  string zone_id = 2;
+}
+
+// The date-time part to retrieve using ZonedDateTimePartOp.
+enum ZonedDateTimePartType {
+  // Undefined date-time part type.
+  ZONED_DATE_TIME_PART_UNDEFINED = 0;
+  // The second-of-minute field from 0 to 59.
+  ZONED_DATE_TIME_PART_SECOND = 1;
+  // The minute-of-hour field from 0 to 59.
+  ZONED_DATE_TIME_PART_MINUTE = 2;
+  // The hour-of-day field from 0 to 23.
+  ZONED_DATE_TIME_PART_HOUR_24H = 3;
+  // The day-of-week field going from MONDAY (1) to SUNDAY (7).
+  ZONED_DATE_TIME_PART_DAY_OF_WEEK = 4;
+  // The day-of-month field from 1 to 31.
+  ZONED_DATE_TIME_PART_DAY_OF_MONTH = 5;
+  // The month-of-year field from 1 to 12.
+  ZONED_DATE_TIME_PART_MONTH = 6;
+  // The year field.
+  ZONED_DATE_TIME_PART_YEAR = 7;
+}
+
+// Retrieve the specified date-time part of a DynamicZonedDateTime instance as a
+// DynamicInt32.
+message GetZonedDateTimePartOp {
+  // The zoned date-time input.
+  DynamicZonedDateTime input = 1;
+  // The date-time part to retrieve.
+  ZonedDateTimePartType part_type = 2;
 }
 
 // A dynamic duration type that represents the duration between two dynamic time

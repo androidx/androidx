@@ -217,13 +217,4 @@
             file="src/main/java/androidx/transition/Styleable.java"/>
     </issue>
 
-    <issue
-        id="RestrictedApiAndroidX"
-        message="PathParser.createPathFromPathData can only be called from within the same library (androidx.core:core)"
-        errorLine1="            Path pattern = PathParser.createPathFromPathData(pathData);"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/transition/PatternPathMotion.java"/>
-    </issue>
-
 </issues>

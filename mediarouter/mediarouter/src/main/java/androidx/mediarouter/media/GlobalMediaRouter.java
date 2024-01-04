@@ -893,7 +893,7 @@ import java.util.Set;
                             + mDefaultRoute);
             mDefaultRoute = null;
         }
-        if (mDefaultRoute == null && !mRoutes.isEmpty()) {
+        if (mDefaultRoute == null) {
             for (MediaRouter.RouteInfo route : mRoutes) {
                 if (isSystemDefaultRoute(route) && route.isSelectable()) {
                     mDefaultRoute = route;
@@ -912,7 +912,7 @@ import java.util.Set;
                             + mBluetoothRoute);
             mBluetoothRoute = null;
         }
-        if (mBluetoothRoute == null && !mRoutes.isEmpty()) {
+        if (mBluetoothRoute == null) {
             for (MediaRouter.RouteInfo route : mRoutes) {
                 if (isSystemLiveAudioOnlyRoute(route) && route.isSelectable()) {
                     mBluetoothRoute = route;

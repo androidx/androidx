@@ -15,12 +15,8 @@
  */
 package androidx.appactions.builtintypes.properties
 
-import androidx.appactions.builtintypes.serializers.InstantAsEpochMilliSerializer
-import androidx.appactions.builtintypes.serializers.LocalDateTimeAsUtcEpochSecondSerializer
 import androidx.appactions.builtintypes.serializers.LocalTimeAsNanoOfDaySerializer
 import androidx.appsearch.`annotation`.Document
-import java.time.Instant
-import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.Objects
 import kotlin.Any
@@ -42,8 +38,6 @@ import kotlin.jvm.JvmName
  *
  * Holds one of:
  * * Time i.e. [LocalTime]
- * * [LocalDateTime]
- * * [Instant]
  *
  * May hold more types over time.
  */
@@ -54,14 +48,6 @@ internal constructor(
   @get:JvmName("asTime")
   @get:Document.LongProperty(serializer = LocalTimeAsNanoOfDaySerializer::class)
   public val asTime: LocalTime? = null,
-  /** The [LocalDateTime] variant, or null if constructed using a different variant. */
-  @get:JvmName("asLocalDateTime")
-  @get:Document.LongProperty(serializer = LocalDateTimeAsUtcEpochSecondSerializer::class)
-  public val asLocalDateTime: LocalDateTime? = null,
-  /** The [Instant] variant, or null if constructed using a different variant. */
-  @get:JvmName("asInstant")
-  @get:Document.LongProperty(serializer = InstantAsEpochMilliSerializer::class)
-  public val asInstant: Instant? = null,
   /** Required ctor param for the AppSearch compiler. */
   @get:Document.Id @get:JvmName("getIdentifier") internal val identifier: String = "",
   /** Required ctor param for the AppSearch compiler. */
@@ -69,28 +55,6 @@ internal constructor(
 ) {
   /** Constructor for the [LocalTime] variant. */
   public constructor(time: LocalTime) : this(asTime = time)
-
-  /** Constructor for the [LocalDateTime] variant. */
-  public constructor(localDateTime: LocalDateTime) : this(asLocalDateTime = localDateTime)
-
-  /** Constructor for the [Instant] variant. */
-  public constructor(instant: Instant) : this(asInstant = instant)
-
-  /**
-   * Maps each of the possible underlying variants to some [R].
-   *
-   * A visitor can be provided to handle the possible variants. A catch-all default case must be
-   * provided in case a new type is added in a future release of this library.
-   *
-   * @sample [androidx.appactions.builtintypes.samples.properties.startTimeMapWhenUsage]
-   */
-  public fun <R> mapWhen(mapper: Mapper<R>): R =
-    when {
-      asTime != null -> mapper.time(asTime)
-      asLocalDateTime != null -> mapper.localDateTime(asLocalDateTime)
-      asInstant != null -> mapper.instant(asInstant)
-      else -> error("No variant present in StartTime")
-    }
 
   public override fun toString(): String = toString(includeWrapperName = true)
 
@@ -102,18 +66,6 @@ internal constructor(
         } else {
           asTime.toString()
         }
-      asLocalDateTime != null ->
-        if (includeWrapperName) {
-          """StartTime($asLocalDateTime)"""
-        } else {
-          asLocalDateTime.toString()
-        }
-      asInstant != null ->
-        if (includeWrapperName) {
-          """StartTime($asInstant)"""
-        } else {
-          asInstant.toString()
-        }
       else -> error("No variant present in StartTime")
     }
 
@@ -121,25 +73,8 @@ internal constructor(
     if (this === other) return true
     if (other !is StartTime) return false
     if (asTime != other.asTime) return false
-    if (asLocalDateTime != other.asLocalDateTime) return false
-    if (asInstant != other.asInstant) return false
     return true
   }
 
-  public override fun hashCode(): Int = Objects.hash(asTime, asLocalDateTime, asInstant)
-
-  /** Maps each of the possible variants of [StartTime] to some [R]. */
-  public interface Mapper<R> {
-    /** Returns some [R] when the [StartTime] holds some [LocalTime] instance. */
-    public fun time(instance: LocalTime): R = orElse()
-
-    /** Returns some [R] when the [StartTime] holds some [LocalDateTime] instance. */
-    public fun localDateTime(instance: LocalDateTime): R = orElse()
-
-    /** Returns some [R] when the [StartTime] holds some [Instant] instance. */
-    public fun instant(instance: Instant): R = orElse()
-
-    /** The catch-all handler that is invoked when a particular variant isn't explicitly handled. */
-    public fun orElse(): R
-  }
+  public override fun hashCode(): Int = Objects.hash(asTime)
 }

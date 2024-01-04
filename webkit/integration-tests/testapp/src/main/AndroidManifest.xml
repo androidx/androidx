@@ -142,6 +142,12 @@
         <activity
             android:name=".ImageDragActivity"
             android:exported="false" />
+        <activity
+            android:name=".UserAgentMetadataActivity"
+            android:exported="true" />
+        <activity
+            android:name=".MultiProfileTestActivity"
+            android:exported="false" />
 
         <provider
             android:authorities="com.example.androidx.webkit.DropDataProvider"

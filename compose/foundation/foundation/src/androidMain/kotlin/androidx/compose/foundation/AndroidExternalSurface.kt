@@ -26,6 +26,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Matrix
+import androidx.compose.ui.graphics.setFrom
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.viewinterop.AndroidView
 import kotlinx.coroutines.CoroutineScope
@@ -246,10 +248,10 @@ value class AndroidExternalSurfaceZOrder private constructor(val zOrder: Int) {
  *
  * @param modifier Modifier to be applied to the [AndroidExternalSurface]
  * @param isOpaque Whether the managed surface should be opaque or transparent.
- * @param zOrder Sets the z-order of the surface relative to its parent window.
  * @param surfaceSize Sets the surface size independently of the layout size of
  *                    this [GraphicsSurface]. If set to [IntSize.Zero], the surface
  *                    size will be equal to the [GraphicsSurface] layout size.
+ * @param zOrder Sets the z-order of the surface relative to its parent window.
  * @param isSecure Control whether the surface view's content should be treated as
  *                 secure, preventing it from appearing in screenshots or from being
  *                 viewed on non-secure displays.
@@ -263,8 +265,8 @@ value class AndroidExternalSurfaceZOrder private constructor(val zOrder: Int) {
 fun AndroidExternalSurface(
     modifier: Modifier = Modifier,
     isOpaque: Boolean = true,
-    zOrder: AndroidExternalSurfaceZOrder = AndroidExternalSurfaceZOrder.Behind,
     surfaceSize: IntSize = IntSize.Zero,
+    zOrder: AndroidExternalSurfaceZOrder = AndroidExternalSurfaceZOrder.Behind,
     isSecure: Boolean = false,
     onInit: AndroidExternalSurfaceScope.() -> Unit
 ) {
@@ -309,6 +311,7 @@ private class AndroidEmbeddedExternalSurfaceState(scope: CoroutineScope) :
     BaseAndroidExternalSurfaceState(scope), TextureView.SurfaceTextureListener {
 
     var surfaceSize = IntSize.Zero
+    val matrix = android.graphics.Matrix()
 
     private var surfaceTextureSurface: Surface? = null
 
@@ -415,6 +418,10 @@ private fun rememberAndroidEmbeddedExternalSurfaceState(): AndroidEmbeddedExtern
  * @param surfaceSize Sets the surface size independently of the layout size of
  *                    this [GraphicsSurface]. If set to [IntSize.Zero], the surface
  *                    size will be equal to the [GraphicsSurface] layout size.
+ * @param transform Sets the transform to apply to the [Surface]. Some transforms
+ *                  might prevent the content from drawing all the pixels contained
+ *                  within this Composable's bounds. In such situations, make sure
+ *                  to set [isOpaque] to `false`.
  * @param onInit Lambda invoked on first composition. This lambda can be used to
  *               declare a [GraphicsSurfaceScope.onSurface] callback that will be
  *               invoked when a surface is available.
@@ -426,6 +433,7 @@ fun AndroidEmbeddedExternalSurface(
     modifier: Modifier = Modifier,
     isOpaque: Boolean = true,
     surfaceSize: IntSize = IntSize.Zero,
+    transform: Matrix? = null,
     onInit: AndroidExternalSurfaceScope.() -> Unit
 ) {
     val state = rememberAndroidEmbeddedExternalSurfaceState()
@@ -446,6 +454,9 @@ fun AndroidEmbeddedExternalSurface(
             }
             state.surfaceSize = surfaceSize
             view.isOpaque = isOpaque
+            // If transform is null, we'll call setTransform(null) which sets the
+            // identity transform on the TextureView
+            view.setTransform(transform?.let { state.matrix.apply { setFrom(transform) } })
         }
     )
 }

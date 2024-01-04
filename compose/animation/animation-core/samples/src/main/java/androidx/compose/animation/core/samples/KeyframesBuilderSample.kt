@@ -19,6 +19,7 @@ package androidx.compose.animation.core.samples
 import androidx.annotation.Sampled
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.KeyframesSpec
+import androidx.compose.animation.core.KeyframesSpecBaseConfig
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.keyframes
@@ -55,8 +56,8 @@ fun KeyframesBuilderWithEasing() {
     // time between 50 and 100ms
     keyframes<Float> {
         durationMillis = 100
-        0f at 0 with FastOutSlowInEasing
-        1.5f at 50 with LinearOutSlowInEasing
+        0f at 0 using FastOutSlowInEasing
+        1.5f at 50 using LinearOutSlowInEasing
         1f at 100
     }
 }
@@ -67,8 +68,21 @@ fun KeyframesBuilderForPosition() {
     // time between 50 and 100ms
     keyframes<DpOffset> {
         durationMillis = 200
-        DpOffset(0.dp, 0.dp) at 0 with LinearEasing
-        DpOffset(500.dp, 100.dp) at 100 with LinearOutSlowInEasing
+        DpOffset(0.dp, 0.dp) at 0 using LinearEasing
+        DpOffset(500.dp, 100.dp) at 100 using LinearOutSlowInEasing
         DpOffset(400.dp, 50.dp) at 150
     }
+}
+
+@Sampled
+fun KeyframesSpecBaseConfig<Float, KeyframesSpec.KeyframeEntity<Float>>.floatAtSample() {
+    0.8f at 150 // ms
+}
+
+@Sampled
+fun KeyframesSpecBaseConfig<Float, KeyframesSpec.KeyframeEntity<Float>>.floatAtFractionSample() {
+    // Make sure to set the duration before calling `atFraction` otherwise the keyframe will be set
+    // based on the default duration
+    durationMillis = 300
+    0.8f atFraction 0.50f // half of the overall duration set
 }

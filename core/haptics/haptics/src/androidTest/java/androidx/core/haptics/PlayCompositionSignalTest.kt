@@ -48,7 +48,7 @@ class PlayCompositionSignalSdk30AndAboveTest(
     private val primitive: PrimitiveAtom,
 ) {
     private val fakeVibrator = FullVibrator()
-    private val hapticManager = HapticManager.createForVibrator(fakeVibrator)
+    private val hapticManager = requireNotNull(HapticManager.createForVibrator(fakeVibrator))
 
     @Test
     fun play_vibratesWithSupportedPrimitives() {
@@ -60,7 +60,8 @@ class PlayCompositionSignalSdk30AndAboveTest(
                 off(durationMillis = 100),
                 primitive.withAmplitudeScale(0.8f),
                 off(durationMillis = 200),
-            )
+            ),
+            HapticAttributes(HapticAttributes.USAGE_TOUCH),
         )
         assertThat(fakeVibrator).vibratedExactly(
             vibration(
@@ -103,11 +104,14 @@ class PlayCompositionSignalBelowSdk30Test(
     private val primitive: PrimitiveAtom,
 ) {
     private val fakeVibrator = FullVibrator()
-    private val hapticManager = HapticManager.createForVibrator(fakeVibrator)
+    private val hapticManager = requireNotNull(HapticManager.createForVibrator(fakeVibrator))
 
     @Test
     fun play_doesNotVibrate() {
-        hapticManager.play(compositionOf(primitive))
+        hapticManager.play(
+            compositionOf(primitive),
+            HapticAttributes(HapticAttributes.USAGE_TOUCH)
+        )
         assertThat(fakeVibrator).neverVibrated()
     }
 
@@ -132,16 +136,28 @@ class PlayCompositionSignalBelowSdk30Test(
 @SmallTest
 class PlayCompositionSignalPartialPrimitiveSdkSupportTest {
     private val fakeVibrator = FullVibrator()
-    private val hapticManager = HapticManager.createForVibrator(fakeVibrator)
+    private val hapticManager = requireNotNull(HapticManager.createForVibrator(fakeVibrator))
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R, maxSdkVersion = Build.VERSION_CODES.R)
     @Test
     fun play_api30AndPrimitiveFromApi31AndAbove_doesNotVibrate() {
-        hapticManager.play(compositionOf(lowTick()))
-        hapticManager.play(compositionOf(thud()))
-        hapticManager.play(compositionOf(spin()))
+        hapticManager.play(
+            compositionOf(lowTick()),
+            HapticAttributes(HapticAttributes.USAGE_TOUCH),
+        )
+        hapticManager.play(
+            compositionOf(thud()),
+            HapticAttributes(HapticAttributes.USAGE_TOUCH),
+        )
+        hapticManager.play(
+            compositionOf(spin()),
+            HapticAttributes(HapticAttributes.USAGE_TOUCH),
+        )
         // Mix supported/unsupported primitives
-        hapticManager.play(compositionOf(tick(), lowTick()))
+        hapticManager.play(
+            compositionOf(tick(), lowTick()),
+            HapticAttributes(HapticAttributes.USAGE_TOUCH),
+        )
         assertThat(fakeVibrator).neverVibrated()
     }
 }

@@ -18,17 +18,21 @@
 
 package androidx.compose.ui.benchmark
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Indication
 import androidx.compose.foundation.IndicationInstance
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.Drag2DScope
 import androidx.compose.foundation.gestures.DragScope
+import androidx.compose.foundation.gestures.Draggable2DState
 import androidx.compose.foundation.gestures.DraggableState
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.draggable2D
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.indication
@@ -46,6 +50,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.focus.onFocusEvent
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
@@ -85,6 +90,7 @@ class ModifiersBenchmark(
          * reference it in the modifier lambda so that allocating these isn't included in the
          * "recomposition" time.
          */
+        @OptIn(ExperimentalFoundationApi::class)
         @JvmStatic
         @Parameterized.Parameters(name = "{0}_{1}x")
         fun data(): Collection<Array<Any>> = listOf(
@@ -111,6 +117,11 @@ class ModifiersBenchmark(
                 Modifier.draggable(
                     draggableState,
                     if (it) Orientation.Vertical else Orientation.Horizontal
+                )
+            },
+            *modifier("draggable2D") {
+                Modifier.draggable2D(
+                    draggable2DState
                 )
             },
             *modifier("hoverable") {
@@ -163,6 +174,15 @@ class ModifiersBenchmark(
             ) {}
 
             override fun dispatchRawDelta(delta: Float) {}
+        }
+        @OptIn(ExperimentalFoundationApi::class)
+        private val draggable2DState = object : Draggable2DState {
+            override suspend fun drag(
+                dragPriority: MutatePriority,
+                block: suspend Drag2DScope.() -> Unit
+            ) {}
+
+            override fun dispatchRawDelta(delta: Offset) {}
         }
         private val scrollableState = ScrollableState { it }
 

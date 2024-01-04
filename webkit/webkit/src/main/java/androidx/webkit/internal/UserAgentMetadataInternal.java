@@ -90,12 +90,6 @@ public class UserAgentMetadataInternal {
      */
     private static final String WOW64 = "WOW64";
     /**
-     * Predefined set of name for user-agent metadata key.
-     * Key name for user-agent metadata form_factor,
-     * used to generate user-agent client hint {@code sec-ch-ua-form-factor}.
-     */
-    private static final String FORM_FACTOR = "FORM_FACTOR";
-    /**
      * each brand should contains brand, major version and full version.
      */
     private static final int BRAND_VERSION_LENGTH = 3;
@@ -118,7 +112,6 @@ public class UserAgentMetadataInternal {
         item.put(MOBILE, uaMetadata.isMobile());
         item.put(BITNESS, uaMetadata.getBitness());
         item.put(WOW64, uaMetadata.isWow64());
-        item.put(FORM_FACTOR, uaMetadata.getFormFactor());
         return item;
     }
 
@@ -200,10 +193,6 @@ public class UserAgentMetadataInternal {
             builder.setWow64(isWow64);
         }
 
-        String formFactor = (String) uaMetadataMap.get(FORM_FACTOR);
-        if (formFactor != null) {
-            builder.setFormFactor(formFactor);
-        }
         return builder.build();
     }
 }

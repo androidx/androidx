@@ -45,6 +45,7 @@ import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -64,6 +65,7 @@ class TextFieldFocusCustomDialogTest {
     //  this test can't assert.
     @SdkSuppress(minSdkVersion = 30)
     @Test
+    @FlakyTest(bugId = 298465647)
     fun keyboardShown_forFieldInAndroidDialog_whenFocusRequestedImmediately_fromLaunchedEffect() {
         keyboardIsShown_whenFocusRequestedImmediately_fromEffect(
             runEffect = {
@@ -81,6 +83,7 @@ class TextFieldFocusCustomDialogTest {
     //  this test can't assert.
     @SdkSuppress(minSdkVersion = 30)
     @Test
+    @FlakyTest(bugId = 298465647)
     fun keyboardShown_forFieldInAndroidDialog_whenFocusRequestedImmediately_fromDisposableEffect() {
         keyboardIsShown_whenFocusRequestedImmediately_fromEffect(
             runEffect = {

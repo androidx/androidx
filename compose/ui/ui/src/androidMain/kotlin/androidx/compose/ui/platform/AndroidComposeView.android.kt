@@ -77,6 +77,7 @@ import androidx.compose.ui.draganddrop.ComposeDragShadowBuilder
 import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropEventType
 import androidx.compose.ui.draganddrop.DragAndDropInfo
+import androidx.compose.ui.draganddrop.DragAndDropManager
 import androidx.compose.ui.draganddrop.DragAndDropModifierNode
 import androidx.compose.ui.draganddrop.DragAndDropNode
 import androidx.compose.ui.focus.FocusDirection
@@ -129,6 +130,8 @@ import androidx.compose.ui.input.pointer.PositionCalculator
 import androidx.compose.ui.input.pointer.ProcessResult
 import androidx.compose.ui.input.rotary.RotaryScrollEvent
 import androidx.compose.ui.input.rotary.onRotaryScrollEvent
+import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.layout.PlacementScope
 import androidx.compose.ui.layout.RootMeasurePolicy
 import androidx.compose.ui.modifier.ModifierLocalManager
 import androidx.compose.ui.node.InternalCoreApi
@@ -217,6 +220,12 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
 
     override val focusOwner: FocusOwner = FocusOwnerImpl { registerOnEndApplyChangesListener(it) }
 
+    private val dragAndDropModifierOnDragListener = DragAndDropModifierOnDragListener(
+        ::startDrag
+    )
+
+    override val dragAndDropManager: DragAndDropManager = dragAndDropModifierOnDragListener
+
     private val _windowInfo: WindowInfoImpl = WindowInfoImpl()
     override val windowInfo: WindowInfo
         get() = _windowInfo
@@ -235,8 +244,6 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         // TODO(b/210748692): call focusManager.moveFocus() in response to rotary events.
         false
     }
-
-    private val dragAndDropModifierOnDragListener = DragAndDropModifierOnDragListener()
 
     private val canvasHolder = CanvasHolder()
 
@@ -410,6 +417,9 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         )
 
     private val textInputSessionMutex = SessionMutex<AndroidPlatformTextInputSession>()
+
+    override val placementScope: Placeable.PlacementScope
+        get() = PlacementScope(this)
 
     override suspend fun textInputSession(
         session: suspend PlatformTextInputSessionScope.() -> Nothing
@@ -610,7 +620,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         clipChildren = false
         ViewCompat.setAccessibilityDelegate(this, accessibilityDelegate)
         ViewRootForTest.onViewCreatedCallback?.invoke(this)
-        setOnDragListener(dragAndDropModifierOnDragListener)
+        setOnDragListener(this.dragAndDropModifierOnDragListener)
         root.attach(this)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             // Support for this feature in Compose is tracked here: b/207654434
@@ -750,7 +760,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         }
     }
 
-    override fun drag(dragAndDropInfo: DragAndDropInfo): Boolean {
+    private fun startDrag(dragAndDropInfo: DragAndDropInfo): Boolean {
         val density = with(context.resources) {
             Density(
                 density = displayMetrics.density,
@@ -1795,19 +1805,19 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         when (event.actionMasked) {
             ACTION_HOVER_EXIT -> {
                 if (isInBounds(event)) {
-                    if (event.getToolType(0) != TOOL_TYPE_MOUSE) {
-                        // This may be caused by a press (e.g. stylus pressed on the screen), but
-                        // we can't be sure until the ACTION_DOWN is received. Let's delay this
-                        // message and see if the ACTION_DOWN comes.
-                        previousMotionEvent?.recycle()
-                        previousMotionEvent = MotionEvent.obtainNoHistory(event)
-                        hoverExitReceived = true
-                        post(sendHoverExitEvent)
-                        return false
-                    } else if (event.buttonState != 0) {
-                        // We know that this is caused by a button press, so we can ignore it
+                    if (event.getToolType(0) == TOOL_TYPE_MOUSE && event.buttonState != 0) {
+                        // We know that this is caused by a mouse button press, so we can ignore it
                         return false
                     }
+
+                    // This may be caused by a press (e.g. stylus pressed on the screen), but
+                    // we can't be sure until the ACTION_DOWN is received. Let's delay this
+                    // message and see if the ACTION_DOWN comes.
+                    previousMotionEvent?.recycle()
+                    previousMotionEvent = MotionEvent.obtainNoHistory(event)
+                    hoverExitReceived = true
+                    post(sendHoverExitEvent)
+                    return false
                 }
             }
 
@@ -2230,13 +2240,20 @@ private object AndroidComposeViewStartDragAndDropN {
 /**
  * A Class that provides access [View.OnDragListener] APIs for a [DragAndDropNode].
  */
-private class DragAndDropModifierOnDragListener : View.OnDragListener {
+private class DragAndDropModifierOnDragListener(
+    private val startDrag: (DragAndDropInfo) -> Boolean
+) : View.OnDragListener, DragAndDropManager {
 
     private val rootDragAndDropNode = DragAndDropNode { null }
-    // TODO (TJ): Move this into the Owner
+
+    /**
+     * A collection [DragAndDropModifierNode] instances that registered interested in a
+     * drag and drop session by returning true in [DragAndDropModifierNode.onDragAndDropEvent]
+     * with a [DragAndDropEventType.Started] type.
+     */
     private val interestedNodes = ArraySet<DragAndDropModifierNode>()
 
-    val modifier: Modifier = object : ModifierNodeElement<DragAndDropNode>() {
+    override val modifier: Modifier = object : ModifierNodeElement<DragAndDropNode>() {
         override fun create() = rootDragAndDropNode
 
         override fun update(node: DragAndDropNode) = Unit
@@ -2256,7 +2273,6 @@ private class DragAndDropModifierOnDragListener : View.OnDragListener {
     ): Boolean = rootDragAndDropNode.onDragAndDropEvent(
         event = DragAndDropEvent(
             dragEvent = event,
-            interestedNodes = interestedNodes
         ),
         type = when (event.action) {
             DragEvent.ACTION_DRAG_STARTED -> DragAndDropEventType.Started
@@ -2276,4 +2292,14 @@ private class DragAndDropModifierOnDragListener : View.OnDragListener {
             else -> DragAndDropEventType.Unknown
         }
     )
+
+    override fun drag(dragAndDropInfo: DragAndDropInfo): Boolean = startDrag(dragAndDropInfo)
+
+    override fun registerNodeInterest(node: DragAndDropModifierNode) {
+        interestedNodes.add(node)
+    }
+
+    override fun isInterestedNode(node: DragAndDropModifierNode): Boolean {
+        return interestedNodes.contains(node)
+    }
 }

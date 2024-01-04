@@ -1095,8 +1095,8 @@ public final class Recorder implements VideoOutput {
         DynamicRange dynamicRange = surfaceRequest.getDynamicRange();
         VideoCapabilities capabilities = getVideoCapabilities(
                 surfaceRequest.getCamera().getCameraInfo());
-        Quality highestSupportedQuality = capabilities.findHighestSupportedQualityFor(surfaceSize,
-                dynamicRange);
+        Quality highestSupportedQuality = capabilities.findNearestHigherSupportedQualityFor(
+                surfaceSize, dynamicRange);
         Logger.d(TAG, "Using supported quality of " + highestSupportedQuality
                 + " for surface size " + surfaceSize);
         if (highestSupportedQuality != Quality.NONE) {

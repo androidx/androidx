@@ -235,22 +235,16 @@ internal class CallCompat(
         try {
             withTimeout(CapabilityExchangeUtils.CAPABILITY_NEGOTIATION_COROUTINE_TIMEOUT) {
                 // Wait for VOIP app to return its supported capabilities.
-                if (capExchange.negotiatedCapabilitiesLatch.await(
+                if (capExchange.beingExchangeLatch.await(
                         CapabilityExchangeUtils.CAPABILITY_EXCHANGE_TIMEOUT,
                         TimeUnit.MILLISECONDS)) {
-                    // Respond back to the VOIP app with the InCallService's supported
-                    // capabilities (stub empty capabilities until implementation is supported).
-                    capExchange.capabilityExchangeListener
-                        .onCapabilitiesNegotiated(mSupportedCapabilities)
-                    // Ensure that feature setup is signaled from VOIP app side.
-                    if (capExchange.featureSetUpCompleteLatch.await(
-                            CapabilityExchangeUtils.CAPABILITY_EXCHANGE_TIMEOUT,
-                            TimeUnit.MILLISECONDS)) {
-                        Log.i(
-                            TAG, "initiateICSCapabilityExchange: " +
+                    // Todo: Start syncing capabilities and wait for ACKs on VOIP side. Only then
+                    //  can we say that negotiation has been successful.
+
+                    // Todo: negotiationAckStatus should be set based on the results of syncing.
+                    Log.i(TAG, "initiateICSCapabilityExchange: " +
                             "Completed capability exchange feature set up.")
-                        negotiationAckStatus = true
-                    }
+                    negotiationAckStatus = true
                 }
 
                 // Report negotiation acknowledgement failure, if it occurred.

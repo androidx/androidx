@@ -58,34 +58,34 @@ class MultiParagraphIntegrationTextDirectionTest {
     }
 
     @Test
-    fun nullTextDirection_withLtrLocale_resolvesToLtr() {
+    fun unspecifiedTextDirection_withLtrLocale_resolvesToLtr() {
         Locale.setDefault(ltrLocale)
 
         val paragraph = multiParagraph(
             text = AnnotatedString(""),
-            textDirection = null
+            textDirection = TextDirection.Unspecified
         )
 
         assertThat(paragraph.getParagraphDirection(0)).isEqualTo(ResolvedTextDirection.Ltr)
     }
 
     @Test
-    fun nullTextDirection_withRtlLocale_resolvesToRtl() {
+    fun unspecifiedTextDirection_withRtlLocale_resolvesToRtl() {
         Locale.setDefault(rtlLocale)
 
         val paragraph = multiParagraph(
             text = AnnotatedString(""),
-            textDirection = null
+            textDirection = TextDirection.Unspecified
         )
 
         assertThat(paragraph.getParagraphDirection(0)).isEqualTo(ResolvedTextDirection.Rtl)
     }
 
     @Test
-    fun nullTextDirection_withLtrLocaleList_resolvesToLtr() {
+    fun unspecifiedTextDirection_withLtrLocaleList_resolvesToLtr() {
         val paragraph = multiParagraph(
             text = AnnotatedString(""),
-            textDirection = null,
+            textDirection = TextDirection.Unspecified,
             localeList = ltrLocaleList
         )
 
@@ -93,10 +93,10 @@ class MultiParagraphIntegrationTextDirectionTest {
     }
 
     @Test
-    fun nullTextDirection_withRtlLocaleList_resolvesToRtl() {
+    fun unspecifiedTextDirection_withRtlLocaleList_resolvesToRtl() {
         val paragraph = multiParagraph(
             text = AnnotatedString(""),
-            textDirection = null,
+            textDirection = TextDirection.Unspecified,
             localeList = rtlLocaleList
         )
 
@@ -272,7 +272,7 @@ class MultiParagraphIntegrationTextDirectionTest {
     private fun multiParagraph(
         text: AnnotatedString,
         localeList: LocaleList? = null,
-        textDirection: TextDirection? = null,
+        textDirection: TextDirection = TextDirection.Unspecified,
         fontSize: TextUnit = TextUnit.Unspecified,
         width: Float = Float.MAX_VALUE
     ): MultiParagraph {

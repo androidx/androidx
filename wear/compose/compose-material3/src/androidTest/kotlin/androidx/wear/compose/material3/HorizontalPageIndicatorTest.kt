@@ -38,11 +38,12 @@ class HorizontalPageIndicatorTest {
     @Test
     public fun supports_testtag_circular() {
         rule.setContentWithTheme {
-            HorizontalPageIndicator(
-                modifier = Modifier.testTag(TEST_TAG),
-                pageIndicatorState = pageIndicatorState(),
-                indicatorStyle = PageIndicatorStyle.Curved
-            )
+            ConfiguredShapeScreen(isRound = true) {
+                HorizontalPageIndicator(
+                    modifier = Modifier.testTag(TEST_TAG),
+                    pageIndicatorState = pageIndicatorState()
+                )
+            }
         }
         rule.onNodeWithTag(TEST_TAG).assertExists()
     }
@@ -50,47 +51,49 @@ class HorizontalPageIndicatorTest {
     @Test
     public fun supports_testtag_linear() {
         rule.setContentWithTheme {
-            HorizontalPageIndicator(
-                modifier = Modifier.testTag(TEST_TAG),
-                pageIndicatorState = pageIndicatorState(),
-                indicatorStyle = PageIndicatorStyle.Linear
-            )
+            ConfiguredShapeScreen(isRound = false) {
+                HorizontalPageIndicator(
+                    modifier = Modifier.testTag(TEST_TAG),
+                    pageIndicatorState = pageIndicatorState()
+                )
+            }
         }
         rule.onNodeWithTag(TEST_TAG).assertExists()
     }
 
     @Test
     public fun position_is_selected_circular() {
-        position_is_selected(PageIndicatorStyle.Curved)
+        position_is_selected(isRound = true)
     }
 
     @Test
     public fun position_is_selected_linear() {
-        position_is_selected(PageIndicatorStyle.Linear)
+        position_is_selected(isRound = false)
     }
 
     @Test
     public fun in_between_positions_circular() {
-        in_between_positions(PageIndicatorStyle.Curved)
+        in_between_positions(isRound = true)
     }
 
     @Test
     public fun in_between_positions_linear() {
-        in_between_positions(PageIndicatorStyle.Linear)
+        in_between_positions(isRound = false)
     }
 
-    private fun position_is_selected(indicatorStyle: PageIndicatorStyle) {
+    private fun position_is_selected(isRound: Boolean) {
         rule.setContentWithTheme {
-            HorizontalPageIndicator(
-                modifier = Modifier
-                    .testTag(TEST_TAG)
-                    .size(150.dp),
-                indicatorStyle = indicatorStyle,
-                pageIndicatorState = pageIndicatorState(),
-                selectedColor = selectedColor,
-                unselectedColor = unselectedColor,
-                indicatorSize = 20.dp
-            )
+            ConfiguredShapeScreen(isRound) {
+                HorizontalPageIndicator(
+                    modifier = Modifier
+                        .testTag(TEST_TAG)
+                        .size(150.dp),
+                    pageIndicatorState = pageIndicatorState(),
+                    selectedColor = selectedColor,
+                    unselectedColor = unselectedColor,
+                    indicatorSize = 20.dp
+                )
+            }
         }
         rule.waitForIdle()
 
@@ -104,19 +107,20 @@ class HorizontalPageIndicatorTest {
             .assertColorInPercentageRange(unselectedColor, 3.8f..4.5f)
     }
 
-    private fun in_between_positions(indicatorStyle: PageIndicatorStyle) {
+    private fun in_between_positions(isRound: Boolean) {
         rule.setContentWithTheme {
-            HorizontalPageIndicator(
-                modifier = Modifier
-                    .testTag(TEST_TAG)
-                    .size(150.dp)
-                    .fillMaxWidth(),
-                pageIndicatorState = pageIndicatorState(pageOffset = 0.5f),
-                indicatorStyle = indicatorStyle,
-                selectedColor = selectedColor,
-                unselectedColor = unselectedColor,
-                indicatorSize = 20.dp
-            )
+            ConfiguredShapeScreen(isRound) {
+                HorizontalPageIndicator(
+                    modifier = Modifier
+                        .testTag(TEST_TAG)
+                        .size(150.dp)
+                        .fillMaxWidth(),
+                    pageIndicatorState = pageIndicatorState(pageOffset = 0.5f),
+                    selectedColor = selectedColor,
+                    unselectedColor = unselectedColor,
+                    indicatorSize = 20.dp
+                )
+            }
         }
         rule.waitForIdle()
 

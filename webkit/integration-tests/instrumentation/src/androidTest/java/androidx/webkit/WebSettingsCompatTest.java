@@ -162,4 +162,36 @@ public class WebSettingsCompatTest {
             Assert.assertEquals(TEST_APK_NAME, headerValue);
         }
     }
+
+    @Test
+    public void testAttributionRegistrationBehaviorChange() throws Throwable {
+        WebkitUtils.checkFeature(WebViewFeature.ATTRIBUTION_REGISTRATION_BEHAVIOR);
+        WebSettings settings = mWebViewOnUiThread.getSettings();
+
+        Assert.assertEquals("App Source and Web Trigger is the expected default",
+                WebSettingsCompat.ATTRIBUTION_BEHAVIOR_APP_SOURCE_AND_WEB_TRIGGER,
+                WebSettingsCompat.getAttributionRegistrationBehavior(settings));
+
+        WebSettingsCompat.setAttributionRegistrationBehavior(settings,
+                WebSettingsCompat.ATTRIBUTION_BEHAVIOR_DISABLED);
+        Assert.assertEquals(WebSettingsCompat.ATTRIBUTION_BEHAVIOR_DISABLED,
+                WebSettingsCompat.getAttributionRegistrationBehavior(settings));
+
+        WebSettingsCompat.setAttributionRegistrationBehavior(settings,
+                WebSettingsCompat.ATTRIBUTION_BEHAVIOR_APP_SOURCE_AND_WEB_TRIGGER);
+        Assert.assertEquals(WebSettingsCompat.ATTRIBUTION_BEHAVIOR_APP_SOURCE_AND_WEB_TRIGGER,
+                WebSettingsCompat.getAttributionRegistrationBehavior(settings));
+
+        WebSettingsCompat.setAttributionRegistrationBehavior(settings,
+                WebSettingsCompat.ATTRIBUTION_BEHAVIOR_WEB_SOURCE_AND_WEB_TRIGGER);
+        Assert.assertEquals(WebSettingsCompat.ATTRIBUTION_BEHAVIOR_WEB_SOURCE_AND_WEB_TRIGGER,
+                WebSettingsCompat.getAttributionRegistrationBehavior(settings));
+
+        WebSettingsCompat.setAttributionRegistrationBehavior(settings,
+                WebSettingsCompat.ATTRIBUTION_BEHAVIOR_APP_SOURCE_AND_APP_TRIGGER);
+        Assert.assertEquals(WebSettingsCompat.ATTRIBUTION_BEHAVIOR_APP_SOURCE_AND_APP_TRIGGER,
+                WebSettingsCompat.getAttributionRegistrationBehavior(settings));
+
+    }
+
 }

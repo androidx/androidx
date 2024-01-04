@@ -26,6 +26,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.util.TestCounter
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.launch
@@ -39,6 +40,8 @@ class PhaseOrderingTest {
     val rule = createComposeRule()
 
     @Test
+    // this test flakes regularly on API 21 where 5 does not happen, then 6 happens
+    @FlakyTest(bugId = 298694432)
     fun singlePass() {
         val counter = TestCounter()
         rule.setContent {

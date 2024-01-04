@@ -41,13 +41,19 @@ import java.util.concurrent.Executor
 class SdkApi(sdkContext: Context) : ISdkApi.Stub() {
     private var mContext: Context? = null
     private val handler = Handler(Looper.getMainLooper())
+    private lateinit var bannerAd: BannerAd
 
     init {
         mContext = sdkContext
     }
 
     override fun loadAd(isWebView: Boolean, text: String, withSlowDraw: Boolean): Bundle {
-        return BannerAd(isWebView, withSlowDraw, text).toCoreLibInfo(mContext!!)
+        bannerAd = BannerAd(isWebView, withSlowDraw, text)
+        return bannerAd.toCoreLibInfo(mContext!!)
+    }
+
+    override fun requestResize(width: Int, height: Int) {
+        bannerAd.requestResize(width, height)
     }
 
     private fun isAirplaneModeOn(): Boolean {
@@ -61,6 +67,8 @@ class SdkApi(sdkContext: Context) : ISdkApi.Stub() {
         private val text: String
     ) :
         SandboxedUiAdapter {
+        lateinit var sessionClientExecutor: Executor
+        lateinit var sessionClient: SandboxedUiAdapter.SessionClient
         override fun openSession(
             context: Context,
             windowInputToken: IBinder,
@@ -70,6 +78,8 @@ class SdkApi(sdkContext: Context) : ISdkApi.Stub() {
             clientExecutor: Executor,
             client: SandboxedUiAdapter.SessionClient,
         ) {
+            sessionClientExecutor = clientExecutor
+            sessionClient = client
             handler.post(Runnable lambda@{
                 Log.d(TAG, "Session requested")
                 lateinit var adView: View
@@ -96,6 +106,12 @@ class SdkApi(sdkContext: Context) : ISdkApi.Stub() {
                     client.onSessionOpened(BannerAdSession(adView))
                 }
             })
+        }
+
+        fun requestResize(width: Int, height: Int) {
+            sessionClientExecutor.execute {
+                sessionClient.onResizeRequested(width, height)
+            }
         }
 
         private inner class BannerAdSession(private val adView: View) : SandboxedUiAdapter.Session {

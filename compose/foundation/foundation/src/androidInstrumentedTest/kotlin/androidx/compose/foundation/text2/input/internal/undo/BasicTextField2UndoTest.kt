@@ -347,7 +347,9 @@ internal class BasicTextField2UndoTest {
     }
 
     private fun TextFieldState.assertTextAndSelection(text: String, selection: TextRange) {
-        assertThat(this.text.toString()).isEqualTo(text)
-        assertThat(this.text.selectionInChars).isEqualTo(selection)
+        rule.runOnIdle {
+            assertThat(this.text.toString()).isEqualTo(text)
+            assertThat(this.text.selectionInChars).isEqualTo(selection)
+        }
     }
 }

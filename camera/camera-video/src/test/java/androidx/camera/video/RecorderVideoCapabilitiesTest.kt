@@ -212,78 +212,83 @@ class RecorderVideoCapabilitiesTest {
     }
 
     @Test
-    fun findHighestSupportedQuality_returnsHigherQuality() {
+    fun findNearestHigherSupportedQuality_returnsHigherQuality() {
         // Create a size between 720p and 2160p
         val (width720p, height720p) = RESOLUTION_720P
         val inBetweenSize = Size(width720p + 10, height720p)
 
-        assertThat(videoCapabilities.findHighestSupportedQualityFor(inBetweenSize, SDR))
+        assertThat(videoCapabilities.findNearestHigherSupportedQualityFor(inBetweenSize, SDR))
             .isEqualTo(UHD)
     }
 
     @Test
-    fun findHighestSupportedQuality_returnsHighestQuality_whenAboveHighest() {
+    fun findNearestHigherSupportedQuality_returnsHighestQuality_whenAboveHighest() {
         // Create a size between greater than the max quality (UHD)
         val (width2160p, height2160p) = RESOLUTION_2160P
         val aboveHighestSize = Size(width2160p + 10, height2160p)
 
-        assertThat(videoCapabilities.findHighestSupportedQualityFor(aboveHighestSize, SDR))
+        assertThat(videoCapabilities.findNearestHigherSupportedQualityFor(aboveHighestSize, SDR))
             .isEqualTo(UHD)
     }
 
     @Test
-    fun findHighestSupportedQuality_returnsLowestQuality_whenBelowLowest() {
+    fun findNearestHigherSupportedQuality_returnsLowestQuality_whenBelowLowest() {
         // Create a size below the lowest quality (HD)
         val (width720p, height720p) = RESOLUTION_720P
         val belowLowestSize = Size(width720p - 10, height720p)
 
-        assertThat(videoCapabilities.findHighestSupportedQualityFor(belowLowestSize, SDR))
+        assertThat(videoCapabilities.findNearestHigherSupportedQualityFor(belowLowestSize, SDR))
             .isEqualTo(HD)
     }
 
     @Test
-    fun findHighestSupportedQuality_returnsExactQuality_whenExactSizeGiven() {
+    fun findNearestHigherSupportedQuality_returnsExactQuality_whenExactSizeGiven() {
         val exactSize720p = RESOLUTION_720P
 
-        assertThat(videoCapabilities.findHighestSupportedQualityFor(exactSize720p, SDR))
-            .isEqualTo(HD)
+        assertThat(
+            videoCapabilities.findNearestHigherSupportedQualityFor(exactSize720p, SDR)
+        ).isEqualTo(HD)
     }
 
     @Test
-    fun findHighestSupportedEncoderProfilesFor_returnsHigherProfile() {
+    fun findNearestHigherSupportedEncoderProfilesFor_returnsHigherProfile() {
         // Create a size between 720p and 2160p
         val (width720p, height720p) = RESOLUTION_720P
         val inBetweenSize = Size(width720p + 10, height720p)
 
-        assertThat(videoCapabilities.findHighestSupportedEncoderProfilesFor(inBetweenSize, SDR))
-            .isEqualTo(validatedProfiles2160p)
+        assertThat(
+            videoCapabilities.findNearestHigherSupportedEncoderProfilesFor(inBetweenSize, SDR)
+        ).isEqualTo(validatedProfiles2160p)
     }
 
     @Test
-    fun findHighestSupportedEncoderProfilesFor_returnsHighestProfile_whenAboveHighest() {
+    fun findNearestHigherSupportedEncoderProfilesFor_returnsHighestProfile_whenAboveHighest() {
         // Create a size between greater than the max quality (UHD)
         val (width2160p, height2160p) = RESOLUTION_2160P
         val aboveHighestSize = Size(width2160p + 10, height2160p)
 
-        assertThat(videoCapabilities.findHighestSupportedEncoderProfilesFor(aboveHighestSize, SDR))
-            .isEqualTo(validatedProfiles2160p)
+        assertThat(
+            videoCapabilities.findNearestHigherSupportedEncoderProfilesFor(aboveHighestSize, SDR)
+        ).isEqualTo(validatedProfiles2160p)
     }
 
     @Test
-    fun findHighestSupportedEncoderProfilesFor_returnsLowestProfile_whenBelowLowest() {
+    fun findNearestHigherSupportedEncoderProfilesFor_returnsLowestProfile_whenBelowLowest() {
         // Create a size below the lowest quality (HD)
         val (width720p, height720p) = RESOLUTION_720P
         val belowLowestSize = Size(width720p - 10, height720p)
 
-        assertThat(videoCapabilities.findHighestSupportedEncoderProfilesFor(belowLowestSize, SDR))
-            .isEqualTo(validatedProfiles720p)
+        assertThat(
+            videoCapabilities.findNearestHigherSupportedEncoderProfilesFor(belowLowestSize, SDR)
+        ).isEqualTo(validatedProfiles720p)
     }
 
     @Test
-    fun findHighestSupportedEncoderProfilesFor_returnsExactProfile_whenExactSizeGiven() {
+    fun findNearestHigherSupportedEncoderProfilesFor_returnsExactProfile_whenExactSizeGiven() {
         val exactSize720p = RESOLUTION_720P
 
-        assertThat(videoCapabilities.findHighestSupportedEncoderProfilesFor(exactSize720p, SDR))
-            .isEqualTo(validatedProfiles720p)
+        assertThat(
+            videoCapabilities.findNearestHigherSupportedEncoderProfilesFor(exactSize720p, SDR)
+        ).isEqualTo(validatedProfiles720p)
     }
 }

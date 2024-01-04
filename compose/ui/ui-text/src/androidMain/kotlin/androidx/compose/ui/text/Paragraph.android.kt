@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.text
 
+import androidx.annotation.IntRange
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.BlendMode
@@ -56,7 +57,11 @@ actual sealed interface Paragraph {
     actual fun getLineForVerticalPosition(vertical: Float): Int
     actual fun getOffsetForPosition(position: Offset): Int
     actual fun getBoundingBox(offset: Int): Rect
-    actual fun fillBoundingBoxes(range: TextRange, array: FloatArray, arrayStart: Int)
+    actual fun fillBoundingBoxes(
+        range: TextRange,
+        array: FloatArray,
+        @IntRange(from = 0) arrayStart: Int
+    )
     actual fun getWordBoundary(offset: Int): TextRange
     actual fun paint(canvas: Canvas, color: Color, shadow: Shadow?, textDecoration: TextDecoration?)
     actual fun paint(

@@ -28,6 +28,7 @@ dependencies {
 
     implementation(projectOrArtifact(":annotation:annotation"))
     implementation(projectOrArtifact(":core:core"))
+    implementation(projectOrArtifact(":media:media"))
     samples(project(":core:haptics:haptics-samples"))
 
     androidTestImplementation(libs.testCore)

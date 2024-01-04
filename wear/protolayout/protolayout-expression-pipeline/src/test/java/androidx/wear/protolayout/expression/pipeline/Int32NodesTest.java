@@ -46,9 +46,11 @@ import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataVa
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableFixedInt32;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DurationPartType;
 import androidx.wear.protolayout.expression.proto.DynamicProto.GetDurationPartOp;
+import androidx.wear.protolayout.expression.proto.DynamicProto.GetZonedDateTimePartOp;
 import androidx.wear.protolayout.expression.proto.DynamicProto.PlatformInt32Source;
 import androidx.wear.protolayout.expression.proto.DynamicProto.PlatformInt32SourceType;
 import androidx.wear.protolayout.expression.proto.DynamicProto.StateInt32Source;
+import androidx.wear.protolayout.expression.proto.DynamicProto.ZonedDateTimePartType;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedInt32;
 
 import com.google.common.collect.ImmutableMap;
@@ -64,19 +66,19 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
 import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 public class Int32NodesTest {
-    @Rule
-    public final MockitoRule mockito = MockitoJUnit.rule();
+    @Rule public final MockitoRule mockito = MockitoJUnit.rule();
 
-    @Mock
-    private DynamicTypeValueReceiverWithPreUpdate<Integer> mMockValueReceiver;
-    @Mock
-    private PlatformDataProvider mMockDataProvider;
+    @Mock private DynamicTypeValueReceiverWithPreUpdate<Integer> mMockValueReceiver;
+    @Mock private PlatformDataProvider mMockDataProvider;
 
     private static final AppDataKey<DynamicInt32> KEY_FOO = new AppDataKey<>("foo");
 
@@ -100,36 +102,36 @@ public class Int32NodesTest {
         Duration duration = Duration.ofSeconds(123456);
 
         assertThat(
-                createGetDurationPartOpNodeAndGetPart(
-                        duration, DurationPartType.DURATION_PART_TYPE_DAYS))
+                        createGetDurationPartOpNodeAndGetPart(
+                                duration, DurationPartType.DURATION_PART_TYPE_DAYS))
                 .isEqualTo(1);
         assertThat(
-                createGetDurationPartOpNodeAndGetPart(
-                        duration, DurationPartType.DURATION_PART_TYPE_HOURS))
+                        createGetDurationPartOpNodeAndGetPart(
+                                duration, DurationPartType.DURATION_PART_TYPE_HOURS))
                 .isEqualTo(10);
         assertThat(
-                createGetDurationPartOpNodeAndGetPart(
-                        duration, DurationPartType.DURATION_PART_TYPE_MINUTES))
+                        createGetDurationPartOpNodeAndGetPart(
+                                duration, DurationPartType.DURATION_PART_TYPE_MINUTES))
                 .isEqualTo(17);
         assertThat(
-                createGetDurationPartOpNodeAndGetPart(
-                        duration, DurationPartType.DURATION_PART_TYPE_SECONDS))
+                        createGetDurationPartOpNodeAndGetPart(
+                                duration, DurationPartType.DURATION_PART_TYPE_SECONDS))
                 .isEqualTo(36);
         assertThat(
-                createGetDurationPartOpNodeAndGetPart(
-                        duration, DurationPartType.DURATION_PART_TYPE_TOTAL_DAYS))
+                        createGetDurationPartOpNodeAndGetPart(
+                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_DAYS))
                 .isEqualTo(1);
         assertThat(
-                createGetDurationPartOpNodeAndGetPart(
-                        duration, DurationPartType.DURATION_PART_TYPE_TOTAL_HOURS))
+                        createGetDurationPartOpNodeAndGetPart(
+                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_HOURS))
                 .isEqualTo(34);
         assertThat(
-                createGetDurationPartOpNodeAndGetPart(
-                        duration, DurationPartType.DURATION_PART_TYPE_TOTAL_MINUTES))
+                        createGetDurationPartOpNodeAndGetPart(
+                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_MINUTES))
                 .isEqualTo(2057);
         assertThat(
-                createGetDurationPartOpNodeAndGetPart(
-                        duration, DurationPartType.DURATION_PART_TYPE_TOTAL_SECONDS))
+                        createGetDurationPartOpNodeAndGetPart(
+                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_SECONDS))
                 .isEqualTo(123456);
     }
 
@@ -140,36 +142,36 @@ public class Int32NodesTest {
         Duration duration = Duration.ofSeconds(-123456);
 
         assertThat(
-                createGetDurationPartOpNodeAndGetPart(
-                        duration, DurationPartType.DURATION_PART_TYPE_DAYS))
+                        createGetDurationPartOpNodeAndGetPart(
+                                duration, DurationPartType.DURATION_PART_TYPE_DAYS))
                 .isEqualTo(1);
         assertThat(
-                createGetDurationPartOpNodeAndGetPart(
-                        duration, DurationPartType.DURATION_PART_TYPE_HOURS))
+                        createGetDurationPartOpNodeAndGetPart(
+                                duration, DurationPartType.DURATION_PART_TYPE_HOURS))
                 .isEqualTo(10);
         assertThat(
-                createGetDurationPartOpNodeAndGetPart(
-                        duration, DurationPartType.DURATION_PART_TYPE_MINUTES))
+                        createGetDurationPartOpNodeAndGetPart(
+                                duration, DurationPartType.DURATION_PART_TYPE_MINUTES))
                 .isEqualTo(17);
         assertThat(
-                createGetDurationPartOpNodeAndGetPart(
-                        duration, DurationPartType.DURATION_PART_TYPE_SECONDS))
+                        createGetDurationPartOpNodeAndGetPart(
+                                duration, DurationPartType.DURATION_PART_TYPE_SECONDS))
                 .isEqualTo(36);
         assertThat(
-                createGetDurationPartOpNodeAndGetPart(
-                        duration, DurationPartType.DURATION_PART_TYPE_TOTAL_DAYS))
+                        createGetDurationPartOpNodeAndGetPart(
+                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_DAYS))
                 .isEqualTo(-1);
         assertThat(
-                createGetDurationPartOpNodeAndGetPart(
-                        duration, DurationPartType.DURATION_PART_TYPE_TOTAL_HOURS))
+                        createGetDurationPartOpNodeAndGetPart(
+                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_HOURS))
                 .isEqualTo(-34);
         assertThat(
-                createGetDurationPartOpNodeAndGetPart(
-                        duration, DurationPartType.DURATION_PART_TYPE_TOTAL_MINUTES))
+                        createGetDurationPartOpNodeAndGetPart(
+                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_MINUTES))
                 .isEqualTo(-2057);
         assertThat(
-                createGetDurationPartOpNodeAndGetPart(
-                        duration, DurationPartType.DURATION_PART_TYPE_TOTAL_SECONDS))
+                        createGetDurationPartOpNodeAndGetPart(
+                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_SECONDS))
                 .isEqualTo(-123456);
     }
 
@@ -180,6 +182,17 @@ public class Int32NodesTest {
                         GetDurationPartOp.newBuilder().setDurationPart(part).build(),
                         new AddToListCallback<>(results));
         node.getIncomingCallback().onData(duration);
+        return results.get(0);
+    }
+
+    private int createGetZonedDateTimeOpNodeAndGetPart(
+            ZonedDateTime zdt, ZonedDateTimePartType partType) {
+        List<Integer> results = new ArrayList<>();
+        Int32Nodes.GetZonedDateTimePartOpNode node =
+                new Int32Nodes.GetZonedDateTimePartOpNode(
+                        GetZonedDateTimePartOp.newBuilder().setPartType(partType).build(),
+                        new AddToListCallback<>(results));
+        node.getIncomingCallback().onData(zdt);
         return results.get(0);
     }
 
@@ -236,10 +249,10 @@ public class Int32NodesTest {
 
     @Test
     public void stateInt32Source_canSubscribeToDailyStepsUpdates() {
-        PlatformDataStore platformDataStore = new PlatformDataStore(
-                Collections.singletonMap(
-                        PlatformHealthSources.Keys.DAILY_STEPS,
-                        mMockDataProvider));
+        PlatformDataStore platformDataStore =
+                new PlatformDataStore(
+                        Collections.singletonMap(
+                                PlatformHealthSources.Keys.DAILY_STEPS, mMockDataProvider));
         StateInt32Source dailyStepsSource =
                 StateInt32Source.newBuilder()
                         .setSourceKey(PlatformHealthSources.Keys.DAILY_STEPS.getKey())
@@ -248,9 +261,7 @@ public class Int32NodesTest {
         List<Integer> results = new ArrayList<>();
         StateInt32SourceNode dailyStepsSourceNode =
                 new StateInt32SourceNode(
-                        platformDataStore,
-                        dailyStepsSource,
-                        new AddToListCallback<>(results));
+                        platformDataStore, dailyStepsSource, new AddToListCallback<>(results));
 
         dailyStepsSourceNode.preInit();
         dailyStepsSourceNode.init();
@@ -407,10 +418,10 @@ public class Int32NodesTest {
 
     @Test
     public void platformInt32Source_canSubscribeToHeartRateUpdates() {
-        PlatformDataStore platformDataStore = new PlatformDataStore(
-                Collections.singletonMap(
-                        PlatformHealthSources.Keys.HEART_RATE_BPM,
-                        mMockDataProvider));
+        PlatformDataStore platformDataStore =
+                new PlatformDataStore(
+                        Collections.singletonMap(
+                                PlatformHealthSources.Keys.HEART_RATE_BPM, mMockDataProvider));
         PlatformInt32Source platformSource =
                 PlatformInt32Source.newBuilder()
                         .setSourceType(
@@ -420,9 +431,7 @@ public class Int32NodesTest {
         List<Integer> results = new ArrayList<>();
         LegacyPlatformInt32SourceNode platformSourceNode =
                 new LegacyPlatformInt32SourceNode(
-                        platformDataStore,
-                        platformSource,
-                        new AddToListCallback<>(results));
+                        platformDataStore, platformSource, new AddToListCallback<>(results));
 
         platformSourceNode.preInit();
         platformSourceNode.init();
@@ -448,22 +457,19 @@ public class Int32NodesTest {
 
     @Test
     public void platformInt32Source_canSubscribeToDailyStepsUpdates() {
-        PlatformDataStore platformDataStore = new PlatformDataStore(
-                Collections.singletonMap(
-                        PlatformHealthSources.Keys.DAILY_STEPS,
-                        mMockDataProvider));
+        PlatformDataStore platformDataStore =
+                new PlatformDataStore(
+                        Collections.singletonMap(
+                                PlatformHealthSources.Keys.DAILY_STEPS, mMockDataProvider));
         PlatformInt32Source platformSource =
                 PlatformInt32Source.newBuilder()
                         .setSourceType(
-                                PlatformInt32SourceType
-                                        .PLATFORM_INT32_SOURCE_TYPE_DAILY_STEP_COUNT)
+                                PlatformInt32SourceType.PLATFORM_INT32_SOURCE_TYPE_DAILY_STEP_COUNT)
                         .build();
         List<Integer> results = new ArrayList<>();
         LegacyPlatformInt32SourceNode platformSourceNode =
                 new LegacyPlatformInt32SourceNode(
-                        platformDataStore,
-                        platformSource,
-                        new AddToListCallback<>(results));
+                        platformDataStore, platformSource, new AddToListCallback<>(results));
 
         platformSourceNode.preInit();
         platformSourceNode.init();
@@ -489,10 +495,10 @@ public class Int32NodesTest {
 
     @Test
     public void platformInt32Source_propagatesInvalidatedSignal() {
-        PlatformDataStore platformDataStore = new PlatformDataStore(
-                Collections.singletonMap(
-                        PlatformHealthSources.Keys.HEART_RATE_BPM,
-                        mMockDataProvider));
+        PlatformDataStore platformDataStore =
+                new PlatformDataStore(
+                        Collections.singletonMap(
+                                PlatformHealthSources.Keys.HEART_RATE_BPM, mMockDataProvider));
         PlatformInt32Source platformSource =
                 PlatformInt32Source.newBuilder()
                         .setSourceType(
@@ -501,9 +507,7 @@ public class Int32NodesTest {
                         .build();
         LegacyPlatformInt32SourceNode platformSourceNode =
                 new LegacyPlatformInt32SourceNode(
-                        platformDataStore,
-                        platformSource,
-                        mMockValueReceiver);
+                        platformDataStore, platformSource, mMockValueReceiver);
 
         platformSourceNode.preInit();
         verify(mMockValueReceiver).onPreUpdate();
@@ -517,5 +521,52 @@ public class Int32NodesTest {
         receiver.onInvalidated(ImmutableSet.of(HEART_RATE_BPM));
 
         verify(mMockValueReceiver).onInvalidated();
+    }
+
+    @Test
+    public void testGetZonedDateTimePartOpNode() {
+
+        // Thursday November 29, 1973 19:40:00 (pm) in time zone Europe/London (GMT)
+        // Friday November 30, 1973 01:10:00 (am) in time zone Asia/Kathmandu (+0530)
+        ZonedDateTime zonedDateTime =
+                ZonedDateTime.ofInstant(
+                        Instant.ofEpochSecond(123450000L), ZoneId.of("Asia/Katmandu"));
+
+        assertThat(
+                        createGetZonedDateTimeOpNodeAndGetPart(
+                                zonedDateTime, ZonedDateTimePartType.ZONED_DATE_TIME_PART_YEAR))
+                .isEqualTo(1973);
+
+        assertThat(
+                        createGetZonedDateTimeOpNodeAndGetPart(
+                                zonedDateTime, ZonedDateTimePartType.ZONED_DATE_TIME_PART_MONTH))
+                .isEqualTo(11);
+
+        assertThat(
+                        createGetZonedDateTimeOpNodeAndGetPart(
+                                zonedDateTime,
+                                ZonedDateTimePartType.ZONED_DATE_TIME_PART_DAY_OF_MONTH))
+                .isEqualTo(30);
+
+        assertThat(
+                        createGetZonedDateTimeOpNodeAndGetPart(
+                                zonedDateTime,
+                                ZonedDateTimePartType.ZONED_DATE_TIME_PART_DAY_OF_WEEK))
+                .isEqualTo(5);
+
+        assertThat(
+                        createGetZonedDateTimeOpNodeAndGetPart(
+                                zonedDateTime, ZonedDateTimePartType.ZONED_DATE_TIME_PART_HOUR_24H))
+                .isEqualTo(1);
+
+        assertThat(
+                        createGetZonedDateTimeOpNodeAndGetPart(
+                                zonedDateTime, ZonedDateTimePartType.ZONED_DATE_TIME_PART_MINUTE))
+                .isEqualTo(10);
+
+        assertThat(
+                        createGetZonedDateTimeOpNodeAndGetPart(
+                                zonedDateTime, ZonedDateTimePartType.ZONED_DATE_TIME_PART_SECOND))
+                .isEqualTo(0);
     }
 }

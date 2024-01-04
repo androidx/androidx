@@ -21,6 +21,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
+import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.wear.watchface.BroadcastsReceiver.BroadcastEventObserver
@@ -72,6 +73,8 @@ constructor(private val context: Context, private val observer: BroadcastEventOb
     }
 
     companion object {
+        internal const val TAG = "BroadcastsReceiver"
+
         // The threshold used to judge whether the battery is low during initialization.  Ideally
         // we would use the threshold for Intent.ACTION_BATTERY_LOW but it's not documented or
         // available programmatically. The value below is the default but it could be overridden
@@ -156,6 +159,10 @@ constructor(private val context: Context, private val observer: BroadcastEventOb
     }
 
     public fun onDestroy() {
-        context.unregisterReceiver(receiver)
+        try {
+            context.unregisterReceiver(receiver)
+        } catch (e: Exception) {
+            Log.e(TAG, "Exception occurred in BroadcastsReceiver.onDestroy", e)
+        }
     }
 }

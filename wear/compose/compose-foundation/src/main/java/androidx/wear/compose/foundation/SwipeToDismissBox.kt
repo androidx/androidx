@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.foundation
 
+import android.os.Build
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.TweenSpec
@@ -26,6 +27,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.systemGestureExclusion
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
@@ -122,6 +124,13 @@ fun SwipeToDismissBox(
     Box(
         modifier = modifier
             .fillMaxSize()
+            .then(
+                if (userSwipeEnabled && Build.VERSION.SDK_INT > Build.VERSION_CODES.TIRAMISU) {
+                    Modifier.systemGestureExclusion()
+                } else {
+                    Modifier
+                }
+            )
             .swipeableV2(
                 state = state.swipeableState,
                 orientation = Orientation.Horizontal,

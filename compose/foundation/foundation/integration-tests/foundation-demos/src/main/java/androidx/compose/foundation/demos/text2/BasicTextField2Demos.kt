@@ -47,7 +47,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.toUpperCase
@@ -110,9 +109,6 @@ fun BasicTextField2ValueCallbackDemo() {
         TagLine("Simple string-only")
         SimpleValueCallbackDemo()
 
-        TagLine("Simple TextFieldValue")
-        SimpleTextFieldValueCallbackDemo()
-
         TagLine("Callback changes to caps")
         CapitalizeValueCallbackDemo()
     }
@@ -124,16 +120,6 @@ private fun SimpleValueCallbackDemo() {
     BasicTextField2(
         value = text,
         onValueChange = { text = it },
-        modifier = demoTextFieldModifiers
-    )
-}
-
-@Composable
-private fun SimpleTextFieldValueCallbackDemo() {
-    var value by remember { mutableStateOf(TextFieldValue()) }
-    BasicTextField2(
-        value = value,
-        onValueChange = { value = it },
         modifier = demoTextFieldModifiers
     )
 }

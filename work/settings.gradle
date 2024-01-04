@@ -29,8 +29,6 @@ playground {
     selectProjectsFromAndroidX({ name ->
         if (name == ":work:work-inspection") return false
         if (name.startsWith(":work")) return true
-        if (name.startsWith(":internal-testutils-runtime")) return true
         return false
     })
-    includeProject(":inspection:inspection-gradle-plugin", "inspection/inspection-gradle-plugin")
 }

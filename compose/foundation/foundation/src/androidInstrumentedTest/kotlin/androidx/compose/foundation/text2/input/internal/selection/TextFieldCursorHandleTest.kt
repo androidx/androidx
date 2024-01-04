@@ -19,6 +19,7 @@ package androidx.compose.foundation.text2.input.internal.selection
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.selection.assertHandlePositionMatches
@@ -28,10 +29,13 @@ import androidx.compose.foundation.text2.input.TextFieldLineLimits
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.click
@@ -62,7 +66,7 @@ import org.junit.Test
 
 @OptIn(ExperimentalFoundationApi::class)
 @LargeTest
-class TextFieldCursorHandleTest {
+class TextFieldCursorHandleTest : FocusedWindowTest {
 
     @get:Rule
     val rule = createComposeRule()
@@ -78,7 +82,7 @@ class TextFieldCursorHandleTest {
     @Test
     fun cursorHandle_showsAtCorrectLocation_ltr() = with(rule.density) {
         state = TextFieldState("hello")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state,
                 textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
@@ -103,7 +107,7 @@ class TextFieldCursorHandleTest {
     @Test
     fun tapTextField_cursorHandleFiltered() = with(rule.density) {
         state = TextFieldState("hello")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state,
                 textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
@@ -126,7 +130,7 @@ class TextFieldCursorHandleTest {
     @Test
     fun cursorHandle_showsAtCorrectLocation_outOfTextBoundsTouch_ltr() = with(rule.density) {
         state = TextFieldState("hello")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state,
                 textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
@@ -155,7 +159,7 @@ class TextFieldCursorHandleTest {
     @Test
     fun cursorHandle_showsAtCorrectLocation_rtl() {
         state = TextFieldState("\u05D0\u05D1\u05D2\u05D3\u05D4")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 BasicTextField2(
                     state,
@@ -184,7 +188,7 @@ class TextFieldCursorHandleTest {
     @Test
     fun cursorHandle_showsAtCorrectLocation_outOfTextBoundsTouch_rtl() = with(rule.density) {
         state = TextFieldState("hello")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state,
                 textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
@@ -211,7 +215,7 @@ class TextFieldCursorHandleTest {
     @Test
     fun cursorHandle_notVisibleOnEmptyField() {
         state = TextFieldState()
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state,
                 textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
@@ -228,7 +232,7 @@ class TextFieldCursorHandleTest {
     @Test
     fun cursorHandle_doesNotShow_whenTextFieldIsReadOnly() {
         state = TextFieldState("hello")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state,
                 textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
@@ -246,7 +250,7 @@ class TextFieldCursorHandleTest {
     @Test
     fun cursorHandle_disappears_whenTextIsEdited() {
         state = TextFieldState("hello")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state,
                 textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
@@ -266,7 +270,7 @@ class TextFieldCursorHandleTest {
     @Test
     fun cursorHandle_disappears_whenTextStateChanges() {
         state = TextFieldState("hello")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state,
                 textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
@@ -286,7 +290,7 @@ class TextFieldCursorHandleTest {
     @Test
     fun cursorHandle_doesNotDisappear_whenSelectionChanges() {
         state = TextFieldState("hello")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state,
                 textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
@@ -308,9 +312,38 @@ class TextFieldCursorHandleTest {
     }
 
     @Test
+    fun cursorHandle_disappears_whenWindowLosesFocus() {
+        state = TextFieldState("hello")
+        val focusWindow = mutableStateOf(true)
+        val windowInfo = object : WindowInfo {
+            override val isWindowFocused: Boolean
+                get() = focusWindow.value
+        }
+        rule.setContent {
+            CompositionLocalProvider(LocalWindowInfo provides windowInfo) {
+                BasicTextField2(
+                    state,
+                    textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
+                    modifier = Modifier.testTag(TAG)
+                )
+            }
+        }
+
+        focusAndWait()
+
+        rule.onNodeWithTag(TAG).performClick()
+        rule.onNode(isSelectionHandle(Handle.Cursor)).assertIsDisplayed()
+
+        focusWindow.value = false
+        rule.waitForIdle()
+
+        rule.onNode(isSelectionHandle(Handle.Cursor)).assertDoesNotExist()
+    }
+
+    @Test
     fun cursorHandle_coercesAtBoundaries_ltr() = with(rule.density) {
         state = TextFieldState("hello")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state,
                 textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
@@ -341,7 +374,7 @@ class TextFieldCursorHandleTest {
     @Test
     fun cursorHandle_coercesAtBoundaries_rtl() = with(rule.density) {
         state = TextFieldState("\u05D0\u05D1\u05D2\u05D3\u05D4")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 BasicTextField2(
                     state,
@@ -376,7 +409,7 @@ class TextFieldCursorHandleTest {
         state = TextFieldState("hello hello hello hello", initialSelectionInChars = TextRange.Zero)
         val scrollState = ScrollState(0)
         lateinit var scope: CoroutineScope
-        rule.setContent {
+        rule.setTextFieldTestContent {
             scope = rememberCoroutineScope()
             BasicTextField2(
                 state,
@@ -407,7 +440,7 @@ class TextFieldCursorHandleTest {
         state = TextFieldState("hello hello hello hello", initialSelectionInChars = TextRange.Zero)
         val scrollState = ScrollState(0)
         lateinit var scope: CoroutineScope
-        rule.setContent {
+        rule.setTextFieldTestContent {
             scope = rememberCoroutineScope()
             BasicTextField2(
                 state,
@@ -437,7 +470,7 @@ class TextFieldCursorHandleTest {
     fun cursorHandle_reappearsOnVerticalScroll() {
         state = TextFieldState("hello hello hello hello", initialSelectionInChars = TextRange.Zero)
         val scrollState = ScrollState(0)
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state,
                 textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
@@ -472,7 +505,7 @@ class TextFieldCursorHandleTest {
     fun cursorHandle_reappearsOnHorizontalScroll() {
         state = TextFieldState("hello hello hello hello", initialSelectionInChars = TextRange.Zero)
         val scrollState = ScrollState(0)
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state,
                 textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
@@ -502,7 +535,7 @@ class TextFieldCursorHandleTest {
     @Test
     fun cursorHandleDrag_getsFiltered() {
         state = TextFieldState("abc abc")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state,
                 textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
@@ -530,7 +563,7 @@ class TextFieldCursorHandleTest {
     @Test
     fun moveCursorHandleToRight_ltr() {
         state = TextFieldState("abc")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state,
                 textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
@@ -554,7 +587,7 @@ class TextFieldCursorHandleTest {
     @Test
     fun moveCursorHandleToLeft_ltr() {
         state = TextFieldState("abc")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state,
                 textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
@@ -579,7 +612,7 @@ class TextFieldCursorHandleTest {
     @Test
     fun moveCursorHandleToRight_ltr_outOfBounds() {
         state = TextFieldState("abc")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state,
                 textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
@@ -603,7 +636,7 @@ class TextFieldCursorHandleTest {
     @Test
     fun moveCursorHandleToLeft_ltr_outOfBounds() {
         state = TextFieldState("abc")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state,
                 textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
@@ -627,7 +660,7 @@ class TextFieldCursorHandleTest {
     @Test
     fun moveCursorHandleToRight_ltr_outOfBounds_scrollable_continuesDrag() {
         state = TextFieldState("abcd abcd abcd abcd abcd")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state,
                 textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
@@ -655,7 +688,7 @@ class TextFieldCursorHandleTest {
     @Test
     fun moveCursorHandleToRight_rtl() {
         state = TextFieldState("\u05D0\u05D1\u05D2")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 BasicTextField2(
                     state,
@@ -681,7 +714,7 @@ class TextFieldCursorHandleTest {
     @Test
     fun moveCursorHandleToLeft_rtl() {
         state = TextFieldState("\u05D0\u05D1\u05D2")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 BasicTextField2(
                     state,
@@ -707,7 +740,7 @@ class TextFieldCursorHandleTest {
     @Test
     fun moveCursorHandleToRight_rtl_outOfBounds() {
         state = TextFieldState("\u05D0\u05D1\u05D2")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 BasicTextField2(
                     state,
@@ -733,7 +766,7 @@ class TextFieldCursorHandleTest {
     @Test
     fun moveCursorHandleToLeft_rtl_outOfBounds() {
         state = TextFieldState("\u05D0\u05D1\u05D2")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 BasicTextField2(
                     state,
@@ -764,7 +797,7 @@ class TextFieldCursorHandleTest {
                 "\u05D0\u05D1\u05D2\u05D3 " +
                 "\u05D0\u05D1\u05D2\u05D3"
         )
-        rule.setContent {
+        rule.setTextFieldTestContent {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 BasicTextField2(
                     state,

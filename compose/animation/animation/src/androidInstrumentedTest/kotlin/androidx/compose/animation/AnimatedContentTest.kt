@@ -115,9 +115,9 @@ class AnimatedContentTest {
                                 SizeTransform { initialSize, targetSize ->
                                     keyframes {
                                         durationMillis = 320
-                                        IntSize(targetSize.width, initialSize.height) at 160 with
+                                        IntSize(targetSize.width, initialSize.height) at 160 using
                                             LinearEasing
-                                        targetSize at 320 with LinearEasing
+                                        targetSize at 320 using LinearEasing
                                     }
                                 }
                         } else {
@@ -809,8 +809,8 @@ class AnimatedContentTest {
                         } using SizeTransform { initialSize, targetSize ->
                             keyframes {
                                 durationMillis = 300
-                                initialSize at 100 with LinearEasing
-                                targetSize at 200 with LinearEasing
+                                initialSize at 100 using LinearEasing
+                                targetSize at 200 using LinearEasing
                             }
                         }
                     }) {

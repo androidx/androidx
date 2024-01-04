@@ -17,6 +17,7 @@
 package androidx.bluetooth
 
 import android.bluetooth.BluetoothGattCharacteristic as FwkCharacteristic
+import android.bluetooth.BluetoothGattDescriptor as FwkDescriptor
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import java.util.UUID
@@ -104,6 +105,11 @@ class GattCharacteristic internal constructor(
 
     constructor(uuid: UUID, properties: @Property Int) :
         this(FwkCharacteristic(uuid, properties, getPermissionsWithProperties(properties))) {
+        if (isSubscribable) {
+            val cccDescriptor = FwkDescriptor(GattCommon.UUID_CCCD,
+                FwkDescriptor.PERMISSION_READ or FwkDescriptor.PERMISSION_WRITE)
+            fwkCharacteristic.addDescriptor(cccDescriptor)
+        }
     }
 
     /**
@@ -117,6 +123,9 @@ class GattCharacteristic internal constructor(
      */
     val properties: @Property Int
         get() = fwkCharacteristic.properties
+
+    internal val isSubscribable: Boolean
+        get() = (properties and (PROPERTY_NOTIFY or PROPERTY_INDICATE)) != 0
 
     /**
      * The permissions for the characteristic.

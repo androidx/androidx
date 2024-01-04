@@ -41,6 +41,7 @@ dependencies {
 
     androidTestImplementation(libs.mockitoCore4, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(libs.dexmakerMockitoInline, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.dexmakerMockitoInlineExtended)
 }
 
 android {

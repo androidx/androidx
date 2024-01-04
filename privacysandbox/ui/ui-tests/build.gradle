@@ -46,6 +46,7 @@ android {
     namespace "androidx.privacysandbox.ui.tests"
     defaultConfig {
         multiDexEnabled true
+        minSdk 21
     }
 }
 

@@ -25,10 +25,6 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.RequiresExtension
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.marginBottom
-import androidx.core.view.marginLeft
-import androidx.core.view.marginRight
-import androidx.core.view.marginTop
 import androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
@@ -48,9 +44,10 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var mSandboxedSdkView1: SandboxedSdkView
     private lateinit var mSandboxedSdkView2: SandboxedSdkView
-    private lateinit var mSandboxedSdkView3: SandboxedSdkView
+    private lateinit var resizableSandboxedSdkView: SandboxedSdkView
     private lateinit var mNewAdButton: Button
     private lateinit var mResizeButton: Button
+    private lateinit var mResizeSdkButton: Button
 
     // TODO(b/257429573): Remove this line once fixed.
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
@@ -95,35 +92,45 @@ class MainActivity : AppCompatActivity() {
             sdkApi.loadAd(/*isWebView=*/ false, /*text=*/ "Hey!", /*withSlowDraw*/ false)
         ))
 
-        mSandboxedSdkView3 = findViewById(R.id.new_ad_view)
-        mSandboxedSdkView3.addStateChangedListener(StateChangeListener(mSandboxedSdkView3))
+        resizableSandboxedSdkView = findViewById(R.id.new_ad_view)
+        resizableSandboxedSdkView.addStateChangedListener(
+            StateChangeListener(resizableSandboxedSdkView))
 
         mNewAdButton = findViewById(R.id.new_ad_button)
 
-        mSandboxedSdkView3.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
+        resizableSandboxedSdkView.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
             sdkApi.loadAd(/*isWebView=*/ false, /*text=*/ "Resize view",
                 /*withSlowDraw*/ true)))
 
         var count = 1
         mNewAdButton.setOnClickListener {
-            mSandboxedSdkView3.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
+            resizableSandboxedSdkView.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
                 sdkApi.loadAd(/*isWebView=*/ false, /*text=*/ "Ad #$count",
                     /*withSlowDraw*/ true)))
             count++
         }
 
+        val maxWidthPixels = 1000
+        val maxHeightPixels = 1000
+        val newSize = { currentSize: Int, maxSize: Int ->
+            (currentSize + (100..200).random()) % maxSize
+        }
+
         mResizeButton = findViewById(R.id.resize_button)
-        val sizeIncrementPixels = 150
         mResizeButton.setOnClickListener {
-            var newHeight = (mSandboxedSdkView3.height + sizeIncrementPixels) % 1000
-            var newWidth = (mSandboxedSdkView3.width + sizeIncrementPixels) % 1000
-            val marginLeft = mSandboxedSdkView3.marginLeft
-            val marginRight = mSandboxedSdkView3.marginRight
-            val marginTop = mSandboxedSdkView3.marginTop
-            val marginBottom = mSandboxedSdkView3.marginBottom
-            val layoutParams = LinearLayout.LayoutParams(newHeight, newWidth)
-            layoutParams.setMargins(marginLeft, marginTop, marginRight, marginBottom)
-            mSandboxedSdkView3.layoutParams = layoutParams
+            val newWidth = newSize(resizableSandboxedSdkView.width, maxWidthPixels)
+            val newHeight = newSize(resizableSandboxedSdkView.height, maxHeightPixels)
+            resizableSandboxedSdkView.layoutParams = resizableSandboxedSdkView.layoutParams.apply {
+                width = newWidth
+                height = newHeight
+            }
+        }
+
+        mResizeSdkButton = findViewById(R.id.resize_sdk_button)
+        mResizeSdkButton.setOnClickListener {
+            val newWidth = newSize(resizableSandboxedSdkView.width, maxWidthPixels)
+            val newHeight = newSize(resizableSandboxedSdkView.height, maxHeightPixels)
+            sdkApi.requestResize(newWidth, newHeight)
         }
     }
 

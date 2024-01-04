@@ -19,6 +19,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.ColorSpace
+import android.graphics.Paint
 import android.hardware.HardwareBuffer
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -35,6 +36,7 @@ import androidx.test.filters.SmallTest
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.math.roundToInt
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -47,7 +49,7 @@ import org.junit.runner.RunWith
 class SingleBufferedCanvasRendererV29Test {
 
     companion object {
-        const val TEST_WIDTH = 20
+        const val TEST_WIDTH = 40
         const val TEST_HEIGHT = 20
     }
 
@@ -387,6 +389,81 @@ class SingleBufferedCanvasRendererV29Test {
             }
             assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
             assertEquals(3, renderCount.get())
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testVisiblePreservesContents() {
+        rendererVisibilityTestHelper(true, Color.RED, Color.BLUE)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testInvisibleClearsContents() {
+        rendererVisibilityTestHelper(false, 0, Color.BLUE)
+    }
+    @RequiresApi(Build.VERSION_CODES.Q)
+    fun rendererVisibilityTestHelper(visible: Boolean, leftColor: Int, rightColor: Int) {
+        val transformer = BufferTransformer().apply {
+            computeTransform(TEST_WIDTH, TEST_HEIGHT, BUFFER_TRANSFORM_IDENTITY)
+        }
+        val executor = HandlerThreadExecutor("thread")
+        val renderLatch = CountDownLatch(2) // wait for 2 renders
+        var buffer: HardwareBuffer? = null
+        val renderer = SingleBufferedCanvasRendererV29(
+            TEST_WIDTH,
+            TEST_HEIGHT,
+            transformer,
+            executor,
+            object : SingleBufferedCanvasRenderer.RenderCallbacks<Int> {
+
+                val paint = Paint()
+
+                override fun render(canvas: Canvas, width: Int, height: Int, param: Int) {
+                    paint.color = param
+                    if (param == Color.RED) {
+                        canvas.drawRect(0f, 0f, width / 2f, height.toFloat(), paint)
+                    } else {
+                        canvas.drawRect(width / 2f, 0f, width.toFloat(), height.toFloat(), paint)
+                    }
+                }
+
+                override fun onBufferReady(
+                    hardwareBuffer: HardwareBuffer,
+                    syncFenceCompat: SyncFenceCompat?
+                ) {
+                    syncFenceCompat?.awaitForever()
+                    buffer = hardwareBuffer
+                    renderLatch.countDown()
+                }
+            }).apply {
+                isVisible = visible
+            }
+        try {
+            renderer.render(Color.RED)
+            renderer.render(Color.BLUE)
+            assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
+            assertNotNull(buffer)
+
+            val copy = Bitmap.wrapHardwareBuffer(buffer!!, renderer.colorSpace)!!
+                .copy(Bitmap.Config.ARGB_8888, false)
+
+            assertEquals(
+                leftColor,
+                copy.getPixel(copy.width / 4, copy.height / 2)
+            )
+            assertEquals(
+                rightColor,
+                copy.getPixel((copy.width * 3f / 4f).roundToInt(), copy.height / 2)
+            )
+        } finally {
+            val latch = CountDownLatch(1)
+            renderer.release(false) {
+                executor.quit()
+                latch.countDown()
+            }
+            assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
         }
     }
 

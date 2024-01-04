@@ -16,6 +16,7 @@
 
 package androidx.graphics.shapes
 
+import androidx.collection.FloatFloatPair
 import kotlin.math.sqrt
 
 /**
@@ -269,56 +270,47 @@ interface MutablePoint {
     var y: Float
 }
 
+typealias TransformResult = FloatFloatPair
+
 /**
- * Interface for a function that can transform (rotate/scale/translate/etc.) points
+ * Interface for a function that can transform (rotate/scale/translate/etc.) points.
  */
 fun interface PointTransformer {
     /**
-     * Transform the given [MutablePoint] in place.
+     * Transform the point given the x and y parameters, returning the transformed point as a
+     * [TransformResult]
      */
-    fun MutablePoint.transform()
+    fun transform(x: Float, y: Float): TransformResult
 }
 
 /**
  * This is a Mutable version of [Cubic], used mostly for performance critical paths so we can
  * avoid creating new [Cubic]s
  *
- * This is used in Morph.asMutableCubics, reusing a [MutableCubic] instance to avoid creating
+ * This is used in Morph.forEachCubic, reusing a [MutableCubic] instance to avoid creating
  * new [Cubic]s.
  */
-class MutableCubic internal constructor() : Cubic() {
-    internal val anchor0 = ArrayMutablePoint(points, 0)
-    internal val control0 = ArrayMutablePoint(points, 2)
-    internal val control1 = ArrayMutablePoint(points, 4)
-    internal val anchor1 = ArrayMutablePoint(points, 6)
+class MutableCubic : Cubic() {
+    private fun transformOnePoint(f: PointTransformer, ix: Int) {
+        val result = f.transform(points[ix], points[ix + 1])
+        points[ix] = result.first
+        points[ix + 1] = result.second
+    }
 
     fun transform(f: PointTransformer) {
-        with(f) {
-            anchor0.transform()
-            control0.transform()
-            control1.transform()
-            anchor1.transform()
+        transformOnePoint(f, 0)
+        transformOnePoint(f, 2)
+        transformOnePoint(f, 4)
+        transformOnePoint(f, 6)
+    }
+
+    fun interpolate(c1: Cubic, c2: Cubic, progress: Float) {
+        repeat(8) {
+            points[it] = interpolate(
+                c1.points[it],
+                c2.points[it],
+                progress
+            )
         }
     }
-}
-
-/**
- * Implementation of [MutablePoint] backed by a [FloatArray], at a given position.
- * Note that the same [FloatArray] can be used to back many [ArrayMutablePoint],
- * see [MutableCubic]
- */
-internal class ArrayMutablePoint(internal val arr: FloatArray, internal val ix: Int) :
-    MutablePoint {
-    init { require(arr.size >= ix + 2) }
-
-    override var x: Float
-        get() = arr[ix]
-        set(v) {
-            arr[ix] = v
-        }
-    override var y: Float
-        get() = arr[ix + 1]
-        set(v) {
-            arr[ix + 1] = v
-        }
 }

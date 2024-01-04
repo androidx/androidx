@@ -28,8 +28,7 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * Information about how and why an isolate has terminated.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public class TerminationInfo {
+public final class TerminationInfo {
     /**
      * Termination status code for an isolate.
      */
@@ -74,7 +73,7 @@ public class TerminationInfo {
      * <p>
      * New status codes may be added with new JavaScriptEngine versions.
      *
-     * @return status code of the termination.
+     * @return the status code of the termination
      */
     @Status
     public int getStatus() {
@@ -85,7 +84,7 @@ public class TerminationInfo {
      * Describe the status code of the termination.
      * These strings are not stable between JavaScriptEngine versions.
      *
-     * @return description of status code of the termination.
+     * @return a description of the status code of the termination
      */
     @NonNull
     public String getStatusString() {
@@ -105,7 +104,7 @@ public class TerminationInfo {
      * Get the message associated with this termination.
      * The content or format of these messages is not stable between JavaScriptEngine versions.
      *
-     * @return Human-readable message about the termination.
+     * @return a human-readable message about the termination
      */
     @NonNull
     public String getMessage() {
@@ -116,7 +115,7 @@ public class TerminationInfo {
      * Describe the termination.
      * The content or format of this description is not stable between JavaScriptEngine versions.
      *
-     * @return Human-readable description of the termination.
+     * @return a human-readable description of the termination
      */
     @NonNull
     @Override

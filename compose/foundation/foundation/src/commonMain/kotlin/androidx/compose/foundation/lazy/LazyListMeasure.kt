@@ -26,7 +26,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
-import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
@@ -393,13 +392,6 @@ private fun createItemsAfterList(
         list.add(measuredItemProvider.getAndMeasure(i))
     }
 
-    pinnedItems.fastForEach { index ->
-        if (index > end) {
-            if (list == null) list = mutableListOf()
-            list?.add(measuredItemProvider.getAndMeasure(index))
-        }
-    }
-
     if (isLookingAhead) {
         // Check if there's any item that needs to be composed based on last postLookaheadLayoutInfo
         if (lastPostLookaheadLayoutInfo != null &&
@@ -420,9 +412,10 @@ private fun createItemsAfterList(
             val lastVisibleItem = lastPostLookaheadLayoutInfo.visibleItemsInfo.last()
             if (firstItem != null) {
                 for (i in firstItem.index..lastVisibleItem.index) {
-                    if (list?.fastAny { it.index == i } != null) {
+                    // Only add to the list items that are _not_ already in the list.
+                    if (list?.fastFirstOrNull { it.index == i } == null) {
                         if (list == null) list = mutableListOf()
-                        list?.add(measuredItemProvider.getAndMeasure(i))
+                        list.add(measuredItemProvider.getAndMeasure(i))
                     }
                 }
             }
@@ -445,12 +438,25 @@ private fun createItemsAfterList(
                         totalOffset += item.sizeWithSpacings
                     } else {
                         if (list == null) list = mutableListOf()
-                        list?.add(measuredItemProvider.getAndMeasure(index))
+                        list.add(measuredItemProvider.getAndMeasure(index))
                         index++
-                        totalOffset += list!!.last().sizeWithSpacings
+                        totalOffset += list.last().sizeWithSpacings
                     }
                 }
             }
+        }
+    }
+
+    // The list contains monotonically increasing indices.
+    list?.let {
+        if (it.last().index > end) {
+            end = it.last().index
+        }
+    }
+    pinnedItems.fastForEach { index ->
+        if (index > end) {
+            if (list == null) list = mutableListOf()
+            list?.add(measuredItemProvider.getAndMeasure(index))
         }
     }
 

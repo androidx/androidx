@@ -33,6 +33,7 @@ import androidx.compose.runtime.snapshots.StateRecord
 import androidx.compose.runtime.snapshots.withCurrent
 import androidx.compose.runtime.snapshots.writable
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextLayoutInput
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -158,8 +159,6 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
                 cachedRecord.visualText?.contentEquals(visualText) == true &&
                 cachedRecord.singleLine == nonMeasureInputs.singleLine &&
                 cachedRecord.softWrap == nonMeasureInputs.softWrap &&
-                cachedRecord.textStyle
-                    ?.hasSameLayoutAffectingAttributes(nonMeasureInputs.textStyle) == true &&
                 cachedRecord.layoutDirection == measureInputs.layoutDirection &&
                 cachedRecord.densityValue == measureInputs.density.density &&
                 cachedRecord.fontScale == measureInputs.density.fontScale &&
@@ -167,7 +166,26 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
                 cachedRecord.fontFamilyResolver == measureInputs.fontFamilyResolver
             ) {
                 // Fast path: None of the inputs changed.
-                return cachedResult
+                if (cachedRecord.textStyle == nonMeasureInputs.textStyle) return cachedResult
+                // Slightly slower than fast path: Layout did not change but TextLayoutInput did
+                if (cachedRecord.textStyle
+                        ?.hasSameDrawAffectingAttributes(nonMeasureInputs.textStyle) == true
+                ) {
+                    return cachedResult.copy(
+                        layoutInput = TextLayoutInput(
+                            cachedResult.layoutInput.text,
+                            nonMeasureInputs.textStyle,
+                            cachedResult.layoutInput.placeholders,
+                            cachedResult.layoutInput.maxLines,
+                            cachedResult.layoutInput.softWrap,
+                            cachedResult.layoutInput.overflow,
+                            cachedResult.layoutInput.density,
+                            cachedResult.layoutInput.layoutDirection,
+                            cachedResult.layoutInput.fontFamilyResolver,
+                            cachedResult.layoutInput.constraints
+                        )
+                    )
+                }
             }
 
             // Slow path: Some input changed, need to re-layout.
@@ -339,7 +357,7 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
                         // invalidating if the TextFieldState is a different instance but with the same
                         // text, but that is unlikely to happen.
                         a.textFieldState === b.textFieldState &&
-                            a.textStyle.hasSameLayoutAffectingAttributes(b.textStyle) &&
+                            a.textStyle == b.textStyle &&
                             a.singleLine == b.singleLine &&
                             a.softWrap == b.softWrap
                     } else {

@@ -106,7 +106,8 @@ public class WebViewCompatTest {
         WebkitUtils.checkFeature(WebViewFeature.VISUAL_STATE_CALLBACK);
         try {
             WebViewCompat.postVisualStateCallback(
-                    mWebViewOnUiThread.getWebViewOnCurrentThread(), 5, requestId -> {});
+                    mWebViewOnUiThread.getWebViewOnCurrentThread(), 5, requestId -> {
+                    });
         } catch (RuntimeException e) {
             return;
         }
@@ -371,6 +372,7 @@ public class WebViewCompatTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
     public void testSetNullWebViewClient() throws Exception {
         WebkitUtils.checkFeature(WebViewFeature.GET_WEB_VIEW_CLIENT);
+        WebkitUtils.checkFeature(WebViewFeature.WEB_MESSAGE_LISTENER);
         // Silence the inspection that complains that we are passing null to a @NonNull method.
         //noinspection DataFlowIssue
         mWebViewOnUiThread.setWebViewClient(null);
@@ -410,9 +412,9 @@ public class WebViewCompatTest {
 
 
     /**
-     *  ApiHelper class to ensure that the CompletableFuture is not classloaded on API < N.
+     * ApiHelper class to ensure that the CompletableFuture is not classloaded on API < N.
      *
-     *  @noinspection NewClassNamingConvention
+     * @noinspection NewClassNamingConvention
      */
     @RequiresApi(Build.VERSION_CODES.N)
     private static class ApiHelperForN {

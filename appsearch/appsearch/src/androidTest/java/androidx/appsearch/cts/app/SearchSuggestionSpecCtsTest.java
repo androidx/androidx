@@ -17,6 +17,7 @@
 package androidx.appsearch.cts.app;
 
 import static com.google.common.truth.Truth.assertThat;
+
 import static org.junit.Assert.assertThrows;
 
 import androidx.appsearch.app.SearchSuggestionSpec;
@@ -25,7 +26,6 @@ import com.google.common.collect.ImmutableList;
 
 import org.junit.Test;
 
-/*@exportToFramework:SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)*/
 public class SearchSuggestionSpecCtsTest {
     @Test
     public void testBuildDefaultSearchSuggestionSpec() throws Exception {
