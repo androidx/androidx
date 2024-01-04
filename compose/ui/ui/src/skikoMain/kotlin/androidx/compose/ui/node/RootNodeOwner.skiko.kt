@@ -23,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
+import androidx.compose.ui.draganddrop.DragAndDropInfo
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.focus.FocusOwnerImpl
@@ -244,6 +245,11 @@ internal class RootNodeOwner(
             session: suspend PlatformTextInputSessionScope.() -> Nothing
         ): Nothing {
             awaitCancellation()
+        }
+
+        // TODO https://youtrack.jetbrains.com/issue/COMPOSE-743/Implement-commonMain-Dragdrop-developed-in-AOSP
+        override fun drag(dragAndDropInfo: DragAndDropInfo): Boolean {
+            TODO("Drag&drop isn't implemented")
         }
 
         override val pointerIconService = PointerIconServiceImpl()
