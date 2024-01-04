@@ -50,6 +50,10 @@ git checkout --no-overlay HEAD --ours -- './compose/*/desktopMain/*' || true
 git checkout --no-overlay HEAD --ours -- './compose/*/skikoTest/*' || true
 git checkout --no-overlay HEAD --ours -- './compose/*/desktopTest/*' || true
 git checkout --no-overlay HEAD --ours -- './compose/desktop/*' || true
+# some files are small, and git can thin that some other file was renamed, and we can have conflicts with AOSP
+git checkout --no-overlay HEAD --ours -- './compose/mpp/demo/*' || true
+git checkout --no-overlay HEAD --theirs -- './busytown/*' || true
+git checkout --no-overlay HEAD --theirs -- './buildSrc-tests/*' || true
 git checkout --no-overlay HEAD --theirs -- './*/api/*.txt' || true
 git checkout --no-overlay HEAD --theirs -- './*/api/*.ignore' || true
 git checkout --no-overlay HEAD --theirs -- './compose/material/material/icons/generator/api/**.txt' || true
