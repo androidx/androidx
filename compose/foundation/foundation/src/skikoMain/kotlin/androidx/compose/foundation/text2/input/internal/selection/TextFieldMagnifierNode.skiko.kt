@@ -16,24 +16,22 @@
 
 package androidx.compose.foundation.text2.input.internal.selection
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.internal.TextLayoutState
+import androidx.compose.foundation.text2.input.internal.TransformedTextFieldState
 
 /**
  * Initializes either an actual TextFieldMagnifierNode implementation or No-op node according to
  * whether magnifier is supported.
  */
-@OptIn(ExperimentalFoundationApi::class)
 internal actual fun textFieldMagnifierNode(
-    textFieldState: TextFieldState,
+    textFieldState: TransformedTextFieldState,
     textFieldSelectionState: TextFieldSelectionState,
     textLayoutState: TextLayoutState,
     isFocused: Boolean
 ): TextFieldMagnifierNode {
     return object : TextFieldMagnifierNode() {
         override fun update(
-            textFieldState: TextFieldState,
+            textFieldState: TransformedTextFieldState,
             textFieldSelectionState: TextFieldSelectionState,
             textLayoutState: TextLayoutState,
             isFocused: Boolean

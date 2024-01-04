@@ -28,9 +28,8 @@ import kotlinx.coroutines.awaitCancellation
 
 // TODO(https://youtrack.jetbrains.com/issue/COMPOSE-733/Merge-1.6.-Apply-changes-for-the-new-text-input) implement
 internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
-    state: TextFieldState,
+    state: TransformedTextFieldState,
     imeOptions: ImeOptions,
-    filter: InputTransformation?,
     onImeAction: ((ImeAction) -> Unit)?
 ): Nothing {
     awaitCancellation()
