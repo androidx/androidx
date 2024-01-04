@@ -212,7 +212,7 @@ class SeekableTransitionState<S>(
      * transition, the [Transition.totalDurationNanos] will change, so the same [fraction] value
      * will snap to a different position in the transition.
      */
-    suspend fun snapToFraction(@FloatRange(0.0, 1.0) fraction: Float) {
+    suspend fun snapToFraction(@FloatRange(from = 0.0, to = 1.0) fraction: Float) {
         require(fraction in 0f..1f) {
             "Expecting fraction between 0 and 1. Got $fraction"
         }
