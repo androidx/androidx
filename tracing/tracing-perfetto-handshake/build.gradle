@@ -44,4 +44,5 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2022"
     description = "AndroidX Tracing: Perfetto Handshake"
+    metalavaK2UastEnabled = true
 }
