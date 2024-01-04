@@ -102,7 +102,7 @@ fun ExposedDropdownMenuBox(
     val coordinates = remember { Ref<LayoutCoordinates>() }
 
     val scope = remember(density, menuHeight, width) {
-        object : ExposedDropdownMenuBoxScope {
+        object : ExposedDropdownMenuBoxScope() {
             override fun Modifier.exposedDropdownSize(matchTextFieldWidth: Boolean): Modifier {
                 return with(density) {
                     heightIn(max = menuHeight.toDp()).let {
@@ -193,12 +193,11 @@ private class OnGlobalLayoutListener(
     }
 }
 
-@JvmDefaultWithCompatibility
 /**
  * Scope for [ExposedDropdownMenuBox].
  */
 @ExperimentalMaterialApi
-interface ExposedDropdownMenuBoxScope {
+abstract class ExposedDropdownMenuBoxScope {
     /**
      * Modifier which should be applied to an [ExposedDropdownMenu]
      * placed inside the scope. It's responsible for
@@ -214,7 +213,7 @@ interface ExposedDropdownMenuBoxScope {
      * If set to true the width will match the width
      * of the text field.
      */
-    fun Modifier.exposedDropdownSize(
+    abstract fun Modifier.exposedDropdownSize(
         matchTextFieldWidth: Boolean = true
     ): Modifier
 
