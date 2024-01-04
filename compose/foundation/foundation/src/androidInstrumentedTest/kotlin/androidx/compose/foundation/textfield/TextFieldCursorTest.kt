@@ -111,7 +111,7 @@ class TextFieldCursorTest : FocusedWindowTest {
     // default onTextLayout to capture cursor boundaries.
     private val onTextLayout: (TextLayoutResult) -> Unit = { cursorRect = it.getCursorRect(0) }
 
-    @Ignore("b/305799612")
+    @FlakyTest(bugId = 305799612)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun textFieldFocused_cursorRendered() = with(rule.density) {
