@@ -85,7 +85,10 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 api("androidx.annotation:annotation:1.1.0")
             }
 
-            jsNativeMain.dependsOn(commonMain)
+            jbMain.dependsOn(commonMain)
+            desktopMain.dependsOn(jbMain)
+            jsNativeMain.dependsOn(jbMain)
+            jsMain.dependsOn(jsNativeMain)
             nativeMain.dependsOn(jsNativeMain)
 
             jsMain {
