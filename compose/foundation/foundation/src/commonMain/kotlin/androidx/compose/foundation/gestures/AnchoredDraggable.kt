@@ -751,9 +751,10 @@ suspend fun <T> AnchoredDraggableState<T>.animateToWithDecay(
         if (!targetOffset.isNaN()) {
             var prev = if (offset.isNaN()) 0f else offset
             // If targetOffset is not in the same direction as the direction of the drag (sign
-            // of the velocity), velocity can't be used for decay animation. So, target animation
-            // should be used in this case.
-            if (sign(velocity) != sign(targetOffset - offset) || velocity == 0f) {
+            // of the velocity) we fall back to using target animation.
+            // If the component is at the target offset already, we use decay animation that will
+            // not consume any velocity.
+            if (velocity * (targetOffset - prev) < 0f || velocity == 0f) {
                 animateTo(velocity, this, anchors, latestTarget)
                 remainingVelocity = 0f
             } else {
