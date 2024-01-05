@@ -147,7 +147,7 @@ object FakeCameraInfoAdapterCreator {
                 useCaseCamera = fakeUseCaseCamera
             },
             fakeCameraQuirks,
-            EncoderProfilesProviderAdapter(cameraId.value),
+            EncoderProfilesProviderAdapter(cameraId.value, fakeCameraQuirks.quirks),
             fakeStreamConfigurationMap,
             CameraFovInfo(cameraDevices, cameraProperties),
         )
