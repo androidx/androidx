@@ -29,9 +29,12 @@ import androidx.build.hasBenchmarkPlugin
 import androidx.build.isPresubmitBuild
 import com.android.build.api.artifact.Artifacts
 import com.android.build.api.artifact.SingleArtifact
+import com.android.build.api.dsl.KotlinMultiplatformAndroidTarget
+import com.android.build.api.dsl.KotlinMultiplatformAndroidTestOnDeviceCompilation
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.HasAndroidTest
+import com.android.build.api.variant.KotlinMultiplatformAndroidComponentsExtension
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.api.variant.TestAndroidComponentsExtension
 import com.android.build.api.variant.Variant
@@ -461,6 +464,26 @@ fun Project.configureTestConfigGeneration(baseExtension: BaseExtension) {
                     )
                 }
             }
+        }
+    }
+}
+
+fun Project.configureTestConfigGeneration(
+    kotlinMultiplatformAndroidTarget: KotlinMultiplatformAndroidTarget,
+    componentsExtension: KotlinMultiplatformAndroidComponentsExtension
+) {
+    componentsExtension.onVariant { variant ->
+            val name = variant.androidTest?.name ?: return@onVariant
+            val artifacts = variant.androidTest?.artifacts ?: return@onVariant
+        kotlinMultiplatformAndroidTarget.compilations.withType(
+            KotlinMultiplatformAndroidTestOnDeviceCompilation::class.java
+        ) {
+            createTestConfigurationGenerationTask(
+                name,
+                artifacts,
+                kotlinMultiplatformAndroidTarget.minSdk!!,
+                it.instrumentationRunner!!
+            )
         }
     }
 }
