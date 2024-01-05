@@ -250,6 +250,17 @@ class CallsManager constructor(context: Context) {
      *     - For outgoing calls, your application should either immediately post a
      *       [android.app.Notification.CallStyle] notification or delay adding the call via this
      *       addCall method until the remote side is ready.
+     *     - addCall will NOT complete until the call session has ended. Instead, the addCall block,
+     *       which is called the [CallControlScope], will run once the call has been added. Do not
+     *       put addCall in a function expecting it to return or add logic after the addCall request
+     *       that is important for the call session.
+     *     - Each lambda function (onAnswer, onDisconnect, onSetActive, onSetInactive) will be
+     *       invoked by Telecom whenever the system needs your VoIP application to change the call
+     *       state. For example, if there is an ongoing VoIP call in your application and the
+     *       system receives a sim call, Telecom will invoke onSetInactive to place your call on
+     *       hold/inactive if the user answers the incoming sim call.  These events may not occur
+     *       during most calls but should still be implemented in the event Telecom needs to
+     *       manipulate your applications call state.
      *     - Each lambda function (onAnswer, onDisconnect, onSetActive, onSetInactive) has a
      *       timeout of 5000 milliseconds. Failing to complete the suspend fun before the timeout
      *       will result in a failed transaction.
@@ -257,10 +268,6 @@ class CallsManager constructor(context: Context) {
      *       is handled successfully on the client side. If the callback cannot be completed,
      *       an Exception should be thrown. Telecom will rethrow the Exception and tear down
      *       the call session.
-     *     - Each lambda function (onAnswer, onDisconnect, onSetActive, onSetInactive) has a
-     *       timeout of 5000 milliseconds. Failing to complete the suspend fun before the
-     *       timeout will result in a failed transaction.
-     *
      * @param callAttributes     attributes of the new call (incoming or outgoing, address, etc. )
      *
      * @param onAnswer           where callType is the audio/video state the call should be
