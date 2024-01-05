@@ -16,10 +16,8 @@
 
 package androidx.paging
 
-import androidx.kruth.assertThat
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
-import androidx.paging.PageStore.ProcessPageEventCallback
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -63,15 +61,13 @@ internal fun <T : Any> PageStore<T>.dropPages(
     minPageOffset: Int,
     maxPageOffset: Int,
     placeholdersRemaining: Int,
-    callback: ProcessPageEventCallback
 ) = processEvent(
     PageEvent.Drop(
         loadType = if (isPrepend) PREPEND else APPEND,
         minPageOffset = minPageOffset,
         maxPageOffset = maxPageOffset,
         placeholdersRemaining = placeholdersRemaining
-    ),
-    callback
+    )
 )
 
 internal fun <T : Any> PageStore<T>.asList() = List(size) { get(it) }
@@ -219,7 +215,6 @@ class PageStoreTest {
         initialNulls: Int = 0,
         newNulls: Int,
         pagesToDrop: Int,
-        events: List<PresenterEvent>
     ) {
         if (initialPages.size < 2) {
             fail("require at least 2 pages")
@@ -234,16 +229,12 @@ class PageStoreTest {
 
         assertEquals(initialPages.flatten() + List<Char?>(initialNulls) { null }, data.asList())
 
-        val callback = ProcessPageEventCallbackCapture()
         data.dropPages(
             isPrepend = false,
             minPageOffset = initialPages.lastIndex - (pagesToDrop - 1),
             maxPageOffset = initialPages.lastIndex,
             placeholdersRemaining = newNulls,
-            callback = callback
         )
-
-        assertThat(callback.getAllAndClear()).isEqualTo(events)
 
         // assert final list state
         val finalData = initialPages.subList(0, initialPages.size - pagesToDrop).flatten()
@@ -255,7 +246,6 @@ class PageStoreTest {
         initialNulls: Int = 0,
         newNulls: Int,
         pagesToDrop: Int,
-        events: List<PresenterEvent>
     ) {
         if (initialPages.size < 2) {
             fail("require at least 2 pages")
@@ -273,16 +263,12 @@ class PageStoreTest {
             data.asList()
         )
 
-        val callback = ProcessPageEventCallbackCapture()
         data.dropPages(
             isPrepend = true,
             minPageOffset = 0,
             maxPageOffset = pagesToDrop - 1,
             placeholdersRemaining = newNulls,
-            callback = callback
         )
-
-        assertThat(callback.getAllAndClear()).isEqualTo(events)
 
         // assert final list state
         val finalData = initialPages.take(initialPages.size - pagesToDrop).reversed().flatten()
@@ -294,11 +280,9 @@ class PageStoreTest {
         initialNulls: Int = 0,
         newNulls: Int,
         pagesToDrop: Int,
-        startEvents: List<PresenterEvent>,
-        endEvents: List<PresenterEvent>
     ) {
-        verifyDropStart(initialPages, initialNulls, newNulls, pagesToDrop, startEvents)
-        verifyDropEnd(initialPages, initialNulls, newNulls, pagesToDrop, endEvents)
+        verifyDropStart(initialPages, initialNulls, newNulls, pagesToDrop)
+        verifyDropEnd(initialPages, initialNulls, newNulls, pagesToDrop)
     }
 
     @Test
@@ -311,8 +295,6 @@ class PageStoreTest {
         initialNulls = 0,
         newNulls = 0,
         pagesToDrop = 2,
-        startEvents = listOf(RemoveEvent(0, 3)),
-        endEvents = listOf(RemoveEvent(2, 3))
     )
 
     @Test
@@ -325,8 +307,6 @@ class PageStoreTest {
         initialNulls = 1,
         newNulls = 4,
         pagesToDrop = 2,
-        startEvents = listOf(ChangeEvent(1, 3)),
-        endEvents = listOf(ChangeEvent(2, 3))
     )
 
     @Test
@@ -339,14 +319,6 @@ class PageStoreTest {
         initialNulls = 0,
         newNulls = 3,
         pagesToDrop = 2,
-        startEvents = listOf(
-            // [null, null, null, 'a', 'b']
-            ChangeEvent(0, 3)
-        ),
-        endEvents = listOf(
-            // ['a', 'b', null, null, null]
-            ChangeEvent(2, 3)
-        )
     )
 
     @Test
@@ -359,18 +331,6 @@ class PageStoreTest {
         initialNulls = 2,
         newNulls = 4,
         pagesToDrop = 2,
-        startEvents = listOf(
-            // [null, 'e', 'c', 'd', 'a', 'b']
-            RemoveEvent(0, 1),
-            // [null, null, null, null, 'a', 'b']
-            ChangeEvent(1, 3)
-        ),
-        endEvents = listOf(
-            // ['a', 'b', 'c', 'd', 'e', null]
-            RemoveEvent(6, 1),
-            // ['a', 'b', null, null, null, null]
-            ChangeEvent(2, 3)
-        )
     )
 
     @Test
@@ -383,18 +343,6 @@ class PageStoreTest {
         initialNulls = 0,
         newNulls = 1,
         pagesToDrop = 2,
-        startEvents = listOf(
-            // ['d', 'a', 'b']
-            RemoveEvent(0, 2),
-            // [null, 'a', 'b']
-            ChangeEvent(0, 1)
-        ),
-        endEvents = listOf(
-            // ['a', 'b', 'c']
-            RemoveEvent(3, 2),
-            // ['a', 'b', null]
-            ChangeEvent(2, 1)
-        )
     )
 
     @Test
@@ -407,18 +355,6 @@ class PageStoreTest {
         initialNulls = 3,
         newNulls = 1,
         pagesToDrop = 2,
-        startEvents = listOf(
-            // ['d', 'a', 'b']
-            RemoveEvent(0, 5),
-            // [null, 'a', 'b']
-            ChangeEvent(0, 1)
-        ),
-        endEvents = listOf(
-            // ['a', 'b', 'c']
-            RemoveEvent(3, 5),
-            // ['a', 'b', null]
-            ChangeEvent(2, 1)
-        )
     )
 
     @Test

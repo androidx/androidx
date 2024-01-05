@@ -63,12 +63,45 @@ public sealed class PagingDataEvent<T : Any> {
      *
      * @param [newList] A [NullPaddedList] that contains the metadata of the new list
      * that is presented upon this refresh event
-     *
      * @param [previousList] A [NullPaddedList] that contains the metadata of the list
      * presented prior to this refresh load event
      */
     public class Refresh<T : Any> @RestrictTo(LIBRARY_GROUP) constructor(
         val newList: NullPaddedList<T>,
         val previousList: NullPaddedList<T>,
+    ) : PagingDataEvent<T>()
+
+    /**
+     * A drop event from the front of the list
+     *
+     * @param [dropCount] A count of items dropped from loaded items
+     * @param [newPlaceholdersBefore] The count of null items leading the list of loaded data after
+     * items were dropped.
+     * @param [oldPlaceholdersBefore] The count of null items leading the list of loaded data prior
+     * to items being dropped.
+     */
+    public class DropPrepend<T : Any> @RestrictTo(LIBRARY_GROUP) constructor(
+        val dropCount: Int,
+        val newPlaceholdersBefore: Int,
+        val oldPlaceholdersBefore: Int,
+    ) : PagingDataEvent<T>()
+
+    /**
+     * A drop event from the end of the list
+     *
+     * @param [startIndex] The first index where this drop is applied. If placeholders are
+     * enabled, represents the index of the first dropped item that was replaced with a placeholder.
+     * Otherwise, it represents the index of where the first real item was dropped.
+     * @param [dropCount] A count of items dropped from loaded items
+     * @param [newPlaceholdersAfter] The count of null items trailing the list of loaded data after
+     * items were dropped.
+     * @param [oldPlaceholdersAfter] The count of null items trailing the list of loaded data prior
+     * to items being dropped.
+     */
+    public class DropAppend<T : Any> @RestrictTo(LIBRARY_GROUP) constructor(
+        val startIndex: Int,
+        val dropCount: Int,
+        val newPlaceholdersAfter: Int,
+        val oldPlaceholdersAfter: Int,
     ) : PagingDataEvent<T>()
 }
