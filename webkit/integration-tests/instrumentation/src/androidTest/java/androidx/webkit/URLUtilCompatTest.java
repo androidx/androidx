@@ -18,6 +18,7 @@ package androidx.webkit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -25,8 +26,13 @@ import androidx.test.filters.SmallTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Arrays;
+
 /**
  * Tests for {@link URLUtilCompat}.
+ *
+ * This test suite does not use "image/jpeg" as a mime type, as this can result in 2
+ * different extensions depending on the OS platform, which leads to flakes.
  */
 @SmallTest
 @RunWith(AndroidJUnit4.class)
@@ -37,7 +43,7 @@ public class URLUtilCompatTest {
         // This test mirrors the test in
         // cts/tests/tests/webkit/src/android/webkit/cts/URLUtilTest.java for completeness.
         String url = "ftp://example.url/test";
-        assertEquals("test.jpg", URLUtilCompat.guessFileName(url, null, "image/jpeg"));
+        assertEquals("test.gif", URLUtilCompat.guessFileName(url, null, "image/gif"));
         assertEquals("test.bin",
                 URLUtilCompat.guessFileName(url, null, "application/octet-stream"));
     }
@@ -45,25 +51,29 @@ public class URLUtilCompatTest {
     @Test
     public void guessFileName_extractPathSegmentFromUrl() {
         String url = "https://example.com/resources/image?size=large";
-        assertEquals("image.jpg", URLUtilCompat.guessFileName(url, null, "image/jpeg"));
+        assertEquals("image.gif", URLUtilCompat.guessFileName(url, null, "image/gif"));
     }
 
     @Test
     public void guessFileName_existingExtesionsNotReplacedIfMatchingMimeType() {
-        String url = "https://example.com/resources/image.jepg?size=large";
-        assertEquals("image.jepg", URLUtilCompat.guessFileName(url, null, "image/jpeg"));
+        String url = "https://example.com/resources/image.gif?size=large";
+        assertEquals("image.gif", URLUtilCompat.guessFileName(url, null, "image/gif"));
     }
 
     @Test
     public void guessFileName_extensionAppendedIfNotMatchingMimetype() {
         String url = "https://example.com/resources/image.png?size=large";
-        assertEquals("image.png.jpg", URLUtilCompat.guessFileName(url, null, "image/jpeg"));
+        assertEquals("image.png.gif", URLUtilCompat.guessFileName(url, null, "image/gif"));
     }
 
     @Test
     public void guessFileName_htmlExtensionForTextHtml() {
         String url = "https://example.com/index";
-        assertEquals("index.html", URLUtilCompat.guessFileName(url, null, "text/html"));
+        // On some versions of Android, the mime type is mapped to the .htm extension, while on
+        // other it is mapped to the ".html" extension.
+        // The function is correct as long as it returns one or the other.
+        assertTrue(Arrays.asList("index.html", "index.htm").contains(
+                URLUtilCompat.guessFileName(url, null, "text/html")));
     }
 
     @Test
@@ -89,8 +99,8 @@ public class URLUtilCompatTest {
     public void guessFileName_contentDispositionNameGetsAppendedMimeType() {
         String url = "https://example.com/wrong";
         String contentDisposition = "attachment; filename=Test.png";
-        assertEquals("Test.png.jpg",
-                URLUtilCompat.guessFileName(url, contentDisposition, "image/jpeg"));
+        assertEquals("Test.png.gif",
+                URLUtilCompat.guessFileName(url, contentDisposition, "image/gif"));
     }
 
     @Test
